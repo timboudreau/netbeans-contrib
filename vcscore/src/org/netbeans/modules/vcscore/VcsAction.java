@@ -19,6 +19,7 @@ import java.awt.event.ActionListener;
 
 import org.openide.*;
 import org.openide.awt.JMenuPlus;
+import org.openide.awt.JInlineMenu;
 import org.openide.util.actions.*;
 import org.openide.util.HelpCtx;
 import org.openide.filesystems.*;
@@ -45,32 +46,21 @@ public class VcsAction extends NodeAction implements ActionListener {
     protected VcsFileSystem fileSystem = null;
     protected Collection selectedFileObjects = null;
     
-    private int actionCommandSubtree; // the command subtree to construct actions from
-
-    public VcsAction(VcsFileSystem fileSystem) {
-        this(fileSystem, null, 0);
-    }
-
-    public VcsAction(VcsFileSystem fileSystem, int commandSubtree) {
-        this(fileSystem, null, commandSubtree);
-    }
-
-    public VcsAction(VcsFileSystem fileSystem, Collection fos) {
-        this(fileSystem, fos, 0);
-    }
-
-    public VcsAction(VcsFileSystem fileSystem, Collection fos, int commandSubtree) {
-        setFileSystem(fileSystem);
-        setSelectedFileObjects(fos);
-        actionCommandSubtree = commandSubtree;
-    }
+    private Node[] actionCommandsSubTrees = null; // the commands subtrees to construct actions from
     
+    public VcsAction() {
+    }
+
     public void setFileSystem(VcsFileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
     
-    protected void setSelectedFileObjects(Collection fos) {
+    public void setSelectedFileObjects(Collection fos) {
         this.selectedFileObjects = fos;
+    }
+    
+    public void setCommandsSubTrees(Node[] commandsSubTrees) {
+        actionCommandsSubTrees = commandsSubTrees;
     }
 
     /*
@@ -285,59 +275,62 @@ public class VcsAction extends NodeAction implements ActionListener {
     }
 
     /**
-     * Test if all of the selected nodes are directories.
-     * @return <code>true</code> if all selected nodes are directories,
+     * Test if some of the selected nodes are directories.
+     * @return <code>true</code> if some of the selected nodes are directories,
      *         <code>false</code> otherwise.
      */
     protected boolean isOnDirectory() {
+        boolean is = false;
         if (selectedFileObjects != null) {
             for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                if (!fo.isFolder()) return false;
+                if (fo.isFolder()) is = true;
             }
-            return selectedFileObjects.size() > 0;
+            //return false;
+        } else {
+            Node[] nodes = getActivatedNodes();
+            for (int i = 0; i < nodes.length; i++) {
+                DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
+                if (dd != null && dd.getPrimaryFile().isFolder()) is = true;
+            }
+            //return nodes.length > 0;
         }
-        Node[] nodes = getActivatedNodes();
-        for (int i = 0; i < nodes.length; i++) {
-            DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-            if (dd != null && !dd.getPrimaryFile().isFolder()) return false;
-        }
-        return nodes.length > 0;
+        return is && !isOnRoot();
     }
 
     /**
-     * Test if all selected nodes are files.
-     * @return <code>true</code> if all selected nodes are files,
+     * Test if some of the selected nodes are files.
+     * @return <code>true</code> if some of the selected nodes are files,
      *         <code>false</code> otherwise.
      */
     protected boolean isOnFile() {
         if (selectedFileObjects != null) {
             for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                if (fo.isFolder()) return false;
+                if (!fo.isFolder()) return true;
             }
-            return selectedFileObjects.size() > 0;
+            return false;
         }
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
             DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-            if (dd != null && dd.getPrimaryFile().isFolder()) return false;
+            if (dd != null && !dd.getPrimaryFile().isFolder()) return true;
         }
-        return nodes.length > 0;
+        return false;
     }
 
     /**
-     * Test if the selected node is the root node.
-     * @return <code>true</code> if the selected node is the root node,
+     * Test if one of the selected nodes is the root node.
+     * @return <code>true</code> if at least one of the selected nodes is the root node,
      *         <code>false</code> otherwise.
      */
     protected boolean isOnRoot() {
         if (selectedFileObjects != null) {
             for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                if (fo.getPackageNameExt('/', '.').length() != 0) return false;
+                if (fo.getPackageNameExt('/', '.').length() == 0) return true;
             }
-            return selectedFileObjects.size() > 0;
+            return false;
         }
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
@@ -345,9 +338,9 @@ public class VcsAction extends NodeAction implements ActionListener {
             if (dd == null) return false;
             String path = dd.getPrimaryFile().getPackageNameExt('/','.');
             //String path = getNodePath(nodes[i]);
-            if (path.length() != 0) return false;
+            if (path.length() == 0) return true;
         }
-        return nodes.length > 0;
+        return false;
     }
 
     /**
@@ -356,8 +349,8 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param res the <code>Table</code> of path and FileObject pairs which are important.
      * @param all whether to add unimportant files as well
      */
-    protected void addImportantFiles(Collection fos, Table res, boolean all) {
-        addImportantFiles(fos, res, all, fileSystem);
+    protected void addImportantFiles(Collection fos, Table res, boolean all, boolean doNotTestFS) {
+        addImportantFiles(fos, res, all, fileSystem, doNotTestFS);
     }
 
     /**
@@ -368,10 +361,22 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param fileSystem the file system
      */
     public static void addImportantFiles(Collection fos, Table res, boolean all, VcsFileSystem fileSystem) {
+        addImportantFiles(fos, res, all, fileSystem, false);
+    }
+    
+    /**
+     * Add files.
+     * @param dd the data object from which the files are read.
+     * @param res the <code>Table</code> of path and FileObject pairs.
+     * @param all whether to add unimportant files as well
+     * @param fileSystem the file system
+     * @param doNotTestFS if true, FileObjects will not be tested whether they belong to VcsFileSystem
+     */
+    public static void addImportantFiles(Collection fos, Table res, boolean all, VcsFileSystem fileSystem, boolean doNotTestFS) {
         for(Iterator it = fos.iterator(); it.hasNext(); ) {
             FileObject ff = (FileObject) it.next();
             try {
-                if (ff.getFileSystem() != fileSystem)
+                if (!doNotTestFS && ff.getFileSystem() != fileSystem)
                     continue;
             } catch (FileStateInvalidException exc) {
                 continue;
@@ -409,6 +414,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         //    Variables v = new Variables();
         //    label = v.expandFast(vars, label, true);
         //}
+        //System.out.println("VcsAction.createItem("+name+"): menu '"+label+"' created.");
         item = new JMenuItem(label);
         String[] props = cmd.getPropertyNames();
         if (props != null && props.length > 0) {
@@ -431,11 +437,12 @@ public class VcsAction extends NodeAction implements ActionListener {
                 parent.addSeparator();
                 continue;
             }
+            //System.out.println("VcsAction.addMenu(): cmd = "+cmd.getName());
             if (cmd.getDisplayName() == null
                 || onDir && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_DIR)
                 || onFile && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_FILE)
                 || onRoot && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_ROOT)
-                || VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_HIDDEN)) {
+                || VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)) {
 
                 continue;
             }
@@ -460,11 +467,20 @@ public class VcsAction extends NodeAction implements ActionListener {
      * Get a menu item that can present this action in a <code>JPopupMenu</code>.
      */
     public JMenuItem getPopupPresenter() {
-        //JMenuItem item=null;
-        //Vector commands = fileSystem.getCommands();
-        Node commands = fileSystem.getCommands();
-        //int len = commands.size();
-        //int[] lastOrder = new int[0];
+        JInlineMenu inlineMenu = new JInlineMenu();
+        ArrayList menuItems = new ArrayList();
+        for (int i = 0; i < actionCommandsSubTrees.length; i++) {
+            JMenuItem menuItem = getPopupPresenter(actionCommandsSubTrees[i]);
+            if (menuItem != null) menuItems.add(menuItem);
+        }
+        inlineMenu.setMenuItems((JMenuItem[]) menuItems.toArray(new JMenuItem[menuItems.size()]));
+        return inlineMenu;
+    }
+    
+    /**
+     * Get a menu item that can present this action in a <code>JPopupMenu</code>.
+     */
+    private JMenuItem getPopupPresenter(Node commandRoot) {
         boolean onRoot = isOnRoot();
         boolean onDir;
         boolean onFile;
@@ -474,26 +490,30 @@ public class VcsAction extends NodeAction implements ActionListener {
             onDir = isOnDirectory();
             onFile = isOnFile();
         }
-        Children children = commands.getChildren();
-        Node[] commandRoots = children.getNodes();
-        if (commandRoots.length <= actionCommandSubtree) return null;
-        //int first = 0;
-        String name = commandRoots[actionCommandSubtree].getDisplayName();
+        String name = commandRoot.getDisplayName();
         /*
-        if (len > 0) {
-            VcsCommand uc = (VcsCommand) commands.get(first);
-            String[] props = uc.getPropertyNames();
-            if ((props == null || props.length == 0) && uc.getOrder().length == 1) {
-                first++;
-                name = uc.getLabel();
-            }
-        }
         if (name == null) {
             name = fileSystem.getBundleProperty("CTL_Version_Control");
         }
          */
-        JMenu menu = new JMenuPlus(name);
-        addMenu(commandRoots[actionCommandSubtree], /*first, lastOrder, */menu, onDir, onFile, onRoot);
+        JMenuItem menu = new JMenuPlus(name);
+        addMenu(commandRoot, /*first, lastOrder, */(JMenu) menu, onDir, onFile, onRoot);
+        if (menu.getSubElements().length == 0) {
+            VcsCommand cmd = (VcsCommand) commandRoot.getCookie(VcsCommand.class);
+            if (cmd == null) {
+                //menu = new JPopupMenu.Separator();
+            } else {
+                if (cmd.getDisplayName() == null
+                    || onDir && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_DIR)
+                    || onFile && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_FILE)
+                    || onRoot && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_ROOT)
+                    || VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)) {
+                        menu = null;
+                } else {
+                    menu = createItem(cmd.getName());
+                }
+            }
+        }
         return menu;
     }
 
@@ -576,12 +596,12 @@ public class VcsAction extends NodeAction implements ActionListener {
         //String path = "";
         boolean refreshDone = false;
         if (selectedFileObjects != null) {
-            addImportantFiles(selectedFileObjects, files, processAll);
+            addImportantFiles(selectedFileObjects, files, processAll, true);
         } else {
             for(int i = 0; i < nodes.length; i++) {
                 //D.deb("nodes["+i+"]="+nodes[i]); // NOI18N
                 DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-                if (dd != null) addImportantFiles(dd.files(), files, processAll);
+                if (dd != null) addImportantFiles(dd.files(), files, processAll, false);
                 else continue;
             }
         }
@@ -637,5 +657,5 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
         new Thread(cpr, "Vcs Commands Performing Thread").start();
     }
-
+    
 }

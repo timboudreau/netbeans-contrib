@@ -40,6 +40,9 @@ import org.netbeans.modules.vcscore.cmdline.UserCommand;
  */
 public class DefaultVcsFactory extends Object implements VcsFactory {
 
+    private static Object fsActionAccessLock = new Object();
+    private static VcsAction fsAction = null;
+
     protected VcsFileSystem fileSystem;
     
     /** Creates new DefaultVcsFactory */
@@ -146,18 +149,43 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      */
     public SystemAction[] getActions(Collection fos) {
         //return new SystemAction[] { getVcsAction() };
-        ArrayList actions = new ArrayList();
+        //ArrayList actions = new ArrayList();
         Node commands = fileSystem.getCommands();
         Node[] commandRoots = commands.getChildren().getNodes();
+        //System.out.println("DefaultVcsFactory.getActions(): commandRoots.length = "+commandRoots.length);
+        //ArrayList commandsSubTrees = new ArrayList();
+        int[] commandsSubTrees = new int[commandRoots.length];
+        int numOfSubTrees = 0;
         for (int i = 0; i < commandRoots.length; i++) {
             VcsCommand cmd = (VcsCommand) commandRoots[i].getCookie(VcsCommand.class);
+            //System.out.println("commandRoots["+i+"] = "+cmd);
             if (cmd != null &&
                 VcsCommandIO.getIntegerPropertyAssumeZero(cmd, VcsCommand.PROPERTY_NUM_REVISIONS) == 0) {
-                    actions.add(new VcsAction(fileSystem, fos, i));
+                    //actions.add(new VcsAction(fileSystem, fos, i));
+                    commandsSubTrees[numOfSubTrees++] = i;
+                    //commandsSubTrees.add(new Integer(i));
             }
         }
-        if (actions.size() == 0) return null;
-        return (SystemAction[]) actions.toArray(new SystemAction[0]);
+        if (fsAction == null) {
+            synchronized (fsActionAccessLock) {
+                if (fsAction == null) {
+                    fsAction = new VcsAction();
+                }
+            }
+        }
+        if (numOfSubTrees == 0) return null;
+        synchronized (fsActionAccessLock) {
+            fsAction.setFileSystem(fileSystem);
+            fsAction.setSelectedFileObjects(fos);
+            Node[] commandNodesSubTrees = new Node[numOfSubTrees];
+            for (int i = 0; i < numOfSubTrees; i++) {
+                commandNodesSubTrees[i] = commandRoots[commandsSubTrees[i]];
+            }
+            fsAction.setCommandsSubTrees(commandNodesSubTrees);
+        }
+        //System.out.println("action[0] = "+actions.get(0)+", action[1] = "+actions.get(1)+", equals = "+actions.get(0).equals(actions.get(1)));
+        //return (SystemAction[]) actions.toArray(new SystemAction[actions.size()]);
+        return new SystemAction[] { fsAction };
     }
     
     /**
