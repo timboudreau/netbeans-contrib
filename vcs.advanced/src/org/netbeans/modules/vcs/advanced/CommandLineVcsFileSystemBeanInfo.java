@@ -53,42 +53,40 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
         try {
             rootDirectory=new PropertyDescriptor
-                          ("rootDirectory", CommandLineVcsFileSystem.class, "getRootDirectory", "setRootDirectory"); // NOI18N
+                          (VcsFileSystem.PROP_ROOT, CommandLineVcsFileSystem.class, "getRootDirectory", "setRootDirectory"); // NOI18N
             debug=new PropertyDescriptor
-                  ("debug",CommandLineVcsFileSystem.class,"getDebug","setDebug"); // NOI18N
+                  (VcsFileSystem.PROP_DEBUG,CommandLineVcsFileSystem.class, "getDebug", "setDebug"); // NOI18N
 
             variables=new PropertyDescriptor
-                      ("variables",CommandLineVcsFileSystem.class,"getVariables","setVariables"); // NOI18N
-            variables.setPropertyEditorClass
-            (org.netbeans.modules.vcs.advanced.UserVariablesEditor.class);
+                      (VcsFileSystem.PROP_VARIABLES, CommandLineVcsFileSystem.class, "getVariables", "setVariables"); // NOI18N
+            variables.setPropertyEditorClass (org.netbeans.modules.vcs.advanced.UserVariablesEditor.class);
 
             commands=new PropertyDescriptor
-                     ("commands",CommandLineVcsFileSystem.class,"getCommands","setCommands"); // NOI18N
-            commands.setPropertyEditorClass
-            (org.netbeans.modules.vcs.advanced.UserCommandsEditor.class);
+                     (VcsFileSystem.PROP_COMMANDS, CommandLineVcsFileSystem.class, "getCommands", "setCommands"); // NOI18N
+            commands.setPropertyEditorClass (org.netbeans.modules.vcs.advanced.UserCommandsEditor.class);
 
             cacheId=new PropertyDescriptor
-                    ("cacheId",CommandLineVcsFileSystem.class,"getCacheId",null); // NOI18N
+                    ("cacheId", CommandLineVcsFileSystem.class, "getCacheId", null); // NOI18N
 
             config=new PropertyDescriptor
-                   ("config",CommandLineVcsFileSystem.class,"getConfig",null); // NOI18N
+                   ("config", CommandLineVcsFileSystem.class, "getConfig", null); // NOI18N
 
             lock=new PropertyDescriptor
-                 ("lock",CommandLineVcsFileSystem.class,"isLockFilesOn","setLockFilesOn"); // NOI18N
+                 (VcsFileSystem.PROP_CALL_LOCK, CommandLineVcsFileSystem.class, "isLockFilesOn", "setLockFilesOn"); // NOI18N
 
             lockPrompt=new PropertyDescriptor
-                       ("lockPrompt",CommandLineVcsFileSystem.class,"isPromptForLockOn","setPromptForLockOn"); // NOI18N
+                       (VcsFileSystem.PROP_CALL_LOCK_PROMPT, CommandLineVcsFileSystem.class, "isPromptForLockOn", "setPromptForLockOn"); // NOI18N
             acceptUserParams = new PropertyDescriptor
-                               ("expertMode", CommandLineVcsFileSystem.class, "isExpertMode", "setExpertMode"); // NOI18N
+                               (VcsFileSystem.PROP_EXPERT_MODE, CommandLineVcsFileSystem.class, "isExpertMode", "setExpertMode"); // NOI18N
             runRefreshCommand = new PropertyDescriptor
-                               ("offLine", CommandLineVcsFileSystem.class, "isOffLine", "setOffLine"); // NOI18N
+                               (VcsSettings.PROP_OFFLINE, CommandLineVcsFileSystem.class, "isOffLine", "setOffLine"); // NOI18N
             annotationPattern = new PropertyDescriptor
-                               ("annotationPattern", CommandLineVcsFileSystem.class, "getAnnotationPattern", "setAnnotationPattern"); // NOI18N
+                               (VcsFileSystem.PROP_ANNOTATION_PATTERN, CommandLineVcsFileSystem.class, "getAnnotationPattern", "setAnnotationPattern"); // NOI18N
             autoRefresh = new PropertyDescriptor
-                               ("autoRefresh", CommandLineVcsFileSystem.class, "getAutoRefresh", "setAutoRefresh"); // NOI18N
+                               (VcsSettings.PROP_AUTO_REFRESH, CommandLineVcsFileSystem.class, "getAutoRefresh", "setAutoRefresh"); // NOI18N
             autoRefresh.setPropertyEditorClass(RefreshModePropertyEditor.class);
             notification = new PropertyDescriptor
-                               ("commandNotification", CommandLineVcsFileSystem.class, "isCommandNotification", "setCommandNotification"); // NOI18N
+                               (VcsFileSystem.PROP_COMMAND_NOTIFICATION, CommandLineVcsFileSystem.class, "isCommandNotification", "setCommandNotification"); // NOI18N
 
 
             desc = new PropertyDescriptor[] {
