@@ -28,12 +28,14 @@ import com.netbeans.ide.util.datatransfer.TransferableOwner;
 import com.netbeans.ide.util.RequestProcessor;
 import com.netbeans.ide.util.NbBundle;
 import com.netbeans.ide.src.ElementProperties;
+import com.netbeans.ide.src.nodes.SourceChildren;
+import com.netbeans.ide.cookies.SourceCookie;
 
 /** Represents ClassDataObject
 *
 * @author Ales Novak, Ian Formanek, Jan Jancura, Dafe Simonek
 */
-class ClassDataNode extends DataNode {
+class ClassDataNode extends DataNode implements Runnable {
   /** generated Serialized Version UID */
   static final long serialVersionUID = -1543899241509520203L;
 
@@ -71,24 +73,16 @@ class ClassDataNode extends DataNode {
   /** The flag indicating whether right icon has been already found */
   transient boolean iconResolved = false;
 
-// ----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------
 // constructor
 
   /** @param obj is a ClassDataObject that is to be represented
   */
   ClassDataNode(final ClassDataObject obj) {
-    super(obj, new ClassDataNodeChildren());
+    super(obj, new SourceChildren());
     this.obj = obj;
     initialize();
   }
-
-  private void readObject(ObjectInputStream is) throws IOException, ClassNotFoundException {
-    is.defaultReadObject();
-    initialize();
-  }
-
-// ----------------------------------------------------------------------------------
-// methods
 
   /** Returns icon base string which should be used for
   * icon inicialization. Subclasses can ovveride this method
@@ -100,8 +94,7 @@ class ClassDataNode extends DataNode {
 
   private void initialize () {
     setIconBase(initialIconBase());
-    // try to find oout which icon should be used
-    requestResolveIcons();
+    RequestProcessor.postRequest(this);
   }
 
   public void setParams (final String params) throws IOException {
@@ -125,23 +118,6 @@ class ClassDataNode extends DataNode {
     Sheet s = super.createSheet();
     ResourceBundle bundle = NbBundle.getBundle(this);
     Sheet.Set ps = s.get(Sheet.PROPERTIES);
-    ps.put(new PropertySupport.ReadWrite (
-             PROP_SHOWDECLAREDONLY,
-             Boolean.TYPE,
-             bundle.getString ("PROP_showDeclaredOnly"),
-             bundle.getString ("HINT_showDeclaredOnly")
-           ) {
-             public Object getValue () {
-               return new Boolean (showDeclaredOnly);
-             }
-
-             public void setValue (Object val) throws IllegalArgumentException {
-               if (!(val instanceof Boolean))
-                 throw new IllegalArgumentException();
-               showDeclaredOnly = ((Boolean) val).booleanValue();
-               resetChildren();
-             }
-           });
     ps.put(new PropertySupport.ReadOnly (
              PROP_CLASS_NAME,
              String.class,
@@ -278,85 +254,20 @@ class ClassDataNode extends DataNode {
     return s;
   }
 
-// ----------------------------------------------------------------------------------
-// private methods
-
-  /** Inspects the class and return an array of elements,
-  * which will be udes as keys in children */
-  Object[] inspectClass () {
-    // PENDING - will be implemented when Element hierarchy
-    // will be changed
-    return new Object[0];
-   /* Class clazz;
-    try {
-      clazz = obj.getBeanClass ();
-    } catch (Exception e) {
-      return new Node [0];
-    }
-
-    Vector nodes = new Vector();
-
-    //variables
-    Field [] v;
-    if (showDeclaredOnly)
-      v = clazz.getDeclaredFields ();
-    else
-      v = clazz.getFields ();
-    int i, k = v.length;
-    for (i = 0; i < k; i++)
-      nodes.addElement (new com.netbeans.developer.modules.loaders.clazz.ClassItemNode.VariableItemNode(this, v[i]));
-
-    //constructors
-    Constructor [] c;
-    if (showDeclaredOnly)
-      c = clazz.getDeclaredConstructors ();
-    else
-      c = clazz.getConstructors ();
-    k = c.length;
-    for (i = 0; i < k; i++)
-      nodes.addElement (new com.netbeans.developer.modules.loaders.clazz.ClassItemNode.ConstructorItemNode(this, c[i]));
-
-    //methods
-    Method [] o;
-    if (showDeclaredOnly)
-      o = clazz.getDeclaredMethods ();
-    else
-      o = clazz.getMethods ();
-    k = o.length;
-    for (i = 0; i < k; i++) {
-      nodes.addElement (new com.netbeans.developer.modules.loaders.clazz.ClassItemNode.MethodItemNode(this, o[i]));
-    }
-
-    Node[] children = new Node[nodes.size()];
-    nodes.copyInto(children);
-    return children;
-   */
-  }
-
-  /** Removes all children and creates a new ones
-  * (used after switching showDeclaredOnly).
+  /** The implementation of the Runnable interface
+  * (initialization tasks in separate thread)
   */
-  private void resetChildren () {
-    Object[] newKeys;
-    try {
-      newKeys = inspectClass();
-    } catch (Throwable t) {
-      if (t instanceof ThreadDeath) throw (ThreadDeath)t;
-      TopManager.getDefault().notifyException (t);
-      return;
-    };
-    ((ClassDataNodeChildren)getChildren()).setMyKeys(newKeys);
+  public void run () {
+    resolveIcons();
+    // set right source element to our children
+    SourceCookie sc =
+      (SourceCookie)getDataObject().getCookie(SourceCookie.class);
+    if (sc != null)
+      ((SourceChildren)getChildren()).setElement(sc.getSource());
   }
 
-  private void requestResolveIcons () {
-    RequestProcessor.postRequest (
-      new Runnable () {
-        public void run () {
-          resolveIcons ();
-        }
-      }
-    );
-  }
+// --------------------------------------------------------------------
+// private methods
 
   /** Find right icon for this node. */
   protected void resolveIcons () {
@@ -381,54 +292,11 @@ class ClassDataNode extends DataNode {
     iconResolved = true;
   }
 
-  /** Special subnodes (children) for ClassDataNode */
-  private static final class ClassDataNodeChildren extends Children.Keys {
-
-    private static final Object NUMB_KEY = new Object();
-
-    ClassDataNodeChildren () {
-      super();
-      // set key for numb node showing "now parsing" message
-      setKeys(new Object[] { NUMB_KEY });
-    }
-
-    /** Overrides initNodes to resetChidren in separate thread too. */
-    protected Node[] initNodes () {
-      Node[] result = super.initNodes();
-      SwingUtilities.invokeLater(new Runnable () {
-        public void run () {
-          ((ClassDataNode)ClassDataNodeChildren.this.getNode()).resetChildren();
-        }
-      });
-      return result;
-    }
-
-    /** Creates nodes for given key.
-    * @param key the key that is used
-    * @return array of nodes representing the key
-    */
-    protected Node[] createNodes (final Object key) {
-      // PENDING - return the node according to the type
-      // of input key (constructor, method, variable etc...
-      if (NUMB_KEY.equals(key)) {
-        // PENDING return node showing "now parsing" message
-        return new Node[0];
-      }
-      return new Node[0];
-    }
-
-    /** Accessor for ClassDataNode outer class */
-    private void setMyKeys (final Object[] keys) {
-      setKeys(keys);
-    }
-
-  } // end of CallStackChildren inner class
-
-
 }
 
 /*
  * Log
+ *  6    Gandalf   1.5         2/1/99   David Simonek   
  *  5    Gandalf   1.4         1/20/99  David Simonek   rework of class DO
  *  4    Gandalf   1.3         1/19/99  David Simonek   
  *  3    Gandalf   1.2         1/13/99  David Simonek   

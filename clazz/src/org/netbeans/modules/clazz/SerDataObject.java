@@ -58,6 +58,7 @@ public final class SerDataObject extends ClassDataObject {
 
 /*
  * Log
+ *  2    src-jtulach1.1         2/1/99   David Simonek   
  *  1    src-jtulach1.0         1/15/99  David Simonek   
  * $
  * Beta Change History:

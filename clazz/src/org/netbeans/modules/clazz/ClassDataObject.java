@@ -28,22 +28,21 @@ import java.text.MessageFormat;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 
-import com.netbeans.ide.util.datatransfer.TransferFlavors;
-import com.netbeans.ide.util.datatransfer.TransferableOwner;
 import com.netbeans.ide.*;
-import com.netbeans.ide.classloader.NbClassLoader;
+import com.netbeans.ide.util.*;
 import com.netbeans.ide.cookies.*;
-import com.netbeans.ide.debugger.DebuggerInfo;
-import com.netbeans.ide.execution.ExecInfo;
 import com.netbeans.ide.filesystems.*;
 import com.netbeans.ide.loaders.*;
+import com.netbeans.ide.classloader.NbClassLoader;
+import com.netbeans.ide.debugger.DebuggerInfo;
+import com.netbeans.ide.execution.ExecInfo;
 import com.netbeans.ide.explorer.propertysheet.PropertySheet;
-import com.netbeans.ide.util.*;
-import com.netbeans.ide.nodes.*;
+import com.netbeans.ide.nodes.Node;
+import com.netbeans.ide.nodes.CookieSet;
+import com.netbeans.ide.src.SourceElement;
 
 import com.netbeans.developer.modules.applet.AppletDebuggerInfo;
 import com.netbeans.developer.modules.applet.AppletExecInfo;
-import com.netbeans.developer.modules.loaders.java.JavaDataObject;
 
 
 /* TODO:
@@ -99,21 +98,21 @@ implements DebuggerCookie {
     instanceSupport = new InstanceSupport.Origin(pe);
     execSupport = new ExecSupport(pe);
     // asociate cookies (can be slow, do it in separate task)
-    cookieInit = new Task(
+    cookieInit = RequestProcessor.postRequest(
       new Runnable () {
         public void run () {
           doInitCookies();
         }
       }
     );
-    RequestProcessor.postRequest(cookieInit);
   }
 
   /** Actually performs the work of assigning cookies */
   private void doInitCookies () {
     boolean isExecutable = false;
+    Class ourClass = null;
     try {
-      instanceSupport.instanceClass();
+      ourClass = instanceSupport.instanceClass();
       isExecutable = instanceSupport.isExecutable();
     } catch (IOException ex) {
       return;
@@ -124,6 +123,7 @@ implements DebuggerCookie {
     cs.add(instanceSupport);
     if (isExecutable)
       cs.add(execSupport);
+    cs.add(new SourceSupport(ourClass));
   }
 
   /** Overrides superclass getCookie.<P>
@@ -210,7 +210,6 @@ implements DebuggerCookie {
   protected Node createNodeDelegate () {
     return new ClassDataNode (this);
   }
-
 
   // implementation of ExecCookie ..........................................
 
@@ -413,7 +412,29 @@ implements DebuggerCookie {
   }
 
 
-  // innerclasses ................................................................................
+  // innerclasses .......................................................
+
+  /** The implementation of the source cookie.
+  * Class data object cannot implement source cookie directly,
+  * because it's optional (if there's no instance cookie, then also
+  * no source cookie is supported)
+  */
+  private static final class SourceSupport extends Object
+                                           implements SourceCookie {
+    /** The class which acts as a source element data */
+    private Class data;
+
+    /** Creates source support with asociated class object */
+    SourceSupport (final Class data) {
+      this.data = data;
+    }
+
+    /** @return The source element for this class data object */
+    public SourceElement getSource () {
+      return new SourceElement(new SourceElementImpl(data));
+    }
+
+  } // the end of SourceSupport inner class
 
   /* PENDING - not reimpl yet
   static class BeanTransferableOwner extends TransferableOwner.Filter {
@@ -452,6 +473,7 @@ implements DebuggerCookie {
 
 /*
  * Log
+ *  8    Gandalf   1.7         2/1/99   David Simonek   
  *  7    Gandalf   1.6         1/26/99  David Simonek   util.Task used for 
  *       synchronization
  *  6    Gandalf   1.5         1/22/99  David Simonek   synchronization problems
