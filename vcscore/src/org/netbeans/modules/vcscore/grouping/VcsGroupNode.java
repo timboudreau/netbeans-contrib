@@ -1,3 +1,15 @@
+/*
+ *                 Sun Public License Notice
+ * 
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ * 
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
 package org.netbeans.modules.vcscore.grouping;
 
 import org.openide.actions.*;
@@ -38,6 +50,7 @@ public class VcsGroupNode extends AbstractNode {
                 ResourceBundle bundle = new PropertyResourceBundle(propsFo.getInputStream());
                 groupName = bundle.getString(PROP_NAME);
                 groupDescription = bundle.getString(PROP_SHORT_DESCRIPTION);
+                groupDescription = org.openide.util.Utilities.replaceString(groupDescription, "\\n", "\n"); //NOI18N
             } catch (IOException exc) {
                 System.out.println("io exc, while preading props for group");
             } catch (MissingResourceException exc3) {
@@ -251,7 +264,9 @@ public class VcsGroupNode extends AbstractNode {
             }
             writer = new PrintWriter(props.getOutputStream(props.lock()));
             writer.println(PROP_NAME + "=" + getDisplayName()); //NOI18N
-            writer.println(PROP_SHORT_DESCRIPTION + "=" + getShortDescription()); //NOI18N
+            String oneLineDescription = org.openide.util.Utilities.replaceString(
+                                                    getShortDescription(), "\n", "\\n"); //NOI18N
+            writer.println(PROP_SHORT_DESCRIPTION + "=" + oneLineDescription); //NOI18N
             writer.close();
         } catch (IOException exc) {
             if (writer != null) {
