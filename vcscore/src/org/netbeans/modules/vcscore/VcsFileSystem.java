@@ -792,8 +792,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
                 if (ev.getFileSystem().equals(VcsFileSystem.this)
                     && !isOffLine()
-                    && (deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_RESTART)
-                        || (!deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_MOUNT)) {
+                    && (getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_MOUNT_AND_RESTART
+                        || (deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_RESTART)
+                        || (!deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_MOUNT))) {
                     CommandExecutorSupport.doRefresh(VcsFileSystem.this, "", true);
                     //FileCacheProvider cache = getCacheProvider();
                     //if (cache != null) cache.refreshCacheDirRecursive("");
@@ -1275,6 +1276,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //-------------------------------------------
     public Image annotateIcon(Image icon, int iconType, Set files) {
         //D.deb("annotateIcon()"); // NOI18N
+        /*
+        System.out.print("annotateIcon(");
+        for (Iterator it = files.iterator(); it.hasNext(); ) {
+            System.out.print(it.next()+", ");
+        }
+        System.out.println(")");
+        Frame f = new Frame();
+        f.add(new Label("Original :"));
+        f.add(new JButton(new ImageIcon(icon)));
+        f.pack();
+        f.setVisible(true);
+         */
         Object[] oo = files.toArray();
         int len = oo.length;
         if (len == 0/* || name.indexOf(getRootDirectory().toString()) >= 0*/) {
@@ -1309,6 +1322,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             }
         }
+        /*
+        f = new Frame();
+        f.add(new Label("MyReturned :"));
+        f.add(new JButton(new ImageIcon(icon)));
+        f.pack();
+        f.setVisible(true);
+         */
         return icon;
     }
 
