@@ -36,6 +36,9 @@ Microsystems, Inc. All Rights Reserved.
         <testset dir="qa-functional/src">
             <patternset>
     		<include name="complete/pvcs_profile/MountPVCSFilesystem.class"/>
+    		<include name="complete/pvcs_profile/RepositoryCreation.class"/>
+    		<include name="complete/pvcs_profile/RegularDevelopment.class"/>
+    		<include name="complete/pvcs_profile/AdditionalFeatures.class"/>
             </patternset>
         </testset>
     </testbag>
