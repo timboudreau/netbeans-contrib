@@ -43,7 +43,7 @@ public class GeneralCommandAction extends AbstractCommandAction {
     
     public static final String VCS_ACTION_ATTRIBUTE = "VcsActionAttributeCookie"; //NOI18N
     
-    private boolean delegate = false;
+    private boolean delegate = true;
     
     private javax.swing.JMenuItem menuPresent;
     private javax.swing.JMenuItem popupPresent;
@@ -120,11 +120,11 @@ public class GeneralCommandAction extends AbstractCommandAction {
         }
         HashMap suppMap;
         if (delegate) {
-//            System.out.println("en -delegated");
+//            System.out.println("en -delegated" + this.getClass().getName());
             AbstractCommandAction genAction = (AbstractCommandAction)SystemAction.get(AbstractCommandAction.class);
             suppMap = genAction.getSupporterMap();
         } else {
-//            System.out.println("en -non delegated");
+//            System.out.println("en -non delegated" + this.getClass().getName());
             super.enable(nodes);
             suppMap = this.getSupporterMap();
         }
@@ -150,7 +150,26 @@ public class GeneralCommandAction extends AbstractCommandAction {
     
     
     private void resetDisplayNames() {
-        String toolBarName = getName();
+        String toolBarName = "";
+        Iterator it = toolBarNamesSet.iterator();
+        boolean atLeastOne = false;
+        while (it.hasNext()) {
+            String next = (String)it.next();
+            if (!next.equals(getName())) {
+                if (atLeastOne) {
+                    toolBarName = toolBarName + "," + next; //NOI18N
+                } else {
+                    toolBarName = next; //NOI18N
+                    atLeastOne = true;
+                }
+            }
+        }
+        if (!atLeastOne) {
+            toolBarName = getName();
+        }
+/*        if (toolBarNamesSet.size() < this.getSupporterMap().keySet().size()) {
+            toolBarName = getName() + " [" + toolBarName + "]";
+        }
         if (toolBarPresent != null && toolBarPresent instanceof javax.swing.JComponent) {
              toolBarName = ((javax.swing.JComponent)toolBarPresent).getToolTipText();
              // TODO: in org.openide.awt.Actions.connect(): if b.updateState() is removed,
@@ -163,22 +182,8 @@ public class GeneralCommandAction extends AbstractCommandAction {
                  toolBarName = toolBarName.substring(0, index - 1);
              }
         }
-        Iterator it = toolBarNamesSet.iterator();
-        boolean atLeastOne = false;
-        while (it.hasNext()) {
-            String next = (String)it.next();
-            if (!next.equals(getName())) {
-                if (atLeastOne) {
-                    toolBarName = toolBarName + "," + next; //NOI18N
-                } else {
-                    toolBarName = toolBarName + " [" + next; //NOI18N
-                    atLeastOne = true;
-                }
-            }
-        }
-        if (atLeastOne) {
-            toolBarName = toolBarName + "]"; //NOI18N
-        }
+ */
+        
         if (toolBarPresent != null && toolBarPresent instanceof javax.swing.JComponent) {
             ((javax.swing.JComponent)toolBarPresent).setToolTipText(toolBarName);
         }

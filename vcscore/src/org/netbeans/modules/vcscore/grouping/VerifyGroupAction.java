@@ -46,7 +46,8 @@ public class VerifyGroupAction extends GeneralCommandAction {
     private static final long serialVersionUID = -7382933854093593819L;
     
     public VerifyGroupAction() {
-        this.delegateToAbstractAction(false);
+        super();
+        delegateToAbstractAction(false);
     }
 
 
