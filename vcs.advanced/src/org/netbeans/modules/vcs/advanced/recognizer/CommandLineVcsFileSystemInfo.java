@@ -73,6 +73,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
     private Map additionalVars;
     private boolean control = true;
     private String settingName = null;
+    private String moduleCodeName;
     private transient Reference fileSystemRef = new WeakReference(null);
     private transient PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
     private transient VetoableChangeSupport vchangeSupport = new VetoableChangeSupport(this);
@@ -99,7 +100,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
         this.root = fileSystem.getWorkingDirectory();
         this.profileName = fileSystem.getProfile().getName();
         fileSystem.addPropertyChangeListener(WeakListeners.propertyChange(this,fileSystem));
-        String moduleCodeName = (String)fileSystem.getVariablesAsHashtable().get(CommandLineVcsFileSystemInstance.MODULE_INFO_CODE_NAME_BASE_VAR);
+        moduleCodeName = (String)fileSystem.getVariablesAsHashtable().get(CommandLineVcsFileSystemInstance.MODULE_INFO_CODE_NAME_BASE_VAR);
         if(moduleCodeName != null)
             attachModuleListener(moduleCodeName);        
         fileSystemRef = new WeakReference(fileSystem);
@@ -394,6 +395,8 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
     
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
         in.defaultReadObject();
+        if(moduleCodeName != null)
+            attachModuleListener(moduleCodeName);        
         fileSystemRef = new WeakReference(null);
         changeSupport = new PropertyChangeSupport(this);
         vchangeSupport = new VetoableChangeSupport(this);
