@@ -180,7 +180,22 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
         ArrayList exitStates = new ArrayList();
         while (runningExecutors.size() > 0) {
             VcsCommandExecutor vce = (VcsCommandExecutor) runningExecutors.get(0);
-            pool.waitToFinish(vce);
+            try {
+                pool.waitToFinish(vce);
+            } catch (InterruptedException iexc) {
+                // Kill all spawned commands if sb. kill me
+                for (int r = 0; r < runningExecutors.size(); r++) {
+                    VcsCommandExecutor rvce = (VcsCommandExecutor) runningExecutors.get(r);
+                    if (pool.isRunning(rvce) || pool.isWaiting(rvce)) {
+                        pool.kill(rvce);
+                        exitStates.add(Boolean.FALSE);
+                    } else {
+                        exitStates.add(new Boolean(rvce.getExitStatus() == VcsCommandExecutor.SUCCEEDED));
+                    }
+                }
+                runningExecutors.clear();
+                break;
+            }
             runningExecutors.remove(0);
             if (vce.getExitStatus() == VcsCommandExecutor.SUCCEEDED) {
                 exitStates.add(Boolean.TRUE);

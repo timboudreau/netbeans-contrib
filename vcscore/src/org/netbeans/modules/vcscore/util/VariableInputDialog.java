@@ -107,7 +107,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         prevButton.setEnabled(currentHistory > 0);
         nextButton.setEnabled(false);
         //initFileLabel(files[0]);
-        setA11y(this, inputDescriptor);
+        if (inputDescriptor != null) {
+            setA11y(this, inputDescriptor);
+        }
     }
 
     public void setFilePromptDocumentListener(VariableInputDialog.FilePromptDocumentListener docListener) {
@@ -824,7 +826,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
         int preprocessStatus = pool.preprocessCommand(ec, varsCopy);
         if (preprocessStatus != CommandsPool.PREPROCESS_DONE) return null;
         pool.startExecutor(ec);
-        pool.waitToFinish(ec);
+        try {
+            pool.waitToFinish(ec);
+        } catch (InterruptedException iexc) {
+            pool.kill(ec);
+            return null;
+        }
         if (ec.getExitStatus() == VcsCommandExecutor.SUCCEEDED
             && selectorMatched[0]) {
             return selectorOutput.toString();

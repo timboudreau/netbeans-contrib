@@ -131,6 +131,8 @@ public class VcsAttributes extends DefaultAttributes {
     private VcsActionSupporter supporter;
         
     private VcsFileSystem fileSystem;
+    
+    private static RequestProcessor vcsActionRequestProcessor;
 
     static final long serialVersionUID = 8084585278800267078L;
     
@@ -233,6 +235,13 @@ public class VcsAttributes extends DefaultAttributes {
         }
     }
     
+    private static synchronized RequestProcessor getVcsActionRequestProcessor() {
+        if (vcsActionRequestProcessor == null) {
+            vcsActionRequestProcessor = new RequestProcessor("Vcs Attribute Action Request Processor");
+        }
+        return vcsActionRequestProcessor;
+    }
+    
     /**
      * Perform a VCS command on a specific file.
      * @param name the file the command should run on
@@ -254,12 +263,16 @@ public class VcsAttributes extends DefaultAttributes {
             String varName = (String) varNames.nextElement();
             additionalVars.put(varName, descriptor.getValue(varName));
         }
-        RequestProcessor.postRequest(new Runnable() {
+        getVcsActionRequestProcessor().postRequest(new Runnable() {
             public void run() {
                 VcsCommandExecutor[] executors = VcsAction.doCommand(files, cmd, additionalVars, fileSystem);
                 boolean status = true;
                 for (int i = 0; i < executors.length; i++) {
-                    fileSystem.getCommandsPool().waitToFinish(executors[i]);
+                    try {
+                        fileSystem.getCommandsPool().waitToFinish(executors[i]);
+                    } catch (InterruptedException iexc) {
+                        return ;
+                    }
                     status &= executors[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED;
                 }
                 descriptor.setValue(VCS_ACTION_DONE, new Boolean(status));

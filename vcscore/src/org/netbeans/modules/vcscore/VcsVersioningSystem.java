@@ -518,7 +518,11 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             RevisionList list = null;
             if (vces.length > 0) {
                 final VcsCommandExecutor vce = vces[0];
-                fileSystem.getCommandsPool().waitToFinish(vce);
+                try {
+                    fileSystem.getCommandsPool().waitToFinish(vce);
+                } catch (InterruptedException iexc) {
+                    return null;
+                }
                 list = getEncodedRevisionList(name, dataBuffer.toString());
                 if (list != null) displayRevisions(list);
             }
@@ -575,7 +579,12 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             VcsCommandExecutor[] vces = VcsAction.doCommand(files, cmd, additionalVars, fileSystem, fileListener, null, null, null);
             boolean success = true;
             for (int i = 0; i < vces.length; i++) {
-                fileSystem.getCommandsPool().waitToFinish(vces[i]);
+                try {
+                    fileSystem.getCommandsPool().waitToFinish(vces[i]);
+                } catch (InterruptedException iexc) {
+                    throw (java.io.FileNotFoundException)
+                        TopManager.getDefault().getErrorManager().annotate(new java.io.FileNotFoundException(), iexc);
+                }
                 success = success && (vces[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED);
             }
             if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) success = true;

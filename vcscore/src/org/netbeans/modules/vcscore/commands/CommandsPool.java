@@ -361,6 +361,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         CommandExecutorSupport.postprocessCommand(fileSystem, vce);
         //System.out.println("command "+vce.getCommand()+" DONE, LISTENERS DONE.");
         int exit = vce.getExitStatus();
+        if (cw.isInterrupted()) exit = VcsCommandExecutor.INTERRUPTED;
         //String name = vce.getCommand().getDisplayName();
         String message = "";
         switch (exit) {
@@ -912,9 +913,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * @param cmd the command we wait for to finish
      * @param files the set of files 
      */
-    public void waitToFinish(VcsCommand cmd, Set files) {
+    public void waitToFinish(VcsCommand cmd, Set files) throws InterruptedException {
         boolean haveToWait = false;
-        do {
+        //do {
             ArrayList executors = new ArrayList();
             addExecutorsOfCommand(executors, cmd);
             for (Iterator itExecutors = executors.iterator(); itExecutors.hasNext(); ) {
@@ -930,14 +931,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
             }
             if (haveToWait) {
                 synchronized (this) {
-                    try {
-                        wait();
-                    } catch (InterruptedException exc) {
-                        // I was interrupted => check for wait again.
-                    }
+                    wait();
                 }
             }
-        } while (haveToWait);
+        //} while (haveToWait);
     }
     
     /**
@@ -946,25 +943,25 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * This method ignores interrupts.
      * @param vce the executor
      */
-    public void waitToFinish(VcsCommandExecutor vce) {
+    public void waitToFinish(VcsCommandExecutor vce) throws InterruptedException {
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw == null) return ;
         Thread t;
         synchronized (this) {
             while (commandsToRun.contains(cw) || commandsWaitQueue.contains(cw)) {
-                try {
-                    wait();
-                } catch (InterruptedException iexc) {}
+                //try {
+                wait();
+                //} catch (InterruptedException iexc) {}
             }
             t = cw.getRunningThread();
         }
         if (t != null) {
-            while(t.isAlive()) {
-                try {
-                    t.join();
-                } catch (InterruptedException exc) {
+            if (t.isAlive()) {
+                //try {
+                t.join();
+                //} catch (InterruptedException exc) {
                     // Ignore
-                }
+                //}
             }
         }
     }
@@ -994,6 +991,11 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (cw != null) {
             Thread t = cw.getRunningThread();
             if (t != null) t.interrupt();
+            else {
+                commandsWaitQueue.remove(cw);
+                cw.setInterrupted(true);
+                commandDone(cw);
+            }
         }
     }
     
@@ -1062,6 +1064,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         private Reference submittingThread;
         private Thread runningThread;
         private RuntimeCommand runtimeCommand;
+        private boolean interrupted = false;
         
         public VcsCommandWrapper(VcsCommandExecutor vce) {
             this.vce = vce;
@@ -1100,6 +1103,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
         
         public RuntimeCommand getRuntimeCommand() {
             return runtimeCommand;
+        }
+        
+        public void setInterrupted(boolean interrupted) {
+            this.interrupted = interrupted;
+        }
+        
+        public boolean isInterrupted() {
+            return interrupted;
         }
     }
 

@@ -1752,7 +1752,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         CommandsPool pool = fileSystem.getCommandsPool();
         pool.startExecutor(vce);
-        pool.waitToFinish(vce);
+        try {
+            pool.waitToFinish(vce);
+        } catch (InterruptedException iexc) {
+            return ;
+        }
         int len = varTextFields.size();
         for (int i = 0; i < len; i++) {
             VcsConfigVariable var = (VcsConfigVariable) varVariables.get(i);

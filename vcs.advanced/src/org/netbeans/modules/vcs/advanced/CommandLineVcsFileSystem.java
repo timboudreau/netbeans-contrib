@@ -451,8 +451,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         VcsCommandExecutor[] execs = VcsAction.doCommand(files, cmd, additionalVars, this, null, errListener, null, null);
         if (execs.length == 0) return true;
         VcsCommandExecutor exec = execs[0];
-        getCommandsPool().waitToFinish(exec);
-        boolean succeeded = (exec.getExitStatus() == VcsCommandExecutor.SUCCEEDED);
+        boolean succeeded;
+        try {
+            getCommandsPool().waitToFinish(exec);
+            succeeded = (exec.getExitStatus() == VcsCommandExecutor.SUCCEEDED);
+        } catch (InterruptedException iexc) {
+            succeeded = false;
+        }
         if (!succeeded) {
             throw new java.io.IOException() {
                 public String getLocalizedMessage() {
@@ -930,7 +935,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                         }, null, false);
                     CommandsPool pool = getCommandsPool();
                     for (int i = 0; i < executors.length; i++) {
-                        pool.waitToFinish (executors[i]);
+                        try {
+                            pool.waitToFinish (executors[i]);
+                        } catch (InterruptedException iexc) {}
                     }
                 }
             }
@@ -961,7 +968,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 }, null, false);
             CommandsPool pool = getCommandsPool();
             for (int i = 0; i < executors.length; i++) {
-                pool.waitToFinish(executors[i]);
+                try {
+                    pool.waitToFinish(executors[i]);
+                } catch (InterruptedException iexc) {}
             }
             return ignoreList;
         }
