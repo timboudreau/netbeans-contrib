@@ -35,6 +35,12 @@ public class ObjectIntegrityPanel extends javax.swing.JPanel {
     /** Creates new form ObjectIntegrityPanel */
     public ObjectIntegrityPanel() {
         initComponents();
+        javax.swing.InputMap map = javax.swing.SwingUtilities.getUIInputMap(filesTable, javax.swing.JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        if (map != null) {
+            map.remove(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, 0));
+            map.remove(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0));
+            javax.swing.SwingUtilities.replaceUIInputMap(filesTable, filesTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, map);
+        }
     }
     
     /** This method is called from within the constructor to
