@@ -13,64 +13,18 @@
 
 package org.netbeans.modules.tasklist.suggestions;
 
-import java.awt.Image;
-import javax.swing.event.ChangeEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import org.netbeans.modules.tasklist.core.TaskListView;
-import org.netbeans.modules.tasklist.core.TLUtils;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
-import java.util.Map;
-import java.util.Collection;
-import java.util.HashMap;
-import java.lang.reflect.InvocationTargetException;
-import javax.swing.JEditorPane;
-import javax.swing.Timer;
-import javax.swing.SwingUtilities;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.Document;
-import javax.swing.text.StyledDocument;
-
-import org.openide.util.Lookup;
-import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.util.RequestProcessor;
-
-import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
-import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
-import org.netbeans.modules.tasklist.providers.SuggestionProvider;
-import org.netbeans.modules.tasklist.providers.SuggestionContext;
 import org.netbeans.apihole.tasklist.SPIHole;
-import org.openide.awt.StatusDisplayer;
-import org.openide.cookies.EditorCookie;
+import org.netbeans.modules.tasklist.core.TaskListView;
+import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
+import org.netbeans.modules.tasklist.providers.SuggestionContext;
+import org.netbeans.modules.tasklist.providers.SuggestionProvider;
+import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
+import org.openide.ErrorManager;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.Node;
-import org.openide.text.CloneableEditor;
-import org.openide.text.EditorSupport;
-import org.openide.text.Line;
-import org.openide.text.NbDocument;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
-import org.openide.windows.Workspace;
+
+import javax.swing.text.Document;
+import java.util.*;
 
 /**
  * Actual suggestion manager provided to clients when the Suggestions
