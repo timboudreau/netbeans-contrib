@@ -35,10 +35,8 @@ Microsystems, Inc. All Rights Reserved.
         destdir="src">
       <classpath>        
 	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
-        <!--<pathelement location="${nbroot1}/openide/netbeans/lib/openide.jar"/>-->
-        <fileset dir="${nbroot}/openide/netbeans/lib">
-          <include name="openide*.jar" />
-        </fileset>
+        <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
+        <pathelement location="${nbroot}/openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
 	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
 	<pathelement location="${nbroot}/vcsgeneric/netbeans/modules/vcsgen.jar"/>

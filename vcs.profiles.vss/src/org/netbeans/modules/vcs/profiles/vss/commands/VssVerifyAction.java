@@ -28,7 +28,7 @@ import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
 import org.openide.DialogDescriptor;
-import org.openide.TopManager;
+import org.openide.DialogDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -193,7 +193,7 @@ public class VssVerifyAction extends java.lang.Object implements VcsAdditionalCo
                 }
             });
         }
-        final Dialog dial = TopManager.getDefault().createDialog(dd);
+        final Dialog dial = DialogDisplayer.getDefault().createDialog(dd);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 dial.show();
