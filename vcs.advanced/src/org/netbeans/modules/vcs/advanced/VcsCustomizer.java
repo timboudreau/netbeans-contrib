@@ -406,6 +406,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         jPanel1.add(jLabel1, gridBagConstraints);
 
         linkLabel.setText("http://vcsgeneric.netbeans.org/profiles/index.html");
+        linkLabel.setForeground(new java.awt.Color(102, 102, 153));
         linkLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 linkLabelMouseReleased(evt);
@@ -1197,9 +1198,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 return;
             }
             promptForConfigComboChange = false;
-            if(configCombo.getSelectedIndex() == 0) if (configCombo.getModel().getSize() > 1) configCombo.setSelectedIndex(1);
-                else configCombo.setSelectedIndex(0);
+            if(configCombo.getSelectedIndex() == 0) {
+                if (configCombo.getModel().getSize() > 1) configCombo.setSelectedIndex(1);
+            } else {
+                configCombo.setSelectedIndex(0);
+            }
             promptForConfigComboChange = false;
+            cache.removeProfile(label);
             updateConfigurations ();
         }
         /*
