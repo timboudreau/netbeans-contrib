@@ -314,6 +314,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         dataErrorListeners.clear();
         if (doFileRefresh) {
             flushRefreshInfo();
+            cleanupSendRefreshInfo();
         }
         textOutputListeners = null;
         textErrorListeners = null;
@@ -996,9 +997,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
         }
         //System.out.println("readFileFinished("+fileDir+", [REMOVED:] "+fileName+")");
-        for (Iterator it = new ArrayList(fileReaderListeners).iterator(); it.hasNext(); ) {
-            ((FileReaderListener) it.next()).readFileFinished(fileDir, Collections.singleton(new String[] { fileName }));
-        }
+        sendRefreshInfo(fileDir, new String[] { fileName });
         filesToRefresh.remove(filePath);
     }
     
@@ -1062,9 +1061,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                     elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
                 }
                 //System.out.println("readFileFinished("+fileDir+", "+VcsUtilities.arrayToString(elements)+")");
-                for (Iterator it = new ArrayList(fileReaderListeners).iterator(); it.hasNext(); ) {
-                    ((FileReaderListener) it.next()).readFileFinished(fileDir, Collections.singleton(elements));
-                }
+                sendRefreshInfo(fileDir, elements);
                 filesToRefresh.remove(filePath);
             }
         }
@@ -1181,6 +1178,46 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             VcsManager.getDefault().showCustomizer(cmd);
             cmd.execute();
         }
+    }
+    
+    private String lastCollectedFolder = null;
+    private Set lastCollectedElements = null;
+    
+    /**
+     * This method collects the refresh information and send it to the listeners
+     * in groups. This improves the performance of the whole status refresh and
+     * status cache storage system.
+     */
+    private void sendRefreshInfo(String folder, String[] elements) {
+        if (!folder.equals(lastCollectedFolder)) {
+            if (lastCollectedFolder != null) {
+                for (Iterator it = new ArrayList(fileReaderListeners).iterator();
+                     it.hasNext(); ) {
+                    ((FileReaderListener) it.next()).readFileFinished(lastCollectedFolder,
+                                                                      lastCollectedElements);
+                }
+                lastCollectedElements.clear();
+            }
+            lastCollectedFolder = folder;
+        }
+        if (lastCollectedElements == null) lastCollectedElements = new HashSet();
+        lastCollectedElements.add(elements);
+    }
+    
+    /**
+     * This methods sends the remaining refresh information to the listeners
+     * and cleanups the collected elements.
+     */
+    private void cleanupSendRefreshInfo() {
+        if (lastCollectedFolder != null) {
+            for (Iterator it = new ArrayList(fileReaderListeners).iterator();
+                 it.hasNext(); ) {
+                ((FileReaderListener) it.next()).readFileFinished(lastCollectedFolder,
+                                                                  lastCollectedElements);
+            }
+        }
+        lastCollectedFolder = null;
+        lastCollectedElements = null;
     }
 
     /**
