@@ -620,6 +620,10 @@ public class VcsAction extends NodeAction implements ActionListener {
             vars.put("FILES", vfiles.delete(vfiles.length() - 1, vfiles.length()).toString());
             vars.put("PATHS", paths.delete(paths.length() - 2, paths.length()).toString());
             vars.put("QPATHS", qpaths.toString().trim());
+        } else { // Note, that these variables are EMPTY on single file to be able to do tests on them
+            vars.put("FILES", "");
+            vars.put("PATHS", "");
+            vars.put("QPATHS", "");
         }
     }
     
