@@ -43,6 +43,9 @@ public class VariableIO extends Object {
     public static final String CONFIG_FILE_EXT = "xml";
     public static final String CONFIG_ROOT_ELEM = "configuration";
     public static final String LABEL_TAG = "label";
+    public static final String OS_TAG = "os";
+    public static final String OS_COMPATIBLE_TAG = "compatible";
+    public static final String OS_UNCOMPATIBLE_TAG = "uncompatible";
     public static final String VARIABLES_TAG = "variables";
     public static final String VARIABLE_TAG = "variable";
     public static final String VARIABLE_SELECTOR_TAG = "selector";
@@ -238,7 +241,7 @@ public class VariableIO extends Object {
         return label;
     }
     
-    public static synchronized String getConfigurationLabel(FileObject configRoot, final String name) {
+    public static synchronized String[] getConfigurationLabelAndOS(FileObject configRoot, final String name) {
         FileObject config = configRoot.getFileObject(name);
         if (config == null) {
             org.openide.util.RequestProcessor.postRequest(new Runnable() {
@@ -276,7 +279,11 @@ public class VariableIO extends Object {
         } catch (java.io.IOException ioExc) {
         }
         //System.out.println("  --> label = "+labelContentHandler.getLabel());
-        return VcsUtilities.getBundleString(labelContentHandler.getLabel());
+        String[] labelAndOS = new String[3];
+        labelAndOS[0] = VcsUtilities.getBundleString(labelContentHandler.getLabel());
+        labelAndOS[1] = labelContentHandler.getCompatibleOSs();
+        labelAndOS[2] = labelContentHandler.getUncompatibleOSs();
+        return labelAndOS;
     }
 
     /** Read list of VCS variables from the document.
@@ -456,10 +463,16 @@ public class VariableIO extends Object {
     private static class LabelContentHandler extends Object implements ContentHandler, EntityResolver {
         
         private String label;
+        private String compatibleOSs;
+        private String uncompatibleOSs;
         boolean readLabel = false;
+        boolean readCompatibleOSs = false;
+        boolean readUncompatibleOSs = false;
         
         public void startDocument() throws org.xml.sax.SAXException {
-            label = "";
+            label = null;
+            compatibleOSs = null;
+            uncompatibleOSs = null;
         }
         
         public void endDocument() throws org.xml.sax.SAXException {
@@ -472,7 +485,16 @@ public class VariableIO extends Object {
             String elementName = ("".equals(localName)) ? qName : localName;
             //System.out.println("      startElement("+elementName+")");
             if (LABEL_TAG.equals(elementName)) {
+                label = "";
                 readLabel = true;
+            } else if (OS_COMPATIBLE_TAG.equals(elementName)) {
+                compatibleOSs = "";
+                readCompatibleOSs = true;
+            } else if (OS_UNCOMPATIBLE_TAG.equals(elementName)) {
+                uncompatibleOSs = "";
+                readUncompatibleOSs = true;
+            } else if (label != null && !OS_TAG.equals(elementName)) {
+                throw new org.xml.sax.SAXException("End of label.");
             }
         }
         
@@ -481,6 +503,12 @@ public class VariableIO extends Object {
             //System.out.println("      startElement("+elementName+")");
             if (readLabel && LABEL_TAG.equals(elementName)) {
                 readLabel = false;
+                //throw new org.xml.sax.SAXException("End of label.");
+            } else if (readCompatibleOSs && OS_COMPATIBLE_TAG.equals(elementName)) {
+                readCompatibleOSs = false;
+            } else if (readUncompatibleOSs && OS_UNCOMPATIBLE_TAG.equals(elementName)) {
+                readUncompatibleOSs = false;
+            } else if (OS_TAG.equals(elementName)) {
                 throw new org.xml.sax.SAXException("End of label.");
             }
         }
@@ -501,6 +529,10 @@ public class VariableIO extends Object {
             //System.out.println("   characters("+new String(values, start, length)+"), readLabel = "+readLabel);
             if (readLabel) {
                 label += new String(values, start, length);
+            } else if (readCompatibleOSs) {
+                compatibleOSs += new String(values, start, length);
+            } else if (readUncompatibleOSs) {
+                uncompatibleOSs += new String(values, start, length);
             }
         }
         
@@ -509,6 +541,14 @@ public class VariableIO extends Object {
         
         public String getLabel() {
             return label;
+        }
+        
+        public String getCompatibleOSs() {
+            return compatibleOSs;
+        }
+        
+        public String getUncompatibleOSs() {
+            return uncompatibleOSs;
         }
         
         public InputSource resolveEntity(String pubid, String sysid) throws org.xml.sax.SAXException, java.io.IOException {
