@@ -17,6 +17,7 @@ Microsystems, Inc. All Rights Reserved.
   <import file="../../../nbbuild/default.xml"/>
 
   <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+  <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="${nb_all}/nbbuild/nbantext.jar"/>
   
   <target name="init" depends="default.init">
     <patternset id="vcsgeneric/profiles/subversion.files">
@@ -78,6 +79,11 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*.form"/>
       </fileset>
     </jar>
+    <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
+      <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
+        <include name="${nb.modules.dir}/subversion-profile.jar"/>
+      </enabled>
+    </createmodulexml>
   </target>
 
   <target name="netbeans" depends="jars">
