@@ -176,12 +176,8 @@ public final class CvsFileAttributeProvider implements FileAttributeProvider {
                             // FS root
                             fprops.setStatus(VERSIONED_FOLDER_STATUS);
                         } else {
-                            boolean ignored = IgnoreList.forFolder(parent).isIgnored(targetName);
-                            if (ignored) {
-                                fprops.setStatus(Statuses.STATUS_IGNORED);
-                            } else {
-                                fprops.setStatus(VERSIONED_FOLDER_STATUS);
-                            }
+                            // Regardless of the ignored state, the folder is versioned.
+                            fprops.setStatus(VERSIONED_FOLDER_STATUS);
                         }
                     } else {
                         fprops.setStatus("Needs Checkout"); // NOI18N
