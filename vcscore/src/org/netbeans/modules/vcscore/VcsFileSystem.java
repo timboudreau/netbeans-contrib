@@ -3062,8 +3062,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             //versioningSystem.fireRevisionChange(name, new RevisionEvent());
         }
         
-        public java.io.InputStream getInputStream(String name, String revision) throws java.io.FileNotFoundException {
-            return inputStream(name);
+        public java.io.InputStream inputStream(String name, String revision) throws java.io.FileNotFoundException {
+            return VcsFileSystem.this.inputStream(name);
         }
     }
     
