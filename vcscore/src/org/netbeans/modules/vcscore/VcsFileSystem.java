@@ -1843,7 +1843,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     //-------------------------------------------
-    public Vector getVariables(){
+    public Vector getVariables() {
         return variables;
     }
 
@@ -1992,13 +1992,20 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
 
     //-------------------------------------------
-    public synchronized Hashtable getVariablesAsHashtable() {
-        int len = getVariables().size();
-        Hashtable result = new Hashtable(len+10);
-        for(int i = 0; i < len; i++) {
-            VcsConfigVariable var = (VcsConfigVariable) getVariables().elementAt (i);
-            String value = var.getValue();
-            if (value != null) result.put(var.getName (), value);
+    public Hashtable getVariablesAsHashtable() {
+        Vector vars;
+        String rootDir;
+        Hashtable result;
+        synchronized (this) {
+            vars = getVariables();
+            rootDir = getRootDirectory().toString();
+            int len = vars.size();
+            result = new Hashtable(len+10);
+            for(int i = 0; i < len; i++) {
+                VcsConfigVariable var = (VcsConfigVariable) vars.elementAt (i);
+                String value = var.getValue();
+                if (value != null) result.put(var.getName (), value);
+            }
         }
 
         result.put("netbeans.home", System.getProperty("netbeans.home"));
@@ -2011,7 +2018,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             result.put("PS", ""+File.separator); // NOI18N
         }
 
-        String rootDir = getRootDirectory().toString();
         String module = (String) result.get("MODULE"); // NOI18N
         //if (osName.indexOf("Win") >= 0) // NOI18N
         //module=module.replace('\\','/');
@@ -2663,49 +2669,50 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      *    by the {@link org.openide.filesystems.Repository Repository})
      * @exception IOException if the root does not exists or some other error occured
      */
-    protected final synchronized void setRootDirectory (File r, boolean forceToSet) throws PropertyVetoException, IOException {
+    protected final void setRootDirectory (File r, boolean forceToSet) throws PropertyVetoException, IOException {
         //D.deb("setRootDirectory("+r+")"); // NOI18N
         if (/*!r.exists() ||*/ r.isFile ()) {
             throw new IOException(g("EXC_RootNotExist", r.toString ())); // NOI18N
         }
 
-        Hashtable vars = getVariablesAsHashtable();
-        String module = (String) vars.get("MODULE"); // NOI18N
-        if (module == null) module = ""; // NOI18N
-        File root = new File(r, module);
-        if (!forceToSet && rootFile.equals(root)) return ;
-        String name = computeSystemName (root);
-        /* Ignoring other filesystems' names => it is possible to mount VCS filesystem with the same name.
-        Enumeration en = TopManager.getDefault ().getRepository ().fileSystems ();
-        while (en.hasMoreElements ()) {
-            FileSystem fs = (FileSystem) en.nextElement ();
-            if (((org.openide.util.Utilities.isWindows() && fs.getSystemName().equalsIgnoreCase(name))
-                 || (!org.openide.util.Utilities.isWindows() && fs.getSystemName().equals(name)))
-                && !fs.equals(this)) { // Ignore my name if I'm already mounted
-                // NotifyDescriptor.Exception nd = new NotifyDescriptor.Exception (
-                throw (PropertyVetoException) TopManager.getDefault().getErrorManager().annotate(
-                    new PropertyVetoException (g("EXC_DirectoryMounted"), // NOI18N
-                        new PropertyChangeEvent (this, PROP_ROOT, getSystemName (), name)), // NOI18N
-                    g("EXC_DirectoryMounted")); // NOI18N
-                // TopManager.getDefault ().notify (nd);
+        //Hashtable vars = getVariablesAsHashtable();
+        synchronized (this) {
+            String module = getRelativeMountPoint();
+            File root = new File(r, module);
+            if (!forceToSet && rootFile.equals(root)) return ;
+            String name = computeSystemName (root);
+            /* Ignoring other filesystems' names => it is possible to mount VCS filesystem with the same name.
+            Enumeration en = TopManager.getDefault ().getRepository ().fileSystems ();
+            while (en.hasMoreElements ()) {
+                FileSystem fs = (FileSystem) en.nextElement ();
+                if (((org.openide.util.Utilities.isWindows() && fs.getSystemName().equalsIgnoreCase(name))
+                     || (!org.openide.util.Utilities.isWindows() && fs.getSystemName().equals(name)))
+                    && !fs.equals(this)) { // Ignore my name if I'm already mounted
+                    // NotifyDescriptor.Exception nd = new NotifyDescriptor.Exception (
+                    throw (PropertyVetoException) TopManager.getDefault().getErrorManager().annotate(
+                        new PropertyVetoException (g("EXC_DirectoryMounted"), // NOI18N
+                            new PropertyChangeEvent (this, PROP_ROOT, getSystemName (), name)), // NOI18N
+                        g("EXC_DirectoryMounted")); // NOI18N
+                    // TopManager.getDefault ().notify (nd);
+                }
+            }
+             */
+            D.deb("Setting system name '"+name+"'"); // NOI18N
+            setAdjustedSystemName(name);
+
+            rootFile = root;
+            last_rootFile = new File(getFSRoot());
+            ready=true ;
+
+            //HACK 
+      //      this.cache.refreshDir(this.getRelativeMountPoint());
+
+            if (cache != null) {
+                cache.setFSRoot(r.getAbsolutePath());
+                cache.setRelativeMountPoint(module);
             }
         }
-         */
-        D.deb("Setting system name '"+name+"'"); // NOI18N
-        setAdjustedSystemName(name);
-
-        rootFile = root;
         firePropertyChange(PROP_DISPLAY_NAME, null, null);
-        last_rootFile = new File(getFSRoot());
-        ready=true ;
-        
-        //HACK 
-  //      this.cache.refreshDir(this.getRelativeMountPoint());
-         
-        if (cache != null) {
-            cache.setFSRoot(r.getAbsolutePath());
-            cache.setRelativeMountPoint(module);
-        }
         firePropertyChange(PROP_ROOT, null, refreshRoot ());
     }
     
