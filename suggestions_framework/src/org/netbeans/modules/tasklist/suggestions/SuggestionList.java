@@ -55,12 +55,7 @@ public class SuggestionList extends TaskList {
     }
 
     public SuggestionList(int groupTreshold) {
-        super(new SuggestionImpl(
-              NbBundle.getMessage(SuggestionList.class,
-                                   "SuggestionsRoot"), null, null,
-              null)); // NOI18N
         this.groupTreshold = groupTreshold;
-
     }
 
     synchronized SuggestionImpl getCategoryTask(SuggestionType type,
@@ -116,17 +111,14 @@ public class SuggestionList extends TaskList {
      * @deprecated use Task.addSubtask(Task subtask, Task after) instead
      */
     private void addCategory(Task task, Task after) {
-        if (root == null) {
-            root = getRoot();
-        }
         if (task.getParent() == null) {
-            root.addSubtask(task);
+            appendTask(task);
         } else {
-	  Task parent = task.getParent();
-	  // User insert: prepend to the list
-	  parent.removeSubtask(task);
-	  parent.addSubtask(task, after);
-	}
+            Task parent = task.getParent();
+            // User insert: prepend to the list
+            parent.removeSubtask(task);
+            parent.addSubtask(task, after);
+        }
     }
 
 
@@ -136,25 +128,14 @@ public class SuggestionList extends TaskList {
      * @deprecated use Task.addSubtask(Task subtask, boolean append) instead
      */
     private void addCategory(Task task, boolean append) {
-
-        // Q: what's this? why it not it added to root
-        // instead of task.getParent?
-        // A: it's probably because tasklist is flat
-        // but tasks can form hierarchy sharing one tasklist
-
-        if (root == null) {
-            root = getRoot();
-        }
         if (task.getParent() == null) {
-            root.addSubtask(task);
+            appendTask(task);
         } else {
-	  // it's really funny contruct  (XXX probably want to add it to list end)
-	  Task parent = task.getParent();
-	  parent.removeSubtask(task);
-	  parent.addSubtask(task, append);
-	}
-
-        fireAdded(task);
+            // it's really funny contruct  (XXX probably want to add it to list end)
+            Task parent = task.getParent();
+            parent.removeSubtask(task);
+            parent.addSubtask(task, append);
+        }
     }
 
 

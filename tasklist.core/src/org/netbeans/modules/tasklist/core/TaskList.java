@@ -36,8 +36,8 @@ public class TaskList implements ObservableList, TaskListener {
     final static String USER_CATEGORY = "usertasks"; // NOI18N
 
     // data holder
-    protected Task root = null;
-    
+    private List tasks = new LinkedList();
+
     private final ArrayList listeners = new ArrayList(67);
     
     /** Has the options set changed such that we need to save */
@@ -46,15 +46,8 @@ public class TaskList implements ObservableList, TaskListener {
     
     /**
      * Creates a new instance of TaskList.
-     * {@link #getRoot} must be overriden properly.
      */
     public TaskList() {
-    }
-
-    /** Creates a new instance of TaskList with a specified root */
-    public TaskList(Task root) { // Must this be public?
-        this.root = root;
-        root.addTaskListener(this);
     }
 
     protected void setNeedSave(boolean b) {
@@ -65,27 +58,9 @@ public class TaskList implements ObservableList, TaskListener {
         dontSave = b;
     }
 
-    /**
-     * Returns the root task of the task list
-     *
-     * @return root task
-     */
-    public Task getRoot() {
-        if (root == null) {
-            // Just use the name "Description" since for some reason,
-            // when we have no items the TreeView puts the root node
-            // description as the header for the leftmost column...
-            root = new Task();
-            root.setSummary(NbBundle.getMessage(TaskList.class,
-                    "Description")); // NOI18N
-            root.addTaskListener(this);
-        }
-        return root;
-    }
-
-    /** Access tasks held by this list. */
+    /** Read-only access to tasks held by this list. */
     public final List getTasks() {
-        return getRoot().getSubtasks();
+        return Collections.unmodifiableList(tasks);
     }
 
     /** Add a list of tasks to the tasklist, and remove a list of
@@ -109,7 +84,7 @@ public class TaskList implements ObservableList, TaskListener {
     public void addRemove(List addList, List removeList, boolean append,
                           Task parent, Task after) {
         // Disable updates for the duration of the list update
-        setSilentUpdate(true, true, false);
+        setSilentUpdate(true, false);
 
         boolean modified = false;
 
@@ -120,34 +95,38 @@ public class TaskList implements ObservableList, TaskListener {
             it = removeList.iterator();
             while (it.hasNext()) {
                 Task task = (Task) it.next();
-                task.removeTaskListener(this);
                 if (parent != null) {
+                    task.removeTaskListener(this);
                     parent.removeSubtask(task);
                 } else {
-                    root.removeSubtask(task);
+                    removeTask(task);
                 }
                 modified = true;
             }
         }
 
-        if (parent == null) {
-            if (root == null) {
-                root = getRoot();
-            }
-            parent = root;
-        }
+//        if (parent == null) {
+//            if (root == null) {
+//                root = getRoot();
+//            }
+//            parent = root;
+//        }
 
         if (addList != null) {
             modified = true;
 
-            it = addList.iterator();
-            while (it.hasNext()) {
-                Task next = (Task) it.next();
-                next.addTaskListener(this);
-            }
-
             // User insert: prepend to the list
-            parent.addSubtasks(addList, append, after);
+            if (parent != null) {
+                it = addList.iterator();
+                while (it.hasNext()) {
+                    Task next = (Task) it.next();
+                    next.addTaskListener(this);
+                }
+                parent.addSubtasks(addList, append, after);
+            } else {
+                assert (after == null) : "After inserting is not implemented.";
+                addTasks(addList, append);
+            }
         }
 
         // Update the task list now
@@ -156,7 +135,54 @@ public class TaskList implements ObservableList, TaskListener {
         // XXX - now that I have added a parent reference, should
         // the property notification happen relative to it? Probably yes.
         // Need parent reference in setSilentUpdate
-        setSilentUpdate(false, true, modified);
+        setSilentUpdate(false, modified);
+    }
+
+    /**
+     * Add top level tasks to the list and fire event.
+     */
+    public final void addTasks(List tasks, boolean append) {
+        Iterator it = tasks.iterator();
+        while (it.hasNext()) {
+            Task task = (Task) it.next();
+            task.addTaskListener(this);
+            if (append) {
+                this.tasks.add(task);
+            } else {
+                this.tasks.add(0, task);
+            }
+            fireAdded(task);     // TODO silent update?
+        }
+    }
+
+    /**
+     * Add top level task to the list and fire event.
+     */
+    public final void appendTask(Task task) {
+        task.addTaskListener(this);
+        tasks.add(task);
+        fireAdded(task);
+    }
+
+    /**
+     * Remove top level tasks from the list and fire event
+     */
+    public final void removeTasks(List tasks) {
+        Iterator it = tasks.iterator();
+        while (it.hasNext()) {
+            Task task = (Task) it.next();
+            removeTask(task);
+        }
+    }
+
+    /**
+     * Remove top level task from the list and fire event
+     */
+    public final void removeTask(Task task) {
+        task.removeTaskListener(this);
+        if (tasks.remove(task)) {
+            fireRemoved(null, task); // TODO silent update?
+        }
     }
 
     /**
@@ -186,28 +212,24 @@ public class TaskList implements ObservableList, TaskListener {
      when contents changes. This is used for batch operations
      (such as inserting a series of tasks when scanning a source file.)
      * @param silentUpdate New value of property silentUpdate.
-     * @param rootUpdates When true, also suppress root modification properties
      * @param saveOnFinish If true, save the task when we stop being silent
+     *
+     * @deprecated use {@link #addRemove} that should merge events (but it does not right now)
      */
-    void setSilentUpdate(boolean silentUpdate, boolean rootUpdates,
-                         boolean saveOnFinish) {// XXX remove the publicness
+    final void setSilentUpdate(boolean silentUpdate,
+                               boolean saveOnFinish) {// XXX remove the publicness
         dontSave = silentUpdate;
         needSave = true;
-        if (rootUpdates) {
-            if (root == null) {
-                root = getRoot();
-            }
-            if (silentUpdate) {
-                // XXX this is going to generate lots of updates.
-                // I should set silentUpdate on the root during the
-                // deletions...
-                root.setSilentUpdate(true, false, false, false);
-            } else {
-                // XXX It would be better NOT to do this, so I don't get
-                // a refresh after the items have been deleted!
-                root.setSilentUpdate(false, false, true, saveOnFinish);
-            }
-        }
+//        if (silentUpdate) {
+//            // XXX this is going to generate lots of updates.
+//            // I should set silentUpdate on the root during the
+//            // deletions...
+//            root.setSilentUpdate(true, false);
+//        } else {
+//            // XXX It would be better NOT to do this, so I don't get
+//            // a refresh after the items have been deleted!
+//            root.setSilentUpdate(false, true);
+//        }
         if (!dontSave && saveOnFinish) {
             // May do nothing if setSilentUpdate above did a TaskList.markChanged()
             save();
@@ -293,10 +315,10 @@ public class TaskList implements ObservableList, TaskListener {
     /** 
      * Return a count of the number of tasks in this list. 
      *
-     * @deprecated use getRoot().getSubtaskCountRecursively() instead
+     * @deprecated use TLUtils#recursiveCount
      */
     public int size() {
-        return root.getSubtaskCountRecursively();
+        return TLUtils.recursiveCount(tasks.iterator());
     }
 
     /** Return the translators capable of handling this tasklist.
@@ -315,19 +337,19 @@ public class TaskList implements ObservableList, TaskListener {
      * Remove all the tasks in this tasklist 
      */
     public void clear() {
-        if (root != null) {
-            root.clear();
-            fireStructureChanged(root);
-        }
+        tasks.clear();
+        fireStructureChanged(null);
     }
 
     /** For debugging purposes, only. Writes directly to serr. */
     public void print() {
         System.err.println("\nTask List:\n-------------");
-        if (root == null) {
-            return;
+        Iterator it = tasks.iterator();
+        while (it.hasNext()) {
+            Task next = (Task) it.next();
+            recursivePrint(next, 0);
         }
-        recursivePrint(root, 0);
+
         System.err.println("\n\n");
     }
 

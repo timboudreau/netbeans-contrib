@@ -157,7 +157,7 @@ public class TaskTest extends TestCase {
         final Task c2 = new Task("Child 2", null);
 
         ObservableList list = new TaskList();
-        task = list.getRoot();
+//        task = list.getRoot();
 
         final boolean tlCallbacks[] = new boolean[2];
         
@@ -212,7 +212,7 @@ public class TaskTest extends TestCase {
         final Task c2 = new Task("Child 2", null);
 
         ObservableList list = new TaskList();
-        task = list.getRoot();
+//        task = list.getRoot();
         final Task root = task;
 
         final boolean tlCallbacks[]  = new boolean[2];

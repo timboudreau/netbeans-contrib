@@ -140,7 +140,7 @@ public class TaskChildren extends Children.Keys {
         }
 
         public void structureChanged(Task t) {
-            if (t.isParentOf(parent)) {
+            if (t == null || t.isParentOf(parent)) {
                 refreshKeys();
             }
         }

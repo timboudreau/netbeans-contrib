@@ -535,20 +535,14 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      * When true, don't notify anybody of updates to this object - and don't
         modify the edited timestamp. Used by the restore code.
      * @param silentUpdate New value of property silentUpdate.
-     * @param fireAttrs If true, fire attribute property changes when
-                       updates are reenabled
-     * @param fireChildren If true, fire children property changes
-                       when updates are reenabled
+     @param fireChildren If true, fire children property changes
+                            when updates are reenabled
      */
     // XXX make private again!
-    public void setSilentUpdate(boolean silentUpdate, boolean fireAttrs,
-			 boolean fireChildren, boolean save) {
+    public void setSilentUpdate(boolean silentUpdate,
+                                boolean fireChildren) {
         this.silentUpdate = silentUpdate;
         if (!silentUpdate) {
-            if (fireAttrs) {
-                firePropertyChange(PROP_ATTRS_CHANGED, null, null);
-            }
-
             if (fireChildren) {
                 fireStructureChanged();
             }

@@ -21,22 +21,7 @@ import java.util.List;
  * @author Petr Kuzel
  */
 public interface ObservableList {
-    /**
-     * Return top level task.
-     *
-     * XXX based on current impl where
-     * root task is a client provided
-     * top level tasks holder.
-     *
-     * Proper impl should be that toplevel
-     * holder is impl issue and clients
-     * use mutation methods using writeable
-     * tasklist interface
-     *
-     * @deprecated by {@link #getTasks}
-     */
-    Task getRoot();
-
+    
     /**
      * Access top level tasks in the list.
      *

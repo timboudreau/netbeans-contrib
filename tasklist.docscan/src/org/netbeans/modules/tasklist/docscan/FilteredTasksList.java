@@ -18,10 +18,7 @@ import org.netbeans.modules.tasklist.core.TaskListener;
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.core.TaskList;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.WeakHashMap;
+import java.util.*;
 
 /**
  * Delegate actions to original task list while
@@ -42,30 +39,16 @@ final class FilteredTasksList implements ObservableList {
 
     private final TaskList peer;
     private List listeners = new ArrayList(1);
-    private Task root;
+    private List tasks = new LinkedList();
     private EventHandler handler;
     private boolean silent = false;
 
     public FilteredTasksList(TaskList peer) {
-        assert peer.getRoot() != null : "Unitialized list :" + peer;  // NOI18N
         this.peer = peer;
     }
 
-    /**
-     * Unlike real root this one is sampled. It
-     * starts to monitor live peer once a listener
-     * is attached.
-     */
-    public Task getRoot() {
-        if (root == null) {
-            root = new Task();  // see identity trick in fireStructureChanged
-            refreshSnapshot();
-        }
-        return root;
-    }
-
     public List getTasks() {
-        return getRoot().getSubtasks();
+        return tasks;
     }
 
     public synchronized void addTaskListener(TaskListener l) {
@@ -107,17 +90,16 @@ final class FilteredTasksList implements ObservableList {
     private void fireStructureChanged(Task task) {
 //        if (silent) return;  // the event comes from root.updatedStructure
 
-        Task context = (peer.getRoot() == task) ? root : task;
         Iterator it = listeners.iterator();
         while (it.hasNext()) {
             TaskListener listener = (TaskListener) it.next();
-            listener.structureChanged(context);
+            listener.structureChanged(task);
         }
     }
 
+    /** Client must fire structure changed event */
     private void refreshSnapshot() {
-        if (root == null) return;
-        root.clear();
+        tasks.clear();
         loadSourceTasks(peer.getTasks());
     }
 
@@ -129,7 +111,7 @@ final class FilteredTasksList implements ObservableList {
             if (task.getSeed() instanceof SourceTaskProvider) {
                 // loosing identity here
                 Task clone = task.cloneTask();
-                root.addSubtask(clone, true);
+                tasks.add(clone);
             } else {
                 // There are those nesting category tasks
                 // if grouping treshold is matched.
@@ -165,10 +147,13 @@ final class FilteredTasksList implements ObservableList {
                     silent = true;
                     // loosing identity here
                     Task clone = t.cloneTask();
-                    getRoot().addSubtask(clone, true);
+                    tasks.add(clone);
                 } finally {
                     silent = false;
                 }
+
+                // fire event
+
                 Iterator it = listeners.iterator();
                 while (it.hasNext()) {
                     TaskListener listener = (TaskListener) it.next();
@@ -186,6 +171,7 @@ final class FilteredTasksList implements ObservableList {
 
         public void removedTask(Task pt, Task t) {
             if (t.getSeed() instanceof SourceTaskProvider) {
+                boolean removed = false;
                 try {
                     // find pairing task by key identity
                     Object key = t.getKey();
@@ -201,23 +187,26 @@ final class FilteredTasksList implements ObservableList {
 
                     if (remove != null) {
                         silent = true;
-                        getRoot().removeSubtask(t);
+                        removed = tasks.remove(remove);
                     }
                 } finally {
                     silent = false;
                 }
-                Iterator it = listeners.iterator();
-                while (it.hasNext()) {
-                    TaskListener listener = (TaskListener) it.next();
-                    listener.removedTask(null, t); // TODO cannot find the parent of t
+
+                // fire event
+
+                if (removed) {
+                    Iterator it = listeners.iterator();
+                    while (it.hasNext()) {
+                        TaskListener listener = (TaskListener) it.next();
+                        listener.removedTask(null, t);
+                    }
                 }
             } else if (t.hasSubtasks()) {
                 // category nodes
                 Iterator it = t.subtasksIterator();
                 while (it.hasNext()) {
                     Task task = (Task) it.next();
-                    
-                    // TODO cannot find the parent of task
                     removedTask(null, task);  // recursion
                 }
             }
