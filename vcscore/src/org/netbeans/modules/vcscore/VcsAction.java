@@ -34,6 +34,8 @@ import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.Debug;
 import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 import org.netbeans.modules.vcscore.util.WeakList;
+import org.netbeans.modules.vcscore.cache.CacheDir;
+import org.netbeans.modules.vcscore.cache.CacheFile;
 import org.netbeans.modules.vcscore.caching.VcsFSCache;
 import org.netbeans.modules.vcscore.caching.VcsCacheFile;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
@@ -519,7 +521,8 @@ public class VcsAction extends NodeAction implements ActionListener {
                                           CommandDataOutputListener stdoutDataListener, CommandDataOutputListener stderrDataListener) {
         boolean[] askForEachFile = (boolean[]) askForEachFileRef[0];
         Hashtable vars = (Hashtable) varsRef[0];
-        setVariables(files, vars, quoting, valueAdjustment);
+        FileCacheProvider cacheProvider = fileSystem.getCacheProvider();
+        setVariables(files, vars, quoting, valueAdjustment, cacheProvider);
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         CommandsPool pool = fileSystem.getCommandsPool();
         int preprocessStatus = pool.preprocessCommand(vce, vars, fileSystem, askForEachFile);
@@ -537,7 +540,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             Table singleFileTable = new Table();
             Object singleFile = files.keys().nextElement();
             singleFileTable.put(singleFile, files.get(singleFile));
-            setVariables(singleFileTable, vars, quoting, valueAdjustment);
+            setVariables(singleFileTable, vars, quoting, valueAdjustment, cacheProvider);
         } else if (cmdCanRunOnMultipleFilesInFolder) {
             singleFolderTable = new Table();
             Enumeration keys = files.keys();
@@ -556,7 +559,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                     singleFolderTable.put(file, files.get(file));
                 }
             }
-            setVariables(singleFolderTable, vars, quoting, valueAdjustment);
+            setVariables(singleFolderTable, vars, quoting, valueAdjustment, cacheProvider);
         }
         executors.add(vce);
         if (stdoutListener != null) vce.addOutputListener(stdoutListener);
@@ -1035,7 +1038,8 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param valueAdjustment the variable value adjustment utility object
      */
     protected static void setVariables(Table files, Hashtable vars, String quoting,
-                                       VariableValueAdjustment valueAdjustment) {
+                                       VariableValueAdjustment valueAdjustment,
+                                       FileCacheProvider cacheProvider) {
         // At first, find the first file and set the variables
         String fullName = (String) files.keys().nextElement();
         FileObject fo = (FileObject) files.get(fullName);
@@ -1066,6 +1070,17 @@ public class VcsAction extends NodeAction implements ActionListener {
             String ext = (extIndex >= 0 && extIndex < file.length() - 1) ? file.substring(extIndex + 1) : ""; // NOI18N
             String mime = FileUtil.getMIMEType(ext);
             if (mime != null) vars.put("MIMETYPE", mime); // NOI18N
+        }
+        if (isFileFolder) {
+            CacheDir cDir = cacheProvider.getDir(fullName);
+            if (cDir != null) {
+                vars.put("CACHED_ATTR", cDir.getAttr());
+            }
+        } else {
+            CacheFile cFile = cacheProvider.getFile(fullName);
+            if (cFile != null) {
+                vars.put("CACHED_ATTR", cFile.getAttr());
+            }
         }
         vars.put("FILE_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// the FILE is a folder // NOI18N
         // Second, set the multifiles variables
