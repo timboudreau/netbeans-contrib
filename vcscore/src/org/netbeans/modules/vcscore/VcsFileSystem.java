@@ -632,6 +632,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     /**
      * Get the full file path where cache information should be stored.
+     * @return the cache file path or null, if no disk cache should be used for this path
      */
     public abstract String getCacheFileName(String path);
     
@@ -1415,6 +1416,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     }
                 } else return false;
                 if (reasonPrompt) vars.put("REASON", VcsUtilities.msg2CmdlineStr(reason, isUseUnixShell())); // NOI18N
+            } else {
+                if (forEachFile != null) {
+                    forEachFile[0] = false;
+                }
             }
         }
         return true;
