@@ -459,8 +459,13 @@ public class StubAllTogether extends PVCSStub {
         PutCommandOperator putCommand = new PutCommandOperator(B_File.filename (0));
         String changeDescription = putCommand.getChangeDescription();
         out.println ("DEFAULT_GROUP - Put Description: " + changeDescription); // "Checked in from VCS group."
-        if (!"".equals (changeDescription))
-            changeDescription = "  " + changeDescription;
+        if (!"".equals (changeDescription)) {
+            int i = changeDescription.indexOf ('\n');
+            if (i >= 0)
+                changeDescription = "  " + changeDescription.substring (0, i);
+            else
+                changeDescription = "  " + changeDescription;
+        }
         putCommand.ok();
         putCommand.waitClosed ();
         B_File.waitHistory ("Put");
