@@ -66,13 +66,6 @@ public class FilesystemSettings extends JellyTestCase {
         junit.textui.TestRunner.run(suite());
     }
     
-    /** Method called before each testcase. Sets default timeouts, redirects system
-     * output and maps main components.
-     */
-    protected void setUp() throws Exception {
-        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(org.netbeans.jemmy.TestOut.getNullOutput());
-    }
-    
     /** Mounts new filesystem using given profile.
      * @param profile Profile that should be used in wizard.
      * @throws Any unexpected exception thrown during test.
@@ -366,7 +359,6 @@ public class FilesystemSettings extends JellyTestCase {
             filesystemNode.select();
             if (!found) {
                 String childs = getChildren(filesystemNode);
-                new UnmountFSAction().perform(filesystemNode);
                 throw new Exception("Error: Refresh time does not work." + childs);
             }
             new UnmountFSAction().perform(filesystemNode);
