@@ -36,6 +36,8 @@ import org.openide.filesystems.FileStatusEvent;
 import org.openide.filesystems.RepositoryListener;
 import org.openide.filesystems.RepositoryEvent;
 import org.openide.filesystems.RepositoryReorderedEvent;
+import org.openide.loaders.DataLoader;
+import org.openide.loaders.DataLoaderPool;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
@@ -55,6 +57,7 @@ import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.cache.CacheReference;
 import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.util.*;
+import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.runtime.RuntimeSupport;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
@@ -901,6 +904,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 Set s = Collections.synchronizedSet(hs);
                 fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, s, true, true));
                 checkScheduledStates(s);
+                checkVirtualFiles(s);
             }
         });
         if (versioningSystem != null) versioningSystem.statusChanged(path, recursively);
@@ -917,7 +921,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 //System.out.println("findResource("+name+") = "+fo);
                 if (fo == null) return;
                 fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, fo, true, true));
-                checkScheduledStates(Collections.singleton(fo));
+                Set fileSet = Collections.singleton(fo);
+                checkScheduledStates(fileSet);
+                checkVirtualFiles(fileSet);
             }
         });
         if (versioningSystem != null) versioningSystem.statusChanged(name);
@@ -3476,7 +3482,67 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public FilenameFilter getLocalFileFilter() {
         return null;
     }
-
+    
+    /**
+     * This method is called from AbstractFileObject.isVirtual. Tests if file
+     * really exists or is missing. Some operation on it may be restricted if returns true.
+     * @param name of the file
+     * @return  true indicates that the file is missing.
+     */
+    protected boolean checkVirtual(String name) {
+        File file = getFile(name);
+        return !file.exists();
+    }
+    
+    /**
+     * Perform the check of whether the file is or is not still virtual. This
+     * method is called on every file status change with the set of potentially
+     * changed files.
+     * This method does nothing, subclasses may override it with some meaningfull
+     * action (e.g. call setVirtualDataLoader() and invalidate the current
+     * DataObject if the setVirtualDataLoader() returns true).
+     * @param the set of FileObjects whose status was changed
+     */
+    protected void checkVirtualFiles(Set foSet) {
+    }
+    
+    /**
+     * This method assigns/unassigns special virtual data object to files,
+     * that are virtual.
+     * Subclasses should call this method on every change of the file "virtual"
+     * property.
+     * @param fo the FileObject
+     * @return whether the data object loader was changed for this file
+     */
+    protected boolean setVirtualDataLoader(FileObject fo) {
+        boolean reload = false;
+        try {
+            if (checkVirtual(fo.getPackageNameExt('/', '.'))) {
+                if (statusProvider != null) {
+                    String stat = statusProvider.getFileStatus(fo.getPackageNameExt('/', '.'));
+                    if (statusProvider.getLocalFileStatus().equals(stat)) {
+                        return reload;
+                    }
+                }
+                DataLoader loader = DataLoaderPool.getPreferredLoader(fo);
+                if (loader == null || !loader.getClass().equals(VirtualsDataLoader.class)) {
+                    DataLoaderPool.setPreferredLoader(fo,
+                        (VirtualsDataLoader) org.openide.util.SharedClassObject.findObject(VirtualsDataLoader.class, true));
+                    reload = true;
+                    //System.out.println("to vitrual..");
+                }
+            } else {
+                DataLoader loader = DataLoaderPool.getPreferredLoader(fo);
+                if (loader != null && loader.getClass().equals(VirtualsDataLoader.class)) {
+                    //System.out.println("resetitting loader");
+                    DataLoaderPool.setPreferredLoader(fo, null);
+                    reload = true;
+                }
+            }
+        } catch (java.io.IOException exc) {}
+        return reload;
+    }
+    
     private void settingsChanged(String propName, Object oldVal, Object newVal) {
         GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
         if (GeneralVcsSettings.PROP_USE_GLOBAL.equals(propName)) {
