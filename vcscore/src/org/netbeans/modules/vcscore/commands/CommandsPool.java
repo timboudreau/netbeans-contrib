@@ -133,12 +133,16 @@ public class CommandsPool extends Object /*implements CommandListener */{
             public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {}
             public void fileSystemRemoved(RepositoryEvent ev) {
                 if (ev.getFileSystem().equals(fileSystem)) {
-                    cleanup();
+                    //cleanup(); - The FS may still exist i.e. inside a MultiFileSystem => do not make the cleanup now
                     ev.getRepository().removeRepositoryListener(this);
                 }
             }
         });
         //executorStarterLoop();
+    }
+    
+    protected void finalize () {
+        cleanup();
     }
     
     private void cleanup() {
@@ -149,8 +153,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
             TopManager.getDefault().notifyException(exc);
         }
         synchronized (this) {
+            //* The FS may still exist i.e. inside a MultiFileSystem => do not interrupt the loop now
             execStarterLoopRunning = false;
             notifyAll();
+            // */
         }
     }
     
