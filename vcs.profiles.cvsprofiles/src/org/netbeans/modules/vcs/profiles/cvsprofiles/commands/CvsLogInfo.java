@@ -29,9 +29,6 @@ import org.netbeans.modules.vcscore.util.*;
  */
 public class CvsLogInfo extends Object implements CommandDataOutputListener {
 
-    private Debug E=new Debug("CvsLogInfo",true); // NOI18N
-    private Debug D=E;
-
     private StringBuffer logBuffer = new StringBuffer(4096);
     private Vector revisions = new Vector();
     private Vector revisionsFile = new Vector();
@@ -87,7 +84,6 @@ public class CvsLogInfo extends Object implements CommandDataOutputListener {
         while(enum.hasMoreElements()) {
             revision = (String) enum.nextElement();
             String symbName = (String) sn.get(revision);
-            D.deb("I have symbolic name: "+symbName+" for revision: "+revision); // NOI18N
             int revIndex = revSN.indexOf(revision);
             if (symbName != null) revision += "  "+symbName; // NOI18N
             if (revIndex >= 0) {
@@ -108,8 +104,7 @@ public class CvsLogInfo extends Object implements CommandDataOutputListener {
         while(enum.hasMoreElements()) {
             revision = (String) enum.nextElement();
             String symbName = (String) sn.get(revision);
-            D.deb("I have symbolic name: "+symbName+" for revision: "+revision); // NOI18N
-            int brIndex = brSN.indexOf(revision);
+                        int brIndex = brSN.indexOf(revision);
             if (brIndex >= 0) {
                 if (symbName != null) revision += "  "+symbName; // NOI18N
                 brSN.setElementAt(revision, brIndex);
@@ -118,7 +113,6 @@ public class CvsLogInfo extends Object implements CommandDataOutputListener {
                 if (lastDot > 1 && revision.charAt(lastDot - 1) == '0' &&
                         revision.charAt(lastDot - 2) == '.') {
                     String branch = revision.substring(0, lastDot-1) + revision.substring(lastDot+1);
-                    D.deb("I have created the branch number "+branch); // NOI18N
                     brIndex = brSN.indexOf(branch);
                     if (symbName != null) branch += "  "+symbName; // NOI18N
                     if (brIndex >= 0) {
@@ -151,10 +145,8 @@ public class CvsLogInfo extends Object implements CommandDataOutputListener {
             return false;
         }
         if (vce.getExitStatus() != VcsCommandExecutor.SUCCEEDED) {
-            E.err("exec failed "+vce.getExitStatus()); // NOI18N
             return false;
         }
-        D.deb("branches = "+branches); // NOI18N
         for(int i = 0; i < orderRevBranch.size(); i++) {
             Integer what = (Integer) orderRevBranch.get(i);
             i++;
@@ -258,7 +250,6 @@ public class CvsLogInfo extends Object implements CommandDataOutputListener {
 
     public void outputData(String[] elements) {
         if (elements[0] == null) return;
-        //D.deb("log match: "+elements[0]); // NOI18N
         logBuffer.append(elements[0]+"\n"); // NOI18N
         if (elements[0].indexOf(nextFileStr) >= 0) {
             mergeCommonRevisions();
@@ -300,8 +291,6 @@ public class CvsLogInfo extends Object implements CommandDataOutputListener {
                 */
                 symbolicNamesFile.put(elements[0].substring(valueIndex + 1, elements[0].length()).trim(),
                                       elements[0].substring(keyIndex, valueIndex).trim());
-                //D.deb("Putting to symbolic names: ("+elements[0].substring(valueIndex + 1, elements[0].length()).trim()+
-                //      ", "+elements[0].substring(keyIndex, valueIndex).trim()+")");
             }
         }
         if (elements[0].indexOf(symbNamesStr) >= 0) matchingSymbolicNames = true;

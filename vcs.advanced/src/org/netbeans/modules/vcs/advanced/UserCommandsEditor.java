@@ -29,8 +29,6 @@ import org.netbeans.modules.vcscore.commands.CommandsTree;
  */
 //-------------------------------------------
 public class UserCommandsEditor implements PropertyEditor {
-    private Debug E=new Debug("UserCommandsEditor", false); // NOI18N
-    private Debug D=E;
 
     //private Vector commands=new Vector(10);
     //private Node commands = null;
@@ -52,7 +50,6 @@ public class UserCommandsEditor implements PropertyEditor {
 
     //-------------------------------------------
     public void setAsText(String text) {
-        //D.deb("setAsText("+text+") ignored"); // NOI18N
     }
 
     //-------------------------------------------
@@ -84,7 +81,6 @@ public class UserCommandsEditor implements PropertyEditor {
     //-------------------------------------------
     public void setValue(Object value) {
         if (!(value instanceof CommandsTree)) {
-            E.err("CommandsTree expected instead of "+value); // NOI18N
             throw new IllegalArgumentException("CommandsTree expected instead of "+value);
         }
         commands = (CommandsTree) value;

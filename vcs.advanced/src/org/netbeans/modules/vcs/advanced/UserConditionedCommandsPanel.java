@@ -32,7 +32,6 @@ import org.openide.util.Lookup;
 
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
-import org.netbeans.modules.vcscore.util.Debug;
 
 import org.netbeans.modules.vcs.advanced.commands.*;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;

@@ -17,7 +17,6 @@ import org.openide.util.*;
 //import org.netbeans.modules.cvsclient.commands.*;
 import javax.swing.event.TableModelEvent;
 
-import org.netbeans.modules.vcscore.util.Debug;
 import java.util.*;
 import org.netbeans.modules.vcscore.util.table.*;
 
@@ -26,8 +25,6 @@ import org.netbeans.modules.vcscore.util.table.*;
  * @author  mkleint
  */
 public class GrowingTableInfoModel extends TableInfoModel {
-    private Debug E=new Debug("UpdateTableInfoModel", true); // NOI18N
-    private Debug D=E;
       
       public GrowingTableInfoModel() {
           super();

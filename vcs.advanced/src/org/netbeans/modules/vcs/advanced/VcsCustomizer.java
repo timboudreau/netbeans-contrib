@@ -67,8 +67,6 @@ import org.openide.nodes.BeanNode;
  */
 
 public class VcsCustomizer extends javax.swing.JPanel implements Customizer,ExplorerManager.Provider {
-    private Debug E=new Debug("VcsCustomizer", true); // NOI18N
-    private Debug D = E;
 
     /**
      * The name of the variable, that contains pairs of variables and commands.
@@ -1012,7 +1010,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         chooseDir.show();
         String selected=chooseDir.getSelectedDir();
         if( selected==null ){
-            //D.deb("no directory selected"); // NOI18N
             return ;
         }
         rootDirTextField.setText(selected);
@@ -1114,7 +1111,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             String selectedLabel=(String)evt.getItem();
             //updateVariables (selectedLabel);
             /*
-            E.deb ("config state changed to:"+selectedLabel);
             if(selectedLabel.equalsIgnoreCase("empty")) { // NOI18N
                 removeConfigButton.setEnabled (false);
                 saveAsButton.setNextFocusableComponent (propsPanel);
@@ -1158,7 +1154,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 change = true;
             }
             if (change) {
-                //D.deb("yes"); // NOI18N
                 // just do not display prompt for the first change if config was not edited
                 promptForConfigComboChange = true;
                 String profileName = (String) profileNamesForLabels.get(selectedLabel);
@@ -1448,7 +1443,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
     //-------------------------------------------
     public void addPropertyChangeListener(PropertyChangeListener l) {
-        //D.deb("addPropertyChangeListener()"); // NOI18N
         // We must handle the case when someone tries to add a listener
         // to uninitialized instance of this. See #41676.
         if (changeSupport == null) {
@@ -1460,7 +1454,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
     //-------------------------------------------
     public void removePropertyChangeListener(PropertyChangeListener l) {
-        //D.deb("removePropertyChangeListener()"); // NOI18N
         if (changeSupport == null) {
             changeSupport = new PropertyChangeSupport (this);
         }
@@ -1970,11 +1963,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             }
             // enable fs to react on change in variables
             fileSystem.setVariables(fileSystem.getVariables());
-            //D.deb("variableChanged(): filesystemVariables = "+fileSystem.getVariables()); // NOI18N
             String cmd = (String) autoFillVars.get(var.getName());
             if (cmd != null) autoFillVariables(cmd);
-        } else {
-            E.deb ("Error setting variable:"+tf.getText ());
         }
         updateConditionalValues();
     }
@@ -2140,10 +2130,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     *
     //-------------------------------------------
     private void updateConfigurations(){
-        //D.deb("configRoot = "+fileSystem.getConfigRoot()); // NOI18N
         ArrayList configNames = VariableIO.readConfigurations(fileSystem.getConfigRootFO());
         //Vector configNames = VcsConfigVariable.readConfigurations(fileSystem.getConfigRootFO());
-        D.deb("configNames="+configNames); // NOI18N
 
         if (configCombo.getItemCount() > 0) {
             configCombo.removeAllItems();
@@ -2351,8 +2339,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
     //-------------------------------------------
     public void setObject(Object bean){
-        //Thread.currentThread().dumpStack();
-        D.deb("setObject("+bean+")"); // NOI18N
         fileSystem=(CommandLineVcsFileSystem) bean;
 
         String defaultRoot = VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), fileSystem.getRelativeMountPoint());
@@ -2423,7 +2409,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         // root dir set by hand
         final String selected= rootDirTextField.getText ();
         if( selected==null ){
-            //D.deb("no directory selected"); // NOI18N
             return ;
         }
         RequestProcessor.getDefault().post(new Runnable() {
@@ -2497,7 +2482,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             chooseFile.show();
             String selected=chooseFile.getSelectedFile();
             if( selected==null ){
-                //D.deb("no directory selected"); // NOI18N
                 return ;
             }
             tf.setText(selected);
@@ -2527,7 +2511,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             chooseDir.show();
             String selected=chooseDir.getSelectedDir();
             if( selected==null ){
-                //D.deb("no directory selected"); // NOI18N
                 return ;
             }
             tf.setText(selected);

@@ -48,9 +48,6 @@ public class UserConditionedVariablesPanel extends JPanel implements EnhancedCus
      * defined/undefined with a meaningfull value */
     public static final String PROP_CONFIG_INPUT_DESCRIPTOR = "configInputDescriptor"; // NOI18N
     
-    private Debug E=new Debug("UserConditionedVariablesPanel", true); // NOI18N
-    //private Debug D=E;
-
     private UserConditionedVariablesEditor editor;
     private ExplorerManager manager;
     private Lookup lookup;
@@ -322,7 +319,6 @@ public class UserConditionedVariablesPanel extends JPanel implements EnhancedCus
     }
     
     public Object getPropertyValue() {
-        //D.deb("getPropertyValue()");
         return createVariables();
     }
 

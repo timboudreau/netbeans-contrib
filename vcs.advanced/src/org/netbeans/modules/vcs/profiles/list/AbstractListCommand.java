@@ -31,9 +31,6 @@ import org.netbeans.modules.vcscore.cmdline.UserCommand;
  */
 public abstract class AbstractListCommand extends VcsListCommand implements CommandDataOutputListener {
 
-    protected Debug E=new Debug("AbstractListCommand",true);
-    protected Debug D=E;
-
     //protected String[] args=null;
     protected Hashtable filesByName=null;
 
@@ -64,7 +61,6 @@ public abstract class AbstractListCommand extends VcsListCommand implements Comm
         if (dataRegex != null) this.dataRegex = dataRegex;
         String errorRegex = (String) vars.get("ERRORREGEX");
         if (errorRegex != null) this.errorRegex = errorRegex;
-        D.deb("dataRegex = "+dataRegex+", errorRegex = "+errorRegex);
         this.input = (String) vars.get("INPUT");
         if (this.input == null) this.input = "";
         //this.timeout = ((Long) vars.get("TIMEOUT")).longValue();
@@ -81,7 +77,6 @@ public abstract class AbstractListCommand extends VcsListCommand implements Comm
         String prepared = Variables.expand(vars,cmdStr, true);
 
         /*
-        D.deb("prepared = "+prepared);
         if (stderrListener != null) {
             String[] command = { "LIST: "+prepared };
             stderrListener.match(command);

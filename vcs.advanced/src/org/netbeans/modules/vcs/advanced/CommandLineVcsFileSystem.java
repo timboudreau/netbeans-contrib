@@ -168,7 +168,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
 
     private String config = null;//"Empty (Unix)"; // NOI18N
 
-    private Debug D = new Debug ("CommandLineVcsFileSystem", true); // NOI18N
     private /*static transient*/ String CONFIG_ROOT="vcs/config"; // NOI18N
     private FileObject CONFIG_ROOT_FO;
     private String configFileName = null;
@@ -208,7 +207,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      *        to be read from a settings file rather than created a brand new one.
      */
     public CommandLineVcsFileSystem (boolean treatAsDeserialized) {
-        //D.deb("CommandLineVcsFileSystem()"); // NOI18N
         super ();
         deserialized = treatAsDeserialized;
         /*
@@ -576,7 +574,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
     
     public boolean readConfigurationCompat (String configFileName) {
-        D.deb ("readConfigurationCompat ()"); // NOI18N
         //CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
         //            "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
         //CONFIG_ROOT = "vcs"+File.separator+"config"; // NOI18N
@@ -586,16 +583,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         Properties props = VariableIOCompat.readPredefinedProperties(CONFIG_ROOT_FO, configFileName); // NOI18N
         String label = props.getProperty("label", clg("CTL_No_label_configured"));
         setVariables (VariableIOCompat.readVariables(props));
-        D.deb("setVariables DONE."); // NOI18N
         
         setCommands (UserCommandIOCompat.readCommands(props, this));
-        D.deb("readConfigurationCompat() done"); // NOI18N
         setConfig(label);
         return true;
     }
 
     public boolean readConfiguration (String configFileName) {
-        D.deb ("readConfiguration ()"); // NOI18N
         //CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
         //            "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
         //CONFIG_ROOT = "vcs"+File.separator+"config"; // NOI18N
@@ -624,10 +618,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             setConfig(label);
         }
         //setVariables (VariableIO.readVariables(doc));
-        //D.deb("setVariables DONE."); // NOI18N
         
         //setCommands ((CommandsTree) CommandLineVcsAdvancedCustomizer.readConfig (doc, this));
-        //D.deb("readConfiguration() done"); // NOI18N
         return profile != null;
     }
     
@@ -732,11 +724,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
         if (evt.getPropertyName() != FileSystem.PROP_VALID) return;
         if (isValid()) {
-            D.deb("Filesystem added to the repository, setting refresh time to "+refreshTimeToSet); // NOI18N
+            //System.out.println("Filesystem added to the repository, setting refresh time to "+refreshTimeToSet); // NOI18N
             setVcsRefreshTime(refreshTimeToSet);
             warnDirectoriesDoNotExists();
         } else {
-            D.deb("Filesystem is not valid any more, setting refresh time to 0"); // NOI18N
+            //System.out.println("Filesystem is not valid any more, setting refresh time to 0"); // NOI18N
             setVcsRefreshTime(0);
         }
     }
@@ -1724,7 +1716,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
 
     private static String clg(String s) {
-        //D.deb("getting "+s);
         return NbBundle.getMessage(CommandLineVcsFileSystem.class, s);
     }
     

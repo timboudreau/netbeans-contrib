@@ -28,8 +28,6 @@ import org.netbeans.modules.vcscore.util.*;
  */
 //-------------------------------------------
 public class UserVariablesEditor implements PropertyEditor {
-    private Debug E=new Debug("UserVariablesEditor", true); // NOI18N
-    private Debug D=E;
 
     private PropertyChangeSupport changeSupport=null;
     private Vector variables=new Vector(10);
@@ -48,7 +46,6 @@ public class UserVariablesEditor implements PropertyEditor {
 
     //-------------------------------------------
     public void setAsText(String text) {
-        //D.deb("setAsText("+text+") ignored"); // NOI18N
     }
 
     //-------------------------------------------
@@ -74,7 +71,6 @@ public class UserVariablesEditor implements PropertyEditor {
 
     //-------------------------------------------
     public Object getValue(){
-        D.deb("\ngetValue() = "+variables); // NOI18N
         return variables ;
     }
 
@@ -93,7 +89,6 @@ public class UserVariablesEditor implements PropertyEditor {
             VcsConfigVariable var = (VcsConfigVariable)vect.get (i);
             variables.add (var.clone ());
         }
-        D.deb("\nsetValue() = "+variables); // NOI18N
         changeSupport.firePropertyChange("",null,null); // NOI18N
     }
 

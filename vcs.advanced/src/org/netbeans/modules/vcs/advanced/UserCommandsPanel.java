@@ -30,7 +30,6 @@ import org.openide.util.HelpCtx;
 
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
-import org.netbeans.modules.vcscore.util.Debug;
 
 import org.netbeans.modules.vcs.advanced.commands.*;
 import org.netbeans.modules.vcscore.VcsFileSystem;
@@ -45,9 +44,6 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
  */
 //-------------------------------------------
 public class UserCommandsPanel extends JPanel implements ExplorerManager.Provider {
-
-    private Debug E=new Debug("UserCommandsPanel", true); // NOI18N
-    private Debug D=E;
 
     private UserCommandsEditor editor;
 

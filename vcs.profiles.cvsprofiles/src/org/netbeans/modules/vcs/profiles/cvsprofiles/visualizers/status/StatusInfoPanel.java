@@ -40,7 +40,6 @@ import org.netbeans.spi.vcs.VcsCommandsProvider;
 
 import org.netbeans.modules.vcscore.commands.TextOutputCommand;
 import org.netbeans.modules.vcscore.util.table.*;
-import org.netbeans.modules.vcscore.util.Debug;
 
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.status.StatusInfoPanel.ExtendedRevisionComparator;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.*;

@@ -20,7 +20,6 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.log;
 
 import org.openide.util.*;
 import org.openide.awt.SplittedPanel;
-import org.netbeans.modules.vcscore.util.Debug;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.FileInfoContainer;
 import org.netbeans.modules.vcscore.util.table.*;
 
@@ -37,8 +36,6 @@ import javax.accessibility.*;
 
 
 public class LogInfoPanel extends javax.swing.JPanel {
-    private Debug E=new Debug("LogInfoPanel", true); // NOI18N
-    private Debug D=E;
     private LogInformation logInfo;
     private boolean alreadyChanging = false;   
     private TableInfoModel symNamesModel;
@@ -135,7 +132,6 @@ public class LogInfoPanel extends javax.swing.JPanel {
                     return;
                 }
                 String revision = (String)tblRevisions.getModel().getValueAt(rowIndex,0);
-                D.deb("Selected Revision=" + revision); // NOI18N
                 // set the log message for the revision
                 String text = logInfo.getRevision(revision).getMessage();
                 taRevLog.setText(text);
@@ -423,11 +419,8 @@ public class LogInfoPanel extends javax.swing.JPanel {
           return;
       }
       String selName = (String)lstSymNames.getSelectedValue();
-      D.deb("selName=" + selName);
       String revName = logInfo.getRevisionForSymName(selName);
-      D.deb("revisionName=" + revName);
       LogInformation.Revision rev = logInfo.getRevision(revName);
-      D.deb("Rev=" + rev);
       RevisionModel model = (RevisionModel)tblRevisions.getModel();
       int index = model.getRevisionIndex(rev.getNumber());
 //      tblRevisions.getSelectionModel().setSelectionInterval(index, index);
@@ -537,7 +530,6 @@ public class LogInfoPanel extends javax.swing.JPanel {
             txDescription.setText(logInfo.getDescription());
        // }
         // populating the list of symbolic names
-        D.deb("setData()"); // NOI18N
         symNamesModel.clear();
       /*  if (command.isNoTags()) {
             //          sppMain.remove(spSymNames);

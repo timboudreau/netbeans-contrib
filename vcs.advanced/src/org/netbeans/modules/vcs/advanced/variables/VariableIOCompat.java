@@ -23,7 +23,6 @@ import org.openide.util.NbBundle;
 import org.openide.filesystems.FileObject;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
-//import org.netbeans.modules.vcscore.util.Debug;
 
 /**
  * This class provides input of variables from property file for compatibility
@@ -32,7 +31,6 @@ import org.netbeans.modules.vcscore.VcsConfigVariable;
  * @author  Martin Entlicher
  */
 public class VariableIOCompat extends Object {
-    //private static Debug E = new Debug("VariableIOCompat", true); // NOI18N
 
     public static final String CONFIG_FILE_EXT = "properties";
 
@@ -108,7 +106,6 @@ public class VariableIOCompat extends Object {
                     return g("EXC_Problems_while_reading_predefined_properties", name);
                 }
             });
-            //E.err(g("EXC_Problems_while_reading_predefined_properties",name)); // NOI18N
             return props;
         }
         try{

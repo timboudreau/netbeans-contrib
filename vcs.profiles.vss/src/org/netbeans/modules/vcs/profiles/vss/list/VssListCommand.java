@@ -37,9 +37,6 @@ import org.netbeans.modules.vcs.profiles.list.AbstractListCommand;
  */
 public class VssListCommand extends AbstractListCommand {
 
-    //private Debug E=new Debug("VssList", true);
-    //private Debug D=E;
-    
     static final String PROJECT_BEGIN_ENG = "$/"; // NOI18N
     static final String PROJECT_BEGIN_LOC = org.openide.util.NbBundle.getBundle(VssListCommand.class).getString("VSS_ProjectBegin");
     static final String STATUS_MISSING = "Missing"; // NOI18N

@@ -97,7 +97,6 @@ public final class ProfilesFactory extends Object {
     // Whether labels are processed through VcsUtilities.getBundleString().
     // This is not necessary to do until we're asked for them.
     private boolean areLabelsResolved = false;
-    private Object labelsResolvedLock = new Object();
     private Map profileLabelsByName;
     private Map compatibleOSsByName;
     private Map uncompatibleOSsByName;

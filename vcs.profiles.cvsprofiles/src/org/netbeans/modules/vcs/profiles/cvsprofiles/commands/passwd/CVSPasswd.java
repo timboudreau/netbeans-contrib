@@ -47,8 +47,7 @@ import org.openide.ErrorManager;
  * it can connect to the server and check it. Then adds the item to the .cvspass file
  */
 public class CVSPasswd extends Object {
-    private Debug E=new Debug("CVSPasswd", true); // NOI18N
-    private Debug D=E;
+    
     private static final byte[] scramblingTableAZ = {57, 83, 43, 46, 102, 40, 89, 38, 103, 45, 50,
             42, 123, 91, 35, 125, 55, 54, 66, 124, 126, 59,
             47, 92, 71, 115 };
@@ -148,7 +147,6 @@ public class CVSPasswd extends Object {
             PasswdEntry entr = new PasswdEntry();
             boolean ok = entr.setEntry(line);
             if (!ok) {
-              D.deb("Line corrupted: '"+line+"'");
               unrecognizedLines.add(line);
               continue;
             } else {
@@ -158,7 +156,6 @@ public class CVSPasswd extends Object {
         } while (line != null); 
         bf.close();
       } catch (IOException exc) {
-         D.deb(".cvspass reading error");
          if (bf != null) {
              try {
                 bf.close();
@@ -193,7 +190,6 @@ public class CVSPasswd extends Object {
               DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(CVSPasswd.class).getString("CVSPasswd.errorWritingPass")));
            }
          });
-         D.deb(".cvspass writing error:" +passFile.getAbsolutePath());
          if (bf != null) {
             bf.close();
          }                               

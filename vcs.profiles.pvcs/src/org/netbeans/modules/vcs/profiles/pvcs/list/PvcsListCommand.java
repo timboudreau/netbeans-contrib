@@ -37,8 +37,6 @@ import org.netbeans.modules.vcscore.VcsConfigVariable;
  */
 
 public class PvcsListCommand extends AbstractListCommand {
-    private Debug E=new Debug("PvcsListComand",true); // NOI18N
-    private Debug D=E;
 
     private String dir=null;
     private String pathToSkip = null;
@@ -97,7 +95,6 @@ public class PvcsListCommand extends AbstractListCommand {
             this.dir = ""; // NOI18N
         }
         String module = (String) vars.get("MODULE"); // NOI18N
-        //D.deb("rootDir = "+rootDir+", module = "+module+", dir = "+dir); // NOI18N
         if (dir.equals("")) { // NOI18N
             dir=rootDir;
             if (module != null && module.length() > 0) {
@@ -120,7 +117,6 @@ public class PvcsListCommand extends AbstractListCommand {
         while (pathToSkip.endsWith(File.separator)) pathToSkip = pathToSkip.substring(0, pathToSkip.length() - 1);
         pathToSkip = "/" + pathToSkip.replace(File.separatorChar, '/');
         //System.out.println("pathToSkip = "+pathToSkip);
-        //D.deb("dir = "+dir); // NOI18N
     }
 
 
@@ -330,7 +326,6 @@ public class PvcsListCommand extends AbstractListCommand {
     
     /** Called with the line of LIST command output */
     public void outputData(String[] elements) {
-        D.deb("match("+elements[0]+")"); // NOI18N
         if (elements[0] != null) {
             if (noEntitiesPattern.matcher(elements[0]).matches()) {
                 noEntitiesMatched = true;

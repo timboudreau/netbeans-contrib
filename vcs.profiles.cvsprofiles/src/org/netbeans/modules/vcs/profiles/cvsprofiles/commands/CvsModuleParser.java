@@ -15,8 +15,6 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
 import java.util.*;
 
-import org.netbeans.modules.vcscore.util.Debug;
-
 /**
  *
  * @author  Martin Entlicher
@@ -24,9 +22,6 @@ import org.netbeans.modules.vcscore.util.Debug;
  */
 public class CvsModuleParser extends Object {
 
-    private Debug E=new Debug("CvsModuleParser",true); // NOI18N
-    private Debug D=E;
-    
     private static final String PATHSEP = "/";
 
     /**
@@ -59,7 +54,6 @@ public class CvsModuleParser extends Object {
      * Add the module definition.
      */
     public void addModule(String moduleDef) {
-        D.deb("addModule("+moduleDef+")");
         int index = moduleDef.indexOf(' ');
         if (index < 0) return;
         int len = moduleDef.length();
@@ -92,13 +86,10 @@ public class CvsModuleParser extends Object {
                 index = index2;
             } else break;
         }
-        D.deb("Found module going into directory "+moduleDir+", alias = "+alias);
-        D.deb("Module definition: "+moduleDef.substring(index));
         Vector module = new Vector();
         module.add(moduleDef.trim());
         module.add(alias ? Boolean.TRUE : Boolean.FALSE);
         modules.put(moduleName, module);
-        D.deb("Have module "+moduleName+", with content:"+module);
         if (alias) {
             while(true) {
                 while(index < len && Character.isWhitespace(moduleDef.charAt(index))) index++;
@@ -108,7 +99,6 @@ public class CvsModuleParser extends Object {
                 String file = moduleDef.substring(index, index2);
                 module.add(file);
                 index = index2;
-                //D.deb("adding "+file);
             }
         } else {
             while(index < len && Character.isWhitespace(moduleDef.charAt(index))) index++;
@@ -122,13 +112,9 @@ public class CvsModuleParser extends Object {
                 repDir = repDir.substring(1);
             }
             */
-            D.deb("moduleDir = "+moduleDir);
-            D.deb("repDir = "+repDir);
             module.add(moduleDir);
             module.add(repDir);
-            D.deb("Have module "+moduleName+", with content:"+module);
             index = index2;
-            D.deb("index = "+index);
             boolean fileDefined = false;
             while(true) {
                 while(index < len && Character.isWhitespace(moduleDef.charAt(index))) index++;
@@ -139,66 +125,47 @@ public class CvsModuleParser extends Object {
                 if (index3 > 0 && index3 < index2) {
                     index2 = index3;
                 }
-                D.deb("index2 = "+index2);
                 String file = moduleDef.substring(index, index2);
-                D.deb("file = "+file);
                 if (file.length() > 0 && file.charAt(0) == '&') {
-		    D.deb("put("+moduleName+PATHSEP+file.substring(1)+", "+file+")");
                     dirLocations.put(moduleName+PATHSEP+file.substring(1), file); // file = &module_name
                 } else {
                     fileDefined = true;
-                    D.deb("fileLocations.put("+moduleDir+", "+repDir+PATHSEP+file+")");
                     fileLocations.put(moduleDir+PATHSEP+file, repDir+PATHSEP+file);
                 }
                 module.add(file);
                 index = index2;
-                //D.deb("adding "+file);
             }
             if (!fileDefined) {
 		if (repDir.length() > 0 && repDir.charAt(0) == '&') {
-		    D.deb("put("+moduleDir+PATHSEP+repDir.substring(1)+", "+ repDir+")");
 		    dirLocations.put(moduleDir+PATHSEP+repDir.substring(1), repDir);
 		} else {
-		    D.deb("put("+moduleDir+", "+repDir+")");
 		    dirLocations.put(moduleDir, repDir);
 		}
 	    }
         }
-        /*
-        D.deb("Modules defined so far:");
-        for(Enumeration enum2 = modules.keys(); enum2.hasMoreElements(); ) {
-            String moduleName2 = (String) enum2.nextElement();
-            D.deb("Module '"+moduleName2+"' : "+(Vector) modules.get(moduleName2));
-        }
-        */
     }
     
     /**
      * Set proper values when there are symbolic module links (ampersand modules).
      */
     public void resolveModuleLinks() {
-        D.deb("resolveModuleLinks():");
         for(Enumeration enum = dirLocations.keys(); enum.hasMoreElements(); ) {
             String work = (String) enum.nextElement();
             String rep = (String) dirLocations.get(work);
             if (rep.length() > 0 && rep.charAt(0) == '&') { // resolve module link
                 String moduleName = rep.substring(1);
-                D.deb("resolving rep = "+rep+", work = "+work+", moduleName = "+moduleName);
                 boolean match = false;
                 for(Enumeration enum2 = modules.keys(); enum2.hasMoreElements(); ) {
                     String moduleName2 = (String) enum2.nextElement();
-                    D.deb("    comparing to "+moduleName2);
                     if (moduleName2.equals(moduleName)) {
                         match = true;
                         Vector module = (Vector) modules.get(moduleName2);
                         Boolean alias = (Boolean) module.get(1);
-                        D.deb("comparison successfull, alias = "+alias);
                         int n = module.size();
 			dirLocations.remove(work);
                         if (alias.booleanValue()) {
                             for(int i = 2; i < n; i++) {
                                 String moduleRep = (String) module.get(i);
-                                D.deb("put("+work+PATHSEP+moduleRep+", "+moduleRep+")");
                                 dirLocations.put(work+PATHSEP+moduleRep, moduleRep);
                             }
                         } else {
@@ -208,20 +175,16 @@ public class CvsModuleParser extends Object {
                             for(int i = 3; i < n; i++) {
                                 String file = (String) module.get(i);
                                 if (file.charAt(0) == '&') {
-                                    D.deb("put("+work+/*PATHSEP+moduleDir+*/PATHSEP+file.substring(1)+", "+file+")");
                                     dirLocations.put(work+/*PATHSEP+moduleDir+*/PATHSEP+file.substring(1), file);
                                 } else {
                                     fileDefined = true;
-                                    D.deb("put("+work+/*PATHSEP+moduleDir+*/PATHSEP+file+", "+moduleRep+PATHSEP+file+")");
                                     fileLocations.put(work/*+PATHSEP+moduleDir*/+PATHSEP+file, moduleRep+PATHSEP+file);
                                 }
                             }
                             if (!fileDefined) {
                                 if (moduleRep.charAt(0) == '&') {
-                                    D.deb("put("+work+/*PATHSEP+moduleDir+*/PATHSEP+moduleRep.substring(1)+", "+moduleRep+")");
                                     dirLocations.put(work+/*PATHSEP+moduleDir+*/PATHSEP+moduleRep.substring(1), moduleRep);
                                 } else {
-                                    D.deb("put("+work+/*PATHSEP+moduleDir+*/PATHSEP+moduleRep+", "+moduleRep+")");
                                     dirLocations.put(work+/*PATHSEP+moduleDir+*/PATHSEP+moduleRep, moduleRep);
                                 }
                             }
@@ -231,14 +194,12 @@ public class CvsModuleParser extends Object {
                     }
                 }
                 if (!match) { // module is not defined => considering as a directory
-                    D.deb("Module '"+moduleName+"' not defined => put("+work/*+PATHSEP+moduleName*/+", "+moduleName+")");
                     dirLocations.put(work/*+PATHSEP+moduleName*/, moduleName);
                     //dirLocations.remove(work);
                 }
                 enum = dirLocations.keys(); // dirLocations chaned => have to recreate Enumeration
             }
         }
-        D.deb("resolveModuleLinks() done.");
     }
 
     public Vector getModuleNames() {
@@ -261,7 +222,6 @@ public class CvsModuleParser extends Object {
      * @return the working paths or null when the conversion can not be done.
      */
     public String[] convertRepPathToWorking(String repPath, String fileName, boolean fileDependent[]) {
-        D.deb("convertRepPathToWorking("+repPath+", "+fileName+", "+fileDependent[0]+")");
         Vector workings = new Vector();
         fileDependent[0] = false;
         for(Enumeration enum = dirLocations.keys(); enum.hasMoreElements(); ) {
@@ -272,7 +232,6 @@ public class CvsModuleParser extends Object {
             }
         }
         String filePath = repPath+PATHSEP+fileName;
-        D.deb("filePath = "+filePath);
         for(Enumeration enum = fileLocations.keys(); enum.hasMoreElements(); ) {
             String work = (String) enum.nextElement();
             String rep = (String) fileLocations.get(work);
@@ -281,8 +240,6 @@ public class CvsModuleParser extends Object {
                 if (index > 0) work = work.substring(0, index);
                 workings.add(new String(work));
             }
-            D.deb("'"+rep+"'.equals("+filePath+") = "+rep.equals(filePath));
-            D.deb("  => "+((rep.equals(filePath)) ? "adding '"+work+"'" : "NOT adding '"+work+"'"));
             fileDependent[0] = true;
         }
         if (workings.isEmpty()) return null;

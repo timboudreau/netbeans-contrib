@@ -37,9 +37,6 @@ import org.netbeans.modules.vcscore.util.*;
  */
 public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implements CommandDataOutputListener {
 
-    private Debug E=new Debug("CvsListRecursiveCommand",true); // NOI18N
-    private Debug D=E;
-
     private static final String ATTIC = "Attic"; // NOI18N
     private static final String[] EMPTY_DIR = {""}; // NOI18N
     private static final String MATCH_REPOSITORY_REVISION = "Repository revision:"; // NOI18N
@@ -122,7 +119,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
                 module = module.substring(0, module.length() - 1);
             }
         }
-        D.deb("rootDir = "+rootDir+", module = "+module+", dir = "+dir); // NOI18N
         boolean rootPathEndsWithFileSeparator = false;
         if (dir.equals("")) { // NOI18N
             dir=rootDir;
@@ -153,13 +149,11 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         else relMount = "";
         if (dir.charAt(dir.length() - 1) == File.separatorChar)
             dir = dir.substring(0, dir.length() - 1);
-        D.deb("dir="+dir); // NOI18N
 
         String dataRegex = (String) vars.get("DATAREGEX"); // NOI18N
         if (dataRegex != null) this.dataRegex = dataRegex;
         String errorRegex = (String) vars.get("ERRORREGEX"); // NOI18N
         if (errorRegex != null) this.errorRegex = errorRegex;
-        D.deb("dataRegex = "+dataRegex+", errorRegex = "+errorRegex); // NOI18N
         //this.input = (String) vars.get("INPUT"); // NOI18N
         //if (this.input == null) this.input = "Cancel/n"; // NOI18N
     }
@@ -228,8 +222,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
     private VcsCommandExecutor runStatusCommand(Hashtable vars, String cmdName) {
         //String prepared = Variables.expand(vars, cmd, true);
 
-        //D.deb("prepared = "+prepared); // NOI18N
-        //D.deb("DIR = '"+(String) vars.get("DIR")+"'"+", dir = '"+this.dir+"'"); // NOI18N
         VcsCommand cmd = fileSystem.getCommand(cmdName);
         /*
         UserCommand cmd = new UserCommand();
@@ -251,19 +243,16 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
                                               if (elements[0] == null || elements[0].length() == 0) return;
                                               int index = -1;
                                               for(int i = 0; i < CvsListCommand.EXAMINING_STRS.length; i++) {
-                                                  //D.deb("Comparing elements[0] = "+elements[0]+" to examining = "+examiningStrs[i]);
                                                   index = elements[0].indexOf(CvsListCommand.EXAMINING_STRS[i]);
                                                   if (index >= 0) {
                                                       index += CvsListCommand.EXAMINING_STRS[i].length();
                                                       break;
                                                   }
-                                                  D.deb("Comp. unsuccessfull");
                                               }
                                               if (index >= 0) {
                                                   while (index < elements[0].length() && Character.isWhitespace(elements[0].charAt(index))) index++;
                                                   String path = elements[0].substring(index);
                                                   if (path.equals(".")) path = "";
-                                                  D.deb("Got examining: "+path);
                                                   examiningPaths.add(path);
                                               }
                                           }
@@ -300,26 +289,20 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
      * @param index the index to the file information
      */
     private String[] getFilePaths(String data, int index, String fileName) {
-        //D.deb("getFilePath("+data.substring(index, Math.min(index + 100, data.length()))+", "+index+", "+fileName+")");
         int begin = index;
         while(Character.isWhitespace(data.charAt(begin))) begin++; // skip the space
         while(!Character.isWhitespace(data.charAt(begin))) begin++; // skip the revision number
         while(Character.isWhitespace(data.charAt(begin))) begin++; // skip the space
         int end = data.indexOf('\n', begin);
-        //D.deb("end = "+end);
         if (end < 0) return null;
         String path = data.substring(begin, end);
-        //D.deb("getFilePath(): path = "+path);
         int nameIndex = path.lastIndexOf('/');
-        //D.deb("nameIndex = "+nameIndex);
         if (nameIndex < 0) return null;
         if (nameIndex == 0) return (cvsRepository.length() > 0) ? null : EMPTY_DIR;
         path = path.substring(0, nameIndex); //.replace('\\', '/'); // Because of Windoze unexpectable behavior
         if (path.endsWith(ATTIC)) path = path.substring(0, path.length() - ATTIC.length() - 1);
         index = path.indexOf(cvsRepository/*+relMount*/);
-        //D.deb("path = "+path+", path.indexOf("+cvsRepository+") = "+index);
         if (index < 0) return null;
-        //D.deb("getFilePath(): path = "+path+", index = "+index+", cvsRepository = "+cvsRepository);
         if (path.length() <= cvsRepository.length())
             return EMPTY_DIR;
         else {
@@ -347,7 +330,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         Hashtable filesByName = new Hashtable();
         VcsDirContainer filesByNameContPath = filesByNameCont;
         String last_filePath = filesByNameContPath.getPath();
-        //D.deb("fillHashtable(): last_filePath = '"+last_filePath+"'");
         int pos=0;
         /* I expect file listing in the form: File: <filename> Status: <status>
          * Followed by Repository Revision: <revision path>
@@ -356,7 +338,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
          */
         filesByNameCont.setPath(dirPath);
         filesByNameCont.setElement(filesByName);
-        //D.deb("At the beginning have dirPath = "+dirPath);
         while(pos < data.length()) {
             //int examIndex = getExaminingInfo(data, pos);
             int fileIndex = data.indexOf(CvsListCommand.MATCH_FILE, pos);
@@ -371,7 +352,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
             if (nextIndex < 0) {
                 nextIndex = data.length()-1;
             }
-            //D.deb("fillHashtable: fileIndex = "+fileIndex+", statusIndex = "+statusIndex); // NOI18N
             fileIndex += CvsListCommand.MATCH_FILE.length();
             String fileName=data.substring(fileIndex,statusIndex).trim();
             int i=-1;
@@ -415,7 +395,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
             }
             repositoryIndex += MATCH_REPOSITORY_REVISION.length();
             String[] filePaths = getFilePaths(data, repositoryIndex, fileName);
-            //D.deb("fillHashtable(): have filePaths = "+VcsUtilities.arrayToString(filePaths));
             //System.out.println("fillHashtable(): have filePaths = "+VcsUtilities.arrayToString(filePaths));
             if (filePaths != null && (filePaths.length > 1 || (filePaths.length == 1 && !filePaths[0].equals(last_filePath)))) {
                 int len = filePaths.length;
@@ -424,14 +403,12 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
                     if (parent != null) filesByNameContPath = parent.addSubdir(filePaths[j]);
                     else filesByNameContPath = filesByNameCont.addSubdirRecursive(filePaths[j]);
                     if (filesByNameContPath == null) continue;
-                    //D.deb("parent = "+parent+((parent == null) ? "" : " path = "+parent.getPath()));
                     addDirName(filePaths[j], filesByNameCont);
                     filesByName = (Hashtable) filesByNameContPath.getElement();
                     if (filesByName == null) {
                         filesByName = new Hashtable();
                         filesByNameContPath.setElement(filesByName);
                     }
-                    //D.deb("created new Container with path: "+filePaths[j]);
                     //System.out.println("created new Container with path: "+filePaths[j]);
                     String[] fileStatuses = new String[7];
                     fileStatuses[0] = fileName;
@@ -522,7 +499,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
                 if (parent != null) filesByNameContPath = parent.addSubdir(filePath);
                 else filesByNameContPath = filesByNameCont.addSubdirRecursive(filePath);
                 if (filesByNameContPath == null) continue;
-                //D.deb("parent = "+parent+((parent == null) ? "" : " path = "+parent.getPath()));
                 addDirName(filePath, filesByNameCont);
                 filesByName = (Hashtable) filesByNameContPath.getElement();
                 if (filesByName == null) {
@@ -530,7 +506,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
                     filesByNameContPath.setElement(filesByName);
                 }
             }
-            //D.deb("created new Container with path: "+filePaths[j]);
             //System.out.println("created new Container with path: "+filePaths[j]);
             String[] fileStatuses = (String[]) filesByName.get(fileName);
             if (fileStatuses == null) {
@@ -575,23 +550,19 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
      * @param filePath the directory full path
      */
     private void addDirName(String filePath, VcsDirContainer filesByNameCont) {
-        //D.deb("addDirName("+filePath+", "+filesByNameCont+"), filesByNameCont.path = "+filesByNameCont.getPath());
         if (filePath.length() == 0) return;
         String[] fileStatuses = new String[7];
         String dirName = VcsUtilities.getFileNamePart(filePath) + "/";
         String dirPath = VcsUtilities.getDirNamePart(filePath);
-        //D.deb("dirName = "+dirName+", dirPath = "+dirPath);
         fileStatuses[0] = dirName;
         fileStatuses[1] = "";
         fileStatuses[5] = CvsListCommand.findStickyOfDir(fileSystem.getFile(/*new File(*/filePath/*.replace('/', File.separatorChar)*/));
         VcsDirContainer dirParent = filesByNameCont.getContainerWithPath(dirPath);
-        //D.deb("parent = "+dirParent+", path = "+((dirParent != null) ? dirParent.getPath() : null));
         if (dirParent == null /*|| dirParent == filesByNameCont*/) {
             // parent is somehere out => don't care about this case
             return;
         } else {
             Hashtable filesByName = (Hashtable) dirParent.getElement();
-            //D.deb("Adding dir '"+dirName+"' to container with path "+dirParent.getPath());
             if (filesByName == null) {
                 filesByName = new Hashtable();
                 dirParent.setElement(filesByName);

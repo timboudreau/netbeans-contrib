@@ -51,9 +51,6 @@ public class CvsListFileCommand extends Object implements VcsAdditionalCommand, 
     //static final String LOG_WORKING_FILE = "Working file:"; // NOI18N
     //static final String LOG_LOCKS = "locks:"; // NOI18N
 
-    private Debug E=new Debug("CvsListCommand",true); // NOI18N
-    private Debug D=E;
-
     private VcsFileSystem fileSystem = null;
 
     protected CommandOutputListener stdoutNRListener = null;
@@ -91,7 +88,6 @@ public class CvsListFileCommand extends Object implements VcsAdditionalCommand, 
         if (dataRegex != null) this.dataRegex = dataRegex;
         String errorRegex = (String) vars.get("ERRORREGEX");
         if (errorRegex != null) this.errorRegex = errorRegex;
-        D.deb("dataRegex = "+dataRegex+", errorRegex = "+errorRegex);
         this.input = (String) vars.get("INPUT");
         if (this.input == null) this.input = "";
         //this.timeout = ((Long) vars.get("TIMEOUT")).longValue();
@@ -107,7 +103,6 @@ public class CvsListFileCommand extends Object implements VcsAdditionalCommand, 
             this.dir = ""; // NOI18N
         }
         String module = (String) vars.get("MODULE"); // NOI18N
-        D.deb("rootDir = "+rootDir+", module = "+module+", dir = "+dir); // NOI18N
         if (dir.equals("")) { // NOI18N
             dir=rootDir;
             if (module != null && module.length() > 0) dir += File.separator + module;
@@ -119,7 +114,6 @@ public class CvsListFileCommand extends Object implements VcsAdditionalCommand, 
         }
         if (dir.charAt(dir.length() - 1) == File.separatorChar)
             dir = dir.substring(0, dir.length() - 1);
-        D.deb("dir="+dir); // NOI18N
     }
 
     /*
@@ -213,7 +207,6 @@ public class CvsListFileCommand extends Object implements VcsAdditionalCommand, 
             if (fileStickyDate == null || index[0] > endFileIndex
                 || CvsListCommand.STICKY_NONE.equals(fileStickyDate)) fileStickyDate = "";
             String fileSticky = (fileStickyTag + " " + fileStickyDate).trim();
-            D.deb("fillHashTable: "+"fileName="+fileName+", fileStatus="+fileStatus); // NOI18N
             
             String[] fileStatuses = new String[7];
             fileStatuses[0] = fileName;
@@ -322,7 +315,6 @@ public class CvsListFileCommand extends Object implements VcsAdditionalCommand, 
                 String[] fileStatuses = new String[7];
                 fileStatuses[1] = ""; // NOI18N
                 String fileName=files[i];
-                //D.deb("fileName="+fileName);
 
                 File dirfile = new File(d+File.separator+fileName);
                 if( dirfile.isDirectory() ){
@@ -334,7 +326,6 @@ public class CvsListFileCommand extends Object implements VcsAdditionalCommand, 
 
                 if (!isCVSDirectory(dirfile)) continue;
                 if (filesByName.get(fileName) == null) {
-                    D.deb("adding "+fileName);
                     //System.out.println("addLocalFiles(): '"+fileName+"'");
                     fileStatuses[0] = fileName;
                     fileStatuses[5] = CvsListCommand.findStickyOfDir(dirfile);

@@ -18,7 +18,6 @@ import org.openide.util.NbBundle;
 import org.netbeans.api.diff.Difference;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.util.Debug;
 
 /**
  * Parser of differences produced by VCS commands. Several formats are handled.
@@ -26,9 +25,6 @@ import org.netbeans.modules.vcscore.util.Debug;
  * @author  Martin Entlicher
  */
 public class Diff extends AbstractDiffCommand {
-
-    private Debug E=new Debug("Diff",true);
-    private Debug D=E;
 
     private static final String CVS_REVISION_STR = "retrieving revision";
     private static final String VSS_DIFFING = "Diffing: ";
@@ -117,7 +113,6 @@ public class Diff extends AbstractDiffCommand {
                     String[] debugOut = { "NumberFormatException "+e.getMessage() };
                     stderrListener.outputData(debugOut);
                 }
-                E.deb("NumberFormatException "+e.getMessage());
                 return;
             }
             addDifference(new Difference(Difference.ADD, n1, 0, n3, n4));
@@ -144,7 +139,6 @@ public class Diff extends AbstractDiffCommand {
                     String[] debugOut = { "NumberFormatException "+e.getMessage() };
                     stderrListener.outputData(debugOut);
                 }
-                E.deb("NumberFormatException "+e.getMessage());
                 return;
             }
             addDifference(new Difference(Difference.DELETE, n1, n2, n3, 0));
@@ -183,7 +177,6 @@ public class Diff extends AbstractDiffCommand {
                     String[] debugOut = { "NumberFormatException "+e.getMessage() };
                     stderrListener.outputData(debugOut);
                 }
-                E.deb("NumberFormatException "+e.getMessage());
                 return;
             }
             addDifference(new Difference(Difference.CHANGE, n1, n2, n3, n4));
@@ -203,7 +196,6 @@ public class Diff extends AbstractDiffCommand {
      * @params elements The input to parse.
      */
     public void match0(String[] elements) {
-        D.deb("diff match: "+elements[0]);
         if (elements[0].indexOf(CVS_REVISION_STR) == 0) {
             String rev = elements[0].substring(CVS_REVISION_STR.length()).trim();
             if (diffOutRev1 == null) diffOutRev1 = rev;
@@ -242,7 +234,6 @@ public class Diff extends AbstractDiffCommand {
     public void match1(String[] elements) {
         final int LINE1_POS = 8;
         final int LINE2_POS = 16;
-        D.deb("diff match1: "+elements[0]);
         if (elements[0] == null || elements[0].length() < LINE2_POS) return;
         char firstChar = elements[0].charAt(0);
         if (firstChar != ' ' && firstChar != '-' && firstChar != '+' || elements[0].substring(0, 2).equals("--")) {
@@ -261,11 +252,7 @@ public class Diff extends AbstractDiffCommand {
                 String[] debugOut = { "NumberFormatException "+e.getMessage() };
                 stderrListener.outputData(debugOut);
             }
-            E.deb("NumberFormatException "+e.getMessage());
         }
-        D.deb("Numbers: ("+n1Str+", "+n2Str+") => "+n1+", "+n2);
-        D.deb("LastDiffLine: "+lastDiffLine1+", "+lastDiffLine2);
-        D.deb("lastDiff = "+lastDiff);
         lastLine1 = n1;
         lastLine2 = n2;
         if (elements[0].charAt(0) == '+' && elements[0].charAt(1) != '-') {     // ADD
@@ -275,7 +262,6 @@ public class Diff extends AbstractDiffCommand {
                 //action.setDeleteAction(lastDiffLine1, n1, lastDiffLine2);
                 addDifference(new Difference(Difference.DELETE, lastDiffLine1, n1, lastDiffLine2, 0));
                 //diff.addDeleteAction(lastDiffLine1, n1, lastDiffLine2);
-                D.deb("Delete: ("+lastDiffLine1+", "+n1+", "+lastDiffLine2+")");
                 //diffActions.add(action);
             }
             lastDiff = 1;  // anything > 0
@@ -288,7 +274,6 @@ public class Diff extends AbstractDiffCommand {
                 //action.setAddAction(lastDiffLine1, lastDiffLine2, n2);
                 addDifference(new Difference(Difference.ADD, lastDiffLine1, 0, lastDiffLine2, n2));
                 //diff.addAddAction(lastDiffLine1, lastDiffLine2, n2);
-                D.deb("Add: ("+lastDiffLine1+", "+lastDiffLine2+", "+n2+")");
                 //diffActions.add(action);
             }
             lastDiff = -1;  // anything < 0
@@ -300,14 +285,12 @@ public class Diff extends AbstractDiffCommand {
                 //action.setAddAction(lastDiffLine1, lastDiffLine2, n2 - 1);
                 addDifference(new Difference(Difference.ADD, lastDiffLine1, 0, lastDiffLine2, n2 - 1));
                 //diff.addAddAction(lastDiffLine1, lastDiffLine2, n2 - 1);
-                D.deb("Add: ("+lastDiffLine1+", "+lastDiffLine2+", "+(n2 - 1)+")");
                 //diffActions.add(action);
             } else if (lastDiff < 0) { // DELETE
                 //DiffAction action = new DiffAction();
                 //action.setDeleteAction(lastDiffLine1, n1 - 1, lastDiffLine2);
                 addDifference(new Difference(Difference.DELETE, lastDiffLine1, n1 - 1, lastDiffLine2, 0));
                 //diff.addDeleteAction(lastDiffLine1, n1 - 1, lastDiffLine2);
-                D.deb("Delete: ("+lastDiffLine1+", "+(n1 - 1)+", "+lastDiffLine2+")");
                 //diffActions.add(action);
             }
             lastDiff = 0;
@@ -358,7 +341,6 @@ public class Diff extends AbstractDiffCommand {
                     String[] debugOut = { "NumberFormatException "+e.getMessage() };
                     stderrListener.outputData(debugOut);
                 }
-                E.deb("NumberFormatException "+e.getMessage());
                 return;
             }
             lastDiff = 1; // Change
@@ -376,7 +358,6 @@ public class Diff extends AbstractDiffCommand {
                     String[] debugOut = { "NumberFormatException "+e.getMessage() };
                     stderrListener.outputData(debugOut);
                 }
-                E.deb("NumberFormatException "+e.getMessage());
                 return;
             }
             lastDiff = 2; // Add
@@ -401,7 +382,6 @@ public class Diff extends AbstractDiffCommand {
                     String[] debugOut = { "NumberFormatException "+e.getMessage() };
                     stderrListener.outputData(debugOut);
                 }
-                E.deb("NumberFormatException "+e.getMessage());
                 return;
             }
             lastDiff = -1; // Delete

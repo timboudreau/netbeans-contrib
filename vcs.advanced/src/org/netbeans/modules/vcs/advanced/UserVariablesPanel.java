@@ -45,9 +45,6 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
      * defined/undefined with a meaningfull value */
     public static final String PROP_CONFIG_INPUT_DESCRIPTOR = "configInputDescriptor"; // NOI18N
     
-    private Debug E=new Debug("UserVariablesPanel", true); // NOI18N
-    //private Debug D=E;
-
     private UserVariablesEditor editor;
     private ExplorerManager manager = null;
     private Children.Array varCh = null;
@@ -195,7 +192,6 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
     }
     
     public Object getPropertyValue() {
-        //D.deb("getPropertyValue()");
         return createVariables();
         //return editor.getValue ();
     }

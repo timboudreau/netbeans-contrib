@@ -35,8 +35,6 @@ import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
  * @author  Martin Entlicher
  */
 public class CvsModuleSelector implements VcsAdditionalCommand, TextOutputListener {
-    private Debug E = new Debug("CvsModuleSelector", true); // NOI18N
-    private Debug D = E;
     
     private Hashtable vars;
     private CommandOutputListener stdoutNRListener;
@@ -115,7 +113,6 @@ public class CvsModuleSelector implements VcsAdditionalCommand, TextOutputListen
     public String[] execSel(Hashtable vars, String variable, String[] args,
     CommandOutputListener stdoutNRListener,
     CommandOutputListener stderrNRListener) {
-        D.deb("exec for "+variable);
         this.vars = vars;
         this.stdoutNRListener = stdoutNRListener;
         this.stderrNRListener = stderrNRListener;
@@ -143,7 +140,6 @@ public class CvsModuleSelector implements VcsAdditionalCommand, TextOutputListen
                 dlgSuccess = false;
             }
         }
-        D.deb("dlgSuccess = "+dlgSuccess+", cmdSuccess = "+cmdSuccess);
         if (dlgSuccess && cmdSuccess) {
             return panel.getSelection();
         } else {
