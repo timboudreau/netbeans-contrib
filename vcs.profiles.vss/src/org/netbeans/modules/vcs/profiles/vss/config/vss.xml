@@ -657,6 +657,9 @@ Microsystems, Inc. All Rights Reserved.
           <property name="disabledOnStatus">
             <value>&local-statuses;</value>
           </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.UncheckOutCommand</value>
+        </property>
       </command>
       <command name="UNCHECKOUTR_CONFIRM">
         <property name="exec">
@@ -951,10 +954,10 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="ADD_ALL_CMD">
 	<property name="exec">
-	  <value>${RUN} add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} $[? IS_RECURSIVE] [-R] [-R-] ${QFILES} ${NUR}</value>
+	  <value>$[? FILES_IS_FOLDER] [${RUNCDF_NMK}] [${RUN}] add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} $[? FILES_IS_FOLDER] [$[? IS_RECURSIVE] [-R] [-R-] * {INSERT_OUTPUT_OF_DIR_FOLDERS(0)}] [${QFILES}] ${NUR}</value>
 	</property>
-        <property name="runOnMultipleFilesInFolder">
-          <value>true</value>
+        <property name="preCommands">
+          <value>$[? FILES_IS_FOLDER] [$[? CACHED_ISLOCAL] [CREATE_CMD] []] []</value>
         </property>
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
@@ -989,7 +992,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_ADD_ALL_Mnemonic)</value>
         </property>
 	<property name="exec">
-          <value>org.netbeans.modules.vcs.profiles.commands.SharableFilesCommand.class -ic IGNORE_AND_RELEVANT_LIST_EXPRESSIONS $[? IS_RECURSIVE] [] [-l] ADD_ALL_CMD CREATE_CMD_NO_REFRESH</value>
+          <value>org.netbeans.modules.vcs.profiles.commands.SharableFilesCommand.class -ic IGNORE_AND_RELEVANT_LIST_EXPRESSIONS $[? IS_RECURSIVE] [] [-l] ADD_ALL_CMD CREATE_CMD</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -1097,32 +1100,6 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
         </property>
       </command>
-      <command name="CREATE_CMD_NO_REFRESH">
-	<property name="exec">
-	  <value>${RUN} create $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${CREATE_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
-	</property>
-	<property name="onFile">
-	  <value>false</value>
-	</property>
-	<property name="data.regex">
-	  <value>(.*$)</value>
-	</property>
-	<property name="error.regex">
-	  <value>(.*$)</value>
-	</property>
-	<property name="onRoot">
-	  <value>false</value>
-	</property>
-        <property name="disabledOnStatus">
-          <value>"", "Current"</value>
-	</property>
-        <property name="concurrentExec">
-          <value>16</value> <!-- EXEC_SERIAL_ALL -->
-        </property>
-        <property name="needsHierarchicalOrder">
-	  <value>true</value>
-        </property>
-      </command>
       <command name="CREATE" displayName="ResourceMsg(VSS_CREATE)">
         <property name="labelMnemonic">
           <value>ResourceMsg(VSS_CREATE_Mnemonic)</value>
@@ -1181,6 +1158,9 @@ Microsystems, Inc. All Rights Reserved.
           <property name="disabledOnStatus">
             <value>&versioned-statuses;</value>
           </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.AddFolderCommand</value>
+        </property>
       </command>
       <command name="ADD_LOCAL_PARENTS">
 	<property name="exec">
@@ -1273,6 +1253,9 @@ Microsystems, Inc. All Rights Reserved.
           <property name="disabledOnStatus">
             <value>&local-statuses;</value>
           </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.RemoveCommand</value>
+        </property>
       </command>
       <command name="RECOVER" displayName="ResourceMsg(VSS_RECOVER)">
         <property name="labelMnemonic">
@@ -1376,6 +1359,9 @@ Microsystems, Inc. All Rights Reserved.
           <property name="disabledOnStatus">
             <value>&local-statuses;</value>
           </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.HistoryCommand</value>
+        </property>
       </command>
       <command name="PROPERTIES" displayName="ResourceMsg(VSS_PROPERTIES)">
         <property name="labelMnemonic">
@@ -1417,6 +1403,9 @@ Microsystems, Inc. All Rights Reserved.
           <property name="disabledOnStatus">
             <value>&local-statuses;</value>
           </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.PropertiesCommand</value>
+        </property>
       </command>
       <separator />
       <command name="DIFF" displayName="ResourceMsg(VSS_DIFF)">
@@ -1458,6 +1447,9 @@ Microsystems, Inc. All Rights Reserved.
           <property name="disabledOnStatus">
             <value>&local-statuses;</value>
           </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.DiffCommand</value>
+        </property>
       </command>
       <command name="LIST_FILE_DIFF">
 	<property name="exec">
@@ -1538,7 +1530,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="DIFF_USR_CMD">
 	<property name="exec">
-          <value>${RUN} diff -DU ${CMD_DIFF_OPTIONS} ${OPTIONS} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
+          <value>${RUN} diff -DU ${CMD_DIFF_OPTIONS} $[? revision] [-V${revision}] [] ${OPTIONS} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
         </property>
 	<property name="data.regex">
 	  <value>(.*$)</value>

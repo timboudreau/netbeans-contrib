@@ -865,7 +865,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="UPDATE_CMD" >
 	<property name="exec">
-          <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>
+          <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [$[? revision] [-r ${revision}] []] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>
 	</property>
 	<property name="data.regex">
 	  <value>^([UPARMC]) (.*$)|^(.*) (already contains the differences)(.*)$</value>
@@ -929,7 +929,7 @@ Microsystems, Inc. All Rights Reserved.
                  ASK_FOR_EXPERT(GET_CLEAN_COPY, ResourceMsg1(COMMAND_UPDATE_GetCleanCopy), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_GetCleanCopy);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_GetCleanCopy_mnc)), "-C", "")
                  ASK_FOR_EXPERT(FORCE_HEAD_MATCH, ResourceMsg1(COMMAND_Force_Head_Match), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Force_Head_Match);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_Force_Head_Match_mnc)), "-f", "")
                  ASK_FOR_EXPERT(SEND_TO_STDOUT, ResourceMsg1(COMMAND_UPDATE_Send_To_Stdout), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_Send_To_Stdout);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_Send_To_Stdout_mnc)),"-p", "")
-                 PROMPT_FOR_EXPERT(TAG, ResourceMsg1(COMMAND_UPDATE_Tag), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_Tag);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_Tag_mnc)), IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
+                 PROMPT_FOR_EXPERT(TAG, ResourceMsg1(COMMAND_UPDATE_Tag), "${revision}",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_Tag);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_Tag_mnc)), IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(DATE, ResourceMsg1(COMMAND_UPDATE_Date), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_Date);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_Date_mnc)), SELECTOR_DATE_CVS)
                  SELECT_RADIO_EXPERT(MERGE_SELECTION, "", "",
                   [ResourceMsg1(COMMAND_UPDATE_NoMerge), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UPDATE_NoMerge);;MNEMONIC_ResourceMsg1(ACS_COMMAND_UPDATE_NoMerge_mnc))]
@@ -993,6 +993,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg1(CVS_GENERAL_ACTION_UPDATE)</value>
         </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.UpdateCommand</value>
+        </property>
           <property name="disabledOnStatus">
             <value>&local-statuses;, "Yet-Unknown"</value>
           </property>
@@ -1017,17 +1020,17 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="exec">
-	  <value>$[? NO_CONTENT] [] [vcs.commands.RecursiveFolderCommand.class ${RUN_RECURSIVELY} ADD_CMD]</value>
+	  <value>$[? FOLDER_CONTENTS] [vcs.commands.RecursiveFolderCommand.class ${RUN_RECURSIVELY} ADD_CMD] []</value>
 	  <!-- If the folder content is not to be added, only ADD_CMD command is executed as a post-command.
                This is necessary due to concurrentExec being -1 -->
 	</property>
         <property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_ADD_Label),
                     ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Label)))
-                 VARIABLE_DEFAULTS(NO_CONTENT USER, RUN_RECURSIVELY USER, DO_COMMIT USER)
-                 SELECT_RADIO(NO_CONTENT, "", "true",  [ResourceMsg1(COMMAND_ADD_JustFolder), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_JustFolder);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_JustFolder_mnc))],
-                                                       [ResourceMsg1(COMMAND_ADD_FolderContents), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_FolderContents);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_FolderContents_mnc)),
-                                                        PROMPT_FOR(DESCRIPTION, ResourceMsg1(COMMAND_ADD_Description), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Description);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Description_mnc)))
+                 VARIABLE_DEFAULTS(FOLDER_CONTENTS USER, RUN_RECURSIVELY USER, DO_COMMIT USER)
+                 SELECT_RADIO(FOLDER_CONTENTS, "", "", [ResourceMsg1(COMMAND_ADD_JustFolder), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_JustFolder);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_JustFolder_mnc))],
+                                                       [ResourceMsg1(COMMAND_ADD_FolderContents), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_FolderContents);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_FolderContents_mnc)),
+                                                        PROMPT_FOR(DESCRIPTION, ResourceMsg1(COMMAND_ADD_Description), "${message}",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Description);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Description_mnc)))
                                                         IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RUN_RECURSIVELY, ResourceMsg1(COMMAND_ADD_Recursively), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Recursively);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Recursively_mnc)) ,"", "-l")
                                                         ASK_FOR(DO_COMMIT, ResourceMsg1(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_DoCommit_mnc)))])
 
@@ -1072,11 +1075,14 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg1(CVS_GENERAL_ACTION_ADD)</value>
         </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.AddFolderCommand</value>
+        </property>
         <property name="preCommands">
           <value>ADD_LOCAL_PARENTS</value>
         </property>
         <property name="commandsAfterSuccess">
-          <value>$[? NO_CONTENT] [ADD_CMD] [$[? DO_COMMIT] [COMMIT][]]</value>
+          <value>$[? FOLDER_CONTENTS] [$[? DO_COMMIT] [COMMIT][]] [ADD_CMD]</value>
         </property>
         <property name="disabledOnStatus">
           <value>&versioned-statuses;, "Yet-Unknown"</value>
@@ -1257,7 +1263,7 @@ Microsystems, Inc. All Rights Reserved.
       <command name="ADD_CMD">
 	<property name="exec">
         <!-- if user specified KFLAG use it otherwise use MIME based autodetection (that marks just binary files, leaving others on CVS)-->
-	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add $[? KFLAG_TRIVIAL] [${KFLAG_TRIVIAL}] [$[? KFLAG_EXPERT] [${KFLAG_EXPERT}] [$[? PROCESSING_BINARY_FILES] [-kb] []]] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [] ${QFILES} ${NUR}</value>
+	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add $[? KFLAG_TRIVIAL] [${KFLAG_TRIVIAL}] [$[? KFLAG_EXPERT] [${KFLAG_EXPERT}] [$[? PROCESSING_BINARY_FILES] [-kb] []]] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [$[? message] [-m ${QUOTE}${message}${QUOTE}] []] ${QFILES} ${NUR}</value>
 	</property>
         <property name="visualizer">
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
@@ -1308,7 +1314,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>3</value>
 	</property>
         <property name="commandsAfterSuccess">
-          <value>$[? DO_COMMIT] [$[? NO_CONTENT] [COMMIT] []][]</value>
+          <value>$[? DO_COMMIT] [$[? FOLDER_CONTENTS] [] [COMMIT]][]</value>
         </property>
       </command>
       <command name="ADD_LOCAL_PARENTS">
@@ -1418,6 +1424,9 @@ Microsystems, Inc. All Rights Reserved.
               <!-- "Yet-Unknown"a nd "Ignored" are defined by vcscore: -->
               <value>&local-statuses;, "Yet-Unknown"</value>
           </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.RemoveCommand</value>
+        </property>
 
       </command>
 
@@ -1528,6 +1537,9 @@ Microsystems, Inc. All Rights Reserved.
           <property name="disabledOnStatus">
               <value>&local-statuses;</value>
           </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.PropertiesCommand</value>
+        </property>
       </command>
       <command name="STATUS_GET_TAGS">
 	<property name="exec">
@@ -1604,6 +1616,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg1(CVS_GENERAL_ACTION_HISTORY)</value>
+        </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.HistoryCommand</value>
         </property>
       </command>
       <command name="HISTORY" displayName="ResourceMsg1(CVS_HISTORY)" unless="BUILT-IN" >
@@ -1900,6 +1915,9 @@ Microsystems, Inc. All Rights Reserved.
           <property name="notificationFailMsg">
             <value>$[? MULTIPLE_FILES] [ResourceMsg1(NOTIFICATION_EDITs_Fail, ${NUM_FILES})] [ResourceMsg1(NOTIFICATION_EDIT_Fail, ${FILE})]</value>
           </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.CheckOutCommand</value>
+        </property>
 	</command>
 	<command name="UNEDIT" displayName="ResourceMsg1(CVS_UNEDIT)">
           <property name="labelMnemonic">
@@ -2430,7 +2448,7 @@ Microsystems, Inc. All Rights Reserved.
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg1(COMMAND_DIFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Label)))
                 VARIABLE_DEFAULTS(IGNORE_WHITE USER, IGNORE_SPACE USER, IGNORE_CASE USER, ADDITIONAL_OPTIONS EXPERT_USER)
-                 PROMPT_FOR_EXPERT(TAG1, ResourceMsg1(COMMAND_DIFF_Tag1), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Tag1);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Tag1_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
+                 PROMPT_FOR_EXPERT(TAG1, ResourceMsg1(COMMAND_DIFF_Tag1), "${revision}",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Tag1);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Tag1_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(TAG2, ResourceMsg1(COMMAND_DIFF_Tag2), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Tag2);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Tag2_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(DATE1, ResourceMsg1(COMMAND_DIFF_Date1), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Date1);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Date1_mnc)), SELECTOR_DATE_CVS)
                  PROMPT_FOR_EXPERT(DATE2, ResourceMsg1(COMMAND_DIFF_Date2), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Date2);;MNEMONIC_ResourceMsg1(ACS_COMMAND_DIFF_Date2_mnc)), SELECTOR_DATE_CVS)
@@ -2456,6 +2474,9 @@ Microsystems, Inc. All Rights Reserved.
           <property name="disabledOnStatus">
             <value>&local-statuses;, "Yet-Unknown"</value>
           </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.DiffCommand</value>
+        </property>
       </command>
       <command name="DIFF_TEXT" displayName="ResourceMsg1(CVS_DIFF_TEXTUAL)">
         <property name="labelMnemonic">
@@ -2696,7 +2717,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="DIFF_USR_CMD">
 	<property name="exec">
-          <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} diff $[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] [] $[? TAG1] [-r ${TAG1}] [] $[? TAG2] [-r ${TAG2}] [] ${RCS_KFLAG} ${IGNORE_WHITE} ${IGNORE_SPACE} ${IGNORE_CASE} ${ADDITIONAL_OPTIONS} ${QFILE} ${NUR}</value>
+          <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} diff $[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] [] $[? TAG1] [-r ${TAG1}] [$[? revision] [-r ${revision}] []] $[? TAG2] [-r ${TAG2}] [] ${RCS_KFLAG} ${IGNORE_WHITE} ${IGNORE_SPACE} ${IGNORE_CASE} ${ADDITIONAL_OPTIONS} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="data.regex">
           <value>(^[0-9]+(,[0-9]+|)[d][0-9]+$)|(^[0-9]+(,[0-9]+|)[c][0-9]+(,[0-9]+|)$)|(^[0-9]+[a][0-9]+(,[0-9]+|)$)|(^&lt; .*$)|(^&gt; .*$)|(^---$)|(^retrieving revision.*)</value>

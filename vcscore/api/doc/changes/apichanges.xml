@@ -120,6 +120,27 @@ is the proper place.
       </description>
     </change>
 
+    <change>
+      <api name="vcs"/>
+      <summary>New commands added to API</summary>
+      <version major="1" minor="14"/>
+      <date day="02" month="3" year="2005"/>
+      <author login="mentlicher"/>
+      <compatibility addition="yes"/>
+      <description>
+        Following interfaces added to API:
+        <ul>
+        <li>AddFolderCommand</li>
+        <li>DiffCommand</li>
+        <li>HistoryCommand</li>
+        <li>PropertiesCommand</li>
+        <li>RemoveFolderCommand</li>
+        <li>UncheckOutCommand</li>
+        <li>UpdateCommand</li>
+        </ul>
+      </description>
+    </change>
+
   </changes>
 
   <!-- Now the surrounding HTML text and document structure: -->

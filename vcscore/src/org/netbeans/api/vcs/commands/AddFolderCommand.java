@@ -1,11 +1,11 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -14,12 +14,11 @@
 package org.netbeans.api.vcs.commands;
 
 /**
- * This interface represents the VCS check out command. This command will retrieve
- * the last file revision (if a desired revision is not specified) from the
- * version control repository to the working space.
- * It can possibly apply locks, which can be undone by {@link UncheckOutCommand}.
+ * This interface represents the VCS add folder command. This command
+ * will add new folders into the version control repository. Depending on the
+ * version control system used, the folders can themselves be versioned.
  *
- * @author  Martin Entlicher
+ * @author  Peter Liu
  */
-public interface CheckOutCommand extends RevisionCommand {
+public interface AddFolderCommand extends MessagingCommand {
 }

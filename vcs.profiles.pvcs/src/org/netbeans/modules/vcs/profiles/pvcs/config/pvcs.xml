@@ -360,6 +360,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="disabledOnStatus">
           <value>&versioned-statuses;</value>
         </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.AddFolderCommand</value>
+        </property>
       </command>
       <command name="CREATE_PROJECT_CMD">
         <!-- The same as CREATE_PROJECT, but without the pre-command to avoid loop -->
@@ -462,13 +465,13 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
         <run>
           <executable value="${PCLI_CMD}"/>
-          <arg value="Get ${PRIDPP} ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} $[? FILE] [${QFILES}] [.]"/>
+          <arg value="Get ${PRIDPP} ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [$[? revision] [-r${revision}] []] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} $[? FILE] [${QFILES}] [.]"/>
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_CHECKOUT)))
                  ASK_FOR(SHOULD_LOCK, ResourceMsg(COMMAND_PVCS_CHECKOUT_Lock), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Lock);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Lock_mnc)), "-l", "")
                  ASK_FOR(WRITABLE, ResourceMsg(COMMAND_PVCS_CHECKOUT_Writable), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Writable);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Writable_mnc)), "-w", "")
-                 PROMPT_FOR_EXPERT(REVISION, ResourceMsg(COMMAND_PVCS_CHECKOUT_Revision), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
+                 PROMPT_FOR_EXPERT(REVISION, ResourceMsg(COMMAND_PVCS_CHECKOUT_Revision), "${revision}",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Revision);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Revision_mnc)))
                  PROMPT_FOR_EXPERT(VERSION, ResourceMsg(COMMAND_PVCS_CHECKOUT_Version), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_Version);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_Version_mnc)))
                  ASK_FOR_EXPERT(DO_CHECKOUT_BY_DATE, ResourceMsg(COMMAND_PVCS_CHECKOUT_ByDate), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKOUT_ByDate);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKOUT_ByDate_mnc)), ENABLE(CHECKOUT_BY_DATE))
                  SELECT_RADIO_EXPERT(CHECKOUT_BY_DATE, "", "-u",
@@ -523,6 +526,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg(PVCS_GENERAL_ACTION_UPDATE)</value>
         </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.CheckOutCommand</value>
+        </property>
       </command>
       <command name="INITIAL_CHECKOUT">
         <run>
@@ -574,7 +580,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_ADD)))
-                 PROMPT_FOR(WF_DESCRIPTION, ResourceMsg(COMMAND_PVCS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
+                 PROMPT_FOR(WF_DESCRIPTION, ResourceMsg(COMMAND_PVCS_ADD_Reason),"${message}",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
                  ASK_FOR(KEEP_LOCK, ResourceMsg(COMMAND_PVCS_ADD_KeepLocked), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_KeepLocked);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_KeepLocked_mnc)), "-l", "")
                  PROMPT_FOR_EXPERT(ASSIGN_VERSION, ResourceMsg(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
@@ -634,7 +640,7 @@ Microsystems, Inc. All Rights Reserved.
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_ADD)))
-                 PROMPT_FOR(WF_DESCRIPTION, ResourceMsg(COMMAND_PVCS_ADD_Reason),"",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
+                 PROMPT_FOR(WF_DESCRIPTION, ResourceMsg(COMMAND_PVCS_ADD_Reason),"${message}",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_Reason_mnc)), VALIDATOR_NON_EMPTY)
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_PVCS_CHECKIN_Reason), "{FILE_OUTPUT_OF_CHECKIN_TEMPLATE_GETTER(0)}", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_Reason);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_Reason_mnc)))
                  ASK_FOR(KEEP_LOCK, ResourceMsg(COMMAND_PVCS_ADD_KeepLocked), "false", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_ADD_KeepLocked);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_ADD_KeepLocked_mnc)), "-l", "")
                  PROMPT_FOR_EXPERT(ASSIGN_VERSION, ResourceMsg(COMMAND_PVCS_CHECKIN_AssignVersion), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_PVCS_CHECKIN_AssignVersion);;MNEMONIC_ResourceMsg(ACS_COMMAND_PVCS_CHECKIN_AssignVersion_mnc)))
@@ -831,6 +837,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg(PVCS_GENERAL_ACTION_REMOVE)</value>
+        </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.RemoveCommand</value>
         </property>
       </command>
       <separator />
@@ -1049,6 +1058,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="disabledOnStatus">
           <value>&local-statuses;</value>
         </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.HistoryCommand</value>
+        </property>
       </command>
       <separator />
       <command name="DIFF" displayName="ResourceMsg(PVCS_DIFF)">
@@ -1066,7 +1078,7 @@ Microsystems, Inc. All Rights Reserved.
         -->
         <run dir="${WORKDIR}">
           <executable value="$[? GEN_DELTA] [vdiff] [org.netbeans.modules.vcs.profiles.commands.Diff.class]"/>
-          <arg value="$[? GEN_DELTA] [-dl] []"/>
+          <arg value="$[? GEN_DELTA] [-dl] [$[? revision] [${revision}] []]"/>
           <arg value="$[? REV_VER1] [$[? GEN_DELTA] [-r][]${REVISION1}] [$[? GEN_DELTA] [-v][$[? VERSION1] [${BACKSLASH}] []]${VERSION1}]"/>
           <arg value="$[? REV_VER2] [$[? GEN_DELTA] [$[? REVISION2] [-r${REVISION2}] []] [${REVISION2}]] [$[? GEN_DELTA] [$[? VERSION2] [-v${VERSION2}] []] [$[? VERSION2] [${BACKSLASH}${VERSION2}] []]]"/>
           <arg line="$[? GEN_DELTA] [${IGNORE_WHITE} -d] [3 CHECKOUT_CMD DIFF_CA_CMD]"/>
@@ -1107,6 +1119,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="disabledOnStatus">
           <value>&local-statuses;</value>
+        </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.DiffCommand</value>
         </property>
       </command>
       <command name="APPLY_DELTA" displayName="ResourceMsg(PVCS_APPLY_DELTA)">
@@ -1285,6 +1300,7 @@ Microsystems, Inc. All Rights Reserved.
         <run dir="${WORKDIR}">
           <executable value="vdiff"/>
           <arg value="-dl"/>
+          <arg value="$[? revision] [-r${revision}] []"/>
           <arg value="$[? REV_VER1] [-r${REVISION1}] [$[? VERSION1] [-v${VERSION1}] [-r]]"/>
           <arg value="$[? REV_VER2] [$[? REVISION2] [-r${REVISION2}] []] [$[? VERSION2] [-v${VERSION2}] []]"/>
           <arg value="${IGNORE_WHITE}"/>

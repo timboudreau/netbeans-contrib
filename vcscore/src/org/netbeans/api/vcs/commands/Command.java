@@ -16,7 +16,17 @@ package org.netbeans.api.vcs.commands;
 import org.openide.filesystems.FileObject;
 
 /**
- * This interface represents the VCS command, that is executed to acually perform a VCS action.
+ * This interface represents the VCS command, that is executed to acually perform
+ * a VCS action. <p>
+ * This interface have sub-interfaces for individual VCS commands. The intended
+ * usage is like:
+ * <pre>
+ * AddCommand addCmd =
+ *     (AddCommand) VcsManager.getDefault().createCommand(AddCommand.class,
+ *                                    new FileObject[] { fileToAdd });
+ * addCmd.setMessage("Some new cool stuff");
+ * addCmd.execute();
+ * </pre>
  *
  * @author  Martin Entlicher
  */
