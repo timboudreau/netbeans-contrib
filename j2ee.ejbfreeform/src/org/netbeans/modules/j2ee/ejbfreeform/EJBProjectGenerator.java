@@ -66,6 +66,7 @@ public class EJBProjectGenerator {
             itemsEl = doc.createElementNS(NS_GENERAL, "items"); // NOI18N
             Util.appendChildElement(viewEl, itemsEl, viewElementsOrder);
         }
+
         Iterator it1 = sources.iterator();
         while (it1.hasNext()) {
             String path = (String)it1.next();
@@ -83,29 +84,20 @@ public class EJBProjectGenerator {
             sourceFolderEl.appendChild(el);
             Util.appendChildElement(foldersEl, sourceFolderEl, folderElementsOrder);
             
-            sourceFolderEl = doc.createElementNS(NS_GENERAL, "source-folder"); // NOI18N
-            sourceFolderEl.setAttribute("style", EJBProjectNature.STYLE_CONFIG_FILES); // NOI18N
-            el = doc.createElementNS(NS_GENERAL, "label"); // NOI18N
-            el.appendChild(doc.createTextNode(dispname));
-            sourceFolderEl.appendChild(el);
-            el = doc.createElementNS(NS_GENERAL, "location"); // NOI18N
-            el.appendChild(doc.createTextNode(path)); // NOI18N
-            sourceFolderEl.appendChild(el);
-            Util.appendChildElement(itemsEl, sourceFolderEl, viewItemElementsOrder);
+            addSourceFolderViewItem(doc, itemsEl, EJBProjectNature.STYLE_CONFIG_FILES, "Configuration Files", path);
+
+            // TODO: ma154696: add support for multiple source roots?
+            //  now I get only first one, have to check impact of more roots 
+            // to Enterprise beans node (which one to put into view items
+            List sourceRootNames = getSourceFolders(doc, foldersEl, "java"); // NOI18N
+            addSourceFolderViewItem(doc, itemsEl, EJBProjectNature.STYLE_EJBS, "Enterprise Beans", (String) sourceRootNames.get(0)); // NOI18N
         }
-        
-        
-        List sourceRootNames = getSourceFolders(doc, foldersEl, "java");
-//        // TODO: ma154696: add support for multiple source roots?
-//        //  now I get only first one, have to check impact of more roots 
-//        // to Enterprise beans node (which one to put into view items
-        addSourceFolderViewItem(doc, itemsEl, EJBProjectNature.STYLE_EJBS, "XXX Enterprise Beans", (String) sourceRootNames.get(0));
         
         helper.putPrimaryConfigurationData(data, true);
     }
     
     /**
-     * Adds source-folder element in view items in project.xml
+     * Adds source-folder element in view items in project.xml as the first child element
      * @param doc document to write to
      * @param itemsEl items element in project.xml
      * @param style a view style; will be one of {@link ProjectNature#getSourceFolderViewStyles}
@@ -122,7 +114,7 @@ public class EJBProjectGenerator {
         el = doc.createElementNS(NS_GENERAL, "location"); // NOI18N
         el.appendChild(doc.createTextNode(path));
         sourceFolderEl.appendChild(el);
-        Util.appendChildElement(itemsEl, sourceFolderEl, viewItemElementsOrder);
+        itemsEl.insertBefore(sourceFolderEl, itemsEl.getFirstChild());
     }
     
     /**
