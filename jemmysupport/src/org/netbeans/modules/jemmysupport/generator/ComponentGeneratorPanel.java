@@ -28,6 +28,7 @@ import javax.swing.JLabel;
 import java.lang.reflect.UndeclaredThrowableException;
 
 import org.openide.TopManager;
+import org.openide.filesystems.Repository;
 import org.openide.DialogDescriptor;
 import org.openide.loaders.*;
 import org.openide.nodes.*;
@@ -79,7 +80,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements DataF
     void loadProperties() {
         props = new Properties();
         try {
-            props.load( TopManager.getDefault().getRepository().getDefaultFileSystem().findResource("jemmysupport/ComponentGenerator.properties").getInputStream());
+            props.load( Repository.getDefault().getDefaultFileSystem().findResource("jemmysupport/ComponentGenerator.properties").getInputStream());
         } catch (Exception e1) {
             try {
                 props.load( this.getClass().getClassLoader().getResourceAsStream("org/netbeans/modules/jemmysupport/generator/ComponentGenerator.properties"));
@@ -92,7 +93,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements DataF
     
     void saveProperties() {
         try {
-            FileObject fo=TopManager.getDefault().getRepository().getDefaultFileSystem().getRoot();
+            FileObject fo=Repository.getDefault().getDefaultFileSystem().getRoot();
             FileObject fo2=fo.getFileObject("jemmysupport");
             if (fo2==null) {
                 fo2=fo.createFolder("jemmysupport");

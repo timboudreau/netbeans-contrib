@@ -57,7 +57,7 @@ public class GeneratorAction extends NodeAction {
      * @return String path to action icon
      */    
     protected String iconResource() {
-       return "/org/netbeans/modules/jemmysupport/generator/GeneratorAction.gif"; 
+       return "org/netbeans/modules/jemmysupport/generator/GeneratorAction.gif"; 
     }
     
     /** method returning action Help Context

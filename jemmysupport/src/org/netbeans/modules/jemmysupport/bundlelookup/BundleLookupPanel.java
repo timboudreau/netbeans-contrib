@@ -36,6 +36,16 @@ public class BundleLookupPanel extends TopComponent  {
     static BundleLookupPanel panel;
     
     static final String[] header={"Resource Bundle","Key","Text"};
+    
+    static boolean enableRegExp=true;
+    
+    static {
+        try {
+            Class.forName("java.util.regex.Pattern");
+        } catch (ClassNotFoundException e) {
+            enableRegExp=false;
+        }
+    }
 
     static class ResultTableModel extends DefaultTableModel {
         ResultTableModel() {
@@ -71,6 +81,7 @@ public class BundleLookupPanel extends TopComponent  {
             setIcon(java.awt.Toolkit.getDefaultToolkit().getImage(getClass().getResource("/org/netbeans/modules/jemmysupport/bundlelookup/BundleLookupAction.gif")));
         } catch (Exception e){}
         initComponents();
+        TextRegCheck.setEnabled(enableRegExp);
     }
 
     /** This method is called from within the constructor to
@@ -93,6 +104,8 @@ public class BundleLookupPanel extends TopComponent  {
         TextSubstringCheck = new javax.swing.JCheckBox();
         UseFilterCheck = new javax.swing.JCheckBox();
         StatusLabel = new javax.swing.JLabel();
+        TextRegCheck = new javax.swing.JCheckBox();
+        BundleRegCheck = new javax.swing.JCheckBox();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -105,7 +118,7 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 100.0;
         gridBagConstraints.weighty = 1.0;
@@ -162,22 +175,23 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 100.0;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         add(BundleTextField, gridBagConstraints);
 
-        label.setText(" Searched text: ");
         label.setForeground((java.awt.Color) javax.swing.UIManager.getDefaults().get("Label.foreground"));
+        label.setText(" Searched text: ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(4, 4, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 4, 0, 4);
         add(label, gridBagConstraints);
 
         BundleCaseCheck.setSelected(true);
@@ -186,10 +200,10 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 4);
         add(BundleCaseCheck, gridBagConstraints);
 
         BundleSubstringCheck.setSelected(true);
@@ -199,21 +213,21 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 100.0;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 4);
         add(BundleSubstringCheck, gridBagConstraints);
 
-        TextCaseCheck.setSelected(true);
         TextCaseCheck.setForeground(new java.awt.Color(0, 0, 0));
+        TextCaseCheck.setSelected(true);
         TextCaseCheck.setText("Case Sensitive");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 4);
         add(TextCaseCheck, gridBagConstraints);
 
         TextSubstringCheck.setSelected(true);
@@ -222,9 +236,9 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 100.0;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 4, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 4);
         add(TextSubstringCheck, gridBagConstraints);
 
         UseFilterCheck.setForeground((java.awt.Color) javax.swing.UIManager.getDefaults().get("Label.foreground"));
@@ -238,6 +252,7 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 0, 0);
         add(UseFilterCheck, gridBagConstraints);
@@ -249,6 +264,28 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         add(StatusLabel, gridBagConstraints);
+
+        TextRegCheck.setText("Regular Expression");
+        TextRegCheck.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 100.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 4);
+        add(TextRegCheck, gridBagConstraints);
+
+        BundleRegCheck.setText("Regular Expression");
+        BundleRegCheck.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 100.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 4);
+        add(BundleRegCheck, gridBagConstraints);
 
     }//GEN-END:initComponents
 
@@ -276,6 +313,7 @@ public class BundleLookupPanel extends TopComponent  {
         BundleTextField.setEnabled(state);
         BundleCaseCheck.setEnabled(state);
         BundleSubstringCheck.setEnabled(state);
+        BundleRegCheck.setEnabled(state&&enableRegExp);
     }//GEN-LAST:event_UseFilterCheckActionPerformed
 
     private void BundleTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BundleTextFieldActionPerformed
@@ -288,6 +326,7 @@ public class BundleLookupPanel extends TopComponent  {
         SearchTextField.setEnabled(false);
         TextCaseCheck.setEnabled(false);
         TextSubstringCheck.setEnabled(false);
+        TextRegCheck.setEnabled(false);
         UseFilterCheck.setEnabled(false);
         BundleTextField.setEnabled(false);
         BundleCaseCheck.setEnabled(false);
@@ -298,20 +337,22 @@ public class BundleLookupPanel extends TopComponent  {
         Thread t=new Thread(new Runnable() {
             public void run() {
                 if (UseFilterCheck.isSelected()) {
-                    BundleLookup.lookupText(table, SearchTextField.getText(), TextCaseCheck.isSelected(), TextSubstringCheck.isSelected(), BundleTextField.getText(), BundleCaseCheck.isSelected(), BundleSubstringCheck.isSelected());
+                    BundleLookup.lookupText(table, SearchTextField.getText(), TextCaseCheck.isSelected(), TextSubstringCheck.isSelected(), TextRegCheck.isSelected(), BundleTextField.getText(), BundleCaseCheck.isSelected(), BundleSubstringCheck.isSelected(), BundleRegCheck.isSelected());
                 } else {
-                    BundleLookup.lookupText(table, SearchTextField.getText(), TextCaseCheck.isSelected(), TextSubstringCheck.isSelected(), "", true, true);
+                    BundleLookup.lookupText(table, SearchTextField.getText(), TextCaseCheck.isSelected(), TextSubstringCheck.isSelected(), TextRegCheck.isSelected(), "", true, true, false);
                 }
                 StatusLabel.setText("Found "+String.valueOf(table.getRowCount())+" keys.");
                 SearchButton.setEnabled(true);
                 SearchTextField.setEnabled(true);
                 TextCaseCheck.setEnabled(true);
                 TextSubstringCheck.setEnabled(true);
+                TextRegCheck.setEnabled(enableRegExp);
                 UseFilterCheck.setEnabled(true);
                 boolean state=UseFilterCheck.isSelected();
                 BundleTextField.setEnabled(state);
                 BundleCaseCheck.setEnabled(state);
                 BundleSubstringCheck.setEnabled(state);
+                BundleRegCheck.setEnabled(state&&enableRegExp);
             }
         },"SearchThread");
         t.setDaemon(true);
@@ -324,18 +365,20 @@ public class BundleLookupPanel extends TopComponent  {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox UseFilterCheck;
-    private javax.swing.JCheckBox BundleCaseCheck;
-    private javax.swing.JTextField BundleTextField;
-    private javax.swing.JCheckBox TextCaseCheck;
-    private javax.swing.JButton SearchButton;
-    private javax.swing.JTable ResultTable;
-    private javax.swing.JCheckBox TextSubstringCheck;
     private javax.swing.JCheckBox BundleSubstringCheck;
-    private javax.swing.JLabel StatusLabel;
-    private javax.swing.JLabel label;
+    private javax.swing.JCheckBox BundleCaseCheck;
     private javax.swing.JScrollPane ScrollPane;
+    private javax.swing.JLabel label;
+    private javax.swing.JCheckBox TextCaseCheck;
     private javax.swing.JTextField SearchTextField;
+    private javax.swing.JCheckBox TextSubstringCheck;
+    private javax.swing.JButton SearchButton;
+    private javax.swing.JCheckBox BundleRegCheck;
+    private javax.swing.JTable ResultTable;
+    private javax.swing.JTextField BundleTextField;
+    private javax.swing.JCheckBox UseFilterCheck;
+    private javax.swing.JLabel StatusLabel;
+    private javax.swing.JCheckBox TextRegCheck;
     // End of variables declaration//GEN-END:variables
                        
     /** opens panel for debugging purposes

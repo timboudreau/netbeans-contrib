@@ -52,7 +52,7 @@ public class BundleLookupAction extends NodeAction {
      * @return String path to action icon
      */    
     protected String iconResource() {
-       return "/org/netbeans/modules/jemmysupport/bundlelookup/BundleLookupAction.gif"; 
+       return "org/netbeans/modules/jemmysupport/bundlelookup/BundleLookupAction.gif"; 
     }
     
     /** method returning action Help Context
