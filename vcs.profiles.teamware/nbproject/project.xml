@@ -16,7 +16,7 @@ Microsystems, Inc. All Rights Reserved.
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/1">
             <code-name-base>org.netbeans.modules.vcs.profiles.teamware</code-name-base>
-            <path>generic</path>
+            <path>vcsgeneric/profiles/teamware</path>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.netbeans.modules.vcscore</code-name-base>
