@@ -19,10 +19,14 @@ import java.text.*;
 import java.awt.*;
 
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.io.NbObjectInputStream;
 import org.openide.util.io.NbObjectOutputStream;
+
+import org.netbeans.modules.vcscore.VcsAttributes;
 
 /** Miscelaneous stuff.
  * 
@@ -685,6 +689,40 @@ public class VcsUtilities {
         }
         dir.setIgnoreList(ignoreList);
         return ignoreList;
+    }
+    
+    /**
+     * Performs the conversion from the Fileobjects retrieved from nodes to the real
+     * underlying versioning filesystem's fileobjects. Should be used in the action's code whenever 
+     * the action needs to work with the fileobjects of the versioning fs.
+     * That is nessesary when the nodes come from  the MultiFilesystem layer,
+     * otherwise we'll get the wrong set of fileobjects and commands will behave strangely.
+     */
+    public static FileObject[] convertFileObjects(FileObject[] originals) {
+        if (originals == null || originals.length == 0) {
+            return originals;
+        }
+        FileObject[] toReturn = new FileObject[originals.length];
+        for (int i = 0; i < originals.length; i++) {
+            toReturn[i] = originals[i];
+            FileObject fo = originals[i];
+            FileSystem fs = (FileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
+            if (fs != null) {
+                try {
+                    FileSystem fileSys = fo.getFileSystem();
+                    if (!fileSys.equals(fs)) {
+                        String nativePath = (String) fo.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
+                        toReturn[i] = fs.findResource(nativePath);
+                    }
+                } catch (FileStateInvalidException exc) {
+                    continue;
+                }
+                
+            } else {
+                continue;
+            }
+        }
+        return toReturn;
     }
     
     /**

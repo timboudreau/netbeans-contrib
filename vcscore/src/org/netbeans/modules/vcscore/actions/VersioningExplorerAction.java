@@ -29,7 +29,7 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.actions.NodeAction;
 
-import org.netbeans.modules.vcscore.VcsAttributes;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
@@ -87,40 +87,6 @@ public class VersioningExplorerAction extends GeneralCommandAction {
         explorer.requestFocus();
     }
  
-    /***
-     * Performs the conversion from the Fileobjects retrieved from nodes to the real
-     * underlying versioning filesystem's fileobjects. Should be used in the action's code whenever 
-     * the action needs to work with the fileobjects of the versioning fs.
-     * That is nessesary when the nodes come from  the MultiFilesystem layer,
-     * otherwise we'll get the wrong set of fileobjects and commands will behave strangely.
-     */
-    private FileObject[] convertFileObjects(FileObject[] originals) {
-        if (originals == null || originals.length == 0) {
-            return originals;
-        }
-        FileObject[] toReturn = new FileObject[originals.length];
-        for (int i = 0; i < originals.length; i++) {
-            toReturn[i] = originals[i];
-            FileObject fo = originals[i];
-            FileSystem fs = (FileSystem)fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-            if (fs != null) {
-                try {
-                    FileSystem fileSys = fo.getFileSystem();
-                    if (!fileSys.equals(fs)) {
-                        String nativePath = (String)fo.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
-                        toReturn[i] = fs.findResource(nativePath);
-                    }
-                } catch (FileStateInvalidException exc) {
-                    continue;
-                }
-                
-            } else {
-                continue;
-            }
-        }
-        return toReturn;
-    }
-    
     private HashMap getFilesByFS(Node[] nodes) {
         HashMap filesByFS = new HashMap();
         HashMap map = getSupporterMap(nodes);
@@ -132,7 +98,7 @@ public class VersioningExplorerAction extends GeneralCommandAction {
                 continue;
             }
             origFos = (FileObject[])foSet.toArray(origFos);
-            FileObject[] correctFos = convertFileObjects(origFos);
+            FileObject[] correctFos = VcsUtilities.convertFileObjects(origFos);
             for (int i = 0; i < correctFos.length; i++) {
                 FileObject fo = correctFos[i];
                 try {

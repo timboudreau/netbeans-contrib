@@ -101,6 +101,7 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         final VcsCommand cmd = fileSystem.getCommand(cmdName);
         if (cmd == null) return false;
+        fileObjects = VcsUtilities.convertFileObjects(fileObjects);
         Set foSet = new HashSet();
         for (int i = 0; i < fileObjects.length; i++) {
             foSet.add(fileObjects[i]);
@@ -134,6 +135,7 @@ public class VcsActionSupporter extends CommandActionSupporter implements java.i
         if (cmdSet == null) {
             return;
         }
+        fileObjects = VcsUtilities.convertFileObjects(fileObjects);
         for (Iterator it = cmdSet.iterator(); it.hasNext(); ) {
             String cmdName = (String) it.next();
             if (isEnabled(cmdName, fileObjects)) {
