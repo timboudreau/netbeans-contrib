@@ -13,11 +13,8 @@
 
 package org.netbeans.modules.jndi;
 
-import java.util.Hashtable;
-import java.util.ArrayList;
 import org.openide.modules.ModuleInstall;
-import org.openide.nodes.Node;
-import org.openide.nodes.Children;
+
 /*JNDI Module
  *
  * @author Tomas Zezula
@@ -26,15 +23,5 @@ public final class JndiModule extends ModuleInstall {
 
     // be compatible with build #501
     static final long serialVersionUID = -2972992385602605979L;
-
-    public void installed() {
-    }
-
-    public void uninstalled() {
-    }
-
-    public void restored() {
-    }
-
 
 }
