@@ -1187,9 +1187,6 @@ Microsystems, Inc. All Rights Reserved.
             SELECT_COMBO_EXPERT(KFLAG_EXPERT, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)), ["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
           </value>
 	</property>
-        <property name="visualizer">
-          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
-        </property>
 	<property name="distinguishBinaryFiles">
 	  <value>true</value>
 	</property>
@@ -1201,9 +1198,6 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="onRoot">
 	  <value>false</value>
-	</property>
-        <property name="disabledOnStatus">
-          <value>"Up-to-date", "Locally Added", "Locally Modified", "Needs Checkout", "Needs Patch", "Needs Merge", "File had conflicts on merge"</value>
 	</property>
 	<property name="data.regex">
 	  <value>$ ^</value>
