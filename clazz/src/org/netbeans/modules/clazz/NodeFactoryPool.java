@@ -16,6 +16,7 @@ package org.netbeans.modules.clazz;
 import java.io.IOException;
 import java.util.*;
 
+import org.openide.util.Task;
 import org.openide.ErrorManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.ErrorManager;
@@ -23,7 +24,6 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.FolderInstance;
 import org.openide.src.nodes.FilterFactory;
 import org.openide.src.nodes.ElementNodeFactory;
-import org.openide.util.Task;
 import org.openide.util.Lookup;
 import org.openide.util.TaskListener;
 
@@ -33,93 +33,63 @@ import org.openide.util.TaskListener;
  *
  * @author  Svatopluk Dedic
  */
-class NodeFactoryPool extends FolderInstance implements TaskListener {
+class NodeFactoryPool extends FolderInstance {
     static final FilterFactory[] EMPTY = new FilterFactory[0];
-    
-    LinkedList          explicit;
+
+    /**
+     * Base factory, which serves as a default and the tail of the chain.
+     */
     ElementNodeFactory  base;
+    
+    /**
+     * Factories, which were explicitly added by calls to {@link #addFactory}
+     */
+    LinkedList          explicit;
+    
+    /**
+     * State of the underlying folder. Contains list of factories registered
+     * through the SFS.
+     */
     FilterFactory[]     factories = EMPTY;
+    
+    /**
+     * Computed head of the factory chain.
+     */
+    ElementNodeFactory  head;
+    
+    /**
+     * True, if the folder scan was triggered at least once.
+     */
+    boolean             initialized;
     
     NodeFactoryPool(DataFolder storage, ElementNodeFactory base) {
         super(storage);
         this.base = base;
-        addTaskListener(this);
+        head = base;
     }
     
     final Object sync() {
         return base;
     }
-    
-    private FilterFactory[] getFactories() {
-        try {
-            return (FilterFactory[])instanceCreate();
-        } catch (IOException ex) {
-            throw new IllegalStateException(ex.getMessage());
-        } catch (ClassNotFoundException ex) {
-            throw new IllegalStateException(ex.getMessage());
-        }
-    }
-    
-    void addFactory(FilterFactory f) {
-        synchronized (sync()) {
-            if (explicit == null) {
-                explicit = new LinkedList();
-                if (factories.length > 0)
-                    f.attachTo(factories[factories.length]);
-                else
-                    f.attachTo(base);
-            }
-            else
-                f.attachTo((FilterFactory)explicit.getLast());
-            explicit.add(f);
-        }
-    }
-    
-    void removeFactory(FilterFactory f) {
-        synchronized (sync()) {
-            FilterFactory[] c;
-            boolean first = explicit.getFirst() == f;
-            
-            for (ListIterator it = explicit.listIterator(); it.hasNext(); ) {
-                FilterFactory f2 = (FilterFactory)it.next();
-                if (f == f2) {
-                    it.remove();
-                    if (!first && it.hasNext()) {
-                        ((FilterFactory)it.next()).attachTo((FilterFactory)it.previous());
-                        return;
-                    }
-                }
-            }
-            if (first && !explicit.isEmpty()) {
-                c = this.factories;
-                if (c.length > 0)
-                    ((FilterFactory)explicit.getFirst()).attachTo(c[c.length - 1]);
-                else
-                    ((FilterFactory)explicit.getFirst()).attachTo(base);
-            }
-        }
-    }
-    
-    FilterFactory   getHead() {
-        synchronized (sync()) {
-            if (explicit != null && !explicit.isEmpty()) {
-                return (FilterFactory)explicit.getLast();
-            }
-        }
-        FilterFactory[] c;
 
-        try {
-            c = (FilterFactory[])instanceCreate();
-        } catch (Exception ex) {
-            logError(ex);
-            return null;
+    /**
+     * Returns the head of the current factory list. Except for the initialization,
+     * the method does not block.
+     */
+    ElementNodeFactory getHead() {
+        // force folder scan the first time the Pool is queried
+        if (!initialized) {
+            recreate();
+            waitFinished();
+            initialized = true;
         }
-        if (c.length > 0)
-            return c[c.length - 1];
-        else
-            return null;
+        return head;
     }
-        
+
+    /**
+     * Creates an array of factories from the underlying folder. The "product" of
+     * the method is the head of the factory list.
+     */
     protected Object createInstance(InstanceCookie[] cookies) 
     throws java.io.IOException, ClassNotFoundException {
         Collection l = new ArrayList(cookies.length);
@@ -135,35 +105,67 @@ class NodeFactoryPool extends FolderInstance implements TaskListener {
                 logError(ex);
             }
         }
-        return l.toArray(new FilterFactory[l.size()]);
+        synchronized (sync()) {
+            ElementNodeFactory f = relinkFactories(l);
+            this.factories = (FilterFactory[])l.toArray(new FilterFactory[l.size()]);
+            return f;
+        }
+    }
+
+    /**
+     * Reattaches factories in the logicall factory chain to each other.
+     */
+    private ElementNodeFactory relinkFactories(Collection first) {
+        ElementNodeFactory previous = base;
+        FilterFactory f = null;
+        Iterator it;
+        Collection next = explicit;
+        
+        if (first == null)
+            first = Arrays.asList(factories);
+        
+        for (it = first.iterator(); it.hasNext(); ) {
+            f = (FilterFactory)it.next();
+            f.attachTo(previous);
+            previous = f;
+        }
+        if (next != null) {
+            for (it = next.iterator(); it.hasNext(); ) {
+                f = (FilterFactory)it.next();
+                f.attachTo(previous);
+                previous = f;
+            }
+        }
+        return f != null ? f : base;
+    }
+
+    /**
+     * Adds an explicit factory and the head of the chain. Relinks the entire
+     * chain as well.
+     */
+    void addFactory(FilterFactory f) {
+        synchronized (sync()) {
+            if (explicit == null) {
+                explicit = new LinkedList();
+            }
+            explicit.add(f);
+            head = relinkFactories(null);
+        }
+    }
+
+    /**
+     * Removes one factory from the explicit list. Relinks the chain, if the
+     * factory was, actually, on the list.
+     */
+    void removeFactory(FilterFactory f) {
+        synchronized (sync()) {
+            if (!explicit.remove(f))
+                return;
+            relinkFactories(null);
+        }
     }
     
     void logError(Exception ex) {
         ((ErrorManager)Lookup.getDefault().lookup(ErrorManager.class)).notify(ex);
     }
-
-    public void taskFinished(Task task) {
-        FilterFactory[] factories;
-        try {
-            factories = (FilterFactory[])instanceCreate();
-        } catch (IOException ex) {
-            logError(ex);
-            return;
-        } catch (ClassNotFoundException ex) {
-            logError(ex);
-            return;
-        }
-        synchronized (sync()) {
-            ElementNodeFactory previous = base;
-            for (int i = 0; i < factories.length; i++ ) {
-                FilterFactory f = factories[i];
-                f.attachTo(previous);
-                previous = f;
-            }
-            if (explicit != null && !explicit.isEmpty()) {
-                ((FilterFactory)explicit.getFirst()).attachTo(previous);
-            }
-            this.factories = factories;
-        }
-    }    
 }
