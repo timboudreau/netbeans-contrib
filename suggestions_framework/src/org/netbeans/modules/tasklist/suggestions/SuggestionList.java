@@ -24,6 +24,7 @@ import java.util.Map;
 import org.netbeans.modules.tasklist.core.TaskList;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskNode;
+import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
 
 import org.openide.nodes.Node;
@@ -36,8 +37,6 @@ import org.openide.util.NbBundle;
  *
  * @author Tor Norbye
  */
-
-
 public class SuggestionList extends TaskList {
 
     /** Number of tasks we allow before for a type before dropping
@@ -100,13 +99,65 @@ public class SuggestionList extends TaskList {
             // Add the category in the given position
             SuggestionImpl after = findAfter(type);
             if (after != null) { 
-                add(category, after, false);
+                add(category, after);
             } else {
-                add(category, false, false);
+                add(category, false);
             }
         }
         return category;
     }
+
+    /** Add a task to the task list.
+     * @param task The task to be added.
+     * @param after The task which will be immediately before
+     * the new subtask after the addition (e.g. add
+     * this subtask directly AFTER the specified
+     * task)
+     * @deprecated use Task.addSubtask(Task subtask, Task after) instead
+     */
+    private void add(Task task, Task after) {
+        if (root == null) {
+            root = getRoot();
+        }
+        if (task.getParent() == null) {
+            task.setParent(root);
+        }
+        Task parent = task.getParent();
+        // User insert: prepend to the list
+        parent.addSubtask(task, after);
+
+        markChanged();
+    }
+
+
+    /** Add a task to the task list.
+     * @param task The task to be added.
+     * @param append If true, append the item to the list, otherwise prepend
+     * @deprecated use Task.addSubtask(Task subtask, boolean append) instead
+     */
+    private void add(Task task, boolean append) {
+
+        // Q: what's this? why it not it added to root
+        // instead of task.getParent?
+        // A: it's probably because tasklist is flat
+        // but tasks can form hierarchy sharing one tasklist
+
+        if (root == null) {
+            root = getRoot();
+        }
+        if (task.getParent() == null) {
+            task.setParent(root);
+        }
+
+        // it's really funny contruct
+        Task parent = task.getParent();
+        parent.addSubtask(task, append);
+
+        notifyAdded(task);
+        markChanged();
+    }
+
+
     private Map categoryTasks = null;
 
     /** Return the task that we need to put this new category type
@@ -138,7 +189,7 @@ public class SuggestionList extends TaskList {
     synchronized void removeCategory(SuggestionImpl category, boolean force) {
         //SuggestionImpl category = (SuggestionImpl)s.getParent();
         if ((category != null) && (force || !category.hasSubtasks())) {
-            remove(category);
+            category.getParent().removeSubtask(category);
             categoryTasks.remove(category.getSType());
         }
     }

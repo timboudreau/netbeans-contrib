@@ -23,7 +23,6 @@ import org.netbeans.modules.tasklist.client.Suggestion;
 
 
 /**
- * Lists suggestions for current project or source file.
  * Filters out inproper suggestions not targeted to this list.
  *
  * @author Petr Kuzel
@@ -51,21 +50,4 @@ final class SourceTasksList extends SuggestionList {
         super.addRemove(filtered, removeList, append, parent, after);
     }
 
-    public void add(Task task) {
-        if (task.getSeed() instanceof SourceTaskProvider) {
-            super.add(task);
-        }
-    }
-
-    public void add(Task task, boolean append, boolean show) {
-        if (task.getSeed() instanceof SourceTaskProvider) {
-            super.add(task, append, show);
-        }
-    }
-
-    public void add(Task task, Task after, boolean show) {
-        if (task.getSeed() instanceof SourceTaskProvider) {
-            super.add(task, after, show);
-        }
-    }
 }

@@ -27,7 +27,7 @@ import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 
 /**
- * This class models hierarchical tasklist.
+ * This class models flat list or hierarchical tasks.
  *
  * @author Tor Norbye
  * @author Tim Lebedkov
@@ -35,11 +35,12 @@ import org.openide.util.NbBundle;
 public class TaskList implements ObservableList, TaskListener {
 
     // List category
-    public final static String USER_CATEGORY = "usertasks"; // NOI18N
+    final static String USER_CATEGORY = "usertasks"; // NOI18N
 
+    // data holder
     protected Task root = null;
     
-    protected ArrayList listeners = null;
+    private ArrayList listeners = null;
     
     /** Has the options set changed such that we need to save */
     protected boolean needSave = false;
@@ -116,8 +117,12 @@ public class TaskList implements ObservableList, TaskListener {
             it = removeList.listIterator();
             while (it.hasNext()) {
                 Task task = (Task) it.next();
+                if (parent != null) {
+                    parent.removeSubtask(task);
+                } else {
+                    root.removeSubtask(task);
+                }
                 modified = true;
-                remove(task);
             }
         }
 
@@ -144,101 +149,7 @@ public class TaskList implements ObservableList, TaskListener {
         setSilentUpdate(false, true, modified);
     }
 
-    /** 
-     * Add a task to the task list.
-     * @param task The task to be added. 
-     * @deprecated use getRoot().addSubtask(task) instead
-     */
-    public void add(Task task) {
-        add(task, false, true);
-    }
-
-    /** Add a task to the task list.
-     * @param task The task to be added.
-     * @param append If true, append the item to the list, otherwise prepend
-     * @param show If true, show the task in the list
-     * @deprecated use Task.addSubtask(Task subtask, boolean append) instead
-     */
-    public void add(Task task, boolean append, boolean show) {
-        if (root == null) {
-            root = getRoot();
-        }
-        if (task.getParent() == null) {
-            task.setParent(root);
-        }
-        Task parent = task.getParent();
-        // User insert: prepend to the list
-        parent.addSubtask(task, append);
-
-        needSave = true;
-
-        // Show the new item
-        // XXX fix this
-        if (show) {
-            notifySelected(task);
-        }
-
-        notifyAdded(task);
-
-        // TODO make this smarter later on, such that I only save when necessary
-        save();
-    }
-
-    /** Add a task to the task list.
-     * @param task The task to be added.
-     * @param after The task which will be immediately before
-     * the new subtask after the addition (e.g. add
-     * this subtask directly AFTER the specified
-     * task)
-     * @param show If true, show the task in the list
-     * @deprecated use Task.addSubtask(Task subtask, Task after) instead
-     */
-    public void add(Task task, Task after, boolean show) {
-        if (root == null) {
-            root = getRoot();
-        }
-        if (task.getParent() == null) {
-            task.setParent(root);
-        }
-        Task parent = task.getParent();
-        // User insert: prepend to the list
-        parent.addSubtask(task, after);
-
-        needSave = true;
-
-        // Show the new item
-        // XXX fix this
-        if (show) {
-            notifySelected(task);
-        }
-
-        // TODO make this smarter later on, such that I only save when necessary
-        save();
-    }
-
-
-    /** 
-     * Remove a task from the list.
-     * @param task The task to be removed. 
-     * @deprecated use Task.remove() instead
-     */
-    public void remove(Task task) {
-        Task pt = task.getParent();
-        if (task.getParent() != null) {
-            task.getParent().removeSubtask(task);
-        } else {
-            root.removeSubtask(task);
-        }
-        needSave = true;
-
-        // Ensure that we're not showing any markers for this item
-        notifyRemoved(pt, task);
-
-        // TODO make this smarter later on, such that I only save when necessary
-        save();
-    }
-
-    /** 
+    /**
      * Notify the task list that some aspect of it has been changed, so
      * it should save itself soon. Eventually calls save 
      */
@@ -317,6 +228,7 @@ public class TaskList implements ObservableList, TaskListener {
         listeners.remove(listener);
     }
 
+    /** Fire TaskListener.changedTask */
     public void notifyChanged(Task task) {
         if (listeners != null) {
             int n = listeners.size();
@@ -327,6 +239,7 @@ public class TaskList implements ObservableList, TaskListener {
         }
     }
 
+    /** Fire TaskListener.addedTask */
     protected void notifyAdded(Task task) {
         if (listeners != null) {
             int n = listeners.size();
@@ -338,6 +251,7 @@ public class TaskList implements ObservableList, TaskListener {
     }
 
     /**
+     * Fire TaskListener.selectedTask
      * @deprecated splitting model from the view
      */
     public void notifySelected(Task task) {
@@ -351,6 +265,7 @@ public class TaskList implements ObservableList, TaskListener {
     }
 
     /**
+     * Fire TaskListener.warpedTask
      * @deprecated splitting model from the view
      */
     public void notifyWarped(Task task) {
@@ -363,6 +278,7 @@ public class TaskList implements ObservableList, TaskListener {
         }
     }
 
+    /** Fire TaskListener.structureChanged */
     public void notifyStructureChanged(Task task) {
         if (listeners != null) {
             int n = listeners.size();
@@ -373,7 +289,8 @@ public class TaskList implements ObservableList, TaskListener {
         }
     }
 
-    public void notifyRemoved(Task pt, Task task) {
+    /** Fire TaskListener.removedTask */
+    protected final void fireRemoved(Task pt, Task task) {
         if (listeners != null) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
@@ -404,41 +321,11 @@ public class TaskList implements ObservableList, TaskListener {
         return translators;
     }
 
-    ///* For debugging purposes:
-    public void print() {
-        System.err.println("\nTask List:\n-------------");
-        if (root == null) {
-            return;
-        }
-        recursivePrint(root, 0);
-        System.err.println("\n\n");
-    }
-
-    private void recursivePrint(Task node, int depth) {
-        if (depth > 20) { // probably invalid list
-            Thread.dumpStack();
-            return;
-        }
-        for (int i = 0; i < depth; i++) {
-            System.err.print("   ");
-        }
-        System.err.println(node);
-        if (node.getSubtasks() != null) {
-            List l = node.getSubtasks();
-            ListIterator it = l.listIterator();
-            while (it.hasNext()) {
-                Task task = (Task) it.next();
-                recursivePrint(task, depth + 1);
-            }
-        }
-    }
-    // */
-
-    /** 
+    /**
      * Remove all the tasks in this tasklist 
      */
     public void clear() {
-        getRoot().clear();
+        if (root != null) root.clear();
     }
 
     /**
@@ -451,16 +338,20 @@ public class TaskList implements ObservableList, TaskListener {
         return getRoot().getSubtasks();
     }
 
+    // TaskListener implementation delegates events
+
     /**
      * @deprecated
      */
     public void selectedTask(Task task) {
+        notifySelected(task);
     }
     
     /**
      * @deprecated
      */
     public void warpedTask(Task task) {
+        notifyWarped(task);
     }
 
     public void addedTask(Task task) {
@@ -468,7 +359,7 @@ public class TaskList implements ObservableList, TaskListener {
     }
     
     public void removedTask(Task pt, Task task) {
-        notifyRemoved(pt, task);
+        fireRemoved(pt, task);
     }
 
     public void changedTask(Task task) {
@@ -478,4 +369,36 @@ public class TaskList implements ObservableList, TaskListener {
     public void structureChanged(Task task) {
         notifyStructureChanged(task);
     }
+
+//    ///* For debugging purposes:
+//    public void print() {
+//        System.err.println("\nTask List:\n-------------");
+//        if (root == null) {
+//            return;
+//        }
+//        recursivePrint(root, 0);
+//        System.err.println("\n\n");
+//    }
+//
+//    private void recursivePrint(Task node, int depth) {
+//        if (depth > 20) { // probably invalid list
+//            Thread.dumpStack();
+//            return;
+//        }
+//        for (int i = 0; i < depth; i++) {
+//            System.err.print("   ");
+//        }
+//        System.err.println(node);
+//        if (node.getSubtasks() != null) {
+//            List l = node.getSubtasks();
+//            ListIterator it = l.listIterator();
+//            while (it.hasNext()) {
+//                Task task = (Task) it.next();
+//                recursivePrint(task, depth + 1);
+//            }
+//        }
+//    }
+//    // */
+
+
 }

@@ -327,15 +327,6 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
     }
 
     /**
-     * This method is here only for the benefit of the XMLEncoder,
-     * such that task trees can be persisted. Do not use it directly;
-     * use addSubtask instead.
-     */
-    public void setSubtasks(LinkedList subtasks) {
-        this.subtasks = subtasks;
-    }
-
-    /**
      * Add subtask to this task. The task will be prepended
      * to the task list.
      *
@@ -424,19 +415,16 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         updatedStructure();
     }
 
-    /**
-     * Removes this task from the task list
-     */
-    public void remove() {
-        assert parent != null : "parent == null";
-
-        getParent().removeSubtask(this);
-    }
-
     /** Remove a particular subtask
      * @param subtask The subtask to be removed */
     public void removeSubtask(Task subtask) {
 	//subtask.list = null;
+
+//        if (subtask.getAnnotation() != null) {
+//            subtask.getAnnotation().detach();
+//            subtask.setAnnotation(null);
+//        }
+
         // We need the list reference later, when looking for a reincarnation
         // of the task. So instead use the zombie field to mark deleted items.
         subtask.zombie = true;
@@ -452,33 +440,15 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         }
     }
 
-    /** For use with list iterators
-	@param it Iterator, which should just have returned the next parameter
-	@param item The item which was most recently next()'ed out of the iterator
+    /**
+     * Indicate whether or not this task has any subtasks
+     * @return true iff the item has any subtasks
      */
-    public void removeSubtask(ListIterator it, Task item) { // Remove publicness
-        if (it == null) {
-            return;
-        }
-	item.list = null;
-        it.remove();
-
-        // XXX is the following allowed?
-        if (subtasks.size() == 0) {
-            subtasks = null;
-        }
-        if (!silentUpdate && !item.silentUpdate) {
-            updatedStructure();
-        }
-    }
-
-    /** Indicate whether or not this task has any subtasks
-     * @return true iff the item has any subtasks */
-    public boolean hasSubtasks() {
+    public final boolean hasSubtasks() {
         return ((subtasks != null) && (subtasks.size() != 0));
     }
 
-    public Task getParent() {
+    public final Task getParent() {
         return parent;
     }
 
@@ -490,7 +460,11 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         return isParentOf(nextLevel);  // recursion
     }
 
-    public void setParent(Task parent) {
+    /**
+     * XXX make paskage private or even private
+     * @deprecated iCalSupport should use addSubtask
+     */
+    public final void setParent(Task parent) {
         this.parent = parent;
         // Should we broadcast this change??? Probably not, it's always
         // manipulated as part of add/deletion operations which are tracked
