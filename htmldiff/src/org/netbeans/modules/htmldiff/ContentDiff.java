@@ -87,7 +87,9 @@ public final class ContentDiff extends Object {
                 while (it.hasNext ()) {
                     String name = (String)it.next ();
                     Page p = findPage (name);
-                    s.add (p);
+                    if (p != null) {
+                        s.add (p);
+                    }
                 }
                 clusters[i] = new Cluster (s);
             }
@@ -149,6 +151,7 @@ public final class ContentDiff extends Object {
                 c.add (s);
             }
         }
+        r.close ();        
     }
     
     /** Parses given set of files and creates groups of files 
@@ -177,6 +180,7 @@ public final class ContentDiff extends Object {
         Iterator names = allFiles.iterator();
         while (names.hasNext ()) {
             String fileName = (String)names.next ();
+            
             URL f1 = new URL (base1, fileName);
             URL f2 = new URL (base2, fileName);
             
@@ -221,10 +225,38 @@ public final class ContentDiff extends Object {
         private Set pages;
         /** reference clusters */
         Cluster[] references;
+        /** percentage change */
+        private int changed = -1;
         
         /** create instances just in this class */
         Cluster (Set pages) {
             this.pages = pages;
+        }
+        
+        /** Get percentage change of the whole cluster. Is based 
+         * on the changes of pages and other referenced clusters.
+         * 
+         * @return number from 0 to 100
+         */
+        public int getChanged () {
+            if (changed != -1) {
+                return changed;
+            }
+            
+            int size = 0;
+            int ch = 0;
+            
+            Iterator it = pages.iterator();
+            while (it.hasNext()) {
+                Page p = (Page)it.next ();
+                
+                ch += p.getChanged () * p.size / 100;
+                size += p.size;
+            }
+            
+            changed = ch * 100 / size;
+            return changed;
+                
         }
         
         /** Names of pages that are the in the cluster.
@@ -251,6 +283,8 @@ public final class ContentDiff extends Object {
         private Boolean added;
         /** how much this page changed in % */
         private int change = -1;
+        /** size of the page */
+        private int size = -1;
         
         Page (String name) {
             this.name = name;
@@ -294,15 +328,22 @@ public final class ContentDiff extends Object {
             for (int i = 0; i < res.length; i++) {
                 if (res[i].isDifference()) {
                     // put there both
-                    w.write ("<strike>");
-                    w.write (res[i].getOld());
-                    len += res[i].getOld ().length();
-                    diff += res[i].getOld ().length();
-                    w.write ("</strike><span style=\"background: #FFFF00\">");
-                    w.write (res[i].getNew());
-                    len += res[i].getNew ().length();
-                    diff += res[i].getNew ().length();
-                    w.write ("</span>");
+                    int oldLen = res[i].getOld ().length ();
+                    if (oldLen > 0) {
+                        w.write ("<strike>");
+                        w.write (res[i].getOld());
+                        len += oldLen;
+                        diff += oldLen;
+                        w.write ("/strike>");
+                    }
+                    int newLen = res[i].getNew ().length ();
+                    if (newLen > 0) {
+                        w.write ("<span style=\"background: #FFFF00\">");
+                        w.write (res[i].getNew());
+                        len += newLen;
+                        diff += newLen;
+                        w.write ("</span>");
+                    }
                 } else {
                     w.write (res[i].getNew ());
                     len += 2 * res[i].getNew ().length();
@@ -312,6 +353,7 @@ public final class ContentDiff extends Object {
             r2.close ();
             
             if (change == -1) {
+                size = len;
                 if (len == 0) {
                     change = 0;
                 } else {

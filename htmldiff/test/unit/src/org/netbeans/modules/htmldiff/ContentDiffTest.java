@@ -94,6 +94,10 @@ public final class ContentDiffTest extends NbTestCase {
         assertEquals ("One cluster", 1, diff.getClusters().length);
         assertEquals ("One page", 1, diff.getClusters()[0].getPages ().size ());
         assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains (diff.findPage ("index.html")));
+        
+        
+        assertChanged ("No change should be there", diff.getClusters()[0]);
+        assertEquals ("No change", 0, diff.getClusters()[0].getChanged ());
     }
     
     public void testSimplePageWithURL () throws Exception {
@@ -154,6 +158,10 @@ public final class ContentDiffTest extends NbTestCase {
         
         assertEquals ("Complete change for removed page", 100, index.getChanged());
         assertEquals ("Complete change for added page", 100, n.getChanged ());
+        
+        assertChanged ("Complete remove, 100%", diff.getClusters()[0]);
+        assertChanged ("Complete add, 100%", diff.getClusters()[1]);
+        
     }
     
     public void testTwoPagesInNewVersionReferingToEachOther () throws Exception {
@@ -220,5 +228,27 @@ public final class ContentDiffTest extends NbTestCase {
         
         Page index = diff.findPage ("index.html");
         assertTrue ("Is removed", index.isRemoved ());
+    }
+    
+    
+    
+    private static void assertChanged (String txt, ContentDiff.Cluster c) {
+        java.util.Iterator it = c.getPages().iterator ();
+        int min = 0;
+        int max = 100;
+        
+        while (it.hasNext()) {
+            ContentDiff.Page p = (ContentDiff.Page)it.next ();
+            if (max > p.getChanged ()) {
+                max = p.getChanged ();
+            } 
+            if (min < p.getChanged ()) {
+                min = p.getChanged (); 
+            }
+        }
+        
+        if (min > c.getChanged () || max < c.getChanged ()) {
+            fail (txt + " expected <" + c.getChanged () + "> is not between " + min + " and " + max);
+        }
     }
 }
