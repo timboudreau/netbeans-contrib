@@ -36,6 +36,7 @@ import org.openide.util.enum.QueueEnumeration;
 public final class VcsRefreshRequest extends Object implements Runnable {
     /** how much folders refresh at one request */
     private static final int REFRESH_COUNT = 30;
+    private static final int PREFERRED_REFRESH_DELAY = 800;
 
     /** fs to work on */
     private Reference system;
@@ -53,7 +54,7 @@ public final class VcsRefreshRequest extends Object implements Runnable {
     
     private HashSet preffered;
     
-private boolean interrupt;
+    private boolean interrupt;
 
     /** Constructor
     * @param fs file system to refresh
@@ -62,18 +63,48 @@ private boolean interrupt;
     public VcsRefreshRequest(AbstractFileSystem fs, int ms, VirtualsRefreshing refresher) {
         system = new WeakReference (fs);
         this.refresher  = new WeakReference(refresher);
-        refreshTime = ms;
-        // will generate a random seed for starting the refreshing.. that way we have the
-        // different filesystems refresh at random times
-        int randSeed = (int)Math.round(Math.random() * 15000) + 15000;
+        int randSeed;
+        if (ms == 0) {
+            refreshTime = Integer.MAX_VALUE;
+            randSeed = Integer.MAX_VALUE;
+        } else {
+            refreshTime = ms;
+            // will generate a random seed for starting the refreshing.. that way we have the
+            // different filesystems refresh at random times
+            randSeed = (int)Math.round(Math.random() * ms) + 1000;
+        }
 //        System.out.println("seed=" + randSeed + " for=" + fs.getDisplayName());
         task = RequestProcessor.postRequest (this, randSeed, Thread.MIN_PRIORITY);
     }
 
-    /** Getter for the time.
-    */
+    /**
+     * Getter for the time.
+     * @return The refresh time in miliseconds.
+     */
     public int getRefreshTime () {
-        return refreshTime;
+        if (refreshTime == Integer.MAX_VALUE) {
+            return 0;
+        } else {
+            return refreshTime;
+        }
+    }
+    
+    /**
+     * Setter for the time.
+     * @param ms The refresh time in miliseconds.
+     */
+    public void setRefreshTime (int ms) {
+        if (ms == refreshTime) return ;
+        refreshTime = (ms == 0) ? Integer.MAX_VALUE : ms;
+        synchronized (this) {
+            // If the task is running, let it be. If not reschedule it.
+            if (task != null) {
+                task.schedule(ms);
+            } else if (ms == 0) {
+                // If the task is running and we should not do the refresh, stop it.
+                interrupt = true;
+            }
+        }
     }
 
     /** Stops the task.
@@ -102,10 +133,10 @@ private boolean interrupt;
             }
             preffered.add(folderPath);
             if (task != null) {
-                if (task.getDelay() > 1000 || task.getDelay() < 600) {
+                //if (task.getDelay() > 1000 || task.getDelay() < 600) {
 //                    System.out.println("rescheduling..");
-                    task.schedule(1000);
-                }
+                task.schedule(PREFERRED_REFRESH_DELAY);
+                //}
             } else {
                 //task is running - attempt to interrupt..
                 interrupt = true;
@@ -179,7 +210,7 @@ private boolean interrupt;
           // files and that any stop should wait till the processing is over
           task = null;
           
-          doLoop (ms);
+          doLoop ();
         } finally {
              synchronized (this) {
                  // reseting task variable back to indicate that 
@@ -192,7 +223,7 @@ private boolean interrupt;
              }
              // if there's any prefferer folders, shcedule earlier
              if (hasPrefferedFolder()) {
-                t.schedule(1000);
+                t.schedule(PREFERRED_REFRESH_DELAY);
              } else {
              // plan the task for next execution
                 t.schedule (ms);
@@ -201,10 +232,11 @@ private boolean interrupt;
     }
     
     
-    private void doLoop (int ms) {
+    private void doLoop () {
         AbstractFileSystem system = (AbstractFileSystem)this.system.get ();
         if (system == null) {
             // end for ever the fs does not exist no more
+            refreshTime = 0;
             return;
         }
 //        System.out.println("executing for =" + system.getDisplayName());
@@ -222,16 +254,21 @@ private boolean interrupt;
         FileObject prefFo = getPrefferedFolder();
         while (prefFo != null) {
             refreshing.doVirtualsRefresh(prefFo);
-            if (shouldBeInterrupted()) {
-                return;
-            }
+            //if (shouldBeInterrupted()) {
+            //    return;
+            //}
 //            System.out.println("pref refre.." + prefFo.getName());
             prefFo = getPrefferedFolder();
+        }
+        
+        // I should never do the refresh if the refresh time is so high.
+        if (refreshTime == Integer.MAX_VALUE) {
+            return ;
         }
 
         for (int i = 0; i < REFRESH_COUNT && en.hasMoreElements (); i++) {
             FileObject fo = (FileObject)en.nextElement ();
-            if (fo != null) {
+            if (fo != null/* && (!fo.isFolder() || fo.isInitialized ())*/) {
                 refreshing.doVirtualsRefresh(fo);
             }
             

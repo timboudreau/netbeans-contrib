@@ -374,7 +374,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient AbstractFileSystem.List vcsList = null;
     
     /** The refresh request instead of the standard refreshing. */
-    private transient VcsRefreshRequest refresher;
+    private transient VcsRefreshRequest refresher = new VcsRefreshRequest (this, 0, this);
     
     /** The InputOutput used for display of VCS commands output */
     private transient InputOutput cmdIO = null;
@@ -889,18 +889,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private final void setVcsRefreshTime(int ms, boolean fireChange) {
         int oldMS = getVcsRefreshTime();
-        if (oldMS == ms) return ;
-        synchronized (this) {
-            if (refresher != null) {
-                refresher.stop ();
-            }
-            if (ms <= 0 || System.getProperty ("netbeans.debug.heap") != null) { // NOI18N
-                refresher = null;
-            } else {
-                refresher = new VcsRefreshRequest (this, ms, this);
-            }
-        }
         refreshTimeToSet = ms;
+        if (oldMS == ms) return ;
+        refresher.setRefreshTime(Boolean.getBoolean("netbeans.debug.heap") ? 0 : ms); // NOI18N
         if (fireChange) firePropertyChange(PROP_VCS_REFRESH_TIME, null, null);
     }
     
@@ -1215,13 +1206,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void disableRefresh() {
         synchronized (this) {
             refreshTimeToSet = getVcsRefreshTime();
-            setVcsRefreshTime(0, false);
+            if (refresher != null) refresher.setRefreshTime(0); // NOI18N
+            //setVcsRefreshTime(0, false);
         }
     }
     
     public void enableRefresh() {
         synchronized (this) {
-            setVcsRefreshTime(refreshTimeToSet, false);
+            if (refresher != null) refresher.setRefreshTime(Boolean.getBoolean("netbeans.debug.heap") ? 0 : refreshTimeToSet); // NOI18N
+            //setVcsRefreshTime(refreshTimeToSet, false);
         }
     }
     
