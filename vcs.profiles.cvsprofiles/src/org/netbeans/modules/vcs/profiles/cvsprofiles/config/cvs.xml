@@ -642,6 +642,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>
             LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Label),
                 ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Label)))
+            HELP_ID(vcsgeneric.profile.cvs.commit)
             PROMPT_FOR_FILE(TEMPLATE_FILE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Reason), ${FILE_TEMPLATE},ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_Reason_mnc)), 10, 50)
             ASK_FOR_EXPERT(FORCE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Force), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Force);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_Force_mnc)), "-f", "")                
             PROMPT_FOR_EXPERT(BRANCH, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_To_Branch), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_To_Branch);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_To_Branch_mnc)), IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_BRANCHES)                
@@ -735,6 +736,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_UPDATE_Label),
                     ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_UPDATE_Label)))
+                 HELP_ID(vcsgeneric.profile.cvs.update)
                  ASK_FOR_EXPERT(PRUNE_EMPTY, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_UPDATE_PruneEmpty), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_UPDATE_PruneEmpty);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_UPDATE_PruneEmpty_mnc)),"-P", "")                   
                  ASK_FOR_EXPERT(CREATE_DIRS, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_UPDATE_CreateDirs), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_UPDATE_CreateDirs);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_UPDATE_CreateDirs_mnc)), "-d", "")
                  ASK_FOR_EXPERT(RESET_STICKY, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_UPDATE_RemoveSticky), "false", ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_UPDATE_RemoveSticky);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_UPDATE_RemoveSticky_mnc)), "-A", "", DISABLE(TAG, DATE))
@@ -823,6 +825,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_Label),
+                 HELP_ID(vcsgeneric.profile.cvs.addDir)
                  ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_ADD_Label)))
                  SELECT_RADIO(FOLDER_CONTENTS, "", "", [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_JustFolder), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_JustFolder_mnc))],
                                                        [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_FolderContents), "true",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_FolderContents_mnc)),
@@ -932,6 +935,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>
             LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_Label),
                 ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_ADD_Label))) 
+            HELP_ID(vcsgeneric.profile.cvs.addFile)
             PROMPT_FOR(DESCRIPTION, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_Description), "",
                 ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_ADD_Description);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_Description_mnc))) 
             ASK_FOR(DO_COMMIT, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_DoCommit_mnc)))
@@ -1091,6 +1095,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_REMOVE_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_REMOVE_Label)))
+                 HELP_ID(vcsgeneric.profile.cvs.remove)
                  ASK_FOR(DO_COMMIT, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_REMOVE_DoCommit),, ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_REMOVE_DoCommit);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_REMOVE_DoCommit_mnc)))
                  IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Recursive_mnc)), "-R", "-l")
           </value>
@@ -1257,6 +1262,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_LOG_Label), ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_LOG_Label)))
+                 HELP_ID(vcsgeneric.profile.cvs.log)
                  SELECT_RADIO_EXPERT(ONLY_PRINT, "", "", [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_LOG_Do_Not_Restrict_Output), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_LOG_Do_Not_Restrict_Output_mnc))],
                   [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_LOG_Only_Print_Name_Of_RCS_File), "-R",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_LOG_Only_Print_Name_Of_RCS_File_mnc))],
                   [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_LOG_Only_Print_Header), "-h",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_LOG_Only_Print_Header_mnc))],
@@ -1355,6 +1361,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ANNOTATE_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_ANNOTATE_Label)))
+                 HELP_ID(vcsgeneric.profile.cvs.annotate)
                  PROMPT_FOR_EXPERT(SPEC_REVISION, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ANNOTATE_Spec_Revision), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ANNOTATE_Spec_Revision_mnc)))
                  PROMPT_FOR_EXPERT(SPEC_DATE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ANNOTATE_Spec_Date), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ANNOTATE_Spec_Date_mnc)))
                  ASK_FOR_EXPERT(USE_HEAD, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ANNOTATE_Use_Head), "false",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ANNOTATE_Use_Head_mnc)) ,"-f", "")
@@ -1486,6 +1493,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Label)))
+                 HELP_ID(vcsgeneric.profile.cvs.checkout)
                  PROMPT_FOR(CO_MODULE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Module), ${MPATHS_\/},ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Module_mnc)) ,SELECTOR_CMD_SELECTOR_MODULES)
                  PROMPT_FOR(TAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Tag), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Tag_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR(DATE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Date), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Date_mnc)) ,SELECTOR_DATE_CVS)
@@ -2015,6 +2023,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_TAG_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_ADD_TAG_Label)))
+                 HELP_ID(vcsgeneric.profile.cvs.addTag)
                  PROMPT_FOR(TAG_NAME, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_TAG_Tag_Name), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_TAG_Tag_Name_mnc)))
                  ASK_FOR(TAG_TYPE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_TAG_Repository_Tag), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_TAG_Repository_Tag_mnc)), "rtag", "tag", ENABLE(CLEAR_REMOVED, NO_TAG_PRG), DISABLE(CHECK_FOR_MODIFIED))
                  ASK_FOR(BRANCH_TAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_ADD_TAG_Branch_Tag), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_ADD_TAG_Branch_Tag_mnc)) ,"-b", "")
@@ -2123,6 +2132,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_DIFF_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_DIFF_Label)))
+                 HELP_ID(vcsgeneric.profile.cvs.diffG)
                  PROMPT_FOR_EXPERT(TAG1, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_DIFF_Tag1), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_DIFF_Tag1_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(TAG2, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_DIFF_Tag2), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_DIFF_Tag2_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(DATE1, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_DIFF_Date1), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_DIFF_Date1_mnc)), SELECTOR_DATE_CVS)
@@ -2162,6 +2172,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_DIFF_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_DIFF_Label)))
+                 HELP_ID(vcsgeneric.profile.cvs.diffT)
                  PROMPT_FOR_EXPERT(TAG1, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_DIFF_Tag1), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_DIFF_Tag1_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(TAG2, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_DIFF_Tag2), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_DIFF_Tag2_mnc)),IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR_EXPERT(DATE1, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_DIFF_Date1), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_DIFF_Date1_mnc)) ,SELECTOR_DATE_CVS)
