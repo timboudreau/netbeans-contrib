@@ -127,8 +127,8 @@ public class JellyOverall extends CVSStub {
         SubDir.cvsNode ();
         File.cvsNode ();
         SubFile.cvsNode ();
-        //Directory.waitStatus("Local"); // may fail due to #28177
-        //SubDir.waitStatus("Local"); // may fail due to #28177
+        Directory.waitStatus("Local"); // may fail due to #28177
+        SubDir.waitStatus("Local"); // may fail due to #28177
         File.waitStatus("Local");
         SubFile.waitStatus("Local");
         
@@ -138,8 +138,8 @@ public class JellyOverall extends CVSStub {
         add.oK();
         assertInformationDialog(null);
         Directory.waitHistory ("Add");
-        Directory.waitStatus(null);
-        //waitStatus("Local"); // may fail due to #28177
+        //Directory.waitStatus(null); // fixed #28177
+        Directory.waitStatus("Local"); // may fail due to #28177
         File.waitStatus("Local");
         SubFile.waitStatus("Local");
     }
