@@ -3,5 +3,5 @@ NetBeans-Module-Name: Generic Command Line VCS
 
 Name: com/netbeans/enterprise/modules/vcs/cmdline/CommandLineVcsFileSystem.class
 NetBeans-Module-Class: Filesystem
-Display-Name: Add CmdLine VCS
+Display-Name: Generic Version Control System
 
