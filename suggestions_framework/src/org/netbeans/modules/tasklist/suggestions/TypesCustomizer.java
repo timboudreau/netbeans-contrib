@@ -1,7 +1,14 @@
-/* XXXX Add SPL here!
- * TypesCustomizer.java
+/*
+ *                 Sun Public License Notice
  *
- * Created on December 31, 2002, 2:46 PM
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.suggestions;
@@ -21,8 +28,17 @@ import org.netbeans.api.tasklist.SuggestionManager;
 import org.openide.util.NbBundle;
 
 /**
- *
- * @author  tornorbye
+ * Panel used to customize which types are active, which are disabled,
+ * and which of the active ones get confirmations.
+ * <p>
+ * @todo Consider adding a "description" text area which lists a
+ *   description of each suggestion type. This would require an API
+ *   change such that suggestion types have a description, not just
+ *   a localized name.
+ * @todo Also consider adding a default priority assigned to suggestions
+ *   of this type (if it's interesting to the user to see it, or edit it)
+ * <p>
+ * @author  Tor Norbye
  */
 public class TypesCustomizer extends javax.swing.JPanel 
     implements ActionListener, ListSelectionListener {
@@ -189,6 +205,11 @@ public class TypesCustomizer extends javax.swing.JPanel
         SuggestionTypes types = SuggestionTypes.getTypes();
         ArrayList enabled = new ArrayList(n);
         for (int i = 0; i < n; i++) {
+            // TODO findTypeByDesc - this is horribly inefficient.
+            // Instead I should simply have my own listmodel which
+            // stores the SuggestionTypes directly - and toString()
+            // delivers what is shown in the GUI. Then getElementAt
+            // will return the type itself!
             SuggestionType t = types.findTypeByDesc(
                                      model.getElementAt(i).toString());
             enabled.add(t);

@@ -70,7 +70,7 @@ public class EditTypesAction extends CallableSystemAction
 
     /*
     protected String iconResource() {
-        return "org/netbeans/modules/tasklist/core/editTypes.gif"; // NOI18N
+        return "org/netbeans/modules/tasklist/suggestions/editTypes.gif"; // NOI18N
     }
     */
     
