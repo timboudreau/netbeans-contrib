@@ -91,7 +91,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     private transient RE ignoredGarbageRE = null;
     
     /** Holds value of property messageLength. */
-    private int messageLength = 20;    
+    private int messageLength = 50;    
     
     public static final String PROP_SHOW_DEAD_FILES = "showDeadFiles"; //NOI18N
     public static final String PROP_SHOW_MESSAGES = "showMessages"; //NOI18N
