@@ -376,7 +376,7 @@ public class ExternalCommand {
         private InputStreamReader stderr;
 
         // Variables indicating EOF of command's output streams.
-        // They are needed only for the OpenVMS patch.
+        // They are needed only for the OpenVMS & OS/2 patch.
         private boolean eof_stdout = false;
         private boolean eof_stderr = false;
 
@@ -409,8 +409,8 @@ public class ExternalCommand {
         public boolean isStopped() {
             try {
                 //if (shouldStop && !stdout.ready() && !stderr.ready()) stopped = true;
-                // If the OS is OpenVMS, we want to stop only if EOF has been reached on both output streams
-                if (osType != Utilities.OS_VMS) {
+                // If the OS is OpenVMS or OS/2, we want to stop only if EOF has been reached on both output streams
+                if (osType != Utilities.OS_VMS && osType != Utilities.OS_OS2) {
                     if (shouldStop && !stdout.ready() && !stderr.ready()) stopped = true;
                 } else {
                     if (shouldStop && eof_stdout && eof_stderr) {
@@ -438,8 +438,8 @@ public class ExternalCommand {
             boolean has;
             try {
                 //has = stdout.ready() || stderr.ready();
-                // If the OS is OpenVMS, just assume there is output available
-                if (osType != Utilities.OS_VMS) {
+                // If the OS is OpenVMS or OS/2, just assume there is output available
+                if (osType != Utilities.OS_VMS && osType != Utilities.OS_OS2) {
                     has = stdout.ready() || stderr.ready();
                 } else {
                     has = true;
@@ -456,8 +456,8 @@ public class ExternalCommand {
             int n = 0;
             try {
                 //if (stdout.ready() && (n = stdout.read(buff, 0, BUFF_LENGTH)) > -1) {
-                // For OpenVMS, we need to see EOF before we're sure we've grabbed all output
-                if (((osType == Utilities.OS_VMS) && !eof_stdout) || stdout.ready()) {
+                // For OpenVMS and OS/2, we need to see EOF before we're sure we've grabbed all output
+                if (((osType == Utilities.OS_VMS || osType == Utilities.OS_OS2) && !eof_stdout) || stdout.ready()) {
                     n = stdout.read(buff, 0, BUFF_LENGTH);
                 }
                 if (n > -1) {
@@ -477,8 +477,8 @@ public class ExternalCommand {
                 }
                 //if (stderr.ready() && (n = stderr.read(buff, 0, BUFF_LENGTH)) > -1) {
                 n = 0;
-                // For OpenVMS, we need to see EOF before we're sure we've grabbed all output
-                if (((osType == Utilities.OS_VMS) && !eof_stderr) || stderr.ready()) {
+                // For OpenVMS and OS/2, we need to see EOF before we're sure we've grabbed all output
+                if (((osType == Utilities.OS_VMS || osType == Utilities.OS_OS2) && !eof_stderr) || stderr.ready()) {
                     n = stderr.read(buff, 0, BUFF_LENGTH);
                 }
                 if (n > -1) {
