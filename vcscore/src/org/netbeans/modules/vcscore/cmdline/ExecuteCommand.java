@@ -374,7 +374,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
             if (!cmd.getDoRefresh()) fileSystem.removeNumDoAutoRefresh((String)vars.get("DIR")); // NOI18N
              */
-            fileSystem.setLastCommandState(true);
+            //fileSystem.setLastCommandState(true);
             //if (errorContainer != null) errorDialog.removeCommandOut(); //cancelDialog(); -- not necessary
             break;
         case VcsCommandExecutor.INTERRUPTED:
@@ -395,7 +395,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
              */
             fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
-            fileSystem.setLastCommandState(false);
+            //fileSystem.setLastCommandState(false);
             break;
         }
 
@@ -533,7 +533,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             if (!cmd.getDoRefresh()) fileSystem.removeNumDoAutoRefresh((String)vars.get("DIR")); // NOI18N
              */
             commandFinished(exec, true);
-            fileSystem.setLastCommandState(true);
+            //fileSystem.setLastCommandState(true);
             //if (errorDialog != null) errorDialog.removeCommandOut();  //cancelDialog();  -- not necessary
         } else {
             if (Thread.currentThread().interrupted()) {
@@ -553,7 +553,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
              */
             fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
-            fileSystem.setLastCommandState(false);
+            //fileSystem.setLastCommandState(false);
         }
     }
 
@@ -572,7 +572,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         if (preferredExec != null) exec = preferredExec;
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec != null) exec = exec.trim();
-        fileSystem.setLastCommandFinished(false);
+        //fileSystem.setLastCommandFinished(false);
         //fileSystem.debug(cmd.getName()+": "+exec); // NOI18N
         //if (stdoutNoRegexListener != null) stdoutNoRegexListener.match(cmd.getName()+": "+exec); // NOI18N
 
@@ -585,7 +585,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             runClass(exec, first.substring(0, first.length() - ".class".length()), tokens); // NOI18N
         else
             runCommand(exec);
-        fileSystem.setLastCommandFinished(true);
+        //fileSystem.setLastCommandFinished(true);
         if (disableRefresh) fileSystem.enableRefresh();
     }
 
