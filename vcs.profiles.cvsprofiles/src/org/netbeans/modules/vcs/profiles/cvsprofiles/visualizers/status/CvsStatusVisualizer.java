@@ -25,11 +25,15 @@ import javax.swing.SwingUtilities;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 
 import org.netbeans.api.vcs.FileStatusInfo;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.modules.vcscore.turbo.FileProperties;
+import org.netbeans.modules.vcscore.turbo.local.FileAttributeQuery;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.commands.TextErrorListener;
@@ -300,7 +304,28 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
             processWorkRev(line.substring(WORK_REV.length()));
         }
         else if (line.startsWith(REP_REV)) {
-            processRepRev(line.substring(REP_REV.length()));
+            processRepRev(line.substring(REP_REV.length())); // fills file field
+            
+            // #39207 update cache
+            File f = statusInformation.getFile();
+            if (f != null) {
+                FileObject fo = FileUtil.toFileObject(f);
+                if (fo != null) {
+                    FileAttributeQuery faq = FileAttributeQuery.getDefault();
+                    FileProperties fprops = (FileProperties) faq.readAttribute(fo, FileProperties.ID);
+                    FileProperties updated = new FileProperties(fprops);
+                    String updatedStatus = statusInformation.getStatus();
+                    updated.setStatus(updatedStatus);
+                    if (fprops == null) {
+                        String name = fo.isFolder() ? fo.getNameExt() + "/" : fo.getNameExt();  // NOI18N
+                        updated.setName(name);
+                    }
+                    updated.freeze();
+                    if (FileProperties.getStatus(fprops).equals(updatedStatus) == false) {
+                        faq.writeAttribute(fo, FileProperties.ID, updated);
+                    }
+                }
+            }
         }
         else if (line.startsWith(TAG)) {
             processTag(line.substring(TAG.length()));

@@ -44,6 +44,8 @@ import org.netbeans.modules.vcscore.util.table.*;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.status.StatusInfoPanel.ExtendedRevisionComparator;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.*;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
+import org.netbeans.modules.vcscore.turbo.FileProperties;
+import org.netbeans.modules.vcscore.turbo.local.FileAttributeQuery;
 //import org.openide.filesystems.FileStateInvalidException;
 
 /**
@@ -553,6 +555,7 @@ final class StatusInfoPanel extends JPanel {
   public void setData(StatusInformation info) {      
       if(info == null)
           return;
+
       statusInfo = info;
       txFileName.setText(info.getFile().getName());      
       txStatus.setText(info.getStatusLC());
