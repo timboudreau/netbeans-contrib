@@ -253,6 +253,25 @@ public interface VcsCommand extends VcsCommandCookie {
      * (
      */
     public static final String PROPERTY_SUPPORTS_ADVANCED_MODE = "supportsAdvancedMode";
+    
+    /**
+     * This property can contain the array of attribute names and variable names.
+     * The variable values will be set to the values of file object attributes.
+     * The array should contain triples of <attribute name>, <var1 name>, <var2 name>;
+     * where var1 value will be set to "true" if the attribute value is not null
+     * and to an empty string if it is null, var2 value will be set to the String
+     * representation of the attribute value.
+     */
+    public static final String PROPERTY_LOAD_ATTRS_TO_VARS = "loadAttributesToVars";
+    
+    /**
+     * Properties wich contains this string in their names can be added to the command
+     * by the vcscore or any other module. They should not be interpreted in any way
+     * and not stored persistently. Only the module, that set this property is able
+     * to interpret it. Modules using this property should append a unique string
+     * to this name to minimize a chance of mutual collisions.
+     */
+    public static final String PROP_NAME_FOR_INTERNAL_USE_ONLY = "_For_Internal_Use_Only_";
 
     /** All execution of this command can be done concurrently with others.
      */

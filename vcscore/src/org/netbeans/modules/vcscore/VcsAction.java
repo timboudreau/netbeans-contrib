@@ -47,6 +47,10 @@ public class VcsAction extends NodeAction implements ActionListener {
     private Debug E=new Debug("VcsAction", true); // NOI18N
     private Debug D=E;
 
+    private static final String PROPERTY_PARSED_ATTR_NAMES = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesNamesParsed";
+    private static final String PROPERTY_PARSED_ATTR_NEMPTY_VARS = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesNotEmptyVars";
+    private static final String PROPERTY_PARSED_ATTR_VALUES_VARS = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "FOAttributesValuesVars";
+    
     /**
      * Whether to remove disabled commands from the popup menu.
      */
@@ -314,20 +318,31 @@ public class VcsAction extends NodeAction implements ActionListener {
             Object[] askForEachFileRef = new Object[] { askForEachFile };
             Object[] varsRef = new Object[] { vars };
             do {
-                if (files.size() == 0) {
-                    preprocessStatus = CommandsPool.PREPROCESS_DONE;
-                } else {
-                    preprocessStatus = doCommandExecution(files, varsRef, additionalVars, 
-                                                          fileSystem, scheduledCmd,
-                                                          cmdCanRunOnMultipleFiles,
-                                                          cmdCanRunOnMultipleFilesInFolder,
-                                                          quoting, askForEachFileRef,
-                                                          valueAdjustment, executors,
-                                                          stdoutListener, stderrListener,
-                                                          stdoutDataListener, stderrDataListener);
+                //System.out.println("setupRestrictedFileMap("+VcsUtilities.arrayToString((String[]) files.keySet().toArray(new String[0]))+")");
+                Table subFiles = setupRestrictedFileMap(files, varsRef, scheduledCmd);
+                ArrayList subFilesNames = new ArrayList();
+                for (Iterator it = subFiles.keySet().iterator(); it.hasNext(); ) {
+                    subFilesNames.add(it.next());
                 }
-                if (CommandsPool.PREPROCESS_CANCELLED == preprocessStatus) break;
-            } while (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus);
+                do {
+                    if (files.size() == 0) {
+                        preprocessStatus = CommandsPool.PREPROCESS_DONE;
+                    } else {
+                        preprocessStatus = doCommandExecution(subFiles, varsRef, additionalVars, 
+                                                              fileSystem, scheduledCmd,
+                                                              cmdCanRunOnMultipleFiles,
+                                                              cmdCanRunOnMultipleFilesInFolder,
+                                                              quoting, askForEachFileRef,
+                                                              valueAdjustment, executors,
+                                                              stdoutListener, stderrListener,
+                                                              stdoutDataListener, stderrDataListener);
+                    }
+                    if (CommandsPool.PREPROCESS_CANCELLED == preprocessStatus) break;
+                } while (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus);
+                for (Iterator it = subFilesNames.iterator(); it.hasNext(); ) {
+                    files.remove(it.next());
+                }
+            } while (CommandsPool.PREPROCESS_CANCELLED != preprocessStatus && files.size() > 0);
             if (CommandsPool.PREPROCESS_CANCELLED != preprocessStatus && scheduledFilesMap.size() > 0) {
                 scheduledAttribute = (String) scheduledFilesMap.keySet().iterator().next();
                 Table scheduledFiles = (Table) scheduledFilesMap.get(scheduledAttribute);
@@ -343,6 +358,33 @@ public class VcsAction extends NodeAction implements ActionListener {
         } while(CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus);
         //System.out.println("VcsAction.doCommand(): executors started = "+executors.size());
         return (VcsCommandExecutor[]) executors.toArray(new VcsCommandExecutor[executors.size()]);
+    }
+    
+    private static Table setupRestrictedFileMap(Table files, Object[] varsRef, VcsCommand cmd) {
+        String[] attrsToVars = (String[]) cmd.getProperty(VcsCommand.PROPERTY_LOAD_ATTRS_TO_VARS);
+        if (attrsToVars == null) return files;
+        String[] attrNames;
+        Map attrNonNullVars = null;
+        Map attrValueVars = null;
+        attrNames = (String[]) cmd.getProperty(PROPERTY_PARSED_ATTR_NAMES);
+        if (attrNames != null) {
+            attrNonNullVars = (Map) cmd.getProperty(PROPERTY_PARSED_ATTR_NEMPTY_VARS);
+            attrValueVars = (Map) cmd.getProperty(PROPERTY_PARSED_ATTR_VALUES_VARS);
+        } else {
+            attrNonNullVars = new HashMap();
+            attrValueVars = new HashMap();
+            attrNames = getAttrNamesAndVars(attrNonNullVars, attrValueVars, attrsToVars);
+            cmd.setProperty(PROPERTY_PARSED_ATTR_NAMES, attrNames);
+            cmd.setProperty(PROPERTY_PARSED_ATTR_NEMPTY_VARS, attrNonNullVars);
+            cmd.setProperty(PROPERTY_PARSED_ATTR_VALUES_VARS, attrValueVars);
+        }
+        Table subFiles;
+        if (attrNames != null) {
+            subFiles = setVarsFromAttrs(files, (Hashtable) varsRef[0], attrNames, attrNonNullVars, attrValueVars);
+        } else {
+            subFiles = files;
+        }
+        return subFiles;
     }
     
     /**
@@ -1000,6 +1042,96 @@ public class VcsAction extends NodeAction implements ActionListener {
         vars.put("NUM_FILES", ""+files.size());
         vars.put("MULTIPLE_FILES", (files.size() > 1) ? Boolean.TRUE.toString() : "");
         vars.put("FILES_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// among FILES there is a folder
+    }
+    
+    /**
+     * Parse the array of attribute names and variable names into the array
+     * of attribute names and two maps with variable names.
+     * @param attrNonNullVars this map is filled with pairs of attribute name
+     *        and the variable name, that is set when the attribute value is
+     *        <code>null</code>.
+     * @param attrValueVars this map is filled with pairs of attribute name
+     *        and the variable name, that is set to the string representation
+     *        of the attribute value.
+     * @param attrsToVars the array of attribute names and variable names
+     *        as described at {@link VcsCommand.PROPERTY_LOAD_ATTRS_TO_VARS}.
+     *        This array can be <code>null</code>.
+     */
+    private static String[] getAttrNamesAndVars(Map attrNonNullVars, Map attrValueVars, String[] attrsToVars) {
+        String[] attrNames = new String[attrsToVars.length / 3];
+        for (int i = 0; i < attrsToVars.length - 2; i += 3) {
+            String attrName = attrsToVars[i];
+            attrNames[i/3] = attrName;
+            attrNonNullVars.put(attrName, attrsToVars[i + 1]);
+            attrValueVars.put(attrName, attrsToVars[ i + 2]);
+        }
+        return attrNames;
+    }
+    
+    /**
+     * Set the variables from files attributes.
+     * @param files the table of files
+     * @param vars the map of variables, where the new variables will be filled
+     * @param attrsToVars the array of attribute names and variable names
+     *        as described at {@link VcsCommand.PROPERTY_LOAD_ATTRS_TO_VARS}.
+     *        This array can be <code>null</code>.
+     * @return the files for which the attributes were successfully converted
+     * to variable values and the values were the same for all of them.
+     */
+    private static Table setVarsFromAttrs(Table files, Hashtable vars, String[] attrNames,
+                                          Map attrNonNullVars, Map attrValueVars) {
+        if (attrNames.length == 0) return files;
+        Table result = new Table();
+        Object[] attrs = getAttributes(result, files, attrNames);
+        for (int i = 0; i < attrs.length; i++) {
+            vars.put(attrNonNullVars.get(attrNames[i]), (attrs[i] != null) ? Boolean.TRUE.toString() : "");
+            if (attrs[i] != null) vars.put(attrValueVars.get(attrNames[i]), attrs[i].toString());
+            else vars.remove(attrValueVars.get(attrNames[i]));
+        }
+        return result;
+    }
+    
+    /**
+     * Get the file attribute values.
+     * @param result the table filled with files, which have the same attribute values
+     * @param files the table of files
+     * @param attrNames the array of file attribute names
+     * @return the array of attribute values
+     */
+    private static Object[] getAttributes(Table result, Table files, String[] attrNames) {
+        ArrayList values = new ArrayList();
+        Iterator it = files.keySet().iterator();
+        if (!it.hasNext()) return values.toArray();
+        String name = (String) it.next();
+        FileObject fo = (FileObject) files.get(name);
+        if (fo == null) {
+            values.addAll(Collections.nCopies(attrNames.length, null));
+        } else {
+            for (int i = 0; i < attrNames.length; i++) {
+                values.add(fo.getAttribute(attrNames[i]));
+            }
+        }
+        result.put(name, fo);
+        while (it.hasNext()) {
+            name = (String) it.next();
+            fo = (FileObject) files.get(name);
+            if (fo == null) {
+                if (!Arrays.equals(values.toArray(), Collections.nCopies(attrNames.length, null).toArray()))
+                    continue;
+            } else {
+                int i;
+                for (i = 0; i < attrNames.length; i++) {
+                    Object value = values.get(i);
+                    Object attr = fo.getAttribute(attrNames[i]);
+                    if (!(value == null && attr == null ||
+                          value != null && value.equals(attr)))
+                        break;
+                }
+                if (i < attrNames.length) continue;
+            }
+            result.put(name, fo);
+        }
+        return values.toArray();
     }
 
     /** Remove the files for which the command is disabled */
