@@ -21,9 +21,11 @@ import org.netbeans.jellytools.EditorOperator;
 import org.netbeans.jellytools.EditorWindowOperator;
 import org.netbeans.jellytools.ExplorerOperator;
 import org.netbeans.jellytools.JellyTestCase;
+import org.netbeans.jellytools.NewObjectNameStepOperator;
 import org.netbeans.jellytools.NewWizardOperator;
 import org.netbeans.jellytools.RenameDialogOperator;
 import org.netbeans.jellytools.actions.OpenAction;
+import org.netbeans.jellytools.actions.SaveAction;
 import org.netbeans.jellytools.modules.corba.nodes.POAChildNode;
 import org.netbeans.jellytools.modules.corba.nodes.POANode;
 import org.netbeans.jellytools.modules.corba.nodes.RootPOANode;
@@ -46,6 +48,7 @@ import org.netbeans.jemmy.EventTool;
 import org.netbeans.jemmy.operators.Operator;
 import util.Environment;
 import util.Filter;
+import util.Helper;
 import util.JHelper;
 
 public class Main extends JellyTestCase {
@@ -102,8 +105,14 @@ public class Main extends JellyTestCase {
         out.println ("--------------------------------------------");
         out.println ("---- " + template);
         out.println ();
-        NewWizardOperator.create ("CORBA|" + template, "|data|poasupport|generate", name);
-        dumpFile ("|data|poasupport|generate|" + name, name);
+//        NewWizardOperator.create ("CORBA|" + template, "|data|poasupport|generate", name); // jelly2 bug workaround
+        new FolderNode (poaFolder + "|generate").newFromTemplate("CORBA|" + template);
+        NewObjectNameStepOperator nonso = new NewObjectNameStepOperator ();
+        nonso.setName(name);
+        nonso.finish();
+        ev.waitNoEvent (1000);
+        Helper.sleep (1000);
+        dumpFile (poaFolder + "|generate|" + name, name);
     }
     
     public void testPOA_Templates () {
@@ -127,7 +136,11 @@ public class Main extends JellyTestCase {
     public void testPOA_CreateServer () {
         Environment.loadORBEnvironment("OB4X");
         Environment.css.getActiveSetting ().setServerBindingFromString ("IOR to standard output");
-        NewWizardOperator.create ("CORBA|ServerMain", poaFolder, poaFileName);
+//        NewWizardOperator.create ("CORBA|ServerMain", poaFolder, poaFileName); // jelly2 bug workaround
+        new FolderNode (poaFolder).newFromTemplate("CORBA|ServerMain");
+        NewObjectNameStepOperator nonso = new NewObjectNameStepOperator ();
+        nonso.setName(poaFileName);
+        nonso.finish();
         ev.waitNoEvent(1000);
         util.Helper.sleep (5000);
         ev.waitNoEvent(1000);
@@ -297,7 +310,11 @@ public class Main extends JellyTestCase {
         EditorWindowOperator ewo = new EditorWindowOperator ();
         EditorOperator eo = ewo.getEditor (poaFileName);
         ev.waitNoEvent(1000);
-        eo.close(true);
+        eo.waitModified(true);
+//        eo.save (); // jelly2 bug workaround
+        new SaveAction ().performMenu (eo);
+        eo.close();
+        dumpFile(poaNode, poaFileName);
         ev.waitNoEvent(1000);
 
         new JavaNode (exp.repositoryTab ().tree (), poaNode).copy();

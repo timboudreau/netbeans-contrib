@@ -22,6 +22,119 @@ import java.util.Properties;
  * @author
  * @version
  */
+public class POAFile1 {
+    
+    /** Creates new POAFile1 */
+    public POAFile1() {
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        
+        try {
+            // setting system properties is necessary in order to use this ORB in JDK
+            Properties props = System.getProperties();
+            props.put("org.omg.CORBA.ORBClass", "com.ooc.CORBA.ORB");
+            props.put("org.omg.CORBA.ORBSingletonClass", "com.ooc.CORBA.ORBSingleton");
+            System.setProperties(props);
+            ORB orb = ORB.init(args, props);
+            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+            
+            Policy[] _policies;
+            
+            _policies = new Policy[] {
+            };
+            POA var_MyChildPOA_DefaultValues = poa.create_POA("MyChildPOA_DefaultValues", null, _policies);
+            
+            _policies = new Policy[] {
+            };
+            POA var_Parent_of_children = poa.create_POA("PaReNt", null, _policies);
+            
+            _policies = new Policy[] {
+                poa.create_id_uniqueness_policy(IdUniquenessPolicyValue.MULTIPLE_ID),
+                poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
+                poa.create_servant_retention_policy(ServantRetentionPolicyValue.NON_RETAIN),
+                poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT),
+                poa.create_thread_policy(ThreadPolicyValue.SINGLE_THREAD_MODEL),
+                poa.create_implicit_activation_policy(ImplicitActivationPolicyValue.NO_IMPLICIT_ACTIVATION),
+                poa.create_request_processing_policy(RequestProcessingPolicyValue.USE_SERVANT_MANAGER)
+            };
+            POA var_1_child_Parent_of_children = var_Parent_of_children.create_POA("1.child Parent_of_children", null, _policies);
+            
+            _policies = new Policy[] {
+                poa.create_id_uniqueness_policy(IdUniquenessPolicyValue.MULTIPLE_ID),
+                poa.create_request_processing_policy(RequestProcessingPolicyValue.USE_SERVANT_MANAGER)
+            };
+            POA var_2_child_Parent_of_children = var_Parent_of_children.create_POA("2.child Parent_of_children", null, _policies);
+            
+            _policies = new Policy[] {
+                poa.create_request_processing_policy(RequestProcessingPolicyValue.USE_SERVANT_MANAGER)
+            };
+            POA var_3_child_Parent_of_children = var_Parent_of_children.create_POA("3.child Parent_of_children", null, _policies);
+            
+            _policies = new Policy[] {
+            };
+            POA var_4_child_Parent_of_children = var_Parent_of_children.create_POA("4.child Parent_of_children", null, _policies);
+            
+            _policies = new Policy[] {
+            };
+            POA var_1_4_child_Parent_of_children = var_4_child_Parent_of_children.create_POA("1.child of 4.child Parent_of_children", var_4_child_Parent_of_children.the_POAManager(), _policies);
+            
+            _policies = new Policy[] {
+                poa.create_id_uniqueness_policy(IdUniquenessPolicyValue.MULTIPLE_ID),
+                poa.create_request_processing_policy(RequestProcessingPolicyValue.USE_DEFAULT_SERVANT)
+            };
+            POA var_5_child_Parent_of_children = var_Parent_of_children.create_POA("5.child Parent_of_children", null, _policies);
+            // add your creating of object implementation here
+            MyAdapterActivator var_adapter_activator = new MyAdapterActivator();
+            var_3_child_Parent_of_children.the_activator(var_adapter_activator._this());
+            byte[] HelloWorld_ID = var_5_child_Parent_of_children.activate_object(HelloWorld);
+            HelloWorldImpl var_default_servant = new HelloWorldImpl();
+            var_5_child_Parent_of_children.set_servant(var_default_servant._this());
+            MyServantManager var_servant_manager = new MyServantManager();
+            var_3_child_Parent_of_children.set_servant_manager(var_servant_manager._this());
+            // IOR will be written to standard output
+            System.out.println(orb.object_to_string(poa.servant_to_reference(/*servant_variable*/)));
+            poa.the_POAManager().activate();
+            var_MyChildPOA_DefaultValues.the_POAManager().activate();
+            var_Parent_of_children.the_POAManager().activate();
+            var_1_child_Parent_of_children.the_POAManager().activate();
+            var_2_child_Parent_of_children.the_POAManager().activate();
+            var_3_child_Parent_of_children.the_POAManager().activate();
+            var_4_child_Parent_of_children.the_POAManager().activate();
+            var_5_child_Parent_of_children.the_POAManager().activate();
+            orb.run();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+/*
+ * POAFile1.java  --  server side implementation
+ *
+ * Created on
+ * with IOR to standard output binding.
+ */
+package data.poasupport;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Policy;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import org.omg.PortableServer.ServantRetentionPolicyValue;
+import org.omg.PortableServer.ThreadPolicyValue;
+import java.util.Properties;
+/**
+ *
+ * @author
+ * @version
+ */
 public class POAFile1_1 {
     
     /** Creates new POAFile1 */
