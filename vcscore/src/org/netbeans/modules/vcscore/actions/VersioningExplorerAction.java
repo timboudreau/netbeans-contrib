@@ -72,6 +72,10 @@ public class VersioningExplorerAction extends NodeAction {
         return org.openide.util.NbBundle.getMessage(VersioningExplorerAction.class, "LBL_VersioningExplorer");
     }
     
+    protected String iconResource () {
+        return "/org/netbeans/modules/vcscore/versioning/impl/versioningExplorer.gif";
+    }
+
     public org.openide.util.HelpCtx getHelpCtx() {
         return null;
     }
