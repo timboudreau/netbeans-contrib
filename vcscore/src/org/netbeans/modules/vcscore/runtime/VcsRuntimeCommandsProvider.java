@@ -148,7 +148,7 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
                 if (VcsRuntimeCommandsProvider.this.fs == fs ||
                     VcsRuntimeCommandsProvider.this.equals(RuntimeCommandsProvider.findProvider(fs))) {
                     
-                    VcsRuntimeCommand cmd = new VcsRuntimeCommand(vce);
+                    VcsRuntimeCommand cmd = (VcsRuntimeCommand) runtimeCommandsForExecutors.get(vce);
                     synchronized (VcsRuntimeCommandsProvider.this) {
                         commands.remove(cmd);
                         runtimeCommandsForExecutors.remove(vce);
