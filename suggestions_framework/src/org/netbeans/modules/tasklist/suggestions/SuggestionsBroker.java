@@ -381,8 +381,13 @@ err.log("Couldn't find current nodes...");
      * actual document modification state using DocumentListener
      * and CaretListener. Actual TopComponent is guarded
      * by attached ComponentListener.
+     * <p>
+     * Must be called from <b>AWT thread only</b>.
      */
     private boolean prepareCurrent() {
+
+        assert SwingUtilities.isEventDispatchThread() : "This method must be run in the AWT thread"; // NOI18N
+
         // Unregister previous listeners
         if (currentTC != null) {
             currentTC.removeComponentListener(getWindowSystemMonitor());
@@ -775,7 +780,7 @@ err.log("Couldn't find current nodes...");
 
     /** Timed task which keeps track of outstanding scan requests; we don't
      scan briefly selected files */
-    private RequestProcessor.Task scheduledRescan;
+    private volatile RequestProcessor.Task scheduledRescan;
 
     /**
      * Plan a rescan (meaning: put delayed task into RP). In whole
@@ -785,8 +790,9 @@ err.log("Couldn't find current nodes...");
      * @param delay If true, don't create a rescan if one isn't already
      * pending, but if one is, delay it.
      * @param scanDelay actual delay value in ms
+     *
      */
-    private void scheduleRescan(boolean delay, int scanDelay) {
+    private void scheduleRescan(boolean delay, final int scanDelay) {
 
         // This is just a delayer (e.g. for caret motion) - if there isn't
         // already a pending timeout, we're done. Caret motion shouldn't
@@ -804,11 +810,22 @@ err.log("Couldn't find current nodes...");
             LOGGER.fine("Scheduled rescan task delayed by " + scanDelay + " ms.");  // NOI18N
         }
 
-        // will need current TC
-        if (prepareCurrent()) {
-            // trap, randomly triggered by multiview
-            assert currentDO.equals(extractDataObject(currentTC)) : "DO=" + currentDO + "  TC=" + currentTC;
-            scheduledRescan = performRescanInRP(currentTC, currentDO, scanDelay);
+        // prepare environment in AWT and post to RP
+
+        Runnable task = new Runnable() {
+            public void run() {
+                if (prepareCurrent()) {
+                    // trap, randomly triggered by multiview
+                    assert currentDO.equals(extractDataObject(currentTC)) : "DO=" + currentDO + "  TC=" + currentTC;
+                    scheduledRescan = performRescanInRP(currentTC, currentDO, scanDelay);
+                }
+            }
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) {
+            task.run();
+        } else {
+            SwingUtilities.invokeLater(task);
         }
     }
 
@@ -851,10 +868,13 @@ err.log("Couldn't find current nodes...");
 
     /**
      * It sends asynchronously to AWT thread (selected editor TC must be grabbed in AWT).
-     * Onc eprepared it send request to a background thread.
+     * Once prepared it sends request to a background thread.
      * @param delay if true schedule later acording to user settings otherwise do immediatelly
      */
     private void prepareRescanInAWT(final boolean delay) {
+
+        // XXX unify with scheduleRescan
+
         Runnable performer = new Runnable() {
             public void run() {
                 if (clientCount > 0) {
@@ -1241,10 +1261,6 @@ err.log("Couldn't find current nodes...");
      */
     static class Env {
 
-        private final Object waitLock = new Object();
-
-        private static final TopComponent NULL_TC = new TopComponent();
-
         void addTCRegistryListener(PropertyChangeListener pcl) {
             TopComponent.getRegistry().addPropertyChangeListener(pcl);
         }
@@ -1263,56 +1279,12 @@ err.log("Couldn't find current nodes...");
         }
 
         /**
-         * Locates active editor topcomponent. Eliminates Welcome screen, JavaDoc
+         * Locates active editor topComponent. Must be run in AWT
+         * thread. Eliminates Welcome screen, JavaDoc
          * and orher non-editor stuff in EDITOR_MODE.
          * @return tc or <code>null</code> for non-editor selected topcomponent
          */
-        public TopComponent findActiveEditor() {
-            if (SwingUtilities.isEventDispatchThread()) {
-                return findActiveEditorAWT();
-            } else {
-
-                final TopComponent [] retval = new TopComponent[] {NULL_TC};
-                Runnable doIt = new Runnable() {
-                    public void run() {
-                        synchronized(waitLock) {
-                            try {
-                                retval[0] = findActiveEditorAWT();
-                            } finally {
-                                if (retval[0] == NULL_TC) {
-                                    retval[0] = null;
-                                }
-                                waitLock.notifyAll();
-                            }
-                        }
-                    }
-                };
-
-                try {
-
-                    //#50502 wait for results on private monitor to avoid deadlocks
-                    SwingUtilities.invokeLater(doIt);
-                    synchronized(waitLock) {
-                        while (retval[0] == NULL_TC) {
-                            waitLock.wait();
-                        }
-                    }
-                    return retval[0];
-                } catch (InterruptedException ex) {
-                    return null;
-                }
-            }
-        }
-
-            
-        /**
-         * Locates active editor topComponent. Must be run in AWT
-         * thread.
-         * @return tc or <code>null</code> for non-editor selected topcomponent
-         */
-        private TopComponent findActiveEditorAWT() {
-            assert SwingUtilities.isEventDispatchThread() : "This method must be run in the AWT thread"; // NOI18N
-            
+        private TopComponent findActiveEditor() {
             Mode mode = WindowManager.getDefault().findMode(CloneableEditorSupport.EDITOR_MODE);
             if (mode == null) {
                 // The editor window was probablyjust closed
