@@ -47,12 +47,16 @@ import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.FileReaderListener;
 import org.netbeans.modules.vcscore.VcsAction;
+import org.netbeans.modules.vcscore.cmdline.UserCommandCustomizer;
 //import org.netbeans.modules.vcscore.runtime.*;
 //import org.netbeans.modules.vcscore.cache.FileSystemCache;
 //import org.netbeans.modules.vcscore.cache.CacheHandler;
 import org.netbeans.modules.vcscore.util.Table;
 //import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.netbeans.modules.vcscore.util.VariableInputDialog;
+
+import javax.swing.*;
 
 /**
  * This class is used as a container of all external commands which are either running or finished.
@@ -303,7 +307,19 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         return commandListeners;
     }
-    
+
+    /**
+     * Locates command customizer (there are plenty of
+     * possible registration methods supported) and shows it.
+     * <p>
+     * It wraps original cutomizer into a panel with
+     * additononal buttons: Set as default (if instance of VID),
+     * Cancel and OK.
+     *
+     * @param cmd
+     * @return
+     * @throws IntrospectionException
+     */
     private boolean showCustomizer(Command cmd) throws IntrospectionException {
         /*
         BeanNode beanNode = new BeanNode(cmd);
@@ -322,6 +338,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         return status;
          */
+        JButton btnStoreAsDefault = null;
         Component cust = null;
         DialogDescriptor dlg = null;
         //System.out.println("cmd instanceof BeanInfo = "+(cmd instanceof BeanInfo));
@@ -358,7 +375,18 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             if (customizer instanceof UserCancelException) {
                 return false;
             }
-            if (customizer instanceof Component) {
+            if (customizer instanceof UserCommandCustomizer) {
+                final UserCommandCustomizer vid = (UserCommandCustomizer) customizer;
+                btnStoreAsDefault = new JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.text"));
+                btnStoreAsDefault.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.mnemonic").charAt(0));
+                btnStoreAsDefault.setToolTipText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.tooltip"));
+                btnStoreAsDefault.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        vid.storeDefaults();
+                    }
+                });
+                cust = (Component) customizer;
+            } else if (customizer instanceof Component) {
                 cust = (Component) customizer;
             } else if (customizer instanceof DialogDescriptor) {
                 dlg = (DialogDescriptor) customizer;
@@ -451,6 +479,11 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                                        DialogDescriptor.OK_OPTION,
                                        DialogDescriptor.DEFAULT_ALIGN, helpCtx,
                                        actionL);
+
+            if (btnStoreAsDefault != null) {
+                dlg.setAdditionalOptions(new Object[] {btnStoreAsDefault});
+            }
+
             final Dialog dialog = DialogDisplayer.getDefault().createDialog(dlg);
             if (getInitialFocusedComponentMethod != null) {
                 java.awt.Component initialFocusedComponent = null;
@@ -467,6 +500,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                 }
             }
             final boolean [] statusContainer = new boolean[1];
+            final JButton setAsDefault0 = btnStoreAsDefault;
             ActionListener actionListener = new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
                     if (evt.getID() == ActionEvent.ACTION_PERFORMED) {
@@ -476,6 +510,8 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                         } else if (NotifyDescriptor.CANCEL_OPTION.equals(evt.getSource())) {
                             statusContainer[0] = false;
                             dialog.dispose();
+                        } else if (evt.getSource() == setAsDefault0) {
+                            setAsDefault0.doClick(0);
                         }
                     }
                 }

@@ -787,7 +787,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         return files;
     }
 
-    /** @param cacheProvider unused in turbo compatible mode */
+    /**
+     * @param cacheProvider unused in turbo compatible mode
+     * @return Panel or Exception
+     */
     private Object createCustomizer(UserCommandCustomizer customizer,
                                     String newExec, final Hashtable vars,
                                     final boolean[] forEachFile,

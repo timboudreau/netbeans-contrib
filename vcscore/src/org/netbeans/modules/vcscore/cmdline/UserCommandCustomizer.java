@@ -164,5 +164,11 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
             }
         }
     }
-    
+
+    /**
+     * Takes currently edited values and store them as new defaults.
+     */    
+    public void storeDefaults() {
+        if (dlg != null) dlg.storeDefaults();
+    }
 }

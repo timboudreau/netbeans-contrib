@@ -162,7 +162,8 @@ public final class FileAttributeQuery {
      *
      * @param fo identifies target file object, never <code>null</code>
      * @param name identifies attribute, never <code>null</code>
-     * @param value actual attribute value that should be stored, <code>null</code> invalidates the value
+     * @param value actual attribute value that should be stored, <code>null</code> behaviour
+     * is defined specificaly for each attribute, commonly it invalidates the value
      * @return <code>false</code> on write failure if provider denies the value. On I/O error it
      * returns <code>true</code>.
      */

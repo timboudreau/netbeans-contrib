@@ -162,37 +162,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * @param files the files to get the input for
      * @param inputDescriptor the input descriptor
      * @param expert the expert mode
-     */
-    public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor, boolean expert) {
-        this(files, inputDescriptor, expert, null);
-    }
-
-    /** Creates new form VariableInputDialog. This JPanel should be used
-     * with DialogDescriptor to get the whole dialog.
-     * @param files the files to get the input for
-     * @param inputDescriptor the input descriptor
-     * @param expert the expert mode
      * @param vars the filesystem variables
      */
     public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor, boolean expert, Hashtable vars) {
-        this(files, inputDescriptor, expert, vars, false);
-    }
-    
-    /** Creates new form VariableInputDialog. This JPanel should be used
-     * with DialogDescriptor to get the whole dialog.
-     * @param files the files to get the input for
-     * @param inputDescriptor the input descriptor
-     * @param expert the expert mode
-     * @param vars the filesystem variables
-     * @param rapidVariablesAssignment If true, assign the variable values as soon as possible,
-     *        even before the user has finished explicitely the input (by focus lost, etc.).
-     *        Currently this makes any difference only for textfields, which listen on key typed
-     *        events and update the variables immediately.
-     *
-     */
-    public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor,
-                               boolean expert, Hashtable vars, boolean rapidVariablesAssignment) {
-        this(files, inputDescriptor, expert, vars, rapidVariablesAssignment, true);
+        this(files, inputDescriptor, expert, vars, false, true);
     }
     
     /** Creates new form VariableInputDialog. This JPanel should be used
@@ -363,45 +336,49 @@ public class VariableInputDialog extends javax.swing.JPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
-        navigationPanel.setLayout(new java.awt.GridBagLayout());
+        boolean ruralNavigation = Boolean.getBoolean("VID.navigationPanel");
+        if (ruralNavigation) {
+            navigationPanel.setLayout(new java.awt.GridBagLayout());
 
-        prevButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.prevButton.text"));
-        prevButton.addActionListener(formListener);
+            prevButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.prevButton.text"));
+            prevButton.addActionListener(formListener);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
-        navigationPanel.add(prevButton, gridBagConstraints);
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
+            navigationPanel.add(prevButton, gridBagConstraints);
 
-        nextButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.nextButton.text"));
-        nextButton.addActionListener(formListener);
+            nextButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.nextButton.text"));
+            nextButton.addActionListener(formListener);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
-        navigationPanel.add(nextButton, gridBagConstraints);
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
+            navigationPanel.add(nextButton, gridBagConstraints);
 
-        asDefaultButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.text"));
-        asDefaultButton.addActionListener(formListener);
+            asDefaultButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.text"));
+            asDefaultButton.addActionListener(formListener);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
-        navigationPanel.add(asDefaultButton, gridBagConstraints);
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
+            navigationPanel.add(asDefaultButton, gridBagConstraints);
 
-        getDefaultButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("getDefaultButton.text"));
-        getDefaultButton.addActionListener(formListener);
+            getDefaultButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("getDefaultButton.text"));
+            getDefaultButton.addActionListener(formListener);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        navigationPanel.add(getDefaultButton, gridBagConstraints);
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.weightx = 1.0;
+            navigationPanel.add(getDefaultButton, gridBagConstraints);
 
+        }
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
         add(navigationPanel, gridBagConstraints);
+        navigationPanel.setVisible(ruralNavigation);
 
         variableTabbedPane.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
         jPanel1.setLayout(new java.awt.GridBagLayout());
@@ -469,6 +446,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 12);
         add(promptEachCheckBox, gridBagConstraints);
 
+    }
+
+    /**
+     * Takes currently edited values and store them as new defaults.
+     */
+    public final void storeDefaults() {
+        asDefaultButtonActionPerformed(null);
     }
 
     // Code for dispatching events from components to event handlers.
