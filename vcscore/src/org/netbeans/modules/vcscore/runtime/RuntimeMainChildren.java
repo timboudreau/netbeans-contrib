@@ -97,6 +97,7 @@ public class RuntimeMainChildren extends Children.Keys  {
             RuntimeCommandsProvider provider = RuntimeCommandsProvider.findProvider(fs);
             if (provider != null && !providerList.contains(provider)) {
                 providerList.add(provider);
+                provider.notifyAdded();
                 RuntimeMainChildren.this.setKeys(providerList);
             }
         }

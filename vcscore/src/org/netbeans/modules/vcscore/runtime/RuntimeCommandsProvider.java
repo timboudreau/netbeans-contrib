@@ -144,6 +144,17 @@ public abstract class RuntimeCommandsProvider {
         listenerSupport.firePropertyChange(propertyName, oldValue, newValue);
     }
     
+    /**
+     * Notify, that this runtime commands provider was added into the Runtime tab.
+     * Subclasses can use this method to do various inicialization here.
+     */
+    protected void notifyAdded() {
+    }
+    
+    /**
+     * Notify, that this runtime commands provider was removed from the Runtime tab.
+     * Subclasses can use this method to do various cleanup here.
+     */
     protected void notifyRemoved() {
     }
     

@@ -119,6 +119,10 @@ public class VcsRuntimeCommandsProvider extends RuntimeCommandsProvider {
         return cutted;
     }
     
+    protected void notifyAdded() {
+        processor.addCommandProcessListener(rcl);
+    }
+    
     protected void notifyRemoved() {
         processor.removeCommandProcessListener(rcl);
         //processor.removeFinishedCommandsUponRequest(false, fs);
