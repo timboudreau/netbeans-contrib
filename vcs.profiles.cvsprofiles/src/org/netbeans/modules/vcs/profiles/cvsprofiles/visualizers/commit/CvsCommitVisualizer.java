@@ -46,11 +46,8 @@ public class CvsCommitVisualizer extends OutputVisualizer {
     public static final String INITIAL_REVISION = "initial revision:";                  //NOI18N
     public static final String DONE = "done";                                           //NOI18N
     public static final String RCS_FILE = "RCS file: ";                                 //NOI18N
-    public static final String ADD = "commit: use `cvs add' to create an entry for ";   //NOI18N    
-    
-    private String filePath;
-    private static Hashtable outputDisplayStuff;
-    private static RequestProcessor outputDisplayRequestProcessor;   
+    public static final String ADD = "commit: use `cvs add' to create an entry for ";   //NOI18N       
+           
     private CommitInformation commitInformation;
     private boolean isAdding;
     private String fileDirectory;
