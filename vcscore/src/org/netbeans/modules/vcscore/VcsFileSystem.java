@@ -2172,18 +2172,18 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private void settingsChanged(String propName, Object oldVal, Object newVal) {
         VcsSettings settings = (VcsSettings) SharedClassObject.findObject(VcsSettings.class, true);
-        if (propName.equals(VcsSettings.PROP_USE_GLOBAL)) {
+        if (VcsSettings.PROP_USE_GLOBAL.equals(propName)) {
             if (((Boolean) newVal).booleanValue() == true) {
                 setOffLine(settings.isOffLine());
                 setAutoRefresh(settings.getAutoRefresh());
             }
         } else {
             if (settings.isUseGlobal()) {
-                if (propName.equals(VcsSettings.PROP_OFFLINE)) {
+                if (VcsSettings.PROP_OFFLINE.equals(propName)) {
                     setOffLine(settings.isOffLine());
-                } else if (propName.equals(VcsSettings.PROP_AUTO_REFRESH)) {
+                } else if (VcsSettings.PROP_AUTO_REFRESH.equals(propName)) {
                     setAutoRefresh(settings.getAutoRefresh());
-                } else if (propName.equals(VcsSettings.PROP_HOME)) {
+                } else if (VcsSettings.PROP_HOME.equals(propName)) {
                     updateEnvironmentVars();
                 }
             }
