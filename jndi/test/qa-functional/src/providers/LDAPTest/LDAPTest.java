@@ -23,18 +23,26 @@ import java.rmi.registry.*;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.*;
+//import org.openide.nodes.*;
 import org.openide.actions.*;
-import org.openide.execution.*;
+//import org.openide.execution.*;
 import org.openide.util.datatransfer.*;
 import org.openide.util.actions.*;
 import org.netbeans.modules.jndi.*;
 import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import junit.framework.AssertionFailedError;
+import org.netbeans.jellytools.ExplorerOperator;
+import org.netbeans.jellytools.JellyTestCase;
+import org.netbeans.jellytools.MainWindowOperator;
+import org.netbeans.jellytools.modules.jndi.actions.RefreshAction;
+import org.netbeans.jellytools.modules.jndi.nodes.ContextNode;
+import org.netbeans.jellytools.modules.jndi.nodes.JNDIRootNode;
+import org.netbeans.jellytools.nodes.Node;
 import org.openide.util.Lookup;
 
-public class LDAPTest extends org.netbeans.junit.NbTestCase {
+public class LDAPTest extends JellyTestCase {
     
     public static String name = "LDAPCtx";
     
@@ -42,19 +50,19 @@ public class LDAPTest extends org.netbeans.junit.NbTestCase {
         super (name);
     }
     
-    public static Node findSubNode(Node node, String name) {
-        Node[] nodes = node.getChildren().getNodes(true);
+    public static org.openide.nodes.Node findSubNode(org.openide.nodes.Node node, String name) {
+        org.openide.nodes.Node[] nodes = node.getChildren().getNodes(true);
         for (int a = 0; a < nodes.length; a ++)
             if (nodes [a].getName().startsWith(name))
                 return nodes [a];
         return null;
     }
-    
+/*    
     public static void performAction(Node node, Class action) {
         SystemAction act = SystemAction.get(action);
         act.actionPerformed(new java.awt.event.ActionEvent(node, 0, ""));
     }
-    
+*/    
     public static String getStringFromClipboard() throws IOException, UnsupportedFlavorException {
         ExClipboard clip = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
         Transferable str = (Transferable) clip.getContents(null);
@@ -87,16 +95,16 @@ public class LDAPTest extends org.netbeans.junit.NbTestCase {
         return str;
     }
     
-    public Node waitSubNode(Node node, String name) {
+    public org.openide.nodes.Node waitSubNode(org.openide.nodes.Node node, String name) {
         for (int a = 0; a < 30; a ++) {
             try { Thread.sleep(1000); } catch (Exception e) { }
-            Node n = findSubNode(node, name);
+            org.openide.nodes.Node n = findSubNode(node, name);
             if (n != null)
                 return n;
         }
         return null;
     }
-    
+/*    
     public boolean waitNoSubNode(Node node, String name) {
         for (int a = 0; a < 30; a ++) {
             try { Thread.sleep(1000); } catch (Exception e) { }
@@ -109,9 +117,10 @@ public class LDAPTest extends org.netbeans.junit.NbTestCase {
     public boolean waitNoPleaseWait(Node node) {
         return waitNoSubNode (node, "Please wait");
     }
-
+*/
     PrintStream ref;
     PrintStream log;
+    ExplorerOperator exp;
     
     public void testAll_LDAP () throws Exception {
         String dirname = System.getProperty("LDAP_SUB_CONTEXT");
@@ -121,13 +130,14 @@ public class LDAPTest extends org.netbeans.junit.NbTestCase {
         ref = getRef ();
         log = getLog ();
         
-        Node jndiNode = JndiRootNode.getDefault ();
-        if (jndiNode == null)
-            throw new RuntimeException ("JNDI node does not exists!");
-        Node jndiRootNode = jndiNode;
-        Node providersNode = waitSubNode(jndiNode, "Providers");
+        exp = new ExplorerOperator ();
+        Node jndiRootNode = new JNDIRootNode (exp.runtimeTab().tree ());
+        if (JndiRootNode.getDefault () == null)
+            throw new AssertionFailedError ("JNDI node does not exists!");
+        Node providersNode = new Node (jndiRootNode, "Providers");
+/*        Node providersNode = waitSubNode(jndiNode, "Providers");
         if (providersNode == null)
-            throw new RuntimeException ("Providers node does not exists!");
+            throw new AssertionFailedError ("Providers node does not exists!");*/
 /*
         for (;;) {
             Node node = findSubNode(jndiRootNode, name);
@@ -141,24 +151,38 @@ public class LDAPTest extends org.netbeans.junit.NbTestCase {
 */
         /* Add new context */
         JndiRootNode.getDefault ().addContext(name, "com.sun.jndi.ldap.LdapCtxFactory", System.getProperty ("LDAP_SERVER"), System.getProperty ("LDAP_CONTEXT"), "", "", "", new java.util.Vector());
-        Node testNode = findSubNode(jndiRootNode, name);
+        Node JtestNode = new Node (jndiRootNode, name);
+        org.openide.nodes.Node testNode = waitSubNode(JndiRootNode.getDefault(), name);
+//        Node testNode = findSubNode(jndiRootNode, name);
         if (testNode == null)
-            throw new RuntimeException ("Cannot find context: " + name);
+            throw new AssertionFailedError ("Cannot find context: " + name);
 
-        performAction (testNode, RefreshAction.class);
+        new RefreshAction ().perform (JtestNode);
+/*        performAction (testNode, RefreshAction.class);
         if (!waitNoPleaseWait(testNode))
-            throw new RuntimeException ("Under testNode there is \"Please Wait...\" node shown forever. Pass 1");
+            throw new AssertionFailedError ("Under testNode there is \"Please Wait...\" node shown forever. Pass 1");*/
 
-        Node dirNode = findSubNode(testNode, dirname);
+        ContextNode JdirNode = new ContextNode (JtestNode, dirname);
+        org.openide.nodes.Node dirNode = waitSubNode(testNode, dirname);
+//        Node dirNode = findSubNode(testNode, dirname);
         if (dirNode == null)
-            throw new RuntimeException ("Cannot find context: " + dirname);
+            throw new AssertionFailedError ("Cannot find context: " + dirname);
 
         /* Print lookup and binding code */
-        performAction(dirNode, LookupCopyAction.class);
+        MainWindowOperator.StatusTextTracer stt = MainWindowOperator.getDefault().getStatusTextTracer();
+        stt.start ();
+        JdirNode.copyLookupCode();
+        stt.waitText("Lookup code generated to clipboard.", true);
+        stt.stop ();
+//        performAction(dirNode, LookupCopyAction.class);
         ref.println("Lookup copy code on node: " + "<LDAP_SUB_CONTEXT>");
         printClipboardToRef();
 
-        performAction(dirNode, BindingCopyAction.class);
+        stt.start ();
+        JdirNode.copyBindingCode();
+        stt.waitText("Binding code generated to clipboard.", true);
+        stt.stop ();
+//        performAction(dirNode, BindingCopyAction.class);
         ref.println("Binding copy code on node: " + "<LDAP_SUB_CONTEXT>");
         printClipboardToRef();
 
