@@ -502,38 +502,37 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 printErrorOutput("CLASS EXEC: Class " + className + " not found"); // NOI18N
             }
             success = false;
-            return;
         }
-        D.deb(execClass+" loaded"); // NOI18N
         VcsAdditionalCommand execCommand = null;
-        try {
-            execCommand = (VcsAdditionalCommand) execClass.newInstance();
-        } catch (InstantiationException e) {
-            printErrorOutput("CLASS EXEC: "+g("ERR_CanNotInstantiate", execClass)); // NOI18N
-            /*
-            fileSystem.debug ("EXEC: "+g("ERR_CanNotInstantiate", execClass)); // NOI18N
-            if (stderrNoRegexListener != null)
-                stderrNoRegexListener.match("EXEC: "+g("ERR_CanNotInstantiate", execClass)); // NOI18N
-             */
-            success = false;
-            return;
-        } catch (IllegalAccessException e) {
-            printErrorOutput("CLASS EXEC: "+g("ERR_IllegalAccessOnClass", execClass)); // NOI18N
-            /*
-            fileSystem.debug ("EXEC: "+g("ERR_IllegalAccessOnClass", execClass)); // NOI18N
-            if (stderrNoRegexListener != null)
-                stderrNoRegexListener.match("EXEC: "+g("ERR_IllegalAccessOnClass", execClass)); // NOI18N
-             */
-            success = false;
-            return;
-        }
-        E.deb("VcsAdditionalCommand created."); // NOI18N
-        String[] args = new String[tokens.countTokens()];
-        int i = 0;
-        while(tokens.hasMoreTokens()) {
-            args[i++] = tokens.nextToken();
+        if (success) {
+            D.deb(execClass+" loaded"); // NOI18N
+            try {
+                execCommand = (VcsAdditionalCommand) execClass.newInstance();
+            } catch (InstantiationException e) {
+                printErrorOutput("CLASS EXEC: "+g("ERR_CanNotInstantiate", execClass)); // NOI18N
+                /*
+                fileSystem.debug ("EXEC: "+g("ERR_CanNotInstantiate", execClass)); // NOI18N
+                if (stderrNoRegexListener != null)
+                    stderrNoRegexListener.match("EXEC: "+g("ERR_CanNotInstantiate", execClass)); // NOI18N
+                 */
+                success = false;
+            } catch (IllegalAccessException e) {
+                printErrorOutput("CLASS EXEC: "+g("ERR_IllegalAccessOnClass", execClass)); // NOI18N
+                /*
+                fileSystem.debug ("EXEC: "+g("ERR_IllegalAccessOnClass", execClass)); // NOI18N
+                if (stderrNoRegexListener != null)
+                    stderrNoRegexListener.match("EXEC: "+g("ERR_IllegalAccessOnClass", execClass)); // NOI18N
+                 */
+                success = false;
+            }
         }
         if (success) {
+            E.deb("VcsAdditionalCommand created."); // NOI18N
+            String[] args = new String[tokens.countTokens()];
+            int i = 0;
+            while(tokens.hasMoreTokens()) {
+                args[i++] = tokens.nextToken();
+            }
             ExecuteCommand.setAdditionalParams(execCommand, fileSystem);
             String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
             String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
@@ -895,8 +894,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
 
     //-------------------------------------------
     String g(String s) {
-        return NbBundle.getBundle
-               ("org.netbeans.modules.vcscore.cmdline.Bundle").getString (s);
+        return NbBundle.getMessage(ExecuteCommand.class, s);
     }
     String  g(String s, Object obj) {
         return MessageFormat.format (g(s), new Object[] { obj });
