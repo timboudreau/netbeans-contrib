@@ -17,6 +17,7 @@ import java.util.Hashtable;
 import java.util.Collection;
 
 import org.netbeans.modules.vcscore.FileReaderListener;
+import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 
 /**
  * The <code>VcsCommand</code> interface should be implemented by any class
@@ -48,7 +49,7 @@ public interface VcsCommandExecutor extends Runnable, TextInput {
      * @param exec the updated execution string. It may contain user input from variable input dialog
      * @return the updated exec property
      */
-    public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec);
+    public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec, StructuredExec sexec);
         
     /**
      * Get the variables used by this command execution.

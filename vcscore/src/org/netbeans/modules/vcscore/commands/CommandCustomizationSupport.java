@@ -47,6 +47,7 @@ import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
 import org.netbeans.modules.vcscore.util.VariableInputComponent;
 import org.netbeans.modules.vcscore.util.VariableInputDialog;
@@ -302,11 +303,12 @@ public class CommandCustomizationSupport extends Object {
     }
     
     /**
-     * Perform the pre-customization of a command.
-     * @return the new execution string of the command or <code>null</code>
-     *         when the precustomization was cancelled.
+     * Perform the pre-customization of a command. After this it's necessary to
+     * call {@link #preCustomizeExec} or {@link #preCustomizeStructuredExec}
+     * @return <code>false</code> when the precustomization was cancelled,
+     *         <code>true</code> otherwise.
      */
-    public static String preCustomize(CommandExecutionContext executionContext, VcsCommand cmd, Hashtable vars) {
+    public static boolean preCustomize(CommandExecutionContext executionContext, VcsCommand cmd, Hashtable vars) {
         Object confObj = cmd.getProperty(VcsCommand.PROPERTY_CONFIRMATION_MSG);
         String confirmation = (confObj == null) ? "" : (String) confObj; //cmd.getConfirmationMsg();
         String fullName = (String) vars.get("PATH");
@@ -333,7 +335,7 @@ public class CommandCustomizationSupport extends Object {
             try {
                 confirmation = processConfirmation(confirmation, vars, executionContext);
             } catch (UserCancelException cancelExc) {
-                return null;
+                return false;
             }
             confirmed = true;
         //} else {
@@ -343,10 +345,21 @@ public class CommandCustomizationSupport extends Object {
             if (!NotifyDescriptor.Confirmation.YES_OPTION.equals (
                     DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Confirmation (
                         confirmation, NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
-                return null; // The command is cancelled for that file
+                return false; // The command is cancelled for that file
             }
         }
-        // II. Then filll output from pre commands:
+        // II. Then filll output from pre commands
+        //     preCustomizeExec() or preCustomizeStructuredExec should be called
+        return true;
+    }
+    
+    /**
+     * Perform the pre-customization of a command's execution string. Should be
+     * called after {@link #preCustomize}.
+     * @return the new execution string of the command or <code>null</code>
+     *         when the precustomization was cancelled.
+     */
+    public static String preCustomizeExec(CommandExecutionContext executionContext, VcsCommand cmd, Hashtable vars) {
         String exec;
         if (executionContext != null) {
             PreCommandPerformer cmdPerf = new PreCommandPerformer(executionContext, vars);
@@ -359,6 +372,39 @@ public class CommandCustomizationSupport extends Object {
             exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         }
         exec = insertGlobalOptions(exec, vars);
+        return exec;
+    }
+    
+    /**
+     * Perform the pre-customization of a command's structured execution string.
+     * Should be called after {@link #preCustomize}.
+     * @return the new structured execution property of the command or <code>null</code>
+     *         when the precustomization was cancelled.
+     */
+    public static StructuredExec preCustomizeStructuredExec(CommandExecutionContext executionContext, VcsCommand cmd, Hashtable vars) {
+        StructuredExec exec = (StructuredExec) cmd.getProperty(VcsCommand.PROPERTY_EXEC_STRUCTURED);
+        if (exec == null) return null;
+        if (executionContext != null) {
+            PreCommandPerformer cmdPerf = new PreCommandPerformer(executionContext, vars);
+            StructuredExec.Argument[] args = exec.getArguments();
+            String w;
+            String exe;
+            StructuredExec.Argument[] as = new StructuredExec.Argument[args.length];
+            try {
+                w = cmdPerf.process(exec.getWorking().getPath());
+                w = insertGlobalOptions(w, vars);
+                exe = cmdPerf.process(exec.getExecutable());
+                exe = insertGlobalOptions(exe, vars);
+                for (int i = 0; i < args.length; i++) {
+                    String arg = cmdPerf.process(args[i].getArgument());
+                    arg = insertGlobalOptions(arg, vars);
+                    as[i] = new StructuredExec.Argument(arg, args[i].isLine());
+                }
+            } catch (UserCancelException cancelExc) {
+                return null;
+            }
+            exec = new StructuredExec(new java.io.File(w), exe, as);
+        }
         return exec;
     }
     

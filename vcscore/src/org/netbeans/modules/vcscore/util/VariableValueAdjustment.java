@@ -126,6 +126,21 @@ public class VariableValueAdjustment implements Serializable {
     }
 
     /**
+     * Revert the adjusted variable values.
+     * @param vars the map of variable names and their values
+     */
+    public void revertAdjustedVarValues(Hashtable vars) {
+        if (adjustedVars == null) return ;
+        for (Iterator it = adjustedVars.iterator(); it.hasNext(); ) {
+            String var = (String) it.next();
+            String value = (String) vars.get(var);
+            if (value != null) {
+                vars.put(var, revertAdjustedVarValue(value));
+            }
+        }
+    }
+
+    /**
      * Revert the adjusted variable value.
      * @param value the value to be reverted
      * @return the reverted value

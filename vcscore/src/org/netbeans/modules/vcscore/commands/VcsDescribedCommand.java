@@ -17,6 +17,7 @@ import java.io.File;
 import java.util.Map;
 
 import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 
 /**
  * This class represents a command whose behavior is described by VcsCommand.
@@ -64,6 +65,20 @@ public interface VcsDescribedCommand extends Command, TextOutputCommand,
      * @return the preferred execution string
      */
     public String getPreferredExec();
+    
+    /**
+     * Set a preferred structured execution property, which might have some variables
+     * or patterns expanded.
+     * @param preferredSExec the preferred structured execution property
+     */
+    public void setPreferredStructuredExec(StructuredExec preferredSExec);
+    
+    /**
+     * Get a preferred structured execution property, which might have some variables
+     * or patterns expanded.
+     * @return the preferred structured execution property
+     */
+    public StructuredExec getPreferredStructuredExec();
     
     /**
      * Set the executor, which was already created to take care about executing

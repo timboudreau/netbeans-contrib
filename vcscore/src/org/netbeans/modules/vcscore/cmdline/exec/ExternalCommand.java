@@ -280,6 +280,7 @@ public class ExternalCommand {
         StructuredExec.Argument[] args = sexec.getArguments();
         for (int i = 0; i < args.length; i++) {
             String arg = args[i].getArgument().trim();
+            if (arg.length() == 0) continue;
             if (args[i].isLine()) {
                 int begin = 0;
                 int end = arg.indexOf(' ');
@@ -322,6 +323,7 @@ public class ExternalCommand {
             try {
                 if (scommand != null) {
                     commandArr = parseParameters(scommand);
+                    //System.out.println("exec("+VcsUtilities.array2string(commandArr)+", w = '"+scommand.getWorking()+"')");
                     proc = Runtime.getRuntime().exec(commandArr, envp, scommand.getWorking());
                 } else {
                     commandArr = parseParameters(command);

@@ -75,6 +75,15 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * string, that is used to run the command.
      */
     private String preferredExecExpanded = null;
+    
+    /**
+     * The preferred structured execution property, that should be used instead
+     * of the structured execution property defined by the command.
+     * This is usually pre-processed command's execution property,
+     * where some values may be expanded.
+     */
+    private StructuredExec preferredStructuredExec = null;
+    
     /** The command associated with this executor.
      * @deprecated For compatibility with the old VCS "API" only. */
     private VcsDescribedCommand command = null;
@@ -442,10 +451,23 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * @param exec the updated execution string. It may contain user input from variable input dialog
      * @return the updated exec property
      */
-    public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec) {
+    public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec, StructuredExec sexec) {
         this.preferredExec = exec;
+        this.preferredStructuredExec = sexec;
         executionContext.getVarValueAdjustment().adjustVarValues(vars);
-        if (exec != null && exec.indexOf(Variables.TEMPORARY_FILE) >= 0) {
+        boolean createTempFile = false;
+        if (sexec != null) {
+            StructuredExec.Argument[] args = sexec.getArguments();
+            for (int i = 0; i < args.length; i++) {
+                if (args[i].getArgument().indexOf(Variables.TEMPORARY_FILE) >= 0) {
+                    createTempFile = true;
+                    break;
+                }
+            }
+        } else {
+            createTempFile = (exec != null && exec.indexOf(Variables.TEMPORARY_FILE) >= 0);
+        }
+        if (createTempFile) {
             try {
                 File tempFile = File.createTempFile("VCS", "tmp");
                 tempFile.deleteOnExit();
@@ -883,7 +905,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 maxCmdLength = Integer.parseInt(maxCmdLengthStr);
             } catch (NumberFormatException nfex) {}
         }
-        StructuredExec sexec = (StructuredExec) cmd.getProperty(VcsCommand.PROPERTY_EXEC_STRUCTURED);
+        StructuredExec sexec = preferredStructuredExec;
+        if (sexec == null) sexec = (StructuredExec) cmd.getProperty(VcsCommand.PROPERTY_EXEC_STRUCTURED);
         if (sexec != null) {
             sexec = sexec.getExpanded(vars, false);
         } else {
@@ -937,7 +960,15 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 VcsAction.assureFilesSaved(fileObjects);
             }
             if (sexec != null) {
-                runCommand(sexec);
+                String exe = sexec.getExecutable();
+                if (exe.toLowerCase().endsWith(".class")) {
+                    String[] eargs = ExternalCommand.parseParameters(sexec);
+                    String[] args = new String[eargs.length - 1];
+                    System.arraycopy(eargs, 1, args, 0, args.length);
+                    runClass(VcsUtilities.array2stringNl(eargs), exe.substring(0, exe.length() - ".class".length()), args);
+                } else {
+                    runCommand(sexec);
+                }
             } else {
                 String[] allArgs = VcsUtilities.getQuotedArguments(exec);
                 String first = allArgs[0];
