@@ -33,6 +33,7 @@ Microsystems, Inc. All Rights Reserved.
 								<pathelement location="../../../core/netbeans/lib/core.jar"/>
 								<pathelement location="../../../utilities/netbeans/modules/utilities.jar"/>
 								<pathelement location="../../../editor/netbeans/modules/ext/nb-editor.jar"/>
+								<pathelement location="../../../openide/loaders/netbeans/lib/openide-loaders.jar" />
             </classpath>
         </javac>
     </target>

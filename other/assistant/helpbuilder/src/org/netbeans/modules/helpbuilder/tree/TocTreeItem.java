@@ -75,6 +75,13 @@ public class TocTreeItem extends HelpTreeItem {
     }
     
     /**
+     * Sets the target
+     */
+    public void setTarget(String target){
+        this.target = target;
+    }
+    
+    /**
      *Returns the external representation of url for this item.
      */
     public String getURLSpec(){

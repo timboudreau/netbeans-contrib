@@ -30,29 +30,42 @@ import java.io.ByteArrayOutputStream;
  */
 
 public class TocTreeNode extends HelpTreeNode{
+    
+    /**
+     * Header part of xml file
+     */
+    public static final String HEADER="<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+    "<!DOCTYPE toc\n PUBLIC \""+//TocView.publicIDString+
+    "\"\n        \"http://java.sun.com/products/javahelp/toc_1_0.dtd\">\n"+
+    "\n<toc version=\"1.0\">\n";
+    
+    /**
+     * XML element name
+     */
+    public static final String ELEMENT="tocitem";
+    
+    /**
+     * Footer of xml document
+     */
+    public static final String FOOTER="</toc>";
+    
 
     public TocTreeNode(TocTreeItem item){
         super(item);
     }
 
     /**
-     * Exports node and its descendants to the xml file according favorites.dtd.
+     * Exports node and its descendants to the xml file according toc.dtd.
      *
      * @param out The OutputStream
      */
     public void exportNode(OutputStreamWriter writer) throws IOException{
         TreeNode paren = getParent();        
-        HelpTreeItem item = (HelpTreeItem)getUserObject();        
+        TocTreeItem item = (TocTreeItem)getUserObject();        
         writer.write(getOffset()+"<"+getXMLElement()+ " text=\""+item.getName()+"\" ");
-    /*    String target = item.getTarget();
+        String target = item.getTarget();
         if(target != null)
-            writer.write("target=\""+target+"\" ");
-        String url = item.getURLSpec();
-        if(url != null)
-            writer.write("url=\""+url+"\"");
-        String hstitle = item.getHelpSetTitle();
-        if(hstitle != null)
-            writer.write(" hstitle=\""+hstitle+"\"");*/
+            writer.write("target=\""+target+"\" ");        
         Enumeration chldn = children(); 
         if(chldn.equals(DefaultMutableTreeNode.EMPTY_ENUMERATION))
             writer.write("/>\n");
@@ -67,9 +80,28 @@ public class TocTreeNode extends HelpTreeNode{
             writer.write(getOffset()+"</"+ELEMENT+">\n");
         }        
      
-    }   
- 
+    }
+     
+    /**
+     * Returns the XML header string
+     */
+    public String getXMLHeader(){
+        return this.HEADER;
+    }
+    /**
+     * Returns the XML element string
+     */
+    public String getXMLElement(){
+        return this.ELEMENT;
+    }
         
+    /**
+     * Returns footer of XML doc
+     */
+    public String getFooter(){
+        return FOOTER;
+    }
+    
     /**
      * Debugging code
      */

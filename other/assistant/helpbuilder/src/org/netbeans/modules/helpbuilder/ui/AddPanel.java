@@ -58,14 +58,15 @@ public class AddPanel extends javax.swing.JPanel {
                 }
         }; 
         txName.getDocument().addDocumentListener(docList);
-        txtURL.getDocument().addDocumentListener(docList);
+       // txtMap.getDocument().addDocumentListener(docList);
         
     }
     
     private void setOK_OPTION(){
         String name = txName.getText();
-        String url = txtURL.getText();
-        if((name != null)&&(name.length() > 0)&&(url != null)&&(url.length() > 0))
+     //   String map = txtMap.getText();
+     //   if((name != null)&&(name.length() > 0)&&(map != null)&&(map.length() > 0))
+        if((name != null)&&(name.length() > 0))
             OK_OPTION.setEnabled(true);
         else
             OK_OPTION.setEnabled(false);
@@ -101,6 +102,14 @@ public class AddPanel extends javax.swing.JPanel {
         return cbxHomeID.isSelected();
     }
     
+    public String getMapTarget(){
+        return txtMap.getText();
+    }
+    
+    public void setMapTarget(String map){
+        txtMap.setText(map);
+    }
+    
     // --- VISUAL DESIGN OF PANEL ---
 
     /** This method is called from within the constructor to
@@ -120,6 +129,8 @@ public class AddPanel extends javax.swing.JPanel {
         txtURL = new javax.swing.JTextField();
         btnBrowse = new javax.swing.JButton();
         cbxHomeID = new javax.swing.JCheckBox();
+        lblMap = new javax.swing.JLabel();
+        txtMap = new javax.swing.JTextField();
         topPanel = new javax.swing.JPanel();
         bottomPanel = new javax.swing.JPanel();
         rightPanel = new javax.swing.JPanel();
@@ -150,7 +161,7 @@ public class AddPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.weighty = 1.0;
         centerPanel.add(jPanel1, gridBagConstraints);
 
@@ -198,12 +209,29 @@ public class AddPanel extends javax.swing.JPanel {
         cbxHomeID.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("LBL_cbxHomeID"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(6, 8, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         centerPanel.add(cbxHomeID, gridBagConstraints);
+
+        lblMap.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("ACS_lblMap_mnc").charAt(0));
+        lblMap.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("lblProjectSetupPanel_mapLabel"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        centerPanel.add(lblMap, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 12);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        centerPanel.add(txtMap, gridBagConstraints);
 
         add(centerPanel, java.awt.BorderLayout.CENTER);
 
@@ -233,24 +261,27 @@ public class AddPanel extends javax.swing.JPanel {
     public void clear(){        
         txName.setText("");
         txtURL.setText("");
+        txtMap.setText("");
         cbxHomeID.setSelected(false);
     }
         
             
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel bottomPanel;
+    private javax.swing.JButton btnBrowse;
+    private javax.swing.JCheckBox cbxHomeID;
+    private javax.swing.JPanel centerPanel;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lblMap;
+    private javax.swing.JLabel lblName;
+    private javax.swing.JLabel lblURL;
+    private javax.swing.JPanel leftPanel;
+    private javax.swing.JPanel rightPanel;
     private javax.swing.JPanel topPanel;
     private javax.swing.JTextField txName;
-    private javax.swing.JButton btnBrowse;
-    private javax.swing.JPanel centerPanel;
-    private javax.swing.JPanel urlPanel;
-    private javax.swing.JCheckBox cbxHomeID;
-    private javax.swing.JPanel leftPanel;
-    private javax.swing.JLabel lblName;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JLabel lblURL;
-    private javax.swing.JPanel rightPanel;
+    private javax.swing.JTextField txtMap;
     private javax.swing.JTextField txtURL;
-    private javax.swing.JPanel bottomPanel;
+    private javax.swing.JPanel urlPanel;
     // End of variables declaration//GEN-END:variables
 
 

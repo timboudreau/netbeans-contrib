@@ -42,17 +42,18 @@ import org.openide.util.NbBundle;
 public class TocSetupPanel extends javax.swing.JPanel {
     private final TocSetup descriptor;
     private HelpTree tree;
+    private static TocTreeNode node;
     
     /** Create the wizard panel and set up some basic properties. */
     public TocSetupPanel(final TocSetup descriptor) {
         this.descriptor = descriptor;
         initComponents ();                
-        TocTreeNode node = new TocTreeNode(new TocTreeItem("Root Node"));
+        node = new TocTreeNode(new TocTreeItem("Root Node"));
         TocTreeNode node1 = new TocTreeNode(new TocTreeItem("First Chapter"));
         TocTreeNode node2 = new TocTreeNode(new TocTreeItem("Sub Chapter"));
         node.add(node1);
         node1.add(node2);        
-        tree = new HelpTree(node);
+        tree = new HelpTree(node);        
         tree.setRootVisible(false);
         TreePath newPath = new TreePath(node2.getPath());
         tree.makeVisible(newPath);
@@ -86,6 +87,10 @@ public class TocSetupPanel extends javax.swing.JPanel {
         */
     }
 
+    public static HelpTreeNode getNode(){
+        return (HelpTreeNode) node;
+    }
+    
     private void initActions(){
         btnRemove.setAction(tree.getRemoveAction());
         btnRemove.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("ACS_btnRemove_mnc").charAt(0));
@@ -102,9 +107,9 @@ public class TocSetupPanel extends javax.swing.JPanel {
         btnEdit.setAction(tree.getEditTocAction());
         btnEdit.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("ACS_btnEdit_mnc").charAt(0));
     }
-        
+    
     // --- VISUAL DESIGN OF PANEL ---
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

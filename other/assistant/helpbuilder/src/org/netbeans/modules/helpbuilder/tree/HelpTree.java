@@ -179,7 +179,7 @@ public class HelpTree extends JTree implements TreeSelectionListener{
             dd.setOptions(addPanel.getOptions());            
             Object ret = DialogDisplayer.getDefault().notify(dd);
             if(ret == AddPanel.OK_OPTION){                
-                TocTreeNode node = new TocTreeNode(new TocTreeItem(addPanel.getName(),addPanel.getUrlSpec(),addPanel.getUrlSpec(),addPanel.isHomeID(),Locale.getDefault()));
+                TocTreeNode node = new TocTreeNode(new TocTreeItem(addPanel.getName(),addPanel.getMapTarget(),addPanel.getUrlSpec(),addPanel.isHomeID(),Locale.getDefault()));
                 DefaultTreeModel model = (DefaultTreeModel)getModel();                        
                 TreePath path = HelpTree.this.getSelectionPath();
                 DefaultMutableTreeNode parentNode = rootNode;
@@ -259,6 +259,7 @@ public class HelpTree extends JTree implements TreeSelectionListener{
             TocTreeItem item = (TocTreeItem) selectedNode.getUserObject();
             editPanel.setName(item.getName());
             editPanel.setUrlSpec(item.getURLSpec());
+            editPanel.setMapTarget(item.getTarget());
             editPanel.setHomeID(item.isHomeID());
             
             DialogDescriptor dd = new DialogDescriptor(editPanel,editPanel.getName());            
@@ -267,6 +268,7 @@ public class HelpTree extends JTree implements TreeSelectionListener{
             if(ret == AddPanel.OK_OPTION){
                 item.setName(editPanel.getName());
                 item.setURLSpec(editPanel.getUrlSpec());
+                item.setTarget(editPanel.getMapTarget());
                 item.setHomeID(editPanel.isHomeID());
                 ((DefaultTreeModel)getModel()).reload(selectedNode); 
                 setActiveNode(selectedNode);

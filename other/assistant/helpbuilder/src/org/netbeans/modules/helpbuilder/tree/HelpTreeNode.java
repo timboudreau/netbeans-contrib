@@ -120,7 +120,7 @@ public abstract class HelpTreeNode extends DefaultMutableTreeNode{
                 node.exportNode(writer);
             }
         }
-        writer.write(FOOTER);
+        writer.write(getFooter());
         //out.close();
         writer.close();
     }
@@ -171,7 +171,7 @@ public abstract class HelpTreeNode extends DefaultMutableTreeNode{
         //OutputStreamWriter writer = new OutputStreamWriter(out,"UTF-8")
         
         OutputStreamWriter writer = new OutputStreamWriter(out,"UTF-8");
-        writer.write(HEADER);
+        writer.write(getXMLHeader());
         return writer;
     }
     
@@ -187,6 +187,14 @@ public abstract class HelpTreeNode extends DefaultMutableTreeNode{
     public String getXMLElement(){
         return ELEMENT;
     }
+    
+    /**
+     * Returns footer of XML doc
+     */
+    public String getFooter(){
+        return FOOTER;
+    }
+    
         
     /**
      * Debugging code

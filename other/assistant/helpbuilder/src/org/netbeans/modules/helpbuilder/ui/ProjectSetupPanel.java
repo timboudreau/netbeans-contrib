@@ -17,25 +17,38 @@ package org.netbeans.modules.helpbuilder.ui;
 import org.netbeans.modules.helpbuilder.*;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.StringTokenizer;
 import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentListener;
 import javax.swing.tree.TreePath;
+import org.openide.ErrorManager;
 
 import org.openide.WizardDescriptor;
+import org.openide.explorer.ExplorerManager;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileSystem;
 import org.openide.loaders.DataFilter;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.RepositoryNodeFactory;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.nodes.NodeOp;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
@@ -43,9 +56,15 @@ import org.openide.util.NbBundle;
  *
  * @author  Richard Gregor
  */
-public class ProjectSetupPanel extends javax.swing.JPanel implements DocumentListener, DataFilter, PropertyChangeListener{
-    private final ProjectSetup descriptor;   
+public class ProjectSetupPanel extends javax.swing.JPanel implements DocumentListener, DataFilter, PropertyChangeListener, VetoableChangeListener{
+    private final ProjectSetup descriptor; 
+    private final static String PROP_TARGET_LOCATION = "targetLocation";
     private Node rootNode;
+    /** last DataFolder object that can be returned */
+    private DataFolder df;
+    private String selectedPath = "";    
+    private Node selectedNode;
+    private static String absPath;
     
     /** Create the wizard panel and set up some basic properties. */
     public ProjectSetupPanel(final ProjectSetup descriptor) {
@@ -53,10 +72,10 @@ public class ProjectSetupPanel extends javax.swing.JPanel implements DocumentLis
         initComponents ();                        
         setName(NbBundle.getMessage(ProjectSetupPanel.class, "TITLE_ProjectSetupPanel")); 
         
-        rootNode = createPackagesNode ();
-        packagesPanel.getExplorerManager ().setRootContext (rootNode);
-        packagesPanel.getExplorerManager ().addPropertyChangeListener (this);
-        //packagesPanel.getExplorerManager ().addVetoableChangeListener (this);
+        rootNode = createPackagesNode();         
+        packagesPanel.getExplorerManager().setRootContext(rootNode);
+        packagesPanel.getExplorerManager().addPropertyChangeListener(this);
+        packagesPanel.getExplorerManager().addVetoableChangeListener(this);
 
         // registers itself to listen to changes in the content of document
         txtFolder.getDocument().addDocumentListener(this);
@@ -86,8 +105,6 @@ public class ProjectSetupPanel extends javax.swing.JPanel implements DocumentLis
         lblFolder = new javax.swing.JLabel();
         txtFolder = new javax.swing.JTextField();
         btnCreate = new javax.swing.JButton();
-        lblDirectory = new javax.swing.JLabel();
-        txtDircetory = new javax.swing.JTextField();
         lblLocation = new javax.swing.JLabel();
 
         setLayout(new java.awt.BorderLayout());
@@ -122,9 +139,9 @@ public class ProjectSetupPanel extends javax.swing.JPanel implements DocumentLis
         gridBagConstraints.insets = new java.awt.Insets(6, 11, 6, 11);
         packagesPanel.add(beanTreeView1, gridBagConstraints);
 
-        lblFolder.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("ACS_lblFolder_mnc").charAt(0));
+        lblFolder.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("ACS_lblPath_mnc").charAt(0));
         lblFolder.setLabelFor(txtFolder);
-        lblFolder.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("LBL_PRojectSetupPanel.folderLabel"));
+        lblFolder.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("LBL_PRojectSetupPanel.targetPathLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -143,30 +160,18 @@ public class ProjectSetupPanel extends javax.swing.JPanel implements DocumentLis
 
         btnCreate.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("ACS_btnCreate_mnc").charAt(0));
         btnCreate.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("LBL_ProjectSetupPanel.btnCreate"));
+        btnCreate.setEnabled(false);
+        btnCreate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCreateActionPerformed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 11);
         packagesPanel.add(btnCreate, gridBagConstraints);
-
-        lblDirectory.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("ACS_lblDirectory_mnc").charAt(0));
-        lblDirectory.setLabelFor(txtDircetory);
-        lblDirectory.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("LBL_ProjectSetupPanel.lblDirectory"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 11, 11, 0);
-        packagesPanel.add(lblDirectory, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 11, 11);
-        packagesPanel.add(txtDircetory, gridBagConstraints);
 
         lblLocation.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("ACS_lblLocation_mnc").charAt(0));
         lblLocation.setLabelFor(beanTreeView1);
@@ -183,40 +188,204 @@ public class ProjectSetupPanel extends javax.swing.JPanel implements DocumentLis
 
     }//GEN-END:initComponents
 
-    public boolean isValid(){        
-     /*   String txtHome = txtHomeID.getText();
-        if((txtHome == null) || (txtHome.trim().length() < 1))
-            return false;
-        else*/
-            return true;    
-    }
+    private void btnCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateActionPerformed
         
-    public boolean acceptDataObject(org.openide.loaders.DataObject obj) {
-        return obj instanceof DataFolder;
-    }    
+        FileObject fo = df.getPrimaryFile();
+        String dfPath = fo.getPath();
+        String absPath = txtFolder.getText();
+        int index = absPath.indexOf(dfPath);
+        final String name = absPath.substring(index+dfPath.length()+1);
+        debug("name: "+name);   
+        try{
+            DataFolder.create(df,name);
+            //fo.createFolder(name);      
+        }catch(IOException ep){
+            ErrorManager.getDefault().notify(ep);
+        }
+                  
+        final ExplorerManager em = packagesPanel.getExplorerManager();
+        try{           
+            SwingUtilities.invokeLater (new Runnable () {
+                
+                public void run () {
+                    try{
+                        em.setSelectedNodes(getNewNode(name));    
+                      /*  StringTokenizer stoken = new StringTokenizer(name,File.separator);
+                        String names[] = new String[stoken.countTokens()];
+                        for(int i = 0; stoken.hasMoreTokens(); i++){
+                            names[i] = stoken.nextToken();
+                        }
+                        Node[] node = new Node[]{NodeOp.findPath(selectedNode,names)};
+                        em.setSelectedNodes(node);*/
+                    }catch(PropertyVetoException pve){
+                        ErrorManager.getDefault().notify(pve);
+                    }catch(Exception ep){
+                        //ignore
+                    }                   
+                }
+            });        
+        } catch (Exception e) { // InterruptedException, InvocationTargetException
+            ErrorManager.getDefault().notify (e);
+            return;
+        }                    
         
-    public void changedUpdate(javax.swing.event.DocumentEvent e) {
-    }    
+        updatePath();
+        enableCreateButton();
         
-    public void insertUpdate(javax.swing.event.DocumentEvent e) {
+    }//GEN-LAST:event_btnCreateActionPerformed
+
+    private Node[] getNewNode(String folderName){
+        debug("selectedNode:"+selectedNode.getName());
+        debug("getNewNode:"+folderName);        
+        Node[] node = new Node[1];
+      //  Node[] arr  = nodes[0].getChildren().getNodes();
+        Node[] arr  = selectedNode.getChildren().getNodes();
+        debug("length:"+arr.length);
+        for(int i=0 ; i < arr.length; i++){
+            String name = arr[i].getName();           
+            debug("getNewNode nodename:"+name);
+            if (folderName.endsWith(name)){
+                node[0] = arr[i];
+                break;
+            }
+        }       
+        return node;
     }
     
-    public void propertyChange(java.beans.PropertyChangeEvent evt) {
+    public boolean isValid(){
+        debug("isValid");
+        Node[] arr = packagesPanel.getExplorerManager().getSelectedNodes();
+        if(arr.length == 0)
+            return false;
+        else{
+            return (!btnCreate.isEnabled());
+        }
+           // return true;
+    }
+    
+      
+    public boolean acceptDataObject(org.openide.loaders.DataObject obj) {
+        return obj instanceof DataFolder;
+    }
+    
+    public void changedUpdate(javax.swing.event.DocumentEvent e) {
+        debug("changedUpdate");
+        enableCreateButton();
+       // updatePath();
+    }
+    
+    public void insertUpdate(javax.swing.event.DocumentEvent e) {
+        debug("insertUpdate");
+        enableCreateButton();
+        //updatePath();
     }
     
     public void removeUpdate(javax.swing.event.DocumentEvent e) {
+        debug("removeUpdate");
+        enableCreateButton();
+      //  updatePath();
     }
     
+    public void propertyChange(java.beans.PropertyChangeEvent evt) {
+        debug("propertyChange:"+evt.getPropertyName());
+        if (ExplorerManager.PROP_SELECTED_NODES.equals(evt.getPropertyName())) {
+            //causes validity checking
+            descriptor.fireChangeEvent();  
+            Node[] arr = packagesPanel.getExplorerManager().getSelectedNodes();            
+            if (!isVisible()) {                
+                return;
+            }
+            if (arr.length == 1) {
+                df = (DataFolder)arr[0].getCookie(DataFolder.class);
+                if (df != null) {                    
+                    selectedPath = df.getPrimaryFile().getPath();
+                    selectedNode = arr[0];
+                    enableCreateButton();
+                    updatePath();
+                    return;
+                }
+            }                     
+        }
+        if (ExplorerManager.PROP_NODE_CHANGE.equals(evt.getPropertyName())) {
+            debug("node change");
+        }
+    }
+    
+    /** Allow only simple selection.
+     */
+    public void vetoableChange(PropertyChangeEvent ev)
+    throws PropertyVetoException {
+        if (ExplorerManager.PROP_SELECTED_NODES.equals(ev.getPropertyName())) {
+            Node[] arr = (Node[])ev.getNewValue();
+            if (arr.length > 1) {
+                throw new PropertyVetoException("Only single selection allowed", ev); // NOI18N
+            }
+        }
+    }
+    
+    
+    private void updatePath(){
+        absPath = getAbsPath(selectedNode);
+        txtFolder.setText(absPath);
+        putClientProperty(PROP_TARGET_LOCATION, absPath);
+        
+   /*     if(selectedPath.length() == 0)
+            //is root
+            if(txtFolder.getText().length() > 0){
+                txtDirectory.setText(selectedNode.getName()+File.separator+txtFolder.getText());
+            }else{
+                txtDirectory.setText(selectedNode.getName());
+            }
+        else if((selectedPath != null)&&(selectedPath.length()>0))
+            txtDirectory.setText(selectedPath+File.separator+txtFolder.getText());
+        else
+            txtDirectory.setText("");
+        */
+    }
+    
+    public static String getTargetLocation(){
+        return absPath;
+    }
+    
+    private String getAbsPath(Node node){
+        debug("getAbsPath:"+node.getName());
+        if((selectedPath == null) || (selectedPath.length() == 0)){
+            debug("node:"+node.getName()+" is root");
+            return node.getName();
+        }
+        Node parent = node.getParentNode();
+        if(parent.getName().equals("Filesystems"))
+            return node.getName()+File.separator+selectedPath;
+        else
+            return getAbsPath(parent);
+    }
+
+    
+    
+    /** Sets the state of the createButton */
+    private void enableCreateButton() {
+        String folderPath = txtFolder.getText();
+        File file = new File(folderPath);
+        btnCreate.setEnabled(!file.exists());
+        descriptor.fireChangeEvent();
+    }
+    
+    
+    private boolean DEBUG = false;
+    private void debug(String msg){
+        if(DEBUG)
+            System.err.println("PrjSetupPanel: "+msg);
+    }
+    
+      
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField txtFolder;
-    private javax.swing.JLabel lblFolder;
-    private javax.swing.JButton btnCreate;
-    private javax.swing.JTextField txtDircetory;
-    private org.openide.explorer.ExplorerPanel packagesPanel;
-    private javax.swing.JLabel lblDirectory;
-    private javax.swing.JTextArea txtDesc;
-    private javax.swing.JLabel lblLocation;
     private org.openide.explorer.view.BeanTreeView beanTreeView1;
+    private javax.swing.JButton btnCreate;
+    private javax.swing.JLabel lblFolder;
+    private javax.swing.JLabel lblLocation;
+    private org.openide.explorer.ExplorerPanel packagesPanel;
+    private javax.swing.JTextArea txtDesc;
+    private javax.swing.JTextField txtFolder;
     // End of variables declaration//GEN-END:variables
 
 
