@@ -71,6 +71,9 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
     private String localPath;
     private UpdateInfoPanel contentPane = null;
     private HashMap output;
+    private int exit = Integer.MIN_VALUE; // unset exit status
+    private List outputInfosToShow; // cached information when the command is providing
+                                    // output sooner then the GUI is created.
     
     /** Creates new CvsUpdateVisualizer */
     public CvsUpdateVisualizer() {
@@ -85,9 +88,13 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         contentPane.setVcsTask(getVcsTask());
         contentPane.setLog(buff);
         contentPane.showStartCommand();
+        //System.out.println("getOutputPanel("+this.hashCode()+"), exit = "+exit);
+        if (exit != Integer.MIN_VALUE) {
+            // The command already finished!
+            setExitStatus(exit);
+        }
         output.put("",contentPane);//TODO - what's right name?        
         return output;
-
     }
     
     /**
@@ -238,10 +245,27 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
     }
    
     public void outputDone() {
+        //System.out.println("outputDone("+this.hashCode()+") ENTERED, fic = "+fileInfoContainer+", cp = "+(contentPane != null)+", oi = "+outputInfosToShow);
+        if (contentPane != null && outputInfosToShow != null) {
+            for (Iterator it = outputInfosToShow.iterator(); it.hasNext(); ) {
+                UpdateInformation info = (UpdateInformation) it.next();
+                contentPane.showFileInfoGenerated(info);
+            }
+            outputInfosToShow = null;
+        }
+        
         if (fileInfoContainer != null) {
-            contentPane.showFileInfoGenerated(fileInfoContainer);        
+            if (contentPane != null) {
+                contentPane.showFileInfoGenerated(fileInfoContainer);        
+            } else {
+                if (outputInfosToShow == null) {
+                    outputInfosToShow = new LinkedList();
+                }
+                outputInfosToShow.add(fileInfoContainer);
+            }
             fileInfoContainer = null;
         }
+        //System.out.println("outputDone("+this.hashCode()+") EXITED, fic = "+fileInfoContainer+", cp = "+(contentPane != null)+", oi = "+outputInfosToShow);
     }
     
     /** @return false to open immediatelly.
@@ -250,12 +274,19 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         return false;
     }
 
-    public void setExitStatus(int exit){ 
+    public void setExitStatus(int exit) {
         debug("exit: "+exit);
-        if(exit == 0)
-            contentPane.showFinishedCommand();
-        else
-            contentPane.showExecutionFailed();
+        //System.out.println("setExitStatus("+this.hashCode()+") ("+exit+"), cp = "+(contentPane != null));
+        this.exit = exit;
+        if (contentPane != null) { // Check whether we have the GUI created
+            if (outputInfosToShow != null) {
+                outputDone(); // show cached infos
+            }
+            if(exit == 0)
+                contentPane.showFinishedCommand();
+            else
+                contentPane.showExecutionFailed();
+        }
     }
     
     private static boolean DEBUG = false;
