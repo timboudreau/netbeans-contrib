@@ -29,9 +29,8 @@ public class RMI_IIOP extends PortableRemoteObject {
         java.util.Properties props = System.getProperties();
         props.setProperty("java.naming.factory.initial", "com.sun.jndi.cosnaming.CNCtxFactory");
         props.setProperty("java.naming.provider.url", "iiop://localhost:900");
-        System.setProperties(props);
 
-        Context initialNamingContext = new InitialContext();
+        Context initialNamingContext = new InitialContext(props);
         initialNamingContext.rebind(name, obj);
     }
     
