@@ -324,18 +324,6 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <separator />
-      <command name="CREATE_PROJECT_DATABASE" displayName="ResourceMsg(PVCS_CREATE_PROJECT_DATABASE)">
-        <run>
-          <executable value="${PCLI_CMD}"/>
-          <arg value="CreateProjectDB ${PRID} -w${QUOTE}${ROOTDIR}${QUOTE}"/>
-        </run>
-        <property name="onFile">
-          <value>false</value>
-	</property>
-        <property name="onDir">
-          <value>false</value>
-        </property>
-      </command>
       <command name="CREATE_PROJECT" displayName="ResourceMsg(PVCS_CREATE_PROJECT)">
         <run>
           <executable value="${PCLI_CMD}"/>
