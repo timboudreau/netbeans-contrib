@@ -27,8 +27,11 @@ import org.netbeans.modules.vcscore.FileReaderListener;
  */
 public interface VcsCommandExecutor extends Runnable {
 
+    /** The exit status when the command terminated successfully. */
     public static final int SUCCEEDED = 0;
+    /** The exit status when the command failed. */
     public static final int FAILED = 1;
+    /** The exit status when the command was interrupted. */
     public static final int INTERRUPTED = 2;
     
     /**
@@ -46,19 +49,11 @@ public interface VcsCommandExecutor extends Runnable {
      * @return the updated exec property
      */
     public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec);
-    
-    /*
-     * Allow to do some postprocessing. This method is called after the command finishes.
-     *
-    public void postprocessCommand();
+        
+    /**
+     * Get the variables used by this command execution.
      */
-    
-    /*
-     * Update the execution string. It may contain user input now.
-     * @param exec the execution string updated with user input.
-     *
-    public void updateExec(String exec);
-     */
+    public Hashtable getVariables();
     
     /**
      * Get the updated execution string. It may contain user input now.
@@ -71,14 +66,7 @@ public interface VcsCommandExecutor extends Runnable {
      * to the file system root.
      */
     public Collection getFiles();
-    
-    /*
-     * Get the path of the processed files.
-     * The path is relative to file system root.
-     *
-    public String getPath();
-     */
-        
+            
     /**
      * Get the exit status of the execution.
      * @return the exit value, it may be one of {@link SUCCEEDED}, {@link FAILED}, {@link INTERRUPTED}.
