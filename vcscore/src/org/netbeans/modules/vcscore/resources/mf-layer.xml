@@ -44,10 +44,6 @@ Microsystems, Inc. All Rights Reserved.
    </folder>
    
   <folder name="Services"> 
-    <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance">
-        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle" />
-        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/settings/vcsSettings.gif" />
-    </file>
     <folder name = "Hidden">
         <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings" url="GeneralVcsSettings.settings">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle" />
@@ -76,10 +72,9 @@ Microsystems, Inc. All Rights Reserved.
       <folder name="SourceCreationAndManagement"> 
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle" />
 
-        <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.shadow">
-<![CDATA[Services/org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance
-SystemFileSystem
-]]>
+        <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle" />
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/settings/vcsSettings.gif" />
         </file>
       </folder>
     </folder>
