@@ -87,6 +87,7 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  3    Gandalf   1.2         5/8/99   Karel Gardas    
 *  2    Gandalf   1.1         4/24/99  Karel Gardas    
 *  1    Gandalf   1.0         4/23/99  Karel Gardas    
 * $

@@ -23,8 +23,13 @@ import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
 import com.netbeans.developer.modules.loaders.java.settings.ExternalCompilerSettings;
 import com.netbeans.ide.execution.NbProcessDescriptor;
 
+import com.netbeans.ide.TopManager;
+import com.netbeans.ide.filesystems.FileObject;
+import com.netbeans.ide.filesystems.FileLock;
 
+import java.util.Vector;
 import java.util.Properties;
+import java.util.Enumeration;
 import java.io.*;
 
 import com.netbeans.enterprise.modules.corba.settings.*;
@@ -43,9 +48,74 @@ public class IDLModule implements ModuleInstall {
    public void installed() {
       if (DEBUG)
 	 System.err.println ("CORBA Support Module installing...");
+      copyImpls ();
       restored ();
       if (DEBUG)
 	 System.err.println ("CORBA Support Module installed :)");
+   }
+
+   public void copyImpls () {
+
+      String[] list_of_files = {"orbacus", "javaorb", "visibroker", "orbixweb"};
+      String _package =   "/com/netbeans/enterprise/modules/corba/impl";
+      TopManager tm = TopManager.getDefault ();
+      
+      try {
+	 Enumeration folders = tm.getRepository ().getDefaultFileSystem ().getRoot ().getFolders 
+	    (false);
+	 boolean is_corba = false;
+	 FileObject fo = null;
+	 for (int i=1; folders.hasMoreElements (); ) {
+	    fo = (FileObject)folders.nextElement ();
+	    if (fo.toString ().equals ("CORBA")) {
+	       // it exists 
+	       if (DEBUG)
+		  System.out.println ("CORBA exists :-)");
+	       is_corba = true;
+	       break;
+	    }
+	 }
+	 if (!is_corba) {
+
+	    FileObject system = tm.getRepository ().getDefaultFileSystem ().getRoot ();
+	    fo = system.createFolder ("CORBA");
+	 }
+
+	 for (int i=0; i<list_of_files.length; i++) {
+	    FileObject tmp_file = fo.createData (list_of_files[i], "impl");
+	    FileLock lock = tmp_file.lock ();
+	    OutputStream o = tmp_file.getOutputStream (lock);
+	    if (DEBUG)
+	       System.out.println ("file: " + tmp_file );
+	    PrintStream out = new PrintStream (o);
+	    //String name = _package + "." + list_of_files[i];
+	    String name = _package + "/" + list_of_files[i];
+	    if (DEBUG)
+	       System.out.println ("name: " + name);
+	    InputStream input = CORBASupportSettings.class.getResourceAsStream 
+	       (name);
+	    
+	    if (input == null) {
+	       System.err.println ("can't find " + name + " resource.");
+	       continue;
+	    }
+	    BufferedReader in = new BufferedReader (new InputStreamReader (input));
+	    String tmp;
+	    try {
+	       while (true) {
+		  if ((tmp = in.readLine ()) != null)
+		     out.println (tmp);
+		  else
+		     break;
+	       }
+	    } catch (IOException e) {
+	       e.printStackTrace ();
+	    }
+	 
+	 }
+      } catch (IOException e) {
+	 e.printStackTrace ();
+      }
    }
 
    /** Module installed again. */
@@ -53,44 +123,49 @@ public class IDLModule implements ModuleInstall {
       if (DEBUG)
 	 System.out.println ("CORBA Support Module restoring...");
       //System.out.println ("setting template map :))");
+
       
       Compiler.Manager.register (IDLDataObject.class,
 				 new Compiler.Manager() {
 	 public void prepareJob(CompilerJob job, Class type, DataObject ido) {
 	    if (DEBUG)
 	       System.out.println ("prepareJob...");
+	    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
+	       (CORBASupportSettings.class, true);	   
 	    ExternalCompiler.ErrorExpression eexpr = new ExternalCompiler.ErrorExpression 
-	       ("blabla", CORBASupportSettings.expression (), CORBASupportSettings.file (), 
-		CORBASupportSettings.line (), CORBASupportSettings.column (), 
-		CORBASupportSettings.message ());
+	       ("blabla", css.getErrorExpression (), css.file (), 
+		css.line (), css.column (), css.message ());
+
 	    //String expression = "^IDL Compiler: ([^ ]+)\n^([0-9]+):(.*): (.*)";
 	    //System.out.println ("manual expr: " + expression);
 	    //ExternalCompiler.ErrorExpression eexpr = new ExternalCompiler.ErrorExpression 
 	    //  ("blabla", expression , CORBASupportSettings.file (), 
 	    //   CORBASupportSettings.line (), CORBASupportSettings.column (), 
 	    //   CORBASupportSettings.message ());
-
-	    if (DEBUG)
-	       System.out.println ("expression: " + CORBASupportSettings.expression () + ", " + CORBASupportSettings.file () + ", " + CORBASupportSettings.line () + ", " + CORBASupportSettings.column () + ", " + CORBASupportSettings.message ());
-
-	    String[] tmps1 = new String[1];
-	    tmps1[0] = new String ("");
-	    String[] tmps2 = new String[] {NbProcessDescriptor.CP_REPOSITORY};
+	    
+	    //if (DEBUG)
+	    //   System.out.println ("expression: " + css.expression () + ", " + css.file () + ", " 
+	    //			   + css.line () + ", " + css.column () + ", " + css.message ());
+	    
+	    //String[] tmps1 = new String[1];
+	    //tmps1[0] = new String ("");
 	    //tmps2[0] = new String ("");
 	    String command = new String ();
-	    command = command + CORBASupportSettings.idl () + " ";
+	    command = command + css.getIdl () + " ";
 	    if (CORBASupportSettings.param () != null)
 	       if (!CORBASupportSettings.param ().equals ("")) {
 		  command = command + CORBASupportSettings.param () + " ";
 	       }
-
-	    command = command + CORBASupportSettings.package_param ();
+	    if (css.isTie ()) {
+	       command = command + css.getTieParam () + " ";
+	    }
+	    command = command + css.getPackageParam ();
 	    command = command + ido.getPrimaryFile ().getParent ().getPackageName 
-	       (CORBASupportSettings.delim ()) + " ";
+	       (css.delim ()) + " ";
 	    //command = command + ido.getPrimaryFile ().getParent ().getPackageName 
 	    //    ('/') + " ";
-	    command = command + CORBASupportSettings.dir_param ();
-
+	    command = command + css.getDirParam ();
+	    
 	    String file = "";
 	    try {
 	       file =  ido.getPrimaryFile ().getFileSystem ().getSystemName();
@@ -98,43 +173,46 @@ public class IDLModule implements ModuleInstall {
 	    } catch (com.netbeans.ide.filesystems.FileStateInvalidException ex) {
 	       System.out.println (ex);
 	    }
-
-	    file = file + "/" + ido.getPrimaryFile ();
-
+	    
+	    
 	    if (DEBUG) {
+	       file = file + "/" + ido.getPrimaryFile ();
 	       System.out.println ("command: " + command);
 	       System.out.println ("file: " + file);
 	       System.out.println ("prim: " + ido.getPrimaryFile ());
 	    }
+	    String[] tmps2 = new String[] {NbProcessDescriptor.CP_REPOSITORY};
 	    NbProcessDescriptor desc = new NbProcessDescriptor 
 	       (command , NbProcessDescriptor.NO_SWITCH, tmps2);
 	    new ExternalCompiler(job, ido.getPrimaryFile(), type, desc, eexpr);
 	 }
       }
 				 );
-
+      
       //JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
       
       if (DEBUG)
 	 System.err.println ("CORBA Support Module restored...");
    }
-
+   
    /** Module was uninstalled. */
    public void uninstalled() {
    }
-
+   
    /** Module is being closed. */
    public boolean closing () {
       return true; // agree to close
    }
-
+   
 }
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         5/8/99   Karel Gardas    
  *  2    Gandalf   1.1         4/24/99  Karel Gardas    
  *  1    Gandalf   1.0         4/23/99  Karel Gardas    
  * $
  */
+
 
 

@@ -54,9 +54,9 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 		// advanced settings
 
 		new PropertyDescriptor ("_package_param", CORBASupportSettings.class, 
-					"getPackage_param", "setPackage_param"),
+					"getPackageParam", "setPackageParam"),
 		new PropertyDescriptor ("_dir_param", CORBASupportSettings.class, 
-					"getDir_param",	"setDir_param"),
+					"getDirParam",	"setDirParam"),
 		new PropertyDescriptor ("_package_delimiter", CORBASupportSettings.class,
 					"getPackageDelimiter", "setPackageDelimiter"),
 		new PropertyDescriptor ("_error_expression", CORBASupportSettings.class,
@@ -71,7 +71,9 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 					"getMessagePosition", "setMessagePosition"),
 		new PropertyDescriptor ("idl", CORBASupportSettings.class),
 		new PropertyDescriptor ("_table", CORBASupportSettings.class,
-					"getRaplaceableStringsTable", "setReplaceableStringsTable")
+					"getRaplaceableStringsTable", "setReplaceableStringsTable"),
+		new PropertyDescriptor ("_tie_param", CORBASupportSettings.class, 
+					"getTieParam", "setTieParam") 
 			    
 	    };
 
@@ -116,7 +118,8 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 	    desc[13].setExpert (true);
 	    desc[14].setDisplayName ("Template table");
 	    desc[14].setExpert (true);
-
+	    desc[15].setDisplayName ("Tie parameter");
+	    desc[15].setExpert (true);
 	} catch (IntrospectionException ex) {
 	    //throw new InternalError ();
 	    ex.printStackTrace ();
@@ -152,6 +155,7 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         5/8/99   Karel Gardas    
  *  2    Gandalf   1.1         4/24/99  Karel Gardas    
  *  1    Gandalf   1.0         4/23/99  Karel Gardas    
  * $

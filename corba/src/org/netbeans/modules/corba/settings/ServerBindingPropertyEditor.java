@@ -25,19 +25,75 @@ import com.netbeans.ide.util.NbBundle;
 
 import com.netbeans.enterprise.modules.corba.*;
 
-public class ServerBindingPropertyEditor extends PropertyEditorSupport {
+public class ServerBindingPropertyEditor extends PropertyEditorSupport 
+   implements PropertyChangeListener {
+
+   //public static final boolean DEBUG = true;
+   public static final boolean DEBUG = false;
 
   /** array of choices of server binding  */
+
+   /*
    private static final String[] choices = {CORBASupport.SERVER_NS, 
 					    CORBASupport.SERVER_IOR_TO_FILE, 
 					    CORBASupport.SERVER_IOR_TO_OUTPUT, 
 					    CORBASupport.SERVER_BINDER
    };
+   */
+
+   private static String[] choices = {""};
+
+   public ServerBindingPropertyEditor () {
+      if (DEBUG)
+	 System.out.println ("ServerBindingPropertyEditor () ...");
+      CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
+	 (CORBASupportSettings.class, true);
+      choices = css.getServerBindingsChoices ();
+      css.addPropertyChangeListener (this);
+      //css.setServerBinding (choices[0]);
+      for (int i=0; i<choices.length; i++)
+	 if (DEBUG)
+	    System.out.println ("choice: " + choices[i]);
+   }
+
+   public void setTags (String[] s) {
+      String[] old = choices;
+      choices = s;
+      //firePropertyChange ("choices", (Object)old, (Object)choices);
+      //CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
+      //	 (CORBASupportSettings.class, true);
+      //css.fireChangeChoices ();
+   }
+
+   public void setChoices (String[] s) {
+      setTags (s);
+   }
+
 
   /** @return names of the supported orbs*/
-  public String[] getTags() {
-    return choices;
-  }
+   public String[] getTags() {
+      return choices;
+   }
+
+   public void propertyChange (PropertyChangeEvent event) {
+      
+      if (DEBUG)
+      	 System.out.println ("propertyChange in SBPE: " + event.getPropertyName ());
+      if (event.getPropertyName ().equals ("orb")) {
+	 CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
+	    (CORBASupportSettings.class, true);
+	 setChoices (css.getServerBindingsChoices ());
+	 css.setServerBinding (getTags ()[0]);
+	 if (DEBUG) {
+	    for (int i=0; i<choices.length; i++)
+	       System.out.println ("choice[" + i + "] in cb-editor: " + choices[i]);
+	 }
+	 
+      }
+      
+   }
+
+
 
   /** @return text for the current value */
   public String getAsText () {
@@ -52,6 +108,7 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport {
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         5/8/99   Karel Gardas    
  *  2    Gandalf   1.1         4/24/99  Karel Gardas    
  *  1    Gandalf   1.0         4/23/99  Karel Gardas    
  * $

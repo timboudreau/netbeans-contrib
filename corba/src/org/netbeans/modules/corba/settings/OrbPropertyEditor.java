@@ -28,8 +28,39 @@ import com.netbeans.enterprise.modules.corba.*;
 public class OrbPropertyEditor extends PropertyEditorSupport {
 
   /** array of orbs */
-  private static final String[] orbs = {CORBASupport.ORBIX, CORBASupport.VISIBROKER, 
-					CORBASupport.ORBACUS, CORBASupport.JAVAORB};
+   //private static final String[] orbs = {CORBASupport.ORBIX, CORBASupport.VISIBROKER, 
+   //					CORBASupport.ORBACUS, CORBASupport.JAVAORB};
+
+   //private static final boolean DEBUG = true;
+   private static final boolean DEBUG = false;
+
+   private static String[] orbs = {""};
+
+   public OrbPropertyEditor () {
+      if (DEBUG)
+	 System.out.println ("OrbPropertyEditor ()...");
+      CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject 
+	 (CORBASupportSettings.class, true);
+      java.util.Vector names = css.getNames ();
+      int length = names.size ();
+      if (DEBUG)
+	 System.out.println ("length: " + length);
+      
+      if (length > 0) {
+	 orbs = new String[length];
+	 for (int i = 0; i<length; i++) {
+	    orbs[i] = (String)names.elementAt (i);
+	    if (DEBUG)
+	       System.out.println ("name: " + orbs[i]);
+	 }
+      }
+      if (DEBUG) {
+	 System.out.println ("first:");
+	 System.out.println ("names: " + orbs[0]);
+	 System.out.flush ();
+      }
+   }
+
 
   /** @return names of the supported orbs*/
   public String[] getTags() {
@@ -49,6 +80,7 @@ public class OrbPropertyEditor extends PropertyEditorSupport {
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         5/8/99   Karel Gardas    
  *  2    Gandalf   1.1         4/24/99  Karel Gardas    
  *  1    Gandalf   1.0         4/23/99  Karel Gardas    
  * $
