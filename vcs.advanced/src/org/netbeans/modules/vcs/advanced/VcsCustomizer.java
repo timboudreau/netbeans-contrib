@@ -1564,7 +1564,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     private VariableInputDescriptor[] findConfigInputDescriptors(Map fsVars) {
         VariableInputDescriptor[] cids = null;//new VariableInputDescriptor[0];
         int i = 0;
-        boolean wizardID = fsVars.get(VAR_WIZARD_INPUT_DESCRIPTOR) != null;
+        boolean wizardID = useWizardDescriptors && fsVars.get(VAR_WIZARD_INPUT_DESCRIPTOR) != null;
         do {
             String configInputDescriptorStr;
             if (wizardID) {
