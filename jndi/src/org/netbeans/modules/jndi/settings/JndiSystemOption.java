@@ -29,6 +29,9 @@ import java.util.Hashtable;
  */
 public class JndiSystemOption extends SystemOption {
 
+    /** serialVersionUID */
+    private static final long serialVersionUID = -4589004604197297781L;
+
     private static int timeOut;
 
     /** Creates new JndiSystemOption */
