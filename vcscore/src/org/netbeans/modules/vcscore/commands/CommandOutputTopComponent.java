@@ -244,8 +244,10 @@ public class CommandOutputTopComponent extends TopComponent {
                 }
             });
        </pre>
-     *
+     * <p>
+     * This is a workaround of bug <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5037709">#5037709</a>.
      */
+    // TODO Remove after bug #5037709 is fixed.
     private static class TabSelector implements Runnable {
         
         JTabbedPane tabPane;
