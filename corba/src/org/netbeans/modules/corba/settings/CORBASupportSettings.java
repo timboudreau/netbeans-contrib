@@ -66,6 +66,9 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
     private static final boolean DEBUG = false;
     //private static final boolean DEBUG = true;
+    
+    private static final String JDK_12 = "1.2";
+    private static final String JDK_13 = "1.3";
 
     private static final boolean DYNLOAD = true;
     //private static final boolean DYNLOAD = false;
@@ -153,7 +156,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	if (!_M_loaded)
 	    this.setBeans (this.getBeans ());
 	if (this.getActiveSetting () == null)
-	    this.setORBTag ("jdk13");
+	    this.setDefaultORB();
 	_M_status = 2;
     }
 
@@ -986,15 +989,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject
 		(IDLDataLoader.class, true);
 	    boolean __old_hide = __loader.getHide ();
-	    //System.out.println ("__orb_hide: " + __orb_hide); // NOI18N
-	    //System.out.println ("__old_hide: " + __old_hide); // NOI18N
-	    //if (__old_hide != __orb_hide)
 	    __loader.setHide (__orb_hide);
 	}
-
-	//} catch (Exception __ex) {
-	//__ex.printStackTrace ();
-	//}
     }
 
     public String getORBTag () {
@@ -1003,7 +999,6 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
     public String removeUnsupportedPostfix (String __name) {
 	String __tmp = __name;
-	//System.out.print ("nameWithoutUnsupportedPostfix () <- `" + __name + "'");
 	if (__name.endsWith (ORBSettingsBundle.CTL_UNSUPPORTED)) {
 	    __tmp = __name.substring
 		(0, __name.length ()
@@ -1013,6 +1008,17 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
         if (_M_changed_orb_names.containsKey(__tmp))
             __tmp = (String)_M_changed_orb_names.get(__tmp);
 	return __tmp;
+    }
+    
+    
+    private void setDefaultORB () {
+        String jdkVersion = System.getProperty ("java.specification.version");
+        if (JDK_12.equals (jdkVersion))
+            this.setORBTag ("jdk12");
+        else if (JDK_13.equals(jdkVersion))
+            this.setORBTag ("jdk13");
+        else
+            this.setORBTag ("jdk1.4");
     }
 
 }

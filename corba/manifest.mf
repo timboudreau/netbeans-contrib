@@ -1,7 +1,6 @@
 OpenIDE-Module: org.netbeans.modules.corba/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/corba/Bundle.properties
 OpenIDE-Module-Layer: org/netbeans/modules/corba/resources/mf-layer.xml
-OpenIDE-Module-Description: org.netbeans.modules.corba.docs.corba
 OpenIDE-Module-Install: org/netbeans/modules/corba/IDLModule.class
 OpenIDE-Module-Specification-Version: 1.4
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
