@@ -28,6 +28,7 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.actions.AddToGroupAction;
+import org.netbeans.modules.vcscore.actions.RefreshLocalFolderAction;
 //import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
@@ -207,6 +208,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
         }
         actions.add(fsAction);
          */
+        actions.add(SystemAction.get(RefreshLocalFolderAction.class));
         actions.add(SystemAction.get(VcsFSCommandsAction.class));
         if (fileSystem.getVersioningFileSystem() != null) {
             actions.add(SystemAction.get(VersioningExplorerAction.class));
