@@ -30,7 +30,6 @@ Pos: 20 ---- Blue
 Pos: 22 ---- Blue
 Pos: 24 ---- Blue
 Pos: 30 ---- Red
-Pos: 60 ---- Blue
 ==== Colors - Panel 2 ====
 Pos: 0 ---- Blue
 Pos: 2 ---- Blue
@@ -51,9 +50,9 @@ Pos: 30 ---- Blue
 Pos: 32 ---- Blue
 Pos: 34 ---- Blue
 Pos: 36 ---- Blue
-Pos: 72 ---- Blue
-Pos: 74 ---- Blue
-Pos: 76 ---- Blue
-Pos: 78 ---- Blue
-Pos: 80 ---- Blue
-Pos: 82 ---- Blue
+Pos: 72 ---- Green
+Pos: 74 ---- Green
+Pos: 76 ---- Green
+Pos: 78 ---- Green
+Pos: 80 ---- Green
+Pos: 82 ---- Green
