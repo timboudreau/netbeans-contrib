@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDescriptor;
+import org.openide.util.UserCancelException;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
@@ -135,7 +136,11 @@ public class CommandExecutorSupport extends Object {
             vars.put("NUM_FILES", ""+numImportant(fileSystem, paths, (String) vars.get("PS")));
             confirmation = Variables.expand(vars, confirmation, true);
             PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
-            confirmation = cmdPerf.process(confirmation);
+            try {
+                confirmation = cmdPerf.process(confirmation);
+            } catch (UserCancelException cancelExc) {
+                return CommandsPool.PREPROCESS_CANCELLED;
+            }
             vars.put("CONFIRMATION_MSG", confirmation);
             if (numFiles != null) vars.put("NUM_FILES", numFiles);
             confirmed = true;
@@ -151,7 +156,12 @@ public class CommandExecutorSupport extends Object {
         }
         // II. Then filll output from pre commands:
         PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
-        String exec = cmdPerf.process((String) cmd.getProperty(VcsCommand.PROPERTY_EXEC));
+        String exec;
+        try {
+            exec = cmdPerf.process((String) cmd.getProperty(VcsCommand.PROPERTY_EXEC));
+        } catch (UserCancelException cancelExc) {
+            return CommandsPool.PREPROCESS_CANCELLED;
+        }
         exec = insertGlobalOptions(exec, vars);
         // III. Ask for the variable input
         if (!promptForVariables(fileSystem, exec, vars, cmd, askForEachFile)) {
@@ -467,7 +477,7 @@ public class CommandExecutorSupport extends Object {
     }
 
     private static void processPrecommands(VcsFileSystem fileSystem, Hashtable vars,
-                                           VariableInputDescriptor inputDescriptor) {
+                                           VariableInputDescriptor inputDescriptor) throws UserCancelException {
         VariableInputComponent[] components = inputDescriptor.components();
         ArrayList componentsWithPrecommands = new ArrayList();
         for (int i = 0; i < components.length; i++) {
@@ -522,7 +532,13 @@ public class CommandExecutorSupport extends Object {
                 cmd.setProperty(INPUT_DESCRIPTOR_PARSED, inputDescriptor);
             }
         }
-        if (inputDescriptor != null) processPrecommands(fileSystem, vars, inputDescriptor);
+        if (inputDescriptor != null) {
+            try {
+                processPrecommands(fileSystem, vars, inputDescriptor);
+            } catch (UserCancelException cancelExc) {
+                return false;
+            }
+        }
         synchronized (vars) {
             if (needPromptForPR("PASSWORD", exec, vars)) { // NOI18N
                 String password = fileSystem.getPassword();

@@ -17,6 +17,7 @@ import java.io.*;
 import java.util.*;
 
 import org.openide.TopManager;
+import org.openide.util.UserCancelException;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.util.*;
@@ -71,8 +72,9 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     /**
      * Execute all commands and insert their output to the exec string.
      * @return the exec string with commands output.
+     * @throws UserCancelException when the user cancelles the command.
      */
-    public String process(String exec) {
+    public String process(String exec) throws UserCancelException {
         //String exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec == null) return null;
         //UserCommand[] preCommands = cmd.getPreCommands();
@@ -89,7 +91,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
      * with commands output filled to individual strings. The original array
      * is not changed.
      */
-    public String[] process(String[] execs) {
+    public String[] process(String[] execs) throws UserCancelException {
         if (execs == null) return null;
         String[] processed = new String[execs.length];
         String concatenation = VcsUtilities.array2string(execs);
@@ -138,7 +140,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     }
      */
     
-    private void processPreCommands(String[] preCommands) {
+    private void processPreCommands(String[] preCommands) throws UserCancelException {
         preCommandOutput = new Vector[preCommands.length];
         preCommandError = new Vector[preCommands.length];
         CommandsPool pool = fileSystem.getCommandsPool();
@@ -151,6 +153,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             preCommandError[i] = new Vector();
             VcsCommandExecutor executor = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
             int status = pool.preprocessCommand(executor, vars);
+            if (CommandsPool.PREPROCESS_CANCELLED == status) throw new UserCancelException();
             if (CommandsPool.PREPROCESS_DONE != status) continue; // Something bad has happened
             executor.addDataOutputListener(new DataOutputContainer(i));
             executor.addDataErrorOutputListener(new DataErrorOutputContainer(i));
