@@ -1,9 +1,9 @@
-OpenIDE-Module: org.netbeans.lib.vcscore/1
-OpenIDE-Module-Name: CVS
+OpenIDE-Module: org.netbeans.modules.vcscore/1
+OpenIDE-Module-Name: VCS Core API Module
 OpenIDE-Module-Specification-Version: 1.3
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Module-Dependencies: org.openidex.util/1, org.netbeans.modules.utilities/1
 Class-Path: ext/regexp.jar
 
-Name: org/netbeans/lib/vcscore/search/VcsSearchType.class
+Name: org/netbeans/modules/vcscore/search/VcsSearchType.class
 OpenIDE-Module-Class: Service
