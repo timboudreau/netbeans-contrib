@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks;
 
 import java.awt.Component;
+import java.awt.Window;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -26,12 +27,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.text.DefaultEditorKit;
 
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.ColumnProperty;
@@ -176,7 +180,8 @@ public class UserTaskView extends TaskListView implements TaskListener {
               Utilities.loadImage(
                     "org/netbeans/modules/tasklist/usertasks/taskView.gif"), // NOI18N
               true,
-              list);
+              list);              
+              
 	if (isDefault && (defview == null)) {
 	    defview = this;
 	}
@@ -232,20 +237,37 @@ public class UserTaskView extends TaskListView implements TaskListener {
             next.updateLineNumberRecursively();
         }
 
+        // debug Ctrl+C,V,X
         if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
-            InputMap keys = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-            if (keys != null) {
-                UTUtils.LOGGER.fine("InputMap.class: " + keys.getClass());
-                KeyStroke[] ks = keys.keys();
-                if (ks != null) {
-                    for (int i = 0; i < ks.length; i++) {
-                        UTUtils.LOGGER.fine(ks[i] + " " + keys.get(ks[i]));
+            ActionMap am = this.getActionMap();
+            Object[] actionKeys = am.allKeys();
+            for (int i = 0; i < actionKeys.length; i++) {
+                Action action = am.get(actionKeys[i]);
+                UTUtils.LOGGER.fine(actionKeys[i] + " => " + action.getClass());
+            }
+            
+            UTUtils.LOGGER.fine("printing InputMaps:");
+            Component cmp = tt;
+            while (cmp != null) {
+                UTUtils.LOGGER.fine("checking " + cmp.getClass());
+                if (cmp instanceof JComponent) {
+                    InputMap keys = ((JComponent) cmp).
+                        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+                    if (keys != null) {
+                        UTUtils.LOGGER.fine("InputMap.class: " + keys.getClass());
+                        KeyStroke[] ks = keys.keys();
+                        if (ks != null) {
+                            for (int i = 0; i < ks.length; i++) {
+                                UTUtils.LOGGER.fine(ks[i] + " " + keys.get(ks[i]));
+                            }
+                        } else {
+                            UTUtils.LOGGER.fine("InputMap.keys() == null");
+                        }
+                    } else {
+                        UTUtils.LOGGER.fine("InputMap == null");
                     }
-                } else {
-                    UTUtils.LOGGER.fine("InputMap.keys() == null");
                 }
-            } else {
-                UTUtils.LOGGER.fine("InputMap == null");
+                cmp = cmp.getParent();
             }
         }
     }
