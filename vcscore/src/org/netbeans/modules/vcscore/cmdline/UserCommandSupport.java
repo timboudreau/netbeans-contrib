@@ -1123,14 +1123,17 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     /** Add files specific variables.
      * The following variables are added:
      * <br>PATH - the full path to the first file from the filesystem root
+     * <br>ABSPATH - the absolute path to the first file
      * <br>DIR - the directory of the first file from the filesystem root
      * <br>FILE - the first file
      * <br>QFILE - the first file quoted
      * <br>MIMETYPE - the MIME type of the first file
      * <br>
      * <br>FILES - all files delimeted by the system file separator
+     * <br>QFILES - all files quoted by filesystem quotation string and delimeted by spaces
      * <br>PATHS - full paths to all files delimeted by two system file separators
      * <br>QPATHS - full paths to all files quoted by filesystem quotation string and delimeted by spaces
+     * <br>QABSPATHS - absolute paths to all files quoted by filesystem quotation string and delimeted by spaces
      * <br>NUM_FILES - the number of files
      * <br>MULTIPLE_FILES - "true" when more than one file is to be processed, "" otherwise
      * <br>COMMON_PARENT - the greatest common parent of provided files. If defined,
@@ -1161,7 +1164,11 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             greatestParent = null;
         }
         // Then, find the first file and set the variables
+        String rootDir = (String) vars.get("ROOTDIR");
+        String separator = (String) vars.get("PS"); // NOI18N
+        char separatorChar = (separator != null && separator.length() == 1) ? separator.charAt(0) : java.io.File.separatorChar;
         String fullName = (String) files.keys().nextElement();
+        String absFullName = (rootDir != null) ? rootDir + ((fullName.length() > 0) ? separatorChar + fullName : "") : fullName;
         FileObject fo = (FileObject) files.get(fullName);
         boolean isFileFolder = (fo != null && fo.isFolder());
         String origFullName = fullName;
@@ -1171,13 +1178,13 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         }
         String path = VcsUtilities.getDirNamePart(fullName);
         String file = VcsUtilities.getFileNamePart(fullName);
-        String separator = (String) vars.get("PS"); // NOI18N
-        char separatorChar = (separator != null && separator.length() == 1) ? separator.charAt(0) : java.io.File.separatorChar;
         path = path.replace('/', separatorChar);
         fullName = fullName.replace('/', separatorChar);
+        absFullName = absFullName.replace('/', separatorChar);
         file = valueAdjustment.adjustVarValue(file);
         path = valueAdjustment.adjustVarValue(path);
         fullName = valueAdjustment.adjustVarValue(fullName);
+        absFullName = valueAdjustment.adjustVarValue(absFullName);
         if (fullName.length() == 0) fullName = "."; // NOI18N
         String module = relativeMountPoint;//(String) vars.get("MODULE"); // NOI18N
         if (module == null) module = ""; // NOI18N
@@ -1194,6 +1201,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         vars.put("MODULE", module);
         vars.put("PATH", fullName); // NOI18N
         vars.put("QPATH", (fullName.length() > 0) ? quoting+fullName+quoting : fullName); // NOI18N
+        vars.put("ABSPATH", absFullName); // NOI18N
+        vars.put("QABSPATH", (absFullName.length() > 0) ? quoting+absFullName+quoting : absFullName); // NOI18N
         vars.put("DIR", path); // NOI18N
         if (path.length() == 0 && file.length() > 0 && file.charAt(0) == '/') file = file.substring (1, file.length ());
         vars.put("FILE", file); // NOI18N
@@ -1230,6 +1239,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         vars.put("FILE_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// the FILE is a folder // NOI18N
         // Second, set the multifiles variables
         StringBuffer qpaths = new StringBuffer();
+        StringBuffer qabspaths = new StringBuffer();
         StringBuffer paths = new StringBuffer();
         StringBuffer mpaths = new StringBuffer();
         StringBuffer qmpaths = new StringBuffer();
@@ -1242,6 +1252,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         int iFile = 0;
         for (Enumeration enum = files.keys(); enum.hasMoreElements(); iFile++) {
             fullName = (String) enum.nextElement();
+            absFullName = (rootDir != null) ? rootDir + ((fullName.length() > 0) ? separatorChar + fullName : "") : fullName;
             fo = (FileObject) files.get(fullName);
             origFullName = fullName;
             if (greatestParent != null) {
@@ -1252,8 +1263,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             isFileFolder |= (fo != null && fo.isFolder());
             file = VcsUtilities.getFileNamePart(fullName);
             fullName = fullName.replace('/', separatorChar);
+            absFullName = absFullName.replace('/', separatorChar);
             file = valueAdjustment.adjustVarValue(file);
             fullName = valueAdjustment.adjustVarValue(fullName);
+            absFullName = valueAdjustment.adjustVarValue(absFullName);
             fileIndexes[0][iFile] = vfiles.length();
             fileIndexes[1][iFile] = qfiles.length();
             fileIndexes[2][iFile] = paths.length();
@@ -1272,6 +1285,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             qpaths.append(fullName);
             qpaths.append(quoting);
             qpaths.append(" "); // NOI18N
+            qabspaths.append(quoting);
+            qabspaths.append(absFullName);
+            qabspaths.append(quoting);
+            qabspaths.append(" "); // NOI18N
             String mpath;
             if (module == null || module.length() == 0) {
                 mpath = fullName;
@@ -1293,6 +1310,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         vars.put("QFILES", qfiles.toString().trim()); // NOI18N
         vars.put("PATHS", paths.delete(paths.length() - 2, paths.length()).toString()); // NOI18N
         vars.put("QPATHS", qpaths.toString().trim()); // NOI18N
+        vars.put("QABSPATHS", qabspaths.toString().trim()); // NOI18N
         vars.put("MPATHS", mpaths.toString().trim()); // NOI18N
         vars.put("QMPATHS", qmpaths.toString().trim()); // NOI18N
         try {
