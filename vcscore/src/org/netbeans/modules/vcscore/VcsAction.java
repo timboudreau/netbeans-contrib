@@ -303,15 +303,26 @@ public class VcsAction extends NodeAction implements ActionListener {
     }
     
     /**
-     * Prepare for edit files in VCS.
-     * Note that this method has to block until the command is finished.
+     * Prepare for edit files in VCS. This command does not save the file contents.
      * @param files the table pairs of file name and associated <code>FileObject</code>
      */
     public static void doEdit(Table files, VcsFileSystem fileSystem) {
         VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_EDIT);
         if (cmd != null) {
-            doCommand(files, cmd, null, fileSystem);
-            //fileSystem.getCommandsPool().waitToFinish(cmd, files.keySet());
+            // Because the EDIT command is executed for read-only files,
+            // the doCommand() method must be called with 'false' as last argument;
+            // 'true' would indicate the files would be saved prior to execution,
+            // which generally is not possible for read-only files...
+            VcsCommandExecutor[] executors = doCommand(files, cmd, null, fileSystem, null, null, null, null, false);
+            /* Wait for the executor(s) to finish. - according to version 1.11 this leads to a deadlock
+            for (int i = 0; i < executors.length; i++) {
+                try {
+                    fileSystem.getCommandsPool().waitToFinish(executors[i]);
+                } catch (InterruptedException ex) {
+                    // Silently ignore...
+                }
+            }
+             */
         }
     }
 
