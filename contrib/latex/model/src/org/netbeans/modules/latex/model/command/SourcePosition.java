@@ -78,10 +78,14 @@ public final class SourcePosition implements Serializable {
         if (obj instanceof SourcePosition) {
             SourcePosition pos = (SourcePosition) obj;
             
-            return file.equals(pos.file) && getOffsetValue() == pos.getOffsetValue();
+            return Utilities.getDefault().compareFiles(file, pos.file) && getOffsetValue() == pos.getOffsetValue();
         }
         
         return false;
+    }
+    
+    public int hashCode() {
+        return 34;// ^ getOffsetValue();// ^ file.hashCode();
     }
     
 //    public SourcePosition(Object file, Document doc, int offset) {

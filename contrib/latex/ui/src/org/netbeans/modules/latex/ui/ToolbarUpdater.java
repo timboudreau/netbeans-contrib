@@ -241,7 +241,9 @@ public class ToolbarUpdater implements CaretListener, PropertyChangeListener, Do
         }
         
         currentPane.addCaretListener(this);
-        source.addDocumentChangedListener(this);
+        
+        if (source != null) //!!!
+            source.addDocumentChangedListener(this);
     }
     
 }

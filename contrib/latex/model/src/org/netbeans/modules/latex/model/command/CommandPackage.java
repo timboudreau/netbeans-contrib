@@ -136,7 +136,7 @@ public final class CommandPackage extends NamedAttributableWithSubElements {
         name2documentClass = new HashMap();
         name2package = new HashMap();
         
-        FileObject root = Repository.getDefault().findResource(FILE_ROOT);
+        FileObject root = Repository.getDefault().getDefaultFileSystem().findResource(FILE_ROOT);
         FileObject[] children = root.getChildren();
         
         for (int cntr = 0; cntr < children.length; cntr++) {

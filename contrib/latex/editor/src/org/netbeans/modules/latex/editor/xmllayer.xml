@@ -43,14 +43,15 @@ Contributor(s): Jan Lahoda
                 <file name="org-openide-windows-TopComponent"/>-->
             </folder>
             
-<!--            <folder name="SideBar">
-                <file name="org-netbeans-modules-latex-editor-LaTeXFoldMaintainer$NbLaTexCodeFoldingSideBarFactory.instance"/>
-                <attr name="org-netbeans-editor-GlyphGutter.instance/org-netbeans-modules-latex-editor-LaTeXFoldMaintainer$NbLaTexCodeFoldingSideBarFactory.instance" boolvalue="true"/>
+            <folder name="SideBar">
+                <file name="org-netbeans-modules-latex-editor-AbstractLaTeXFoldMaintainer$LaTeXSideBarFactory.instance"/>
+                <attr name="org-netbeans-editor-GlyphGutter.instance/org-netbeans-modules-latex-editor-AbstractLaTeXFoldMaintainer$LaTeXSideBarFactory.instance" boolvalue="true"/>
             </folder>
 
-            <folder name="FoldMaintainer">
-                <file name="org-netbeans-modules-latex-editor-LaTeXFoldMaintainer$NbLaTeXFoldMaintainerFactory.instance"/>
-            </folder>-->
+            <folder name="FoldManager">
+                <file name="org-netbeans-modules-latex-editor-BlockFoldMaintainer$BlockFoldMaintainerFactory.instance"/>
+                <file name="org-netbeans-modules-latex-editor-SectionFoldMaintainer$SectionFoldMaintainerFactory.instance"/>
+            </folder>
           </folder>
       </folder>
    </folder>
