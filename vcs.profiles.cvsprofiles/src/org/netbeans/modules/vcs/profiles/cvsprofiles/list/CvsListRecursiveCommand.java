@@ -528,6 +528,11 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand implements 
         else if (line.startsWith(CvsListCommand.MATCH_STICKY_TAG)) {
             String stickyTag = line.substring(CvsListCommand.MATCH_STICKY_TAG.length()).trim();
             if (CvsListCommand.STICKY_NONE.equals(stickyTag)) stickyTag = ""; // NOI18N
+            int end = 0;
+            while (end < stickyTag.length() && !Character.isWhitespace(stickyTag.charAt(end))) end++;
+            if (end < stickyTag.length()) {
+                stickyTag = stickyTag.substring(0, end);
+            }
             lastSticky = stickyTag.intern();
         }
         else if (line.startsWith(CvsListCommand.MATCH_STICKY_DATE)) {
