@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Set;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
@@ -63,6 +65,17 @@ public class VariableValueAdjustment implements Serializable {
         String[] adjustVars = VcsUtilities.getQuotedStrings(adjustVarsStr);
         this.adjustedVars = new HashSet(Arrays.asList(adjustVars));
         quoting = (String) vars.get(org.netbeans.modules.vcscore.VcsFileSystem.VAR_QUOTING);
+    }
+    
+    /**
+     * Get the set of variable names, that are adjusted.
+     */
+    public Set getAdjustedVariableNames() {
+        if (adjustedVars == null) {
+            return Collections.EMPTY_SET;
+        } else {
+            return Collections.unmodifiableSet(adjustedVars);
+        }
     }
     
     /**
