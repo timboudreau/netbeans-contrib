@@ -65,9 +65,9 @@ public class MDRManagerImpl extends MDRManager implements FileChangeListener, NB
         repositoryMap.clear();
         
         if (repFolder != null) {
-            for (Enumeration enum = repFolder.getData(false); enum.hasMoreElements();) {
+            for (Enumeration en = repFolder.getData(false); en.hasMoreElements();) {
                 try {
-                    DataObject dataObject = DataObject.find((FileObject) enum.nextElement());
+                    DataObject dataObject = DataObject.find((FileObject) en.nextElement());
                     if (dataObject instanceof MDRDataObject) {
                         repositoryMap.put(dataObject.getName(), dataObject);
                         ErrorManager.getDefault().log("found repository: " + dataObject.getName());
