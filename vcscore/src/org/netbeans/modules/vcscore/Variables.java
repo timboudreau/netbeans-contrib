@@ -218,7 +218,7 @@ public class Variables {
                 (!(var = (cmd.charAt(end + 1) == '{')) &&
                 (!(cond = (cmd.charAt(end + 1) == '['))))) {
 
-                if (escape) {
+                if (escape && (end < (cmd.length() - 1)) && ((cmd.charAt(end + 1) == '{') || (cmd.charAt(end + 1) == '['))) {
                     result.append(cmd.substring(begin, end - 1));
                     result.append('$');
                 } else {
