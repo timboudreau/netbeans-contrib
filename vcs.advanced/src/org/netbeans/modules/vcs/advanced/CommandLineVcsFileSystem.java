@@ -392,7 +392,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             if (setVars) {
                 ConditionedVariables cvariables = profile.getVariables();
                 Condition[] conditions = profile.getConditions();
-                profilesOriginalCommands = true;
+                setProfilesOriginalCommands(true);
                 // setVariables will also set commands iff profilesOriginalCommands == true
                 if (cvariables != null) {
                     Collection variables = cvariables.getSelfConditionedVariables(conditions, Variables.getDefaultVariablesMap());
@@ -650,7 +650,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             String label = profile.getDisplayName();
             ConditionedVariables cvariables = profile.getVariables();
             Condition[] conditions = profile.getConditions();
-            profilesOriginalCommands = true;
+            setProfilesOriginalCommands(true);
             if (cvariables != null) {
                 Collection variables = cvariables.getSelfConditionedVariables(conditions, Variables.getDefaultVariablesMap());
                 setVariables(copySharedVariables(variables));
@@ -679,6 +679,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      *        (like user customization).
      */
     private void setCommands(CommandsTree root, boolean profileCommands) {
+        setProfilesOriginalCommands(profileCommands);
         boolean isCreateVFS = isCreateVersioningSystem();
         boolean isExistsVFS = getVersioningFileSystem() != null;
         super.setCommands(root);
