@@ -265,12 +265,16 @@ fori:       for (int i = 0; i < iucs2.length; i++) {
                 cexecString = new ConditionedString(VcsCommand.PROPERTY_EXEC, new HashMap());
             }
             cexecString.setValue(iuc, exec);
+            if(cexecStructured != null)                
+                cexecStructured.setObjectValue(iuc,null);
         } else {
             StructuredExec sexec = getExecStructured();
             if (cexecStructured == null) {
                 cexecStructured = new ConditionedObject(VcsCommand.PROPERTY_EXEC_STRUCTURED, new HashMap());
             }
             cexecStructured.setObjectValue(iuc, sexec);
+            if(cexecString != null)                
+                cexecString.setObjectValue(iuc,null);
         }
     }
     
