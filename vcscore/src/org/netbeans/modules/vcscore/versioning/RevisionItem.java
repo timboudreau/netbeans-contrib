@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore.versioning;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.*;
 import javax.swing.event.EventListenerList;
 
@@ -49,7 +50,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     private boolean current;
     private Hashtable additionalProperties;
     private ArrayList additionalPropertiesSets;
-    private transient EventListenerList listeners = null;
+    private transient PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
     /** Creates new RevisionItem */
     public RevisionItem(String revision) {
@@ -253,36 +254,15 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     }
     
     public void addPropertyChangeListener(PropertyChangeListener l) {
-        if (listeners == null) {
-            synchronized (this) {
-                if (listeners == null) {
-                    listeners = new EventListenerList();
-                }
-            }
-        }
-        synchronized (listeners) {
-            listeners.add(PropertyChangeListener.class, l);
-        }
+        changeSupport.addPropertyChangeListener(l);
     }
 
     public void removePropertyChangeListener(PropertyChangeListener l) {
-        if (listeners == null) return ;
-        synchronized (listeners) {
-            listeners.remove(PropertyChangeListener.class, l);
-        }
+        changeSupport.removePropertyChangeListener(l);
     }
     
     protected final void firePropertyChange(String property, Object oldValue, Object newValue) {
-        if (listeners == null) return ;
-        PropertyChangeListener[] chListeners;
-        synchronized (listeners) {
-            chListeners = (PropertyChangeListener[]) listeners.getListeners(PropertyChangeListener.class);
-        }
-        for (int i = 0; i < chListeners.length; i++) {
-            chListeners[i].propertyChange((property == null) ?
-                                          null :
-                                          new PropertyChangeEvent(this, property, oldValue, newValue));
-        }
+        changeSupport.firePropertyChange(property, oldValue, newValue);
     }
     
     /*

@@ -62,7 +62,7 @@ public class FileVcsInfo extends Object implements Node.Cookie {
     private File dumpFile;
     
     /** Utility field used by event firing mechanism. */
-    private transient javax.swing.event.EventListenerList listenerList =  null;        
+    private transient PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
     
     /** Creates a new instance of FileVcsInfo - blank..*/
     public FileVcsInfo() {
@@ -159,7 +159,7 @@ public class FileVcsInfo extends Object implements Node.Cookie {
                 info.setChildrenFilter(filter);
             }
             myChilds.setChildrenNodesFilter(filter);
-            firePropertyChangeListener(new PropertyChangeEvent(this, PROPERTY_FILTER, null, filter));
+            firePropertyChange(PROPERTY_FILTER, null, filter);
         }
     }
     
@@ -216,7 +216,7 @@ public class FileVcsInfo extends Object implements Node.Cookie {
     public void setAttribute(String attrName, Object value) {
         reviveDumpedIfNeccesary(attrName);
         attrMap.put(attrName, value);
-        firePropertyChangeListener(new PropertyChangeEvent(this, attrName, null, value));
+        firePropertyChange(attrName, null, value);
     }
 
     /**
@@ -250,32 +250,23 @@ public class FileVcsInfo extends Object implements Node.Cookie {
     /** Registers PropertyChangeListener to receive events.
      * @param listener The listener to register.
      */
-    public synchronized void addPropertyChangeListener(java.beans.PropertyChangeListener listener) {
-        if (listenerList == null ) {
-            listenerList = new javax.swing.event.EventListenerList();
-        }
-        listenerList.add(java.beans.PropertyChangeListener.class, listener);
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.addPropertyChangeListener(listener);
     }
     
     /** Removes PropertyChangeListener from the list of listeners.
      * @param listener The listener to remove.
      */
-    public synchronized void removePropertyChangeListener(java.beans.PropertyChangeListener listener) {
-        listenerList.remove(java.beans.PropertyChangeListener.class, listener);
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        changeSupport.removePropertyChangeListener(listener);
     }
     
     /** Notifies all registered listeners about the event.
      *
      * @param event The event to be fired
      */
-    private void firePropertyChangeListener(java.beans.PropertyChangeEvent event) {
-        if (listenerList == null) return;
-        Object[] listeners = listenerList.getListenerList();
-        for (int i = listeners.length-2; i>=0; i-=2) {
-            if (listeners[i]==java.beans.PropertyChangeListener.class) {
-                ((java.beans.PropertyChangeListener)listeners[i+1]).propertyChange(event);
-            }
-        }
+    private void firePropertyChange(String propname, Object old, Object neu) {
+        changeSupport.firePropertyChange(propname, old, neu);
     }
     
     /**
@@ -298,7 +289,7 @@ public class FileVcsInfo extends Object implements Node.Cookie {
         private CompositeItem[] selectedItems;
 
         /** Utility field used by event firing mechanism. */
-        private javax.swing.event.EventListenerList listenerList =  null;        
+        private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
         
         public Composite(String type) {
             list = new ArrayList();
@@ -336,7 +327,7 @@ public class FileVcsInfo extends Object implements Node.Cookie {
         public void appendRow(CompositeItem item) {
             reviveDumpedIfNeccesary();
             list.add(item);
-            firePropertyChangeListener(new PropertyChangeEvent(this, PROPERTY_ADDED_ITEM, null, item));
+            firePropertyChange(PROPERTY_ADDED_ITEM, null, item);
         }
         
         public String getType() {
@@ -369,7 +360,7 @@ public class FileVcsInfo extends Object implements Node.Cookie {
         public void setSelectedItems(FileVcsInfo.CompositeItem[] items) {
             FileVcsInfo.CompositeItem[] oldItems = selectedItems;
             selectedItems = items;
-            firePropertyChangeListener(new PropertyChangeEvent(this, PROPERTY_SELECTED_ITEMS, oldItems, selectedItems));
+            firePropertyChange(PROPERTY_SELECTED_ITEMS, oldItems, selectedItems);
         }
         
         public CompositeItem[] getSelectedItems() {
@@ -379,32 +370,23 @@ public class FileVcsInfo extends Object implements Node.Cookie {
         /** Registers PropertyChangeListener to receive events.
          * @param listener The listener to register.
          */
-        public synchronized void addPropertyChangeListener(java.beans.PropertyChangeListener listener) {
-            if (listenerList == null ) {
-                listenerList = new javax.swing.event.EventListenerList();
-            }
-            listenerList.add(java.beans.PropertyChangeListener.class, listener);
+        public void addPropertyChangeListener(PropertyChangeListener listener) {
+            changeSupport.addPropertyChangeListener(listener);
         }        
         
         /** Removes PropertyChangeListener from the list of listeners.
          * @param listener The listener to remove.
          */
-        public synchronized void removePropertyChangeListener(java.beans.PropertyChangeListener listener) {
-            listenerList.remove(java.beans.PropertyChangeListener.class, listener);
+        public void removePropertyChangeListener(PropertyChangeListener listener) {
+            changeSupport.removePropertyChangeListener(listener);
         }
         
         /** Notifies all registered listeners about the event.
          *
          * @param event The event to be fired
          */
-        private void firePropertyChangeListener(java.beans.PropertyChangeEvent event) {
-            if (listenerList == null) return;
-            Object[] listeners = listenerList.getListenerList();
-            for (int i = listeners.length-2; i>=0; i-=2) {
-                if (listeners[i]==java.beans.PropertyChangeListener.class) {
-                    ((java.beans.PropertyChangeListener)listeners[i+1]).propertyChange(event);
-                }
-            }
+        private void firePropertyChange(String propname, Object old, Object neu) {
+            changeSupport.firePropertyChange(propname, old, neu);
         }
     }
     

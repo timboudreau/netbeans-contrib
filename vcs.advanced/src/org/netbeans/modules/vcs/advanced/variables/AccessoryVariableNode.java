@@ -16,6 +16,7 @@ package org.netbeans.modules.vcs.advanced.variables;
 import java.awt.datatransfer.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Comparator;
@@ -43,9 +44,7 @@ public class AccessoryVariableNode extends AbstractNode {
 
     private VcsConfigVariable var = null;
     private Children.Array list = null;
-    //private PropertyChangeSupport propSupport = new PropertyChangeSupport(new Object());
-    // For some reason it does not work with PropertyChangeSupport
-    private ArrayList changeListeners = new ArrayList();
+    private PropertyChangeSupport variableChangeSupport = new PropertyChangeSupport(this);
 
     /** Creates new AccessoryVariableNode */
     public AccessoryVariableNode(Children.SortedArray list) {
@@ -115,29 +114,15 @@ public class AccessoryVariableNode extends AbstractNode {
     }
     
     public final void addVariablePropertyChangeListener(PropertyChangeListener propertyChangeListener) {
-        //propSupport.addPropertyChangeListener(propertyChangeListener);
-        synchronized (changeListeners) {
-            changeListeners.add(propertyChangeListener);
-        }
+        variableChangeSupport.addPropertyChangeListener(propertyChangeListener);
     }
     
     public final void removeVariablePropertyChangeListener(PropertyChangeListener propertyChangeListener) {
-        //propSupport.removePropertyChangeListener(propertyChangeListener);
-        synchronized (changeListeners) {
-            changeListeners.remove(propertyChangeListener);
-        }
+        variableChangeSupport.removePropertyChangeListener(propertyChangeListener);
     }
     
     protected final void fireVariablePropertyChange(String propertyName, Object oldValue, Object newValue) {
-        //propSupport.firePropertyChange(propertyName, oldValue, newValue);
-        ArrayList listeners;
-        synchronized (changeListeners) {
-            listeners = new ArrayList(changeListeners);
-        }
-        for (Iterator it = listeners.iterator(); it.hasNext(); ) {
-            PropertyChangeListener l = (PropertyChangeListener) it.next();
-            l.propertyChange(new PropertyChangeEvent(this, propertyName, oldValue, newValue));
-        }
+        variableChangeSupport.firePropertyChange(propertyName, oldValue, newValue);
     }
     
     public Collection getAllAccessoryVariablesNames() {
