@@ -64,8 +64,11 @@ public class SymbolTable {
 	if (__retval != null) {
 	    if (__retval instanceof IDLElement)
 		return (IDLElement)__retval;
-	    else
-		return new IDLElement (0); // We get HashMap for module name
+	    else {
+                IDLElement __elem = new IDLElement (0);
+                __elem.setName(__simple_name);
+		return __elem; // We get HashMap for module name
+            }
 	}
 	else {
 	    return null;
@@ -109,8 +112,11 @@ public class SymbolTable {
 	if (__retval != null) {
 	    if (__retval instanceof IDLElement)
 		return (IDLElement)__retval;
-	    else
-		return new IDLElement (0); // We get HashMap for module name
+	    else {
+                IDLElement __elem = new IDLElement (0);
+                __elem.setName(__simple_name);
+		return __elem; // We get HashMap for module name
+            }
 	}
 	else {
 	    return null;
