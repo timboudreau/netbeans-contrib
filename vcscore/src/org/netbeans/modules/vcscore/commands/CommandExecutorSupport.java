@@ -122,8 +122,11 @@ public class CommandExecutorSupport extends Object {
             refreshPath.replace(java.io.File.separatorChar, '/');
             String refreshPathFile = refreshPath + ((refreshPath.length() > 0) ? "/" : "") + file; //(String) vars.get("FILE");
             if (!doRefreshParent && cache != null && cache.isDir(refreshPathFile)) refreshPath = refreshPathFile;
-            String pattern = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED);
-            if (pattern != null && pattern.length() > 0 && exec.indexOf(pattern) >= 0 && (cache == null || !cache.isFile(refreshPathFile))) {
+            String patternMatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED);
+            String patternUnmatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED);
+            if (exec != null && (cache == null || !cache.isFile(refreshPathFile))
+                && (patternMatch != null && patternMatch.length() > 0 && exec.indexOf(patternMatch) >= 0
+                    || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0)) {
                 statusProvider.refreshDirRecursive(refreshPath);
             } else {
                 statusProvider.refreshDir(refreshPath); // NOI18N
