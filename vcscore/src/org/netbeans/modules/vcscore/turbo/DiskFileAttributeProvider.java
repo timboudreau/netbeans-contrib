@@ -300,7 +300,7 @@ final class DiskFileAttributeProvider implements FileAttributeProvider {
             Map entries = new HashMap(sharedList.size()*2);
             while (it.hasNext()) {
                 FileProperties next = (FileProperties) it.next();
-                String name = next.getName();
+                String name = next.getFileName();
                 entries.put(name, next);  // possibly overwrites previous value
             }
 
@@ -309,7 +309,7 @@ final class DiskFileAttributeProvider implements FileAttributeProvider {
             it = entries.values().iterator();
             while (it.hasNext()) {
                 FileProperties next = (FileProperties) it.next();
-                String name = next.getName();
+                String name = next.getFileName();
                 FileObject speculative;
                 if (folder == null) {
                     // When the fo is root of some filesystem, it will not have a parent,

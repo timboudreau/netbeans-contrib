@@ -220,6 +220,15 @@ public final class FileProperties {
         return name;
     }
 
+    /** Gets file name. Always without trailing '/' regardles folder. */
+    public String getFileName() {
+        if (name.endsWith("/")) {
+            return name.substring(0, name.length() -1);
+        } else {
+            return name;
+        }
+    }
+
     /** Sets file name. Trailing '/' denotes folder otherwise must match name of associated file. */
     public void setName(String name) {
         assert canUpdate;
