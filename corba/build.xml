@@ -26,7 +26,7 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot}/java/netbeans/modules/java.jar"/>
 	<pathelement location="${nbroot}/editor/netbeans/modules/editor.jar"/>
 	<pathelement location="${nbroot}/editor/netbeans/lib/ext/nb-editor.jar"/>
-	<pathelement location="/usr/local/gj_libs/idlj.jar"/> <!-- must be somewhere else -->
+	<pathelement location="compiletime/idlj.jar"/>
 	<pathelement location="release/lib/ext/corbaext.jar"/>
 	<pathelement location="release/lib/ext/idlcompilers.jar"/>
 	<pathelement location="${nbroot}/core/netbeans/lib/developer.jar"/>
@@ -42,7 +42,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="jars" depends="tojar,compile">
     <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
-    <copyfile src="manifest.mf" dest="manifest-subst.mf" filtering="on"/>
+    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     <jar jarfile="netbeans/modules/corba.jar"
          manifest="manifest-subst.mf"
          basedir="src"
