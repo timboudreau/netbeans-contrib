@@ -58,7 +58,9 @@ public class LoginPanel extends javax.swing.JPanel {
     public LoginPanel() {
         initComponents(); 
         loginButton = new JButton(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.loginButton.text"));
+        loginButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialog.loginButton.textA11yDesc"));
         offlineButton = new JButton(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.offlineButton.text"));
+        offlineButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialog.offlineButton.textA11yDesc"));
         options[0] = loginButton;
         options[1] = offlineButton;
 	btnListener = new BtnListener();
@@ -76,6 +78,7 @@ public class LoginPanel extends javax.swing.JPanel {
         loginLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialog.loginLabel.textA11yDesc"));  // NOI18N
         passwordLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialog.passwordLabel.textA11yDesc"));  // NOI18N
         passwordField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_passwordFieldA11yName"));  // NOI18N
+        passwordField.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialog.passwordLabel.textA11yDesc"));  // NOI18N
         statusLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialog.statusA11yDesc"));  // NOI18N
     }
     
