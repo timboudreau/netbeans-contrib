@@ -400,7 +400,11 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 message = g("MSG_Command_name_finished", name);
                 break;
             case VcsCommandExecutor.FAILED:
-                message = g("MSG_Command_name_failed", name);
+                if (VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
+                    message = g("MSG_Command_name_finished", name);
+                } else {
+                    message = g("MSG_Command_name_failed", name);
+                }
                 break;
             case VcsCommandExecutor.INTERRUPTED:
                 message = g("MSG_Command_name_interrupted", name);
