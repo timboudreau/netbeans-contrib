@@ -412,11 +412,16 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         gridy = addSelectRadio(component, gridy, inputPanel, leftInset);
                         break;
                     case VariableInputDescriptor.INPUT_SELECT_COMBO:
-                        addSelectCombo(component, gridy, inputPanel, leftInset);
+                        addSelectCombo(component, gridy, inputPanel, leftInset, false);
+                        gridy++;
+                        break;
+                    case VariableInputDescriptor.INPUT_SELECT_COMBO_EDITABLE:
+                        addSelectCombo(component, gridy, inputPanel, leftInset, true);
                         gridy++;
                         break;
                     case VariableInputDescriptor.INPUT_GLOBAL:
                         setGlobalVars(component);
+                        break;
                 }
             } else {
                 addActionToProcess(new ActionListener() {
@@ -565,20 +570,24 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         }
                     } else if (component instanceof javax.swing.JComboBox) {
                         javax.swing.JComboBox comboBox = (javax.swing.JComboBox) component;
-                        VariableInputComponent[] subComponents = inComponent.subComponents();
-                        int items = subComponents.length;
-                        String[] values = new String[items];
-                        for (int j = 0; j < items; j++) {
-                            values[j] = subComponents[j].getDefaultValue();
-                        }
-                        int j;
-                        if (varValue != null) {
-                            for (j = 0; j < items; j++) {
-                                if (varValue.equals(values[j])) break;
+                        if (comboBox.isEditable()) {
+                            comboBox.setSelectedItem(varValue);
+                        } else {
+                            VariableInputComponent[] subComponents = inComponent.subComponents();
+                            int items = subComponents.length;
+                            String[] values = new String[items];
+                            for (int j = 0; j < items; j++) {
+                                values[j] = subComponents[j].getDefaultValue();
                             }
-                            if (j >= items) j = 0;
-                        } else j = 0;
-                        comboBox.setSelectedIndex(j);
+                            int j;
+                            if (varValue != null) {
+                                for (j = 0; j < items; j++) {
+                                    if (varValue.equals(values[j])) break;
+                                }
+                                if (j >= items) j = 0;
+                            } else j = 0;
+                            comboBox.setSelectedIndex(j);
+                        }
                     }
                 }
             }
@@ -1272,7 +1281,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
 
     private void addSelectCombo(final VariableInputComponent component, int gridy,
-                                javax.swing.JPanel variablePanel, int leftInset) {
+                                javax.swing.JPanel variablePanel, int leftInset,
+                                final boolean editable) {
         ArrayList componentList = new ArrayList();
         String message = component.getLabel();
         final VariableInputComponent[] subComponents = component.subComponents();
@@ -1290,6 +1300,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
             //System.out.println("SELECT_COMBO["+i+"]: ENABLE("+VcsUtilities.arrayToString(varsEnabled[i])+"), DISABLE("+VcsUtilities.arrayToString(varsDisabled[i])+")");
         }
         final javax.swing.JComboBox comboBox = new javax.swing.JComboBox(labels);
+        comboBox.setEditable(editable);
+        if (editable) { // Change the preferred size, so that it looks more like other text fields.
+            comboBox.setPreferredSize(new javax.swing.JTextField().getPreferredSize());
+        }
         if (message != null && message.length() > 0) {
             javax.swing.JLabel label = new javax.swing.JLabel(message);
             java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
@@ -1331,17 +1345,24 @@ public class VariableInputDialog extends javax.swing.JPanel {
             for (i = 0; i < items; i++) {
                 if (selected.equals(values[i])) break;
             }
-            if (i >= items) i = 0;
+            if (i >= items) i = -1;
         } else i = 0;
-        comboBox.setSelectedIndex(i);
+        if (i >= 0) comboBox.setSelectedIndex(i);
+        else comboBox.setSelectedItem(selected);
         enableComponents(varsEnabled[i], true);
         enableComponents(varsDisabled[i], false);
         comboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                int selected2 = comboBox.getSelectedIndex();
-                //System.out.println("Combo Action: selected = "+selected2+" = "+subComponents[selected2].getValue());
-                component.setValue(subComponents[selected2].getValue());
-                firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), null, component.getValue());
+                String currentValue;
+                if (editable) {
+                    currentValue = (String) comboBox.getSelectedItem();
+                } else {
+                    int selected2 = comboBox.getSelectedIndex();
+                    //System.out.println("Combo Action: selected = "+selected2+" = "+subComponents[selected2].getValue());
+                    currentValue = subComponents[selected2].getValue();
+                }
+                component.setValue(currentValue);
+                firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), null, currentValue);
             }
         });
         comboBox.addItemListener(new ItemListener() {

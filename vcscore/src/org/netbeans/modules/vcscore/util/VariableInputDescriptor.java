@@ -32,6 +32,7 @@ public class VariableInputDescriptor extends Object {
     public static final int INPUT_SELECT_COMBO = 6;
     public static final int INPUT_COMBO_ITEM = 7;
     public static final int INPUT_GLOBAL = 8;
+    public static final int INPUT_SELECT_COMBO_EDITABLE = 9;
     
     public static final String INPUT_STR_LABEL = "LABEL";
     public static final String INPUT_STR_PROMPT_FIELD = "PROMPT_FOR";
@@ -39,6 +40,7 @@ public class VariableInputDescriptor extends Object {
     public static final String INPUT_STR_ASK = "ASK_FOR";
     public static final String INPUT_STR_SELECT_RADIO = "SELECT_RADIO";
     public static final String INPUT_STR_SELECT_COMBO = "SELECT_COMBO";
+    public static final String INPUT_STR_SELECT_COMBO_EDITABLE = "SELECT_COMBO_EDITABLE";
     public static final String INPUT_STR_GLOBAL_PARAMS = "GLOBAL_PARAMS";
     public static final String INPUT_STR_GLOBAL_ALL_VARS = "ALL_VARIABLES";
     public static final String INPUT_IS_EXPERT = "_EXPERT";
@@ -89,6 +91,7 @@ public class VariableInputDescriptor extends Object {
                     inputMap.put(INPUT_STR_ASK, new Integer(INPUT_ASK));
                     inputMap.put(INPUT_STR_SELECT_RADIO, new Integer(INPUT_SELECT_RADIO));
                     inputMap.put(INPUT_STR_SELECT_COMBO, new Integer(INPUT_SELECT_COMBO));
+                    inputMap.put(INPUT_STR_SELECT_COMBO_EDITABLE, new Integer(INPUT_SELECT_COMBO_EDITABLE));
                     inputMap.put(INPUT_STR_GLOBAL_PARAMS, new Integer(INPUT_GLOBAL));
                 }
             }
@@ -328,7 +331,7 @@ public class VariableInputDescriptor extends Object {
             }
             argNum += 2;
         }
-        if (INPUT_SELECT_RADIO == id || INPUT_SELECT_COMBO == id) {
+        if (INPUT_SELECT_RADIO == id || INPUT_SELECT_COMBO == id || INPUT_SELECT_COMBO_EDITABLE == id) {
             String[] inputSelectArgs = getSelectArgs(inputArgs[0], inputArg, inputArgs[0].length() + inputArgs[1].length());
             int subId;
             if (INPUT_SELECT_RADIO == id) {
