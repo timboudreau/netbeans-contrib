@@ -95,6 +95,7 @@ public class CommandExecutorSupport extends Object {
      * @return the number of important files
      */
     private static int numImportant(VcsFileSystem fileSystem, String paths, String ps) {
+        //System.out.println("numImportant("+paths+", "+ps+")");
         if (paths == null) return 0; // Just for robustness
         int num = 0;
         String delim;
@@ -109,8 +110,11 @@ public class CommandExecutorSupport extends Object {
         if (end < 0) end = paths.length();
         while (true) {
             String path = paths.substring(begin, end);
+            //System.out.println("  path = "+path);
             path = varValueAdjust.revertAdjustedVarValue(path);
+            //System.out.println("  rev. = "+path);
             if (fileSystem.isImportant(path)) num++;
+            //System.out.println("  isImportant = "+fileSystem.isImportant(path));
             begin = end + delim.length();
             if (begin > paths.length()) break;
             end = paths.indexOf(delim, begin);
@@ -132,9 +136,10 @@ public class CommandExecutorSupport extends Object {
         String fullName = (String) vars.get("PATH");
         String paths = (String) vars.get("PATHS");
         boolean confirmed = false;
+        String pathSeparator = (String) vars.get("PS");
+        pathSeparator = Variables.expand(vars, pathSeparator, false);
         if (fullName == null || fileSystem.isImportant(fullName)) {
-            String numFiles = (String) vars.get("NUM_FILES");
-            vars.put("NUM_FILES", ""+numImportant(fileSystem, paths, (String) vars.get("PS")));
+            vars.put("NUM_IMPORTANT_FILES", ""+numImportant(fileSystem, paths, pathSeparator));
             confirmation = Variables.expand(vars, confirmation, true);
             PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
             try {
@@ -143,7 +148,6 @@ public class CommandExecutorSupport extends Object {
                 return CommandsPool.PREPROCESS_CANCELLED;
             }
             vars.put("CONFIRMATION_MSG", confirmation);
-            if (numFiles != null) vars.put("NUM_FILES", numFiles);
             confirmed = true;
         //} else {
         //    confirmation = null;
@@ -170,12 +174,10 @@ public class CommandExecutorSupport extends Object {
         }
         // Ask for the confirmation again, if the preprocessing was done, but there is an important file
         if (!(askForEachFile != null && askForEachFile[0])) {
-            int numImp = numImportant(fileSystem, paths, (String) vars.get("PS"));
+            int numImp = numImportant(fileSystem, paths, pathSeparator);
             if (!confirmed && numImp > 0) {
-                String numFiles = (String) vars.get("NUM_FILES");
-                vars.put("NUM_FILES", ""+numImp);
+                vars.put("NUM_IMPORTANT_FILES", ""+numImp);
                 confirmation = Variables.expand(vars, confirmation, true);
-                vars.put("NUM_FILES", numFiles);
                 vars.put("CONFIRMATION_MSG", confirmation);
                 if (confirmation.length() > 0) {
                     if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
