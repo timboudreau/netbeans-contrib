@@ -389,7 +389,9 @@ public class PvcsListCommand extends AbstractListCommand {
                         index = index2;
                         index2 = lockInfo.indexOf(LOCKS_SEPARATOR, index + 1);
                         String locker = lockInfo.substring(index + LOCKS_SEPARATOR.length(), index2).intern();
-                        boolean isCurrentUser = locker.equals(currentUserName);
+                        boolean isCurrentUser = org.openide.util.Utilities.isWindows() ?
+                            locker.equalsIgnoreCase(currentUserName) :
+                            locker.equals(currentUserName);
                         if (fileStatuses[2] == null || fileStatuses[2].length() == 0) {
                             fileStatuses[2] = locker;
                         } else {
@@ -428,7 +430,9 @@ public class PvcsListCommand extends AbstractListCommand {
             }
             if (newLockInfo && elements[0].startsWith(LOCK_INFO_LOCKED_BY) && fileStatuses != null) {
                 String locker = elements[0].substring(LOCK_INFO_LOCKED_BY.length()).trim();
-                boolean isCurrentUser = locker.equals(currentUserName);
+                boolean isCurrentUser = org.openide.util.Utilities.isWindows() ?
+                    locker.equalsIgnoreCase(currentUserName) :
+                    locker.equals(currentUserName);
                 if (isCurrentUser) {
                     String fileRevision = (String) revisionsByNames.get(fileStatuses[0]);
                     //System.out.println("File: '"+fileStatuses[0]+"' - revision: '"+lastLockedRevision+"' -> '"+lastNewRevision+"', fileRevision: '"+fileRevision+"'");
