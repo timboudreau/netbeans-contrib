@@ -3650,6 +3650,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 if (!isIDESettingsFile(name) && !name.endsWith(getBackupExtension())) {
                     VcsFileSystem.this.fileChanged(name);
                 }
+                Reference ref = findReference (name);
+                if ( (ref instanceof CacheReference) && ((CacheReference)ref).isVirtual()) {
+                    FileObject o = findResource(name);
+                    if (o != null) {
+                        try {
+                            o.setAttribute ("NetBeansAttrAssignedLoader",null);       //NoI18N
+                        } catch (IOException e) {}
+                    }
+                }
                 name = null;
             }
         }
