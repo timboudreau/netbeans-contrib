@@ -16,6 +16,7 @@ package com.netbeans.developer.modules.loaders.clazz;
 import java.beans.*;
 
 import org.openide.actions.PropertiesAction;
+import org.openide.actions.ToolsAction;
 import org.openide.cookies.ElementCookie;
 import org.openide.cookies.FilterCookie;
 import org.openide.nodes.Node;
@@ -123,7 +124,8 @@ final class ClassElementNodeFactory extends DefaultFactory {
   SystemAction[] getDefaultActions () {
     if (defaultActions == null) {
       defaultActions = new SystemAction[] {
-        SystemAction.get(PropertiesAction.class)
+        SystemAction.get(ToolsAction.class),
+        SystemAction.get(PropertiesAction.class),
       };
     }
     return defaultActions;
@@ -140,6 +142,7 @@ final class ClassElementNodeFactory extends DefaultFactory {
 
 /*
 * Log
+*  7    src-jtulach1.6         6/9/99   Ian Formanek    ToolsAction
 *  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
 *  5    src-jtulach1.4         5/16/99  Jaroslav Tulach New hiearchy.

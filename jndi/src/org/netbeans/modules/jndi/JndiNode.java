@@ -27,6 +27,7 @@ import org.openide.TopManager;
 import org.openide.actions.NewAction;
 import org.openide.actions.CopyAction;
 import org.openide.actions.PropertiesAction;
+import org.openide.actions.ToolsAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
@@ -91,9 +92,13 @@ final class JndiNode extends AbstractNode implements TemplateCreator {
   
   
   public SystemAction[] createActions() {
-      return new SystemAction[] {SystemAction.get(NewAction.class),
-                                 SystemAction.get(CopyAction.class),
-                                 SystemAction.get(PropertiesAction.class)
+      return new SystemAction[] {
+        SystemAction.get(CopyAction.class),
+        null,
+        SystemAction.get(NewAction.class),
+        null,
+        SystemAction.get(ToolsAction.class),
+        SystemAction.get(PropertiesAction.class),
       };
   }
   

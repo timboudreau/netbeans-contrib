@@ -71,22 +71,23 @@ public class IDLDataLoader extends MultiFileLoader {
       //    ext.addExtension("properties"); // now provided by properties DataObject
       setExtensions(ext);
       setActions(new SystemAction[] {
-	 SystemAction.get(OpenAction.class),
-	    null,
-	    SystemAction.get (CompileAction.class),
-	    //null,
-	    //SystemAction.get (GenerateImplAction.class),
-	    null,
-	    SystemAction.get(CutAction.class),
-	    SystemAction.get(CopyAction.class),
-	    SystemAction.get(PasteAction.class),
-	    null,
-	    SystemAction.get(DeleteAction.class),
-	    SystemAction.get(RenameAction.class),
-	    null,
-	    SystemAction.get(SaveAsTemplateAction.class),
-	    null,
-	    SystemAction.get(PropertiesAction.class)
+        SystemAction.get(OpenAction.class),
+  	    null,
+  	    SystemAction.get (CompileAction.class),
+  	    //null,
+  	    //SystemAction.get (GenerateImplAction.class),
+  	    null,
+  	    SystemAction.get(CutAction.class),
+  	    SystemAction.get(CopyAction.class),
+  	    SystemAction.get(PasteAction.class),
+  	    null,
+  	    SystemAction.get(DeleteAction.class),
+  	    SystemAction.get(RenameAction.class),
+  	    null,
+  	    SystemAction.get(SaveAsTemplateAction.class),
+  	    null,
+  	    SystemAction.get(ToolsAction.class),
+  	    SystemAction.get(PropertiesAction.class),
 	    });
    }
 

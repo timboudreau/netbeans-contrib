@@ -24,6 +24,7 @@ import javax.naming.directory.DirContext;
 
 import org.openide.actions.NewAction;
 import org.openide.actions.PropertiesAction;
+import org.openide.actions.ToolsAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.DefaultHandle;
@@ -88,8 +89,11 @@ public final class JndiRootNode extends AbstractNode {
   
   // creates actions for this node 
   public SystemAction[] createActions() {
-    return new SystemAction[] {SystemAction.get(NewAction.class),
-                               SystemAction.get(PropertiesAction.class)
+    return new SystemAction[] {
+      SystemAction.get(NewAction.class),
+      null,
+      SystemAction.get(ToolsAction.class),
+      SystemAction.get(PropertiesAction.class),
     };
   }
   

@@ -61,6 +61,7 @@ public final class ClassDataLoader extends MultiFileLoader {
       null,
       SystemAction.get(SaveAsTemplateAction.class),
       null,
+      SystemAction.get(ToolsAction.class),
       SystemAction.get(PropertiesAction.class),
     });
   }
@@ -162,6 +163,7 @@ public final class ClassDataLoader extends MultiFileLoader {
 
 /*
  * Log
+ *  8    Gandalf   1.7         6/9/99   Ian Formanek    ToolsAction
  *  7    Gandalf   1.6         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
  *  6    Gandalf   1.5         3/26/99  Ian Formanek    Fixed use of obsoleted 
