@@ -95,7 +95,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private FileObject selectedFolder;
 
     private static final int RECENT_ITEMS_COUNT = 4;
-    private ArrayList recentFolders = new ArrayList(RECENT_ITEMS_COUNT); // XXX it'd be nice to persist it
+    private ArrayList recentFolders = new ArrayList(RECENT_ITEMS_COUNT);
 
     private static Border buttonBorder;
 
@@ -624,6 +624,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         while (it.hasNext()) {
             final FileObject fo = (FileObject) it.next();
             if (fo == null || fo.isValid() == false) continue;
+            if (fo.equals(selectedFolder)) continue;
             JMenuItem item = new JMenuItem(i + " " + createLabel(fo));    // NOI18N
             item.setMnemonic(mnemonics[i]);
             item.addActionListener(new RecentActionListener(fo));
