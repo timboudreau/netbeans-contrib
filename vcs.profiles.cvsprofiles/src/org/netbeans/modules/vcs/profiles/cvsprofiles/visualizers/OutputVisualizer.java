@@ -17,8 +17,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.Vector;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -41,15 +44,17 @@ import org.netbeans.modules.vcscore.commands.VcsDescribedTask;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
+import org.openide.windows.WindowManager;
 
 /**
  * The default visualizer of command output.
  * @author  Richard Gregor
  */
-public abstract class OutputVisualizer extends TopComponent implements VcsCommandVisualizer {
+
+public abstract class OutputVisualizer implements VcsCommandVisualizer {
     
     //private static RequestProcessor outputDisplayRequestProcessor;        
-    private JComponent outputPanel;
+    private Map outputMap;
     private ArrayList closeListeners = new ArrayList();
     private CommandTask task;
     private VcsCommandsProvider cmdProvider;
@@ -59,34 +64,31 @@ public abstract class OutputVisualizer extends TopComponent implements VcsComman
     //protected String actFilePath;
     private java.awt.event.ActionListener killListener = null;
     private int exit;
-    
+    private Vector vcsTopComponents;
+    private boolean opened = false;
+    private String commandName ;
     
     private static final long serialVersionUID = -8901790321334731232L;
     
-    public OutputVisualizer() {
-        setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
-        putClientProperty("PersistenceType", "Never");
-        initAccessibility();
-    }
     
-    public abstract JComponent getOutputPanel();
+    public abstract Map getOutputPanels();
     
-    private void initComponents() {
-        outputPanel = getOutputPanel();
-        setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints;
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        add(outputPanel, gridBagConstraints);
-        
-    }
+    public void open() {
+        outputMap = getOutputPanels();        
+        if(outputMap == null)
+            return;
+        Iterator it = outputMap.keySet().iterator();
+        while(it.hasNext()){
+            String fileName = (String)it.next();             
+            JComponent component = (JComponent)outputMap.get(fileName);
+            OutputTopComponent out = new OutputVisualizer.OutputTopComponent();
+            out.setOutputPanel(component);
+            out.setFileName(fileName);
+            out.open(WindowManager.getDefault().getCurrentWorkspace());                      
+        }   
+        opened = true;
+    }    
     
-    private void initAccessibility(){
-        getAccessibleContext().setAccessibleName(NbBundle.getMessage(OutputVisualizer.class, "ACSN_CommandOutputVisualizer"));
-        getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(OutputVisualizer.class, "ACSD_CommandOutputVisualizer"));
-    }
     
     public void setVcsTask(VcsDescribedTask task) {
         this.task = (CommandTask) task;
@@ -97,8 +99,8 @@ public abstract class OutputVisualizer extends TopComponent implements VcsComman
         this.rootDir = new File((String)vars.get("ROOTDIR"));
         //actFilePath = ""+vars.get("WORKDIR")+vars.get("FILE");
         //actFilePath = Variables.expand(vars, actFilePath, false);
-        String commandName = findDisplayName(this.task);
-        String title;
+        commandName = findDisplayName(this.task);
+    /*    String title;
         if (files.size() == 1) {
             String filePath = (String) files.iterator().next();
             File file = new File(filePath);
@@ -111,7 +113,7 @@ public abstract class OutputVisualizer extends TopComponent implements VcsComman
             new Object[] { Integer.toString(files.size()), commandName });
 
         setName(commandName);
-        setDisplayName(title);
+        setDisplayName(title);*/
     }
     
     public void setPossibleFileStatusInfoMap(java.util.Map infoMap) {
@@ -143,29 +145,8 @@ public abstract class OutputVisualizer extends TopComponent implements VcsComman
      */
     public boolean openAfterCommandFinish() {
         return true;
-    }
+    }    
     
-    /**
-     * Open the component on the given workspace.
-     */
-    public void open(Workspace workspace) {
-        if (exit != 0)
-            return;
-        if (outputPanel == null)
-            this.initComponents();
-        super.open(workspace);
-        requestFocus();
-    }
-    
-    
-    /**
-     * Disable serialization.
-     * @return null
-     */
-    protected Object writeReplace() throws java.io.ObjectStreamException {
-        close();
-        return null;
-    }
     
     /**
      * Receive a line of standard output.
@@ -205,29 +186,96 @@ public abstract class OutputVisualizer extends TopComponent implements VcsComman
         }
     }
     
+    
     /**
-     * Override for clean up reasons.
-     * Will be moved to the appropriate method when will be made.
+     * Tell, whether the visualizer is currently opened.
+     * This method is used to decide whether <code>open()</code>
+     * should be called or not.
      */
-    public boolean canClose(Workspace workspace, boolean last) {
-        boolean can = super.canClose(workspace, last);
-        if (last && can) {
-            closing();
-        }
-        return can;
+    public boolean isOpened(){
+        return opened;
     }
     
     /**
-     * Called when the TopComponent is being to close.
+     * Request the focus for this visualizer. See {@link org.openide.windows.TopComponent#requestFocus}.
      */
-    private void closing() {
-        synchronized (closeListeners) {
-            for (Iterator it = closeListeners.iterator(); it.hasNext(); ) {
-                TopComponentCloseListener l = (TopComponentCloseListener) it.next();
-                l.closing();
-            }
-            closeListeners.clear();
+    public void requestFocus(){
+        
+    }
+    
+     
+    final class OutputTopComponent extends TopComponent{
+        
+        private JComponent outputPanel;
+        private String fileName;
+        private static final long serialVersionUID = -7801790121334731232L;
+        
+        public OutputTopComponent(){        
+            setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
+            putClientProperty("PersistenceType", "Never");                        
+            initAccessibility();
         }
-    }    
- 
+        
+        void setOutputPanel(JComponent outputPanel){
+            this.outputPanel = outputPanel;
+        }
+        
+        void setFileName(String fileName){
+            setName(fileName+"["+commandName+"]");
+            setDisplayName(fileName+"["+commandName+"]");
+        }
+        
+        private void initComponents(){
+            setLayout(new java.awt.GridBagLayout());
+            java.awt.GridBagConstraints gridBagConstraints;
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints.weightx = 1.0;
+            gridBagConstraints.weighty = 1.0;
+            add(outputPanel, gridBagConstraints);
+            
+        }
+        
+        private void initAccessibility(){
+            getAccessibleContext().setAccessibleName(NbBundle.getMessage(OutputVisualizer.class, "ACSN_CommandOutputVisualizer"));
+            getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(OutputVisualizer.class, "ACSD_CommandOutputVisualizer"));
+        }
+        /**
+         * Open the component on the given workspace.
+         */
+        public void open(Workspace workspace) {
+            if (exit != 0)
+                return;
+            this.initComponents();
+            super.open(workspace);
+            super.requestActive();
+        }
+        
+        /**
+         * Called when the TopComponent is being to close.
+         */
+        private void closing() {
+            synchronized (closeListeners) {
+                for (Iterator it = closeListeners.iterator(); it.hasNext(); ) {
+                    TopComponentCloseListener l = (TopComponentCloseListener) it.next();
+                    l.closing();
+                }
+                closeListeners.clear();
+            }
+        }
+        
+        /**
+         * Override for clean up reasons.
+         * Will be moved to the appropriate method when will be made.
+         */
+        public boolean canClose(Workspace workspace, boolean last) {
+            boolean can = super.canClose(workspace, last);
+            if (last && can) {
+                closing();
+            }
+            return can;
+        }
+        
+
+    }
 }

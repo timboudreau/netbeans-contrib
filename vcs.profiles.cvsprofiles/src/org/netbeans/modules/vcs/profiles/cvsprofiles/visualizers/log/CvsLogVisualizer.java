@@ -79,9 +79,10 @@ public class CvsLogVisualizer extends OutputVisualizer {
     private Iterator ite;   
     private String filePath;   
     private HashMap file_infoMap;
+    private HashMap output;
     
     /** 
-     * Creates new CvsLog wrapper
+     * Creates new CvsLogVisualizer
      */
     public CvsLogVisualizer() {
         addingSymNames = false;
@@ -94,33 +95,35 @@ public class CvsLogVisualizer extends OutputVisualizer {
         resultList = new ArrayList();
     }      
 
-    public JComponent getOutputPanel(){
-        JTabbedPane tabPane = new JTabbedPane(JTabbedPane.BOTTOM);
+    public Map getOutputPanels(){        
+        output = new HashMap();
         Iterator  it = files.iterator();
         while(it.hasNext()){
             String path = (String)it.next();
             File file = getFile(path);
-            if(file.isDirectory()){
+            if(file.isDirectory()){                
                 LogTreeInfoPanel treePanel = new LogTreeInfoPanel(file);
-                if(files.size() == 1){
+                if(files.size() == 1){                    
                     treePanel.setDataToDisplay(resultList);
-                    return treePanel;
+                    output.put(file.getName(),treePanel);                    
+                    return output;
                 }else{
-                    treePanel.setDataToDisplay(findResultList(file)); 
-                    tabPane.addTab(file.getName(), treePanel);
+                    treePanel.setDataToDisplay(findResultList(file));                     
+                    output.put(file.getName(),treePanel);
                 }
             }else{
                 LogInfoPanel logPanel = new LogInfoPanel(isTag);
                 if(files.size() == 1){
                     logPanel.setData(logInfo);
-                    return logPanel;
+                    output.put(file.getName(),logPanel);                    
+                    return output;
                 }else{
-                    logPanel.setData(findLogInfo(file)); 
-                    tabPane.addTab(file.getName(), logPanel);
+                    logPanel.setData(findLogInfo(file));                     
+                    output.put(file.getName(),logPanel);
                 }
             }
-        }
-        return tabPane;
+        }        
+        return output;
     }
     
     /**

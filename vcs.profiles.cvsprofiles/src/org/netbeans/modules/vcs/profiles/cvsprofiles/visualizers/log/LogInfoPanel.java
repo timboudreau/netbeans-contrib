@@ -67,15 +67,13 @@ public class LogInfoPanel extends javax.swing.JPanel {
         lblList.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("LogInfoPanel.lblList.mnemonic").charAt(0)); //NOI18N
         lblList.setLabelFor(tblSymNames);
         listPanel.add(lblList, java.awt.BorderLayout.NORTH);
-        if (isTag) {
-            SplittedPanel split = new SplittedPanel();
+        if (isTag) {            
+            JSplitPane split = new JSplitPane();
             split.setPreferredSize(new java.awt.Dimension(600, 350));
             split.setMinimumSize(new java.awt.Dimension(600, 250));
-            split.add(initSymNames(),SplittedPanel.ADD_LEFT);
-            split.add(initRevisionList(),SplittedPanel.ADD_RIGHT);
-            split.setSplitAbsolute(false);
-            split.setSplitDragable(true);
-            split.setSplitPosition(30);
+            split.add(initSymNames(),JSplitPane.LEFT);
+            split.add(initRevisionList(),JSplitPane.RIGHT);  
+            split.setDividerLocation(250);
             listPanel.add(split, java.awt.BorderLayout.CENTER);
         } else {
             listPanel.add(initRevisionList(), java.awt.BorderLayout.CENTER);

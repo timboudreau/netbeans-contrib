@@ -70,6 +70,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
      */
     private String localPath;
     private UpdateInfoPanel contentPane = null;
+    private HashMap output;
     
     /** Creates new CvsUpdateVisualizer */
     public CvsUpdateVisualizer() {
@@ -77,13 +78,15 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         buff = new StringBuffer();
     }
 
-    public javax.swing.JComponent getOutputPanel() {
+    public Map getOutputPanels() {
         debug("getOutputPanel");
+        output = new HashMap();
         contentPane = new UpdateInfoPanel(this); 
         contentPane.setVcsTask(getVcsTask());
         contentPane.setLog(buff);
         contentPane.showStartCommand();
-        return contentPane;
+        output.put("",contentPane);//TODO - what's right name?        
+        return output;
 
     }
     

@@ -71,13 +71,14 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
     private boolean readingTags;
     private String relativeDirectory;
     private Map infoMap;
+    private HashMap output; 
     /*
      * Used for Status_Get_Tags case. File is already known we need 
      * only to find existing tags. File is set by StatusInfoPanel.
      */
     private File fileFromInfo;
     /** 
-     * Creates new CvsLog wrapper
+     * Creates new CvsStatusVisualizer
      */
     public CvsStatusVisualizer() {
         super();
@@ -101,9 +102,10 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         return infoMap;
     }
     
-    public JComponent getOutputPanel(){
+    public Map getOutputPanels(){
         debug("getOtputPanel");
-        JTabbedPane tabPane = new JTabbedPane(JTabbedPane.BOTTOM);
+        //JTabbedPane tabPane = new JTabbedPane(JTabbedPane.BOTTOM);
+        output = new HashMap();
         Iterator  it = files.iterator();
         debug("while");
         while(it.hasNext()){
@@ -113,23 +115,30 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
                 StatusTreeInfoPanel treePanel = new StatusTreeInfoPanel(file, getCommandsProvider());
                 if(files.size() == 1){
                     treePanel.setDataToDisplay(resultList);
-                    return treePanel;
+                    output.put(file.getName(),treePanel);
+                    return output;
+                    //return treePanel;
                 }else{
                     treePanel.setDataToDisplay(findResultList(file)); 
-                    tabPane.addTab(file.getName(), treePanel);
+                    //tabPane.addTab(file.getName(), treePanel);
+                    output.put(file.getName(),treePanel);
                 }
             }else{                
                 StatusInfoPanel statPanel = new StatusInfoPanel(getCommandsProvider());
                 if(files.size() == 1){
                     statPanel.setData(statusInformation);
-                    return statPanel;
+                    output.put(file.getName(),statPanel);
+                    return output;
+                    //return statPanel;
                 }else{
                     statPanel.setData(findStatusInfo(file)); 
-                    tabPane.addTab(file.getName(), statPanel);
+                    //tabPane.addTab(file.getName(), statPanel);
+                    output.put(file.getName(),statPanel);
                 }
             }
         }
-        return tabPane;
+        //return tabPane;
+        return output;
     }
     
     private StatusInformation findStatusInfo(File file){

@@ -401,7 +401,7 @@ public class UpdateInfoPanel extends JPanel{
     
     public class CloseActionListener implements java.awt.event.ActionListener {
         public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
-            visualizer.close();
+           // visualizer.close();
         }
     }
     
