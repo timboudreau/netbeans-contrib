@@ -42,8 +42,9 @@ public class AdditionalFeatures extends NbTestCase {
     public static String VERSIONING_MENU = "Versioning";
     public static String MOUNT_MENU = VERSIONING_MENU + "|Mount Version Control|Generic VCS";
     public static String GET = "PVCS|Get";
-    public static String DIFF = "PVCS|Diff";
     public static String PUT = "PVCS|Put";
+    public static String DIFF = "Diff";
+    public static String REFRESH_REVISIONS = "Refresh Revisions";
     public static String VERSIONING_EXPLORER = "Versioning Explorer";
     public static String ADD_TO_GROUP = "Include in VCS Group|<Default Group>";
     public static String VCS_GROUPS = "VCS Groups";
@@ -146,7 +147,7 @@ public class AdditionalFeatures extends NbTestCase {
         new Action(VERSIONING_MENU + "|" + VERSIONING_EXPLORER, VERSIONING_EXPLORER).perform(A_FileNode);
         VersioningFrameOperator versioningExplorer = new VersioningFrameOperator();
         filesystemNode = new Node(versioningExplorer.treeVersioningTreeView(), filesystem);
-        new Action(null, DIFF).performPopup(new Node(filesystemNode, "A_File.java [Current]|1.0  Initial revision."));
+        new Action(null, DIFF).perform(new Node(filesystemNode, "A_File.java [Current]|1.0  Initial revision."));
         versioningExplorer.close();
         EditorOperator editor = new EditorOperator("Diff: A_File.java");
         JEditorPaneOperator headRevision = new JEditorPaneOperator(editor, 0);
@@ -185,11 +186,11 @@ public class AdditionalFeatures extends NbTestCase {
         workingDirectory = workingPath.substring(0, workingPath.indexOf("AdditionalFeatures")) + "RepositoryCreation" + File.separator + "testCreateDatabase";
         String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
-        Node A_FileNode = new Node( filesystemNode, "A_File [Current]");
-        new Action(VERSIONING_MENU + "|" + ADD_TO_GROUP, ADD_TO_GROUP).perform(A_FileNode);
+        Node B_FileNode = new Node( filesystemNode, "test [Current]|B_File [Current]");
+        new Action(VERSIONING_MENU + "|" + ADD_TO_GROUP, ADD_TO_GROUP).perform(B_FileNode);
         new Action(VERSIONING_MENU + "|" + VCS_GROUPS, null).performMenu();
         VCSGroupsFrameOperator groupsWindow = new VCSGroupsFrameOperator();
-        new Node(groupsWindow.treeVCSGroupsTreeView(), "<Default Group>|A_File [Current]").select();
+        new Node(groupsWindow.treeVCSGroupsTreeView(), "<Default Group>|B_File [Current]").select();
         System.out.println(". done !");
     }
 
@@ -200,15 +201,15 @@ public class AdditionalFeatures extends NbTestCase {
         System.out.print(".. Testing checking in from VCS group ..");
         String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
-        Node A_FileNode = new Node( filesystemNode, "A_File [Current]");
-        new Action(VERSIONING_MENU + "|" + GET, GET).perform(A_FileNode);
-        GetCommandOperator getCommand = new GetCommandOperator("A_File.java");
+        Node B_FileNode = new Node( filesystemNode, "test [Current]|B_File [Current]");
+        new Action(VERSIONING_MENU + "|" + GET, GET).perform(B_FileNode);
+        GetCommandOperator getCommand = new GetCommandOperator("B_File.java");
         getCommand.checkLockForTheCurrentUser(true);
         getCommand.checkCheckOutWritableWorkfile(true);
         getCommand.ok();
         Thread.sleep(5000);
-        BufferedWriter writer = new BufferedWriter(new FileWriter(workingDirectory + File.separator + "Work" + File.separator + "A_File.java"));
-        writer.write("/** This is testing A_File.java file.\n */\n public class Testing_File {\n     int i = 1;\n }\n");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(workingDirectory + File.separator + "Work" + File.separator + "test" + File.separator + "B_File.java"));
+        writer.write("/** This is testing B_File.java file.\n */\n public class B_File {\n     int i = 1;\n }\n");
         writer.flush();
         writer.close();
         new Action(VERSIONING_MENU + "|" + VCS_GROUPS, null).performMenu();
@@ -218,15 +219,17 @@ public class AdditionalFeatures extends NbTestCase {
         new TextFieldProperty(new PropertySheetOperator(), "Description").setValue("Checked in from VCS group.");
         defaultGroup.select();
         new Action(null, PUT).performPopup(defaultGroup);
-        PutCommandOperator putCommand = new PutCommandOperator("A_File.java");
+        PutCommandOperator putCommand = new PutCommandOperator("B_File.java");
         if (!putCommand.getChangeDescription().equals("Checked in from VCS group.\n"))
             captureScreen("Error: Group description was not propagated into checkin dialog.");
         putCommand.ok();
         MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
-        new Action(VERSIONING_MENU + "|" + VERSIONING_EXPLORER, VERSIONING_EXPLORER).perform(A_FileNode);
+        new Action(VERSIONING_MENU + "|" + VERSIONING_EXPLORER, VERSIONING_EXPLORER).perform(B_FileNode);
         VersioningFrameOperator versioningExplorer = new VersioningFrameOperator();
         filesystemNode = new Node(versioningExplorer.treeVersioningTreeView(), filesystem);
-        new Node(filesystemNode, "A_File.java [Current]|1.2  Checked in from VCS group.").select();
+        new Action(null, REFRESH_REVISIONS).perform(new Node(filesystemNode, "test [Current]|B_File.java [Current]"));
+        MainWindowOperator.getDefault().waitStatusText("Command REVISION_LIST finished.");
+        new Node(filesystemNode, "test [Current]|B_File.java [Current]|1.1  Checked in from VCS group.").select();
         versioningExplorer.close();
         System.out.println(". done !");
     }
@@ -241,8 +244,8 @@ public class AdditionalFeatures extends NbTestCase {
         groupsWindow.verifyVCSGroup("<Default Group>");
         GroupVerificationOperator verifyDialog = new GroupVerificationOperator();
         verifyDialog.checkRemoveFilesFromGroup(true);
-        if (!verifyDialog.tabNotChangedFiles().getModel().getValueAt(0, 0).equals("A_File"))
-            captureScreen("Error: A_File [Current] was not taken for correction.");
+        if (!verifyDialog.tabNotChangedFiles().getModel().getValueAt(0, 0).equals("B_File"))
+            captureScreen("Error: B_File [Current] was not taken for correction.");
         verifyDialog.correctGroup();
         Thread.sleep(2000);
         if (new Node(groupsWindow.treeVCSGroupsTreeView(), "<Default Group>").getChildren().length != 0)
