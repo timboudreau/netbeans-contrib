@@ -22,7 +22,7 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="displayName" stringvalue="Bundled Tomcat (5.0.28)"/>
                 <attr name="host" stringvalue="localhost"/>
 		<attr name="removeForbidden" stringvalue="true"/>
-                <attr name="server_port" stringvalue="8084"/>
+                <attr name="httpportnumber" stringvalue="8084"/>
                 <attr name="admin_port" stringvalue="8025"/>
                 <attr name="debugger_port" stringvalue="11555"/>
                 <attr name="classic" stringvalue="false"/>
