@@ -989,12 +989,18 @@ public class CommandNode extends AbstractNode {
                 //bundle.getString("CTL_NewCategoryName"),
                 //bundle.getString("CTL_NewCategoryTitle")
                 );
-            //input.setInputText(org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandLabel"));
             if (DialogDisplayer.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
                 return;
 
             String labelName = input.getInputText();
             String name = labelName.toUpperCase();
+            if (name.length() == 0) {
+                NotifyDescriptor.Message message = new NotifyDescriptor.Message(
+                    org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_CommandNameMustNotBeEmpty")
+                );
+                DialogDisplayer.getDefault().notify(message);
+                return ;
+            }
             if (getAllCommandsNames().contains(name)) {
                 NotifyDescriptor.Message message = new NotifyDescriptor.Message(
                     org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_CommandNameAlreadyExists")
@@ -1074,12 +1080,18 @@ public class CommandNode extends AbstractNode {
                 //bundle.getString("CTL_NewCategoryName"),
                 //bundle.getString("CTL_NewCategoryTitle")
                 );
-            //input.setInputText(org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommandLabel"));
             if (DialogDisplayer.getDefault().notify(input) != NotifyDescriptor.OK_OPTION)
                 return;
 
             String labelName = input.getInputText();
             String name = labelName.toUpperCase();
+            if (name.length() == 0) {
+                NotifyDescriptor.Message message = new NotifyDescriptor.Message(
+                    org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_FolderNameMustNotBeEmpty")
+                );
+                DialogDisplayer.getDefault().notify(message);
+                return ;
+            }
             if (getAllCommandsNames().contains(name)) {
                 NotifyDescriptor.Message message = new NotifyDescriptor.Message(
                     org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_CommandNameAlreadyExists")
