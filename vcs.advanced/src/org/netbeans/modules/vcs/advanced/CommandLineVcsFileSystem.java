@@ -336,6 +336,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 errOutput.append(line + "\n");
             }
         };
+        files.put("", null); // the command will not run if no files would be supplied.
         VcsCommandExecutor[] execs = VcsAction.doCommand(files, cmd, additionalVars, this, null, errListener, null, null);
         if (execs.length == 0) return true;
         VcsCommandExecutor exec = execs[0];
