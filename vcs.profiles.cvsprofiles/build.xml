@@ -120,7 +120,7 @@ Microsystems, Inc. All Rights Reserved.
       <fileset dir="src">
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
-        <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/layer-include*.xml"/>
+        <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/layer-include*.xml"/>
       </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
