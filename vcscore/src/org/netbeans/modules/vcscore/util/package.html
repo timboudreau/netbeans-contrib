@@ -47,7 +47,11 @@ In expert mode there are all (possibly minus RECURSIVE) components visible and p
 value should be loaded.
 
 <p>In both modes default values reloading should be defined by actual components visibility
-(catching IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT).
+(catching IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT)
+plus in trivial mode PRUNE_EMPTY and CREATE_DIRS. Here interesting situation happens
+From user point of view value of PRUNE_EMPTY and CREATE_DIRS should be shared between
+modes in spite of act that it's never visible in simple mode. Hopefully it could
+be permit-able to ignored it here.
 
 <h4>Add Command</h4>
 
@@ -86,10 +90,8 @@ store as default - no button should be visible. In expert mode there are
 visible additional components. RECURSIVE visibility depends on command execution
 context.
 
-<p>Here interesting situation happens. From user point of view value
-of recursive should be shared between modes in spite of
-fact that it's never visible in simple mode. Hopefully it could
-be permit-able to ignored it here.
+<p>RECURSIVE shoud be shared between modes regardless it's visibility.
+It's the same situation as with Update's PRUNE_EMPTY and CREATE_DIRS.
 
 <h3>Defaults Support Summary</h3>
 
