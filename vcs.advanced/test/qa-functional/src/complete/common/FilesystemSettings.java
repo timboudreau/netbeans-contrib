@@ -462,7 +462,7 @@ public class FilesystemSettings extends NbTestCase {
             VCSWizardAdvanced advancedPage = new VCSWizardAdvanced();
             advancedPage.editCommands();
             CommandEditor commandEditor = new CommandEditor();
-            commandEditor.selectCommand("Empty|Refresh");
+            new Node(commandEditor.treeCommands(), "Empty|Refresh").select();
             NbDialogOperator dialog = new NbDialogOperator("Command Editor");
             PropertySheetOperator sheet = new PropertySheetOperator(dialog);
             PropertySheetTabOperator sheetTab = sheet.getPropertySheetTabOperator("Properties");
