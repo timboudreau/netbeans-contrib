@@ -614,7 +614,7 @@ public class VariableIO extends Object {
             if (pubid.equals(PUBLIC_ID)) {
                 if (VALIDATE_XML) {
                     // We certainly know where to get this from.
-                    return new InputSource("nbres:/org/netbeans/modules/vcs/advanced/config/vcs/config/configuration-1_0.dtd"); // NOI18N
+                    return new InputSource("nbres:/vcs/config/configuration-1_0.dtd"); // NOI18N
                 } else {
                     // Not validating, don't load any DTD! Significantly faster.
                     return new InputSource(new java.io.ByteArrayInputStream(new byte[0]));
