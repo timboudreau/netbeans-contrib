@@ -17,7 +17,7 @@ Microsystems, Inc. All Rights Reserved.
     <testbag testattribs="stable" executor="ide" name="testbag_1" resultsprocessor="RMI_Tests">
         <testset dir="qa-functional/src">
             <patternset>
-		<include name="rmitests/RMIApiTests.class"/>  
+		<include name="rmitests/RMIApiTests.class"/>
                 <include name="guitests/*/*.class"/>
             </patternset>
         </testset>
@@ -26,8 +26,9 @@ Microsystems, Inc. All Rights Reserved.
     <testbag testattribs="experimental" executor="ide" name="testbag_2" resultsprocessor="RMI_Tests">
         <testset dir="qa-functional/src">
             <patternset>
-		<include name="rmitests/RMIApiTests.class"/>  
+		<include name="rmitests/RMIApiTests.class"/>
                 <include name="guitests/*/*.class"/>
+                <exclude name="rmitests/RMIApiTests.class/testRMIRegistry"/>
             </patternset>
         </testset>
     </testbag>
