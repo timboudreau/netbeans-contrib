@@ -18,6 +18,7 @@ import java.util.*;
 
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
+import org.openide.util.Mutex;
 
 
 /**
@@ -38,8 +39,9 @@ public class TaskChildren extends Children.Keys {
     }
     
     private void refreshKeys() {
+        Collection keys;
         if (parent.hasSubtasks() == false) {
-            setKeys(Collections.EMPTY_SET);
+            keys = Collections.EMPTY_SET;
         } else {
 
 // It does not work and does not save any Node instance creation
@@ -58,8 +60,16 @@ public class TaskChildren extends Children.Keys {
 //                keys2tasks.put(key, task);
 //            }
 //            setKeys(list);
-            setKeys(parent.getSubtasks());
+            keys = parent.getSubtasks();
         }
+
+        // #37802 XXX workaround
+        final Collection finalKeys = keys;
+        Mutex.EVENT.readAccess(new Runnable() {
+            public void run() {
+                setKeys(finalKeys);
+            }
+        });
     }
 
     /**
