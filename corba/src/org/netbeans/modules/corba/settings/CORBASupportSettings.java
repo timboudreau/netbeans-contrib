@@ -45,6 +45,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
   private static final boolean PRODUCTION = true;
   //private static final boolean PRODUCTION = false;
 
+  static final long serialVersionUID = 6561734687449790488L;
+
   private String[] checkSections = {"CTL_NAME", "IMPORT", "SETTINGS_ORB_PROPERTIES", 
 				    "ORB_SERVER_INIT", "ORB_CLIENT_INIT", "ORB_SERVER_RUN",
 				    "ORB_OBJECT_ACTIVATION", "DIR_PARAM", 
@@ -165,8 +167,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
   public void init () {
 
-    _ORB = ORB.init (new String[] {""}, null);
     //names = new Vector (5);
+    initOrb ();
     props = new Vector (5);
     clientBindings = new Vector (5);
     serverBindings = new Vector (5);
@@ -206,6 +208,10 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
     deserealization = false;
     }
   */
+
+  public boolean isGlobal () {
+    return false;
+  }
 
   public void propertyChange (PropertyChangeEvent event) {
       
@@ -1090,7 +1096,13 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
 
   public ORB getORB () {
+    if (_ORB == null)
+      initOrb ();
     return _ORB;
+  }
+
+  public void initOrb () {
+    _ORB = ORB.init (new String[] {""}, null);    
   }
 
 

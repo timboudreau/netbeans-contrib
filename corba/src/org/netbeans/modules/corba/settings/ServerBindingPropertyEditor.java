@@ -76,6 +76,9 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport
    }
 
    public void propertyChange (PropertyChangeEvent event) {
+
+     if (event == null || event.getPropertyName () == null)
+       return;
       
       if (DEBUG)
       	 System.out.println ("propertyChange in SBPE: " + event.getPropertyName ());
@@ -108,6 +111,8 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport
 
 /*
  * <<Log>>
+ *  14   Gandalf   1.13        3/7/00   Karel Gardas    naming service browser 
+ *       bugfix
  *  13   Gandalf   1.12        11/4/99  Karel Gardas    - update from CVS
  *  12   Gandalf   1.11        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
