@@ -847,7 +847,25 @@ public class VcsAction extends NodeAction implements ActionListener {
         vars.put("MULTIPLE_FILES", (files.size() > 1) ? Boolean.TRUE.toString() : "");
         vars.put("FILES_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// among FILES there is a folder
     }
-    
+
+    /** Remove the files for which the command is disabled */
+    private static Table removeDisabled(FileStatusProvider statusProvider, Table files, VcsCommand cmd) {
+        if (statusProvider == null) return files;
+        String disabledStatus = (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS);
+        if (disabledStatus == null) return files;
+        Table remaining = new Table();
+        for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
+            String name = (String) enum.nextElement();
+            String status = statusProvider.getFileStatus(name);
+            boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
+                disabledStatus, Collections.singleton(status));
+            if (!disabled) {
+                remaining.put(name, files.get(name));
+            }
+        }
+        return remaining;
+    }
+            
     protected void performCommand(final String cmdName, final Node[] nodes) {
         //System.out.println("performCommand("+cmdName+")");// on "+nodes.length+" nodes.");
         /* should not be used any more:
@@ -874,6 +892,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 else continue;
             }
         }
+        files = removeDisabled(fileSystem.getStatusProvider(), files, cmd);
         if (cmdName.equals(VcsCommand.NAME_REFRESH)) {
             ArrayList paths = new ArrayList();
             for (Iterator it = files.values().iterator(); it.hasNext(); ) {
