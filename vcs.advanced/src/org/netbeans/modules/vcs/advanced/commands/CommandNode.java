@@ -92,6 +92,7 @@ public class CommandNode extends AbstractNode {
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_DISABLED_ON_STATUS, String.class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_CONCURRENT_EXECUTION, Integer.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, Boolean.TYPE);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_CLEAN_UNIMPORTANT_FILES_ON_SUCCESS, Boolean.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER, Boolean.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_IGNORE_FAIL, Boolean.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED, String.class);

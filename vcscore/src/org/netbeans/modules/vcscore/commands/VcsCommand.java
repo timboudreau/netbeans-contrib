@@ -154,13 +154,20 @@ public interface VcsCommand extends VcsCommandCookie {
      * Pattern that when not matched from the exec string, the refresh is performed recursively.
      */
     public static final String PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED = "refreshRecursivelyPatternUnmatched";
-    /*
+    /**
      * An integer property. If a command fails and some refresh is scheduled after finish of this command,
      * the value of this property will be inspected to find whether the refresh command should be performed.
      * The value of this property can be one of REFRESH_ON_FAIL_FALSE, REFRESH_ON_FAIL_TRUE, REFRESH_ON_FAIL_TRUE_ON_FOLDERS.
      */
     public static final String PROPERTY_REFRESH_ON_FAIL = "refreshOnFail";
     
+    /**
+     * When this property is true, all unimportant files, that are associated with processed files
+     * are deleted after the command finish successfully. This is typically used for commands,
+     * that remove the version controled files from working directory.
+     */
+    public static final String PROPERTY_CLEAN_UNIMPORTANT_FILES_ON_SUCCESS = "cleanUnimportantFilesOnSuccess";
+
     /**
      * If non empty, the user will be asked to confirm this message prior to command execution.
      */

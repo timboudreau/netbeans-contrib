@@ -276,6 +276,9 @@ public class CommandExecutorSupport extends Object {
             checkForModifications(fileSystem, vce);
             doRefresh(fileSystem, vce);
             checkRevisionChanges(fileSystem, vce);
+            if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CLEAN_UNIMPORTANT_FILES_ON_SUCCESS)) {
+                deleteUnimportantFiles(fileSystem, vce.getFiles());
+            }
         } else {
             Object refresh = cmd.getProperty(VcsCommand.PROPERTY_REFRESH_ON_FAIL);
             if (VcsCommand.REFRESH_ON_FAIL_TRUE.equals(refresh)) {
@@ -286,6 +289,46 @@ public class CommandExecutorSupport extends Object {
         }
         issuePostCommands(cmd, vce.getVariables(),
                           VcsCommandExecutor.SUCCEEDED == exit, fileSystem);
+    }
+    
+    private static Collection getAllFilesAssociatedWith(VcsFileSystem fileSystem, Collection fileNames) {
+        java.util.HashSet files = new java.util.HashSet();
+        for (Iterator filesIt = fileNames.iterator(); filesIt.hasNext(); ) {
+            String name = (String) filesIt.next();
+            org.openide.filesystems.FileObject fo = fileSystem.findResource(name);
+            try {
+                org.openide.loaders.DataObject dobj = org.openide.loaders.DataObject.find(fo);
+                files.addAll(dobj.files());
+            } catch (org.openide.loaders.DataObjectNotFoundException donfexc) {}
+        }
+        return files;
+    }
+    
+    private static void deleteUnimportantFiles(VcsFileSystem fileSystem, Collection processedFiles) {
+        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
+        String localFileStatus = (statusProvider != null) ? statusProvider.getLocalFileStatus() : null;
+        String ignoredFileStatus = org.netbeans.modules.vcscore.caching.VcsCacheFile.STATUS_IGNORED;
+        for (Iterator filesIt = getAllFilesAssociatedWith(fileSystem, processedFiles).iterator(); filesIt.hasNext(); ) {
+            org.openide.filesystems.FileObject fo = (org.openide.filesystems.FileObject) filesIt.next();
+            String name = fo.getPackageNameExt('/', '.');
+            if (!fileSystem.isImportant(name)) {
+                if (statusProvider != null) {
+                    String status = statusProvider.getFileStatus(name);
+                    System.out.println("deleteUnimportantFiles(): "+name+": "+status);
+                    // Do not delete unimportant files, that are version controled.
+                    if (!(localFileStatus.equals(status) || ignoredFileStatus.equals(status))) continue;
+                }
+                if (fo != null) {
+                    try {
+                        fo.delete(fo.lock());
+                    } catch (java.io.IOException ioexc) {}
+                } else {
+                    try {
+                        fileSystem.delete(name);
+                    } catch (java.io.IOException ioexc) {}
+                }
+            }
+        }
     }
     
     private static void issuePostCommands(VcsCommand cmd, Hashtable vars,
