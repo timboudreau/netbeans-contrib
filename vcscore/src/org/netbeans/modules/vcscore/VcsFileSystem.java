@@ -1776,20 +1776,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param name name of the file
      * @exception IOException if the file could not be deleted
      */
-    public void delete (String name) throws IOException {
+    public void delete (final String name) throws IOException {
         D.deb("delete('"+name+"')"); // NOI18N
-        File file = getFile (name);
+        final File file = getFile (name);
         if (!deleteFile(file, name)) {
-            throw new IOException (g("EXC_CannotDelete", name, getDisplayName (), file.toString ())); // NOI18N
-        }
-    }
-    
-    private void runDeleteCommand(VcsCommand cmd, String name) {
-        Table files = new Table();
-        files.put(name, findResource(name));
-        VcsCommandExecutor[] execs = VcsAction.doCommand(files, cmd, null, this);
-        for (int i = 0; i < execs.length; i++) {
-            commandsPool.waitToFinish(execs[i]);
+            throw new IOException () {
+                public String getLocalizedMessage () {
+                    return g("EXC_CannotDelete", name, getDisplayName (), file.toString ()); // NOI18N
+                }
+            };
         }
     }
     
@@ -1805,14 +1800,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         boolean wasDir = file.isDirectory();
         if (wasDir) {
-            VcsCommand deleteDir = getCommand(VcsCommand.NAME_DELETE_DIR);
             // first of all delete whole content
-            File[] arr;
-            if (deleteDir != null) {
-                arr = file.listFiles(getLocalFileFilter());
-            } else {
-                arr = file.listFiles();
-            }
+            File[] arr = file.listFiles();
             if (arr != null) {
                 for (int i = 0; i < arr.length; i++) {
                     if (!deleteFile (arr[i], name + "/" + arr[i].getName())) {
@@ -1820,19 +1809,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     }
                 }
             }
-            if (deleteDir != null) {
-                runDeleteCommand(deleteDir, name);
-            }
-        } else {
-            VcsCommand deleteFile = getCommand(VcsCommand.NAME_DELETE_FILE);
-            if (deleteFile != null) {
-                runDeleteCommand(deleteFile, name);
-            }
         }
-        boolean success = true;
-        if (file.exists()) {
-            success = file.delete();
-        }
+        boolean success = file.delete();
         if (cache != null) cache.remove(name, wasDir);
         return success;
     }
