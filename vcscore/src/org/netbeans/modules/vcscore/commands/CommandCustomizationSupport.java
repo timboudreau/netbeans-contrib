@@ -45,6 +45,7 @@ import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.RetrievingDialog;
 import org.netbeans.modules.vcscore.VcsAttributes;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
+import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
@@ -208,8 +209,14 @@ public class CommandCustomizationSupport extends Object {
                     Table varFiles = new Table();
                     varFiles.put(name, files.get(name));
                     Hashtable vvars = new Hashtable(vars);
+
+                    // cache provider is not necessary in turbo mode
+                    FileCacheProvider cacheProvider = null;
+                    if (Turbo.implemented() == false) {
+                        cacheProvider = fileSystem.getCacheProvider();
+                    }
                     UserCommandSupport.setVariables(varFiles, vvars, fileSystem.getVarValueAdjustment(),
-                                                    fileSystem.getCacheProvider(),
+                                                    cacheProvider,
                                                     fileSystem.getRelativeMountPoint(), true);
                     String disabledWhenNotLockedConditionedExp = Variables.expand(vvars, disabledWhenNotLockedConditionedStr, false);
                     disabledWhenNotLocked = "true".equalsIgnoreCase(disabledWhenNotLockedConditionedExp);

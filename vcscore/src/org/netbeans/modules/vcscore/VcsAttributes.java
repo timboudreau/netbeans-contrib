@@ -485,6 +485,12 @@ public class VcsAttributes extends Attributes {
         RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
             boolean rec = Boolean.TRUE.equals(recursive);
+
+                if (Turbo.implemented()) {
+                    assert false : "Not implemented refresh for: " + name;  // TODO waht coming in name?
+                    return;
+                }
+
             FileCacheProvider cache = fileSystem.getCacheProvider();
             if (cache != null) {
                 if (rec) {

@@ -483,7 +483,13 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(this.cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
         boolean cmdCanRunOnMultipleFilesInFolder = VcsCommandIO.getBooleanPropertyAssumeDefault(this.cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER);
         VariableValueAdjustment valueAdjustment = executionContext.getVarValueAdjustment();
-        FileCacheProvider cacheProvider = (fileSystem != null) ? fileSystem.getCacheProvider() : null;
+
+        // set cache provider if not running in turbo mode
+        FileCacheProvider cacheProvider = null;
+        if (Turbo.implemented() == false) {
+            cacheProvider = (fileSystem != null) ? fileSystem.getCacheProvider() : null;
+        }
+
         Object obj = doCustomization(doCreateCustomizer, null, cmd, files, cacheProvider,
                                      valueAdjustment, cmdCanRunOnMultipleFiles,
                                      cmdCanRunOnMultipleFilesInFolder);
@@ -493,7 +499,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         //System.out.println("AFTER doCustomization("+doCreateCustomizer+", "+cmd.getVcsCommand()+"), files = "+files+", MODULE = "+cmd.getAdditionalVariables().get("MODULE")+", DIR = "+cmd.getAdditionalVariables().get("DIR"));
         return obj;
     }
-        
+
+    /** @param cacheProvider unused in turbo compatible mode */
     private Object doCustomization(boolean doCreateCustomizer,
                                    UserCommandCustomizer customizer,
                                    VcsDescribedCommand cmd,
@@ -513,12 +520,13 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (files != null && files.size() > 1) {
             forEachFile = new boolean[] { true };
         }
-        return doCustomization(doCreateCustomizer, customizer, cmd, files, cacheProvider,
+        return doCustomizationWithVars(doCreateCustomizer, customizer, cmd, files, cacheProvider,
                                valueAdjustment, vars, forEachFile,
                                cmdCanRunOnMultipleFiles, cmdCanRunOnMultipleFilesInFolder);
     }
-    
-    private Object doCustomization(boolean doCreateCustomizer,
+
+    /** @param cacheProvider unused in turbo compatible mode */
+    private Object doCustomizationWithVars(boolean doCreateCustomizer,
                                    UserCommandCustomizer customizer,
                                    VcsDescribedCommand cmd,
                                    Table files, FileCacheProvider cacheProvider,
@@ -609,7 +617,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             if (files.size() > 0 && lastCmd != null) {
                 VcsDescribedCommand nextCmd = createNextCommand(files, lastCmd);
                 // Do not attempt to create a customizer again if it was already null
-                doCustomization(false, null, nextCmd, files, cacheProvider,
+                doCustomizationWithVars(false, null, nextCmd, files, cacheProvider,  // recursion
                                 valueAdjustment, new Hashtable(vars), forEachFile,
                                 cmdCanRunOnMultipleFiles, cmdCanRunOnMultipleFilesInFolder);
             }
@@ -618,7 +626,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         //System.out.println("\nUserCommandSupport.doCustomization("+doCreateCustomizer+") = "+customizer);
         return finalCustomizer;
     }
-        
+
+    /** @param cacheProvider unused in turbo compatible mode. */
     private VcsDescribedCommand createNextCustomizedCommand(VcsDescribedCommand cmd,
                                                             Table files,
                                                             FileCacheProvider cacheProvider,
@@ -648,7 +657,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             VcsDescribedCommand nextCmd = createNextCommand(remaining, cmd);
             Hashtable newVars = new Hashtable(vars);
             VcsDescribedCommand nextCustomizedCommand =
-                   createNextCustomizedCommand(nextCmd, remaining, cacheProvider,
+                   createNextCustomizedCommand(nextCmd, remaining, cacheProvider,  // recursion
                                                valueAdjustment, newVars,
                                                cmdCanRunOnMultipleFiles,
                                                cmdCanRunOnMultipleFilesInFolder);
@@ -777,7 +786,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         }
         return files;
     }
-    
+
+    /** @param cacheProvider unused in turbo compatible mode */
     private Object createCustomizer(UserCommandCustomizer customizer,
                                     String newExec, final Hashtable vars,
                                     final boolean[] forEachFile,
@@ -850,7 +860,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     if (files.size() > 0 && lastCmd != null) {
                         VcsDescribedCommand nextCmd = createNextCommand(files, lastCmd);
                         // Do not attempt to create a customizer again
-                        doCustomization(false, null, nextCmd, files, cacheProvider,
+                        doCustomizationWithVars(false, null, nextCmd, files, cacheProvider,
                                         valueAdjustment, new Hashtable(vars), forEachFile,
                                         cmdCanRunOnMultipleFiles, cmdCanRunOnMultipleFilesInFolder);
                     }
@@ -1162,7 +1172,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         return values.toArray();
     }
 
-    /** Add files specific variables.
+    /**
+     * Add files specific variables. Turbo compatible.
      * The following variables are added:
      * <br>PATH - the full path to the first file from the filesystem root
      * <br>ABSPATH - the absolute path to the first file

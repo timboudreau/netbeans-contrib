@@ -42,6 +42,32 @@ public final class TurboUtil {
     }
 
     /**
+     * Iterates over folder children and updates status from repository
+     */
+    public static void refreshFolder(FileObject folder) {
+        if (folder.isFolder() == false) return;
+        FileObject[] files = folder.getChildren();
+        for (int i = 0; i < files.length; i++) {
+            FileObject fileObject = files[i];
+            Turbo.getRepositoryMeta(fileObject);
+        }
+    }
+
+    /**
+     * Recursively iterates over all children and updates status from repository
+     */
+    public static void refreshRecursively(FileObject folder) {
+        Turbo.getRepositoryMeta(folder);
+        if (folder.isFolder() == false) return;
+
+        FileObject[] files = folder.getChildren();
+        for (int i = 0; i < files.length; i++) {
+            FileObject fileObject = files[i];
+            refreshRecursively(fileObject); // recursion
+        }
+    }
+
+    /**
      * Populates cache by command output ({@link VcsCache#readDirFinished}).
      *
      * @param path directory that was read by VcsDirReader relative to the filesystem root

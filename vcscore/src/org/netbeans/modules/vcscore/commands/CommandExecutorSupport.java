@@ -34,6 +34,7 @@ import java.util.WeakHashMap;
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.filesystems.FileObject;
 import org.openide.util.RequestProcessor;
 import org.openide.util.UserCancelException;
 
@@ -47,6 +48,8 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 //import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.RetrievingDialog;
+import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.turbo.TurboUtil;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
@@ -261,7 +264,8 @@ public class CommandExecutorSupport extends Object {
             }
         }
     }
-    
+
+    /** Refreshes all files (keys) in map according to recursion (value). Turbo compatible. */
     private static void doRefresh(VcsFileSystem fileSystem, Map foldersToRefresh) {
         //System.out.println("doRefresh("+foldersToRefresh+")");
         for (Iterator it = foldersToRefresh.keySet().iterator(); it.hasNext(); ) {
@@ -272,12 +276,26 @@ public class CommandExecutorSupport extends Object {
         }
     }
     
-    /** Perform the refresh of a folder.
+    /**
+     * Perform the refresh of a folder. Turbo compatible.
      * @param fileSystem the file system to use
      * @param refreshPath the folder to refresh
      * @param recursive whether to do the refresh recursively
      */
     public static void doRefresh(VcsFileSystem fileSystem, String refreshPath, boolean recursive) {
+
+        if (Turbo.implemented()) {
+            FileObject fo = fileSystem.findResource(refreshPath);
+            if (recursive) {
+                // TODO the old implementaion poped up an window, when? why?
+                TurboUtil.refreshRecursively(fo);
+            } else {
+                TurboUtil.refreshFolder(fo);
+            }
+            return;
+        }
+
+        // the old implementation
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         if (statusProvider == null) return ;
         FileCacheProvider cache = fileSystem.getCacheProvider();
@@ -337,11 +355,18 @@ public class CommandExecutorSupport extends Object {
         }
         return foldersToRefresh;
     }
-    
+
+    /**
+     * @param recursively [0] is filled by the method
+     * @return dir[+file] converted to FS path or <code>null</code>
+     */
     private static String getFolderToRefresh(VcsFileSystem fileSystem, String exec,
                                              VcsCommand cmd, String dir, String file,
                                              boolean foldersOnly, boolean doRefreshCurrent,
                                              boolean doRefreshParent, Boolean[] recursively) {
+
+        assert Turbo.implemented() == false; // TODO decode it and add turbo mode support
+
         FileCacheProvider cache = fileSystem.getCacheProvider();
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         if (statusProvider == null) return null; // No refresh without a status provider

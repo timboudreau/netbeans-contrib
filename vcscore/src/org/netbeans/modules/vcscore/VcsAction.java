@@ -41,6 +41,8 @@ import org.netbeans.modules.vcscore.cmdline.UserCommandTask;
 import org.netbeans.modules.vcscore.cmdline.WrappingCommandTask;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
+import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.turbo.TurboUtil;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileSystem;
 
@@ -184,18 +186,19 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
      */
 
     /**
-     * Do refresh of a directory.
+     * Do refresh children of a directory.
      * @param path the directory path
-     *
-    public void doList(String path) {
-        //D.deb("doList('"+path+"')"); // NOI18N
-        //System.out.println("VcsAction.doList("+path+")");
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        doList(fileSystem, path);
-    }
      */
-    
-    public static void doList(VcsFileSystem fileSystem, String path) {
+    private static void doList(VcsFileSystem fileSystem, String path) {
+
+        if (Turbo.implemented()) {
+            FileObject fo = fileSystem.findResource(path);
+            Turbo.getRepositoryMeta(fo);
+            TurboUtil.refreshFolder(fo);
+            return;
+        }
+
+        // the old implementation
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         FileCacheProvider cache = fileSystem.getCacheProvider();
         if (statusProvider == null) return;
@@ -1529,7 +1532,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
                 if (fo == null) continue;
                 String path = getPackageNameSlashes(fo);
                 if (!paths.contains(path)) {
-                    doList(fileSystem, path);
+                    doList(fileSystem, path);  // TODO how does it differ from CommandExecutorSupport.doRefresh(fileSystem, path, false); bellow
                     paths.add(path);
                 }
             }

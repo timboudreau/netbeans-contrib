@@ -722,41 +722,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         firePropertyChange(org.netbeans.modules.vcscore.runtime.RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT, null, null);
     }
 
-    public int getVFSMessageLength() {
-        return versioningFileSystemMessageLength;
-    }
-    public void setVFSMessageLength(int newVal) {
-        versioningFileSystemMessageLength = newVal;
-    }
-
-    public boolean getVFSShowLocalFiles() {
-        return versioningFileSystemShowLocalFiles;
-    }
-    public void setVFSShowLocalFiles(boolean newVal) {
-        versioningFileSystemShowLocalFiles = newVal;
-    }
-
-    public boolean getVFSShowMessage() {
-        return versioningFileSystemShowMessage;
-    }
-    public void setVFSShowMessage(boolean newVal) {
-        versioningFileSystemShowMessage = newVal;
-    }
-
-    public boolean getVFSShowUnimportantFiles() {
-        return versioningFileSystemShowUnimportantFiles;
-    }
-    public void setVFSShowUnimportantFiles(boolean newVal) {
-        versioningFileSystemShowUnimportantFiles = newVal;
-    }
-
-    public boolean getVFSShowDeadFiles() {
-        return versioningFileSystemShowDeadFiles;
-    }
-    public void setVFSShowDeadFiles(boolean newVal) {
-        versioningFileSystemShowDeadFiles = newVal;
-    }
-
     public void addRevisionListener(RevisionListener listener) {
         synchronized (revisionListenersLock) {
             if (revisionListeners == null) revisionListeners = new ArrayList();
@@ -1347,6 +1312,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     /**
      * Get the provider of the cache.
+     * @deprecated by both Turbo and CacheHandler
      */
     public FileCacheProvider getCacheProvider() {
         return cache;
@@ -1354,6 +1320,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     /**
      * Get the provider of file status attributes.
+     * @deprecated by both Turbo and CacheHandler
      */
     public FileStatusProvider getStatusProvider() {
         return statusProvider;
@@ -1573,6 +1540,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             && (getAutoRefresh() == GeneralVcsSettings.AUTO_REFRESH_ON_MOUNT_AND_RESTART
             || (deserialized && getAutoRefresh() == GeneralVcsSettings.AUTO_REFRESH_ON_RESTART)
             || (!deserialized && getAutoRefresh() == GeneralVcsSettings.AUTO_REFRESH_ON_MOUNT))) {
+
+                //XXX does not it interfere with initial checkout&refresh (if selected)
                 CommandExecutorSupport.doRefresh(VcsFileSystem.this, "", true);
         }
         if (isCreateVersioningSystem()) {
