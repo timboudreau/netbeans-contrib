@@ -73,10 +73,13 @@ public abstract class MemberElementImpl extends ElementImpl
     */
     public Identifier getName () {
         if (name == null) {
-            String fullName = (data instanceof Class) ?
-                              Utilities.getClassName((Class)data) :
-                              ((Member)data).getName();
-
+            String fullName;
+            if (data instanceof Class) {
+                fullName = Utilities.getClassName((Class)data);
+                fullName = fullName.replace('$', '.');
+            } else {
+                fullName = ((Member)data).getName();
+            }
             int lastDot = fullName.lastIndexOf("."); // NOI18N
             name = (lastDot == -1) ?
                    Identifier.create(fullName) :
