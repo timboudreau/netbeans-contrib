@@ -32,6 +32,9 @@ import org.openide.filesystems.DefaultAttributes;
 
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
+import org.netbeans.modules.vcscore.commands.CommandOutputListener;
+import org.netbeans.modules.vcscore.commands.VcsCommand;
+import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.util.*;
 
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
@@ -76,14 +79,15 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private String cacheRoot;
     private String cachePath;
     private long cacheId = 0;
+    private transient boolean doInitialCheckout = false; // whether to do an initial checkout after the FS is mounted
 
     static final long serialVersionUID =-1017235664394970926L;
     //-------------------------------------------
     public CommandLineVcsFileSystem () {
         //D.deb("CommandLineVcsFileSystem()"); // NOI18N
         super ();
-        boolean status = readConfiguration ();
-        if (status == false) readConfigurationCompat();
+        boolean status = readConfiguration (DEFAULT_CONFIG_NAME);
+        if (status == false) readConfigurationCompat(DEFAULT_CONFIG_NAME_COMPAT);
         addPropertyChangeListener(this);
         /*
         cacheRoot = System.getProperty("netbeans.user")+File.separator+
@@ -206,6 +210,28 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return dir;
     }
 
+    /**
+     * Set whether to do initial checkout after mount or not.
+     */
+    public void setInitialCheckout(boolean doInitialCheckout) {
+        this.doInitialCheckout = doInitialCheckout;
+    }
+    
+    /**
+     * Notification, that the filesystem is being added to the repository
+     */
+    public void addNotify() {
+        if (this.doInitialCheckout) {
+            Table files = new Table();
+            files.put("", findResource(""));
+            VcsCommand cmd = getCommand("CHECKOUT");
+            if (cmd != null) {
+                VcsAction.doCommand(files, cmd, null, this);
+            }
+        }
+        super.addNotify();
+    }    
+    
     public void removeNotify() {
         File dir = new File (cachePath);
         if(dir.exists () && dir.isDirectory () && dir.canWrite ()) {
@@ -216,7 +242,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         super.removeNotify();
     }
     
-    protected boolean readConfigurationCompat () {
+    public boolean readConfigurationCompat (String configFileName) {
         D.deb ("readConfigurationCompat ()"); // NOI18N
         //CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
         //            "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
@@ -224,16 +250,18 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setConfigFO();
         if (CONFIG_ROOT_FO == null) return false;
         //Properties props=VcsConfigVariable.readPredefinedPropertiesIO(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
-        Properties props = VariableIOCompat.readPredefinedProperties(CONFIG_ROOT_FO, DEFAULT_CONFIG_NAME_COMPAT); // NOI18N
+        Properties props = VariableIOCompat.readPredefinedProperties(CONFIG_ROOT_FO, configFileName); // NOI18N
+        String label = props.getProperty("label", clg("CTL_No_label_configured"));
         setVariables (VariableIOCompat.readVariables(props));
         D.deb("setVariables DONE."); // NOI18N
         
         setCommands ((org.openide.nodes.Node) CommandLineVcsAdvancedCustomizer.readConfig (props));
         D.deb("readConfigurationCompat() done"); // NOI18N
+        setConfig(label);
         return true;
     }
 
-    protected boolean readConfiguration () {
+    public boolean readConfiguration (String configFileName) {
         D.deb ("readConfiguration ()"); // NOI18N
         //CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
         //            "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
@@ -241,16 +269,50 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setConfigFO();
         if (CONFIG_ROOT_FO == null) return false;
         //Properties props=VcsConfigVariable.readPredefinedPropertiesIO(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
-        org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, DEFAULT_CONFIG_NAME); // NOI18N
+        org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName); // NOI18N
         if (doc == null) return false;
+        String label = VariableIO.getConfigurationLabel(doc);
         setVariables (VariableIO.readVariables(doc));
         D.deb("setVariables DONE."); // NOI18N
         
         setCommands ((org.openide.nodes.Node) CommandLineVcsAdvancedCustomizer.readConfig (doc));
         D.deb("readConfiguration() done"); // NOI18N
+        setConfig(label);
         return true;
     }
 
+    /**
+     * Call this method to perform the login process.
+     */
+    public boolean checkLogin(String connectStr, String password) 
+            throws IOException, java.net.UnknownHostException {
+        VcsCommand cmd = getCommand("DO_LOGIN");
+        if (cmd == null) return true; // suppose, that the login is O.K.
+        Table files = new Table();
+        Hashtable additionalVars = new Hashtable();
+        additionalVars.put("CONNECT_STR", connectStr);
+        additionalVars.put("PASSWORD", password);
+        final StringBuffer errOutput = new StringBuffer();
+        CommandOutputListener errListener = new CommandOutputListener() {
+            public void outputLine(String line) {
+                errOutput.append(line + "\n");
+            }
+        };
+        VcsCommandExecutor[] execs = VcsAction.doCommand(files, cmd, additionalVars, this, null, errListener, null, null);
+        if (execs.length == 0) return true;
+        VcsCommandExecutor exec = execs[0];
+        getCommandsPool().waitToFinish(exec);
+        boolean succeeded = (exec.getExitStatus() == VcsCommandExecutor.SUCCEEDED);
+        if (!succeeded) {
+            throw new java.io.IOException() {
+                public String getLocalizedMessage() {
+                    return errOutput.toString();
+                }
+            };
+        }
+        return succeeded;
+    }
+    
     /**
      * Allows some cleanup of the document which the user is asked for.
      * doc The Document
