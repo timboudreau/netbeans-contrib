@@ -220,7 +220,8 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
             dir = commonParent + Variables.expand(vars, "${PS}", false) + dir;
         }
         String path = dir.replace (java.io.File.separatorChar, '/');
-        if (getExec() == null) {
+        String exec = getExec();
+        if (exec == null || exec.trim().length() == 0) {
             //String dirName = (((String) vars.get("DIR"))).replace(((String) vars.get("PS")).charAt(0), '/');
             RetrievingDialog rd = new RetrievingDialog(getFileSystem(), path, new javax.swing.JFrame(), false);
             VcsUtilities.centerWindow(rd);
