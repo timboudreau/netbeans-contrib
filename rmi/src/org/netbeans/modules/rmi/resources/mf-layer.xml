@@ -16,21 +16,13 @@ Microsystems, Inc. All Rights Reserved.
 
 <filesystem>
 
-	<!-- Actions -->	
-	<folder name="Actions">
-		<folder name="Tools">
-			<file name="org-netbeans-modules-rmi-MarkRMIAction.instance"/>
-			<file name="org-netbeans-modules-rmi-UnMarkRMIAction.instance"/>
-		</folder>
-	</folder>
-
 	<!-- Temporary files -->
   <folder name="RMI">
     <file name="rmi.policy" url="rmi.policy" />
   </folder>
   
 	<!-- Templates -->  
-  <folder name="Templates">
+<!--  <folder name="Templates">
     <attr name="JSP_Servlet/RMI" boolvalue="true"/>
     <folder name="RMI">
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.resources.Bundle"/>
@@ -184,146 +176,15 @@ Microsystems, Inc. All Rights Reserved.
       </folder>
 
     </folder>
-
-    <!-- Default services -->    
-    <folder name="Services">
-        <folder name="CompilerType">
-            <file name="RMIStubCompiler.settings" url="RMIStubCompiler.settings">
-                <attr name="template" boolvalue="true" />
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/rmiStubCompilation.gif"/>
-            </file>
-        </folder>
-
-        <folder name="DebuggerType">
-            <file name="RMIDebugger.settings" url="RMIDebugger.settings">
-                <attr name="template" boolvalue="true"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIDebugger.gif"/>
-            </file>
-        </folder>
-
-        <!-- Executor -->
-        <folder name="Executor">
-            <file name="RMIExecutor.settings" url="RMIExecutor.settings">
-                <attr name="template" boolvalue="true"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIExecutor.gif"/>
-            </file>
-        </folder>
-    </folder>
-    
-  </folder>
-
+-->
 
 	<!-- Services -->
     <folder name="Services">
-    
-        <!-- Settings -->
-        <file name="org-netbeans-modules-rmi-settings-RMISettings.settings" url="RMISettings.settings">
-            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.settings.Bundle"/>
-            <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/rmiSettings.gif"/>
-        </file>
-        <file name="org-netbeans-modules-rmi-settings-RMIRegistryItems.settings" url="RMIRegistryItems.settings">
-            <attr name="hidden" boolvalue="true" />
-            <attr name="SystemFileSystem.layer" stringvalue="project"/>
-        </file>
-
-        <!-- Compiler -->
-        <folder name="CompilerType">
-            <file name="RMIStubCompiler.settings" url="RMIStubCompiler.settings">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/rmiStubCompilation.gif"/>
-                <attr name="SystemFileSystem.layer" stringvalue="project"/>
-            </file>
-            <!-- IIOP -->
-            <file name="RMIStubCompilerIIOP.settings" url="RMIStubCompilerIIOP.settings">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/rmiStubCompilation.gif"/>
-                <attr name="SystemFileSystem.layer" stringvalue="project"/>
-            </file>
-        </folder>
-
-        <!-- Debugger -->
-        <folder name="DebuggerType">
-            <file name="RMIDebugger.settings" url="RMIDebugger.settings">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIDebugger.gif"/>
-                <attr name="SystemFileSystem.layer" stringvalue="project"/>
-            </file>
-        </folder>
-
-        <!-- Executor -->
-        <folder name="Executor">
-            <!-- Default -->
-            <file name="RMIExecutor.settings" url="RMIExecutor.settings">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIExecutor.gif"/>
-                <attr name="SystemFileSystem.layer" stringvalue="project"/>
-            </file>
-
-            <!-- Debug -->
-            <file name="RMIExecutorDbg.settings" url="RMIExecutorDbg.settings">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIExecutor.gif"/>
-                <attr name="SystemFileSystem.layer" stringvalue="project"/>
-            </file>
-            <attr name="RMIExecutor.settings/RMIExecutorDbg.settings" boolvalue="true" />
-
-            <!-- Client -->
-            <file name="RMIClientExecutor.settings" url="RMIClientExecutor.settings">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIExecutor.gif"/>
-                <attr name="SystemFileSystem.layer" stringvalue="project"/>
-            </file>
-            <attr name="RMIExecutorDbg.settings/RMIClientExecutor.settings" boolvalue="true" />
-
-            <!-- Client debug -->
-            <file name="RMIClientExecutorDbg.settings" url="RMIClientExecutorDbg.settings">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIExecutor.gif"/>
-                <attr name="SystemFileSystem.layer" stringvalue="project"/>
-            </file>
-            <attr name="RMIClientExecutor.settings/RMIClientExecutorDbg.settings" boolvalue="true" />
-
-            <!-- Unicast Export -->
-            <file name="RMIUnicastExport.settings" url="RMIUnicastExport.settings">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIExecutor.gif"/>
-                <attr name="SystemFileSystem.layer" stringvalue="project"/>
-            </file>
-            <attr name="RMIClientExecutorDbg.settings/RMIUnicastExport.settings" boolvalue="true" />
-
-            <!-- Unicast Export debug -->
-            <file name="RMIExportDbg.settings" url="RMIExportDbg.settings">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIExecutor.gif"/>
-                <attr name="SystemFileSystem.layer" stringvalue="project"/>
-            </file>
-            <attr name="RMIUnicastExport.settings/RMIExportDbg.settings" boolvalue="true" />
-
-        </folder>
-
 	<folder name="JavaHelp">
             <attr name="org-netbeans-modules-usersguide-above-regular.txt/org-netbeans-modules-rmi-helpset.xml" boolvalue="true"/>
             <file name="org-netbeans-modules-rmi-helpset.xml" url="helpset.xml">
             </file>
             <attr name="org-netbeans-modules-rmi-helpset.xml/org-netbeans-modules-usersguide-below-regular.txt" boolvalue="true"/>
-        </folder>
-    </folder>
-
-    <folder name="UI">
-        <folder name="Runtime">
-          <file name="org-netbeans-modules-rmi-registry-RMIRegistryNode.instance"/>
-          <file name="org-netbeans-modules-rmi-activation-ActivationBrowserNode.instance"/>
-        </folder> <!-- Runtime -->
-        <folder name="Services">
-            <folder name="DistributedApplicationSupport">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
-
-                <file name="org-netbeans-modules-rmi-settings-RMISettings.shadow" url="rs.settings">
-                </file>
-            </folder>
         </folder>
     </folder>
 
