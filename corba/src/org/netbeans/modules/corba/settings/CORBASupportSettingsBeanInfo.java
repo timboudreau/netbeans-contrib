@@ -117,8 +117,8 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 		       new PropertyDescriptor ("_M_implementations", CORBASupportSettings.class, // NOI18N
 					       "getBeans", "setBeans") // NOI18N
 	    };
-	    desc[0].setDisplayName (CORBASupport.bundle.getString ("PROP_ORB"));
-	    desc[0].setShortDescription (CORBASupport.bundle.getString ("HINT_ORB"));
+	    desc[0].setDisplayName (ORBSettingsBundle.PROP_ORB);
+	    desc[0].setShortDescription (ORBSettingsBundle.HINT_ORB);
 	    desc[0].setPropertyEditorClass (OrbPropertyEditor.class);
 
 	    // hidden options for serialization
