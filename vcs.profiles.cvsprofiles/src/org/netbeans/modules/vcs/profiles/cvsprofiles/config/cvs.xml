@@ -3218,7 +3218,8 @@ Microsystems, Inc. All Rights Reserved.
                  SELECT_COMBO_EXPERT(RCS_KFLAG, ResourceMsg(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg(ACS_COMMAND_Keyword_Substitution_mnc)), ["ResourceMsg(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
                  PROMPT_FOR_EXPERT(IGNORE, ResourceMsg(COMMAND_IMPORT_Ignore), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_IMPORT_Ignore);;MNEMONIC_ResourceMsg(ACS_COMMAND_IMPORT_Ignore_mnc)))
                  PROMPT_FOR_EXPERT(BRANCH_ID, ResourceMsg(COMMAND_IMPORT_Branch_Id), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_IMPORT_Branch_Id);;MNEMONIC_ResourceMsg(ACS_COMMAND_IMPORT_Branch_Id_mnc)))
-                 ASK_FOR(DO_CHECKOUT, ResourceMsg(COMMAND_IMPORT_Do_Checkout), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_IMPORT_Do_Checkout);;MNEMONIC_ResourceMsg(ACS_COMMAND_IMPORT_Do_Checkout_mnc)))
+                 ASK_FOR(DO_CHECKOUT, ResourceMsg(COMMAND_IMPORT_Do_Checkout), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_IMPORT_Do_Checkout);;MNEMONIC_ResourceMsg(ACS_COMMAND_IMPORT_Do_Checkout_mnc)), ENABLE(CHECKOUT_ROOTDIR))
+                 PROMPT_FOR(CHECKOUT_ROOTDIR, "ResourceMsg(COMMAND_IMPORT_CHECKOUT_WORKING_DIR)", "", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_IMPORT_CHECKOUT_WORKING_DIR);;MNEMONIC_ResourceMsg(COMMAND_IMPORT_CHECKOUT_WORKING_DIR_mnc)), VALIDATOR_FOLDER, SELECTOR_DIR)
                  PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, ResourceMsg(COMMAND_IMPORT_Checkout_Options), "-N -R",ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_IMPORT_Checkout_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_IMPORT_Checkout_Options_mnc)))
           </value>
 	</property>
@@ -3260,17 +3261,17 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_IMPORTED">
 	<property name="exec">
-          <value>$[? BUILT-IN-GLB][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
-                                  [$[? IS_WINNT][${RUN} cd /D ${ROOTDIR} &amp;&amp; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
-                                  [$[? IS_WIN9X][${RUN} cd ${ROOTDIR}; ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
-                                  [${RUN} cd ${ROOTDIR}; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]]]
+          <value>$[? BUILT-IN-GLB][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${CHECKOUT_ROOTDIR}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
+                                  [$[? IS_WINNT][${RUN} cd /D ${CHECKOUT_ROOTDIR} &amp;&amp; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
+                                  [$[? IS_WIN9X][${RUN} cd ${CHECKOUT_ROOTDIR}; ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]
+                                  [${RUN} cd ${CHECKOUT_ROOTDIR}; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${REPOS_DIR}${QUOTE} ${NUR}]]]
           </value>
         </property>
         <property name="preCommands">
           <value>PRE_CHECKOUT_CREATE_CVS_FOLDER</value>
         </property>
         <property name="commandsAfterSuccess">
-          <value>$[? NON_SHARABLE_FILES] [COPY_NON_SHARABLE] []</value>
+          <value>$[? NON_SHARABLE_FILES] [COPY_NON_SHARABLE, ] []GLOBAL_REGISTER</value>
         </property>
         <property name="refreshParentFolder">
           <value>true</value>

@@ -107,7 +107,11 @@ public class CopyNonSharableFiles extends Object implements VcsAdditionalCommand
             root = (String) vars.get("ROOTDIR") + File.separator + relativePath.replace('/', File.separatorChar);
         } else {
             relativePath = "";
+            String checkoutRoot = (String) vars.get("CHECKOUT_ROOTDIR");
             root = (String) vars.get("ROOTDIR");
+            if (checkoutRoot != null && !checkoutRoot.equals(root)) {
+                root = checkoutRoot;
+            }
             String reposDir = (String) vars.get("REPOS_DIR");
             if (!".".equals(reposDir)) {
                 root += File.separator + reposDir;

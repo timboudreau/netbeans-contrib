@@ -56,7 +56,14 @@ public class MoveImportedFolder extends Object implements VcsAdditionalCommand {
                         final CommandDataOutputListener stderrDataListener, String errorRegex) {
 
         String rootPath = (String) vars.get("ROOTDIR");
+        String checkoutPath = (String) vars.get("CHECKOUT_ROOTDIR");
         File root = new File(rootPath);
+        File checkoutRoot = new File(checkoutPath);
+        if (!root.equals(checkoutRoot)) {
+            // Nothing will be moved when the checkout folder is different
+            vars.put("IMPORTED_ORIG_FOLDER", root.getAbsolutePath());
+            return true;
+        }
         File[] files = root.listFiles();
         File orig = createOrig(root, files);
         for (int i = 0; i < files.length; i++) {

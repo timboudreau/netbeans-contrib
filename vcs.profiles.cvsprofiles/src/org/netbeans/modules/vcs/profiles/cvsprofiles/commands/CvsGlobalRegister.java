@@ -56,7 +56,10 @@ public class CvsGlobalRegister extends Object implements VcsAdditionalCommand {
                         CommandDataOutputListener stdoutListener, String dataRegex,
                         CommandDataOutputListener stderrListener, String errorRegex) {
         
-        String dirName = (String) vars.get(ROOT_DIR);
+        String dirName = (String) vars.get("CHECKOUT_ROOTDIR");
+        if (dirName == null) {
+            dirName = (String) vars.get(ROOT_DIR);
+        }
         if ((dirName == null) || (dirName.length() ==0))
             return false;
         String rootStr = (String) vars.get("CVS_ROOT"); // NOI18N
