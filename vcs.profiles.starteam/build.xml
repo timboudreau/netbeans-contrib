@@ -55,8 +55,6 @@ Microsystems, Inc. All Rights Reserved.
     <!--
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-commands.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/starteam/commands/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/starteam/commands/*.java"/>
-       <include name="org/netbeans/modules/vcs/profiles/starteam/commands/*.form"/>
        <include name="org/netbeans/modules/vcs/profiles/starteam/commands/*.properties"/>
     </makelayer>
     -->
@@ -77,7 +75,6 @@ Microsystems, Inc. All Rights Reserved.
     </makelayer>  
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-list.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/starteam/list/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/starteam/list/*.java"/>
        <include name="org/netbeans/modules/vcs/profiles/starteam/list/*.properties"/>
     </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>

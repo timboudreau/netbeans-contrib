@@ -67,7 +67,6 @@ Microsystems, Inc. All Rights Reserved.
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/clearcase/layer-includes-list.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/clearcase/list/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/clearcase/list/*.java"/>
        <include name="org/netbeans/modules/vcs/profiles/clearcase/list/*.properties"/>
     </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>

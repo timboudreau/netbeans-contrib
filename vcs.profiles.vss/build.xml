@@ -44,7 +44,6 @@ Microsystems, Inc. All Rights Reserved.
   <target name="jars" depends="compile">
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-commands.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.class"/>       
-       <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.form"/>
        <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.properties"/>
        <exclude name="org/netbeans/modules/vcs/profiles/vss/commands/*_ja.properties"/>
     </makelayer>
@@ -76,9 +75,6 @@ Microsystems, Inc. All Rights Reserved.
       <fileset dir="src/" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt">
         <include name="**/*"/>
 	<exclude name="org/netbeans/modules/vcs/profiles/vss/config/*_XX.*"/>
-      </fileset>
-      <fileset dir="src/">        
-        <include name="**/*.form"/>
       </fileset>
     </jar>
   </target>

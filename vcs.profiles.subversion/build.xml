@@ -46,8 +46,6 @@ Microsystems, Inc. All Rights Reserved.
     <!--
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/subversion/layer-includes-commands.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/subversion/commands/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/subversion/commands/*.java"/>
-       <include name="org/netbeans/modules/vcs/profiles/subversion/commands/*.form"/>
        <include name="org/netbeans/modules/vcs/profiles/subversion/commands/*.properties"/>
     </makelayer>
     -->
@@ -60,7 +58,6 @@ Microsystems, Inc. All Rights Reserved.
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/subversion/layer-includes-list.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/subversion/list/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/subversion/list/*.java"/>
        <include name="org/netbeans/modules/vcs/profiles/subversion/list/*.properties"/>
     </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
@@ -73,10 +70,6 @@ Microsystems, Inc. All Rights Reserved.
          compress="false">
       <fileset dir="src/" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt">
         <include name="**/*"/>
-      </fileset>
-      <fileset dir="src/">
-        <include name="**/*.java"/>
-        <include name="**/*.form"/>
       </fileset>
     </jar>
     <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
