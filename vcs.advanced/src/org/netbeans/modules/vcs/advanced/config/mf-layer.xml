@@ -48,9 +48,21 @@ Microsystems, Inc. All Rights Reserved.
   </folder>
 
   <folder name="Menu">
-    <folder name="Versioning">
+    <!--<folder name="Versioning">
       <file name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance" /> 
+    </folder>-->
+    <folder name="Window">
+        <folder name="Versioning">
+            <attr name="org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance/org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance" /> 
+        </folder>
     </folder>
+  </folder>
+  
+  <folder name="Shortcuts">
+      <file name="C-9.instance">
+          <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.grouping.VcsGroupMenuAction" />
+      </file>
   </folder>
 
   <folder name="Toolbars">

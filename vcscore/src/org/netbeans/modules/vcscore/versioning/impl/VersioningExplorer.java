@@ -126,13 +126,17 @@ public class VersioningExplorer {
             Mode myMode = workspace.findMode(this);
             if (myMode == null) {
                 // create new mode for CI and set the bounds properly
-                myMode = workspace.createMode(MODE_NAME, getName(), null); //NOI18N
+//                myMode = workspace.createMode(MODE_NAME, getName(), null); //NOI18N // TEMP
                 /*
                 Rectangle workingSpace = workspace.getBounds();
                 myMode.setBounds(new Rectangle(workingSpace.x +(workingSpace.width * 3 / 10), workingSpace.y,
                                                workingSpace.width * 2 / 10, workingSpace.height / 2));
                  */
-                myMode.dockInto(this);
+                
+                myMode = WindowManager.getDefault().findMode("explorer"); // NOI18N
+                if(myMode != null) {
+                    myMode.dockInto(this);
+                }
             }
             super.open(workspace);
         }

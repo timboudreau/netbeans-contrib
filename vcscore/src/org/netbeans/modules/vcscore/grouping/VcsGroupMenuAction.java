@@ -122,20 +122,24 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         
         if (panel == null) {
             panel = new GroupExplorerPanel();
-            Workspace workspace = WindowManager.getDefault().getCurrentWorkspace();
-            String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
-            Mode myMode = workspace.findMode(MODE_NAME);
-            
-            if (myMode == null) {
-                // create new mode for CI and set the bounds properly
-                myMode = workspace.createMode(MODE_NAME, modeName, null); //NOI18N
-                /*
-                Rectangle workingSpace = workspace.getBounds();
-                myMode.setBounds(new Rectangle(workingSpace.x +(workingSpace.width * 3 / 10), workingSpace.y,
-                                               workingSpace.width * 2 / 10, workingSpace.height / 2));
-                 */
+//            Workspace workspace = WindowManager.getDefault().getCurrentWorkspace();
+//            String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
+//            Mode myMode = workspace.findMode(MODE_NAME);
+//            
+//            if (myMode == null) {
+//                // create new mode for CI and set the bounds properly
+//                myMode = workspace.createMode(MODE_NAME, modeName, null); //NOI18N
+//                /*
+//                Rectangle workingSpace = workspace.getBounds();
+//                myMode.setBounds(new Rectangle(workingSpace.x +(workingSpace.width * 3 / 10), workingSpace.y,
+//                                               workingSpace.width * 2 / 10, workingSpace.height / 2));
+//                 */
+//            }
+//            myMode.dockInto(panel);
+            Mode myMode = WindowManager.getDefault().findMode("explorer"); // NOI18N
+            if(myMode != null) {
+                myMode.dockInto(panel);
             }
-            myMode.dockInto(panel);
         }
         panel.getAccessibleContext().setAccessibleDescription(
             org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSD_AddVcsGroupAction.dialog"));
