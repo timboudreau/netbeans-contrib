@@ -50,6 +50,11 @@ public class VariableInputDescriptor extends Object {
     public static final String SELECTOR_DIR = SELECTOR + "DIR";
     public static final String SELECTOR_DATE_CVS = SELECTOR + "DATE_CVS";
     public static final String SELECTOR_CMD = SELECTOR + "CMD_";
+    
+    public static final String IF_VAR_NON_EMPTY_BEGIN = "IF_VAR_NON_EMPTY\"";
+    public static final String IF_VAR_NON_EMPTY_END = "\"_";
+    public static final String IF_VAR_EMPTY_BEGIN = "IF_VAR_EMPTY\"";
+    public static final String IF_VAR_EMPTY_END = "\"_";
 
     public static final char INPUT_STR_ARG_OPEN = '(';
     public static final char INPUT_STR_ARG_CLOSE = ')';
@@ -113,6 +118,8 @@ public class VariableInputDescriptor extends Object {
             String inputStr = inputItems.substring(index, begin).trim();
             boolean expert = inputStr.endsWith(INPUT_IS_EXPERT);
             if (expert) inputStr = inputStr.substring(0, inputStr.length() - INPUT_IS_EXPERT.length());
+            String[] varConditions = new String[2];
+            inputStr = getVarConditions(inputStr, varConditions);
             int inputId = getInputId(inputStr);
             String inputArg = inputItems.substring(begin + 1, end);
             String[] inputArgs = VcsUtilities.getQuotedStrings(inputArg);
@@ -122,6 +129,7 @@ public class VariableInputDescriptor extends Object {
             } else {
                 VariableInputComponent component = parseComponent(inputId, inputArgs, inputArg);
                 component.setExpert(expert);
+                component.setVarConditions(varConditions);
                 descriptor.components.add(component);
             }
             index = end + 1;
@@ -175,6 +183,53 @@ public class VariableInputDescriptor extends Object {
         return validator;
     }
     
+    public void addValuesToHistory() {
+        VariableInputComponent[] comps = components();
+        for (int i = 0; i < comps.length; i++) {
+            comps[i].addValuesToHistory();
+        }
+    }
+    
+    public void setValuesAsDefault() {
+        VariableInputComponent[] comps = components();
+        for (int i = 0; i < comps.length; i++) {
+            comps[i].setValuesAsDefault();
+        }
+    }
+    
+    public void setDefaultValues() {
+        VariableInputComponent[] comps = components();
+        for (int i = 0; i < comps.length; i++) {
+            comps[i].setDefaultValues();
+        }
+    }
+
+    /** Get the variables, that will be checked for a presence of the input item.
+     * @param inputStr the input item
+     * @param varConditions the array, that is filled with variable names
+     * @return the name of the original input item
+     */
+    private static String getVarConditions(String inputStr, String[] varConditions) {
+        System.out.println("getVarConditions("+inputStr+")");
+        System.out.println(inputStr+".startsWith("+IF_VAR_EMPTY_BEGIN+") = "+inputStr.startsWith(IF_VAR_EMPTY_BEGIN));
+        if (inputStr.startsWith(IF_VAR_EMPTY_BEGIN)) {
+            int i = inputStr.indexOf(IF_VAR_EMPTY_END, IF_VAR_EMPTY_BEGIN.length());
+            if (i > 0) {
+                varConditions[0] = inputStr.substring(IF_VAR_EMPTY_BEGIN.length(), i);
+                inputStr = inputStr.substring(i + IF_VAR_EMPTY_END.length());
+            }
+        }
+        System.out.println(inputStr+".startsWith("+IF_VAR_NON_EMPTY_BEGIN+") = "+inputStr.startsWith(IF_VAR_NON_EMPTY_BEGIN));
+        if (inputStr.startsWith(IF_VAR_NON_EMPTY_BEGIN)) {
+            int i = inputStr.indexOf(IF_VAR_NON_EMPTY_END, IF_VAR_NON_EMPTY_BEGIN.length());
+            if (i > 0) {
+                varConditions[1] = inputStr.substring(IF_VAR_NON_EMPTY_BEGIN.length(), i);
+                inputStr = inputStr.substring(i + IF_VAR_NON_EMPTY_END.length());
+            }
+        }
+        return inputStr;
+    }
+
     private static int getInputId(String inputStr) throws VariableInputFormatException {
         Integer id = (Integer) inputMap.get(inputStr);
         if (id == null) {
@@ -207,10 +262,15 @@ public class VariableInputDescriptor extends Object {
             component.setValidator(validator);
             argNum++;
         }
-        if (len > argNum && inputArgs[argNum].indexOf(SELECTOR) == 0) {
+        if (len > argNum && inputArgs[argNum].indexOf(SELECTOR) >= 0) {
             String selector = inputArgs[argNum];
-            component.setSelector(selector);
-            argNum++;
+            String[] varConditions = new String[2];
+            selector = getVarConditions(selector, varConditions);
+            if (selector.indexOf(SELECTOR) == 0) {
+                component.setSelector(selector);
+                component.setSelectorVarConditions(varConditions);
+                argNum++;
+            }
         }
         if (INPUT_PROMPT_AREA == id && len >= (argNum + 2)) {
             try {

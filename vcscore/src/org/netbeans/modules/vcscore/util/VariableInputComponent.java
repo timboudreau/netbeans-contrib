@@ -29,12 +29,16 @@ public class VariableInputComponent extends Object {
     private String value = null;
     private String valueSelected = null;
     private String valueUnselected = null;
+    private String defaultValue = null;
     private Dimension dimension = null;
     private HashSet enable = null;
     private HashSet disable = null;
     private String selector = null;
     private String validator = null;
     private ArrayList subComponents = null;
+    private String[] varConditions = new String[2];
+    private String[] selectorVarConditions = new String[2];
+    private ArrayList history = new ArrayList();
     
     /** Creates new VariableInputComponent */
     public VariableInputComponent(int component, String variable, String label) {
@@ -49,6 +53,33 @@ public class VariableInputComponent extends Object {
     
     public String getVariable() {
         return variable;
+    }
+    
+    public void setVarConditions(String[] varConditions) {
+        this.varConditions = varConditions;
+    }
+    
+    public String[] getVarConditions() {
+        return varConditions;
+    }
+    
+    /** Whether the given conditions are fulfilled for the gived map of variable values.
+     * @param varConditions the array of variables for empty and non-empty conditions.
+     * @param vars the map of variables and their values
+     * @return true when the test was successfull, or no conditions were defined, false otherwise
+     */
+    public static boolean isVarConditionMatch(String[] varConditions, Map vars) {
+        boolean is = true;
+        if (vars == null) return true;
+        if (varConditions[0] != null) {
+            String var = (String) vars.get(varConditions[0]);
+            is &= (var == null || var.length() == 0);
+        }
+        if (varConditions[1] != null) {
+            String var = (String) vars.get(varConditions[1]);
+            is &= (var != null && var.length() > 0);
+        }
+        return is;
     }
     
     public void setExpert(boolean expert) {
@@ -85,6 +116,47 @@ public class VariableInputComponent extends Object {
     
     public String getValueUnselected() {
         return valueUnselected;
+    }
+    
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+    
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+    
+    /**
+     * @return false for values referencing to variables.
+     */
+    private boolean canResetDefaultValue() {
+        String value = getDefaultValue();
+        if (value == null) return true;
+        int index = value.indexOf("${");
+        if (index >= 0 && (index == 0 || value.charAt(index - 1) != '\\')) {
+            return false;
+        }
+        return true;
+    }
+    
+    public void setValuesAsDefault() {
+        if (canResetDefaultValue()) {
+            setDefaultValue(getValue());
+        }
+        VariableInputComponent[] comps = subComponents();
+        for (int i = 0; i < comps.length; i++) {
+            comps[i].setValuesAsDefault();
+        }
+    }
+    
+    public void setDefaultValues() {
+        if (canResetDefaultValue()) {
+            setValue(getDefaultValue());
+        }
+        VariableInputComponent[] comps = subComponents();
+        for (int i = 0; i < comps.length; i++) {
+            comps[i].setDefaultValues();
+        }
     }
     
     public void setDimension(Dimension dimension) {
@@ -129,6 +201,14 @@ public class VariableInputComponent extends Object {
         return selector;
     }
     
+    public void setSelectorVarConditions(String[] varConditions) {
+        this.selectorVarConditions = varConditions;
+    }
+    
+    public String[] getSelectorVarConditions() {
+        return selectorVarConditions;
+    }
+    
     public void setValidator(String validator) {
         this.validator = validator;
     }
@@ -139,6 +219,33 @@ public class VariableInputComponent extends Object {
     
     public VariableInputValidator validate() {
         return new VariableInputValidator(this, validator);
+    }
+    
+    void addValuesToHistory() {
+        history.add(value);
+        VariableInputComponent[] comps = subComponents();
+        for (int i = 0; i < comps.length; i++) {
+            comps[i].addValuesToHistory();
+        }
+    }
+    
+    /*
+    public List getValueHistory() {
+        ArrayList valueHistory = new ArrayList();
+        valueHistory.addAll(history);
+        return valueHistory;
+    }
+     */
+    public int getHistorySize() {
+        return history.size();
+    }
+    
+    public String getHistoryValue(int index) {
+        if (index < history.size()) {
+            return (String) history.get(index);
+        } else {
+            return value;
+        }
     }
     
     public void addSubComponent(VariableInputComponent component) {
