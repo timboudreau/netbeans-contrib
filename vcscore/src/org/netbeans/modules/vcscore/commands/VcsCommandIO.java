@@ -41,6 +41,7 @@ public class VcsCommandIO extends Object {
         defaultPropertyValues.put(VcsCommand.PROPERTY_ON_ROOT, Boolean.TRUE);
         defaultPropertyValues.put(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, Boolean.FALSE);
         defaultPropertyValues.put(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, Boolean.FALSE);
+        defaultPropertyValues.put(VcsCommand.PROPERTY_REFRESH_ON_FAIL, new Integer(0));
         defaultPropertyValues.put(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, Boolean.FALSE);
         defaultPropertyValues.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, Boolean.FALSE);
         defaultPropertyValues.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES, Boolean.FALSE);
