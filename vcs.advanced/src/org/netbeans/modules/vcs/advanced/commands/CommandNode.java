@@ -16,8 +16,10 @@ package org.netbeans.modules.vcs.advanced.commands;
 import java.awt.Image;
 import java.awt.datatransfer.*;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
@@ -50,6 +52,9 @@ public class CommandNode extends AbstractNode {
     private static Table stdandard_propertyClassTypes = new Table();
     private static Table expert_propertyClassTypes = new Table();
     private static Table list_propertyClassTypes = new Table();
+    private static Table stdlist_propertyClassTypes = new Table();
+    
+    private static Collection stdlistCmdNames;
     
     private static Image[] SEPARATOR_ICONS = new Image[4];
     
@@ -65,6 +70,7 @@ public class CommandNode extends AbstractNode {
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_ON_ROOT, Boolean.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES, Boolean.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(UserCommand.PROPERTY_REFRESH_PROCESSED_FILES, Boolean.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, Boolean.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, Boolean.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, Boolean.TYPE);
@@ -90,7 +96,9 @@ public class CommandNode extends AbstractNode {
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_USER_PARAMS, String[].class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_LOAD_ATTRS_TO_VARS, String[].class);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_FILE_NAME, Integer.TYPE);
+        list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_REMOVED_FILE_NAME, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_STATUS, Integer.TYPE);
+        list_propertyClassTypes.put(UserCommand.PROPERTY_REFRESH_FILE_STATUS_SUBSTITUTIONS, String.class);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_LOCKER, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_REVISION, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_STICKY, Integer.TYPE);
@@ -98,7 +106,20 @@ public class CommandNode extends AbstractNode {
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_DATE, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_SIZE, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_ATTR, Integer.TYPE);
-        //propertyClassTypes.put(UserCommand.PROPERTY_PRECOMMANDS_EXECUTE, Boolean.TYPE);
+        list_propertyClassTypes.put(UserCommand.PROPERTY_REFRESH_INFO_FROM_BOTH_DATA_OUTS, Boolean.TYPE);
+        stdlist_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_FILE_NAME, Integer.TYPE);
+        stdlist_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_STATUS, Integer.TYPE);
+        stdlist_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_LOCKER, Integer.TYPE);
+        stdlist_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_REVISION, Integer.TYPE);
+        stdlist_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_STICKY, Integer.TYPE);
+        stdlist_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_TIME, Integer.TYPE);
+        stdlist_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_DATE, Integer.TYPE);
+        stdlist_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_SIZE, Integer.TYPE);
+        stdlist_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_ATTR, Integer.TYPE);
+        stdlistCmdNames = Collections.unmodifiableList(Arrays.asList(new String[] {
+            VcsCommand.NAME_REFRESH, VcsCommand.NAME_REFRESH_OFFLINE,
+            VcsCommand.NAME_REFRESH_RECURSIVELY, VcsCommand.NAME_REFRESH_RECURSIVELY_OFFLINE
+        }));
     }
 
     /** Creates new CommandNode */
@@ -312,6 +333,7 @@ public class CommandNode extends AbstractNode {
         else {
             createStandardProperties(cmd, set);
             sheet.put(createExpertProperties(cmd));
+            sheet.put(createListProperties(cmd));
         }
         return sheet;
     }
@@ -367,17 +389,32 @@ public class CommandNode extends AbstractNode {
         String[] propertyNames = cmd.getPropertyNames();
         if (propertyNames.length != 0) {
             addProperties(set, cmd, stdandard_propertyClassTypes, null);
-            if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
-                VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName())) {
+            //if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
+            //    VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName())) {
 
-                addProperties(set, cmd, list_propertyClassTypes, new Integer(-1));
-            }
+            //    addProperties(set, cmd, list_propertyClassTypes, new Integer(-1));
+            //}
         }
     }
     
     private Sheet.Set createExpertProperties(final VcsCommand cmd) {
         Sheet.Set set = Sheet.createExpertSet();
         addProperties(set, cmd, expert_propertyClassTypes, null);
+        return set;
+    }
+    
+    private Sheet.Set createListProperties(final VcsCommand cmd) {
+        Sheet.Set set = new Sheet.Set();//Sheet.createExpertSet();
+        set.setName("list");
+        set.setDisplayName(g("CTL_ListProperties"));
+        set.setShortDescription(g("HINT_ListProperties"));
+        Table listTypes;
+        if (stdlistCmdNames.contains(cmd.getName())) {
+            listTypes = stdlist_propertyClassTypes;
+        } else {
+            listTypes = list_propertyClassTypes;
+        }
+        addProperties(set, cmd, listTypes, new Integer(-1));
         return set;
     }
     
