@@ -19,8 +19,6 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.util.Collection;
-import java.util.Enumeration;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcscore.registry.FSRegistry;
@@ -58,7 +56,7 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
     /** Called when the preparation of nodes is needed
      */
     protected void addNotify() {        
-        setKeys (getVcssFileSystems());        
+        setKeys (getVcsFileSystems());        
     }
 
     /** Called when all children are garbage collected */
@@ -80,14 +78,10 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
         return new Node[] { node };
     }
     
-    private Collection getVcssFileSystems() {           
+    private Object[] getVcsFileSystems() {           
         debug("getVcsFileSystems");
-        ArrayList vcsFileSystems = new ArrayList();
-        FSInfo info[] = registry.getRegistered();         
-        for(int i = 0; i < info.length; i++){  
-            vcsFileSystems.add(info[i]);
-        }
-        return vcsFileSystems;
+        FSInfo info[] = registry.getRegistered();
+        return info;
     }
 
     /** Called when a new filesystem information is added.
@@ -117,7 +111,7 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
      * convenient dispatch into AWT.
      */
     public void run() {
-        setKeys(getVcssFileSystems());
+        setKeys(getVcsFileSystems());
     }
     
     static class FSInfoBeanNode extends AbstractNode implements PropertyChangeListener {
