@@ -38,6 +38,7 @@ Microsystems, Inc. All Rights Reserved.
     <javac srcdir="src" 
         deprecation="${build.compiler.deprecation}" 
         debug="${build.compiler.debug}"
+        source="1.4"
         destdir="src">
       <classpath refID="cp"/>
     </javac>
