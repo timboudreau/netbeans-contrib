@@ -16,6 +16,8 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 import java.lang.reflect.*;
 import java.io.*;
 import java.util.*;
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
 
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
@@ -30,6 +32,7 @@ import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.util.Table;
+import org.netbeans.spi.vcs.commands.CommandSupport;
 import org.openide.ErrorManager;
 
 /**
@@ -41,11 +44,6 @@ import org.openide.ErrorManager;
  */
 public class CvsCommit extends Object implements VcsAdditionalCommand {
 
-    private static final String WIN_CAT_NAME = ".nbcicat";
-    private static final String WIN_CAT_EXT = "bat";
-    private static final String WIN_CAT_FOLDER = "vcs";
-    private static final String WIN_CAT_CONTENT = "@echo off\ntype %1\n";
-    
     private static final String COMMITTING = "CVS: Committing in";
     private static final String PRE_FILE = "CVS: \t";
 
@@ -83,257 +81,6 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         return files;
     }
 
-    /*
-    private String getFilePath(FileSystem fs, FileObject fo) {
-            File root = null;
-            //if (fs instanceof LocalFileSystem) root = ((LocalFileSystem) fs).getRootDirectory();
-            //if (fs instanceof VcsFileSystem) root = ((VcsFileSystem) fs).getRootDirectory();
-            Method getRootMethod = null;
-            try {
-                getRootMethod = fs.getClass().getMethod("getRootDirectory", new Class[0]);
-            } catch (NoSuchMethodException nmexc) {
-            }
-            if (getRootMethod != null) {
-                try {
-                    root = (File) getRootMethod.invoke(fs, new Object[0]);
-                } catch (IllegalAccessException iaexc) {
-                    TopManager.getDefault().notifyException(iaexc);
-                } catch (InvocationTargetException itexc) {
-                    TopManager.getDefault().notifyException(itexc);
-                }
-            }
-            String packageName = fo.getPackageNameExt(java.io.File.separatorChar, '.');
-            String path;
-            if (root != null) {
-                path = new File(root, packageName).getAbsolutePath();
-            } else {
-                path = packageName;
-            }
-            return path;
-    }
-
-    
-    private String createCatExec() {
-        String cat = "";
-        if (org.openide.util.Utilities.isWindows()) {
-            FileSystem fs = org.openide.TopManager.getDefault().getRepository().getDefaultFileSystem();
-            FileObject winCat = fs.findResource(WIN_CAT_FOLDER+"/"+WIN_CAT);
-            if (winCat == null && fs instanceof AbstractFileSystem.Change) {
-                AbstractFileSystem.Change chfs = (AbstractFileSystem.Change) fs;
-                try {
-                    chfs.createFolder(WIN_CAT_FOLDER);
-                } catch (IOException exc) {
-                    // ignored
-                }
-                try {
-                    chfs.createData(WIN_CAT);
-                } catch (IOException exc) {
-                    // ignored
-                }
-                winCat = fs.findResource(WIN_CAT_FOLDER+"/"+WIN_CAT);
-                if (winCat != null) {
-                    OutputStream out = null;
-                    try {
-                        out = winCat.getOutputStream(new FileLock());
-                        out.write(WIN_CAT_CONTENT.getBytes());
-                    } catch (IOException ioexc) {
-                    } finally {
-                        if (out != null) {
-                            try {
-                                out.close();
-                            } catch (IOException ioexc2) {}
-                        }
-                    }
-                }
-            }
-            if (winCat != null) {
-                cat = getFilePath(fs, winCat);
-            }
-        }
-        return cat;
-    }
-     */
-
-    /**
-     * Try to create a shared wincat.bat file.
-     * @return the path to the file or <code>null</code> when the file can not be
-     * created or the path contains spaces. CVS can not handle spaces in the editor executable.
-     */
-    private static String createCatExec() {
-        String cat = "";
-        //if (org.openide.util.Utilities.isWindows()) {
-        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
-        FileObject root = fs.getRoot();
-        java.io.File rootFile = FileUtil.toFile(root);
-        if (rootFile == null || rootFile.getAbsolutePath().indexOf(' ') >= 0) {
-            // The default FS directory either does not exist or contains spaces.
-            // Do not create the shared wincat.bat file in this case, we have to
-            // perform a workaround - put wincat.bat into the current folder.
-            return null;
-        }
-        FileObject winCat = fs.findResource(WIN_CAT_FOLDER+"/"+WIN_CAT_NAME+"."+WIN_CAT_EXT);
-        //System.out.println("winCat = "+winCat+", fs = "+fs);
-        //System.out.println("fs instanceof AbstractFileSystem.Change = "+(fs instanceof AbstractFileSystem.Change));
-        if (winCat == null) {
-            FileObject folder = root.getFileObject(WIN_CAT_FOLDER);
-            if (folder == null) {
-                try {
-                    folder = root.createFolder(WIN_CAT_FOLDER);
-                } catch (IOException exc) {
-                    return cat;
-                }
-            }
-            winCat = folder.getFileObject(WIN_CAT_NAME, WIN_CAT_EXT);
-            if (winCat == null) {
-                try {
-                    winCat = folder.createData(WIN_CAT_NAME, WIN_CAT_EXT);
-                } catch (IOException exc) {
-                    return cat;
-                }
-            }
-            if (winCat != null) {
-                OutputStream out = null;
-                try {
-                    out = winCat.getOutputStream(winCat.lock());//new FileLock());
-                    out.write(WIN_CAT_CONTENT.getBytes());
-                } catch (IOException ioexc) {
-                    //ioexc.printStackTrace();
-                } finally {
-                    if (out != null) {
-                        try {
-                            out.close();
-                        } catch (IOException ioexc2) {}
-                    }
-                }
-            }
-        }
-        if (winCat != null) {
-            File catFile = FileUtil.toFile(winCat);
-            if (catFile != null) {
-                cat = catFile.getAbsolutePath();
-            }
-            cat = org.openide.util.Utilities.replaceString(cat, "\\", "\\\\");
-            //System.out.println("cat = "+cat);
-            //cat = getFilePath(fs, winCat);
-        }
-        return cat;
-    }
-    
-    private static synchronized String createLocalCatExec(String dir, String relativePath) {
-        File dirFile;
-        if (relativePath == null) {
-            dirFile = new File(dir);
-        } else {
-            dirFile = new File(dir, relativePath);
-        }
-        String cat = WIN_CAT_NAME + "." + WIN_CAT_EXT;
-        File catFile;
-        for (int i = 0; (catFile = new File(dirFile, cat)).exists(); i++) {
-            cat = WIN_CAT_NAME + i + "." + WIN_CAT_EXT;
-        }
-        OutputStream out = null;
-        try {
-            catFile.createNewFile();
-            out = new BufferedOutputStream(new FileOutputStream(catFile));
-            out.write(WIN_CAT_CONTENT.getBytes());
-        } catch (IOException ioexc) {
-            //ioexc.printStackTrace();
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException ioexc2) {}
-            }
-        }
-        catFile.deleteOnExit();
-        return catFile.getName();
-    }
-    
-    private static boolean checkFileExistsInSubdirs(File folder, String fileName) {
-        if (new File(folder, fileName).exists()) return true;
-        File[] subFiles = folder.listFiles();
-        if (subFiles == null) return false;
-        for (int i = 0; i < subFiles.length; i++) {
-            if (subFiles[i].isDirectory() && "CVS".compareToIgnoreCase(subFiles[i].getName()) != 0) {
-                if (checkFileExistsInSubdirs(subFiles[i], fileName)) return true;
-            }
-        }
-        return false;
-    }
-    
-    private static void createCatExecsInSubfolders(File folder, String catName) {
-        File catFile = new File(folder, catName);
-        OutputStream out = null;
-        try {
-            catFile.createNewFile();
-            out = new BufferedOutputStream(new FileOutputStream(catFile));
-            out.write(WIN_CAT_CONTENT.getBytes());
-        } catch (IOException ioexc) {
-            //ioexc.printStackTrace();
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException ioexc2) {}
-            }
-        }
-        catFile.deleteOnExit();
-        File[] subFiles = folder.listFiles();
-        if (subFiles == null) return ;
-        for (int i = 0; i < subFiles.length; i++) {
-            if (subFiles[i].isDirectory() && "CVS".compareToIgnoreCase(subFiles[i].getName()) != 0) {
-                createCatExecsInSubfolders(subFiles[i], catName);
-            }
-        }
-    }
-    
-    private static synchronized String createLocalCatExecs(String dir, String relativePath) {
-        File dirFile;
-        if (relativePath == null) {
-            dirFile = new File(dir);
-        } else {
-            dirFile = new File(dir, relativePath);
-        }
-        String cat = WIN_CAT_NAME + "." + WIN_CAT_EXT;
-        for (int i = 0; checkFileExistsInSubdirs(dirFile, cat); i++) {
-            cat = WIN_CAT_NAME + i + "." + WIN_CAT_EXT;
-        }
-        createCatExecsInSubfolders(dirFile, cat);
-        return cat;
-    }
-    
-    private static synchronized void removeLocalCatExec(String dir, String relativePath, String catName) {
-        File dirFile;
-        if (relativePath == null) {
-            dirFile = new File(dir);
-        } else {
-            dirFile = new File(dir, relativePath);
-        }
-        File catFile = new File(dirFile, catName);
-        catFile.delete();
-    }
-    
-    private static void removeCatExecsInSubfolders(File folder, String catName) {
-        new File(folder, catName).delete();
-        File[] subFiles = folder.listFiles();
-        if (subFiles == null) return ;
-        for (int i = 0; i < subFiles.length; i++) {
-            if (subFiles[i].isDirectory() && "CVS".compareToIgnoreCase(subFiles[i].getName()) != 0) {
-                removeCatExecsInSubfolders(subFiles[i], catName);
-            }
-        }
-    }
-    
-    private static synchronized void removeLocalCatExecs(String dir, String relativePath, String catName) {
-        File dirFile;
-        if (relativePath == null) {
-            dirFile = new File(dir);
-        } else {
-            dirFile = new File(dir, relativePath);
-        }
-        removeCatExecsInSubfolders(dirFile, catName);
-    }
-    
     private ArrayList getCommitedFiles(String fsRoot, String relativePath,
                                        String template, char ps) {
         //System.out.println("getCommitedFiles("+template+")");
@@ -478,14 +225,20 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         return files;
     }
 
-    private VcsCommandExecutor[] doCommit(CommandsPool cpool, VcsCommand cmdCommit, ArrayList filesList, Hashtable vars) {
+    /**
+     * Run the commit and return the appropriate task IDs.
+     */
+    private long[] doCommit(CommandsPool cpool, VcsCommand cmdCommit, ArrayList filesList, Hashtable vars) {
         Table files = getFiles(filesList);
         VcsCommandExecutor[] executors = VcsAction.doCommand(files, cmdCommit, vars, fileSystem);
         //VcsCommandExecutor commit = fileSystem.getVcsFactory().getCommandExecutor(cmdCommit, vars);
         //int preprocessStatus = cpool.preprocessCommand(commit, vars);
         //cpool.startExecutor(commit);
         //return preprocessStatus;
+        long[] IDs = new long[executors.length];
         for (int i = 0; i < executors.length; i++) {
+            IDs[i] = cpool.getCommandID(executors[i]);
+            /*
             try {
                 cpool.waitToFinish(executors[i]);
             } catch (InterruptedException iexc) {
@@ -494,16 +247,17 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 }
                 return new VcsCommandExecutor[0];
             }
+             */
         }
-        return executors;
+        return IDs;
     }
     
     public boolean exec(Hashtable vars, String[] args,
                         CommandOutputListener stdoutNRListener, CommandOutputListener stderrNRListener,
                         CommandDataOutputListener stdoutListener, String dataRegex,
                         CommandDataOutputListener stderrListener, String errorRegex) {
-        if (args.length < 2) {
-            stderrNRListener.outputLine("The cvs commit template getter and cvs commit command are expected as arguments");
+        if (args.length < 1) {
+            stderrNRListener.outputLine("The cvs commit command is expected as an arguments");
             return false;
         }
         String psStr = (String) vars.get("PS");
@@ -529,83 +283,65 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             relativePath = relativePath.replace(File.separatorChar, '/');
         }
         fsRoot = fsRoot.replace('/', ps);
-        boolean haveLocalCat = false;
-        String wincat = null;
-        if (org.openide.util.Utilities.isWindows()) {
-            wincat = createCatExec();
-            if (wincat == null) {
-                haveLocalCat = true;
-                wincat = createLocalCatExecs(fsRoot, relativePath);
-            }
-            vars.put("WINCAT", wincat);
-        }
-        final StringBuffer buff = new StringBuffer();
+        //final StringBuffer buff = new StringBuffer();
         ArrayList filePaths = getFilePaths((String) vars.get("COMMON_PARENT"), (String) vars.get("PATHS"), ps);
         CommandsPool cpool = fileSystem.getCommandsPool();
-        Hashtable varsOriginal = new Hashtable(vars);
-        boolean committed = false;
+        //Hashtable varsOriginal = new Hashtable(vars);
+        //boolean committed = false;
+        String committedStr = (String) vars.get("IS_COMMITTED");
+        boolean committed = committedStr != null && committedStr.length() > 0;
         ArrayList alreadyCommittedFiles = new ArrayList();
-        do {
-            VcsCommand cmdTemplate = fileSystem.getCommand(args[0]);
-            VcsCommand cmdCommit1 = fileSystem.getCommand(args[1]);
+        //do {
+            //VcsCommand cmdTemplate = fileSystem.getCommand(args[0]);
+            VcsCommand cmdCommit1 = fileSystem.getCommand(args[0]);
             VcsCommand cmdCommit = new UserCommand();
             ((UserCommand) cmdCommit).copyFrom(cmdCommit1);
             cmdCommit.setDisplayName(NbBundle.getMessage(CvsCommit.class, "CvsCommit.commitCommandName"));
-            buff.delete(0, buff.length());
-            if (cmdTemplate != null) {
-                VcsCommandExecutor template = fileSystem.getVcsFactory().getCommandExecutor(cmdTemplate, vars);
-                template.addDataOutputListener(new CommandDataOutputListener() {
-                    public void outputData(String[] elements) {
-                        buff.append(((elements[0] != null) ? elements[0] : "") + "\n");
-                    }
-                });
-                cpool.preprocessCommand(template, vars, fileSystem);
-                cpool.startExecutor(template);
-                try {
-                    cpool.waitToFinish(template);
-                } catch (InterruptedException iexc) {
-                    cpool.kill(template);
-                    break;
-                }
-            }
-            String buffered = buff.toString();
-            ArrayList filesCommited = getCommitedFiles(fsRoot, relativePath, buffered, ps);
-            buffered = addMessageComment(vars, buffered);
-            vars.put("FILE_TEMPLATE", fileOutput(buffered));
+            //buff.delete(0, buff.length());
+            String templateContent = (String) vars.get("ORIGINAL_TEMPLATE_CONTENT");
+            if (templateContent == null) templateContent = "";
+            ArrayList filesCommited = getCommitedFiles(fsRoot, relativePath, templateContent, ps);
+            //buffered = addMessageComment(vars, buffered);
+            //vars.put("FILE_TEMPLATE", fileOutput(buffered));
             // commit all remaining files if they can not be retrieved from the template
             if (filesCommited == null || filesCommited.size() == 0) {
-                if (committed) break;
+                if (committed) return true;//break;
                 filesCommited = new ArrayList(filePaths);
             }
             filesCommited.removeAll(alreadyCommittedFiles);
-            if (filesCommited.size() == 0) break ;
+            if (filesCommited.size() == 0) return true;//break ;
             //setProcessingFiles(filesCommited, vars);
-            VcsCommandExecutor[] executors = doCommit(cpool, cmdCommit, filesCommited, vars);
-            cmdCommit1.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED,
-                cmdCommit.getProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED));
-            if (executors.length == 0) {
-                break;
+            long[] IDs = doCommit(cpool, cmdCommit, filesCommited, vars);
+            //cmdCommit1.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED,
+            //    cmdCommit.getProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED));
+            if (IDs.length == 0) {
+                return true;//break;
             }
+            vars.put("IS_COMMITTED", "true");
             committed = true;
             alreadyCommittedFiles.addAll(filesCommited);
             filePaths.removeAll(filesCommited);
-            vars = new Hashtable(varsOriginal);
-        } while (filePaths.size() > 0);
+            //vars = new Hashtable(varsOriginal);
+            if (filePaths.size() > 0) {
+                vars.put("TEMPLATE_FILE_PLEASE_WAIT_TEXT", NbBundle.getMessage(CvsCommit.class, "CvsCommit.templateFileCheck"));
+                StringBuffer IDStr = new StringBuffer();
+                for (int i = 0; i < IDs.length; i++) {
+                    if (i > 0) IDStr.append(" ,");
+                    IDStr.append(Long.toString(IDs[i]));
+                }
+                vars.put("COMMIT_COMMANDS_IDS", IDStr.toString());
+                CommandSupport cmdSupport = fileSystem.getCommandSupport("COMMIT"); // Myself
+                Command cmd = cmdSupport.createCommand();
+                if (cmd instanceof VcsDescribedCommand) {
+                    ((VcsDescribedCommand) cmd).setAdditionalVariables(vars);
+                }
+                if (VcsManager.getDefault().showCustomizer(cmd)) {
+                    cmd.execute();
+                }
+            }
+        //} while (filePaths.size() > 0);
         //cpool.preprocessCommand(vce, vars);
-        if (haveLocalCat && wincat != null) removeLocalCatExecs(fsRoot, relativePath, wincat);
         return true;
-    }
-    
-    /**
-     * This command implements messaging command and thus it can have the message
-     * set in "message" variable.
-     */
-    private static String addMessageComment(Hashtable vars, String template) {
-        String description = (String) vars.get("message");
-        if (description != null && description.length() > 0) {
-            template = description + "\n" + template; // NOI18N
-        }
-        return template;
     }
     
     private static String fileOutput(String buffer) {

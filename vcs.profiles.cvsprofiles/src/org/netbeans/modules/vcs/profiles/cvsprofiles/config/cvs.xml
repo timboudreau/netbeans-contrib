@@ -9,7 +9,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -89,7 +89,7 @@ Microsystems, Inc. All Rights Reserved.
       <value>cd</value>
     </variable>
     <variable name="DOCUMENT_CLEANUP_REMOVE1" basic="false">
-      <value>COMMIT_CMD, 1, "CVS:"</value>
+      <value>COMMIT, 1, "CVS:"</value>
     </variable>
     <variable name="ARGUMENT_FILES_TO_CLONE" basic="false">
       <value>TEMPLATE_FILE</value>
@@ -198,6 +198,9 @@ Microsystems, Inc. All Rights Reserved.
     </variable>
     <variable name="MSG_PROMPT_FOR_AUTO_EDIT" basic = "false">
       <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_MSG_PROMPT_FOR_AUTO_EDIT)</value>
+    </variable>
+    <variable name="TEMPLATE_FILE_PLEASE_WAIT_TEXT" basic = "false">
+      <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_TEMPLATE_FILE_PLEASE_WAIT_TEXT)</value>
     </variable>
     <variable name="SERVERTYPE" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Type)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Type_Mnemonic)" localFile="false" localDir="false" executable="false" order="1">
       <value>local</value>
@@ -671,7 +674,19 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>vcs.commands.CvsCommit.class COMMIT_TEMPLATE_GETTER COMMIT_CMD</value>
+	  <value>vcs.commands.CvsCommit.class COMMIT_CMD</value>
+	</property>
+        <property name="inputDescriptor">
+          <value>
+            LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Label),
+                ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Label)))
+            HELP_ID(vcsgeneric.profile.cvs.commit)
+            PROMPT_FOR_FILE(TEMPLATE_FILE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Reason), {FILE_OUTPUT_OF_COMMIT_TEMPLATE_GETTER(0)},ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_Reason_mnc)), 10, 50)
+            ASK_FOR_EXPERT(FORCE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Force), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Force);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_Force_mnc)), "-f", "")                
+            PROMPT_FOR_EXPERT(BRANCH, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_To_Branch), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_To_Branch);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_To_Branch_mnc)), IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_BRANCHES)                
+            ASK_FOR_EXPERT(RUN_MODULE_PROGRAM, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Run_Module_Program), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Run_Module_Program);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_Run_Module_Program_mnc)), "", "-n")
+            IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Recursive_mnc)),"-R", "-l") 
+          </value>
 	</property>
 	<property name="input">
 	  <value></value>
@@ -704,18 +719,6 @@ Microsystems, Inc. All Rights Reserved.
       <command name="COMMIT_CMD">
 	<property name="exec">
 	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} commit ${FORCE} ${RUN_MODULE_PROGRAM}  ${RECURSIVE} $[? BRANCH] [-r ${BRANCH}] [] -F ${QUOTE}${TEMPLATE_FILE}${QUOTE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
-	</property>
-        <property name="inputDescriptor">
-          <value>
-            LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Label),
-                ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Label)))
-            HELP_ID(vcsgeneric.profile.cvs.commit)
-            PROMPT_FOR_FILE(TEMPLATE_FILE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Reason), ${FILE_TEMPLATE},ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Reason);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_Reason_mnc)), 10, 50)
-            ASK_FOR_EXPERT(FORCE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Force), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Force);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_Force_mnc)), "-f", "")                
-            PROMPT_FOR_EXPERT(BRANCH, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_To_Branch), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_To_Branch);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_To_Branch_mnc)), IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_BRANCHES)                
-            ASK_FOR_EXPERT(RUN_MODULE_PROGRAM, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_COMMIT_Run_Module_Program), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_COMMIT_Run_Module_Program);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_COMMIT_Run_Module_Program_mnc)), "", "-n")
-            IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Recursive_mnc)),"-R", "-l") 
-          </value>
 	</property>
         <property name="visualizer">
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.commit.CvsCommitVisualizer</value>
@@ -753,6 +756,17 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
       <command name="COMMIT_TEMPLATE_GETTER" unless="IS_BUILT-IN_AND_WIN9X">
+	<property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsCommitTemplateGetter.class COMMIT_TEMPLATE_GETTER_CMD</value>
+        </property>
+	<property name="ignoreFail">
+	  <value>true</value>
+	</property>
+        <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>        
+      </command>
+      <command name="COMMIT_TEMPLATE_GETTER_CMD" unless="IS_BUILT-IN_AND_WIN9X">
 	<property name="exec">
           <value>$[? MULTIPLE_FILES] [${RUNCDM} echo a | ${CVS_DEF_EXE} -f -e cat commit $[? PATHS] [${QPATHS}] [] ${NUR}] [$[? FILE_IS_FOLDER] [${RUNCDM} ${CD} ${QPATH}; echo a | ${CVS_DEF_EXE} -f -e cat commit ${NUR}] [${RUNCDM} echo a | ${CVS_DEF_EXE} -f -e cat commit $[? PATHS] [${QPATHS}] [] ${NUR}]]</value>
           <value if="IS_WINNT">$[? MULTIPLE_FILES] [${RUNCDM} echo a | ${CVS_DEF_EXE} -f -e ${QUOTE}${WINCAT}${QUOTE} commit $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}] [$[? FILE_IS_FOLDER] [${RUNCDM} ${CD} ${QPATH}&amp;&amp; echo a | ${CVS_DEF_EXE} -f -e ${QUOTE}${WINCAT}${QUOTE} commit ${NUR}] [${RUNCDM} echo a | ${CVS_DEF_EXE} -f -e ${QUOTE}${WINCAT}${QUOTE} commit $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}]]</value>
