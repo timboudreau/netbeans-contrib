@@ -17,8 +17,9 @@ import org.netbeans.spi.enode.LookupContentFactory;
 import org.openide.nodes.Node;
 
 /**
- *
- * @author  david
+ * A simple implementation of a factory that can be registered
+ * in the xml layer to produce object for ExtensibleNode's lookup.
+ * @author David Strupl
  */
 public class C1Factory implements LookupContentFactory {
     
@@ -26,10 +27,16 @@ public class C1Factory implements LookupContentFactory {
     public C1Factory() {
     }
     
+    /**
+     * Implementing interface LookupContentFactory.
+     */ 
     public Object create(Node n) {
         return new MONodeEnhancerImpl(n);
     }
     
+    /**
+     * Implementing interface LookupContentFactory.
+     */ 
     public org.openide.util.Lookup createLookup(Node n) {
         return null;
     }

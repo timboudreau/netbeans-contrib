@@ -30,7 +30,9 @@ import org.openide.util.Lookup;
 
 import org.netbeans.api.enode.ExtensibleNode;
 
-/** 
+/**
+ * This class should test the setting icons in the
+ * ExtensibleNode.
  * @author David Strupl
  */
 public class ExtensibleIconsTest extends NbTestCase {
@@ -46,6 +48,10 @@ public class ExtensibleIconsTest extends NbTestCase {
         TestRunner.run(new NbTestSuite(ExtensibleIconsTest.class));
     }
     
+    /**
+     * Sets up the testing environment by creating testing folders
+     * on the system file system.
+     */
     protected void setUp () throws Exception {
         Lookup.getDefault().lookup(ModuleInfo.class);
         FileSystem dfs = Repository.getDefault().getDefaultFileSystem();
@@ -61,11 +67,35 @@ public class ExtensibleIconsTest extends NbTestCase {
         }
     }
     
+    /**
+     * Deletes the folders created in method setUp().
+     */
     protected void tearDown() throws Exception {
         root.getParent().delete();
     }
-    
-    public void testFindIcon() throws Exception {
+
+    /**
+     * This test verifies that the code in ExtensibleNode calls method 
+     * <code>AbstractNode.setIconBase()</code> with correct arguments in
+     * correct time. However it does not test whether the icon specified
+     * is displayed or not - that is job of AbstractNode.<p>
+     * Also there is an accessible method setIconBase in AbstractNode but there
+     * is no way to get the value of the iconBase. So this test uses
+     * reflection to access the private field from AbstractNode.<p>
+     * The test does following:
+     * <OL><LI> Creates an ExtensibleNode with patch "a/b/c"
+     *     <LI> Because the configuration folders are empty (or not present) at this
+     *     moment the getIconBase should be null
+     *     <LI> A String object is created in folder "a/b" containing the value base1
+     *     <LI> "base1" should be the value of the iconBase since the ExtensibleNode
+     *     was created to use the hierarchical search and so the file in folder "a/b"
+     *     should be taken into account
+     *     <LI> A String object with value "base2" is created in folder "a/b/c"
+     *     <LI> Now the value of the iconBase should be "base2" since the value in folder
+     *     "a/b/c" should override the value in "a/b"
+     *  </OL>
+     */
+    public void testSettingTheIconBase() throws Exception {
         ExtensibleNode en1 = new ExtensibleNode("a/b/c", true);
         java.lang.reflect.Method getIconManagerMethod = ExtensibleNode.class.getDeclaredMethod("getIconManager", new Class[0]);
         getIconManagerMethod.setAccessible(true);

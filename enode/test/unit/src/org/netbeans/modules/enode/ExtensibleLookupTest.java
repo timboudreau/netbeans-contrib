@@ -33,7 +33,11 @@ import org.netbeans.api.enode.ExtensibleNode;
 import org.netbeans.spi.enode.LookupContentFactory;
 import org.netbeans.modules.enode.test.*;
 
-/** 
+/**
+ * Tests contained in this class should cover the content
+ * of the lookup obtained as <code>ExtensibleNode.getLookup()</code>.<p>
+ * This class uses classes from package test as testing
+ * classes for the content of the lookup.
  * @author David Strupl
  */
 public class ExtensibleLookupTest extends NbTestCase {
@@ -48,6 +52,10 @@ public class ExtensibleLookupTest extends NbTestCase {
         TestRunner.run(new NbTestSuite(ExtensibleLookupTest.class));
     }
     
+    /**
+     * Sets up the testing environment by creating testing folders
+     * on the system file system.
+     */
     protected void setUp () throws Exception {
         Lookup.getDefault().lookup(ModuleInfo.class);
         String baseFolder = ExtensibleNode.E_NODE_LOOKUP.substring(1, ExtensibleNode.E_NODE_LOOKUP.length()-1);
@@ -59,10 +67,27 @@ public class ExtensibleLookupTest extends NbTestCase {
         }
     }
     
+    /**
+     * Deletes the folders created in method setUp().
+     */
     protected void tearDown() throws Exception {
         root.getParent().delete();
     }
     
+    /**
+     * Test the ability to get an object from the declarative specification into
+     * the content of the lookup <code>ExtensibleNode.getLookup()</code>.
+     * The test performs following steps:
+     * <OL> <LI> Create an ExtensibleNode with path "test"
+     *      <LI> Check the content of its lookup (should be empty)
+     *      <LI> Use Filesystems API to create an object on the system file system
+     *      in folder "test".
+     *      The configuration file tells the lookup to create an instance of MONodeEnhancer
+     *      <LI> MONodeEnhancer should be found in the lookup
+     *      <LI> Delete the configuration file
+     *      <LI> The lookup should not return the object (it was deleted).
+     * </OL>
+     */
     public void testFindObjectInLookup() throws Exception {
         ExtensibleNode en1 = new ExtensibleNode("test", false);
         assertNull("No objects at the start", en1.getLookup().lookup(MONodeEnhancer.class));
@@ -75,7 +100,13 @@ public class ExtensibleLookupTest extends NbTestCase {
         a1.delete();
         assertNull("Object found but should be gone.", en1.getLookup().lookup(MONodeEnhancer.class));
     }
-    
+
+    /**
+     * This test is almost the same as <code>testFindObjectInLookup()</code>. The only
+     * difference is that the object is created in parent folder of the folder
+     * specified as argument to constructor of the ExtensibleNode. In this setup
+     * the hierarchical usage of the the folders should be tested.
+     */
     public void testMergingContentOfFolders() throws Exception {
         ExtensibleNode en1 = new ExtensibleNode("test/t2", true);
         assertNull("No objects at the start", en1.getLookup().lookup(MONodeEnhancer.class));

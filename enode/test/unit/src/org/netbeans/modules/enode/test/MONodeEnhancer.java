@@ -14,11 +14,16 @@
 package org.netbeans.modules.enode.test;
 
 /**
- *
- * @author  david
+ * Interface for an object returned from the lookup of the
+ * ExtensibleNode. This interface does not do anything usefull
+ * - it is here only of for testing purposes.
+ * @author David Strupl
  */
 public interface MONodeEnhancer {
     
+    /**
+     * An arbitrary method for the interface not being empty.
+     */
     String getURL();
     
 }

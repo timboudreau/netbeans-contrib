@@ -16,8 +16,9 @@ package org.netbeans.modules.enode.test;
 import org.openide.nodes.Node;
 
 /**
- *
- * @author  david
+ * Simply implementation of MONodeEnhancer that returns
+ * hardcoded strings from getURL and toString().
+ * @author David Strupl
  */
 public class MONodeEnhancerImpl implements MONodeEnhancer {
     
@@ -25,11 +26,18 @@ public class MONodeEnhancerImpl implements MONodeEnhancer {
     public MONodeEnhancerImpl(Node n) {
     }
     
+    /**
+     * This method is implementation for a method from 
+     * interface MONodeEnhancer.
+     */
     public String getURL() {
         return "http://www.netbeans.org/";
     }
     
+    /**
+     * Return something user can read.
+     */
     public String toString() {
-        return "Something found!";
+        return "MONodeEnhancerImpl found!";
     }
 }

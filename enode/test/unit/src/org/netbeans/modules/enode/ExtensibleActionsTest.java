@@ -14,6 +14,7 @@
 package org.netbeans.modules.enode;
 
 import javax.swing.Action;
+import javax.naming.*;
 
 import junit.textui.TestRunner;
 
@@ -31,6 +32,8 @@ import org.openide.util.Lookup;
 import org.netbeans.api.enode.ExtensibleNode;
 
 /** 
+ * This test should verify that the functionality of methods
+ * <code>ExtensibleNode.getActions(...)</code> is correct.
  * @author David Strupl
  */
 public class ExtensibleActionsTest extends NbTestCase {
@@ -41,11 +44,14 @@ public class ExtensibleActionsTest extends NbTestCase {
         super(name);
     }
     
-    
     public static void main(String[] args) {
         TestRunner.run(new NbTestSuite(ExtensibleActionsTest.class));
     }
-    
+
+    /**
+     * Sets up the testing environment by creating testing folders
+     * on the system file system.
+     */
     protected void setUp () throws Exception {
         Lookup.getDefault().lookup(ModuleInfo.class);
         FileSystem dfs = Repository.getDefault().getDefaultFileSystem();
@@ -61,10 +67,27 @@ public class ExtensibleActionsTest extends NbTestCase {
         }
     }
     
+    /**
+     * Deletes the folders created in method setUp().
+     */
     protected void tearDown() throws Exception {
         root.getParent().delete();
     }
     
+    /**
+     * This test tests the presence of declarative actions from
+     * system file system without the hierarchical flag set (the ExtensibleNode
+     * instance is created with constructor ExtensibleNode("test", false).
+     * The tests performs following steps:
+     * <OL><LI> Create an instance of ExtensibleNode with folder set to "test"
+     *     <LI> No actions should be returned by getActions since the "test" folder
+     *          is not there
+     *     <LI> Create one action in the testing folder
+     *     <LI> The action should be visible in the result of getActions
+     *     <LI> After deleting the action from the folder the action should
+     *          not be returned from getActions().
+     * </OL>
+     */
     public void testCreateAndDeleteAction() throws Exception {
         ExtensibleNode en1 = new ExtensibleNode("test", false);
         assertEquals("No actions at the start", 0, en1.getActions(false).length);
@@ -79,6 +102,27 @@ public class ExtensibleActionsTest extends NbTestCase {
         assertEquals("No actions after deleting", 0, en1.getActions(false).length);
     }
     
+    
+    /**
+     * This test tests the presence of declarative actions from
+     * system file system with the hierarchical flag set (the ExtensibleNode
+     * instance is created with constructor ExtensibleNode("test/t1", true).
+     * The tests performs following steps:
+     * <OL><LI> Create an instance of ExtensibleNode with folder set as "test/t1"
+     *     <LI> No actions should be returned from getActions now since the
+     *          testing folders are not there
+     *     <LI> Create one action in the folder "test"
+     *     <LI> The action should be visible in the result of getActions because
+     *          although the node has the folder set to "test/t1" with the hierarchical
+     *          behaviour the content of folder "test" should be also returned
+     *          from this ExtensibleNode
+     *     <LI> Create another action in folder "test/t1"
+     *     <LI> The second action should be also visible as in getActions together
+     *          with the first one - now there should be total of two actions
+     *     <LI> After deleting the actions from theirs folders the actions should
+     *          not be returned from getActions().
+     * </OL>
+     */
     public void testHierarchicalBehaviour() throws Exception {
         ExtensibleNode en1 = new ExtensibleNode("test/t1", true);
         assertEquals("No actions at the start", 0, en1.getActions(false).length);
@@ -97,9 +141,30 @@ public class ExtensibleActionsTest extends NbTestCase {
         assertEquals("No actions after deleting both", 0, en1.getActions(false).length);
     }
     
+    /**
+     * An attempt to create a simple stress test. Just calls
+     * the <code>testCreateAndDeleteAction</code> 100 times.
+     */
     public void testRepetitiveDeleting() throws Exception {
         for (int i = 0; i < 100; i++) {
             testCreateAndDeleteAction();
         }
+    }
+    
+    /**
+     * This test should test behaviour of the getActions method when
+     * there is some alien object specified in the configuration folder.
+     * The testing object is of type Integer (instead of javax.swing.Action).
+     */
+    public void testWrongActionObjectInConfig() throws Exception {
+        ExtensibleNode en1 = new ExtensibleNode("test", false);
+        assertEquals("No actions at the start", 0, en1.getActions(false).length);
+        FileObject test = root.getFileObject("test");
+        if (test == null) {
+            test = root.createFolder("test");
+        }
+        FileObject a1 = test.createData("java-lang-String.instance");
+        Action [] res = en1.getActions(false);
+        assertEquals("There should be zero actions.", 0, res.length);        
     }
 }
