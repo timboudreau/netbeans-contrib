@@ -251,7 +251,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         } else {
             file = new File(path);
         }
-        System.out.println("createFile("+commonParentStr+", "+path+") = "+file.getPath());
+        //System.out.println("createFile("+commonParentStr+", "+path+") = "+file.getPath());
         if (haveToGuessPath && filePath == null && !(new File(rootDir, file.getPath()).exists())) {
             haveErrorOutput = false; // We most probably do not have the error output merged in.
             file = createFileBestMatch(fileName);
