@@ -89,6 +89,13 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
         Hashtable newVars = new Hashtable(vars);
         fileSystem.getVarValueAdjustment().revertAdjustedVarValues(newVars);
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, newVars);
+        if (stderrNRListener != null) {
+            vce.addErrorOutputListener(new CommandOutputListener() {
+                public void outputLine(String line) {
+                    stderrNRListener.outputLine(line);
+                }
+            });
+        }
         fileSystem.getCommandsPool().preprocessCommand(vce, newVars, fileSystem);
         fileSystem.getCommandsPool().startExecutor(vce);
         try {
@@ -111,6 +118,13 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
         fileSystem.getVarValueAdjustment().revertAdjustedVarValues(newVars);
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, newVars);
         vce.addDataOutputListener(this);
+        if (stderrNRListener != null) {
+            vce.addErrorOutputListener(new CommandOutputListener() {
+                public void outputLine(String line) {
+                    stderrNRListener.outputLine(line);
+                }
+            });
+        }
         fileSystem.getCommandsPool().preprocessCommand(vce, newVars, fileSystem);
         fileSystem.getCommandsPool().startExecutor(vce);
         try {

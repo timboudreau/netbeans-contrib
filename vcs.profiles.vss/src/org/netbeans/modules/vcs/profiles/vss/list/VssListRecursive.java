@@ -144,6 +144,11 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
                     }
                 });
             }
+            ec.addErrorOutputListener(new CommandOutputListener() {
+                public void outputLine(String line) {
+                    stderrNRListener.outputLine(line);
+                }
+            });
             fileSystem.getCommandsPool().preprocessCommand(ec, vars, fileSystem);
             fileSystem.getCommandsPool().startExecutor(ec);
             try {
