@@ -47,10 +47,15 @@ final class MethodElementImpl extends ConstructorElementImpl
     throw new SourceException();
   }
 
+  public Object readResolve() {
+    return new MethodElement(this, null);
+  }
+
 }
 
 /*
 * Log
+*  2    src-jtulach1.1         2/17/99  Petr Hamernik   serialization changed.
 *  1    src-jtulach1.0         1/22/99  David Simonek   
 * $
 */

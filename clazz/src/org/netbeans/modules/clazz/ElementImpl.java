@@ -16,6 +16,7 @@ package com.netbeans.developer.modules.loaders.clazz;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.IOException;
+import java.io.Externalizable;
 import java.beans.PropertyChangeListener;
 
 import com.netbeans.ide.src.Element;
@@ -24,7 +25,7 @@ import com.netbeans.ide.src.Element;
 *
 * @author Dafe Simonek
 */
-public class ElementImpl extends Object implements Element.Impl {
+public abstract class ElementImpl extends Object implements Element.Impl, Externalizable {
 
   /** The element we aare asociated to. We provide an implementation
   * to that element */
@@ -50,17 +51,11 @@ public class ElementImpl extends Object implements Element.Impl {
   /** We don't support property changes - does nothing */
   public void removePropertyChangeListener (PropertyChangeListener l) {
   }
-
-  public void writeExternal(ObjectOutput oi) throws IOException {
-  }
-
-  public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
-  }
-
 }
 
 /*
 * Log
+*  3    src-jtulach1.2         2/17/99  Petr Hamernik   serialization changed.
 *  2    src-jtulach1.1         2/3/99   David Simonek   
 *  1    src-jtulach1.0         1/22/99  David Simonek   
 * $

@@ -117,10 +117,15 @@ class ConstructorElementImpl extends MemberElementImpl
     throw new UnsupportedOperationException();
   }
 
+  public Object readResolve() {
+    return new ConstructorElement(this, null);
+  }
+
 }
 
 /*
 * Log
+*  4    src-jtulach1.3         2/17/99  Petr Hamernik   serialization changed.
 *  3    src-jtulach1.2         2/10/99  David Simonek   
 *  2    src-jtulach1.1         2/3/99   David Simonek   
 *  1    src-jtulach1.0         1/22/99  David Simonek   

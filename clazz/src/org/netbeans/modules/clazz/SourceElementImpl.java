@@ -169,10 +169,14 @@ public final class SourceElementImpl extends MemberElementImpl
     }
   }
 
+  public Object readResolve() {
+    return new SourceElement(this);
+  }
 }
 
 /*
 * Log
+*  3    src-jtulach1.2         2/17/99  Petr Hamernik   serialization changed.
 *  2    src-jtulach1.1         2/11/99  David Simonek   
 *  1    src-jtulach1.0         1/29/99  David Simonek   
 * $

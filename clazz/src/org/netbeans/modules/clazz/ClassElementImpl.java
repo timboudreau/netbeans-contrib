@@ -316,11 +316,15 @@ final class ClassElementImpl extends MemberElementImpl
     return result;
   }
 
+  public Object readResolve() {
+    return new ClassElement(this, (SourceElement)null);
+  }
 
 }
 
 /*
 * Log
+*  5    src-jtulach1.4         2/17/99  Petr Hamernik   serialization changed.
 *  4    src-jtulach1.3         2/10/99  David Simonek   
 *  3    src-jtulach1.2         2/3/99   David Simonek   
 *  2    src-jtulach1.1         1/29/99  David Simonek   

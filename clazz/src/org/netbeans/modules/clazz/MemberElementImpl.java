@@ -26,12 +26,12 @@ import com.netbeans.ide.src.Identifier;
 *
 * @author Dafe Simonek
 */
-public class MemberElementImpl extends ElementImpl
+public abstract class MemberElementImpl extends ElementImpl
                                implements MemberElement.Impl {
   /** Asociated java reflection data */
   protected Object data;
   /** Cached name identifier */
-  private Identifier name;
+  private transient Identifier name;
 
   /** Constructor, asociates this impl with java reflection
   * Member element, which acts as data source.
@@ -84,11 +84,11 @@ public class MemberElementImpl extends ElementImpl
   public void readExternal (ObjectInput oi) throws IOException, ClassNotFoundException {
     data = oi.readObject();
   }
-
 }
 
 /*
 * Log
+*  3    src-jtulach1.2         2/17/99  Petr Hamernik   serialization changed.
 *  2    src-jtulach1.1         2/3/99   David Simonek   
 *  1    src-jtulach1.0         1/22/99  David Simonek   
 * $
