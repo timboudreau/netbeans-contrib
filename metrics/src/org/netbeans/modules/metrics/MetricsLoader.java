@@ -23,6 +23,8 @@ import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Iterator;
 import org.openide.ErrorManager;
+import org.openide.modules.ModuleInfo;
+import org.openide.modules.SpecificationVersion;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -103,5 +105,18 @@ public final class MetricsLoader {
 	for (int i = 0; i < maxMetrics; i++)
 	    metrics[i] = metricFactories[i].createMetric(cm);
 	return metrics;
+    }
+
+    static String getModuleVersion() {
+	Lookup.Template templ = new Lookup.Template(ModuleInfo.class);
+	Lookup.Result result = Lookup.getDefault().lookup(templ);
+	Iterator i = result.allInstances().iterator();
+	while (i.hasNext()) {
+	    ModuleInfo mi = (ModuleInfo)i.next();
+	    String name = mi.getCodeName();
+	    if (name.equals("org.netbeans.modules.metrics/1"))
+		return mi.getSpecificationVersion().toString();
+	}
+	return "<unknown>";
     }
 }

@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.metrics;
 
+import java.io.*;
 import java.util.Collection;
 import javax.swing.JLabel;
 import javax.swing.event.*;
@@ -82,5 +83,33 @@ public class MetricsTableModel extends AbstractTableModel
     // By default forward all events to all the listeners. 
     public void tableChanged(TableModelEvent e) {
         fireTableChanged(e);
+    }
+
+    void saveTableAsXML(File file) throws IOException {
+	String filename = file.getAbsolutePath();
+	if (!filename.endsWith(".xml"))
+	    filename += ".xml";
+	PrintWriter xml = new PrintWriter(new FileWriter(filename));
+
+	xml.println("<!-- Created by the NetBeans metrics module -->");
+	xml.println("<!-- module version: " + 
+		    MetricsLoader.getModuleVersion() + " -->\n");
+	xml.println("<metrics_report>");
+
+	int n = getRowCount();
+	for (int i = 0; i < n; i++) {
+	    ClassName name = (ClassName)getValueAt(i, 0);
+	    xml.println("  <class name=\"" + name.getSimpleName() +
+			"\" package=\"" + name.getPackage() + "\">");
+	    for (int j = 1; j <= maxMetrics; j++) {
+		Metric m = (Metric)getValueAt(i, j);
+		xml.println("    <metric=\"" + m.getDisplayName() +
+			    "\" value=\"" + m.getMetricValue() + "\"/>");
+	    }
+	    xml.println("  </class>");
+	}
+	xml.println("</metrics_report>");
+
+	xml.close();
     }
 }

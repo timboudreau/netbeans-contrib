@@ -19,10 +19,20 @@
 
 package org.netbeans.modules.metrics;
 
+import org.openide.ErrorManager;
 import org.openide.TopManager;
+import org.openide.text.CloneableEditorSupport;
+import org.openide.util.actions.SystemAction;
+import org.openide.util.io.SafeException;
+import org.openide.windows.Mode;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
+import org.openide.windows.Workspace;
 
 import java.awt.*;
+import java.beans.*;
 import java.io.*;
+import java.text.MessageFormat;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.table.*;
@@ -32,7 +42,7 @@ import javax.swing.table.*;
  *
  * @author Thomas Ball
  */
-class MetricsPane extends JDialog {
+class MetricsPane extends TopComponent implements PropertyChangeListener {
     JTable table;
     MetricsTableModel model;
 
@@ -40,12 +50,6 @@ class MetricsPane extends JDialog {
     private final static int METRIC_COL_WIDTH = 50;
 
     MetricsPane(Set metricsList) {
-        super(TopManager.getDefault().getWindowManager().getMainWindow(), 
-              MetricsNode.bundle.getString("STR_MetricsPaneTitle"), false);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        setSize(640, 480);
-        setLocationRelativeTo(null); // center dialog on screen
-
         table = new JTable();
         table.setAutoCreateColumnsFromModel(false);
 
@@ -82,7 +86,16 @@ class MetricsPane extends JDialog {
 
         JScrollPane sp = new JScrollPane();
         sp.getViewport().add(table);
-        getContentPane().add(sp, BorderLayout.CENTER);
+
+	// TopComponent management
+	putClientProperty("PersistenceType", "Never"); // don't serialize
+	setLayout(new BorderLayout());
+	add(sp, BorderLayout.CENTER);
+	setName(MetricsNode.bundle.getString("STR_MetricsPaneTitle")); // NOI18N
+	getAccessibleContext().setAccessibleName(
+            MetricsNode.bundle.getString("STR_MetricsPaneTitle")); // NOI18N
+	getAccessibleContext().setAccessibleDescription(
+            MetricsNode.bundle.getString("STR_MetricsPaneDescription")); // NOI18N
     }
 
     private TableCellRenderer createHeaderRenderer(String tooltip) {
@@ -137,4 +150,68 @@ class MetricsPane extends JDialog {
 	    columnToolTips[i + 1] = metrics[i].getShortDescription();
 	}
     }    
+
+    protected Mode getDockingMode(Workspace workspace) {
+	Mode mode = workspace.findMode(CloneableEditorSupport.EDITOR_MODE);
+	if (mode == null) {
+	    mode = workspace.createMode(
+                CloneableEditorSupport.EDITOR_MODE, getName(),
+                CloneableEditorSupport.class.getResource(
+                "/org/openide/resources/editorMode.gif" // NOI18N
+                ));
+	}
+	return mode;
+    }
+        
+    public void open(Workspace workspace) {
+	if (workspace == null)
+	    workspace = WindowManager.getDefault().getCurrentWorkspace();
+	Mode editorMode = getDockingMode(workspace);
+	editorMode.dockInto(this);
+	super.open(workspace);
+	requestFocus();
+    }
+
+    protected void componentClosed() {
+	SystemAction saveAction = SystemAction.get(SaveAsAction.class);
+	saveAction.removePropertyChangeListener(this);
+    }
+
+    /** Overrides superclass method. Gets actions for this top component. */
+    public SystemAction[] getSystemActions() {
+	SystemAction saveAction = SystemAction.get(SaveAsAction.class);
+	saveAction.addPropertyChangeListener(this);
+        SystemAction[] oldValue = super.getSystemActions();
+        return SystemAction.linkActions(
+	    new SystemAction[] { saveAction, null},
+            oldValue);
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+	try {
+	    File file = (File)(File)evt.getNewValue();
+	    model.saveTableAsXML(file);
+
+	    MessageFormat mf = new MessageFormat(
+		MetricsNode.bundle.getString("MSG_SavedTo"));
+	    String msg = mf.format(new Object[] { file.getPath() });
+	    TopManager.getDefault().setStatusText(msg);
+	} catch (IOException e) {
+	    ErrorManager.getDefault().notify(e);
+	}
+    }
+
+    /* This pane isn't serializable, but setting its persistence type
+     * to "never" is documented as only a hint.  The following should 
+     * allow the persistence mechanism to work but not store or 
+     * retrieve anything.
+     */
+    MetricsPane() {
+	// only called during serialization, ignore...
+    }
+
+    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
+	throw new SafeException(
+            new UnsupportedOperationException("MetricsPane isn't loadable."));
+    }
 }

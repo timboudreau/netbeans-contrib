@@ -24,7 +24,6 @@ import org.netbeans.modules.classfile.*;
 import org.openide.src.Identifier;
 import org.openide.src.ClassElement;
 import org.openide.filesystems.*;
-import org.openide.TopManager;
 
 import java.beans.*;
 import java.io.*;
@@ -159,8 +158,7 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
         String pkg = className.getPackage();
         String clsName = className.getSimpleName();
         while (true) {
-            FileObject fo = TopManager.getDefault().getRepository().find(
-                pkg, clsName, "class");
+            FileObject fo = Repository.getDefault().find(pkg, clsName, "class");
             is = (fo != null)
                 ? fo.getInputStream() : findClassFile(pkg, clsName);
             if (is != null)

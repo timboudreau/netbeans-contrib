@@ -19,7 +19,7 @@
 
 package org.netbeans.modules.metrics;
 
-import org.openide.TopManager;
+import org.openide.windows.WindowManager;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -78,7 +78,7 @@ class MetricDetailsInvoker extends AbstractCellEditor implements TableCellEditor
 
     private void openDialog() {
         dialog = new JDialog(
-            TopManager.getDefault().getWindowManager().getMainWindow(), 
+            WindowManager.getDefault().getMainWindow(), 
             MetricsNode.bundle.getString("STR_MetricsPaneTitle"), 
             false) {
 		public Dimension getPreferredSize() {
