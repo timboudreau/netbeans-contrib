@@ -1138,7 +1138,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             rootDirFile = new File(rootDir);
         if (rootDirFile == null)
             rootDirFile = new File("");
-        ChooseDirDialog chooseDir=new ChooseDirDialog(new JFrame(), rootDirFile);
+        java.awt.Dialog[] dialog_ptr = new java.awt.Dialog[1];
+        java.awt.Frame frame = VcsUtilities.getAncestor(getConfigPanel(), dialog_ptr);
+        ChooseDirDialog chooseDir;
+        if (frame != null) {
+            chooseDir = new ChooseDirDialog(frame, rootDirFile);
+        } else {
+            chooseDir = new ChooseDirDialog(dialog_ptr[0], rootDirFile);
+        }
         VcsUtilities.centerWindow (chooseDir);
         chooseDir.show();
         String selected=chooseDir.getSelectedDir();
@@ -2664,7 +2671,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
 
         public void actionPerformed (java.awt.event.ActionEvent evt) {
-            ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(tf.getText ()), false);
+            java.awt.Dialog[] dialog_ptr = new java.awt.Dialog[1];
+            java.awt.Frame frame = VcsUtilities.getAncestor(getConfigPanel(), dialog_ptr);
+            ChooseFileDialog chooseFile;
+            if (frame != null) {
+                chooseFile = new ChooseFileDialog(frame, new File(tf.getText ()), false);
+            } else {
+                chooseFile = new ChooseFileDialog(dialog_ptr[0], new File(tf.getText ()), false);
+            }
             VcsUtilities.centerWindow (chooseFile);
             chooseFile.show();
             String selected=chooseFile.getSelectedFile();
@@ -2687,7 +2701,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
 
         public void actionPerformed (java.awt.event.ActionEvent evt) {
-            ChooseDirDialog chooseDir = new ChooseDirDialog(new JFrame(), new File(tf.getText ()));
+            java.awt.Dialog[] dialog_ptr = new java.awt.Dialog[1];
+            java.awt.Frame frame = VcsUtilities.getAncestor(getConfigPanel(), dialog_ptr);
+            ChooseDirDialog chooseDir;
+            if (frame != null) {
+                chooseDir = new ChooseDirDialog(frame, new File(tf.getText ()));
+            } else {
+                chooseDir = new ChooseDirDialog(dialog_ptr[0], new File(tf.getText ()));
+            }
             VcsUtilities.centerWindow (chooseDir);
             chooseDir.show();
             String selected=chooseDir.getSelectedDir();

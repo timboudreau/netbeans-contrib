@@ -1091,7 +1091,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ChooseDirDialog chooseDir = new ChooseDirDialog(new javax.swing.JFrame(), new File(field.getText ()));
+                java.awt.Dialog[] dialog_ptr = new java.awt.Dialog[1];
+                java.awt.Frame frame = VcsUtilities.getAncestor(getVariableInputPanel(), dialog_ptr);
+                ChooseDirDialog chooseDir;
+                if (frame != null) {
+                    chooseDir = new ChooseDirDialog(frame, new File(field.getText ()));
+                } else {
+                    chooseDir = new ChooseDirDialog(dialog_ptr[0], new File(field.getText ()));
+                }
                 VcsUtilities.centerWindow (chooseDir);
                 chooseDir.show();
                 String selected = chooseDir.getSelectedDir();
@@ -1120,7 +1127,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ChooseFileDialog chooseFile = new ChooseFileDialog(new javax.swing.JFrame(), new File(field.getText ()), false);
+                java.awt.Dialog[] dialog_ptr = new java.awt.Dialog[1];
+                java.awt.Frame frame = VcsUtilities.getAncestor(getVariableInputPanel(), dialog_ptr);
+                ChooseFileDialog chooseFile;
+                if (frame != null) {
+                    chooseFile = new ChooseFileDialog(frame, new File(field.getText ()), false);
+                } else {
+                    chooseFile = new ChooseFileDialog(dialog_ptr[0], new File(field.getText ()), false);
+                }
                 VcsUtilities.centerWindow (chooseFile);
                 chooseFile.show();
                 String selected = chooseFile.getSelectedFile();
