@@ -28,7 +28,7 @@ import org.netbeans.test.oo.gui.jelly.vcsgeneric.wizard.*;
 import org.openide.util.Utilities;
 import org.netbeans.jellytools.*;
 import org.netbeans.jellytools.nodes.Node;
-import org.netbeans.jellytools.actions.PropertiesAction;
+import org.netbeans.jellytools.actions.*;
 import org.netbeans.jellytools.properties.*;
 
 /** XTest / JUnit test class performing check of all settings of filesystems mounted
@@ -64,6 +64,7 @@ public class FilesystemSettings extends NbTestCase {
         suite.addTest(new FilesystemSettings("testCommandNotification"));
         suite.addTest(new FilesystemSettings("testProcessAllFiles"));
         suite.addTest(new FilesystemSettings("testIgnoredFiles"));
+        suite.addTest(new FilesystemSettings("testBackupProperties"));
         return suite;
     }
     
@@ -262,10 +263,62 @@ public class FilesystemSettings extends NbTestCase {
         StringProperty ignoredFiles = new StringProperty(sheet.getPropertySheetTabOperator("Expert"), "Ignored Files");
         ignoredFiles.setStringValue("A_File");
         sheet.close();
-        if (filesystemNode.getChildren().length != 0) throw new Exception("Error: A_File node has not disappeared.");;
+        if (filesystemNode.getChildren().length != 0) throw new Exception("Error: A_File node has not disappeared.");
         api.getFilesystemsTab();
         filesystemNode.select();
         MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
+        System.out.println(". done !");
+    }
+
+    /** Checks whether "Filter Backup Files" and "Create Backup Files" properties work correctly.
+     * @throws Any unexpected exception thrown during test.
+     */
+    public void testBackupProperties() throws Exception {
+        System.out.print(".. Testing backup files properties ..");
+        filesystem = "Empty " + workingDirectory;
+        mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+        APIController.sleep(2000);
+        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+        Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
+        filesystemNode.tree().expandPath(filesystemNode.getTreePath());
+        if (filesystemNode.getChildren().length != 1) throw new Exception("Error: There are more nodes except A_File.");
+        PropertiesAction propertiesAction = new PropertiesAction();
+        propertiesAction.perform(filesystemNode);
+        PropertySheetOperator sheet = new PropertySheetOperator();
+        ComboBoxProperty filterBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Filter Backup Files");
+        ComboBoxProperty createBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Create Backup Files");
+        filterBackupFiles.setValue("False");
+        createBackupFiles.setValue("False");
+        APIController.sleep(10000);
+        if (filesystemNode.getChildren().length != 1) throw new Exception("Error: Some backup files appeared unintentionally.");
+        Node fileNode = new Node(explorer.getRootNode(), filesystem + "|A_File");
+        OpenAction openAction = new OpenAction();
+        openAction.perform(fileNode);
+        sheet.close();
+        EditorOperator editor = new EditorOperator("A_File");
+        editor.insert("// The first added line.\n");
+        new SaveAction().perform();
+        APIController.sleep(10000);
+        if (filesystemNode.getChildren().length != 1) throw new Exception("Error: Create backup files does not work.");
+        propertiesAction.perform(filesystemNode);
+        sheet = new PropertySheetOperator();
+        createBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Create Backup Files");
+        createBackupFiles.setValue("True");
+        editor.insert("// The second added line.\n");
+        editor.requestFocus();
+        new SaveAction().perform();
+        APIController.sleep(10000);
+        if (filesystemNode.getChildren().length != 2) throw new Exception("Error: Backup files properties do not work.");
+        propertiesAction.perform(filesystemNode);
+        sheet = new PropertySheetOperator();
+        filterBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Filter Backup Files");
+        filterBackupFiles.setValue("True");
+        APIController.sleep(10000);
+        if (filesystemNode.getChildren().length != 1) throw new Exception("Error: Filter backup files does not work.");
+        sheet.close();
+        api.getFilesystemsTab();
+        filesystemNode.select();
+        new UnmountFSAction().perform(filesystemNode);
         System.out.println(". done !");
     }
 }
