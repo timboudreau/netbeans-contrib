@@ -45,6 +45,13 @@ public interface NestableInputComponent {
      * @param variables The map of variable values by their names
      */
     public void updatedVars(Map variables);
+    
+    /**
+     * Set a historical value. The component should adapt it's state
+     * accodring to the provided value.
+     * @param historicalValue The historical value.
+     */
+    public void setHistoricalValue(String historicalValue);
 
     /**
      * Tests current value validity and for valid

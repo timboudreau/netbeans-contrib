@@ -54,6 +54,7 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
     private RequestProcessor.Task fetcherTask;
 
     private boolean wasValid = false;
+    private boolean wasHistoryChanged = false;
 
     /** NestableInputComponent is created by reflection. */
     public CvsCommitMessageComponent() {
@@ -115,21 +116,8 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
         assert VARIABLE.equals(variable);
 
         if (validityCheck()) {
-            String content = cleanupContent(textArea.getText());
             try {
-                File tmpfile = File.createTempFile("cvs-commit-", ".input");  // NOI18N
-                Writer w = new FileWriter(tmpfile);
-                try {
-                    w.write(content);
-                    w.flush();
-                    return tmpfile.getAbsolutePath();
-                } finally {
-                    try {
-                        w.close();
-                    } catch (IOException ex) {
-                        // already closed
-                    }
-                }
+                return saveContent();
             } catch (IOException e) {
                 ErrorManager err = ErrorManager.getDefault();
                 err.annotate(e, getString("COMMAND_COMMIT_ex"));
@@ -137,6 +125,36 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
             }
         }
         return null;
+    }
+    
+    /**
+     * Save the cleaned content of the text area into a temp file.
+     * @return the file full path.
+     */
+    private String saveContent() throws IOException {
+        String content = cleanupContent(textArea.getText());
+        File tmpfile = File.createTempFile("cvs-commit-", ".input");  // NOI18N
+        tmpfile.deleteOnExit();
+        Writer w = new FileWriter(tmpfile);
+        try {
+            w.write(content);
+            w.flush();
+            return tmpfile.getAbsolutePath();
+        } finally {
+            w.close();
+        }
+    }
+    
+    /**
+     * Load the content of the text area from a file.
+     */
+    private void loadContent(String fileName) throws IOException {
+        Reader r = new FileReader(fileName);
+        try {
+            textArea.read(r, null);
+        } finally {
+            r.close();
+        }
     }
 
     public String getVerificationMessage(String variable) {
@@ -210,6 +228,20 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
         String message = (String) variables.get("message");
         if (message != null) {
             textArea.setText(message);
+        }
+    }
+    
+    public void setHistoricalValue(String historicalValue) {
+        if (historicalValue == null) {
+            textArea.setText(""); // Set an empty text when it was not valid.
+        } else {
+            try {
+                loadContent(historicalValue);
+            } catch (IOException ioex) {
+                ErrorManager err = ErrorManager.getDefault();
+                err.annotate(ioex, getString("COMMAND_COMMIT_ex"));
+                err.notify(ioex);
+            }
         }
     }
     

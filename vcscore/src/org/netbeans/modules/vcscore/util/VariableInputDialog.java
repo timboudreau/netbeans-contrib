@@ -2389,7 +2389,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
             public void actionPerformed(ActionEvent ev) {
                 if (vars != null) {
                     if (eggAsComponent.isEnabled()) {
-                        Object value = embed.getValue(variableName);
+                        String value = embed.getValue(variableName);
+                        component.setValue(value);
                         if (value != null) {
                             vars.put(variableName, value);
                         } else {
@@ -2401,14 +2402,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 }
             }
         });
-//        addHistoryListener(new VariableInputDialog.HistoryListener() {
-//            public void changeHistory(int index1, int index2) {
-//                if (index1 == historySize && index2 < index1) {
-//                    writeFileContents(area, component.getValue(), promptAreaNum);
-//                }
-//                initArea(area, component.getHistoryValue(index2));
-//            }
-//        });
+        addHistoryListener(new VariableInputDialog.HistoryListener() {
+            public void changeHistory(int index1, int index2) {
+                if (index1 == historySize && index2 < index1) {
+                    component.setValue(embed.getValue(component.getVariable()));
+                }
+                embed.setHistoricalValue(component.getHistoryValue(index2));
+            }
+        });
 
     }
 
