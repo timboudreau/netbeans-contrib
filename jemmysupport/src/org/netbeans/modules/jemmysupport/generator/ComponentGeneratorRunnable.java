@@ -106,35 +106,38 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
      * @param aWTEvent aWTEvent
      */    
     public synchronized void eventDispatched(java.awt.AWTEvent aWTEvent) {
-        if (aWTEvent instanceof FocusEvent) {
-            if (aWTEvent.getID()==FocusEvent.FOCUS_GAINED) {
-                focused=(Component)aWTEvent.getSource();
-                while (!gen.isTopComponent(focused)) {
-                    focused = focused.getParent();
+        try {
+            if (aWTEvent instanceof FocusEvent) {
+                if (aWTEvent.getID()==FocusEvent.FOCUS_GAINED) {
+                    focused=(Component)aWTEvent.getSource();
+                    while (!gen.isTopComponent(focused)) {
+                        focused = focused.getParent();
+                    }
+                    JComponent rootPane=getJComponent(focused);
+                    if (rootPane!=null){
+                        lastBorder=rootPane.getBorder();
+                        rootPane.setBorder(focusedBorder);
+                    }
+                } else if (aWTEvent.getID()==FocusEvent.FOCUS_LOST) {
+                    removeFocus();
                 }
-                JComponent rootPane=getJComponent(focused);
-                if (rootPane!=null){
-                    lastBorder=rootPane.getBorder();
-                    rootPane.setBorder(focusedBorder);
+            } else if ((aWTEvent instanceof KeyEvent)&&(aWTEvent.getID()==KeyEvent.KEY_RELEASED)&&(((KeyEvent)aWTEvent).getKeyCode()==KeyEvent.VK_F12)&&(((KeyEvent)aWTEvent).getModifiers()==KeyEvent.CTRL_MASK)) {
+                if (focused!=null) {
+                    window=focused;
+                } else {
+                    Toolkit.getDefaultToolkit().beep();
                 }
-            } else if (aWTEvent.getID()==FocusEvent.FOCUS_LOST) {
-                removeFocus();
             }
-        } else if ((aWTEvent instanceof KeyEvent)&&(aWTEvent.getID()==KeyEvent.KEY_RELEASED)&&(((KeyEvent)aWTEvent).getKeyCode()==KeyEvent.VK_F12)&&(((KeyEvent)aWTEvent).getModifiers()==KeyEvent.CTRL_MASK)) {
-            if (focused!=null) {
-                window=focused;
-            } else {
-                Toolkit.getDefaultToolkit().beep();
-            }
-        }
+        } catch (Exception e) {}
     }    
 
     void removeFocus() {
-        if (focused!=null) {
+        if (focused!=null) try {
             JComponent rootPane=getJComponent(focused);
             if (rootPane!=null){
                 rootPane.setBorder(lastBorder);
             }
+        } finally {
             focused=null;
         }
     }

@@ -248,6 +248,7 @@ public class ComponentGenerator {
             _shortName = _uniqueName.substring(_operator.getInstancePrefix().length(), i) +
                          _uniqueName.substring(i+_operator.getInstanceSuffix().length());
             _smallName = Character.toLowerCase(_shortName.charAt(0))+_shortName.substring(1);
+            if (_smallName.equalsIgnoreCase("ok")) _smallName="ok";
             _parent = parent;
             _componentOperator = componentOperator;
         }
@@ -610,6 +611,9 @@ public class ComponentGenerator {
                         ch = Character.toUpperCase(ch);
                     }
                     sb.append(ch);
+                } else if (ch == '(') {
+                    String sss = s.substring (i + 1);
+                    shift = !(sss.startsWith("s)")  ||  sss.startsWith ("es)"));
                 } else {
                     shift = true;
                 }
