@@ -2183,6 +2183,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     setOffLine(settings.isOffLine());
                 } else if (propName.equals(VcsSettings.PROP_AUTO_REFRESH)) {
                     setAutoRefresh(settings.getAutoRefresh());
+                } else if (propName.equals(VcsSettings.PROP_HOME)) {
+                    updateEnvironmentVars();
                 }
             }
         }
