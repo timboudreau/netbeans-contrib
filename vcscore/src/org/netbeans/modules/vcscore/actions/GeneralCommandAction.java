@@ -336,7 +336,18 @@ public class GeneralCommandAction extends NodeAction {
         }
         CommandActionSupporter supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);
         if (supp != null) {
-            addToMap(suppMap, supp, dataObj.files());
+            Set fileSet = new HashSet();
+            Iterator it = dataObj.files().iterator();
+            while (it.hasNext()) {
+                FileObject fo = (FileObject)it.next();
+                supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);                
+                if (supp != null) {
+                    fileSet.clear();
+                    fileSet.add(fo);
+                    addToMap(suppMap, supp, fileSet);
+                }
+            }
+//            addToMap(suppMap, supp, dataObj.files());
         } else {
             suppMap = null;
 //            System.out.println("no supporter found for " + dataObj.getName());
