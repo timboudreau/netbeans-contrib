@@ -1047,7 +1047,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     public static String getExitStatusString(int exit) {
         String status;
         if (VcsCommandExecutor.SUCCEEDED == exit) {
-            status = org.openide.util.NbBundle.getBundle(CommandsPool.class).getString("CommandExitStatus.success");
+            status = org.openide.util.NbBundle.getBundle(CommandsPool.class).getString("CommandExitStatus.finished");
         } else if (VcsCommandExecutor.FAILED == exit) {
             status = org.openide.util.NbBundle.getBundle(CommandsPool.class).getString("CommandExitStatus.failed");
         } else if (VcsCommandExecutor.INTERRUPTED == exit) {
