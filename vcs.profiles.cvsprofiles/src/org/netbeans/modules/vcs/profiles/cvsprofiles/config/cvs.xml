@@ -807,6 +807,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="advancedName">
 	  <value>add</value>
 	</property>
+        <property name="visualizer">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
+        </property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
