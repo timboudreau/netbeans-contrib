@@ -598,7 +598,7 @@ public abstract class TaskListView extends TopComponent
 
         LOGGER.fine("root created " + rootNode);
         
-        if (filterEnabled) {
+        if (isFiltered()) {
             // Create filtered view of the tasklist
             FilteredTaskChildren children =
                 new FilteredTaskChildren(this, rootNode, filter);
@@ -1215,13 +1215,18 @@ for (int i = 0; i < columns.length; i++) {
      * Get the toggle filter for this view. It's
      * applied if {@link #isFiltered} returns true.
      *
-     * @return The toggle filter.
+     * @return The toggle filter or <code>null</code> if not defined.
      */
-    public abstract Filter getFilter();
+    public final Filter getFilter() {
+        return filter;
+    }
+
+    /** Create filter template. */
+    public abstract Filter createFilter();
 
     /** Tests if any real filter is applied. */
     public final boolean isFiltered() {
-        return filterEnabled;
+        return getFilter() != null && filterEnabled;
     }
 
     /**
@@ -1230,27 +1235,18 @@ for (int i = 0; i < columns.length; i++) {
      */
     public final void setFiltered(boolean enableFilter) {
         if (enableFilter == filterEnabled) return;
-        if (enableFilter == true) {
-            setFilter(getFilter(), true);
-        } else {
-            setFilter(null, false);
-        }
+        setFilteredImpl(enableFilter);
     }
 
-    /**
-     * Set the filter to be used in this view.
-     * @param filter The filter to be set, or null, to remove filtering.
-     * @param showStatusBar When true, show a status bar with a remove button etc.
-     */
-    public void setFilter(Filter filter, boolean showStatusBar) {
-
-        // XXX mix of actual filter rule and its enableness
-        if (filter == null) {
-            filterEnabled = false;
-        } else {
-            this.filter = filter;
+    private void setFilteredImpl(boolean enableFilter) {
+        if (enableFilter == true) {
             filterEnabled = true;
+            ((RemoveFilterAction) SystemAction.get(RemoveFilterAction.class)).enable();
+        } else {
+            filterEnabled = false;
         }
+
+        // update view accordingly
 
         try {
             getExplorerManager().setSelectedNodes(new Node[0]);
@@ -1259,8 +1255,16 @@ for (int i = 0; i < columns.length; i++) {
 
         setRoot();
         updateFilterCount();
-        
-        ((RemoveFilterAction) SystemAction.get(RemoveFilterAction.class)).enable();
+    }
+
+    /**
+     * Set the filter to be used (determined by isFiltered) in this view.
+     * @param filter The filter to be set, or null, to remove filtering.
+     * @param enable Enable the filter right now
+     */
+    public void setFilter(Filter filter, boolean enable) {
+        this.filter = filter;  // this is often the same instance filter action doe snot clone
+        if (filterEnabled || enable) setFilteredImpl(true);
     }
 
     /**
@@ -1648,6 +1652,7 @@ for (int i = 0; i < columns.length; i++) {
             }
         }
     }
+
 
     // */
 

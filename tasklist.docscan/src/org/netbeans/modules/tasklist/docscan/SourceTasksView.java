@@ -43,6 +43,7 @@ import org.openide.windows.TopComponent;
 
 
 import org.netbeans.modules.tasklist.core.*;
+import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
 import org.netbeans.modules.tasklist.suggestions.*;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
@@ -95,6 +96,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private ArrayList recentFolders = new ArrayList(RECENT_ITEMS_COUNT); // XXX it'd be nice to persist it
 
     private static Border buttonBorder;
+
+    private final int CURRENT_FILE_TAB = 0;
+    private final int SELECTED_FOLDER_TAB = 1;
+    private final TabState[] tabStates = new TabState[2];
 
     /**
      * Externalization entry point (readExternal).
@@ -573,8 +578,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return folderSelector;
     }
 
-    // XXX it's too hardcoded, but all attempts to compute
-    // it dynamically failed
     class DropDown extends JButton {
 
         DropDown() {
@@ -1011,7 +1014,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
         releaseWorkaround();
         setModel(list);
-        setFiltered(false);
+        swapTabStates(CURRENT_FILE_TAB, SELECTED_FOLDER_TAB);
         getRefresh().setEnabled(true);
 
         if (list != resultsSnapshot) {
@@ -1061,6 +1064,24 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
+
+    private void swapTabStates(int oldTab, int newTab) {
+        TabState oldState = (tabStates[oldTab] == null) ?
+                new TabState() : tabStates[oldTab];
+        oldState.filtered = isFiltered();
+        oldState.filter = getFilter();
+        tabStates[oldTab] = oldState;
+
+        TabState state = tabStates[newTab];
+        if (state != null) {
+            setFilter(state.filter, false);
+            setFiltered(state.filtered);
+        } else {
+            setFiltered(false);
+            setFilter(null, false);  // new filter instance request later on in FilterAction
+        }
+    }
+
     // XXX detects listener leaks
     private void releaseWorkaround() {
         ObservableList filter = getModel();
@@ -1079,7 +1100,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             treeTable.setProperties(createColumns());
             treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
             setModel(createFilteredList(job.getSuggestionsList()));
-            setFiltered(false);
+            swapTabStates(SELECTED_FOLDER_TAB, CURRENT_FILE_TAB);
         } finally {
             // setModel() above triggers IAE in IconManager after gc()
             getRefresh().setEnabled(false);
@@ -1208,11 +1229,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return new FilteredTasksList(list);
     }
 
-    public org.netbeans.modules.tasklist.core.filter.Filter getFilter() {
-        if (filter == null) {
-            filter = new SourceTasksFilter("TODOs"); // NOI18N
-        }
-        return filter;
+    public org.netbeans.modules.tasklist.core.filter.Filter createFilter() {
+        return new SourceTasksFilter("TODOs"); // NOI18N
     }
 
     public AccessibleContext getAccessibleContext() {
@@ -1223,5 +1241,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             ret.setAccessibleDescription(Util.getString("file_desc11"));
         }
         return ret;
+    }
+
+    private class TabState {
+        boolean filtered;  // filter enabled
+        Filter filter; // last filter
     }
 }

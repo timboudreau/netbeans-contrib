@@ -19,7 +19,7 @@ import org.openide.util.HelpCtx;
 import java.awt.*;
 
 /**
- * Filters source tasks. It hides south component.
+ * Filters source tasks. It hides south component and makes action modal.
  *
  * @author Petr Kuzel
  */
@@ -33,6 +33,10 @@ final class FilterSourceTasksAction extends FilterAction {
     }
 
     public String getName() {
-        return "Filter TODOs";
+        return Util.getString("filter-todo");
+    }
+
+    protected boolean isModal() {
+        return true;
     }
 }
