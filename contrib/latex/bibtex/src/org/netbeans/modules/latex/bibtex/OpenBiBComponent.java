@@ -286,7 +286,7 @@ public class OpenBiBComponent extends TopComponent implements ListSelectionListe
         
     }
     
-    public static class EntryTableModel extends AbstractTableModel {
+    public static class EntryTableModel extends AbstractTableModel implements PropertyChangeListener {
         
         private String[] properties;
         private String[] displayNames;
@@ -314,20 +314,31 @@ public class OpenBiBComponent extends TopComponent implements ListSelectionListe
             fireTableStructureChanged();
 //            super.setProperties(props);
         }
-        //should listen on the nodes to catch any changes:
-        public void setNodes(Node[] nodes) {
-            //the nodes should be fitered so only PublicationEntryNodes are there:
-            List result = new ArrayList();
-            
-            for (int cntr = 0; cntr < nodes.length; cntr++) {
-                if (nodes[cntr] instanceof PublicationEntryNode) {
-                    result.add(nodes[cntr]);
+        
+        public void setNodes(Node[] newNodes) {
+            //remove the listeners on the current nodes:
+            if (nodes != null) {
+                for (int cntr = 0; cntr < nodes.length; cntr++) {
+                    nodes[cntr].removePropertyChangeListener(this);
                 }
             }
-            this.nodes = (Node[] ) result.toArray(new Node[0]);
-//            System.err.println("new nodes: " + Arrays.asList(this.nodes));
+            //the nodes are fitered so only PublicationEntryNodes are there:
+            List result = new ArrayList();
+            
+            for (int cntr = 0; cntr < newNodes.length; cntr++) {
+                if (newNodes[cntr] instanceof PublicationEntryNode) {
+                    result.add(newNodes[cntr]);
+                }
+            }
+            
+            nodes = (Node[] ) result.toArray(new Node[0]);
+            
+            //add the listeners to the current nodes:
+            for (int cntr = 0; cntr < nodes.length; cntr++) {
+                nodes[cntr].addPropertyChangeListener(this);
+            }
+            
             fireTableDataChanged();
-//            super.setNodes(nodes);
         }
         
         public Node[] getNodes() {
@@ -410,6 +421,10 @@ public class OpenBiBComponent extends TopComponent implements ListSelectionListe
         
         public String getColumnName(int col) {
             return displayNames[col];
+        }
+        
+        public void propertyChange(PropertyChangeEvent evt) {
+            fireTableDataChanged();
         }
         
     }
