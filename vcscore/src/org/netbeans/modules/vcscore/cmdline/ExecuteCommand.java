@@ -571,8 +571,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         } else {
             String path = (String) vars.get("DIR");
             String file = (String) vars.get("FILE");
-            String fullPath = ((path.length() > 0) ? path.replace(File.separatorChar, '/') + "/" : "") + ((file == null) ? "" : file);
-            return Collections.singleton(fullPath);
+            if (path != null) {
+                String fullPath = ((path.length() > 0) ? path.replace(File.separatorChar, '/') + "/" : "") + ((file == null) ? "" : file);
+                return Collections.singleton(fullPath);
+            } else {
+                return Collections.EMPTY_SET;
+            }
         }
     }
     
