@@ -388,10 +388,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 // No cache file when the parent does not exist and I can not create it.
                 if (!cacheFile.getParentFile().exists()) return null;
             }
-            return getFile(path).getAbsolutePath() + File.separator + cacheFileName;
+            return (getFile(path).getAbsolutePath() + File.separator + cacheFileName).intern();
         }
-        return cachePath + File.separator + getRelativeMountPoint()
-               + File.separator + path + File.separator + CACHE_FILE_NAME;
+        return (cachePath + File.separator + getRelativeMountPoint()
+               + File.separator + path + File.separator + CACHE_FILE_NAME).intern();
         /*
         File file = getFile(path);
         if (!file.isDirectory()) file = file.getParentFile();
