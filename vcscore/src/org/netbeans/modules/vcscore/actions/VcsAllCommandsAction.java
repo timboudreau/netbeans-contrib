@@ -205,6 +205,10 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
                 }
             }
             if (m2.length == 0) {
+                for (int i = 0; i < m1.length; i++) {
+                    if (!(m1[i] instanceof JMenu)) continue;
+                    m1[i] = new MergedMenuItem((JMenu) m1[i], addContextPlaceHolder((JMenu) m1[i]));
+                }
                 return m1;
             } else {
                 JMenuItem[] m = new JMenuItem[m1.length + m2.length];
@@ -216,6 +220,14 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
                 }
                 return m;
             }
+        }
+        
+        private JMenu addContextPlaceHolder(JMenu m) {
+            JMenu cm = new JMenu();
+            JMenuItem contextPlaceHolder = new JMenuItem(org.openide.util.NbBundle.getMessage(VcsCommandsAction.class, "CTL_ContextCommandsPlaceHolder", m.getText()));
+            contextPlaceHolder.setEnabled(false);
+            cm.add(contextPlaceHolder);
+            return cm;
         }
         
     }
