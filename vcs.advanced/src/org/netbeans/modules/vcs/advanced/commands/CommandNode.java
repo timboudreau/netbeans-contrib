@@ -72,7 +72,7 @@ public class CommandNode extends AbstractNode {
         propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED, String.class);
         propertyClassTypes.put(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, Boolean.TYPE);
-        propertyClassTypes.put(UserCommand.PROPERTY_CHECK_FOR_MODIFICATIONS, Boolean.TYPE);
+        propertyClassTypes.put(VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS, Boolean.TYPE);
         propertyClassTypes.put(UserCommand.PROPERTY_DATA_REGEX, String.class);
         propertyClassTypes.put(UserCommand.PROPERTY_ERROR_REGEX, String.class);
         propertyClassTypes.put(UserCommand.PROPERTY_INPUT, String.class);
