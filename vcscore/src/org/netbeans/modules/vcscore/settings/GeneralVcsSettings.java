@@ -102,13 +102,15 @@ public class GeneralVcsSettings extends SystemOption {
     }
 
     public File getHome() {
-        String home = System.getProperty("Env-HOME");
-        if (home == null && org.openide.util.Utilities.isWindows()) {
+        String home = null;
+        if (org.openide.util.Utilities.isWindows()) {
             String homeDrive = System.getProperty("Env-HOMEDRIVE");
             String homeDir = System.getProperty("Env-HOMEPATH");
             if (homeDrive != null && homeDir != null) {
                 home = homeDrive + homeDir;
             }
+        } else {
+            home = System.getProperty("Env-HOME");
         }
         if (home == null) {
             home = System.getProperty("user.home");
@@ -122,8 +124,6 @@ public class GeneralVcsSettings extends SystemOption {
     public void setHome(File home) {
         if (home == null) return ;
         String homepath = home.getAbsolutePath();
-        System.setProperty("Env-HOME", homepath); //NOI18N
-        System.setProperty("env-home", homepath.toLowerCase()); //NOI18N
         if (org.openide.util.Utilities.isWindows()) {
             int index = homepath.indexOf(':');
             if (index > 0) {
@@ -134,6 +134,9 @@ public class GeneralVcsSettings extends SystemOption {
                 System.setProperty("Env-HOMEPATH", homeDir); //NOI18N
                 System.setProperty("env-homepath", homeDir.toLowerCase()); //NOI18N
             }
+        } else {
+            System.setProperty("Env-HOME", homepath); //NOI18N
+            System.setProperty("env-home", homepath.toLowerCase()); //NOI18N
         }
         firePropertyChange(PROP_HOME, null, home);
     }
