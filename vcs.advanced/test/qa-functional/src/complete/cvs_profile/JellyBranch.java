@@ -18,14 +18,16 @@ import java.io.File;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.netbeans.jellytools.actions.CustomizeAction;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
+import org.netbeans.jellytools.modules.vcsgeneric.VCSFilesystemCustomizerDialog;
 import org.netbeans.jellytools.modules.vcsgeneric.nodes.CVSVersioningBranchNode;
 import org.netbeans.jellytools.modules.vcsgeneric.nodes.CVSVersioningFileNode;
 import org.netbeans.jellytools.modules.vcsgeneric.nodes.CVSVersioningVersionNode;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.junit.NbTestSuite;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
+import org.netbeans.jellytools.modules.vcsgeneric.cvs_profile.*;
 
 
 public class JellyBranch extends CVSStub {
@@ -79,6 +81,12 @@ public class JellyBranch extends CVSStub {
     }
     
     public void prepareClient () {
+        // advanced mode
+        new CustomizeAction ().performPopup (root.cvsNode ());
+        VCSFilesystemCustomizerDialog dia = new VCSFilesystemCustomizerDialog ();
+        dia.checkAdvancedMode(true);
+        dia.close ();
+        dia.waitClosed ();
     }
 
     public void configure () {
@@ -106,8 +114,8 @@ public class JellyBranch extends CVSStub {
         root.waitHistory ("Check Out");
         
         // workaround - probably jelly issue - if not used, popup menu does not work in versioning frame
-        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("Check Out");
-        closeAllVCSWindows();
+//        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("Check Out");
+//        closeAllVCSWindows();
         
         InitDir.waitStatus(null);
         refreshRecursively(root);
@@ -219,8 +227,13 @@ public class JellyBranch extends CVSStub {
         assertInformationDialog (null);
         new CVSVersioningFileNode (vfo.treeVersioningTreeView (), File.node ()).refreshRevisions();
         File.waitHistory ("REVISION_LIST");
+
+        // workaround
         new CVSVersioningFileNode (vfo.treeVersioningTreeView (), File.node () + " [Up-to-date; 1.1]");
         Node nn = new CVSVersioningVersionNode (vfo.treeVersioningTreeView (), File.node () + " [Up-to-date; 1.1]|1.1  Initial commit");
+        new CVSVersioningVersionNode (vfo.treeVersioningTreeView (), File.node () + " [Up-to-date; 1.1]|1.1  Initial commit").select ();
+        vfo.treeVersioningTreeView ().clickOnPath (new CVSVersioningVersionNode (vfo.treeVersioningTreeView (), File.node () + " [Up-to-date; 1.1]|1.1  Initial commit").getTreePath(), 2); // workaround
+        new CVSVersioningVersionNode (vfo.treeVersioningTreeView (), File.node () + " [Up-to-date; 1.1]|1.1  Initial commit").expand ();
         String[] strs = nn.getChildren();
         if (strs != null) {
             info.println ("--- Children Count: " + strs.length + " ---");
@@ -228,8 +241,11 @@ public class JellyBranch extends CVSStub {
                 info.println (strs[a]);
         } else
             info.println ("--- No Children ---");
-        new CVSVersioningVersionNode (vfo.treeVersioningTreeView (), File.node () + " [Up-to-date; 1.1]|1.1  Initial commit").expand ();
-        new CVSVersioningBranchNode (vfo.treeVersioningTreeView (), File.node () + " [Up-to-date; 1.1]|1.1  Initial commit|1.1.2 (Tag2)");
+        new CVSVersioningBranchNode (vfo.treeVersioningTreeView (), File.node () + " [Up-to-date; 1.1] (Tag2)|1.1  Initial commit|1.1.2").select ();
+        vfo.treeVersioningTreeView ().clickOnPath (new CVSVersioningVersionNode (vfo.treeVersioningTreeView (), File.node () + " [Up-to-date; 1.1]|1.1  Initial commit|1.1.2").getTreePath(), 2);
+        new CVSVersioningBranchNode (vfo.treeVersioningTreeView (), File.node () + " [Up-to-date; 1.1] (Tag2)|1.1  Initial commit|1.1.2").expand ();
+        
+        new CVSVersioningBranchNode (vfo.treeVersioningTreeView (), File.node () + " [Up-to-date; 1.1] (Tag2)|1.1  Initial commit|1.1.2|1.1.2.1  Branch Commit").select ();
     }
     
     public void testCommitToBranch () {
@@ -292,8 +308,11 @@ public class JellyBranch extends CVSStub {
         refresh (File);
         File.waitStatus ("Up-to-date; 1.1");
         File.waitVersion ("HEAD");
-        File.cvsNode ().cVSBranchingAndTaggingRemoveStickyTag();
-        File.waitHistory ("Remove Sticky Tag");
+        File.cvsNode ().cVSUpdate ();
+        CVSUpdateFileAdvDialog upd = new CVSUpdateFileAdvDialog ();
+        upd.checkResetStickyTagsDates(true);
+        upd.oK();
+        File.waitHistory ("Update");
         assertInformationDialog (null);
         File.waitStatus ("Up-to-date; 1.1");
         File.waitVersion (null);
@@ -335,8 +354,10 @@ public class JellyBranch extends CVSStub {
         refresh (File);
         File.waitStatus ("Up-to-date; 1.1.2.1");
         File.waitVersion ("Tag2");
-        File.cvsNode ().cVSBranchingAndTaggingRemoveStickyTag();
-        File.waitHistory ("Remove Sticky Tag");
+        CVSUpdateFileAdvDialog upd = new CVSUpdateFileAdvDialog ();
+        upd.checkResetStickyTagsDates(true);
+        upd.oK();
+        File.waitHistory ("Update");
         assertInformationDialog (null);
         File.waitStatus ("Up-to-date; 1.2");
         File.waitVersion (null);
