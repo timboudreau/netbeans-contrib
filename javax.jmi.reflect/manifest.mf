@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 1.3
+OpenIDE-Module-Specification-Version: 1.4
 OpenIDE-Module: javax.jmi.reflect/1
 OpenIDE-Module-Localizing-Bundle: javax/jmi/reflect/resources/Bundle.properties
 Class-Path: ext/jmi.jar
