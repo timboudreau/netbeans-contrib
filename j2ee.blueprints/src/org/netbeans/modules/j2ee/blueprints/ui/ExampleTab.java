@@ -95,7 +95,7 @@ public class ExampleTab
         "org-netbeans-modules-project-ui-WelcomeScreenHack/" + // NOI18N
         "org-netbeans-modules-project-ui-NewSample.instance";  // NOI18N
     private static final String BUNDLE_PROPERTY_PREFIX = 
-        "Blueprints"; // NOI18N
+        "Samples/Blueprints"; // NOI18N
     private static final String PRESELECT_CATEGORY = 
         "PRESELECT_CATEGORY"; // NOI18N
     private static final String PRESELECT_TEMPLATE =
