@@ -17,10 +17,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
+import org.openide.filesystems.FileObject;
 
 import org.openide.filesystems.FileSystem;
+import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListener;
 
 /**
@@ -32,13 +36,17 @@ import org.openide.util.WeakListener;
  */
 public final class IntegritySupportMaintainer extends Object
                                               implements PropertyChangeListener,
-                                                         VetoableChangeListener {
+                                                         VetoableChangeListener,
+                                                         Runnable {
     private static Map VOISMap = new WeakHashMap();
+    private static final int SAVER_SCHEDULE_TIME = 500;
     
     private FileSystem fileSystem;
     private VcsOISActivator objectIntegrityActivator;
     private VcsObjectIntegritySupport objectIntegritySupport;
     private PropertyChangeListener vOISChangeListener;
+    private RequestProcessor.Task saverTask;
+    private Map voisToSave;
 
     /**
      * Create a new IntegritySupportMaintainer.
@@ -49,6 +57,9 @@ public final class IntegritySupportMaintainer extends Object
                                       VcsOISActivator objectIntegrityActivator) {
         this.fileSystem = fileSystem;
         this.objectIntegrityActivator = objectIntegrityActivator;
+        this.saverTask = RequestProcessor.createRequest(this);
+        saverTask.setPriority(Thread.MIN_PRIORITY);
+        this.voisToSave = new HashMap();
         initVOIS();
         fileSystem.addVetoableChangeListener(WeakListener.vetoableChange(this, fileSystem));
         fileSystem.addPropertyChangeListener(WeakListener.propertyChange(this, fileSystem));
@@ -86,11 +97,9 @@ public final class IntegritySupportMaintainer extends Object
             initVOIS();
         } else if (VcsObjectIntegritySupport.PROPERTY_FILES_CHANGED.equals(propertyName)) {
             //System.out.println("IntegritySupportMaintainer.propertyChange("+propertyName+"), SAVING "+evt.getSource());
-            try {
-                fileSystem.getRoot().setAttribute(VcsObjectIntegritySupport.ATTRIBUTE_NAME,
-                                                  (VcsObjectIntegritySupport) evt.getSource());
-            } catch (java.io.IOException ioex) {
-                org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, ioex);
+            synchronized (voisToSave) {
+                voisToSave.put(fileSystem.getRoot(), evt.getSource());
+                saverTask.schedule(SAVER_SCHEDULE_TIME);
             }
         }
     }
@@ -120,6 +129,28 @@ public final class IntegritySupportMaintainer extends Object
                 }
                  */
                 objectIntegritySupport = null;
+            }
+        }
+    }
+    
+    /**
+     * Save the VcsObjectIntegritySupport as an attribute of a FileObject.
+     *
+     * @see     java.lang.Thread#run()
+     */
+    public void run() {
+        Map toSave = new HashMap();
+        synchronized (voisToSave) {
+            toSave.putAll(voisToSave);
+            voisToSave.clear();
+        }
+        for (Iterator it = toSave.keySet().iterator(); it.hasNext(); ) {
+            FileObject fo = (FileObject) it.next();
+            VcsObjectIntegritySupport vois = (VcsObjectIntegritySupport) toSave.get(fo);
+            try {
+                fo.setAttribute(VcsObjectIntegritySupport.ATTRIBUTE_NAME, vois);
+            } catch (java.io.IOException ioex) {
+                org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, ioex);
             }
         }
     }
