@@ -1587,7 +1587,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 //files.put(file, fileSystem.findFileObject(file));
             }
             if (foFiles.size() > 0) {
-                cmd.setFiles((FileObject[]) foFiles.toArray(new FileObject[foFiles.size()]));
+                FileObject[] filesArr = cmd.getApplicableFiles((FileObject[]) foFiles.toArray(new FileObject[foFiles.size()]));
+                if (filesArr != null) {
+                    cmd.setFiles(filesArr);
+                } else {
+                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Warning: can not run "+cmdSupp.getName()+" command on files: "+foFiles+" => Can not perform refresh.");
+                }
             }
             if (cmd instanceof VcsDescribedCommand) {
                 if (diskFiles.size() > 0) {
