@@ -13,6 +13,10 @@
 
 package org.netbeans.modules.corba.browser.ir.nodes;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
 import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
 import org.omg.CORBA.*;
@@ -118,25 +122,14 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
   }
   
   public void generateCode(){
-     Node node = this.getParentNode();
-      String code ="";
-      // Generate the start of namespace
-      ArrayList stack = new ArrayList();
-      while ( node instanceof IRContainerNode){
-	  stack.add(((GenerateSupportFactory)node).createGenerator());
-	  node = node.getParentNode();
-      }
-      int size = stack.size();
-      for (int i = size - 1; i>=0; i--)
-        code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1));
-      // Generate element itself
-      code = code + this.createGenerator().generateSelf(size);
-      //Generate tail of namespace
-      for (int i = 0; i< stack.size(); i++)
-        code = code + ((GenerateSupport)stack.get(i)).generateTail((size -i));
+      
       ExClipboard clipboard = TopManager.getDefault().getClipboard();
-      StringSelection genCode = new StringSelection (code);
+      StringSelection genCode = new StringSelection ( this.generateHierarchy ());
       clipboard.setContents(genCode,genCode);
+  }
+
+  public void generateCode (PrintWriter out) throws IOException {
+    out.println ( this.generateHierarchy ());
   }
   
   public String getRepositoryId () {
@@ -154,6 +147,26 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
     if (alias == null) 
       return null;
     return new AliasCodeGenerator (alias);
+  }
+
+  private String generateHierarchy () {
+    Node node = this.getParentNode();
+    String code ="";
+    // Generate the start of namespace
+    ArrayList stack = new ArrayList();
+    while ( node instanceof IRContainerNode){
+      stack.add(((GenerateSupportFactory)node).createGenerator());
+      node = node.getParentNode();
+    }
+    int size = stack.size();
+    for (int i = size - 1; i>=0; i--)
+      code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1));
+    // Generate element itself
+    code = code + this.createGenerator().generateSelf(size);
+    //Generate tail of namespace
+    for (int i = 0; i< stack.size(); i++)
+      code = code + ((GenerateSupport)stack.get(i)).generateTail((size -i));
+    return code;
   }
   
 }
