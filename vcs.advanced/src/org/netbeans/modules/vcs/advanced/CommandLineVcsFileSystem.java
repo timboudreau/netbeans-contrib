@@ -88,13 +88,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   
   //-------------------------------------------
   public Vector getCommands(){
-    //D.deb("getCommands() -->"+commands);
     return commands;
   }
 
   //-------------------------------------------
   public void setCommands(Vector commands){
-    //D.deb("setCommands("+commands+")");
     this.commands=commands;
   }
 
@@ -131,7 +129,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   //-------------------------------------------
   /* Human presentable name */
   public String getDisplayName() {
-    //D.deb("getDisplayName() "+isValid());
+    D.deb("getDisplayName() "+isValid());
     if(!isValid())
       return getString("LAB_FileSystemInvalid", rootFile.toString ());
     else
@@ -164,7 +162,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
    * @return root directory
   */
   public File getRootDirectory () {
-    //D.deb("getRootDirectory() "+rootFile);
+    D.deb("getRootDirectory() "+rootFile);
     return rootFile;
   }
 
@@ -185,7 +183,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
    * @return <true> if file system is read only
    */
   public boolean isReadOnly() {
-    //D.deb("isReadOnly() "+readOnly);
+    D.deb("isReadOnly() "+readOnly);
     return readOnly;
   }
 
@@ -207,7 +205,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @return system name for the filesystem
   */
   protected String computeSystemName (File rootFile) {
-    //D.deb("computeSystemName()"+rootFile.toString ().replace(File.separatorChar, '/') );
+    D.deb("computeSystemName()"+rootFile.toString ().replace(File.separatorChar, '/') );
     return rootFile.toString ().replace(File.separatorChar, '/');
   }
 
@@ -229,11 +227,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   /* Scans children for given name
   */
   public String[] children (String name) {
-    // what a traffic I see here ... 
-    //D.deb("children("+name+")");
+    D.deb("children("+name+")");
     File f = getFile (name);
     if (f.isDirectory ()) {
-      return f.list ();
+      String[] files=f.list();
+      return files;
     } else {
       return null;
     }
@@ -349,7 +347,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @return true if the file is folder, false otherwise
   */
   public boolean folder (String name) {
-    //D.deb("folder("+name+")");
+    D.deb("folder("+name+")");
     return getFile (name).isDirectory ();
   }
 
@@ -359,7 +357,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @return <CODE>true</CODE> if file is read-only
   */
   public boolean readOnly (String name) {
-    //D.deb("readOnly() name="+name);
+    D.deb("readOnly() name="+name);
     return !getFile (name).canWrite ();
   }
   
@@ -389,7 +387,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   *  exist or is a folder).
   */
   public long size (String name) {
-    //D.deb("size() name="+name);
+    D.deb("size() name="+name);
     return getFile (name).length ();
   }
   
@@ -487,6 +485,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  5    Gandalf   1.4         4/22/99  Michal Fadljevic 
  *  4    Gandalf   1.3         4/22/99  Michal Fadljevic 
  *  3    Gandalf   1.2         4/22/99  Michal Fadljevic 
  *  2    Gandalf   1.1         4/21/99  Michal Fadljevic 
