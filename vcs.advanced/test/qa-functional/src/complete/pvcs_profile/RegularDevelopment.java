@@ -245,7 +245,10 @@ public class RegularDevelopment extends NbTestCase {
         new Action(VERSIONING_MENU + "|" + HISTORY, HISTORY).perform(A_FileNode);
         VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("History");
         MainWindowOperator.getDefault().waitStatusText("Command History finished.");
+        outputWindow.btClose();
+        Thread.sleep(5000);
         String currentContents = outputWindow.txtStandardOutput().getText();
+        outputWindow.close();
         String goldenContents = "Archive:          " + workingDirectory + File.separator + "Repo" + File.separator + "archives" + File.separator + "A_File.java-arc\nWorkfile:         A_File.java";
         if (currentContents.indexOf(goldenContents) < 0) captureScreen("Error: Incorrect history contents.");
         goldenContents = "Owner:            " + userName + "\nLast trunk rev:   1.1\nLocks:            \nGroups:           \nRev count:        2\nAttributes:\n   WRITEPROTECT\n   CHECKLOCK\n   NOEXCLUSIVELOCK\n   EXPANDKEYWORDS\n   TRANSLATE\n   NOCOMPRESSDELTA\n   NOCOMPRESSWORKIMAGE\n   GENERATEDELTA\n   COMMENTPREFIX = \" * \"\n   NEWLINE = \"\\r\\n\"\nVersion labels:\nDescription:\nAuto-generated class file.\n\n-----------------------------------\nRev 1.1\nChecked in";
@@ -254,7 +257,6 @@ public class RegularDevelopment extends NbTestCase {
         if (currentContents.indexOf(goldenContents) < 0) captureScreen("Error: Incorrect history contents.");
         goldenContents = "Author id: " + userName + "     lines deleted/added/moved: 0/0/0\nInitial revision.\n===================================";
         if (currentContents.indexOf(goldenContents) < 0) captureScreen("Error: Incorrect history contents.");
-        outputWindow.close();
         System.out.println(". done !");
     }
 
@@ -427,8 +429,8 @@ public class RegularDevelopment extends NbTestCase {
         VersioningFrameOperator versioningExplorer = new VersioningFrameOperator();
         filesystemNode = new Node(versioningExplorer.treeVersioningTreeView(), filesystem);
         D_FileNode = new Node(filesystemNode, "test [Current]|another [Current]|D_File.java [Current; 2.0.1.1] (" + userName + ")");
-        Node revisionNode = new Node(D_FileNode, "2.0  Assigning own number.|2.0.1|2.0.1.0  Starting new branch.");
-        revisionNode.select();
+        Thread.sleep(3000);
+        new Node(D_FileNode, "2.0  Assigning own number.|2.0.1|2.0.1.0  Starting new branch.").select();
         versioningExplorer.close();
         System.out.println(". done !");
     }

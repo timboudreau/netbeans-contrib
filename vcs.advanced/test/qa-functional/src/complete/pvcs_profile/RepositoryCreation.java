@@ -158,10 +158,10 @@ public class RepositoryCreation extends NbTestCase {
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         Node testNode = new Node( filesystemNode, "test [Local]");
         new Action(VERSIONING_MENU + "|" + CREATE_PROJECT, CREATE_PROJECT).perform(testNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        Thread.sleep(5000);
         Node anotherNode = new Node( testNode, "another [Local]");
         new Action(VERSIONING_MENU + "|" + CREATE_PROJECT, CREATE_PROJECT).perform(anotherNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        Thread.sleep(5000);
         testNode = new Node( filesystemNode, "test [Current]");
         anotherNode = new Node( testNode, "another [Current]");
         System.out.println(". done !");
@@ -176,7 +176,7 @@ public class RepositoryCreation extends NbTestCase {
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         createFile( workingDirectory + File.separator + "Work" + File.separator + "A_File.java" );
         new Action(VERSIONING_MENU + "|" + REFRESH, REFRESH).perform(filesystemNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        Thread.sleep(5000);
         Node fileNode = new Node( filesystemNode, "A_File [Local]");
         new ActionNoBlock(VERSIONING_MENU + "|" + ADD, ADD).perform(fileNode);
         AddCommandOperator addCommand = new AddCommandOperator("A_File.java");
