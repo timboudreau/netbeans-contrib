@@ -876,9 +876,10 @@ public class CommandCustomizationSupport extends Object {
     
     public static VariableInputDialog createInputDialog(final CommandExecutionContext executionContext,
                                                         String exec, final Hashtable vars,
-                                                        final VcsCommand cmd,
+                                                        final VcsDescribedCommand dcmd,
                                                         boolean[] forEachFile,
                                                         StringBuffer retTitle) throws UserCancelException {
+        final VcsCommand cmd = dcmd.getVcsCommand();
         VariableInputDescriptor inputDescriptor = (VariableInputDescriptor) cmd.getProperty(INPUT_DESCRIPTOR_PARSED);
         String[] resourceBundles = (String[]) cmd.getProperty(INPUT_DESCRIPTOR_RESOURCE_BUNDLES);
         if (inputDescriptor == null) {
@@ -897,6 +898,9 @@ public class CommandCustomizationSupport extends Object {
                     ErrorManager.getDefault().notify(exc);
                     throw new UserCancelException();
                 }
+                ProvidedCommand pc = (ProvidedCommand) dcmd;
+// TODO implement 52621
+//                inputDescriptor.loadDefaults(dcmd.getName(), pc.getProvider().getType());
                 inputDescriptor.setValuesAsDefault();
                 cmd.setProperty(INPUT_DESCRIPTOR_PARSED, inputDescriptor);
             }
@@ -930,7 +934,7 @@ public class CommandCustomizationSupport extends Object {
                     // provide a copy of variables for easy use and modification,
                     // since I have the original variables locked.
                     final Hashtable dlgVars = new Hashtable(vars);
-                    final VariableInputDialog dlg = new VariableInputDialog(new String[] { file }, inputDescriptor, expertCondition, dlgVars);
+                    final VariableInputDialog dlg = new VariableInputDialog(dcmd, inputDescriptor, expertCondition, dlgVars);
                     if (inputDescriptor != null && inputDescriptor.getHelpID() != null) {
                         dlg.putClientProperty("helpID", inputDescriptor.getHelpID());
                     }

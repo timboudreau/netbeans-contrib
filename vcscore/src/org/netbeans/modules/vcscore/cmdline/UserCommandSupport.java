@@ -803,7 +803,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         StringBuffer title = new StringBuffer();
         final VariableInputDialog dlg;
         try {
-            dlg = CommandCustomizationSupport.createInputDialog(executionContext, newExec, vars, cmd, forEachFile, title);
+            dlg = CommandCustomizationSupport.createInputDialog(executionContext, newExec, vars, command, forEachFile, title);
         } catch (UserCancelException ucex) {
             return ucex;
         }

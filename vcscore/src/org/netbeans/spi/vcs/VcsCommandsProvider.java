@@ -65,5 +65,14 @@ public abstract class VcsCommandsProvider extends Object {
     public abstract Command createCommand(Class cmdClass);
     
     //public abstract boolean canActOn(Set files);
-    
+
+// TODO implement 52621    
+//    /**
+//     * Provider identification, Paired with command name creates
+//     * unique command identification. MUST be redefined, it's
+//     * not abstract just for compatability reasons.
+//     */
+//    public String getType() {
+//        return null;
+//    }
 }

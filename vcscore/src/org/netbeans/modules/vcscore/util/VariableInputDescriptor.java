@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore.util;
 
+import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
+
 import java.awt.Dimension;
 import java.util.*;
 
@@ -638,5 +640,22 @@ public class VariableInputDescriptor extends Object {
     private static String g(String s, Object obj) {
         return java.text.MessageFormat.format(g(s), new Object[] { obj });
     }
-    
+
+    /**
+     * Loads default values from disk into component values.
+     * @param commandName identifies command in provider namespace or <code>null</code>
+     * @param commandProvider identifies provider
+     */
+    public final void loadDefaults(String commandName, String commandProvider) {
+        // TODO implement 52621
+    }
+
+    /**
+     * Stores component values to disk default values.
+     * @param commandName identifies command in provider namespace or <code>null</code>
+     * @param commandProvider identifies provider
+     */
+    public final void storeDefaults(String commandName, String commandProvider) {
+        // TODO implement 52621
+    }
 }

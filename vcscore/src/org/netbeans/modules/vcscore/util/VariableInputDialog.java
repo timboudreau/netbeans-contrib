@@ -156,21 +156,22 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private boolean dynamicVarChanges = false;
     
     static final long serialVersionUID = 8363935602008486018L;
-    
+    private VcsDescribedCommand command;
+
     /** Creates new form VariableInputDialog. This JPanel should be used
      * with DialogDescriptor to get the whole dialog.
-     * @param files the files to get the input for
+     * @param dcmd the command that is subject of customization
      * @param inputDescriptor the input descriptor
      * @param expert the expert mode
      * @param vars the filesystem variables
      */
-    public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor, boolean expert, Hashtable vars) {
-        this(files, inputDescriptor, expert, vars, false, true);
+    public VariableInputDialog(VcsDescribedCommand dcmd, VariableInputDescriptor inputDescriptor, boolean expert, Hashtable vars) {
+        this(dcmd, inputDescriptor, expert, vars, false, true);
     }
     
     /** Creates new form VariableInputDialog. This JPanel should be used
      * with DialogDescriptor to get the whole dialog.
-     * @param files the files to get the input for
+     * @param dcmd the command that is subject of customization
      * @param inputDescriptor the input descriptor
      * @param expert the expert mode
      * @param vars the filesystem variables
@@ -183,7 +184,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
      *        can change and therefore a more "interactive" mode will be set.
      *
      */
-    public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor,
+    public VariableInputDialog(VcsDescribedCommand dcmd, VariableInputDescriptor inputDescriptor,
                                boolean expert, Hashtable vars, boolean rapidVariablesAssignment,
                                boolean dynamicVarChanges) {
         this.rapidVariablesAssignment = rapidVariablesAssignment;
@@ -191,6 +192,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         this.inputDescriptor = inputDescriptor;
         this.expert = expert;
         this.vars = vars;
+        this.command = dcmd;
         this.dynamicVarChanges = dynamicVarChanges;
         if(inputDescriptor != null)
             setAutoFillVars(inputDescriptor.getAutoFillVars());
@@ -488,10 +490,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }//GEN-LAST:event_getDefaultButtonActionPerformed
 
     private void asDefaultButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_asDefaultButtonActionPerformed
-        // Add your handling code here:
+        ProvidedCommand pc = (ProvidedCommand) command;
         inputDescriptor.setValuesAsDefault();
+// TODO implement 52621        
+//        inputDescriptor.storeDefaults(command.getName(), pc.getProvider().getType());
         if (globalDescriptor != null) {
             globalDescriptor.setValuesAsDefault();
+            // per profile
+//            globalDescriptor.storeDefaults(command);
         }
     }//GEN-LAST:event_asDefaultButtonActionPerformed
 
