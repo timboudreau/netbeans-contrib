@@ -70,7 +70,11 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     /** The maximum number of running commands in the system. This prevents overwhelming
      * the system with too many commands running concurrently */
-    private static final int MAX_NUM_RUNNING_COMMANDS = 50;
+    private static final int MAX_NUM_RUNNING_COMMANDS = 10;
+    /** The maximum number of running refresh commands in the system. This prevents
+     * overwhelming the system with too many refresh commands with the ability
+     * to still run other commands concurrently */
+    private static final int MAX_NUM_RUNNING_LISTS = 7;
     
     private static long lastCommandID = 0;
     
@@ -91,6 +95,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private Hashtable outputVisualizers;
     /** Contains finished instances of VcsCommandExecutor. */
     private ArrayList commandsFinished;
+    private int numRunningListCommands;
     
     private ThreadGroup group;
     
@@ -128,6 +133,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         outputContainers = new Hashtable();
         outputVisualizers = new Hashtable();
         commandsIDs = new WeakHashMap();
+        numRunningListCommands = 0;
         group = new ThreadGroup("VCS Commands Group");
         this.fileSystem = new WeakReference(fileSystem);
         runtimeNodePropertyChange = new PropertyChangeListener() {
@@ -362,6 +368,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
         synchronized (this) {
+            if (isListCommand(cmd)) numRunningListCommands--;
             commands.remove(vce);
             commandsFinished.add(vce);
             notifyAll();
@@ -481,6 +488,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private synchronized void executorStarter(final VcsCommandExecutor vce) {
         final Thread t = new Thread(group, vce, "VCS Command \""+vce.getCommand().getName()+"\" Execution Thread");
         commands.put(vce, t);
+        if (isListCommand(vce.getCommand())) numRunningListCommands++;
         commandStarted(vce);
         t.start();
         //System.out.println("startExecutor, thread started.");
@@ -723,6 +731,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
         return map;
     }
     
+    private boolean isListCommand(VcsCommand cmd) {
+        return cmd.getName().startsWith("LIST");
+    }
+    
     /**
      * Say whether the command executor can be run now or not. It should be called
      * with a monitor lock on this object.
@@ -734,6 +746,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (commands.size() >= MAX_NUM_RUNNING_COMMANDS) return false;
         VcsCommand cmd = vce.getCommand();
         //System.out.println("canRun("+cmd.getName()+")");
+        if (isListCommand(cmd) && numRunningListCommands >= MAX_NUM_RUNNING_LISTS) return false;
         Collection files = vce.getFiles();
         int concurrency = VcsCommandIO.getIntegerPropertyAssumeZero(cmd,
                             VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
