@@ -17,8 +17,6 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.Workspace;                                                                                                                                           
 import org.openide.windows.Mode;                                                                                                                                                
 
-import org.openide.TopManager;                                                                                                                                                  
-
 import java.awt.Rectangle;                                                                                                                                                      
 import java.awt.BorderLayout;                                                                                                                                                   
 import java.awt.Dimension;
@@ -77,9 +75,6 @@ public class A11YTesterTopComponent extends TopComponent {
     public void open(Workspace workspace) {
         super.open(workspace);
         setCloseOperation(CLOSE_LAST);                                                                                                                                          
-    }                                                                                                                                                                           
-                                                                                                                                                                                
-    protected void closeNotify() {                                                                                                                                              
     }                                                                                                                                                                           
                                                                                                                                                                                 
     /** replaces this in object stream

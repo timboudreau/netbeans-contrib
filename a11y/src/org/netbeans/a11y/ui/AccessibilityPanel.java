@@ -24,9 +24,6 @@ import java.util.Iterator;
 import org.netbeans.a11y.TestSettings;
 import org.netbeans.a11y.TestSettingsLogger;
 
-import org.openide.TopManager;
-
-
 /** A dialog to customize and run the accessibility test.
  *  Based on a11y project - author Tristan Bonsall
  *  @author  Marian.Mirilovic@sun.com

@@ -31,7 +31,7 @@ Microsystems, Inc. All Rights Reserved.
         <exclude name="**/*.jar.MAKEME"/>
         <exclude name="**/filesystem.attributes"/>
         <exclude name="**/.nbattrs"/>
-        <exclude name="**/.#*"/>
+        <exclude name="**/CVS"/>
         <exclude name="WorkspaceActivator.java"/>
     </patternset>
 
@@ -40,8 +40,9 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="../core/netbeans/lib/core.jar"/>
         <!--<pathelement location="../core/netbeans/lib/ext/terminalemulator.jar"/>-->
         <pathelement location="../form/netbeans/modules/form.jar"/>
-        <pathelement location="../xtest/lib/junit.jar"/>
-        <pathelement location="../xtest/lib/junit-ext.jar"/>
+        <pathelement location="../junit/netbeans/modules/junit.jar"/>
+        <pathelement location="../junit/netbeans/modules/ext/junit-ext.jar"/>
+        <pathelement location="../junit/netbeans/modules/ext/junit-3.7.jar"/>
         
         <!--
 	<pathelement location="../jemmy/jemmy.jar"/>
@@ -76,6 +77,13 @@ Microsystems, Inc. All Rights Reserved.
           <exclude name="WorkspaceActivator.java"/>
           <patternset refid="standard-jar-excludes"/>
         </jar>
+	
+        <jar basedir="src" compress="false" jarfile="tests/a11y.jar">
+          <include name="org/netbeans/a11y/**"/>
+          <exclude name="WorkspaceActivator.java"/>
+          <patternset refid="standard-jar-excludes"/>
+        </jar>
+	
     </target>
     
     <target name="zipsrc" description="Create zip containing only sources">
@@ -132,6 +140,9 @@ Microsystems, Inc. All Rights Reserved.
                 <include name="**/*.class"/>
                 <include name="**/*.zip"/>
                 <include name="**/*.jar"/>
+		<!--
+         	<exclude name="tests/a11y.jar"/>
+		-->
             </fileset>
         </delete>
         <delete file="form.nbm"/>

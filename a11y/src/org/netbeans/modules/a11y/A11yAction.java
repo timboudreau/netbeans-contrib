@@ -17,13 +17,13 @@ import java.awt.Frame;
 import java.awt.Window;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
-import org.openide.TopManager;
 import org.openide.nodes.Node;
+
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
-import org.openide.windows.OutputWriter;
 
 import org.netbeans.modules.form.RADComponentCookie;
 import org.netbeans.modules.form.RADComponent;
@@ -32,10 +32,11 @@ import org.netbeans.modules.form.FormModel;
 import org.netbeans.modules.form.RADVisualFormContainer;
 import org.netbeans.modules.form.VisualReplicator;
 
-import javax.swing.SwingUtilities;
-
+import org.openide.windows.IOProvider;
+import org.openide.windows.OutputWriter;
 import org.openide.windows.Workspace;
 import org.openide.windows.Mode;
+import org.openide.windows.WindowManager;
 
 
 /**
@@ -71,7 +72,7 @@ public class A11yAction extends CookieAction {
     
     /** @return resource for the action icon */
     protected String iconResource(){
-        return "/org/netbeans/modules/a11y/resources/a11ytest.gif"; // NOI18N
+        return "org/netbeans/modules/a11y/resources/a11ytest.gif"; // NOI18N
     }
     
     public void performAction(Node[] selectedNodes){
@@ -102,7 +103,7 @@ public class A11yAction extends CookieAction {
         if (!(formComp instanceof RADVisualFormContainer)) return;
         
         A11YTesterTopComponent at = A11YTesterTopComponent.getInstance();
-        Workspace ws = TopManager.getDefault().getWindowManager().getCurrentWorkspace();
+        Workspace ws = WindowManager.getDefault().getCurrentWorkspace();
         Mode formMode = ws.findMode("Form");
         
         /* Hack for our window system, I want open top component docked not in center but now it si impossible;
@@ -174,7 +175,7 @@ public class A11yAction extends CookieAction {
             
             threadInterrupt();
             
-            OutputWriter writer = TopManager.getDefault().getIO("Accessibility results").getOut();
+            OutputWriter writer = IOProvider.getDefault().getIO("Accessibility results", true).getOut();
         
             thread = new Thread(new AccessibilityTesterRunnable(at.getPanel(), frame, writer));
             thread.start();

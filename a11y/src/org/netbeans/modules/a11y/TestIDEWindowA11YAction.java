@@ -53,7 +53,7 @@ public class TestIDEWindowA11YAction extends NodeAction {
 
     /** @return resource for the action icon */
     protected String iconResource() {
-       return "/org/netbeans/modules/a11y/resources/disabled.gif"; 
+       return "org/netbeans/modules/a11y/resources/disabled.gif"; 
     }
 
     
