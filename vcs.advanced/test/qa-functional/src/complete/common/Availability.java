@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -56,10 +56,10 @@ public class Availability extends JellyTestCase {
     public static junit.framework.Test suite() {
         TestSuite suite = new NbTestSuite();
         suite.addTest(new Availability("testVersioningMenu"));
-        suite.addTest(new Availability("testFindService"));
-        suite.addTest(new Availability("testPopupMenu"));
-        suite.addTest(new Availability("testRuntimeTab"));
         suite.addTest(new Availability("testUnmount"));
+        suite.addTest(new Availability("testPopupMenu"));
+        suite.addTest(new Availability("testFindService"));
+        suite.addTest(new Availability("testRuntimeTab"));
         suite.addTest(new Availability("testToolbar"));
         return suite;
     }
@@ -74,16 +74,8 @@ public class Availability extends JellyTestCase {
     /** Method called before each testcase. Sets default timeouts, redirects system
      * output and maps main components.
      */
-    protected void setUp() throws Exception {
-        String workingDir = getWorkDirPath();
-        new File(workingDir).mkdirs();
-        File outputFile = new File(workingDir + "/output.txt");
-        outputFile.createNewFile();
-        File errorFile = new File(workingDir + "/error.txt");
-        errorFile.createNewFile();
-        PrintWriter outputWriter = new PrintWriter(new FileWriter(outputFile));
-        PrintWriter errorWriter = new PrintWriter(new FileWriter(errorFile));
-        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
+    protected void setUp() {
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(org.netbeans.jemmy.TestOut.getNullOutput());
     }
     
     /** Method will create a file and capture the screen.
@@ -123,6 +115,76 @@ public class Availability extends JellyTestCase {
         }
     }
     
+    /** Unmounts the filesystem mounted in testVersioningMenu test case.
+     * throws Exception Any unexpected exception thrown during test.
+     */
+    public void testUnmount() throws Exception {
+        try {
+            System.out.print(".. Testing unmount action ..");
+            new File(getWorkDirPath()).mkdirs();
+            new ActionNoBlock(MOUNT_MENU, null).perform();
+            VCSWizardProfile wizard = new VCSWizardProfile();
+            wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+            wizard.setWorkingDirectory(getWorkDirPath());
+            wizard.finish();
+            Thread.sleep(2000);
+            String filesystem = "Empty " + getWorkDirPath();
+            Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+            new UnmountFSAction().perform(filesystemNode);
+            Thread.currentThread().sleep(5000);
+            assertTrue("Error: Unable to unmount filesystem.", !filesystemNode.isPresent());
+            System.out.println(". done !");
+        } catch (Exception e) {
+            captureScreen(e);
+            long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
+            try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
+            try { new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath())); }
+            catch (Exception te) {}
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
+            throw e;
+        }
+    }
+    
+    /** Checks that popup menu contains all of item appropriate for mounted Generic VCS filesystem.
+     * @throws Exception any unexpected exception thrown during test.
+     */
+    public void testPopupMenu() throws Exception {
+        try {
+            System.out.print(".. Testing popup menu ..");
+            new File(getWorkDirPath()).mkdirs();
+            new ActionNoBlock(MOUNT_MENU, null).perform();
+            VCSWizardProfile wizard = new VCSWizardProfile();
+            wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+            wizard.setWorkingDirectory(getWorkDirPath());
+            wizard.finish();
+            Thread.sleep(2000);
+            String filesystem = "Empty " + getWorkDirPath();
+            Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+            new Action(null, "Empty|Refresh Recursively").perform(filesystemNode);
+            new NbDialogOperator("Retrieving...").closeByButton();
+            String[] commands = new String[] {"Refresh", "Check In", "Check Out", "Lock", "Unlock", "Add", "Remove"};
+            for (int i=0; i<commands.length; i++) {
+                new Action(null, "Empty|" + commands[i]).perform(filesystemNode);
+                Thread.sleep(1000);
+                String status = MainWindowOperator.getDefault().getStatusText();
+                if (!(status.equals("Command " + commands[i] + " finished.") | status.equals("Command " + commands[i] + " failed.")))
+                    throw new Exception("Error: Incorrect status bar text reached: " + status);
+            }
+            new UnmountFSAction().perform(filesystemNode);
+            System.out.println(". done !");
+        } catch (Exception e) {
+            captureScreen(e);
+            long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
+            try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
+            try { new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath())); }
+            catch (Exception te) {}
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
+            throw e;
+        }
+    }
+    
     /** Checks that there is additional search service available allowing to find files by their status.
      * @throws Exception any unexpected exception thrown during test.
      */
@@ -138,8 +200,7 @@ public class Availability extends JellyTestCase {
             wizard.finish();
             Thread.sleep(2000);
             Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath());
-            new Action(VERSIONING_MENU + "|Empty|Refresh", "Empty|Refresh").perform(filesystemNode);
-            Thread.sleep(2000);
+            filesystemNode.expand();
             new ActionNoBlock("Edit|" + FIND_SERVICE, FIND_SERVICE).perform(filesystemNode);
             SearchVCSFilesystem searchDialog = new SearchVCSFilesystem();
             String[] statuses = new String[] {"Dead", "Ignored", "Local", "Locally Modified", "Not in Synch", "Unknown"};
@@ -167,49 +228,6 @@ public class Availability extends JellyTestCase {
         }
     }
     
-    /** Checks that popup menu contains all of item appropriate for mounted Generic VCS filesystem.
-     * @throws Exception any unexpected exception thrown during test.
-     */
-    public void testPopupMenu() throws Exception {
-        try {
-            System.out.print(".. Testing popup menu ..");
-            new File(getWorkDirPath()).mkdirs();
-            new ActionNoBlock(MOUNT_MENU, null).perform();
-            VCSWizardProfile wizard = new VCSWizardProfile();
-            wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
-            wizard.setWorkingDirectory(getWorkDirPath());
-            Thread.sleep(2000);
-            wizard.finish();
-            Thread.sleep(2000);
-            String filesystem = "Empty " + getWorkDirPath();
-            Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
-            new Action(null, "Versioning Explorer").perform(filesystemNode);
-            Thread.sleep(2000);
-            new VersioningFrameOperator().close();
-            new Action(null, "Empty|Refresh Recursively").perform(filesystemNode);
-            new NbDialogOperator("Retrieving...").closeByButton();
-            String[] commands = new String[] {"Refresh", "Check in", "Check out", "Lock", "Unlock", "Add", "Remove"};
-            for (int i=0; i<commands.length; i++) {
-                new Action(null, "Empty|" + commands[i]).perform(filesystemNode);
-                Thread.sleep(1000);
-                String status = MainWindowOperator.getDefault().getStatusText();
-                if (!(status.equals("Command " + commands[i] + " finished.") | status.equals("Command " + commands[i] + " failed.")))
-                    throw new Exception("Error: Incorrest status bar text reached: " + status);
-            }
-            new UnmountFSAction().perform(filesystemNode);
-            System.out.println(". done !");
-        } catch (Exception e) {
-            captureScreen(e);
-            long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
-            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
-            try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
-            try { new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath())); }
-            catch (Exception te) {}
-            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
-            throw e;
-        }
-    }
-    
     /** Checks that there is history of VCS commands under "Runtime" tab of explorer with proper functionality.
      * @throws Exception any unexpected exception thrown during test.
      */
@@ -221,7 +239,6 @@ public class Availability extends JellyTestCase {
             VCSWizardProfile wizard = new VCSWizardProfile();
             wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
             wizard.setWorkingDirectory(getWorkDirPath());
-            Thread.sleep(2000);
             wizard.finish();
             Thread.sleep(2000);
             String filesystem = "Empty " + getWorkDirPath();
@@ -229,36 +246,37 @@ public class Availability extends JellyTestCase {
             new Action(VERSIONING_MENU + "|Empty|Lock", "Empty|Lock").perform(filesystemNode);
             Node commandNode = new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|" + filesystem + "|Lock");
             commandNode.select();
-            new PropertiesAction().perform(commandNode);
             PropertySheetOperator sheet = new PropertySheetOperator();
-            TextFieldProperty property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Status");
+            Property property = new Property(sheet, "Status");
             if (!property.getValue().equals("Finished"))
                 throw new Exception("Error: Incorrect status of Lock command.");
-            property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Command Name");
+            property = new Property(sheet, "Command Name");
             if (!property.getValue().equals("LOCK"))
                 throw new Exception("Error: Incorrect command name of Lock command.");
             String executionString = Utilities.isUnix() ? "echo put your LOCK command here" : "cmd /X /C \"echo put your LOCK command here\"";
-            property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Execution String");
+            property = new Property(sheet, "Execution String");
             if (!property.getValue().equals(executionString))
                 throw new Exception("Error: Incorrect execution string of Lock command.");
-            property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Processed Files");
+            property = new Property(sheet, "Processed Files");
             if (!property.getValue().equals("."))
                 throw new Exception("Error: Incorrect processed files of Lock command.");
-            sheet.close();
             new Action(null, "View Output").performPopup(commandNode);
-            Thread.sleep(2000);
             VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Lock");
+            
+            
+            // !!! Workaround for defect #32466 "jemmy eats some EVENTs (espec. HierarchyEvent)"
+            outputWindow.close();
+            new Action(null, "View Output").performPopup(commandNode);
+            outputWindow = new VCSCommandsOutputOperator("Lock");
+            
             String output = outputWindow.txtStandardOutput().getText();
             outputWindow.close();
-            if (output.indexOf("put your LOCK command here") == -1)
+            if (!output.equals("put your LOCK command here\n"))
                 throw new Exception("Error: Incorrect standard output of Lock command: " + output);
             filesystemNode = new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|" + filesystem);
             filesystemNode.select();
-            new PropertiesAction().perform(filesystemNode);
-            sheet = new PropertySheetOperator();
-            property = new TextFieldProperty(sheet.getPropertySheetTabOperator("Properties"), "Number Of Finished Commands To Keep");
+            property = new Property(sheet, "Number Of Finished Commands To Keep");
             property.setValue("1");
-            sheet.close();
             filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
             new Action(VERSIONING_MENU + "|Empty|Add", "Empty|Add").perform(filesystemNode);
             filesystemNode = new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|" + filesystem);
@@ -266,38 +284,6 @@ public class Availability extends JellyTestCase {
             if ( filesystemNode.getChildren().length != 1)
                 throw new Exception("Error: Incorrect number of kept commands.");
             new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
-            System.out.println(". done !");
-        } catch (Exception e) {
-            captureScreen(e);
-            long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
-            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
-            try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
-            try { new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath())); }
-            catch (Exception te) {}
-            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
-            throw e;
-        }
-    }
-    
-    /** Unmounts the filesystem mounted in testVersioningMenu test case.
-     * throws Exception Any unexpected exception thrown during test.
-     */
-    public void testUnmount() throws Exception {
-        try {
-            System.out.print(".. Testing unmount action ..");
-            new File(getWorkDirPath()).mkdirs();
-            new ActionNoBlock(MOUNT_MENU, null).perform();
-            VCSWizardProfile wizard = new VCSWizardProfile();
-            wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
-            wizard.setWorkingDirectory(getWorkDirPath());
-            Thread.sleep(2000);
-            wizard.finish();
-            Thread.sleep(2000);
-            String filesystem = "Empty " + getWorkDirPath();
-            Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
-            new UnmountFSAction().perform(filesystemNode);
-            Thread.currentThread().sleep(5000);
-            assertTrue("Error: Unable to unmount filesystem.", !filesystemNode.isPresent());
             System.out.println(". done !");
         } catch (Exception e) {
             captureScreen(e);
@@ -331,10 +317,9 @@ public class Availability extends JellyTestCase {
             commandEditor.selectCommand("Empty|Add");
             NbDialogOperator dialog = new org.netbeans.jellytools.NbDialogOperator("Command Editor");
             PropertySheetOperator sheet = new PropertySheetOperator(dialog);
-            StringProperty property = new StringProperty(sheet.getPropertySheetTabOperator("Expert"), "General Command Action Class Name");
-            property.setStringValue("org.netbeans.modules.vcscore.actions.AddCommandAction");
+            Property property = new Property(sheet, "General Command Action Class Name");
+            property.setValue("org.netbeans.modules.vcscore.actions.AddCommandAction");
             commandEditor.ok();
-            Thread.sleep(2000);
             advancedPage.finish();
             Thread.sleep(2000);
             String filesystem = "Empty " + getWorkDirPath();
