@@ -675,7 +675,7 @@ The module uses files to store metadata. The files are proprietary b-tree databa
 <answer id="lookup-lookup">
 The lookup is used to find implementation of MDRManager, XMIReader, XMIWriter, JMIMapper and
     some other less significant interfaces from the api package. The order is important in case
-    of JMIMapper and XMIReader instnaces, since we have several implementations of those
+    of JMIMapper and XMIReader instances, since we have several implementations of those
     (e.g. a JMIMapper that generates java sources and a JMIMapper that generates class files directly).
     User is able to choose which one to invoke by changing order of them in the lookup.
 </answer>
@@ -961,8 +961,8 @@ Yes. The implementation of MDR manager reads list of registered metadata reposit
     <ul>
         <li>Add setProperties(Map) method to the MDRepository interface - its contract will be
  that it has to be called once and only once and it has to be called as the first method
- on a given instnace - this method will initialize the repository instnace.</li>
-        <li>Repositories will be registered in layer as *.instnace files. All the properties
+ on a given instance - this method will initialize the repository instance.</li>
+        <li>Repositories will be registered in layer as *.instance files. All the properties
  of a given repository (passed to it in setProperties method as name-value pairs) will be
  declared as file attributes. An open issue is that it is expected that most modules will
  want to use (register a new instance of) the default implementation of MDRepository provided by MDR module - NBMDRepositoryImpl class.
