@@ -152,8 +152,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         vcsPanel = new javax.swing.JPanel();
         configCombo = new javax.swing.JComboBox();
         saveAsButton = new javax.swing.JButton();
-        removeConfigButton = new javax.swing.JButton();
-        allProfilesCheckBox = new javax.swing.JCheckBox();
         propsPanel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         rootDirTextField = new javax.swing.JTextField();
@@ -217,40 +215,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(4, 12, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 12, 11, 6);
         vcsPanel.add(configCombo, gridBagConstraints);
 
-        saveAsButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.saveAsButton.textA11yDesc"));
         saveAsButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.saveAsButton.text"));
-        saveAsButton.setNextFocusableComponent(removeConfigButton);
+        saveAsButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.saveAsButton.textA11yDesc"));
         saveAsButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 5, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 5, 11, 11);
         vcsPanel.add(saveAsButton, gridBagConstraints);
-
-        removeConfigButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.removeConfigButton.textA11yDesc"));
-        removeConfigButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.removeConfigButton.text"));
-        removeConfigButton.addActionListener(formListener);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(4, 5, 5, 11);
-        vcsPanel.add(removeConfigButton, gridBagConstraints);
-
-        allProfilesCheckBox.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.allProfilesCheckBox.textA11yDesc"));
-        allProfilesCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.allProfilesCheckBox.text"));
-        allProfilesCheckBox.addActionListener(formListener);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 12, 5, 11);
-        vcsPanel.add(allProfilesCheckBox, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -354,7 +329,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         jPanel1.add(jSeparator1, gridBagConstraints);
 
         jLabel1.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("AdditionalProfilesText"));
-        jLabel1.setForeground(java.awt.Color.black);
         jLabel1.setLabelFor(linkLabel);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
@@ -379,7 +353,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 0);
         configPanel.add(jPanel1, gridBagConstraints);
 
         jTabbedPane1.addTab("Configuration", null, configPanel, "");
@@ -770,12 +743,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             if (evt.getSource() == saveAsButton) {
                 VcsCustomizer.this.saveAsButtonActionPerformed(evt);
             }
-            else if (evt.getSource() == removeConfigButton) {
-                VcsCustomizer.this.removeConfigButtonActionPerformed(evt);
-            }
-            else if (evt.getSource() == allProfilesCheckBox) {
-                VcsCustomizer.this.allProfilesCheckBoxActionPerformed(evt);
-            }
             else if (evt.getSource() == rootDirTextField) {
                 VcsCustomizer.this.rootDirTextFieldActionPerformed(evt);
             }
@@ -903,21 +870,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
         fileSystem.setUncompatibleOSs(OSSet);
     }//GEN-LAST:event_uncompatibleOSTextFieldFocusLost
-
-    private void allProfilesCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allProfilesCheckBoxActionPerformed
-        // Add your handling code here:
-        if (!updateConfigurations() && allProfilesCheckBox.isSelected()) {
-            NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation(g("DLG_DiscardAndShowCurrentOS"), NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
-            if (NotifyDescriptor.Confirmation.OK_OPTION.equals(DialogDisplayer.getDefault().notify(nd))) {
-                fileSystem.setConfig(null);
-                promptForConfigComboChange = false;
-                updateConfigurations();
-                configCombo.setSelectedIndex(0);
-            } else {
-                allProfilesCheckBox.doClick(); // return to the previous state
-            }
-        }
-    }//GEN-LAST:event_allProfilesCheckBoxActionPerformed
 
     private void promptEditTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_promptEditTextFieldFocusLost
         // Add your handling code here:
@@ -1212,36 +1164,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         rootDirChanged ();
     }//GEN-LAST:event_rootDirTextFieldActionPerformed
 
-    private void removeConfigButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeConfigButtonActionPerformed
-        // Add your handling code here:
-        String label = (String) configCombo.getSelectedItem ();
-        String profileName = null;
-        ProfilesFactory profilesFactory = ProfilesFactory.getDefault();
-        String[] configNames = profilesFactory.getProfilesNames();
-        String[] configLabels = profilesFactory.getProfilesDisplayNames();//cache.getProfilesDisplayNames();
-        for (int i = 0; i < configLabels.length; i++) {
-            if (label.equals(configLabels[i])) {
-                profileName = (String) configNames[i];
-            }
-        }
-        NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation (g("DLG_DeleteConfig", label), NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
-        if (!NotifyDescriptor.Confirmation.OK_OPTION.equals (DialogDisplayer.getDefault ().notify (nd))) return;
-        try {
-            profilesFactory.removeProfile(profileName);
-        } catch (IOException ioex) {
-            ErrorManager.getDefault().notify(ioex);
-            return ;
-        }
-        promptForConfigComboChange = false;
-        if(configCombo.getSelectedIndex() == 0) {
-            if (configCombo.getModel().getSize() > 1) configCombo.setSelectedIndex(1);
-        } else {
-            configCombo.setSelectedIndex(0);
-        }
-        promptForConfigComboChange = false;
-        updateConfigurations ();
-    }//GEN-LAST:event_removeConfigButtonActionPerformed
-
     private void saveAsButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsButtonActionPerformed
         // Add your handling code here:
         final FileObject dir = fileSystem.getConfigRootFO();
@@ -1353,7 +1275,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 String profileName = (String) profileNamesForLabels.get(selectedLabel);
                 loadConfig(profileName, selectedLabel);
                 oldSelectedLabel = selectedLabel;
-                allProfilesCheckBox.setEnabled(ProfilesFactory.getDefault().isOSCompatibleProfile(profileName));
                 firePropertyChange(PROP_PROFILE_SELECTION_CHANGED, null, selectedLabel);
             } else {
                 if (oldSelectedLabel == null) {
@@ -1371,58 +1292,56 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField uncompatibleOSTextField;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTextField compatibleOSTextField;
-    private javax.swing.JPanel propsPanel;
-    private javax.swing.JCheckBox promptLockCheckBox;
-    private javax.swing.JLabel userEnvLabel;
-    private javax.swing.JCheckBox allProfilesCheckBox;
-    private javax.swing.JCheckBox lockCheckBox;
     private javax.swing.JPanel actionPanel;
+    private javax.swing.JCheckBox advancedModeCheckBox;
+    private javax.swing.JPanel advancedPanel;
+    private javax.swing.JButton browseButton;
+    private javax.swing.JButton cmdButton;
+    private javax.swing.JLabel compatibleOSLabel;
+    private javax.swing.JTextField compatibleOSTextField;
     private javax.swing.JComboBox configCombo;
     private javax.swing.JPanel configPanel;
-    private javax.swing.JTable envTable;
-    private javax.swing.JTextField promptEditTextField;
-    private javax.swing.JTextField promptLockTextField;
-    private javax.swing.JButton browseButton;
     private javax.swing.JLabel currentOSLabel;
-    private javax.swing.JLabel systemEnvLabel;
-    private javax.swing.JLabel relMountLabel;
-    private javax.swing.JButton relMountButton;
-    private javax.swing.JCheckBox promptEditCheckBox;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JCheckBox editCheckBox;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JButton insertEnvButton;
-    private javax.swing.JCheckBox offLineCheckBox;
-    private javax.swing.JTextField rootDirTextField;
-    private javax.swing.JPanel vcsPanel;
-    private javax.swing.JButton varButton;
-    private javax.swing.JButton removeConfigButton;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane systemEnvScrollPane;
-    private javax.swing.JPanel environmentPanel;
-    private javax.swing.JTable systemEnvTable;
-    private javax.swing.JTextField relMountTextField;
-    private javax.swing.JCheckBox advancedModeCheckBox;
-    private javax.swing.JLabel uncompatibleOSLabel;
-    private javax.swing.JScrollPane envScrollPane;
-    private javax.swing.JButton saveAsButton;
-    private javax.swing.JLabel compatibleOSLabel;
-    private javax.swing.JLabel linkLabel;
     private javax.swing.JCheckBox debugCheckBox;
     private javax.swing.JButton deleteEnvButton;
+    private javax.swing.JCheckBox editCheckBox;
+    private javax.swing.JScrollPane envScrollPane;
+    private javax.swing.JTable envTable;
+    private javax.swing.JPanel environmentPanel;
+    private javax.swing.JButton insertEnvButton;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JButton cmdButton;
+    private javax.swing.JLabel linkLabel;
+    private javax.swing.JCheckBox lockCheckBox;
+    private javax.swing.JCheckBox offLineCheckBox;
+    private javax.swing.JCheckBox promptEditCheckBox;
     private javax.swing.JLabel promptEditLabel;
+    private javax.swing.JTextField promptEditTextField;
+    private javax.swing.JCheckBox promptLockCheckBox;
     private javax.swing.JLabel promptLockLabel;
-    private javax.swing.JPanel advancedPanel;
+    private javax.swing.JTextField promptLockTextField;
+    private javax.swing.JPanel propsPanel;
+    private javax.swing.JButton relMountButton;
+    private javax.swing.JLabel relMountLabel;
+    private javax.swing.JTextField relMountTextField;
+    private javax.swing.JTextField rootDirTextField;
+    private javax.swing.JButton saveAsButton;
+    private javax.swing.JLabel systemEnvLabel;
+    private javax.swing.JScrollPane systemEnvScrollPane;
+    private javax.swing.JTable systemEnvTable;
+    private javax.swing.JLabel uncompatibleOSLabel;
+    private javax.swing.JTextField uncompatibleOSTextField;
+    private javax.swing.JLabel userEnvLabel;
+    private javax.swing.JButton varButton;
+    private javax.swing.JPanel vcsPanel;
     // End of variables declaration//GEN-END:variables
 
     private static final double ADVANCED_DLG_WIDTH_RELATIVE = 0.9;
@@ -1524,14 +1443,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
         //Configuration tab
         saveAsButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.saveAsButton.mnemonic").charAt (0));
-        removeConfigButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.removeConfigButton.mnemonic").charAt (0));
         jLabel2.setDisplayedMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.jLabel2.mnemonic").charAt (0));
         jLabel2.setLabelFor (rootDirTextField);
         browseButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.browseButton.mnemonic").charAt (0));
         relMountLabel.setDisplayedMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountLabel.mnemonic").charAt (0));
         relMountLabel.setLabelFor (relMountTextField);
         relMountButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountButton.mnemonic").charAt (0));
-        allProfilesCheckBox.setMnemonic (g ("VcsCustomizer.allProfilesCheckBox.mnemonic").charAt (0));
         //Advanced tab
         varButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.varButton.mnemonic").charAt (0));
         cmdButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.cmdButton.mnemonic").charAt (0));
@@ -2038,6 +1955,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     }
     
     private void variableChanged (String varName, String oldValue, String newValue, Hashtable fsVars) {
+        //System.out.println("VcsCustomizer.variableChanged("+varName+", "+oldValue+" => "+newValue+".");
         VcsConfigVariable var;
         if (fsVars == null) {
             //fsVarsByName = new HashMap();
@@ -2378,7 +2296,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             selectedConfigName = (String) profileNamesForLabels.get(selectedConfig);
         }
         int j = 0;
-        boolean configsForCurrenntOs = allProfilesCheckBox.isSelected();
+        boolean configsForCurrenntOs = true;
         doConfigComboChange = false;
         boolean doRepeat = false;
         do {
@@ -2411,10 +2329,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             promptForConfigComboChange = false;
             configCombo.setSelectedIndex( newIndex );
         }
-        if (configsForCurrenntOs != allProfilesCheckBox.isSelected()) {
-            allProfilesCheckBox.setSelected(configsForCurrenntOs);
-        }
-        allProfilesCheckBox.setEnabled(selectedConfigName == null || profilesFactory.isOSCompatibleProfile(selectedConfigName));
         promptForConfigComboChange = true;
         return (selectedConfig == null || configCombo.getItemCount() > 0 && newIndex >= 0);
         //System.out.println("updateConfigurations() finished, promptForConfigComboChange = "+promptForConfigComboChange);
@@ -2528,7 +2442,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if (multipleMountPoints) {
             variableChanged("MULTIPLE_RELATIVE_MOUNT_POINTS", null, module, null);
         }
-        allProfilesCheckBox.setSelected(true);
         relMountTextField.setText(module);
         oldSelectedLabel = fileSystem.getConfig();
         updateConfigurations();
