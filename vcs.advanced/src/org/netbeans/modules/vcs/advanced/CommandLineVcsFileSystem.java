@@ -37,12 +37,14 @@ import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.util.actions.*;
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 
 import org.netbeans.api.vcs.FileStatusInfo;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.*;
+import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
@@ -69,7 +71,6 @@ import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends VcsFileSystem implements java.beans.PropertyChangeListener {
 
-    public static final String PROP_SHORT_FILE_STATUSES = "shortFileStatuses"; // NOI18N
     public static final String PROP_CONFIG = "config"; // NOI18N
     public static final String PROP_CONFIG_ROOT = "configRoot"; // NOI18N
     public static final String PROP_CONFIG_ROOT_FO = "configRootFO"; // NOI18N
@@ -190,6 +191,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private transient PropertyChangeListener sharedPasswordChangeListener;
     private Object sharedPasswordKey = null;
     private transient String passwordDescription = null;
+    private transient PropertyChangeListener settingsPCL;
 
     static final long serialVersionUID =-1017235664394970926L;
     /**
@@ -235,6 +237,18 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         SharedPasswords.getInstance().addPropertyChangeListener(
             org.openide.util.WeakListeners.propertyChange(sharedPasswordChangeListener,
                                         SharedPasswords.getInstance()));
+
+        // listen on status annotation settings and redisplay accordingly
+        GeneralVcsSettings settings = (GeneralVcsSettings) GeneralVcsSettings.findObject(GeneralVcsSettings.class, true);
+        settingsPCL = new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (GeneralVcsSettings.PROP_FILE_ANNOTATION == evt.getPropertyName()) {
+                    refreshStatusOfExistingFiles();
+                }
+            }
+        };
+        PropertyChangeListener weakSettinsPCL = WeakListeners.propertyChange(settingsPCL, settings);
+        settings.addPropertyChangeListener(weakSettinsPCL);
     }
 
     // XXX see super for potentially better code that shares single instance
@@ -762,27 +776,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             setVcsRefreshTime(0);
         }
     }
-    
-    public boolean isShortFileStatuses() {
-        return shortFileStatuses;
-    }
-    
-    public void setShortFileStatuses(boolean shortFileStatuses) {
-        if (this.shortFileStatuses != shortFileStatuses) {
-            this.shortFileStatuses = shortFileStatuses;
-            Set statusInfos = getPossibleFileStatusInfos();
-            for (Iterator it = statusInfos.iterator(); it.hasNext(); ) {
-                FileStatusInfo status = (FileStatusInfo) it.next();
-                if (status instanceof CommandLineFileStatusInfo) {
-                    ((CommandLineFileStatusInfo) status).setShortDisplayed(shortFileStatuses);
-                }
-            }
-            //setPossibleFileStatusesFromVars();
-            refreshStatusOfExistingFiles();
-            firePropertyChange(PROP_SHORT_FILE_STATUSES, !shortFileStatuses ? Boolean.TRUE : Boolean.FALSE, shortFileStatuses ? Boolean.TRUE : Boolean.FALSE);
-        }
-    }
-    
+
     protected void refreshStatusOfExistingFiles() {
         Enumeration enum = existingFileObjects(getRoot());
         HashSet existingFOs = new HashSet();

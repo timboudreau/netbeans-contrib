@@ -41,10 +41,17 @@ public class GeneralVcsSettings extends SystemOption {
     public static final int AUTO_REFRESH_ON_MOUNT = 2;
     public static final int AUTO_REFRESH_ON_RESTART = 3;
     public static final int AUTO_REFRESH_ON_MOUNT_AND_RESTART = 4;
-    
+
+    /** Ignores annotation template */
     public static final int FILE_ANNOTATION_NONE = 0;
+    /** Substitues {status} annotation template by full status */
     public static final int FILE_ANNOTATION_FULL = 1;
-    
+    /** Substitues {status} annotation template by shortedned status */
+    public static final int FILE_ANNOTATION_SHORT = 2;
+    /** Ignores {status} annotation template and colors file name instead. */
+    public static final int FILE_ANNOTATION_COLORED = 3;
+
+
     static final long serialVersionUID = -3279219340064367270L;
     
     /** Initialize shared state.

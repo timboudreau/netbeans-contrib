@@ -142,7 +142,6 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 new PropertyDescriptor("config", CommandLineVcsFileSystem.class, "getConfig", "setConfig"),
                 new PropertyDescriptor("configFileName", CommandLineVcsFileSystem.class, "getConfigFileName", "setConfigFileName"),
                 new PropertyDescriptor("cacheId", CommandLineVcsFileSystem.class, "getCacheId", "setCacheId"),
-                new PropertyDescriptor("shortFileStatuses", CommandLineVcsFileSystem.class, "isShortFileStatuses", "setShortFileStatuses"), //NOI18N
                 new PropertyDescriptor("VFSMessageLength", CommandLineVcsFileSystem.class, "getVFSMessageLength", "setVFSMessageLength"), //NOI18N
                 new PropertyDescriptor("VFSShowMessage", CommandLineVcsFileSystem.class, "getVFSShowMessage", "setVFSShowMessage"), //NOI18N
                 new PropertyDescriptor("VFSShowLocalFiles", CommandLineVcsFileSystem.class, "getVFSShowLocalFiles", "setVFSShowLocalFiles"), //NOI18N

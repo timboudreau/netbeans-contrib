@@ -52,7 +52,6 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor hideShadowFiles = null;
         PropertyDescriptor createBackupFiles = null;
         PropertyDescriptor rememberPassword = null;
-        PropertyDescriptor shortStatuses = null;
         PropertyDescriptor refreshTime = null;
         PropertyDescriptor hidden = null;
         PropertyDescriptor readOnly = null;
@@ -113,8 +112,6 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             rememberPassword = new PropertyDescriptor
                                 ("rememberPassword", CommandLineVcsFileSystem.class, "isRememberPassword", "setRememberPassword"); // NOI18N
             rememberPassword.setExpert(true);
-            shortStatuses = new PropertyDescriptor
-                                (CommandLineVcsFileSystem.PROP_SHORT_FILE_STATUSES, CommandLineVcsFileSystem.class, "isShortFileStatuses", "setShortFileStatuses"); // NOI18N
             refreshTime = new PropertyDescriptor
                                 ("refreshTime", CommandLineVcsFileSystem.class, "getCustomRefreshTime", "setCustomRefreshTime"); // NOI18N
             refreshTime.setExpert(true);
@@ -129,7 +126,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                        acceptUserParams, runRefreshCommand, processAllFiles,
                        annotationPattern, autoRefresh, notification, hideShadowFiles,
                        createBackupFiles,
-                       rememberPassword, shortStatuses, refreshTime, hidden, readOnly
+                       rememberPassword, refreshTime, hidden, readOnly
                    };
 
             ResourceBundle bundle = NbBundle.getBundle (CommandLineVcsFileSystemBeanInfo.class);
@@ -169,8 +166,6 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             createBackupFiles.setShortDescription(bundle.getString("HINT_createBackupFiles"));
             rememberPassword.setDisplayName   (bundle.getString("PROP_rememberPassword"));
             rememberPassword.setShortDescription(bundle.getString("HINT_rememberPassword"));
-            shortStatuses.setDisplayName      (bundle.getString("PROP_shortFileStatuses"));
-            shortStatuses.setShortDescription (bundle.getString("HINT_shortFileStatuses"));
             refreshTime.setDisplayName        (bundle.getString("PROP_refreshTime"));
             refreshTime.setShortDescription   (bundle.getString("HINT_refreshTime"));
             hidden.setDisplayName             (bundle.getString("PROP_hidden"));

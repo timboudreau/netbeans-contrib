@@ -31,10 +31,13 @@ public class AnnotationModePropertyEditor extends PropertyEditorSupport {
     private final static String FULL = NbBundle.getMessage(RefreshModePropertyEditor.class, "AnnotationModePropertyEditor.fullAnnotation");
 
     /** localized string*/
+    private final static String SHORT = NbBundle.getMessage(RefreshModePropertyEditor.class, "AnnotationModePropertyEditor.shortAnnotation");
+
+    /** localized string*/
     //private final static String COLORED = NbBundle.getMessage(RefreshModePropertyEditor.class, "AnnotationModePropertyEditor.coloredAnnotation");
 
     /** array of annotation modes */
-    private static final String[] modes = { NONE, FULL };
+    private static final String[] modes = { NONE, FULL, SHORT };
 
     /** @return names of the supported annotation modes */
     public String[] getTags() {
@@ -57,8 +60,10 @@ public class AnnotationModePropertyEditor extends PropertyEditorSupport {
             setValue(new Integer(0));
         } else if (text.equals(FULL)) {
             setValue(new Integer(1));
+        } else if (text.equals(SHORT)) {
+            setValue(new Integer(2));
         //} else if (text.equals(COLORED)) {
-        //    setValue(new Integer(2));
+        //    setValue(new Integer(3));
         } else {
             throw new IllegalArgumentException (text);
         }

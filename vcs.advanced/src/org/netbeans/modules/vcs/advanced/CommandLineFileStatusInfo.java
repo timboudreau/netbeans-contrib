@@ -16,6 +16,7 @@ package org.netbeans.modules.vcs.advanced;
 import java.awt.Color;
 import java.awt.Image;
 import org.netbeans.api.vcs.FileStatusInfo;
+import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 
 /**
  * The implementation of FileStatusInfo for command-line VCS filesystem.
@@ -28,7 +29,6 @@ public class CommandLineFileStatusInfo extends FileStatusInfo implements javax.s
     private String shortDisplayName;
     private Image icon;
     private FileStatusInfo repInfo;
-    private boolean isShortDisplayed = false;
     private Color color;
     
     /**
@@ -56,7 +56,14 @@ public class CommandLineFileStatusInfo extends FileStatusInfo implements javax.s
      * @return The localized status representation.
      */
     public String getDisplayName() {
-        if (isShortDisplayed) {
+
+        boolean shortForm = false;
+        GeneralVcsSettings settings = (GeneralVcsSettings) GeneralVcsSettings.findObject(GeneralVcsSettings.class);
+        if (settings != null) {
+            shortForm = settings.getFileAnnotation() == GeneralVcsSettings.FILE_ANNOTATION_SHORT;
+        }
+
+        if (shortForm) {
             return shortDisplayName;
         } else {
             return displayName;
@@ -79,17 +86,6 @@ public class CommandLineFileStatusInfo extends FileStatusInfo implements javax.s
      */
     public void setIcon(Image icon) {
         this.icon = icon;
-    }
-    
-    /**
-     * Set whether the display name of this status should be the short variant
-     * or not.
-     * @param isShortDisplayed <code>true</code> for the short variant of display
-     *                         name, <code>false</code> for the standard display
-     *                         name.
-     */
-    public void setShortDisplayed(boolean isShortDisplayed) {
-        this.isShortDisplayed = isShortDisplayed;
     }
     
     /**
