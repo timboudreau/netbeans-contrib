@@ -3544,6 +3544,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void checkForModifications(String path, final boolean recursively,
                                       boolean refreshData, boolean refreshFolders) {
         //System.out.println("checkForModifications("+path+")");
+        if (".".equals(path)) path = "";
         FileObject first = this.findResource(path);
         Enumeration enum = existingFileObjects(first);
         while(enum.hasMoreElements()) {
