@@ -252,9 +252,9 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             Set filesToAdd = new HashSet();
             Set filesToRemove = new HashSet();
             Set fileSet = dobj.files();
-            fileSet.remove(primary);
             for (Iterator fileIt = fileSet.iterator(); fileIt.hasNext(); ) {
                 FileObject fo = (FileObject) fileIt.next();
+                if (primary.equals(fo)) continue;
                 String filePath = fo.getPath();
                 fs = (FileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
                 if (fo.isFolder() || !fileSystem.equals(fs) ||
