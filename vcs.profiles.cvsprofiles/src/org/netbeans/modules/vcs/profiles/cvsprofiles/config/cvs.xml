@@ -237,33 +237,33 @@ Microsystems, Inc. All Rights Reserved.
       <value>cvs</value>
     </variable>
     <variable name="CVS_DEF_EXE" basic="false">
-      <value>${QUOTE}${CVS_EXE}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] []</value>
-      <value if="IS_WIN9X">${QUOTE}${CVS_EXE_\/}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] []</value>
+      <value>${QUOTE}${CVS_EXE}${QUOTE} ${USER_GLOBAL_PARAM}</value>
+      <value if="IS_WIN9X">${QUOTE}${CVS_EXE_\/}${QUOTE} ${USER_GLOBAL_PARAM}</value>
     </variable>
     <variable name="CVS_DEF_EXE_D" basic="false">
-      <value>${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE}</value>
-      <value if="IS_WIN9X">${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE}</value>
+      <value>${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} $[? QUIETNESS] [${QUIETNESS} ][]$[? DISK_CHANGE] [-n ] []$[? TRACE] [-t ] []$[? CHECKOUT_RO_RW] [${CHECKOUT_RO_RW} ][]$[? NOT_USE_CVSRC] [${NOT_USE_CVSRC} ][]${COMPRESSION}</value>
+      <value if="IS_WIN9X">${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} $[? QUIETNESS] [${QUIETNESS} ][]$[? DISK_CHANGE] [-n ] []$[? TRACE] [-t ] []$[? CHECKOUT_RO_RW] [${CHECKOUT_RO_RW} ][]$[? NOT_USE_CVSRC] [${NOT_USE_CVSRC} ][]${COMPRESSION}</value>
     </variable>
     <variable name="EXECUTE" basic="false">
       <value>${RUN} ${CVS_DEF_EXE} </value>
-      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] [] </value>
+      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} ${USER_GLOBAL_PARAM} </value>
     </variable>
     <variable name="EXECUTE_D" basic="false">
       <value>${RUN} ${CVS_DEF_EXE_D} </value>
-      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} </value>
+      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} $[? QUIETNESS] [${QUIETNESS} ][]$[? DISK_CHANGE] [-n ] []$[? TRACE] [-t ] []$[? CHECKOUT_RO_RW] [${CHECKOUT_RO_RW} ][]$[? NOT_USE_CVSRC] [${NOT_USE_CVSRC} ][]${COMPRESSION}</value>
     </variable>
       <variable name="EXECUTE_NO_CD" basic="false">
         <value>${RUN_NO_CD} ${CVS_DEF_EXE_D} </value>
-        <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class -d ${QUOTE}${CVSROOT}${QUOTE} </value>
+        <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class -d ${QUOTE}${CVSROOT}${QUOTE} $[? QUIETNESS] [${QUIETNESS} ][]$[? DISK_CHANGE] [-n ] []$[? TRACE] [-t ] []$[? CHECKOUT_RO_RW] [${CHECKOUT_RO_RW} ][]$[? NOT_USE_CVSRC] [${NOT_USE_CVSRC} ][]${COMPRESSION}</value>
       </variable>
 
     <variable name="CDM_EXECUTE" basic="false">
       <value>${RUNCDM} ${CVS_DEF_EXE} </value>
-      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${MODDIR}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] [] </value>
+      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${MODDIR}${QUOTE} ${USER_GLOBAL_PARAM} </value>
     </variable>
     <variable name="CDW_EXECUTE" basic="false">
       <value>${RUNCDW} ${CVS_DEF_EXE} </value>
-      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${WORKDIR}${QUOTE} $[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] [] </value>
+      <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${WORKDIR}${QUOTE} ${USER_GLOBAL_PARAM} </value>
     </variable>
     <variable name="SHELL" basic="true" label="ResourceMsg(Unix_Shell)" labelMnemonic="ResourceMsg(Unix_Shell_Mnemonic)" localFile="true" localDir="false" executable="false" order="6" if="IS_WIN9X">
       <value>sh.exe</value>
@@ -312,7 +312,7 @@ Microsystems, Inc. All Rights Reserved.
         <value>-f</value>
     </variable>
     <variable name="GLOBAL_INPUT_EXPRESSION" basic="false">
-      <value>$[? QUIETNESS] [${QUIETNESS} ][]$[? DISK_CHANGE] [-n ] []$[? TRACE] [-t ] []$[? CHECKOUT_RO_RW] [${CHECKOUT_RO_RW} ][]$[? NOT_USE_CVSRC] [${NOT_USE_CVSRC} ][]${COMPRESSION}</value>
+      <value>$[? APPLY_CVSROOT] [-d ${QUOTE}${CVSROOT}${QUOTE}] [] $[? QUIETNESS] [${QUIETNESS} ][]$[? DISK_CHANGE] [-n ] []$[? TRACE] [-t ] []$[? CHECKOUT_RO_RW] [${CHECKOUT_RO_RW} ][]$[? NOT_USE_CVSRC] [${NOT_USE_CVSRC} ][]${COMPRESSION}</value>
     </variable>
     <variable name="AUTO_FILL_VARS" basic="false">
       <value>ROOTDIR, AUTO_FILL_CONFIG, MODULE, AUTO_FILL_CONFIG, SERVERTYPE, SET_LOGIN_STATE, CVS_SERVER, SET_LOGIN_STATE, CVS_USERNAME, SET_LOGIN_STATE, CVS_REPOSITORY, SET_LOGIN_STATE, ENVIRONMENT_VAR_CVS_CLIENT_PORT, SET_LOGIN_STATE,FILESYSTEM_PROPERTY_offLine, AUTO_FILL_CHECKOUT</value>
@@ -822,7 +822,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="COMMIT_CMD">
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} commit ${FORCE} ${RUN_MODULE_PROGRAM}  ${RECURSIVE} $[? BRANCH] [-r ${BRANCH}] [] $[? TEMPLATE_FILE] [-F ${QUOTE}${TEMPLATE_FILE}${QUOTE}] [-m ${QUOTE}${message}${QUOTE}] $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	  <value>${CDM_EXECUTE} commit ${FORCE} ${RUN_MODULE_PROGRAM}  ${RECURSIVE} $[? BRANCH] [-r ${BRANCH}] [] $[? TEMPLATE_FILE] [-F ${QUOTE}${TEMPLATE_FILE}${QUOTE}] [-m ${QUOTE}${message}${QUOTE}] $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
 	<property name="checkForModifications">
 	  <value>true</value>
@@ -865,7 +865,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="UPDATE_CMD" >
 	<property name="exec">
-          <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [$[? revision] [-r ${revision}] []] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>
+          <value>${CDM_EXECUTE} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [$[? revision] [-r ${revision}] []] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>
 	</property>
 	<property name="data.regex">
 	  <value>^([UPARMC]) (.*$)|^(.*) (already contains the differences)(.*)$</value>
@@ -888,7 +888,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="UPDATE_CMD_STD">
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>
+	  <value>${CDM_EXECUTE} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>
 	</property>
 	<property name="data.regex">
 	  <value>^([UPARMC]) (.*$)|^(.*) (already contains the differences)(.*)$</value>
@@ -1171,7 +1171,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add $[? KFLAG_TRIVIAL] [${KFLAG_TRIVIAL}] [$[? KFLAG_EXPERT] [${KFLAG_EXPERT}] [$[? PROCESSING_BINARY_FILES] [-kb] []]] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [$[? message] [-m ${QUOTE}${message}${QUOTE}] []] ${QFILES} ${NUR}</value>
+	  <value>${CDW_EXECUTE} add $[? KFLAG_TRIVIAL] [${KFLAG_TRIVIAL}] [$[? KFLAG_EXPERT] [${KFLAG_EXPERT}] [$[? PROCESSING_BINARY_FILES] [-kb] []]] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [$[? message] [-m ${QUOTE}${message}${QUOTE}] []] ${QFILES} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>
@@ -1263,7 +1263,7 @@ Microsystems, Inc. All Rights Reserved.
       <command name="ADD_CMD">
 	<property name="exec">
         <!-- if user specified KFLAG use it otherwise use MIME based autodetection (that marks just binary files, leaving others on CVS)-->
-	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add $[? KFLAG_TRIVIAL] [${KFLAG_TRIVIAL}] [$[? KFLAG_EXPERT] [${KFLAG_EXPERT}] [$[? PROCESSING_BINARY_FILES] [-kb] []]] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [$[? message] [-m ${QUOTE}${message}${QUOTE}] []] ${QFILES} ${NUR}</value>
+	  <value>${CDW_EXECUTE} add $[? KFLAG_TRIVIAL] [${KFLAG_TRIVIAL}] [$[? KFLAG_EXPERT] [${KFLAG_EXPERT}] [$[? PROCESSING_BINARY_FILES] [-kb] []]] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [$[? message] [-m ${QUOTE}${message}${QUOTE}] []] ${QFILES} ${NUR}</value>
 	</property>
         <property name="visualizer">
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
@@ -1374,7 +1374,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} remove -f  ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	  <value>${CDM_EXECUTE} remove -f  ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>
@@ -1503,7 +1503,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} status ${VERBOSE} ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	  <value>${CDM_EXECUTE} status ${VERBOSE} ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_STATUS_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_STATUS_Label)))
@@ -1543,7 +1543,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="STATUS_GET_TAGS">
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} status -v $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	  <value>${CDM_EXECUTE} status -v $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
 	<property name="data.regex">
 	  <value>$ ^</value>
@@ -1576,7 +1576,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} log ${ONLY_PRINT} ${NO_TAGS} $[? REVISIONS] [-r${QUOTE}${REVISIONS}${QUOTE}] [] $[? DATES] [-d ${QUOTE}${DATES}${QUOTE}] [] $[? STATES] [-s ${QUOTE}${STATES}${QUOTE}] [] $[? USERS] [-w${USERS}] [] ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	  <value>${CDM_EXECUTE} log ${ONLY_PRINT} ${NO_TAGS} $[? REVISIONS] [-r${QUOTE}${REVISIONS}${QUOTE}] [] $[? DATES] [-d ${QUOTE}${DATES}${QUOTE}] [] $[? STATES] [-s ${QUOTE}${STATES}${QUOTE}] [] $[? USERS] [-w${USERS}] [] ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_LOG_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_LOG_Label)))
@@ -1632,7 +1632,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUNCDM} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} history ${REPORT} ${SPEC_MODULE} ${RECORD_TYPE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	  <value>${RUNCDM} ${CVS_DEF_EXE} history ${REPORT} ${SPEC_MODULE} ${RECORD_TYPE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
         </property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_HISTORY_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_HISTORY_Label)))
@@ -1680,7 +1680,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-          <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} annotate $[? SPEC_REVISION] [-r ${SPEC_REVISION}] [] $[? SPEC_DATE] [-D ${QUOTE}${SPEC_DATE}${QUOTE}] [] ${USE_HEAD} ${QFILE} ${NUR}</value>
+          <value>${CDW_EXECUTE} annotate $[? SPEC_REVISION] [-r ${SPEC_REVISION}] [] $[? SPEC_DATE] [-D ${QUOTE}${SPEC_DATE}${QUOTE}] [] ${USE_HEAD} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_ANNOTATE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Label)))
@@ -1710,7 +1710,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="ANNOTATE_CMD">
 	<property name="exec">
-	  <value>${RUNCDW} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} annotate $[? SPEC_REVISION] [-r ${SPEC_REVISION}] [] $[? SPEC_DATE] [-D ${QUOTE}${SPEC_DATE}${QUOTE}] [] ${USE_HEAD} ${QFILE} ${NUR}</value>
+	  <value>${RUNCDW} ${CVS_DEF_EXE} annotate $[? SPEC_REVISION] [-r ${SPEC_REVISION}] [] $[? SPEC_DATE] [-D ${QUOTE}${SPEC_DATE}${QUOTE}] [] ${USE_HEAD} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="data.regex">
 	  <value>^([0-9\.]+) +\((.*) (.*)\): (.*)$</value>
@@ -1731,7 +1731,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
 	<property name="exec">
-	  <value>${EXECUTE_D} ${USER_GLOBAL_PARAM} checkout ${INITIAL_CO_FORCE_HEAD_MATCH} ${INITIAL_CO_DO_NOT_SHORTEN} ${INITIAL_CO_RCS_KFLAG} ${INITIAL_CO_RUN_MODULE_PROGRAM} $[? INITIAL_CO_DIRECTORY] [-d ${INITIAL_CO_DIRECTORY}] [] $[? INITIAL_CO_TAG] [-r ${INITIAL_CO_TAG}] [] $[? INITIAL_CO_DATE] [-D ${QUOTE}${INITIAL_CO_DATE}${QUOTE}] [] ${INITIAL_CO_PRUNE_EMPTY}  ${INITIAL_CO_RECURSIVE} $[? INITIAL_CO_MODULE] [${INITIAL_CO_MODULE}] [${INITIAL_CO_MODULES}] ${NUR}</value>
+	  <value>${EXECUTE_D} checkout ${INITIAL_CO_FORCE_HEAD_MATCH} ${INITIAL_CO_DO_NOT_SHORTEN} ${INITIAL_CO_RCS_KFLAG} ${INITIAL_CO_RUN_MODULE_PROGRAM} $[? INITIAL_CO_DIRECTORY] [-d ${INITIAL_CO_DIRECTORY}] [] $[? INITIAL_CO_TAG] [-r ${INITIAL_CO_TAG}] [] $[? INITIAL_CO_DATE] [-D ${QUOTE}${INITIAL_CO_DATE}${QUOTE}] [] ${INITIAL_CO_PRUNE_EMPTY}  ${INITIAL_CO_RECURSIVE} $[? INITIAL_CO_MODULE] [${INITIAL_CO_MODULE}] [${INITIAL_CO_MODULES}] ${NUR}</value>
 	</property>
 	<property name="display">
 	  <value>true</value>
@@ -1816,8 +1816,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUN} ${CD} ${QUOTE}${DIRECTORY}${QUOTE}&amp;&amp; ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} export $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${RUN_MODULE_PROGRAM} ${RCS_KFLAG} ${RECURSIVE} ${EXPORT_MODULE} ${NUR}</value>
-	  <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${DIRECTORY}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} export $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${RUN_MODULE_PROGRAM} ${RCS_KFLAG} ${RECURSIVE} ${EXPORT_MODULE} ${NUR}</value>
+	  <value>${RUN} ${CD} ${QUOTE}${DIRECTORY}${QUOTE}&amp;&amp; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} $[? NOT_USE_CVSRC] [${NOT_USE_CVSRC} ][]${COMPRESSION} export $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${RUN_MODULE_PROGRAM} ${RCS_KFLAG} ${RECURSIVE} ${EXPORT_MODULE} ${NUR}</value>
+	  <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${DIRECTORY}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} $[? NOT_USE_CVSRC] [${NOT_USE_CVSRC} ][]${COMPRESSION} export $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${RUN_MODULE_PROGRAM} ${RCS_KFLAG} ${RECURSIVE} ${EXPORT_MODULE} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_EXPORT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EXPORT_Label)))
@@ -1880,7 +1880,7 @@ Microsystems, Inc. All Rights Reserved.
 	    <value>true</value>
 	  </property>
 	  <property name="exec">
-	    <value>${RUNCDM} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} edit $[? IS_TEMP_WATCH] [-a ${TEMP_WATCH} ] []${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	    <value>${RUNCDM} ${CVS_DEF_EXE} edit $[? IS_TEMP_WATCH] [-a ${TEMP_WATCH} ] []${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	  </property>
   	  <property name="inputDescriptor">
 	    <value>LABEL(ResourceMsg1(COMMAND_EDIT_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EDIT_Label)))
@@ -1950,7 +1950,7 @@ Microsystems, Inc. All Rights Reserved.
 	</command>
 	<command name="UNEDIT_TEST">
 	  <property name="exec">
-	    <value>${RUNCDM} echo n | ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} unedit ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	    <value>${RUNCDM} echo n | ${CVS_DEF_EXE} unedit ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	  </property>
 	  <property name="data.regex">
 	    <value>$ ^</value>
@@ -1964,8 +1964,8 @@ Microsystems, Inc. All Rights Reserved.
 	</command>
 	<command name="UNEDIT_CMD">
 	  <property name="exec">
-	    <value>${RUNCDM} echo ${CMD_INPUT} | ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} unedit ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
-	    <value if="IS_WINDOWS">${RUNCDM} type ${CMD_INPUT_FILE} | ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} unedit ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	    <value>${RUNCDM} echo ${CMD_INPUT} | ${CVS_DEF_EXE} unedit ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	    <value if="IS_WINDOWS">${RUNCDM} type ${CMD_INPUT_FILE} | ${CVS_DEF_EXE} unedit ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	  </property>
 	  <property name="data.regex">
 	    <value>$ ^</value>
@@ -2000,7 +2000,7 @@ Microsystems, Inc. All Rights Reserved.
 	    <value>true</value>
 	  </property>
 	  <property name="exec">
-	    <value>${RUNCDM} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} editors ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	    <value>${RUNCDM} ${CVS_DEF_EXE} editors ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	  </property>
   	  <property name="inputDescriptor">
 	    <value>LABEL(ResourceMsg1(COMMAND_EDITORS_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_EDITORS_Label)))
@@ -2048,7 +2048,7 @@ Microsystems, Inc. All Rights Reserved.
 	    <value>true</value>
 	  </property>
 	  <property name="exec">
-	    <value>${RUNCDM} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} watch on ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	    <value>${RUNCDM} ${CVS_DEF_EXE} watch on ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	  </property>
   	  <property name="inputDescriptor">
 	    <value>LABEL(ResourceMsg1(COMMAND_WATCH_ON_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_ON_Label)))
@@ -2088,7 +2088,7 @@ Microsystems, Inc. All Rights Reserved.
 	    <value>true</value>
 	  </property>
 	  <property name="exec">
-	    <value>${RUNCDM} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} watch off ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	    <value>${RUNCDM} ${CVS_DEF_EXE} watch off ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	  </property>
   	  <property name="inputDescriptor">
 	    <value>LABEL(ResourceMsg1(COMMAND_WATCH_OFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_OFF_Label)))
@@ -2131,7 +2131,7 @@ Microsystems, Inc. All Rights Reserved.
 	    <value>true</value>
 	  </property>
 	  <property name="exec">
-            <value>${RUNCDW} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} watch remove -a all $[? FILE] [${QFILE}] []&amp;&amp; ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} watch add -a none $[? IS_EDIT] [-a edit] [] $[? IS_UNEDIT] [-a unedit] [] $[? IS_COMMIT] [-a commit] [] $[? FILE] [${QFILE}] [] ${NUR}</value>
+            <value>${RUNCDW} ${CVS_DEF_EXE} watch remove -a all $[? FILE] [${QFILE}] []&amp;&amp; ${CVS_DEF_EXE} watch add -a none $[? IS_EDIT] [-a edit] [] $[? IS_UNEDIT] [-a unedit] [] $[? IS_COMMIT] [-a commit] [] $[? FILE] [${QFILE}] [] ${NUR}</value>
 	  </property>
   	  <property name="inputDescriptor">
  	    <value>LABEL(ResourceMsg1(COMMAND_WATCH_SET_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_SET_Label)))
@@ -2167,7 +2167,7 @@ Microsystems, Inc. All Rights Reserved.
 	    <value>true</value>
 	  </property>
 	  <property name="exec">
-            <value>${RUNCDW} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} watch remove -a all ${RECURSION} $[? FILE] [${QFILE}] []&amp;&amp; ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} watch add -a none $[? IS_EDIT] [-a edit] [] $[? IS_UNEDIT] [-a unedit] [] $[? IS_COMMIT] [-a commit] [] ${RECURSION} $[? FILE] [${QFILE}] [] ${NUR}</value>
+            <value>${RUNCDW} ${CVS_DEF_EXE} watch remove -a all ${RECURSION} $[? FILE] [${QFILE}] []&amp;&amp; ${CVS_DEF_EXE} watch add -a none $[? IS_EDIT] [-a edit] [] $[? IS_UNEDIT] [-a unedit] [] $[? IS_COMMIT] [-a commit] [] ${RECURSION} $[? FILE] [${QFILE}] [] ${NUR}</value>
 	  </property>
   	  <property name="inputDescriptor">
  	    <value>LABEL(ResourceMsg1(COMMAND_WATCH_SET_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCH_SET_Label)))
@@ -2205,7 +2205,7 @@ Microsystems, Inc. All Rights Reserved.
 	    <value>true</value>
 	  </property>
 	  <property name="exec">
-	    <value>${RUNCDM} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} watchers ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	    <value>${RUNCDM} ${CVS_DEF_EXE} watchers ${RECURSIVE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	  </property>
   	  <property name="inputDescriptor">
 	    <value>LABEL(ResourceMsg1(COMMAND_WATCHERS_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_WATCHERS_Label)))
@@ -2251,7 +2251,7 @@ Microsystems, Inc. All Rights Reserved.
 	    <value>true</value>
 	  </property>
           <property name="exec">
-	    <value>${RUNCDM} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} admin -l${REVISION} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	    <value>${RUNCDM} ${CVS_DEF_EXE} admin -l${REVISION} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	  </property>
   	  <property name="inputDescriptor">
  	    <value>LABEL(ResourceMsg1(COMMAND_LOCK_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_LOCK_Label)))
@@ -2287,7 +2287,7 @@ Microsystems, Inc. All Rights Reserved.
 	    <value>true</value>
 	  </property>
 	  <property name="exec">
-	    <value>${RUNCDM} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} admin -u${REVISION} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	    <value>${RUNCDM} ${CVS_DEF_EXE} admin -u${REVISION} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	  </property>
   	  <property name="inputDescriptor">
  	    <value>LABEL(ResourceMsg1(COMMAND_UNLOCK_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_UNLOCK_Label)))
@@ -2332,7 +2332,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-          <value>${EXECUTE} ${USER_GLOBAL_PARAM} ${TAG_TYPE} ${BRANCH_TAG} $[? DATE] [-D ${DATE}] [] $[? REVISION] [-r ${REVISION}] [] ${FORCE_HEAD} ${MOVE_IF_EXISTS} ${CHECK_FOR_MODIFIED} ${CLEAR_REMOVED} ${NO_TAG_PRG} ${RECURSIVE} ${TAG_NAME} $[? FILE] [${QUOTE}${MODPATH}${QUOTE}] [] ${NUR}</value>
+          <value>${EXECUTE} ${TAG_TYPE} ${BRANCH_TAG} $[? DATE] [-D ${DATE}] [] $[? REVISION] [-r ${REVISION}] [] ${FORCE_HEAD} ${MOVE_IF_EXISTS} ${CHECK_FOR_MODIFIED} ${CLEAR_REMOVED} ${NO_TAG_PRG} ${RECURSIVE} ${TAG_NAME} $[? FILE] [${QUOTE}${MODPATH}${QUOTE}] [] ${NUR}</value>
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg1(COMMAND_ADD_TAG_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_TAG_Label)))
@@ -2380,7 +2380,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-          <value>${EXECUTE} ${USER_GLOBAL_PARAM} ${TAG_TYPE} ${RECURSIVE} -d ${TAG_NAME} $[? FILE] [${QUOTE}${MODPATH}${QUOTE}] [] ${NUR}</value>
+          <value>${EXECUTE} ${TAG_TYPE} ${RECURSIVE} -d ${TAG_NAME} $[? FILE] [${QUOTE}${MODPATH}${QUOTE}] [] ${NUR}</value>
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg1(COMMAND_REMOVE_TAG_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_REMOVE_TAG_Label)))
@@ -2489,7 +2489,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} diff $[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] [] $[? TAG1] [-r ${TAG1}] [] $[? TAG2] [-r ${TAG2}] [] ${RECURSIVE} ${RCS_KFLAG} ${IGNORE_WHITE} ${IGNORE_SPACE} ${IGNORE_CASE} ${ADDITIONAL_OPTIONS} ${OUTPUT_FORMAT} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
+	  <value>${CDM_EXECUTE} diff $[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] [] $[? TAG1] [-r ${TAG1}] [] $[? TAG2] [-r ${TAG2}] [] ${RECURSIVE} ${RCS_KFLAG} ${IGNORE_WHITE} ${IGNORE_SPACE} ${IGNORE_CASE} ${ADDITIONAL_OPTIONS} ${OUTPUT_FORMAT} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg1(COMMAND_DIFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Label)))
@@ -2538,7 +2538,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} diff $[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] [] $[? TAG1] [-r ${TAG1}] [] $[? TAG2] [-r ${TAG2}] [] ${RECURSIVE} ${RCS_KFLAG} ${IGNORE_WHITE} ${IGNORE_SPACE} ${IGNORE_CASE} ${ADDITIONAL_OPTIONS} ${OUTPUT_FORMAT} ${QFILE} ${NUR}</value>
+	  <value>${CDM_EXECUTE} diff $[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] [] $[? TAG1] [-r ${TAG1}] [] $[? TAG2] [-r ${TAG2}] [] ${RECURSIVE} ${RCS_KFLAG} ${IGNORE_WHITE} ${IGNORE_SPACE} ${IGNORE_CASE} ${ADDITIONAL_OPTIONS} ${OUTPUT_FORMAT} ${QFILE} ${NUR}</value>
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg1(COMMAND_DIFF_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_DIFF_Label)))
@@ -2592,7 +2592,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUN} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} patch ${OUTPUT_FORMAT} $[? REV1_DATE1] [$[? REV1_DATE1 - REVISION_OPERATION_IDENT] [${REV1_DATE1}] [$[? REVISION1] [-r ${REVISION1}] [] $[? REV2_DATE2] [$[? REV2_DATE2 - REVISION_OPERATION_IDENT] [-r HEAD] [$[? REVISION2] [-r ${REVISION2}] []]] [$[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] []]]] [$[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? REV2_DATE2] [$[? REV2_DATE2 - REVISION_OPERATION_IDENT] [-r HEAD] [$[? REVISION2] [-r ${REVISION2}] []]] [$[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] []]] ${FORCE_HEAD_MATCH} ${RECURSIVE} ${QUOTE}${MODPATH}${QUOTE} ${NUR}</value>
+	  <value>${RUN} ${CVS_DEF_EXE} patch ${OUTPUT_FORMAT} $[? REV1_DATE1] [$[? REV1_DATE1 - REVISION_OPERATION_IDENT] [${REV1_DATE1}] [$[? REVISION1] [-r ${REVISION1}] [] $[? REV2_DATE2] [$[? REV2_DATE2 - REVISION_OPERATION_IDENT] [-r HEAD] [$[? REVISION2] [-r ${REVISION2}] []]] [$[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] []]]] [$[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? REV2_DATE2] [$[? REV2_DATE2 - REVISION_OPERATION_IDENT] [-r HEAD] [$[? REVISION2] [-r ${REVISION2}] []]] [$[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] []]] ${FORCE_HEAD_MATCH} ${RECURSIVE} ${QUOTE}${MODPATH}${QUOTE} ${NUR}</value>
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg1(COMMAND_PATCH_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_PATCH_Label)))
@@ -2717,7 +2717,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="DIFF_USR_CMD">
 	<property name="exec">
-          <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} diff $[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] [] $[? TAG1] [-r ${TAG1}] [$[? revision] [-r ${revision}] []] $[? TAG2] [-r ${TAG2}] [] ${RCS_KFLAG} ${IGNORE_WHITE} ${IGNORE_SPACE} ${IGNORE_CASE} ${ADDITIONAL_OPTIONS} ${QFILE} ${NUR}</value>
+          <value>${CDW_EXECUTE} diff $[? DATE1] [-D ${QUOTE}${DATE1}${QUOTE}] [] $[? DATE2] [-D ${QUOTE}${DATE2}${QUOTE}] [] $[? TAG1] [-r ${TAG1}] [$[? revision] [-r ${revision}] []] $[? TAG2] [-r ${TAG2}] [] ${RCS_KFLAG} ${IGNORE_WHITE} ${IGNORE_SPACE} ${IGNORE_CASE} ${ADDITIONAL_OPTIONS} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="data.regex">
           <value>(^[0-9]+(,[0-9]+|)[d][0-9]+$)|(^[0-9]+(,[0-9]+|)[c][0-9]+(,[0-9]+|)$)|(^[0-9]+[a][0-9]+(,[0-9]+|)$)|(^&lt; .*$)|(^&gt; .*$)|(^---$)|(^retrieving revision.*)</value>
@@ -2841,7 +2841,7 @@ Microsystems, Inc. All Rights Reserved.
         <value>ResourceMsg1(CVS_UPDATE_Mnemonic)</value>
       </property>
       <property name="exec">
-        <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} update -r $[? BRANCH] [${BRANCH}] [${REVISION}] ${UPDATE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
+        <value>${CDW_EXECUTE} update -r $[? BRANCH] [${BRANCH}] [${REVISION}] ${UPDATE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
       </property>
       <property name="inputDescriptor">
  	<value>LABEL(ResourceMsg1(COMMAND_REVISION_UPDATE_Label))
@@ -2863,7 +2863,7 @@ Microsystems, Inc. All Rights Reserved.
         <value>ResourceMsg1(CVS_MERGE_WITH_REVISION_Mnemonic)</value>
       </property>
       <property name="exec">
-        <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} update -j ${REVISION1} $[? REVISION2] [-j ${REVISION2}] [] ${MERGE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
+        <value>${CDW_EXECUTE} update -j ${REVISION1} $[? REVISION2] [-j ${REVISION2}] [] ${MERGE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
       </property>
       <property name="inputDescriptor">
  	<value>LABEL(ResourceMsg1(COMMAND_REVISION_MERGE_Label))
@@ -2885,7 +2885,7 @@ Microsystems, Inc. All Rights Reserved.
         <value>ResourceMsg1(CVS_MERGE_WITH_REVISION_DIFF_Mnemonic)</value>
       </property>
       <property name="exec">
-        <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} update -j ${REVISION1} $[? REVISION2] [-j ${REVISION2}] [] ${MERGE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
+        <value>${CDW_EXECUTE} update -j ${REVISION1} $[? REVISION2] [-j ${REVISION2}] [] ${MERGE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
       </property>
       <property name="inputDescriptor">
  	<value>LABEL(ResourceMsg1(COMMAND_REVISION_MERGE_Label))
@@ -2929,7 +2929,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg1(CVS_ANNOTATE_Mnemonic)</value>
       </property>
       <property name="exec">
-        <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} annotate -r ${REVISION} ${QFILE} ${NUR}</value>
+        <value>${CDW_EXECUTE} annotate -r ${REVISION} ${QFILE} ${NUR}</value>
       </property>
       <property name="numRevisions">
 	<value>1</value>
