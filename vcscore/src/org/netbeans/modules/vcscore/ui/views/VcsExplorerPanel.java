@@ -17,7 +17,6 @@ package org.netbeans.modules.vcscore.ui.views;
 import java.io.*;
 import org.openide.util.*;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.actions.CallableSystemAction;
 import org.openide.explorer.*;
 import org.openide.nodes.*;
 import org.openide.awt.JMenuPlus;
