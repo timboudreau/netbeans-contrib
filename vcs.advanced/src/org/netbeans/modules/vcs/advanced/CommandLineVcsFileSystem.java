@@ -237,43 +237,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                                         SharedPasswords.getInstance()));
     }
     
-    protected java.lang.ref.Reference createReference(final FileObject fo) {
-        java.lang.ref.Reference ref = super.createReference(fo);
-        if (checkVirtual(fo.getPackageNameExt('/','.'))) {
-            //System.out.println("   !!! new ref is virtual");
-            if (ref instanceof CacheReference) {
-                ((CacheReference) ref).setVirtual(true);
-            } else {
-                setVirtualDataLoader(fo);
-            }
-        }
-        return ref;
-    }
-    
-    /**
-     * Perform the check of whether the file is or is not still virtual. This
-     * method is called on every file status change with the set of potentially
-     * changed files.
-     * @param the set of FileObjects whose status was changed
-     */
-    protected void checkVirtualFiles(Set foSet) {
-        //Set reloadFoSet = new HashSet();
-        for (Iterator foIt = foSet.iterator(); foIt.hasNext(); ) {
-            FileObject fo = (FileObject) foIt.next();
-            setVirtualDataLoader(fo);
-        }
-        /*
-        for (Iterator foIt = reloadFoSet.iterator(); foIt.hasNext(); ) {
-            FileObject fo = (FileObject) foIt.next();
-            try {
-                DataObject dob = DataObject.find(fo);
-                dob.setValid(false);
-            } catch (DataObjectNotFoundException de) {
-            } catch (PropertyVetoException exc2) {}
-        }
-         */
-    }
-    
     public VcsFactory getVcsFactory () {
         return new DefaultVcsFactory(this);//new CommandLineVcsFactory (this);
     }
