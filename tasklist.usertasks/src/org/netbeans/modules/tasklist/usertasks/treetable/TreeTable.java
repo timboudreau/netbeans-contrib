@@ -46,6 +46,7 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.usertasks.UTUtils;
 
 /**
  * This example shows how to create a simple JTreeTable component, 
@@ -131,6 +132,53 @@ public class TreeTable extends JTable {
     public void expandAll() {
         TreePath tp = new TreePath(tree.getModel().getRoot());
         expandAllUnder(tp);
+    }
+    
+    /**
+     * Expands the whole path so the last element becomes visible
+     *
+     * @param tp path
+     */
+    public void expandAllPath(TreePath tp) {
+        while (tp != null) {
+            tree.expandPath(tp);
+            tp = tp.getParentPath();
+        }
+    }
+
+    /**
+     * Does tree.expandPath(tp)
+     *
+     * @param tp path to be expanded
+     */
+    public void expandPath(TreePath tp) {
+        tree.expandPath(tp);
+    }
+    
+    /**
+     * Selects the specified path
+     *
+     * @param path the path to be selected
+     */
+    public void select(TreePath path) {
+        int row = this.getRowForPath(path);
+        if (row >= 0)
+            this.getSelectionModel().setSelectionInterval(row, row);
+    }
+
+    /**
+     * Makes the specified task visible (scrolls to it)
+     *
+     * @param path to make visible
+     */
+    public void scrollTo(TreePath path) {
+        UTUtils.LOGGER.fine("scrolling to " + path); // NOI18N
+        int row = this.getRowForPath(path);
+        UTUtils.LOGGER.fine("row = " + row); // NOI18N
+        if (row > 0) {
+            Rectangle r = this.getCellRect(row, 0, true);
+            this.scrollRectToVisible(r);
+        }
     }
     
     /**

@@ -36,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultEditorKit;
+import javax.swing.tree.TreePath;
 
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.ColumnProperty;
@@ -467,7 +468,9 @@ ExportImportProvider {
     public void select(Task task) {
         if (isShowing() == false) return;
         
-        tt.select((UserTask) task);
+        TreePath tp = tt.findPath((UserTask) task);
+        tt.expandPath(tp);
+        tt.select(tp);
     }
     
     /**
@@ -479,7 +482,8 @@ ExportImportProvider {
         if (isShowing() == false)
             return;
         
-        tt.scrollTo(task);
+        TreePath tp = tt.findPath(task);
+        tt.scrollTo(tp);
     }
     
     public int getPersistenceType() {

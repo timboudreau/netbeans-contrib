@@ -28,7 +28,12 @@ import java.util.logging.Logger;
 import java.awt.*;
 import java.awt.event.FocusListener;
 import java.awt.event.FocusEvent;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import javax.swing.JEditorPane;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -90,52 +95,53 @@ public final class TLUtils {
     }
     
     /**
-     * TODO: comment
+     * Creates a backup copy of a file.
+     * TODO: this function was not tested!
+     *
+     * @param f for this file a backup copy will be created
      */
-    /*public static void writeWithBackup() {
-        File file = null;
-        boolean success = false;
-        OutputStream out = null;
-
+    public static void createBackup(File f) throws IOException {
+        File dir = f.getParentFile();
+        File backup = new File(dir, f.getName() + "~"); // NOI18N
+        if (backup.exists()) {
+            if (!backup.delete())
+                throw new IOException("Cannot delete the file"); // TODO: i18n
+        }
+        
+        FileInputStream fis = new FileInputStream(f);
         try {
-        
-            file = new File(folderPath.getPath()+File.separatorChar+name);
-            if (file.exists()) {
-                if (!backedUp && backup) {
-                    // Save backup
-                    File oldFile = new File(file.getPath()+'~');
-                    if (oldFile.exists()) {
-                        oldFile.delete();
-                    }
-                    file.renameTo(oldFile);
-                    backedUp = true;
-                } else {
-                    file.delete();
-                }
-            }
-            file.createNewFile();
+            FileOutputStream fos = new FileOutputStream(backup);
+            
+            try {
+                FileChannel ic = fis.getChannel();
+                FileChannel oc = fos.getChannel();
 
-            out = new BufferedOutputStream(new FileOutputStream(file));
+                ByteBuffer bb = ByteBuffer.allocateDirect(16 * 1024);
 
-            success = writeList(list, out, interactive, file.getParentFile());
-        } catch (IOException ioe) {
-            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
-			     ioe, NotifyDescriptor.ERROR_MESSAGE));
-        } finally {
-            if (out != null) {
+                bb.clear();          // Prepare buffer for use
+                for (;;) {
+                    if (ic.read(bb) < 0 && !bb.hasRemaining())
+                        break;        // No more bytes to transfer
+                    bb.flip();
+                    oc.write(bb);
+                    bb.compact();    // In case of partial write
+                }            
+            } finally {
                 try {
-                    out.close();
+                    fos.close();
                 } catch (IOException e) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,  e);
                 }
             }
-        }
-
-        if (success) {
-            exportDone(file);
+        } finally {
+            try {
+                fis.close();
+            } catch (IOException e) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,  e);
+            }
         }
         
-        return success;        
-    }*/
+    }
     
     /** Return the Line object for a particular line in a file
      */

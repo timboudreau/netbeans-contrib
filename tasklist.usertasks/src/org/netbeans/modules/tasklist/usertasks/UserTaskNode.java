@@ -337,7 +337,7 @@ final class UserTaskNode extends AbstractNode {
     protected void createPasteTypes(java.awt.datatransfer.Transferable t, List s) {
         UTUtils.LOGGER.fine("entering");
         super.createPasteTypes(t, s);
-        PasteType p = createTodoPasteType(t, (UserTask) item);
+        PasteType p = createTodoPasteType(this, t);
         if (p != null) {
             s.add(p);
         }
@@ -347,11 +347,11 @@ final class UserTaskNode extends AbstractNode {
      * Create a paste type from a transferable.
      *
      * @param t the transferable to check
-     * @param parent parent for the pasted task
+     * @param target parent for the pasted task
      * @return an appropriate paste type, or null if not appropriate
      */
     public static PasteType createTodoPasteType(
-    Transferable t, UserTask parent) {
+    UserTaskNode target, Transferable t) {
         UTUtils.LOGGER.fine("entering");
         if (t.isDataFlavorSupported(ExTransferable.multiFlavor)) {
             try {
@@ -360,7 +360,7 @@ final class UserTaskNode extends AbstractNode {
                     t.getTransferData(ExTransferable.multiFlavor);
                 if (mto.areDataFlavorsSupported(
                     new DataFlavor[] {TaskTransfer.TODO_FLAVOR})) {
-                    return new UserTaskNode.TodoPaste(t, parent);
+                    return new UserTaskNode.TodoPaste(target, t);
                 }
             } catch (UnsupportedFlavorException e) {
                 ErrorManager.getDefault().notify(e);
@@ -370,7 +370,7 @@ final class UserTaskNode extends AbstractNode {
         } 
         
         if (t.isDataFlavorSupported(TaskTransfer.TODO_FLAVOR)) {
-            return new TodoPaste(t, parent);
+            return new TodoPaste(target, t);
         } 
         return null;
     }
@@ -399,9 +399,10 @@ final class UserTaskNode extends AbstractNode {
     
     public Transferable clipboardCopy() throws IOException {
         UTUtils.LOGGER.fine("entering");
+        final UserTask copy = (UserTask) item.clone();
         return new ExTransferable.Single(TaskTransfer.TODO_FLAVOR) {
             protected Object getData() {
-                return item.clone();
+                return copy;
             }
         };
     }
@@ -421,8 +422,28 @@ final class UserTaskNode extends AbstractNode {
             utl.removeTask(item);
         super.destroy();
         if (n != null) {
-            int row = tt.getRowForPath(new TreePath(n.getPathToRoot()));
-            tt.getSelectionModel().setSelectionInterval(row, row);
+            TreePath tp = new TreePath(n.getPathToRoot());
+            tt.select(tp);
+            tt.scrollTo(tp);
+        }
+    }
+    
+    /**
+     * Performs "Paste" for the specified task on this node
+     *
+     * @param t task to be pasted
+     */
+    public void pasteTask(UserTask t) {
+        t = (UserTask) t.clone();
+        item.addSubtask(t);
+        int index = this.node.getIndexOfObject(t);
+        if (index >= 0) {
+            AdvancedTreeTableNode n = 
+                (AdvancedTreeTableNode) this.node.getChildAt(index);
+            TreePath tp = new TreePath(n.getPathToRoot());
+            tt.expandAllPath(tp);
+            tt.select(tp);
+            tt.scrollTo(tp);
         }
     }
     
@@ -431,17 +452,17 @@ final class UserTaskNode extends AbstractNode {
      */
     private static final class TodoPaste extends PasteType {
         private final Transferable t;
-        private final UserTask parent;
+        private final UserTaskNode target;
         
         /**
          * Creates a paste type for a UserTask
          *
          * @param t a transferable object
-         * @param parent parent task for the pasted task
+         * @param target parent for the pasted task
          */
-        public TodoPaste(Transferable t, UserTask parent) {
+        public TodoPaste(UserTaskNode target, Transferable t) {
             this.t = t;
-            this.parent = parent;
+            this.target = target;
         }
         
         public String getName() {
@@ -501,7 +522,7 @@ final class UserTaskNode extends AbstractNode {
                 ut.setLine(item.getLine());
                 ut.setPriority(item.getPriority());
             }
-            parent.addSubtask(ut);
+            target.pasteTask(ut);
         }
     }
 }

@@ -203,37 +203,4 @@ public class UserTasksTreeTable extends NodesTreeTable {
         }
         return new TreePath(n.getPathToRoot());
     }
-    
-    /**
-     * Selects the specified task
-     *
-     * @param task task to be selected
-     */
-    public void select(UserTask task) {
-        TreePath tp = findPath(task);
-        UTUtils.LOGGER.fine("path =" + tp + " for task = " + task);
-        if (tp != null) {
-            TreePath pp = tp.getParentPath();
-            getTree().expandPath(pp);
-            int row = this.getRowForPath(tp);
-            UTUtils.LOGGER.fine("row =" + row + " for task = " + task);
-            this.getSelectionModel().setSelectionInterval(row, row);
-        }
-    }
-
-    /**
-     * Makes the specified task visible (scrolls to it)
-     *
-     * @param task a task
-     */
-    public void scrollTo(UserTask task) {
-        TreePath tp = findPath(task);
-        if (tp != null) {
-            TreePath pp = tp.getParentPath();
-            getTree().expandPath(pp);
-            int row = this.getRowForPath(tp);
-            Rectangle r = this.getCellRect(row, 0, true);
-            this.scrollRectToVisible(r);
-        }
-    }
 }

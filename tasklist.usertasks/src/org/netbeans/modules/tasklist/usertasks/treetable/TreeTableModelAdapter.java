@@ -119,7 +119,10 @@ public class TreeTableModelAdapter extends AbstractTableModel {
     
     protected Object nodeForRow(int row) {
         TreePath treePath = tree.getPathForRow(row);
-        return treePath.getLastPathComponent();
+        if (treePath == null)
+            return null;
+        else
+            return treePath.getLastPathComponent();
     }
     
     public Object getValueAt(int row, int column) {
