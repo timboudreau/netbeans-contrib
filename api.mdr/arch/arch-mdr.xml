@@ -1,0 +1,974 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE api-answers PUBLIC "-//NetBeans//DTD Arch Answers//EN" "../../../nbbuild/antsrc/org/netbeans/nbbuild/Arch.dtd" [
+  <!ENTITY api-questions SYSTEM "../../../nbbuild/antsrc/org/netbeans/nbbuild/Arch-api-questions.xml">
+]>
+
+<api-answers
+  question-version="1.23"
+  module="NetBeans Metadata Repository"
+  author="mmatula@netbeans.org"
+>
+
+  &api-questions;
+
+
+<!--
+        <question id="arch-overall" when="init">
+            Describe the overall architecture.
+            <hint>
+            What will be API for
+            <a href="http://openide.netbeans.org/tutorial/api-design.html#design.apiandspi">
+                clients and what support API</a>?
+            What parts will be pluggable?
+            How will plug-ins be registered? Please use <code>&lt;api type=&quot;export&quot;/&gt;</code>
+            to describe your general APIs.
+            If possible please provide
+            simple diagrams.
+            </hint>
+        </question>
+-->
+<answer id="arch-overall">
+    There are two kinds of API/SPI classes exposed by MDR:
+    <ul>
+        <li>The reflective JMI API and JMI interfaces generated for
+            MOF metamodel. These are located in javax.jmi package.</li>
+        <li>Proprietary MDR API/SPI classes exposing additional functionality not standardized
+            by JMI (even notifications mechanism, concept of a repository, JMI mapper, etc.)</li>
+    </ul>
+    By MDR a new kind of API is introduced - JMI interfaces generated from a given metamodel.
+    Since it is expected that the number of NetBeans modules that will use MOF metamodels
+    and JMI API generated from them to manage metadata, it is desirable to establish come
+    conventions for where the generated API should be located (in what packages),
+    where custom implementations of those metamodels should be and
+    some other concepts like naming of metamodels and repositories. Suggested target
+    package for metamodel specific JMI interfaces is org.netbeans.jmi.
+    <p/>
+    Regarding the <api name="MDR API/SPI" category="devel" group="java"  type="export" url="http://www.netbeans.org/download/dev/javadoc/MdrAPIs"/>
+    as previously said, API and SPI is currently mixed in subpackages of org.netbeans.api.
+    Thus I included the following table that walks through the individual interfaces and suggests their
+    final locations:
+    <table>
+        <th>Location</th>
+        <th>Interfaces</th>
+        <th>Note</th>
+        <tr>
+            <td><code>org.netbeans.api.mdr</code></td>
+            <td><code>MDRManager, MDRepository, MDRObject</code></td>
+            <td>These interfaces are primarily an API (although one may still want to
+                provide a different implementation of MDRManager or MDRepository, it
+                is not encouraged and the much more frequent scenario will be that people
+                will use these interfaces as an API.</td>
+        </tr>
+        <tr>
+            <td><code>org.netbeans.api.mdr.events</code></td>
+            <td><code>AssociationEvent, AttributeEvent, ExtentEvent, InstanceEvent, TransactionEvent,
+                MDRChangeEvent, MDRChangeSource</code></td>
+            <td>Again, these are cleanly and API (note that MDRChangeListener and
+                MDRPreChangeListener that are currently present in org.netbeans.api.mdr.events
+                package are missing from this list. It is because they will probably be moved to
+                org.netbeans.spi.mdr.events. Also we are planning to make the pre-change
+                events vetoable, so a new exception will be introduced into this package.
+                The exception will be named VetoChangeException and will extend
+                javax.jmi.reflect.ConstraintViolationException.</td>
+        </tr>
+        <tr>
+            <td><code>org.netbeans.spi.mdr.events</code></td>
+            <td><code>MDRChangeListener, MDRPreChangeListener</code></td>
+            <td>These interfaces should be moved from org.netbeans.api.mdr.events,
+                since they are clearly an SPI rather than API.</td>
+        </tr>
+        <tr>
+            <td><code>org.netbeans.api.jmi</code></td>
+            <td><code>JMIMapper</code></td>
+            <td>They may exist several implementations of this class. We currently
+                have two - one that generates java files and the other one that
+                generates class files. But I think that the primary usage of this
+                class is a usage as an API.</td>
+        </tr>
+        <tr>
+            <td><code>org.netbeans.spi.jmi</code></td>
+            <td><code>JMIStreamFactory</code></td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><code>org.netbeans.api.xmi</code></td>
+            <td><code>XMIReaderFactory, XMIReader, XMIInputConfig,
+                XMIWriterFactory, XMIWriter, XMIOutputConfig, DTDProducer</code></td>
+            <td>These are again primarily the API classes. Alghough they could be
+                implemented by third parties and they implementations could replace
+                ours using XML layer, this scenario is not encouraged. The DTDProducer
+                class should be moved from org.netbeans.api.mdr, since it is an XMI
+                specific interface.</td>
+        </tr>
+        <tr>
+            <td><code>org.netbeans.spi.xmi</code></td>
+            <td><code>XMIReferenceProvider, XMIReferenceResolver</code></td>
+            <td>These classes should be moved from org.netbeans.api.xmi, since they
+                are an SPI rather than API.</td>
+        </tr>
+        <tr>
+            <td><code>org.netbeans.api.xmi.sax</code></td>
+            <td><code>XMIConsumerFactory, XMIConsumer,
+                XMIProducerFactory, XMIProducer</code></td>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+    Things to consider by Architecture Review Commitee:
+    <ul>
+        <li>Is the separation of SPI and API suggested in the table above correct?</li>
+        <li>Would it be better to move org.netbeans.api.mdr.events classes directly to org.netbeans.api.mdr
+            package and forget about additional events subpackage.</li>
+        <li>Is it a good idea to separate mdr, jmi and xmi API/SPI? Or should it all be
+            under mdr?</li>
+    </ul>
+</answer>
+
+
+
+<!--
+        <question id="arch-quality" when="init">
+            How the <a href="http://www.netbeans.org/community/guidelines/q-evangelism.html">quality</a>
+            of your code will be tested and
+            how future regressions are going to be prevented?
+            <hint>
+            What kind of testing
+            you want to use? What/how much area of functionality
+            should be covered by the tests?
+            </hint>
+        </question>
+-->
+<answer id="arch-quality">
+Since MDR is mostly an implementation of JMI standard, it can be tested using the JMI TCK test suite, which includes
+    about 1000 tests for the JMI reflective and metamodel specific API. Besides that we have a set of unit and functional
+    tests testing the proprietary extensions to the JMI standard. Performance regressions can be identified by our
+    performance tests that are also included in our test suite. All of the tests except for the JMI TCK are built using
+    xtest framework and can be run continuously.
+</answer>
+
+
+
+<!--
+        <question id="arch-time" when="init">
+            What are the time estimates of the work?
+            <hint>
+            Please express your estimates of how long the design, implementation,
+            stabilization are likely to last. How many people will be needed to
+            implement this and what is the expected milestone the work should be
+            ready.
+            </hint>
+        </question>
+-->
+<answer id="arch-time">
+Most of the work is already done. Ideally the module should be approved by
+Arch. Rev. Commitee by the Promo D feature freeze.
+</answer>
+
+
+
+<!--
+        <question id="arch-usecases" when="init">
+            Describe the main <a href="http://openide.netbeans.org/tutorial/api-design.html#usecase">
+            use cases</a> of the new API. Who will use it at
+            what circumstances and what will be the typical code to write
+            to use the module.
+        </question>
+-->
+<answer id="arch-usecases">
+The MDR should be used for data-integration accross different modules in the IDE.
+    An example usecase can be found at <a href="http://mdr.netbeans.org/example.html">http://mdr.netbeans.org/example.html</a>.
+</answer>
+
+
+
+<!--
+        <question id="arch-what" when="init">
+            What is this project good for?
+            <hint>
+            Please provide here a few lines describing the project,
+            what problem it should solve, provide links to documentation,
+            specifications, etc.
+            </hint>
+        </question>
+-->
+<answer id="arch-what">
+See answer to the use-cases question.
+</answer>
+
+
+
+<!--
+        <question id="compat-i18n" when="impl">
+            Is your module correctly internationalized?
+            <hint>
+            Correct internationalization means that it obeys instructions
+            at <a href="http://www.netbeans.org/download/dev/javadoc/OpenAPIs/org/openide/doc-files/i18n-branding.html">
+            NetBeans I18N pages</a>.
+            </hint>
+        </question>
+-->
+<answer id="compat-i18n">
+Not yet.
+</answer>
+
+
+
+<!--
+        <question id="compat-standards" when="init">
+            Does the module implement or define any standards? Is the
+            implementation exact or does it deviate somehow?
+        </question>
+-->
+<answer id="compat-standards">
+The module implements <api name="OMG Meta-Object Facility (MOF)" category="standard" type="export" url="http://www.omg.org/technology/documents/formal/mof.htm"/>,
+    <api name="OMG XML Metadata Interchange (XMI)" category="standard" type="export" url="http://www.omg.org/technology/documents/formal/xmi.htm"/>
+    and <api name="JSR-40: Java Metadata Interface" category="standard" type="export" url="http://java.sun.com/products/jmi"/>.
+</answer>
+
+
+
+<!--
+        <question id="compat-version" when="impl">
+            Can your module coexist with earlier and future
+            versions of itself? Can you correctly read all old settings? Will future
+            versions be able to read your current settings? Can you read
+            or politely ignore settings stored by a future version?
+
+            <hint>
+            Very helpful for reading settings is to store version number
+            there, so future versions can decide whether how to read/convert
+            the settings and older versions can ignore the new ones.
+            </hint>
+        </question>
+-->
+<answer id="compat-version">
+The module itself stores no settings besides the b-tree storage files that are used to store the metadata. B-tree storage
+    files do contain version information. If the module encounters an older version of storage files, the storage is automatically
+    rebooted - i.e. all the stored metadata are lost at that moment. This is fine since MDR serves as a cache for the metadata,
+    not as a primary source of the metadata.
+</answer>
+
+
+
+<!--
+        <question id="dep-jre" when="final">
+            Which version of JRE do you need (1.2, 1.3, 1.4, etc.)?
+            <hint>
+            It is expected that if your module runs on 1.x that it will run
+            on 1.x+1 if no, state that please. Also describe here cases where
+            you run different code on different versions of JRE and why.
+            </hint>
+        </question>
+-->
+<answer id="dep-jre">
+The code definitely runs with JRE 1.4 and higher. It has not been tested with earlier JREs.
+    The standalone version of MDR runs on JRE 1.3 and higher.
+</answer>
+
+
+
+<!--
+        <question id="dep-jrejdk" when="final">
+            Do you require the JDK or is the JRE enough?
+        </question>
+-->
+<answer id="dep-jrejdk">
+JRE is enough.
+</answer>
+
+
+
+<!--
+        <question id="dep-nb" when="init">
+            What other NetBeans projects and modules does this one depend on?
+            <hint>
+            If you want, describe such projects as imported API using
+            the <code>&lt;api name=&quot;identification&quot; type=&quot;import or export&quot; category=&quot;stable&quot; url=&quot;where is the description&quot; /&gt;</code>
+            </hint>
+        </question>
+-->
+<answer id="dep-nb">
+    <api name="openide" type="import" category="official">Lookup, filesystems API, modules API.</api>
+</answer>
+
+
+
+<!--
+        <question id="dep-non-nb" when="init">
+            What other projects outside NetBeans does this one depend on?
+
+            <hint>
+            Some non-NetBeans projects are packaged as NetBeans modules
+            (see <a href="http://libs.netbeans.org/">libraries</a>) and
+            it is preferred to use this approach when more modules may
+            depend on such third-party library.
+            </hint>
+        </question>
+-->
+<answer id="dep-non-nb">
+The module depends on output of MOF and JMI specifications. Particularily
+    <api name="MOF 1.4 Metamodel definition XML file" type="import" category="standard" url="http://www.omg.org/cgi-bin/doc?ptc/01-10-08"/>
+    and <api name="JMI Reflective API and JMI interfaces generated from the MOF metamodel" category="standard" type="import" url="http://java.sun.com/products/jmi"/>.
+</answer>
+
+
+
+<!--
+        <question id="dep-platform" when="init">
+            On which platforms does your module run? Does it run in the same
+            way on each?
+            <hint>
+            If your module is using JNI or deals with special differences of
+            OSes like filesystems, etc. please describe here what they are.
+            </hint>
+        </question>
+-->
+<answer id="dep-platform">
+There are no known dependencies on any platform. The module is pure Java.
+</answer>
+
+
+
+<!--
+        <question id="deploy-dependencies" when="final">
+            What do other modules need to do to declare a dependency on this one?
+            <hint>
+                Provide a sample of the actual lines you would add to a module manifest
+                to declare a dependency, for example using OpenIDE-Module-Module-Dependencies
+                or OpenIDE-Module-Requires. You may use the magic token @SPECIFICATION-VERSION@
+                to represent the current specification version of the module.
+            </hint>
+        </question>
+-->
+<answer id="deploy-dependencies">
+    OpenIDE-Module-Module-Dependencies:  org.netbeans.modules.mdr/1
+    <p/>
+    or
+    <p/>
+    OpenIDE-Module-Module-Dependencies: org.netbeans.api.mdr/1
+    OpenIDE-Module-Requires: org.netbeans.api.mdr.MDRManager
+</answer>
+
+
+
+<!--
+        <question id="deploy-jar" when="impl">
+            Do you deploy just module JAR file(s) or other files as well?
+            <hint>
+            If your module consists of just one module JAR file, just confirm that.
+            If it uses more than one JAR, describe where they are located, how
+            they refer to each other.
+            If it consist of module JAR(s) and other files, please describe
+            what is their purpose, why other files are necessary. Please
+            make sure that installation/uninstallation leaves the system
+            in state as it was before installation.
+            </hint>
+        </question>
+-->
+<answer id="deploy-jar">
+    The module consists of the following jars and autoload modules (jars are listed including the relative
+    path where they have to be placed):
+    <ul>
+        <li>mdr.jar - main jarfile containing the manifest and layer xml file, integrating MDR with NetBeans</li>
+        <li>autoload/mdrapi.jar - autoload module jar containing MDR API</li>
+        <li>autoload/jmi.jar - autoload module jar containing JMI reflective API</li>
+        <li>autoload/mof.jar - autoload module jar containing JMI API for MOF metamodel</li>
+        <li>autoload/jmitoolkit.jar - autoload module jar adding JMI utilities to NB lookup</li>
+        <li>autoload/ext/jmiutils.jar - standalone implementation of JMI utilities (XMI reader/writer, JMI mapper, etc.)</li>
+        <li>ext/nbmdr.jar - standalone implementation of MDR</li>
+    </ul>
+</answer>
+
+
+
+<!--
+        <question id="deploy-nbm" when="impl">
+            Can you deploy an NBM via the Update Center?
+            <hint>
+            If not why?
+            </hint>
+        </question>
+-->
+<answer id="deploy-nbm">
+Yes.
+</answer>
+
+
+
+<!--
+        <question id="deploy-packages" when="init">
+            Are packages of your module made inaccessible by not declaring them
+            public?
+
+            <hint>
+            NetBeans module system allows restriction of access rights to
+            public classes of your module from other modules. This prevents
+            unwanted dependencies of others on your code and should be used
+            whenever possible (<a href="http://www.netbeans.org/download/javadoc/OpenAPIs/org/openide/doc-files/upgrade.html#3.4-public-packages">
+            public packages
+            </a>). If you do not restrict access to your classes you are
+            making it too easy for other people to misuse your implementation
+            details, that is why you should have good reason for not
+            restricting package access.
+            </hint>
+        </question>
+-->
+<answer id="deploy-packages">
+Not yet. I expect to have these restrictions in by the official release.
+</answer>
+
+
+
+<!--
+        <question id="deploy-shared" when="final">
+            Do you need to be installed in the shared location only, or in the user directory only,
+            or can your module be installed anywhere?
+            <hint>
+            Installation location shall not matter, if it does explain why.
+            Consider also whether <code>InstalledFileLocator</code> can help.
+            </hint>
+        </question>
+-->
+<answer id="deploy-shared">
+There are no known dependencies on installation location of the module - i.e. one should be able to install the module
+    anywhere.
+</answer>
+
+
+
+<!--
+        <question id="exec-classloader" when="impl">
+            Does your code create its own class loader(s)?
+            <hint>
+            A bit unusual. Please explain why and what for.
+            </hint>
+        </question>
+-->
+<answer id="exec-classloader">
+MDR dynamically generates implementations of JMI interfaces. It defines these classes using its
+    own classloader.
+</answer>
+
+
+
+<!--
+        <question id="exec-component" when="impl">
+            Is execution of your code influenced by any (string) property
+            of any of your components?
+
+            <hint>
+            Often <code>JComponent.getClientProperty</code>, <code>Action.getValue</code>
+            or <code>PropertyDescriptor.getValue</code>, etc. are used to influence
+            a behavior of some code. This of course forms an interface that should
+            be documented. Also if one depends on some interface that an object
+            implements (<code>component instanceof Runnable</code>) that forms an
+            API as well.
+            </hint>
+        </question>
+-->
+<answer id="exec-component">
+No.
+</answer>
+
+
+
+<!--
+        <question id="exec-introspection" when="impl">
+            Does your module use any kind of runtime type information (<code>instanceof</code>,
+            work with <code>java.lang.Class</code>, etc.)?
+            <hint>
+            Check for cases when you have an object of type A and you also
+            expect it to (possibly) be of type B and do some special action. That
+            should be documented. The same applies on operations in meta-level
+            (Class.isInstance(...), Class.isAssignableFrom(...), etc.).
+            </hint>
+        </question>
+-->
+<answer id="exec-introspection">
+I don't think so, although I am not absolutely sure I understand the question.
+</answer>
+
+
+
+<!--
+        <question id="exec-privateaccess" when="final">
+            Are you aware of any other parts of the system calling some of
+            your methods by reflection?
+            <hint>
+            If so, describe the &quot;contract&quot; as an API. Likely private or friend one, but
+            still API and consider rewrite of it.
+            </hint>
+        </question>
+-->
+<answer id="exec-privateaccess">
+Implementation of MDR storage is pluggable. MDR creates the right storage factory based
+    on its class name provided in start up properties using reflection. Same holds for
+    pluggable transaction mutex. Custom implementations of collections use
+    java.lang.reflect.Array to implement toArray method.
+    Reflection is used to implement JMI reflective operations in RefStruct and RefEnum interfaces
+    to access implementations of JMI non-reflective features. Bytecode generators use reflection
+    to access features of JMI interfaces.
+</answer>
+
+
+
+<!--
+        <question id="exec-process" when="impl">
+            Do you execute an external process from your module? How do you ensure
+            that the result is the same on different platforms? Do you parse output?
+            Do you depend on result code?
+            <hint>
+            If you feed an input, parse the output please declare that as an API.
+            </hint>
+        </question>
+-->
+<answer id="exec-process">
+No.
+</answer>
+
+
+
+<!--
+        <question id="exec-property" when="impl">
+            Is execution of your code influenced by any environment or
+            Java system (<code>System.getProperty</code>) property?
+
+            <hint>
+            If there is a property that can change the behavior of your
+            code, somebody will likely use it. You should describe what it does
+            and the <a href="http://openide.netbeans.org/tutorial/api-design.html#life">stability category</a>
+            of this API. You may use
+            <pre>
+                &lt;api type=&quot;export&quot; group=&quot;property&quot; name=&quot;id&quot; category=&quot;private&quot; url=&quot;http://...&quot;&gt;
+                    description of the property, where it is used, what it influence, etc.
+                &lt;/api&gt;
+            </pre>
+            </hint>
+        </question>
+-->
+<answer id="exec-property">
+<api name="org.netbeans.mdr.persistence.btreeimpl.btreestorage.MDRCache.threshhold" type="export" category="private" group="property"/>
+    It is used in MDRCache to set cache threshhold.
+    <p/>
+    If you go through the source code, you can find more uses of system properties, however
+    those are only effective if the MDR is running as a standalone thing - when running as a
+    module in NetBeans the properties are ignored.
+    <p/>
+    The following properties can be set in the module layer when MDR is running as a module in NetBeans.
+<api name="storage" type="export" category="private" group="property"/>
+    Determines a factory class that is used to create storages. If it is not set, a factory for btree storage is taken defaultly.
+<api name="org.netbeans.mdr.persistence.btreeimpl.uuid" type="export" category="private" group="property"/>
+    Btree storage takes the value as uuid of the storage.
+<api name="org.netbeans.mdr.persistence.btreeimpl.filename" type="export" category="private" group="property"/>
+    Used to set the name of btree storage. It determines names of files used to store data of the storage.
+<api name="org.netbeans.mdr.persistence.memoryimpl.id" type="export" category="private" group="property"/>
+    Used to set uuid of memory storage.
+<api name="org.netbeans.mdr.persistence.memoryimpl.fileName" type="export" category="private" group="property"/>
+    Used to set the name of a file, which is used to store data of memory storage permanently.
+</answer>
+
+
+
+<!--
+        <question id="exec-reflection" when="impl">
+            Does your code use Java Reflection to execute other code?
+            <hint>
+            This usually indicates a missing or insufficient API in the other
+            part of the system. If the other side is not aware of your dependency
+            this contract can be easily broken.
+            </hint>
+        </question>
+-->
+<answer id="exec-reflection">
+Yes - this is used to access metamodel specific API in the implementation of the JMI reflective API.
+</answer>
+
+
+<!--
+        <question id="exec-threading" when="impl">
+            What threading models, if any, does your module adhere to?
+            <hint>
+                If your module calls foreign APIs which have a specific threading model,
+                indicate how you comply with the requirements for multithreaded access
+                (synchronization, mutexes, etc.) applicable to those APIs.
+                If your module defines any APIs, or has complex internal structures
+                that might be used from multiple threads, declare how you protect
+                data against concurrent access, race conditions, deadlocks, etc.,
+                and whether such rules are enforced by runtime warnings, errors, assertions, etc.
+                Examples: a class might be non-thread-safe (like Java Collections); might
+                be fully thread-safe (internal locking); might require access through a mutex
+                (and may or may not automatically acquire that mutex on behalf of a client method);
+                might be able to run only in the event queue; etc.
+                Also describe when any events are fired: synchronously, asynchronously, etc.
+                Ideas: <a href="http://core.netbeans.org/proposals/threading/index.html#recommendations">Threading Recommendations</a> (in progress)
+            </hint>
+        </question>
+-->
+<answer id="exec-threading">
+The MDR introduces transaction mutex, which ensures atomicity of every operation.
+    Each operation starts a transaction (uses mutex to lock the repository) upon the entrance
+    and ends the transaction (i.e. releases the mutex) when exiting. The default implementation
+    of the mutex supports multiple readers or single writter. The whole MDR is thread safe.
+    <p/>
+    There is one event-dispatching thread created for every repository instance. It takes care
+    of asynchnorous event notifications.
+</answer>
+
+
+<!--
+        <question id="format-clipboard" when="impl">
+            Which data flavors (if any) does your code read from or insert to
+            the clipboard (by access to clipboard on means calling methods on <code>java.awt.datatransfer.Transferable</code>?
+
+            <hint>
+            Often Node&apos;s deal with clipboard by usage of <code>Node.clipboardCopy, Node.clipboardCut and Node.pasteTypes</code>.
+            Check your code for overriding these methods.
+            </hint>
+        </question>
+-->
+<answer id="format-clipboard">
+None.
+</answer>
+
+
+
+<!--
+        <question id="format-dnd" when="impl">
+            Which protocols (if any) does your code understand during Drag &amp; Drop?
+            <hint>
+            Often Node&apos;s deal with clipboard by usage of <code>Node.drag, Node.getDropType</code>.
+            Check your code for overriding these methods. Btw. if they are not overridden, they
+            by default delegate to <code>Node.clipboardCopy, Node.clipboardCut and Node.pasteTypes</code>.
+            </hint>
+        </question>
+-->
+<answer id="format-dnd">
+None - d'n'd is not applicable to MDR - the module has no UI.
+</answer>
+
+
+
+<!--
+        <question id="format-types" when="impl">
+            Which protocols and file formats (if any) does your module read or write on disk,
+            or transmit or receive over the network?
+        </question>
+-->
+<answer id="format-types">
+The module uses files to store metadata. The files are proprietary b-tree database files.
+</answer>
+
+
+
+<!--
+        <question id="lookup-lookup" when="init">
+            Does your module use <code>org.openide.util.Lookup</code>
+            or any similar technology to find any components to communicate with? Which ones?
+
+            <hint>
+            Please describe the interfaces you are searching for, where
+            are defined, whether you are searching for just one or more of them,
+            if the order is important, etc. Also classify the stability of such
+            API contract.
+            </hint>
+        </question>
+-->
+<answer id="lookup-lookup">
+The lookup is used to find implementation of MDRManager, XMIReader, XMIWriter, JMIMapper and
+    some other less significant interfaces from the api package. The order is important in case
+    of JMIMapper and XMIReader instnaces, since we have several implementations of those
+    (e.g. a JMIMapper that generates java sources and a JMIMapper that generates class files directly).
+    User is able to choose which one to invoke by changing order of them in the lookup.
+</answer>
+
+
+
+<!--
+        <question id="lookup-register" when="final">
+            Do you register anything into lookup for other code to find?
+            <hint>
+            Do you register using layer file or using <code>META-INF/services</code>?
+            Who is supposed to find your component?
+            </hint>
+        </question>
+-->
+<answer id="lookup-register">
+    It registers instances of the following classes:
+    <ul>
+        <li>org.netbeans.lib.jmi.xmi.XMIWriterImpl</li>
+        <li>org.netbeans.lib.jmi.xmi.WriterFactory</li>
+        <li>org.netbeans.lib.jmi.xmi.WriterBase</li>
+        <li>org.netbeans.lib.jmi.xmi.Producer</li>
+        <li>org.netbeans.lib.jmi.xmi.ProducerFactory</li>
+        <li>org.netbeans.lib.jmi.xmi.ReaderFactory</li>
+        <li>org.netbeans.lib.jmi.xmi.SAXReader</li>
+        <li>org.netbeans.lib.jmi.xmi.Consumer</li>
+        <li>org.netbeans.lib.jmi.xmi.ConsumerFactory</li>
+        <li>org.netbeans.lib.jmi.xmi.XMISaxReaderImpl</li>
+        <li>org.netbeans.lib.jmi.xmi.XmiDtdProducer</li>
+        <li>org.netbeans.lib.jmi.mapping.JMIMapperImpl</li>
+        <li>org.netbeans.lib.jmi.mapping.JMIMapperCFImpl</li>
+        <li>org.netbeans.modules.mdr.MDRManagerImpl</li>
+    </ul>
+    It does it via layer.
+</answer>
+
+
+
+<!--
+        <question id="lookup-remove" when="final">
+            Do you remove entries of other modules from lookup?
+            <hint>
+            Why? Of course, that is possible, but it can be dangerous. Is the module
+            your are masking resource from aware of what you are doing?
+            </hint>
+        </question>
+-->
+<answer id="lookup-remove">
+Not really. The module removes only lookup entries added by the standalone jars (nbmdr.jar,
+    jmiutils.jar) it uses to replace them by its own implementation (integrated with NetBeans) of those.
+</answer>
+
+
+
+<!--
+        <question id="perf-exit" when="final">
+            Does your module run any code on exit?
+        </question>
+-->
+<answer id="perf-exit">
+Shuts down all the repositories (stops event dispatching thread, releases locks on all storage
+    files).
+</answer>
+
+
+
+<!--
+        <question id="perf-huge_dialogs" when="final">
+            Does your module contain any dialogs or wizards with a large number of
+            GUI controls such as combo boxes, lists, trees, or text areas?
+        </question>
+-->
+<answer id="perf-huge_dialogs">
+No.
+</answer>
+
+
+
+<!--
+        <question id="perf-limit" when="init">
+            Are there any hard-coded or practical limits in the number or size of
+            elements your code can handle?
+        </question>
+-->
+<answer id="perf-limit">
+Number of JMI object the MDR can handle is limited by 2^64.
+</answer>
+
+
+
+<!--
+        <question id="perf-mem" when="final">
+            How much memory does your component consume? Estimate
+            with a relation to the number of windows, etc.
+        </question>
+-->
+<answer id="perf-mem">
+In case of the default storage implementation (b-tree) this is fully configurable by
+    setting the memory cache threshold, b-tree page size, etc.
+</answer>
+
+
+
+<!--
+        <question id="perf-menus" when="final">
+            Does your module use dynamically updated context menus, or
+            context-sensitive actions with complicated enablement logic?
+        </question>
+-->
+<answer id="perf-menus">
+No.
+</answer>
+
+
+
+<!--
+        <question id="perf-progress" when="final">
+            Does your module execute any long-running tasks?
+
+            <hint>Long running tasks should never block
+            AWT thread as it badly hurts the UI
+            <a href="http://performance.netbeans.org/responsiveness/issues.html">
+            responsiveness</a>.
+            Tasks like connecting over
+            network, computing huge amount of data, compilation
+            be done asynchronously (for example
+            using <code>RequestProcessor</code>), definitively it should
+            not block AWT thread.
+            </hint>
+        </question>
+-->
+<answer id="perf-progress">
+Potentially long running task is a repository boot. This is done only once, when the repository
+    is accessed for the first time (in its life, not in a single IDE session)
+    or if the storage files are deleted externaly.
+</answer>
+
+
+
+<!--
+        <question id="perf-scale" when="init">
+            Which external criteria influence the performance of your
+            program (size of file in editor, number of files in menu,
+            in source directory, etc.) and how well your code scales?
+            <hint>
+            Please include some estimates, there are other more detailed
+            questions to answer in later phases of implementation.
+            </hint>
+        </question>
+-->
+<answer id="perf-scale">
+The module's performance is affected by the amount of data in a single storage file. Usually
+   there is a 1:1 mapping between a repository and a storage file. Although the module does
+    support storage partitioning and federation. Computational complexity of the searches in
+    the default implementation of the storage (b-tree) is logarithmic, so the code should scale.
+    Another thing that influences the performance of the repository is a number of listeners
+    registered on various repository objects.
+</answer>
+
+
+
+<!--
+        <question id="perf-spi" when="init">
+            How the performance of the plugged in code will be enforced?
+            <hint>
+            If you allow foreign code to be plugged into your own module, how
+            do you enforce, that it will behave correctly and fast and will not
+            negatively influence the performance of your own module?
+            </hint>
+        </question>
+-->
+<answer id="perf-spi">
+By documenting the sensitive areas.
+</answer>
+
+
+
+<!--
+        <question id="perf-startup" when="final">
+            Does your module run any code on startup?
+        </question>
+-->
+<answer id="perf-startup">
+No.
+</answer>
+
+
+
+<!--
+        <question id="perf-wakeup" when="final">
+            Does any piece of your code wake up periodically and do something
+            even when the system is otherwise idle (no user interaction)?
+        </question>
+-->
+<answer id="perf-wakeup">
+No.
+</answer>
+
+
+
+<!--
+        <question id="resources-file" when="final">
+            Does your module use <code>java.io.File</code> directly?
+
+            <hint>
+            NetBeans provide a logical wrapper over plain files called
+            <code>org.openide.filesystems.FileObject</code> that
+            provides uniform access to such resources and is the preferred
+            way that should be used. But of course there can be situations when
+            this is not suitable.
+            </hint>
+        </question>
+-->
+<answer id="resources-file">
+B-tree storage implementation works directly with files since it is a standalone
+    database independent from NetBeans and OpenAPI.
+</answer>
+
+
+
+<!--
+        <question id="resources-layer" when="final">
+            Does your module provide own layer? Does it create any files or
+            folders in it? What it is trying to communicate by that and with which
+            components?
+
+            <hint>
+            NetBeans allows automatic and declarative installation of resources
+            by module layers. Module register files into appropriate places
+            and other components use that information to perform their task
+            (build menu, toolbar, window layout, list of templates, set of
+            options, etc.).
+            </hint>
+        </question>
+-->
+<answer id="resources-layer">
+Yes. It uses layer to register instances into lookup. The module also creates a new folder
+    named MDRepositories, which other modules can use to register their own repositories.
+    The MDR module registers the default repository.
+</answer>
+
+
+
+<!--
+        <question id="resources-mask" when="final">
+            Does your module mask/hide/override any resources provided by other modules in
+            their layers?
+
+            <hint>
+            If you mask a file provided by another module, you probably depend
+            on that and do not want the other module to (for example) change
+            the file&apos;s name. That module shall thus make that file available as an API
+            of some stability category.
+            </hint>
+        </question>
+-->
+<answer id="resources-mask">
+No.
+</answer>
+
+
+
+<!--
+        <question id="resources-read" when="final">
+            Does your module read any resources from layers? For what purpose?
+
+            <hint>
+            As this is some kind of intermodule dependency, it is a kind of API.
+            Please describe it and classify according to
+            <a href="http://openide.netbeans.org/tutorial/api-design.html#categories">
+            common stability categories</a>.
+            </hint>
+        </question>
+-->
+<answer id="resources-read">
+Yes. The implementation of MDR manager reads list of registered metadata repositories.
+    Currently the registration and discovery of the repositories works using a special
+    dataloader for *.mdr files. So the repository needs to be registered in the layer
+    as a file with "mdr" extension. Properties of the repository are declared as file
+    attributes. This is an obsolete thing which we plan to replace with a different
+    registration mechanism before the release. Here are the changes we envision
+    (any comments are welcome):
+    <ul>
+        <li>Add setProperties(Map) method to the MDRepository interface - its contract will be
+ that it has to be called once and only once and it has to be called as the first method
+ on a given instnace - this method will initialize the repository instnace.</li>
+        <li>Repositories will be registered in layer as *.instnace files. All the properties
+ of a given repository (passed to it in setProperties method as name-value pairs) will be
+ declared as file attributes. An open issue is that it is expected that most modules will
+ want to use (register a new instance of) the default implementation of MDRepository provided by MDR module - NBMDRepositoryImpl class.
+ But this class is not in the API package. Is it a problem?</li>
+    </ul>
+
+</answer>
+
+</api-answers>
