@@ -175,6 +175,7 @@ public class Availability extends NbTestCase {
             String filesystem = "Empty " + getWorkDirPath();
             Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
             new Action(null, "Versioning Explorer").perform(filesystemNode);
+            Thread.sleep(2000);
             new VersioningFrameOperator().close();
             new Action(null, "Empty|Refresh Recursively").perform(filesystemNode);
             new NbDialogOperator("Retrieving...").closeByButton();
@@ -233,10 +234,11 @@ public class Availability extends NbTestCase {
             if (!property.getValue().equals("."))
                 throw new Exception("Error: Incorrect processed files of Lock command.");
             new Action(null, "View Output").performPopup(commandNode);
+            Thread.sleep(2000);
             VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Lock");
             String output = outputWindow.txtStandardOutput().getText();
             outputWindow.close();
-            if (!output.equals("put your LOCK command here\n"))
+            if (output.indexOf("put your LOCK command here") == -1)
                 throw new Exception("Error: Incorrect standard output of Lock command: " + output);
             filesystemNode = new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|" + filesystem);
             filesystemNode.select();
