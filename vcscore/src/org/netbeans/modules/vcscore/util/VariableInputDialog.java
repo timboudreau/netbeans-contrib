@@ -102,7 +102,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         this.vars = vars;
         initComponentsFromDescriptor(inputDescriptor, variablePanel);
         currentHistory = historySize;
-        System.out.println("currentHistory = "+currentHistory);
+        //System.out.println("currentHistory = "+currentHistory);
         prevButton.setEnabled(currentHistory > 0);
         nextButton.setEnabled(false);
         //initFileLabel(files[0]);
@@ -312,7 +312,6 @@ public class VariableInputDialog extends javax.swing.JPanel {
         }
         if (currentHistory > 0) prevButton.setEnabled(true);
         if (currentHistory >= historySize) nextButton.setEnabled(false);
-        System.out.println("nextButtonActionPerformed(): currentHistory = "+currentHistory+", historySize = "+historySize);
     }//GEN-LAST:event_nextButtonActionPerformed
 
     private void prevButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prevButtonActionPerformed
@@ -323,7 +322,6 @@ public class VariableInputDialog extends javax.swing.JPanel {
         }
         if (currentHistory == 0) prevButton.setEnabled(false);
         if (currentHistory < historySize) nextButton.setEnabled(true);
-        System.out.println("prevButtonActionPerformed(): currentHistory = "+currentHistory+", historySize = "+historySize);
     }//GEN-LAST:event_prevButtonActionPerformed
 
 
@@ -554,10 +552,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //System.out.println("enableComponents("+VcsUtilities.arrayToString(vars)+", "+enable+")");
         for (int i = 0; i < vars.length; i++) {
             java.awt.Component[] components = (java.awt.Component[]) awtComponentsByVars.get(vars[i]);
-            //System.out.println("component("+vars[i]+") = "+components);
+            //System.out.println(" component("+vars[i]+") = "+components);
             if (components != null) {
                 for (int j = 0; j < components.length; j++) {
-                    //System.out.println("components["+i+"] = "+components[i]);
+                    //System.out.println("  components["+j+"] = "+enable);
                     components[j].setEnabled(enable);
                 }
             }
@@ -623,7 +621,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         componentList.add(field);
         VcsUtilities.removeEnterFromKeymap(field);
         String selector = component.getSelector();
-        System.out.println("Match selector '"+selector+"': ("+component.getSelectorVarConditions()[0]+", "+component.getSelectorVarConditions()[1]+")"+VariableInputComponent.isVarConditionMatch(component.getSelectorVarConditions(), vars));
+        //System.out.println("Match selector '"+selector+"': ("+component.getSelectorVarConditions()[0]+", "+component.getSelectorVarConditions()[1]+")"+VariableInputComponent.isVarConditionMatch(component.getSelectorVarConditions(), vars));
         if (selector != null &&
             !VariableInputComponent.isVarConditionMatch(component.getSelectorVarConditions(), vars)
         ) {
@@ -910,7 +908,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //VcsUtilities.removeEnterFromKeymap(field);
         //fileNames.add(filePrompts.get(message));
         String fileName = component.getDefaultValue();
-        System.out.println("default file name = "+fileName);
+        //System.out.println("default file name = "+fileName);
         if (fileName == null) {
             try {
                 fileName = java.io.File.createTempFile("tempVcsCmd", "input").getAbsolutePath();
@@ -920,7 +918,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         } else {
             fileName = Variables.expand(vars, fileName, true);
         }
-        System.out.println("setting file name value = "+fileName);
+        //System.out.println("setting file name value = "+fileName);
         component.setValue(fileName);
         initArea(area, fileName);
         awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { label, area });
@@ -949,6 +947,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
 
     private int addSelectRadio(final VariableInputComponent component, int gridy,
                                javax.swing.JPanel variablePanel, int leftInset) {
+        ArrayList componentList = new ArrayList();
         String message = component.getLabel();
         if (message != null && message.length() > 0) {
             javax.swing.JLabel label = new javax.swing.JLabel(message);
@@ -960,12 +959,17 @@ public class VariableInputDialog extends javax.swing.JPanel {
             gridBagConstraints1.gridwidth = 2;
             variablePanel.add(label, gridBagConstraints1);
             gridy++;
+            componentList.add(label);
         }
         final VariableInputComponent[] subComponents = component.subComponents();
         final javax.swing.ButtonGroup group = new javax.swing.ButtonGroup();
         for (int i = 0; i < subComponents.length; i++) {
             gridy = addRadioButton(component, subComponents[i], gridy, group, variablePanel, leftInset);
         }
+        for (Enumeration enum = group.getElements(); enum.hasMoreElements(); ) {
+            componentList.add(enum.nextElement());
+        }
+        awtComponentsByVars.put(component.getVariable(), componentList.toArray(new java.awt.Component[0]));
         selectButton(component.getDefaultValue(), subComponents, group);
         component.setValue(component.getDefaultValue());
         addActionToProcess(new ActionListener() {
@@ -1026,16 +1030,20 @@ public class VariableInputDialog extends javax.swing.JPanel {
         }
         final String[] componentVars = (String[]) componentVarsList.toArray(new String[0]);
         enableComponents(componentVars, false);
+        final String[] varsEnabled = (String[]) component.getEnable().toArray(new String[0]);
+        final String[] varsDisabled = (String[]) component.getDisable().toArray(new String[0]);
         button.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent ev) {
                 enableComponents(componentVars, button.isSelected());
+                enableComponents(varsEnabled, button.isSelected());
+                enableComponents(varsDisabled, !button.isSelected());
             }
         });
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 if (button.isSelected()) {
                     superComponent.setValue(component.getValue());
-                    System.out.println("component '"+superComponent.getLabel()+"' setValue("+component.getValue()+")");
+                    //System.out.println("component '"+superComponent.getLabel()+"' setValue("+component.getValue()+")");
                 }
             }
         });
@@ -1044,7 +1052,6 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     private static void selectButton(String value, VariableInputComponent[] subComponents,
                                      javax.swing.ButtonGroup group) {
-        System.out.println("selectButton("+value+")");
         if (value == null && subComponents.length > 0) value = subComponents[0].getValue();
         Enumeration enum = group.getElements();
         for (int i = 0; enum.hasMoreElements(); i++) {
@@ -1072,10 +1079,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
         final int items = subComponents.length;
         final String[] labels = new String[items];
         final String[] values = new String[items];
+        final String[][] varsEnabled = new String[items][0];
+        final String[][] varsDisabled = new String[items][0];
         for (int i = 0; i < items; i++) {
             labels[i] = subComponents[i].getLabel();
             values[i] = subComponents[i].getDefaultValue();
             subComponents[i].setValue(subComponents[i].getDefaultValue());
+            varsEnabled[i] = (String[]) subComponents[i].getEnable().toArray(new String[0]);
+            varsDisabled[i] = (String[]) subComponents[i].getDisable().toArray(new String[0]);
+            //System.out.println("SELECT_COMBO["+i+"]: ENABLE("+VcsUtilities.arrayToString(varsEnabled[i])+"), DISABLE("+VcsUtilities.arrayToString(varsDisabled[i])+")");
         }
         final javax.swing.JComboBox comboBox = new javax.swing.JComboBox(labels);
         java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();
@@ -1102,8 +1114,22 @@ public class VariableInputDialog extends javax.swing.JPanel {
         comboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 int selected2 = comboBox.getSelectedIndex();
-                System.out.println("Combo Action: selected = "+selected2+" = "+subComponents[selected2].getValue());
+                //System.out.println("Combo Action: selected = "+selected2+" = "+subComponents[selected2].getValue());
                 component.setValue(subComponents[selected2].getValue());
+            }
+        });
+        comboBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent ev) {
+                boolean selected = (ItemEvent.SELECTED == ev.getStateChange());
+                Object item = ev.getItem();
+                int index;
+                for (index = 0; index < items; index++) {
+                    if (item.equals(comboBox.getItemAt(index))) break;
+                }
+                if (index < items) {
+                    enableComponents(varsEnabled[index], selected);
+                    enableComponents(varsDisabled[index], !selected);
+                }
             }
         });
         addActionToProcess(new ActionListener() {
@@ -1270,7 +1296,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private void initArea(javax.swing.JTextArea filePromptArea, String fileName) {
         //for(int i = 0; i < filePromptAreas.length; i++) {
         //    String name = fileNames[i];
-        System.out.println("initArea("+fileName+")");
+        //System.out.println("initArea("+fileName+")");
             if (fileName.length() == 0) return ;
             File file = new File(fileName);
             if (file.exists() && file.canRead()) {
