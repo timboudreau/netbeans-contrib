@@ -701,13 +701,15 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       //D.deb("no directory selected"); // NOI18N
       return ;
     }
+    /*
     String module = getModuleValue();
     String moduleDir = selected;
     if (module != null && module.length() > 0) moduleDir += File.separator + module;
     D.deb("rootDirChanged(): module = "+module+", selected = "+selected); // NOI18N
     File dir=new File(moduleDir);
-    /*
+    */
     File root = new File(selected);
+    /*
     if( !root.isDirectory() ){
       E.err("not directory "+root);
       final String badDir = root.toString();
@@ -724,7 +726,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     }
     */
     try{
-      fileSystem.setRootDirectory(dir);
+      fileSystem.setRootDirectory(root);
       //rootDirTextField.setText(selected);
     }
     catch (PropertyVetoException veto){
@@ -733,7 +735,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     }
     catch (IOException e){
       E.err(e,"setRootDirectory() failed");
-      final String badDir = dir.toString();
+      final String badDir = root.toString();
       javax.swing.SwingUtilities.invokeLater(new Runnable () {
         public void run () {
           if (isRootNotSetDlg) {
@@ -830,6 +832,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  12   Gandalf   1.11        2/11/00  Martin Entlicher Different argument to 
+*       setRootDirectory
 *  11   Gandalf   1.10        2/10/00  Martin Entlicher Does not check the 
 *       existence of working directory.
 *  10   Gandalf   1.9         2/9/00   Martin Entlicher Fix of width of Advanced 
