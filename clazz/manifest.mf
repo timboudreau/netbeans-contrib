@@ -1,0 +1,5 @@
+Netbeans-Module: Version 1.00
+Netbeans-Module-Name: Class Loader Module
+
+Name: com/netbeans/developer/modules/loaders/clazz/ClassDataLoader.class
+Netbeans-Module-Class: Loader
