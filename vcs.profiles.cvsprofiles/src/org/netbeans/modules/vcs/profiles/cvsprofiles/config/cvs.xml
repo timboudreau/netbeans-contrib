@@ -18,6 +18,7 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
+<!-- Added something foolish -->
 
 <configuration type="netbeans.cvsprofile">
   <resourceBundle>org/netbeans/modules/vcs/profiles/cvsprofiles/config/BundleGlobal</resourceBundle>
@@ -2721,7 +2722,7 @@ Microsystems, Inc. All Rights Reserved.
           </property>
       </command>
       <separator />
-      <command name="LIST_MODULES" displayName="ResourceMsg1(CVS_LIST_MODULES)" if="BUILT-IN">
+      <command name="LIST_MODULES" displayName="ResourceMsg1(CVS_LIST_MODULES)">
         <property name="exec">
           <value>vcs.commands.CvsModuleSelector.class CHECKOUT_MODULES_S_CMD CHECKOUT_MODULES_C_CMD</value>
           </property>
