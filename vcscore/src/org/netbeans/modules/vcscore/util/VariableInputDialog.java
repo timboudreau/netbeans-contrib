@@ -614,12 +614,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
     
     private static void setA11y(javax.swing.JComponent jComponent, String a11yName, String a11yDescription) {
-        if (Boolean.getBoolean("netbeans.accessibility")) {
+        //if (Boolean.getBoolean("netbeans.accessibility")) {
             if (a11yName != null)
                 jComponent.getAccessibleContext().setAccessibleName(a11yName);
             if (a11yDescription != null)
                 jComponent.getAccessibleContext().setAccessibleDescription(a11yDescription);
-        }
+        //}
     }
     
     private void addVarPromptField(final VariableInputComponent component,
