@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -23,7 +23,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.util.HelpCtx;
 
 import org.netbeans.modules.vcscore.Variables;
-import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.cmdline.*;
@@ -40,10 +40,10 @@ import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.StandardScr
  */
 public class CvsLoginCheck implements VcsAdditionalCommand {
 
-    private VcsFileSystem fileSystem = null;
+    private CommandExecutionContext context = null;
 
-    public void setFileSystem(VcsFileSystem fileSystem) {
-        this.fileSystem = fileSystem;
+    public void setExecutionContext(CommandExecutionContext context) {
+        this.context = context;
     }
 
     /**
@@ -101,7 +101,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
         StringBuffer message = new StringBuffer();
         boolean loggedIn = false;
         CVSPasswd pasFile = new CVSPasswd((String)null);
-        Object loggedInText = fileSystem.getVariablesAsHashtable().get("LOGGED_IN_TEXT");
+        Object loggedInText = context.getVariablesAsHashtable().get("LOGGED_IN_TEXT");
         vars.clear(); // Not to unnecessarily update too many variables.
         vars.put("LOGGED_IN_TEXT", loggedInText);
         //System.out.println("CvsLoginCheck: putting LOGGED_IN_TEXT = '"+loggedInText+"'");
@@ -111,59 +111,67 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
                 port = Integer.parseInt(portStr);
             } catch (NumberFormatException nfex) {}
         }
+        boolean validConnectString = true;
+        pasFile.loadPassFile();
         try {
-            pasFile.loadPassFile();
             pasFile.remove(connectStr, port);
-            if (builtIn) {
-                PasswdEntry entry = new PasswdEntry();
-                String scrambledPassword = StandardScrambler.getInstance().scramble(password);
-                entry.setEntry(connectStr+" "+scrambledPassword);
-                if (port > 0) entry.getCVSRoot().setPort(port);
-                loggedIn = pasFile.checkServer(entry);
-                if (loggedIn) {
+        } catch (IllegalArgumentException iaex) {
+            validConnectString = false;
+            message.append(iaex.getLocalizedMessage());
+        }
+        if (validConnectString) {
+            try {
+                if (builtIn) {
+                    PasswdEntry entry = new PasswdEntry();
+                    String scrambledPassword = StandardScrambler.getInstance().scramble(password);
+                    entry.setEntry(connectStr+" "+scrambledPassword);
+                    if (port > 0) entry.getCVSRoot().setPort(port);
+                    loggedIn = pasFile.checkServer(entry);
+                    if (loggedIn) {
+                        pasFile.add(connectStr, port, password);
+                        pasFile.savePassFile();
+                    }
+                } else {
+                    //System.out.println("Adding '"+connectStr+"' with password '"+password+"' into "+pasFile.getHome()+"/.cvspass");
                     pasFile.add(connectStr, port, password);
                     pasFile.savePassFile();
+                    loggedIn = CVSPasswd.checkLogin(context, message);
                 }
-            } else {
-                //System.out.println("Adding '"+connectStr+"' with password '"+password+"' into "+pasFile.getHome()+"/.cvspass");
-                pasFile.add(connectStr, port, password);
-                pasFile.savePassFile();
-                loggedIn = CVSPasswd.checkLogin(fileSystem, message);
-            }
-        } catch (java.net.UnknownHostException exc) {
-            if (loginPanel != null) {
-                /*
-                DialogDisplayer.getDefault().notify(
-                    new NotifyDescriptor.Message(
-                        org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.unknownHost")));
-                 */
-                loginPanel.loginFinished(org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.unknownHost"));
-            } else {
-                stderrNRListener.outputLine(
-                    org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.unknownHost"));
-            }
-            vars.put("USER_IS_LOGGED_IN", "");
-            vars.put(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_UPDATE_CHANGED_FROM_SELECTOR, "true");
-            return false;
-        } catch (java.io.IOException exc) {
-            if (loginPanel != null) {
-                /*
-                DialogDisplayer.getDefault().notify(
-                    new NotifyDescriptor.Message(
-                        org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.connectionIOError")));
-                 */
-                loginPanel.loginFinished(org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.connectionIOError"));
-            } else {
-                stderrNRListener.outputLine(
-                    org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.connectionIOError"));
-            }
-            vars.put("USER_IS_LOGGED_IN", "");
-            vars.put(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_UPDATE_CHANGED_FROM_SELECTOR, "true");
-            return false;
-        } finally {
-            if (!loggedIn && !builtIn) {
-                pasFile.remove(connectStr, port);
-                pasFile.savePassFile();
+            } catch (java.net.UnknownHostException exc) {
+                if (loginPanel != null) {
+                    /*
+                    DialogDisplayer.getDefault().notify(
+                        new NotifyDescriptor.Message(
+                            org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.unknownHost")));
+                     */
+                    loginPanel.loginFinished(org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.unknownHost"));
+                } else {
+                    stderrNRListener.outputLine(
+                        org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.unknownHost"));
+                }
+                vars.put("USER_IS_LOGGED_IN", "");
+                vars.put(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_UPDATE_CHANGED_FROM_SELECTOR, "true");
+                return false;
+            } catch (java.io.IOException exc) {
+                if (loginPanel != null) {
+                    /*
+                    DialogDisplayer.getDefault().notify(
+                        new NotifyDescriptor.Message(
+                            org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.connectionIOError")));
+                     */
+                    loginPanel.loginFinished(org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.connectionIOError"));
+                } else {
+                    stderrNRListener.outputLine(
+                        org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.connectionIOError"));
+                }
+                vars.put("USER_IS_LOGGED_IN", "");
+                vars.put(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_UPDATE_CHANGED_FROM_SELECTOR, "true");
+                return false;
+            } finally {
+                if (!loggedIn && !builtIn) {
+                    pasFile.remove(connectStr, port);
+                    pasFile.savePassFile();
+                }
             }
         }
         if (!loggedIn) {

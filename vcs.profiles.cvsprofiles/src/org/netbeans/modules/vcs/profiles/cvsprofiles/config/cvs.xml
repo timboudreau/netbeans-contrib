@@ -3035,7 +3035,7 @@ Microsystems, Inc. All Rights Reserved.
       </command> 
       <command name="CONNECTION_LOGIN">
         <property name="exec">
-          <value>vcs.commands.CvsLoginGlobalCheck.class -gui "${CVSROOT}" "${PASSWORD}"</value>
+          <value>vcs.commands.CvsLoginCheck.class -gui "${CVSROOT}" "${PASSWORD}"</value>
         </property>
         <property name="ignoreFail">
           <value>true</value>

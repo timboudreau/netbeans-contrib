@@ -205,7 +205,12 @@ public class LoginPanel extends javax.swing.JPanel {
                         pasFile.loadPassFile();
                         password = new String(passwordField.getPassword());
                         //entry = new PasswdEntry();
-                        pasFile.remove(connectStr, port);
+                        try {
+                            pasFile.remove(connectStr, port);
+                        } catch (IllegalArgumentException iaex) {
+                            setStatus(iaex.getLocalizedMessage());
+                            return;
+                        }
                         pasFile.add(connectStr, port, password); //CVSPasswd.scramble(password));
                         pasFile.savePassFile();
                         //boolean setRight = entry.setEntry(connectStr + " " + CVSPasswd.scramble(password));
@@ -246,6 +251,9 @@ public class LoginPanel extends javax.swing.JPanel {
         } catch (java.io.IOException exc) {
             setStatus(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.connectionIOError"));
             return;
+        } catch (IllegalArgumentException iaex) {
+            setStatus(iaex.getLocalizedMessage());
+            return ;
         } finally {
             passwordField.setEnabled(true);
             loginButton.setEnabled(true);

@@ -224,7 +224,7 @@ public class CVSPasswd extends Object {
     /**
      * Remove the entry from the current set of entries.
      */
-    public void remove(String entry, int port) {
+    public void remove(String entry, int port) throws IllegalArgumentException {
         PasswdEntry ent = find(entry, port);
         if (ent != null) {
             entries.remove(ent);
@@ -243,7 +243,7 @@ public class CVSPasswd extends Object {
  * @return the found PasswdEntry, or if not found null.
  * @param current The current cvs root directory
  */
-    public PasswdEntry find(String current, int port) {
+    public PasswdEntry find(String current, int port) throws IllegalArgumentException {
       CVSRoot currentRootWithPort = CVSRoot.parse(current);
       if (port > 0) currentRootWithPort.setPort(port);
       if (currentRootWithPort.getPort() == 0) currentRootWithPort.setPort(STANDARD_PSERVER_PORT);
