@@ -159,7 +159,7 @@ public class VariableInputDescriptor extends Object {
             inputStr = getVarConditions(inputStr, varConditions);
             int inputId = getInputId(inputStr);
             String inputArg = inputItems.substring(begin + 1, end);
-            String[] inputArgs = VcsUtilities.getQuotedStrings(inputArg);
+            String[] inputArgs = VcsUtilities.getQuotedStringsWithPairedCharacters(inputArg, INPUT_STR_ARG_OPEN, INPUT_STR_ARG_CLOSE);
             //System.out.println("parseItems: "+inputStr+": "+inputArg);
             if (inputId == INPUT_LABEL && inputArgs.length > 0) {
                 descriptor.label = VcsUtilities.getBundleString(inputArgs[0]);
@@ -493,7 +493,7 @@ public class VariableInputDescriptor extends Object {
                 subId = INPUT_COMBO_ITEM;
             }
             for (int i = 0; i < inputSelectArgs.length; i++) {
-                VariableInputComponent subComponent = parseComponent(subId, VcsUtilities.getQuotedStrings(inputSelectArgs[i]), inputSelectArgs[i]);
+                VariableInputComponent subComponent = parseComponent(subId, VcsUtilities.getQuotedStringsWithPairedCharacters(inputSelectArgs[i], INPUT_STR_ARG_OPEN, INPUT_STR_ARG_CLOSE), inputSelectArgs[i]);
                 component.addSubComponent(subComponent);
             }
         }

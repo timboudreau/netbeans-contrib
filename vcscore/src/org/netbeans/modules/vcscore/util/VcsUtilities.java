@@ -274,7 +274,8 @@ public class VcsUtilities {
     }
     
     /**
-     * Get the quoted string.
+     * Get the quoted string. Starts at pos[0], after return, pos[0] points to
+     * the beginning of the next string.
      * @return the string inside of quotation marks or null when no string found.
      */
     private static String getQuotedString(String str, int[] pos) {
@@ -311,6 +312,60 @@ public class VcsUtilities {
             while(index[0] < str.length() && str.charAt(index[0]) != ',') index[0]++;
             index[0]++;
             element = VcsUtilities.getQuotedString(str, index);
+        }
+        //String element = str.substring(index, end);
+        return (String[]) list.toArray(new String[0]);
+    }
+    
+    /**
+     * Get a quoted string, while taking paired characters into account.
+     */
+    private static String getQuotedStringWithPairedCharacters(String str, int[] index, char p1, char p2) {
+        int begin = index[0];
+        String element = VcsUtilities.getQuotedString(str, index);
+        if (element == null) {
+            return null;
+        }
+        int charIndex = str.indexOf(p1, begin);
+        while (charIndex >= 0 && charIndex < index[0]) {
+            int pairedIndx = VcsUtilities.getPairIndex(str, charIndex + 1, p1, p2);
+            while (pairedIndx >= index[0]) {
+                while(index[0] < str.length() && str.charAt(index[0]) != ',') {
+                    element += str.charAt(index[0]);
+                    index[0]++;
+                }
+                element += str.charAt(index[0]);
+                index[0]++;
+                while(index[0] < str.length() && Character.isWhitespace(str.charAt(index[0]))) {
+                    element += str.charAt(index[0]);
+                    index[0]++;
+                }
+                element = element + VcsUtilities.getQuotedString(str, index);
+            }
+            if (pairedIndx > 0) {
+                charIndex = str.indexOf(p1, pairedIndx);
+            } else {
+                break;
+            }
+        }
+        return element;
+    }
+    
+    /**
+     * Converts a String of quoted values delimited by commas to an array of String values.
+     * If the values are not quoted, only commas works as delimeters.
+     * It also takes into account paired characters, all returned strings have
+     * correctly paired characters.
+     */
+    public static String[] getQuotedStringsWithPairedCharacters(String str, char p1, char p2) {
+        LinkedList list = new LinkedList();
+        int[] index = new int[] { 0 };
+        String element = VcsUtilities.getQuotedStringWithPairedCharacters(str, index, p1, p2);
+        while(element != null) {
+            list.add(element);
+            while(index[0] < str.length() && str.charAt(index[0]) != ',') index[0]++;
+            index[0]++;
+            element = VcsUtilities.getQuotedStringWithPairedCharacters(str, index, p1, p2);
         }
         //String element = str.substring(index, end);
         return (String[]) list.toArray(new String[0]);
