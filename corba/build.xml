@@ -36,6 +36,8 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot}/editor/netbeans/modules/ext/nb-editor.jar"/>
 	<pathelement location="compiletime/idlj.jar"/>
 	<pathelement location="compiletime/corbanscs.jar"/>
+	<pathelement location="compiletime/sun-tools.jar"/>
+	<pathelement location="compiletime/ibm-tools.jar"/>
 	<pathelement location="release/lib/ext/corbaext.jar"/>
 	<pathelement location="release/lib/ext/idlcompilers.jar"/>
 	<pathelement location="${nbroot}/core/netbeans/lib/core.jar"/>
@@ -46,6 +48,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="jars" depends="compile">
     <mkdir dir="netbeans/modules"/>
+    <mkdir dir='netbeans/lib/ext'/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     <locjar jarfile="netbeans/modules/corba.jar"
@@ -57,7 +60,16 @@ Microsystems, Inc. All Rights Reserved.
       <branding name="f4j"/>
       <branding name="f4j_ce"/>
       <branding name="f4j_ie"/>
-    </locjar>	 
+    </locjar>
+    <jar jarfile="netbeans/lib/ext/idlcompilers.jar" compress="false">
+      <fileset dir="src">
+	<include name="org/netbeans/modules/corba/idl/compiler/j2ee/Compiler.class"/>
+	<include name="org/netbeans/modules/corba/idl/compiler/jdk13/Compiler.class"/>
+	<include name="org/netbeans/modules/corba/idl/compiler/jdk13ibm/Compiler.class"/>
+	<include name="org/netbeans/modules/corba/idl/compiler/jdk13sun/Compiler.class"/>
+	<include name="org/netbeans/modules/corba/idl/compiler/orbix32/Compiler.class"/>
+      </fileset>
+    </jar>
   </target>
 
   <target name="release">
@@ -77,7 +89,7 @@ Microsystems, Inc. All Rights Reserved.
 	     distribution="http://${dist.base}/corba.nbm" >
       <license file="${f4jroot}/core/release/LICENSE.txt" />
       <description>
-        Corba ...
+        CORBA ...
       </description>
       <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
     </makenbm>
@@ -92,7 +104,7 @@ Microsystems, Inc. All Rights Reserved.
       </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
-    <delete file="applet.nbm"/>
+    <delete file="corba.nbm"/>
     <delete dir="netbeans"/>    
     <delete dir="Info"/>
   </target>
