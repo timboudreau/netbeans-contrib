@@ -14,9 +14,11 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="clazz" default="nbm" basedir=".">
   <target name="compile">
-    <javac srcdir="src"
-           destdir="src"
-           classpath="../openide/netbeans/lib/openide.jar"/>
+    <javac srcdir="src" destdir="src">
+      <classpath>
+        <pathelement location="../openide/netbeans/lib/openide.jar"/>
+      </classpath>
+    </javac>
   </target>
   <target name="jars" depends="compile">
     <mkdir dir="netbeans/modules"/>
@@ -27,8 +29,6 @@ Microsystems, Inc. All Rights Reserved.
 	 compress="false"/>
   </target>
   <target name="nbm" depends="jars">
-    <zip zipfile="clazz.nbm"
-         includes="netbeans/"
-	 basedir="."/>
+    <zip zipfile="clazz.nbm" includes="netbeans/" basedir="."/>
   </target>
 </project>
