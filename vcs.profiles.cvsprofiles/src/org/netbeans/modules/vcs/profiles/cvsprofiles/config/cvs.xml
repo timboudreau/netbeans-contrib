@@ -2690,6 +2690,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     -->
 
+    
     <command name="AUTO_FILL_CONFIG">
       <property name="exec">
         <value>vcs.commands.CvsAutoFillConfig.class</value>
@@ -2786,7 +2787,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Label)))
-                 
+                 AUTO_FILL_VARS("ROOTDIR,AUTO_FILL_GLOBAL_CONFIG")
                  PROMPT_FOR(ROOTDIR, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INPUT_WORKING_DIR)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_INPUT_WORKING_DIR);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INPUT_WORKING_DIR_Mnemonic)),
                             SELECTOR_DIR)
@@ -2820,6 +2821,17 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>
+      </command>
+      <command name="AUTO_FILL_GLOBAL_CONFIG">
+        <property name="exec">
+          <value>vcs.commands.CvsAutoFillGlobalConfig.class</value>
+        </property>
+        <property name="executionPriority">
+          <value>1</value> <!-- HIGH PRIORITY -->
+        </property>
+        <property name="ignoreFail">
           <value>true</value>
         </property>
       </command>
