@@ -41,10 +41,6 @@ public class VcsManagerAction extends CallableSystemAction {
         return NbBundle.getBundle (VcsManagerAction.class).getString ("CTL_VcsManagerActionName");
     }
 
-    /** Returns the popup presenter in order not to show the icon and align to the left. */
-    public javax.swing.JMenuItem getMenuPresenter() {
-        return getPopupPresenter();
-    }
     /** The action's icon location.
      * @return the action's icon location
      *
