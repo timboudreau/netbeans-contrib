@@ -92,6 +92,28 @@ Microsystems, Inc. All Rights Reserved.
     
     <separator />
     
+    <command name="CHECK_STATUS" displayName="Check Status">
+      <property name="exec">
+	<value>org.netbeans.modules.vcs.profiles.testprofiles.commands.CheckCachedStatus.class</value>
+      </property>
+    </command>
+    
+    <separator />
+    
+    <!-- IMPORT is a global command only
+    <command name="IMPORT" displayName="Import">
+      <property name="exec">
+	<value>org.netbeans.modules.vcs.profiles.testprofiles.commands.ImportToXML.class</value>
+      </property>
+      <property name="refreshParentFolder">
+        <value>true</value>
+      </property>
+      <property name="refreshRecursivelyPatternMatched">
+        <value>ImportToXML</value>
+      </property>
+    </command>
+    -->
+    
     <command name="CHECKOUT" displayName="Check Out">
       <property name="exec">
 	<value>org.netbeans.modules.vcs.profiles.testprofiles.commands.CheckOutFromXML.class</value>
@@ -106,5 +128,25 @@ Microsystems, Inc. All Rights Reserved.
     
     </command>
   </commands>
+  
+  <globalCommands>
+    <command name="ROOT" displayName="Test">
+    
+    <command name="IMPORT" displayName="Import">
+      <property name="exec">
+	<value>org.netbeans.modules.vcs.profiles.testprofiles.commands.ImportToXML.class</value>
+      </property>
+      <property name="inputDescriptor">
+        <value>
+        LABEL(Import)
+        PROMPT_FOR(ROOTDIR, "Directory To Import:", "", VALIDATOR_NON_EMPTY, SELECTOR_DIR)
+        PROMPT_FOR(XML_FS, "XML Filesystem File:", "", VALIDATOR_NON_EMPTY)
+        </value>
+      </property>
+    </command>
+    
+    </command>
+  </globalCommands>
+  
 </configuration>
 

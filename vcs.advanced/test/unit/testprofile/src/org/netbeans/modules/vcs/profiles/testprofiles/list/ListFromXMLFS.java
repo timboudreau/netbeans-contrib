@@ -23,7 +23,7 @@ import java.util.Hashtable;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.caching.VcsCacheFile;
+import org.netbeans.modules.vcscore.cache.impl.VcsCacheFile;
 import org.netbeans.modules.vcscore.caching.CacheStatuses;
 import org.netbeans.modules.vcscore.cmdline.VcsListCommand;
 import org.netbeans.modules.vcscore.util.*;
@@ -38,7 +38,20 @@ import org.xml.sax.SAXException;
 
 public class ListFromXMLFS extends VcsListCommand {
     
+    private static XMLFileSystem lastXMLFS;
+    private static String lastXML;
+    private static long lastXMLModif;
+    
     public ListFromXMLFS() {
+    }
+    
+    private static synchronized XMLFileSystem getXMLFileSystem(String xml) throws SAXException {
+        if (!xml.equals(lastXML) || !(lastXMLModif == new File(xml).lastModified())) {
+            lastXMLModif = new File(xml).lastModified();
+            lastXML = xml;
+            lastXMLFS = new XMLFileSystem(xml);
+        }
+        return lastXMLFS;
     }
     
     /**
@@ -63,7 +76,7 @@ public class ListFromXMLFS extends VcsListCommand {
         String xml = (String) vars.get("XML_FS");
         XMLFileSystem xmlFS;
         try {
-            xmlFS = new XMLFileSystem(xml);
+            xmlFS = getXMLFileSystem(xml);
         } catch (SAXException sex) {
             stderrNRListener.outputLine(sex.getLocalizedMessage());
             return false;
@@ -100,7 +113,7 @@ public class ListFromXMLFS extends VcsListCommand {
         for (int i = 0; i < children.length; i++) {
             FileObject ch = children[i];
             String name = ch.getNameExt();
-            String status;// = (String) ch.getAttribute("status");
+            //String status;// = (String) ch.getAttribute("status");
             String locker = (String) ch.getAttribute("locker");
             String revision = (String) ch.getAttribute("revision");
             String sticky = (String) ch.getAttribute("sticky");
@@ -109,58 +122,62 @@ public class ListFromXMLFS extends VcsListCommand {
             String size = (String) ch.getAttribute("size");
             String attr = (String) ch.getAttribute("attr");
             File file = new File(dirFile, name);
-            if (!file.exists()) {
-                if (ch.isData()) {
-                    status = "Needs Update";
-                } else {
-                    status = "Missing";
-                }
-            } else {
-                if (file.isFile()) {
-                    long lastModified = file.lastModified();
-                    long reposModified = 0;
-                    String dateStr;
-                    if (date != null) {
-                        if (time != null) {
-                            dateStr = date + ", " + time;
-                            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy, HH:mm:ss");
-                            ParsePosition pp = new ParsePosition(0);
-                            Date lmdate = sdf.parse(dateStr, pp);
-                            //Date lmdate = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG).parse(date);
-                            if (lmdate == null) {
-                                stderrNRListener.outputLine("Can not parse date '"+date+"', error at "+pp.getErrorIndex());
-                            } else {
-                                reposModified = lmdate.getTime();
-                            }
-                            /*
-                            try {
-                                Date lmdate = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG).parse(dateStr);
-                                reposModified = lmdate.getTime();
-                            } catch (ParseException pex) {
-                                stderrNRListener.outputLine(pex.getLocalizedMessage());
-                            }
-                             */
-                        }
-                    }
-                    if (lastModified == reposModified) {
-                        status = "Up-to-date";
-                    } else {
-                        if (lastModified < reposModified) {
-                            status = "Needs Patch";
-                        } else {
-                            status = "Locally Modified";
-                        }
-                    }
-                } else {
-                    status = "";
-                }
-            }
+            String status = getRealStatus(file, ch, stderrNRListener);
             if (ch.isFolder()) name += '/';
             String[] elements = new String[] { name, status, locker, revision, sticky, time, date, size, attr };
             stdoutListener.outputData(elements);
             filesByName.put(name, elements);
         }
         return true;
+    }
+    
+    public static final String getRealStatus(File file, FileObject fo) {
+        return getRealStatus(file, fo, null);
+    }
+    
+    private static final String getRealStatus(File file, FileObject fo, CommandOutputListener stderrNRListener) {
+        String status;
+        if (!file.exists()) {
+            if (fo.isData()) {
+                status = "Needs Update";
+            } else {
+                status = "Missing";
+            }
+        } else {
+            if (file.isFile()) {
+                String time = (String) fo.getAttribute("time");
+                String date = (String) fo.getAttribute("date");
+                long lastModified = file.lastModified();
+                long reposModified = 0;
+                String dateStr;
+                if (date != null) {
+                    if (time != null) {
+                        dateStr = date + ", " + time;
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy, HH:mm:ss");
+                        ParsePosition pp = new ParsePosition(0);
+                        Date lmdate = sdf.parse(dateStr, pp);
+                        //Date lmdate = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG).parse(date);
+                        if (lmdate == null) {
+                            stderrNRListener.outputLine("Can not parse date '"+date+"', error at "+pp.getErrorIndex());
+                        } else {
+                            reposModified = lmdate.getTime();
+                        }
+                    }
+                }
+                if (lastModified == reposModified) {
+                    status = "Up-to-date";
+                } else {
+                    if (lastModified < reposModified) {
+                        status = "Needs Patch";
+                    } else {
+                        status = "Locally Modified";
+                    }
+                }
+            } else {
+                status = "";
+            }
+        }
+        return status;
     }
     
     public boolean list_XMLOnly(Hashtable vars, String[] args, Hashtable filesByName,

@@ -40,5 +40,10 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="config">
       &includefiles_config;
     </folder>
+    <folder name="versioningMenu">
+      <file name="testprofile.xml" displayName="Test">
+         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.profiles.testprofiles.Bundle" />
+      </file>
+    </folder>
   </folder>
 </filesystem>
