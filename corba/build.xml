@@ -132,6 +132,8 @@ Microsystems, Inc. All Rights Reserved.
 	<fileset dir="javahelp" excludesfile="${nbext}/standard-jar-excludes.txt"/>
 	<locale name="ja"/>
     </locjar>
+    <delete dir="javahelp/org/netbeans/modules/corba/docs/JavaHelpSearch"/>
+    <delete dir="javahelp/org/netbeans/modules/corba/docs/ja/JavaHelpSearch"/>
   </target>
 
 <!-- TODO:-->
