@@ -314,7 +314,6 @@ public class CommandExecutorSupport extends Object {
             if (!fileSystem.isImportant(name)) {
                 if (statusProvider != null) {
                     String status = statusProvider.getFileStatus(name);
-                    System.out.println("deleteUnimportantFiles(): "+name+": "+status);
                     // Do not delete unimportant files, that are version controled.
                     if (!(localFileStatus.equals(status) || ignoredFileStatus.equals(status))) continue;
                 }
