@@ -125,6 +125,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private int promptAreaNum = 0;
     
     private HashMap awtComponentsByVars = new HashMap();
+    private Map varsByAWTComponents;
     private HashMap componentsByVars = new HashMap();
     private HashMap awtSelectorsByConditions = new HashMap();
     /** The map of disabled components as keys and a set of variables
@@ -590,6 +591,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 }
             }
         }
+        varsByAWTComponents = createVarsByAWTComponents(awtComponentsByVars);
         labelOffset = gridy;
         return firstComponent;
     }
@@ -665,6 +667,18 @@ public class VariableInputDialog extends javax.swing.JPanel {
         return gridy;
     }
     
+    private static Map createVarsByAWTComponents(Map awtComponentsByVars) {
+        Map varsByAWTComponents = new HashMap();
+        for (Iterator it = awtComponentsByVars.keySet().iterator(); it.hasNext(); ) {
+            String varName = (String) it.next();
+            java.awt.Component[] components = (java.awt.Component[]) awtComponentsByVars.get(varName);
+            for (int i = 0; i < components.length; i++) {
+                varsByAWTComponents.put(components[i], varName);
+            }
+        }
+        return varsByAWTComponents;
+    }
+    
     /**
      * Test if the input is valid and warn the user if it is not.
      * @return true if the input is valid, false otherwise
@@ -675,7 +689,21 @@ public class VariableInputDialog extends javax.swing.JPanel {
             FocusListener fl = (FocusListener) flIt.next();
             fl.focusLost(null);
         }
-        VariableInputValidator validator = inputDescriptor.validate();
+        VariableInputValidator validator = null;
+        Set disabledVIComponents = new HashSet();
+        for (Iterator it = disabledComponents.keySet().iterator(); it.hasNext(); ) {
+            String varName = (String) varsByAWTComponents.get(it.next());
+            disabledVIComponents.add(componentsByVars.get(varName));
+        }
+        for (Iterator it = componentsByVars.values().iterator(); it.hasNext(); ) {
+            VariableInputComponent component = (VariableInputComponent) it.next();
+            if (disabledVIComponents.contains(component)) continue;
+            validator = component.validate();
+            if (!validator.isValid()) break;
+        }
+        if (validator == null) {
+            validator = new VariableInputValidator(null, null);
+        }
         boolean valid = validator.isValid();
         if (!valid) {
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(validator.getMessage(), NotifyDescriptor.Message.WARNING_MESSAGE));
