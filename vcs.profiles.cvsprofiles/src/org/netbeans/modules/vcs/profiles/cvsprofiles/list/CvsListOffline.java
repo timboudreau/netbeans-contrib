@@ -35,6 +35,8 @@ public class CvsListOffline extends VcsListCommand {
 
     static final String CVS_DIRNAME = "CVS"; // NOI18N
     static final String[] CVS_DIRCONTENT = {"Entries", "Repository", "Root"}; // NOI18N
+    
+    private static final String ENTRIES_LOG = "Entries.Log"; // NOI18N
 
     private static final String DUMMY_TIMESTAMP = "dummy timestamp"; //NOI18N
 
@@ -243,8 +245,7 @@ public class CvsListOffline extends VcsListCommand {
      */
     public static List loadEntries(File entries) {
         ArrayList entriesFiles = new ArrayList();
-        if (entries.exists() && entries.canRead() && entries.canWrite()) {
-            int fileIndex = -1;
+        if (entries.exists() && entries.canRead()) {
             BufferedReader reader = null;
             try {
                 reader = new BufferedReader(new FileReader(entries));
@@ -264,6 +265,32 @@ public class CvsListOffline extends VcsListCommand {
                 try {
                     if (reader != null) reader.close();
                 } catch (IOException exc) {}
+            }
+        }
+        File folder = entries.getParentFile();
+        if (folder != null) {
+            File log = new File(folder, ENTRIES_LOG);
+            if (log.exists() && log.canRead()) {
+                BufferedReader reader = null;
+                try {
+                    reader = new BufferedReader(new FileReader(log));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (line.startsWith("A /")) {
+                            entriesFiles.add(line.substring(2));
+                        } else if (line.startsWith("R /")) {
+                            entriesFiles.remove(line.substring(2));
+                        }
+                    }
+                } catch (FileNotFoundException fnfExc) {
+                    // ignore
+                } catch (IOException ioExc) {
+                    // ignore
+                } finally {
+                    try {
+                        if (reader != null) reader.close();
+                    } catch (IOException exc) {}
+                }
             }
         }
         return entriesFiles;
