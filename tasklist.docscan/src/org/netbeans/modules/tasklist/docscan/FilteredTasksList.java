@@ -116,6 +116,7 @@ final class FilteredTasksList implements ObservableList {
     }
 
     private void refreshSnapshot() {
+        if (root == null) return;
         root.clear();
         loadSourceTasks(peer.getRoot());
     }

@@ -264,7 +264,7 @@ public final class Bug extends Task {
         if (hasSubtasks()) {
             return new Node[]{new BugNode(this, subtasksIterator())};
         } else {
-            return new Line[]{new BugNode(this)};
+            return new Node[]{new BugNode(this)};
         }
     }
 
