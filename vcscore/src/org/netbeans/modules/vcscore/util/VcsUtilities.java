@@ -633,18 +633,7 @@ public class VcsUtilities {
      */
     public static ArrayList reorderFileObjects(Collection fos) {
         ArrayList list = new ArrayList();
-        TreeSet secondaries = new TreeSet(new Comparator() {
-            public int compare(Object o1, Object o2) {
-                if (o1 instanceof FileObject && o2 instanceof FileObject) {
-                    return ((FileObject) o1).getNameExt().compareTo(((FileObject) o2).getNameExt());
-                } else {
-                    return 0;
-                }
-            }
-            public boolean equals(Object o) {
-                return false;
-            }
-        });
+        TreeSet secondaries = new TreeSet(new FileObjectNameComparator());
         FileObject primary = null;
         DataObject lastData = null;
         for (Iterator it = fos.iterator(); it.hasNext(); ) {
@@ -803,4 +792,20 @@ public class VcsUtilities {
         }
     }
 
+    /**
+     * Comparator of FileObjects' names.
+     */
+    public static class FileObjectNameComparator extends Object implements Comparator {
+        public int compare(Object o1, Object o2) {
+            if (o1 instanceof FileObject && o2 instanceof FileObject) {
+                return ((FileObject) o1).getNameExt().compareTo(((FileObject) o2).getNameExt());
+            } else {
+                return 0;
+            }
+        }
+        public boolean equals(Object o) {
+            return false;
+        }
+    }
+    
 }
