@@ -268,7 +268,7 @@ public class AnnotatePanel extends javax.swing.JPanel {
       // linenum
       TableCellRenderer colorRenderer = new ColoringUpdateRenderer();
       TableColumn col = new TableColumn();
-      col.setIdentifier("LineNum");
+      col.setIdentifier("LineNum"); //NOI18N
       col.setModelIndex(0);
       col.setHeaderValue(NbBundle.getBundle(AnnotatePanel.class).getString("AnnotateInfoPanel.LineNumColumn"));
       col.setMaxWidth(100);
@@ -278,7 +278,7 @@ public class AnnotatePanel extends javax.swing.JPanel {
       model.addColumn(col);
       // revision
       col = new TableColumn();
-      col.setIdentifier("Revision");
+      col.setIdentifier("Revision"); //NOI18N
       col.setModelIndex(1);
       col.setHeaderValue(NbBundle.getBundle(AnnotatePanel.class).getString("AnnotateInfoPanel.RevisionColumn"));
       col.setMaxWidth(100);
@@ -288,7 +288,7 @@ public class AnnotatePanel extends javax.swing.JPanel {
       model.addColumn(col);
       // author
       col = new TableColumn();
-      col.setIdentifier("Author");
+      col.setIdentifier("Author"); //NOI18N
       col.setModelIndex(2);
       col.setHeaderValue(NbBundle.getBundle(AnnotatePanel.class).getString("AnnotateInfoPanel.AuthorColumn"));
       col.setMaxWidth(150);
@@ -298,7 +298,7 @@ public class AnnotatePanel extends javax.swing.JPanel {
       model.addColumn(col);
       // date
       col = new TableColumn();
-      col.setIdentifier("Date");
+      col.setIdentifier("Date"); //NOI18N
       col.setModelIndex(3);
       col.setHeaderValue(NbBundle.getBundle(AnnotatePanel.class).getString("AnnotateInfoPanel.DateColumn"));
       col.setMaxWidth(120);
@@ -308,7 +308,7 @@ public class AnnotatePanel extends javax.swing.JPanel {
       model.addColumn(col);
       // message
       col = new TableColumn();
-      col.setIdentifier("Text");
+      col.setIdentifier("Text"); //NOI18N
       col.setModelIndex(4);
       col.setHeaderValue(NbBundle.getBundle(AnnotatePanel.class).getString("AnnotateInfoPanel.TextColumn"));
       col.setMaxWidth(500);

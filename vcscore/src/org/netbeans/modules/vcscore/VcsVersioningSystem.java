@@ -75,9 +75,9 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     /** Holds value of property messageLength. */
     private int messageLength = 20;    
     
-    public static final String PROP_SHOW_DEAD_FILES = "showDeadFiles";
-    public static final String PROP_SHOW_MESSAGES = "showMessages";
-    public static final String PROP_MESSAGE_LENGTH = "messageLength";
+    public static final String PROP_SHOW_DEAD_FILES = "showDeadFiles"; //NOI18N
+    public static final String PROP_SHOW_MESSAGES = "showMessages"; //NOI18N
+    public static final String PROP_MESSAGE_LENGTH = "messageLength"; //NOI18N
     
     private static final long serialVersionUID = 6349205836150345436L;
 

@@ -30,8 +30,8 @@ public class RevisionComparator implements TableInfoComparator {
     public int compare(java.lang.Object obj, java.lang.Object obj1) {
         String str1 = obj.toString();
         String str2 = obj1.toString();
-        StringTokenizer token1 = new StringTokenizer(str1, ".", false);
-        StringTokenizer token2 = new StringTokenizer(str2, ".", false);
+        StringTokenizer token1 = new StringTokenizer(str1, ".", false); //NOI18N
+        StringTokenizer token2 = new StringTokenizer(str2, ".", false); //NOI18N
         int result = 0;
         while (token1.hasMoreTokens() && token2.hasMoreTokens()) {
             try {
@@ -56,6 +56,6 @@ public class RevisionComparator implements TableInfoComparator {
         if (obj != null) {
             return obj.toString();
         }
-        return "";
+        return ""; //NOI18N
     }
 }

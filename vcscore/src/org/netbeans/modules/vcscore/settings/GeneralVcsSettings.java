@@ -40,9 +40,8 @@ public class GeneralVcsSettings extends SystemOption {
     public static final int AUTO_REFRESH_ON_RESTART = 3;
     public static final int AUTO_REFRESH_ON_MOUNT_AND_RESTART = 4;
     
-    private static final String DEFAULT_CVS_EXEC = "cvs";   // NO I18N
-    private static final String DEFAULT_SHELL_EXEC = "sh";  // NO I18N
-
+    private static final String DEFAULT_CVS_EXEC = "cvs";    //NOI18N
+    private static final String DEFAULT_SHELL_EXEC = "sh";   //NOI18N
     private static String wizardCvsCommandPath;
     
     private static String wizardShellCommandPath;
@@ -142,17 +141,17 @@ public class GeneralVcsSettings extends SystemOption {
     public void setHome(File home) {
         if (home == null) return ;
         String homepath = home.getAbsolutePath();
-        System.setProperty("Env-HOME", homepath);
-        System.setProperty("env-home", homepath.toLowerCase());
+        System.setProperty("Env-HOME", homepath); //NOI18N
+        System.setProperty("env-home", homepath.toLowerCase()); //NOI18N
         if (org.openide.util.Utilities.isWindows()) {
             int index = homepath.indexOf(':');
             if (index > 0) {
                 String homeDrive = homepath.substring(0, index + 1);
-                String homeDir = (index + 1 < homepath.length()) ? homepath.substring(index + 1) : "\\";
-                System.setProperty("Env-HOMEDRIVE", homeDrive);
-                System.setProperty("env-homedrive", homeDrive.toLowerCase());
-                System.setProperty("Env-HOMEPATH", homeDir);
-                System.setProperty("env-homepath", homeDir.toLowerCase());
+                String homeDir = (index + 1 < homepath.length()) ? homepath.substring(index + 1) : "\\"; //NOI18N
+                System.setProperty("Env-HOMEDRIVE", homeDrive); //NOI18N
+                System.setProperty("env-homedrive", homeDrive.toLowerCase()); //NOI18N
+                System.setProperty("Env-HOMEPATH", homeDir); //NOI18N
+                System.setProperty("env-homepath", homeDir.toLowerCase()); //NOI18N
             }
         }
         firePropertyChange(PROP_HOME, null, home);

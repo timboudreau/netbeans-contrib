@@ -43,90 +43,90 @@ public class VcsAttributes extends DefaultAttributes {
      * The name of attribute, that contains the java.io.File object for
      * the given FileObject
      */
-    public static final String FILE_ATTRIBUTE = "java.io.File";
+    public static final String FILE_ATTRIBUTE = "java.io.File"; //NOI18N
     /**
      * Attribute name for a VCS action.
      */
-    public static final String VCS_ACTION = "VCS_ACTION";
+    public static final String VCS_ACTION = "VCS_ACTION"; //NOI18N
     /**
      * Attribute name for the refresh action on a VCS filesystem.
      */
-    public static final String VCS_REFRESH = "VCS_REFRESH";
+    public static final String VCS_REFRESH = "VCS_REFRESH"; //NOI18N
     /**
      * Attribute name for a VCS action, that schedules the VCS operation for later processing.
      * This action should be performed on important secondary file objects.
      */
-    public static final String VCS_SCHEDULING_SECONDARY_FO_ACTION = "VCS_SCHEDULING_SECONDARY_FO_ACTION";
+    public static final String VCS_SCHEDULING_SECONDARY_FO_ACTION = "VCS_SCHEDULING_SECONDARY_FO_ACTION"; //NOI18N
     /**
      * The scheduling VCS Add action name. The file will be added to the VCS repository
      * as soon as the primary file will be committed.
      */
-    public static final String VCS_SCHEDULING_ADD = "ADD";
+    public static final String VCS_SCHEDULING_ADD = "ADD"; //NOI18N
     /**
      * The scheduling VCS Remove action name. The file will be removed from the VCS repository
      * as soon as the primary file will be committed.
      */
-    public static final String VCS_SCHEDULING_REMOVE = "REMOVE";
+    public static final String VCS_SCHEDULING_REMOVE = "REMOVE"; //NOI18N
     /**
      * The attribute name where scheduled files are stored.
      */
-    public static final String VCS_SCHEDULED_FILES_ATTR = "VCS_SCHEDULED_FILES";
+    public static final String VCS_SCHEDULED_FILES_ATTR = "VCS_SCHEDULED_FILES"; //NOI18N
     /**
      * The attribute name marking the file as scheduled for later processing.
      * The value should be {@link VCS_SCHEDULING_ADD} or {@link VCS_SCHEDULING_REMOVE}.
      */
-    public static final String VCS_SCHEDULED_FILE_ATTR = "VCS_SCHEDULED_FILE";
+    public static final String VCS_SCHEDULED_FILE_ATTR = "VCS_SCHEDULED_FILE"; //NOI18N
     /**
      * The attribute name containing the java.io.File name of the primary file,
      * that contains scheduled files. This will prevent the copy of scheduled
      * attributes to other files, because when the value of this attribue will
      * differ from the actual file path, all scheduled attribues will be deleted.
      */
-    public static final String VCS_SCHEDULING_MASTER_FILE_NAME_ATTR = "VCS_SCHEDULING_MASTER_FILE_NAME";
+    public static final String VCS_SCHEDULING_MASTER_FILE_NAME_ATTR = "VCS_SCHEDULING_MASTER_FILE_NAME"; //NOI18N
     /**
      * The VCS Add command name. This command adds the file to the VCS repository.
      */
-    public static final String VCS_ACTION_ADD = "VCS_ADD";
+    public static final String VCS_ACTION_ADD = "VCS_ADD"; //NOI18N
     /**
      * The VCS Remove command name. This command removes the file from the VCS repository.
      */
-    public static final String VCS_ACTION_REMOVE = "VCS_REMOVE";
+    public static final String VCS_ACTION_REMOVE = "VCS_REMOVE"; //NOI18N
     /**
      * This attribute is set when the action is done. The value is Boolean.TRUE
      * or Boolean.FALSE depending on the command exit status.
      */
-    public static final String VCS_ACTION_DONE = "VCS_ACTION_DONE";
+    public static final String VCS_ACTION_DONE = "VCS_ACTION_DONE"; //NOI18N
     /**
      * The description to the action. Usually it is a message, that is given to
      * the VCS command (such as a change log for check in)
      */
-    public static final String VCS_ACTION_DESCRIPTION = "VCS_ACTION_DESCRIPTION";
+    public static final String VCS_ACTION_DESCRIPTION = "VCS_ACTION_DESCRIPTION"; //NOI18N
     
     /**
      * Read the attribute of this name to obtain the VCS file status.
      */
-    public static String VCS_STATUS = "VCS_STATUS";
+    public static String VCS_STATUS = "VCS_STATUS"; //NOI18N
     /**
      * The status, that is returned from {@link readAttribute} for files,
      * that are not version controlled.
      */
-    public static String VCS_STATUS_LOCAL = "VCS_STATUS_LOCAL";
+    public static String VCS_STATUS_LOCAL = "VCS_STATUS_LOCAL"; //NOI18N
     /**
      * The status, that is returned from {@link readAttribute} for files,
      * that are present in VCS repository, but do not exist locally.
      */
-    public static String VCS_STATUS_MISSING = "VCS_STATUS_MISSING";
+    public static String VCS_STATUS_MISSING = "VCS_STATUS_MISSING"; //NOI18N
     /**
      * The status, that is returned from {@link readAttribute} for files,
      * that are version controlled and are present locally.
      */
-    public static String VCS_STATUS_UP_TO_DATE = "VCS_STATUS_UP_TO_DATE";
+    public static String VCS_STATUS_UP_TO_DATE = "VCS_STATUS_UP_TO_DATE"; //NOI18N
     /**
      * The status, that is returned from {@link readAttribute} for files,
      * that are not recognized. We can not say whether they are version controlled
      * or not.
      */
-    public static String VCS_STATUS_UNKNOWN = "VCS_STATUS_UNKNOWN";
+    public static String VCS_STATUS_UNKNOWN = "VCS_STATUS_UNKNOWN"; //NOI18N
     
     private VcsActionSupporter supporter;
         

@@ -51,8 +51,8 @@ public class ColumnSortListener extends MouseAdapter {
                     model.setDirection(true);
                     // for new column always start with Ascending
                 }
-                if (model.getDirection() == model.ASCENDING) title = title + " (+)";
-                else title = title + " (-)";
+                if (model.getDirection() == model.ASCENDING) title = title + " (+)"; //NOI18N
+                else title = title + " (-)"; //NOI18N
             }
             col.setHeaderValue(title);
         }

@@ -20,15 +20,15 @@ public class GeneralVcsSettingsNode extends AbstractNode {
 
     public GeneralVcsSettingsNode() {
         super (new Children.Array());
-        setIconBase("/org/netbeans/modules/vcscore/settings/vcsSettings");
+        setIconBase("/org/netbeans/modules/vcscore/settings/vcsSettings"); //NOI18N
         // Whatever is most relevant to a user:
         setDefaultAction (SystemAction.get (PropertiesAction.class));
         // Set FeatureDescriptor stuff:
-        setName ("General Vcs Settings"); // or, super.setName if needed
-        setDisplayName(NbBundle.getMessage(GeneralVcsSettingsNode.class, "LBL_GeneralVcsSettingsNode"));
-        setShortDescription(NbBundle.getMessage(GeneralVcsSettingsNode.class, "HINT_GeneralVcsSettingsNode"));
+        setName ("General Vcs Settings"); // or, super.setName if needed  //NOI18N
+        setDisplayName(NbBundle.getMessage(GeneralVcsSettingsNode.class, "LBL_GeneralVcsSettingsNode")); //NOI18N
+        setShortDescription(NbBundle.getMessage(GeneralVcsSettingsNode.class, "HINT_GeneralVcsSettingsNode")); //NOI18N
         FileSystem defFs = TopManager.getDefault().getRepository().getDefaultFileSystem();
-        FileObject fo = defFs.findResource("Services/Hidden/VersionControl");
+        FileObject fo = defFs.findResource("Services/Hidden/VersionControl"); //NOI18N
         if (fo != null) {
             DataObject dobj;
             try {
@@ -118,7 +118,7 @@ public class GeneralVcsSettingsNode extends AbstractNode {
     
     private void putProperties(Sheet.Set props) {
         FileSystem defFs = TopManager.getDefault().getRepository().getDefaultFileSystem();
-        FileObject fo = defFs.findResource("Services/Hidden/org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings");
+        FileObject fo = defFs.findResource("Services/Hidden/org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings"); //NOI18N
         if (fo != null) {
             DataObject dobj;
             try {
