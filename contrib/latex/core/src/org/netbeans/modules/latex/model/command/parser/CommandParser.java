@@ -23,8 +23,6 @@ import java.util.Map;
 import javax.swing.text.AbstractDocument;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.latex.editor.TexLanguage;
-import org.netbeans.modules.latex.editor.TokenAttributes;
-import org.netbeans.modules.latex.editor.TokenAttributesNames;
 import org.netbeans.modules.latex.model.Utilities;
 
 import org.netbeans.modules.latex.model.command.ArgumentNode;
