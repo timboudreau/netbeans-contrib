@@ -843,7 +843,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private void allProfilesCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allProfilesCheckBoxActionPerformed
         // Add your handling code here:
-        updateConfigurations();
+        if (!updateConfigurations() && allProfilesCheckBox.isSelected()) {
+            NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation(g("DLG_DiscardAndShowCurrentOS"), NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
+            if (NotifyDescriptor.Confirmation.OK_OPTION.equals(TopManager.getDefault().notify(nd))) {
+                fileSystem.setConfig(null);
+                promptForConfigComboChange = false;
+                updateConfigurations();
+                configCombo.setSelectedIndex(0);
+            } else {
+                allProfilesCheckBox.doClick(); // return to the previous state
+            }
+        }
     }//GEN-LAST:event_allProfilesCheckBoxActionPerformed
 
     private void promptEditTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_promptEditTextFieldFocusLost
@@ -1468,15 +1478,21 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if(!label.equals (fileSystem.getConfig ())) {
             Vector variables = cache.getProfileVariables(label);//(Vector) configVariablesByLabel.get(label);
             Node commands = (Node) cache.getProfileCommands(label);//configAdvancedByLabel.get(label);
-            if (variables == null || commands == null) return ;
-            fileSystem.setVariables(variables);
-            fileSystem.setCommands(commands);
-            fileSystem.setConfig(label);
-            fileSystem.setConfigFileName(cache.getProfileName(label));//(String) configNamesByLabel.get(label));
-            fileSystem.setCompatibleOSs(cache.getProfileCompatibleOSs(label));
-            fileSystem.setUncompatibleOSs(cache.getProfileUncompatibleOSs(label));
-            String autoFillVarsStr = (String) fileSystem.getVariablesAsHashtable().get(VAR_AUTO_FILL);
-            if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
+            if (variables != null && commands != null) {
+                fileSystem.setVariables(variables);
+                fileSystem.setCommands(commands);
+                fileSystem.setConfig(label);
+                fileSystem.setConfigFileName(cache.getProfileName(label));//(String) configNamesByLabel.get(label));
+                fileSystem.setCompatibleOSs(cache.getProfileCompatibleOSs(label));
+                fileSystem.setUncompatibleOSs(cache.getProfileUncompatibleOSs(label));
+                String autoFillVarsStr = (String) fileSystem.getVariablesAsHashtable().get(VAR_AUTO_FILL);
+                if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
+                else autoFillVars.clear();
+            } else {
+                fileSystem.setVariables(new Vector());
+                fileSystem.setCommands(new VcsCommandNode(true, null));
+                autoFillVars.clear();
+            }
         }
         initAdditionalComponents ();
     }
@@ -1824,9 +1840,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
      */
     
     /**
-    * Read configurations from disk.
-    */
-    private void updateConfigurations(){
+     * Read configurations from disk.
+     * @return true, when the selected configuration is successfully loaded,
+     *         false otherwise.
+     */
+    private boolean updateConfigurations(){
         if (configCombo.getItemCount() > 0) {
             configCombo.removeAllItems();
         }
@@ -1870,6 +1888,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             configCombo.setSelectedIndex( newIndex );
         }
         promptForConfigComboChange = true;
+        return (selectedConfig == null || configCombo.getItemCount() > 0 && newIndex >= 0);
         //System.out.println("updateConfigurations() finished, promptForConfigComboChange = "+promptForConfigComboChange);
         //if (newIndex >= 0) promptForConfigComboChange = false;
     }
