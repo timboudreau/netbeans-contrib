@@ -54,7 +54,7 @@ Microsystems, Inc. All Rights Reserved.
                     <value>-1</value>
                 </property>
                 <property name="exec">
-                    <value>org.netbeans.modules.vcs.profiles.clearcase.list.ClearCaseListCommand.class ${RUN} ${ClearCaseCMD} ls ${NUR}</value>
+                    <value>org.netbeans.modules.vcs.profiles.clearcase.list.ClearCaseListCommand.class LIST_CMD</value>
                 </property>
                 <property name="data.date.index">
                     <value>-1</value>
@@ -79,6 +79,11 @@ Microsystems, Inc. All Rights Reserved.
                 </property>
                 <property name="error.regex">
                     <value>(.*$)</value>
+                </property>
+            </command>
+            <command name="LIST_CMD">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} ls ${NUR}</value>
                 </property>
             </command>
             <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Refresh_Recursively)" name="LIST_SUB">

@@ -98,10 +98,14 @@ public class ClearCaseListCommand extends AbstractListCommand
         this.dataRegex = dataRegex;
         this.errorRegex = errorRegex;
         this.filesByName = filesByName;
+        if (args.length < 1) {
+            stderrNRListener.outputLine("Expecting a command name as an argument!"); //NOI18N
+            return false;
+        }
         initVars(vars);
         initDir(vars);
         try {
-            runCommand(vars, args, false);
+            runCommand(vars, args[0], false);
         } catch (InterruptedException iex) {
             return false;
         }
