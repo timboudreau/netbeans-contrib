@@ -14,7 +14,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <mconfig name="qa-functional tests config">
     
-    <testbag testattribs="all,stable" name="cvs_profile">
+    <testbag testattribs="validation, full" name="cvs_profile">
         <testset dir="qa-functional/src">
             <patternset>
 		<include name="complete/cvs_profile/Overall.class"/>
@@ -23,7 +23,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="all,stable" name="common_functionality">
+    <testbag testattribs="validation, full" name="common_functionality">
         <testset dir="qa-functional/src">
             <patternset>
     		<include name="complete/common/Availability.class"/>
