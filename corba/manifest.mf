@@ -4,7 +4,7 @@ OpenIDE-Module-Install: com/netbeans/enterprise/modules/corba/IDLModule.class
 OpenIDE-Module-Module-Dependencies: com.netbeans.developer.modules.loaders.java/1
 OpenIDE-Module-Specification-Version: 0.8
 OpenIDE-Module-Implementation-Version: 0.8
-OpenIDE-Module-Update-Location: update.netbeans.com/eap/developer30/updateInfoEAP.xml
+OpenIDE-Module-Update-Location: http://update.netbeans.com/eap/developer30/updateInfoEAP.xml
 
 Name: com/netbeans/enterprise/modules/corba/IDLDataLoader.class
 OpenIDE-Module-Class: Loader
