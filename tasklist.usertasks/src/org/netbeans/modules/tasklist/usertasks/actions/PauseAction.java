@@ -13,20 +13,10 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
-import org.netbeans.modules.tasklist.usertasks.UserTaskList;
-import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
-import org.openide.util.actions.NodeAction;
 
 /**
  * Stops a task

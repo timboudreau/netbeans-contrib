@@ -17,16 +17,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.JPopupMenu;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.usertasks.UTUtils;
 import org.openide.ErrorManager;
 import org.openide.awt.MouseUtils;
 import org.openide.explorer.ExplorerManager;

@@ -18,7 +18,6 @@ import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
-import org.openide.util.actions.SystemAction;
 
 /**
  * Moves a task up

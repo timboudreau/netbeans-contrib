@@ -14,6 +14,7 @@ package org.netbeans.modules.tasklist.usertasks;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -84,27 +85,27 @@ public class DateSelectionPanel extends javax.swing.JPanel
         calendarTable.setDefaultRenderer(String.class, renderer);
                 
         calendar = new GregorianCalendar();
-        yearFld.setText(Integer.toString(calendar.get(calendar.YEAR)));
+        yearFld.setText(Integer.toString(calendar.get(Calendar.YEAR)));
         
         format = new SimpleDateFormat("HH:mm:ss"); // NOI18N
         timeFld.setText(format.format(date));        
         format.applyPattern("MMMM"); // NOI18N
         
-        int curr = calendar.get(calendar.MONTH);
-        calendar.set(calendar.MONTH,
-        calendar.getActualMinimum(calendar.MONTH));
+        int curr = calendar.get(Calendar.MONTH);
+        calendar.set(Calendar.MONTH,
+        calendar.getActualMinimum(Calendar.MONTH));
         
-        int no = calendar.getActualMaximum(calendar.MONTH) - calendar.getActualMinimum(calendar.MONTH);
+        int no = calendar.getActualMaximum(Calendar.MONTH) - calendar.getActualMinimum(Calendar.MONTH);
         
         for (int ii = 0; ii <= no; ++ii) {
             monthNameCmb.insertItemAt(format.format(calendar.getTime()), ii);
-            calendar.roll(calendar.MONTH, 1);
+            calendar.roll(Calendar.MONTH, 1);
         }
         monthNameCmb.setSelectedIndex(curr);
         calendar.setTime(date);
-        tablemodel.setMonth(calendar.get(calendar.MONTH));
-        tablemodel.setYear(calendar.get(calendar.YEAR));
-        tablemodel.setSelectedDay(calendar.get(calendar.DAY_OF_MONTH));
+        tablemodel.setMonth(calendar.get(Calendar.MONTH));
+        tablemodel.setYear(calendar.get(Calendar.YEAR));
+        tablemodel.setSelectedDay(calendar.get(Calendar.DAY_OF_MONTH));
         
         calendarTable.getTableHeader().setReorderingAllowed(false);
         calendarTable.getTableHeader().setResizingAllowed(false);
@@ -120,9 +121,9 @@ public class DateSelectionPanel extends javax.swing.JPanel
         try {
             format.applyPattern("HH:mm:ss"); // NOI18N
             calendar.setTime(format.parse(timeFld.getText()));
-            calendar.set(calendar.MONTH, monthNameCmb.getSelectedIndex());
-            calendar.set(calendar.YEAR, Integer.parseInt(yearFld.getText()));
-            calendar.set(calendar.DAY_OF_MONTH, tablemodel.getSelectedDay());            
+            calendar.set(Calendar.MONTH, monthNameCmb.getSelectedIndex());
+            calendar.set(Calendar.YEAR, Integer.parseInt(yearFld.getText()));
+            calendar.set(Calendar.DAY_OF_MONTH, tablemodel.getSelectedDay());            
             ret = calendar.getTime();
         } catch (Exception e) {
             // When I'm done, this should never happen....
@@ -254,7 +255,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
      * @param evt the event
      */
     private void prevYearBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prevYearBtnActionPerformed
-        if (evt.getID() == evt.ACTION_PERFORMED) {
+        if (evt.getID() == ActionEvent.ACTION_PERFORMED) {
             int year = Integer.parseInt(yearFld.getText()) - 1;
             yearFld.setText(Integer.toString(year));
             tablemodel.setYear(year);            
@@ -266,7 +267,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
      * @param evt the event
      */
     private void nextYearBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextYearBtnActionPerformed
-        if (evt.getID() == evt.ACTION_PERFORMED) {
+        if (evt.getID() == ActionEvent.ACTION_PERFORMED) {
            int year = Integer.parseInt(yearFld.getText()) + 1;
            yearFld.setText(Integer.toString(year));
            tablemodel.setYear(year);            
@@ -278,7 +279,7 @@ public class DateSelectionPanel extends javax.swing.JPanel
      * @param evt not used
      */
     private void monthNameCmbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_monthNameCmbActionPerformed
-        if (evt.getID() == evt.ACTION_PERFORMED) {
+        if (evt.getID() == ActionEvent.ACTION_PERFORMED) {
             tablemodel.setMonth(monthNameCmb.getSelectedIndex());
         }
     }//GEN-LAST:event_monthNameCmbActionPerformed
@@ -316,13 +317,13 @@ public class DateSelectionPanel extends javax.swing.JPanel
             calendar = new GregorianCalendar();
             SimpleDateFormat format = new SimpleDateFormat("EEEE"); // NOI18N
             
-            calendar.set(calendar.DAY_OF_WEEK,             
+            calendar.set(Calendar.DAY_OF_WEEK,             
                          calendar.getFirstDayOfWeek());
             
             
             for (int ii = 0; ii < 7; ++ii) {
                 columnNames[ii] = format.format(calendar.getTime());
-                calendar.roll(calendar.DAY_OF_WEEK, 1);
+                calendar.roll(Calendar.DAY_OF_WEEK, 1);
             }
             
             today = new GregorianCalendar();
@@ -367,9 +368,9 @@ public class DateSelectionPanel extends javax.swing.JPanel
                 retval = ((Integer)days[y][x]).intValue();                
             } else {
                 if (y == 0) {
-                    retval = calendar.getActualMinimum(calendar.DAY_OF_MONTH);
+                    retval = calendar.getActualMinimum(Calendar.DAY_OF_MONTH);
                 } else {
-                    retval = calendar.getActualMaximum(calendar.DAY_OF_MONTH);                    
+                    retval = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);                    
                 }
             }
             return retval;
@@ -379,19 +380,19 @@ public class DateSelectionPanel extends javax.swing.JPanel
          * Lay out all of the day number correctly
          */
         public void updateDays() {
-            calendar.set(calendar.DAY_OF_MONTH,
-                         calendar.getActualMinimum(calendar.DAY_OF_MONTH));
+            calendar.set(Calendar.DAY_OF_MONTH,
+                         calendar.getActualMinimum(Calendar.DAY_OF_MONTH));
 
             int day = getSelectedDay();
             
-            if (calendar.get(calendar.MONTH) == today.get(today.MONTH) &&
-                calendar.get(calendar.YEAR) == today.get(today.YEAR)) {
-                renderer.setToday(new Integer(today.get(today.DAY_OF_MONTH)));
+            if (calendar.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
+                calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
+                renderer.setToday(new Integer(today.get(Calendar.DAY_OF_MONTH)));
             } else {
                 renderer.setToday(null);
             }
                                     
-            int start = calendar.get(calendar.DAY_OF_WEEK) - calendar.getFirstDayOfWeek();
+            int start = calendar.get(Calendar.DAY_OF_WEEK) - calendar.getFirstDayOfWeek();
             
             if (start < 0) {
                 start += 7;
@@ -405,9 +406,9 @@ public class DateSelectionPanel extends javax.swing.JPanel
             }            
             
             int x = start, y = 0;
-            int noDays = calendar.getActualMaximum(calendar.DAY_OF_MONTH);
+            int noDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
             
-            for (int i = calendar.getActualMinimum(calendar.DAY_OF_MONTH); i <= noDays; ++i) {
+            for (int i = calendar.getActualMinimum(Calendar.DAY_OF_MONTH); i <= noDays; ++i) {
                 days[y][x] = new Integer(i);                
                 ++x;
                 if (x == 7) {
@@ -424,8 +425,8 @@ public class DateSelectionPanel extends javax.swing.JPanel
          * @param month the new month
          */
         public void setMonth(int month) {
-            if (month >= calendar.getActualMinimum(calendar.MONTH) && month <= calendar.getActualMaximum(calendar.MONTH)) {
-                calendar.set(calendar.MONTH, month);
+            if (month >= calendar.getActualMinimum(Calendar.MONTH) && month <= calendar.getActualMaximum(Calendar.MONTH)) {
+                calendar.set(Calendar.MONTH, month);
                 updateDays();
             }
         }
@@ -435,8 +436,8 @@ public class DateSelectionPanel extends javax.swing.JPanel
          * @param year the new year
          */
         public void setYear(int year) {
-            if (year >= calendar.getActualMinimum(calendar.YEAR) && year <= calendar.getActualMaximum(calendar.YEAR)) {
-                calendar.set(calendar.YEAR, year);
+            if (year >= calendar.getActualMinimum(Calendar.YEAR) && year <= calendar.getActualMaximum(Calendar.YEAR)) {
+                calendar.set(Calendar.YEAR, year);
                 updateDays();
             }
         }

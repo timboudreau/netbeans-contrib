@@ -14,18 +14,12 @@
 package org.netbeans.modules.tasklist.usertasks.translators;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
+
 import javax.swing.filechooser.FileSystemView;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -38,7 +32,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.netbeans.modules.tasklist.core.TaskList;
+
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
@@ -52,7 +46,6 @@ import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**

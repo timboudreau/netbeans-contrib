@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
+import java.util.Arrays;
 import java.util.Comparator;
 
 import javax.swing.event.TreeModelEvent;
@@ -56,7 +57,8 @@ TreeTableModel {
     public DefaultTreeTableModel(TreeTableNode root, boolean asksAllowsChildren,
     int columnNumber) {
         super(root, asksAllowsChildren);
-        // TODO: columnNumber
+        this.columnNames = new String[columnNumber];
+        Arrays.fill(columnNames, ""); // NOI18N
     }
 
     public int getColumnCount() {
@@ -79,7 +81,9 @@ TreeTableModel {
     }
     
     public boolean isCellEditable(Object node, int column) {
-        return column == 0 || ((TreeTableNode) node).isCellEditable(column);
+        // CHANGEEDIT
+        //return column == 0 || ((TreeTableNode) node).isCellEditable(column);
+        return ((TreeTableNode) node).isCellEditable(column);
     }
     
     public void setValueAt(Object aValue, Object node, int column) {

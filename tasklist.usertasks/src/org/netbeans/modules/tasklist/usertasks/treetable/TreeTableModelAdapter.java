@@ -18,7 +18,6 @@
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeModelEvent;

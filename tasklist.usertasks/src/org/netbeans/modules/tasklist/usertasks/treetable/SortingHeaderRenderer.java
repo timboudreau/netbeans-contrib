@@ -13,28 +13,22 @@
 
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
-import javax.swing.BoxLayout;
-import javax.swing.Icon;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import org.netbeans.modules.tasklist.usertasks.UTUtils;
 
 /**
  * Cell renderer for sorting column header.

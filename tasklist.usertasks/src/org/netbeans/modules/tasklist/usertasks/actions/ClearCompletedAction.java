@@ -14,7 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks.actions;
 
 import java.util.Iterator;
-import javax.swing.JFrame;
+
 import org.netbeans.modules.tasklist.usertasks.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskListNode;
@@ -24,7 +24,6 @@ import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.actions.NodeAction;
 
 /** 

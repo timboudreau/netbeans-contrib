@@ -17,32 +17,10 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.Collections;
+
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
-import javax.swing.SwingUtilities;
-import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.core.TaskNode;
-import org.openide.DialogDescriptor;
-import org.openide.NotifyDescriptor;
-import org.openide.cookies.EditorCookie;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
-import org.openide.nodes.Node;
-import org.openide.text.NbDocument;
-import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
-import org.openide.util.actions.NodeAction;
-import org.openide.windows.Mode;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
-import org.openide.DialogDisplayer;
-import org.openide.awt.Mnemonics;
-import org.openide.text.CloneableEditor;
-import org.openide.text.CloneableEditorSupport;
+
 import org.netbeans.modules.tasklist.usertasks.EditTaskPanel;
 import org.netbeans.modules.tasklist.usertasks.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
@@ -50,6 +28,14 @@ import org.netbeans.modules.tasklist.usertasks.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskListNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.awt.Mnemonics;
+import org.openide.nodes.Node;
+import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
+import org.openide.util.actions.NodeAction;
 
 /**
  * Action which brings up a dialog where you can create

@@ -14,13 +14,13 @@
 package org.netbeans.modules.tasklist.usertasks.editors;
 
 import java.awt.Component;
+
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
-import javax.swing.table.TableCellEditor;
+
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
-import org.netbeans.modules.tasklist.usertasks.treetable.AbstractCellEditor;
 
 /**
  * TableCellEditor for SuggestionPriority

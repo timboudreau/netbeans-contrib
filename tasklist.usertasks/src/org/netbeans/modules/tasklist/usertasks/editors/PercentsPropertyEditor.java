@@ -13,12 +13,11 @@
 
 package org.netbeans.modules.tasklist.usertasks.editors;
 
-import java.awt.Component;
 import java.beans.PropertyEditorSupport;
-import java.util.logging.Level;
+
 import javax.swing.JProgressBar;
 import javax.swing.UIManager;
-import org.netbeans.modules.tasklist.usertasks.UTUtils;
+
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 

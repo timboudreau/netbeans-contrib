@@ -17,16 +17,22 @@
  */
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
+import javax.swing.JTextField;
+
+import javax.swing.DefaultCellEditor;
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Enumeration;
 import java.util.EventObject;
 import javax.swing.ActionMap;
+import javax.swing.Icon;
 import javax.swing.InputMap;
 
 import javax.swing.JTable;
@@ -320,6 +326,10 @@ public class TreeTable extends JTable {
 	super.updateUI();
 	if(tree != null) {
 	    tree.updateUI();
+	    // Do this so that the editor is referencing the current renderer
+	    // from the tree. The renderer can potentially change each time
+	    // laf changes.
+	    setDefaultEditor(TreeTableModel.class, new TreeTableCellEditor());
 	}
 	// Use the tree's default foreground and background colors in the
 	// table. 
@@ -327,6 +337,126 @@ public class TreeTable extends JTable {
                                          "Tree.foreground", "Tree.font"); // NOI18N
     }
 
+    /**
+     * Returns the actual row that is editing as <code>getEditingRow</code>
+     * will always return -1.
+     */
+    private int realEditingRow() {
+	return editingRow;
+    }
+
+    /**
+     * This is overridden to invoke super's implementation, and then,
+     * if the receiver is editing a Tree column, the editor's bounds is
+     * reset. The reason we have to do this is because JTable doesn't
+     * think the table is being edited, as <code>getEditingRow</code> returns
+     * -1, and therefore doesn't automatically resize the editor for us.
+     */
+    public void sizeColumnsToFit(int resizingColumn) { 
+	super.sizeColumnsToFit(resizingColumn);
+	if (getEditingColumn() != -1 && getColumnClass(editingColumn) ==
+	    TreeTableModel.class) {
+	    Rectangle cellRect = getCellRect(realEditingRow(),
+					     getEditingColumn(), false);
+            Component component = getEditorComponent();
+	    component.setBounds(cellRect);
+            component.validate();
+	}
+    }
+
+    /**
+     * Modified Copy from JTable
+     *
+     * Programmatically starts editing the cell at <code>row</code> and
+     * <code>column</code>, if the cell is editable.
+     * To prevent the <code>JTable</code> from editing a particular table,
+     * column or cell value, return false from the <code>isCellEditable</code>
+     * method in the <code>TableModel</code> interface.
+     *
+     * @param   row     the row to be edited
+     * @param   column  the column to be edited
+     * @param   e       event to pass into <code>shouldSelectCell</code>;
+     *                  note that as of Java 2 platform v1.2, the call to
+     *                  <code>shouldSelectCell</code> is no longer made
+     * @exception IllegalArgumentException      if <code>row</code> or
+     *                                          <code>column</code>
+     *                                          is not in the valid range
+     * @return  false if for any reason the cell cannot be edited
+     */
+    public boolean jTableEditCellAt(int row, int column, EventObject e){
+        if (cellEditor != null && !cellEditor.stopCellEditing()) {
+            return false;
+        }
+
+	if (row < 0 || row >= getRowCount() ||
+	    column < 0 || column >= getColumnCount()) {
+	    return false;
+	}
+
+        // DIFF TO JTABLE:
+        //if (!isCellEditable(row, column))
+        //    return false;
+
+        // DIFF TO JTABLE:
+        /*if (editorRemover == null) {
+            KeyboardFocusManager fm =
+                KeyboardFocusManager.getCurrentKeyboardFocusManager();
+            editorRemover = new CellEditorRemover(fm);
+            fm.addPropertyChangeListener("permanentFocusOwner", editorRemover);
+        }*/
+
+        TableCellEditor editor = getCellEditor(row, column);
+        if (editor != null && editor.isCellEditable(e)) {
+	    editorComp = prepareEditor(editor, row, column);
+	    if (editorComp == null) {
+		removeEditor();
+		return false;
+	    }
+	    editorComp.setBounds(getCellRect(row, column, false));
+	    add(editorComp);
+	    editorComp.validate();
+
+	    setCellEditor(editor);
+	    setEditingRow(row);
+	    setEditingColumn(column);
+	    editor.addCellEditorListener(this);
+
+	    return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Overridden to invoke repaint for the particular location if
+     * the column contains the tree. This is done as the tree editor does
+     * not fill the bounds of the cell, we need the renderer to paint
+     * the tree in the background, and then draw the editor over it.
+     */
+    public boolean editCellAt(int row, int column, EventObject e){
+        if (cellEditor != null && !cellEditor.stopCellEditing()) {
+            return false;
+        }
+
+	if (row < 0 || row >= getRowCount() ||
+	    column < 0 || column >= getColumnCount()) {
+	    return false;
+	}
+
+        if (!isCellEditable(row, column)) {
+            TableCellEditor editor = getCellEditor(row, column);
+            if (editor != null) 
+                editor.isCellEditable(e);
+            return false;
+        }
+
+	boolean retValue = super.editCellAt(row, column, e);
+	if (retValue && getColumnClass(column) == TreeTableModel.class) {
+	    repaint(getCellRect(row, column, false));
+	}
+	return retValue;
+    }
+    
+    /**
     /* Workaround for BasicTableUI anomaly. Make sure the UI never tries to 
      * paint the editor. The UI currently uses different techniques to 
      * paint the renderers and editors and overriding setBounds() below 
@@ -445,6 +575,59 @@ public class TreeTable extends JTable {
 
 	/**
 	 * TreeCellRenderer method. Overridden to update the visible row.
+	 * Original code
+	public Component getTableCellRendererComponent(JTable table,
+						       Object value,
+						       boolean isSelected,
+						       boolean hasFocus,
+						       int row, int column) {
+	    Color background;
+	    Color foreground;
+
+	    if(isSelected) {
+		background = table.getSelectionBackground();
+		foreground = table.getSelectionForeground();
+	    }
+	    else {
+		background = table.getBackground();
+		foreground = table.getForeground();
+	    }
+	    highlightBorder = null;
+	    if (realEditingRow() == row && getEditingColumn() == column) {
+		background = UIManager.getColor("Table.focusCellBackground");
+		foreground = UIManager.getColor("Table.focusCellForeground");
+	    }
+	    else if (hasFocus) {
+		highlightBorder = UIManager.getBorder
+		                  ("Table.focusCellHighlightBorder");
+		if (isCellEditable(row, column)) {
+		    background = UIManager.getColor
+			         ("Table.focusCellBackground");
+		    foreground = UIManager.getColor
+			         ("Table.focusCellForeground");
+		}
+	    }
+
+	    visibleRow = row;
+	    setBackground(background);
+	    
+	    TreeCellRenderer tcr = getCellRenderer();
+	    if (tcr instanceof DefaultTreeCellRenderer) {
+		DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
+		if (isSelected) {
+		    dtcr.setTextSelectionColor(foreground);
+		    dtcr.setBackgroundSelectionColor(background);
+		}
+		else {
+		    dtcr.setTextNonSelectionColor(foreground);
+		    dtcr.setBackgroundNonSelectionColor(background);
+		}
+	    }
+	    return this;
+	}
+    }*/
+	/**
+	 * TreeCellRenderer method. Overridden to update the visible row.
 	 */
 	public Component getTableCellRendererComponent(JTable table,
 						       Object value,
@@ -473,53 +656,145 @@ public class TreeTable extends JTable {
 
 
     /**
-     * TreeTableCellEditor implementation. Component returned is the
-     * JTree.
+     * An editor that can be used to edit the tree column. This extends
+     * DefaultCellEditor and uses a JTextField (actually, TreeTableTextField)
+     * to perform the actual editing.
+     * <p>To support editing of the tree column we can not make the tree
+     * editable. The reason this doesn't work is that you can not use
+     * the same component for editing and renderering. The table may have
+     * the need to paint cells, while a cell is being edited. If the same
+     * component were used for the rendering and editing the component would
+     * be moved around, and the contents would change. When editing, this
+     * is undesirable, the contents of the text field must stay the same,
+     * including the caret blinking, and selections persisting. For this
+     * reason the editing is done via a TableCellEditor.
+     * <p>Another interesting thing to be aware of is how tree positions
+     * its render and editor. The render/editor is responsible for drawing the
+     * icon indicating the type of node (leaf, branch...). The tree is
+     * responsible for drawing any other indicators, perhaps an additional
+     * +/- sign, or lines connecting the various nodes. So, the renderer
+     * is positioned based on depth. On the other hand, table always makes
+     * its editor fill the contents of the cell. To get the allusion
+     * that the table cell editor is part of the tree, we don't want the
+     * table cell editor to fill the cell bounds. We want it to be placed
+     * in the same manner as tree places it editor, and have table message
+     * the tree to paint any decorations the tree wants. Then, we would
+     * only have to worry about the editing part. The approach taken
+     * here is to determine where tree would place the editor, and to override
+     * the <code>reshape</code> method in the JTextField component to
+     * nudge the textfield to the location tree would place it. Since
+     * JTreeTable will paint the tree behind the editor everything should
+     * just work. So, that is what we are doing here. Determining of
+     * the icon position will only work if the TreeCellRenderer is
+     * an instance of DefaultTreeCellRenderer. If you need custom
+     * TreeCellRenderers, that don't descend from DefaultTreeCellRenderer, 
+     * and you want to support editing in JTreeTable, you will have
+     * to do something similiar.
      */
-    public class TreeTableCellEditor extends AbstractCellEditor implements
-	         TableCellEditor {
+    public class TreeTableCellEditor extends DefaultCellEditor {
+	public TreeTableCellEditor() {
+	    super(new TreeTableTextField());
+	}
+
+	/**
+	 * Overridden to determine an offset that tree would place the
+	 * editor at. The offset is determined from the
+	 * <code>getRowBounds</code> JTree method, and additionally
+	 * from the icon DefaultTreeCellRenderer will use.
+	 * <p>The offset is then set on the TreeTableTextField component
+	 * created in the constructor, and returned.
+	 */
 	public Component getTableCellEditorComponent(JTable table,
 						     Object value,
 						     boolean isSelected,
 						     int r, int c) {
-	    return tree;
+	    Component component = super.getTableCellEditorComponent
+		(table, value, isSelected, r, c);
+	    JTree t = getTree();
+	    boolean rv = t.isRootVisible();
+	    int offsetRow = rv ? r : r - 1;
+	    Rectangle bounds = t.getRowBounds(offsetRow);
+	    int offset = bounds.x;
+	    TreeCellRenderer tcr = t.getCellRenderer();
+	    if (tcr instanceof DefaultTreeCellRenderer) {
+		Object node = t.getPathForRow(offsetRow).
+		                getLastPathComponent();
+		Icon icon;
+		if (t.getModel().isLeaf(node))
+		    icon = ((DefaultTreeCellRenderer)tcr).getLeafIcon();
+		else if (tree.isExpanded(offsetRow))
+		    icon = ((DefaultTreeCellRenderer)tcr).getOpenIcon();
+		else
+		    icon = ((DefaultTreeCellRenderer)tcr).getClosedIcon();
+		if (icon != null) {
+		    offset += ((DefaultTreeCellRenderer)tcr).getIconTextGap() +
+			      icon.getIconWidth();
+		}
+	    }
+	    ((TreeTableTextField)getComponent()).offset = offset;
+	    return component;
 	}
 
 	/**
-	 * Overridden to return false, and if the event is a mouse event
-	 * it is forwarded to the tree.<p>
-	 * The behavior for this is debatable, and should really be offered
-	 * as a property. By returning false, all keyboard actions are
-	 * implemented in terms of the table. By returning true, the
-	 * tree would get a chance to do something with the keyboard
-	 * events. For the most part this is ok. But for certain keys,
-	 * such as left/right, the tree will expand/collapse where as
-	 * the table focus should really move to a different column. Page
-	 * up/down should also be implemented in terms of the table.
-	 * By returning false this also has the added benefit that clicking
-	 * outside of the bounds of the tree node, but still in the tree
-	 * column will select the row, whereas if this returned true
-	 * that wouldn't be the case.
-	 * <p>By returning false we are also enforcing the policy that
-	 * the tree will never be editable (at least by a key sequence).
+	 * This is overridden to forward the event to the tree. This will
+	 * return true if the click count >= 3, or the event is null.
 	 */
 	public boolean isCellEditable(EventObject e) {
 	    if (e instanceof MouseEvent) {
-		for (int counter = getColumnCount() - 1; counter >= 0;
-		     counter--) {
-		    if (getColumnClass(counter) == TreeTableModel.class) {
-			MouseEvent me = (MouseEvent)e;
-			MouseEvent newME = new MouseEvent(tree, me.getID(),
+		MouseEvent me = (MouseEvent)e;
+		// If the modifiers are not 0 (or the left mouse button),
+                // tree may try and toggle the selection, and table
+                // will then try and toggle, resulting in the
+                // selection remaining the same. To avoid this, we
+                // only dispatch when the modifiers are 0 (or the left mouse
+                // button).
+		if (me.getModifiers() == 0 ||
+                    me.getModifiers() == InputEvent.BUTTON1_MASK) {
+		    for (int counter = getColumnCount() - 1; counter >= 0;
+			 counter--) {
+			if (getColumnClass(counter) == TreeTableModel.class) {
+			    MouseEvent newME = new MouseEvent
+			          (TreeTable.this.tree, me.getID(),
 				   me.getWhen(), me.getModifiers(),
 				   me.getX() - getCellRect(0, counter, true).x,
 				   me.getY(), me.getClickCount(),
                                    me.isPopupTrigger());
-			tree.dispatchEvent(newME);
-			break;
+			    TreeTable.this.tree.dispatchEvent(newME);
+			    break;
+			}
 		    }
 		}
+                /*
+                int row = TreeTable.this.rowAtPoint(me.getPoint());
+                int col = TreeTable.this.columnAtPoint(me.getPoint());
+                int selCol = TreeTable.this.getSelectedColumn();
+                int selRow = TreeTable.this.getSelectedRow();
+                if (row == selRow && col == selCol)
+                    return true;
+                 */
+		if (me.getClickCount() >= 3) {
+		    return true;
+		}
+		return false;
+	    }
+	    if (e == null) {
+		return true;
 	    }
 	    return false;
+	}
+    }
+
+    /**
+     * Component used by TreeTableCellEditor. The only thing this does
+     * is to override the <code>reshape</code> method, and to ALWAYS
+     * make the x location be <code>offset</code>.
+     */
+    static class TreeTableTextField extends JTextField {
+	public int offset;
+
+	public void reshape(int x, int y, int w, int h) {
+	    int newX = Math.max(x, offset);
+	    super.reshape(newX, y, w - (newX - x), h);
 	}
     }
 

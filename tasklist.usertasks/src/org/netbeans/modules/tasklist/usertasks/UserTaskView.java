@@ -21,49 +21,37 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Window;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
-import javax.swing.table.TableColumnModel;
-import javax.swing.text.DefaultEditorKit;
 import javax.swing.tree.TreePath;
 
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.modules.tasklist.core.TaskViewListener;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
-import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.filter.Filter;
@@ -83,9 +71,7 @@ import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.openide.ErrorManager;
-import org.openide.actions.DeleteAction;
 import org.openide.actions.FindAction;
-import org.openide.awt.MouseUtils;
 import org.openide.cookies.InstanceCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
@@ -468,12 +454,14 @@ for (int i = 0; i < columns.length; i++) {
 	    String urlString = (String)objectInput.readObject();
             if (urlString != null) {
                 URL url = new URL(urlString);
-                final FileObject[] fos = URLMapper.findFileObjects(url);
-                if ((fos != null) && (fos.length > 0)) {
-                    setModel(new UserTaskList(fos[0]));
+                final FileObject fo = URLMapper.findFileObject(url);
+                if (fo != null) {
+                	UserTaskList utl = new UserTaskList();
+                	utl.readFile(fo);
+                    setModel(utl);
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
-                            setName(fos[0].getNameExt());
+                            setName(fo.getNameExt());
                         }
                     }); 
                 }
@@ -1365,7 +1353,6 @@ for (int i = 0; i < columns.length; i++) {
      * Return the tasklist shown in this view 
      */
     public UserTaskList getList() {
-        // XXX  FilteredTasksList may appear here for TODOs Current File
         UserTaskList model = getModel();
         return model;
     }
@@ -1472,15 +1459,6 @@ for (int i = 0; i < columns.length; i++) {
 
     protected void componentHidden() {
         hideTaskInEditor();
-    }
-
-    // TODO - get rid of this when you clean up TaskListView.getRootNode() to
-    // do the Right Thing(tm) - always return effective explorer context
-    /** Return the actual root of the node tree shown in this view.
-     * May be a filternode when Filtering is in place.
-     */
-    public final Node getEffectiveRoot() {
-        return getExplorerManager().getRootContext();
     }
 
     public void requestActive() {

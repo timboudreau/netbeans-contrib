@@ -226,7 +226,9 @@ public abstract class AbstractTreeTableModel implements TreeTableModel {
      *  and keyboard events in the Tree column to the underlying JTree.
      */
     public boolean isCellEditable(Object node, int column) {
-        return getColumnClass(column) == TreeTableModel.class;
+        // CHANGEEDIT
+        // return getColumnClass(column) == TreeTableModel.class;
+        return false;
     }
     
     public void setValueAt(Object aValue, Object node, int column) {}

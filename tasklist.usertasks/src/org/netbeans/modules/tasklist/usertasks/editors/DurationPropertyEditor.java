@@ -14,10 +14,10 @@
 package org.netbeans.modules.tasklist.usertasks.editors;
 
 import java.text.MessageFormat;
+
 import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
-import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 
 /**

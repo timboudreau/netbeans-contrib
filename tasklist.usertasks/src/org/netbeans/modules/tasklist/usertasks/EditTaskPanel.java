@@ -18,13 +18,12 @@ import java.awt.Dialog;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -36,7 +35,6 @@ import javax.swing.text.JTextComponent;
 
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
-import org.netbeans.modules.tasklist.core.TLUtils;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -969,9 +967,9 @@ public class EditTaskPanel extends JPanel implements ActionListener {
      * @param evt the callback event
      */
     private void dueCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_dueCheckBoxItemStateChanged
-        if (evt.getID() == evt.ITEM_STATE_CHANGED) {
+        if (evt.getID() == ItemEvent.ITEM_STATE_CHANGED) {
             boolean enable = false;
-            if (evt.getStateChange() == evt.SELECTED) {
+            if (evt.getStateChange() == ItemEvent.SELECTED) {
                 enable = true;
             }
             dueDateBrowseButton.setEnabled(enable);
@@ -981,7 +979,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     }//GEN-LAST:event_dueCheckBoxItemStateChanged
 
     private void dueDateBrowseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dueDateBrowseButtonActionPerformed
-        if (evt.getID() == evt.ACTION_PERFORMED) {
+        if (evt.getID() == ActionEvent.ACTION_PERFORMED) {
             DateSelectionPanel pnl;
             Date date = getDueDate();
             if (date != null) {

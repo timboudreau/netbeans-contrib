@@ -1,27 +1,19 @@
 package org.netbeans.modules.tasklist.usertasks;
 
-import java.awt.Component;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JTable;
-
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
 
-import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.editors.PriorityTableCellRenderer;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
@@ -41,13 +33,13 @@ import org.netbeans.modules.tasklist.usertasks.renderers.LineTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.PercentsTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.SummaryTreeCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.treetable.BooleanTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.NodesTreeTable;
+import org.netbeans.modules.tasklist.usertasks.treetable.SortingHeaderRenderer;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
-import org.netbeans.modules.tasklist.usertasks.treetable.BooleanTableCellRenderer;
-import org.netbeans.modules.tasklist.usertasks.treetable.SortingHeaderRenderer;
 import org.openide.util.actions.SystemAction;
 
 /**

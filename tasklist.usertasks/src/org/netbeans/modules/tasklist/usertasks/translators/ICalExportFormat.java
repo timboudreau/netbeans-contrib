@@ -16,25 +16,17 @@ package org.netbeans.modules.tasklist.usertasks.translators;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringWriter;
 import java.io.Writer;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.SimpleTimeZone;
-import java.util.TimeZone;
+
 import javax.swing.filechooser.FileSystemView;
 
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.core.TaskList;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.SaveFilePanel;

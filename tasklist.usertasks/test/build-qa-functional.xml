@@ -17,7 +17,7 @@ Microsystems, Inc. All Rights Reserved.
        Defines classpaths for test building and execution
       ==================================================== -->
 
-<project name="tasklist/usertasks/test/unit" basedir="." default="all">
+<project name="User Tasks QA functional tests" basedir="." default="all">
 
     <!-- =================== -->
     <!-- Setting classpathes -->
@@ -30,10 +30,11 @@ Microsystems, Inc. All Rights Reserved.
     <!-- Compilers -->
     <!-- ========= -->
     
-    <target name="unit-compiler">
-        <buildTests srcDir="unit/src"
-            compileExcludes="org/netbeans/usertasks/modules/jars/">
+    <target name="qa-functional-compiler">
+        <buildTests srcDir="qa-functional/src">
             <classpath>
+                <pathelement location="../../../jemmy/builds/jemmy.jar"/>
+                <pathelement location="../../../jellytools/builds/jelly2-nb.jar"/>
                 <pathelement location="../build/classes"/>
                 <pathelement location="../../core/src"/>
                 <pathelement location="../../../nbbuild/netbeans/ide4/modules/autoload/tasklist-api.jar"/>
@@ -53,6 +54,8 @@ Microsystems, Inc. All Rights Reserved.
     <target name="runidetest">
         <executeTests pluginName="ide" classpath="">
             <classpath>
+                <pathelement location="../../../jemmy/builds/jemmy.jar"/>
+                <pathelement location="../../../jellytools/builds/jelly2-nb.jar"/>
                 <pathelement location="../build/classes"/>
                 <pathelement location="../../core/src"/>
                 <pathelement location="../../../nbbuild/netbeans/ide4/modules/autoload/tasklist-api.jar"/>
@@ -70,7 +73,6 @@ Microsystems, Inc. All Rights Reserved.
             <classpath>
                 <pathelement location="../build/classes"/>
                 <pathelement location="../../core/src"/>
-                <pathelement location="../../usertasks/src"/>
                 <pathelement location="../../../nbbuild/netbeans/ide4/modules/autoload/tasklist-api.jar"/>
                 <pathelement location="../../../nbbuild/netbeans/platform4/core/openide.jar"/>
                 <pathelement location="../../../nbbuild/netbeans/platform4/core/openide-loaders.jar"/>
@@ -90,12 +92,8 @@ Microsystems, Inc. All Rights Reserved.
     	<!-- this classpath will be used for compiling tests against jars -->
 	<path id="compiletest.classpath">        
             <pathelement location="../../../nbbuild/netbeans/modules/autoload/tasklist-api.jar"/>
-                <!-- XXX -->
-                <!--<pathelement location="../../../nbbuild/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-                <pathelement location="../../openide/io/netbeans/modules/org-openide-io.jar"/>-->
-
-             	<pathelement path="${junit.path}"/>
-	    	<pathelement path="${xerces.path}"/>
+            <pathelement path="${junit.path}"/>
+	    <pathelement path="${xerces.path}"/>
 	</path>
     </target>
         
@@ -103,15 +101,11 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using srcs classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against sources -->
     	<path id="compiletest.classpath">        
-	        <pathelement location="../src"/>
-                <pathelement location="../../api/src"/>
-                
-	        <!--<fileset dir="../../../openide/netbeans/lib">
-                    <include name="openide*.jar"/>
-                </fileset>-->
-	        <pathelement path="${junit.path}"/>
-		<pathelement path="${xerces.path}"/>
-                <pathelement location="../../core/src"/>
+	    <pathelement location="../src"/>
+            <pathelement location="../../api/src"/>
+	    <pathelement path="${junit.path}"/>
+            <pathelement path="${xerces.path}"/>
+            <pathelement location="../../core/src"/>
 	</path>
     </target>
     
@@ -119,16 +113,8 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using IDE classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against installed IDE -->
     	<path id="compiletest.classpath">        
-	        <!--<fileset dir="${netbeans.home}/lib">
-                    <include name="openide*.jar"/>
-                </fileset>-->
-                <!-- XXX -->
-                <!--<fileset dir="${netbeans.home}/modules/autoload">
-                    <include name="openide-*.jar"/>
-                </fileset>-->
-                
-	        <pathelement path="${junit.path}"/>
-		<pathelement path="${xerces.path}"/>
+	    <pathelement path="${junit.path}"/>
+            <pathelement path="${xerces.path}"/>
     	</path>
     </target>
     
@@ -143,7 +129,6 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using jars classpath."/>
         <!-- this classpath will be used for executing tests against jars -->
 	<path id="codetest.classpath">
-            <!--<pathelement location="../../../openide/netbeans/lib/openide.jar"/>-->
     	</path>
     </target>
         
@@ -151,13 +136,6 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using srcs classpath."/>
         <!-- this classpath will be used for executing tests against sources -->
     	<path id="codetest.classpath">
-           <!--<pathelement location="../../../openide/loaders/netbeans/lib/openide-loaders.jar"/>-->
-           
-           <!-- Working sources should take precedence over usertasks.jar: -->
-           <!--<pathelement location="../src"/>
-           <pathelement location="../../../openide/netbeans/lib/openide.jar"/>
-           <pathelement location="../../api/netbeans/modules/autoload/tasklist-api.jar"/>
-           <pathelement location="../../core/src"/>-->
     	</path>
     </target>
     
@@ -165,14 +143,8 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using IDE classpath."/>
         <!-- this classpath will be used for executing tests against installed IDE -->
     	<path id="codetest.classpath">
-        	<pathelement location="${netbeans.home}/lib/openide.jar"/>
-                <pathelement location="${netbeans.home}/lib/openide-loaders.jar"/>        
-                <!-- XXX -->
-                <!--<fileset dir="${netbeans.home}/modules/autoload">
-                    <include name="openide-*.jar"/>
-                </fileset>-->
+            <pathelement location="${netbeans.home}/lib/openide.jar"/>
+            <pathelement location="${netbeans.home}/lib/openide-loaders.jar"/>        
     	</path>
     </target>
-    
-
 </project>

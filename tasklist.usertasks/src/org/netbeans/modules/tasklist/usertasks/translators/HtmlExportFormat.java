@@ -13,37 +13,25 @@
 
 package org.netbeans.modules.tasklist.usertasks.translators;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import javax.swing.filechooser.FileSystemView;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.netbeans.modules.tasklist.core.*;
-import org.netbeans.modules.tasklist.core.TaskList;
-import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
-import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
-import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.awt.HtmlBrowser;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.NbBundle;
 
 /**

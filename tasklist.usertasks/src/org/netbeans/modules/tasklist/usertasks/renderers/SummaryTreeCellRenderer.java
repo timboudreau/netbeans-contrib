@@ -23,7 +23,6 @@ import org.netbeans.modules.tasklist.usertasks.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskListTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 
-import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 

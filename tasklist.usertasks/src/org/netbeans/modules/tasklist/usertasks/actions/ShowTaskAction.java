@@ -15,10 +15,7 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 
 import java.awt.Dialog;
 import java.awt.Dimension;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.usertasks.EditTaskPanel;
 import org.netbeans.modules.tasklist.usertasks.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
