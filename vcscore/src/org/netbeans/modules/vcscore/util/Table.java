@@ -75,6 +75,16 @@ public class Table extends AbstractMap {
         return new EnumKeys();
     }
     
+    public synchronized Set keySet() {
+        SimpleSet list = new SimpleSet();
+        for (Iterator iterator = entries.iterator(); iterator.hasNext(); ) {
+            Entry entry = (Entry) iterator.next();
+            if (entry == null) list.add(null);
+            else list.add(entry.getKey());
+        }
+        return list;
+    }
+    
     public synchronized Object get(Object key) {
         Object value = null;
         for(Iterator it = entries.iterator(); it.hasNext(); ) {
@@ -97,7 +107,7 @@ public class Table extends AbstractMap {
         return list;
     }
 
-    private class Entry implements Map.Entry {
+    private static class Entry implements Map.Entry {
         private Object key;
         private Object value;
         
@@ -130,7 +140,7 @@ public class Table extends AbstractMap {
         }
     }
     
-    private class SimpleSet extends AbstractSet {
+    private static class SimpleSet extends AbstractSet {
         private LinkedList list = null;
 
         public SimpleSet() {
