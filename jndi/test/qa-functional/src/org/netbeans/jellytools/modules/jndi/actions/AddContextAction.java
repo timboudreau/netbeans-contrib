@@ -19,7 +19,7 @@ import java.awt.event.KeyEvent;
 /** AddContextAction Class
  * @author dave
  */
-public class AddContextAction extends Action {
+public class AddContextAction extends ActionNoBlock {
 
     /** creates new AddContextAction instance */
     public AddContextAction() {

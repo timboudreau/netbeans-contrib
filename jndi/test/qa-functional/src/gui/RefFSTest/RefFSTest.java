@@ -241,16 +241,18 @@ public class RefFSTest extends JellyTestCase {
         NewContextDialog nc = new NewContextDialog ();
         nc.typeContextName(newdirectory);
         nc.ok ();
+        sleep (5000);
         new ContextNode (exp.runtimeTab ().tree (), repo + "|" + directory);
         out.println ("Done");
         
         out.println ("Deleting empty directory");
-        sleep (1000);
+        sleep (5000);
         new ContextNode (exp.runtimeTab ().tree (), repo + "|" + newdirectory).delete ();
         new ConfirmObjectDeletionDialog ().yes();
         out.println ("Done");
         
         out.println ("Deleting non-empty directory");
+        sleep (5000);
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + directory + "|" + filename);
         sleep (1000);
         new ContextNode (exp.runtimeTab().tree (), repo + "|" + directory);
@@ -261,6 +263,7 @@ public class RefFSTest extends JellyTestCase {
         out.println ("Done");
         
         out.println ("Exploring bind object");
+        sleep (5000);
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + bindname);
         sleep (1000);
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + bindname).copyLookupCode();
@@ -268,6 +271,7 @@ public class RefFSTest extends JellyTestCase {
         out.println ("Done");
         
         out.println ("Exploring file object");
+        sleep (5000);
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + directory + "|" + filename);
         sleep (1000);
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + directory + "|" + filename).copyLookupCode();
@@ -275,6 +279,7 @@ public class RefFSTest extends JellyTestCase {
         out.println ("Done");
         
         out.println ("Exploring directory context");
+        sleep (5000);
         new ContextNode (exp.runtimeTab ().tree (), repo + "|" + directory);
         sleep (1000);
         new ContextNode (exp.runtimeTab ().tree (), repo + "|" + directory).copyBindingCode();
@@ -284,11 +289,13 @@ public class RefFSTest extends JellyTestCase {
         out.println ("Done");
         
         out.println ("Deleting bind object");
+        sleep (5000);
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + bindname).delete();
         new ConfirmObjectDeletionDialog ().yes();
         out.println ("Done");
         
         out.println ("Deleting file object");
+        sleep (5000);
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + directory + "|" + filename);
         sleep (1000);
         new ObjectNode (exp.runtimeTab ().tree (), repo + "|" + directory + "|" + filename).delete();
@@ -296,6 +303,7 @@ public class RefFSTest extends JellyTestCase {
         out.println ("Done");
         
         out.println ("Disconnecting");
+        sleep (5000);
         new RootContextNode (exp.runtimeTab ().tree (), repo).disconnectContext();
         out.println ("Done");
         

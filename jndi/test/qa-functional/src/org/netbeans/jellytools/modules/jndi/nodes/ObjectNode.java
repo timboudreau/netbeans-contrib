@@ -32,7 +32,7 @@ public class ObjectNode extends Node {
      * @param tree JTreeOperator of tree
      * @param treePath String tree path */
     public ObjectNode(JTreeOperator tree, String treePath) {
-        super(tree, treePath);
+        super(tree, JNDIRootNode.NAME + treePath);
     }
 
     /** creates new ObjectNode
