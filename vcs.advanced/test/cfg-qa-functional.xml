@@ -26,7 +26,8 @@ Microsystems, Inc. All Rights Reserved.
     <testbag testattribs="all,stable" name="common_functionality">
         <testset dir="qa-functional/src">
             <patternset>
-    		<include name="complete/common/GenericVCSAvailabilityTest.class"/>
+    		<include name="complete/common/Availability.class"/>
+    		<include name="complete/common/FilesystemSettings.class"/>
             </patternset>
         </testset>
     </testbag>
