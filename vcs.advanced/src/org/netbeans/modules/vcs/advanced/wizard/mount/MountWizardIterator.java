@@ -31,6 +31,7 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
+import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 
 /**
  * The wizard iterator to mount the Generic VCS file system.
@@ -108,6 +109,9 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
             multipleMountPoints = VcsUtilities.getQuotedStrings(multipleMountPointsStr);
             fs.setVariables(removeVar("MULTIPLE_RELATIVE_MOUNT_POINTS", fs.getVariables()));
         }
+        String config = fs.getConfigFileName();
+        GeneralVcsSettings gvs = (GeneralVcsSettings) GeneralVcsSettings.findObject(GeneralVcsSettings.class, true);
+        gvs.setDefaultProfile(config);
         if (multipleMountPoints == null || multipleMountPoints.length <= 1) {
             org.openide.loaders.DataObject dobj = fs.createInstanceDataObject(templateWizard.getTargetFolder());
             //org.openide.loaders.DataObject dobj = templateWizard.getTemplate();
@@ -120,8 +124,8 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
             //System.out.println("  root = '"+root+"'");
             for (int i = 1; i < multipleMountPoints.length; i++) {
                 CommandLineVcsFileSystem fs1 = new CommandLineVcsFileSystem();
-                fs1.readConfiguration(fs.getConfigFileName());
-                fs1.setConfigFileName(fs.getConfigFileName());
+                fs1.readConfiguration(config);
+                fs1.setConfigFileName(config);
                 try {
                     fs1.setRootDirectory(root);
                 } catch (PropertyVetoException pvex) {

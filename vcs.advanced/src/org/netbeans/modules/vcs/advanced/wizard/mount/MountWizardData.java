@@ -15,6 +15,7 @@ package org.netbeans.modules.vcs.advanced.wizard.mount;
 
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 import org.netbeans.modules.vcs.advanced.VcsCustomizer;
+import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 
 /**
  * The data set in the Generic VCS wizard.
@@ -22,7 +23,7 @@ import org.netbeans.modules.vcs.advanced.VcsCustomizer;
  * @author  Martin Entlicher
  */
 public class MountWizardData {
-
+    
     private String workingDir;
     private String[] mountPoints;
     private int refreshRate;
@@ -34,6 +35,17 @@ public class MountWizardData {
     public MountWizardData(Object instance) {
         if (instance instanceof CommandLineVcsFileSystem) {
             this.fileSystem = (CommandLineVcsFileSystem) instance;
+            if (fileSystem.getConfig() == null) {
+                GeneralVcsSettings gvs = (GeneralVcsSettings) GeneralVcsSettings.findObject(GeneralVcsSettings.class, true);
+                String profile = gvs.getDefaultProfile();
+                System.out.println("Default profile = "+profile);
+                if (profile != null) {
+                    if (fileSystem.readConfiguration(profile)) {
+                        fileSystem.setConfigFileName(profile);
+                    }
+                }
+                
+            }
             this.customizer = new VcsCustomizer();
             customizer.setMultipleMountPoints(true);
             customizer.setObject(fileSystem);
