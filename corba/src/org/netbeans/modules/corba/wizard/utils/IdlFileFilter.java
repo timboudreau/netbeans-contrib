@@ -29,7 +29,7 @@ public class IdlFileFilter extends FileFilter {
   
   public boolean accept (File file) {
     if (file.isDirectory())
-      return false;
+      return true;
     if (!file.canRead())
       return false;
     return file.getName().endsWith(".idl");
