@@ -39,8 +39,13 @@ public class MountWizardData {
         } else throw new IllegalArgumentException("Bad instance "+instance);
     }
     
-    javax.swing.JPanel getProfilePanel() {
-        return customizer.getConfigPanel();
+    javax.swing.JPanel getProfilePanel(int index) {
+        return (index == 0) ? customizer.getConfigPanel()
+                            : customizer.getAdditionalConfigPanels()[index - 1];
+    }
+    
+    String getProfileLabel(int index) {
+        return customizer.getConfigPanelName(index);
     }
 
     javax.swing.JPanel getAdvancedPanel() {

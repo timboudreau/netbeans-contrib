@@ -127,16 +127,12 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     private void setupPanels(TemplateWizard templateWizard) {
         this.panels = new WizardDescriptor.Panel[] {
             //templateWizard.targetChooser(),
-            new ProfilePanel(),
-            new AdvancedPanel(),
-            new EnvironmentPanel(),
+            new ProfilePanel(0)
         };
         java.awt.Component panel = templateWizard.templateChooser().getComponent();
         this.names = new String[] {
             panel.getName(),
             NbBundle.getMessage(MountWizardIterator.class, "CTL_ProfilePanel"),
-            NbBundle.getMessage(MountWizardIterator.class, "CTL_AdvancedPanel"),
-            NbBundle.getMessage(MountWizardIterator.class, "CTL_EnvironmentPanel")
         };
         //System.out.println("target chooser panel = "+panel);
         //System.out.println(" panel is JComponent = "+(panel instanceof javax.swing.JComponent));

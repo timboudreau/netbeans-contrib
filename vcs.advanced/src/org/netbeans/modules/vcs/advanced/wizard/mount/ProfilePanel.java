@@ -21,6 +21,7 @@ import org.openide.loaders.TemplateWizard;
  */
 public class ProfilePanel extends AbstractWizardPanel {
 
+    private int index;
     private ProfilePanelUI panelUI;
     private boolean initialized = false;
     
@@ -29,8 +30,8 @@ public class ProfilePanel extends AbstractWizardPanel {
     private static final long serialVersionUID = 1184058637535734526L;
     
     /** Creates new form ProfilePanel */
-    public ProfilePanel() {
- 
+    public ProfilePanel(int index) {
+        this.index = index;
     }
 
 
@@ -39,15 +40,15 @@ public class ProfilePanel extends AbstractWizardPanel {
     }
 
     protected void readWizardSettings(MountWizardData data) {
-        getPanelUI().putClientProperty ("WizardPanel_contentSelectedIndex", new Integer (0)); // NOI18N
+        this.data = data;
+        getPanelUI().putClientProperty ("WizardPanel_contentSelectedIndex", new Integer (index)); // NOI18N
         if (!initialized) {
-            javax.swing.JPanel profilePanel = data.getProfilePanel ();
+            javax.swing.JPanel profilePanel = data.getProfilePanel (index);
             profilePanel.setBorder (new javax.swing.border.EmptyBorder (new java.awt.Insets (0, 0, 0, 0)));
             getPanelUI().add (profilePanel);
             initialized = true;
         }
-        this.data = data;
-        if (data.isNoneProfileSelected()) {
+        if (index == 0 && data.isNoneProfileSelected()) {
             data.addProfileChangeListener(new java.beans.PropertyChangeListener() {
                 public void propertyChange(java.beans.PropertyChangeEvent evt) {
                     fireChange();
@@ -60,7 +61,7 @@ public class ProfilePanel extends AbstractWizardPanel {
     }
     
     public boolean isValid() {
-        return !data.isNoneProfileSelected();
+        return index > 0 || !data.isNoneProfileSelected();
     }
     
     /** Get the component displayed in this panel.
@@ -77,7 +78,7 @@ public class ProfilePanel extends AbstractWizardPanel {
     
     private javax.swing.JPanel getPanelUI(){        
         if(panelUI == null)
-            panelUI = new ProfilePanelUI();
+            panelUI = new ProfilePanelUI(index, data);
         return panelUI;
     }
     

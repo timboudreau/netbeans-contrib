@@ -28,11 +28,15 @@ public class ProfilePanelUI extends javax.swing.JPanel {
     private static final long serialVersionUID = 1184058637535734526L;
     
     /** Creates new form ProfilePanel */
-    public ProfilePanelUI() {
+    public ProfilePanelUI(int index, MountWizardData data) {
         initComponents();
-        setName(org.openide.util.NbBundle.getMessage(AdvancedPanel.class, "CTL_ProfilePanel"));
-        getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(AdvancedPanel.class, "ACS_ProfilePanelA11yName"));  // NOI18N
-        getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(AdvancedPanel.class, "ACS_ProfilePanelA11yDesc"));  // NOI18N
+        if (index == 0) {
+            setName(org.openide.util.NbBundle.getMessage(ProfilePanelUI.class, "CTL_ProfilePanel"));
+        } else {
+            setName(data.getProfileLabel(index));
+        }
+        getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ProfilePanelUI.class, "ACS_ProfilePanelA11yName"));  // NOI18N
+        getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ProfilePanelUI.class, "ACS_ProfilePanelA11yDesc"));  // NOI18N
     }
 
     /** This method is called from within the constructor to
