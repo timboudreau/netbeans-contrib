@@ -53,6 +53,8 @@ Microsystems, Inc. All Rights Reserved.
         </fileset>
 	<pathelement location="${nbroot}/java/netbeans/modules/java.jar"/>
 	<pathelement location="${nbroot}/debuggercore/netbeans/modules/autoload/debuggerCore.jar"/>
+        <!-- Hopefully set up by nbbuild/build.xml: -->
+        <pathelement location="${jdkhome}/lib/tools.jar"/>
       </classpath>
     </javac>
   </target>
