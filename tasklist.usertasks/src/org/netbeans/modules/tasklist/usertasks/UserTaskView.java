@@ -37,6 +37,7 @@ import org.openide.text.Annotation;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.*;
+import org.netbeans.modules.tasklist.core.editors.PriorityTableCellRenderer;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
@@ -119,53 +120,11 @@ public class UserTaskView extends TaskListView implements TaskListener {
             SystemAction.get(StartTaskAction.class)
         };
     }
-
-    private UserTaskTreeTableNode createTreeTableNode(UserTask ut) {
-        UserTaskTreeTableNode n = new UserTaskTreeTableNode(ut);
-        List tasks = ut.getSubtasks();
-        Iterator it = tasks.iterator();
-        while (it.hasNext()) {
-            n.add(createTreeTableNode((UserTask) it.next()));
-        }
-        return n;
-    }
-    
-    /**
-     * Creates the root node of the TT model
-     * 
-     * @param utl a task list
-     */
-    private DefaultMutableTreeTableNode createTreeTableRootNode(UserTaskList utl) {
-        List tasks = utl.getTasks();
-        DefaultMutableTreeTableNode n = new DefaultMutableTreeTableNode(utl);
-        Iterator it = tasks.iterator();
-        while (it.hasNext()) {
-            n.add(createTreeTableNode((UserTask) it.next()));
-        }
-        return n;
-    }
-    
-    /**
-     * Creates a TT model
-     *
-     * @return created TT model
-     */
-    private TreeTableModel createTreeTableModel() {
-        DefaultMutableTreeTableNode n = createTreeTableRootNode(
-            (UserTaskList) getModel());
-        return new DefaultTreeTableModel(
-            n, new String[] {"Summary", "Priority", "Done", "Percent Complete",
-            "Effort", "Rem. Effort", "Spent Time", "Details", "File", "Line",
-            "Category", "Created", "Edited", "Due"
-        }); // TODO 
-    }
     
     protected Component createCenterComponent() {
-        TreeTable tt = new TreeTable(createTreeTableModel());
-        tt.setShowHorizontalLines(true);
-        tt.setShowVerticalLines(true);
-        tt.setAutoResizeMode(TreeTable.AUTO_RESIZE_OFF);
-        tt.getTree().setCellRenderer(new SummaryTreeCellRenderer());
+        TreeTable tt = new UserTasksTreeTable(
+            getExplorerManager(), (UserTaskList) getModel());
+        
         //treeTable = tt;
 
         final JScrollPane sp = new JScrollPane(tt,
