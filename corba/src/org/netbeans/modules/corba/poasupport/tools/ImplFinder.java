@@ -198,6 +198,7 @@ public class ImplFinder implements PropertyChangeListener {
         }
         catch(Exception ex) {
         }
+        /*
         if (_type == SERVANT_MANAGER) {
             ret.add("org.omg.PortableServer.ServantActivatorPOATie");
             ret.add("org.omg.PortableServer.ServantLocatorPOATie");
@@ -205,6 +206,7 @@ public class ImplFinder implements PropertyChangeListener {
         else if (_type == ADAPTER_ACTIVATOR) {
             ret.add("org.omg.PortableServer.AdapterActivatorPOATie");
         }
+         */
         return ret;
     }
     
