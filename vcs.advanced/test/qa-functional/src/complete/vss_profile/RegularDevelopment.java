@@ -148,7 +148,7 @@ public class RegularDevelopment extends NbTestCase {
         writer.close();
         new OpenAction().perform(A_FileNode);
         new Action(VERSIONING_MENU + "|" + REFRESH, REFRESH).perform(A_FileNode);
-        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        Thread.sleep(5000);
         A_FileNode = new Node( filesystemNode, "A_File [Locally Modified] (" + userName + ")");
         System.out.println(". done !");
     }
@@ -268,9 +268,8 @@ public class RegularDevelopment extends NbTestCase {
         JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
         getLatestVersionCommand.checkMakeTheLocalCopyWritable(true);
         getLatestVersionCommand.ok();
-        filesystemNode.select();
-        new Action("Edit|Delete", null).performMenu(C_FileNode);
-        new NbDialogOperator("Confirm Object Deletion").yes();
+        String deleteCommand = "cmd /x /c \"del /F /Q " + workingDirectory + File.separator + "Work" + File.separator + "test" + File.separator + "C_File.*\"";
+        if (new ExternalCommand(deleteCommand).exec() != 0) captureScreen("Error: Can't delete C_File files.");
         new Action(VERSIONING_MENU + "|" + REFRESH, REFRESH).perform(testNode);
         MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
         Node C_FileJavaNode = new Node( testNode, "C_File.java [Missing]");
