@@ -450,13 +450,13 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         CommandExecutorSupport.postprocessCommand(executionContext, executor);
     }
     
-    private void printErrorOutput(final CommandExecutionContext executionContext) {        
-        if (executionContext == null) return ;
-        //executionContext.debugErr(g("MSG_Check_whole_output"));
+    private void printErrorOutput(final CommandExecutionContext executionContext) {              
+        if (executionContext == null) return ;          
         if(visualizerGUI == null && visualizerText == null){
             SwingUtilities.invokeLater(new Runnable(){
                 public void run(){
-                    getVisualizer(false).open(null);                    
+                    getVisualizer(false).open(null);                   
+                    visualizerText.errOutputLine("\n"+g("EXEC_STRING")+"\n"+executor.getExec()); //NOI18N
                     visualizerText.setExitStatus(executor.getExitStatus());
                 }
             });
