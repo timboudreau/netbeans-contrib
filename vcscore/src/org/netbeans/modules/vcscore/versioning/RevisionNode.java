@@ -27,6 +27,7 @@ import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.NbBundle;
 import org.openide.util.WeakListener;
 
 import org.netbeans.modules.vcscore.actions.VSRevisionAction;
@@ -37,7 +38,7 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  *
  * @author  Martin Entlicher
  */
-public class RevisionNode extends AbstractNode implements OpenCookie, PropertyChangeListener {
+public class RevisionNode extends AbstractNode implements /*OpenCookie, */PropertyChangeListener {
 
     private static final String ICON_BRANCH = "/org/netbeans/modules/vcscore/revision/branchIcon";
     //private static final String ICON_OPEN_BRANCH = "/org/openide/resources/defaultFolderOpen.gif";
@@ -46,6 +47,13 @@ public class RevisionNode extends AbstractNode implements OpenCookie, PropertyCh
 
     private RevisionItem item = null;
     private RevisionList list = null;
+    
+    private Sheet.Set propertiesSet;
+    private Node.Property propertyRevision;
+    private Node.Property propertyMessage;
+    private Node.Property propertyDate;
+    private Node.Property propertyAuthor;
+    private Node.Property propertyTags;
     
     /** Creates new RevisionNode */
     public RevisionNode(RevisionList list, RevisionChildren ch) {
@@ -77,7 +85,7 @@ public class RevisionNode extends AbstractNode implements OpenCookie, PropertyCh
     
     private void addCookies() {
         if (item != null && !item.isBranch()) {
-            getCookieSet().add(this);
+            getCookieSet().add(new RevisionEditorSupport(list, item));//this);
         }
         if (list != null) getCookieSet().add(list);
         if (item != null) getCookieSet().add(item);
@@ -126,8 +134,8 @@ public class RevisionNode extends AbstractNode implements OpenCookie, PropertyCh
      */
 
     public String getType() {
-        if (item == null || item.isBranch()) return org.openide.util.NbBundle.getBundle(org.netbeans.modules.vcscore.revision.RevisionNode.class).getString("CTL_TypeBranch");
-        else return org.openide.util.NbBundle.getBundle(org.netbeans.modules.vcscore.revision.RevisionNode.class).getString("CTL_TypeRevision");
+        if (item == null || item.isBranch()) return NbBundle.getBundle(RevisionNode.class).getString("CTL_TypeBranch");
+        else return NbBundle.getBundle(RevisionNode.class).getString("CTL_TypeRevision");
     }
     
     public boolean canCopy() {
@@ -150,45 +158,60 @@ public class RevisionNode extends AbstractNode implements OpenCookie, PropertyCh
         Sheet sheet = Sheet.createDefault();
         Sheet.Set set = sheet.get(Sheet.PROPERTIES);
         if (item == null) set.put(new PropertySupport.Name(this));
-        if (item != null) createProperties(item, set);
+        if (item != null) {
+            propertiesSet = set;
+            createProperties(item, set);
+        }
         return sheet;
     }
     
     private void createProperties(final RevisionItem item, final Sheet.Set set) {
         if (item.getRevision() != null)
-            set.put(new PropertySupport.ReadOnly(
+            set.put(propertyRevision = new PropertySupport.ReadOnly(
                         "revision", String.class,
-                        org.openide.util.NbBundle.getBundle(RevisionNode.class).getString("MSG_RevisionNumber"), ""
+                        NbBundle.getBundle(RevisionNode.class).getString("MSG_RevisionNumber"), ""
                         ) {
                             public Object getValue() {
                                 return item.getRevisionVCS();
                             }
                     });
         if (item.getMessage() != null)
-            set.put(new PropertySupport.ReadOnly(
+            set.put(propertyMessage = new PropertySupport.ReadOnly(
                         "message", String.class,
-                        org.openide.util.NbBundle.getBundle(RevisionNode.class).getString("MSG_Message"), ""
+                        NbBundle.getBundle(RevisionNode.class).getString("MSG_Message"), ""
                         ) {
                             public Object getValue() {
                                 return item.getMessage();
                             }
                     });
         if (item.getDate() != null)
-            set.put(new PropertySupport.ReadOnly(
+            set.put(propertyDate = new PropertySupport.ReadOnly(
                         "date", String.class,
-                        org.openide.util.NbBundle.getBundle(RevisionNode.class).getString("MSG_Date"), ""
+                        NbBundle.getBundle(RevisionNode.class).getString("MSG_Date"), ""
                         ) {
                             public Object getValue() {
                                 return item.getDate();
                             }
                     });
         if (item.getAuthor() != null)
-            set.put(new PropertySupport.ReadOnly(
+            set.put(propertyAuthor = new PropertySupport.ReadOnly(
                         "author", String.class,
-                        org.openide.util.NbBundle.getBundle(RevisionNode.class).getString("MSG_Author"), ""
+                        NbBundle.getBundle(RevisionNode.class).getString("MSG_Author"), ""
                         ) {
                             public Object getValue() {
                                 return item.getAuthor();
+                            }
+                    });
+        final String[] tags = item.getTagNames();
+        if (tags != null && tags.length > 0)
+            set.put(propertyTags = new PropertySupport.ReadOnly(
+                        "tag", String.class,
+                        (tags.length > 1) ? NbBundle.getBundle(RevisionNode.class).getString("MSG_TagNames")
+                                          : NbBundle.getBundle(RevisionNode.class).getString("MSG_TagName"), ""
+                        ) {
+                            public Object getValue() {
+                                String tag = VcsUtilities.arrayToString(tags);
+                                return tag.substring(1, tag.length() - 1);
                             }
                     });
         Hashtable additional = item.getAdditionalProperties();
@@ -203,32 +226,25 @@ public class RevisionNode extends AbstractNode implements OpenCookie, PropertyCh
                             }
                     });
         }
-        final String[] tags = item.getTagNames();
-        if (tags != null && tags.length > 0) {
-            set.put(new PropertySupport.ReadOnly(
-                        "tag", String.class,
-                        (tags.length > 1) ? org.openide.util.NbBundle.getBundle(RevisionNode.class).getString("MSG_TagNames")
-                                          : org.openide.util.NbBundle.getBundle(RevisionNode.class).getString("MSG_TagName"), ""
-                        ) {
-                            public Object getValue() {
-                                String tag = VcsUtilities.arrayToString(tags);
-                                return tag.substring(1, tag.length() - 1);
-                            }
-                    });
+    }
+    
+    public VersioningFileSystem getVersioningFileSystem() {
+        org.openide.filesystems.FileSystem fs;
+        try {
+            fs = list.getFileObject().getFileSystem();
+        } catch (org.openide.filesystems.FileStateInvalidException exc) {
+            fs = null;
         }
+        return (VersioningFileSystem) fs;
     }
     
-    public VersioningSystem getVersioningSystem() {
-        return list.getFileObject().getVersioningSystem();
-    }
-    
-    public VcsFileObject getFileObject() {
+    public FileObject getFileObject() {
         return list.getFileObject();        
     }
     
     public SystemAction [] getActions() {
         ArrayList actions = new ArrayList();
-        VersioningSystem vs = getVersioningSystem();
+        VersioningFileSystem vs = getVersioningFileSystem();
         //SystemAction[] revActions = vs.getRevisionActions(list.getFileObject());
         if (getCookie(OpenCookie.class) != null) {
             actions.add(SystemAction.get(OpenAction.class));
@@ -248,14 +264,15 @@ public class RevisionNode extends AbstractNode implements OpenCookie, PropertyCh
         return array;
     }
     
+    /*
     public void open() {
         org.openide.util.RequestProcessor.postRequest(new Runnable() {
             public void run() {
-                VersioningSystem vs = getVersioningSystem();
+                VersioningFileSystem vs = getVersioningFileSystem();
                 //RevisionAction action = new RevisionAction(fs, getFileObject());
                 //RevisionAction.openAction(item.getRevisionVCS(), vs, getFileObject());
-                VcsFileObject vfo = getFileObject();
-                final VersioningEditorSupport.VersioningEnvironment env = new VersioningEditorSupport.VersioningEnvironment(vfo, item.getRevisionVCS());
+                FileObject fo = getFileObject();
+                final VersioningEditorSupport.VersioningEnvironment env = new VersioningEditorSupport.VersioningEnvironment(fo, item.getRevisionVCS());
                 final VersioningEditorSupport editor = new VersioningEditorSupport(env);
                 javax.swing.SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
@@ -265,6 +282,7 @@ public class RevisionNode extends AbstractNode implements OpenCookie, PropertyCh
             }
         });
     }
+     */
     
     public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
         String propertyName = propertyChangeEvent.getPropertyName();
@@ -272,6 +290,20 @@ public class RevisionNode extends AbstractNode implements OpenCookie, PropertyCh
             refreshIcons();
         } else if (RevisionItem.PROP_DISPLAY_NAME.equals(propertyName)) {
             setDisplayName(item.getDisplayName());
+        } else if (propertiesSet != null) {
+            if (RevisionItem.PROP_REVISION.equals(propertyName)) {
+                propertiesSet.put(propertyRevision);
+            } else if (RevisionItem.PROP_MESSAGE.equals(propertyName)) {
+                propertiesSet.put(propertyMessage);
+            } else if (RevisionItem.PROP_DATE.equals(propertyName)) {
+                propertiesSet.put(propertyDate);
+            } else if (RevisionItem.PROP_AUTHOR.equals(propertyName)) {
+                propertiesSet.put(propertyAuthor);
+            } else if (RevisionItem.PROP_TAGS.equals(propertyName)) {
+                propertiesSet.put(propertyTags);
+            } else if (RevisionItem.PROP_ADDITIONAL_PROPERTIES.equals(propertyName)) {
+                //set.put(propertyRevision);
+            }
         }
     }
     

@@ -16,6 +16,7 @@ package org.netbeans.modules.vcscore.versioning;
 import java.util.*;
 import javax.swing.event.*;
 
+import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 
 /**
@@ -25,7 +26,7 @@ import org.openide.nodes.Node;
  */
 public abstract class RevisionList extends TreeSet implements Node.Cookie {
 
-    private transient VcsFileObject fo = null; // The current File Object
+    private transient FileObject fo = null; // The current File Object
     private transient Vector listeners;
     private transient WeakHashMap nodeDelegates;
 
@@ -37,11 +38,11 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
         nodeDelegates = new WeakHashMap();
     }
     
-    public void setFileObject(VcsFileObject fo) {
+    public void setFileObject(FileObject fo) {
         this.fo = fo;
     }
     
-    public VcsFileObject getFileObject() {
+    public FileObject getFileObject() {
         return fo;
     }
     

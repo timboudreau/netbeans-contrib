@@ -56,8 +56,8 @@ import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionListener;
-import org.netbeans.modules.vcscore.versioning.VcsFileObject;
-import org.netbeans.modules.vcscore.versioning.VersioningSystem;
+//import org.netbeans.modules.vcscore.versioning.VcsFileObject;
+import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
@@ -322,7 +322,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private transient Set unimportantFiles;
     
-    private transient VersioningSystem versioningSystem = null;
+    private transient VersioningFileSystem versioningSystem = null;
     
     private transient AbstractFileSystem.List vcsList = null;
     
@@ -1099,7 +1099,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                             }
                         }
                     }
-                    VersioningRepository.getRepository().addVersioningSystem(versioningSystem);
+                    VersioningRepository.getRepository().addVersioningFileSystem(versioningSystem);
                 }
             });
         }
@@ -1116,7 +1116,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (versioningSystem != null) {
             org.openide.util.RequestProcessor.postRequest(new Runnable() {
                 public void run() {
-                    VersioningRepository.getRepository().removeVersioningSystem(versioningSystem);
+                    VersioningRepository.getRepository().removeVersioningFileSystem(versioningSystem);
                     try {
                         VcsFileSystem.this.runAtomicAction(new FileSystem.AtomicAction() {
                             public void run() {
@@ -1155,7 +1155,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return createVersioningSystem.booleanValue();
     }
     
-    public VersioningSystem getVersioningSystem() {
+    public VersioningFileSystem getVersioningFileSystem() {
         return versioningSystem;
     }
     
@@ -1850,6 +1850,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 if (processAll || isImportant(fullName)) {
                     result.add(fullName);
                 }
+            } else {
+                try {
+                    if (ff.getFileSystem() instanceof VersioningFileSystem) {
+                        String fullName = ff.getPackageNameExt('/','.');
+                        result.add(fullName);
+                    }
+                } catch (FileStateInvalidException exc) {}
             }
             // check for scheduled files:
             Set[] scheduled = (Set[]) ff.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
@@ -3042,7 +3049,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         
         private void refreshVersioning() {
             //System.out.println("refreshVersioning("+name+")");
-            VcsFileObject fo = versioningSystem.findExistingResource(name);
+            FileObject fo = versioningSystem.findExistingResource(name);
             //System.out.println("  resource = "+fo);
             if (fo != null) fo.refresh();
         }

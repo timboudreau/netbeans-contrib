@@ -31,6 +31,7 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
     private int numAcceptDots = 1;
     private RevisionList list = null;
     private ChangeListener changeListenerToList;
+    private ArrayList notificationListeners = new ArrayList(2);
     private Runnable initProcess = null;
     
     /** Creates new RevisionChildren 
@@ -58,6 +59,18 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
         stateChanged (null);
     }
     
+    public void addNotificationListener(NotificationListener l) {
+        synchronized (notificationListeners) {
+            notificationListeners.add(l);
+        }
+    }
+    
+    public void removeNotificationListener(NotificationListener l) {
+        synchronized (notificationListeners) {
+            notificationListeners.remove(l);
+        }
+    }
+    
     public void setInitProcess(Runnable initProcess) {
         this.initProcess = initProcess;
     }
@@ -67,7 +80,35 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
             org.openide.util.RequestProcessor.postRequest(initProcess);
             initProcess = null;
         }
+        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                ArrayList notifList;
+                synchronized (notificationListeners) {
+                    notifList = new ArrayList(notificationListeners);
+                }
+                for (int i = notifList.size() - 1; i >= 0; i--) {
+                    NotificationListener l = (NotificationListener) notifList.get(i);
+                    l.notifyAdded();
+                }
+            }
+        });
         super.addNotify();
+    }
+    
+    protected void removeNotify() {
+        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                ArrayList notifList;
+                synchronized (notificationListeners) {
+                    notifList = new ArrayList(notificationListeners);
+                }
+                for (int i = notifList.size() - 1; i >= 0; i--) {
+                    NotificationListener l = (NotificationListener) notifList.get(i);
+                    l.notifyRemoved();
+                }
+            }
+        });
+        super.removeNotify();
     }
     
     private void setAcceptField(String acceptField) {
@@ -114,13 +155,19 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
         return nodes;
     }
     
-    public void stateChanged(ChangeEvent evt) {
+    public synchronized void stateChanged(ChangeEvent evt) {
         //System.out.println("RevisionChildren.stateChanged("+evt+")");
         if (list == null) {
             setKeys(Collections.singleton(WAIT_KEY));
         } else {
             setKeys(list /*(Collection) evt.getSource()*/);
         }
+        
+    }
+    
+    public static interface NotificationListener {
+        public void notifyAdded();
+        public void notifyRemoved();
     }
 
 }

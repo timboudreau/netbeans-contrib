@@ -244,4 +244,8 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
                                           new PropertyChangeEvent(this, property, oldValue, newValue));
         }
     }
+    
+    public String toString() {
+        return revision;
+    }
 }

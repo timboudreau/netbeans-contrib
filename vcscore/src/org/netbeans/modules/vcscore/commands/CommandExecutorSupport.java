@@ -351,7 +351,7 @@ public class CommandExecutorSupport extends Object {
             String[] files = (String[]) vce.getFiles().toArray(new String[0]);
             for (int i = 0; i < files.length; i++) {
                 Object fo = fileSystem.findResource(files[i]);
-                if (fo == null) fo = fileSystem.getVersioningSystem().findResource(files[i]);
+                if (fo == null) fo = fileSystem.getVersioningFileSystem().findResource(files[i]);
                 if (fo != null) {
                     RevisionEvent event = new RevisionEvent(fo);
                     event.setRevisionChangeID(whatChanged);

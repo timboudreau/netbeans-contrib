@@ -57,7 +57,7 @@ public final class VersioningRepository extends Object implements java.io.Serial
         }
     }
     
-    public final void addVersioningSystem(VersioningSystem vfs) {
+    public final void addVersioningFileSystem(VersioningFileSystem vfs) {
         boolean fireIt;
         synchronized (this) {
             String systemName = vfs.getSystemName();
@@ -73,7 +73,7 @@ public final class VersioningRepository extends Object implements java.io.Serial
         }
     }
     
-    public final void removeVersioningSystem(VersioningSystem vfs) {
+    public final void removeVersioningFileSystem(VersioningFileSystem vfs) {
         boolean fireIt;
         synchronized (this) {
             String systemName = vfs.getSystemName();
@@ -89,13 +89,13 @@ public final class VersioningRepository extends Object implements java.io.Serial
         }
     }
     
-    public final List getVersioningSystems() {
+    public final List getVersioningFileSystems() {
         ArrayList vfsl = new ArrayList(verSystems);
         return vfsl;
     }
     
-    public final synchronized VersioningSystem getSystem(String systemName) {
-        return (VersioningSystem) names.get(systemName);
+    public final synchronized VersioningFileSystem getSystem(String systemName) {
+        return (VersioningFileSystem) names.get(systemName);
     }
     
     public void addRepositoryListener(VersioningRepositoryListener listener) {
@@ -110,7 +110,7 @@ public final class VersioningRepository extends Object implements java.io.Serial
         }
     }
     
-    private void fireVerSystem(VersioningSystem vfs, boolean added) {
+    private void fireVerSystem(VersioningFileSystem vfs, boolean added) {
         VersioningRepositoryListener[] listeners;
         synchronized (listenerList) {
             listeners = (VersioningRepositoryListener[]) listenerList.getListeners(VersioningRepositoryListener.class);

@@ -36,7 +36,7 @@ import org.netbeans.modules.vcscore.util.WeakList;
 //import org.netbeans.modules.vcscore.util.FileEditorSupport;
 //import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
-import org.netbeans.modules.vcscore.versioning.VcsFileObject;
+//import org.netbeans.modules.vcscore.versioning.VcsFileObject;
 
 /**
  *
@@ -77,7 +77,7 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
         this.fileSystem = new WeakReference(fileSystem);
     }
     
-    public void setFileObject(VcsFileObject fileObject) {
+    public void setFileObject(FileObject fileObject) {
         this.fileObject = new WeakReference(fileObject);
     }
     
@@ -228,7 +228,7 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
         //D.deb("cmd="+cmd); // NOI18N
         //Node[] nodes = getActivatedNodes();
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        VcsFileObject fo = (VcsFileObject) this.fileObject.get();
+        FileObject fo = (FileObject) this.fileObject.get();
         if (fileSystem == null || fo == null) return ;
         RevisionItem[] items = (RevisionItem[]) selectedRevisionItems.toArray(new RevisionItem[0]);
         /*
@@ -251,7 +251,7 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
          */
         Table files = new Table();
         String mimeType = fo.getMIMEType();
-        String fileName = fo.getPackageName('/');
+        String fileName = fo.getPackageNameExt('/', '.');
         files.put(fileName, fo);
         Hashtable additionalVars = new Hashtable();
         if (mimeType != null) additionalVars.put("MIMETYPE", mimeType); // NOI18N

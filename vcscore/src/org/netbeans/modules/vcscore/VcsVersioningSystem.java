@@ -17,12 +17,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 //import java.util.StringTokenizer;
 
 import org.openide.filesystems.AbstractFileSystem;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileStatusEvent;
 import org.openide.filesystems.FileStatusListener;
 import org.openide.util.WeakListener;
@@ -39,10 +42,12 @@ import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.RevisionListener;
-import org.netbeans.modules.vcscore.versioning.VersioningSystem;
-import org.netbeans.modules.vcscore.versioning.VcsFileObject;
+import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
+//import org.netbeans.modules.vcscore.versioning.VcsFileObject;
 import org.netbeans.modules.vcscore.versioning.VcsFileStatusEvent;
-import org.netbeans.modules.vcscore.versioning.impl.AbstractVersioningSystem;
+//import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionChildren;
+import org.netbeans.modules.vcscore.versioning.impl.VersioningDataLoader;
+//import org.netbeans.modules.vcscore.versioning.impl.AbstractVersioningSystem;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 //import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionChildren;
@@ -51,22 +56,27 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  * The VersioningSystem used by VcsFileSystem
  * @author  Martin Entlicher
  */
-class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandlerListener {
+class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerListener {
 
     private VcsFileSystem fileSystem;
-    private VersioningSystem.Status status;
-    private VersioningSystem.Versions versions;
+    //private VersioningFileSystem.Status status;
+    private VersioningFileSystem.Versions versions;
     private FileStatusListener fileStatus;
     private Hashtable revisionListsByName;
 
     
+    private static final long serialVersionUID = 6349205836150345436L;
+
     /** Creates new VcsVersioningSystem */
     public VcsVersioningSystem(VcsFileSystem fileSystem) {
         this.fileSystem = fileSystem;
         try {
             setSystemName(fileSystem.getSystemName());
         } catch (java.beans.PropertyVetoException vExc) {}
-        this.status = new VersioningStatus();
+        //this.status = new VersioningFileStatus();
+        this.list = fileSystem.getVcsList();
+        this.info = fileSystem.getVcsInfo();
+        this.attr = new VersioningAttrs();
         this.versions = new VersioningVersions();
         revisionListsByName = new Hashtable();
         initListeners();
@@ -81,6 +91,7 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
         fileSystem.addFileStatusListener(WeakListener.fileStatus(fileStatus, fileSystem));
     }
 
+    /*
     public AbstractFileSystem.List getList() {
         return fileSystem.getVcsList();
     }
@@ -88,12 +99,13 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
     public AbstractFileSystem.Info getInfo() {
         return fileSystem.getVcsInfo();
     }
+     */
     
-    public VersioningSystem.Status getStatus() {
-        return status;
+    public FileSystem.Status getStatus() {
+        return fileSystem.getStatus();
     }
     
-    public VersioningSystem.Versions getVersions() {
+    public VersioningFileSystem.Versions getVersions() {
         return versions;
     }
     
@@ -103,6 +115,19 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
     
     public String getDisplayName() {
         return fileSystem.getDisplayName();
+    }
+    
+    /** Creates Reference. In FileSystem, which subclasses AbstractFileSystem, you can overload method
+     * createReference(FileObject fo) to achieve another type of Reference (weak, strong etc.)
+     * @param fo is FileObject. It`s reference yourequire to get.
+     * @return Reference to FileObject
+     */
+    protected java.lang.ref.Reference createReference(final FileObject fo) {
+        try {
+            org.openide.loaders.DataLoaderPool.setPreferredLoader(fo,
+                (VersioningDataLoader) org.openide.util.SharedClassObject.findObject(VersioningDataLoader.class, true));
+        } catch (java.io.IOException exc) {}
+        return super.createReference(fo);
     }
     
     public SystemAction[] getActions(Set vfoSet) {
@@ -125,9 +150,19 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
          */
     }
     
+    /*
+    public RevisionChildren createRevisionChildren(RevisionList list) {
+        return new NumDotRevisionChildren(list);
+    }
+     */
+    
+    public boolean isReadOnly() {
+        return false;
+    }
+    
     private static Object vsActionAccessLock = new Object();
 
-    public SystemAction[] getRevisionActions(VcsFileObject fo, Set revisionItems) {
+    public SystemAction[] getRevisionActions(FileObject fo, Set revisionItems) {
         VcsRevisionAction action = (VcsRevisionAction) SystemAction.get(VcsRevisionAction.class);
         synchronized (vsActionAccessLock) {
             action.setFileSystem(fileSystem);
@@ -144,12 +179,12 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
      */
     
     private void vcsStatusChanged (String path, boolean recursively) {
-        VcsFileObject fo = findExistingResource(path);
+        FileObject fo = findExistingResource(path);
         if (fo == null) return ;
         Enumeration enum = fo.getChildren(recursively);
         HashSet hs = new HashSet();
         while(enum.hasMoreElements()) {
-            fo = (VcsFileObject) enum.nextElement();
+            fo = (FileObject) enum.nextElement();
             hs.add(fo);
             //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
         }
@@ -158,7 +193,7 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
     }
 
     public void vcsStatusChanged (String name) {
-        VcsFileObject fo = findExistingResource(name);
+        FileObject fo = findExistingResource(name);
         if (fo == null) return;
         fireVcsFileStatusChanged (new VcsFileStatusEvent(this, Collections.singleton(fo)));
     }
@@ -203,17 +238,21 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
     public void cacheAdded(CacheHandlerEvent event) {
     }
     
-    private class VersioningStatus extends Object implements VersioningSystem.Status {
-        public String annotateName(String fileName, String displayName) {
-            return fileSystem.annotateName(fileName, displayName);
+    /*
+    private class VersioningFileStatus extends Object implements VersioningFileSystem.Status {
+
+        public java.lang.String annotateName(java.lang.String displayName, java.util.Set files) {
+            return fileSystem.annotateName(displayName, files);
         }
         
-        public java.awt.Image annotateIcon(String fileName, java.awt.Image icon, int iconType) {
-            return fileSystem.annotateIcon(icon, iconType, fileName);
+        public java.awt.Image annotateIcon(java.awt.Image icon, int iconType, java.util.Set files) {
+            return fileSystem.annotateIcon(icon, iconType, files);
         }
+        
     }
+     */
     
-    private class VersioningVersions extends Object implements VersioningSystem.Versions {
+    private class VersioningVersions extends Object implements VersioningFileSystem.Versions {
         
         public VersioningVersions() {
             fileSystem.addRevisionListener(new RevisionListener() {
@@ -240,9 +279,11 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
                             FileStatusProvider status = getFileStatusProvider();
                             if (status != null) {
                                 String revision = status.getFileRevision(name);
-                                for (Iterator it = oldList.iterator(); it.hasNext(); ) {
-                                    RevisionItem item = (RevisionItem) it.next();
-                                    item.setCurrent(revision.equals(item.getRevision()));
+                                if (revision != null) {
+                                    for (Iterator it = oldList.iterator(); it.hasNext(); ) {
+                                        RevisionItem item = (RevisionItem) it.next();
+                                        item.setCurrent(revision.equals(item.getRevision()));
+                                    }
                                 }
                             }
                         }
@@ -251,9 +292,9 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
             });
         }
         
-        public RevisionList getRevisions(final String name) {
+        public RevisionList getRevisions(String name, boolean refresh) {
             RevisionList list = (RevisionList) revisionListsByName.get(name);//new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList();
-            if (list == null) {
+            if (list == null || refresh) {
                 //org.openide.util.RequestProcessor.postRequest(new Runnable() {
                 //    public void run() {
                 list = createRevisionList(name);
@@ -327,6 +368,49 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
         public java.io.InputStream inputStream(String name, String revision) throws java.io.FileNotFoundException {
             return fileSystem.inputStream(name);
         }
+    }
+
+    /**
+     * A very simple implementation of attributes held in memory.
+     */
+    private static class VersioningAttrs extends Object implements AbstractFileSystem.Attr {
+        
+        private HashMap files = new HashMap();
+        
+        public void deleteAttributes(String name) {
+            files.remove(name);
+        }
+        
+        public java.util.Enumeration attributes(String name) {
+            HashMap attrs = (HashMap) files.get(name);
+            if (attrs == null) {
+                return new org.openide.util.enum.EmptyEnumeration();
+            } else {
+                return Collections.enumeration(attrs.keySet());
+            }
+        }
+        
+        public void renameAttributes(String oldName, String newName) {
+            HashMap attrs = (HashMap) files.get(oldName);
+            if (attrs != null) {
+                files.remove(oldName);
+                files.put(newName, attrs);
+            }
+        }
+        
+        public void writeAttribute(String name, String attrName, Object value) throws java.io.IOException {
+            HashMap attrs = (HashMap) files.get(name);
+            if (attrs == null) attrs = new HashMap();
+            attrs.put(attrName, value);
+            files.put(name, attrs);
+        }
+        
+        public java.lang.Object readAttribute(String name, String attrName) {
+            HashMap attrs = (HashMap) files.get(name);
+            if (attrs == null) return null;
+            else return attrs.get(attrName);
+        }
+        
     }
     
 }

@@ -22,11 +22,11 @@ import java.util.EventObject;
 public class VersioningRepositoryEvent extends EventObject {
 
     private VersioningRepository vr;
-    private VersioningSystem vfs;
+    private VersioningFileSystem vfs;
     private boolean added;
     
     /** Creates new VersioningRepositoryEvent */
-    public VersioningRepositoryEvent(VersioningRepository vr, VersioningSystem vfs, boolean added) {
+    public VersioningRepositoryEvent(VersioningRepository vr, VersioningFileSystem vfs, boolean added) {
         super(vr);
         this.vr = vr;
         this.vfs = vfs;
@@ -37,7 +37,7 @@ public class VersioningRepositoryEvent extends EventObject {
         return vr;
     }
     
-    public VersioningSystem getVersioningSystem() {
+    public VersioningFileSystem getVersioningFileSystem() {
         return vfs;
     }
     

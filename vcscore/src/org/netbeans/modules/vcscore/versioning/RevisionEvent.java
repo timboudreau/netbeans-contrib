@@ -51,9 +51,11 @@ public class RevisionEvent extends ChangeEvent {
         if (fileObject instanceof org.openide.filesystems.FileObject) {
             return ((org.openide.filesystems.FileObject) fileObject).getPackageNameExt('/', '.');
         }
+        /*
         if (fileObject instanceof org.netbeans.modules.vcscore.versioning.VcsFileObject) {
             return ((org.netbeans.modules.vcscore.versioning.VcsFileObject) fileObject).getPackageName('/');
         }
+         */
         return "";
     }
 
