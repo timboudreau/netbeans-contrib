@@ -241,6 +241,14 @@ public class MountingWizard extends NbTestCase {
                 throw new Exception("Error: Can't disable LOCK question.");
             wizardAdvanced.checkPromptForLOCK(true);
             wizardAdvanced.txtMessageLOCK().enterText("Do you want to lock the file ?");
+            wizardAdvanced.editCommands();
+            CommandEditor commandEditor = new CommandEditor();
+            commandEditor.selectCommand("Empty|Refresh");
+            PropertySheetOperator sheet = new PropertySheetOperator(commandEditor);
+            PropertySheetTabOperator sheetTab = sheet.getPropertySheetTabOperator("Refresh Info");
+            TextFieldProperty locker = new TextFieldProperty(sheetTab, "Locker Index");
+            locker.setValue("-1");
+            commandEditor.ok();
             wizardAdvanced.finish();
             Thread.sleep(2000);
             Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath());
@@ -263,6 +271,7 @@ public class MountingWizard extends NbTestCase {
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
             try { new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath())); }
             catch (Exception te) {}
+            try { new QuestionDialogOperator().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
             throw e;
         }
@@ -323,6 +332,7 @@ public class MountingWizard extends NbTestCase {
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
             try { new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "CVS " + getWorkDirPath())); }
             catch (Exception te) {}
+            try { new QuestionDialogOperator().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
             throw e;
         }
