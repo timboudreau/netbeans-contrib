@@ -177,7 +177,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     public SystemAction[] getToolBarActions() {
         return new SystemAction[] {
             SystemAction.get(ShowSuggestionAction.class),
-            SystemAction.get(FilterAction.class),
+            SystemAction.get(FilterSourceTasksAction.class),
             SystemAction.get(RemoveFilterAction.class)
         };
     }
