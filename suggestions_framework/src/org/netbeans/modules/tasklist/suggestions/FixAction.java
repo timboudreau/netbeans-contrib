@@ -68,7 +68,15 @@ public class FixAction extends NodeAction {
              (SuggestionManagerImpl)SuggestionManager.getDefault();
 
         boolean skipConfirm = false;
-        SuggestionsView tlv = SuggestionsView.getCurrentView();
+
+        SuggestionImpl first = (SuggestionImpl)TaskNode.getTask(node[0]);
+        TaskList list = first.getList();
+        SuggestionsView tlv;
+        if (list.getView() instanceof SuggestionsView) {
+            tlv = (SuggestionsView)list.getView();
+        } else {
+            tlv = SuggestionsView.getCurrentView();
+        }
         if (tlv == null) {
             // INTERNAL ERROR
             return;

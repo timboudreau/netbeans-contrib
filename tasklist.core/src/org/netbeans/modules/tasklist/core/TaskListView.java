@@ -115,6 +115,9 @@ public abstract class TaskListView extends ExplorerPanel
 	this.title = title;
 	this.persistent = persistent;
 	this.tasklist = tasklist;
+        if (tasklist != null) {
+            tasklist.setView(this);
+        }
 	
         deletePerformer = new DeleteActionPerformer(this.getExplorerManager());
         

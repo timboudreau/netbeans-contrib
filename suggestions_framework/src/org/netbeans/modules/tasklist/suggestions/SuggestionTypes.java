@@ -59,6 +59,15 @@ final public class SuggestionTypes {
     public final void removeType(String name) {
         allTypes.remove(name);
     }
+
+    public final int getCount() {
+        loadTypes();
+        if (allTypes == null) {
+            return 0;
+        } else {
+            return allTypes.size();
+        }
+    }
     
     /** Returns SuggestionType instance for the given name of the type
      * @param name suggestion type name

@@ -982,28 +982,38 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
 
+    void setExpandedType(SuggestionType type, boolean expanded) {
+        readTypeRegistry();
+        if (expandedTypes == null) {
+            expandedTypes = new HashSet(2*SuggestionTypes.getTypes().getCount());
+            // Ensure that we default to showing java compilation errors
+            // expanded
+            SuggestionType jc =
+                SuggestionTypes.getTypes().getType("nb-java-errors"); // NOI18N
+            if (jc != null) {
+                expandedTypes.add(jc);
+            }
+        }
+        if (expanded) {
+            expandedTypes.add(type);
+        } else {
+            expandedTypes.remove(type);
+        }
+    }
+
+
     void scheduleNodeExpansion(SuggestionsView view,
                                SuggestionImpl target) {
         view.scheduleNodeExpansion(target, 0);
     }
 
 
-    private boolean writeTypeRegistry()  {
-        SuggestionsView view = SuggestionsView.getCurrentView();
-        if (view != null) {
-            return writeTypeRegistry(view);
-        } else {
-            return writeTypeRegistry(null);
-        }
-    }
-
-    
     /** Write out the SuggestionType registry preferences.
      * @param view The current view that we're focused on (used to
      *     persist type expansion state)
      * @return True iff the registry was completely written out without error
      */
-    boolean writeTypeRegistry(SuggestionsView view)  {
+    boolean writeTypeRegistry()  {
         File file = getRegistryFile(true);
 	try {
             Writer writer = new BufferedWriter(new FileWriter(file));
@@ -1040,28 +1050,17 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
 
             // Write node-expansion settings
-            if (view != null) {
-                SuggestionList list = (SuggestionList)view.getList();
-                List tasks = list.getTasks();
-                if (tasks != null) {
-                    it = tasks.iterator();
-                    boolean headerWritten = false;
+            if (expandedTypes != null) {
+                it = expandedTypes.iterator();
+                if (it.hasNext()) {
+                    writer.write("  <expanded>\n"); // NOI18N
                     while (it.hasNext()) {
-                        SuggestionImpl s = (SuggestionImpl)it.next();
-                        if (s.isExpanded()) {
-                            // Expanded - write it out
-                            if (!headerWritten) {
-                                writer.write("  <expanded>\n"); // NOI18N
-                                headerWritten = true;
-                            }
-                            writer.write("    <type id=\""); // NOI18N
-                            writer.write(s.getSType().getName());
-                            writer.write("\"/>\n"); // NOI18N
-                        }
+                        SuggestionType type = (SuggestionType)it.next();
+                        writer.write("    <type id=\""); // NOI18N
+                        writer.write(type.getName());
+                        writer.write("\"/>\n"); // NOI18N
                     }
-                    if (headerWritten) {
-                        writer.write("  </expanded>\n"); // NOI18N
-                    }
+                    writer.write("  </expanded>\n"); // NOI18N
                 }
             }
 
@@ -1749,6 +1748,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * called directly by programs.
      */
     public void docHidden(Document document, DataObject dataobject) {
+        // Update expansion state before we remove the nodes
+        getList().flushExpansion();
+        
         if (runTimer == null) {
             stuffCache(document, dataobject);
         } else {

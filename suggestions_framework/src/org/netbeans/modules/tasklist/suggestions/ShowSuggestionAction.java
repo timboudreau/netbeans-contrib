@@ -32,12 +32,16 @@ public class ShowSuggestionAction extends NodeAction {
     protected void performAction(Node[] nodes) {
         Task item =
             (Task)TaskNode.getTask(nodes[0]); // safe - see enable check
-        SuggestionsView tlv = SuggestionsView.getCurrentView();
-        if (tlv != null) {
-            tlv.show(item, new SuggestionAnno(item));
-        } else {
-            System.out.println("No current view!");
+        TaskList list = item.getList();
+        if (list == null) {
+            return; // internal error
         }
+        TaskListView v = list.getView();
+        if ((v == null) || !(v instanceof SuggestionsView)) {
+            return; // internal error
+        }
+        SuggestionsView tlv = (SuggestionsView)v;
+        tlv.show(item, new SuggestionAnno(item));
     }
 
     /** Enable the task iff you've selected exactly one node,

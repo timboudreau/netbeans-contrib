@@ -19,13 +19,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import org.openide.nodes.Node;
-import org.openide.nodes.Children.Keys;
+import org.openide.nodes.Children;
 
 
 /** Children object for the Task list; used to track
  * TaskList modifications and update nodes appropriately.
  * @author Tor Norbye */
-public class TaskChildren extends Keys implements PropertyChangeListener {
+public class TaskChildren extends Children.Keys implements PropertyChangeListener {
     
     /** Optional holder for the keys, to be used when changing them dynamically. */
     protected List myKeys;
@@ -59,7 +59,6 @@ public class TaskChildren extends Keys implements PropertyChangeListener {
     protected void addNotify() {
         super.addNotify();
         parent.addPropertyChangeListener(this);
-        parent.setExpanded(true);
         refreshKeys();
     }
     
@@ -68,7 +67,6 @@ public class TaskChildren extends Keys implements PropertyChangeListener {
         myKeys = null;
         parent.removePropertyChangeListener(this);
         setKeys(Collections.EMPTY_SET);
-        parent.setExpanded(false);
         super.removeNotify();
     }
     

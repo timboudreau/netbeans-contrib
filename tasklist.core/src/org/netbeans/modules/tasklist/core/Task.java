@@ -54,10 +54,6 @@ public class Task extends Suggestion implements Cloneable {
     /** If this item has subtasks, they are stored in this list */
     protected LinkedList subtasks = null;
 
-    /** Whether or not the corresponding node(s) for this task should
-        be expanded */
-    protected boolean expanded = false;
-    
     public Task() { // TODO consider using a factory instead
         super(null, null, null);
         parent = null;
@@ -105,19 +101,6 @@ public class Task extends Suggestion implements Cloneable {
     public boolean isTemporary() {
 	return temporary;
     }
-
-    /** Set whether or not the nodes for this task should be expanded.
-     */
-    public void setExpanded(boolean expanded) {
-        this.expanded = expanded;
-    }
-
-    /** Get whether or not the nodes for this task should be expanded.
-     */
-    public boolean isExpanded() {
-        return expanded;
-    }
-    
 
     protected void updatedValues() {
         if (!silentUpdate) {
@@ -621,7 +604,6 @@ public class Task extends Suggestion implements Cloneable {
     protected void copyFrom(Task from) {
         temporary = from.temporary;
         list = from.list;
-        expanded = from.expanded;
 
         // Copy fields from the parent implementation
         super.setSummary(from.getSummary());

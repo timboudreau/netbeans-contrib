@@ -472,4 +472,25 @@ public class TaskList { // XXX remove the publicness
     public List getTasks() {
         return getRoot().getSubtasks();
     }
+
+    /** View where this tasklist is shown, if any */
+    private TaskListView view = null;
+
+    /**
+     * Set the view where this tasklist is shown, or null
+     * to indicate that the list is no longer shown in a view.
+     * @param view The view where the list is shown
+     */
+    public void setView(TaskListView view) {
+        this.view = view;
+    }
+    
+    /**
+     * Get the view where this tasklist is shown, or null
+     * which indicates that the list is not shown in any view.
+     * @return The view where the list is shown
+     */
+    public TaskListView getView() {
+        return view;
+    }
 }

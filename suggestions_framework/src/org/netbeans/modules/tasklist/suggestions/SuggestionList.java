@@ -19,13 +19,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.netbeans.modules.tasklist.core.TaskList;
-import org.netbeans.modules.tasklist.core.TaskListView;
-
-
 
 import org.netbeans.api.tasklist.*;
+import org.netbeans.modules.tasklist.core.TaskList;
+import org.netbeans.modules.tasklist.core.TaskListView;
+import org.netbeans.modules.tasklist.core.TaskNode;
+
+import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
+
 
 /**
  * A list of suggestions
@@ -64,7 +66,12 @@ final public class SuggestionList extends TaskList {
             SuggestionManagerImpl manager =
                 (SuggestionManagerImpl)SuggestionManager.getDefault();
             if (manager.isExpandedType(type)) {
-                SuggestionsView view = SuggestionsView.getCurrentView();
+                SuggestionsView view;
+                if (getView() instanceof SuggestionsView) {
+                    view = (SuggestionsView)getView();
+                } else {
+                    view = SuggestionsView.getCurrentView();
+                }
                 if (view != null) {
                     manager.scheduleNodeExpansion(view,
                                                   category);
@@ -150,7 +157,36 @@ final public class SuggestionList extends TaskList {
     void clearCategoryTasks() {
         categoryTasks = null; // recreate such that they get reinserted etc.
     }
-    
 
+    /** For the category tasks, update the expansion state */
+    void flushExpansion() {
+        if (categoryTasks == null) {
+            return;
+        }
+        TaskListView v = getView();
+        if ((v == null) || !(v instanceof SuggestionsView)) {
+            return;
+        }
+        SuggestionsView view = (SuggestionsView)v;
+        SuggestionManagerImpl manager =
+            (SuggestionManagerImpl)SuggestionManager.getDefault();
+        Node root = view.getEffectiveRoot();
+        Iterator it = categoryTasks.values().iterator();
+        while (it.hasNext()) {
+            SuggestionImpl s = (SuggestionImpl)it.next();
+            Node n = TaskNode.find(root, s);
+            if (n == null) {
+                continue;
+            }
+            SuggestionType type = s.getSType();
+            boolean expanded = view.isExpanded(n);
+            if (expanded) {
+                manager.setExpandedType(type, true);
+            } else if (manager.isExpandedType(type)) {
+                // Only set it to false if it's already recorded to be true
+                manager.setExpandedType(type, false);
+            }
+        }
+    }
     
 }
