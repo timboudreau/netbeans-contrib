@@ -1288,7 +1288,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private void createIgnoreList(final FileObject fo, final String path, final IgnoreListSupport ignSupport) {
         CacheDir dir = cache.getDir(path);
-        if (dir == null) return ;
+        if (dir == null || dir.isIgnoreListSet()) return ;
         dir.setIgnoreList(VcsUtilities.createIgnoreList(dir, path, ignSupport));//ignorelist);
         Enumeration existingFOEnum = existingFileObjects(fo);
         if (existingFOEnum.hasMoreElements()) existingFOEnum.nextElement(); // take out the root FileObject
