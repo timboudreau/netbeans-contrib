@@ -46,8 +46,7 @@ import org.openide.util.Utilities;
  * @author  Richard Gregor
  */
 public class CommandOutputTopComponent extends TopComponent {
-
-    //private CommandOutputPanel outputPanel;
+    
     private OutputPanel outputPanel;
     private ArrayList closeListeners = new ArrayList(); 
     private java.awt.event.ActionListener killListener = null;
@@ -61,14 +60,17 @@ public class CommandOutputTopComponent extends TopComponent {
     private static final long serialVersionUID = -8901733341334731237L;
     
     private CommandOutputTopComponent() {        
-        setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));  //NOI18N
-        putClientProperty("PersistenceType", "Never");        //NOI18N
+        setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));  //NOI18N        
         initComponents();
         setName(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.topName")); //NOI18N
         initPopupMenu();
         new CommandOutputTopComponent.OutputTabPopupListener();  
        
    }
+    
+    public int getPersistenceType() {
+        return TopComponent.PERSISTENCE_NEVER;
+    }
     
     public static CommandOutputTopComponent getInstance(){
         if(outputTopComponent == null){
