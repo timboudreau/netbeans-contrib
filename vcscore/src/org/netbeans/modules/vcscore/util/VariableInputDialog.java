@@ -777,6 +777,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //OutputContainer container = new OutputContainer(cmd);
         Hashtable varsCopy = new Hashtable(vars);
         VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, varsCopy);
+        if (ec == null) return null;
         //ec.setErrorNoRegexListener(container);
         //ec.setOutputNoRegexListener(container);
         //ec.setErrorContainer(container);

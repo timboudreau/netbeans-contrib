@@ -695,7 +695,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         boolean matchWithParent = false;
         boolean matchOfCommand = false;
         ArrayList commandsToTestAgainst = new ArrayList(commands.keySet());
-        commandsToTestAgainst.addAll(commandsToRun);
+        //commandsToTestAgainst.addAll(commandsToRun);
         //commandsToTestAgainst.addAll(commandsWaitQueue);
         //commandsToTestAgainst.remove(vce);
         for(Iterator iter = commandsToTestAgainst.iterator(); iter.hasNext(); ) {
