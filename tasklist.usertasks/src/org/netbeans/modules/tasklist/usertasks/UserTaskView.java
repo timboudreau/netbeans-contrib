@@ -346,7 +346,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     
     /** Return the currently active user task view, or the default
         one if none are active */
-    static TaskListView getCurrent() {
+    public static TaskListView getCurrent() {
 	// Try to figure out which view is current. If none is found to
 	// be visible, guess one.
         if (views == null) {

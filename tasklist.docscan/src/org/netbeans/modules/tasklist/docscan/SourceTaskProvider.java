@@ -90,7 +90,6 @@ import org.openide.windows.Workspace;
  *     with lots of todos from hiding say the syntax errors). It might be
  *     useful to show the N tasks closest to the cursor position!
  * @todo Process copyrights and source tasks separately
- * @todo Do batch remove(List) for performance?
  *
  * @author Tor Norbye
  */
@@ -98,6 +97,20 @@ import org.openide.windows.Workspace;
 
 public class SourceTaskProvider extends DocumentSuggestionProvider {
 
+    final private static String COMMENTTYPE = "nb-tasklist-scannedtask"; // NOI18N
+    final private static String COPYRIGHTTYPE = "nb-tasklist-copyright"; // NOI18N
+    
+    /**
+     * Return the typenames of the suggestions that this provider
+     * will create.
+     * @return An array of string names. Should never be null. Most
+     *  providers will create Suggestions of a single type, so it will
+     *  be an array with one element.
+     */
+    public String[] getTypes() {
+        return new String[] { COMMENTTYPE, COPYRIGHTTYPE };
+    }
+    
     private boolean scanning = false;
     
     /**
@@ -108,7 +121,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      */
     protected void notifyRun() {
         super.notifyRun();
-        //System.out.println("notifyRun");
+        System.out.println("notifyRun");
         scanning = true;
     }
 
@@ -120,7 +133,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      */
     protected void notifyStop() {
         super.notifyStop();
-        //System.out.println("notifyStop");
+        System.out.println("notifyStop");
         scanning = false;
 
         // Nothing to do here -- docHidden takes care of everything
@@ -192,21 +205,18 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
 	Settings settings = (Settings)Settings.
 	    findObject(Settings.class, true);
 	boolean skipCode = settings.getSkipComments();
-	boolean checkCopyrights = settings.getCheckCopyright();
         tasklist = new TaskList();
-	scanner = new SourceScanner(tasklist, skipCode, checkCopyrights);
+	scanner = new SourceScanner(tasklist, skipCode);
 	//scanner.start(false);
 
         scan(document, dataobject);
     }
 
     private void scan(Document doc, DataObject dobj) {
-        String commentType = "nb-tasklist-scannedtask"; // NOI18N
-        String copyrightType = "nb-tasklist-copyright"; // NOI18N
         SuggestionManager manager = SuggestionManager.getDefault();
         
-        if (!manager.isEnabled(commentType) &&
-            !manager.isEnabled(copyrightType)) {
+        if (!manager.isEnabled(COMMENTTYPE) &&
+            !manager.isEnabled(COPYRIGHTTYPE)) {
             return;
         }
 
@@ -215,23 +225,19 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
 
         // Remove old contents
         if (showingTasks != null) {
-            ListIterator it = showingTasks.listIterator();
-            while (it.hasNext()) {
-                Suggestion s = (Suggestion)it.next();
-                manager.remove(s);
-                it.remove();
-            }
+            manager.remove(showingTasks);
+            showingTasks.clear();
         } else {
             int defSize = 10;
             showingTasks = new ArrayList(defSize);
         }
 
-        if (manager.isEnabled(copyrightType)) {
+        if (manager.isEnabled(COPYRIGHTTYPE)) {
             DocTask copyright = scanner.checkCopyright(doc, dobj);
             if (copyright != null) {
                 String summary = copyright.getSummary();
                 SuggestionPerformer action = copyright.getAction();
-                Suggestion s = manager.createSuggestion(copyrightType,
+                Suggestion s = manager.createSuggestion(COPYRIGHTTYPE,
                                                         summary,
                                                         action);
                 s.setLine(copyright.getLine());
@@ -240,7 +246,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
             }
         }
         
-        if (manager.isEnabled(commentType)) {
+        if (manager.isEnabled(COMMENTTYPE)) {
             scanner.scan(doc, dobj, false, false);
 
             SuggestionPerformer action = new LineSuggestionPerformer();
@@ -248,7 +254,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
             while (it.hasNext()) {
                 DocTask subtask = (DocTask)it.next();
                 String summary = subtask.getSummary();
-                Suggestion s = manager.createSuggestion(commentType,
+                Suggestion s = manager.createSuggestion(COMMENTTYPE,
                                                         summary,
                                                         action);
                 s.setLine(subtask.getLine());
@@ -277,11 +283,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
 	// Remove existing items
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
-            ListIterator it = showingTasks.listIterator();
-            while (it.hasNext()) {
-                Suggestion s = (Suggestion)it.next();
-                manager.remove(s);
-            }
+            manager.remove(showingTasks);
 	    showingTasks = null;
 	}     
     }

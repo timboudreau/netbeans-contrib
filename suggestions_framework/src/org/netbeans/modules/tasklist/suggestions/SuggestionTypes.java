@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.util.Map;
+import java.util.Collection;
 
 /** Registry of all suggestion types. This is singleton and it also keeps
  * the settings whether the suggestion types which are not active are 
@@ -70,13 +71,24 @@ final public class SuggestionTypes {
         return (SuggestionType)allTypes.get(name);
     }
 
+    /** Returns a collection containing all the registered SuggestionTypes.
+     * @return collection containing all registered types */    
+    public final Collection getAllTypes() {
+        loadTypes();
+        
+        if (allTypes == null)
+            return null;
+        
+        return allTypes.values();
+    }
+
     /** Iterator of all suggestion type names in the system */
     /* XXX Not yet needed
     public Iterator getSuggestionTypeNames() {
         loadTypes();
 
         // if following code throws NPE the problem is that
-        // in Editors/SuggestionTypes folder there is a XML file
+        // in SuggestionTypes folder there is a XML file
         // which could not be succesfully parsed. This resulted
         // in that allTypes array is null
         Set temp = new HashSet();

@@ -31,6 +31,7 @@ import javax.swing.JLabel;
 import org.openide.explorer.view.TreeTableView;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node.Property;
 import org.openide.nodes.Node.PropertySet;
 import org.openide.nodes.PropertySupport;
@@ -762,7 +763,7 @@ public abstract class TaskListView extends ExplorerPanel
     sensitive with a beep. Or perhaps make them act on the default view?
     OR perhaps ALL views (okay for expand, not for show).
     */
-    static TaskListView getCurrent() {
+    public static TaskListView getCurrent() {
 	// Try to figure out which view is current. If none is found to
 	// be visible, guess one.
 	Collection vs = views.values();
@@ -1083,7 +1084,7 @@ public abstract class TaskListView extends ExplorerPanel
         filterPanel.setLayout(new BorderLayout());
         
         filterLabel = new JLabel();
-        updateFilterCount();
+        updateFilterCount(getExplorerManager().getRootContext().getChildren());
         removeFilterButton = new JButton();
         removeFilterButton.setText(NbBundle.getMessage(TaskListView.class,
                                           "RemoveFilter")); // NOI18N
@@ -1109,11 +1110,15 @@ public abstract class TaskListView extends ExplorerPanel
         }
     }
 
-    public void updateFilterCount() {
+    void updateFilterCount(Children children) {
+        if (filterLabel == null) {
+            return;
+        }
+        
         // NOTE This doesn't count subtasks correctly... it only counts the
         // first level hierarchy...
-        Integer showingCount = new Integer(getExplorerManager().getRootContext().
-                                           getChildren().getNodes().length);
+        Integer showingCount = new Integer(children.getNodes() == null ?
+                                           0 : children.getNodes().length);
         Integer totalCount = new Integer(rootNode.getChildren().
                                          getNodes().length);
         filterLabel.setText(NbBundle.getMessage(TaskListView.class,

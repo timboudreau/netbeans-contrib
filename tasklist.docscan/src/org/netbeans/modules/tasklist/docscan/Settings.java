@@ -36,7 +36,6 @@ public class Settings extends SystemOption {
 	PROP_SCAN_SOURCES	= "scanSources",	//NOI18N
 	PROP_SCAN_REGEXP	= "scanRegexp",		//NOI18N
 	PROP_SCAN_SKIP  	= "skipComments",	//NOI18N
-	PROP_SCAN_COPYRIGHT  	= "checkCopyright",	//NOI18N
 	PROP_SCAN_DELAY		= "scanDelay";		//NOI18N
     
     /** Return the signleton cppSettings */
@@ -96,6 +95,8 @@ public class Settings extends SystemOption {
      * is true.
      */
     public boolean getSkipComments() {
+        // XXX I did a spectacularly poor job naming this method.
+        // I never skip comments, I skip non-comments.
         Boolean b = (Boolean)getProperty(PROP_SCAN_SKIP);
 
         /*
@@ -116,31 +117,6 @@ public class Settings extends SystemOption {
 	//firePropertyChange(PROP_SCAN_SKIP, null, b);	
     }
 
-
-    /**
-     * @return true iff the user wants to check documents for
-     * inclusion of the current year. The default value is true.
-     */
-    public boolean getCheckCopyright() {
-        Boolean b = (Boolean)getProperty(PROP_SCAN_COPYRIGHT);
-        /*
-	// Default to off
-	return (b == Boolean.TRUE);
-        */
-
-	// Default to on
-        return (b != Boolean.FALSE);
-    }
-
-    /** Sets the check-copyright-year property
-     * @param doCheck True iff you want to check for copyright sections
-     * with missing years
-     */
-    public void setCheckCopyright(boolean doCheck) {
-	Boolean b = doCheck ? Boolean.TRUE : Boolean.FALSE;
-	putProperty(PROP_SCAN_COPYRIGHT, b, true);
-	//firePropertyChange(PROP_SCAN_COPYRIGHT, null, b);	
-    }
 
     /**
      * @return Delay (in milliseconds) after file exposure

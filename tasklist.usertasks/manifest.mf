@@ -1,9 +1,9 @@
-OpenIDE-Module-Specification-Version: 0.8.9
+OpenIDE-Module-Specification-Version: 0.8.10
 OpenIDE-Module: org.netbeans.modules.tasklist.usertasks/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/usertasks/Bundle.properties
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 2.23
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/1 > 0.8.9, org.netbeans.api.tasklist/1 > 0.8.9
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/1 > 0.8.10, org.netbeans.api.tasklist/1 > 0.8.10
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/usertasks/mf-layer.xml
 
 Name: org/netbeans/modules/tasklist/usertasks/TaskListLoader.class

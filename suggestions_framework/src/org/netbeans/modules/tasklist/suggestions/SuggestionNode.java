@@ -99,17 +99,19 @@ class SuggestionNode extends TaskNode {
                 null
             };
         } else {
+
+            // TODO Add Delete action here as well
+            
             if (item.getAction() instanceof LineSuggestionPerformer) {
                 return new SystemAction[] {
                     SystemAction.get(GoToTaskAction.class),
                     null,
-                    SystemAction.get(DisableAction.class),
-                    null,
+                    SystemAction.get(ShowCategoryAction.class),
                     SystemAction.get(FilterAction.class),
                     null,
+                    SystemAction.get(DisableAction.class),
+                    null,
                     SystemAction.get(ExportAction.class),
-                    //null,
-                    //SystemAction.get(ScanTasksAction.class),
                     null,
                     SystemAction.get(PropertiesAction.class),
                 };
@@ -118,13 +120,12 @@ class SuggestionNode extends TaskNode {
                     SystemAction.get(AutoFixAction.class),
                     SystemAction.get(GoToTaskAction.class),
                     null,
-                    SystemAction.get(DisableAction.class),
-                    null,
+                    SystemAction.get(ShowCategoryAction.class),
                     SystemAction.get(FilterAction.class),
                     null,
+                    SystemAction.get(DisableAction.class),
+                    null,
                     SystemAction.get(ExportAction.class),
-                    //null,
-                    //SystemAction.get(ScanTasksAction.class),
                     null,
                     SystemAction.get(PropertiesAction.class),
                 };
@@ -172,7 +173,7 @@ class SuggestionNode extends TaskNode {
             p = new Reflection(item, String.class, "getCategory",
                                                null); // NOI18N
             p.setName(SuggestionsView.PROP_SUGG_CAT);
-            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Category")); // NOI18N
+            p.setDisplayName(getCategoryLabel()); // NOI18N
             p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "CategoryHint")); // NOI18N
             ss.put(p);
 
@@ -181,6 +182,10 @@ class SuggestionNode extends TaskNode {
             ErrorManager.getDefault().notify(nsme);
         }
         return s;
+    }
+
+    static String getCategoryLabel() {
+        return NbBundle.getMessage(SuggestionNode.class, "Category"); // NOI18N
     }
     
     public boolean canRename() {

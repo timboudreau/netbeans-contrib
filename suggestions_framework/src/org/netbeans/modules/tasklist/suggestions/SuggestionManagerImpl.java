@@ -20,8 +20,14 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Map;
+import java.util.Collection;
+import java.util.HashMap;
 
 import org.openide.util.Lookup;
+import org.openide.TopManager;
 import org.netbeans.api.tasklist.*;
 
 /**
@@ -198,12 +204,35 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         getList().remove((Task)suggestion);
     }
 
+    /**
+     * Same as {@link remove(Suggestion)}, but unregister a set of
+     * suggestions one operation. In addition to being a convenience
+     * and offering symmetry to {@link add(List)}, this offers better
+     * performance than calling {@link remove(Suggestion} on each
+     * suggestion in the List, because the UI will only be updated
+     * once at the end of the removal, instead of after every removal.
+     */
+    public void remove(List suggestions) {
+        // TODO check instanceof Task here, and throw an exception if not?
+        getList().addRemove(null, suggestions, false, null);
+    }
+
 
     /** Keep track of our "view state" since we get a few stray
      * messages from the component listener.
      */
     boolean running = false;
     boolean prepared = false;
+
+    /** When the Suggestions window is made visible, we notify all the
+        providers that they should run. But that's not correct if there
+        was a filter in effect when you left the window. Thus, we need to
+        check if a SuggestionProvider should be notified. Since I know
+        the filter accepts one and only one SuggestionProvider, for
+        performance reasons it's fastest to just remember which
+        SuggestionProvider is allowed-through. When null, it means there's
+        no filter in effect and all should pass through. */
+    SuggestionProvider unfiltered = null;
     
     
     /** Called when the Suggestions View is opened */
@@ -219,7 +248,11 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         }
     }
 
-    /** Called when the Suggestions View is made visible */
+    /** Called when the Suggestions View is made visible
+     *
+     * @todo If a filter was in effect when we left the window, we should
+     * NOT notify the filtered-out SuggestionProviders!
+     */
     void notifyViewShowing() {
         if (!running) {
             if (!prepared) {
@@ -229,7 +262,10 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             ListIterator it = providers.listIterator();
             while (it.hasNext()) {
                 SuggestionProvider provider = (SuggestionProvider)it.next();
-                notifyRun(provider);
+                if ((unfiltered == null) ||
+                    (unfiltered == provider)) {
+                    notifyRun(provider);
+                }
             }
             running = true;
         }
@@ -242,7 +278,10 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             ListIterator it = providers.listIterator();
             while (it.hasNext()) {
                 SuggestionProvider provider = (SuggestionProvider)it.next();
-                notifyStop(provider);
+                if ((unfiltered == null) ||
+                    (unfiltered == provider)) {
+                    notifyStop(provider);
+                }
             }
             running = false;
         }
@@ -265,7 +304,8 @@ final public class SuggestionManagerImpl extends SuggestionManager {
     }
 
     private List providers = null;
-
+    private Map providersByType = null;
+    
     /** Return a list of the providers registered
      * @todo Filter out disabled providers
      */
@@ -320,5 +360,79 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         System.out.println("SuggestionManagerImpl: TODO - store enabled state.");
     }
 
-    
+
+    /** Notify the SuggestionManager that a particular category filter
+     * is in place.
+     *
+     * @todo Fix this method; currently the bulk of the body is commented out
+     *
+     * @param type SuggestionType to be shown, or
+     *     null if the view should not be filtered (e.g. show all)
+     */
+    void notifyFiltered(SuggestionType type) {
+        /** TODO Get this working; it's currently a bit broken so commented
+            out
+
+            
+        unfiltered = null;
+        Collection types = SuggestionTypes.getTypes().getAllTypes();
+        Iterator it = types.iterator();
+
+        // TODO
+        // XXX Wouldn't it be faster to iterate over the providers
+        // and check each one? Here I risk notifying the same provider
+        // more than once - and inconsistently!
+
+
+        
+        while (it.hasNext()) {
+            SuggestionType t = (SuggestionType)it.next();
+            SuggestionProvider provider = getProvider(t);
+            if (provider == null) {
+                // Some types don't have providers
+                continue;
+            }
+            boolean enabled = (type == t);
+            // XXX TODO Keep track of the previous state of each
+            // provider
+            if (enabled) {
+                notifyRun(provider);
+                unfiltered = provider;
+            } else {
+                notifyStop(provider);
+            }
+        }
+
+        */
+    }
+
+    /** @return The SuggestionProvider responsible for providing suggestions
+     * of a particular type */
+    private SuggestionProvider getProvider(SuggestionType type) {
+        if (providersByType == null) {
+            SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
+            //Collection types = suggestionTypes.getAllTypes();
+            List providers = getProviders();
+            providersByType = new HashMap(100); // XXXXX ?<??
+            // Perhaps use suggestionTypes.getAllTypes()*2 as a seed?
+            // Note, this includes suggestion types that do not have
+            // providers
+            ListIterator it = providers.listIterator();
+            while (it.hasNext()) {
+                SuggestionProvider provider = (SuggestionProvider)it.next();
+                String typeNames[] = provider.getTypes();
+                if (typeNames == null) {
+                    // Should I just let a NullPointerException occur instead?
+                    // After all, non null is required for correct operation.
+                    TopManager.getDefault().getErrorManager().log("SuggestionProvider " + provider + " provides null value to getTypes()");
+                    continue;
+                }
+                for (int j = 0; j < typeNames.length; j++) {
+                    SuggestionType tp = suggestionTypes.getType(typeNames[j]);
+                    providersByType.put(tp, provider);
+                }
+            }
+        }
+        return (SuggestionProvider)providersByType.get(type);
+    }
 }

@@ -46,11 +46,6 @@ Microsystems, Inc. All Rights Reserved.
             <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance" boolvalue="true" />
             <attr name="org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
          </folder>
-
-        <folder name="Tools">
-            <file name="org-netbeans-modules-tasklist-docscan-ScanTasksAction.instance" />
-         </folder>
-
      </folder>
 
      <folder name="Toolbars">  
