@@ -453,11 +453,6 @@ class VcsVersioningSystem extends VersioningFileSystem {
                     new java.io.FileNotFoundException(),
                     NbBundle.getMessage(VcsVersioningSystem.class, "MSG_RevisionOpenCommandFailed", name, revision));
             }
-            if (fileBuffer.length() == 0) {
-                throw (java.io.FileNotFoundException) ErrorManager.getDefault().annotate(
-                    new java.io.FileNotFoundException(),
-                    NbBundle.getMessage(VcsVersioningSystem.class, "MSG_FileRevisionIsEmpty", name, revision));
-            }
             return new ByteArrayInputStream(fileBuffer.toString().getBytes());
         }
     }
