@@ -31,12 +31,17 @@ final class MethodElementImpl extends ConstructorElementImpl
 
     MethodElementImpl(final Method data) {
         super(data);
-    }
+    }    
     
     Method getMethod() {
         return (Method)data;
     }
 
+    public void initializeData() {
+        super.initializeData();
+        getReturn();
+    }
+    
     /** @return returns teh Type representing return type of this method.
     */
     public Type getReturn () {

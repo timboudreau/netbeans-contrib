@@ -46,6 +46,11 @@ final class FieldElementImpl extends MemberElementImpl
         return (Field)data;
     }
 
+    public void initializeData() {
+        super.initializeData();
+        getType();
+    }
+    
     /** Type of the variable.
     * @return the type
     */

@@ -41,9 +41,15 @@ class ConstructorElementImpl extends MemberElementImpl
     ConstructorElementImpl (final CallableFeature data ) {
         super(data);
     }
-    
+
     CallableFeature getBehavioral() {
         return (CallableFeature)data;
+    }
+    
+    public void initializeData() {
+        super.initializeData();
+        getExceptions();
+        getParameters();
     }
     
     /** @return the array specifying the parameters
@@ -96,24 +102,24 @@ class ConstructorElementImpl extends MemberElementImpl
     /** @return the array of the exceptions throwed by the method.
     */
     public Identifier[] getExceptions () {
-        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
-        repo.beginTrans(false);
-        try {
-            if (!isValid()) {
-                return new Identifier[0];
-            }
-            if (exceptions == null) {
+        if (exceptions == null) {
+            MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+            repo.beginTrans(false);
+            try {
+                if (!isValid()) {
+                    return new Identifier[0];
+                }
                 JavaClass[] reflEx = (JavaClass[])getBehavioral().getExceptions().toArray(new JavaClass[0]);
                 exceptions = new Identifier[reflEx.length];
                 // build our exception types
                 for (int i = 0; i < reflEx.length; i++) {
                     exceptions[i] = Identifier.create(Util.createClassName(reflEx[i].getName()));
                 }
+            } finally {
+                repo.endTrans();
             }
-            return exceptions;
-        } finally {
-            repo.endTrans();
         }
+        return exceptions;
     }
 
     /** Unsupported, throws SourceException

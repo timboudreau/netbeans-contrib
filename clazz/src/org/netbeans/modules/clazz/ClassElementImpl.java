@@ -58,6 +58,9 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     /* InnerClass attribute of a associeted with this classfile */ 
     private InnerClass innerclass;
     
+    private boolean isClassInited = false;
+    private boolean isClass;
+    
     /** One JavaDoc empty implementation for all objects */
     private static final ClassJavaDocImpl.Class CLASS_JAVADOC_IMPL = new ClassJavaDocImpl.Class ();
     
@@ -77,7 +80,35 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     private ClassElementImpl (final ClassFile data,InnerClass inner) {
         this(data);
         innerclass=inner;
-    }    
+    }
+    
+    public void initializeData() {
+        super.initializeData();
+        getSuperclass();
+        isClassOrInterface();
+        getInterfaces();
+        ClassElement[] classes = getClasses();
+        for (int x = 0; x < classes.length; x++) {
+            ClassElementImpl impl = (ClassElementImpl) classes[x].getCookie(org.openide.src.Element.Impl.class);
+            impl.initializeData();
+        }
+        FieldElement[] fields = getFields();
+        for (int x = 0; x < fields.length; x++) {
+            FieldElementImpl impl = (FieldElementImpl) fields[x].getCookie(org.openide.src.Element.Impl.class);
+            impl.initializeData();
+        }
+        MethodElement[] methods = getMethods();
+        for (int x = 0; x < methods.length; x++) {
+            MethodElementImpl impl = (MethodElementImpl) methods[x].getCookie(org.openide.src.Element.Impl.class);
+            impl.initializeData();
+        }
+        ConstructorElement[] cons = getConstructors();
+        for (int x = 0; x < cons.length; x++) {
+            ConstructorElementImpl impl = (ConstructorElementImpl) cons[x].getCookie(org.openide.src.Element.Impl.class);
+            impl.initializeData();
+        }
+    }
+    
     /** Not supported. Throws source exception */
     public void setSuperclass(Identifier superClass) throws SourceException {
         throwReadOnlyException();
@@ -88,6 +119,11 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     }
 
     public Identifier getSuperclass() {
+        if (superClass == NO_SUPERCLASS)
+            return null;
+        if (superClass != null)
+            return superClass;
+        
         MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
         repo.beginTrans(false);
         try {
@@ -138,13 +174,16 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     }
 
     public boolean isClassOrInterface() {
+        if (isClassInited)
+            return isClass;
         MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
         repo.beginTrans(false);
         try {
             if (!isValid()) {
                 return true;
             }
-            return !getClazz().isInterface();
+            isClassInited = true;
+            return isClass = !getClazz().isInterface();
         } finally {
             repo.endTrans();
         }

@@ -74,8 +74,6 @@ final class SourceElementImpl extends MemberElementImpl
     
     SourceElementImpl (ClassDataObject cdo) {
         this((Resource)null, cdo);
-        FileObject fo = cdo.getPrimaryFile();
-        classPath = ClassPath.getClassPath(fo, ClassPath.EXECUTE); // hard reference to class path prevents unmounting of related extent
     }
         
     /** Creates object with asociated class and with asociated
@@ -84,8 +82,36 @@ final class SourceElementImpl extends MemberElementImpl
     public SourceElementImpl (Resource res, ClassDataObject cdo) {
         super(res);
         this.cdo = cdo;
+        FileObject fo = cdo.getPrimaryFile();
+        classPath = ClassPath.getClassPath(fo, ClassPath.EXECUTE); // hard reference to class path prevents unmounting of related extent
     }
+
+    public void attachedToElement (Element element) {
+        super.attachedToElement(element);
+        initializeData();
         
+    }
+    
+    public void initializeData() {
+        JavaMetamodel model = JavaMetamodel.getManager();
+        FileObject fo = cdo.getPrimaryFile();
+        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+        repo.beginTrans(false);
+        try {
+            Resource resource = model.getResource(fo);
+            if (!resource.isValid()) {
+                return;
+            }
+            data = resource;
+            getPackage();
+            ClassElement elem = getClassElement();
+            ClassElementImpl impl = (ClassElementImpl) elem.getCookie(org.openide.src.Element.Impl.class);
+            impl.initializeData();
+        } finally {
+            repo.endTrans();
+        }
+    }
+    
     public void refreshData() {
         boolean fireChange = false;
         MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
@@ -138,6 +164,7 @@ final class SourceElementImpl extends MemberElementImpl
             newStatus = getStatus();
             loadingTask = null;
         }
+        initializeData();
         if (oldStatus != SourceElement.STATUS_NOT) {
             firePropertyChange(PROP_CLASSES, null, null);
             firePropertyChange(PROP_ALL_CLASSES, null, null);
@@ -159,13 +186,13 @@ final class SourceElementImpl extends MemberElementImpl
     /** @return The package of class which we are representing.
     */
     public Identifier getPackage () {
+        if (packg != null)
+            return packg;
         MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
         repo.beginTrans(false);
         try {
             if ((getResource() == null) || !isValid())
                 return null;
-            if (packg != null)
-                return packg;
             JavaPackage p = (JavaPackage) getResource().refImmediateComposite();
             if (p == null)
                 return null;

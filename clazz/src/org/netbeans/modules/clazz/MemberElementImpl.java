@@ -40,6 +40,8 @@ public abstract class MemberElementImpl extends ElementImpl implements MemberEle
     protected Object data;
     /** Cached name identifier */
     private transient Identifier name;
+    
+    private int modifiers;
 
     static final long serialVersionUID =-6841890195552268874L;
     /** Constructor, asociates this impl with java reflection
@@ -54,20 +56,28 @@ public abstract class MemberElementImpl extends ElementImpl implements MemberEle
         return (Feature)data;
     }
 
+    public void initializeData() {
+        getName();
+        getModifiers();
+    }
+    
     /** @return Modifiers for this element.
     */
     public int getModifiers () {
-        MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
-        repo.beginTrans(false);
-        try {
-            if (!isValid()) {
-                return 0;
+        if (modifiers == -1) {
+            MDRepository repo = JavaMetamodel.getManager().getDefaultRepository();
+            repo.beginTrans(false);
+            try {
+                if (!isValid()) {
+                    return 0;
+                }
+                Feature f = getClassFeature();
+                modifiers = f.getModifiers();
+            } finally {
+                repo.endTrans();
             }
-            Feature f = getClassFeature();
-            return f.getModifiers();
-        } finally {
-            repo.endTrans();
         }
+        return modifiers;
     }
 
     /** Unsupported. Throws SourceException
@@ -148,21 +158,18 @@ public abstract class MemberElementImpl extends ElementImpl implements MemberEle
     public boolean isValid() {
         if (data instanceof org.netbeans.jmi.javamodel.Element) {
             boolean valid = ((org.netbeans.jmi.javamodel.Element) data).isValid();
+            /*
             if (!valid) {
                 final SourceElementImpl source = (SourceElementImpl)getCookie(SourceElement.Impl.class);
-                // final ElementImpl declClass = getDeclaringElement();
-                // System.out.println("not valid: " + getClass().getName() + " " + (source != null));
-                
                 if (source != null) {
                     RequestProcessor.getDefault().post(new Runnable() {
                         public void run() {
-                            // if (declClass instanceof ClassElementImpl)
-                            //    ((ClassElementImpl)declClass).refreshData();
                             source.refreshData();
                         }
                     });
                 }
             }
+             */
             return valid;
         }
         return false;
