@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Enumeration;
 import java.lang.ref.WeakReference;
+import java.util.Collection;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -32,6 +33,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
 
 import org.netbeans.modules.vcscore.grouping.GroupCookie;
+import org.openide.util.Lookup;
 
 /** 
  * Action sensitive to nodes, that delegates the enable/perform processing
@@ -315,13 +317,18 @@ public class GeneralCommandAction extends NodeAction {
                     }
                 }
             } else {
-                DataObject dataObj;
-                dataObj = (DataObject)nodes[i].getCookie(DataObject.class);
-                while (dataObj != null && dataObj instanceof DataShadow) {
-                    dataObj = ((DataShadow)dataObj).getOriginal();
+                Lookup.Result fileObjects = nodes[i].getLookup().lookup(new Lookup.Template(FileObject.class));
+                if (fileObjects != null) {
+                    if (!checkFileObjects(fileObjects.allInstances())) return false;
+                } else {
+                    DataObject dataObj;
+                    dataObj = (DataObject)nodes[i].getCookie(DataObject.class);
+                    while (dataObj != null && dataObj instanceof DataShadow) {
+                        dataObj = ((DataShadow)dataObj).getOriginal();
+                    }
+    //                System.out.println("dataobj =" + dataObj);
+                    if (!checkDataObject(dataObj)) return false;
                 }
-//                System.out.println("dataobj =" + dataObj);
-                if (!checkDataObject(dataObj)) return false;
             }
         }
         return true;
@@ -340,7 +347,6 @@ public class GeneralCommandAction extends NodeAction {
         FileSystem primaryFS = (FileSystem) fileOb.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
         CommandActionSupporter supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);
         if (supp != null) {
-            Set fileSet = new HashSet();
             Iterator it = dataObj.files().iterator();
             while (it.hasNext()) {
                 FileObject fo = (FileObject)it.next();
@@ -353,9 +359,7 @@ public class GeneralCommandAction extends NodeAction {
                             continue;
                         }
                     }
-                    fileSet.clear();
-                    fileSet.add(fo);
-                    addToMap(suppMap, supp, fileSet);
+                    addToMap(suppMap, supp, fo);
                 }
             }
 //            addToMap(suppMap, supp, dataObj.files());
@@ -366,22 +370,36 @@ public class GeneralCommandAction extends NodeAction {
             return false;
         }
         return true;
-        
     }
     
-    private void addToMap(HashMap map, CommandActionSupporter supporter, Set files) {
+    private boolean checkFileObjects(Collection fileObjects) {
+        FileSystem primaryFS = null;
+        boolean addedSomething = false;
+        for (Iterator it = fileObjects.iterator(); it.hasNext(); ) {
+            FileObject fileOb = (FileObject) it.next();
+            FileSystem fs = (FileSystem) fileOb.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
+            if (fs == null) continue;
+            if (primaryFS == null) primaryFS = fs;
+            else if (!primaryFS.equals(fs)) {
+                // We have a secondary file on another filesystem!
+                continue;
+            }
+            CommandActionSupporter supp = (CommandActionSupporter)fileOb.getAttribute(VCS_ACTION_ATTRIBUTE);
+            if (supp == null) {
+                continue; // No supporter found.
+            }
+            addToMap(suppMap, supp, fileOb);
+        }
+        return addedSomething;
+    }
+    
+    private void addToMap(HashMap map, CommandActionSupporter supporter, FileObject file) {
         Set set = (Set)map.get(supporter);
         if (set == null) {
             set = new HashSet();
         }    
-        if (files != null) {
-            Iterator it = files.iterator();
-            while (it.hasNext()) {
-                Object obj = it.next();
-                if (obj != null) {
-                     set.add(obj);
-                }
-            }
+        if (file != null) {
+             set.add(file);
         }
         map.put(supporter, set);
     }

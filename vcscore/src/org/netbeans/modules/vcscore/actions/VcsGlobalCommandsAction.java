@@ -180,10 +180,15 @@ public class VcsGlobalCommandsAction extends SystemAction implements Presenter.M
         ArrayList foList = new ArrayList();
         if (n != null) {
             for (int i = 0; i < n.length; i++) {
-                 DataObject obj = (DataObject)n[i].getCookie (DataObject.class);
-                 if (obj != null) {
-                     foList.addAll(obj.files());
-                 }
+                Lookup.Result fileObjects = n[i].getLookup().lookup(new Lookup.Template(FileObject.class));
+                if (fileObjects != null) {
+                    foList.addAll(fileObjects.allInstances());
+                } else {
+                    DataObject obj = (DataObject)n[i].getCookie (DataObject.class);
+                    if (obj != null) {
+                        foList.addAll(obj.files());
+                    }
+                }
             }
         }
         FileObject[] files = (FileObject[]) foList.toArray(new FileObject[foList.size()]);

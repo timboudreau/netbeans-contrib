@@ -112,24 +112,26 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
                     Node nd = (Node) children.nextElement();
                     DataObject dd = (DataObject) nd.getCookie(DataObject.class);
                     if (dd == null) continue;
-                    //messageFiles.addAll(dd.files());
-                    //addAllWorkaround(dd.files(), messageFiles);
                     addAllFromSingleFS(dd.getPrimaryFile(), dd.files(), messageFiles);
-                    /*
-                    variablesForSelectedFiles.put(additionalVars, varFiles);
-                     */
                 }
                 filesWithMessages.put(messageFiles.toArray(new FileObject[0]), message);
             } else {
-                DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-                if (dd == null) continue;
-                if (dd instanceof DataShadow) {
-                    // We want to have the same VCS actions on the link as on the original.
-                    dd = ((DataShadow) dd).getOriginal();
+                Lookup.Result fileObjects = nodes[i].getLookup().lookup(new Lookup.Template(FileObject.class));
+                if (fileObjects != null) {
+                    Collection fos = fileObjects.allInstances();
+                    FileObject one = (FileObject) fos.iterator().next();
+                    addAllFromSingleFS(one, fos, files);
+                } else {
+                    DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
+                    if (dd == null) continue;
+                    if (dd instanceof DataShadow) {
+                        // We want to have the same VCS actions on the link as on the original.
+                        dd = ((DataShadow) dd).getOriginal();
+                    }
+                    //files.addAll(dd.files());
+                    //addAllWorkaround(dd.files(), files);
+                    addAllFromSingleFS(dd.getPrimaryFile(), dd.files(), files);
                 }
-                //files.addAll(dd.files());
-                //addAllWorkaround(dd.files(), files);
-                addAllFromSingleFS(dd.getPrimaryFile(), dd.files(), files);
             }
         }
         if (files.size() > 0) filesWithMessages.put(files.toArray(new FileObject[0]), null);
@@ -190,16 +192,21 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
             if (nodes[i].getCookie(GroupCookie.class) != null) {
                 continue;
             } else {
-                DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-                //if (dd == null) System.out.println("  Node "+nodes[i]+" does not have DataObject !!");
-                if (dd == null) return false;
-                if (dd instanceof DataShadow) {
-                    // We want to have the same VCS actions on the link as on the original.
-                    dd = ((DataShadow) dd).getOriginal();
+                FileObject fo = (FileObject) nodes[i].getLookup().lookup(FileObject.class);
+                if (fo != null) {
+                    if (VcsCommandsProvider.findProvider(fo) == null) return false;
+                } else {
+                    DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
+                    //if (dd == null) System.out.println("  Node "+nodes[i]+" does not have DataObject !!");
+                    if (dd == null) return false;
+                    if (dd instanceof DataShadow) {
+                        // We want to have the same VCS actions on the link as on the original.
+                        dd = ((DataShadow) dd).getOriginal();
+                    }
+                    FileObject primary = dd.getPrimaryFile();
+                    //System.out.println("  Commands Provider("+primary+") = "+VcsCommandsProvider.findProvider(primary));
+                    if (VcsCommandsProvider.findProvider(primary) == null) return false;
                 }
-                FileObject primary = dd.getPrimaryFile();
-                //System.out.println("  Commands Provider("+primary+") = "+VcsCommandsProvider.findProvider(primary));
-                if (VcsCommandsProvider.findProvider(primary) == null) return false;
             }
         }
         return (nodes.length > 0);
