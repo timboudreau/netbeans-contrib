@@ -76,7 +76,7 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
         try {
             descriptors =  new PropertyDescriptor[] {
                                new PropertyDescriptor ("extensions", ClassDataLoader.class, // NOI18N
-                                                       "getExtensions", "setExtensions") // NOI18N
+                                                       "getExtensions", null) // NOI18N
                            };
             descriptors[0].setDisplayName(bundle.getString("PROP_Extensions"));
             descriptors[0].setShortDescription(bundle.getString("HINT_Extensions"));

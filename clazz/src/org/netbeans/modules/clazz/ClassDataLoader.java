@@ -163,13 +163,5 @@ public final class ClassDataLoader extends MultiFileLoader {
         }
         return extensions;
     }
-
-    /** Sets the extension list for this data loader.
-    * @param ext new list of extensions.
-    */
-    public void setExtensions(ExtensionList ext) {
-        extensions = ext;
-    }
-
 }
 
