@@ -200,7 +200,12 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     public String getName() {
         return cmd.getName();
     }
-    
+
+    /** For debug purposes only. */
+    public String toString() {
+        return "UserCommandSupport[" + getName() + "]";  // NOI18N
+    }
+
     /**
      * Get the display name of the command. It will be visible on the popup menu under this name.
      * When <code>null</code>, the command will not be visible on the popup menu.

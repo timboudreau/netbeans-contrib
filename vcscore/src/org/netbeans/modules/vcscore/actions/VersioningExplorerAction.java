@@ -31,9 +31,14 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
+import org.netbeans.modules.vcscore.VcsAttributes;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+import org.openide.util.Task;
+import org.openide.ErrorManager;
+
+import javax.swing.*;
 
 //import org.netbeans.modules.vcscore.versioning.VcsFileObject;
 
@@ -105,7 +110,37 @@ public class VersioningExplorerAction extends GeneralCommandAction {
             StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(VersioningExplorerAction.class, "MSG_NodeNotFound"));
         explorer.requestActive();        
     }
- 
+
+    /**
+     * Asynchronously opens explorer selecting passed file object.
+     * @return Task.EMPTY on failure.
+     */
+    public final Task showFileObject(FileObject fo) {
+        FileObject nativeFileObject = (FileObject) fo.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
+        if (nativeFileObject != null) fo = nativeFileObject;
+        final VersioningExplorer.Panel explorer = VersioningExplorer.getRevisionExplorer();
+        explorer.open();
+        explorer.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+        final Map filesByFS = new  HashMap();
+        try {
+            filesByFS.put(fo.getPath(), fo.getFileSystem().getSystemName());
+            return RequestProcessor.getDefault().post(new Runnable(){
+                public void run() {
+                    selectVersioningFiles(explorer,filesByFS);
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            explorer.requestActive();
+                        }
+                    });
+                }
+            });
+        } catch (FileStateInvalidException e) {
+            ErrorManager err = ErrorManager.getDefault();
+            err.notify(e);
+        }
+        return Task.EMPTY;
+    }
+
     private HashMap getFilesByFS(Node[] nodes) {
         HashMap filesByFS = new HashMap();
         HashMap map = getSupporterMap(nodes);

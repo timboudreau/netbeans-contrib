@@ -3083,7 +3083,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
         <property name="visualizer">
-          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.CvsUpdateVisualizer</value>
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.CvsCheckoutVisualizer</value>
         </property>
         <property name="commandsAfterSuccess">
           <value>GLOBAL_REGISTER</value>

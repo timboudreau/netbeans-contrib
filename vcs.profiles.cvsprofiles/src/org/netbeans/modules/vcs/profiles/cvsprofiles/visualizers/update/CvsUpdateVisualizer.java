@@ -110,8 +110,12 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         }
         return output;
     }
-    
-    
+
+    /** @return componnet that was added in getOutputPanels under <tt>""</tt> name. */
+    protected final UpdateInfoPanel getContentPane() {
+        return contentPane;
+    }
+
     public void open(){
         CommandOutputTopComponent out = CommandOutputTopComponent.getInstance();
         getOutputPanels();

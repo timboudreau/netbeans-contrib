@@ -2874,15 +2874,20 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 return;            
             VcsDescribedTask descTask = (VcsDescribedTask)cmdTask;            
             Hashtable varsAfterChange = new Hashtable(descTask.getVariables());
-            assert fillOnlyDefinedInvariant(varsAfterChange) : "Invalid AUTO_FILL_CMD " + cmd;  // NOI18N
+            assert fillOnlyDefinedInvariant(varsAfterChange) : "Invalid AUTO_FILL_CMD " + cmd + " violation: " + violation;  // NOI18N
             updateVariableValues(varsAfterChange, false, true);
         }
+
+        // holds latest assert violation
+        private Set violation;
 
         /** autofill tasks must not introduce new variables. */
         private boolean fillOnlyDefinedInvariant(Hashtable varsAfterChange) {
             Set allowedVaribleNames = componentsByVars.keySet();
             Set testedVariableNames = varsAfterChange.keySet();
-            return allowedVaribleNames.containsAll(testedVariableNames);
+            testedVariableNames.removeAll(allowedVaribleNames);
+            violation = testedVariableNames;
+            return violation.isEmpty();
         }
     }
    

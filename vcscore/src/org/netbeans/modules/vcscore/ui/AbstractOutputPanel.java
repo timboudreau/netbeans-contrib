@@ -64,7 +64,8 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     private boolean ignoreFailure;
     private CommandOutputCollector outputCollector;
     private Action discardAction;
-    
+    private JButton navigationButton;
+
     /** Creates new form OutputPanel */
     public AbstractOutputPanel() {
         initComponents(); 
@@ -621,7 +622,22 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         btnDataErr.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.btnDataErr"));
 
     }
-    
+
+    /**
+     * Request to show one navigation action in toolbar.
+     * Typicaly used after command finishes.
+     * @param action action to add or null to remove recent one
+     */
+    public final void setNavigationAction(Action action) {
+        if (navigationButton != null) {
+            toolbar.remove(navigationButton);
+        }
+        if (action != null) {
+            navigationButton = new JButton(action);
+            toolbar.add(navigationButton);  // it should go after rightPanel assuring right alignment
+        }
+    }
+
     private void btnDataStdActionPerformed(java.awt.event.ActionEvent evt) {
         btnStd.setSelected(false);
         btnErr.setSelected(false);
