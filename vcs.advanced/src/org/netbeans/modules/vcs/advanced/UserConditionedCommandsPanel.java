@@ -42,6 +42,7 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.*;
 import org.netbeans.modules.vcs.advanced.variables.Condition;
+import org.netbeans.modules.vcscore.Variables;
 
 /** User commands panel.
  * 
@@ -88,6 +89,7 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
         if (oldcmd != null) {
             newcmd = new UserCommand();
             newcmd.copyFrom(oldcmd);
+            newcmd.setDisplayName(Variables.expand(java.util.Collections.EMPTY_MAP, oldcmd.getDisplayName(), false));
         }
         /* The first command can not be conditioned
         ConditionedCommand ccommand = null;

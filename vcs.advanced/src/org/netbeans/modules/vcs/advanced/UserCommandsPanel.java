@@ -32,6 +32,7 @@ import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 
 import org.netbeans.modules.vcs.advanced.commands.*;
+import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
@@ -75,6 +76,7 @@ public class UserCommandsPanel extends JPanel implements ExplorerManager.Provide
         if (oldcmd != null) {
             newcmd = new UserCommand();
             newcmd.copyFrom(oldcmd);
+            newcmd.setDisplayName(Variables.expand(java.util.Collections.EMPTY_MAP, oldcmd.getDisplayName(), false));
         }
         commandsNode = createCommandNodes(commands, newcmd);
         initComponents();
