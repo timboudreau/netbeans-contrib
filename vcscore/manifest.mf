@@ -1,8 +1,5 @@
 OpenIDE-Module: org.netbeans.modules.vcscore/1
-OpenIDE-Module-Name: VCS Core
-OpenIDE-Module-Display-Category: Version Control
-OpenIDE-Module-Short-Description: Provides basis for integration of version control systems.
-OpenIDE-Module-Long-Description: The VCS Core module provides basic structure and libraries on which support modules for various version control systems can be based. The CVS and JavaCVS modules both depend on the VCS Core module.
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/vcscore/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.5
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Layer: org/netbeans/modules/vcscore/resources/mf-layer.xml
