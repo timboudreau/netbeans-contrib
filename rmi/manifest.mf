@@ -28,9 +28,6 @@ OpenIDE-Module-Class: Service
 Name: org/netbeans/modules/rmi/wizard/RMIWizardCookieAction.class
 OpenIDE-Module-Class: Action
 
-Name: org/netbeans/modules/rmi/wizard/RMIEncapsulationAction.class
-OpenIDE-Module-Class: Action
-
 Name: org/netbeans/modules/rmi/MarkRMIAction.class
 OpenIDE-Module-Class: Action
 
