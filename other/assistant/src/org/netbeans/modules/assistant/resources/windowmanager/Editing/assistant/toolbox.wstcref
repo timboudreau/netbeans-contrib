@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE tc-ref PUBLIC
+          "-//NetBeans//DTD Top Component in Mode Properties 1.0//EN"
+          "http://www.netbeans.org/dtds/tc-ref1_0.dtd">
+
+<tc-ref version="1.0" id="toolbox" >
+    <ui-type type="mdi" state="opened" constraint="center" selected="false" />
+</tc-ref>

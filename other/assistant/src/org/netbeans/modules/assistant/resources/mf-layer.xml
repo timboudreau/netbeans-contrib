@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE filesystem PUBLIC '-//NetBeans//DTD Filesystem 1.1//EN' 'http://www.netbeans.org/dtds/filesystem-1_1.dtd'>
+
+<filesystem>
+  <folder name="Menu">
+    <folder name="Help">
+        <file name="org-netbeans-modules-assistant-actions-ShowAssistantAction.instance" />
+        <file name="javax-swing-JSeparator.instance"/>
+	<attr name="org-netbeans-modules-assistant-actions-ShowAssistantAction.instance/javax-swing-JSeparator.instance" boolvalue="true"/>	         
+    </folder>
+  </folder>
+  
+  <folder name="Actions">
+    <folder name="Help">
+      <file name="Show Assistant.instance">
+	<attr name="instanceClass" stringvalue="org.netbeans.modules.assistant.ShowAssistantAction"/>							
+      </file>
+    </folder>
+  </folder> 
+   
+  <folder name="Windows">        
+        <folder name="WindowManager">
+            <file name="Editing.wswksp" url="windowmanager/Editing.wswksp" />
+            <folder name="Editing">
+                <file name="assistant.wsmode" url="windowmanager/Editing/assistant.wsmode" />
+                <folder name="assistant">
+                    <file name="assistant.wstcref" url="windowmanager/Editing/assistant/assistant.wstcref" />
+                    <!--experimental toolbox - assistant mode is split with two components-->
+                    <file name="toolbox.wstcref" url="windowmanager/Editing/assistant/toolbox.wstcref" />
+                </folder>
+                <folder name="editor">
+                    <file name="assistantcontentviewer.wstcref" url="windowmanager/Editing/editor/assistantcontentviewer.wstcref" />
+                </folder>
+            </folder>
+            <folder name="Visual">
+                <folder name="editor">
+                    <file name="assistantcontentviewer.wstcref" url="windowmanager/Visual/editor/assistantcontentviewer.wstcref" />
+                </folder>
+            </folder>
+            <folder name="Debugging">
+                <folder name="editor">
+                    <file name="assistantcontentviewer.wstcref" url="windowmanager/Debugging/editor/assistantcontentviewer.wstcref" />
+                </folder>
+            </folder>
+        </folder>
+        <folder name="Components">
+            <file name="assistant.settings" url="components/assistant.settings" >		
+            </file>
+            <!--experimental toolbox -->
+            <file name="toolbox.settings" url="components/toolbox.settings" >		
+            </file>
+            <file name="AssistantContentViewer.settings" url="components/AssistantContentViewer.settings" >
+            </file>
+        </folder>
+  </folder>
+</filesystem>
+

@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+
+<head>
+<link rel="stylesheet" type="text/css" href="http://www.netbeans.org/netbeans.css">
+<title>netbeans.org : Helper</title>
+</head>
+
+<body link="#6666cc" vlink="#6666cc" alink="#cc3333" bgcolor="#ffffff">
+
+<h2 align="Center"><b>Assistant - first draft</b></h2>
+
+<h4 align="Center"><b>Last update 10/18/2002 - <a href="mailto:dpavlica@netbeans.org">Dusan
+Pavlica</a> , <a href="mailto:rgregor@netbeans.org">Richard Gregor</a> </b></h4>
+
+<p>&nbsp;</p>
+
+<h2>Content</h2>
+
+<ul>
+  <li><a href="#intro">Introduction</a> </li>
+  <li><a href="#sorting">Description of Assistant</a> </li>
+  <li><a href="#examples">Examples, Use cases</a> </li>
+  <li><a href="#demo">Demonstration</a> </li>
+  <li><a href="#opened">Open issues</a> </li>
+  <li><a href="#links">References</a> </li>
+</ul>
+
+<p>&nbsp;</p>
+
+<h2><a name="intro"></a> Introduction</h2>
+
+<p>Help System is one of the essential parts of a serious application. The main goal of
+integrated help system is to support the users and help them to achieve successful results
+in the progress of developing software. The way of help integration could play important
+role in product competition. The main purpose of this document is to describe NetBeans
+Help System improvements.<br>
+<br>
+In NetBeans absences dynamic help which is part of few concurrent IDEs. In future we
+should improve this site of help integration. Help should provide more context sensitive
+information to the user. <a
+href="http://ui.netbeans.org/docs/ui/codeassistant/assistants_proposal.html">Draft of
+assistants proposal</a> covers this part of vision. It would be big step toward user. It
+will involve new implementation work because this is not part of JavaHelp JSR97. Majority
+will be implemented as a new module called Assistant and extension of existing JavaHelp
+API is needed as well.</p>
+
+<p>&nbsp;</p>
+
+<h2><a name="sorting" href="#sorting"></a> Description of Assistant</h2>
+
+<p>Assistant could be useable for beginners and intermediate users that have started work
+with IDE mainly. It has navigation and help function primarily, which will be context
+sensitive. This dynamic tool depends on IDE state (e.g. nonexistent Project yet), active
+component (e.g. not I18N string in Form editor), actual position in this component (e.g.
+this field hasn't been used yet or help link for current keyword under carret) and outputs
+from Audit tools (e.g. info about too many methods in class). There exists IKM
+(Intelligent Knowledge Management) which should analyze inputs and then will prioritize
+content of Assistant. Content of Assistant will include these sections with more kind of
+contents: 
+
+<ul>
+  <li>IDE Navigator - It contains List of Actions. These links could invoke Options,
+    Properties, New Elements etc.</li>
+  <li>Dynamic Helper - It contains Help Links linked with Java Doc content which will be
+    opened in an Editor or in the Java Help dialog</li>
+  <li>Description Area - There could be visible related descriptions for active context.</li>
+  <li>Quick Search - Small area useable for quick finding when user couldn't find necessary
+    info in the previous parts.</li>
+</ul>
+
+<p align="Center">&nbsp;<img src="images/overview1c.png" width="435" height="253"
+alt="overview1c.png (17798 bytes)"></p>
+
+<p align="Center"><em><strong>Figure 1</strong>...Main overview of Assistant inputs,
+outputs and content</em></p>
+
+<p align="Center">&nbsp;</p>
+
+<p align="Center">&nbsp;<img src="images/overview2c.png" width="493" height="377"
+alt="overview2c.png (26697 bytes)"></p>
+
+<p align="Center"><em><strong>Figure 2</strong>...Detail of inputs and outputs</em></p>
+
+<p align="Center"><em><br>
+</em></p>
+
+<p align="Left"><strong>Design of Assistant</strong></p>
+
+<p>Additional part of Assistant is Quick Search which could be on the top or bottom of
+Assistant UI. It contains Input area for text, which user would like to search. Then it
+will be found and showed in new window (probably in new Java Doc Search TAB ?) by press
+enter key.</p>
+
+<p align="center"><img src="images/cooperation2.png" alt="assistant5.png (22029 bytes)"
+width="582" height="523"> <br>
+<br>
+<em><strong>Figure 4</strong>...Idea about content of Assistant</em></p>
+
+<p>&nbsp;</p>
+
+<p align="Center"><img src="images/assistant16.png" alt="assistant16.png (8590 bytes)"
+width="162" height="276">&nbsp;&nbsp;&nbsp;&nbsp; <img src="images/assistant17.png"
+alt="assistant17.png (8596 bytes)" width="162" height="276"><br>
+<em><strong><br>
+Figure 5</strong>...Draft design of Assistant</em></p>
+
+<p align="Center">&nbsp;</p>
+
+<p align="Center"><img src="images/assistant-setting2.png" width="389" height="271"
+alt="assistant-setting2.png (11656 bytes)"></p>
+
+<p align="Center"><em><strong>Figure 6</strong>...Draft design for Customize</em></p>
+
+<p>&nbsp;</p>
+
+<h2><a name="examples"></a> Examples, Use cases</h2>
+
+<p>&nbsp;</p>
+
+<h2><a name="demo"></a> Demonstration</h2>
+
+<p align="Center">&nbsp;</p>
+
+<h2><a name="opened"></a> Open issues</h2>
+
+<p>&nbsp;</p>
+
+<h2><a name="links"></a> References</h2>
+
+<p>&nbsp;</p>
+</body>
+</html>

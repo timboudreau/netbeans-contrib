@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- 
+    This is the DTD for assistant
+    
+    http://www.netbeans.org/dtds/assistant-1_0.dtd
+    -//NetBeans//DTD Assistant 1.0//EN
+
+-->
+
+<!-- An Assistant.  It is versioned -->
+
+<!ELEMENT assistant (id*)>
+  <!ATTLIST assistant version (1.0) #IMPLIED>  
+
+<!-- id -->
+<!ELEMENT id (section*)>
+    <!ATTLIST id name CDATA #REQUIRED >
+
+<!-- section -->
+<!ELEMENT section (name|item*)>
+  <!ATTLIST section type (link|text) "link" >
+  <!ATTLIST section icon CDATA #IMPLIED>
+
+<!-- name of section -->  
+<!ELEMENT name (#PCDATA)>
+
+<!-- item of section -->
+<!ELEMENT item (#PCDATA) >
+  <!ATTLIST item action CDATA #IMPLIED >
+  <!ATTLIST item url CDATA #REQUIRED >
+
+

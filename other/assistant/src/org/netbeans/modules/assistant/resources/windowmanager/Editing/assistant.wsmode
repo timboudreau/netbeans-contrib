@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mode PUBLIC
+          "-//NetBeans//DTD Mode Properties 1.0//EN"
+          "http://www.netbeans.org/dtds/mode-properties1_0.dtd">
+
+<mode version="1.0">
+    <name unique="assistant" display="CTL_AssistantWindow" from-bundle="true" bundle="org.netbeans.modules.assistant.Bundle" />
+		<description display="CTL_AssistantWindowDescription" bundle="org.netbeans.modules.assistant.Bundle" />
+    <ui-type type="any" >
+        <relative-bounds x="0" y="0" width="35" height="60" />
+        <frame type="window" constraints="right" state="normal" />
+        <container type="split" active-tc="assistant" >
+        </container>
+				<icon url="nbresboot:/org/netbeans/modules/assistant/resources/assistant.gif" />
+        <other defined-by="module" mode-state="visible" />
+    </ui-type>
+    <ui-type type="mdi" >
+        <relative-bounds x="0" y="0" width="15" height="100" />
+        <frame type="desktop" constraints="right" state="normal" />
+				<container type="split" active-tc="assistant" >
+            <area constraint="center" relative-x="0" relative-y="0" relative-width="100" relative-height="70" />
+            <area constraint="bottom" relative-x="0" relative-y="70" relative-width="100" relative-height="30" />
+        </container>
+				<icon url="nbresboot:/org/netbeans/modules/assistant/resources/assistant.gif" />
+        <other defined-by="module" mode-state="visible" />
+    </ui-type>
+</mode>
