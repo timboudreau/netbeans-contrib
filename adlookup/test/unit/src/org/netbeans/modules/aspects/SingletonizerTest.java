@@ -79,6 +79,10 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         assertEquals ("Method of the interface", Runnable.class, runImpl.method.getDeclaringClass ());
         assertEquals ("Method name is run", "run", runImpl.method.getName ());
         
+        runImpl.isEnabled = false;
+        
+        assertNull ("Runnable not available any longer", lookup.lookup (Runnable.class));
+        
     }
   
 }
