@@ -103,6 +103,7 @@ public class RuntimeMainChildren extends Children.Keys  {
                 fsRuntime.setIconBase(str);
             }
         }
+        RuntimeSupport.getInstance().addScheduledRuntimeNodeCommands(fsRuntime, fs.getSystemName());
         return fsRuntime;
     }    
     
@@ -146,7 +147,7 @@ public class RuntimeMainChildren extends Children.Keys  {
                 fsList.add(fs);
                 RuntimeMainChildren.this.setKeys(fsList);
 //                RuntimeMainChildren.this.add(new Node[] {RuntimeSupport.createFolderNode(fs)});
-                RuntimeMainChildren.this.refreshKey(fs);
+                //RuntimeMainChildren.this.refreshKey(fs);
 //                initFsInRuntime(fs);
             }
         }
@@ -162,7 +163,7 @@ public class RuntimeMainChildren extends Children.Keys  {
             if (is) {
                 fsList.remove(fs);
                 RuntimeMainChildren.this.setKeys(fsList);
-                RuntimeMainChildren.this.refreshKey(fs);
+                //RuntimeMainChildren.this.refreshKey(fs);
             }
             
         }

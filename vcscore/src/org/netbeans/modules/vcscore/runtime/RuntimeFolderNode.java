@@ -26,7 +26,7 @@ public class RuntimeFolderNode extends AbstractNode {
     
     public static final String PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT = "numOfFinishedCmdsToCollect";
 
-    private int numOfFinishedCmdsToCollect = org.netbeans.modules.vcscore.commands.CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
+    private int numOfFinishedCmdsToCollect = RuntimeSupport.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
     
     /** Creates new RuntimeFolderNode */
     public RuntimeFolderNode(Children children) {

@@ -55,6 +55,7 @@ import org.netbeans.modules.vcscore.cache.CacheReference;
 import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
+import org.netbeans.modules.vcscore.runtime.RuntimeSupport;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.versioning.RevisionEvent;
@@ -299,7 +300,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //private boolean doCommandRefresh = true;
     
     private volatile transient CommandsPool commandsPool = null;
-    private Integer numberOfFinishedCmdsToCollect = new Integer(CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
+    private Integer numberOfFinishedCmdsToCollect = new Integer(RuntimeSupport.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
     
     private transient ArrayList revisionListeners;
 
@@ -1223,9 +1224,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //if (revisionListsByName == null) revisionListsByName = new Hashtable();
         commandsPool = new CommandsPool(this, false);
         if (numberOfFinishedCmdsToCollect == null) {
-            numberOfFinishedCmdsToCollect = new Integer(CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
+            numberOfFinishedCmdsToCollect = new Integer(RuntimeSupport.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
         }
-        commandsPool.setCollectFinishedCmdsNum(numberOfFinishedCmdsToCollect.intValue());
+        RuntimeSupport.getInstance().setCollectFinishedCmdsNum(numberOfFinishedCmdsToCollect.intValue(), getSystemName());
         if (varValueAdjustment == null) varValueAdjustment = new VariableValueAdjustment();
         initListeners();
     }
@@ -1248,6 +1249,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     /** Notifies this file system that it has been added to the repository. 
      */
     public void addNotify() {
+        try { // To distinguish the mounted FS. Necessary in Customizers.
+            setSystemName(getSystemName() + " Mounted"); // NOI18N
+        } catch (PropertyVetoException exc) {
+            // Ignored.
+        }
         //System.out.println("fileSystemAdded("+this+")");
         //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
 //        if (Boolean.TRUE.equals(createRuntimeCommands)) commandsPool.setupRuntime();
@@ -1442,7 +1448,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private void writeObject(ObjectOutputStream out) throws IOException {
         //D.deb("writeObject() - saving bean"); // NOI18N
         // cache is transient
-        numberOfFinishedCmdsToCollect = new Integer(commandsPool.getCollectFinishedCmdsNum());
+        numberOfFinishedCmdsToCollect = new Integer(RuntimeSupport.getInstance().getCollectFinishedCmdsNum(getSystemName()));
         out.writeBoolean (true/*cache.isLocalFilesAdd ()*/); // for compatibility
         if (!rememberPassword) password = null;
         out.defaultWriteObject();
