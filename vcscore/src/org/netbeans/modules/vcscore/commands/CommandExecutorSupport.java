@@ -13,6 +13,12 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import java.awt.Component;
+import java.awt.BorderLayout;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JCheckBox;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Hashtable;
@@ -146,6 +152,32 @@ public class CommandExecutorSupport extends Object {
         }
     }
     
+    private static Component createNotificationDesign(final String text,
+                                                      final JCheckBox checkBox) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        JLabel textLabel = new JLabel(text);
+        textLabel.setForeground(java.awt.Color.black);
+        panel.add(textLabel, BorderLayout.CENTER);
+        panel.add(checkBox, BorderLayout.SOUTH);
+        return panel;
+    }
+    
+    public static void commandNotification(final VcsCommandExecutor vce,
+                                           String notification,
+                                           final VcsFileSystem fileSystem) {
+        notification = Variables.expand(vce.getVariables(), notification, false);
+        NotifyDescriptor msg = new NotifyDescriptor.Message(notification);
+        JCheckBox checkBox = new JCheckBox(g("DLG_DoNotNotify"));
+        msg.setMessage(createNotificationDesign(notification, checkBox));
+        TopManager.getDefault().notify(msg);
+        if (checkBox.isSelected()) {
+            fileSystem.setCommandNotification(false);
+            TopManager.getDefault().notify(new NotifyDescriptor.Message(
+                g("DLG_CanBeEnabled")));
+        }
+    }
+    
     /**
      * Performs an automatic refresh after the command finishes.
      */
@@ -257,4 +289,9 @@ public class CommandExecutorSupport extends Object {
     public static String preprocessCommand(VcsCommand cmd, Hashtable vars) {
     }
      */
+
+    private static String g(String s) {
+        return org.openide.util.NbBundle.getBundle(CommandExecutorSupport.class).getString(s);
+    }
+    
 }
