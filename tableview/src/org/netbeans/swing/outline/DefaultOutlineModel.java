@@ -38,7 +38,43 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.VariableHeightLayoutCache;
 
 /** Proxies a standard TreeModel and TableModel, translating events between
- * the two.
+ * the two.  Note that the constructor is not public;  the TableModel that is
+ * proxied is the OutlineModel's own.  To make use of this class, implement
+ * RowModel - that is a mini-table model in which the TreeModel is responsible
+ * for defining the set of rows; it is passed an object from the tree, which
+ * it may use to generate values for the other columns.  Pass that and the
+ * TreeModel you want to use to <code>createOutlineModel</code>.
+ * <p>
+ * A note on TableModelEvents produced by this model:  There is a slight 
+ * impedance mismatch between TableModelEvent and TreeModelEvent.  When the
+ * tree changes, it is necessary to fire TableModelEvents to update the display.
+ * However, TreeModelEvents support changes to discontiguous segments of the
+ * model (i.e. &quot;child nodes 3, 4 and 9 were deleted&quot;).  TableModelEvents
+ * have no such concept - they operate on contiguous ranges of rows.  Therefore,
+ * one incoming TreeModelEvent may result in more than one TableModelEvent being
+ * fired.  Discontiguous TreeModelEvents will be broken into their contiguous
+ * segments, which will be fired sequentially (in the case of removals, in
+ * reverse order).  So, the example above would generate two TableModelEvents,
+ * the first indicating that row 9 was removed, and the second indicating that
+ * rows 3 and 4 were removed.
+ * <p>
+ * In the case of TreeModelEvents which add items to an unexpanded tree node,
+ * a simple value change TableModelEvent will be fired for the row in question
+ * on the tree column index.
+ * <p>
+ * Note also that if the model is large-model, removal events may only indicate
+ * those indices which were visible at the time of removal, because less data
+ * is retained about the position of nodes which are not displayed.  In this
+ * case, the only issue is the accuracy of the scrollbar in the model; in
+ * practice this is a non-issue, since it is based on the Outline's row count,
+ * which will be accurate.
+ * <p>
+ * A note to subclassers, if we even leave this class non-final:  If you do
+ * not use ProxyTableModel and RowMapper (which probably means you are doing
+ * something wrong), <strong>do not fire structural changes from the TableModel</strong>.
+ * This class is designed such that the TreeModel is entirely in control of the
+ * count and contents of the rows of the table.  It and only it may fire 
+ * structural changes.
  *
  * @author  Tim Boudreau
  */

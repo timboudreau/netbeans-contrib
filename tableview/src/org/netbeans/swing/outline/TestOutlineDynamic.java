@@ -128,7 +128,7 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
                 public void valueChanged(ListSelectionEvent e) {
                     boolean en = outline.getSelectedRow() != -1;
                     add.setEnabled(en);
-                    remove.setEnabled(en);
+                    remove.setEnabled(en && outline.getSelectedRow() != 0);
                     clear.setEnabled(outline.getRowCount() > 1);
                     
                     ListSelectionModel m =  
@@ -214,7 +214,6 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
         } else if ("removeDis".equals(b.getName())) {
             int[] sels = getSelectedIndices();
             
-            System.err.println("Going to remove " + Arrays.asList(Utilities.toObjectArray(sels)));
             
             //they all have the same parent if the button is enabled
             DefaultMutableTreeNode aNode = (DefaultMutableTreeNode) 
@@ -230,6 +229,8 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
             for (int i=0; i < sels.length; i++) {
                 sels[i] *= -1;
             }
+
+            System.err.println("Going to remove " + Arrays.asList(Utilities.toObjectArray(sels)));
             
             ArrayList nodes = new ArrayList();
             int[] indices = new int[sels.length];
@@ -266,7 +267,6 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
         ArrayList al = new ArrayList();
         for (int i=min; i <= max; i++) {
             if (lsm.isSelectedIndex(i)) {
-                System.err.println(i + " is selected");
                 al.add (new Integer(i));
             }
         }
