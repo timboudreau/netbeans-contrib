@@ -1214,10 +1214,15 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 firePropertyChange(PROP_PROFILE_SELECTION_CHANGED, null, null);
             }
 
-            if( oldIndex==selectedIndex ){
-                //D.deb("nothing has changed oldIndex==selectedIndex=="+oldIndex); // NOI18N
+            if (oldSelectedLabel == null) {
+                oldSelectedLabel = selectedLabel;
                 return ;
             }
+            if (oldSelectedLabel.equals(selectedLabel)) {
+                return ;
+            }
+            
+            if (!doConfigComboChange) break;
 
             boolean change;
             if (promptForConfigComboChange) {
@@ -1236,14 +1241,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 // just do not display prompt for the first change if config was not edited
                 promptForConfigComboChange = true;
                 loadConfig(selectedLabel);
-                oldIndex=selectedIndex;
+                oldSelectedLabel = selectedLabel;
                 firePropertyChange(PROP_PROFILE_SELECTION_CHANGED, null, selectedLabel);
-            } else{
-                //D.deb("no"); // NOI18N
-                //String oldLabel=(String)configCombo.getItemAt(oldIndex);
-                //D.deb("oldLabel="+oldLabel+", oldIndex="+oldIndex); // NOI18N
-                //loadConfig(oldLabel);
-                configCombo.setSelectedIndex(oldIndex);
+            } else {
+                if (oldSelectedLabel == null) {
+                    configCombo.setSelectedIndex(0);
+                } else {
+                    configCombo.setSelectedItem(oldSelectedLabel);
+                }
             }
             break ;
             
@@ -1320,8 +1325,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private CommandLineVcsFileSystem fileSystem = null;
     private PropertyChangeSupport changeSupport = null;
     private Vector configLabels;
-    private int oldIndex=0;
+    private String oldSelectedLabel = null;
     private boolean promptForConfigComboChange = true;
+    private boolean doConfigComboChange = true;
 
     // Entries in hashtables are maintained as a cache of properties read from disk
     // and are read only. Changes are applied only to fileSystem.variables (fileSystem.commands).
@@ -1827,6 +1833,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         String[] configLabels = cache.getProfilesDisplayNames();
 
         String selectedConfig = fileSystem.getConfig();
+        //System.out.println("selectedConfig = "+selectedConfig);
         int newIndex = -1;
 
         /*
@@ -1845,19 +1852,24 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
         int j = 0;
         boolean configsForCurrenntOs = allProfilesCheckBox.isSelected();
+        doConfigComboChange = false;
         for(int i = 0; i < configLabels.length; i++) {
             if (configsForCurrenntOs && !cache.isOSCompatibleProfile(configLabels[i])) {
                 continue;
             }
             if (configLabels[i].equals(selectedConfig)) {
-                newIndex = j++;
+                newIndex = j;
             }
+            j++;
             configCombo.addItem(configLabels[i]);
         }
+        doConfigComboChange = true;
 
         if (configCombo.getItemCount() > 0 && newIndex >= 0) {
+            promptForConfigComboChange = false;
             configCombo.setSelectedIndex( newIndex );
         }
+        promptForConfigComboChange = true;
         //System.out.println("updateConfigurations() finished, promptForConfigComboChange = "+promptForConfigComboChange);
         //if (newIndex >= 0) promptForConfigComboChange = false;
     }
@@ -1965,6 +1977,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
         allProfilesCheckBox.setSelected(true);
         relMountTextField.setText(module);
+        oldSelectedLabel = fileSystem.getConfig();
         updateConfigurations();
         updateAdvancedConfig();
         initAdditionalComponents ();
