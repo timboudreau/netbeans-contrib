@@ -119,6 +119,8 @@ public class VcsMountFromTemplateAction extends NodeAction {
         }
 
         //targetFolder = n == null ? null :(DataFolder)n.getCookie (DataFolder.class);
+         //don't show help button!
+        defaultWizard.putProperty("WizardPanel_helpDisplayed",Boolean.FALSE);
 
         return defaultWizard;
     }
