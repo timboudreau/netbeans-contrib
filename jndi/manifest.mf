@@ -5,7 +5,7 @@ OpenIDE-Module-Specification-Version: 1.5
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 2.3
-OpenIDE-Module-Package-Dependencies: javax.naming[Context], org.netbeans.core
+OpenIDE-Module-Package-Dependencies: javax.naming[Context]
 Class-Path: docs/jndi.jar
 
 Name: org/netbeans/modules/jndi/JndiRootNode.class
