@@ -14,6 +14,9 @@
 package org.netbeans.modules.j2ee.blueprints.ui.projects;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 import javax.swing.JComponent;
@@ -84,9 +87,14 @@ public class J2eeSampleProjectIterator implements TemplateWizard.Iterator {
         String name = (String) wiz.getProperty(WizardProperties.NAME);
                         
         FileObject prjLoc = null;
+
         prjLoc = J2eeSampleProjectGenerator.createProjectFromTemplate(templateWizard.getTemplate().getPrimaryFile(), projectLocation, name);
         
-        return Collections.singleton(DataObject.find(prjLoc));
+        //return Collections.singleton(DataObject.find(prjLoc));
+        
+        Set hset = new HashSet();
+        hset.add(DataObject.find(prjLoc));
+        return hset;
     }
     
     public String name() {

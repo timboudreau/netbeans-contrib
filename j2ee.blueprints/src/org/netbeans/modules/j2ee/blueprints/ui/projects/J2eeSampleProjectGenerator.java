@@ -45,7 +45,8 @@ public class J2eeSampleProjectGenerator {
 
     public static final String PROJECT_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/web-project/3";    //NOI18N
     public static final String PROJECT_CONFIGURATION_NS_FREE = "http://www.netbeans.org/ns/freeform-project/1";
-    public static final String EJBJAR_NAMESPACE = "http://www.netbeans.org/ns/j2ee-ejbjarproject/2";
+    public static final String EJBJAR_NAMESPACE = "http://www.netbeans.org/ns/j2ee-ejbjarproject/3";
+    public static final String PROJECT_CONFIGURATION_J2SE = "http://www.netbeans.org/ns/j2se-project/2";
     public static final String SUNWEBDD_XMLLOC = "web/WEB-INF/sun-web.xml";
 
     public static FileObject createProjectFromTemplate(final FileObject template, File projectLocation, final String name) throws IOException {
@@ -76,6 +77,9 @@ public class J2eeSampleProjectGenerator {
                 if (nlist==null || nlist.getLength()==0){
                     nlist = doc.getElementsByTagNameNS(EJBJAR_NAMESPACE, "name");      //NOI18N
                     
+                }
+                if (nlist == null || nlist.getLength() == 0) {
+                    nlist = doc.getElementsByTagNameNS(PROJECT_CONFIGURATION_J2SE, "name");
                 }
                 if (nlist != null) {
                     for (int i=0; i < nlist.getLength(); i++) {

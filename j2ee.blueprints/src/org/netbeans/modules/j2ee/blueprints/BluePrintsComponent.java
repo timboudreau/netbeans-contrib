@@ -58,7 +58,10 @@ class BluePrintsComponent extends TopComponent{
         initAccessibility();
         
         try{
-            panel =(JComponent)Class.forName(NbBundle.getMessage(BluePrintsComponent.class,"CLASS_content_panel")).newInstance();
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            panel =(JComponent)Class.forName(NbBundle.getMessage(
+                  BluePrintsComponent.class,"CLASS_content_panel"), true, cl).newInstance();
+            //panel =(JComponent)Class.forName(NbBundle.getMessage(BluePrintsComponent.class,"CLASS_content_panel")).newInstance();
         }catch(Exception e){
             ErrorManager.getDefault().notify(e);
         }
