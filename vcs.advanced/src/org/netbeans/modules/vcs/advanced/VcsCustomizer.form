@@ -111,7 +111,7 @@
                   </Events>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                      <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="3" gridX="-1" gridY="1" insetsBottom="6" insetsLeft="12" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+                      <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="0" gridX="-1" gridY="1" insetsBottom="5" insetsLeft="12" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
                     </Constraint>
                   </Constraints>
                 </Component>
@@ -552,7 +552,7 @@
             <Component class="javax.swing.JCheckBox" name="compatibleOSCheckBox">
               <Properties>
                 <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.CompatibleOSCheckBox.text" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
+                  <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.compatibleOSCheckBox.text" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
                 </Property>
               </Properties>
 
@@ -579,7 +579,7 @@
             <Component class="javax.swing.JCheckBox" name="uncompatibleOSCheckBox">
               <Properties>
                 <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.UnompatibleOSCheckBox.text" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
+                  <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.uncompatibleOSCheckBox.text" replaceFormat="org.openide.util.NbBundle.getBundle({sourceFileName}.class).getString(&quot;{key}&quot;)"/>
                 </Property>
               </Properties>
 
@@ -634,7 +634,7 @@
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="1" gridX="-1" gridY="-1" insetsBottom="0" insetsLeft="12" insetsRight="12" insetsTop="12" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="0" gridX="-1" gridY="-1" insetsBottom="2" insetsLeft="12" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
             </Component>
@@ -646,7 +646,7 @@
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="10" fill="1" gridHeight="1" gridWidth="1" gridX="-1" gridY="1" insetsBottom="12" insetsLeft="12" insetsRight="12" insetsTop="12" ipadX="0" ipadY="0" weightX="1.0" weightY="1.0"/>
+                  <GridBagConstraints anchor="10" fill="1" gridHeight="1" gridWidth="1" gridX="-1" gridY="1" insetsBottom="12" insetsLeft="12" insetsRight="12" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="1.0"/>
                 </Constraint>
               </Constraints>
 
@@ -667,7 +667,7 @@
             <Container class="javax.swing.JPanel" name="actionPanel">
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="11" fill="0" gridHeight="1" gridWidth="1" gridX="-1" gridY="1" insetsBottom="12" insetsLeft="0" insetsRight="12" insetsTop="12" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="11" fill="0" gridHeight="1" gridWidth="1" gridX="-1" gridY="1" insetsBottom="12" insetsLeft="0" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
 
@@ -716,7 +716,7 @@
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="2" gridX="-1" gridY="2" insetsBottom="12" insetsLeft="12" insetsRight="12" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+                  <GridBagConstraints anchor="17" fill="0" gridHeight="1" gridWidth="0" gridX="-1" gridY="2" insetsBottom="2" insetsLeft="12" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
                 </Constraint>
               </Constraints>
             </Component>
@@ -728,7 +728,7 @@
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-                  <GridBagConstraints anchor="10" fill="1" gridHeight="1" gridWidth="2" gridX="-1" gridY="3" insetsBottom="12" insetsLeft="12" insetsRight="12" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="1.0"/>
+                  <GridBagConstraints anchor="10" fill="1" gridHeight="1" gridWidth="0" gridX="-1" gridY="3" insetsBottom="11" insetsLeft="12" insetsRight="11" insetsTop="0" ipadX="0" ipadY="0" weightX="1.0" weightY="1.0"/>
                 </Constraint>
               </Constraints>
 

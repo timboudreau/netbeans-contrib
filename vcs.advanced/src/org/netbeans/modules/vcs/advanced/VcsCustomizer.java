@@ -202,8 +202,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         gridBagConstraints3 = new java.awt.GridBagConstraints();
         gridBagConstraints3.gridy = 1;
-        gridBagConstraints3.gridwidth = 3;
-        gridBagConstraints3.insets = new java.awt.Insets(0, 12, 6, 11);
+        gridBagConstraints3.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints3.insets = new java.awt.Insets(0, 12, 5, 11);
         gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
         vcsPanel.add(allProfilesCheckBox, gridBagConstraints3);
         
@@ -632,7 +632,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6.fill = java.awt.GridBagConstraints.VERTICAL;
         advancedPanel.add(jLabel8, gridBagConstraints6);
         
-        compatibleOSCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.CompatibleOSCheckBox.text"));
+        compatibleOSCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.compatibleOSCheckBox.text"));
         compatibleOSCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 compatibleOSCheckBoxActionPerformed(evt);
@@ -659,7 +659,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6.weightx = 1.0;
         advancedPanel.add(compatibleOSTextField, gridBagConstraints6);
         
-        uncompatibleOSCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.UnompatibleOSCheckBox.text"));
+        uncompatibleOSCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.uncompatibleOSCheckBox.text"));
         uncompatibleOSCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 uncompatibleOSCheckBoxActionPerformed(evt);
@@ -702,7 +702,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         userEnvLabel.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("userEnvLabel.text"));
         gridBagConstraints7 = new java.awt.GridBagConstraints();
-        gridBagConstraints7.insets = new java.awt.Insets(12, 12, 0, 12);
+        gridBagConstraints7.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints7.insets = new java.awt.Insets(0, 12, 2, 11);
         gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
         environmentPanel.add(userEnvLabel, gridBagConstraints7);
         
@@ -731,7 +732,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints7 = new java.awt.GridBagConstraints();
         gridBagConstraints7.gridy = 1;
         gridBagConstraints7.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints7.insets = new java.awt.Insets(12, 12, 12, 12);
+        gridBagConstraints7.insets = new java.awt.Insets(0, 12, 12, 12);
         gridBagConstraints7.weightx = 1.0;
         gridBagConstraints7.weighty = 1.0;
         environmentPanel.add(envScrollPane, gridBagConstraints7);
@@ -765,7 +766,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         gridBagConstraints7 = new java.awt.GridBagConstraints();
         gridBagConstraints7.gridy = 1;
-        gridBagConstraints7.insets = new java.awt.Insets(12, 0, 12, 12);
+        gridBagConstraints7.insets = new java.awt.Insets(0, 0, 12, 11);
         gridBagConstraints7.anchor = java.awt.GridBagConstraints.NORTH;
         environmentPanel.add(actionPanel, gridBagConstraints7);
         
@@ -773,8 +774,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         systemEnvLabel.setAlignmentX(0.5F);
         gridBagConstraints7 = new java.awt.GridBagConstraints();
         gridBagConstraints7.gridy = 2;
-        gridBagConstraints7.gridwidth = 2;
-        gridBagConstraints7.insets = new java.awt.Insets(0, 12, 12, 12);
+        gridBagConstraints7.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints7.insets = new java.awt.Insets(0, 12, 2, 11);
         gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
         environmentPanel.add(systemEnvLabel, gridBagConstraints7);
         
@@ -810,9 +811,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         gridBagConstraints7 = new java.awt.GridBagConstraints();
         gridBagConstraints7.gridy = 3;
-        gridBagConstraints7.gridwidth = 2;
+        gridBagConstraints7.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints7.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints7.insets = new java.awt.Insets(0, 12, 12, 12);
+        gridBagConstraints7.insets = new java.awt.Insets(0, 12, 11, 11);
         gridBagConstraints7.weightx = 1.0;
         gridBagConstraints7.weighty = 1.0;
         environmentPanel.add(systemEnvScrollPane, gridBagConstraints7);
@@ -911,7 +912,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private void insertEnvButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertEnvButtonActionPerformed
         // Add your handling code here:
-        NotifyDescriptor.InputLine nd = new NotifyDescriptor.InputLine(NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarName"), "");
+        NotifyDescriptor.InputLine nd = new NotifyDescriptor.InputLine(NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarName"), g ("DLG_EnvVarTitle"));
         if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(nd))) {
             String name = (String) nd.getInputText();
             if (envVariables.containsKey(name)) {
@@ -1411,6 +1412,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void postInitComponents() {
         removeEnterFromKeymap ();
 
+        jTabbedPane1.setTitleAt(0, NbBundle.getMessage(VcsCustomizer.class, "DLG_Tab_Configuration"));
+        jTabbedPane1.setTitleAt(1, NbBundle.getMessage(VcsCustomizer.class, "DLG_Tab_Advanced"));
+        jTabbedPane1.setTitleAt(2, NbBundle.getMessage(VcsCustomizer.class, "DLG_Tab_Environment"));
+
         //Configuration tab
         saveAsButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.saveAsButton.mnemonic").charAt (0));
         removeConfigButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.removeConfigButton.mnemonic").charAt (0));
@@ -1422,6 +1427,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         relMountButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountButton.mnemonic").charAt (0));
         jLabel4.setDisplayedMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.jLabel4.mnemonic").charAt (0));
         jLabel4.setLabelFor (refreshTextField);
+        allProfilesCheckBox.setMnemonic (g ("VcsCustomizer.allProfilesCheckBox.mnemonic").charAt (0));
         //Advanced tab
         varButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.varButton.mnemonic").charAt (0));
         cmdButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.cmdButton.mnemonic").charAt (0));
@@ -1432,9 +1438,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         lockCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.lockCheckBox.mnemonic").charAt (0));
         promptLockCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.promptLockCheckBox.mnemonic").charAt (0));
         debugCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.debugCheckBox.mnemonic").charAt (0));
-        jTabbedPane1.setTitleAt(0, NbBundle.getMessage(VcsCustomizer.class, "DLG_Tab_Configuration"));
-        jTabbedPane1.setTitleAt(1, NbBundle.getMessage(VcsCustomizer.class, "DLG_Tab_Advanced"));
-        jTabbedPane1.setTitleAt(2, NbBundle.getMessage(VcsCustomizer.class, "DLG_Tab_Environment"));
+        compatibleOSCheckBox.setMnemonic (g ("VcsCustomizer.compatibleOSCheckBox.mnemonic").charAt (0));
+        uncompatibleOSCheckBox.setMnemonic (g ("VcsCustomizer.uncompatibleOSCheckBox.mnemonic").charAt (0));
+        promptLockLabel.setDisplayedMnemonic (g ("VcsCustomizer.promptLockLabel.mnemonic").charAt (0));
+        promptLockLabel.setLabelFor (promptLockTextField);
+        promptEditLabel.setDisplayedMnemonic (g ("VcsCustomizer.promptEditLabel.mnemonic").charAt (0));
+        promptEditLabel.setLabelFor (promptEditTextField);
+        //Environment tab
         envTableModel = new TableSorter(envTable.getModel());
         envTableModel.sortByColumn(0, true);
         envTable.setModel(envTableModel);
@@ -1447,6 +1457,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         systemEnvTableModel.addMouseListenerToHeaderInTable(systemEnvTable);
         //envTable.getCellEditor().addCellEditorListener(new CellEditorListener() {
         //});
+        deleteEnvButton.setMnemonic (g ("LBL_DeleteEnv.mnemonic").charAt (0));
+        insertEnvButton.setMnemonic (g ("LBL_InsertEnv.mnemonic").charAt (0));
+        userEnvLabel.setDisplayedMnemonic (g ("userEnvLabel.mnemonic").charAt (0));
+        userEnvLabel.setLabelFor (envTable);
+        systemEnvLabel.setDisplayedMnemonic (g ("systemEnvLabel.mnemonic").charAt (0));
+        systemEnvLabel.setLabelFor (systemEnvTable);
 
         linkLabel.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
         HelpCtx.setHelpIDString (this, VcsCustomizer.class.getName ());
