@@ -82,15 +82,18 @@ public class NewLaTeXGUIProjectWizardIterator implements org.openide.WizardDescr
         FileObject mainFileFO = FileUtil.toFileObject(mainFile);
         FileObject documentTexSource = Repository.getDefault().getDefaultFileSystem().findResource("latex/guiproject/document.tex");
         
-        FileLock lock = null;
-        
-        try {
-            lock = mainFileFO.lock();
-            FileUtil.copy(documentTexSource.getInputStream(), mainFileFO.getOutputStream(lock));
-        } finally {
-            if (lock != null)
-                lock.releaseLock();
+        if (mainFileFO.getSize() == 0) {
+            FileLock lock = null;
+            
+            try {
+                lock = mainFileFO.lock();
+                FileUtil.copy(documentTexSource.getInputStream(), mainFileFO.getOutputStream(lock));
+            } finally {
+                if (lock != null)
+                    lock.releaseLock();
+            }
         }
+        
         Set results = new HashSet();
         
         results.add(mainFileFO);

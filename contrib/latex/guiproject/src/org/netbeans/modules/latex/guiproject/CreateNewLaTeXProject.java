@@ -48,6 +48,8 @@ public class CreateNewLaTeXProject {
     }
     
     public FileObject createProject(File metadataDir, File mainFile) throws IOException {
+        System.err.println("createProject(" + metadataDir + ", " + mainFile + ")");
+        System.err.println("mainFile.exists()=" + mainFile.exists());
         if (!mainFile.exists()) {
             File parent = mainFile.getParentFile();
             
