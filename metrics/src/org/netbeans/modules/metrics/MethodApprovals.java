@@ -95,6 +95,10 @@ class MethodApprovals implements Comparable, ApprovalAcceptor {
 	  (methodName.equals(((MethodApprovals)obj).methodName)) : false;
     }
 
+    public int hashCode() {
+	return methodName.hashCode();
+    }
+
     public int compareTo(Object obj) {
         return methodName.compareTo(((MethodApprovals)obj).methodName);
     }

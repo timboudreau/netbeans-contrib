@@ -118,6 +118,10 @@ class ClassApprovals implements Comparable, ApprovalAcceptor {
 	  (className.equals(((ClassApprovals)obj).className)) : false;
     }
 
+    public int hashCode() {
+	return className.hashCode();
+    }
+
     public int compareTo(Object obj) {
         return className.compareTo(((ClassApprovals)obj).className);
     }

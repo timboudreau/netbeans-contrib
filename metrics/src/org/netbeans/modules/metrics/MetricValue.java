@@ -73,14 +73,36 @@ class MetricValue implements Comparable {
     public boolean equals(Object obj) {
 	if (this == obj)
 	    return true;
-	return (obj instanceof MetricValue) ? 
-	    (metricClass.equals(((MetricValue)obj).metricClass)) : false;
+	if (!(obj instanceof MetricValue))
+	    return false;
+	MetricValue mv = (MetricValue)obj;
+	return 
+	    metricClass.equals(mv.metricClass) &&
+	    metric == mv.metric &&
+	    approver.equals(mv.approver) &&
+	    comment.equals(mv.comment);
+    }
+
+    public int hashCode() {
+	int result = 31*metricClass.hashCode() + metric;
+	result = 31*result + (approver == null ? 0 : approver.hashCode());
+	result = 31*result + (comment == null ? 0 : comment.hashCode());
+	return result;
     }
 
     public int compareTo(Object obj) {
+	MetricValue mv = (MetricValue)obj;
 	String name1 = metricClass.getName();
-	String name2 = ((MetricValue)obj).metricClass.getName();
-	return name1.compareTo(name2);
+	String name2 = mv.metricClass.getName();
+	int ret = name1.compareTo(name2);
+	if (ret != 0)
+	    return ret;
+	if (metric != mv.metric)
+	    return (metric < mv.metric ? -1 : 1);
+	ret = approver.compareTo(mv.approver);
+	if (ret != 0)
+	    return ret;
+	return comment.compareTo(mv.comment);
     }
 
     public String toString() {

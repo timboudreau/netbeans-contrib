@@ -38,7 +38,7 @@ import javax.swing.table.TableColumnModel;
 /**
  * A sorter for the metrics module, based on Philip Milne's sample code.
  */
-public class TableSorter extends TableMap
+class TableSorter extends TableMap
 {
     int             indexes[];
     Vector          sortingColumns = new Vector();
@@ -47,12 +47,12 @@ public class TableSorter extends TableMap
 
     private static final long serialVersionUID = 325837754407898428L;
 
-    public TableSorter()
+    TableSorter()
     {
         indexes = new int[0]; // For consistency.        
     }
 
-    public TableSorter(TableModel model)
+    TableSorter(TableModel model)
     {
         setModel(model);
     }

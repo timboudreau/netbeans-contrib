@@ -50,8 +50,11 @@ class MetricsNode extends AbstractNode implements Cloneable {
         setShortDescription(MetricsNode.getString( "HINT_Metrics" ) );
         setDefaultAction (SystemAction.get (PropertiesAction.class));
         setIconBase ("org/netbeans/modules/metrics/resources/barchart");
-
         this.classMetrics = classMetrics;
+	setPropertyListener();
+    }
+
+    private void setPropertyListener() {
         classMetrics.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 resetMetrics();
@@ -139,7 +142,9 @@ class MetricsNode extends AbstractNode implements Cloneable {
     }
 
     public Object clone() throws CloneNotSupportedException {
-        return new MetricsNode(classMetrics);
+	MetricsNode node = (MetricsNode)super.clone();
+	node.setPropertyListener();
+        return node;
     }
   
     public boolean canCopy () {

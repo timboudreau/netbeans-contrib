@@ -14,6 +14,7 @@
 package org.netbeans.modules.metrics.options;
 
 import java.beans.*;
+import java.util.ResourceBundle;
 import org.openide.util.NbBundle;
 
 /**
@@ -21,18 +22,24 @@ import org.openide.util.NbBundle;
  *
  * @author tball
  */
-class Util {
+public class Util {
 
-    static PropertyDescriptor makeProperty(String name, Class cls, 
-                                           String getter, String setter,
-                                           String shortDesc, String longDesc) {
+    private static ResourceBundle bundle = 
+        NbBundle.getBundle (Util.class);
+
+    public static PropertyDescriptor makeProperty(String name, 
+						  Class cls, 
+						  String getter, 
+						  String setter,
+						  String shortDesc, 
+						  String longDesc) {
         try {
             PropertyDescriptor prop = 
                 new PropertyDescriptor(name, cls, getter, setter);
             prop.setShortDescription(
-                NbBundle.getMessage(cls, longDesc));
+                bundle.getString(longDesc));
             prop.setDisplayName(
-                NbBundle.getMessage(cls, shortDesc));
+                bundle.getString(shortDesc));
             return prop;
         } catch (IntrospectionException e) {
             throw new InternalError(
