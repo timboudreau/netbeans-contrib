@@ -26,6 +26,7 @@ import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileSystem.Status;
+import org.openide.filesystems.FileSystemCapability;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.AbstractFileSystem;
@@ -1059,6 +1060,54 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
         return null;
     }
+    
+    // Capabilities setters/getters
+    
+    public boolean getCapableCompile() {
+        return getCapability().capableOf(FileSystemCapability.COMPILE);
+    }
+    
+    public void setCapableCompile(boolean capCompile) {
+        FileSystemCapability cap = getCapability();
+        if (cap instanceof FileSystemCapability.Bean) {
+            ((FileSystemCapability.Bean) cap).setCompile(capCompile);
+        }
+    }
+    
+    public boolean getCapableDebug() {
+        return getCapability().capableOf(FileSystemCapability.DEBUG);
+    }
+    
+    public void setCapableDebug(boolean capDebug) {
+        FileSystemCapability cap = getCapability();
+        if (cap instanceof FileSystemCapability.Bean) {
+            ((FileSystemCapability.Bean) cap).setDebug(capDebug);
+        }
+    }
+    
+    public boolean getCapableDoc() {
+        return getCapability().capableOf(FileSystemCapability.DOC);
+    }
+    
+    public void setCapableDoc(boolean capDoc) {
+        FileSystemCapability cap = getCapability();
+        if (cap instanceof FileSystemCapability.Bean) {
+            ((FileSystemCapability.Bean) cap).setDoc(capDoc);
+        }
+    }
+    
+    public boolean getCapableExecute() {
+        return getCapability().capableOf(FileSystemCapability.EXECUTE);
+    }
+    
+    public void setCapableExecute(boolean capExecute) {
+        FileSystemCapability cap = getCapability();
+        if (cap instanceof FileSystemCapability.Bean) {
+            ((FileSystemCapability.Bean) cap).setExecute(capExecute);
+        }
+    }
+    
+    // Object IO
     
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         in.defaultReadObject();
