@@ -20,10 +20,9 @@ import javax.swing.event.*;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.util.WeakListener;
-import org.openide.util.Utilities;
 
+import org.netbeans.modules.bookmarks.Utilities;
 import org.netbeans.api.bookmarks.*;
 
 /**

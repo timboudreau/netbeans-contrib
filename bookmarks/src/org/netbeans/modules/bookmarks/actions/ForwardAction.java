@@ -20,10 +20,10 @@ import javax.swing.event.*;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.util.WeakListener;
 import org.openide.util.actions.Presenter;
 import org.netbeans.api.bookmarks.*;
+import org.netbeans.modules.bookmarks.Utilities;
 
 /**
  * Forward action is used to present the NavigationService in the toolbar.

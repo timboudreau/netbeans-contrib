@@ -19,7 +19,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.openide.util.*;
+import org.openide.util.NbBundle;
+import org.openide.util.WeakListener;
+import org.openide.util.HelpCtx;
 import org.openide.windows.*;
 
 import org.netbeans.api.bookmarks.*;
