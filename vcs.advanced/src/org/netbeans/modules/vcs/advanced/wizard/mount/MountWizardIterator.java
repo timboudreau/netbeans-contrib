@@ -85,11 +85,11 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     public void initialize(org.openide.loaders.TemplateWizard templateWizard) {
         if (panels == null) {
             Object instance = new org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem();/*null;                                                              */
+            listenerList = new javax.swing.event.EventListenerList();            
             data = new MountWizardData(instance);
+            setupPanels(templateWizard);
             //data.addProfileChangeListener(this);
             data.addPropertyChangeListener(this);
-            setupPanels(templateWizard);
-            listenerList = new javax.swing.event.EventListenerList();            
         }
     }
     
@@ -176,6 +176,13 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
         java.awt.Component panel = templateWizard.templateChooser().getComponent();
         this.names.add(panel.getName());
         this.names.add(NbBundle.getMessage(MountWizardIterator.class, "CTL_ProfilePanel"));
+        VcsCustomizer customizer = data.getCustomizer();
+        int num = customizer.getNumConfigPanels();
+        for(int i = 1; i < num; i++){
+            ProfilePanel pp = new ProfilePanel(i);
+            panels.add(pp);
+            names.add(customizer.getConfigPanelName(i));
+        }
         
         templateWizard.putProperty("WizardPanel_contentData", names);
         templateWizard.putProperty("WizardPanel_contentSelectedIndex", new Integer(1)); // NOI18N
