@@ -384,7 +384,7 @@ public final class TLUtils {
     public static Logger getLogger(Class clazz) {
         Logger logger = Logger.getLogger(clazz.getName());
         ConsoleHandler ch = new ConsoleHandler();
-        ch.setLevel(Level.FINE);
+        ch.setLevel(Level.WARNING);
         logger.addHandler(ch);
         logger.setLevel(Level.FINE);
         return logger;

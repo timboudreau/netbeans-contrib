@@ -41,6 +41,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Broker actively monitors environment and provides
@@ -72,10 +73,7 @@ public final class SuggestionsBroker {
     private SuggestionList allOpenedList;
     private FileObject lastFileObject;
 
-    // TODO threading seems to be too complex
-    // performRescan() runs asynchronously in RP
-    // findCurrentFile runs in Timer (eliminate and replace by RP above)
-    // doRescanInAWT runs in AWT
+    private static final Logger LOGGER = TLUtils.getLogger(SuggestionsBroker.class);
 
     private SuggestionsBroker() {
     }
@@ -234,6 +232,8 @@ public final class SuggestionsBroker {
      */
     private void startActiveSuggestionFetching() {
 
+        LOGGER.info("Starting active suggestions fetching....");  // NOI18N
+
         // must be removed in docStop
         env.addTCRegistryListener(getWindowSystemMonitor());
         env.addDORegistryListener(getDataSystemMonitor());
@@ -338,8 +338,8 @@ err.log("Couldn't find current nodes...");
      * and CaretListener. Actual topcomponent is guarded
      * by attached ComponentListener.
      *
-     * @param delayed <ul><li>true run {@link #performRescan} later in TimerThread
-     *                    <li>false run {@link #performRescan} synchronously
+     * @param delayed <ul><li>true run {@link #performRescanInRP} later in TimerThread
+     *                    <li>false run {@link #performRescanInRP} synchronously
      */
     private void findCurrentFile(boolean delayed) {
         // Unregister previous listeners
@@ -483,19 +483,9 @@ err.log("Couldn't find current nodes...");
 
         if (ManagerSettings.getDefault().isScanOnShow()) {
             if (delayed) {
-                runTimer = new Timer(ManagerSettings.getDefault().getShowScanDelay(),
-                    new ActionListener() {
-                        public void actionPerformed(ActionEvent evt) {
-                            runTimer = null;
-                            performRescan(doc, dataobject);
-                        }
-                    });
-                runTimer.setRepeats(false);
-                runTimer.setCoalesce(true);
-                runTimer.start();
+                performRescanInRP(doc, dataobject, ManagerSettings.getDefault().getShowScanDelay());
             } else {
-                // Do it right away
-                performRescan(doc, dataobject);
+                performRescanInRP(doc, dataobject, 0);
             }
         }
     }
@@ -545,19 +535,12 @@ err.log("Couldn't find current nodes...");
      *
      * @param document The document being edited
      * @param dataobject The Data Object for the file being opened
+     * @param delay postpone the action by delay miliseconds
+     *
+     * @return parametrized task that rescans given dataobject in delay miliseconds
      */
-    private void performRescan(final Document document,
-                        final DataObject dataobject) {
-
-        // comes from timer-queue thread or awt-queue thread
-
-        setScanning(true);
-
-        if ((docSuggestions != null) && (docSuggestions.size() > 0)) {
-            // Clear out previous items before a rescan
-            manager.register(null, null, docSuggestions, getSuggestionsList(), true);
-            docSuggestions = null;
-        }
+    private RequestProcessor.Task performRescanInRP(final Document document,
+                        final DataObject dataobject, int delay) {
 
         /* Scan requests are run in a separate "background" thread.
            However, what happens if the user switches to a different
@@ -585,15 +568,35 @@ err.log("Couldn't find current nodes...");
         // have to check manually and do it myself in case some kind
         // of overflow exception is thrown
         //  Wait, I'm doing a comparison now - look for currRequest.longValue
-        assert currRequest.longValue() != Long.MAX_VALUE : "Wrap around logic needed!";
+        assert currRequest.longValue() != Long.MAX_VALUE : "Wrap around logic needed!";  // NOI18N
         currRequest = new Long(currRequest.longValue() + 1);
         final Object origRequest = currRequest;
 
         // free AWT && Timer threads
-        serializeOnBackground(new Runnable() {
+        return serializeOnBackground(new Runnable() {
             public void run() {
+
+                scheduledRescan = null;
+
                 // Stale request If so, just drop this one
                 if (origRequest != currRequest) return;
+
+                // code is fixing (modifing) document
+                if (wait) {
+                    waitingEvent = true;
+                    return;
+                }
+
+                LOGGER.fine("Dispatching rescan() request to providers...");
+
+                setScanning(true);
+
+                // XXX why manager.register access? these should be removed by provider on rescan
+                if ((docSuggestions != null) && (docSuggestions.size() > 0)) {
+                    // Clear out previous items before a rescan
+                    manager.register(null, null, docSuggestions, getSuggestionsList(), true);
+                    docSuggestions = null;
+                }
 
                 manager.dispatchRescan(document, dataobject, origRequest);
 
@@ -604,16 +607,17 @@ err.log("Couldn't find current nodes...");
                 }
                 if (currRequest == finishedRequest) {
                     setScanning(false);  // XXX global state, works only for single request source
+                    LOGGER.fine("It was last pending request.");
                 }
             }
-        });
+        }, delay);
     }
 
     private RequestProcessor rp = new RequestProcessor("Suggestions Broker");  // NOI18N
 
     /** Enqueue request and perform it on background later on. */
-    private void serializeOnBackground(Runnable request) {
-        rp.post(request, 0 , Thread.MIN_PRIORITY);
+    private RequestProcessor.Task serializeOnBackground(Runnable request, int delay) {
+        return rp.post(request, delay , Thread.MIN_PRIORITY);
     }
 
     /**
@@ -696,69 +700,57 @@ err.log("Couldn't find current nodes...");
         editors = null;
     }
 
-
-
     boolean pendingScan = false;
 
-    /** Timer which keeps track of outstanding scan requests; we don't
+    /** Timed task which keeps track of outstanding scan requests; we don't
      scan briefly selected files */
-    private Timer runTimer;
+    private RequestProcessor.Task scheduledRescan;
 
-
-    /** Plan a rescan (meaning: start timer)
+    /**
+     * Plan a rescan (meaning: put delayed task into RP). In whole
+     * broker there is only one scheduled task (and at maximum one
+     * running concurrenly if delay is smaller than execution time).
+     *
      * @param delay If true, don't create a rescan if one isn't already
      * pending, but if one is, delay it.
-     * @param docEvent Document edit event. May be null. */
-    private void scheduleRescan(final DocumentEvent docEvent, boolean delay,
-                                int scanDelay) {
-        if (wait) {
-            if (docEvent != null) {
-                // Caret updates shouldn't clear my docEvent
-                waitEvent = docEvent;
-            }
-            return;
-        }
+     * @param scanDelay actual delay value in ms
+     */
+    private void scheduleRescan(boolean delay, int scanDelay) {
 
         // This is just a delayer (e.g. for caret motion) - if there isn't
         // already a pending timeout, we're done. Caret motion shouldn't
         // -cause- a rescan, but if one is already planned, we want to delay
         // it.
-        if (delay && (runTimer == null)) {
+        if (delay && (scheduledRescan == null)) {
             return;
         }
 
         // Stop our current timer; the previous node has not
         // yet been scanned; too brief an interval
-        if (runTimer != null) {
-            runTimer.stop();
-            runTimer = null;
+        if (scheduledRescan != null) {
+            scheduledRescan.cancel();
+            scheduledRescan = null;
+            LOGGER.fine("Scheduled rescan task delayed by " + scanDelay + " ms.");  // NOI18N
         }
-        currDelay = scanDelay;
-        runTimer = new Timer(currDelay,
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent evt) {
-                        runTimer = null;
-                        if (!wait) {
-                            performRescan(document, dataobject);
-                        }
-                    }
-                });
-        runTimer.setRepeats(false);
-        runTimer.setCoalesce(true);
-        runTimer.start();
+
+        scheduledRescan = performRescanInRP(document, dataobject, scanDelay);
     }
 
-    /** Most recent delay */
-    private int currDelay = 500;
-
-    private DocumentEvent waitEvent = null;
+    /** An event ocurred during quiet fix period. */
+    private boolean waitingEvent = false;
     private boolean wait = false;
 
+    /**
+     * Set fix mode (quiet period) in which self initialized modifications are expected.
+     * @param wait <ul> <li> true postpone all listeners until ...
+     *                  <li> false ressurect listeners activity
+     */
     final void setFixing(boolean wait) {
         boolean wasWaiting = this.wait;
         this.wait = wait;
-        if (!wait && wasWaiting && (waitEvent != null)) {
-            scheduleRescan(waitEvent, false, currDelay);
+        if (!wait && wasWaiting && (waitingEvent)) {
+            scheduleRescan(false, ManagerSettings.getDefault().getEditScanDelay());
+            waitingEvent = false;
         }
     }
 
@@ -827,9 +819,12 @@ err.log("Couldn't find current nodes...");
      * environment listeners.
      */
     private void stopActiveSuggestionFetching() {
-        if (runTimer != null) {
-            runTimer.stop();
-            runTimer = null;
+
+        LOGGER.info("Stopping active suggestions fetching....");  // NOI18N
+
+        if (scheduledRescan != null) {
+            scheduledRescan.cancel();
+            scheduledRescan = null;
         }
 
         env.removeTCRegistryListener(getWindowSystemMonitor());
@@ -952,7 +947,7 @@ err.log("Couldn't find current nodes...");
             if (notSaved != wasModified) {
                 if (!notSaved) {
                     if (ManagerSettings.getDefault().isScanOnSave()) {
-                        scheduleRescan(null, false, ManagerSettings.getDefault().getSaveScanDelay());
+                        scheduleRescan(false, ManagerSettings.getDefault().getSaveScanDelay());
                     }
                 }
             }
@@ -982,7 +977,7 @@ err.log("Couldn't find current nodes...");
 
         public void insertUpdate(DocumentEvent e) {
             if (ManagerSettings.getDefault().isScanOnEdit()) {
-                scheduleRescan(e, false, ManagerSettings.getDefault().getEditScanDelay());
+                scheduleRescan(false, ManagerSettings.getDefault().getEditScanDelay());
             }
 
             // If there's a visible marker annotation on the line, clear it now
@@ -991,7 +986,7 @@ err.log("Couldn't find current nodes...");
 
         public void removeUpdate(DocumentEvent e) {
             if (ManagerSettings.getDefault().isScanOnEdit()) {
-                scheduleRescan(e, false, ManagerSettings.getDefault().getEditScanDelay());
+                scheduleRescan(false, ManagerSettings.getDefault().getEditScanDelay());
             }
 
             // If there's a visible marker annotation on the line, clear it now
@@ -1001,7 +996,7 @@ err.log("Couldn't find current nodes...");
         /** Moving the cursor position should cause a delay in document scanning,
          * but not trigger a new update */
         public void caretUpdate(CaretEvent caretEvent) {
-            scheduleRescan(null, true, currDelay);
+            scheduleRescan(true, ManagerSettings.getDefault().getEditScanDelay());
 
             // Check to see if I have any existing errors on this line - and if so,
             // highlight them.
