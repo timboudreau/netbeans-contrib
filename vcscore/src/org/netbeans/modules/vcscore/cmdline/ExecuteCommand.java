@@ -287,15 +287,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      */
     private void runCommand(String exec){
         E.deb("runCommand: "+exec); // NOI18N
-        //D.deb("run("+cmd.getName()+")"); // NOI18N
-        //String exec=cmd.getExec();
-        //fileSystem.debug(cmd.getName()+": "+exec); // NOI18N
 
         exec = Variables.expand(vars,exec, true);
-
-        //fileSystem.debugClear();
-        //fileSystem.debug(cmd.getName()+": "+exec); // NOI18N
-        //if (stdoutNoRegexListener != null) stdoutNoRegexListener.match(cmd.getName()+": "+exec); // NOI18N
 
         ExternalCommand ec = new ExternalCommand(exec);
         //ec.setTimeout(cmd.getTimeout());
@@ -356,7 +349,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             ec.addStderrListener((CommandOutputListener) it.next());
         }
 
-        //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", cmd.getName())); -- moved to CommandsPool
         E.deb("ec="+ec); // NOI18N
         exitStatus = ec.exec();
         E.deb("Command exited with exit status = "+exitStatus); // NOI18N
@@ -364,43 +356,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         switch (exitStatus) {
         case VcsCommandExecutor.SUCCEEDED:
             commandFinished(exec, true);
-            
-            // !! ALL  DEBUGGING REMOVED, IT SHOULD BE IMPLEMENTED IN COMMANDS POOL !!
-            
-            //fileSystem.debug(cmd.getName()+": "+g("MSG_Command_succeeded")+"\n"); // NOI18N
-            //TopManager.getDefault().setStatusText(g("MSG_Command_name_succeeded", cmd.getName()));
-            //if( fileSystem.isAdditionalCommand(cmd.getName())==false ){
-            /*
-            if(cmd.getDoRefresh() && fileSystem.getDoAutoRefresh((String)vars.get("DIR"))) { // NOI18N
-                //D.deb("Now refresh folder after CheckIn,CheckOut,Lock,Unlock... commands for convenience"); // NOI18N
-                fileSystem.setAskIfDownloadRecursively(false); // do not ask if using auto refresh
-                fileSystem.getCache().refreshDir((String)vars.get("DIR")); // NOI18N
-            }
-            if (!cmd.getDoRefresh()) fileSystem.removeNumDoAutoRefresh((String)vars.get("DIR")); // NOI18N
-             */
-            //fileSystem.setLastCommandState(true);
-            //if (errorContainer != null) errorDialog.removeCommandOut(); //cancelDialog(); -- not necessary
             break;
         case VcsCommandExecutor.INTERRUPTED:
-            commandFinished(exec, false);
-            //fileSystem.debug(cmd.getName()+": "+g("MSG_Timeout")+"\n"); // NOI18N
-            //if (errorContainer != null) errorContainer.match(cmd.getName()+": "+g("MSG_Timeout")); // NOI18N
-            break;
+            //commandFinished(exec, false);
+            //break;
+            // Do the same as when the command fails.
         case VcsCommandExecutor.FAILED:
             commandFinished(exec, false);
-            //D.deb("exec failed "+ec.getExitStatus()); // NOI18N
-            //fileSystem.debug(cmd.getName()+": "+g("MSG_Command_failed")+"\n"); // NOI18N
-            //TopManager.getDefault().setStatusText(g("MSG_Command_name_failed", cmd.getName()));
-            //if (errorContainer != null) errorContainer.match(cmd.getName()+": "+g("MSG_Command_failed")); // NOI18N
-            /*
-            ErrorCommandDialog errorDialog = fileSystem.getErrorDialog();
-            if (errorDialog != null && errorContainer != null) {
-                errorDialog.putCommandOut(errorContainer.getMessages());
-                errorDialog.showDialog();
-            }
-             */
             fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
-            //fileSystem.setLastCommandState(false);
             break;
         }
 
@@ -516,49 +479,19 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                                        }, errorRegex
                                       );
         }
-        //D.deb("class finished with "+success+", errorContainer = "+errorContainer); // NOI18N
-        if (success) {
-            exitStatus = VcsCommandExecutor.SUCCEEDED;
-            //fileSystem.debug(cmd.getName()+": "+g("MSG_Command_succeeded")+"\n"); // NOI18N
-            //TopManager.getDefault().setStatusText(g("MSG_Command_name_succeeded", cmd.getName()));
-            //if( fileSystem.isAdditionalCommand(cmd.getName())==false ){
-            /*
-            if(cmd.getDoRefresh() && fileSystem.getDoAutoRefresh((String)vars.get("DIR"))) { // NOI18N
-                //D.deb("Now refresh folder after CheckIn,CheckOut,Lock,Unlock... commands for convenience"); // NOI18N
-                fileSystem.setAskIfDownloadRecursively(false); // do not ask if using auto refresh
-                String refreshPath = (String) vars.get("DIR");
-                if (!cmd.getRefreshParent()) refreshPath += (String) vars.get("PS") + (String) vars.get("FILE");
-                String pattern = cmd.getRefreshRecursivelyPattern();
-                if (pattern != null && pattern.length() > 0 && exec.indexOf(pattern)) {
-                    fileSystem.getCache().refreshDirRecursive(refreshPath);
-                } else {
-                    fileSystem.getCache().refreshDir(refreshPath); // NOI18N
-                }
-            }
-            if (!cmd.getDoRefresh()) fileSystem.removeNumDoAutoRefresh((String)vars.get("DIR")); // NOI18N
-             */
-            commandFinished(exec, true);
-            //fileSystem.setLastCommandState(true);
-            //if (errorDialog != null) errorDialog.removeCommandOut();  //cancelDialog();  -- not necessary
+        if (Thread.currentThread().interrupted()) {
+            exitStatus = VcsCommandExecutor.INTERRUPTED;
+            commandFinished(exec, false);
+            fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
         } else {
-            if (Thread.currentThread().interrupted()) {
-                exitStatus = VcsCommandExecutor.INTERRUPTED;
+            if (success) {
+                exitStatus = VcsCommandExecutor.SUCCEEDED;
+                commandFinished(exec, true);
             } else {
                 exitStatus = VcsCommandExecutor.FAILED;
+                commandFinished(exec, false);
+                fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
             }
-            commandFinished(exec, false);
-            /*
-            fileSystem.debug(cmd.getName()+": "+g("MSG_Command_failed")+"\n"); // NOI18N
-            //TopManager.getDefault().setStatusText(g("MSG_Command_name_failed", cmd.getName()));
-            if (errorContainer != null) errorContainer.match(cmd.getName()+": "+g("MSG_Command_failed")); // NOI18N
-            ErrorCommandDialog errorDialog = fileSystem.getErrorDialog();
-            if (errorDialog != null && errorContainer != null) {
-                errorDialog.putCommandOut(errorContainer.getMessages());
-                errorDialog.showDialog();
-            }
-             */
-            fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
-            //fileSystem.setLastCommandState(false);
         }
     }
 
@@ -566,20 +499,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * Execute the command.
      */
     public void run() {
-        /*
-        for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
-            ((CommandListener) it.next()).commandStarted(this);
-        }
-         */
         //isRunning = true;
         //hasStarted = true;
         String exec;
         if (preferredExec != null) exec = preferredExec;
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec != null) exec = exec.trim();
-        //fileSystem.setLastCommandFinished(false);
-        //fileSystem.debug(cmd.getName()+": "+exec); // NOI18N
-        //if (stdoutNoRegexListener != null) stdoutNoRegexListener.match(cmd.getName()+": "+exec); // NOI18N
 
         StringTokenizer tokens = new StringTokenizer(exec);
         String first = tokens.nextToken();
@@ -590,7 +515,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             runClass(exec, first.substring(0, first.length() - ".class".length()), tokens); // NOI18N
         else
             runCommand(exec);
-        //fileSystem.setLastCommandFinished(true);
         if (disableRefresh) fileSystem.enableRefresh();
     }
 
