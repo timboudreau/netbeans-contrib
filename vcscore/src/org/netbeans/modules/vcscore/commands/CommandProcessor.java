@@ -371,7 +371,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                 throw td;
             } catch (Throwable th) {
                 ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, th);
-                customizer = null;
+                return false; // Do not let the command to run when the customization failed.
             }
             //System.out.println("customizer of command "+cmd+" = "+customizer);
             //System.out.println("customizer instanceof Component = "+(customizer instanceof Component));
