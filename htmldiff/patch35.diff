@@ -1,16 +1,148 @@
+? autoupdate/X
+? autoupdate/javadoc
+? nbbuild/javadoctools/Empty.diff
+? nbbuild/javadoctools/export2html.xsl
+? nbbuild/javadoctools/exportInterfaces.xsl
+Index: autoupdate/build.xml
+===================================================================
+RCS file: /cvs/autoupdate/build.xml,v
+retrieving revision 1.40
+diff -u -r1.40 build.xml
+--- autoupdate/build.xml	14 Feb 2003 08:48:28 -0000	1.40
++++ autoupdate/build.xml	3 Nov 2003 14:35:06 -0000
+@@ -22,29 +22,22 @@
+   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../nbbuild/nbantext.jar"/>
+   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="../nbbuild/nbantext.jar"/>
+   <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../nbbuild/nbantext.jar"/>
+-
+-  <path id="xml-apis-cp">
+-    <fileset dir="../core/external">
+-      <include name="xml-apis*.jar"/>
+-    </fileset>
++  
++  <path id="cp">
++    <pathelement location="../openide/openide-13javac-workaround.jar"/>
++    <pathelement location="../openide/netbeans/lib/openide.jar"/>
++    <pathelement location="libsrc"/>
++    <pathelement location="../core/netbeans/lib/core.jar"/>
++    <!-- src must be on classpath, otherwise AspectJ compiler (ajc) wouldn't compile -->
++    <!-- commenting out for now, readd if required: -jglick
++    <pathelement location="src" />
++    -->
+   </path>
+ 
+   <target name="compile">
+-    <javac srcdir="libsrc" destdir="libsrc" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+-      <classpath refid="xml-apis-cp"/>
+-    </javac>
++    <javac srcdir="libsrc" destdir="libsrc" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}"/>
+     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+-      <classpath>
+-        <pathelement location="../openide/openide-13javac-workaround.jar"/>
+-        <pathelement location="../openide/netbeans/lib/openide.jar"/>
+-        <pathelement location="libsrc"/>
+-	<pathelement location="../core/netbeans/lib/core.jar"/>
+-        <path refid="xml-apis-cp"/>
+-        <!-- src must be on classpath, otherwise AspectJ compiler (ajc) wouldn't compile -->
+-        <!-- commenting out for now, readd if required: -jglick
+-        <pathelement location="src" />
+-        -->
+-      </classpath>
++      <classpath refid="cp" />
+     </javac>
+   </target>
+ 
+@@ -101,35 +94,15 @@
+   </target>
+ 
+   <target name="javadoc" description="Build autoupdate module API documentation.">
+-    <tstamp/>
+-    <property name="apis-footer" value="&lt;font size=-2 color=gray&gt;Built on ${TODAY}.&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Portions Copyright 1997-2003 Sun Microsystems, Inc. All rights reserved.&lt;/font&gt;"/>
+-    <echo message="Build autoupdate module API documentation..."/>
+-    <mkdir dir="javadoc"/>
+-    <javadoc destdir="javadoc"
+-             packagenames="org.netbeans.updater,org.netbeans.modules.autoupdate"
+-             doctitle="NetBeans autoupdate module APIs"
+-             windowtitle="NetBeans autoupdate module APIs"
+-             bottom="${apis-footer}"
+-             use="true"
+-             splitindex="true"
+-             author="false"
+-             version="false"
+-             maxmemory="384m"
+-    >
+-      <sourcepath>
+-        <pathelement location="src"/>
+-        <pathelement location="libsrc"/>
+-      </sourcepath>
+-      <classpath>
+-        <!-- this classpath probably should be the same as for compilation -->
+-        <pathelement location="../openide/openide-13javac-workaround.jar"/>
+-        <pathelement location="libsrc"/>
+-        <fileset dir="../openide/netbeans/lib">
+-          <include name="openide*.jar" />
+-        </fileset>
+-        <path refid="xml-apis-cp"/>
+-      </classpath>
+-    </javadoc>    
++        <ant dir="../nbbuild/javadoctools" antfile="template.xml" target="javadoc">
++            <property name="javadoc.base" location="."/>
++            <property name="javadoc.name" value="AutoUpdateAPI"/>
++            <property name="javadoc.title" value="Auto Update API"/>
++       <!-- no packages     <property name="javadoc.packages" value=""/> -->
++            <property name="javadoc.classpath" refid="cp"/>
++            <property name="javadoc.arch" location="arch/arch-autoupdate.xml"/>
++<!--            <property name="javadoc.docfiles" location="api/doc"/> -->
++        </ant>
+   </target>
+ 
+ </project>
 Index: nbbuild/build.xml
 ===================================================================
 RCS file: /cvs/nbbuild/build.xml,v
 retrieving revision 1.293.2.11
 diff -u -r1.293.2.11 build.xml
 --- nbbuild/build.xml	22 May 2003 18:44:55 -0000	1.293.2.11
-+++ nbbuild/build.xml	3 Nov 2003 09:09:15 -0000
-@@ -774,7 +774,7 @@
++++ nbbuild/build.xml	3 Nov 2003 14:35:12 -0000
+@@ -768,13 +768,40 @@
+ 
+   <!-- build javadoc for selected modules -->
+   <target name="build-javadoc" depends="merge">
++      <mkdir dir="modules_exported_interfaces" />
++      <property name="export.interfaces" location="modules_exported_interfaces" />
++      
+       <!-- build javadoc for supported APIs -->
+       <for-each startdir=".." target="javadoc" locations="${fixedmodules}"/>
+       <!-- build javadoc for unsupported APIs -->
        <for-each startdir=".." target="javadoc" locations="${modules}"/>
        <taskdef name="simplemerge" classname="org.netbeans.nbbuild.SimpleMerge" classpath="nbantext.jar"/>
        <simplemerge topdir=".." subdir="javadoc" dest="modules_javadoc" modules="${fixedmodules}"/>
 -      <simplemerge topdir=".." subdir="javadoc" dest="modules_javadoc/UnsupportedAPIs" modules="${modules}"/>
 +      <simplemerge topdir=".." subdir="javadoc" dest="modules_javadoc" modules="${modules}"/>
++      
++      
++      <echo file="modules_exported_interfaces/header.gen" >&lt;?xml version="1.0" encoding="UTF-8"?&gt;
++&lt;apis&gt;
++</echo>
++      
++      <echo file="modules_exported_interfaces/footer.gen" >
++        &lt;/apis&gt;
++      </echo>
++      
++      <concat destfile="modules_javadoc/index.xml" >
++          <fileset dir="modules_exported_interfaces" includes="header.gen" />
++          <fileset dir="modules_exported_interfaces" includes="*" excludes="*.gen" />
++          <fileset dir="modules_exported_interfaces" includes="footer.gen" />
++      </concat>
++      
++      <style 
++        in="modules_javadoc/index.xml" 
++        out="modules_javadoc/index.html" 
++        style="javadoctools/export2html.xsl"
++      />
++      
++      <delete dir="modules_exported_interfaces" />
++      
    </target>
  
    <target name="build-messaging" depends="init">
@@ -20,7 +152,7 @@ RCS file: /cvs/nbbuild/antsrc/org/netbeans/nbbuild/Arch.dtd,v
 retrieving revision 1.3.6.1
 diff -u -r1.3.6.1 Arch.dtd
 --- nbbuild/antsrc/org/netbeans/nbbuild/Arch.dtd	22 Apr 2003 14:35:28 -0000	1.3.6.1
-+++ nbbuild/antsrc/org/netbeans/nbbuild/Arch.dtd	3 Nov 2003 09:09:15 -0000
++++ nbbuild/antsrc/org/netbeans/nbbuild/Arch.dtd	3 Nov 2003 14:35:12 -0000
 @@ -80,6 +80,7 @@
  <!ELEMENT question (#PCDATA | %inline; | hint)* >
  <!ATTLIST question
@@ -35,7 +167,7 @@ RCS file: /cvs/nbbuild/antsrc/org/netbeans/nbbuild/Arch.java,v
 retrieving revision 1.15.2.1
 diff -u -r1.15.2.1 Arch.java
 --- nbbuild/antsrc/org/netbeans/nbbuild/Arch.java	22 Apr 2003 14:35:28 -0000	1.15.2.1
-+++ nbbuild/antsrc/org/netbeans/nbbuild/Arch.java	3 Nov 2003 09:09:15 -0000
++++ nbbuild/antsrc/org/netbeans/nbbuild/Arch.java	3 Nov 2003 14:35:12 -0000
 @@ -167,11 +167,7 @@
              
              if (!removeRevisionTags (answersVersion).equals (removeRevisionTags (questionsVersion))) {
@@ -49,3 +181,293 @@ diff -u -r1.15.2.1 Arch.java
              }
          }
          
+Index: nbbuild/javadoctools/template.xml
+===================================================================
+RCS file: /cvs/nbbuild/javadoctools/template.xml,v
+retrieving revision 1.2.2.1
+diff -u -r1.2.2.1 template.xml
+--- nbbuild/javadoctools/template.xml	4 Mar 2003 03:48:29 -0000	1.2.2.1
++++ nbbuild/javadoctools/template.xml	3 Nov 2003 14:35:12 -0000
+@@ -31,6 +31,8 @@
+ ${javadoc.overview}   Overview HTML file; default a generic page
+ ${javadoc.check.external.links}  set to "true" to check external HTTP links
+ ${javadoc.header}     Special header text.
++${javadoc.manifest}   API module manifest file - permits @SPECIFICATION-VERSION@ in arch summary to be substituted
++${javadoc.web.root}   Base URL for online Javadoc for linking; default http://www.netbeans.org/download/dev/javadoc
+ 
+ To call this script you MUST use the form of <ant> with the 'dir' attribute. This
+ script expects that its basedir is the directory containing it. If you use only
+@@ -43,8 +45,18 @@
+     </target>
+ 
+     <!-- javadoc -->
++    
++    <target name="copy-netbeans.css">
++        <!-- Note: this will indeed modify working sources if there is a change. -->
++        <!-- That is as desired: want an up-to-date copy of this file. -->
++        <!-- Note also that if www or testwww are not checked out, nothing happens; use CVS copy. -->
++        <copy file="../../testwww/www/netbeans.css" tofile="netbeans.css" failonerror="false"/>
++        <copy file="../../www/www/netbeans.css" tofile="netbeans.css" failonerror="false"/>
++        <copy file="../../testwww/www/nb_special.css" tofile="netbeans-lite.css" failonerror="false"/>
++        <copy file="../../www/www/nb_special.css" tofile="netbeans-lite.css" failonerror="false"/>
++    </target>
+ 
+-    <target name="javadoc-init">
++    <target name="javadoc-init" depends="copy-netbeans.css">
+         <!-- Output dir (will create ${javadoc.name}/ and ${javadoc.name}.zip beneath this): -->
+         <property name="javadoc.out" location="${javadoc.base}/javadoc"/>
+         <property name="javadoc.out.dir" location="${javadoc.out}/${javadoc.name}"/>
+@@ -57,14 +69,21 @@
+         <property name="javadoc.apichanges" location="apichanges-empty.xml"/>
+         <property name="javadoc.arch" location="arch-empty.xml"/>
+         <!-- Docs to link to: -->
+-        <property name="javadoc.docs.jdk" value="http://java.sun.com/j2se/1.4.1/docs/api"/>
+-        <property name="javadoc.docs.openide" value="http://www.netbeans.org/download/dev/javadoc/OpenAPIs"/>
+-        <property name="javadoc.docs.openide/io" value="http://www.netbeans.org/download/dev/javadoc/InputOutputAPI"/>
+-        <property name="javadoc.docs.openide/execution" value="http://www.netbeans.org/download/dev/javadoc/ExecutionAPI"/>
+-        <property name="javadoc.docs.openide/compiler" value="http://www.netbeans.org/download/dev/javadoc/CompilerAPI"/>
+-        <property name="javadoc.docs.openide/deprecated" value="http://www.netbeans.org/download/dev/javadoc/DeprecatedAPIs"/>
+-        <property name="javadoc.docs.core/javahelp" value="http://www.netbeans.org/download/dev/javadoc/JavaHelpAPI"/>
+-        <property name="javadoc.docs.java/api" value="http://www.netbeans.org/download/dev/javadoc/JavaSupportAPIs"/>
++        <property name="javadoc.docs.jdk" value="http://java.sun.com/j2se/1.4.2/docs/api"/>
++        <property name="javadoc.web.root" value="http://www.netbeans.org/download/dev/javadoc"/>
++        <property name="javadoc.docs.openide" value="${javadoc.web.root}/OpenAPIs"/>
++        <property name="javadoc.docs.openide/io" value="${javadoc.web.root}/InputOutputAPI"/>
++        <property name="javadoc.docs.openide/execution" value="${javadoc.web.root}/ExecutionAPI"/>
++        <property name="javadoc.docs.openide/compiler" value="${javadoc.web.root}/CompilerAPI"/>
++        <property name="javadoc.docs.openide/loaders" value="${javadoc.web.root}/LoadersAPI"/>
++        <property name="javadoc.docs.openide/deprecated" value="${javadoc.web.root}/DeprecatedAPIs"/>
++        <property name="javadoc.docs.core/javahelp" value="${javadoc.web.root}/JavaHelpAPI"/>
++        <property name="javadoc.docs.core/term" value="${javadoc.web.root}/UnsupportedAPIs/TerminalEmulatorAPI"/>
++        <property name="javadoc.docs.java/api" value="${javadoc.web.root}/JavaSupportAPIs"/>
++        <property name="javadoc.docs.java/srcmodel" value="${javadoc.web.root}/JavaHierarchyAPI"/>
++        <property name="javadoc.docs.openide/registry" value="${javadoc.web.root}/RegistryAPI"/>
++        <property name="javadoc.docs.openide/convertor" value="${javadoc.web.root}/ConvertorAPI"/>
++        <property name="javadoc.docs.openide/looks" value="${javadoc.web.root}/LooksAPI"/>
+         <!-- add more here as needed... -->
+         <property name="javadoc.css.dir" location="."/>
+         <property name="javadoc.css.main" location="${javadoc.css.dir}/javadoc.css"/>
+@@ -72,7 +91,7 @@
+             <include name="*.css"/>
+         </fileset>
+         <property name="javadoc.check.external.links" value="false"/>
+-        <property name="javadoc.header" value=""/>
++        <property name="javadoc.header" value="&amp;nbsp;"/>
+         <mkdir dir="${javadoc.out.dir}"/>
+     </target>
+ 
+@@ -86,11 +105,23 @@
+             <srcfiles dir=".">
+                 <include name="apichanges.xsl"/>
+             </srcfiles>
+-            <!-- XXX Ant 1.5.1:
+             <srcfiles file="${javadoc.apichanges}"/>
+             <srcfiles file="${javadoc.arch}"/>
+-            -->
+         </uptodate>
++        <condition property="javadoc.should.not.be.generated" >
++            <or>
++                <isset property="javadoc.up.to.date" />
++                <not>
++                    <isset property="javadoc.packages" />
++                </not>
++                <equals arg1="${javadoc.packages}" arg2="" />
++            </or>
++        </condition>
++        <!--
++        <echo message="AAA: ${javadoc.should.not.be.generated}" />
++        <echo message="BBB: ${javadoc.up.to.date}" />
++        <echo message="CCC: ${javadoc.packages}" />
++        -->
+     </target>
+ 
+     <target name="javadoc-make-plain-title" unless="javadoc.main.page">
+@@ -100,11 +131,15 @@
+     <target name="javadoc-make-hyperlinked-title" if="javadoc.main.page">
+         <property name="javadoc.hyperlinked.title" value='&lt;a href="@TOP@${javadoc.main.page}"&gt;${javadoc.title}&lt;/a&gt;'/>
+     </target>
+-    
+-    <target name="javadoc-stage-main" depends="javadoc-init,javadoc-check-timestamps,javadoc-make-plain-title,javadoc-make-hyperlinked-title" unless="javadoc.up.to.date">
++
++    <target name="javadoc-stage-alternative" depends="javadoc-init,javadoc-check-timestamps" if="javadoc.should.not.be.generated" unless="javadoc.up.to.date" >
++        <!-- if no packages are specified, this is used to generate index.html from the overview page -->
++        <copy file="${javadoc.overview}" tofile="${javadoc.out.dir}/index.html" />
++    </target>
++    <target name="javadoc-stage-main" depends="javadoc-init,javadoc-check-timestamps,javadoc-make-plain-title,javadoc-make-hyperlinked-title" unless="javadoc.should.not.be.generated">
+         <tstamp/>
+         <property name="javadoc.footer" value='&lt;span class="footnote"&gt;Built on ${TODAY}.&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Portions Copyright 1997-2003 Sun Microsystems, Inc. All rights reserved.&lt;/span&gt;'/>
+-        <javadoc author="false" destdir="${javadoc.out.dir}" packagenames="${javadoc.packages}" stylesheetfile="${javadoc.css.main}" windowtitle="NetBeans ${javadoc.title}" overview="${javadoc.overview}" splitindex="true" use="true" version="false">
++        <javadoc source="1.4" author="false" destdir="${javadoc.out.dir}" packagenames="${javadoc.packages}" stylesheetfile="${javadoc.css.main}" windowtitle="NetBeans ${javadoc.title}" overview="${javadoc.overview}" splitindex="true" use="true" version="false">
+             <sourcepath>
+                 <pathelement location="${javadoc.docfiles}"/>
+                 <pathelement location="${javadoc.src}"/>
+@@ -119,12 +154,17 @@
+             <link href="${javadoc.docs.openide/io}" offline="true" packagelistloc="../../openide/io/javadoc/InputOutputAPI"/>
+             <link href="${javadoc.docs.openide/execution}" offline="true" packagelistloc="../../openide/execution/javadoc/ExecutionAPI"/>
+             <link href="${javadoc.docs.openide/compiler}" offline="true" packagelistloc="../../openide/compiler/javadoc/CompilerAPI"/>
++            <link href="${javadoc.docs.openide/loaders}" offline="true" packagelistloc="../../openide/loaders/javadoc/LoadersAPI"/>
+             <link href="${javadoc.docs.core/javahelp}" offline="true" packagelistloc="../../core/javahelp/javadoc/JavaHelpAPI"/>
++            <link href="${javadoc.docs.core/term}" offline="true" packagelistloc="../../core/term/javadoc/TerminalEmulatorAPI"/>
+             <link href="${javadoc.docs.java/api}" offline="true" packagelistloc="../../java/api/javadoc/JavaSupportAPIs"/>
++            <link href="${javadoc.docs.java/srcmodel}" offline="true" packagelistloc="../../java/srcmodel/javadoc/JavaHierarchyAPI"/>
++            <link href="${javadoc.docs.openide/registry}" offline="true" packagelistloc="../../openide/registry/javadoc/RegistryAPI"/>
++            <link href="${javadoc.docs.openide/convertor}" offline="true" packagelistloc="../../openide/convertor/javadoc/ConvertorAPI"/>
++            <link href="${javadoc.docs.openide/looks}" offline="true" packagelistloc="../../openide/looks/javadoc/LooksAPI"/>
+             <doctitle>NetBeans ${javadoc.title}</doctitle>
+             <header>${javadoc.header}</header>
+             <bottom>${javadoc.footer}</bottom>
+-            <!-- XXX in Ant 1.5.1 add: <tag name="beaninfo" scope="methods" description="Bean info:"/> -->
+         </javadoc>
+         <copy todir="${javadoc.out.dir}">
+             <fileset refid="javadoc.css.files"/>
+@@ -135,7 +175,7 @@
+         <ant dir="../../libs/external" target="unscramble"/>
+         <xmlvalidate file="${javadoc.apichanges}" failonerror="true"/>
+         <style in="${javadoc.apichanges}" out="${javadoc.out.dir}/apichanges.html" style="apichanges.xsl">
+-            <param name="javadoc-url-base" expression="http://www.netbeans.org/download/dev/javadoc/${javadoc.name}"/>
++            <param name="javadoc-url-base" expression="."/>
+         </style>
+     </target>
+ 
+@@ -143,27 +183,69 @@
+         <taskdef name="arch" classname="org.netbeans.nbbuild.Arch">
+             <classpath>
+                 <pathelement location="../nbantext.jar"/>
++                <fileset dir="../../libs/external">
++                    <include name="xerces*.jar"/>
++                </fileset>
+             </classpath>
+         </taskdef>
+         <!-- Warn about incorrect question version, but do not make build fail: -->
+         <property name="arch.warn" value="true"/>
+         <arch answers="${javadoc.arch}" output="${javadoc.out.dir}/architecture-summary.html" stylesheet="prose.css" overviewlink="overview-summary.html" footer="@FOOTER@"/>
+     </target>
++
++    <target name="arch-replace-init" if="javadoc.manifest">
++        <property file="${javadoc.manifest}"/>
++        <condition property="javadoc.manifest+export.interfaces">
++            <and>
++                <isset property="javadoc.manifest"/>
++                <isset property="export.interfaces"/>
++            </and>
++        </condition>
++    </target>
++
++    <target name="javadoc-stage-arch-replace" depends="javadoc-init,javadoc-check-timestamps,arch-replace-init" unless="javadoc.up.to.date" if="javadoc.manifest">
++        <replace file="${javadoc.out.dir}/architecture-summary.html" token="@SPECIFICATION-VERSION@" value="${OpenIDE-Module-Specification-Version}"/>
++    </target>
+     
+-    <target name="javadoc-stage-replace" depends="javadoc-stage-main,javadoc-stage-apichanges,javadoc-stage-arch" unless="javadoc.up.to.date">
++    <!-- XXX up-to-date check here should be independent: from ${javadoc.arch} to ${export.interfaces}/${javadoc.name} -->
++    <target name="javadoc-stage-export-interfaces" depends="javadoc-init,javadoc-check-timestamps" if="export.interfaces">
++        <taskdef name="arch" classname="org.netbeans.nbbuild.Arch">
++            <classpath>
++                <pathelement location="../nbantext.jar"/>
++                <fileset dir="../../libs/external">
++                    <include name="xerces*.jar"/>
++                </fileset>
++            </classpath>
++        </taskdef>
++        <!-- Warn about incorrect question version, but do not make build fail: -->
++        <property name="arch.warn" value="true"/>
++        <property name="arch.xsl" location="exportInterfaces.xsl" />
++        <property name="arch.target" value="${javadoc.name}" />
++        <arch answers="${javadoc.arch}" output="${export.interfaces}/architecture-summary.html" stylesheet="prose.css"/>
++        <move file="${export.interfaces}/architecture-summary.html" tofile="${export.interfaces}/${javadoc.name}" />
++    </target>
++    
++    <target name="javadoc-stage-export-interfaces-replace" depends="javadoc-init,javadoc-check-timestamps,arch-replace-init" unless="javadoc.up.to.date" if="javadoc.manifest+export.interfaces">
++        <replace file="${export.interfaces}/${javadoc.name}" token="@SPECIFICATION-VERSION@" value="${OpenIDE-Module-Specification-Version}"/>
++    </target>
++    
++    <target name="javadoc-stage-replace" depends="javadoc-stage-main,javadoc-stage-alternative,javadoc-stage-apichanges,javadoc-stage-arch,javadoc-stage-arch-replace,javadoc-stage-export-interfaces,javadoc-stage-export-interfaces-replace" unless="javadoc.up.to.date">
+         <replace dir="${javadoc.out.dir}">
+-            <include name="**/doc-files/*.html"/>
+-            <include name="**/package-summary.html"/>
+-            <include name="apichanges.html"/>
+-            <include name="architecture-summary.html"/>
++            <include name="**/*.html"/>
+             <replacefilter token="@JDK@" value="${javadoc.docs.jdk}"/>
+             <replacefilter token="@OPENIDE@" value="${javadoc.docs.openide}"/>
+             <replacefilter token="@OPENIDE/IO@" value="${javadoc.docs.openide/io}"/>
+             <replacefilter token="@OPENIDE/EXECUTION@" value="${javadoc.docs.openide/execution}"/>
+             <replacefilter token="@OPENIDE/COMPILER@" value="${javadoc.docs.openide/compiler}"/>
++            <replacefilter token="@OPENIDE/LOADERS@" value="${javadoc.docs.openide/loaders}"/>
+             <replacefilter token="@OPENIDE/DEPRECATED@" value="${javadoc.docs.openide/deprecated}"/>
+             <replacefilter token="@CORE/JAVAHELP@" value="${javadoc.docs.core/javahelp}"/>
++            <replacefilter token="@CORE/TERM@" value="${javadoc.docs.core/term}"/>
+             <replacefilter token="@JAVA/API@" value="${javadoc.docs.java/api}"/>
++            <replacefilter token="@JAVA/SRCMODEL@" value="${javadoc.docs.java/srcmodel}"/>
++            <replacefilter token="@OPENIDE/REGISTRY@" value="${javadoc.docs.openide/registry}"/>
++            <replacefilter token="@OPENIDE/CONVERTOR@" value="${javadoc.docs.openide/convertor}"/>
++            <replacefilter token="@OPENIDE/LOOKS@" value="${javadoc.docs.openide/looks}"/>
+             <replacefilter token="@FOOTER@" value="${javadoc.footer}"/>
+         </replace>
+         <replace dir="${javadoc.out.dir}" token="@TOP@" value="">
+@@ -193,9 +275,6 @@
+         <taskdef name="checklinks" classname="org.netbeans.nbbuild.CheckLinks">
+             <classpath>
+                 <pathelement location="../nbantext.jar"/>
+-                <fileset dir="../../core/external">
+-                    <include name="regexp*.jar"/>
+-                </fileset>
+             </classpath>
+         </taskdef>
+         <checklinks basedir="${javadoc.out.dir}" checkexternal="${javadoc.check.external.links}">
+Index: openide/build.xml
+===================================================================
+RCS file: /cvs/openide/build.xml,v
+retrieving revision 1.137.2.1
+diff -u -r1.137.2.1 build.xml
+--- openide/build.xml	18 Aug 2003 14:02:23 -0000	1.137.2.1
++++ openide/build.xml	3 Nov 2003 14:35:18 -0000
+@@ -589,8 +589,10 @@
+ </echo>
+   </target>
+ 
+-  <target name="javadoc" depends="init,open-apis-check-timestamps,open-apis-maybe-skip" if="open-apis-force-rebuild"
+-          description="Create Open API documentation.">
++  <target name="javadoc" depends="javadoc-plain,export-interfaces" if="open-apis-force-rebuild"
++          description="Create Open API documentation." />
++
++  <target name="javadoc-plain" depends="init,open-apis-check-timestamps,open-apis-maybe-skip" if="open-apis-force-rebuild">
+     <taskdef name="checklinks" classname="org.netbeans.nbbuild.CheckLinks">
+       <classpath>
+         <pathelement location="../nbbuild/nbantext.jar"/>
+@@ -734,6 +736,36 @@
+     <zip zipfile="javadoc/OpenAPIs.zip" basedir="javadoc/OpenAPIs"/>
+   </target>
+ 
++  <target name="export-interfaces" depends="javadoc-plain" if="export.interfaces" >
++  	<!-- is there just because the openide APIs are not separated and do not use javadoctools -->
++    <taskdef name="arch" classname="org.netbeans.nbbuild.Arch">
++      <classpath>
++        <pathelement location="../nbbuild/nbantext.jar"/>
++        <fileset dir="../libs/external">
++          <include name="xerces*.jar"/>
++        </fileset>
++      </classpath>
++    </taskdef>
++    
++    <!-- Warn about incorrect question version, but do not make build fail: -->
++    <property name="arch.warn" value="true"/>
++    <property name="arch.xsl" location="../nbbuild/javadoctools/exportInterfaces.xsl" />
++    <property name="arch.target" value="OpenAPIs/arch" />
++    <arch answers="arch/arch-openide-modules.xml" output="${export.interfaces}/openide-modules.html" />
++    <arch answers="arch/arch-openide-datasystems.xml" output="${export.interfaces}/openide-datasystems.html" />
++    <arch answers="arch/arch-openide-dialogs.xml" output="${export.interfaces}/openide-dialogs.html" />
++    <arch answers="arch/arch-openide-lookup.xml" output="${export.interfaces}/openide-lookup.html" />
++    <arch answers="arch/arch-openide-filesystems.xml" output="${export.interfaces}/openide-filesystems.html" />
++    <arch answers="arch/arch-openide-nodes.xml" output="${export.interfaces}/openide-nodes.html" />
++    <arch answers="arch/arch-openide-explorer.xml" output="${export.interfaces}/openide-explorer.html" />
++    <arch answers="arch/arch-openide-actions.xml" output="${export.interfaces}/openide-actions.html" />
++    <arch answers="arch/arch-openide-windowsystem.xml" output="${export.interfaces}/openide-windowsystem.html" />
++    <arch answers="arch/arch-openide-utilities.xml" output="${export.interfaces}/openide-utilities.html" />
++    <arch answers="arch/arch-openide-editor.xml" output="${export.interfaces}/openide-editor.html" />
++    <arch answers="arch/arch-openide-propertysheet.xml" output="${export.interfaces}/openide-propertysheet.html" />
++    
++  </target>
++  
+   <target name="apis-tidy" description="Run the Tidy HTML checker on API prose documents.">
+     <apply parallel="true" failonerror="true" executable="tidy">
+       <fileset dir="api/doc">
