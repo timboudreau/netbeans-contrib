@@ -203,8 +203,6 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         return chooser;
     }
 
-    // TODO: ma154696: this function should probably return one EJBModule
-    // this is just copy from web freeform
     protected List getEJBModules() {
         ArrayList l = new ArrayList();
 
