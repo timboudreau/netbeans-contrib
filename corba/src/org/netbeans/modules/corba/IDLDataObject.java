@@ -637,10 +637,30 @@ public class IDLDataObject extends MultiDataObject {
     }
 
     public boolean canGenerate (FileObject __fo) {
-        String __name = __fo.getName ();
 	//boolean DEBUG = true;
+        String __name = __fo.getName ();
+	String __ext = __fo.getExt ();
         if (DEBUG)
-	    System.out.print ("IDLDataObject::canGenerate (" + __name + ") ..."); // NOI18N
+	    System.out.print ("IDLDataObject::canGenerate (" + __name + "." + __ext + ") -> "); // NOI18N
+	if (!(__ext.equals ("java") ||__ext.equals ("class"))) {// NOI18N
+	    if (DEBUG)
+		System.out.println ("false1");
+	    return false;
+	}
+	if (this.getOrbForCompilation () != null) {
+	    // user setuped ORB for compilation on this DO
+	    CORBASupportSettings __css 
+		= (CORBASupportSettings)CORBASupportSettings.findObject 
+		(CORBASupportSettings.class, true);
+	    ORBSettings __settings = __css.getSettingByName 
+		(this.getOrbForCompilation ());
+	    if (!__settings.hideGeneratedFiles ()) {
+		if (DEBUG)
+		    System.out.println ("false2");
+		return false;
+	    }
+	}
+
 	//try {
 	//if (_M_possible_names.get (__name) != null) {
 	if (this.getPossibleNames ().get (__name) != null) {
@@ -962,14 +982,23 @@ public class IDLDataObject extends MultiDataObject {
             IDLDataObject.this.update ();
 	    if (IDLDataObject.this._M_idl_node != null)
 		IDLDataObject.this._M_idl_node.update ();
-            CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
-                                       (CORBASupportSettings.class, true);
+	    CORBASupportSettings __css 
+		= (CORBASupportSettings)CORBASupportSettings.findObject 
+		(CORBASupportSettings.class, true);
             IDLDataLoader __loader = (IDLDataLoader) IDLDataLoader.findObject
 		(IDLDataLoader.class, true);
 	    __loader.setHide (__loader.getHide ());
 
-	    if (css.getActiveSetting ().getSynchro ().equals 
-		(ORBSettingsBundle.SYNCHRO_ON_SAVE)) {
+	    ORBSettings __settings = null;
+	    if (IDLDataObject.this.getOrbForCompilation () != null) {
+		// user setuped ORB for compilation on this DO
+		__settings = __css.getSettingByName 
+		    (IDLDataObject.this.getOrbForCompilation ());
+	    }
+	    else {
+		__settings = __css.getActiveSetting ();
+	    }
+	    if (__settings.getSynchro ().equals (ORBSettingsBundle.SYNCHRO_ON_SAVE)) {
 		//System.out.println ("generating after save....");
 		IDLDataObject.this.generateImplementation ();
 	    }
@@ -1091,6 +1120,14 @@ public class IDLDataObject extends MultiDataObject {
 	_M_orb_for_compilation = __value;
 	FileObject __idl_file = this.getPrimaryFile ();
 	__idl_file.setAttribute ("orb_for_compilation", _M_orb_for_compilation); // NOI18N
+	// for hidding generated files
+	CORBASupportSettings __css = (CORBASupportSettings)
+	    CORBASupportSettings.findObject (CORBASupportSettings.class, true);
+	__css.cacheThrow ();
+	ORBSettings __settings = __css.getSettingByName (this._M_orb_for_compilation);
+	IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
+	    (IDLDataLoader.class, true);
+	__loader.setHide (__settings.hideGeneratedFiles ());       
     }
 
     public String getOrbForCompilation () {
@@ -1120,6 +1157,14 @@ public class IDLDataObject extends MultiDataObject {
 	//__pfile.addFileChangeListener (new FileListener ());
 	__result.addFileChangeListener (new FileListener ());
 	return __result;
+    }
+
+    protected FileObject handleRename (String __name) throws IOException {
+	if (DEBUG)
+	    System.out.println ("IDLDataObject::handleRename (" + __name + ");"); // NOI18N
+        //FileObject __old_fo = getPrimaryFile();
+        FileObject __result = super.handleRename (__name);
+        return __result;
     }
 
     protected void handleDelete () throws IOException {
