@@ -52,15 +52,15 @@ class ClassDataNode extends DataNode implements Runnable {
 
   /** Icon bases for icon manager */
   private final static String CLASS_BASE =
-    "/com/netbeans/developer/modules/loaders/class/resources/class";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/class";
   private final static String CLASS_MAIN_BASE =
-    "/com/netbeans/developer/modules/loaders/class/resources/classMain";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/classMain";
   private final static String ERROR_BASE =
-    "/com/netbeans/developer/modules/loaders/class/resources/classError";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/classError";
   private final static String BEAN_BASE =
-    "/com/netbeans/developer/modules/loaders/class/resources/bean";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/bean";
   private final static String BEAN_MAIN_BASE =
-    "/com/netbeans/developer/modules/loaders/class/resources/beanMain";
+    "/com/netbeans/developer/modules/loaders/clazz/resources/beanMain";
 
   /** a flag whether the children of this object are only items declared
   * by this class, or all items (incl. inherited)
@@ -297,6 +297,7 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  15   Gandalf   1.14        3/22/99  Ian Formanek    Icons location fixed
  *  14   Gandalf   1.13        3/22/99  Ian Formanek    Icons moved from 
  *       modules/resources to this package
  *  13   Gandalf   1.12        3/16/99  Petr Hamernik   renaming static fields

@@ -55,11 +55,11 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
     if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) ||
         (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
       if (icon == null)
-        icon = loadImage("/com/netbeans/developer/modules/loaders/class/resources/class.gif");
+        icon = loadImage("/com/netbeans/developer/modules/loaders/clazz/resources/class.gif");
       return icon;
     } else {
       if (icon32 == null)
-        icon32 = loadImage ("/com/netbeans/developer/modules/loaders/class/resources/class32.gif");
+        icon32 = loadImage ("/com/netbeans/developer/modules/loaders/clazz/resources/class32.gif");
       return icon32;
     }
   }
@@ -87,6 +87,7 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
 
 /*
 * Log
+*  3    src-jtulach1.2         3/22/99  Ian Formanek    Icons location fixed
 *  2    src-jtulach1.1         3/22/99  Ian Formanek    Icons moved from 
 *       modules/resources to this package
 *  1    src-jtulach1.0         2/16/99  David Simonek   
