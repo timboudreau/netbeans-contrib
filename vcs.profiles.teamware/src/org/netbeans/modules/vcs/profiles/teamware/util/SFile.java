@@ -63,6 +63,13 @@ public class SFile {
             "SCCS" + File.separator + "s." + baseFile.getName());
     }
     
+    private SFile(byte[] data) throws IOException {
+        sFile = File.createTempFile("test-s.", null);
+        FileOutputStream os = new FileOutputStream(sFile);
+        os.write(data);
+        os.close();
+    }
+    
     /** Does the S File exist? */
     public boolean exists() {
         return sFile.exists();
@@ -76,15 +83,16 @@ public class SFile {
         return "1".equals(variables.get("e"));
     } 
     
+    private File getBaseFile() {
+        return new File(sFile.getParentFile().getParent(),
+            sFile.getName().substring(2));        
+    }
+    
     public synchronized void edit() throws IOException {
-        File baseFile = new File(sFile.getParentFile().getParent(),
-            sFile.getName().substring(2));
+        File baseFile = getBaseFile();
         File pFile = new File(sFile.getParent(),
             "p." + baseFile.getName());
-        if (baseFile.exists() && baseFile.canWrite()) {
-            throw new IOException(baseFile.getName()
-                + " exists and is writable");
-        }
+        verifyBaseFile();
         if (pFile.exists()) {
             throw new IOException("SCCS" + File.separator + pFile.getName()
                 + " exists");
@@ -122,8 +130,7 @@ public class SFile {
     }
     
     public synchronized void get() throws IOException {
-        File baseFile = new File(sFile.getParentFile().getParent(),
-            sFile.getName().substring(2));
+        File baseFile = getBaseFile();
         baseFile.delete();
         OutputStream baseFileOut = new FileOutputStream(baseFile);
         baseFileOut.write(getAsBytes(getRevisions().getActiveRevision() , true));
@@ -132,8 +139,7 @@ public class SFile {
     }
     
     public synchronized void delget(String comment) throws IOException {
-        File baseFile = new File(sFile.getParentFile().getParent(),
-            sFile.getName().substring(2));
+        File baseFile = getBaseFile();
         File pFile = new File(sFile.getParent(),
             "p." + baseFile.getName());
         if (!pFile.exists()) {
@@ -241,31 +247,31 @@ public class SFile {
             int linesToDelete = 0;
             private void checkDiffs() {
                 if (linesToDelete == 0 && diffIndex < diffs.length) {
-                    if (diffs[diffIndex].getSecondStart() == lineNumber) {
-                        Difference diff = diffs[diffIndex++];
-                        switch (diff.getType()) {
-                            case Difference.ADD: {
-                                sb.append("\u0001I " + serialNumber + "\n");
-                                sb.append(diff.getSecondText());
-                                sb.append("\u0001E " + serialNumber + "\n");
-                                lineNumber += diff.getSecondEnd() - diff.getSecondStart() + 1;
-                                break;
-                            }
-                            case Difference.DELETE: {
-                                sb.append("\u0001D " + serialNumber + "\n");
-                                linesToDelete = diff.getFirstEnd() - diff.getFirstStart() + 1;
-                                break;
-                            }
-                            case Difference.CHANGE: {
-                                sb.append("\u0001I " + serialNumber + "\n");
-                                sb.append(diff.getSecondText());
-                                sb.append("\u0001E " + serialNumber + "\n");
-                                lineNumber += diff.getSecondEnd() - diff.getSecondStart() + 1;
-                                sb.append("\u0001D " + serialNumber + "\n");
-                                linesToDelete = diff.getFirstEnd() - diff.getFirstStart() + 1;
-                                break;
-                            }
+                    int diffStart = diffs[diffIndex].getFirstStart();
+                    int diffType = diffs[diffIndex].getType();
+                    switch (diffType) {
+                        case Difference.ADD: if (lineNumber == diffStart + 1) {
+                            Difference diff = diffs[diffIndex++];
+                            sb.append("\u0001I " + serialNumber + "\n");
+                            sb.append(diff.getSecondText());
+                            sb.append("\u0001E " + serialNumber + "\n");
                         }
+                        break;
+                        case Difference.DELETE: if (lineNumber == diffStart) {
+                            Difference diff = diffs[diffIndex++];
+                            sb.append("\u0001D " + serialNumber + "\n");
+                            linesToDelete = diff.getFirstEnd() - diff.getFirstStart() + 1;
+                        }
+                        break;
+                        case Difference.CHANGE: if (lineNumber == diffStart) {
+                            Difference diff = diffs[diffIndex++];
+                            sb.append("\u0001I " + serialNumber + "\n");
+                            sb.append(diff.getSecondText());
+                            sb.append("\u0001E " + serialNumber + "\n");
+                            sb.append("\u0001D " + serialNumber + "\n");
+                            linesToDelete = diff.getFirstEnd() - diff.getFirstStart() + 1;
+                        }
+                        break;
                     }
                 }
             }
@@ -273,13 +279,12 @@ public class SFile {
                 checkDiffs();
                 sb.append(line);
                 sb.append("\n");
+                lineNumber ++;
                 if (linesToDelete > 0) {
                     linesToDelete --;
                     if (linesToDelete == 0) {
                         sb.append("\u0001E " + serialNumber + "\n");
                     }
-                } else {
-                    lineNumber ++;
                 }
 
             }
@@ -304,8 +309,7 @@ public class SFile {
     }
     
     public synchronized void create() throws IOException {
-        File baseFile = new File(sFile.getParentFile().getParent(),
-            sFile.getName().substring(2));
+        File baseFile = getBaseFile();
         if (sFile.exists()) {
             throw new IOException(sFile.getName() + " exists");
         }
@@ -346,14 +350,10 @@ public class SFile {
     }
 
     public synchronized void fix() throws IOException {
-        File baseFile = new File(sFile.getParentFile().getParent(),
-            sFile.getName().substring(2));
+        File baseFile = getBaseFile();
         File pFile = new File(sFile.getParent(),
             "p." + baseFile.getName());
-        if (baseFile.exists() && baseFile.canWrite()) {
-            throw new IOException(baseFile.getName()
-                + " exists and is writable");
-        }
+        verifyBaseFile();
         if (pFile.exists()) {
             throw new IOException("SCCS" + File.separator + pFile.getName()
                 + " exists");
@@ -403,6 +403,7 @@ public class SFile {
         for (int bytesRead; (bytesRead = in.read(buffer)) != -1;) {
             baos.write(buffer, 0, bytesRead);
         }
+        in.close();
         return baos.toByteArray();
     }
     
@@ -447,9 +448,73 @@ public class SFile {
         }
     }
 
+    /**
+     * Verify that the s-file data about to be written will match the current
+     * version of the base file. This is a safety check; if the algorithms in
+     * this file are correct, then this method will never throw an exception
+     *
+     * @param sFileContents the contents of the s-file without the checksum
+     * header
+     */
+    private void verifyNewSFile(byte[] sFileContents) throws IOException {
+        SFile newSFile = new SFile(sFileContents);
+        byte[] newBaseFileData =
+            newSFile.getAsBytes(newSFile.getRevisions().getActiveRevision(), false);
+        File baseFile = getBaseFile();
+        byte[] currentBaseFileData = readFileData(baseFile);
+        if (!dataMatches(newBaseFileData, currentBaseFileData)) {
+            String reportThis =
+                "Algorithm exception; this operation would corrupt your SCCS data.\n\n"
+                + "\nYour data has been preserved. You should use the command line"
+                + " sccs on this file.\n\n"
+                + "Please report this bug;"
+                + " send an e-mail to daniel.blaukopf@sun.com, attaching the following"
+                + " test case:\n\n"
+                + createDelGetTestCase();
+            throw new IOException(reportThis);
+        }
+        newSFile.sFile.delete();
+    }
+    
+    private static boolean dataMatches(byte[] b1, byte[] b2) {
+        if (b1.length != b2.length) {
+            return false;
+        }
+        for (int i = 0; i < b1.length; i++) {
+            if (b1[i] != b2[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Before overwriting the base file, make sure it has not changed
+     * from its expected content
+     */
+    private void verifyBaseFile() throws IOException {
+        File baseFile = getBaseFile();
+        if (!baseFile.exists() || !baseFile.canWrite() || !baseFile.canRead()) {
+            // OK
+            return;
+        }
+        byte[] baseData = readFileData(baseFile);
+        SRevisionItem revision = getRevisions().getActiveRevision();
+        byte[] expectedData1 = getAsBytes(revision, true);
+        byte[] expectedData2 = getAsBytes(revision, false);
+        boolean match =
+                dataMatches(baseData, expectedData1)
+                || dataMatches(baseData, expectedData2);
+        if (!match) {
+            throw new IOException(baseFile.getName()
+                    + "is writable and has been changed.");
+        }
+    }
+    
     private void writeSFile(StringBuffer sb) throws IOException {
         byte[] sFileContents = sb.toString().getBytes();
         if (sFile.exists()) {
+            verifyNewSFile(sFileContents);
             sFile.delete();
         }
         File sccsDir = sFile.getParentFile();
@@ -540,6 +605,7 @@ public class SFile {
                         in.close();
                     }
                 } catch (IOException e) {
+                    e.printStackTrace(System.err);
                 }
             }
         }
@@ -833,6 +899,7 @@ public class SFile {
                 visitor.excludeLine(line);
             }
         }
+        in.close();
     }
         
     private String expandVariables(String line, SRevisionItem item) {
@@ -970,5 +1037,125 @@ public class SFile {
         return new SimpleDateFormat("yy/MM/dd HH:mm:ss")
             .format(new Date(time));
     }
-        
+    
+    private String createDelGetTestCase() throws IOException {
+        File baseFile = getBaseFile();
+        byte[] fileData = readFileData(baseFile);
+        boolean encoded = isEncoded();
+        String fileContents =
+            encoded
+                ? UU.encode(fileData, 0, fileData.length)
+                : new String(fileData);
+        File pFile = new File(sFile.getParent(),
+            "p." + baseFile.getName());
+        BufferedReader pFileReader = new BufferedReader(new FileReader(pFile));
+        String[] pFileData = pFileReader.readLine().split(" ");
+        pFileReader.close();
+        SRevisionItem oldRevision =
+            getRevisions().getRevisionByName(pFileData[0]);
+        BufferedReader br1 =
+            new BufferedReader(new StringReader(getAsString(oldRevision, false)));
+        BufferedReader br2 = new BufferedReader(new StringReader(fileContents));
+        DiffProvider dp =
+            (DiffProvider) Lookup.getDefault().lookup(DiffProvider.class);
+        final Difference[] diffs = dp.computeDiff(br1, br2);
+        final StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < diffs.length; i++) {
+            if (i > 0) {
+                sb.append(";");
+            }
+            Difference diff = diffs[i];
+            sb.append(diff.getFirstStart());
+            sb.append("+");
+            switch (diff.getType()) {
+                case Difference.ADD: {
+                    sb.append(diff.getSecondEnd() - diff.getSecondStart() + 1);
+                    sb.append("-0");
+                    break;
+                }
+                case Difference.DELETE: {
+                    sb.append("0-");
+                    sb.append(diff.getFirstEnd() - diff.getFirstStart() + 1);
+                    break;
+                }
+                case Difference.CHANGE: {
+                    sb.append(diff.getSecondEnd() - diff.getSecondStart() + 1);
+                    sb.append("-");
+                    sb.append(diff.getFirstEnd() - diff.getFirstStart() + 1);
+                    break;
+                }
+            }
+        }
+
+        SRevisionItem activeRevision = getRevisions().getActiveRevision();
+
+        BufferedReader r = new BufferedReader(new FileReader(sFile));
+        boolean done = false;
+        boolean wroteModificationInstructions = false;
+        String modificationInstructions = sb.toString();
+        sb.setLength(0);
+        while (!done) {
+            String s = r.readLine();
+            if (s == null || s.length() < 2 || s.charAt(0) != (char) 1) {
+                done = true;
+                continue;
+            }
+            switch (s.charAt(1)) {
+                case 'h':
+                    break;
+                case 'T':
+                    done = true;
+                case 's':
+                case 'i':
+                case 'x':
+                case 'g':
+                case 'm':
+                case 'u':
+                case 'U':
+                case 't':
+                case 'd':
+                case 'e':
+                    sb.append(s);
+                    sb.append("\n");
+                    break;
+                case 'c':
+                    if (!wroteModificationInstructions) {
+                        sb.append("\u0001c ");
+                        sb.append(modificationInstructions);
+                        sb.append("\n");
+                        wroteModificationInstructions = true;
+                    }
+                    break;
+                case 'f':
+                    if (s.substring(2).trim().startsWith("e")) {
+                        s = "\u0001f e " + (encoded ? "1" : "0");
+                    }
+                    sb.append(s);
+                    sb.append("\n");
+                    break;
+                    
+            }
+        }
+        r.close();
+
+        class TestCaseVisitor extends LineVisitor {
+            int lineNumber = 1;
+            public void includeLine(String line) {
+                sb.append("Line " + (lineNumber++));
+                sb.append("\n");
+            }
+            public void excludeLine(String line) {
+                sb.append("Excluded\n");
+            }
+            public void controlLine(char type, String sn) {
+                sb.append("\u0001" + type + " " + sn + "\n");
+            }
+        };
+        TestCaseVisitor visitor = new TestCaseVisitor();
+        retrieveRevision(visitor, oldRevision, false);
+        String s = sb.toString();
+        String checksum = new String(checksum(s.getBytes()));
+        return "\u0001h" + checksum + "\n" + sb.toString();
+    }
+            
 }
