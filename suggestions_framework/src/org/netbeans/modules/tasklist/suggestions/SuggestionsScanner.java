@@ -180,10 +180,14 @@ public final class SuggestionsScanner {
                 // FIXME no initialization events possibly fired
                 // I guess that reponsibility for recovering from missing
                 // lifecycle events should be moved to providers
-                List l = ((DocumentSuggestionProvider) provider).scan(env);
-                if (l != null) {
-                    // XXX ensure that scan returns a homogeneous list of tasks
-                    manager.register(provider.getTypes()[0], l, null, list, true);
+                // TODO FIXME HACK this instanceof added on 03.12.2003
+                // to fix a ClassCastException
+                if (provider instanceof DocumentSuggestionProvider) {
+                    List l = ((DocumentSuggestionProvider) provider).scan(env);
+                    if (l != null) {
+                        // XXX ensure that scan returns a homogeneous list of tasks
+                        manager.register(provider.getTypes()[0], l, null, list, true);
+                    }
                 }
 //            }
         }
