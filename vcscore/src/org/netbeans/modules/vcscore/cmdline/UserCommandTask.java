@@ -135,15 +135,18 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     private File getRefreshDir(VcsFileSystem fileSystem, Hashtable vars) {
         File dir = null;
         FileObject[] fos = cmd.getFiles();
+        boolean isDir = true;
         if (fos != null && fos.length > 0) {
             dir = FileUtil.toFile(fos[0]);
+            isDir = fos[0].isFolder();
         } else {
             File[] diskFiles = cmd.getDiskFiles();
             if (diskFiles != null && diskFiles.length > 0) {
                 dir = diskFiles[0];
+                isDir = dir.isDirectory();
             }
         }
-        if (dir.isFile()) dir = dir.getParentFile();
+        if (dir != null && !isDir) dir = dir.getParentFile();
         return dir;
     }
     
@@ -156,15 +159,13 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         if (dirListener != null) {
             String file = (String) vars.get("FILE");
             String dir = (String) vars.get("DIR");
-            String path = dir;
             if (dir.length() > 0) {
-                path += Variables.expand(vars, "${PS}", false) + file;
+                dir += Variables.expand(vars, "${PS}", false) + file;
             } else {
-                path = file;
+                dir = file;
             }
-            if (fileSystem.getFile(path).isFile()) path = dir;
             vars.put("FILE", "");
-            vars.put("DIR", path);
+            vars.put("DIR", dir);
             this.cmd.setAdditionalVariables(vars);
             //System.out.println("\n\ncreateRefresh(), MODULE = "+vars.get("MODULE")+", DIR = "+vars.get("DIR"));
             return new CommandLineVcsDirReader(dirListener, fileSystem, uCmd, vars);
