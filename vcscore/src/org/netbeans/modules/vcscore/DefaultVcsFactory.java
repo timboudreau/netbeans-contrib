@@ -22,6 +22,7 @@ import org.openide.util.actions.SystemAction;
 import org.openide.nodes.Node;
 
 import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
+import org.netbeans.modules.vcscore.actions.AddToGroupAction;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
@@ -206,6 +207,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
         if (fileSystem.getVersioningFileSystem() != null) {
             actions.add(SystemAction.get(VersioningExplorerAction.class));
         }
+        actions.add(SystemAction.get(AddToGroupAction.class));
         //System.out.println("action[0] = "+actions.get(0)+", action[1] = "+actions.get(1)+", equals = "+actions.get(0).equals(actions.get(1)));
         //return (SystemAction[]) actions.toArray(new SystemAction[actions.size()]);
         return (SystemAction[]) actions.toArray(new SystemAction[0]);
