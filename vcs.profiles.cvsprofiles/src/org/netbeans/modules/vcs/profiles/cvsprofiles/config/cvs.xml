@@ -14,7 +14,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -1069,6 +1069,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg1(CVS_GENERAL_ACTION_ADD)</value>
         </property>
+        <property name="preCommands">
+          <value>ADD_LOCAL_PARENTS</value>
+        </property>
         <property name="commandsAfterSuccess">
           <value>$[? FOLDER_CONTENTS] [$[? DO_COMMIT] [COMMIT][]] [ADD_CMD]</value>
         </property>
@@ -1229,6 +1232,20 @@ Microsystems, Inc. All Rights Reserved.
         <property name="commandsAfterSuccess">
           <value>$[? DO_COMMIT] [$[? FOLDER_CONTENTS] [] [COMMIT]][]</value>
         </property>
+      </command>
+      <command name="ADD_LOCAL_PARENTS">
+	<property name="exec">
+	  <value>org.netbeans.modules.vcs.profiles.commands.AddLocalParents.class ADD_CMD</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+	<property name="onDir">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
+	</property>
       </command>
 
         <!-- SCHEDULE_* is used from VFS. Last known client was transparent persistence. -->
