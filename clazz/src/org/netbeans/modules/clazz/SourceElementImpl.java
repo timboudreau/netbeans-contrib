@@ -58,8 +58,12 @@ static final long serialVersionUID =-4870331896218546842L;
   /** @return The package of class which we are representing.
   */
   public Identifier getPackage () {
-    if (packg == null)
-      packg = Identifier.create(((Class)data).getPackage().getName());
+    if (packg == null) {
+      Package pac = ((Class)data).getPackage();
+      if (pac != null) {
+        packg = Identifier.create(pac.getName());
+      }
+    }
     return packg;
   }
 
@@ -201,6 +205,8 @@ static final long serialVersionUID =-4870331896218546842L;
 
 /*
 * Log
+*  9    src-jtulach1.8         9/14/99  David Simonek   classes with no package 
+*       now supported correctly
 *  8    src-jtulach1.7         8/9/99   Ian Formanek    Generated Serial Version 
 *       UID
 *  7    src-jtulach1.6         7/8/99   Petr Hamernik   runAtomic simple 
