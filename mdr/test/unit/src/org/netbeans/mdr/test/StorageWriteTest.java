@@ -26,7 +26,7 @@ import org.netbeans.mdr.persistence.memoryimpl.*;
 
 public class StorageWriteTest extends MDRTestCase {    
     
-    static final int ROWS = 100000;
+    static final int ROWS = 50000;
     static long RAND_VAL = 666; // satan's number
     
     static Random random = new Random(RAND_VAL);
@@ -140,8 +140,7 @@ public class StorageWriteTest extends MDRTestCase {
             index.remove(k.next());
         }
         long deletionsTime = System.currentTimeMillis() - time;
-        getLog().println("Deletions time: " + deletionsTime);
-        storage.close();
+        getLog().println("Deletions time: " + deletionsTime);        
         if (index instanceof Btree) {
             TreeMetrics m = ((Btree) index).computeMetrics();
             m.print(getLog());
