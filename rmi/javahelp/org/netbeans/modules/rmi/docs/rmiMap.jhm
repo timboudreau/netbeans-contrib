@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ISO-8859-1' ?>
 <!--
-*     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+*     Copyright 2002 Sun Microsystems, Inc. All rights reserved.
 *     Use is subject to license terms.
 -->
 
@@ -52,6 +52,12 @@
    <mapID target="org.netbeans.modules.rmi.RMIDebugType" url="settings/rmi_settings_debuggernode.html" />
    <mapID target="org.netbeans.modules.rmi.RMIExecutor" url="settings/rmi_settings_executionnode.html" />
 
-
-
+   <mapID target="org.netbeans.modules.rmi.registry.RMIRegistryNode" url="registrybrowser/rmi_registrybrowser_using.html" />	
+   <mapID target="org.netbeans.modules.rmi.registry.RegistryItemNode" url="registrybrowser/rmi_registrybrowser_using.html" />	
+   <mapID target="org.netbeans.modules.rmi.activation.ActivationBrowserNode" url="activatebrowser/rmi_activatebrowser.html" />
+   <mapID target="org.netbeans.modules.rmi.activation.ActivationSystemNode" url="activatebrowser/rmi_activatebrowser_usingsystem.html" />
+   
+   <mapID target="org.netbeans.modules.rmi.MarkRMIAction" url="rmi_intro.html" />
+   <mapID target="org.netbeans.modules.rmi.UnMarkRMIAction" url="rmi_intro.html" />
+   <mapID target="org.netbeans.modules.rmi.settings.RMIRegistrySettings" url="settings/registry_props.html" />
 </map>
