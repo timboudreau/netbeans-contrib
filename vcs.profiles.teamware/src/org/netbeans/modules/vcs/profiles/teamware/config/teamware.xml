@@ -51,6 +51,52 @@ Contributor(s): Daniel Blaukopf.
     
     <commands>
         <command displayName="Teamware" name="ROOT">
+            <command displayName="Refresh" name="LIST">
+                <property name="onDir">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareRefreshCommand.class</value>
+                </property>
+                <property name="generalCommandActionClassName">
+                    <value>org.netbeans.modules.vcscore.actions.UpdateCommandAction</value>
+                </property>
+                <property name="data.fileName.index">
+                    <value>1</value>
+                </property>
+                <property name="data.revision.index">
+                    <value>2</value>
+                </property>
+                <property name="data.status.index">
+                    <value>0</value>
+                </property>
+            </command>
+            <command displayName="Refresh Recursively" name="LIST_SUB">
+                <property name="onDir">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareRefreshRecursivelyCommand.class</value>
+                </property>
+                <property name="data.fileName.index">
+                    <value>1</value>
+                </property>
+                <property name="data.revision.index">
+                    <value>2</value>
+                </property>
+                <property name="data.status.index">
+                    <value>0</value>
+                </property>
+            </command>
             <command displayName="Edit" name="EDIT">
                 <run dir="${WORKDIR}">
                     <executable value="${SCCS}"/>
@@ -74,23 +120,6 @@ Contributor(s): Daniel Blaukopf.
                 </property>
                 <property name="refreshCurrentFolder">
                     <value>true</value>
-                </property>
-            </command>
-            <command displayName="Diff" name="DIFF">
-                <property name="exec">
-                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareDiffCommand.class</value>
-                </property>
-                <property name="generalCommandActionClassName">
-                    <value>org.netbeans.modules.vcscore.actions.DiffCommandAction</value>
-                </property>
-                <property name="onDir">
-                    <value>false</value>
-                </property>
-                <property name="onRoot">
-                    <value>false</value>
-                </property>
-                <property name="disabledOnStatus">
-                    <value>"Local", "Checked in", "Ignored"</value>
                 </property>
             </command>
             <command displayName="Commit" name="CHECKIN">
@@ -125,6 +154,23 @@ Contributor(s): Daniel Blaukopf.
                     <value>true</value>
                 </property>
             </command>
+            <command displayName="Diff" name="DIFF">
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareDiffCommand.class</value>
+                </property>
+                <property name="generalCommandActionClassName">
+                    <value>org.netbeans.modules.vcscore.actions.DiffCommandAction</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Checked in", "Ignored"</value>
+                </property>
+            </command>
             <command displayName="Add" name="ADD">
                 <run dir="${WORKDIR}">
                     <executable value="${SCCS}"/>
@@ -156,6 +202,76 @@ Contributor(s): Daniel Blaukopf.
                     <value>true</value>
                 </property>
             </command>
+            <separator/>
+            <command displayName="Cancel edit" name="UNEDIT">
+                <property name="confirmationMsg">
+                    <value>Do you want to stop editing ${FILE} ?
+
+You will lose any changes.</value>
+                </property>
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="unedit"/>
+                    <arg value="${FILE}"/>
+                </run>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Checked in", "Ignored"</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>true</value>
+                </property>
+                <property name="refreshProcessedFiles">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command basic="false" name="FIX_IMPL">
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="fix"/>
+                    <arg value="-r${REVISION}"/>
+                    <arg value="${FILE}"/>
+                </run>
+            </command>
+            
+            <command displayName="Fix last delta" name="FIX">
+                <property name="confirmationMsg">
+                    <value>Do you want to fix the last delta for ${FILE} ?
+
+This will return the file to the state it was in immediately before
+the last check-in, without deleting changes.</value>
+                </property>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareFixCommand.class</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Editing", "Ignored"</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>true</value>
+                </property>
+                <property name="refreshProcessedFiles">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <separator/>
             <command displayName="Revision History" name="HISTORY">
                 <run dir="${WORKDIR}">
                     <executable value="${SCCS}"/>
@@ -202,36 +318,6 @@ Contributor(s): Daniel Blaukopf.
                     <value>"Local", "Ignored"</value>
                 </property>
             </command>
-            <command displayName="Cancel edit" name="UNEDIT">
-                <property name="confirmationMsg">
-                    <value>Do you want to stop editing ${FILE} ?
-
-You will lose any changes.</value>
-                </property>
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="unedit"/>
-                    <arg value="${FILE}"/>
-                </run>
-                <property name="onDir">
-                    <value>false</value>
-                </property>
-                <property name="onRoot">
-                    <value>false</value>
-                </property>
-                <property name="disabledOnStatus">
-                    <value>"Local", "Checked in", "Ignored"</value>
-                </property>
-                <property name="checkForModifications">
-                    <value>true</value>
-                </property>
-                <property name="refreshProcessedFiles">
-                    <value>true</value>
-                </property>
-                <property name="refreshCurrentFolder">
-                    <value>true</value>
-                </property>
-            </command>
             <command basic="false" name="REMOVE_COMMA_FILE">
                 <property name="exec">
                     <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareDeleteCommaFileCommand.class</value>
@@ -255,52 +341,6 @@ You will lose any changes.</value>
                     <arg value="prs"/>
                     <arg value="${FILE}"/>
                 </run>
-            </command>
-            <command displayName="Refresh" name="LIST">
-                <property name="onDir">
-                    <value>true</value>
-                </property>
-                <property name="onRoot">
-                    <value>true</value>
-                </property>
-                <property name="exec">
-                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareRefreshCommand.class</value>
-                </property>
-                <property name="generalCommandActionClassName">
-                    <value>org.netbeans.modules.vcscore.actions.UpdateCommandAction</value>
-                </property>
-                <property name="data.fileName.index">
-                    <value>1</value>
-                </property>
-                <property name="data.revision.index">
-                    <value>2</value>
-                </property>
-                <property name="data.status.index">
-                    <value>0</value>
-                </property>
-            </command>
-            <command displayName="Refresh Recursively" name="LIST_SUB">
-                <property name="onDir">
-                    <value>true</value>
-                </property>
-                <property name="onRoot">
-                    <value>true</value>
-                </property>
-                <property name="onFile">
-                    <value>false</value>
-                </property>
-                <property name="exec">
-                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareRefreshRecursivelyCommand.class</value>
-                </property>
-                <property name="data.fileName.index">
-                    <value>1</value>
-                </property>
-                <property name="data.revision.index">
-                    <value>2</value>
-                </property>
-                <property name="data.status.index">
-                    <value>0</value>
-                </property>
             </command>
             <command name="REVISION_LIST">
                 <property name="exec">

@@ -46,27 +46,13 @@ public class TeamwareDiffCommand implements VcsAdditionalCommand {
                         final CommandDataOutputListener stdoutData, String dataRegex,
                         final CommandDataOutputListener stderrData, String errorRegex) {
 
-        String rootDir = (String) vars.get("ROOTDIR");
-        String module = (String) vars.get("MODULE");
-        String dirName = (String) vars.get("DIR");
-        File root = new File(rootDir);
-        File baseDir = (module != null) ? new File(root, module) : root;
-        if (dirName != null) {
-            baseDir = new File(baseDir, dirName);
-        }
-        File file = new File(baseDir, (String) vars.get("FILE"));
+        File file = TeamwareSupport.getFile(vars);
         SFile sFile = new SFile(file);
-        RevisionList revisions = sFile.getRevisions();
-        if (revisions.isEmpty()) {
-            stderr.outputLine("No existing revisions");
-            return false;
-        }
-        RevisionItem revision = (RevisionItem) revisions.iterator().next();
+        String revision = sFile.getLastRevision();
         String name1 = file.getName();
-        String name2 = name1 + ": " + revision.getDisplayName();
+        String name2 = name1 + ": " + revision;
         try {
-            String s = TeamwareSupport.getRevision(fileSystem, file,
-                revision.getRevision());
+            String s = TeamwareSupport.getRevision(fileSystem, file, revision);
             Component c = Diff.getDefault().createDiff(
                 name1, name1, new FileReader(file),
                 name2, name2, new StringReader(s), "text/java");

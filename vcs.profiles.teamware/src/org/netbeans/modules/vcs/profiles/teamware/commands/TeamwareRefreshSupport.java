@@ -54,7 +54,7 @@ class TeamwareRefreshSupport {
             }
             fileName += "/";
         } else {
-            File sFile = new File(sccsDir, "s." + fileName);
+            SFile sFile = new SFile(file);
             File pFile = new File(sccsDir, "p." + fileName);
             if (!sFile.exists()) {
                 if (ignoreFile(file)) {
@@ -63,20 +63,10 @@ class TeamwareRefreshSupport {
                     state = "Local";
                 }
             } else {
-                try {
-                    BufferedInputStream in = new BufferedInputStream(new FileInputStream(sFile));
-                    while (in.read() != '\n') { }
-                    while (in.read() != '\n') { }
-                    for (int j = 0; j < 5; j ++) {
-                        in.read();
-                    }
-                    StringBuffer sb = new StringBuffer();
-                    for (int j; (j = in.read()) != ' '; sb.append((char) j)) { }
-                    in.close();
-                    revision = sb.toString();
-                } catch (IOException e) {
+                revision = sFile.getLastRevision();
+                if (revision == null) {
+                    revision = "";
                     stderr.outputLine(file + ": cannot determine revision number");
-                    // ignore;
                 }
                 boolean writable = file.canWrite();
                 if (pFile.exists()) {

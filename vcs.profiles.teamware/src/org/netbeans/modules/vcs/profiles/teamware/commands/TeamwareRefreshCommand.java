@@ -34,14 +34,7 @@ public class TeamwareRefreshCommand extends VcsListCommand {
         CommandDataOutputListener stderrDataListener,
         String errorRegex) {
             
-        String rootDir = (String) vars.get("ROOTDIR");
-        String module = (String) vars.get("MODULE");
-        String dirName = (String) vars.get("DIR");
-        File root = new File(rootDir);
-        File dir = (module != null) ? new File(root, module) : root;
-        if (dirName != null) {
-            dir = new File(dir, dirName);
-        }
+        File dir = TeamwareSupport.getDir(vars);
         File sccsDir = new File(dir, "SCCS");
         File[] files = dir.listFiles();
         if (files == null) {

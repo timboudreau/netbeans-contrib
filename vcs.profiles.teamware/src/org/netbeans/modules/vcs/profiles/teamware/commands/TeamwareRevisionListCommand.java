@@ -41,15 +41,7 @@ public class TeamwareRevisionListCommand implements VcsAdditionalCommand {
                         final CommandDataOutputListener stdoutData, String dataRegex,
                         final CommandDataOutputListener stderrData, String errorRegex) {
 
-        String rootDir = (String) vars.get("ROOTDIR");
-        String module = (String) vars.get("MODULE");
-        String dirName = (String) vars.get("DIR");
-        File root = new File(rootDir);
-        File baseDir = (module != null) ? new File(root, module) : root;
-        if (dirName != null) {
-            baseDir = new File(baseDir, dirName);
-        }
-        final File file = new File(baseDir, (String) vars.get("FILE"));
+        File file = TeamwareSupport.getFile(vars);
         SFile sFile = new SFile(file);
         RevisionList list = sFile.getRevisions();
         String encodedList = null;

@@ -30,6 +30,29 @@ import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 
 class TeamwareSupport {
     
+    static File getFile(Hashtable vars) {
+        File baseDir = getDir(vars);
+        String fileName = (String) vars.get("FILE");
+        if (fileName == null) {
+            return baseDir;
+        } else {
+            return new File(baseDir, fileName);
+        }
+    }
+    
+    static File getDir(Hashtable vars) {
+        String rootDir = (String) vars.get("ROOTDIR");
+        String module = (String) vars.get("MODULE");
+        String dirName = (String) vars.get("DIR");
+        File root = new File(rootDir);
+        File baseDir = (module != null) ? new File(root, module) : root;
+        if (dirName != null) {
+            baseDir = new File(baseDir, dirName);
+        }
+        return baseDir;
+    }
+    
+    /** Gets the contents of the given file revision */
     static String getRevision(VcsFileSystem fs,
         File file, String revision) throws InterruptedException {
             
