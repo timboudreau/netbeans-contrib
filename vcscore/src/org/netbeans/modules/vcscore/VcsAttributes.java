@@ -72,6 +72,13 @@ public class VcsAttributes extends DefaultAttributes {
      */
     public static final String VCS_SCHEDULED_FILE_ATTR = "VCS_SCHEDULED_FILE";
     /**
+     * The attribute name containing the java.io.File name of the primary file,
+     * that contains scheduled files. This will prevent the copy of scheduled
+     * attributes to other files, because when the value of this attribue will
+     * differ from the actual file path, all scheduled attribues will be deleted.
+     */
+    public static final String VCS_SCHEDULING_MASTER_FILE_NAME_ATTR = "VCS_SCHEDULING_MASTER_FILE_NAME";
+    /**
      * The VCS Add command name. This command adds the file to the VCS repository.
      */
     public static final String VCS_ACTION_ADD = "VCS_ADD";
@@ -332,6 +339,10 @@ public class VcsAttributes extends DefaultAttributes {
         scheduled[id].add(name);
         try {
             primary.setAttribute(VCS_SCHEDULED_FILES_ATTR, scheduled);
+            java.io.File file = org.openide.execution.NbClassPath.toFile(primary);
+            if (file != null) {
+                primary.setAttribute(VCS_SCHEDULING_MASTER_FILE_NAME_ATTR, file.getAbsolutePath());
+            }
         } catch (IOException ioExc) {
             if (endOfScheduling) endFileScheduling(name);
             return false;

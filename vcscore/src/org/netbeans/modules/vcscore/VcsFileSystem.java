@@ -697,6 +697,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("fo = "+fo+" and parent = "+fo.getParent()+" refreshed.");
     }
     
+    /**
+     * Check the scheduled states for the set of file objects.
+     * Files scheduled for ADD are controlled by this method. When they change their
+     * status, they are removed from the list of scheduled files.
+     * @param fos the set of files to check.
+     */
     private void checkScheduledStates(Set fos) {
         FileStatusProvider status = getStatusProvider();
         if (status == null) return ;
@@ -730,6 +736,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
     
+    /**
+     * Remove a file from the list of scheduled files.
+     * @param fo the scheduled file object
+     * @param id the scheduling ID (0 for removed, 1 for added).
+     */
     private static void removeScheduledFromPrimary(FileObject fo, int id) {
         DataObject dobj;
         try {
@@ -744,10 +755,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             scheduled = cleanScheduledAttrs(scheduled);
             try {
                 primary.setAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR, scheduled);
+                if (scheduled == null) {
+                    primary.setAttribute(VcsAttributes.VCS_SCHEDULING_MASTER_FILE_NAME_ATTR, null);
+                }
             } catch (IOException exc) {}
         }
     }
     
+    /**
+     * Remove a file from the list of scheduled files.
+     * @param scheduledFile the scheduled file name
+     * @param primaryFile the associated primary file name
+     * @param id the scheduling ID (0 for removed, 1 for added).
+     */
     private void removeScheduledFromPrimary(String scheduledFile, String primaryFile, int id) {
         Set[] scheduled = (Set[]) attr.readAttribute(primaryFile, VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
         if (scheduled != null && scheduled[id] != null) {
@@ -755,6 +775,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             scheduled = cleanScheduledAttrs(scheduled);
             try {
                 attr.writeAttribute(primaryFile, VcsAttributes.VCS_SCHEDULED_FILES_ATTR, scheduled);
+                if (scheduled == null) {
+                    attr.writeAttribute(primaryFile, VcsAttributes.VCS_SCHEDULING_MASTER_FILE_NAME_ATTR, null);
+                }
             } catch (IOException exc) {}
         }
     }
@@ -1769,7 +1792,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
 
     /**
-     * Get the important files.
+     * Get the important files. Also add files scheduled for remove.
      * @return the Vector of important files as Strings
      */
     private ArrayList/*VcsFile*/ getImportantFiles(Object[] oo){
@@ -1795,8 +1818,23 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     result.add(fullName);
                 }
             }
+            // check for scheduled files:
             Set[] scheduled = (Set[]) ff.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
             if (scheduled != null && scheduled[0] != null) {
+                String filePath = (String) ff.getAttribute(VcsAttributes.VCS_SCHEDULING_MASTER_FILE_NAME_ATTR);
+                if (filePath != null) {
+                    File currentFile = org.openide.execution.NbClassPath.toFile(ff);
+                    if (currentFile != null && !filePath.equals(currentFile.getAbsolutePath())) {
+                        // the file was moved/copied/renamed to another location.
+                        // Delete all it's scheduling attributes, because they are out-of-date
+                        try {
+                            ff.setAttribute(VcsAttributes.VCS_SCHEDULING_MASTER_FILE_NAME_ATTR, null);
+                            ff.setAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR, null);
+                            scheduled[0].clear();
+                        } catch (IOException exc) {}
+                    }
+                }
+                // add all scheduled files
                 result.addAll(scheduled[0]);
             }
         }
@@ -2015,7 +2053,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     /**
-     * The file scheduled for remove is onthe disk.
+     * The file scheduled for remove is on the disk.
      * If it does not contain VcsAttributes.VCS_SCHEDULING_REMOVE,
      * it will be removed from the list of scheduled files, because it was
      * deleted and reappeared.
@@ -2027,7 +2065,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         String scheduledStatusRemove = (schVar != null) ? schVar.getValue() : null;
         if (scheduledStatusRemove == null) return ;
         for (Iterator it = locals.iterator(); it.hasNext(); ) {
-            String name = path + "/" + it.next();
+            String name = (path.length() > 0) ? (path + "/" + it.next()) : (""+it.next());
             if (removedFilesScheduledForRemove.containsKey(name)) {
                 String primary = (String) removedFilesScheduledForRemove.get(name);
                 //System.out.println("checkScheduledLocals("+name+")");
@@ -2106,6 +2144,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private transient Vector scheduledFilesToBeProcessed;
     
+    /**
+     * The scheduling action is started for a file.
+     * Mark this file as being processed by a scheduling action.
+     */
     void addScheduledFileToBeProcessed(String name) {
         if (scheduledFilesToBeProcessed == null) {
             scheduledFilesToBeProcessed = new Vector();
@@ -2113,6 +2155,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         scheduledFilesToBeProcessed.add(name);
     }
     
+    /**
+     * The scheduling action is done for a file.
+     * Remove this file from the list of files being processed by a scheduling action.
+     */
     void removeScheduledFileToBeProcessed(String name) {
         if (scheduledFilesToBeProcessed == null) {
             scheduledFilesToBeProcessed = new Vector();
@@ -2120,39 +2166,62 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         scheduledFilesToBeProcessed.remove(name);
     }
     
+    /** test, whether the scheduling action was done */
     private boolean isSchedulingDone(String name) {
         return scheduledFilesToBeProcessed == null || !scheduledFilesToBeProcessed.contains(name);
     }
 
+    /**
+     * Filter files, that are scheduled for remove.
+     * @param packageName the name of a package the files come from.
+     * @param files the original list of files
+     * @param removedFiles the map of pairs of removed file names and package names.
+     *        This map is filled by these pairs in the method.
+     * @return the filtered list of files. All files, that are scheduled for remove
+     *         are filtered out.
+     */
     private String[] filterScheduledSecondaryFiles(String packageName, String[] files, Map removedFiles) {
         ArrayList filtered = new ArrayList(Arrays.asList(files));
+        boolean emptyPackage = (packageName.length() == 0);
         for (int i = 0; i < files.length; i++) {
-            Set[] scheduled = (Set[]) attr.readAttribute(packageName + "/" + files[i], VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
+            String fileName = (emptyPackage) ? files[i] : (packageName + "/" + files[i]);
+            Set[] scheduled = (Set[]) attr.readAttribute(fileName, VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
             //System.out.println("filterScheduledSecondaryFiles("+packageName+"): "+ packageName + "/" + files[i]+" scheduled = "+scheduled);
             if (scheduled != null && scheduled[0] != null) {
                 LinkedList toRemove = new LinkedList();
                 for (Iterator it = scheduled[0].iterator(); it.hasNext(); ) {
                     String secFile = (String) it.next();
                     //System.out.println("secFile = '"+secFile+"'");
-                    if (secFile.startsWith(packageName)) {
+                    if (!emptyPackage && secFile.startsWith(packageName) ||
+                        emptyPackage && secFile.indexOf('/') < 0) {
                         //System.out.println("removing '"+secFile.substring(packageName.length() + 1)+"'");
-                        boolean removed = filtered.remove(secFile.substring(packageName.length() + 1));
-                        //System.out.println("removed = "+removed+", filtered.contains("+secFile.substring(packageName.length() + 1)+") = "+filtered.contains(secFile.substring(packageName.length() + 1)));
+                        String nameOnly = (emptyPackage) ? secFile : secFile.substring(packageName.length() + 1);
+                        boolean removed = filtered.remove(nameOnly);
+                        // if removed is true, the file was in the original list
+                        //System.out.println("removed = "+removed+", filtered.contains("+nameOnly+") = "+filtered.contains(nameOnly));
                         if (!removed) {
+                            // if the file was not in the original list, delete it's attibutes,
+                            // because it's supposed to be deleted in the VCS repository.
                             toRemove.add(secFile);
                             try {
                                 attr.writeAttribute(secFile, VcsAttributes.VCS_SCHEDULED_FILE_ATTR, null);
                             } catch (IOException exc) {}
                         } else {
-                            removedFiles.put(secFile, packageName + "/" + files[i]);
+                            // the file was removed from the list and put to the list of removed files
+                            removedFiles.put(secFile, fileName);
                         }
                     }
                 }
                 if (toRemove.size() > 0) {
+                    // we have some files, that were not present in the original list
+                    // and therefore their scheduling attributes has to be cleaned.
                     scheduled[0].removeAll(toRemove);
                     scheduled = cleanScheduledAttrs(scheduled);
                     try {
-                        attr.writeAttribute(packageName + "/" + files[i], VcsAttributes.VCS_SCHEDULED_FILES_ATTR, scheduled);
+                        attr.writeAttribute(fileName, VcsAttributes.VCS_SCHEDULED_FILES_ATTR, scheduled);
+                        if (scheduled == null) {
+                            attr.writeAttribute(fileName, VcsAttributes.VCS_SCHEDULING_MASTER_FILE_NAME_ATTR, null);
+                        }
                     } catch (IOException exc) {}
                 }
             }
@@ -2160,6 +2229,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return (String[]) filtered.toArray(new String[0]);
     }
     
+    /**
+     * Clean the array of sets of scheduled file names.
+     * If any set in this array becomes empty, substitute it by <code>null</code>,
+     * if all items in the array are <code>null</code>, return <code>null</code>.
+     * @param scheduled the array of sets of scheduled file names.
+     * @return the array cleaned as much as possible
+     */
     private static final Set[] cleanScheduledAttrs(Set[] scheduled) {
         //System.out.print("cleanScheduledAttrs("+scheduled+") = ");
         boolean canClean = true;
