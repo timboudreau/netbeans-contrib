@@ -153,17 +153,23 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     /**
      * Deactivate this object integrity support.
      */
-    public synchronized void deactivate() {
-        if (operationListener != null) {
-            DataLoaderPool pool = (DataLoaderPool) Lookup.getDefault().lookup(DataLoaderPool.class);
-            pool.removeOperationListener(operationListener);
+    public void deactivate() {
+        synchronized (this) {
+            if (operationListener != null) {
+                DataLoaderPool pool = (DataLoaderPool) Lookup.getDefault().lookup(DataLoaderPool.class);
+                pool.removeOperationListener(operationListener);
+            }
+            if (cacheHandlerListaner != null) {
+                cache.removeCacheHandlerListener(cacheHandlerListaner);
+            }
         }
-        if (cacheHandlerListaner != null) {
-            cache.removeCacheHandlerListener(cacheHandlerListaner);
-        }
+        // We must allow that the analyzar task can fire property changes,
+        // so this must be outside of the synchronized block!
         analyzerTask.waitFinished();
-        propertyChangeSupport = null;
-        activated = false;
+        synchronized (this) {
+            propertyChangeSupport = null;
+            activated = false;
+        }
         //System.out.println("VOID DEActivated for ("+fsRootPath+"):"+fileSystem);
     }
     
@@ -181,7 +187,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         }
     }
     
-    private synchronized void firePropertyChange() {
+    private void firePropertyChange() {
         //System.out.println("VcsObjectIntegritySupport.firePropertyChange("+(propertyChangeSupport != null)+")");
         PropertyChangeSupport propertyChangeSupport;
         synchronized (this) {
@@ -514,7 +520,6 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         }
         
     }
-    
     
     // Utility static stuff:
     
