@@ -67,9 +67,7 @@ import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.filter.Filter;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
-import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.usertasks.translators.HtmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
@@ -250,8 +248,8 @@ ExplorerManager.Provider, ExportImportProvider {
         return new SystemAction[] {
             SystemAction.get(NewTaskAction.class),
             SystemAction.get(GoToUserTaskAction.class),
-            SystemAction.get(FilterAction.class),
-            SystemAction.get(RemoveFilterAction.class),
+            SystemAction.get(FilterUserTaskAction.class),
+            SystemAction.get(RemoveFilterUserTaskAction.class),
             SystemAction.get(StartTaskAction.class)
         };
     }
@@ -268,7 +266,7 @@ ExplorerManager.Provider, ExportImportProvider {
         sp.addMouseListener(new MouseUtils.PopupMouseAdapter() {
             public void showPopup(MouseEvent e) {
                 Action[] actions = new Action[] {
-                    SystemAction.get(FilterAction.class),
+                    SystemAction.get(FilterUserTaskAction.class),
                     SystemAction.get(ExportAction.class)
                 };
                 JPopupMenu pm = Utilities.actionsToPopup(actions, sp);
@@ -286,8 +284,8 @@ ExplorerManager.Provider, ExportImportProvider {
             "#37438 dangling componentActivated event, no componentOpened()" + 
             " called at " + this;
         ExplorerUtils.activateActions(manager, true);
-        RemoveFilterAction removeFilter =
-                (RemoveFilterAction) SystemAction.get(RemoveFilterAction.class);
+        RemoveFilterUserTaskAction removeFilter =
+                (RemoveFilterUserTaskAction) SystemAction.get(RemoveFilterUserTaskAction.class);
         removeFilter.enable();
 
         // it's strange I'd expect live listener based solution
@@ -672,7 +670,7 @@ for (int i = 0; i < columns.length; i++) {
 
     protected void setFiltered() {
         if (getFilter() != null) {
-            ((RemoveFilterAction) SystemAction.get(RemoveFilterAction.class)).enable();
+            ((RemoveFilterUserTaskAction) SystemAction.get(RemoveFilterUserTaskAction.class)).enable();
         }
 
         TreeTableModel ttm = tt.getTreeTableModel();
@@ -1075,7 +1073,8 @@ for (int i = 0; i < columns.length; i++) {
         initialized = true;
 
         FindAction find = (FindAction) FindAction.get(FindAction.class);
-        FilterAction filter = (FilterAction) FilterAction.get(FilterAction.class);
+        FilterUserTaskAction filter = (FilterUserTaskAction) 
+            FilterUserTaskAction.get(FilterUserTaskAction.class);
         getActionMap().put(find.getActionMapKey(), filter);
 
         setLayout(new BorderLayout());

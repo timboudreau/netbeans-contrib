@@ -32,9 +32,26 @@
     <li>Open test3.ics.</li>
     <li>Expand All.</li>
     <li>Create a new task under the task list node.</li>
-    <li>"A" should not collapse.<br>
+    <li>"A" should not collapse.</li>
+  </ol>
+  <li>Sorting should not change the selection</li>
+  <ol>
+    <li>Open test4.ics.</li>
+    <li>Expand All.</li>
+    <li>Select "A"<br>
     </li>
+    <li>Sort the tasks on summary.</li>
+    <li>"A" should remain selected.</li>
+  </ol>
+  <li>Filtering should work</li>
+  <ol>
+    <li>Open test5.ics</li>
+    <li>Set the following filter: "Done is true"</li>
+    <li>G, E, B should be visible</li>
+    <li>C, A, D should be grayed out</li>
+    <li>F, H should be filtered out</li>
   </ol>
 </ol>
+<br>
 </body>
 </html>

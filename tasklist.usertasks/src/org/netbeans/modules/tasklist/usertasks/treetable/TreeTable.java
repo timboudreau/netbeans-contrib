@@ -133,6 +133,11 @@ public class TreeTable extends JTable {
             public void stateChanged(ChangeEvent e) {
                 Enumeration en = tree.getExpandedDescendants( 
                     new TreePath(getTreeTableModel().getRoot()));
+                int[] selRows = getSelectedRows();
+                TreePath[] selPaths = new TreePath[selRows.length];
+                for (int i = 0; i < selRows.length; i++) {
+                    selPaths[i] = tree.getPathForRow(selRows[i]);
+                }
                     
                 getTreeTableModel().sort(getSortingModel());
                 
@@ -140,6 +145,11 @@ public class TreeTable extends JTable {
                 while (en.hasMoreElements()) {
                     TreePath tp = (TreePath) en.nextElement();
                     tree.expandPath(tp);
+                }
+                
+                for (int i = 0; i < selPaths.length; i++) {
+                    int row = tree.getRowForPath(selPaths[i]);
+                    getSelectionModel().addSelectionInterval(row, row);
                 }
             }
         });

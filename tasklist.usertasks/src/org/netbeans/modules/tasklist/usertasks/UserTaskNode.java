@@ -35,7 +35,6 @@ import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ImportAction;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
@@ -135,7 +134,7 @@ final class UserTaskNode extends AbstractNode {
 
             // "Global" actions (not node specific)
             null,
-            SystemAction.get(FilterAction.class),
+            SystemAction.get(FilterUserTaskAction.class),
             SystemAction.get(PurgeTasksAction.class),
             SystemAction.get(ExpandAllUserTasksAction.class),
             null,
@@ -158,7 +157,7 @@ final class UserTaskNode extends AbstractNode {
                 null,
                 SystemAction.get(PasteAction.class),
                 null,
-                SystemAction.get(FilterAction.class),
+                SystemAction.get(FilterUserTaskAction.class),
                 SystemAction.get(PurgeTasksAction.class),
                 SystemAction.get(ExpandAllUserTasksAction.class),
                 null,
