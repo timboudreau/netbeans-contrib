@@ -23,6 +23,7 @@ import java.io.*;
 import java.util.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import org.netbeans.modules.vcscore.VcsAttributes;
 import org.openide.actions.PropertiesAction;
 import org.openide.ErrorManager;
 
@@ -101,8 +102,15 @@ public class VcsGroupNode extends AbstractNode {
                 try {
                     DataObject dob = (DataObject)childs[i].getCookie(DataObject.class);
                     if (dob != null) {
-                        FileObject fo = dob.getPrimaryFile();
-                        SystemAction[] acts = fo.getFileSystem().getActions();
+                        FileSystem fs = (FileSystem) dob.getPrimaryFile().getAttribute(VcsAttributes.VCS_NATIVE_FS);
+                        if (fs == null) {
+                            continue;
+                        }
+                        String path = (String) dob.getPrimaryFile().getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
+                        FileObject fo = fs.findResource(path);
+                        Set foset = new HashSet();
+                        foset.add(fo);
+                        SystemAction[] acts = fo.getFileSystem().getActions(foset);
                         for (int m =0; m < acts.length; m++) {
 //                            System.out.println("group action class=" + acts[m]);
                             if (!acts[m].isEnabled()) continue;
