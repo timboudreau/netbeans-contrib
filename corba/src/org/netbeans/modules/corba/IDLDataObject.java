@@ -216,7 +216,7 @@ public class IDLDataObject extends MultiDataObject
           createPossibleNames ();
          */
         
-        this.update();
+        this.startParsing();
     }
     
     /** Provides node that should represent this data object. When a node for representation
