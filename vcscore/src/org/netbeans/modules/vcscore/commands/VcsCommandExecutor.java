@@ -66,15 +66,17 @@ public interface VcsCommandExecutor extends Runnable {
     
     /**
      * Get the set of files being processed by the command.
-     * @return the collection of files of type <code>String</code>
+     * @return the collection of files paths of type <code>String</code> relative
+     * to the file system root.
      */
     public Collection getFiles();
     
-    /**
+    /*
      * Get the path of the processed files.
      * The path is relative to file system root.
-     */
+     *
     public String getPath();
+     */
         
     /**
      * Get the exit status of the execution.
