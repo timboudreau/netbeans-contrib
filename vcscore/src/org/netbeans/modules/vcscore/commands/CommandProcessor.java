@@ -999,9 +999,13 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             //System.out.println("  runningThreads = "+getRunningThreadsFromCommands(tasksRunning));
             if (getRunningThreadsFromCommands(tasksRunning).contains(submitter)) {
                 //System.out.println("  tasksExceptionallyRunning = "+tasksExceptionallyRunning);
-                if (tasksExceptionallyRunning.size() == 0 || areExcRunningPredecessorsOf(cw)) {
+                if ((tasksExceptionallyRunning.size() == 0 || areExcRunningPredecessorsOf(cw))
+                    && cw.canRun()) {
+                    
                     tasksExceptionallyRunning.add(cw);
                     return true;
+                } else {
+                    return false;
                 }
             }
             return false;
