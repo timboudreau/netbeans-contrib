@@ -13,13 +13,18 @@
 
 package org.netbeans.modules.vcs.profiles.pvcs.commands;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.openide.util.RequestProcessor;
 
 import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
+import org.netbeans.modules.vcscore.commands.CommandsPool;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.util.ChooseDirDialog;
@@ -48,10 +53,12 @@ public class PvcsDatabaseSelectorPanel extends javax.swing.JPanel implements jav
     //private Hashtable vars;
     private String[] args;
     private Table dummyFiles;
+    private Set spawnedCommands;
     
     /** Creates new form PvcsDatabaseSelectorPanel */
     public PvcsDatabaseSelectorPanel(VcsFileSystem fileSystem, String[] args, String database) {
         initComponents();
+        setName(org.openide.util.NbBundle.getMessage(PvcsDatabaseSelectorPanel.class, "TITLE_DatabaseSelector"));
         dbButtonsGroup.add(dbRadioButtonCustom);
         dbButtonsGroup.add(dbRadioButtonGUI);
         dbButtonsGroup.add(dbRadioButtonSearch);
@@ -59,6 +66,7 @@ public class PvcsDatabaseSelectorPanel extends javax.swing.JPanel implements jav
         //this.vars = vars;
         this.args = args;
         this.dummyFiles = new Table();
+        this.spawnedCommands = new HashSet();
         initListeners();
         lastButtonSelected = dbRadioButtonCustom.isSelected() ? dbRadioButtonCustom :
                              dbRadioButtonGUI.isSelected() ? dbRadioButtonGUI :
@@ -273,6 +281,7 @@ public class PvcsDatabaseSelectorPanel extends javax.swing.JPanel implements jav
             additionalVars.put("SEARCH_PATH", dbFolderTextField.getText());
             VcsCommandExecutor[] execs = VcsAction.doCommand(dummyFiles, cmd, additionalVars, fileSystem,
                                                              null, null, this, null);
+            spawnedCommands.addAll(Arrays.asList(execs));
             try {
                 for (int i = 0; i < execs.length; i++) {
                     fileSystem.getCommandsPool().waitToFinish(execs[i]);
@@ -284,6 +293,15 @@ public class PvcsDatabaseSelectorPanel extends javax.swing.JPanel implements jav
                 dbListModel.removeAllElements();
                 dbListModel.addElement(messageNoDBFound);
             }
+        }
+    }
+    
+    /* Called when the selector is no longet active */
+    void killRunningCommands() {
+        CommandsPool cpool = fileSystem.getCommandsPool();
+        for (Iterator it = spawnedCommands.iterator(); it.hasNext(); ) {
+            VcsCommandExecutor exec = (VcsCommandExecutor) it.next();
+            if (cpool.isRunning(exec)) cpool.kill(exec);
         }
     }
     

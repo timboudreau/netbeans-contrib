@@ -73,6 +73,7 @@ public class PvcsProjectDatabaseSelector extends Object implements VcsAdditional
                 stdoutListener.outputData(new String[] { dbLocation });
             }
         }
+        panel.killRunningCommands();
         return true;
     }
     
