@@ -83,7 +83,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public static final String VAR_POSSIBLE_FILE_STATUSES = "POSSIBLE_FILE_STATUSES"; // NOI18N
     public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED = "POSSIBLE_FILE_STATUSES_LOCALIZED"; // NOI18N
     public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT = "POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT"; // NOI18N
-    public static final String VAR_POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD = "POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD"; // NOI18N
+    
+    //public static final String VAR_POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD = "POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD"; // NOI18N
+    public static final String VAR_GENERIC_STATUS_UP_TO_DATE = "GENERIC_STATUS_UP_TO_DATE"; // NOI18N
+    public static final String VAR_GENERIC_STATUS_OUT_OF_DATE = "GENERIC_STATUS_OUT_OF_DATE"; // NOI18N
+    public static final String VAR_GENERIC_STATUS_MODIFIED = "GENERIC_STATUS_MODIFIED"; // NOI18N
+    public static final String VAR_GENERIC_STATUS_MISSING = "GENERIC_STATUS_MISSING"; // NOI18N
+    public static final String VAR_GENERIC_STATUS_LOCAL = "GENERIC_STATUS_LOCAL"; // NOI18N
+    
     public static final String VAR_NOT_MODIFIABLE_FILE_STATUSES = "NOT_MODIFIABLE_FILE_STATUSES"; // NOI18N
     //public static final String VAR_FILE_STATUS_MODIFIED = "FILE_STATUS_MODIFIED"; // NOI18N
     public static final String VAR_VCS_FILE_STATUS_MISSING = "VCS_FILE_STATUS_MISSING"; // NOI18N
@@ -645,23 +652,29 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private void setPossibleFileStatusInfosFromVars() {
         VcsConfigVariable varStatuses = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES);
         if (varStatuses == null) {
-            setPossibleFileStatusInfos(Collections.EMPTY_SET);
+            setPossibleFileStatusInfos(Collections.EMPTY_SET, Collections.EMPTY_MAP);
             return ;
         }
         VcsConfigVariable varStatusesLclz = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES_LOCALIZED);
         VcsConfigVariable varStatusesLclzShort = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT);
-        VcsConfigVariable varStatusesMap = (VcsConfigVariable) variablesByName.get(VAR_POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD);
+        //VcsConfigVariable varStatusesMap = (VcsConfigVariable) variablesByName.get(VAR_POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD);
+        VcsConfigVariable varStatusUpToDate = (VcsConfigVariable) variablesByName.get (VAR_GENERIC_STATUS_UP_TO_DATE);
+        VcsConfigVariable varStatusOutOfDate = (VcsConfigVariable) variablesByName.get (VAR_GENERIC_STATUS_OUT_OF_DATE);
+        VcsConfigVariable varStatusModified = (VcsConfigVariable) variablesByName.get (VAR_GENERIC_STATUS_MODIFIED);
+        VcsConfigVariable varStatusMissing = (VcsConfigVariable) variablesByName.get (VAR_GENERIC_STATUS_MISSING);
+        VcsConfigVariable varStatusLocal = (VcsConfigVariable) variablesByName.get (VAR_GENERIC_STATUS_LOCAL);
         VcsConfigVariable varIcons = (VcsConfigVariable) variablesByName.get (VAR_ICONS_FOR_FILE_STATUSES);
         String[] statuses = VcsUtilities.getQuotedStrings(varStatuses.getValue());
         String[] statusesLclz = null;
         if (varStatusesLclz != null) statusesLclz = VcsUtilities.getQuotedStrings(varStatusesLclz.getValue());
         String[] statusesLclzShort = null;
         if (varStatusesLclzShort != null) statusesLclzShort = VcsUtilities.getQuotedStrings(varStatusesLclzShort.getValue());
-        String[] statusesMap = null;
-        if (varStatusesMap != null) statusesMap = VcsUtilities.getQuotedStrings(varStatusesMap.getValue());
+        //String[] statusesMap = null;
+        //if (varStatusesMap != null) statusesMap = VcsUtilities.getQuotedStrings(varStatusesMap.getValue());
         String[] iconResources = null;
         if (varIcons != null) iconResources = VcsUtilities.getQuotedStrings(varIcons.getValue());
         CommandLineFileStatusInfo[] statusInfos = new CommandLineFileStatusInfo[statuses.length];
+        Map statusInfosByNames = new HashMap();
         { // to have limited definition of 'i'
         int i = 0;
         if (statusesLclz != null) {
@@ -677,21 +690,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         for(; i < statuses.length; i++) {
             statusInfos[i] = new CommandLineFileStatusInfo(statuses[i], statuses[i], null);
         }
-        } // end of definition of 'i'
-        if (statusesMap != null) {
-            for (int i = 0; i < statuses.length && i < statusesMap.length; i++) {
-                try {
-                    java.lang.reflect.Field statusInfoField = CommandLineFileStatusInfo.class.getField(statusesMap[i]);
-                    if (!FileStatusInfo.class.isAssignableFrom(statusInfoField.getType())) continue;
-                    FileStatusInfo repStatusInfo = (FileStatusInfo) statusInfoField.get(null);
-                    statusInfos[i].setRepresentingStatus(repStatusInfo);
-                } catch (Exception ex) {
-                    ErrorManager.getDefault().notify(ErrorManager.WARNING,
-                        ErrorManager.getDefault().annotate(ex,
-                            "File status '"+statusesMap[i]+"' not found."));
-                }
-            }
+        for (i = 0; i < statusInfos.length; i++) {
+            statusInfosByNames.put(statusInfos[i].getName(), statusInfos[i]);
         }
+        } // end of definition of 'i'
+        Map genericStatusTranslation = new HashMap();
+        setGenericStatii(new VcsConfigVariable[] { varStatusUpToDate, varStatusOutOfDate, varStatusMissing, varStatusModified, varStatusLocal },
+                         new FileStatusInfo[] { FileStatusInfo.UP_TO_DATE, FileStatusInfo.OUT_OF_DATE, FileStatusInfo.MISSING, FileStatusInfo.MODIFIED, FileStatusInfo.LOCAL },
+                         statusInfosByNames, genericStatusTranslation);
         if (iconResources != null) {
             FileSystem defaultFS = Repository.getDefault().getDefaultFileSystem();
             for (int i = 0; i < statuses.length && i < iconResources.length; i++) {
@@ -711,12 +717,32 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 }
             }
         }
-        setPossibleFileStatusInfos(new HashSet(Arrays.asList(statusInfos)));
+        setPossibleFileStatusInfos(new HashSet(Arrays.asList(statusInfos)), genericStatusTranslation);
         setMissingStates((VcsConfigVariable) variablesByName.get (VAR_VCS_FILE_STATUS_MISSING),
                          (VcsConfigVariable) variablesByName.get (VAR_VCS_FOLDER_STATUS_MISSING),
                          (VcsConfigVariable) variablesByName.get (VAR_NOT_MISSINGABLE_FILE_STATUSES),
                          (VcsConfigVariable) variablesByName.get (VAR_NOT_MISSINGABLE_FOLDER_STATUSES));
         firePropertyChange(PROP_ADDITIONAL_POSSIBLE_FILE_STATUSES_MAP, null, additionalPossibleFileStatusesMap);
+    }
+    
+    /** Set the representing generic status infos and fill in the genericStatusTranslation */
+    private void setGenericStatii(VcsConfigVariable[] vars, FileStatusInfo[] infos,
+                                  Map statusInfosByNames, Map genericStatusTranslation) {
+        for (int i = 0; i < vars.length; i++) {
+            if (vars[i] != null) {
+                String[] statii = VcsUtilities.getQuotedStrings(vars[i].getValue());
+                for (int is = 0; is < statii.length; is++) {
+                    CommandLineFileStatusInfo statusInfo = (CommandLineFileStatusInfo) statusInfosByNames.get(statii[is]);
+                    if (statusInfo != null) {
+                        statusInfo.setRepresentingStatus(infos[i]);
+                    }
+                }
+                if (statii.length > 0) {
+                    genericStatusTranslation.put(infos[i].getName(), statii[0]);
+                }
+            }
+            
+        }
     }
     
     /*

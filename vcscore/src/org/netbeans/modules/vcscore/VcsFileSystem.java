@@ -292,6 +292,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient Set possibleFileStatusInfos = null;
     /** Map of status names obtained by refresh to the FileStatusInfo object. */
     private transient Map possibleFileStatusInfoMap = null;
+    /** Map of generic names (in FileStatusInfo class) to possible VCS status names. */
+    private transient Map genericStatusTranslation = null;
     /** The lock for synchronized access to structures holding possible file status information. */
     private transient Object possibleFileStatusesLock = new Object();
 
@@ -1535,11 +1537,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (possibleFileStatusInfos == null) {
             if (statusProvider != null) {
                 Set statusInfos = Collections.unmodifiableSet(statusProvider.getPossibleFileStatusInfos());
-                setPossibleFileStatusInfos(statusInfos);
+                setPossibleFileStatusInfos(statusInfos, Collections.EMPTY_MAP);
                 origPossibleFileStatusInfos = statusInfos;
                 //possibleFileStatusInfos = origPossibleFileStatusInfos;
             } else {
-                setPossibleFileStatusInfos(Collections.EMPTY_SET);
+                setPossibleFileStatusInfos(Collections.EMPTY_SET, Collections.EMPTY_MAP);
                 //possibleFileStatusInfos = Collections.EMPTY_SET;
             }
         }
@@ -1820,11 +1822,26 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
     }
+    
+    /**
+     * Get the map of generic file status names (that are defined in
+     * FileStatusInfo class) as keys and translated file status names
+     * (that are provided in the possibleFileStatusInfos set) as values.
+     */
+    public Map getGenericStatusTranslation() {
+        return genericStatusTranslation;
+    }
 
     /**
-     * Set a set of all possible FileStatusInfo objects.
+     * Set a set of all possible FileStatusInfo objects. Also a translation of
+     * generic status names to provided possible status names is supplied.
+     * @param fileStatusInfos The set of FileStatusInfo objects
+     * @param genericStatusTranslation The map of generic file status names
+     *        (that are defined in FileStatusInfo class) as keys and translated
+     *        file status names (that are provided in the fileStatusInfos set)
+     *        as values.
      */
-    protected void setPossibleFileStatusInfos(Set fileStatusInfos) {
+    protected final void setPossibleFileStatusInfos(Set fileStatusInfos, Map genericStatusTranslation) {
         synchronized (possibleFileStatusesLock) {
             if (this.origPossibleFileStatusInfos == null || this.origPossibleFileStatusInfos.size() == 0) {
                 this.possibleFileStatusInfos = Collections.unmodifiableSet(fileStatusInfos);
@@ -1849,9 +1866,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 possibleFileStatusInfoMap.put(statusInfo.getName(), statusInfo);
             }
             possibleFileStatusInfoMap = Collections.unmodifiableMap(possibleFileStatusInfoMap);
+            this.genericStatusTranslation = Collections.unmodifiableMap(genericStatusTranslation);
         }
     }
-
+    
     //-------------------------------------------
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         // cache is transient
