@@ -22,10 +22,10 @@ What you need to do is subclass one of the SuggestionProvider classes
 in the SPI, and then register it to your module's layer XML file as follows:
 
 <pre>
-&lt;folder name="Suggestions"&gt;
-   &lt;folder name="Providers"&gt;
+&lt;folder name="Services"&gt;
+   &lt;folder name="SuggestionProviders"&gt;
       &lt;file name="org-foo-bar-YourSuggestionProvider.instance"&gt;
-         &lt;attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.SuggestionProvider"/&gt;
+         &lt;attr name="instanceOf" stringvalue="org.netbeans.api.tasklist.SuggestionProvider"/&gt;
          &lt;attr name="instanceOf" stringvalue="org.foo.bar.YourSuggestionProvider"/&gt;
          &lt;attr name="instanceClass" stringvalue="org.foo.bar.YourSuggestionProvider"/&gt;
          &lt;attr name="instanceCreate" newvalue="org.foo.bar.YourSuggestionProvider"/&gt;
