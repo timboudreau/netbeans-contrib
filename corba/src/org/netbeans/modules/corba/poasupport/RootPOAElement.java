@@ -307,11 +307,12 @@ public class RootPOAElement extends POAElement implements java.beans.PropertyCha
         if (p1.getSource() == null)
             return;
         if (p1.getSource() instanceof POAElement) {
-            if (POAElement.PROP_VAR_NAME.equals(p1.getPropertyName()))
+            if (POAElement.PROP_VAR_NAME.equals(p1.getPropertyName())) {
                 if (p1.getSource().equals(usedVarNames.get(p1.getOldValue())))
                     usedVarNames.remove(p1.getOldValue());
                 if (!usedVarNames.containsKey(p1.getNewValue()))
                     usedVarNames.put(p1.getNewValue(), p1.getSource());
+            }
             firePOAHierarchyChange();
             return;
         }
