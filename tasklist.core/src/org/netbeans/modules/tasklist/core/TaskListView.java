@@ -1423,6 +1423,9 @@ for (int i = 0; i < columns.length; i++) {
                     prevTask();
                 }
             });
+
+            nextCandidate = null;
+            prevCandidate = null;
         } else {
             nextAction.setActionPerformer(null);
             previousAction.setActionPerformer(null);
@@ -1442,7 +1445,8 @@ for (int i = 0; i < columns.length; i++) {
     /** When true, we've already warned about the need to wrap */
     private boolean wrapWarned = false;
 
-    private Node findNextVisitable(TreeNode last) {
+    /** @return next visitable node or null */
+    private TreeNode findNextVisitable(TreeNode last, boolean wrapAround) {
 
         // find next candidate
 
@@ -1460,7 +1464,7 @@ for (int i = 0; i < columns.length; i++) {
 
         // try wrap around if warned
 
-        if (next == null && wrapWarned) {
+        if (next == null && wrapAround) {
             TreeNode parent = last;
             while (parent.getParent() != null) {
                parent = parent.getParent();
@@ -1474,60 +1478,26 @@ for (int i = 0; i < columns.length; i++) {
 
         // assure it's visitable
 
-        Node nextNode = Visualizer.findNode(next);
+        if (isVisitable(next)) {
+            return next;
+        } else {
+            return findNextVisitable(next, wrapAround);
+        }
+
+    }
+
+    /** Test that assogiated task is visitable. */
+    private static boolean isVisitable(TreeNode node) {
+        Node nextNode = Visualizer.findNode(node);
+        if (nextNode == null) return false;
         Task task = (Task) nextNode.getCookie(Task.class);
-        if (task != null && task.isVisitable()) {
-            return nextNode;
-        } else {
-            return findNextVisitable(next);
-        }
+        return task != null && task.isVisitable();
     }
 
-    /**
-     * @param tail if true take the last one from multiple selection
-     *        othervise the first one
-     * @return last selected or null
-     */
-    private Node findLastSelected(boolean tail) {
-        Node[] selected = getExplorerManager().getSelectedNodes();
-        Node last;
-        if (selected != null && selected.length != 0) {
-            if (tail) {
-                last = selected[selected.length -1];
-            } else {
-                last = selected[0];
-            }
-        } else {
-            // none selected take fisrt on in all cases
-            Node[] all = getExplorerManager().getRootContext().getChildren().getNodes();
-            if (all == null || all.length == 0) {
-                return null;
-            } else {
-                last = all[0];
-            }
-        }
-        return last;
-    }
-
-    /** Show the next task in the view */
-    protected final void nextTask() {
-
-        Node last = findLastSelected(true);
-        if (last == null) return;
-
-        Node next = findNextVisitable(Visualizer.findVisualizer(last));
-
-        String msg = NbBundle.getBundle(TaskListView.class).
-                getString("MSG_AtLastError"); // NOI18N
-        if ((next == null) && !wrapWarned) {
-            StatusDisplayer.getDefault().setStatusText(msg);
-            wrapWarned = true;
-        } else {
-            wrapWarned = false;
-        }
-
-        if (next != null) {
-            Task nextTask = (Task) next.getCookie(Task.class);
+    /** Try to select nodes in all known views. */
+    private void selectNode(Node node) {
+        if (node != null) {
+            Task nextTask = (Task) node.getCookie(Task.class);
             if (nextTask.getLine() != null) {
                 TaskAnnotation anno = getAnnotation(nextTask);
                 if (anno != null) {
@@ -1538,8 +1508,94 @@ for (int i = 0; i < columns.length; i++) {
         }
     }
 
+    /** Test membership */
+    private static boolean isChildOf(TreeNode child, TreeNode root) {
+        if (child == null) return false;
+        if (child == root) return true;
+        TreeNode parent = child.getParent();
+        while (parent != null) {
+            if (parent == root) return true;
+            parent = parent.getParent();
+        }
+        return false;
+    }
 
-    private Node findPrevVisitable(TreeNode last) {
+    // last selected node helps in situations situations when
+    // selection disappears due to resolving suggestion
+    private TreeNode nextCandidate;
+    private TreeNode prevCandidate;
+
+    /**
+     * @param tail if true take the last one from multiple selection
+     *        othervise the first one
+     * @return last selected or null
+     */
+    private Node currentlySelected(boolean tail) {
+        Node[] selected = getExplorerManager().getSelectedNodes();
+        if (selected != null && selected.length != 0) {
+            if (tail) {
+                return selected[selected.length -1];
+            } else {
+                return selected[0];
+            }
+        } else {
+            return null;
+        }
+    }
+
+    /** Show the next task in the view */
+    protected final void nextTask() {
+
+        Node currentlySelected = currentlySelected(true);
+        Node next = null;
+        TreeNode nextVisitable = null;
+
+        if (currentlySelected == null) {
+
+            // guess new selection
+
+            TreeNode root = Visualizer.findVisualizer(getExplorerManager().getRootContext());
+            if (isChildOf(nextCandidate, root)) {
+                if (isVisitable(nextCandidate)) {
+                    nextVisitable = nextCandidate;
+                } else {
+                    nextVisitable = findNextVisitable(nextCandidate, wrapWarned);
+                }
+            } else {
+                // none selected take fisrt on in all cases
+                Node[] all = getExplorerManager().getRootContext().getChildren().getNodes();
+                if (all != null && all.length > 0) {
+                    nextVisitable = Visualizer.findVisualizer(all[0]);
+                }
+            }
+        } else {
+            TreeNode curr = Visualizer.findVisualizer(currentlySelected);
+            prevCandidate = curr;
+            nextVisitable = findNextVisitable(curr, wrapWarned);
+        }
+
+        if (nextVisitable != null) {
+            nextCandidate = findNextVisitable(nextVisitable, false);
+            next = Visualizer.findNode(nextVisitable);
+        } else {
+            nextCandidate = null;
+        }
+
+        if ((next == null) && !wrapWarned) {
+            String msg = NbBundle.getBundle(TaskListView.class).
+                    getString("MSG_AtLastError"); // NOI18N
+            StatusDisplayer.getDefault().setStatusText(msg);
+            Toolkit.getDefaultToolkit().beep();
+            wrapWarned = true;
+        } else {
+            wrapWarned = false;
+        }
+
+        selectNode(next);
+    }
+
+
+    private TreeNode findPrevVisitable(TreeNode last, boolean wrapAround) {
 
         // find prev candidate
 
@@ -1558,7 +1614,7 @@ for (int i = 0; i < columns.length; i++) {
 
         // try wrap around to last if warned
 
-        if (prev == null && wrapWarned) {
+        if (prev == null && wrapAround) {
             TreeNode parent = last;
             while (parent.getParent() != null) {
                parent = parent.getParent();
@@ -1573,42 +1629,62 @@ for (int i = 0; i < columns.length; i++) {
 
         // assure it's visitable
 
-        Node prevNode = Visualizer.findNode(prev);
-        Task task = (Task) prevNode.getCookie(Task.class);
-        if (task != null && task.isVisitable()) {
-            return prevNode;
+        if (isVisitable(prev)) {
+            return prev;
         } else {
-            return findPrevVisitable(prev);
+            return findPrevVisitable(prev, wrapAround);
         }
     }
 
     /** Show the previous task in the view */
     protected final void prevTask() {
 
-        Node last = findLastSelected(false);
-        if (last == null) return;
+        Node currentlySelected = currentlySelected(false);
+        Node prev = null;
+        TreeNode prevVisitable = null;
 
-        Node prev = findPrevVisitable(Visualizer.findVisualizer(last));
+        if (currentlySelected == null) {
 
-        String msg = NbBundle.getBundle(TaskListView.class).
-                getString("MSG_AtFirstError"); // NOI18N
+            // guess new selection
+
+            TreeNode root = Visualizer.findVisualizer(getExplorerManager().getRootContext());
+            if (isChildOf(prevCandidate, root)) {
+                if (isVisitable(prevCandidate)) {
+                    prevVisitable = prevCandidate;
+                } else {
+                    prevVisitable = findPrevVisitable(prevCandidate, wrapWarned);
+                }
+            } else {
+                // none selected take last on in all cases
+                Node[] all = getExplorerManager().getRootContext().getChildren().getNodes();
+                if (all != null && all.length > 0) {
+                    prevVisitable = Visualizer.findVisualizer(all[all.length-1]);
+                }
+            }
+        } else {
+            TreeNode curr = Visualizer.findVisualizer(currentlySelected);
+            nextCandidate = curr;
+            prevVisitable = findPrevVisitable(curr, wrapWarned);
+        }
+
+        if (prevVisitable != null) {
+            prevCandidate = findNextVisitable(prevVisitable, false);
+            prev = Visualizer.findNode(prevVisitable);
+        } else {
+            prevCandidate = null;
+        }
+
         if ((prev == null) && !wrapWarned) {
+            String msg = NbBundle.getBundle(TaskListView.class).
+                    getString("MSG_AtFirstError"); // NOI18N
             StatusDisplayer.getDefault().setStatusText(msg);
+            Toolkit.getDefaultToolkit().beep();
             wrapWarned = true;
         } else {
             wrapWarned = false;
         }
 
-        if (prev != null) {
-            Task prevTask = (Task) prev.getCookie(Task.class);
-            if (prevTask.getLine() != null) {
-                TaskAnnotation anno = getAnnotation(prevTask);
-                if (anno != null) {
-                    showTaskInEditor(prevTask, anno);
-                }
-            }
-            select(prevTask); // XXX call EM directly
-        }
+        selectNode(prev);
     }
 
     /**
