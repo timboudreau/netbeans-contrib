@@ -10,11 +10,11 @@ Name: com/netbeans/enterprise/modules/rmi/RMIDataLoader.class
 OpenIDE-Module-Class: Loader
 Install-Before: com.netbeans.developer.modules.loaders.java.JavaDataObject
 
+Name: com/netbeans/enterprise/modules/rmi/registry/RMIRegistryNode.class
+OpenIDE-Module-Class: Node
+
 Name: com/netbeans/enterprise/modules/rmi/settings/RMISettings.class
 OpenIDE-Module-Class: Option
-
-Name: com/netbeans/enterprise/modules/rmi/RMIRegistryNode.class
-OpenIDE-Module-Class: Node
 
 Name: com/netbeans/enterprise/modules/rmi/RMIExecutor.class
 OpenIDE-Module-Class: Executor
@@ -26,4 +26,7 @@ Name: com/netbeans/enterprise/modules/rmi/wizard/RMIWizardCookieAction.class
 OpenIDE-Module-Class: Action
 
 Name: com/netbeans/enterprise/modules/rmi/wizard/RMIEncapsulationAction.class
+OpenIDE-Module-Class: Action
+
+Name: com/netbeans/enterprise/modules/rmi/Convert2RMIAction.class
 OpenIDE-Module-Class: Action
