@@ -18,34 +18,22 @@ import complete.cvs_profile.JellyStub.MyNode;
 import java.awt.Color;
 import java.util.StringTokenizer;
 import javax.swing.text.Style;
-import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.StyleConstants.ColorConstants;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.netbeans.jellytools.EditorOperator;
 import org.netbeans.jellytools.EditorWindowOperator;
-import org.netbeans.jellytools.NbDialogOperator;
 import org.netbeans.jellytools.TopComponentOperator;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jemmy.operators.JComboBoxOperator;
 import org.netbeans.jemmy.operators.JEditorPaneOperator;
-import org.netbeans.jemmy.operators.JLabelOperator;
-import org.netbeans.jemmy.operators.JTabbedPaneOperator;
 import org.netbeans.junit.NbTestSuite;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSEditFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSEditorsFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSGraphicalDiffFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSLockFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSPatchFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSTextualDiffFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSUndoEditFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSWatchSetFileAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSWatchSetFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSWatchersFolderAdvDialog;
+import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
 import util.Filter;
 import util.History;
+
 
 public class JellyAddCommands extends JellyStub {
     
@@ -57,7 +45,7 @@ public class JellyAddCommands extends JellyStub {
 //        JellyStub.DEBUG = true;
         TestSuite suite = new NbTestSuite();
         suite.addTest(new JellyAddCommands("testWorkDir"));
-/*        suite.addTest(new JellyAddCommands("testEdit"));
+        suite.addTest(new JellyAddCommands("testEdit"));
         suite.addTest(new JellyAddCommands("testEditors"));
         suite.addTest(new JellyAddCommands("testUndoEdit"));
         suite.addTest(new JellyAddCommands("testNoEdit"));
@@ -70,7 +58,7 @@ public class JellyAddCommands extends JellyStub {
         suite.addTest(new JellyAddCommands("testDefaultDiffGraphicalTextual"));
         suite.addTest(new JellyAddCommands("testDefaultDiffTextual"));
         suite.addTest(new JellyAddCommands("testDefaultPatch"));
-        suite.addTest(new JellyAddCommands("testUnmount"));*/
+        suite.addTest(new JellyAddCommands("testUnmount"));
         return suite;
     }
     
@@ -287,7 +275,7 @@ public class JellyAddCommands extends JellyStub {
             Style st = sd.getLogicalStyle(a);
             if (st == null)
                 break;
-            Color col = (Color) st.getAttribute(StyleConstants.ColorConstants.Background);
+            Color col = (Color) st.getAttribute(ColorConstants.Background);
             String str;
             if (annoWhite.equals (col))
                 str = "White";
