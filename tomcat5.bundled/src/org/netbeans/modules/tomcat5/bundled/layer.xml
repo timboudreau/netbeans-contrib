@@ -18,7 +18,7 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="J2EE">
         <folder name="InstalledServers">
             <file name="Tomcat_instance">
-                <attr name="url" stringvalue="tomcat:home=jakarta-tomcat-5.0.27:base=jakarta-tomcat-5.0.27_base"/>
+                <attr name="url" stringvalue="tomcat:home=$bundled_home:base=$bundled_base"/>
                 <attr name="displayName" stringvalue="Bundled Tomcat (5.0.27)"/>
                 <attr name="host" stringvalue="localhost"/>
                 <attr name="server_port" stringvalue="8084"/>
@@ -29,6 +29,12 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="username" stringvalue="ide"/>
                 <attr name="password" stringvalue="ide_manager"/>
             </file>
+        </folder>
+        <folder name="BundledTomcat">	
+            <file name="Setting">
+	        <attr name="bundled_home" stringvalue="jakarta-tomcat-5.0.27"/>
+		<attr name="bundled_base" stringvalue="jakarta-tomcat-5.0.27_base"/>
+            </file>	    
         </folder>
     </folder>
 </filesystem>
