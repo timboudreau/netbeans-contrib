@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
@@ -377,11 +378,15 @@ public abstract class GenericStub extends JellyTestCase {
         if (c != null) {
             JTabbedPane pane = JTabbedPaneOperator.findJTabbedPane(c, null, false, false, 0);
             if (pane != null) {
-                JTextAreaOperator text = new JTextAreaOperator (new JComponentOperator ((JComponent) pane.getSelectedComponent ()));
-                text.clickForPopup();
-                JPopupMenuOperator menu = new JPopupMenuOperator ();
-                menu.pushMenu("Discard All Output Tabs");
-                text.waitComponentShowing(false);
+                // !!! workaround because of issue #37837
+                JTextArea jtext = JTextAreaOperator.findJTextArea((JComponent) pane.getSelectedComponent(), null, false, false);
+                if (jtext != null) {
+                    JTextAreaOperator text = new JTextAreaOperator (jtext);
+                    text.clickForPopup();
+                    JPopupMenuOperator menu = new JPopupMenuOperator ();
+                    menu.pushMenu("Discard All Output Tabs");
+                    text.waitComponentShowing(false);
+                }
             }
             closeAllWindows("VCS Output");
         }
