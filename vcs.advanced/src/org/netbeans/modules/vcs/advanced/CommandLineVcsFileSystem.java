@@ -283,7 +283,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
       EditUserVariable edit=new EditUserVariable(new JFrame(),"REASON","");
       MiscStuff.centerWindow(edit);
       edit.show();
-      reason=edit.getValue().replace(' ','_');
+      reason=edit.getValue();//no more neccessary .replace(' ','_');
       vars.put("REASON",reason);
     }
   }
@@ -307,6 +307,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     result.put("netbeans.home",System.getProperty("netbeans.home"));
     String osName=System.getProperty("os.name");
     result.put("classpath.separator", (osName.indexOf("Win")<0 ? ":":";" ));
+
+    result.put("ROOTDIR",getRootDirectory().toString());
 
     return result;
   }
@@ -819,6 +821,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  30   Gandalf   1.29        6/4/99   Michal Fadljevic 
  *  29   Gandalf   1.28        6/1/99   Michal Fadljevic 
  *  28   Gandalf   1.27        6/1/99   Michal Fadljevic 
  *  27   Gandalf   1.26        5/27/99  Michal Fadljevic 
