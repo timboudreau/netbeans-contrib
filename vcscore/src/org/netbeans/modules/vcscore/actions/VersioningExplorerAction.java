@@ -110,7 +110,7 @@ public class VersioningExplorerAction extends GeneralCommandAction {
                 try {
                     FileSystem fs = fo.getFileSystem();
                     if (fs != null) {
-                        filesByFS.put(fo.getPackageNameExt('/', '.'), fs.getSystemName());
+                        filesByFS.put(fo.getPath(), fs.getSystemName());
                     }
                 } catch (FileStateInvalidException exc) {
                     continue;

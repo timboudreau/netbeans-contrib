@@ -86,7 +86,7 @@ public class VssVerifyAction extends java.lang.Object implements VcsAdditionalCo
         } else {
             for (Iterator it = fos.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                String file = fo.getPackageNameExt('/', '.');
+                String file = fo.getPath();
                 String status = statusProvider.getFileStatus(file);
                 //System.out.println("fillFilesByState: file = '"+file+"', status = "+status);
                 if (statusProvider.getLocalFileStatus().equals(status)) {
@@ -206,7 +206,7 @@ public class VssVerifyAction extends java.lang.Object implements VcsAdditionalCo
         for (Iterator it = dobj.files().iterator(); it.hasNext(); ) {
             FileObject fo = (FileObject) it.next();
             if (!fileSystem.isProcessUnimportantFiles() &&
-                !fileSystem.isImportant(fo.getPackageNameExt('/', '.'))) continue;
+                !fileSystem.isImportant(fo.getPath())) continue;
             String foStatus = fileSystem.getStatus(fo);
             if (status == null) {
                 status = foStatus;
@@ -291,7 +291,7 @@ public class VssVerifyAction extends java.lang.Object implements VcsAdditionalCo
                 Table files = new Table();
                 for (Iterator it = foList.iterator(); it.hasNext(); ) {
                     FileObject file = (FileObject) it.next();
-                    files.put(file.getPackageNameExt('/', '.'), file);
+                    files.put(file.getPath(), file);
                 }
                 VcsAction.doCommand(files, lock, null, fileSystem);
             }

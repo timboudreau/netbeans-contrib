@@ -98,7 +98,7 @@ public class CvsVerifyAction extends java.lang.Object implements VcsAdditionalCo
             HashSet toUpdate = new HashSet(Arrays.asList(TO_UPDATE));
             for (Iterator it = fos.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                String file = fo.getPackageNameExt('/', '.');
+                String file = fo.getPath();
                 String status = statusProvider.getFileStatus(file);
                 //System.out.println("fillFilesByState: file = '"+file+"', status = "+status);
                 if (statusProvider.getLocalFileStatus().equals(status)) {
@@ -134,7 +134,7 @@ public class CvsVerifyAction extends java.lang.Object implements VcsAdditionalCo
             Table files = new Table();
             for (Iterator it = fos.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                files.put(fo.getPackageNameExt('/', '.'), fo);
+                files.put(fo.getPath(), fo);
             }
             VcsCommandExecutor[] execs = VcsAction.doCommand(files, cmd, null, fileSystem, null, null, null, null, true);
             CommandsPool cpool = fileSystem.getCommandsPool();
@@ -246,7 +246,7 @@ public class CvsVerifyAction extends java.lang.Object implements VcsAdditionalCo
         for (Iterator it = dobj.files().iterator(); it.hasNext(); ) {
             FileObject fo = (FileObject) it.next();
             if (!fileSystem.isProcessUnimportantFiles() &&
-                !fileSystem.isImportant(fo.getPackageNameExt('/', '.'))) continue;
+                !fileSystem.isImportant(fo.getPath())) continue;
             String foStatus = fileSystem.getStatus(fo);
             if (status == null) {
                 status = foStatus;

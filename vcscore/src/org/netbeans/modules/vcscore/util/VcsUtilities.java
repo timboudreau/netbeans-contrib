@@ -421,7 +421,11 @@ public class VcsUtilities {
         if (sfsClassLoader == null) {
             sfsCLReset = false;
             FileSystem sfs = Repository.getDefault().getDefaultFileSystem();
-            sfsClassLoader = new NbClassLoader(new FileSystem[] { sfs });
+            try {
+                sfsClassLoader = new NbClassLoader(new FileObject[] { sfs.getRoot() }, (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class), null);
+            } catch (FileStateInvalidException e) {
+                throw new AssertionError(e);
+            }
             sfs.addFileChangeListener(new FileChangeListener () {
                 public void fileFolderCreated(FileEvent fev) {}
                 public void fileDataCreated(FileEvent fev) { sfsCLReset = true; }
@@ -432,12 +436,16 @@ public class VcsUtilities {
             });
         }
         if (sfsCLReset) {
-            sfsClassLoader = new NbClassLoader(new FileSystem[] { Repository.getDefault().getDefaultFileSystem() });
+            try {
+                sfsClassLoader = new NbClassLoader(new FileObject[] { Repository.getDefault().getDefaultFileSystem().getRoot() }, (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class), null);
+            } catch (FileStateInvalidException e) {
+                throw new AssertionError(e);
+            }
             sfsCLReset = false;
         }
         return sfsClassLoader;
     }
-
+    
     /** Get a string from a resource bundle. An arbitrary resource bundle can be
      * specified to get an arbitrary key from.
      * This method resolves all occurrences of

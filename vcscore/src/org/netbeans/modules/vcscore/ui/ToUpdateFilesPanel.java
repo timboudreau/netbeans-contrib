@@ -281,7 +281,7 @@ public class ToUpdateFilesPanel extends javax.swing.JPanel {
             FileObject fo = tb.getFileObject();
             AnnotationProvider provider = (AnnotationProvider)fo.getAttribute(AnnotationProvider.ANN_PROVIDER_FO_ATTRIBUTE);
             if (provider != null) {
-                return provider.getAttributeValue(fo.getPackageNameExt('/','.'), AnnotationSupport.ANNOTATION_PATTERN_STATUS);
+                return provider.getAttributeValue(fo.getPath(), AnnotationSupport.ANNOTATION_PATTERN_STATUS);
             }
                 
             return "";

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -120,7 +120,7 @@ class LinkNode extends FilterNode implements PropertyChangeListener {
     public String getDisplayName() {
         String foldername;
         FileObject primary = linkedDataObj.getPrimaryFile();
-        String fullname = primary.getPackageNameExt('/', '.');
+        String fullname = primary.getPath();
         int index = fullname.lastIndexOf('/');
         if (index != -1) {
             foldername = fullname.substring(0, index + 1);

@@ -152,7 +152,7 @@ public class CommandCustomizationSupport extends Object {
             FileObject ff = (FileObject) it.next();
             try {
                 if (ff.getFileSystem() instanceof VersioningFileSystem) {
-                    res.put(ff.getPackageNameExt('/', '.'), ff);
+                    res.put(ff.getPath(), ff);
                     continue;
                 }
                 if (!doNotTestFS && ff.getFileSystem() != fileSystem)
@@ -160,7 +160,7 @@ public class CommandCustomizationSupport extends Object {
             } catch (FileStateInvalidException exc) {
                 continue;
             }
-            String fileName = ff.getPackageNameExt('/','.');
+            String fileName = ff.getPath();
             //VcsFile file = fileSystem.getCache().getFile(fileName);
             //D.deb("file = "+file+" for "+fileName);
             //if (file == null || file.isImportant()) {
@@ -589,7 +589,7 @@ public class CommandCustomizationSupport extends Object {
         String ignoredFileStatus = org.netbeans.modules.vcscore.caching.VcsCacheFile.STATUS_IGNORED;
         for (Iterator filesIt = getAllFilesAssociatedWith(fileSystem, processedFiles).iterator(); filesIt.hasNext(); ) {
             org.openide.filesystems.FileObject fo = (org.openide.filesystems.FileObject) filesIt.next();
-            String name = fo.getPackageNameExt('/', '.');
+            String name = fo.getPath();
             if (!fileSystem.isImportant(name)) {
                 if (statusProvider != null) {
                     String status = statusProvider.getFileStatus(name);

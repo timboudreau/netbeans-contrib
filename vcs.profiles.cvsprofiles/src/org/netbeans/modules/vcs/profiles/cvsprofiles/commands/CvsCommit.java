@@ -211,7 +211,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         }
         if (winCat != null) {
             String userHome = System.getProperty("netbeans.user");
-            cat = userHome + File.separator + SYSTEM + File.separator + winCat.getPackageNameExt(File.separatorChar, '.');
+            cat = userHome + File.separator + SYSTEM + File.separator + winCat.getPath();
             cat = org.openide.util.Utilities.replaceString(cat, "\\", "\\\\");
             //System.out.println("cat = "+cat);
             //cat = getFilePath(fs, winCat);

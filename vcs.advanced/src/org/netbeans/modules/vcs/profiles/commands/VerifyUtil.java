@@ -88,7 +88,7 @@ public class VerifyUtil extends java.lang.Object {
             Table files = new Table();
             for (Iterator it = fos.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                files.put(fo.getPackageNameExt('/', '.'), fo);
+                files.put(fo.getPath(), fo);
             }
             VcsCommandExecutor[] execs = VcsAction.doCommand(files, cmd, null, fileSystem, null, null, null, null, true);
             CommandsPool cpool = fileSystem.getCommandsPool();

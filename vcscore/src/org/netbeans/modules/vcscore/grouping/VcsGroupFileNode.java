@@ -68,7 +68,8 @@ public class VcsGroupFileNode extends FilterNode {
        
 //        Node origNode = shadowObject.getOriginal().getNodeDelegate();
         if (settings.isShowLinks()) {
-            return originalNode.getDisplayName() + " -> " + shadowObject.getOriginal().getPrimaryFile().getPackageName('/'); //NOI18N
+            // XXX this is probably wrong:
+            return originalNode.getDisplayName() + " -> " + shadowObject.getOriginal().getPrimaryFile().getPath(); //NOI18N
         } else {
             return originalNode.getDisplayName();
         }

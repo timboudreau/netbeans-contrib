@@ -31,9 +31,18 @@ public class MyTableObject {
     
     private FileObject fileObject = null;
     
+    private static String getPackageNameSlashes(FileObject fo) {
+        String path = fo.getPath();
+        int i = path.lastIndexOf('.');
+        if (i != -1 && i > path.lastIndexOf('/')) {
+            path = path.substring(0, i);
+        }
+        return path;
+    }
+
     public MyTableObject(DataObject dobj) {
         name = dobj.getName();
-        packg = dobj.getFolder().getPrimaryFile().getPackageName('/');
+        packg = getPackageNameSlashes(dobj.getFolder().getPrimaryFile());
         try {
             filesystem = dobj.getPrimaryFile().getFileSystem().getDisplayName();
         } catch (FileStateInvalidException exc) {
@@ -44,7 +53,7 @@ public class MyTableObject {
     
     public MyTableObject(FileObject fo) {
         name = fo.getNameExt();
-        packg = fo.getParent().getPackageName('/');
+        packg = getPackageNameSlashes(fo.getParent());
         try {
             filesystem = fo.getFileSystem().getDisplayName();
         } catch (FileStateInvalidException exc) {

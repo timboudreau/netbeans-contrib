@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -41,7 +41,6 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataLoader;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.loaders.TemplateWizard;
 import org.openide.nodes.Node;
 import org.openide.nodes.Node.Cookie;
@@ -385,26 +384,23 @@ public class GroupShadow extends DataObject
      * @return  string representing a link to the given file
      */
     public static String getLinkName(FileObject fo) {
-        return fo.getPackageNameExt('/', '.');
+        return fo.getPath();
     }
 
     /**
      * Finds a <code>DataObject</code> for a given file name.
      * Lookup for a file having the specified file name is performed
-     * in all mounted filesystems, using method
-     * {@link org.openide.filesystems.Repository#findResource(String)}.
-     *
+     * in just one filesystem.
      * @param  filename  name of the file, relative to the filesystem it
      *                   pertains to
+     * @param ref a reference file (look in the same filesystem as this)
      * @return  the found <code>DataObject</code>, or <code>null</code>
      *          if a file having the specified name was not found
-     * @exception  org.openide.loaders.DataObjectNotFoundException
-     *             if a file having the specified name was found but
-     *             there is no <code>DataObject</code> created for it
+     * @throws IOException if there was a problem looking for the file
      */
-    static DataObject getDataObjectByName(String filename)
-            throws DataObjectNotFoundException {
-        FileObject file = Repository.getDefault().findResource(filename);
+    static DataObject getDataObjectByName(String filename, FileObject ref)
+            throws IOException {
+        FileObject file = ref.getFileSystem().findResource(filename);
         return (file != null) ? DataObject.find(file) : null;
     }
 
@@ -479,10 +475,11 @@ public class GroupShadow extends DataObject
         for (Iterator it = filenames.iterator(); it.hasNext(); ) {
             String filename = (String) it.next();
             try {
-                DataObject obj = getDataObjectByName(filename);
+                DataObject obj = getDataObjectByName(filename, getPrimaryFile());
                 set.add(obj != null ? (Object) obj
                                     : (Object) new String(filename));
-            } catch (DataObjectNotFoundException ex) {
+            } catch (IOException ex) {
+                ex.printStackTrace();
                 // can be thrown when the link is not recognized by any data loader
                 // in this case I can't help so ignore it
             }

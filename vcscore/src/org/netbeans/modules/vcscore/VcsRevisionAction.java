@@ -272,7 +272,7 @@ public class VcsRevisionAction extends NodeAction implements ActionListener, Run
         RevisionItem[] items = (RevisionItem[]) selectedRevisionItems.toArray(new RevisionItem[0]);
         Table files = new Table();
         String mimeType = fo.getMIMEType();
-        String fileName = fo.getPackageNameExt('/', '.');
+        String fileName = fo.getPath();
         files.put(fileName, fo);
         Hashtable additionalVars = new Hashtable();
         if (mimeType != null) additionalVars.put("MIMETYPE", mimeType); // NOI18N

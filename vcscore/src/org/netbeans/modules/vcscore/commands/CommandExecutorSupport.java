@@ -126,7 +126,7 @@ public class CommandExecutorSupport extends Object {
         String ignoredFileStatus = org.netbeans.modules.vcscore.caching.VcsCacheFile.STATUS_IGNORED;
         for (Iterator filesIt = getAllFilesAssociatedWith(fileSystem, processedFiles).iterator(); filesIt.hasNext(); ) {
             org.openide.filesystems.FileObject fo = (org.openide.filesystems.FileObject) filesIt.next();
-            String name = fo.getPackageNameExt('/', '.');
+            String name = fo.getPath();
             if (!fileSystem.isImportant(name)) {
                 if (statusProvider != null) {
                     String status = statusProvider.getFileStatus(name);

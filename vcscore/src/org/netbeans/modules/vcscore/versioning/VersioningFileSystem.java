@@ -357,7 +357,7 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         FileObject fo = null;
         while (enum.hasMoreElements()) {
             FileObject obj = (FileObject) enum.nextElement();
-            if (name.equals(obj.getPackageNameExt('/', '.'))) {
+            if (name.equals(obj.getPath())) {
                 fo = obj;
                 break;
             }
@@ -382,7 +382,7 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         String name = (hasNext) ? (String) namesIt.next() : null;
         while (enum.hasMoreElements() && hasNext) {
             FileObject obj = (FileObject) enum.nextElement();
-            if (name.equals(obj.getPackageNameExt('/', '.'))) {
+            if (name.equals(obj.getPath())) {
                 fos.add(obj);
                 hasNext = namesIt.hasNext();
                 if (hasNext) {

@@ -33,7 +33,6 @@ import java.util.regex.PatternSyntaxException;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileSystemCapability;
 import org.openide.filesystems.FileStatusEvent;
 import org.openide.filesystems.FileStatusListener;
 import org.openide.util.NbBundle;

@@ -80,7 +80,7 @@ Microsystems, Inc. All Rights Reserved.
     </ant>
   </target>
 
-  <target name="clean" depends="init">
+  <target name="clean" depends="init" description="Clean build products.">
     <delete>
       <fileset dir="src">
         <include name="**/*.class"/>

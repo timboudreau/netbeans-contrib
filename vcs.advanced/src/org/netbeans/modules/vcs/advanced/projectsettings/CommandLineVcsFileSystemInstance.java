@@ -147,10 +147,6 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 new PropertyDescriptor("VFSShowUnimportantFiles", CommandLineVcsFileSystem.class, "getVFSShowUnimportantFiles", "setVFSShowUnimportantFiles"), //NOI18N
                 new PropertyDescriptor("VFSShowGarbageFiles", CommandLineVcsFileSystem.class, "getVFSShowGarbageFiles", "setVFSShowGarbageFiles"), //NOI18N
                 new PropertyDescriptor("VFSShowDeadFiles", CommandLineVcsFileSystem.class, "getVFSShowDeadFiles", "setVFSShowDeadFiles"), // NOI18N
-                new PropertyDescriptor("CapableCompile", CommandLineVcsFileSystem.class, "getCapableCompile", "setCapableCompile"), // NOI18N
-                new PropertyDescriptor("CapableDebug", CommandLineVcsFileSystem.class, "getCapableDebug", "setCapableDebug"), // NOI18N
-                new PropertyDescriptor("CapableDoc", CommandLineVcsFileSystem.class, "getCapableDoc", "setCapableDoc"), // NOI18N
-                new PropertyDescriptor("CapableExecute", CommandLineVcsFileSystem.class, "getCapableExecute", "setCapableExecute") // NOI18N
                 
             };
         } catch (java.beans.IntrospectionException iexc) {

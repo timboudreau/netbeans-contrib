@@ -126,7 +126,7 @@ public class RevisionEditorSupport extends CloneableEditorSupport implements Edi
     protected String messageOpening () {
         return NbBundle.getMessage (RevisionEditorSupport.class , "CTL_ObjectOpen", // NOI18N
             obj.getNameExt(),
-            obj.getPackageNameExt('/', '.'),
+            obj.getPath(), // XXX use full file path instead
             revision
         );
     }
@@ -138,7 +138,7 @@ public class RevisionEditorSupport extends CloneableEditorSupport implements Edi
     protected String messageOpened () {
         return NbBundle.getMessage (RevisionEditorSupport.class, "CTL_ObjectOpened", // NOI18N
             obj.getNameExt(),
-            obj.getPackageNameExt('/', '.'),
+            obj.getPath(), // XXX use full file path instead
             revision
         );
     }
@@ -197,7 +197,7 @@ public class RevisionEditorSupport extends CloneableEditorSupport implements Edi
         // update tooltip
         return NbBundle.getMessage (RevisionEditorSupport.class, "LAB_RevisionEditorToolTip", new Object[] {
             obj.getNameExt(),
-            obj.getPackageNameExt('/', '.'),
+            obj.getPath(), // XXX use full file path instead
             revision
         });
         /*
@@ -248,9 +248,13 @@ public class RevisionEditorSupport extends CloneableEditorSupport implements Edi
         StyledDocument doc = super.createStyledDocument (kit);
             
         // set document name property
-        doc.putProperty(javax.swing.text.Document.TitleProperty,
-            obj.getPackageNameExt('/', '.')
-        );
+        try {
+            doc.putProperty(javax.swing.text.Document.TitleProperty,
+                obj.getURL().toExternalForm()
+            );
+        } catch (FileStateInvalidException e) {
+            ErrorManager.getDefault().notify(e);
+        }
         /* set dataobject to stream desc property
         doc.putProperty(javax.swing.text.Document.StreamDescriptionProperty,
             obj
@@ -309,7 +313,7 @@ public class RevisionEditorSupport extends CloneableEditorSupport implements Edi
         */
         public InputStream inputStream() throws IOException {
             InputStream is = ((VersioningFileSystem) fileObject.getFileSystem()).
-                getVersions().inputStream(fileObject.getPackageNameExt('/', '.'), revision);
+                getVersions().inputStream(fileObject.getPath(), revision);
             return is;
         }
         

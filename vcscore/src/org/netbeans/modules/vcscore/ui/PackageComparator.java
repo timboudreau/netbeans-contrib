@@ -37,13 +37,15 @@ public class PackageComparator implements TableInfoComparator {
     public int compare(java.lang.Object obj, java.lang.Object obj1) {
         FileObject fo = (FileObject)obj;
         FileObject fo1 = (FileObject)obj1;
-        return fo.getPackageName('/').compareTo(fo1.getPackageName('/'));
+        // XXX was getPackageName('/'), is this OK?
+        return fo.getPath().compareTo(fo1.getPath());
     }
     
     public String getDisplayValue(Object obj, Object rowObject) {
         if (obj != null) {
             FileObject fo = (FileObject)obj;
-            return fo.getPackageName('/');
+            // XXX was getPackageName('/'), is this OK?
+            return fo.getPath();
         }
         return "";
     }

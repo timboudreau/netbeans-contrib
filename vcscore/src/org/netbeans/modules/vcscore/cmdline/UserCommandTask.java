@@ -165,7 +165,11 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         String path = null;
         FileObject[] fos = cmd.getFiles();
         if (fos != null && fos.length > 0) {
-            path = fos[0].getPackageName('/');
+            path = fos[0].getPath();
+            int i = path.lastIndexOf('.');
+            if (i != -1 && i > path.lastIndexOf('/')) {
+                path = path.substring(0, i);
+            }
         } else {
             File[] diskFiles = cmd.getDiskFiles();
             if (diskFiles != null && diskFiles.length > 0) {

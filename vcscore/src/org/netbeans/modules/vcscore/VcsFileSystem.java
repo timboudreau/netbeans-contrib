@@ -1200,7 +1200,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         int i = 0;
         while (enum.hasMoreElements() && i < n) {
             FileObject obj = (FileObject) enum.nextElement();
-            String name = obj.getPackageNameExt('/', '.');
+            String name = obj.getPath();
             if (names.contains(name)) {
                 fos.add(obj);
                 i++;
@@ -1219,7 +1219,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         FileObject fo = null;
         while (enum.hasMoreElements()) {
             FileObject obj = (FileObject) enum.nextElement();
-            if (name.equals(obj.getPackageNameExt('/', '.'))) {
+            if (name.equals(obj.getPath())) {
                 fo = obj;
                 break;
             }
@@ -1247,8 +1247,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             String attr = (String) fo.getAttribute(VcsAttributes.VCS_SCHEDULED_FILE_ATTR);
             //System.out.println("attr("+VcsAttributes.VCS_SCHEDULED_FILE_ATTR+") = "+attr);
             if (VcsAttributes.VCS_SCHEDULING_ADD.equals(attr) && scheduledStatusAdd != null &&
-                !scheduledStatusAdd.equals(status.getFileStatus(fo.getPackageNameExt('/', '.'))) &&
-                isSchedulingDone(fo.getPackageNameExt('/', '.'))) {
+                !scheduledStatusAdd.equals(status.getFileStatus(fo.getPath())) &&
+                isSchedulingDone(fo.getPath())) {
                 try {
                     fo.setAttribute(VcsAttributes.VCS_SCHEDULED_FILE_ATTR, null);
                 } catch (IOException exc) {}
@@ -1281,7 +1281,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         FileObject primary = dobj.getPrimaryFile();
         Set[] scheduled = (Set[]) primary.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
         if (scheduled != null && scheduled[id] != null) {
-            scheduled[id].remove(fo.getPackageNameExt('/', '.'));
+            scheduled[id].remove(fo.getPath());
             scheduled = cleanScheduledAttrs(scheduled);
             try {
                 primary.setAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR, scheduled);
@@ -2357,7 +2357,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         String status;
         if (statusProvider != null) {
             fo = convertForeignFileObjectToMyFileObject(fo);
-            String fullName = fo.getPackageNameExt('/','.');
+            String fullName = fo.getPath();
             status = statusProvider.getFileStatus(fullName).trim();
         } else status = "";
         return status;
@@ -2376,7 +2376,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             for (int i = 0; i < len; i++) {
                 oo[i] = convertForeignFileObjectToMyFileObject((FileObject) oo[i]);
             }
-            if (len == 1) return RefreshCommandSupport.getStatusAnnotation("", ((FileObject) oo[0]).getPackageNameExt('/', '.'),
+            if (len == 1) return RefreshCommandSupport.getStatusAnnotation("", ((FileObject) oo[0]).getPath(),
                                                                            "${"+RefreshCommandSupport.ANNOTATION_PATTERN_STATUS+"}", statusProvider);
             else          return RefreshCommandSupport.getStatusAnnotation("", getImportantFiles(oo),
                                                                            "${"+RefreshCommandSupport.ANNOTATION_PATTERN_STATUS+"}", statusProvider,
@@ -2401,7 +2401,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
             if (len == 1) {
                 return new String[] {
-                    getRealStatus(((FileObject) oo[0]).getPackageNameExt('/', '.'))
+                    getRealStatus(((FileObject) oo[0]).getPath())
                 };
             } else {
                 ArrayList importantFiles = getImportantFiles(oo);
@@ -2526,7 +2526,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public String getLocker(FileObject fo) {
         String locker;
         if (statusProvider != null) {
-            String fullName = fo.getPackageNameExt('/','.');
+            String fullName = fo.getPath();
             locker = statusProvider.getFileLocker(fullName).trim();
         } else locker = "";
         return locker;
@@ -2725,7 +2725,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
             //System.out.println(" isFromThisFs = "+isFromThisFs);
             if (isFromThisFs) {
-                String fullName = ff.getPackageNameExt('/','.');
+                String fullName = ff.getPath();
                 //System.out.println(" fullName = "+fullName+", isImportant = "+isImportant(fullName));
                 if (processAll || isImportant(fullName)) {
                     result.add(fullName);
@@ -2733,7 +2733,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             } else {
                 try {
                     if (ff.getFileSystem() instanceof VersioningFileSystem) {
-                        String fullName = ff.getPackageNameExt('/','.');
+                        String fullName = ff.getPath();
                         result.add(fullName);
                     }
                 } catch (FileStateInvalidException exc) {}
@@ -2977,14 +2977,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public boolean isReadOnly() {
         //D.deb("isReadOnly() ->"+readOnly); // NOI18N
         return readOnly;
-    }
-
-    /** Prepare environment by adding the root directory of the file system to the class path.
-     * @param environment the environment to add to
-     */
-    public void prepareEnvironment(FileSystem.Environment environment) {
-        D.deb("prepareEnvironment() ->"+rootFile.toString()); // NOI18N
-        environment.addClassPath(rootFile.toString ());
     }
 
     /** Compute the system name of this file system for a given root directory.
@@ -3557,7 +3549,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     if (!first.equals(fo)) break;
                 }
             }
-            String name = fo.getPackageNameExt('/', '.');
+            String name = fo.getPath();
             //System.out.println("refreshResource("+name+")");
             refreshResource(name, true);
         }

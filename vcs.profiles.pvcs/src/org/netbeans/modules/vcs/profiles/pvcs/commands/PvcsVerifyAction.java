@@ -108,12 +108,12 @@ public class PvcsVerifyAction extends java.lang.Object implements VcsAdditionalC
         } else {
             for (Iterator it = fos.iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
-                if (!fileSystem.getFile(fo.getPackageNameExt('/', '.')).exists()) {
+                if (!fileSystem.getFile(fo.getPath()).exists()) {
                     // File does not exist locally - same behavior as whan it was not changed locally:
                     uptoDateFiles.add(fo);
                     continue;
                 }
-                String file = fo.getPackageNameExt('/', '.');
+                String file = fo.getPath();
                 String status = statusProvider.getFileStatus(file);
                 if (statusProvider.getLocalFileStatus().equals(status)) {
                     localFiles.add(fo);
@@ -235,7 +235,7 @@ public class PvcsVerifyAction extends java.lang.Object implements VcsAdditionalC
         for (Iterator it = dobj.files().iterator(); it.hasNext(); ) {
             FileObject fo = (FileObject) it.next();
             if (!fileSystem.isProcessUnimportantFiles() &&
-                !fileSystem.isImportant(fo.getPackageNameExt('/', '.'))) continue;
+                !fileSystem.isImportant(fo.getPath())) continue;
             String foStatus;
             if (uptoDateFiles.contains(fo)) {
                 foStatus = UP_TO_DATE;
@@ -325,7 +325,7 @@ public class PvcsVerifyAction extends java.lang.Object implements VcsAdditionalC
                 Table files = new Table();
                 for (Iterator it = foList.iterator(); it.hasNext(); ) {
                     FileObject file = (FileObject) it.next();
-                    files.put(file.getPackageNameExt('/', '.'), file);
+                    files.put(file.getPath(), file);
                 }
                 VcsAction.doCommand(files, lock, null, fileSystem);
             }

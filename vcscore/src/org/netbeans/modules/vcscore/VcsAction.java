@@ -882,7 +882,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
             FileObject ff = (FileObject) it.next();
             try {
                 if (ff.getFileSystem() instanceof VersioningFileSystem) {
-                    res.put(ff.getPackageNameExt('/', '.'), ff);
+                    res.put(ff.getPath(), ff);
                     continue;
                 }
                 if (!doNotTestFS && ff.getFileSystem() != fileSystem)
@@ -890,7 +890,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
             } catch (FileStateInvalidException exc) {
                 continue;
             }
-            String fileName = ff.getPackageNameExt('/','.');
+            String fileName = ff.getPath();
             //VcsFile file = fileSystem.getCache().getFile(fileName);
             //D.deb("file = "+file+" for "+fileName);
             //if (file == null || file.isImportant()) {
@@ -1501,6 +1501,15 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
         performVcsCommand(cmd, fileSystem, fileObjects, isExpert, null);
     }
 
+    private static String getPackageNameSlashes(FileObject fo) {
+        String path = fo.getPath();
+        int i = path.lastIndexOf('.');
+        if (i != -1 && i > path.lastIndexOf('/')) {
+            path = path.substring(0, i);
+        }
+        return path;
+    }
+
     /**
      * Perform the specified VCS command on a collection of FileObjects.
      * Can handle also LIST and LIST_SUB commands.
@@ -1519,7 +1528,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
             for (Iterator it = files.values().iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
                 if (fo == null) continue;
-                String path = fo.getPackageName('/');
+                String path = getPackageNameSlashes(fo);
                 if (!paths.contains(path)) {
                     doList(fileSystem, path);
                     paths.add(path);
@@ -1531,7 +1540,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
             for (Iterator it = files.values().iterator(); it.hasNext(); ) {
                 FileObject fo = (FileObject) it.next();
                 if (fo == null) continue;
-                String path = fo.getPackageName('/');
+                String path = getPackageNameSlashes(fo);
                 if (!paths.contains(path)) {
                     CommandExecutorSupport.doRefresh(fileSystem, path, true);
                     paths.add(path);

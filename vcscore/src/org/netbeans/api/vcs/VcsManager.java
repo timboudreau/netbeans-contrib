@@ -233,7 +233,7 @@ public class VcsManager extends Object {
     public FileStatusInfo getFileStatus(FileObject file) {
         VcsStatusProvider status = VcsStatusProvider.findProvider(file);
         if (status != null) {
-            return status.getStatus(file.getPackageNameExt('/', '.'));
+            return status.getStatus(file.getPath());
         } else {
             return null;
         }

@@ -31,7 +31,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.NbBundle;
@@ -159,8 +158,8 @@ class ErrorNode extends AbstractNode {
             String folder = linkName.substring(0, index);
             DataObject dobj;
             try {
-                dobj = GroupShadow.getDataObjectByName(folder);
-            } catch (DataObjectNotFoundException ex) {
+                dobj = GroupShadow.getDataObjectByName(folder, group.getPrimaryFile());
+            } catch (IOException ex) {
                 return;
             }
             if (dobj == null) {

@@ -51,7 +51,7 @@ public class RevisionEvent extends ChangeEvent {
     public String getFilePath() {
         Object fileObject = getSource();
         if (fileObject instanceof org.openide.filesystems.FileObject) {
-            return ((org.openide.filesystems.FileObject) fileObject).getPackageNameExt('/', '.');
+            return ((org.openide.filesystems.FileObject) fileObject).getPath();
         }
         /*
         if (fileObject instanceof org.netbeans.modules.vcscore.versioning.VcsFileObject) {

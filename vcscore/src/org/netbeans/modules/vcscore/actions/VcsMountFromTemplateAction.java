@@ -35,7 +35,6 @@ import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.explorer.view.MenuView;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileSystemCapability;
 import org.openide.loaders.*;
 import org.openide.nodes.*;
 import org.openide.util.Mutex;
@@ -303,7 +302,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
                         try {
                             bundleName = org.openide.util.Utilities.translate(bundleName);
                             ResourceBundle b = NbBundle.getBundle (bundleName, Locale.getDefault (),(ClassLoader)Lookup.getDefault().lookup(ClassLoader.class));
-                            mnemonic = b.getString (fo.getPackageNameExt ('/', '.') + "_m"); // NOI18N
+                            mnemonic = b.getString (fo.getPath() + "_m"); // NOI18N
                         } catch (MissingResourceException ex) {
                             // ignore--normal
                         }
