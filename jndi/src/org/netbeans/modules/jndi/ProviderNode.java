@@ -183,7 +183,7 @@ public class ProviderNode extends AbstractNode implements Cookie{
      */
     public void testProvider () {
         try{
-            Class.forName(this.name, true, TopManager.getDefault().currentClassLoader());
+            Class.forName(this.name, true, new org.openide.execution.NbClassLoader());
             this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DRIVER));
             this.fireIconChange ();
             TopManager.getDefault().notify( new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("MSG_CLASS_FOUND"), NotifyDescriptor.Message.INFORMATION_MESSAGE));

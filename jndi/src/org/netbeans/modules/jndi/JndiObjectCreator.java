@@ -147,8 +147,12 @@ final class JndiObjectCreator {
         Enumeration keys = env.keys();
         Enumeration values = env.elements();
         while (keys.hasMoreElements()) {
-            String name = correctValue((String)keys.nextElement(),true);
-            String value= correctValue((String)values.nextElement(),true);
+			Object key = keys.nextElement ();
+			Object val = values.nextElement();
+			if (!(key instanceof String) || !(val instanceof String))
+				continue;
+            String name = correctValue((String)key,true);
+            String value= correctValue((String)val,true);
             if (name.equals(JndiRootNode.NB_ROOT) ||
                     name.equals(JndiRootNode.NB_LABEL)) {
                 continue;

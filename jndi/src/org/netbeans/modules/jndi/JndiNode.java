@@ -176,7 +176,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
      *  @return Hashtable properties;
      */
     public Hashtable getInitialDirContextProperties () throws NamingException {
-        return ( (JndiChildren) this.getChildren () ).getContext () .getEnvironment ();
+        return ((JndiChildren)this.getChildren()).getContext ().getEnvironment ();
     }
 
 

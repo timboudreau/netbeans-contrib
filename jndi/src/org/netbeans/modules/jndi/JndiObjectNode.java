@@ -114,8 +114,12 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
             Enumeration keys =	this.getContext().getEnvironment ().keys();
             Enumeration elements =this.getContext().getEnvironment ().elements ();
             while (keys.hasMoreElements()){
-                String key = (String)keys.nextElement();
-                String value = (String)elements.nextElement();
+                Object rawKey = keys.nextElement();
+                Object rawValue = elements.nextElement();
+				if (!(rawKey instanceof String))
+					continue;
+				String key = (String) rawKey;
+				String value = (rawValue instanceof String)? (String) rawValue : rawValue.toString();
                 if (key.equals(JndiRootNode.NB_ROOT)){
                     if (value.length()>0){
                         sheet.get (Sheet.PROPERTIES).put (

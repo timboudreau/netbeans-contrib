@@ -331,6 +331,10 @@ public final class JndiRootNode extends AbstractNode{
     public static void notifyForeignException(Throwable t) {
 
         String msg;
+		//DEBUG{BEGIN}
+		System.out.println ("TLAMA");
+		t.printStackTrace(System.out);
+		//DEBUG{END}
 
         if ((t.getMessage() == null) ||
                 t.getMessage().equals("")) {
