@@ -21,17 +21,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.EventListener;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -578,9 +568,20 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                                                       cmdCanRunOnMultipleFiles,
                                                       cmdCanRunOnMultipleFilesInFolder);
             }
-            for (Iterator it = subFiles.keySet().iterator(); it.hasNext(); ) {
-                files.remove(it.next());
+
+            if (files == subFiles) {
+                files.clear();
+            } else {
+                synchronized(subFiles) {
+                    Set keys = subFiles.keySet();
+                    synchronized(keys) {
+                        for (Iterator it = keys.iterator(); it.hasNext(); ) {
+                            files.remove(it.next());
+                        }
+                    }
+                }
             }
+
             // If there is no customizer, so let's continue with the rest of the files
             if (files.size() > 0 && lastCmd != null) {
                 VcsDescribedCommand nextCmd = createNextCommand(files, lastCmd);
@@ -808,8 +809,18 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                                                               cmdCanRunOnMultipleFiles,
                                                               cmdCanRunOnMultipleFilesInFolder);
                     }
-                    for (Iterator it = subFiles.keySet().iterator(); it.hasNext(); ) {
-                        files.remove(it.next());
+
+                    if (files == subFiles) {
+                        files.clear();
+                    } else {
+                        synchronized(subFiles) {
+                            Set keys = subFiles.keySet();
+                            synchronized(keys) {
+                                for (Iterator it = keys.iterator(); it.hasNext(); ) {
+                                    files.remove(it.next());
+                                }
+                            }
+                        }
                     }
                     // I'm customized, but I have to setup commands for the rest of the files.
                     if (files.size() > 0 && lastCmd != null) {
