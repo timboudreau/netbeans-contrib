@@ -415,9 +415,10 @@ public abstract class TaskListView extends TopComponent
     }
 
 
-    /** Called when the object is opened. Add the GUI.
-     @todo Trigger source listening on window getting VISIBLE instead
-     of getting opened.
+    /** 
+     * Called when the object is opened. Add the GUI.
+     * @todo Trigger source listening on window getting VISIBLE instead
+     * of getting opened.
      */
     protected void componentOpened() {
         // Register listeners, such as the editor support bridge module
@@ -653,13 +654,15 @@ public abstract class TaskListView extends TopComponent
         return treeTable.getTable();
     }
 
-    /** Read in a serialized version of the tasklist
+    /** 
+     * Read in a serialized version of the tasklist
      * and reads in sorting preferences etc. such that
      * we use the same preferences now.
      * @param objectInput object stream to read from
      * @todo Use a more robust serialization format (not int uid based)
      * @throws IOException
-     * @throws ClassNotFoundException  */
+     * @throws ClassNotFoundException  
+     */
     public void readExternal(ObjectInput objectInput) throws IOException, java.lang.ClassNotFoundException {
         // Don't call super!
         // See writeExternal for justification
@@ -777,12 +780,14 @@ for (int i = 0; i < columns.length; i++) {
         }
     }
 
-    /** Write out relevant settings in the window (visible
+    /** 
+     * Write out relevant settings in the window (visible
      * columns, sorting order, etc.) such that they can
      * be reconstructed the next time the IDE is started.
      * @todo Use a more robust serialization format (not int uid based)
      * @param objectOutput Object stream to write to
-     * @throws IOException  */
+     * @throws IOException  
+     */
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
         if (!persistent) {
             ErrorManager.getDefault().log(
@@ -991,16 +996,17 @@ for (int i = 0; i < columns.length; i++) {
         return listeners;
     }
 
-    /** Locate all tasklist listeners and add them to our property
-     change listener setup.
-     @todo Decide whether to unregister and reregister repeatedly;
-     this has the advantage of working with dynamic module
-     installs/uninstalls.
-     @todo Consider using a lookup listener such that I'm notified of
-     later additions/removals
-     @todo Consider doing a factory lookup instead of creating a new
-     instance each time. Would allow better coordination between
-     the listener instance and ScanView in the editor package.
+    /** 
+     * Locate all tasklist listeners and add them to our property
+     * change listener setup.
+     * @todo Decide whether to unregister and reregister repeatedly;
+     * this has the advantage of working with dynamic module
+     * installs/uninstalls.
+     * @todo Consider using a lookup listener such that I'm notified of
+     * later additions/removals
+     * @todo Consider doing a factory lookup instead of creating a new
+     * instance each time. Would allow better coordination between
+     * the listener instance and ScanView in the editor package.
      */
     void registerListeners() {
         // TODO Ensure that this doesn't get called from other windows...

@@ -32,7 +32,7 @@ import org.openide.util.NbBundle;
  * @author Tor Norbye
  * @author Tim Lebedkov
  */
-public class TaskList implements ObservableList, TaskListener { // XXX remove the publicness.
+public class TaskList implements ObservableList, TaskListener {
 
     // List category
     public final static String USER_CATEGORY = "usertasks"; // NOI18N

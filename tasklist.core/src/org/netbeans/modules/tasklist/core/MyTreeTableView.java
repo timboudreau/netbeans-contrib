@@ -61,7 +61,6 @@ table.setGridColor((java.awt.Color)javax.swing.UIManager.getDefaults().get("Labe
     }
     
     public TableModel getModel() {
-        // XXX it's private: return tableModel;
         return (TableModel) treeTable.getModel();
     }
     

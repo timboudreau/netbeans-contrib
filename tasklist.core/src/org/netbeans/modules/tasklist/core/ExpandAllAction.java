@@ -17,14 +17,14 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
 
-/** Expand all tasks containing subtasks in the tasklist
- * @author Tor Norbye */
+/** 
+ * Expand all tasks containing subtasks in the tasklist
+ *
+ * @author Tor Norbye 
+ */
 public class ExpandAllAction extends CallableSystemAction {
-    
-    /** Do the actual expansion
-	@todo Make this thing work from a context menu (such that
-	      it acts on the right list. Alternatively, make it
-	      expand ALL lists.
+    /** 
+     * Do the actual expansion
      */    
     public void performAction() {
         TaskListView view = TaskListView.getCurrent();
@@ -33,18 +33,11 @@ public class ExpandAllAction extends CallableSystemAction {
 	}
     }
     
-    /** Return name of the action, as shown in menus etc. */    
     public String getName() {
         return NbBundle.getMessage(ExpandAllAction.class, 
                                    "LBL_ExpandAll"); // NOI18N
     }
 
-    /*
-    protected String iconResource() {
-        return "org/netbeans/modules/tasklist/core/task.gif"; // NOI18N
-    }
-    */
-    
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
         // If you will provide context help then use:

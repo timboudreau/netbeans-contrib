@@ -138,13 +138,15 @@ public class UserTaskView extends TaskListView implements TaskListener {
         ((UserTask) getModel().getRoot()).updateLineNumberRecursively();
     }
     
-    /** Read in a serialized version of the tasklist
+    /** 
+     * Read in a serialized version of the tasklist
      * and reads in sorting preferences etc. such that
      * we use the same preferences now.
      * @param objectInput object stream to read from
      * @todo Use a more robust serialization format (not int uid based)
      * @throws IOException
-     * @throws ClassNotFoundException  */    
+     * @throws ClassNotFoundException  
+     */    
     public void readExternal(ObjectInput objectInput) throws IOException, java.lang.ClassNotFoundException {
         super.readExternal(objectInput);
 	int ver = objectInput.read();
@@ -234,8 +236,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
             // When adding more columns here, also remember to go to the 
             // constructor and add a column width setting 
             // (setTableColumnPreferredWidth)
-
-            // TODO move to end!
         };
     };
 

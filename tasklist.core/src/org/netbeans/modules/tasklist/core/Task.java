@@ -273,10 +273,14 @@ public class Task extends Suggestion implements Cloneable {
         }
     }
 
-    /** Return the display name of the task, which is identical
+    /** 
+     * Return the display name of the task, which is identical
      * to the summary.
+     *
      * @return The description
-     * @todo Decide if this method is necessary/used or not. */    
+     * @deprecated use getSummary()
+     * @todo Decide if this method is necessary/used or not. 
+     */    
     public String getDisplayName() {
         return getSummary();
     }
@@ -420,159 +424,6 @@ public class Task extends Suggestion implements Cloneable {
         updatedStructure();
     }
     
-
-   /** Add a list of subtasks to this task. 
-    * @param subtasks The tasks to add
-    * @param append When true, append to the list, otherwise prepend
-    */
-    /* OLD implementation which used a "hack" to be able to render
-       nodes as leaf nodes, even though they can later become non-leaf
-       when subtasks are added. I did this by recreating the parent node.
-       That has some unfortunate side effects (like collapsing the parent
-       node) which became a problem elsewhere; but luckily there's a new
-       API in NB 4.0 I can take advantage of to fix this. But keep this code
-       around so I can get 3.4 limping along as well in the release34 branch.
-    public void addSubtasks(List tasks, boolean append) { // XXX remove publicness
-	ListIterator it = tasks.listIterator();
-	while (it.hasNext()) {
-	    Task task = (Task)it.next();
-	    task.list = list;
-            task.parent = this;
-	}
-
-	if (subtasks == null) {
-	    // uh oh, we're adding tasks for the first time to a 
-	    // "leaf" task; do some trickery to change the parent node
-
-	    // yuck yuck yuck.... okay, duplicate the code here,
-	    // then try to prune it when NetBeans 4.0 gets the feature
-	    // (oh, and add the bug id here with a TODO!)
-            subtasks = new LinkedList();
-            if (parent == null) {
-                // MUST be the root node....
-		if (append) {
-		    subtasks.addAll(tasks);
-		} else {
-		    subtasks.addAll(0, tasks);
-		}
-		if (!silentUpdate) {
-		    supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-		}
-                return;
-            }
-            // Parent is a leaf node (well, it might be a container
-            // node which has had all its children removed, but that's
-            // okay, the following will work)
-            // Since we can't change the children object, we need
-            // to recreate the node completely.
-            List l = parent.getSubtasks();
-            int pos = l.indexOf(this);
-            // NEEDS14 assert pos != -1 : "parent " + parent +
-	    //  " does not contain item " + item;
-            parent.subtasks.remove(this);
-            
-            // XXX for some reason, this is necessary here
-            // Is this necessary to get nodes etc. disassociated and
-            // get rid of the old?
-            if (!silentUpdate) {
-                parent.supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-            }
-            // append: subtasks.add(subtask);
-	    if (append) {
-		subtasks.addAll(tasks);
-	    } else {
-		subtasks.addAll(0, tasks);
-	    }
-            parent.subtasks.add(pos, this);
-            if (!silentUpdate) {
-                parent.supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-                supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-                updatedStructure();
-            }
-	} else {
-	    if (append) {
-		subtasks.addAll(tasks);
-	    } else {
-		subtasks.addAll(0, tasks);
-	    }
-            if (!silentUpdate) {
-                supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-            }
-	}
-    }
-    */
-    
-   /** Convert a particular node from being a leaf to being
-     * a container node.  The only way to do that now is to
-     * delete the item, and recreate it */
-    /* OLD implementation which used a "hack" to be able to render
-       nodes as leaf nodes, even though they can later become non-leaf
-       when subtasks are added. I did this by recreating the parent node.
-       That has some unfortunate side effects (like collapsing the parent
-       node) which became a problem elsewhere; but luckily there's a new
-       API in NB 4.0 I can take advantage of to fix this. But keep this code
-       around so I can get 3.4 limping along as well in the release34 branch.
-    public void addSubtask(Task subtask, boolean append) { // XXX remove publicness
-	subtask.list = list;
-        subtask.parent = this;
-        if (subtasks != null) {
-            // Parent already has subtasks - just do a normal add
-            if (append) {
-               subtasks.addLast(subtask);
-            } else {
-               subtasks.addFirst(subtask);
-            }
-            if (!silentUpdate) {
-                supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-            }
-        } else {
-            subtasks = new LinkedList();
-            if (parent == null) {
-                // MUST be the root node....
-                // append: subtasks.add(subtask);
-                if (append) {
-                   subtasks.addLast(subtask);
-                } else {
-                   subtasks.addFirst(subtask);
-                }
-                if (!silentUpdate) {
-                    supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-                }
-                return;
-            }
-            // Parent is a leaf node (well, it might be a container
-            // node which has had all its children removed, but that's
-            // okay, the following will work)
-            // Since we can't change the children object, we need
-            // to recreate the node completely.
-            List l = parent.getSubtasks();
-            int pos = l.indexOf(this);
-            // NEEDS14 assert pos != -1 : "parent " + parent +
-	    //  " does not contain item " + item;
-            parent.subtasks.remove(this);
-            
-            // XXX for some reason, this is necessary here
-            // Is this necessary to get nodes etc. disassociated and
-            // get rid of the old?
-            if (!silentUpdate) {
-                parent.supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-            }
-            // append: subtasks.add(subtask);
-            if (append) {
-                subtasks.addLast(subtask);
-            } else {
-                subtasks.addFirst(subtask);
-            }
-            parent.subtasks.add(pos, this);
-            if (!silentUpdate && !subtask.silentUpdate) {
-                parent.supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-                supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
-                updatedStructure();
-            }
-        }
-    }
-    */    
-
     /**
      * Removes this task from the task list
      */
@@ -659,26 +510,32 @@ public class Task extends Suggestion implements Cloneable {
         return zombie;
     }
     
-    /** Write a TodoItem to a text stream. NOT DONE.
+    /** 
+     * Write a TodoItem to a text stream. NOT DONE.
      * @param item The task to write out
      * @param w The writer to write the string to
      * @throws IOException Not thrown explicitly by this code, but perhaps
      * by the call it makes to w's write() method
+     *
      * @todo Finish the implementation here such that it
      * writes out all the fields, not just the
-     * description. */
+     * description. 
+     */
     public static void generate(Task item, Writer w) throws IOException {
 	w.write(item.getSummary());
     }
 
-    /** Parse a task from a text stream.
+    /** 
+     * Parse a task from a text stream.
+     *
      * @param r The reader to read the task from
      * @throws IOException Not thrown directly by this method, but
      * possibly by r's read() method which it calls
      * @return A new task object which represents the
      * data read from the reader
      * @todo Finish the implementation
-     * @see generate */
+     * @see generate 
+     */
     public static Task parse(Reader r) throws IOException {
         LOGGER.fine("parsing");
         
@@ -732,11 +589,6 @@ public class Task extends Suggestion implements Cloneable {
             if (fireChildren) {
                 getList().notifyStructureChanged(this);
             }
-
-            // XXX it should be deteced by list internally
-//            if (save && (list != null)) {
-//                list.markChanged();
-//            }
         }
     }
 

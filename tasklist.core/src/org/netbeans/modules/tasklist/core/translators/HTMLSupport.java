@@ -193,11 +193,6 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
     }
     
     private void exportHTML() throws IOException {
-        // TODO Conditionally do expandAll first? Ask user what
-        // they want. Sometimes they may WANT the conditional
-        // exposure of subtasks as indicated by their selection in
-        // the GUI. (Need collapseAll too.)
-        
         TableColumnModel headerModel = view.getColumnModel();
 
         // Based on Konqueror's output (KDE2's calendar app) 

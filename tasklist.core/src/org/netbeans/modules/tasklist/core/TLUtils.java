@@ -50,8 +50,6 @@ import org.openide.windows.WindowManager;
 /** 
  * Various utility methods shared by the various tasklist related modules
  *
- ** TODO - use this method everywhere!!!
- *
  * @author Tor Norbye 
  */
 public final class TLUtils {
@@ -70,7 +68,6 @@ public final class TLUtils {
             if (lc != null) {
                 Line.Set ls = lc.getLineSet();
                 if (ls != null) {
-                    // XXX HACK
                     // I'm subtracting 1 because empirically I've discovered
                     // that the editor highlights whatever line I ask for plus 1
                     Line l = ls.getCurrent(lineno-1);

@@ -18,7 +18,7 @@ Microsystems, Inc. All Rights Reserved.
     description_key='HINT_TASK'
     localizing_bundle='org.netbeans.modules.tasklist.core.Bundle'
     visible='true' 
-    glyph='nbresloc:org/netbeans/modules/tasklist/editor/taskGlyph.gif'
+    glyph='nbresloc:org/netbeans/modules/tasklist/editor/editorTask.gif'
     highlight='0xFBE564'
     type='line'
     actions='TaskAnnotationActions'

@@ -151,11 +151,7 @@ public class TaskNode extends AbstractNode {
 	// some better support for integrating context menus so I won't
 	// try to be too clever here...
 
-	// XXX look up and locate actions
-
         return new SystemAction[] {
-            // XXX moved to usertasks package: SystemAction.get(ShowTaskAction.class),
-		// XXX moved to editor package: SystemAction.get(GoToTaskAction.class),
             null,
             SystemAction.get(FilterAction.class),
             null,
