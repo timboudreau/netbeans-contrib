@@ -148,98 +148,48 @@ public class CvsAddVisualizer extends OutputVisualizer {
         // ignore the rest..
     }
     
-   /*     private File createFile(String fileName) {
-            File locFile = addCommand.getFileEndingWith(fileName);
-            if (locFile == null) {
-                // in case the exact match was not  achieved using the getFileEndingWith method
-                // let's try to find the best match possible.
-                // iterate from the back of the filename string and try to match the endings
-                // of getFiles(). the best match is picked then.
-                // Works ok for files and directories in add, should not probably be used
-                // elsewhere where it's possible to have recursive commands and where resulting files
-                // are not listed in getFiles()
-                String name = fileName.replace('\\', '/');
-                File[] files = addCommand.getFiles();
-                int maxLevel = name.length();
-                File bestMatch = null;
-                String[] paths = new String[files.length];
-                for (int index = 0; index < files.length; index++) {
-                    paths[index] = files[index].getAbsolutePath().replace('\\', '/');
-                }
-                int start = name.lastIndexOf('/');
-                String part = null;
-                if (start < 0) {
-                    part = name;
-                } else {
-                    part = name.substring(start + 1);
-                }
-                while (start >= 0 || part != null) {
-                    boolean wasMatch = false;
-                    for (int index = 0; index < paths.length; index++) {
-                        if (paths[index].endsWith(part)) {
-                            bestMatch = files[index];
-                            wasMatch = true;
-                        }
-                    }
-                    start = name.lastIndexOf('/', start - 1);
-                    if (start < 0 || !wasMatch) {
-                        break;
-                    }
-                    part = name.substring(start + 1);
-                }
-                return bestMatch;
-            }
-            return locFile;
-        }*/
-    
-    private File createFile(String fileName) {
-        return new File(fileName);
-       /* File locFile = addCommand.getFileEndingWith(fileName);
-        File locFile = null;
-        if (locFile == null) {
-            // in case the exact match was not  achieved using the getFileEndingWith method
-            // let's try to find the best match possible.
-            // iterate from the back of the filename string and try to match the endings
-            // of getFiles(). the best match is picked then.
-            // Works ok for files and directories in add, should not probably be used
-            // elsewhere where it's possible to have recursive commands and where resulting files
-            // are not listed in getFiles()
-            String name = fileName.replace('\\', '/');
-            //File[] files = addCommand.getFiles();
-            File[] file = new File[files.size()];
-            files.toArray(file);
-            int maxLevel = name.length();
-            File bestMatch = null;
-            String[] paths = new String[file.length];
-            for (int index = 0; index < file.length; index++) {
-                paths[index] = file[index].getAbsolutePath().replace('\\', '/');
-            }
-            int start = name.lastIndexOf('/');
-            String part = null;
-            if (start < 0) {
-                part = name;
-            } else {
-                part = name.substring(start + 1);
-            }
-            while (start >= 0 || part != null) {
-                boolean wasMatch = false;
-                for (int index = 0; index < paths.length; index++) {
-                    if (paths[index].endsWith(part)) {
-                        bestMatch = file[index];
-                        wasMatch = true;
-                    }
-                }
-                start = name.lastIndexOf('/', start - 1);
-                if (start < 0 || !wasMatch) {
-                    break;
-                }
-                part = name.substring(start + 1);
-            }
-            return bestMatch;
+    private File createFile(String fileName) {        
+        Iterator it = files.iterator();
+        while(it.hasNext()){
+            File file = new  File((String)it.next());
+            if(file.getName().equals(fileName))
+                return file;
         }
-            return locFile;*/
+        //directory name
+        String name = fileName.replace('\\', '/');        
+        int maxLevel = name.length();
+        File bestMatch = null;
+        String[] paths = new String[files.size()];
+        it = files.iterator();
+        int i = 0;
+        while(it.hasNext()){
+            paths[i++] = ((String)it.next()).replace('\\', '/');            
+        }
+        int start = name.lastIndexOf('/');
+        String part = null;
+        if (start < 0) {
+            part = name;
+        } else {
+            part = name.substring(start + 1);
+        }
+        while (start >= 0 || part != null) {
+            boolean wasMatch = false;
+            for (int index = 0; index < paths.length; index++) {
+                if (paths[index].endsWith(part)) {
+                    bestMatch = new File(paths[index]);
+                    wasMatch = true;
+                }
+            }
+            start = name.lastIndexOf('/', start - 1);
+            if (start < 0 || !wasMatch) {
+                break;
+            }
+            part = name.substring(start + 1);
+        }
+        return bestMatch;        
     }
     
+     
     private void addDirectory(String name) {
         fileInfoContainer = new AddInformation();
         fileInfoContainer.setType(AddInformation.FILE_ADDED);
