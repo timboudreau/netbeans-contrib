@@ -95,10 +95,13 @@ final class Cache {
             cache = new HashMap(1113);
         }
 
-        // eliminate very old entries
+        // eliminate very old entries and entries older than recent settings
+        long staleTime = System.currentTimeMillis() - 1000*60*60*24*17;  //17 days
+        if (Settings.getDefault().getModificationTime() > staleTime) {
+            staleTime = Settings.getDefault().getModificationTime();
+        }
 
         Iterator it = cache.entrySet().iterator();
-        long staleTime = System.currentTimeMillis() - 1000*60*60*24*17;  //17 days
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
             if (((long[])entry.getValue())[1] < staleTime) {

@@ -1,11 +1,11 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -25,17 +25,16 @@ import org.openide.util.NbBundle;
 public final class Settings extends SystemOption {
 
     /** serial uid */
-    // XXX check this one
     static final long serialVersionUID = -29424677132370773L;
 
     // Option labels
-    public static final String
-	PROP_SCAN_SKIP  	= "skipComments",	//NOI18N
-	PROP_SCAN_TAGS		= "taskTags";		//NOI18N
+    public static final String PROP_SCAN_SKIP = "skipComments";	//NOI18N
+    public static final String PROP_SCAN_TAGS = "taskTags";		//NOI18N
+    static final String PROP_MODIFICATION_TIME = "modificationTime";  // NOI18N
 
-    /** Return the signleton cppSettings */
+    /** Return the signleton */
     public static Settings getDefault() {
-	return (Settings) findObject(Settings.class, true);
+        return (Settings) findObject(Settings.class, true);
     }
 
 
@@ -44,9 +43,9 @@ public final class Settings extends SystemOption {
      *
      *  @return value of OPTION_TASK_SETTINGS_NAME
      */
-    public String displayName () {
-	return NbBundle.getMessage(Settings.class,
-				   "OPTION_TASK_SETTINGS_NAME"); //NOI18N
+    public String displayName() {
+        return NbBundle.getMessage(Settings.class,
+                "OPTION_TASK_SETTINGS_NAME"); //NOI18N
     }
 
     /*
@@ -64,35 +63,36 @@ public final class Settings extends SystemOption {
     public boolean getSkipComments() {
         // XXX I did a spectacularly poor job naming this method.
         // I never skip comments, I skip non-comments.
-        Boolean b = (Boolean)getProperty(PROP_SCAN_SKIP);
+        Boolean b = (Boolean) getProperty(PROP_SCAN_SKIP);
 
         /*
 	// Default to on
 	return (b != Boolean.FALSE);
         */
-        
-	// Default to off (null != Boolean.TRUE)
-	return (b == Boolean.TRUE);
+
+        // Default to off (null != Boolean.TRUE)
+        return (b == Boolean.TRUE);
     }
 
     /** Sets the skip-outside-of-comments property
      * @param doSkip True iff you want to skip tasks outside of comments
      */
     public void setSkipComments(boolean doSkip) {
-	Boolean b = doSkip ? Boolean.TRUE : Boolean.FALSE;
-	putProperty(PROP_SCAN_SKIP, b, true);
-	//firePropertyChange(PROP_SCAN_SKIP, null, b);	
+        Boolean b = doSkip ? Boolean.TRUE : Boolean.FALSE;
+        putProperty(PROP_SCAN_SKIP, b, true);
+        modified();
+        //firePropertyChange(PROP_SCAN_SKIP, null, b);
     }
 
 
     public TaskTags getTaskTags() {
         if (tags == null) {
-            TaskTags d = (TaskTags)getProperty(PROP_SCAN_TAGS);
+            TaskTags d = (TaskTags) getProperty(PROP_SCAN_TAGS);
             if (d != null) {
                 tags = d;
             } else {
                 tags = new TaskTags();
-                tags.setTags(new TaskTag[] {
+                tags.setTags(new TaskTag[]{
                     new TaskTag("@todo", SuggestionPriority.MEDIUM),
                     new TaskTag("TODO", SuggestionPriority.MEDIUM),
                     new TaskTag("FIXME", SuggestionPriority.MEDIUM),
@@ -102,7 +102,8 @@ public final class Settings extends SystemOption {
                     new TaskTag("<<<<<<<", SuggestionPriority.HIGH),
 
                     // Additional candidates: HACK, WORKAROUND, REMOVE, OLD
-                });;
+                });
+                ;
             }
         }
         return tags;
@@ -115,10 +116,33 @@ public final class Settings extends SystemOption {
      */
     public void setTaskTags(TaskTags scanTasks) {
         tags = scanTasks;
-	putProperty(PROP_SCAN_TAGS, tags, true);
-	//firePropertyChange(PROP_SCAN_TAGS, null, b);	
+        putProperty(PROP_SCAN_TAGS, tags, true);
+        modified();
+        //firePropertyChange(PROP_SCAN_TAGS, null, b);
     }
 
 
+    /**
+     * Last modification time is stored as hidden property.
+     */
+    public long getModificationTime() {
+        Long time = (Long) getProperty(PROP_MODIFICATION_TIME);
+        if (time == null) {
+            return 0;
+        } else {
+            return time.longValue();
+        }
+    }
 
+    /** for deserialization purposes only */
+    public void setModificationTime(long time) {
+        putProperty(PROP_MODIFICATION_TIME, new Long(time));
+    }
+
+    // update modification time
+    private void modified() {
+        if (this.isReadExternal() == false) {
+            putProperty(PROP_MODIFICATION_TIME, new Long(System.currentTimeMillis()));
+        }
+    }
 }
