@@ -3,3 +3,4 @@ vcsgeneric/src/org/netbeans/modules/vcs/advanced/config/mf-layer_XX.xml
 vcsgeneric/src/org/netbeans/modules/vcs/advanced/config/templatesGEN_VCS_FS.html
 vcsgeneric/profiles/**/Bundle.properties
 vcsgeneric/profiles/**/*_XX.xml
+vcsgeneric/profiles/cvsprofiles/src/org/netbeans/modules/vcs/profiles/cvsprofiles/config/BundleGlobal.properties
