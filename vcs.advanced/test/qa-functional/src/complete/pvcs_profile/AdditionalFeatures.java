@@ -218,10 +218,12 @@ public class AdditionalFeatures extends NbTestCase {
         defaultGroup.select();
         new Action(null, PUT).performPopup(defaultGroup);
         PutCommandOperator putCommand = new PutCommandOperator("B_File.java");
-        if (!putCommand.getChangeDescription().equals("Checked in from VCS group.\n"))
-            captureScreen("Error: Group description was not propagated into checkin dialog.");
+        String changeDescription = putCommand.getChangeDescription();
+        putCommand.setChangeDescription("Checked in from VCS group.");
         putCommand.ok();
-        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        if (!changeDescription.equals("Checked in from VCS group.\n"))
+            captureScreen("Error: Group description was not propagated into checkin dialog.");
+        Thread.sleep(2000);
         new Action(VERSIONING_MENU + "|" + VERSIONING_EXPLORER, VERSIONING_EXPLORER).perform(B_FileNode);
         VersioningFrameOperator versioningExplorer = new VersioningFrameOperator();
         filesystemNode = new Node(versioningExplorer.treeVersioningTreeView(), filesystem);
