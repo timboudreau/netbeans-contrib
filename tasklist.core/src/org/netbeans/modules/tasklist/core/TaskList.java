@@ -308,21 +308,9 @@ public class TaskList { // XXX remove the publicness
 
     /** Return a count of the number of tasks in this list. */
     public int size() {
-        return countTasks(root)-1; // Don't count root
+        return root.getSubtaskCountRecursively();
     }
 
-    private int countTasks(Task task) {
-        int count = 1; // self
-        if (task.hasSubtasks()) {
-            ListIterator it = task.getSubtasks().listIterator();
-            while (it.hasNext()) {
-                Task subtask = (Task)it.next();
-                count += countTasks(subtask);
-            }
-        }
-        return count;
-    }
-    
     /** Return the translators capable of handling this tasklist.
      * @return Array of translators that can read/write the tasklist
      */
