@@ -468,7 +468,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
 
     protected Component createCenterComponent() {
         Component c = super.createCenterComponent();
-        treeTable.setTableAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        treeTable.setTableAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         return c;
     }
     
