@@ -207,10 +207,6 @@ public final class TaskTagsPanel extends javax.swing.JPanel
         ));
         Mnemonics.setLocalizedText(deleteButton, NbBundle.getMessage(
                 TaskTagsPanel.class, "DeleteTag")); // NOI18N
-//        Mnemonics.setLocalizedText(nameLabel, NbBundle.getMessage(
-//                 TaskTagsPanel.class, "TagName")); // NOI18N
-//        Mnemonics.setLocalizedText(prioLabel, NbBundle.getMessage(
-//                 TaskTagsPanel.class, "TagPrio")); // NOI18N
         deleteButton.setToolTipText (NbBundle.getMessage (
             TaskTagsPanel.class, 
             "HINT_DeleteTag"
@@ -221,25 +217,17 @@ public final class TaskTagsPanel extends javax.swing.JPanel
             TaskTagsPanel.class, 
             "HINT_TagList"
         ));
+        tagLabel.setLabelFor(patternsTable);
+
         patternsTable.setToolTipText (NbBundle.getMessage (
             TaskTagsPanel.class, 
             "HINT_TagList"
         ));
-        
-
-//        prioLabel.setLabelFor(prioCombo);
-//        tagLabel.setLabelFor(tokenList);
-//        nameLabel.setLabelFor(nameField);
 
         this.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(TaskTagsPanel.class, "ACSD_Tags")); // NOI18N
-//        prioCombo.getAccessibleContext().setAccessibleDescription(
-//                NbBundle.getMessage(TaskTagsPanel.class, "ACSD_Prio")); // NOI18N
-//        tokenList.getAccessibleContext().setAccessibleDescription(
-//                NbBundle.getMessage(TaskTagsPanel.class, "ACSD_List")); // NOI18N
-//        nameField.getAccessibleContext().setAccessibleDescription(
-//                NbBundle.getMessage(TaskTagsPanel.class, "ACSD_Name")); // NOI18N
-        // Buttons too?
+        patternsTable.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(TaskTagsPanel.class, "ACSD_List")); // NOI18N
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
