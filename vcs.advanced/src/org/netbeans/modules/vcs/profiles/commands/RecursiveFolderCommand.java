@@ -15,6 +15,7 @@ package org.netbeans.modules.vcs.profiles.commands;
 
 import java.io.*;
 import java.util.*;
+import org.netbeans.api.queries.SharabilityQuery;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -117,7 +118,8 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
 
                     FileProperties subprops = Turbo.getMeta(fo);
                     String status = FileProperties.getStatus(subprops); // TODO revisit, it may return [unknown] status
-                    if (info.canRunOnStatus(status)) {
+                    if (SharabilityQuery.getSharability(FileUtil.toFile(fo)) != SharabilityQuery.NOT_SHARABLE) {
+                    //if (info.canRunOnStatus(status)) { -- The status check will be performed inside the recursion
                         fillDirFilesWithTurbo(files, fo, info, recursive);
                     }
                 }
@@ -235,7 +237,8 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                         fsFilter.accept(dirFile, fo.getNameExt())) {
                         FileProperties fprops = Turbo.getMeta(fo);
                         String folderStatus = FileProperties.getStatus(fprops);
-                        if (info.canRunOnStatus(folderStatus)) {
+                        if (SharabilityQuery.getSharability(FileUtil.toFile(fo)) != SharabilityQuery.NOT_SHARABLE) {
+                        //if (info.canRunOnStatus(status)) { -- The status check will be performed inside the recursion
                             status &= runCommandsSomewhatRecursivelyWithTurbo(fo, cmdInfos);
                         }
                     }
