@@ -91,13 +91,17 @@ public class TaskList { // XXX remove the publicness
      *
      * @param addList The list of tasks to be added. Can be null.
      * @param removeList The list of tasks to be removed. Can be null.
-     * @param append If true, append to the list, otherwise prepend.
+     * @param append If true, append to the list, otherwise prepend. Ignored
+     *   if the after parameter is not null.
      * @param parent Normally null, but you can specify a parent task
      *               here if you want to add subitems
-     * @todo Should I allow you to specify the parent?
+     * @param after The task which will be immediately before
+     * the new subtask after the addition (e.g. add
+     * this subtask directly AFTER the specified
+     * task). Overrides the append parameter.
      */
     public void addRemove(List addList, List removeList, boolean append,
-			  Task parent) {
+			  Task parent, Task after) {
 	// Disable updates for the duration of the list update
 	setSilentUpdate(true, true, false);
 
@@ -134,7 +138,7 @@ public class TaskList { // XXX remove the publicness
             }
 
 	    // User insert: prepend to the list
-	    parent.addSubtasks(addList, append);
+            parent.addSubtasks(addList, append, after);
 	}
 	
 	// Update the task list now
@@ -155,6 +159,7 @@ public class TaskList { // XXX remove the publicness
     /** Add a todo item to the todo list.
      * @param item The todo item to be added.
      * @param append If true, append the item to the list, otherwise prepend
+     * @param show If true, show the task in the list
      */
     public void add(Task task, boolean append, boolean show) {
         if (root == null) {
@@ -180,6 +185,41 @@ public class TaskList { // XXX remove the publicness
         // TODO make this smarter later on, such that I only save when necessary
         save();
     }
+
+    /** Add a todo item to the todo list.
+     * @param item The todo item to be added.
+     * @param after The task which will be immediately before
+     * the new subtask after the addition (e.g. add
+     * this subtask directly AFTER the specified
+     * task)
+     * @param show If true, show the task in the list
+     */
+    public void add(Task task, Task after, boolean show) {
+        if (root == null) {
+            root = getRoot();
+        }
+        if (task.getParent() == null) {
+            task.setParent(root);
+        }
+        Task parent = task.getParent();
+        // User insert: prepend to the list
+        parent.addSubtask(task, after);
+
+	if (!task.isTemporary()) {
+	    needSave = true;
+	}
+        
+        // Show the new item
+	// XXX fix this
+	if (show) {
+	    notifySelected(task);
+	}
+        
+        // TODO make this smarter later on, such that I only save when necessary
+        save();
+    }
+
+
      
     /** Remove a todo item from the list.
      * @param item The todo item to be removed. */

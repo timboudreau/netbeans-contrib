@@ -14,6 +14,23 @@ Microsystems, Inc. All Rights Reserved.
 <!DOCTYPE filesystem PUBLIC '-//NetBeans//DTD Filesystem 1.1//EN' 'http://www.netbeans.org/dtds/filesystem-1_1.dtd'>
 
 <filesystem>
+    <!-- default order for tasklist provided suggestions:
+      Tasks Due
+      Compilation Errors
+      Rule Violations
+      Source Tasks
+      Javadoc Problems
+      Copyright Problems
+     -->
+    <folder name="Suggestions">
+      <folder name="Types">
+        <attr name="org-netbeans-modules-tasklist-usertasks-duetasks.xml/org-netbeans-modules-tasklist-javaparser-parse-error.xml" boolvalue="true" />
+        <attr name="org-netbeans-modules-tasklist-javaparser-parse-error.xml/pmd-rule_violation.xml" boolvalue="true" />
+        <attr name="pmd-rule_violation.xml/org-netbeans-modules-tasklist-docscan-scanned_task.xml" boolvalue="true" />
+        <attr name="org-netbeans-modules-tasklist-docscan-scanned_task.xml/org-netbeans-modules-tasklist-javadoc-docerror.xml" boolvalue="true" />
+        <attr name="org-netbeans-modules-tasklist-javadoc-docerror.xml/org-netbeans-modules-tasklist-docscan-copyright_suggestion.xml" boolvalue="true" />
+      </folder>
+    </folder>
 
     <folder name="Editors"> 
         <folder name="AnnotationTypes"> 

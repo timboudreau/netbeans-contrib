@@ -72,11 +72,39 @@ final public class SuggestionList extends TaskList {
                 categoryTasks = new HashMap(20);
             }
             categoryTasks.put(type, category);
-            add(category, false, false);
+            // Add the category in the given position
+            SuggestionImpl after = findAfter(type);
+            if (after != null) { 
+                add(category, after, false);
+            } else {
+                add(category, false, false);
+            }
         }
         return category;
     }
     private Map categoryTasks = null;
+
+    /** Return the task that we need to put this new category type
+     * immadiately following. */
+    SuggestionImpl findAfter(SuggestionType type) {
+        SuggestionImpl after = null;
+        List tasks = getTasks();
+        if (tasks != null) {
+            int pos = type.getPosition();
+            Iterator it = tasks.iterator();
+            while (it.hasNext()) {
+                SuggestionImpl s = (SuggestionImpl)it.next();
+                if (s.getSType().getPosition() > pos) {
+                    break;
+                } else {
+                    after = s;
+                }
+            }
+
+
+        }
+        return after;
+    }
     
     /** Remove the given category node, if unused.
         @param force If true, remove the category node even if it has subtasks
@@ -103,7 +131,7 @@ final public class SuggestionList extends TaskList {
                 removeTasks.add(suggestion);
             }
         }
-        addRemove(null, removeTasks, false, null);
+        addRemove(null, removeTasks, false, null, null);
         categoryTasks.remove(type);
    }
 

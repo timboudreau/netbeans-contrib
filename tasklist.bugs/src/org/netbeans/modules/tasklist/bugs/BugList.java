@@ -90,7 +90,7 @@ public class BugList extends TaskList { // XXX remove the publicness
         Bug parent = (Bug)getRoot();
         parent.dropSubtasks();
 
-        addRemove(issues, null, false, null);
+        addRemove(issues, null, false, null, null);
     }
 
     /** View a particular bug. */

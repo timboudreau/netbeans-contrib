@@ -19,7 +19,8 @@ import org.openide.loaders.DataObject;
 import org.openide.text.Line;
 import org.openide.ErrorManager;
 import org.openide.TopManager;
-
+import org.openide.cookies.EditorCookie;
+import javax.swing.text.*;
 
 /** Various utility methods shared by the various tasklist related modules
  *
@@ -247,6 +248,97 @@ public final class TLUtils {
         } else {
             appendHTMLString(sb, text);
         }
+    }
+
+    public static Element getElement(Document d, Line line) {
+	if (d == null) {
+            ErrorManager.getDefault().log(ErrorManager.USER, "d was null");
+            return null;
+	}
+
+        if (!(d instanceof StyledDocument)) {
+            ErrorManager.getDefault().log(ErrorManager.USER, "Not a styleddocument");
+            return null;
+        }
+            
+        StyledDocument doc = (StyledDocument)d;
+        Element e = doc.getParagraphElement(0).getParentElement();
+        if (e == null) {
+            // try default root (should work for text/plain)
+            e = doc.getDefaultRootElement ();
+        }
+        int lineNumber = line.getLineNumber();
+        Element elm = e.getElement(lineNumber);
+        return elm;
+    }
+
+    public static Document getDocument(Line line) {
+        DataObject dao = line.getDataObject();
+        if (!dao.isValid()) {
+            ErrorManager.getDefault().log(ErrorManager.USER, "dataobject was not null");
+            return null;
+        }
+
+	final EditorCookie edit = (EditorCookie)dao.getCookie(EditorCookie.class);
+	if (edit == null) {
+            ErrorManager.getDefault().log(ErrorManager.USER, "no editor cookie!");
+	    return null;
+	}
+
+        Document d = edit.getDocument(); // Does not block
+        return d;
+    }
+
+    /** Remove a particular line. Make sure that the line begins with
+     * a given prefix, just in case.
+     * @param prefix A prefix that the line to be deleted must start with
+     */
+    public static boolean deleteLine(Line line, String prefix) {
+        Document doc = getDocument(line);
+        Element elm = getElement(doc, line);
+        if (elm == null) {
+            return false;
+        }
+        int offset = elm.getStartOffset();
+        int endOffset = elm.getEndOffset();
+
+        try {
+            String text = doc.getText(offset, endOffset-offset);
+            if (!text.startsWith(prefix)) {
+                return false;
+            }
+            doc.remove(offset, endOffset-offset);
+        } catch (BadLocationException ex) {
+            TopManager.getDefault().
+                getErrorManager().notify(ErrorManager.WARNING, ex);
+        }
+        return false;
+    }
+
+    /** Comment out a particular line (in a Java file). Make sure that
+     * the line begins with a given prefix, just in case.
+     * @param prefix A prefix that the line to be commented out must start with
+     */
+    public static boolean commentLine(Line line, String prefix) {
+        Document doc = getDocument(line);
+        Element elm = getElement(doc, line);
+        if (elm == null) {
+            return false;
+        }
+        int offset = elm.getStartOffset();
+        int endOffset = elm.getEndOffset();
+
+        try {
+            String text = doc.getText(offset, endOffset-offset);
+            if (!text.startsWith(prefix)) {
+                return false;
+            }
+            doc.insertString(offset, "// ", null); // NOI18N
+        } catch (BadLocationException ex) {
+            TopManager.getDefault().
+                getErrorManager().notify(ErrorManager.WARNING, ex);
+        }
+        return false;
     }
 
 }

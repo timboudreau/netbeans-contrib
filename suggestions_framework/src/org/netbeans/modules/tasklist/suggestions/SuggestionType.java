@@ -108,9 +108,20 @@ final public class SuggestionType {
      * and is not localized. Do not depend on its content or format. */
     public String toString() {
         return "SuggestionType[name=" + name + ",bundle=" + bundle + // NOI18N
-            ",key=" + key + ",icon=" + icon +"]"; // NOI18N
+            ",key=" + key + ",icon=" + icon + ",pos=" + position +"]"; // NOI18N
     }    
 
+    /** Set the relative position of this type in the type hierarchy */
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    /** Return the relative position of this type in the type hierarchy */
+    public int getPosition() {
+        return position;
+    }
+
+    private int position;
     private String name;
     private String bundle;
     private String key;

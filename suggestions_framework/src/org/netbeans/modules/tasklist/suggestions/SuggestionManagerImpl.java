@@ -65,6 +65,7 @@ import org.openide.util.Lookup;
 import org.openide.TopManager;
 import org.openide.ErrorManager;
 import org.openide.util.WeakListener;
+import org.openide.util.RequestProcessor;
 
 import org.netbeans.api.tasklist.*;
 import org.netbeans.modules.tasklist.core.TaskNode;
@@ -1261,8 +1262,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
         been applied!
      */
 
-    public void register(String typeName, List addList, List removeList,
-                         SuggestionList tasklist, boolean sizeKnown) {
+    public synchronized void register(String typeName, 
+                                      List addList, List removeList,
+                                      SuggestionList tasklist, 
+                                      boolean sizeKnown) {
         //System.err.println("register(" + typeName + ", " + addList +
         //                   ", " + removeList + "," + tasklist + ", " + sizeKnown + ")");
         // TODO check instanceof Task here, and throw an exception if not?
@@ -1358,7 +1361,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 synchronized(this) {
                     List leftover = null;
                     if (removeList != null) {
-                        tasklist.addRemove(null, removeList, true, null);
+                        tasklist.addRemove(null, removeList, true, null, null);
                     }
                     if (currnum-remnum > 0) {
                         leftover = new ArrayList(currnum);
@@ -1372,14 +1375,14 @@ final public class SuggestionManagerImpl extends SuggestionManager
                         }
                     }
                     if ((leftover != null) && (leftover.size() > 0)) {
-                        tasklist.addRemove(null, leftover, false, null);
-                        tasklist.addRemove(leftover, null, true, category);
+                        tasklist.addRemove(null, leftover, false, null, null);
+                        tasklist.addRemove(leftover, null, true, category, null);
                     }
-                    tasklist.addRemove(adds, null, true, category);
+                    tasklist.addRemove(adds, null, true, category, null);
                 }
             } else {
                 // Updating tasks within the category node
-                tasklist.addRemove(adds, removeList, false, category);
+                tasklist.addRemove(adds, removeList, false, category, null);
             }
 
             // Leave category task around? Or simply make it invisible?
@@ -1389,23 +1392,25 @@ final public class SuggestionManagerImpl extends SuggestionManager
             //tasklist.removeCategory((SuggestionImpl)suggestions.get(0).getParent(), false);
             updateCategoryCount(category, sizeKnown); // TODO: skip this when filtered
         } else {
+            SuggestionImpl after = tasklist.findAfter(type);
             if (category == null) {
                 // Didn't have category nodes before and don't need to
                 // now either...
-                tasklist.addRemove(adds, removeList, true, null);
+                tasklist.addRemove(adds, removeList, true, null, after);
             } else {
                 // Had category nodes before but don't need them anymore...
                 // remove the tasks from the top list
                 synchronized(this) {
                     if (removeList != null) {
-                        tasklist.addRemove(null, removeList, false, category);
+                        tasklist.addRemove(null, removeList, false, category,
+                                           null);
                     }
                     List leftover = category.getSubtasks();
-                    if ((leftover != null) && (leftover.size() > 0)) {
-                        tasklist.addRemove(leftover, null, true, null);
-                    }
                     if (adds != null) {
-                        tasklist.addRemove(adds, null, true, null);
+                        tasklist.addRemove(adds, null, true, null, after);
+                    }
+                    if ((leftover != null) && (leftover.size() > 0)) {
+                        tasklist.addRemove(leftover, null, true, null, after);
                     }
                 }
                 tasklist.removeCategory(category, true);
@@ -1456,6 +1461,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * This method is called internally by the toolkit and should not be
      * called directly by programs.
      */
+/* Not yet called from anywhere. Does anyone need it?
     private void docOpened(Document document, DataObject dataobject) {
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
@@ -1465,36 +1471,16 @@ final public class SuggestionManagerImpl extends SuggestionManager
             provider.docOpened(document, dataobject);
         }
     }
-
-    /**
-     * The given document has been edited right now. This will start
-     * a timer for a rescan (for those types that are scanned after edits.)
-     * <p>
-     * @param document The document being edited
-     * @param dataobject The Data Object for the file being opened
-     * <p>
-     * This method is called internally by the toolkit and should not be
-     * called directly by programs.
-     */
-    /*
-    public void docEdited(Document document, DocumentEvent event,
-                                      DataObject dataobject) {
-        List providers = getDocProviders();
-        ListIterator it = providers.listIterator();
-        while (it.hasNext()) {
-            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
-            if ((unfiltered == null) || (provider == unfiltered)) {
-                provider.docEdited(document, event, dataobject);
-            }
-        }
-    }
-    */
+*/
 
     /** Set when the file has been saved before rescan is called */
     private boolean haveSaved = false;
     
     /** Set when the file has been edited before rescan is called */
     private boolean haveEdited = false;
+    
+    /** Set when the file has been edited before rescan is called */
+    private boolean haveShown = false;
     
     /** Return true iff the given provider should rescan when a file is shown */
     private boolean scanOnShow(DocumentSuggestionProvider provider) {
@@ -1555,6 +1541,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * This method is called internally by the toolkit and should not be
      * called directly by programs.
      */
+/*
     public void docSavedStable(Document document, DataObject dataobject) {
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
@@ -1562,11 +1549,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
             DocumentSuggestionProvider provider = 
                 (DocumentSuggestionProvider)it.next();
             if ((unfiltered == null) || (provider == unfiltered)) {
-                //provider.docSaved(document, dataobject);
-                provider.rescan(document, dataobject);
+                provider.docSaved(document, dataobject);
             }
         }
+        rescan(document, dataobject);
     }
+*/
 
     /**
      * The given document has been edited or saved, and a time interval
@@ -1584,21 +1572,34 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * This method is called internally by the toolkit and should not be
      * called directly by programs.
      */
-    public void rescan(Document document,
-                       DataObject dataobject) {
+    public void rescan(final Document document,
+                       final DataObject dataobject) {
+
+/*
+    XXX What happens if right after scheduling the request
+    processor the user closes the window - now document references
+    etc. get nulled out
+
+*/
+         // XXX This introduces a synchronization problem...
+         RequestProcessor.postRequest(new Runnable() {
+                 public void run() {
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
             if ((unfiltered == null) || (provider == unfiltered)) {
                 if ((haveSaved && scanOnSave(provider))
-                      || (haveEdited && scanOnEdit(provider))) {
+                    || (haveEdited && scanOnEdit(provider))
+                    || (haveShown && scanOnShow(provider))) {
                     provider.rescan(document, dataobject);
                 }
             }
         }
         haveSaved = false;
         haveEdited = false;
+        haveShown = false;
+                 }});
     }
     
     /**
@@ -1618,9 +1619,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
             if (((unfiltered == null) || (provider == unfiltered))
                    && scanOnShow(provider)) {
                 provider.docShown(document, dataobject);
-                provider.rescan(document, dataobject);
             }
         }
+        haveShown = true;
+        rescan(document, dataobject);
     }
 
     /**
@@ -1655,6 +1657,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * This method is called internally by the toolkit and should not be
      * called directly by programs.
      */
+/* Not yet called from anywhere. Does anyone need it?
     public void docClosed(Document document, DataObject dataobject) {
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
@@ -1663,9 +1666,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             provider.docClosed(document, dataobject);
         }
     }
-
-    // XXX: Do we need abstract public void docSaved(Document document); ?
-
+*/
 
     public void changedUpdate(DocumentEvent e) {
 	// Do nothing.
@@ -1675,13 +1676,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 	
     public void insertUpdate(DocumentEvent e) {
-        //docEdited(document, e, dataobject);
         haveEdited = true;
         scheduleRescan(e, false, editScanDelay);
     }
 
     public void removeUpdate(DocumentEvent e) {
-        //docEdited(document, e, dataobject);
         haveEdited = true;
         scheduleRescan(e, false, editScanDelay);
     }
@@ -1714,7 +1713,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	    runTimer.stop();
 	    runTimer = null;
 	}
-
         currDelay = scanDelay;
 	runTimer = new Timer(currDelay,
 		     new ActionListener() {
@@ -1767,7 +1765,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         // Start listening on DataObject.Registry
         if (rl == null) {
             rl = new DORegistryListener();
-            DataObject.getRegistry().addChangeListener((ChangeListener)(WeakListener.change(rl, DataObject.getRegistry())));
+            DataObject.getRegistry().addChangeListener(rl);
         }
 
 	/* OLD:
@@ -2059,7 +2057,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
         
         dataobject = dao;
 
-        // XXX Use scheduleRescan instead? (but then I have to call docShown instead of docEditedStable)
+        // XXX Use scheduleRescan instead? (but then I have to call docShown instead of rescan;
+        //haveShown = true;
+        //scheduleRescan(null, false, showScanDelay);
+
 	if (delayed) {
 	    runTimer = new Timer(showScanDelay,
 		     new ActionListener() {
@@ -2231,7 +2232,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
     
     /** Timer which keeps track of outstanding scan requests; we don't
         scan briefly selected files */
-    private Timer runTimer; // make sure we get the right one
+    private Timer runTimer;
 
     /** Delay to wait after a file has been shown before we rescan */
     private int showScanDelay = DEFAULT_SHOW_SCAN_DELAY;

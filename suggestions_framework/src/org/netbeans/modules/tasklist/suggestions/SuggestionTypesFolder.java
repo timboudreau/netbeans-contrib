@@ -107,6 +107,7 @@ final public class SuggestionTypesFolder extends FolderInstance {
             Object o = cookies[i].instanceCreate();
             if (o instanceof SuggestionType) {
                 SuggestionType type = (SuggestionType)o;
+                type.setPosition(i);
                 suggestionTypes.put(type.getName(), type);
             }
         }

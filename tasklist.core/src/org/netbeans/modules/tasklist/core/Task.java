@@ -207,11 +207,16 @@ public class Task extends Suggestion implements Cloneable {
         }
     }
 
-   /** Add a list of subtasks to this task. 
-    * @param subtasks The tasks to add
-    * @param append When true, append to the list, otherwise prepend
+    /** Add a list of subtasks to this task. 
+     * @param subtasks The tasks to add
+     * @param append When true, append to the list, otherwise prepend. Ignored
+     *  if after is not null.
+     * @param after The task which will be immediately before
+     * the new subtask after the addition (e.g. add
+     * this subtask directly AFTER the specified
+     * task). Overrides the append parameter.
     */
-    public void addSubtasks(List tasks, boolean append) {
+    public void addSubtasks(List tasks, boolean append, Task after) {
 	ListIterator it = tasks.listIterator();
 	while (it.hasNext()) {
 	    Task task = (Task)it.next();
@@ -222,7 +227,10 @@ public class Task extends Suggestion implements Cloneable {
 	if (subtasks == null) {
             subtasks = new LinkedList();
         }
-        if (append) {
+        if (after != null) {
+            int pos = subtasks.indexOf(after);
+            subtasks.addAll(pos+1, tasks);
+        } else if (append) {
             subtasks.addAll(tasks);
         } else {
             subtasks.addAll(0, tasks);

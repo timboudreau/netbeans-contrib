@@ -178,55 +178,15 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                     if (rulename.equals("UnusedImports") || // NOI18N
                     rulename.equals("DuplicateImports")) { // NOI18N
                         fixable = true;
-                        action = new SuggestionPerformer() {
-                            public void perform(Suggestion s) {
-                                // Remove the particular line
-                                deleteLine(line, "import ", // NOI18N
-                                false); // whitespace etc.?
-                            }
-                            public boolean hasConfirmation() {
-                                return true;
-                            }
-                            public Object getConfirmation(Suggestion s) {
-                                DataObject dao = line.getDataObject();
-                                int linenumber = line.getLineNumber();
-                                String filename = dao.getPrimaryFile().getNameExt();
-                                String ruleDesc = violation.getRule().getDescription();
-                                String ruleExample = 
-                                    violation.getRule().getExample();
-                                String beforeDesc = 
-                                   NbBundle.getMessage(ViolationProvider.class,
-                                        "ImportConfirmation"); // NOI18N
-                                StringBuffer sb = new StringBuffer(200);
-                                Line l = line;
-                                String text = l.getText();
-                                sb.append("<html>"); // NOI18N
-                                TLUtils.appendSurroundingLine(sb, l, -1);
-                                sb.append("<br>");
-                                sb.append("<b><strike>");
-                                sb.append(line.getText());
-                                sb.append("</strike></b>");
-                                sb.append("<br>");
-                                TLUtils.appendSurroundingLine(sb, l, +1);
-                                sb.append("</html>"); // NOI18N
-                                String beforeContents = sb.toString();
-                                
-                                return new ConfPanel(beforeDesc, 
-                                                     beforeContents, null, 
-                                                     null,
-                                                     filename, linenumber, 
-                                       getBottomPanel(ruleDesc, ruleExample));
-                                
-                            }
-                        };
+                        action = new ImportPerformer(line, violation, false);
                     } else if ((rulename.equals("UnusedPrivateField") || // NOI18N
-                    rulename.equals("UnusedLocalVariable")) && // NOI18N
-                    deleteLine(line, "", true)) { // only a check
+                          rulename.equals("UnusedLocalVariable")) && // NOI18N
+                          isDeleteSafe(line)) { // only a check
                         fixable = true;
                         action = new SuggestionPerformer() {
                             public void perform(Suggestion s) {
                                 // Remove the particular line
-                                deleteLine(line, "", false);
+                                TLUtils.deleteLine(line, "");
                             }
                             public boolean hasConfirmation() {
                                 return true;
@@ -312,86 +272,13 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         
     }
     
-    private Element getElement(Document d, Line line) {
-	if (d == null) {
-            ErrorManager.getDefault().log(ErrorManager.USER, "d was null");
-            return null;
-	}
-
-        if (!(d instanceof StyledDocument)) {
-            ErrorManager.getDefault().log(ErrorManager.USER, "Not a styleddocument");
-            return null;
-        }
-            
-        StyledDocument doc = (StyledDocument)d;
-        Element e = doc.getParagraphElement(0).getParentElement();
-        if (e == null) {
-            // try default root (should work for text/plain)
-            e = doc.getDefaultRootElement ();
-        }
-        int lineNumber = line.getLineNumber();
-        Element elm = e.getElement(lineNumber);
-        return elm;
-    }
-
-    private Document getDoc(Line line) {
-        DataObject dao = line.getDataObject();
-        if (!dao.isValid()) {
-            ErrorManager.getDefault().log(ErrorManager.USER, "dataobject was not null");
-            return null;
-        }
-
-	final EditorCookie edit = (EditorCookie)dao.getCookie(EditorCookie.class);
-	if (edit == null) {
-            ErrorManager.getDefault().log(ErrorManager.USER, "no editor cookie!");
-	    return null;
-	}
-
-        Document d = edit.getDocument(); // Does not block
-        return d;
-    }
-
-    
-    /** Remove a particular line. Make sure that the line begins with
-     * a given prefix, just in case.
-     * @param prefix A prefix that the line to be deleted must start with
-     * @param checkOnly When true, don't actually delete the line, only
-     *         report whether the deletion should be attempted or not
-     */
-    boolean deleteLine(Line line, String prefix, boolean checkOnly) {
-        Document doc = getDoc(line);
-        Element elm = getElement(doc, line);
-        if (elm == null) {
-            return false;
-        }
-        int offset = elm.getStartOffset();
-        int endOffset = elm.getEndOffset();
-
-        try {
-            String text = doc.getText(offset, endOffset-offset);
-            if (!text.startsWith(prefix)) {
-                return false;
-            }
-            if (checkOnly) {
-                return isDeleteSafe(text);
-            } else {
-                doc.remove(offset, endOffset-offset);
-            }
-        } catch (BadLocationException ex) {
-            TopManager.getDefault().
-                getErrorManager().notify(ErrorManager.WARNING, ex);
-        }
-        return false;
-    }
-
-    
     /**
      * Checks designed to prevent deleting additional content on the
      * line - for example, it won't delete anything if it detects
      * multiple statements on the line, or function calls. It may err
      * on the safe side; e.g. not delete even when it would be safe to do so.
      */
-    private boolean isDeleteSafe(String text) {
+    private static boolean isDeleteSafe(String text) {
         /*
           What about a weird corner case like this:
           int z = 0;
@@ -470,8 +357,30 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         return true;
     }
     
+    /** Check if line/field deletion is safe. Safe here means
+     * that the field does not get assigned some method (which may
+     * have an important side effect)
+     */
+    public static boolean isDeleteSafe(Line line) {
+        Document doc = TLUtils.getDocument(line);
+        Element elm = TLUtils.getElement(doc, line);
+        if (elm == null) {
+            return false;
+        }
+        int offset = elm.getStartOffset();
+        int endOffset = elm.getEndOffset();
+
+        try {
+            String text = doc.getText(offset, endOffset-offset);
+            return isDeleteSafe(text);
+        } catch (BadLocationException ex) {
+            TopManager.getDefault().
+                getErrorManager().notify(ErrorManager.WARNING, ex);
+        }
+        return false;
+    }
     
-    private JPanel getBottomPanel(String ruleDesc, String ruleExample) {
+    static JPanel getBottomPanel(String ruleDesc, String ruleExample) {
         java.awt.GridBagConstraints gridBagConstraints;
         // Variables declaration - do not modify
         javax.swing.JLabel jLabel9;
@@ -548,17 +457,6 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         
         return jPanel1;
     }
-
-    /** 
-     * The given document has been "hidden"; it's still open, but
-     * the editor containing the document is not visible.
-     * <p>
-     * @param document The document being hidden
-     */
-    public void docHidden(Document document, DataObject dataobject) {
-	// Remove existing items
-    }
-
 
      public void clear(Document document, DataObject dataobject) {
         if (showingTasks != null) {
