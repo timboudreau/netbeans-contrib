@@ -31,6 +31,7 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node.Cookie;
 import org.openide.nodes.Sheet;
+import org.openide.util.HelpCtx;
 import org.netbeans.modules.jndi.settings.JndiSystemOption;
 
 
@@ -345,6 +346,13 @@ public class ProviderNode extends AbstractNode implements Cookie{
                 ProviderNode.this.updateData(ProviderProperties.ADDITIONAL,newv,null);
             }
         }
+    }
+    
+    /** Returns the help context for
+     *  provider node
+     */
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
     }
     
     

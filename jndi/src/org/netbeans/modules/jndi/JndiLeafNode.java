@@ -30,6 +30,7 @@ import org.openide.actions.DeleteAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
+import org.openide.util.HelpCtx;
 import org.openide.util.actions.SystemAction;
 
 /** This class represents Leaf Node (Not context) in JNDI tree
@@ -135,6 +136,14 @@ public class JndiLeafNode extends JndiObjectNode {
      */
     public String getClassName(){
         return this.getKey().name.getClassName();
+    }
+    
+    /** Returns help context for the
+     *  JNDI leaf node, the node representing 
+     *  the end bound object (e.g. EJB HomeInterface)
+     */
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
     }
     
     protected void handleChangeJndiPropertyValue (Attributes attrs) throws NamingException {

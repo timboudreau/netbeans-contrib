@@ -26,6 +26,7 @@ import org.openide.nodes.Node.Cookie;
 import org.openide.nodes.Children;
 import org.openide.nodes.DefaultHandle;
 import org.openide.nodes.Sheet;
+import org.openide.util.HelpCtx;
 import org.netbeans.modules.jndi.utils.Refreshable;
 import org.netbeans.modules.jndi.settings.JndiSystemOption;
 
@@ -162,5 +163,13 @@ public class JndiProvidersNode extends AbstractNode implements Cookie,Refreshabl
     public void refresh() {
         this.getChildren().remove ( this.getChildren().getNodes());
         this.installProperties (true);
+    }
+    
+    
+    /** Returns help context for providers node,
+     *  the parent node for provider nodes
+     */
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
     }
 }

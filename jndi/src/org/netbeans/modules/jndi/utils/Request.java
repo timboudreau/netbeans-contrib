@@ -34,7 +34,9 @@ public class Request implements Runnable {
             this.target.performAction();
             this.target.postAction();
         }catch (Exception e) {
-            TopManager.getDefault().getErrorManager().notify (ErrorManager.USER,e);
+            this.target.actionFailed ();
+            ErrorManager em = TopManager.getDefault().getErrorManager();
+            em.notify (ErrorManager.INFORMATIONAL, e);
         }
     }
     

@@ -40,6 +40,7 @@ import org.openide.nodes.Sheet;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.ExClipboard;
+import org.openide.util.HelpCtx;
 import org.openide.DialogDescriptor;
 import org.netbeans.modules.jndi.utils.Refreshable;
 import org.netbeans.modules.jndi.utils.DisconnectCtxCookie;
@@ -259,6 +260,13 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
             }catch (NamingException ne){}
         }
         return sheet;
+    }
+    
+    /** Return help context for the JNDI Context Node,
+     *  the JNDI directory
+     */
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
     }
     
     protected void handleChangeJndiPropertyValue (Attributes attrs) throws NamingException {

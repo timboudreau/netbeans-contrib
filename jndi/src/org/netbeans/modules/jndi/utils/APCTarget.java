@@ -22,4 +22,5 @@ public interface APCTarget {
     public void preAction() throws Exception;
     public void performAction() throws Exception;
     public void postAction() throws Exception;
+    public void actionFailed ();
 }

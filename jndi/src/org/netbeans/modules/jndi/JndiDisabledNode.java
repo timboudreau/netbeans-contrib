@@ -24,6 +24,7 @@ import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.DeleteAction;
 import org.openide.actions.PropertiesAction;
+import org.openide.util.HelpCtx;
 import org.netbeans.modules.jndi.utils.Refreshable;
 import org.netbeans.modules.jndi.utils.JndiPropertyMutator;
 
@@ -124,6 +125,14 @@ public class JndiDisabledNode extends JndiAbstractNode implements Refreshable, N
         this.properties.put (name, value);
         this.refresh();
         return true;
+    }
+    
+    /** Returns the help context for the root Context
+     *  which could not be restored after the start of
+     *  the IDE, e.g. because of the service is not started.
+     */
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
     }
     
 }

@@ -44,6 +44,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.RequestProcessor;
+import org.openide.util.HelpCtx;
 import org.netbeans.modules.jndi.settings.JndiSystemOption;
 
 /** Top Level JNDI Node
@@ -368,6 +369,13 @@ public final class JndiRootNode extends AbstractNode{
      */
     public static void showLocalizedStatus (String message) {
         showStatus(getLocalizedString(message));
+    }
+    
+    /** Returns the help context for the
+     *  JNDI root node
+     */
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
     }
 
 

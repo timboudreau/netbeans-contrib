@@ -21,6 +21,7 @@ package org.netbeans.modules.jndi;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.CompositeName;
+import org.openide.util.HelpCtx;
 
 public class JndiFailedNode extends JndiLeafNode {
 
@@ -28,5 +29,13 @@ public class JndiFailedNode extends JndiLeafNode {
     public JndiFailedNode(JndiKey key, CompositeName offset) throws javax.naming.InvalidNameException {
         super (key, offset);
         this.setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiDisabledNode.DISABLED_CONTEXT_ICON));
+    }
+    
+    /** Returns help context for the failed JNDI node,
+     *  the node inside some JNDI context, which can not
+     *  be accessed, e.g. for security reasons
+     */
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
     }
 }
