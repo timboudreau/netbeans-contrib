@@ -15,6 +15,8 @@ package org.netbeans.modules.vcscore.versioning.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.openide.TopManager;
 import org.openide.explorer.*;
@@ -34,6 +36,12 @@ import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 public class VersioningExplorer {
 
     private static final String MODE_NAME = "VersioningExplorer";
+    
+    /**
+     * Map of workspaces as keys and map of explorer panels, that belongs to
+     * these workspaces for individual nodes as values.
+     */
+    private static Map explorersInWorkspaces = new WeakHashMap();
 
     private Panel panel;
     private Node root = null;
@@ -56,50 +64,22 @@ public class VersioningExplorer {
     /**
      * Get the Revision Explorer for that node.
      */
-    public static VersioningExplorer.Panel getRevisionExplorer(final Node node) {
+    private static VersioningExplorer.Panel getRevisionExplorer(final Node node) {
         Workspace curr = TopManager.getDefault().getWindowManager().getCurrentWorkspace();
-//        Mode reMode = curr.findMode(MODE_NAME);
-        Iterator it = curr.getModes().iterator();
-//        if (reMode != null) {
-        while (it.hasNext()) {
-            Mode reMode = (Mode)it.next();
-            TopComponent[] tcs = reMode.getTopComponents();
-            //System.out.println("No. of components in Explorer Mode = "+tcs.length);
-            for(int i = 0; i < tcs.length; i++) {
-                if (tcs[i] instanceof VersioningExplorer.Panel) {
-                    VersioningExplorer.Panel explorer = (VersioningExplorer.Panel) tcs[i];
-                    Node root = explorer.getExplorerManager().getRootContext();
-                    if (root.equals(node)) return explorer;
-                }
-                /*
-                DataObject dobjRoot = null;
-                if (root instanceof DataNode) dobjRoot = ((DataNode) root).getDataObject();
-                //String displayName = root.getDisplayName();
-                if (dobj != null && dobj.equals(dobjRoot)) {
-                    Children.Array ch = (Children.Array) root.getChildren();
-                    ch.remove(new Node[] { ch.findChild(node.getName()) });
-                    ch.add(new Node[] { node });
-                    return explorer;
-                }
-                 */
+        synchronized (explorersInWorkspaces) {
+            Map explorersForNodes = (Map) explorersInWorkspaces.get(curr);
+            VersioningExplorer explorer;
+            if (explorersForNodes != null) {
+                explorer = (VersioningExplorer) explorersForNodes.get(node);
+                if (explorer != null) return explorer.panel;
+            } else {
+                explorersForNodes = new WeakHashMap();
+                explorersInWorkspaces.put(curr, explorersForNodes);
             }
+            explorer = new VersioningExplorer(node);
+            explorersForNodes.put(node, explorer);
+            return explorer.panel;
         }
-        /*
-        Children.Array ch = new Children.Array();
-        ch.add(new Node[] { node });
-        //AbstractNode root = new RootNode(ch, node);
-        AbstractNode root = null;
-        if (dobj != null) {
-            root = new DataNode(dobj, ch);
-        }
-        if (root == null) {
-            root = new AbstractNode(ch);
-            root.setDisplayName(rootDisplayName);
-        }
-        root.setIconBase(ICON_ROOT);
-         */
-        VersioningExplorer ve = new VersioningExplorer(node);
-        return ve.panel;
     }
     
     private void initComponentsSplitted() {
