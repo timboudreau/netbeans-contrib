@@ -19,3 +19,9 @@ OpenIDE-Module-Class: Node
 
 Name: com/netbeans/enterprise/modules/rmi/RMIExecutor.class
 OpenIDE-Module-Class: Executor
+
+Name: com/netbeans/enterprise/modules/rmi/wizard/RMIWizardCookieAction.class
+OpenIDE-Module-Class: Action
+
+Name: com/netbeans/enterprise/modules/rmi/wizard/RMIEncapsulationAction.class
+OpenIDE-Module-Class: Action
