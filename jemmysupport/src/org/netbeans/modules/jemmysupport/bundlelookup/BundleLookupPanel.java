@@ -204,6 +204,7 @@ public class BundleLookupPanel extends TopComponent  {
         BundleCaseCheck = new javax.swing.JCheckBox();
         BundleSubstringCheck = new javax.swing.JCheckBox();
         BundleRegCheck = new javax.swing.JCheckBox();
+        ResultsLabel = new javax.swing.JLabel();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -214,6 +215,7 @@ public class BundleLookupPanel extends TopComponent  {
         });
 
         getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(BundleLookupPanel.class, "Title"));
+        getAccessibleContext().setAccessibleDescription("N/A");
         SearchTextLabel.setDisplayedMnemonic(NbBundle.getMessage(BundleLookupPanel.class, "MNM_SearchedText").charAt(0));
         SearchTextLabel.setLabelFor(SearchTextField);
         SearchTextLabel.setText(org.openide.util.NbBundle.getMessage(BundleLookupPanel.class, "LBL_SearchedText"));
@@ -311,11 +313,11 @@ public class BundleLookupPanel extends TopComponent  {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 11);
         gridBagConstraints.weightx = 100.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 11);
         add(SearchButton, gridBagConstraints);
 
         StopButton.setMnemonic(NbBundle.getMessage(BundleLookupPanel.class, "MNM_Stop").charAt(0));
@@ -329,11 +331,11 @@ public class BundleLookupPanel extends TopComponent  {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 11);
         gridBagConstraints.weightx = 100.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 11);
         add(StopButton, gridBagConstraints);
 
         ScrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
@@ -352,24 +354,25 @@ public class BundleLookupPanel extends TopComponent  {
 
         ScrollPane.setViewportView(ResultTable);
         ResultTable.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(BundleLookupPanel.class, "LBL_ResultTable"));
+        ResultTable.getAccessibleContext().setAccessibleDescription("N/A");
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 11);
         gridBagConstraints.weightx = 100.0;
         gridBagConstraints.weighty = 100.0;
-        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 11);
         add(ScrollPane, gridBagConstraints);
         ScrollPane.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(BundleLookupPanel.class, "LBL_ResultTable"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(11, 12, 12, 11);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(StatusLabel, gridBagConstraints);
 
         filterPanel.setLayout(new java.awt.GridBagLayout());
@@ -451,6 +454,18 @@ public class BundleLookupPanel extends TopComponent  {
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(24, 12, 0, 11);
         add(filterPanel, gridBagConstraints);
+
+        ResultsLabel.setDisplayedMnemonic(NbBundle.getMessage(BundleLookupPanel.class, "MNM_Results").charAt(0));
+        ResultsLabel.setLabelFor(ResultTable);
+        ResultsLabel.setText(org.openide.util.NbBundle.getMessage(BundleLookupPanel.class, "LBL_Results", new Object[] {}));
+        ResultsLabel.setToolTipText(org.openide.util.NbBundle.getMessage(BundleLookupPanel.class, "TTT_ResultsTable", new Object[] {}));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.insets = new java.awt.Insets(17, 12, 0, 12);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        add(ResultsLabel, gridBagConstraints);
 
     }//GEN-END:initComponents
 
@@ -554,6 +569,7 @@ public class BundleLookupPanel extends TopComponent  {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel ResultsLabel;
     private javax.swing.JLabel BundleFilter;
     private javax.swing.JCheckBox BundleSubstringCheck;
     private javax.swing.JCheckBox BundleCaseCheck;
