@@ -744,6 +744,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return versioningFileSystemShowGarbageFiles;
     }
     public void setVFSShowGarbageFiles(String newVal) {
+        if (newVal == null) newVal = "";
         versioningFileSystemShowGarbageFiles = newVal;
     }
     
