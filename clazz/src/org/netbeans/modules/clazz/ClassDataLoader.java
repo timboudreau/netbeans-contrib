@@ -76,7 +76,11 @@ public final class ClassDataLoader extends MultiFileLoader {
     protected FileObject findPrimaryFile (FileObject fo) {
         if (SER_EXT.equals(fo.getExt())) {
             // serialized file, return itself
-            return fo;
+            try {
+                return fo.getFileSystem() != org.openide.TopManager.getDefault().getRepository().getDefaultFileSystem() ? fo : null;
+            } catch (org.openide.filesystems.FileStateInvalidException ex) {
+                return null;
+            }
         }
         if (CLASS_EXT.equals(fo.getExt())) {
             // class file
