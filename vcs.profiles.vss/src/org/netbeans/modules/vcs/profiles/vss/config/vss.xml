@@ -1,5 +1,9 @@
 <?xml version="1.0"?>
-<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN' 'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd'>
+<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN'
+'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd' [
+    <!ENTITY versioned-statuses '"Current", "Missing", "Locally Modified"'>
+    <!ENTITY local-statuses '"Local", "Ignored"'>
+]>
 <!--
                 Sun Public License Notice
 
@@ -274,10 +278,10 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
-        <property name="disabledOnStatus">
-          <value>"Local"</value>
-        </property>
-        <property name="concurrentExec">
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
+          <property name="concurrentExec">
           <value>-1</value>
         </property>
       </command>
@@ -331,6 +335,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <command name="LIST_SUB" displayName="ResourceMsg(LIST_SUB)">
         <property name="labelMnemonic">
@@ -354,10 +361,10 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
-        <property name="disabledOnStatus">
-          <value>"Local"</value>
-        </property>
-        <property name="concurrentExec">
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
+          <property name="concurrentExec">
           <value>-1</value>
         </property>
       </command>
@@ -408,6 +415,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="associatedCommandInterfaceName">
           <value>org.netbeans.api.vcs.commands.CheckInCommand</value>
         </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;</value>
+	    </property>
       </command>
       <command name="CHECKIN_TEMPLATE_GETTER">
 	<property name="exec">
@@ -471,6 +481,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg(VSS_GENERAL_ACTION_COMMIT)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <command name="CHECKOUT_CONFIRM">
         <property name="exec">
@@ -544,6 +557,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="associatedCommandInterfaceName">
           <value>org.netbeans.api.vcs.commands.CheckOutCommand</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <command name="CHECKOUTR_CONFIRM">
         <property name="exec">
@@ -619,6 +635,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg(VSS_GENERAL_ACTION_UPDATE)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <command name="UNCHECKOUT_CONFIRM">
         <property name="exec">
@@ -675,6 +694,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <command name="UNCHECKOUTR_CONFIRM">
         <property name="exec">
@@ -741,6 +763,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <command name="EDIT">
 	<property name="exec">
@@ -821,6 +846,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <command name="GETR_CONFIRM">
         <property name="exec">
@@ -897,6 +925,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <separator />
       <command name="ADD" displayName="ResourceMsg(VSS_ADD)">
@@ -954,6 +985,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="associatedCommandInterfaceName">
           <value>org.netbeans.api.vcs.commands.AddCommand</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&versioned-statuses;</value>
+          </property>
       </command>
       <command name="ADD_ALL_CMD">
 	<property name="exec">
@@ -1053,6 +1087,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg(VSS_GENERAL_ACTION_ADD)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&versioned-statuses;</value>
+          </property>
       </command>
       <command name="DIR_FOLDERS">
         <property name="exec">
@@ -1149,6 +1186,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg(VSS_GENERAL_ACTION_ADD)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&versioned-statuses;</value>
+          </property>
       </command>
       <command name="REMOVE_CONFIRM">
 	<property name="exec">
@@ -1226,6 +1266,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshOnFail">
           <value>2</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <command name="RECOVER" displayName="ResourceMsg(VSS_RECOVER)">
         <property name="labelMnemonic">
@@ -1282,6 +1325,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <separator />
       <command name="HISTORY" displayName="ResourceMsg(VSS_HISTORY)">
@@ -1328,6 +1374,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg(VSS_GENERAL_ACTION_HISTORY)</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <command name="PROPERTIES" displayName="ResourceMsg(VSS_PROPERTIES)">
         <property name="labelMnemonic">
@@ -1367,6 +1416,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <separator />
       <command name="DIFF" displayName="ResourceMsg(VSS_DIFF)">
@@ -1405,6 +1457,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value>
         </property>
+          <property name="disabledOnStatus">
+            <value>&local-statuses;</value>
+          </property>
       </command>
       <command name="LIST_FILE_DIFF">
 	<property name="exec">

@@ -29,7 +29,8 @@ import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 public class GetAdjustedRelevantMasks extends Object implements VcsAdditionalCommand {
     
     public static final String RELEVANT_MASKS = "Relevant_Masks"; // NOI18N
-    private static final String[] NB_RELEVANT_MASKS = { "!*~", "!.nbintdb" }; // NOI18N
+    // the second should be "!.nbintdb" but according to VSS 6.0 template must contan at least one wildcard
+    private static final String[] NB_RELEVANT_MASKS = { "!*~", "!.nbint?b" }; // NOI18N
     
     /** Creates a new instance of GetAdjustedRelevantMasks */
     public GetAdjustedRelevantMasks() {
