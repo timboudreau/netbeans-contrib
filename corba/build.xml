@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
 
   <target name="compile">
-    <javac srcdir="src" destdir="src">
+    <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <exclude name="org/netbeans/modules/corba/idl/editor/"/>
       <classpath>
 	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
@@ -45,7 +45,7 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot}/projects/netbeans/modules/projects.jar"/>
       </classpath>
     </javac>
-    <javac srcdir="src" destdir="src">
+    <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <include name="org/netbeans/modules/corba/idl/editor/"/>
       <classpath>
 	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
