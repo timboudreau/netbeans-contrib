@@ -592,7 +592,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         dd.setHelpCtx (new HelpCtx ("VCS_VariableEditor"));
         TopManager.getDefault ().createDialog (dd).setVisible(true);
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
-            fileSystem.setVariables ((Vector) variableEditor.getValue ());
+            fileSystem.setVariables ((Vector) variablePanel.getPropertyValue());
         }
         initAdditionalComponents ();
     }//GEN-LAST:event_varButtonActionPerformed
