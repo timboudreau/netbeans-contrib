@@ -32,7 +32,7 @@ import org.openide.filesystems.DefaultAttributes;
 
 import org.netbeans.modules.vcs.*;
 //import org.netbeans.modules.vcs.cmdline.*;
-import org.netbeans.modules.vcs.util.Debug;
+import org.netbeans.modules.vcs.util.*;
 
 /** Generic command line VCS filesystem.
  * 
@@ -40,10 +40,16 @@ import org.netbeans.modules.vcs.util.Debug;
  */
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends VcsFileSystem implements java.beans.PropertyChangeListener {
+    
+    private static final boolean DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE = true;
+    
     private Debug D = new Debug ("CommandLineVcsFileSystem", true); // NOI18N
     private /*static transient*/ String CONFIG_ROOT="vcs/config"; // NOI18N
     private FileObject CONFIG_ROOT_FO;
     private transient Hashtable commandsByName=null;
+    private Hashtable additionalPossibleFileStatusesTable = null;
+    private Vector localFilesFilteredOut = null;
+    private boolean localFileFilterCaseSensitive = DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE;
 
     static final long serialVersionUID =-1017235664394970926L;
     //-------------------------------------------
@@ -87,6 +93,16 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         D.deb("readConfiguration() done"); // NOI18N
     }
 
+    /**
+     * Allows some cleanup of the document which the user is asked for.
+     * doc The Document
+     * promptNum the order of the document
+     * docIdentif some identification that can be set in settting the listener.
+     */
+    public void filePromptDocumentCleanup(javax.swing.JTextArea ta, int promptNum, Object docIdentif) {
+        // Let the document unchanged by default
+    }
+
     public void propertyChange (PropertyChangeEvent evt) {
         if (evt.getPropertyName() != FileSystem.PROP_VALID) return;
         if (isValid()) {
@@ -97,6 +113,57 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             D.deb("Filesystem is not valid any more, setting refresh time to 0"); // NOI18N
             setRefreshTime(0);
         }
+    }
+    
+    private void setPossibleFileStatusesFromVars() {
+        VcsConfigVariable varStatuses = (VcsConfigVariable) variablesByName.get ("POSSIBLE_FILE_STATUSES"); // NOI18N
+        VcsConfigVariable varStatusesLclz = (VcsConfigVariable) variablesByName.get ("POSSIBLE_FILE_STATUSES_LOCALIZED"); // NOI18N
+        if (additionalPossibleFileStatusesTable != null) MiscStuff.removeKeys(possibleFileStatusesTable, additionalPossibleFileStatusesTable);
+        additionalPossibleFileStatusesTable = null;
+        if (varStatuses != null) {
+            additionalPossibleFileStatusesTable = new Hashtable();
+            String[] possStatuses = MiscStuff.getQuotedStrings(varStatuses.getValue());
+            String[] possStatusesLclz = null;
+            if (varStatusesLclz != null) possStatusesLclz = MiscStuff.getQuotedStrings(varStatusesLclz.getValue());
+            int i = 0;
+            if (possStatusesLclz != null) {
+                for(; i < possStatuses.length && i < possStatusesLclz.length; i++) {
+                    additionalPossibleFileStatusesTable.put(possStatuses[i], possStatusesLclz[i]);
+                }
+            }
+            for(; i < possStatuses.length; i++) {
+                additionalPossibleFileStatusesTable.put(possStatuses[i], possStatuses[i]);
+            }
+            possibleFileStatusesTable.putAll(additionalPossibleFileStatusesTable);
+        }
+    }
+    
+    private void setLocalFileFilterFromVars() {
+        VcsConfigVariable varLocalFilter = (VcsConfigVariable) variablesByName.get("LOCAL_FILES_FILTERED_OUT");
+        VcsConfigVariable varLocalFilterCS = (VcsConfigVariable) variablesByName.get("LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE");
+        if (varLocalFilter != null) {
+            if (varLocalFilterCS != null) {
+                localFileFilterCaseSensitive = varLocalFilterCS.getValue().equalsIgnoreCase("true");
+            }
+            String[] files = MiscStuff.getQuotedStrings(varLocalFilter.getValue());
+            localFilesFilteredOut = new Vector(Arrays.asList(files));
+        } else localFilesFilteredOut = null;
+    }
+    
+    public void setVariables(Vector variables){
+        super.setVariables(variables);
+        setPossibleFileStatusesFromVars();
+        setLocalFileFilterFromVars();
+    }
+
+    public FilenameFilter getLocalFileFilter() {
+        return new FilenameFilter() {
+                   public boolean accept(File dir, String name) {
+                       if (!localFileFilterCaseSensitive) name = name.toUpperCase();
+                       return !localFilesFilteredOut.contains(name);
+                       //return !name.equalsIgnoreCase("CVS"); // NOI18N
+                   }
+               };
     }
 
     /*
