@@ -18,7 +18,9 @@ import java.io.File;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.StringTokenizer;
+import javax.swing.JDialog;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -34,6 +36,8 @@ import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jellytools.properties.*;
 import org.netbeans.jellytools.util.StringFilter;
+import org.netbeans.jemmy.operators.JButtonOperator;
+import org.netbeans.jemmy.operators.JDialogOperator;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
 import org.netbeans.jemmy.operators.JTreeOperator;
 import org.netbeans.junit.NbTestSuite;
@@ -227,13 +231,38 @@ public class AdditionalCommands extends PVCSStub {
         D_File.waitStatus ("Missing; 2.0.1.1");
     }
     
+    public void assertQuestionsBeforeRetrieving (String button) {
+        HashSet set = new HashSet ();
+        for (int a = 0; a < 30; a ++) {
+            JDialog dia = JDialogOperator.findJDialog("Retrieving...", true, true);
+            if (dia != null)
+                break;
+            sleep (1000);
+            dia = JDialogOperator.findJDialog("Question", true, true);
+            if (dia == null)
+                continue;
+            NbDialogOperator nbd = new NbDialogOperator ("Question");
+            JTextFieldOperator tf = new JTextFieldOperator (nbd, 0);
+            String str = tf.getText ();
+            info.println ("Found Question dialog with text: " + str);
+            if (set.contains(str))
+                info.println ("- Already closed");
+            else {
+                info.println ("- Closing using button: " + button);
+                set.add (str);
+                new JButtonOperator (nbd, button).push();
+            }
+        }
+    }
+    
     public void testRecursiveCheckout () {
         test.pvcsNode ().pVCSGet();
         GetCommandOperator dia = new GetCommandOperator ("");
         dia.checkGetAllSubdirectories(false);
         dia.ok ();
         dia.waitClosed ();
-        assertQuestionYesDialog (null);
+        assertQuestionsBeforeRetrieving ("Yes");
+//        assertQuestionYesDialog (null);
 //        assertQuestionYesDialog (null);
         assertRetrievingDialog ();
         D_File.waitStatus ("Missing; 2.0.1.1");
@@ -631,7 +660,7 @@ public class AdditionalCommands extends PVCSStub {
     }
     
     public void testSetPassword () {
-        closeAllProperties();
+        closeAllVCSWindows();
         new PropertiesAction ().perform (new Node (exp.repositoryTab().tree (), root.node ()));
         PropertySheetOperator pso = new PropertySheetOperator (root.node ());
         PropertySheetTabOperator psto = new PropertySheetTabOperator (pso, "Expert");
