@@ -36,7 +36,6 @@ import org.openide.src.nodes.FilterFactory;
 
 import org.netbeans.modules.java.settings.JavaSettings;
 
-import org.netbeans.modules.corba.settings.*;
 import org.netbeans.modules.corba.poasupport.POAExplorerFactory;
 
 
@@ -80,19 +79,9 @@ public class IDLModule extends ModuleInstall {
             System.out.println ("CORBA Support Module restoring..."); // NOI18N
         if (DEBUG)
             System.out.println ("restoring editor support ..."); // NOI18N
-
-	try {
-	    CORBASupportSettings __css
-		= (CORBASupportSettings)CORBASupportSettings.findObject
-		(CORBASupportSettings.class, true);
-	    __css.init ();
-	} catch (Exception __x) {
-	    TopManager.getDefault ().getErrorManager ().notify (__x);
-	}
         invokeDynamic( "org.netbeans.modules.java.JavaDataObject", // NOI18N
                        "addExplorerFilterFactory", // NOI18N
                        factory = new POAExplorerFactory() );
-
         if (DEBUG)
             System.out.println ("CORBA Support Module restored..."); // NOI18N
     }

@@ -114,6 +114,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     public CORBASupportSettings () {
         if (DEBUG) 
             System.out.println ("CORBASupportSettings () ..."); // NOI18N
+	this.init ();
     }
 
     private void init_boston_names_table () {
