@@ -3533,13 +3533,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public boolean folder (String name) {
         boolean isFolder;
 
-        if (cache != null) {
-            isFolder = cache.isDir(name);
-            if (!isFolder && !cache.isFile(name)) {
-                isFolder = getFile(name).isDirectory();
-            }
+        File file = getFile(name);
+        if (file.exists() || cache == null) {
+            isFolder = file.isDirectory();
         } else {
-            isFolder = getFile(name).isDirectory();
+            isFolder = cache.isDir(name);
         }
         return isFolder;
         // return getFile (name).isDirectory ();
