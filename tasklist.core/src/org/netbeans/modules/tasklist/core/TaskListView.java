@@ -601,7 +601,7 @@ public abstract class TaskListView extends TopComponent
     // JTable!
     protected static class MyTreeTable extends TreeTableView {
         MyTreeTable() {
-            JTable table = MyTreeTable.this.treeTable;
+            JTable table = treeTable;
             table.setShowHorizontalLines(true);
             table.setShowVerticalLines(false);
 
@@ -611,6 +611,9 @@ public abstract class TaskListView extends TopComponent
             // No white clipping lines on selected table rows: reduce separator
             // to 0. That means text may touch but HIE prefers this.
             table.setIntercellSpacing(new Dimension(0, table.getRowMargin()));
+            double height = new JLabel("Z").getPreferredSize().getHeight();
+            int intheight = (int) height;
+            table.setRowHeight(intheight);
 
             /* Issue 23993 was fixed which probably makes this unnecessary:
 // Grid color: HIE's asked for (230,230,230) but that seems troublesome
@@ -627,16 +630,16 @@ table.setGridColor((java.awt.Color)javax.swing.UIManager.getDefaults().get("Labe
         }
 
         JTable getTable() {
-            return MyTreeTable.this.treeTable;
+            return treeTable;
         }
 
         TableModel getModel() {
             // XXX it's private: return tableModel;
-            return (TableModel) MyTreeTable.this.treeTable.getModel();
+            return (TableModel) treeTable.getModel();
         }
 
         TableColumnModel getHeaderModel() {
-            return MyTreeTable.this.treeTable.getTableHeader().getColumnModel();
+            return treeTable.getTableHeader().getColumnModel();
         }
     }
 
