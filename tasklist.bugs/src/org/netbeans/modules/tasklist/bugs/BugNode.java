@@ -114,9 +114,6 @@ class BugNode extends TaskNode {
         Sheet s = Sheet.createDefault();
         Set ss = s.get(Sheet.PROPERTIES);
         
-        Set sse = Sheet.createExpertSet();
-        s.put(sse);
-        
         try {
             Property p;
             p = new Reflection(item, String.class, "getSummary", null); // NOI18N
