@@ -1,7 +1,7 @@
 OpenIDE-Module: org.netbeans.modules.clazz/1
 OpenIDE-Module-Name: Sourceless Java Classes
 OpenIDE-Module-Install: org/netbeans/modules/clazz/ClassModule.class
-OpenIDE-Module-Specification-Version: 1.4
+OpenIDE-Module-Specification-Version: 1.5
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 
 Name: org/netbeans/modules/clazz/ClassDataLoader.class

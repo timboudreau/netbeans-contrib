@@ -1,7 +1,7 @@
 OpenIDE-Module: org.netbeans.modules.remotefs/1
 OpenIDE-Module-Name: FTP FileSystem
 OpenIDE-Module-Install: org/netbeans/modules/remotefs/ftpfs/FTPfsModule.class
-OpenIDE-Module-Specification-Version: 1.1
+OpenIDE-Module-Specification-Version: 1.2
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 
 Name: org/netbeans/modules/remotefs/ftpfs/FTPFileSystem.class
