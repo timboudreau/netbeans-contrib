@@ -470,6 +470,8 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             if (filesCommited.size() == 0) break ;
             //setProcessingFiles(filesCommited, vars);
             VcsCommandExecutor[] executors = doCommit(cpool, cmdCommit, filesCommited, vars);
+            cmdCommit1.setProperty(CommandExecutorSupport.INPUT_DESCRIPTOR_PARSED,
+                cmdCommit.getProperty(CommandExecutorSupport.INPUT_DESCRIPTOR_PARSED));
             if (executors.length == 0) {
                 break;
             }
