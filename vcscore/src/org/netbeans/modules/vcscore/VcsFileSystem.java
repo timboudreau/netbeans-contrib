@@ -2810,6 +2810,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 cache.setFSRoot(r.getAbsolutePath());
                 cache.setRelativeMountPoint(module);
             }
+            // When we change the root, we have to create new attributes,
+            // that are with respect to the new root.
+            VcsAttributes a = new VcsAttributes (info, change, this, this, actionSupporter);
+            attr = a;
+            list = a;
         }
         firePropertyChange(PROP_DISPLAY_NAME, null, null);
         firePropertyChange(PROP_ROOT, null, refreshRoot ());
