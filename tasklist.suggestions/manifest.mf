@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 1.18
+OpenIDE-Module-Specification-Version: 1.19
 OpenIDE-Module: org.netbeans.modules.tasklist.suggestions/2
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/suggestions/ui/Bundle.properties
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
