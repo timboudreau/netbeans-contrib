@@ -34,6 +34,10 @@ public final class SerDataObject extends ClassDataObject {
     public SerDataObject(FileObject fo, ClassDataLoader loader) throws DataObjectExistsException {
         super (fo, loader);
     }
+    
+    public boolean isCopyAllowed() {
+        return true;
+    }
 
     /** Getter for move action.
     * @return true if the object can be moved
