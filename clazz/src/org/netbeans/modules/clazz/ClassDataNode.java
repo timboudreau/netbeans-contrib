@@ -20,16 +20,18 @@ import java.util.Vector;
 import java.io.*;
 
 import com.netbeans.ide.util.datatransfer.TransferableOwner;
+import com.netbeans.ide.loaders.DataNode;
 import com.netbeans.ide.classloader.NbClass;
 import com.netbeans.ide.nodes.*;
 import com.netbeans.ide.util.RequestProcessor;
 
 /** Represents ClassDataObject
+* This class is final only for performance reasons,
+* can be unfinaled if desired.
 *
-* @author Ales Novak, Ian Formanek, Jan Jancura
-* @version 0.28, Apr 15, 1998
+* @author Ales Novak, Ian Formanek, Jan Jancura, Dafe Simonek
 */
-class ClassDataNode extends com.netbeans.ide.loaders.DataContextNode {
+final class ClassDataNode extends DataNode {
   /** generated Serialized Version UID */
   static final long serialVersionUID = -1543899241509520203L;
 
@@ -446,6 +448,7 @@ class ClassDataNode extends com.netbeans.ide.loaders.DataContextNode {
 
 /*
  * Log
+ *  3    Gandalf   1.2         1/13/99  David Simonek   
  *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
  *       datasystem package
  *  1    Gandalf   1.0         1/5/99   Ian Formanek    

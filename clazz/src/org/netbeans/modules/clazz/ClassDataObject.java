@@ -136,12 +136,6 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
     return false;
   }
 
-  /**
-  * Does nothing.
-  */
-  public void handleSave (boolean modified) {
-  }
-
   /** Copies this object to a folder. The copy of the object is required to
   * be deletable and movable.
   *
@@ -589,6 +583,7 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
 
 /*
  * Log
+ *  3    Gandalf   1.2         1/13/99  David Simonek   
  *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
  *       datasystem package
  *  1    Gandalf   1.0         1/5/99   Ian Formanek    
