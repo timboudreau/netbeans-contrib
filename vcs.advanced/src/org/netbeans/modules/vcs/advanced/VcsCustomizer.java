@@ -93,6 +93,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         configCombo = new javax.swing.JComboBox();
         saveAsButton = new javax.swing.JButton();
         removeConfigButton = new javax.swing.JButton();
+        allProfilesCheckBox = new javax.swing.JCheckBox();
         propsPanel = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         rootDirTextField = new javax.swing.JTextField();
@@ -125,6 +126,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        compatibleOSCheckBox = new javax.swing.JCheckBox();
+        compatibleOSTextField = new javax.swing.JTextField();
+        uncompatibleOSCheckBox = new javax.swing.JCheckBox();
+        uncompatibleOSTextField = new javax.swing.JTextField();
         environmentPanel = new javax.swing.JPanel();
         userEnvLabel = new javax.swing.JLabel();
         envScrollPane = new javax.swing.JScrollPane();
@@ -155,7 +160,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         gridBagConstraints3 = new java.awt.GridBagConstraints();
         gridBagConstraints3.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints3.insets = new java.awt.Insets(4, 12, 11, 0);
+        gridBagConstraints3.insets = new java.awt.Insets(4, 12, 5, 0);
         gridBagConstraints3.weightx = 1.0;
         vcsPanel.add(configCombo, gridBagConstraints3);
         
@@ -169,7 +174,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         gridBagConstraints3 = new java.awt.GridBagConstraints();
         gridBagConstraints3.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints3.insets = new java.awt.Insets(4, 5, 11, 0);
+        gridBagConstraints3.insets = new java.awt.Insets(4, 5, 5, 0);
         vcsPanel.add(saveAsButton, gridBagConstraints3);
         
         removeConfigButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.removeConfigButton.text"));
@@ -184,8 +189,22 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints3.gridx = 2;
         gridBagConstraints3.gridy = 0;
         gridBagConstraints3.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints3.insets = new java.awt.Insets(4, 5, 11, 11);
+        gridBagConstraints3.insets = new java.awt.Insets(4, 5, 5, 11);
         vcsPanel.add(removeConfigButton, gridBagConstraints3);
+        
+        allProfilesCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.allProfilesCheckBox.text"));
+        allProfilesCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                allProfilesCheckBoxActionPerformed(evt);
+            }
+        });
+        
+        gridBagConstraints3 = new java.awt.GridBagConstraints();
+        gridBagConstraints3.gridy = 1;
+        gridBagConstraints3.gridwidth = 3;
+        gridBagConstraints3.insets = new java.awt.Insets(0, 12, 6, 11);
+        gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
+        vcsPanel.add(allProfilesCheckBox, gridBagConstraints3);
         
         gridBagConstraints2 = new java.awt.GridBagConstraints();
         gridBagConstraints2.gridx = 0;
@@ -574,7 +593,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
-        gridBagConstraints6.gridy = 9;
+        gridBagConstraints6.gridy = 11;
         gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.insets = new java.awt.Insets(12, 12, 11, 11);
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTHEAST;
@@ -611,6 +630,60 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6.gridwidth = 2;
         gridBagConstraints6.fill = java.awt.GridBagConstraints.VERTICAL;
         advancedPanel.add(jLabel8, gridBagConstraints6);
+        
+        compatibleOSCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.CompatibleOSCheckBox.text"));
+        compatibleOSCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                compatibleOSCheckBoxActionPerformed(evt);
+            }
+        });
+        
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridx = 1;
+        gridBagConstraints6.gridy = 9;
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(compatibleOSCheckBox, gridBagConstraints6);
+        
+        compatibleOSTextField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                compatibleOSTextFieldFocusLost(evt);
+            }
+        });
+        
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridx = 2;
+        gridBagConstraints6.gridy = 9;
+        gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 0, 0, 11);
+        gridBagConstraints6.weightx = 1.0;
+        advancedPanel.add(compatibleOSTextField, gridBagConstraints6);
+        
+        uncompatibleOSCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.UnompatibleOSCheckBox.text"));
+        uncompatibleOSCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                uncompatibleOSCheckBoxActionPerformed(evt);
+            }
+        });
+        
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridx = 1;
+        gridBagConstraints6.gridy = 10;
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(uncompatibleOSCheckBox, gridBagConstraints6);
+        
+        uncompatibleOSTextField.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                uncompatibleOSTextFieldFocusLost(evt);
+            }
+        });
+        
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridx = 2;
+        gridBagConstraints6.gridy = 10;
+        gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 0, 0, 11);
+        gridBagConstraints6.weightx = 1.0;
+        advancedPanel.add(uncompatibleOSTextField, gridBagConstraints6);
         
         jTabbedPane1.addTab("Advanced", advancedPanel);
         
@@ -743,6 +816,27 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         add(jTabbedPane1, gridBagConstraints1);
         
     }//GEN-END:initComponents
+
+    private void compatibleOSTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_compatibleOSTextFieldFocusLost
+        // Add your handling code here:
+    }//GEN-LAST:event_compatibleOSTextFieldFocusLost
+
+    private void uncompatibleOSTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_uncompatibleOSTextFieldFocusLost
+        // Add your handling code here:
+    }//GEN-LAST:event_uncompatibleOSTextFieldFocusLost
+
+    private void compatibleOSCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compatibleOSCheckBoxActionPerformed
+        // Add your handling code here:
+    }//GEN-LAST:event_compatibleOSCheckBoxActionPerformed
+
+    private void uncompatibleOSCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uncompatibleOSCheckBoxActionPerformed
+        // Add your handling code here:
+    }//GEN-LAST:event_uncompatibleOSCheckBoxActionPerformed
+
+    private void allProfilesCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allProfilesCheckBoxActionPerformed
+        // Add your handling code here:
+        updateConfigurations();
+    }//GEN-LAST:event_allProfilesCheckBoxActionPerformed
 
     private void promptEditTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_promptEditTextFieldFocusLost
         // Add your handling code here:
@@ -1211,6 +1305,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private javax.swing.JComboBox configCombo;
     private javax.swing.JButton saveAsButton;
     private javax.swing.JButton removeConfigButton;
+    private javax.swing.JCheckBox allProfilesCheckBox;
     private javax.swing.JPanel propsPanel;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField rootDirTextField;
@@ -1243,6 +1338,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JCheckBox compatibleOSCheckBox;
+    private javax.swing.JTextField compatibleOSTextField;
+    private javax.swing.JCheckBox uncompatibleOSCheckBox;
+    private javax.swing.JTextField uncompatibleOSTextField;
     private javax.swing.JPanel environmentPanel;
     private javax.swing.JLabel userEnvLabel;
     private javax.swing.JScrollPane envScrollPane;
@@ -1276,6 +1375,27 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private boolean isRootNotSetDlg = true;
     private TableSorter envTableModel;
     private TableSorter systemEnvTableModel;
+    
+    /**
+     * @deprecated It's only for a temporary use by the wizard.
+     */
+    public JPanel getConfigPanel() {
+        return configPanel;
+    }
+    
+    /**
+     * @deprecated It's only for a temporary use by the wizard.
+     */
+    public JPanel getAdvancedPanel() {
+        return advancedPanel;
+    }
+    
+    /**
+     * @deprecated It's only for a temporary use by the wizard.
+     */
+    public JPanel getEnvironmentPanel() {
+        return environmentPanel;
+    }
     
     private void postInitComponents() {
         removeEnterFromKeymap ();
@@ -1734,9 +1854,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             noProfileSelectedLabel = g("CTL_No_profile_selected");
             configCombo.addItem(noProfileSelectedLabel);
         }
+        int j = 0;
+        boolean configsForCurrenntOs = allProfilesCheckBox.isSelected();
         for(int i = 0; i < configLabels.length; i++) {
+            if (configsForCurrenntOs && !cache.isOSCompatibleProfile(configLabels[i])) {
+                continue;
+            }
             if (configLabels[i].equals(selectedConfig)) {
-                newIndex = i;
+                newIndex = j++;
             }
             configCombo.addItem(configLabels[i]);
         }
@@ -1835,6 +1960,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         } catch (IOException ioexc) {
             module = "";
         }
+        allProfilesCheckBox.setSelected(true);
         relMountTextField.setText(module);
         updateConfigurations();
         updateAdvancedConfig();
