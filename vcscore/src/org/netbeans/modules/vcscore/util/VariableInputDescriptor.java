@@ -244,6 +244,16 @@ public class VariableInputDescriptor extends Object {
             component.setValueUnselected(inputArgs[argNum]);
             argNum++;
         }
+        if (INPUT_ASK == id) {
+            String selected = component.getValueSelected();
+            if (selected != null) {
+                if (Boolean.TRUE.toString().equalsIgnoreCase(component.getValue())) {
+                    component.setValue(component.getValueSelected());
+                } else {
+                    component.setValue(component.getValueUnselected());
+                }
+            }
+        }
         if (len > argNum && inputArgs[argNum].indexOf(INPUT_STR_ENABLE) == 0) {
             argNum = addEnable(inputArgs, argNum, component);
         }
