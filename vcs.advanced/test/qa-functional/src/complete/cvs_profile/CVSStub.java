@@ -76,7 +76,7 @@ public abstract class CVSStub extends GenericStub {
             throw new AssertionFailedErrorException (e);
         }
         FileSystem fs = (FileSystem) o;
-        history = new History (fs);
+        history = new History (fs, info);
         history.breakpoint();
 
         wizard.setProfile(profile);
