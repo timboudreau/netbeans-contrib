@@ -155,6 +155,16 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
           list.add(object);
       } 
       
+      public boolean removeElement(Object object) {
+          int row = list.indexOf(object);
+          boolean toReturn = false;
+          if (row >= 0) {
+              toReturn = list.remove(object);
+              fireTableRowsDeleted(row, row);
+          }
+          return toReturn;
+      }
+      
       public void clear() {
           list.clear();
       }
