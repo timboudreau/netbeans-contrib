@@ -7,34 +7,24 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
- */
-/*
- * Test.java
- *
- * Created on January 28, 2004, 6:15 PM
  */
 
 package org.netbeans.swing.outline;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
-import javax.swing.table.TableModel;
-import javax.swing.tree.DefaultTreeModel;
+import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
-import org.openide.util.Utilities;
-import org.openide.util.enum.AlterEnumeration;
-import org.openide.util.enum.ArrayEnumeration;
+import javax.swing.tree.TreePath;
 
 /** A simple test of the Outline (aka TreeTable) class which implements
  * a filesystem browser.
@@ -79,13 +69,13 @@ public class TestOutline extends JFrame {
 //            new FileTreeNode(File.listRoots()[Utilities.isWindows() ? 1 : 0]));
                            
         TreeModel treeMdl = new FileTreeModel (
-            File.listRoots()[Utilities.isWindows() ? 1 : 0]);
+            File.listRoots()[System.getProperty("os.name").indexOf("Windows") != -1 ? 1 : 0]);
         return treeMdl;
     }
     
     public static void main(String[] ignored) {
         try {
-           //UIManager.setLookAndFeel (new javax.swing.plaf.metal.MetalLookAndFeel());
+           //UIManager.setLookAndFeel (new MetalLookAndFeel());
         } catch (Exception e) {}
         
         new TestOutline().show();
@@ -133,7 +123,7 @@ public class TestOutline extends JFrame {
     
     private class RenderData implements RenderDataProvider {
         
-        public java.awt.Color getBackground(Object o) {
+        public Color getBackground(Object o) {
             return null;
         }
         
@@ -141,7 +131,7 @@ public class TestOutline extends JFrame {
             return ((File) o).getName();
         }
         
-        public java.awt.Color getForeground(Object o) {
+        public Color getForeground(Object o) {
             File f = (File) o;
             if (!f.isDirectory() && !f.canWrite()) {
                 return UIManager.getColor ("controlShadow");
@@ -149,7 +139,7 @@ public class TestOutline extends JFrame {
             return null;
         }
         
-        public javax.swing.Icon getIcon(Object o) {
+        public Icon getIcon(Object o) {
             return null;
         
         }
@@ -171,7 +161,7 @@ public class TestOutline extends JFrame {
             this.root = root;
         }
         
-        public void addTreeModelListener(javax.swing.event.TreeModelListener l) {
+        public void addTreeModelListener(TreeModelListener l) {
             //do nothing
         }
         
@@ -204,11 +194,11 @@ public class TestOutline extends JFrame {
             return !f.isDirectory();
         }
         
-        public void removeTreeModelListener(javax.swing.event.TreeModelListener l) {
+        public void removeTreeModelListener(TreeModelListener l) {
             //do nothing
         }
         
-        public void valueForPathChanged(javax.swing.tree.TreePath path, Object newValue) {
+        public void valueForPathChanged(TreePath path, Object newValue) {
             //do nothing
         }
     }

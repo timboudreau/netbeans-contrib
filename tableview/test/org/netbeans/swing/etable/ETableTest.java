@@ -9,36 +9,16 @@
  * The Original Code is the ETable module. The Initial Developer of the Original
  * Code is Nokia. Portions Copyright 2004 Nokia. All Rights Reserved.
  */
+
 package org.netbeans.swing.etable;
 
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import junit.framework.*;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.*;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.Properties;
-import java.util.Vector;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import junit.framework.TestCase;
 
 /**
  * Tests for class ETable.
@@ -48,11 +28,6 @@ public class ETableTest extends TestCase {
     
     public ETableTest(String testName) {
         super(testName);
-    }
-
-    public static junit.framework.Test suite() {
-        junit.framework.TestSuite suite = new junit.framework.TestSuite(ETableTest.class);
-        return suite;
     }
 
     /**
@@ -93,11 +68,11 @@ public class ETableTest extends TestCase {
     public void testGetFullyEditable() {
         System.out.println("testGetFullyEditable");
         ETable t = createTestingTable(true);
-        assertFalse("False after creation ", t.getFullyEditable());
+        assertFalse("False after creation ", t.isFullyEditable());
         t.setFullyEditable(true);
-        assertTrue("Should be editable after setting" , t.getFullyEditable());
+        assertTrue("Should be editable after setting" , t.isFullyEditable());
         t.setFullyNonEditable(true);
-        assertFalse("Should be false if fully non-editable", t.getFullyEditable());
+        assertFalse("Should be false if fully non-editable", t.isFullyEditable());
     }
 
     /**
@@ -107,11 +82,11 @@ public class ETableTest extends TestCase {
         System.out.println("testGetFullyNonEditable");
         
         ETable t = createTestingTable(true);
-        assertFalse("False after creation ", t.getFullyNonEditable());
+        assertFalse("False after creation ", t.isFullyNonEditable());
         t.setFullyNonEditable(true);
-        assertTrue("Should be non-editable after setting" , t.getFullyNonEditable());
+        assertTrue("Should be non-editable after setting" , t.isFullyNonEditable());
         t.setFullyEditable(true);
-        assertFalse("Should be false if fully editable", t.getFullyNonEditable());
+        assertFalse("Should be false if fully editable", t.isFullyNonEditable());
     }
 
     /**

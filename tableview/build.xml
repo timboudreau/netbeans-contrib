@@ -1,104 +1,69 @@
-<?xml version='1.0' encoding='ISO-8859-1' ?>
-<!--
-                Sun Public License Notice
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<project name="contrib/ttv" default="default" basedir=".">
+    <description>Builds, tests, and runs the project contrib/ttv.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <!--
 
-The contents of this file are subject to the Sun Public License
-Version 1.0 (the "License"). You may not use this file except in
-compliance with the License. A copy of the License is available at
-http://www.sun.com/
+    There exist several targets which are by default empty and which can be 
+    used for execution of your tasks. These targets are usually executed 
+    before and after some main targets. They are: 
 
-The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
-Microsystems, Inc. All Rights Reserved.
--->
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
 
-<project name="outline" default="beanjar" basedir=".">
-  <property name="nbm_alias" value="nb_ide"/>
-  <property name="homepage.base" value="netbeans.org"/>
-  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" value="../../nbbuild/standard-nbm-license.txt"/>
+    (Targets beginning with '-' are not intended to be called on their own.)
 
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../nbbuild/nbantext.jar"/>
-  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../../nbbuild/nbantext.jar"/>
-  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="../../nbbuild/nbantext.jar"/>
+    Example of inserting an obfuscator after compilation could look like this:
 
-  <target name="compile-bean" description="Compile the Outline sources">
-    <javac srcdir="src" source="1.4" destdir="src" deprecation="${build.compiler.deprecation}" debug="true" verbose="false">
-      <classpath>
-        <pathelement location="src"/>
-        
-        <!--XXX include openide.jar for now - the demo apps use,
-         i.e., Utilities.toObjectArray() -->
-        
-        <fileset dir="../../openide/netbeans/lib">
-           <include name="openide*.jar" />
-         </fileset>
-      </classpath>
-    </javac>
-  </target>
-  
-  <target name="beanjar" depends="compile-bean" description="Build a standard java bean library jar containing the Outline component and its models">
-    <locjar jarfile="outline-bean.jar"
-            manifest="bean-manifest.mf"
-            basedir="src"
-            excludesfile="../../nbbuild/standard-jar-excludes.txt"
-            compress="false">
-      <locale name="ja"/>
-    </locjar>
-  </target>
-  
-  <target name="real-clean" depends="clean,clean-javadoc"/>
-  
-  <target name="clean-javadoc">
-    <delete dir="JavaAPIs"/>
-    <delete file="JavaAPIs.zip"/>
-    <delete dir="javadoc"/>
-  </target>  
-  
-  <target name="javadoc" depends="clean-javadoc,build-javadoc"  description="Build and zip outline javadoc">
-    <copy todir="javadoc">
-      <fileset dir=".">
-        <include name="javadoc/**"/>
-        <include name="outline-docs.zip"/>
-      </fileset>
-    </copy>
-  </target>  
-  
-  <target name="build-javadoc">
-    <tstamp/>
-    <property name="apis-footer" value="&lt;font size=-2 color=gray&gt;Built on ${TODAY}.&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Portions Copyright 1997-2003 Sun Microsystems, Inc. All rights reserved.&lt;/font&gt;"/>
-    <echo message="Build java module API documentation..."/>
-    <delete dir="javadoc"/>
-    <mkdir dir="javadoc"/>
-    <javadoc destdir="javadoc"
-             packagenames="org.netbeans.swing.outline"
-	     doctitle="NetBeans Outline (tree table) API"
-             windowtitle="NetBeans Outline (tree table) API"
-             bottom="${apis-footer}"
-             use="true"
-             splitindex="true"
-             author="true"
-             version="false"
-             maxmemory="384m"
-             source="1.4"
-    >
-      <sourcepath>
-        <pathelement location="src"/>
-      </sourcepath>
-      <!--<classpath refid="java-cp"/>-->
-    </javadoc>
-    <zip zipfile="outline-docs.zip" basedir="javadoc"/>
-  </target>  
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
 
-  <target name="clean">
-    <delete>
-      <fileset dir="src">
-        <include name="**/*.class"/>
-        <include name="**/*.jar"/>
-      </fileset>
-    </delete>
-    <delete file="outline-bean.jar"/>
-  </target>
+    For list of available properties check the imported 
+    nbproject/build-impl.xml file. 
 
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="contrib/ttv-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file. 
+
+    -->
 </project>
-

@@ -16,8 +16,17 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.*;
-import java.io.Serializable;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,14 +35,33 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.JViewport;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.*;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 /**
  * <UL>Extended JTable (ETable) adds these features to JTable:
@@ -291,7 +319,7 @@ public class ETable extends JTable {
      * @param   fullyEditable   true if the table is meant to be fully editable.
      *                          false if the table is meant to take the defalut
      *                          state for editing.
-     * @see #getFullyEditable
+     * @see #isFullyEditable
      */
     public void setFullyEditable(boolean fullyEditable) {
         if (fullyEditable) {
@@ -328,10 +356,10 @@ public class ETable extends JTable {
      * If <code>fullyNonEditable</code> is false, sets the table cells into
      * their default state as in <code>JTable</code>.
      *
-     * @param   fullyEditable   true if the table is meant to be fully non-editable.
+     * @param   fullyNonEditable   true if the table is meant to be fully non-editable.
      *                          false if the table is meant to take the defalut
      *                          state for editing.
-     * @see #getFullyNonEditable
+     * @see #isFullyNonEditable
      */
     public void setFullyNonEditable(boolean fullyNonEditable) {
         if (fullyNonEditable) {

@@ -9,30 +9,14 @@
  * The Original Code is the ETable module. The Initial Developer of the Original
  * Code is Nokia. Portions Copyright 2004 Nokia. All Rights Reserved.
  */
-package org.netbeans.swing.etable;
 
-import junit.framework.*;
-import java.awt.Color;
+package org.netbeans.swing.etable;
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
 import java.util.Comparator;
 import java.util.Properties;
-import javax.swing.Icon;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JViewport;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.plaf.UIResource;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
+import junit.framework.TestCase;
 
 /**
  * Tests for ETableColumn class.
@@ -42,11 +26,6 @@ public class ETableColumnTest extends TestCase {
     
     public ETableColumnTest(String testName) {
         super(testName);
-    }
-
-    public static junit.framework.Test suite() {
-        junit.framework.TestSuite suite = new junit.framework.TestSuite(ETableColumnTest.class);
-        return suite;
     }
 
     /**
