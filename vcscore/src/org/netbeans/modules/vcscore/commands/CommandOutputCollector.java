@@ -209,6 +209,7 @@ public class CommandOutputCollector extends Object implements CommandProcessList
             //Thread.currentThread().sleep(5000);
         //} catch (InterruptedException exc) {
         //\\}
+        if (cmdOutput == null) return ;
         for (int i = 0; i < NUM_OUTPUTS; i++) {
             synchronized (cmdOutput[i]) {
                 cmdOutputListeners[i] = null;
