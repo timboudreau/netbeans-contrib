@@ -2407,7 +2407,7 @@ Microsystems, Inc. All Rights Reserved.
     -->
     <command name="REVISION_GETTER">
       <property name="exec">
-        <value>${RUNCDW} ${CVS_DEF_EXE} -f log $[? FILE] [${QFILE}] [] ${NUR}</value>
+        <value>${CDW_EXECUTE} -f log $[? FILE] [${QFILE}] [] ${NUR}</value>
       </property>
     </command>
     <command name="REVISION_UPDATE" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_UPDATE)">
@@ -2415,7 +2415,7 @@ Microsystems, Inc. All Rights Reserved.
         <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_UPDATE_Mnemonic)</value>
       </property>
       <property name="exec">
-        <value>${RUNCDW} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} update -r $[? BRANCH] [${BRANCH}] [${REVISION}] ${UPDATE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
+        <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} update -r $[? BRANCH] [${BRANCH}] [${REVISION}] ${UPDATE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
       </property>
       <property name="inputDescriptor">
  	<value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_REVISION_UPDATE_Label))
@@ -2437,7 +2437,7 @@ Microsystems, Inc. All Rights Reserved.
         <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_MERGE_WITH_REVISION_Mnemonic)</value>
       </property>
       <property name="exec">
-        <value>${RUNCDW} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} update -j ${REVISION1} $[? REVISION2] [-j ${REVISION2}] [] ${MERGE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
+        <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} update -j ${REVISION1} $[? REVISION2] [-j ${REVISION2}] [] ${MERGE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
       </property>
       <property name="inputDescriptor">
  	<value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_REVISION_MERGE_Label))
@@ -2459,7 +2459,7 @@ Microsystems, Inc. All Rights Reserved.
         <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_MERGE_WITH_REVISION_DIFF_Mnemonic)</value>
       </property>
       <property name="exec">
-        <value>${RUNCDW} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} update -j ${REVISION1} $[? REVISION2] [-j ${REVISION2}] [] ${MERGE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
+        <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} update -j ${REVISION1} $[? REVISION2] [-j ${REVISION2}] [] ${MERGE_OPTIONS} $[? FILE] [${QFILE}] [] ${NUR}</value>
       </property>
       <property name="inputDescriptor">
  	<value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_REVISION_MERGE_Label))
@@ -2500,7 +2500,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     <command name="REVISION_OPEN">
       <property name="exec">
-        <value>${RUNCDW} ${CVS_DEF_EXE} -f update -p $[? REVISION] [-r ${REVISION}] [] ${QFILE} ${NUR}</value>
+        <value>${CDW_EXECUTE} -f update -p $[? REVISION] [-r ${REVISION}] [] ${QFILE} ${NUR}</value>
       </property>
       <property name="numRevisions">
 	<value>1</value>
@@ -2526,7 +2526,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <command name="CHECKOUT_IGNORE_LIST_CMD">
         <property name="exec">
-            <value>${RUNCDW} ${CVS_DEF_EXE} -f checkout -p CVSROOT/cvsignore</value>
+            <value>${CDW_EXECUTE} -f checkout -p CVSROOT/cvsignore</value>
         </property>
         <property name="ignoreFail">
             <value>true</value>
