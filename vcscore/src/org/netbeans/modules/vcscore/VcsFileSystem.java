@@ -88,6 +88,8 @@ import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 
 /** Generic VCS filesystem.
  * 
@@ -602,7 +604,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     ignoredGarbageRE = new RE (nue);
                 } catch (RESyntaxException rese) {
                     IllegalArgumentException iae = new IllegalArgumentException ();
-                    TopManager.getDefault ().getErrorManager ().annotate (iae, rese);
+                    ErrorManager.getDefault().annotate (iae, rese);
                     throw iae;
                 }
             } else {
@@ -996,7 +998,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         setRootDirectory(new File(root));
                     } catch (PropertyVetoException prop) {
                         mod.setValue(oldModule);
-                        throw (IOException) TopManager.getDefault().getErrorManager().annotate(new IOException(), prop);
+                        throw (IOException) ErrorManager.getDefault().annotate(new IOException(), prop);
                     } catch (IOException io) {
                         mod.setValue(oldModule);
                         throw io;
@@ -1313,7 +1315,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (cmdIO == null) {
             cmdIO = TopManager.getDefault().getIO(
                         NbBundle.getMessage(VcsFileSystem.class, "LBL_VCS_Output"),
-                        false);
+                        false);            
             cmdIO.setErrSeparated(false);
         }
         return cmdIO;
@@ -1630,7 +1632,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                             }
                         });
                     } catch (IOException exc) {
-                        TopManager.getDefault().notifyException(exc);
+                        ErrorManager.getDefault().notify(exc);
                     }
                 }
             });
@@ -1813,7 +1815,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             try {
                 ignoredGarbageRE = new RE (ignoredGarbageFiles);
             } catch (RESyntaxException rese) {
-                TopManager.getDefault ().notifyException (rese);
+                ErrorManager.getDefault ().notify(rese);
             }
         }
         if (versioningFileSystemShowGarbageFiles == null) {
@@ -2142,12 +2144,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                             reader.close();
                             writer.close();
                         } catch (FileNotFoundException exc) {
-                            TopManager.getDefault().notifyException(exc);
+                            ErrorManager.getDefault().notify(exc);
                         }
                     }
                 }
             } catch (IOException exc) {
-                TopManager.getDefault().notifyException(exc);
+                ErrorManager.getDefault().notify(exc);
             }
         }
     }
@@ -2191,7 +2193,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             final String badDir = root.toString();
             javax.swing.SwingUtilities.invokeLater(new Runnable () {
                                                        public void run () {
-                                                           TopManager.getDefault ().notify (new NotifyDescriptor.Message(MessageFormat.format (org.openide.util.NbBundle.getBundle(VcsFileSystem.class).getString("Filesystem.notRootDirectory"), new Object[] { badDir } )));
+                                                           DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Message(MessageFormat.format (org.openide.util.NbBundle.getBundle(VcsFileSystem.class).getString("Filesystem.notRootDirectory"), new Object[] { badDir } )));
                                                        }
                                                    });
             return ;
@@ -2204,7 +2206,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             final String badDir = module;
             javax.swing.SwingUtilities.invokeLater(new Runnable () {
                                                        public void run () {
-                                                           TopManager.getDefault ().notify (new NotifyDescriptor.Message(MessageFormat.format (org.openide.util.NbBundle.getBundle(VcsFileSystem.class).getString("Filesystem.notModuleDirectory"), new Object[] { badDir } )));
+                                                           DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Message(MessageFormat.format (org.openide.util.NbBundle.getBundle(VcsFileSystem.class).getString("Filesystem.notModuleDirectory"), new Object[] { badDir } )));
                                                        }
                                                    });
         }
@@ -2872,7 +2874,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         String testName = name;
         int seed = 0;
         do {
-            Enumeration en = TopManager.getDefault ().getRepository ().fileSystems ();
+            Enumeration en = org.openide.filesystems.Repository.getDefault().fileSystems ();
             while (en.hasMoreElements ()) {
                 FileSystem fs = (FileSystem) en.nextElement ();
                 if (fs == this) continue;
@@ -3699,7 +3701,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             in = new FileInputStream (getFile (name));
         } catch (java.io.FileNotFoundException exc) {
             final String fname = name;
-            throw (java.io.FileNotFoundException) TopManager.getDefault().getErrorManager().annotate(
+            throw (java.io.FileNotFoundException) ErrorManager.getDefault().annotate(
                 new java.io.FileNotFoundException() {
                     public String getLocalizedMessage() {
                         return g("MSG_FileNotExist", fname);
@@ -3884,7 +3886,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                             String message;
                             if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
                             else message = g("MSG_EditFileCh");
-                            throw (UserQuestionException) TopManager.getDefault().getErrorManager().annotate(
+                            throw (UserQuestionException) ErrorManager.getDefault().annotate(
                                 new UserQuestionException(message) {
                                     public void confirmed() {
                                         synchronized (editCommandExecutors) {

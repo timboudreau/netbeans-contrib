@@ -32,7 +32,6 @@ import java.util.Set;
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
 
-import org.openide.TopManager;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -74,6 +73,8 @@ import org.netbeans.modules.vcscore.versioning.impl.VersioningDataLoader;
 //import org.netbeans.modules.vcscore.versioning.impl.AbstractVersioningSystem;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.ErrorManager;
+
 //import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionChildren;
 
 /**
@@ -245,7 +246,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                     ignoredGarbageRE = new RE (nue);
                 } catch (RESyntaxException rese) {
                     IllegalArgumentException iae = new IllegalArgumentException ();
-                    TopManager.getDefault ().getErrorManager ().annotate (iae, rese);
+                    ErrorManager.getDefault().annotate (iae, rese);
                     throw iae;
                 }
             } else {
@@ -456,7 +457,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             try {
                 ignoredGarbageRE = new RE (ignoredGarbageFiles);
             } catch (RESyntaxException rese) {
-                TopManager.getDefault ().notifyException (rese);
+                ErrorManager.getDefault ().notify(rese);
             }
         }
     }
@@ -687,12 +688,12 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
              */
             if (VcsCommandIO.getBooleanProperty(cmd.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL)) success = true;
             if (!success) {
-                throw (java.io.FileNotFoundException) TopManager.getDefault().getErrorManager().annotate(
+                throw (java.io.FileNotFoundException) ErrorManager.getDefault().annotate(
                     new java.io.FileNotFoundException(),
                     NbBundle.getMessage(VcsVersioningSystem.class, "MSG_RevisionOpenCommandFailed", name, revision));
             }
             if (fileBuffer.length() == 0) {
-                throw (java.io.FileNotFoundException) TopManager.getDefault().getErrorManager().annotate(
+                throw (java.io.FileNotFoundException) ErrorManager.getDefault().annotate(
                     new java.io.FileNotFoundException(),
                     NbBundle.getMessage(VcsVersioningSystem.class, "MSG_FileRevisionIsEmpty", name, revision));
             }
@@ -726,7 +727,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                     setSystemName(fileSystem.getSystemName());
                     VcsVersioningSystem.this.firePropertyChange(VcsVersioningSystem.this.PROP_SYSTEM_NAME, oldSystName, getSystemName());
                 } catch (java.beans.PropertyVetoException vExc) {
-                    org.openide.TopManager.getDefault().getErrorManager().notify(org.openide.ErrorManager.WARNING, vExc);
+                    ErrorManager.getDefault().notify(org.openide.ErrorManager.WARNING, vExc);
                 }
                 FileObject fo = refreshRoot();
                 VcsVersioningSystem.this.firePropertyChange(VcsVersioningSystem.this.PROP_ROOT, null, fo);

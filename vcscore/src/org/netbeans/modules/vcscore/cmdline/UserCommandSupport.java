@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.openide.TopManager;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
@@ -72,6 +71,7 @@ import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.VariableInputDialog;
 import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.ErrorManager;
 
 /**
  * The adapter from UserCommand to CommandSupport. This class is used to
@@ -671,10 +671,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 String actionClassName = (String) actionClassNameObj;
                 try {
                     actionClass = Class.forName(actionClassName, false,
-                                                TopManager.getDefault().currentClassLoader());
+                                                org.openide.TopManager.getDefault().currentClassLoader());
                 } catch (ClassNotFoundException e) {
-                    TopManager.getDefault().notifyException(
-                        TopManager.getDefault().getErrorManager().annotate(e,
+                    ErrorManager.getDefault().notify(
+                        ErrorManager.getDefault().annotate(e,
                             NbBundle.getMessage(UserCommandSupport.class, "EXC_CouldNotFindAction",
                             actionClassName)));
                 }

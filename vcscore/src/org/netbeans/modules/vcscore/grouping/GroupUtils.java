@@ -27,6 +27,7 @@ import org.openide.filesystems.*;
 import org.openide.filesystems.FileSystem; // override java.io.FileSystem
 import java.util.*;
 import java.io.*;
+import org.openide.DialogDisplayer;
 
 public class GroupUtils {
 
@@ -39,7 +40,7 @@ public class GroupUtils {
      */
     public static MainVcsGroupNode getMainVcsGroupNodeInstance() {
         MainVcsGroupNode root = null;
-        FileSystem defFs = TopManager.getDefault().getRepository().getDefaultFileSystem();
+        FileSystem defFs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         FileObject fo = defFs.findResource(MainVcsGroupNode.GROUPS_PATH + "/org-netbeans-modules-vcscore-grouping-MainVcsGroupNode.instance");//NOI18N
         if (fo != null) {
             DataObject dobj;
@@ -64,7 +65,7 @@ public class GroupUtils {
      * returns the folder in the default filesystem where the groups data is stored.
      */
     public static DataFolder getMainVcsGroupFolder() {
-        FileSystem fs = TopManager.getDefault().getRepository().getDefaultFileSystem();
+        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         FileObject rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
         DataFolder fold = null;
         try {
@@ -124,7 +125,7 @@ public class GroupUtils {
             NotifyDescriptor.Confirmation conf = new NotifyDescriptor.Confirmation(
                 NbBundle.getBundle(GroupUtils.class).getString("AddToGroupAction.moveToGroupQuestion"),
                 NotifyDescriptor.YES_NO_CANCEL_OPTION);
-            Object retValue = TopManager.getDefault().notify(conf);
+            Object retValue = DialogDisplayer.getDefault().notify(conf);
             if (retValue.equals(NotifyDescriptor.CANCEL_OPTION)) {
                 return;
             }
@@ -160,7 +161,7 @@ public class GroupUtils {
      */
     
     public static DataShadow findDOInGroups(DataObject dataObj) {
-        FileSystem fs = TopManager.getDefault().getRepository().getDefaultFileSystem();
+        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         FileObject rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
         Enumeration enum = rootFo.getData(true);
         while (enum.hasMoreElements()) {

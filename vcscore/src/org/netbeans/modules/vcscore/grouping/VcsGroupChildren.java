@@ -17,7 +17,6 @@ import java.util.*;
 
 import org.openide.nodes.*;
 import org.openide.filesystems.*;
-import org.openide.TopManager;
 import org.openide.loaders.*;
 import org.openide.util.*;
 import java.beans.*;

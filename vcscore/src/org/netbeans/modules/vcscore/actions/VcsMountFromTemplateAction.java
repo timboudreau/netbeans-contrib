@@ -26,6 +26,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import org.openide.*;
+import org.openide.DialogDisplayer;
 import org.openide.actions.MoveDownAction;
 import org.openide.actions.MoveUpAction;
 import org.openide.awt.Actions;
@@ -39,11 +40,13 @@ import org.openide.loaders.*;
 import org.openide.nodes.*;
 import org.openide.util.Mutex;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.*;
 import org.openide.util.WeakListener;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /** Creates a new VCS filesystem from template in the "Templates/Mount/VCS" folder.
  * Copied and adapted from org.openide.actions.NewTemplateAction
@@ -72,14 +75,14 @@ public class VcsMountFromTemplateAction extends NodeAction {
     
     private static DataFolder getVCSFolder() {
         if (vcsFolder == null) {
-            vcsFolder = DataFolder.findFolder(TopManager.getDefault().getRepository().getDefaultFileSystem().findResource("Templates/Mount/VCS"));
+            vcsFolder = DataFolder.findFolder(org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().findResource("Templates/Mount/VCS"));
         }
         return vcsFolder;
     }
     
     private static DataFolder getTargetFolder() {
         if (targetFolder == null) {
-            targetFolder = DataFolder.findFolder(TopManager.getDefault().getRepository().getDefaultFileSystem().findResource("Mount"));
+            targetFolder = DataFolder.findFolder(org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().findResource("Mount"));
         }
         return targetFolder;
     }
@@ -149,14 +152,14 @@ public class VcsMountFromTemplateAction extends NodeAction {
             // instantiates
             wizard.instantiate ();
         } catch (IOException e) {
-            ErrorManager em = TopManager.getDefault().getErrorManager();
+            ErrorManager em = ErrorManager.getDefault();
             Throwable e1 = em.annotate(e, "Creating from template did not succeed."); // NOI18N
             em.notify(ErrorManager.INFORMATIONAL, e1);
             String msg = e.getMessage();
             //if ((msg == null) || msg.equals("")) { // NOI18N
                 //msg = ActionConstants.BUNDLE.getString("EXC_TemplateFailed");
             //}
-            TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
         }
     }
 
@@ -301,7 +304,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
                     if (bundleName != null) {
                         try {
                             bundleName = org.openide.util.Utilities.translate(bundleName);
-                            ResourceBundle b = NbBundle.getBundle (bundleName, Locale.getDefault (), TopManager.getDefault ().systemClassLoader ());
+                            ResourceBundle b = NbBundle.getBundle (bundleName, Locale.getDefault (),(ClassLoader)Lookup.getDefault().lookup(ClassLoader.class));
                             mnemonic = b.getString (fo.getPackageNameExt ('/', '.') + "_m"); // NOI18N
                         } catch (MissingResourceException ex) {
                             // ignore--normal
@@ -348,13 +351,13 @@ public class VcsMountFromTemplateAction extends NodeAction {
                 //setTWIterator(wizard, obj);
                 wizard.instantiate (obj, targetFolder);
             } catch (IOException e) {
-                ErrorManager em = TopManager.getDefault().getErrorManager();
+                ErrorManager em = ErrorManager.getDefault();
                 Throwable e1 = em.annotate(e, "Creating from template did not succeed."); // NOI18N
                 em.notify(ErrorManager.INFORMATIONAL, e1);
                 String msg = e.getMessage();
                 //if ((msg == null) || msg.equals("")) // NOI18N
                     //msg = ActionConstants.BUNDLE.getString("EXC_TemplateFailed");
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
             }
 
             // ok
@@ -386,7 +389,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
         /** Instance not connected to any node.
          */
         public RootChildren () {
-            TopComponent.Registry reg = TopManager.getDefault ().getWindowManager ().getRegistry ();
+            TopComponent.Registry reg = WindowManager.getDefault().getRegistry ();
             reg.addPropertyChangeListener (WeakListener.propertyChange (this, reg));
             
             updateWizard (getWizard (null));
@@ -519,7 +522,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
                 // change in selected nodes
                 if (TopComponent.Registry.PROP_ACTIVATED_NODES.equals (pn)) {
                     // change the selected node
-                    Node[] arr = TopManager.getDefault ().getWindowManager ().getRegistry ().getActivatedNodes ();
+                    Node[] arr = WindowManager.getDefault().getRegistry ().getActivatedNodes ();
                     if (arr.length == 1) {
                         // only if the size is 1
                         updateNode (arr[0]);

@@ -17,7 +17,6 @@ import java.text.*;
 import java.util.*;
 
 import org.openide.ErrorManager;
-import org.openide.TopManager;
 import org.openide.util.*;
 
 import org.netbeans.modules.vcscore.*;

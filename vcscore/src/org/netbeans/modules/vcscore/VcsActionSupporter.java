@@ -20,7 +20,6 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
-import org.openide.TopManager;
 import org.openide.cookies.SaveCookie;
 import org.openide.nodes.*;
 import org.openide.util.RequestProcessor;

@@ -20,7 +20,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import java.util.*;
 
-import org.openide.TopManager;
 import org.openide.awt.JMenuPlus;
 import org.openide.awt.JInlineMenu;
 import org.openide.filesystems.FileStateInvalidException;
@@ -35,6 +34,8 @@ import org.netbeans.modules.vcscore.util.OrderedSet;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
+import org.openide.windows.WindowManager;
+
 //import org.netbeans.modules.vcscore.cmdline.*;
 //import org.netbeans.modules.vcscore.cmdline.exec.ExternalCommand;
 
@@ -81,7 +82,7 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
     }
     
     private static JMenuItem[] createMenu(boolean popUp) {
-        Node[] nodes = TopManager.getDefault().getWindowManager().getRegistry ().getActivatedNodes ();
+        Node[] nodes = WindowManager.getDefault().getRegistry ().getActivatedNodes ();
         HashMap rListMap = new HashMap();
         if (nodes != null) {
             for (int i = 0; i < nodes.length; i++) {
@@ -180,7 +181,7 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
             this.popup = popup;
             changeMenuItems (createMenu (popup));
 
-            Registry r = TopManager.getDefault().getWindowManager().getRegistry ();
+            Registry r = WindowManager.getDefault().getRegistry ();
 
             r.addPropertyChangeListener (
                 org.openide.util.WeakListener.propertyChange (propL, r)

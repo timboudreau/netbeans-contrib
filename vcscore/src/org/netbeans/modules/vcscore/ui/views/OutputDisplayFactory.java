@@ -29,6 +29,7 @@ import java.io.*;
 import java.util.*;
 
 import org.netbeans.modules.vcscore.versioning.*;
+import org.openide.windows.WindowManager;
 
 
 public class OutputDisplayFactory {
@@ -182,7 +183,7 @@ public class OutputDisplayFactory {
             expanel = new VcsExplorerPanel();
             expanel.setName(viewCreator.getTitle());
             expanel.setIcon(viewCreator.getImage());
-            org.openide.windows.Workspace workspace = org.openide.TopManager.getDefault().getWindowManager().getCurrentWorkspace();
+            org.openide.windows.Workspace workspace = WindowManager.getDefault().getCurrentWorkspace();
             org.openide.windows.Mode javaMode = modeToDockTo;
             javaMode.dockInto(expanel);
             rootNode = OutputDisplayFactory.createRootNode(rootInfo, false);

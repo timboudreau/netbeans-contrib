@@ -17,7 +17,6 @@ import java.beans.*;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.openide.TopManager;
 
 import org.openide.util.NbBundle;
 
@@ -62,7 +61,7 @@ public abstract class AnnotationPatternPropertyEditor extends PropertyEditorSupp
     public java.awt.Component getCustomEditor() {
        java.awt.Component toReturn = null;
         try {
-            Class customEdClass = Class.forName(CUSTOM_EDITOR_CLASS, true, TopManager.getDefault().currentClassLoader());
+            Class customEdClass = Class.forName(CUSTOM_EDITOR_CLASS, true, org.openide.TopManager.getDefault().currentClassLoader());
             toReturn = (java.awt.Component)customEdClass.newInstance();
             java.lang.reflect.Method method = customEdClass.getMethod("setCallingPropertyEditor", new Class[] {AnnotationPatternPropertyEditor.class});
             if (method != null) {

@@ -35,6 +35,8 @@ import org.openide.loaders.*;
 import org.openide.filesystems.*;
 
 import org.netbeans.modules.vcscore.grouping.*;
+import org.openide.DialogDisplayer;
+
 /** Action sensitive to the node selection that does something useful.
  *
  * @author  builder
@@ -116,7 +118,7 @@ public class AddToGroupAction extends NodeAction {
                     }
                 } catch (Exception exc) {
                     // just ignore missing resource or error while reading the props..
-                    ErrorManager manager = TopManager.getDefault().getErrorManager();
+                    ErrorManager manager = ErrorManager.getDefault();
                     manager.notify(ErrorManager.INFORMATIONAL, exc);
                 }
             }
@@ -236,7 +238,7 @@ public class AddToGroupAction extends NodeAction {
                     NotifyDescriptor excMess = new NotifyDescriptor.Message(
                     NbBundle.getBundle(AddToGroupAction.class).getString("MoveToVcsGroupAction.movingError"),
                     NotifyDescriptor.ERROR_MESSAGE);
-                    TopManager.getDefault().notify(excMess);
+                    DialogDisplayer.getDefault().notify(excMess);
                 }
             }
         }

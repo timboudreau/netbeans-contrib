@@ -19,7 +19,6 @@ import java.io.*;
 import org.openide.nodes.*;
 import org.openide.filesystems.*;
 import org.openide.filesystems.FileSystem; // override java.io.FileSystem
-import org.openide.TopManager;
 import org.openide.ErrorManager;
 import org.openide.loaders.*;
 import org.openide.util.*;

@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDescriptor;
 import org.openide.filesystems.FileObject;
@@ -56,6 +55,8 @@ import org.netbeans.modules.vcscore.util.NotifyDescriptorInputPassword;
 import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionListener;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 
 /**
  * This class contains a support for VCS commands customization.
@@ -290,7 +291,7 @@ public class CommandCustomizationSupport extends Object {
         }
         if (confirmed && confirmation.length() > 0) {
             if (!NotifyDescriptor.Confirmation.YES_OPTION.equals (
-                    TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (
+                    DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Confirmation (
                         confirmation, NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
                 return null; // The command is cancelled for that file
             }
@@ -437,10 +438,10 @@ public class CommandCustomizationSupport extends Object {
                     checkBox = new JCheckBox(g("DLG_DoNotNotify"));
                 } else checkBox = null;
                 msg.setMessage(createNotificationDesign(notification1, checkBox));
-                TopManager.getDefault().notify(msg);
+                DialogDisplayer.getDefault().notify(msg);
                 if (checkBox != null && checkBox.isSelected()) {
                     fileSystem.setCommandNotification(false);
-                    TopManager.getDefault().notify(new NotifyDescriptor.Message(
+                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
                         g("DLG_CanBeEnabled")));
                 }
             }
@@ -854,7 +855,7 @@ public class CommandCustomizationSupport extends Object {
                 try {
                     inputDescriptor = VariableInputDescriptor.parseItems(inputDescriptorStr);
                 } catch (VariableInputFormatException exc) {
-                    TopManager.getDefault().notifyException(exc);
+                    ErrorManager.getDefault().notify(exc);
                     throw new UserCancelException();
                 }
                 inputDescriptor.setValuesAsDefault();
@@ -878,7 +879,7 @@ public class CommandCustomizationSupport extends Object {
                     password = fileSystem.getPassword();
                     if (password == null) {
                         NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
-                        if (NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault ().notify (nd))) {
+                        if (NotifyDescriptor.OK_OPTION.equals (DialogDisplayer.getDefault ().notify (nd))) {
                             password = nd.getInputText ();
                         } else {
                             fileSystem.setPassword(null);
@@ -935,7 +936,7 @@ public class CommandCustomizationSupport extends Object {
                             try {
                                 globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr);
                             } catch (VariableInputFormatException exc) {
-                                TopManager.getDefault().notifyException(exc);
+                                ErrorManager.getDefault().notify(exc);
                                 return null;
                             }
                             globalInputStrs.put(fileSystem, globalInputStr);
@@ -1025,7 +1026,7 @@ public class CommandCustomizationSupport extends Object {
                                 try {
                                     globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr);
                                 } catch (VariableInputFormatException exc) {
-                                    TopManager.getDefault().notifyException(exc);
+                                    ErrorManager.getDefault().notify(exc);
                                     return null;
                                 }
                                 globalInputStrs.put(fileSystem, globalInputStr);
@@ -1075,7 +1076,7 @@ public class CommandCustomizationSupport extends Object {
                 try {
                     inputDescriptor = VariableInputDescriptor.parseItems(inputDescriptorStr);
                 } catch (VariableInputFormatException exc) {
-                    TopManager.getDefault().notifyException(exc);
+                    ErrorManager.getDefault().notify(exc);
                     return false;
                 }
                 inputDescriptor.setValuesAsDefault();
@@ -1097,7 +1098,7 @@ public class CommandCustomizationSupport extends Object {
                     password = fileSystem.getPassword();
                     if (password == null) {
                         NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
-                        if (NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault ().notify (nd))) {
+                        if (NotifyDescriptor.OK_OPTION.equals (DialogDisplayer.getDefault ().notify (nd))) {
                             password = nd.getInputText ();
                         } else {
                             fileSystem.setPassword(null);
@@ -1149,7 +1150,7 @@ public class CommandCustomizationSupport extends Object {
                             try {
                                 globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr);
                             } catch (VariableInputFormatException exc) {
-                                TopManager.getDefault().notifyException(exc);
+                                ErrorManager.getDefault().notify(exc);
                                 return false;
                             }
                             globalInputStrs.put(fileSystem, globalInputStr);
@@ -1179,7 +1180,7 @@ public class CommandCustomizationSupport extends Object {
                     if (multipleFiles != null && multipleFiles.length() > 0) title += VAR_INPUT_MULTIPLE_FILES_TITLE_APPEND;
                     DialogDescriptor dialogDescriptor = new DialogDescriptor(dlg, title, true, dlg.getActionListener());
                     dialogDescriptor.setClosingOptions(new Object[] { NotifyDescriptor.CANCEL_OPTION });
-                    final Dialog dialog = TopManager.getDefault().createDialog(dialogDescriptor);
+                    final Dialog dialog = DialogDisplayer.getDefault().createDialog(dialogDescriptor);
                     dlg.addCloseListener(new java.awt.event.ActionListener() {
                         public void actionPerformed(java.awt.event.ActionEvent ev) {
                             dialog.dispose();
@@ -1236,7 +1237,7 @@ public class CommandCustomizationSupport extends Object {
                                 try {
                                     globalInputDescriptor = VariableInputDescriptor.parseItems(globalInputStr);
                                 } catch (VariableInputFormatException exc) {
-                                    TopManager.getDefault().notifyException(exc);
+                                    ErrorManager.getDefault().notify(exc);
                                     return false;
                                 }
                                 globalInputStrs.put(fileSystem, globalInputStr);

@@ -22,7 +22,6 @@ import java.io.*;
 import org.openide.nodes.*;
 import org.openide.filesystems.*;
 import org.openide.filesystems.FileSystem; // override java.io.FileSystem
-import org.openide.TopManager;
 import org.openide.loaders.*;
 import org.openide.util.*;
 import java.beans.*;
@@ -44,7 +43,7 @@ public class RuntimeMainChildren extends Children.Keys  {
         /** add subnodes..
          */
         providerList = new LinkedList();
-        Repository repos = org.openide.TopManager.getDefault().getRepository();
+        Repository repos = org.openide.filesystems.Repository.getDefault();
         java.util.Enumeration enum = repos.getFileSystems(); 
         while (enum.hasMoreElements()) {
             FileSystem fs = (FileSystem) enum.nextElement();

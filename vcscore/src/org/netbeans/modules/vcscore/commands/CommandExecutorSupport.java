@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Hashtable;
 import java.util.Enumeration;
 
-import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDescriptor;
 import org.openide.util.RequestProcessor;
@@ -49,6 +48,7 @@ import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.NotifyDescriptorInputPassword;
 import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionListener;
+import org.openide.DialogDisplayer;
 
 /**
  * This class contains a support for VCS commands execution.
@@ -282,10 +282,10 @@ public class CommandExecutorSupport extends Object {
                     checkBox = new JCheckBox(g("DLG_DoNotNotify"));
                 } else checkBox = null;
                 msg.setMessage(createNotificationDesign(notification1, checkBox));
-                TopManager.getDefault().notify(msg);
+                DialogDisplayer.getDefault().notify(msg);
                 if (checkBox != null && checkBox.isSelected()) {
                     fileSystem.setCommandNotification(false);
-                    TopManager.getDefault().notify(new NotifyDescriptor.Message(
+                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
                         g("DLG_CanBeEnabled")));
                 }
             }

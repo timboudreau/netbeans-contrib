@@ -202,7 +202,7 @@ public class ClusteringAction extends GeneralCommandAction  {
         JMenuItem item=null;
         JMenu submenu = null;
 
-        FileSystem defFs = TopManager.getDefault().getRepository().getDefaultFileSystem();
+        FileSystem defFs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         FileObject menuRoot = defFs.findResource(menuPath);
         if (menuRoot == null) {
             return;
@@ -248,7 +248,7 @@ public class ClusteringAction extends GeneralCommandAction  {
                             lastWasSeparator = true;
                         }
                     } catch (Exception exc) {
-                        TopManager.getDefault().getErrorManager().notify(ErrorManager.ERROR, exc);
+                        ErrorManager.getDefault().notify(ErrorManager.ERROR, exc);
                     }
                 }
             }

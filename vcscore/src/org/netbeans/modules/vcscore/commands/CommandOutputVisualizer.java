@@ -28,6 +28,8 @@ import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
+import org.openide.DialogDisplayer;
+import org.openide.windows.WindowManager;
 
 /**
  * The default visualizer of command output.
@@ -129,7 +131,7 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
      * Open the component on the given workspace.
      */
     public void open(Workspace workspace) {
-        if (workspace == null) workspace = org.openide.TopManager.getDefault().getWindowManager().getCurrentWorkspace();
+        if (workspace == null) workspace = WindowManager.getDefault().getCurrentWorkspace();
         Mode myMode = workspace.findMode(this);
         if (myMode == null) {
             // create new mode for CI and set the bounds properly
@@ -261,7 +263,7 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
                     java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.killCommand"),
                                                    new Object[] { name }),
                     NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
-                if (NotifyDescriptor.Confirmation.OK_OPTION.equals (org.openide.TopManager.getDefault ().notify (nd))) {
+                if (NotifyDescriptor.Confirmation.OK_OPTION.equals (DialogDisplayer.getDefault ().notify (nd))) {
                     task.stop();
                     //synchronized (this) {
                     //    if (pool != null) pool.kill(vce);
@@ -336,7 +338,7 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
                         } catch (InterruptedException iexc) {
                             break;
                         } catch (java.lang.reflect.InvocationTargetException itexc) {
-                            org.openide.TopManager.getDefault().notifyException(itexc);
+                            org.openide.ErrorManager.getDefault().notify(itexc);
                             break;
                         }
                     } while (outputDisplayStuff.size() > 0);

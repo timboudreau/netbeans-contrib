@@ -20,7 +20,6 @@ import java.text.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.openide.TopManager;
 import org.openide.ErrorManager;
 import org.openide.util.*;
 

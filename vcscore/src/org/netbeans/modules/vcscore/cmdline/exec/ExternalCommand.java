@@ -274,8 +274,8 @@ public class ExternalCommand {
             }
             catch (IOException e){
                 //E.err("Runtime.exec failed."); // NOI18N
-                org.openide.TopManager.getDefault().notifyException(
-                    org.openide.TopManager.getDefault().getErrorManager().annotate(e,
+                org.openide.ErrorManager.getDefault().notify(
+                    org.openide.ErrorManager.getDefault().annotate(e,
                     g("EXT_CMD_RuntimeExc", VcsUtilities.array2string(commandArr))));
                 stderrNextLine(g("EXT_CMD_RuntimeFailed", command)); // NOI18N
                 setExitStatus(VcsCommandExecutor.FAILED);
@@ -559,7 +559,7 @@ public class ExternalCommand {
                 } catch (ThreadDeath td) {
                     throw td;
                 } catch (Throwable t) {
-                    org.openide.TopManager.getDefault().notifyException(t);
+                    org.openide.ErrorManager.getDefault().notify(t);
                 }
             } while(true);
         }

@@ -32,7 +32,6 @@ import org.openide.explorer.*;
 import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.util.*;
-import org.openide.TopManager;
 import org.netbeans.modules.vcscore.grouping.*;
 import java.beans.PropertyVetoException;
 

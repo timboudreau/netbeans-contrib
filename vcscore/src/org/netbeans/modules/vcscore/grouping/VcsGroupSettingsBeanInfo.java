@@ -66,7 +66,7 @@ public class VcsGroupSettingsBeanInfo extends SimpleBeanInfo {
             return new PropertyDescriptor[] {autoAddition, showLinks, disableGroups }; 
             
         } catch (IntrospectionException ie) {
-            org.openide.TopManager.getDefault().getErrorManager().notify();
+            org.openide.ErrorManager.getDefault().notify();
             return null;
         }
     }

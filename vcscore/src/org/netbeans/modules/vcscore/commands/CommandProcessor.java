@@ -28,7 +28,6 @@ import java.beans.PropertyChangeEvent;
 import java.util.*;
 
 import org.openide.ErrorManager;
-import org.openide.TopManager;
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
@@ -55,6 +54,8 @@ import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.util.Table;
 //import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.DialogDisplayer;
+import org.openide.awt.StatusDisplayer;
 
 /**
  * This class is used as a container of all external commands which are either running or finished.
@@ -332,7 +333,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         boolean status;
         //System.out.println("customizer = "+cust);
         if (dlg != null) {
-            status = NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(dlg));
+            status = NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dlg));
         } else if (cust != null) {
             ActionListener actionL = null;
             java.lang.reflect.Method addActionListenerMethod = null;
@@ -357,10 +358,10 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                                        true, DialogDescriptor.OK_CANCEL_OPTION,
                                        DialogDescriptor.OK_OPTION, actionL);
             if (addActionListenerMethod == null) {
-                status = NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(dlg));
+                status = NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dlg));
             } else {
                 dlg.setClosingOptions(new Object[] { NotifyDescriptor.CANCEL_OPTION });
-                final Dialog dialog = TopManager.getDefault().createDialog(dlg);
+                final Dialog dialog = DialogDisplayer.getDefault().createDialog(dlg);
                 try {
                     final boolean [] statusContainer = new boolean[1];
                     addActionListenerMethod.invoke(cust, new Object[] { new ActionListener() {
@@ -379,7 +380,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                     dialog.setVisible(true);
                     status = statusContainer[0];
                 } catch (Exception ex) {
-                    status = NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(dlg));
+                    status = NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dlg));
                 }
             }
         } else {
@@ -476,7 +477,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                     int i = name.indexOf('&');
                     if (i >= 0) cmdName = name.substring(0, i) + name.substring(i + 1);
                     else cmdName = name;
-                    TopManager.getDefault().setStatusText(g("MSG_Command_name_running", cmdName));
+                    StatusDisplayer.getDefault().setStatusText(g("MSG_Command_name_running", cmdName));
                     /*
                     if (fileSystem != null) {
                         fileSystem.debug(g("MSG_Command_started", name, vce.getExec()));
@@ -616,7 +617,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             final String finalMessage = message;
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
-                    TopManager.getDefault().setStatusText(finalMessage);
+                    StatusDisplayer.getDefault().setStatusText(finalMessage);
                 }
             });
         }

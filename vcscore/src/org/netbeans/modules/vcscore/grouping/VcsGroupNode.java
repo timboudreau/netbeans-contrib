@@ -25,7 +25,6 @@ import java.util.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import org.openide.actions.PropertiesAction;
-import org.openide.TopManager;
 import org.openide.ErrorManager;
 
 /** A node with some children.
@@ -55,7 +54,7 @@ public class VcsGroupNode extends AbstractNode {
                 groupDescription = getBundleValue(reader.readLine());
                 groupDescription = org.openide.util.Utilities.replaceString(groupDescription, "\\n", "\n"); //NOI18N
             } catch (IOException exc) {
-                TopManager.getDefault().getErrorManager().notify(ErrorManager.WARNING, exc);
+               ErrorManager.getDefault().notify(ErrorManager.WARNING, exc);
             }
         }
     }
@@ -263,7 +262,7 @@ public class VcsGroupNode extends AbstractNode {
                 groupDO.delete();
             } catch (IOException exc) {
                 //TODO
-                TopManager.getDefault().getErrorManager().annotate(exc, 
+                ErrorManager.getDefault().annotate(exc, 
                              NbBundle.getBundle(VcsGroupNode.class).getString("VcsGroupNode.cannotDestroyGroup")); //NOI18N
                 return;
             }
@@ -274,7 +273,7 @@ public class VcsGroupNode extends AbstractNode {
                 props.delete(props.lock());
             }
         } catch (IOException ex) {
-            TopManager.getDefault().getErrorManager().annotate(ex, 
+            ErrorManager.getDefault().annotate(ex, 
                        NbBundle.getBundle(VcsGroupNode.class).getString("VcsGroupNode.cannotDestroyGroupProps")); //NOI18N
         }
         // perform additional actions, i.e. delete underlying object

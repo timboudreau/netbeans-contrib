@@ -18,7 +18,6 @@ import java.util.*;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 
-import org.openide.TopManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.nodes.Node;
@@ -42,6 +41,7 @@ import org.netbeans.modules.vcscore.cmdline.UserCommandTask;
 import org.netbeans.modules.vcscore.cmdline.WrappingCommandTask;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
+import org.openide.ErrorManager;
 
 /**
  * The action, that enables you to conveniently run an VCS command through
@@ -710,7 +710,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
                 try {
                     if (cake != null) ((SaveCookie) cake).save();
                 } catch (java.io.IOException exc) {
-                    TopManager.getDefault().notifyException(exc);
+                    ErrorManager.getDefault().notify(exc);
                 }
             }
         }
@@ -725,7 +725,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
                         try {
                             sc.save();
                         } catch (java.io.IOException exc) {
-                            TopManager.getDefault().notifyException(exc);
+                           ErrorManager.getDefault().notify(exc);
                         }
                     }
                 }

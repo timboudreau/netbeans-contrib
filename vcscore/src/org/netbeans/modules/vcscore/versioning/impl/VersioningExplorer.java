@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.openide.TopManager;
 import org.openide.explorer.*;
 import org.openide.explorer.view.*;
 import org.openide.explorer.propertysheet.*;
@@ -28,6 +27,7 @@ import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
+import org.openide.windows.WindowManager;
 
 /**
  *
@@ -65,7 +65,7 @@ public class VersioningExplorer {
      * Get the Revision Explorer for that node.
      */
     private static VersioningExplorer.Panel getRevisionExplorer(final Node node) {
-        Workspace curr = TopManager.getDefault().getWindowManager().getCurrentWorkspace();
+        Workspace curr = WindowManager.getDefault().getCurrentWorkspace();
         synchronized (explorersInWorkspaces) {
             Map explorersForNodes = (Map) explorersInWorkspaces.get(curr);
             VersioningExplorer explorer;

@@ -18,7 +18,6 @@ import java.awt.event.*;
 import javax.swing.event.*;
 import java.io.*;
 
-import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 
 import org.netbeans.api.vcs.VcsManager;
@@ -30,6 +29,8 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.commands.*;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 
 /**
  * Dialog that enables users to set variable values before running the command.
@@ -488,7 +489,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         VariableInputValidator validator = inputDescriptor.validate();
         boolean valid = validator.isValid();
         if (!valid) {
-            TopManager.getDefault().notify(new NotifyDescriptor.Message(validator.getMessage(), NotifyDescriptor.Message.WARNING_MESSAGE));
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(validator.getMessage(), NotifyDescriptor.Message.WARNING_MESSAGE));
         }
         return valid;
     }
@@ -1162,7 +1163,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             try {
                 fileName = java.io.File.createTempFile("tempVcsCmd", "input").getAbsolutePath();
             } catch (IOException exc) {
-                TopManager.getDefault().notifyException(exc);
+                ErrorManager.getDefault().notify(exc);
             }
         } else {
             fileName = Variables.expand(vars, fileName, false);
@@ -1645,9 +1646,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     reader = new FileReader(file);
                     filePromptArea.read(reader, null);
                 } catch (FileNotFoundException exc) {
-                    TopManager.getDefault().notifyException(exc);
+                    ErrorManager.getDefault().notify(exc);
                 } catch (IOException exc) {
-                    TopManager.getDefault().notifyException(exc);
+                    ErrorManager.getDefault().notify(exc);
                 } finally {
                     if (reader != null) {
                         try {
@@ -1670,7 +1671,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 writer = new FileWriter(file);
                 filePromptArea.write(writer);
             } catch (IOException exc) {
-                TopManager.getDefault().notifyException(exc);
+                ErrorManager.getDefault().notify(exc);
             } finally {
                 if (writer != null) {
                     try {

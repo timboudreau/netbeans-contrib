@@ -19,7 +19,6 @@ import java.io.*;
 import org.openide.nodes.*;
 import org.openide.filesystems.*;
 import org.openide.filesystems.FileSystem; // override java.io.FileSystem
-import org.openide.TopManager;
 import org.openide.ErrorManager;
 import org.openide.loaders.*;
 import org.openide.util.*;
@@ -45,7 +44,7 @@ public class MainVcsGroupChildren extends Children.Keys  {
     
         /** add subnodes..
          */
-        FileSystem fs = TopManager.getDefault().getRepository().getDefaultFileSystem();
+        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
         if (rootFo != null) {
             rootFo.addFileChangeListener(fsListener);
@@ -53,7 +52,7 @@ public class MainVcsGroupChildren extends Children.Keys  {
     }
     
     public static DataFolder getMainVcsGroupFolder() {
-        FileSystem fs = TopManager.getDefault().getRepository().getDefaultFileSystem();
+        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         FileObject rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
         DataFolder fold = null;
         try {
@@ -90,7 +89,7 @@ public class MainVcsGroupChildren extends Children.Keys  {
                 rootFo.createFolder(DEFAULT_FOLDER_NAME);
             }
         } catch (IOException exc) {
-            ErrorManager manager = TopManager.getDefault().getErrorManager();
+            ErrorManager manager = ErrorManager.getDefault();
             manager.notify(ErrorManager.WARNING, exc);
             return null;
         }
@@ -133,7 +132,7 @@ public class MainVcsGroupChildren extends Children.Keys  {
         /** add subnodes..
          */
         List grList = new LinkedList();
-        FileSystem fs = TopManager.getDefault().getRepository().getDefaultFileSystem();
+        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         rootFo = fs.findResource(MainVcsGroupNode.GROUPS_PATH);
         if (rootFo != null) {
             Enumeration enum = rootFo.getChildren(false);

@@ -16,7 +16,6 @@ package org.netbeans.modules.vcscore.commands;
 import java.io.*;
 import java.util.*;
 
-import org.openide.TopManager;
 import org.openide.util.UserCancelException;
 
 import org.netbeans.api.vcs.VcsManager;
@@ -27,6 +26,7 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.util.*;
+import org.openide.ErrorManager;
 
 /**
  * This class checks if there are any commands to be run during preprocessing
@@ -396,14 +396,14 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             outputFile.deleteOnExit();
             writer = new BufferedWriter(new FileWriter(outputFile));
         } catch (IOException ioexc) {
-            TopManager.getDefault().notifyException(ioexc);
+            ErrorManager.getDefault().notify(ioexc);
             return exec;
         }
         int index;
         try {
             index = Integer.parseInt(whichElement);
         } catch (NumberFormatException exc) {
-            TopManager.getDefault().notifyException(exc);
+            ErrorManager.getDefault().notify(exc);
             return exec;
         }
         try {
@@ -415,7 +415,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             }
             writer.close();
         } catch (IOException ioexc) {
-            TopManager.getDefault().notifyException(ioexc);
+            ErrorManager.getDefault().notify(ioexc);
             return exec;
         }
         if (preCommandOutput[whichOutput].size() == 0) {

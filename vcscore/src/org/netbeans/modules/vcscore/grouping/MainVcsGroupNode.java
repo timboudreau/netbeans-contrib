@@ -112,7 +112,7 @@ public class MainVcsGroupNode extends AbstractNode   {
     }
     
     private void createProps(Sheet.Set props) {
-        FileSystem defFs = TopManager.getDefault().getRepository().getDefaultFileSystem();
+        FileSystem defFs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         FileObject fo = defFs.findResource("Services/Hidden/VersionControl/org-netbeans-modules-vcscore-grouping-VcsGroupSettings.settings");//NOI18N
         if (fo != null) {
             DataObject dobj;

@@ -14,8 +14,8 @@
 package org.netbeans.modules.vcscore;
 
 import java.beans.*;
+import org.openide.ErrorManager;
 
-import org.openide.TopManager;
 import org.openide.util.NbBundle;
 
 /** BeanInfo for VcsVersioningSystem.
@@ -79,7 +79,7 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
             
             properties = new PropertyDescriptor[] { showDeadFiles, showMessages, messageLength, showUnimportantFiles, ignoredGarbageFiles };
         } catch (IntrospectionException ex) {
-            TopManager.getDefault().notifyException(ex);
+           ErrorManager.getDefault().notify(ex);
         }
         return properties;
     }

@@ -24,7 +24,6 @@ import org.openide.util.NbBundle;
 import org.openide.options.SystemOption;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.SystemAction;
-import org.openide.TopManager;
 import org.openide.util.Utilities;
 import org.openide.util.SharedClassObject;
 import java.beans.PropertyChangeListener;

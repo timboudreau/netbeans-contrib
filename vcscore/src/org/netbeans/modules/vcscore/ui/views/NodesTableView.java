@@ -777,7 +777,7 @@ public class NodesTableView extends JScrollPane implements Externalizable {
 //                    System.out.println("found node..");
                 } catch (NodeNotFoundException exc) {
 //                    System.out.println("path =" + path);
-                    org.openide.TopManager.getDefault().getErrorManager().notify(exc);
+                    org.openide.ErrorManager.getDefault().notify(exc);
                 }
             }
 

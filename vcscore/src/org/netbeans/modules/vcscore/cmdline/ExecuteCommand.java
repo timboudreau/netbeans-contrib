@@ -21,7 +21,6 @@ import java.lang.reflect.*;
 
 import org.apache.regexp.*;
 
-import org.openide.TopManager;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.util.*;
@@ -142,8 +141,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 regExps[i] = new RE(substitutions[2*i]);
             } catch(RESyntaxException e) {
                 //E.err(e,"RE failed regexp"); // NOI18N
-                TopManager.getDefault().notifyException(
-                    TopManager.getDefault().getErrorManager().annotate(e,
+                ErrorManager.getDefault().notify(
+                    ErrorManager.getDefault().annotate(e,
                         NbBundle.getMessage(ExecuteCommand.class, "MSG_BadRegExpInStatusSubstitution", substitutions[2*i])));
                 nn--;
                 continue;
@@ -413,8 +412,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             try {
                 dataRegexGlobalRE = new RE(dataRegexGlobal);
             } catch (RESyntaxException exc) {
-                TopManager.getDefault().notifyException(
-                    TopManager.getDefault().getErrorManager().annotate(exc,
+                ErrorManager.getDefault().notify(
+                    ErrorManager.getDefault().annotate(exc,
                         NbBundle.getMessage(ExternalCommand.class, "MSG_BadRegexMessageInfo", dataRegexGlobal)));
             }
             if (dataRegexGlobalRE != null) {
@@ -430,8 +429,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             try {
                 errorRegexGlobalRE = new RE(errorRegexGlobal);
             } catch (RESyntaxException exc) {
-                TopManager.getDefault().notifyException(
-                    TopManager.getDefault().getErrorManager().annotate(exc,
+                ErrorManager.getDefault().notify(
+                    ErrorManager.getDefault().annotate(exc,
                         NbBundle.getMessage(ExternalCommand.class, "MSG_BadRegexMessageInfo", errorRegexGlobal)));
             }
             if (errorRegexGlobalRE != null) {
@@ -463,8 +462,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                                           }, dataRegex);
             }
         } catch (BadRegexException e) {
-            TopManager.getDefault().notifyException(
-                TopManager.getDefault().getErrorManager().annotate(e,
+            ErrorManager.getDefault().notify(
+                ErrorManager.getDefault().annotate(e,
                     NbBundle.getMessage(ExternalCommand.class, "MSG_BadRegexMessageInfo", dataRegex)));
         }
         try {
@@ -487,8 +486,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                                           }, errorRegex);
             }
         } catch (BadRegexException e) {
-            TopManager.getDefault().notifyException(
-                TopManager.getDefault().getErrorManager().annotate(e,
+            ErrorManager.getDefault().notify(
+                ErrorManager.getDefault().annotate(e,
                     NbBundle.getMessage(ExternalCommand.class, "MSG_BadRegexMessageInfo", errorRegex)));
         }
         if (dataOutput != null || errorOutput != null) {

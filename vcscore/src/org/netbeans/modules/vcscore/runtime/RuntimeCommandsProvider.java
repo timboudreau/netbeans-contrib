@@ -57,7 +57,7 @@ public abstract class RuntimeCommandsProvider {
         try {
         return (RuntimeCommandsProvider) fs.getRoot().getAttribute(FO_ATTRIBUTE);
         } catch (NullPointerException npe) {
-            throw (NullPointerException) org.openide.TopManager.getDefault().getErrorManager().annotate(npe, "fs = "+fs+"\n"+
+            throw (NullPointerException) org.openide.ErrorManager.getDefault().annotate(npe, "fs = "+fs+"\n"+
                 "fs.getRoot() = "+((fs != null) ? ""+fs.getRoot() : "null"));
         }
     }

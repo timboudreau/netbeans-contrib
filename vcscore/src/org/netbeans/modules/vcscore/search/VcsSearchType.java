@@ -32,7 +32,6 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
-import org.openide.TopManager;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListener;
@@ -227,7 +226,7 @@ public class VcsSearchType extends SearchType {
                 if (nodes[i].getCookie(DataObject.class) != null) continue;
                 InstanceCookie.Of ic = (InstanceCookie.Of)nodes[i].getCookie(InstanceCookie.Of.class);
                 if(ic != null && ic.instanceOf(Repository.class)) {
-                    FileSystem[] fileSystems = TopManager.getDefault().getRepository().toArray();
+                    FileSystem[] fileSystems = org.openide.filesystems.Repository.getDefault().toArray();
                     for(int j = 0; j < fileSystems.length; j++) {
                         VcsSearchTypeFileSystem searchFS;
                         if (fileSystems[j] instanceof VcsSearchTypeFileSystem) {

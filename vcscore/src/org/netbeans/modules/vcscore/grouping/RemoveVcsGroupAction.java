@@ -25,6 +25,7 @@ import org.openide.awt.Actions;
 import org.openide.util.actions.*;
 import org.openide.filesystems.FileObject;
 import org.openide.*;
+import org.openide.DialogDisplayer;
 import org.openide.util.*;
 import org.openide.nodes.*;
 import org.openide.loaders.*;
@@ -154,7 +155,7 @@ public class RemoveVcsGroupAction extends NodeAction {
             NbBundle.getMessage(RemoveVcsGroupAction.class, "RemoveVcsGroupAction.removeGroupQuestion", groupName), //NOI18N
 
             NotifyDescriptor.YES_NO_OPTION);
-        Object retValue = TopManager.getDefault().notify(conf);
+        Object retValue = DialogDisplayer.getDefault().notify(conf);
         if (retValue.equals(NotifyDescriptor.NO_OPTION)) {
             return;
         }
@@ -165,7 +166,7 @@ public class RemoveVcsGroupAction extends NodeAction {
                 NotifyDescriptor excMess = new NotifyDescriptor.Message(
                    NbBundle.getBundle(RemoveVcsGroupAction.class).getString("RemoveVcsGroupAction.removingError"), //NOI18N
                    NotifyDescriptor.ERROR_MESSAGE);
-                TopManager.getDefault().notify(excMess);
+                DialogDisplayer.getDefault().notify(excMess);
             }
         }
     }

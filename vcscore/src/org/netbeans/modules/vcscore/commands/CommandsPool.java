@@ -19,7 +19,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.util.*;
 
-import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
 import org.openide.filesystems.RepositoryListener;

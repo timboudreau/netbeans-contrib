@@ -317,7 +317,7 @@ public class CommandOutputCollector extends Object implements CommandProcessList
                 w.write(line + "\n");
             }
         } catch (IOException exc) {
-            org.openide.TopManager.getDefault().notifyException(exc);
+            org.openide.ErrorManager.getDefault().notify(exc);
         } finally {
             if (w != null) {
                 try {
@@ -344,7 +344,7 @@ public class CommandOutputCollector extends Object implements CommandProcessList
                 }
             }
         } catch (IOException exc) {
-            org.openide.TopManager.getDefault().notifyException(exc);
+            org.openide.ErrorManager.getDefault().notify(exc);
         } finally {
             if (r != null) {
                 try {

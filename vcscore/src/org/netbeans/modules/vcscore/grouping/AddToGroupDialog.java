@@ -25,6 +25,7 @@ import org.openide.nodes.*;
 import java.util.*;
 import java.awt.event.*;
 import javax.swing.*;
+import org.openide.DialogDisplayer;
 
 public class AddToGroupDialog extends javax.swing.JPanel {
 
@@ -128,7 +129,7 @@ public class AddToGroupDialog extends javax.swing.JPanel {
                     }
                 }
             });
-         final java.awt.Dialog dial = TopManager.getDefault().createDialog(dd);
+         final java.awt.Dialog dial = DialogDisplayer.getDefault().createDialog(dd);
          SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     dial.show();

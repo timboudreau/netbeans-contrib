@@ -21,6 +21,7 @@ import org.openide.*;
 import org.openide.loaders.*;
 import org.openide.filesystems.*;
 import java.io.*;
+import org.openide.DialogDisplayer;
 
 /** Action sensitive to the node selection that does something useful.
  *
@@ -35,7 +36,7 @@ public class AddVcsGroupAction extends NodeAction {
         NotifyDescriptor.InputLine line = new NotifyDescriptor.InputLine( 
              NbBundle.getBundle(AddVcsGroupAction.class).getString("AddVcsGroupAction.groupName"), //NOI18N
              NbBundle.getBundle(AddVcsGroupAction.class).getString("AddVcsGroupAction.groupNameTitle"));//NOI18N
-        Object retValue = TopManager.getDefault().notify(line);
+        Object retValue = DialogDisplayer.getDefault().notify(line);
         if (!retValue.equals(DialogDescriptor.OK_OPTION)) return;
         
         String newName = line.getInputText();

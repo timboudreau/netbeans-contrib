@@ -40,7 +40,7 @@ public class VcsSearchTypeBeanInfo extends SimpleBeanInfo {
             properties[0].setDisplayName (NbBundle.getBundle(VcsSearchTypeBeanInfo.class).getString ("CTL_StatusMatch"));
         }
         catch( IntrospectionException e) {
-            org.openide.TopManager.getDefault().notifyException(e);
+            org.openide.ErrorManager.getDefault().notify(e);
         }
         return properties;
     }

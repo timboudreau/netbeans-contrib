@@ -19,7 +19,6 @@ import java.util.*;
 import java.beans.*;
 import java.text.*;
 
-import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.util.*;
 

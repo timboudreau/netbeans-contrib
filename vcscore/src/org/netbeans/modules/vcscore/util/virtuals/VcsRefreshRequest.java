@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.StringTokenizer;
 import org.openide.filesystems.*;
 import org.openide.ErrorManager;
-import org.openide.TopManager;
 
 import org.openide.util.RequestProcessor;
 import org.openide.util.enum.SequenceEnumeration;
@@ -242,7 +241,7 @@ public final class VcsRefreshRequest extends Object implements Runnable {
 //        System.out.println("executing for =" + system.getDisplayName());
         VirtualsRefreshing refreshing = (VirtualsRefreshing)this.refresher.get();
         if (refreshing == null) {
-            TopManager.getDefault().getErrorManager().log(ErrorManager.WARNING, "VcsRefreshRequest: Missing refresher. Please file a bug against vcscore module");
+            ErrorManager.getDefault().log(ErrorManager.WARNING, "VcsRefreshRequest: Missing refresher. Please file a bug against vcscore module");
             return;
         }
         

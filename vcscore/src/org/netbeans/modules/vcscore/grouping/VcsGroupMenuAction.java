@@ -23,7 +23,6 @@ import org.openide.loaders.*;
 import org.openide.explorer.view.*;
 import org.openide.DialogDescriptor;
 import org.openide.windows.*;
-import org.openide.TopManager;
 import java.util.ArrayList;
 import java.util.Iterator;
 import javax.swing.JPanel;
@@ -38,6 +37,7 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import org.openide.windows.WindowManager;
 
 
 
@@ -112,7 +112,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         }        
  */
         ExplorerPanel panel = null;
-        Iterator it = TopManager.getDefault().getWindowManager().getRegistry().getOpened().iterator();
+        Iterator it = WindowManager.getDefault().getRegistry().getOpened().iterator();
         while (it.hasNext()) {
             TopComponent comp = (TopComponent)it.next();
             if (comp instanceof GroupExplorerPanel) {
@@ -122,7 +122,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         
         if (panel == null) {
             panel = new GroupExplorerPanel();
-            Workspace workspace = TopManager.getDefault().getWindowManager().getCurrentWorkspace();
+            Workspace workspace = WindowManager.getDefault().getCurrentWorkspace();
             String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
             Mode myMode = workspace.findMode(MODE_NAME);
             
@@ -140,7 +140,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         panel.getAccessibleContext().setAccessibleDescription(
             org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSD_AddVcsGroupAction.dialog"));
         panel.setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"));
-        panel.open(TopManager.getDefault().getWindowManager().getCurrentWorkspace());
+        panel.open(WindowManager.getDefault().getCurrentWorkspace());
         panel.requestFocus();
         
     }

@@ -66,7 +66,7 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
             properties[6].setShortDescription(NbBundle.getMessage(GeneralVcsSettingsBeanInfo.class,"HINT_WizardShellCommandPath"));
             properties[6].setHidden(true);
         } catch (java.beans.IntrospectionException intrexc) {
-            org.openide.TopManager.getDefault().getErrorManager().notify();
+            org.openide.ErrorManager.getDefault().notify();
         }
         return properties;
     }

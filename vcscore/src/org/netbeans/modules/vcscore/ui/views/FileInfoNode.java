@@ -27,7 +27,6 @@ import org.openide.loaders.*;
 import org.openide.filesystems.*;
 import org.openide.util.actions.*;
 import org.openide.util.SharedClassObject;
-import org.openide.TopManager;
 
 import org.netbeans.modules.vcscore.actions.*;
 import org.netbeans.modules.vcscore.versioning.*;

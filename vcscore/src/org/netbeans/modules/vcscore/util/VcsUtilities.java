@@ -34,6 +34,7 @@ import org.openide.util.io.NbObjectInputStream;
 import org.openide.util.io.NbObjectOutputStream;
 
 import org.netbeans.modules.vcscore.VcsAttributes;
+import org.openide.util.Lookup;
 
 /** Miscelaneous stuff.
  * 
@@ -480,7 +481,7 @@ public class VcsUtilities {
             try {
             String className = bundle.substring(0, bundle.length() - ".class".length());
             //if (className.endsWith(".class")) className = className.substring(0, className.length() - ".class".length());
-            clazz = Class.forName(className, false, org.openide.TopManager.getDefault().systemClassLoader());
+            clazz = Class.forName(className, false, (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class));
             } catch (ClassNotFoundException exc) {
                 clazz = null;
                 //exc.printStackTrace();
@@ -506,7 +507,7 @@ public class VcsUtilities {
                 bundleStr = java.text.MessageFormat.format(bundleStr, args);
             }
         } catch (final MissingResourceException missExc) {
-            org.openide.TopManager.getDefault().notifyException(new Exception() {
+            org.openide.ErrorManager.getDefault().notify(new Exception() {
                 public String getLocalizedMessage() {
                     return "MissingResourceException:" + missExc.getMessage();
                 }
@@ -821,7 +822,7 @@ public class VcsUtilities {
             oos.writeObject(value);
             oos.close();
         } catch (SecurityException se) {
-            throw (IOException) org.openide.TopManager.getDefault().getErrorManager().annotate(new IOException (), se);
+            throw (IOException) org.openide.ErrorManager.getDefault().annotate(new IOException (), se);
         }
         byte bArray[] = bos.toByteArray();
         StringBuffer strBuff = new StringBuffer(bArray.length*2);
@@ -850,7 +851,7 @@ public class VcsUtilities {
                 if (tempI > 127) tempI -=256;
                 bytes[count++] = (byte) tempI;
             } catch (NumberFormatException ne) {
-                throw (IOException) org.openide.TopManager.getDefault().getErrorManager().annotate(new IOException (), ne);
+                throw (IOException) org.openide.ErrorManager.getDefault().annotate(new IOException (), ne);
             }
         }
         ByteArrayInputStream bis = new ByteArrayInputStream(bytes, 0, count);
@@ -859,9 +860,9 @@ public class VcsUtilities {
             Object ret = ois.readObject();
             return ret;
         } catch (OptionalDataException ode) {
-            throw (IOException) org.openide.TopManager.getDefault().getErrorManager().annotate(new IOException (), ode);
+            throw (IOException) org.openide.ErrorManager.getDefault().annotate(new IOException (), ode);
         } catch (ClassNotFoundException cnfe) {
-            throw (IOException) org.openide.TopManager.getDefault().getErrorManager().annotate(new IOException (), cnfe);
+            throw (IOException) org.openide.ErrorManager.getDefault().annotate(new IOException (), cnfe);
         }
     }
 
