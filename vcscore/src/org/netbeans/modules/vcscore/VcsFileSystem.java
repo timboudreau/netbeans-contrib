@@ -2935,10 +2935,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             repaired = true;
         }
         if (repaired) {
-            return new File(path);
-        } else {
-            return file;
+            file = new File(path);
+            if (!file.isAbsolute()) {
+                // On some systems it might not be safe to remove the last
+                // File.separator from the path!!! (e.g. "D:\" must be kept
+                // with the last backslash!)
+                file = new File(path + File.separator);
+            }
         }
+        return file;
     }
 
     //-------------------------------------------
