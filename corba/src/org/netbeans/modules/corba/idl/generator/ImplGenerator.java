@@ -2111,9 +2111,9 @@ public class ImplGenerator implements PropertyChangeListener {
                     String __root_text = __root_document.getText (0, __root_document.getLength ());
                     if (DEBUG)
                         System.out.println ("__root_text: " + __root_text);
-                    SourceCookie.Editor __src_editor = (SourceCookie.Editor)__guarded_element.getCookie
+                    SourceCookie.Editor __src_editor2 = (SourceCookie.Editor)__guarded_element.getCookie
                         (SourceCookie.Editor.class);
-                    javax.swing.text.Element __element = __src_editor.sourceToText
+                    javax.swing.text.Element __element = __src_editor2.sourceToText
                         (__guarded_element);
                     Assertion.assert (__element != null);
                     List __l_bounds = new ArrayList ();

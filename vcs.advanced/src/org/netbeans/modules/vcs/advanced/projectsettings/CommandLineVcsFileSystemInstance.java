@@ -444,7 +444,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 }
             }, TASK_SCHEDULE_DELAY);
             task.addTaskListener(new TaskListener() {
-                public void taskFinished(Task task) {
+                public void taskFinished(Task task2) {
                     synchronized (FSPropertyChangeListener.this) {
                         if (reSchedule) {
                             writeTask.schedule(TASK_SCHEDULE_DELAY);
