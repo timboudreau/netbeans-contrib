@@ -43,8 +43,7 @@ import org.netbeans.modules.vcscore.actions.*;
  * Action that displays a submenu of actions when presented in a menu or popup.
  * It reads the menu structure from the default filesystem.
  * Example of layer definition:
- * <html>
- * <pre>
+ * <PRE>
            <folder name="PopupMenu">
               <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.cvsclient.Bundle"/>
 
@@ -62,8 +61,7 @@ import org.netbeans.modules.vcscore.actions.*;
                    <attr name="CommandActionDefinition"   stringvalue="org.netbeans.modules.cvsclient.actions.JRecRefreshCommandAction"/>
                    <attr name="instanceOf"                stringvalue="org.openide.util.SystemAction, org.openide.util.actions.NodeAction, org.netbeans.modules.vcscore.actions.ClusterItemVisualizer"/>
                 </file>
- *</pre>
- * </html>
+ *</PRE>
  *
  * @author  mkleint
  */
@@ -218,6 +216,7 @@ public class ClusteringAction extends GeneralCommandAction  {
         }
         DataObject[] children = dataFolder.getChildren();
         if (children != null && children.length > 0) {
+            boolean lastWasSeparator = false;
             for (int i = 0; i < children.length; i++) {
                 if (children[i] instanceof DataFolder) {
                     submenu = new JMenu();
@@ -229,22 +228,25 @@ public class ClusteringAction extends GeneralCommandAction  {
 //                        submenu.setIcon(null);
                         menu.add(submenu);
                     }
+                    lastWasSeparator = false;
                 }
-                InstanceCookie cookie = (InstanceCookie)children[i].getCookie(InstanceCookie.Of.class);
+                InstanceCookie.Of cookie = (InstanceCookie.Of)children[i].getCookie(InstanceCookie.Of.class);
                 if (cookie != null) {
                     try {
-                        if (cookie.instanceClass().equals(JSeparator.class)) {
-                            menu.addSeparator();
-                        } 
-                        else {
+                        if (cookie.instanceOf(ClusterItemVisualizer.class)) {
                             Object obj = cookie.instanceCreate();
-                            if (obj != null && obj instanceof ClusterItemVisualizer) {
+                            if (obj != null) {
                                 ClusterItemVisualizer act = (ClusterItemVisualizer)obj;
                                 if (checkItemEnable(act)) {
                                     item = createItem(act);
                                     menu.add(item);
+                                    lastWasSeparator = false;
                                 }
                             }
+                        }
+                        if (cookie.instanceOf(JSeparator.class) && !lastWasSeparator) {
+                            menu.addSeparator();
+                            lastWasSeparator = true;
                         }
                     } catch (Exception exc) {
                         TopManager.getDefault().getErrorManager().notify(ErrorManager.ERROR, exc);
