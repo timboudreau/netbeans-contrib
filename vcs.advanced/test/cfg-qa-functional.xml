@@ -93,6 +93,7 @@ Microsystems, Inc. All Rights Reserved.
             <patternset>
     		<include name="complete/pvcs_profile/MountPVCSFilesystem.class"/>
     		<include name="complete/pvcs_profile/AllTogether.class"/>
+		<include name="complete/pvcs_profile/AdditionalCommands.class"/>
             </patternset>
         </testset>
     </testbag>
