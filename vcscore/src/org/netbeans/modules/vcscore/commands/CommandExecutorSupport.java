@@ -72,7 +72,7 @@ public class CommandExecutorSupport extends Object {
      */
     private static final String USER_PARAM = "USER_PARAM";
     
-    public static final String INPUT_DESCRIPTOR_PARSED = "PROPERTY_INPUT_DESCRIPTOR_PARSED";
+    public static final String INPUT_DESCRIPTOR_PARSED = VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "_INPUT_DESCRIPTOR_PARSED";
         
     private static final String VAR_INPUT_MULTIPLE_FILES_TITLE_APPEND = " ...";
     private static final String VAR_INPUT_FILE_SEPARATOR = " - ";
