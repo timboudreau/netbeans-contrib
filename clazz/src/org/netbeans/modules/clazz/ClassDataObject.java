@@ -42,12 +42,14 @@ import org.openide.src.nodes.FilterFactory;
 import org.openide.src.ClassElement;
 import org.openide.src.SourceElement;
 import org.openide.src.ConstructorElement;
+import org.openide.src.Identifier;
 import org.openide.src.Type;
 
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.CookieSet;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.openide.cookies.SourceCookie;
 import org.openide.cookies.ElementCookie;
@@ -604,16 +606,32 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
             String className=type.getName();
             ClassElement ce=getMainClass();
             
-            if (ce==null)
+            if (ce == null)
                 return false;
-            for (;;ce=ClassElement.forName(ce.getSuperclass().getFullName())) {
-                String fullName=ce.getName().getFullName();
-                
-                if (fullName.equals(className))
-                    return true;                
-                if (fullName.equals("java.lang.Object"))
-                    return false;
-            }
+            boolean isClassType = !type.isInterface();
+            String typename = type.getName().replace('$', '.');
+            Identifier id;
+            LinkedList l = new LinkedList();
+            
+            do {
+                if (ce.getName().getFullName().equals(typename)) 
+                    return true;
+                id = ce.getSuperclass();
+                Identifier[] itfs = ce.getInterfaces();
+                for (int i = 0; i < itfs.length; i++) {
+                    l.addLast(itfs[i]);
+                }
+                if (id == null) {
+                    if (l.isEmpty())
+                        return false;
+                    else
+                        id = (Identifier)l.removeFirst();
+                }
+                ce = ClassElement.forName(id.getFullName());
+                while (ce == null && !l.isEmpty()) 
+                    ce = ClassElement.forName(((Identifier)l.removeFirst()).getFullName());
+            } while (ce != null);
+            return false;
         }
 
         /** Is this a standalone executable?
