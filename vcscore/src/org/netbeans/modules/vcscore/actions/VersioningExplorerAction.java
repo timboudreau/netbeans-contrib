@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcscore.actions;
 
+import java.awt.Cursor;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -32,6 +33,8 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
+import org.openide.util.RequestProcessor;
+
 //import org.netbeans.modules.vcscore.versioning.VcsFileObject;
 
 /**
@@ -67,9 +70,9 @@ public class VersioningExplorerAction extends GeneralCommandAction {
     }
     
     protected void performAction(Node[] nodes) {
-        VersioningExplorer.Panel explorer = VersioningExplorer.getRevisionExplorer();
+        final VersioningExplorer.Panel explorer = VersioningExplorer.getRevisionExplorer();
         explorer.open();
-        HashMap filesByFS = getFilesByFS(nodes);
+        final HashMap filesByFS = getFilesByFS(nodes);
         if (Boolean.getBoolean("netbeans.vcsdebug")) {
             System.out.println("\nVersioningExplorer.performAction()");
             //System.out.println("SELECTED NODES = "+(new java.util.HashSet(java.util.Arrays.asList(explorer.getExplorerManager().getSelectedNodes()))));
@@ -89,8 +92,13 @@ public class VersioningExplorerAction extends GeneralCommandAction {
                 System.out.println(vfs+" with system name = '"+vfs.getSystemName()+"'");
             }
         }
-        selectVersioningFiles(explorer, filesByFS);
-        explorer.requestActive();
+        explorer.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+        RequestProcessor.getDefault().post(new Runnable(){
+        public void run(){
+            selectVersioningFiles(explorer,filesByFS);
+            }
+        });       
+        explorer.requestActive();        
     }
  
     private HashMap getFilesByFS(Node[] nodes) {
@@ -187,6 +195,7 @@ public class VersioningExplorerAction extends GeneralCommandAction {
                     manager.setSelectedNodes(nodeArray);
                 } catch (java.beans.PropertyVetoException exc) {
                 }
+                explorer.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
             }
         });
         //return (Node[]) nodes.toArray(new Node[nodes.size()]);
