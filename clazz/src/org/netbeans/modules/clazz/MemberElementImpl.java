@@ -35,6 +35,7 @@ public abstract class MemberElementImpl extends ElementImpl
   /** Cached name identifier */
   private transient Identifier name;
 
+static final long serialVersionUID =-6841890195552268874L;
   /** Constructor, asociates this impl with java reflection
   * Member element, which acts as data source.
   */
@@ -91,6 +92,8 @@ public abstract class MemberElementImpl extends ElementImpl
 
 /*
 * Log
+*  7    src-jtulach1.6         8/9/99   Ian Formanek    Generated Serial Version 
+*       UID
 *  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
 *  5    src-jtulach1.4         5/12/99  Petr Hamernik   ide.src.Identifier 

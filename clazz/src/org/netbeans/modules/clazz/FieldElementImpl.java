@@ -29,6 +29,7 @@ final class FieldElementImpl extends MemberElementImpl
   /** One JavaDoc empty implementation for all objects */
   private static final ClassJavaDocImpl.Field FIELD_JAVADOC_IMPL = new ClassJavaDocImpl.Field(); 
 
+static final long serialVersionUID =-4800326520399939102L;
   /** Default constructor. Asociates with given
   * reflection Field data.
   */
@@ -77,6 +78,8 @@ final class FieldElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  5    src-jtulach1.4         8/9/99   Ian Formanek    Generated Serial Version 
+*       UID
 *  4    src-jtulach1.3         6/9/99   Petr Hrebejk    Empty JavaDoc 
 *       implementation added.
 *  3    src-jtulach1.2         6/9/99   Ian Formanek    ---- Package Change To 

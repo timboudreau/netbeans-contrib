@@ -53,6 +53,7 @@ final class ClassElementImpl extends MemberElementImpl
   /** One JavaDoc empty implementation for all objects */
   private static final ClassJavaDocImpl.Class CLASS_JAVADOC_IMPL = new ClassJavaDocImpl.Class ();
 
+static final long serialVersionUID =-8717988834353784544L;
   /** Default constructor.
   */
   public ClassElementImpl (final Class data) {
@@ -359,6 +360,8 @@ final class ClassElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  11   src-jtulach1.10        8/9/99   Ian Formanek    Generated Serial Version 
+*       UID
 *  10   src-jtulach1.9         6/9/99   Petr Hrebejk    Empty JavaDoc 
 *       implementation added.
 *  9    src-jtulach1.8         6/9/99   Ian Formanek    ---- Package Change To 

@@ -42,6 +42,7 @@ public final class SourceElementImpl extends MemberElementImpl
   /** The identifier of the package of the class data */
   private Identifier packg;
 
+static final long serialVersionUID =-4870331896218546842L;
   /** Creates object with asociated class.
   */
   public SourceElementImpl (final Class data) {
@@ -200,6 +201,8 @@ public final class SourceElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  8    src-jtulach1.7         8/9/99   Ian Formanek    Generated Serial Version 
+*       UID
 *  7    src-jtulach1.6         7/8/99   Petr Hamernik   runAtomic simple 
 *       implementation
 *  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 

@@ -32,6 +32,7 @@ public abstract class ElementImpl extends Object implements Element.Impl, Extern
   * to that element */
   protected Element element;
 
+static final long serialVersionUID =6363778502021582852L;
   /** Default constructor
   */
   public ElementImpl () {
@@ -73,6 +74,8 @@ public abstract class ElementImpl extends Object implements Element.Impl, Extern
 
 /*
 * Log
+*  7    src-jtulach1.6         8/9/99   Ian Formanek    Generated Serial Version 
+*       UID
 *  6    src-jtulach1.5         7/8/99   Petr Hamernik   interface Element.Impl 
 *       changes
 *  5    src-jtulach1.4         6/9/99   Ian Formanek    ---- Package Change To 

@@ -27,6 +27,7 @@ final class MethodElementImpl extends ConstructorElementImpl
   /** Return type of the method */
   private Type returnType;
 
+static final long serialVersionUID =7928961724192084484L;
   /** Default constructor, asociates with given
   * java reflection Method element.
   */
@@ -55,6 +56,8 @@ final class MethodElementImpl extends ConstructorElementImpl
 
 /*
 * Log
+*  4    src-jtulach1.3         8/9/99   Ian Formanek    Generated Serial Version 
+*       UID
 *  3    src-jtulach1.2         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
 *  2    src-jtulach1.1         2/17/99  Petr Hamernik   serialization changed.
