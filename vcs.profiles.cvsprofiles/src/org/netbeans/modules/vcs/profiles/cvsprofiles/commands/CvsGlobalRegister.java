@@ -109,11 +109,9 @@ public class CvsGlobalRegister extends Object implements VcsAdditionalCommand {
         if(serverName != null) addVars.put("CVS_SERVER",serverName);                        // NOI18N
         if(serverPort != null) addVars.put("ENVIRONMENT_VAR_CVS_CLIENT_PORT",serverPort);   // NOI18N
         else vars.remove("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
-        vars.remove("BUILT-IN"); // Not to alter that variable
+        addVars.put("BUILT-IN", vars.get("BUILT-IN"));                                      // NOI18N
         if(userName != null) addVars.put("CVS_USERNAME",userName);                          // NOI18N
         if(repository != null) addVars.put("CVS_REPOSITORY",repository);                    // NOI18N
-        String builtin = (String) vars.get("BUILT-IN-GLB");                                 // NOI18N
-        if(builtin != null) addVars.put("BUILT-IN",builtin);                                // NOI18N
         String cvsexe = (String) vars.get("CVS_EXE");                                       // NOI18N
         if(cvsexe != null) addVars.put("CVS_EXE",cvsexe);                                   // NOI18N
         String rsh = (String) vars.get("ENVIRONMENT_VAR_CVS_RSH");                          // NOI18N
