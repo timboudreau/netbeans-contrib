@@ -1751,7 +1751,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         Hashtable vars = fileSystem.getVariablesAsHashtable();
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         CommandsPool pool = fileSystem.getCommandsPool();
-        pool.startExecutor(vce);
+        pool.startExecutor(vce, fileSystem);
         try {
             pool.waitToFinish(vce);
         } catch (InterruptedException iexc) {
@@ -2207,7 +2207,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                     }
                 }
             });
-            pool.startExecutor(executor);
+            pool.startExecutor(executor, fileSystem);
         }
     }
     

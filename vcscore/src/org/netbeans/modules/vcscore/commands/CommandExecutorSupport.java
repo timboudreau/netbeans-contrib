@@ -159,7 +159,9 @@ public class CommandExecutorSupport extends Object {
         boolean confirmed = false;
         String pathSeparator = (String) vars.get("PS");
         pathSeparator = Variables.expand(vars, pathSeparator, false);
-        if (fullName == null || fileSystem.isImportant(fullName)) {
+        if (fileSystem != null &&
+            (fullName == null || fileSystem.isImportant(fullName))) {
+            
             vars.put("NUM_IMPORTANT_FILES", ""+numImportant(fileSystem, paths, pathSeparator));
             try {
                 confirmation = processConfirmation(confirmation, vars, fileSystem);
@@ -178,20 +180,24 @@ public class CommandExecutorSupport extends Object {
             }
         }
         // II. Then filll output from pre commands:
-        PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
         String exec;
-        try {
-            exec = cmdPerf.process((String) cmd.getProperty(VcsCommand.PROPERTY_EXEC));
-        } catch (UserCancelException cancelExc) {
-            return CommandsPool.PREPROCESS_CANCELLED;
+        if (fileSystem != null) {
+            PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
+            try {
+                exec = cmdPerf.process((String) cmd.getProperty(VcsCommand.PROPERTY_EXEC));
+            } catch (UserCancelException cancelExc) {
+                return CommandsPool.PREPROCESS_CANCELLED;
+            }
+        } else {
+            exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         }
         exec = insertGlobalOptions(exec, vars);
         // III. Ask for the variable input
-        if (!promptForVariables(fileSystem, exec, vars, cmd, askForEachFile)) {
+        if (fileSystem != null && !promptForVariables(fileSystem, exec, vars, cmd, askForEachFile)) {
             return CommandsPool.PREPROCESS_CANCELLED; // The command is cancelled for that file
         }
         // Ask for the confirmation again, if the preprocessing was done, but there is an important file
-        if (!(askForEachFile != null && askForEachFile[0])) {
+        if (fileSystem != null && !(askForEachFile != null && askForEachFile[0])) {
             int numImp = numImportant(fileSystem, paths, pathSeparator);
             if (!confirmed && numImp > 0) {
                 vars.put("NUM_IMPORTANT_FILES", ""+numImp);
@@ -244,7 +250,7 @@ public class CommandExecutorSupport extends Object {
         JLabel textLabel = new JLabel(text);
         textLabel.setForeground(java.awt.Color.black);
         panel.add(textLabel, BorderLayout.CENTER);
-        panel.add(checkBox, BorderLayout.SOUTH);
+        if (checkBox != null) panel.add(checkBox, BorderLayout.SOUTH);
         return panel;
     }
     
@@ -255,10 +261,13 @@ public class CommandExecutorSupport extends Object {
         org.openide.util.RequestProcessor.postRequest(new Runnable() {
             public void run() {
                 NotifyDescriptor msg = new NotifyDescriptor.Message(notification1);
-                JCheckBox checkBox = new JCheckBox(g("DLG_DoNotNotify"));
+                JCheckBox checkBox;
+                if (fileSystem != null) {
+                    checkBox = new JCheckBox(g("DLG_DoNotNotify"));
+                } else checkBox = null;
                 msg.setMessage(createNotificationDesign(notification1, checkBox));
                 TopManager.getDefault().notify(msg);
-                if (checkBox.isSelected()) {
+                if (checkBox != null && checkBox.isSelected()) {
                     fileSystem.setCommandNotification(false);
                     TopManager.getDefault().notify(new NotifyDescriptor.Message(
                         g("DLG_CanBeEnabled")));
@@ -349,7 +358,7 @@ public class CommandExecutorSupport extends Object {
             if (c != null) {
                 Hashtable cVars = new Hashtable(vars);
                 VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(c, cVars);
-                fileSystem.getCommandsPool().preprocessCommand(vce, cVars);
+                fileSystem.getCommandsPool().preprocessCommand(vce, cVars, fileSystem);
                 fileSystem.getCommandsPool().startExecutor(vce);
             }
         }

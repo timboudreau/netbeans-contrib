@@ -121,8 +121,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected static final String PROP_USE_UNIX_SHELL = "useUnixShell"; // NOI18N
     protected static final String PROP_NOT_MODIFIABLE_STATUSES = "notModifiableStatuses"; // NOI18N
     
-    private static ResourceBundle resourceBundle = null;
-    
     public static final String VAR_TRUE = "true"; // NOI18N
     public static final String VAR_FALSE = "false"; // NOI18N
 
@@ -1308,7 +1306,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (createRuntimeCommands == null) createRuntimeCommands = Boolean.TRUE;
         if (createVersioningSystem == null) createVersioningSystem = Boolean.FALSE;
         //if (revisionListsByName == null) revisionListsByName = new Hashtable();
-        commandsPool = new CommandsPool(this, false);
+        commandsPool = CommandsPool.getInstance();//new CommandsPool(this, false);
         if (numberOfFinishedCmdsToCollect == null) {
             numberOfFinishedCmdsToCollect = new Integer(RuntimeSupport.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
         }
@@ -1380,7 +1378,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void removeNotify() {
         disableRefresh();
         //System.out.println("fileSystem Removed("+this+")");
-        commandsPool.cleanup();
+        //commandsPool.cleanup();
         super.removeNotify();
         if (versioningSystem != null) {
             org.openide.util.RequestProcessor.postRequest(new Runnable() {
@@ -3599,6 +3597,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     private class FSPropertyChangeListener implements PropertyChangeListener {
+        
+        private String oldFsSystemName;
+        
+        public FSPropertyChangeListener() {
+            oldFsSystemName = VcsFileSystem.this.getSystemName();
+        }
+        
         public void propertyChange(final PropertyChangeEvent event) {
             String propName = event.getPropertyName();
             Object oldValue = event.getOldValue();
@@ -3611,6 +3616,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     foSet.add(enum.nextElement());
                 }
                 fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, foSet, false, true));
+            } else if (VcsFileSystem.PROP_SYSTEM_NAME.equals(event.getPropertyName())) {
+                RuntimeSupport.getInstance().updateRuntime(VcsFileSystem.this, oldFsSystemName);
+                oldFsSystemName = VcsFileSystem.this.getSystemName();
             }
         }
     }
@@ -3696,14 +3704,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //-------------------------------------------
     protected String g(String s) {
         D.deb("getting "+s);
-        if (resourceBundle == null) {
-            synchronized (this) {
-                if (resourceBundle == null) {
-                    resourceBundle = NbBundle.getBundle(VcsFileSystem.class);
-                }
-            }
-        }
-        return resourceBundle.getString (s);
+        return NbBundle.getMessage(VcsFileSystem.class, s);
     }
     protected String  g(String s, Object obj) {
         return MessageFormat.format (g(s), new Object[] { obj });

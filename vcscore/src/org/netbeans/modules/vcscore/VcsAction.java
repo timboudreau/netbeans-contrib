@@ -473,7 +473,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         setVariables(files, vars, quoting, valueAdjustment);
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         CommandsPool pool = fileSystem.getCommandsPool();
-        int preprocessStatus = pool.preprocessCommand(vce, vars, askForEachFile);
+        int preprocessStatus = pool.preprocessCommand(vce, vars, fileSystem, askForEachFile);
         //System.out.println("VcsAction.doCommand(): CommandsPool.preprocessCommand() = "+preprocessStatus+", askForEachFile = "+((askForEachFile.length > 0) ? ""+askForEachFile : ""+askForEachFile[0]));
         if (CommandsPool.PREPROCESS_CANCELLED == preprocessStatus) {
             return preprocessStatus;

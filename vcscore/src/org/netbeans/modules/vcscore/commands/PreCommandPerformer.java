@@ -169,7 +169,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             preCommandOutput[i] = new Vector();
             preCommandError[i] = new Vector();
             VcsCommandExecutor executor = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
-            int status = pool.preprocessCommand(executor, vars);
+            int status = pool.preprocessCommand(executor, vars, fileSystem);
             if (CommandsPool.PREPROCESS_CANCELLED == status) throw new UserCancelException();
             if (CommandsPool.PREPROCESS_DONE != status) continue; // Something bad has happened
             executor.addDataOutputListener(new DataOutputContainer(i));

@@ -831,7 +831,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             }
         });
         CommandsPool pool = fileSystem.getCommandsPool();
-        int preprocessStatus = pool.preprocessCommand(ec, varsCopy);
+        int preprocessStatus = pool.preprocessCommand(ec, varsCopy, fileSystem);
         if (preprocessStatus != CommandsPool.PREPROCESS_DONE) return null;
         pool.startExecutor(ec);
         try {

@@ -132,5 +132,9 @@ public class VcsRuntimeCommand extends RuntimeCommand {
     public void setState(int state) {
         this.state = state;
     }
+    
+    public void notifyRemoved() {
+        pool.removeFinishedCommand(executor);
+    }
 
 }

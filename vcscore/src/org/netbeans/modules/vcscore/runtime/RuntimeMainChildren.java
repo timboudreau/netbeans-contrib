@@ -217,6 +217,7 @@ public class RuntimeMainChildren extends Children.Keys  {
             boolean is = checkFileSystem(ev.getFileSystem(), bd);
             if (is) {
                 fsList.remove(fs);
+                RuntimeSupport.getInstance().runtimeFolderRemoved(fs.getSystemName());
                 RuntimeMainChildren.this.setKeys(fsList);
                 //RuntimeMainChildren.this.refreshKey(fs);
             }

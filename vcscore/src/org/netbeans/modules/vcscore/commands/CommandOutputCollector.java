@@ -17,6 +17,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.openide.util.RequestProcessor;
+
 /**
  * The collector of commands' output. Temporary disk files are used to store the
  * output to keep a small memory footprint.
@@ -60,6 +62,9 @@ class CommandOutputCollector extends Object implements CommandListener {
     private static final String FILE_MIDFIX = "_";
     private static final String FILE_POSTFIX = ".txt";
     private static File runningFolder = null;
+    
+    private static ArrayList outputCollectorsToFree = new ArrayList();
+    private static RequestProcessor.Task collectorsFreeTask = null;
     
     private ArrayList[] cmdOutput;
     private ArrayList[] cmdOutputListeners;
@@ -149,25 +154,40 @@ class CommandOutputCollector extends Object implements CommandListener {
      */
     public void commandDone(VcsCommandExecutor vce) {
         if (!this.vce.equals(vce)) return ;
-        Runnable later = new Runnable() {
-            public void run() {
-                try {
-                    // Wait for all the output from the commands.
-                    Thread.currentThread().sleep(5000);
-                } catch (InterruptedException exc) {
-                }
-                for (int i = 0; i < NUM_OUTPUTS; i++) {
-                    synchronized (cmdOutput[i]) {
-                        cmdOutputListeners[i] = null;
-                        flushOutput(i);
-                        cmdOutput[i] = null;
+        synchronized (CommandOutputCollector.class) {
+            if (collectorsFreeTask == null) {
+                collectorsFreeTask = RequestProcessor.createRequest(new Runnable() {
+                    public void run() {
+                        synchronized (CommandOutputCollector.class) {
+                            for (Iterator it = outputCollectorsToFree.iterator(); it.hasNext(); ) {
+                                ((CommandOutputCollector) it.next()).freeCommandOutput();
+                            }
+                            outputCollectorsToFree.clear();
+                        }
                     }
-                }
-                cmdOutput = null;
+                });
             }
         };
-        new Thread(later).start();
+        outputCollectorsToFree.add(this);
+        collectorsFreeTask.schedule(5000);
+        //new Thread(later).start();
         commandsPool.removeCommandListener(this);
+    }
+    
+    private void freeCommandOutput() {
+        //try {
+            // Wait for all the output from the commands.
+            //Thread.currentThread().sleep(5000);
+        //} catch (InterruptedException exc) {
+        //\\}
+        for (int i = 0; i < NUM_OUTPUTS; i++) {
+            synchronized (cmdOutput[i]) {
+                cmdOutputListeners[i] = null;
+                flushOutput(i);
+                cmdOutput[i] = null;
+            }
+        }
+        cmdOutput = null;
     }
     
     private void addOutputListener(int outputId, Object listener) {

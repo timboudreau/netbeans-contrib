@@ -114,5 +114,10 @@ public abstract class RuntimeCommand {
     public abstract int getState();
     
     public abstract void setState(int state);
+    
+    /** Called when this command is removed from the Runtime tab. Can be used by subclasses
+     *  to do some cleanup when this command was restroyed. */
+    public void notifyRemoved() {
+    }
 
 }

@@ -74,6 +74,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     private static long lastCommandID = 0;
     
+    private static CommandsPool instance = null;
+    
     /** The table of instances of VcsCommandExecutor and associated VcsCommandWrapper */
     private Hashtable commandsWrappers;
     /** Contains instances of VcsCommandWrappers, which are to be run.  */
@@ -106,20 +108,11 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     private ArrayList commandListeners = new ArrayList();
     
-    private WeakReference fileSystem;
-    
-    private FSDisplayPropertyChangeListener fsDisplayPropertyChange;
-
     private boolean execStarterLoopStarted = false;
     private boolean execStarterLoopRunning = true;
 
     /** Creates new CommandsPool */
-    public CommandsPool(final VcsFileSystem fileSystem) {
-        this(fileSystem, true);
-    }
-    
-    /** Creates new CommandsPool */
-    public CommandsPool(final VcsFileSystem fileSystem, boolean createRuntimeCommands) {
+    private CommandsPool() {
         commandsToRun = new ArrayList();
         commandsRunning = new ArrayList();
         commandsExceptionallyRunning = new ArrayList();
@@ -130,21 +123,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
         outputVisualizers = new Hashtable();
         numRunningListCommands = 0;
         group = new ThreadGroup("VCS Commands Group");
-        this.fileSystem = new WeakReference(fileSystem);
-        fsDisplayPropertyChange = new FSDisplayPropertyChangeListener(fileSystem.getSystemName());
-        fileSystem.addPropertyChangeListener(WeakListener.propertyChange(fsDisplayPropertyChange, fileSystem));
-        /*
-        org.openide.filesystems.Repository repo = TopManager.getDefault().getRepository();
-        repo.addRepositoryListener(
-            org.openide.util.WeakListener.repository(this, repo));
-         */
         //executorStarterLoop();
     }
     
-    private VcsFileSystem getVcsFileSystem() {
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        if (fileSystem == null) cleanup();
-        return fileSystem;
+    public static synchronized CommandsPool getInstance() {
+        if (instance == null) {
+            instance = new CommandsPool();
+        }
+        return instance;
     }
     
     protected void finalize () {
@@ -157,34 +143,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * You will not be able to execute any command by CommandsPool after this method finishes !
      */
     public void cleanup() {
-/*  now happens in the RuntimeChildren instance..
- if (runtimeNode != null) {
-            runtimeNode.removePropertyChangeListener(runtimeNodePropertyChange);
-            try {
-                runtimeNode.destroy();
-                runtimeNode = null;
-            } catch (java.io.IOException exc) {
-                TopManager.getDefault().notifyException(exc);
-            }
-        }
- */
         synchronized (this) {
             //* The FS may still exist i.e. inside a MultiFileSystem => do not interrupt the loop now
             execStarterLoopRunning = false;
             notifyAll();
             // */
         }
-    }
-    
-    public void setupRuntime(RuntimeFolderNode runNode) {
-/*        if (runtimeNode != null) {
-            runtimeNode = runNode;
-            runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
-            runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
-            execStarterLoopStarted = false;
-            execStarterLoopRunning = true;
-        }
- */
     }
     
     public void setCollectOutput(boolean collectOutput) {
@@ -195,17 +159,6 @@ public class CommandsPool extends Object /*implements CommandListener */{
         return collectOutput;
     }
 
-    /*
-    private void setCommandID(VcsCommandExecutor vce) {
-        if (commandsIDs.get(vce) == null) {
-            synchronized (CommandsPool.class) {
-                Long id = new Long(++lastCommandID);
-                commandsIDs.put(vce, id);
-            }
-        }
-    }
-     */
-    
     /**
      * Get the command's ID. It's a unique command identification number.
      * @param vce the command's executor
@@ -221,24 +174,31 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * Perform preprocessing of a new command. It will perform any needed input
      * and update the execution string.
      * @param vce the command to preprocess
-     * @return the preprocessing status, one of CommandExecutorSupport.PROPEROCESS_* constants
+     * @return the preprocessing status, one of <code>CommandExecutorSupport.PROPEROCESS_*</code> constants
      */
-    public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars) {
-        return preprocessCommand(vce, vars, null);
+    public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars,
+                                 VcsFileSystem fileSystem) {
+        return preprocessCommand(vce, vars, fileSystem, null);
     }
     
     /**
      * Perform preprocessing of a new command. It will perform any needed input
      * and update the execution string.
      * @param vce the command to preprocess
-     * @return the preprocessing status, one of CommandExecutorSupport.PROPEROCESS_* constants
+     * @param vars the variables for this command
+     * @param fileSystem the file system this command is associated with. Can be <code>null</code>
+     *        if the command is not associated with any file system
+     * @param askForEachFile whether the user should be asked for options for each file
+     *        separately. If false, then the user is asked only once when the command acts
+     *        on multiple files. Only the first item in the array is used, new value
+     *        will be returned.
+     * @return the preprocessing status, one of <code>CommandExecutorSupport.PREPROCESS_*</code> constants
      */
-    public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars, boolean[] askForEachFile) {
+    public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars,
+                                 VcsFileSystem fileSystem, boolean[] askForEachFile) {
         //setCommandID(vce);
-        VcsCommandWrapper cw = new VcsCommandWrapper(vce);
+        VcsCommandWrapper cw = new VcsCommandWrapper(vce, fileSystem);
         commandsWrappers.put(vce, cw);
-        VcsFileSystem fileSystem = getVcsFileSystem();
-        if (fileSystem == null) return PREPROCESS_CANCELLED;
         synchronized (commandsToRun) {
             commandsToRun.add(cw);
         }
@@ -246,11 +206,16 @@ public class CommandsPool extends Object /*implements CommandListener */{
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
         String exec = vce.getExec();
-        fileSystem.debug(g("MSG_Command_preprocessing", name, exec));
-        RuntimeCommand rCom = new VcsRuntimeCommand(vce, this);
-        cw.setRuntimeCommand(rCom);
-        rCom.setState(RuntimeCommand.STATE_WAITING);
-        RuntimeSupport.getInstance().updateCommand(fileSystem.getSystemName(), rCom);
+        RuntimeCommand rCom = null;
+        if (fileSystem != null) {
+            fileSystem.debug(g("MSG_Command_preprocessing", name, exec));
+            if (fileSystem.isCreateRuntimeCommands()) {
+                rCom = new VcsRuntimeCommand(vce, this);
+                cw.setRuntimeCommand(rCom);
+                rCom.setState(RuntimeCommand.STATE_WAITING);
+                RuntimeSupport.getInstance().updateCommand(fileSystem.getSystemName(), rCom);
+            }
+        }
         int preprocessStatus = CommandExecutorSupport.preprocessCommand(fileSystem, vce, vars, askForEachFile);
         if (PREPROCESS_CANCELLED == preprocessStatus) {
             synchronized (this) {
@@ -259,9 +224,13 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 //commandsFinished.add(vce);
                 notifyAll();
             }
-            fileSystem.debug(g("MSG_Command_canceled", name));
-            //RuntimeSupport.addCancelled(runtimeNode, vce, this);
-            RuntimeSupport.getInstance().removeDone(fileSystem.getSystemName(), rCom);
+            if (fileSystem != null) {
+                fileSystem.debug(g("MSG_Command_canceled", name));
+                if (fileSystem.isCreateRuntimeCommands()) {
+                    //RuntimeSupport.addCancelled(runtimeNode, vce, this);
+                    RuntimeSupport.getInstance().removeDone(fileSystem.getSystemName(), rCom);
+                }
+            }
         }
         return preprocessStatus;
     }
@@ -269,24 +238,28 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private void commandStarted(final VcsCommandWrapper cw) {
         final VcsCommandExecutor vce = cw.getExecutor();
         //setCommandID(vce);
-        final VcsFileSystem fileSystem = getVcsFileSystem();
-        if (fileSystem == null) return ;
+        final VcsFileSystem fileSystem = cw.getFileSystem();
+        //if (fileSystem == null) return ;
         VcsCommand cmd = vce.getCommand();
         //waitToRun(cmd, vce.getFiles());
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
         final String finalName = name;
-        RuntimeCommand rCom = cw.getRuntimeCommand();
-        if (rCom == null) {
-            rCom = new VcsRuntimeCommand(vce, CommandsPool.this);
-            cw.setRuntimeCommand(rCom);
+        if (fileSystem != null && fileSystem.isCreateRuntimeCommands()) {
+            RuntimeCommand rCom = cw.getRuntimeCommand();
+            if (rCom == null) {
+                rCom = new VcsRuntimeCommand(vce, CommandsPool.this);
+                cw.setRuntimeCommand(rCom);
+            }
+            rCom.setState(RuntimeCommand.STATE_RUNNING);
+            RuntimeSupport.getInstance().updateCommand(fileSystem.getSystemName(), rCom);
         }
-        rCom.setState(RuntimeCommand.STATE_RUNNING);
-        RuntimeSupport.getInstance().updateCommand(fileSystem.getSystemName(), rCom);
         RequestProcessor.postRequest(new Runnable() {
             public void run() {
                 TopManager.getDefault().setStatusText(g("MSG_Command_name_running", finalName));
-                fileSystem.debug(g("MSG_Command_started", finalName, vce.getExec()));
+                if (fileSystem != null) {
+                    fileSystem.debug(g("MSG_Command_started", finalName, vce.getExec()));
+                }
             }
         });
         //System.out.println("command "+vce.getCommand()+" STARTED.");
@@ -308,17 +281,18 @@ public class CommandsPool extends Object /*implements CommandListener */{
             //outputVisualizers.put(vce, outputVisualizer);
         }
         //System.out.println("command "+vce.getCommand()+" STARTED, LISTENERS DONE.");
-        FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
-        if (cache != null && cache instanceof FileReaderListener) {
-            vce.addFileReaderListener((FileReaderListener) cache);
+        if (fileSystem != null) {
+            FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
+            if (cache != null && cache instanceof FileReaderListener) {
+                vce.addFileReaderListener((FileReaderListener) cache);
+            }
         }
     }
     
     private void commandDone(VcsCommandWrapper cw) {
         VcsCommandExecutor vce = cw.getExecutor();
-        //System.out.println("command "+vce.getCommand()+" DONE.");
-        VcsFileSystem fileSystem = getVcsFileSystem();
-        if (fileSystem == null) return ;
+        //System.out.println("commandDone("+cw.getExecutor().getCommand().getName()+")");
+        VcsFileSystem fileSystem = cw.getFileSystem();
         VcsCommand cmd = vce.getCommand();
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
@@ -329,26 +303,21 @@ public class CommandsPool extends Object /*implements CommandListener */{
             commandsExceptionallyRunning.remove(cw);
             notifyAll();
         }
-        RuntimeCommand rCom = cw.getRuntimeCommand();
-        if (rCom == null) {
-            rCom = new VcsRuntimeCommand(vce, this);
-            cw.setRuntimeCommand(rCom);
-        }
-        rCom.setState(RuntimeCommand.STATE_DONE);
-        RuntimeSupport rSupport = RuntimeSupport.getInstance();
-        rSupport.updateCommand(fileSystem.getSystemName(), rCom);
-        int collectFinishedCmdsNum = rSupport.getCollectFinishedCmdsNum(fileSystem.getSystemName());
-        synchronized (commandsFinished) {
-            //commandsFinished.removeRange(0, commandsFinished.size() - collectFinishedCmdsNum);
-            while (commandsFinished.size() > collectFinishedCmdsNum) {
-                VcsCommandWrapper removedWrapper = (VcsCommandWrapper) commandsFinished.remove(0);
-                VcsCommandExecutor removedExecutor = removedWrapper.getExecutor();
-                commandsWrappers.remove(removedExecutor);
-                outputContainers.remove(removedExecutor);
-                RuntimeCommand runCom = removedWrapper.getRuntimeCommand();
-                removedWrapper.setRuntimeCommand(null);
-                if (runCom != null) rSupport.removeDone(fileSystem.getSystemName(), runCom);
+        //System.out.println("  commandsFinished.size() = "+commandsFinished.size());
+        if (fileSystem != null && fileSystem.isCreateRuntimeCommands()) {
+            RuntimeCommand rCom = cw.getRuntimeCommand();
+            if (rCom == null) {
+                rCom = new VcsRuntimeCommand(vce, this);
+                cw.setRuntimeCommand(rCom);
             }
+            rCom.setState(RuntimeCommand.STATE_DONE);
+            RuntimeSupport rSupport = RuntimeSupport.getInstance();
+            rSupport.updateCommand(fileSystem.getSystemName(), rCom);
+        } else {
+            commandsFinished.remove(cw);
+            commandsWrappers.remove(vce);
+            outputContainers.remove(vce);
+            
         }
         if (!isCollectOutput()) {
             outputContainers.remove(vce);
@@ -358,7 +327,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 ((CommandListener) it.next()).commandDone(vce);
             }
         }
-        CommandExecutorSupport.postprocessCommand(fileSystem, vce);
+        if (fileSystem != null) {
+            CommandExecutorSupport.postprocessCommand(fileSystem, vce);
+        }
         //System.out.println("command "+vce.getCommand()+" DONE, LISTENERS DONE.");
         int exit = vce.getExitStatus();
         if (cw.isInterrupted()) exit = VcsCommandExecutor.INTERRUPTED;
@@ -387,14 +358,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
         });
         String notification = null;
         if (exit != VcsCommandExecutor.SUCCEEDED && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
-            fileSystem.debugErr(message);
-            printErrorOutput(vce);
-            if (fileSystem.isCommandNotification()) {
+            if (fileSystem != null) fileSystem.debugErr(message);
+            printErrorOutput(vce, fileSystem);
+            if (fileSystem == null || fileSystem.isCommandNotification()) {
                 notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG);
             }
         } else {
-            fileSystem.debug(message);
-            if (fileSystem.isCommandNotification()) {
+            if (fileSystem != null) fileSystem.debug(message);
+            if (fileSystem == null || fileSystem.isCommandNotification()) {
                 notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG);
             }
         }
@@ -412,8 +383,21 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
     }
     
-    private void printErrorOutput(VcsCommandExecutor vce) {
-        final VcsFileSystem fileSystem = getVcsFileSystem();
+    public void removeFinishedCommand(VcsCommandExecutor removedExecutor) {
+        VcsCommandWrapper removedWrapper = (VcsCommandWrapper) commandsWrappers.get(removedExecutor);
+        if (removedWrapper == null) return ;
+        commandsFinished.remove(removedWrapper);
+        //System.out.println("commandDone("+removedWrapper.getExecutor().getCommand().getName()+"): removing command "+removedExecutor.getCommand().getName());
+        commandsWrappers.remove(removedExecutor);
+        outputContainers.remove(removedExecutor);
+        RuntimeCommand runCom = removedWrapper.getRuntimeCommand();
+        removedWrapper.setRuntimeCommand(null);
+        //VcsFileSystem fs = removedWrapper.getFileSystem();
+        //if (runCom != null) rSupport.removeDone(fileSystem.getSystemName(), runCom);
+    }
+    
+    private void printErrorOutput(VcsCommandExecutor vce, final VcsFileSystem fileSystem) {
+        //final VcsFileSystem fileSystem = getVcsFileSystem();
         if (fileSystem == null) return ;
         fileSystem.debugErr(g("MSG_Check_whole_output"));
         CommandOutputCollector collector = (CommandOutputCollector) outputContainers.get(vce);
@@ -438,9 +422,19 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * @param vce the executor
      */
     public synchronized void startExecutor(final VcsCommandExecutor vce) {
+        startExecutor(vce, null);
+    }
+    
+    /**
+     * Start the executor. The method starts the executor in a separate thread.
+     * @param vce the executor
+     * @param fileSystem the file system associated with the command. Can be <code>null</code>.
+     */
+    public synchronized void startExecutor(final VcsCommandExecutor vce,
+                                           final VcsFileSystem fileSystem) {
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw == null) {
-            cw = new VcsCommandWrapper(vce);
+            cw = new VcsCommandWrapper(vce, fileSystem);
             commandsWrappers.put(vce, cw);
         }
         cw.setSubmittingThread(Thread.currentThread());
@@ -1039,35 +1033,21 @@ public class CommandsPool extends Object /*implements CommandListener */{
         return status;
     }
     
-
-    private class FSDisplayPropertyChangeListener implements java.beans.PropertyChangeListener {
-        private String oldFsSystemName;
-        public FSDisplayPropertyChangeListener(String initFSSystemName) {
-            oldFsSystemName = initFSSystemName;
-        }
-        public void propertyChange(java.beans.PropertyChangeEvent evt) {
-            if (VcsFileSystem.PROP_SYSTEM_NAME.equals(evt.getPropertyName())) {
-                VcsFileSystem fileSystem = getVcsFileSystem();
-                if (fileSystem == null) return ;
-                RuntimeSupport.getInstance().updateRuntime(fileSystem, oldFsSystemName);
-                oldFsSystemName = fileSystem.getSystemName();
-            }
-        }
-    }
-    
     private static class VcsCommandWrapper extends Object {
         
         private static long lastId = 0;
         
         private VcsCommandExecutor vce;
+        private VcsFileSystem fileSystem;
         private long id;
         private Reference submittingThread;
         private Thread runningThread;
         private RuntimeCommand runtimeCommand;
         private boolean interrupted = false;
         
-        public VcsCommandWrapper(VcsCommandExecutor vce) {
+        public VcsCommandWrapper(VcsCommandExecutor vce, VcsFileSystem vfs) {
             this.vce = vce;
+            this.fileSystem = vfs;
             synchronized (VcsCommandWrapper.class) {
                 this.id = lastId++;
             }
@@ -1075,6 +1055,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
         
         public VcsCommandExecutor getExecutor() {
             return vce;
+        }
+        
+        public VcsFileSystem getFileSystem() {
+            return fileSystem;
         }
         
         public long getCommandID() {
