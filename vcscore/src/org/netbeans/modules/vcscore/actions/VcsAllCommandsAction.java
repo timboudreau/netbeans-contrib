@@ -93,7 +93,7 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
     /* Getter for name
     */
     public String getName () {
-        return org.openide.util.NbBundle.getBundle(VcsCommandsAction.class).getString("CTL_VcsFSActionName");
+        return org.openide.util.NbBundle.getBundle(VcsAllCommandsAction.class).getString("CTL_VcsFSActionName");
     }
 
     /* Getter for help.
@@ -189,7 +189,7 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
         
         private JMenu addContextPlaceHolder(JMenu m) {
             JMenu cm = new JMenu();
-            JMenuItem contextPlaceHolder = new JMenuItem(org.openide.util.NbBundle.getMessage(VcsCommandsAction.class, "CTL_ContextCommandsPlaceHolder", m.getText()));
+            JMenuItem contextPlaceHolder = new JMenuItem(org.openide.util.NbBundle.getMessage(VcsAllCommandsAction.class, "CTL_ContextCommandsPlaceHolder", m.getText()));
             contextPlaceHolder.setEnabled(false);
             cm.add(contextPlaceHolder);
             return cm;
