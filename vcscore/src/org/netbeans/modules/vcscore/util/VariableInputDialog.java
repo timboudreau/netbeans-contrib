@@ -937,7 +937,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         });
         addHistoryListener(new VariableInputDialog.HistoryListener() {
             public void changeHistory(int index1, int index2) {
-                if (index1 == historySize) {
+                if (index1 == historySize && index2 < index1) {
                     writeFileContents(area, component.getValue(), promptAreaNum);
                 }
                 initArea(area, component.getHistoryValue(index2));
@@ -1315,7 +1315,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //for(int i = 0; i < filePromptAreas.length; i++) {
             if (docListener != null) docListener.filePromptDocumentCleanup(filePromptArea, promptAreaNum, docIdentif);
             //String name = fileNames[i];
-            if (fileName.length() == 0) return ;
+            if (fileName == null || fileName.length() == 0) return ;
             File file = new File(fileName);
             try {
                 filePromptArea.write(new FileWriter(file));
