@@ -21,7 +21,7 @@ Microsystems, Inc. All Rights Reserved.
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" location="${nbext}/bcl-license.txt"/>
+  <property name="license.file" location="bcl-license.txt"/>
 
   <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
