@@ -54,7 +54,7 @@
     </target>
 
     <target depends="netbeans" description="Prepare the module for distribution via Auto Update." name="nbm">
-        <makenbm file="bookmarks.nbm" homepage="http://www.nokia.com/" module="netbeans/modules/bookmarks.jar" topdir="." needsrestart="no" distribution="http://${dist.base}/bookmarks.nbm">
+        <makenbm file="bookmarks.nbm" homepage="http://contrib.netbeans.org/" module="netbeans/modules/bookmarks.jar" topdir="." needsrestart="no" distribution="http://${dist.base}/bookmarks.nbm">
             <license file="${license.file}"/>
             <signature alias="${nbm_alias}" keystore="${keystore}" storepass="${storepass}"/>
         </makenbm>
