@@ -768,6 +768,15 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         return (String[]) names.toArray(new String[0]);
     }
     
+    synchronized CommandTask[] getRunningCommandTasks() {
+        LinkedList tasks = new LinkedList();
+        for(Iterator it = tasksRunning.iterator(); it.hasNext(); ) {
+            CommandTaskInfo cw = (CommandTaskInfo) it.next();
+            tasks.add(cw.getTask());
+        }
+        return (CommandTask[]) tasks.toArray(new CommandTask[tasks.size()]);
+    }
+    
     /** @return true if there are two files contained in the same package folder, false otherwise.
      */
     private static boolean areFilesInSamePackage(Collection files1, Collection files2) {
