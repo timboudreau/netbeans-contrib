@@ -65,8 +65,8 @@ public class CopyServerCode extends NodeAction {
         }
         String paste = new String ("      String[] hierarchy_of_contexts = new String [] {");
         for (int i=names.size () - 6; i>=0; i=i-2) {
-            paste = paste + "\"" + (String)names.elementAt (i) + "\"" + ", ";
-            paste = paste + "\"" + (String)names.elementAt (i+1) + "\"" + ", ";
+            paste = paste + "\"" + GenerateSupport.correctCode((String)names.elementAt (i)) + "\"" + ", ";
+            paste = paste + "\"" + GenerateSupport.correctCode((String)names.elementAt (i+1)) + "\"" + ", ";
         }
         if (paste.substring (paste.length () - 2, paste.length ()).equals (", "))
             paste = paste.substring (0, paste.length () - 2);
