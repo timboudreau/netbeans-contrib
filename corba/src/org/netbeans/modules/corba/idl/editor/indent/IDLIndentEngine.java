@@ -242,7 +242,7 @@ public class IDLIndentEngine extends IndentEngine {
                     if (i<0) { // Start of line, reformat it
                         StringWriter writer = new StringWriter ();
                         IDLFormater formater = new IDLFormater (doc, off, writer);
-                        int newWidth = formater.getIndentWidth() - this.indentTabWidth;
+                        int newWidth = Math.max (0,formater.getIndentWidth() - this.indentTabWidth);
                         int oldWidth = lineText.length()-1;
                         int delta = newWidth - oldWidth;
                         if (delta < 0) {
