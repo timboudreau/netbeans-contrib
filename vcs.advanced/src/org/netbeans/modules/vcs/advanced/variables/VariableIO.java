@@ -28,6 +28,8 @@ import org.openide.util.NbBundle;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 
+import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
+
 /**
  * This class provides input/output of variables from/to xml file.
  *
@@ -88,9 +90,11 @@ public class VariableIO extends Object {
         FileObject[] ch = file.getChildren();
         ArrayList list = new ArrayList(Arrays.asList(ch));
         for(int i = 0; i < list.size(); i++) {
-            String ext = ((FileObject) list.get(i)).getExt();
+            FileObject fo = (FileObject) list.get(i);
+            String ext = fo.getExt();
             if (!ext.equalsIgnoreCase(CONFIG_FILE_EXT)
-                && !ext.equalsIgnoreCase(VariableIOCompat.CONFIG_FILE_EXT)) {
+                && !ext.equalsIgnoreCase(VariableIOCompat.CONFIG_FILE_EXT)
+                || CommandLineVcsFileSystem.isTemporaryConfig(fo.getName())) {
                 list.remove(i);
                 i--;
             }
