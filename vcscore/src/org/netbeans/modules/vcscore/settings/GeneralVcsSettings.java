@@ -34,12 +34,16 @@ public class GeneralVcsSettings extends SystemOption {
     public static final String PROP_DEFAULT_PROFILE       = "defaultProfile"; // NOI18N
     public static final String PROP_RECOGNIZED_FS         = "recognizedFS"; // NOI18N
     public static final String PROP_ADVANCED_NOTIFICATION = "advancedNotification"; //NOI18N
+    public static final String PROP_FILE_ANNOTATION       = "fileAnnotation"; // NOI18N
     
     public static final int AUTO_REFRESH_NO_REFRESH = 0;
     public static final int AUTO_REFRESH_ON_DIR_OPEN = 1;
     public static final int AUTO_REFRESH_ON_MOUNT = 2;
     public static final int AUTO_REFRESH_ON_RESTART = 3;
     public static final int AUTO_REFRESH_ON_MOUNT_AND_RESTART = 4;
+    
+    public static final int FILE_ANNOTATION_NONE = 0;
+    public static final int FILE_ANNOTATION_FULL = 1;
     
     static final long serialVersionUID = -3279219340064367270L;
     
@@ -56,6 +60,7 @@ public class GeneralVcsSettings extends SystemOption {
         setOffLine(false);
         setUseGlobal(true);
         setAdvancedNotification(true);
+        setFileAnnotation(FILE_ANNOTATION_FULL);
     }    
     
     /** Get human presentable name */
@@ -101,6 +106,14 @@ public class GeneralVcsSettings extends SystemOption {
      */
     public void setAutoRefresh(int newAutoRefresh) {
         putProperty(PROP_AUTO_REFRESH, new Integer(newAutoRefresh), true);
+    }
+    
+    public int getFileAnnotation() {
+        return ((Integer)getProperty(PROP_FILE_ANNOTATION)).intValue();
+    }
+    
+    public void setFileAnnotation(int fileAnnotation) {
+        putProperty(PROP_FILE_ANNOTATION, new Integer(fileAnnotation), true);
     }
     
     /** Getter for advanced notification property.

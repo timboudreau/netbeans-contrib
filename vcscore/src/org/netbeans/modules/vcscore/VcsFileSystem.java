@@ -293,6 +293,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private int[] multiFilesAnnotationTypes = null;
     private String annotationPattern = null;
+    private transient int fileAnnotation;
 
     //private long cacheId = 0;
     //private String cacheRoot = null; // NOI18N
@@ -1777,6 +1778,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         setOffLine(settings.isOffLine());
         setAutoRefresh(settings.getAutoRefresh());
         setHideShadowFiles(settings.isHideShadowFiles());
+        fileAnnotation = settings.getFileAnnotation();
         init();
         //possibleFileStatusesMap = statusProvider.getPossibleFileStatusesTable();
     }
@@ -2585,6 +2587,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         String result = name;
         if (result == null)
             return result;  // Null name, ignore it
+        if (GeneralVcsSettings.FILE_ANNOTATION_NONE == fileAnnotation) { // No annotation
+            return result;
+        }
         //Object[] oo = files.toArray();
         int len = files.size();
         if (len == 0 || name.indexOf(getRootDirectory().toString()) >= 0) {
@@ -2664,6 +2669,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         String result = name;
         if (result == null)
             return result;  // Null name, ignore it
+        if (GeneralVcsSettings.FILE_ANNOTATION_NONE == fileAnnotation) { // No annotation
+            return result;
+        }
         //Object[] oo = files.toArray();
         int len = files.size();
         if (len == 0 || name.indexOf(getRootDirectory().toString()) >= 0) {
@@ -4965,6 +4973,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 }
             }
         }
+        if (GeneralVcsSettings.PROP_FILE_ANNOTATION.equals(propName)) {
+            fileAnnotation = settings.getFileAnnotation();
+            FileObject root = findResource("");
+            Set foSet = new HashSet();
+            Enumeration e = existingFileObjects(root);
+            while (e.hasMoreElements()) {
+                foSet.add(e.nextElement());
+            }
+            fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, foSet, false, true));
+        }
     }
 
     private class FSPropertyChangeListener implements PropertyChangeListener {
@@ -4979,9 +4997,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (PROP_ANNOTATION_PATTERN.equals(propName)) {
                 FileObject root = findResource("");
                 Set foSet = new HashSet();
-                Enumeration enum = existingFileObjects(root);
-                while (enum.hasMoreElements()) {
-                    foSet.add(enum.nextElement());
+                Enumeration e = existingFileObjects(root);
+                while (e.hasMoreElements()) {
+                    foSet.add(e.nextElement());
                 }
                 fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, foSet, false, true));
             }

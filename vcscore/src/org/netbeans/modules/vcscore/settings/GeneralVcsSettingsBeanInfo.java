@@ -43,6 +43,7 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
                 new PropertyDescriptor(GeneralVcsSettings.PROP_DEFAULT_PROFILE, GeneralVcsSettings.class),// [4]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_RECOGNIZED_FS, GeneralVcsSettings.class), // [5]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_ADVANCED_NOTIFICATION, GeneralVcsSettings.class), // [6])
+                new PropertyDescriptor(GeneralVcsSettings.PROP_FILE_ANNOTATION, GeneralVcsSettings.class), // [6])
             };
             properties[0].setDisplayName(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("PROP_useGlobal"));
             properties[0].setShortDescription(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("HINT_useGlobal"));
@@ -59,6 +60,9 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
             properties[5].setHidden(true);
             properties[6].setDisplayName(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("PROP_advancedNotification"));
             properties[6].setShortDescription(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("HINT_advancedNotification"));            
+            properties[7].setDisplayName(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("PROP_fileAnnotation"));
+            properties[7].setShortDescription(NbBundle.getBundle(GeneralVcsSettingsBeanInfo.class).getString("HINT_fileAnnotation"));            
+            properties[7].setPropertyEditorClass(AnnotationModePropertyEditor.class);
             
         } catch (java.beans.IntrospectionException intrexc) {
             org.openide.ErrorManager.getDefault().notify(intrexc);
