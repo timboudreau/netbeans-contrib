@@ -1592,12 +1592,43 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                     ncids[cids.length] = configInputDescriptor;
                     cids = ncids;
                 }
+                addMissingVars(configInputDescriptor, fsVars);
             } else {
                 break;
             }
             i++;
         } while (true);
         return cids;
+    }
+    
+    /**
+     * Go through the components defined in the descriptor and add any missing variables to the FileSystem
+     * This is necessary so that the customized values are not lost.
+     */
+    private void addMissingVars(VariableInputDescriptor inputDescriptor, Map fsVars) {
+        Map missingVars = new HashMap();
+        fillMissingVars(missingVars, inputDescriptor.components(), fsVars);
+        if (missingVars.size() > 0) {
+            synchronized (fsChangeLock) {
+                Vector vars = fileSystem.getVariables();
+                for (Iterator it = missingVars.keySet().iterator(); it.hasNext(); ) {
+                    String name = (String) it.next();
+                    String value = (String) missingVars.get(name);
+                    vars.add(new VcsConfigVariable(name, null, value, false, false, false, null));
+                }
+                fileSystem.setVariables(vars);
+                fsVars.putAll(missingVars);
+            }
+        }
+    }
+    
+    private void fillMissingVars(Map missingVars, VariableInputComponent[] components, Map fsVars) {
+        for (int i = 0; i < components.length; i++) {
+            String varName = components[i].getVariable();
+            if (!fsVars.containsKey(varName)) {
+                missingVars.put(varName, components[i].getValue());
+            }
+        }
     }
     
     private void initAdditionalComponents (boolean doAutoFillVars) {
