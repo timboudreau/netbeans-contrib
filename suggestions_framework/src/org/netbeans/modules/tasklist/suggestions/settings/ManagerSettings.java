@@ -543,7 +543,6 @@ public final class ManagerSettings implements Node.Handle {
     public Node getNode() throws IOException {
         try {
             Node node = new BeanNode(getDefault());
-            node.setDisplayName("Suggestions Framework");
             return node;
         } catch (IntrospectionException e) {
             IOException io = new IOException();

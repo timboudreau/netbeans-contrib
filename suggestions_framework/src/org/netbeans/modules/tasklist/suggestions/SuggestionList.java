@@ -183,7 +183,7 @@ public class SuggestionList extends TaskList {
      * @return
      */
     final int getGroupTreshold() {
-        return groupTreshold;
+        return groupTreshold;  // TODO #37068 turn into user's option
     }
 
 }

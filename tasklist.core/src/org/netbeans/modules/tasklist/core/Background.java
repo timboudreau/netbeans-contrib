@@ -42,7 +42,7 @@ public final class Background {
     public static Background execute(Runnable run) {
         Cancellable cancel = (Cancellable) (run instanceof Cancellable ? run : null);
         if (useHack()) {
-            Thread t = new Thread(new Wrapper(run), "TODOs search");  // NOI18N
+            Thread t = new Thread(new Wrapper(run), "Background");  // NOI18N
             t.setPriority(Thread.MIN_PRIORITY);
             t.setDaemon(true);
             t.start();
@@ -64,12 +64,29 @@ public final class Background {
     }
 
     // use hack on linux JVM with successfuly loaded library
+    // it works with Sun provided Linux 1.4 series JVMs on i386
+    // feel free to weaken vendor and version rules if you find
+    // other JVM that maps Java threads to linux processes
     private static boolean useHack() {
-        if ("Linux".equals(System.getProperty("os.name"))) {  // NOI18N
-            loadLibrary();
-            return loaded;
-        }
-        return false;
+
+        String os = System.getProperty("os.name"); // NOI18N
+        if ("Linux".equals(os) == false) return false; // NOI18N
+
+        // jlahoda thinks that JVM threading is correct on 2.6.x kernels, he'll investigate
+        String osversion = "" + System.getProperty("os.version"); // NOI18N
+        if (osversion.startsWith("2.4") == false) return false; // NOI18N
+
+        String vendor = "" + System.getProperty("java.vm.vendor"); // NOI18N
+        if (vendor.startsWith("Sun") == false) return false; // NOI18N
+
+        String version = "" + System.getProperty("java.vm.version"); // NOI18N
+        if (version.startsWith("1.4") == false) return false; // NOI18N
+
+        String hw = System.getProperty("os.arch"); // NOI18N
+        if ("i386".equals(hw) == false) return false; // NOI18N
+
+        loadLibrary();
+        return loaded;
     }
 
     private static class Wrapper implements Runnable {

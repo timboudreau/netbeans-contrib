@@ -15,7 +15,10 @@ package org.netbeans.modules.tasklist.suggestions.settings;
 
 import java.beans.*;
 import java.util.ResourceBundle;
+import java.awt.*;
+
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
 public class ManagerSettingsBeanInfo extends SimpleBeanInfo {
     
@@ -26,7 +29,10 @@ public class ManagerSettingsBeanInfo extends SimpleBeanInfo {
         beanDescriptor.setExpert ( true );//GEN-HEADEREND:BeanDescriptor
         
         // Here you can add code for customizing the BeanDescriptor.
-        
+        beanDescriptor.setDisplayName(NbBundle.getBundle(ManagerSettings.class).getString("BK0007"));
+        beanDescriptor.setShortDescription(NbBundle.getBundle(ManagerSettings.class).getString("BK0008"));
+
+
         return beanDescriptor;         }//GEN-LAST:BeanDescriptor
     
     
@@ -179,6 +185,10 @@ public class ManagerSettingsBeanInfo extends SimpleBeanInfo {
      */
     public int getDefaultEventIndex() {
         return defaultEventIndex;
+    }
+
+    public Image getIcon(int iconKind) {
+        return Utilities.loadImage("org/netbeans/modules/tasklist/suggestions/settings/setting.gif");
     }
 }
 
