@@ -635,21 +635,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //return set;
     }
     
-    /*
-     * Get the path of the processed files.
-     * The path is relative to file system root.
-     *
-    public String getPath() {
-        return (String) vars.get("DIR");
-    }
+    /**
+     * Add a file reader listener, that gets the updated attributes of the
+     * processed file(s).
      */
-    
-    /*
-    private String preprocessCommand() {
-        String exec=cmd.getExec().trim();
+    public void addFileReaderListener(FileReaderListener l) {
     }
-    */
-    
 
     //-------------------------------------------
     String g(String s) {
