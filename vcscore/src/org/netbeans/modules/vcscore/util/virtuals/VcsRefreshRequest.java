@@ -52,6 +52,8 @@ public final class VcsRefreshRequest extends Object implements Runnable {
     private RequestProcessor.Task task;
     
     private HashSet preffered;
+    
+private boolean interrupt;
 
     /** Constructor
     * @param fs file system to refresh
@@ -104,6 +106,9 @@ public final class VcsRefreshRequest extends Object implements Runnable {
 //                    System.out.println("rescheduling..");
                     task.schedule(1000);
                 }
+            } else {
+                //task is running - attempt to interrupt..
+                interrupt = true;
             }
         }
     }
@@ -113,6 +118,10 @@ public final class VcsRefreshRequest extends Object implements Runnable {
             return false;
         }
         return true;
+    }
+    
+    private boolean shouldBeInterrupted() {
+        return interrupt;
     }
     
     FileObject getPrefferedFolder() {
@@ -162,6 +171,7 @@ public final class VcsRefreshRequest extends Object implements Runnable {
             }
             
             t = task;
+            interrupt = false;
         }
         
         try {
@@ -175,12 +185,18 @@ public final class VcsRefreshRequest extends Object implements Runnable {
                  // reseting task variable back to indicate that 
                  // the processing is over
                  task = t;
+                 interrupt = false;
                  
                  notifyAll ();
                  
              }
+             // if there's any prefferer folders, shcedule earlier
+             if (hasPrefferedFolder()) {
+                t.schedule(1000);
+             } else {
              // plan the task for next execution
-             t.schedule (ms);
+                t.schedule (ms);
+             }
         }
     }
     
@@ -206,6 +222,9 @@ public final class VcsRefreshRequest extends Object implements Runnable {
         FileObject prefFo = getPrefferedFolder();
         while (prefFo != null) {
             refreshing.doVirtualsRefresh(prefFo);
+            if (shouldBeInterrupted()) {
+                return;
+            }
 //            System.out.println("pref refre.." + prefFo.getName());
             prefFo = getPrefferedFolder();
         }
@@ -216,7 +235,7 @@ public final class VcsRefreshRequest extends Object implements Runnable {
                 refreshing.doVirtualsRefresh(fo);
             }
             
-            if (refreshTime <= 0) {
+            if (refreshTime <= 0 || shouldBeInterrupted()) {
                 // after each refresh check the current value of refreshTime
                 // again and if it goes to zero exit as fast a you can
                 return;
