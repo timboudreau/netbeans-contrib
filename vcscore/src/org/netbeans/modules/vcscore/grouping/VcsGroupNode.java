@@ -37,6 +37,7 @@ public class VcsGroupNode extends AbstractNode {
     private DataFolder groupDO;
     private String groupName;
     private String groupDescription = "";
+    
 //    private static ShadowOnlyDataFilter SHADOW_ONLY = new ShadowOnlyDataFilter();
     
     public VcsGroupNode(DataFolder dobj) {
@@ -186,7 +187,7 @@ public class VcsGroupNode extends AbstractNode {
 	Sheet.Set props = sheet.get (Sheet.PROPERTIES); // get by name, not display name
 	if (props == null) {
 	    props = Sheet.createPropertiesSet ();
-	    sheet.put (props);
+            sheet.put (props);
 	}
         createProperties(props);
         return sheet;
@@ -194,7 +195,7 @@ public class VcsGroupNode extends AbstractNode {
     
     private void createProperties(Sheet.Set set) {
         java.util.ResourceBundle bundle = NbBundle.getBundle(VcsGroupNode.class);
-        set.put(new PropertySupport.ReadWrite("Description", String.class, //NOI18N
+        set.put(new PropertySupport.ReadWrite("shortDescription", String.class, //NOI18N
         bundle.getString("LBL_Description"), bundle.getString("DESC_Description")) { //NOI18N
             public void setValue(Object value) {
                 VcsGroupNode.this.setShortDescription(value.toString());
@@ -203,7 +204,7 @@ public class VcsGroupNode extends AbstractNode {
                 return VcsGroupNode.this.groupDescription;
             }
         });
-        set.put(new PropertySupport.ReadWrite("Name", String.class, //NOI18N
+        set.put(new PropertySupport.ReadWrite("name", String.class, //NOI18N
         bundle.getString("LBL_GroupName"), bundle.getString("DESC_GroupName")) { //NOI18N
             public void setValue(Object value) {
                 VcsGroupNode.this.setName(value.toString());
@@ -220,9 +221,11 @@ public class VcsGroupNode extends AbstractNode {
     }
     
     public void setName(String name) {
+        String oldName = this.groupName;
         this.groupName = name;
         super.setName(name);
         saveProperties();
+        firePropertyChange("name", oldName, name);
     }
 
     public String getName() {
@@ -241,9 +244,11 @@ public class VcsGroupNode extends AbstractNode {
     }
     
     public void setShortDescription(String desc) {
+        String oldDesc = this.groupDescription;
         this.groupDescription = desc;
         super.setShortDescription(desc);
         saveProperties();
+        firePropertyChange("shortDescription", oldDesc, desc);
     }
 
     // Handle deleting:
