@@ -137,7 +137,6 @@ public class SuggestionNode extends TaskNode {
     public Action[] getActions(boolean empty) {
         if (empty) {
             return new SystemAction[] {
-                SystemAction.get(ShowCategoryAction.class),
                 SystemAction.get(FilterAction.class),
                 SystemAction.get(EditTypesAction.class)
             };

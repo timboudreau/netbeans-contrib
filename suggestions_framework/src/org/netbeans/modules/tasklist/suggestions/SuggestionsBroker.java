@@ -215,12 +215,6 @@ public final class SuggestionsBroker {
         }
     }
 
-
-    /** Exposes current sugegstion list to Suggestions view constructor. TODO Why? getJob.start() cannot be followed by getList in contructor*/
-    final SuggestionList getSuggestionsList() {
-        return getCurrentSuggestionsList();
-    }
-
     private SuggestionList getCurrentSuggestionsList() {
         if (list == null) {
             list = new SuggestionList();
