@@ -93,8 +93,11 @@ public class UserCommandsPanel extends JPanel
   //-------------------------------------------
   private JPanel createCommands(){
     addButton=createButton(g("CTL_Add"));
+    addButton.setMnemonic(KeyEvent.VK_D);    
     editButton=createButton(g("CTL_Edit"));
+    editButton.setMnemonic(KeyEvent.VK_T);
     removeButton=createButton(g("CTL_Remove"));
+    removeButton.setMnemonic(KeyEvent.VK_M);
 
     GridLayout panel2Layout=new GridLayout(5,1);
     panel2Layout.setVgap(5);
@@ -297,6 +300,7 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  12   Gandalf   1.11        10/7/99  Pavel Buzek     
  *  11   Gandalf   1.10        9/30/99  Pavel Buzek     
  *  10   Gandalf   1.9         9/8/99   Pavel Buzek     class model changed, 
  *       customization improved, several bugs fixed
