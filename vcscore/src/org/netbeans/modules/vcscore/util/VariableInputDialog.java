@@ -834,6 +834,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints.gridy = y;
         //gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 0);
+        gridBagConstraints.fill = gridBagConstraints.HORIZONTAL;
         javax.swing.JButton button = new javax.swing.JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Browse"));
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
@@ -861,6 +862,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints.gridy = y;
         //gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 0);
+        gridBagConstraints.fill = gridBagConstraints.HORIZONTAL;
         javax.swing.JButton button = new javax.swing.JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Browse"));
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
@@ -896,6 +898,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints.gridy = y;
         //gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 0);
+        gridBagConstraints.fill = gridBagConstraints.HORIZONTAL;
         javax.swing.JButton button = new javax.swing.JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Select"));
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
