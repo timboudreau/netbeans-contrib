@@ -26,12 +26,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import javax.swing.SwingUtilities;
-import org.netbeans.api.vcs.VcsManager;
 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.RequestProcessor;
+import org.openide.util.Task;
+import org.openide.util.TaskListener;
 
+import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.spi.vcs.VcsCommandsProvider;
 import org.netbeans.spi.vcs.commands.CommandTaskSupport;
@@ -65,8 +69,6 @@ import org.netbeans.modules.vcscore.runtime.RuntimeCommand;
 import org.netbeans.modules.vcscore.runtime.RuntimeCommandTask;
 import org.netbeans.modules.vcscore.runtime.VcsRuntimeCommand;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
-import org.openide.util.Task;
-import org.openide.util.TaskListener;
 
 /**
  *
@@ -453,6 +455,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
      */
     protected boolean canExecute() {
         if (willSpawnRefresh()) return true;
+        if (!processedPreCommands()) return false;
         return canRun(this);
     }
 
@@ -471,6 +474,54 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         }
         if (executor != null) doPostprocessing();
         return status;
+    }
+    
+    private volatile Boolean preCommandsProcessed;
+    
+    private boolean processedPreCommands() {
+        if (preCommandsProcessed == null) {
+            final String[] preCommands = getPreCommands();
+            boolean havePreCommands = preCommands != null && preCommands.length > 0;
+            preCommandsProcessed = (havePreCommands) ? Boolean.FALSE : Boolean.TRUE;
+            if (havePreCommands) {
+                RequestProcessor.getDefault().post(new Runnable() {
+                    public void run() {
+                        try {
+                            CommandTask[] tasks = new CommandTask[preCommands.length];
+                            for (int i = 0; i < preCommands.length; i++) {
+                                Command preCmd = getProvider().createCommand(preCommands[i]);
+                                if (preCmd != null) {
+                                    ((VcsDescribedCommand) preCmd).setAdditionalVariables(executor.getVariables());
+                                    tasks[i] = preCmd.execute();
+                                }
+                            }
+                            for (int i = 0; i < tasks.length; i++) {
+                                if (tasks[i] != null) {
+                                    tasks[i].waitFinished(0);
+                                }
+                            }
+                        } catch (InterruptedException iex) {
+                        } finally {
+                            preCommandsProcessed = Boolean.TRUE;
+                        }
+                    }
+                });
+            }
+        }
+        return preCommandsProcessed.booleanValue();
+    }
+    
+    private String[] getPreCommands() {
+        if (executor != null) {
+            VcsCommand cmd = executor.getCommand();
+            String preCommandsStr = (String) cmd.getProperty(VcsCommand.PROPERTY_PRE_COMMANDS);
+            if (preCommandsStr != null) {
+                preCommandsStr = Variables.expand(executor.getVariables(), preCommandsStr, false);
+                String[] preCommands = VcsUtilities.getQuotedStrings(preCommandsStr);
+                return preCommands;
+            }
+        }
+        return null;
     }
     
     private void doPostprocessing() {

@@ -13,8 +13,6 @@
 
 package org.netbeans.modules.vcscore.commands;
 
-import java.util.ArrayList;
-
 /**
  * The <code>VcsCommand</code> interface should be implemented by any class
  * whose instances are intended to be executed by a VcsCommandExecutor.
@@ -154,6 +152,14 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public static final String PROPERTY_ON_ROOT = "onRoot";
 
+    /**
+     * List of comma separated quoted commands, that will be executed before
+     * this command is executed. The value of this property will be expanded with the
+     * command's variables, so that it can be decided by the command (or set
+     * in it's variable input descriptor) which command names will be used.
+     */
+    public static final String PROPERTY_PRE_COMMANDS = "preCommands";
+    
     /**
      * When this property is true, refresh of the current folder is performed after successfull execution of this command.
      */
