@@ -19,10 +19,7 @@ import org.openide.windows.Workspace;
 import org.openide.windows.WindowManager;
 import org.openide.windows.Mode;
 import org.openide.loaders.DataObject;
-import org.openide.text.EditorSupport;
-import org.openide.text.CloneableEditor;
-import org.openide.text.NbDocument;
-import org.openide.text.Line;
+import org.openide.text.*;
 import org.openide.nodes.Node;
 import org.openide.cookies.EditorCookie;
 import org.openide.util.RequestProcessor;
@@ -59,6 +56,9 @@ public final class SuggestionsBroker {
     private int clientCount = 0;
 
     private SuggestionManagerImpl manager = (SuggestionManagerImpl) SuggestionManagerImpl.getDefault();
+
+    // hook for unit tests
+    Env env = new Env();
 
     private SuggestionsBroker() {
 
@@ -180,8 +180,8 @@ public final class SuggestionsBroker {
     private void startActiveSuggestionFetching() {
 
         // must be removed in docStop
-        TopComponent.getRegistry().addPropertyChangeListener(getWindowSystemMonitor());
-        DataObject.getRegistry().addChangeListener(getDataSystemMonitor());
+        env.addTCRegistryListener(getWindowSystemMonitor());
+        env.addDORegistryListener(getDataSystemMonitor());
 
         /* OLD:
         org.openide.windows.TopComponent.getRegistry().
@@ -267,23 +267,7 @@ err.log("Couldn't find current nodes...");
         workspace.addPropertyChangeListener(this);
         */
 
-        if (pendingScan) {
-            return;
-        }
-        pendingScan = true;
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                // docStop() might have happened
-                // in the mean time - make sure we don't do a
-                // findCurrentFile(true) when we're not supposed to
-                // be processing views
-                if (clientCount > 0) {
-                    findCurrentFile(false);
-                }
-                pendingScan = false;
-            }
-        });
-
+        doRescan();
     }
 
     /** Cache tracking suggestions in recently visited files */
@@ -315,42 +299,13 @@ err.log("Couldn't find current nodes...");
             removeCaretListeners();
         }
 
-
         // Find which component is showing in it
         // Add my own component listener to it
         // When componentHidden, unregister my own component listener
         // Redo above
 
         // Locate source editor
-        Workspace workspace = WindowManager.getDefault().getCurrentWorkspace();
-
-        // HACK ALERT !!! HACK ALERT!!! HACK ALERT!!!
-        // Look for the source editor window, and then go through its
-        // top components, pick the one that is showing - that's the
-        // front one!
-        Mode mode = workspace.findMode(EditorSupport.EDITOR_MODE);
-        if (mode == null) {
-            // The editor window was probablyjust closed
-            return;
-        }
-        TopComponent[] tcs = mode.getTopComponents();
-        for (int j = 0; j < tcs.length; j++) {
-            TopComponent tc = tcs[j];
-            /*
-            if (tc instanceof EditorSupport.Editor) {
-                // Found the source editor...
-                if (tc.isShowing()) {
-		    current = tc;
-                    break;
-                }
-            } else */ if (tc instanceof CloneableEditor) {
-                // Found the source editor...
-                if (tc.isShowing()) {
-                    current = tc;
-                    break;
-                }
-            }
-        }
+        current = env.findActiveEditor();
         if (current == null) {
             // The last editor-support window in the editor was probably
             // just closed - or was not on top
@@ -464,12 +419,13 @@ err.log("Couldn't find current nodes...");
         dataobject = dao;
         notSaved = dao.isModified();
 
-        // TODO: Is MAX_VALUE even feasible here? There's no greater/lessthan
+        // Is MAX_VALUE even feasible here? There's no greater/lessthan
         // comparison, so wrapping around will work just fine, but I may
         // have to check manually and do it myself in case some kind
         // of overflow exception is thrown
         //  Wait, I'm doing a comparison now - look for currRequest.longValue
-        currRequest = new Long(currRequest.intValue() + 1);
+        assert currRequest.longValue() != Long.MAX_VALUE : "Wrap around logic needed!";
+        currRequest = new Long(currRequest.longValue() + 1);
 
         manager.dispatchDocShown(doc, dataobject);
         haveShown = currRequest;
@@ -764,7 +720,10 @@ err.log("Couldn't find current nodes...");
         // enquing a change lookup on the next iteration through the
         // event loop; if a second notification comes in during the
         // same event processing iterationh it's simply discarded.
+        doRescan();
+    }
 
+    private void doRescan() {
         if (pendingScan) {
             return;
         }
@@ -793,9 +752,8 @@ err.log("Couldn't find current nodes...");
             runTimer = null;
         }
 
-        TopComponent.getRegistry().removePropertyChangeListener(getWindowSystemMonitor());
-
-        DataObject.getRegistry().removeChangeListener(getDataSystemMonitor());
+        env.removeTCRegistryListener(getWindowSystemMonitor());
+        env.removeDORegistryListener(getDataSystemMonitor());
 
         // Unregister previous listeners
         if (current != null) {
@@ -1012,6 +970,48 @@ err.log("Couldn't find current nodes...");
             }
         }
 
+    }
+
+
+
+    /**
+     * Binding to outer word that can be changed by unit tests
+     */
+    static class Env {
+
+        void addTCRegistryListener(PropertyChangeListener pcl) {
+            TopComponent.getRegistry().addPropertyChangeListener(pcl);
+        }
+
+        void removeTCRegistryListener(PropertyChangeListener pcl) {
+            TopComponent.getRegistry().removePropertyChangeListener(pcl);
+        }
+
+        void addDORegistryListener(ChangeListener cl) {
+            DataObject.getRegistry().addChangeListener(cl);
+
+        }
+
+        void removeDORegistryListener(ChangeListener cl) {
+            DataObject.getRegistry().removeChangeListener(cl);
+        }
+
+        public TopComponent findActiveEditor() {
+
+            Mode mode = WindowManager.getDefault().findMode(CloneableEditorSupport.EDITOR_MODE);
+            if (mode == null) {
+                // The editor window was probablyjust closed
+                return null;
+            }
+            TopComponent tc = mode.getSelectedTopComponent();
+            if (tc instanceof CloneableEditor) {
+                // Found the source editor...
+                if (tc.isShowing()) {
+                    return tc;
+                }
+            }
+            return null;
+        }
     }
 
 }
