@@ -10,6 +10,3 @@ OpenIDE-Module-IDE-Dependencies: IDE/1 > 1.28
 OpenIDE-Module-Module-Dependencies: org.openidex.util/1 > 1.9
 OpenIDE-Module-Package-Dependencies: org.apache.regexp[RE]
 
-Name: org/netbeans/modules/vcscore/search/VcsSearchType.class
-OpenIDE-Module-Class: Service
-

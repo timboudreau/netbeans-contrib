@@ -53,23 +53,19 @@ Microsystems, Inc. All Rights Reserved.
         <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings" url="GeneralVcsSettings.settings"/>
      </folder>
      <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance" />
+     <folder name="SearchType">
+       <file name="org-netbeans-modules-vcscore-search-VcsSearchType.settings" url="VcsSearchType.settings"/>
+     </folder>
    </folder>
 
    <folder name="Templates">
      <folder name="Mount">
        <folder name="VCS">
-        <file name="org-netbeans-modules-vcscore-wizard-mountcvs-CvsMountFS.settings">
-          <![CDATA[
-          <!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
-          <settings version="1.0">
-            <instanceof class="org.openide.filesystems.FileSystem"/>
-            <instance class="org.netbeans.modules.vcscore.wizard.mountcvs.CvsMountFS"/>
-          </settings>
-          ]]>
-          <attr name="template" boolvalue="true"/>
-          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.mountcvs.Bundle" />
-          <attr name="templateWizardIterator" methodValue="org.netbeans.modules.vcscore.wizard.mountcvs.MountCvsWizard.singleton"/>
-        </file>
+         <file name="org-netbeans-modules-vcscore-wizard-mountcvs-CvsMountFS.settings" url="CvsMountFS.settings">
+         <attr name="template" boolvalue="true"/>
+         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.mountcvs.Bundle" />
+         <attr name="templateWizardIterator" methodValue="org.netbeans.modules.vcscore.wizard.mountcvs.MountCvsWizard.singleton"/>
+         </file>
        </folder>
      </folder>
    </folder>
