@@ -17,6 +17,7 @@ package org.netbeans.modules.tasklist.docscan;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.openide.options.SystemOption;
 import org.openide.util.NbBundle;
+import org.openide.util.HelpCtx;
 
 
 /** Settings for the tasklist module.
@@ -53,11 +54,9 @@ public final class Settings extends SystemOption {
                 "OPTION_TASK_SETTINGS_NAME"); //NOI18N
     }
 
-    /*
     public HelpCtx getHelpCtx () {
-	return new HelpCtx ("Welcome_opt_editing_sources");	        //NOI18N
+	return new HelpCtx ("Tasklist_todo_option");	        //NOI18N
     }
-    */
 
 
     /**
