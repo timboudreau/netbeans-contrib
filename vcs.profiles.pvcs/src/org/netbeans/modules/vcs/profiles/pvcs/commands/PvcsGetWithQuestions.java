@@ -90,8 +90,9 @@ public class PvcsGetWithQuestions implements VcsAdditionalCommand {
             System.out.println("");
             Object confirmation = DialogDisplayer.getDefault().notify(
                 new NotifyDescriptor.Confirmation(org.openide.util.NbBundle.getMessage(
-                    PvcsGetWithQuestions.class, "Get_Writable_Confirmation", file)));
-            if (!NotifyDescriptor.OK_OPTION.equals(confirmation)) {
+                    PvcsGetWithQuestions.class, "Get_Writable_Confirmation", file),
+                    NotifyDescriptor.Confirmation.YES_NO_OPTION));
+            if (!NotifyDescriptor.YES_OPTION.equals(confirmation)) {
                 return false;
             }
         }
@@ -108,8 +109,9 @@ public class PvcsGetWithQuestions implements VcsAdditionalCommand {
                 if (locker != null && locker.length() > 0) {
                     Object confirmation = DialogDisplayer.getDefault().notify(
                         new NotifyDescriptor.Confirmation(org.openide.util.NbBundle.getMessage(
-                            PvcsGetWithQuestions.class, "Get_Lock_Confirmation", file, locker)));
-                    if (!NotifyDescriptor.OK_OPTION.equals(confirmation)) {
+                            PvcsGetWithQuestions.class, "Get_Lock_Confirmation", file, locker),
+                            NotifyDescriptor.Confirmation.YES_NO_OPTION));
+                    if (!NotifyDescriptor.YES_OPTION.equals(confirmation)) {
                         return false;
                     }
                 }
