@@ -42,6 +42,7 @@ import org.openide.actions.ToolsAction;
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.actions.PasteAction;
 
 
 /** 
@@ -52,7 +53,9 @@ import org.openide.DialogDisplayer;
 public class VcsSettingsNode extends AbstractNode {
     
     /** Array of the actions of the java methods, constructors and fields. */
-    private static final SystemAction[] DEFAULT_ACTIONS = new SystemAction[] { SystemAction.get(NewAction.class) } ;
+    private static final SystemAction[] DEFAULT_ACTIONS =
+        new SystemAction[] { SystemAction.get(NewAction.class),
+                             SystemAction.get(PasteAction.class) } ;
     
     public static final String ICON_BASE =
     "org/netbeans/modules/vcs/advanced/vcsGeneric"; // NOI18N         

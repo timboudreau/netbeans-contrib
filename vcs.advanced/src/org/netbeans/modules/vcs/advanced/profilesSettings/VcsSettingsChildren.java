@@ -13,12 +13,15 @@
 
 package org.netbeans.modules.vcs.advanced.profilesSettings;
 
+import java.beans.IntrospectionException;
 import org.netbeans.modules.vcs.advanced.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.ArrayList;
+import org.openide.actions.CopyAction;
+import org.openide.actions.DeleteAction;
 
 import org.openide.nodes.Children;
 import org.openide.nodes.*;
@@ -27,6 +30,7 @@ import org.openide.filesystems.*;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataFilter;
 import org.openide.util.WeakListener;
+import org.openide.util.actions.SystemAction;
 
 /** Implements children for basic source code patterns
  * 
@@ -70,12 +74,12 @@ public class VcsSettingsChildren extends Children.Keys implements PropertyChange
         try {             
             String profileName = (String)key;
             Profile profile = factory.getProfile(profileName);
-            BeanNode node = new BeanNode(profile);
+            BeanNode node = new ProfileBeanNode(profile);
             node.setName(factory.getProfileDisplayName(profileName));
             //node.setIconBase(ICON_BASE);            
             return new Node[] { node };                        
         }
-        catch ( java.beans.IntrospectionException e ) {
+        catch ( IntrospectionException e ) {
             // No node will be created
         }
 
@@ -113,6 +117,22 @@ public class VcsSettingsChildren extends Children.Keys implements PropertyChange
     private void debug(String msg){
         if(debug)
             System.err.println("VcsSettingsChildren: "+msg);
+    }
+    
+    private static class ProfileBeanNode extends BeanNode {
+        
+        public ProfileBeanNode(Object bean) throws IntrospectionException {
+            super(bean);
+        }
+        
+        protected SystemAction[] createActions () {
+            return new SystemAction[] {
+                SystemAction.get(CopyAction.class),
+                null,
+                SystemAction.get(DeleteAction.class)
+            };
+        }
+        
     }
     
 }
