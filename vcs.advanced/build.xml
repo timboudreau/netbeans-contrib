@@ -15,12 +15,11 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="vcsgeneric" default="netbeans" basedir=".">
 
-  <property name="nbroot" value="../../nb_all"/>
-  <property name="f4jroot" value=".."/>
+  <property name="nbroot" value=".."/>
+  <property name="binroot" value=".."/>
   <property name="nbext" value="${nbroot}/nbbuild"/>
-  <property name="license.file" value="${f4jroot}/core/release/LICENSE.txt"/>
 
-  <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbroot}/nbbuild/nbantext.jar"/>
+  <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
   <!-- <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/> -->
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
@@ -52,7 +51,7 @@ Microsystems, Inc. All Rights Reserved.
         </fileset>
 	<pathelement location="${nbroot}/openidex/netbeans/modules/openidex.jar"/>
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/vcscore.jar"/>
-        <pathelement location="${f4jroot}/core/release/lib/ext/regexp.jar"/>
+        <pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
         <pathelement location="src"/>
       </classpath>
      </javac>
@@ -94,9 +93,6 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*.xml"/>
         <exclude name="org/netbeans/modules/vcs/advanced/*.java"/> -->
       </fileset>
-      <branding name="f4j"/>
-      <branding name="f4j_ce"/>
-      <branding name="f4j_ie"/>
     </locjar>
   </target>
 

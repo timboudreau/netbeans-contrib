@@ -15,13 +15,11 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="rmi" default="netbeans" basedir=".">
 
-  <property name="nbroot" value="../../nb_all"/>
-  <property name="f4jroot" value=".."/>
+  <property name="nbroot" value=".."/>
+  <property name="binroot" value=".."/>
   <property name="nbext" value="${nbroot}/nbbuild"/>
-  <property name="binroot" value="${f4jroot}"/>
-  <property name="license.file" value="${f4jroot}/core/release/LICENSE.txt"/>
 
-  <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbroot}/nbbuild/nbantext.jar"/>
+  <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
@@ -70,9 +68,6 @@ Microsystems, Inc. All Rights Reserved.
 	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
 	 compress="false">
       <locale name="ja"/>
-      <branding name="f4j"/>
-      <branding name="f4j_ce"/>
-      <branding name="f4j_ie"/>	 
     </locjar>
     <mkdir dir="netbeans/lib/ext"/>
     <jar jarfile="netbeans/lib/ext/rmi-ext.jar"
