@@ -3205,6 +3205,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     boolean areOnlyHiddenFiles(String[] files) {
         ArrayList fileList = new ArrayList(Arrays.asList(files));
+        fileList.remove(".nbintdb"); // NOI18N
         fileList.remove(".nbattrs"); // NOI18N
         fileList.remove("fileSystem.attributes"); // NOI18N
         for (int i = 0; i < fileList.size(); i++) {
@@ -3979,7 +3980,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private static boolean isIDESettingsFile(String name) {
         name = name.replace(java.io.File.separatorChar, '/');
-        return name.equals(".nbattrs") ||               // NOI18N
+        return name.equals(".nbintdb") ||               // NOI18N
+               name.endsWith("/.nbintdb") ||            // NOI18N
+               name.equals(".nbattrs") ||               // NOI18N
                name.endsWith("/.nbattrs") ||            // NOI18N
                name.equals("filesystem.attributes") ||  // NOI18N
                name.endsWith("/filesystem.attributes"); // NOI18N

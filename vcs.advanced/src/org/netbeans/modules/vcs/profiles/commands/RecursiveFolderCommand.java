@@ -46,6 +46,7 @@ import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 public class RecursiveFolderCommand extends Object implements VcsAdditionalCommand {
 
     private static final String NBATTRS = ".nbattrs"; // NOI18N
+    private static final String NBINTDB = ".nbintdb"; // NOI18N
     
     public static final String LOCAL_DIR_ONLY = "-l"; // NOI18N
     public static final String PRINT_OUTPUT = "-o"; // NOI18N
@@ -330,7 +331,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                     for (int i = 0; i < localSubFiles.length; i++) {
                         if (!dir.isIgnored(localSubFiles[i]) &&
                             fsFilter.accept(dirFile, localSubFiles[i]) &&
-                            !NBATTRS.equals(localSubFiles[i])) {
+                            !NBATTRS.equals(localSubFiles[i]) && !NBINTDB.equals(localSubFiles[i])) {
                             
                             String filePath = path + localSubFiles[i];
                             if (!files.containsKey(filePath) && canProcessFile(filePath)) {
@@ -394,7 +395,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                 for (int i = 0; i < localSubFiles.length; i++) {
                     if (!dir.isIgnored(localSubFiles[i]) &&
                         fsFilter.accept(dirFile, localSubFiles[i]) &&
-                        !NBATTRS.equals(localSubFiles[i])) {
+                        !NBATTRS.equals(localSubFiles[i]) && !NBINTDB.equals(localSubFiles[i])) {
                         
                         String filePath = path + localSubFiles[i];
                         if (canProcessFile(filePath)) {
