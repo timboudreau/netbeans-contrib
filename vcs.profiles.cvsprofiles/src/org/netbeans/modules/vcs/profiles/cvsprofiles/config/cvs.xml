@@ -163,9 +163,6 @@ Microsystems, Inc. All Rights Reserved.
       <value if="IS_WINDOWS" unless="IS_WIN9X">"CVS", ".nbcicat.bat"</value>
       <value>"CVS"</value>
     </variable>
-    <variable name="FILESYSTEM_PROPERTY_ignoredGarbageFiles" basic="false">
-      <value>^\.#</value>
-    </variable>
     <variable name="USER_LOCAL_PARAM_LABELS" basic="false">
       <value>"getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_CMD_Options)", "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_IMPORT_Options)", "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_CO_Options)"</value>
     </variable>
