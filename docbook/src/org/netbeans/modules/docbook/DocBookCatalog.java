@@ -59,7 +59,7 @@ public class DocBookCatalog implements CatalogProvider {
         }
 
         public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-            System.err.println("rE: " + publicId + " ~ " + systemId);//XXX
+            //System.err.println("rE: " + publicId + " ~ " + systemId);
             if (publicId != null) {
                 String systemId2 = getSystemID(publicId);
                 if (systemId2 != null) {
