@@ -15,8 +15,8 @@ package org.netbeans.modules.vcscore;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
-import java.io.StringBufferInputStream;
 import java.io.IOException;
 import java.io.NotActiveException;
 import java.util.ArrayList;
@@ -651,7 +651,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                     new java.io.FileNotFoundException(),
                     NbBundle.getMessage(VcsVersioningSystem.class, "MSG_FileRevisionIsEmpty", name, revision));
             }
-            return new StringBufferInputStream(fileBuffer.toString());
+            return new ByteArrayInputStream(fileBuffer.toString().getBytes());
         }
     }
 
