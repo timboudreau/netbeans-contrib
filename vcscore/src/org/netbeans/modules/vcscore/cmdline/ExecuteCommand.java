@@ -36,17 +36,7 @@ import org.netbeans.modules.vcscore.util.*;
 public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private Debug E=new Debug("ExecuteCommand", true); // NOI18N
     private Debug D=E;
-    
-    /** The variable name, that contains characters, that need to be prepended
-     * by a special prefix character before executing on the command line.
-     * The first character in this string is the prefix character.
-     */
-    public static final String VAR_ADJUST_CHARS = "ADJUST_CHARS";
-    /** The variable names, whose values need to be adjusted before executing on the command line.
-     * The {@link VAR_ADJUST_CHARS} defines the adjusting characters.
-     */
-    public static final String VAR_ADJUST_VARS = "ADJUST_VARS";
-    
+        
     private static final String DEFAULT_REGEX = "^(.*$)"; // Match the whole line by default.
 
     private VcsFileSystem fileSystem = null;
@@ -69,10 +59,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
 
     private int exitStatus = 0;
 
-    private char adjustingChar;
-    private HashSet adjustedChars = null;
-    private HashSet adjustedVars = null;
-    
     //private ArrayList commandListeners = new ArrayList();
 
     //-------------------------------------------
@@ -221,55 +207,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      */
 
     /**
-     * Adjust the variable values for the command-line execution.
-     */
-    private void adjustVarValues(Hashtable vars) {
-        String adjustCharsStr = (String) vars.get(VAR_ADJUST_CHARS);
-        if (adjustCharsStr == null) return ;
-        String adjustVarsStr = (String) vars.get(VAR_ADJUST_VARS);
-        if (adjustVarsStr == null) return ;
-        String[] adjustVars = VcsUtilities.getQuotedStrings(adjustVarsStr);
-        this.adjustedVars = new HashSet(Arrays.asList(adjustVars));
-        this.adjustingChar = adjustCharsStr.charAt(0);
-        this.adjustedChars = new HashSet();
-        for (int i = 1; i < adjustCharsStr.length(); i++) {
-            adjustedChars.add(new Character(adjustCharsStr.charAt(i)));
-        }
-        for (Iterator it = adjustedVars.iterator(); it.hasNext(); ) {
-            String var = (String) it.next();
-            String value = (String) vars.get(var);
-            if (value != null) {
-                vars.put(var, adjustVarValue(value));
-            }
-        }
-    }
-
-    private String adjustVarValue(String value) {
-        for (int i = 0; i < value.length(); i++) {
-            Character c = new Character(value.charAt(i));
-            if (adjustedChars.contains(c)) {
-                value = value.substring(0, i) + adjustingChar + value.substring(i);
-                i++;
-            }
-        }
-        return value;
-    }
-
-    /**
-     * Adjust the name of a file for the command-line execution.
-     */
-    private String revertAdjustedVarValue(String value) {
-        int index = value.indexOf(adjustingChar);
-        while(index >= 0 && index < (value.length() - 1)) {
-            if (adjustedChars.contains(new Character(value.charAt(index + 1)))) {
-                value = value.substring(0, index) + value.substring(index + 1);
-            }
-        }
-        return value;
-    }
-
-
-    /**
      * This method can be used to do some preprocessing of the command which is to be run.
      * @param vc the command to be preprocessed.
      * @param vars the variables
@@ -278,7 +215,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      */
     public String preprocessCommand(VcsCommand vc, Hashtable vars, String exec) {
         this.preferredExec = exec;
-        adjustVarValues(vars);
+        fileSystem.getVarValueAdjustment().adjustVarValues(vars);
         /*
         if (!(vc instanceof UserCommand)) return "";
         UserCommand uc = (UserCommand) vc;
@@ -525,11 +462,10 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //System.out.println("ExecuteCommand.run(): exec = "+exec+"\npreferredExec = "+preferredExec);
         if (preferredExec != null) exec = preferredExec;
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
-        if (exec != null) {
-            exec = Variables.expand(vars, exec, true);
-            exec = exec.trim();
-        }
-
+        if (exec == null) return ; // Silently ignore null exec
+        exec = Variables.expand(vars, exec, true);
+        exec = exec.trim();
+        
         StringTokenizer tokens = new StringTokenizer(exec);
         String first = tokens.nextToken();
         E.deb("first = "+first); // NOI18N
@@ -579,35 +515,30 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * to the file system root.
      */
     public Collection getFiles() {
+        VariableValueAdjustment valueAdjustment = fileSystem.getVarValueAdjustment();
+        String separator = (String) vars.get("PS");
+        char separatorChar = (separator != null && separator.length() == 1) ? separator.charAt(0) : java.io.File.separatorChar;
         String paths = (String) vars.get("PATHS");
-        if (adjustedVars != null && adjustedVars.contains("PATHS") && paths != null) {
-            paths = revertAdjustedVarValue(paths);
-        }
+        paths = valueAdjustment.revertAdjustedVarValue(paths);
         if (paths != null && paths.length() > 0) {
             ArrayList files = new ArrayList();
             int len = paths.length();
             int begin = 0;
             do {
-                int index = paths.indexOf(File.separator + File.separator, begin);
+                int index = paths.indexOf(""+separatorChar + separatorChar, begin);
                 if (index < 0) index = len;
                 String file = paths.substring(begin, index);
-                files.add(file.replace(File.separatorChar, '/'));
-                begin = index + (File.separator + File.separator).length();
+                files.add(file.replace(separatorChar, '/'));
+                begin = index + 2;
             } while (begin < len);
             return files;
         } else {
             String path = (String) vars.get("DIR");
             String file = (String) vars.get("FILE");
-            if (adjustedVars != null) {
-                if (adjustedVars.contains("DIR") && path != null) {
-                    path = revertAdjustedVarValue(path);
-                }
-                if (adjustedVars.contains("FILE") && file != null) {
-                    file = revertAdjustedVarValue(file);
-                }
-            }
+            file = valueAdjustment.revertAdjustedVarValue(file);
+            path = valueAdjustment.revertAdjustedVarValue(path);
             if (path != null) {
-                String fullPath = ((path.length() > 0) ? path.replace(File.separatorChar, '/') + "/" : "") + ((file == null) ? "" : file);
+                String fullPath = ((path.length() > 0) ? path.replace(separatorChar, '/') + "/" : "") + ((file == null) ? "" : file);
                 return Collections.singleton(fullPath);
             } else {
                 return Collections.EMPTY_SET;
