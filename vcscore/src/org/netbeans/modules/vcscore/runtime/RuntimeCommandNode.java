@@ -14,8 +14,11 @@
 package org.netbeans.modules.vcscore.runtime;
 
 import org.openide.nodes.*;
+import org.openide.util.actions.SystemAction;
+import org.openide.actions.PropertiesAction;
 
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.CommandsPool;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
@@ -32,18 +35,33 @@ class RuntimeCommandNode extends AbstractNode {
     static final int STATE_DONE = 2;
     
     private VcsCommandExecutor executor;
+    private CommandsPool cpool;
     private int state;
     
+    
     /** Creates new RuntimeCommandNode */
-    RuntimeCommandNode(VcsCommandExecutor vce) {
+    RuntimeCommandNode(VcsCommandExecutor vce, CommandsPool cpool) {
         super(Children.LEAF);
         this.executor = vce;
+        this.cpool = cpool;
         setName(vce.getCommand().getName());
         setDisplayName(vce.getCommand().getDisplayName());
     }
     
     void setState(int state) {
         this.state = state;
+    }
+    
+    VcsCommandExecutor getExecutor() {
+        return executor;
+    }
+    
+    CommandsPool getCommandsPool() {
+        return cpool;
+    }
+    
+    public SystemAction[] getActions() {
+        return new SystemAction[] { CommandOutputViewAction.getInstance() , SystemAction.get(PropertiesAction.class) };
     }
 
     public Sheet createSheet() {
@@ -70,6 +88,14 @@ class RuntimeCommandNode extends AbstractNode {
                             return VcsUtilities.array2stringNl((String[]) executor.getFiles().toArray(new String[0]));
                         }
                 });
+        set.put(new PropertySupport.ReadOnly("status", String.class, g("CTL_Status"), "") {
+                        public Object getValue() {
+                            if (cpool.isWaiting(executor)) return g("CTL_Status_Waiting");
+                            if (cpool.isRunning(executor)) return g("CTL_Status_Running");
+                            return CommandsPool.getExitStatusString(executor.getExitStatus());
+                        }
+                });
+                
     }
 
     private String g(String name) {
