@@ -27,15 +27,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Map;
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
-import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
@@ -47,16 +44,14 @@ import org.openide.explorer.view.TreeTableView;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
-import org.openide.nodes.Children;
-import org.openide.nodes.PropertySupport;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.awt.StatusDisplayer;
 import org.openide.ErrorManager;
+import org.openide.explorer.ExplorerUtils;
 import org.openide.actions.FindAction;
 import org.openide.cookies.InstanceCookie;
-import org.openide.explorer.ExplorerPanel;
 import org.openide.filesystems.FileSystem;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -66,17 +61,18 @@ import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.Workspace;
 import org.openide.windows.WindowManager;
+import org.openide.windows.TopComponent;
 import org.openide.util.actions.CallbackSystemAction;
-import org.openide.util.actions.Presenter;
 
 
-/** View showing the todo list items
+/** View showing the task list items
  * @author Tor Norbye, Tim Lebedkov, Trond Norbye
  * @todo Figure out why the window system sometimes creates multiple objects
  *       from this class
  */
-public abstract class TaskListView extends ExplorerPanel
-    implements TaskListener, PropertyChangeListener {
+public abstract class TaskListView extends TopComponent
+    implements TaskListener, PropertyChangeListener, ExplorerManager.Provider {
+
     /** Property "task summary" */
     public static final String PROP_TASK_SUMMARY = "taskDesc"; // NOI18N
     
@@ -112,6 +108,8 @@ public abstract class TaskListView extends ExplorerPanel
     transient private boolean northCmpCreated;
     transient private Component miniStatus;
 
+    private transient ExplorerManager manager;
+
     /** Construct a new TaskListView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
 	system when deserializing windows. Client code should not call
@@ -121,14 +119,17 @@ public abstract class TaskListView extends ExplorerPanel
 	readExternal getting called after this constructor to finalize
 	construction of the window.*/
     public TaskListView() {
+        initExplorerManager();
     }
-    
+
+
     /**
      * @param category view's category. This value will be used as the name
      * for a subdirectory of "SystemFileSystem/TaskList/" for columns settings
      */
     public TaskListView(String category, String title, Image icon,
 			boolean persistent, TaskList tasklist) {
+        initExplorerManager();
         this.category = category;
 	setName(title);
 	this.persistent = persistent;
@@ -152,6 +153,20 @@ public abstract class TaskListView extends ExplorerPanel
 	    }
 	    views.put(category, this);
 	}
+    }
+
+    // replacement for subclassing ExplorerPanel
+    private void initExplorerManager() {
+        manager = new ExplorerManager();
+        ActionMap map = getActionMap();
+        map.put(javax.swing.text.DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
+        map.put(javax.swing.text.DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
+        map.put(javax.swing.text.DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
+        map.put( "delete" , ExplorerUtils.actionDelete(manager, true ));  // NOI18N
+    }
+
+    public ExplorerManager getExplorerManager() {
+        return manager;
     }
 
     /**
@@ -461,7 +476,8 @@ public abstract class TaskListView extends ExplorerPanel
         super.componentActivated();
         assert initialized : "#37438 dangling componentActivated event, no componentOpened() called at " + this;
         installJumpActions(true);
-        RemoveFilterAction removeFilter = 
+        ExplorerUtils.activateActions(manager, true);
+        RemoveFilterAction removeFilter =
             (RemoveFilterAction)SystemAction.get(RemoveFilterAction.class);
         removeFilter.setCurrentView(this);
         removeFilter.enable();
@@ -470,6 +486,7 @@ public abstract class TaskListView extends ExplorerPanel
     protected void componentDeactivated() {
         super.componentDeactivated();
         assert initialized : "#37438 dangling componentDeactivated event, no componentOpened() called at " + this;
+        ExplorerUtils.activateActions(manager, true);
         ColumnsConfiguration columns = getDefaultColumns();
         columns.loadFrom(this);
     }
@@ -537,6 +554,28 @@ public abstract class TaskListView extends ExplorerPanel
             getExplorerManager().getRootContext().getHelpCtx()
         );
     }
+
+    // XXX #37543 copied from ExplorerPanel ast was deprecated without replacement
+    private static HelpCtx getHelpCtx (Node[] sel, HelpCtx def) {
+        HelpCtx result = null;
+        for (int i = 0; i < sel.length; i++) {
+            HelpCtx attempt = sel[i].getHelpCtx ();
+            if (attempt != null && ! attempt.equals (HelpCtx.DEFAULT_HELP)) {
+                if (result == null || result.equals (attempt)) {
+                    result = attempt;
+                } else {
+                    // More than one found, and they conflict. Get general help on the Explorer instead.
+                    result = null;
+                    break;
+                }
+            }
+        }
+        if (result != null)
+            return result;
+        else
+            return def;
+    }
+
 
     /**
      * Returns tree used to draw the first column in this view.

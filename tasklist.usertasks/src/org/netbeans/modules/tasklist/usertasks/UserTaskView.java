@@ -102,15 +102,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
         };
     }
     
-    /** Ensures that even if no node is selected in the view,
-     * some help specific to this view will still be available.
-     */
-    public HelpCtx getHelpCtx() {
-        return getHelpCtx(
-            getExplorerManager().getSelectedNodes(),
-            getExplorerManager().getRootContext().getHelpCtx()
-        );
-    }
 
     /** Overrides superclass method. Gets actions for this top component. */
     /*
