@@ -18,6 +18,7 @@ import java.awt.Image;
 
 import org.openide.nodes.Sheet;
 import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.util.actions.SystemAction;
 
 import org.openide.DialogDisplayer;
@@ -26,6 +27,7 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
 
 
 /**
@@ -51,7 +53,9 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
     * @param root folder to work on
     */
     public FileSystemNode(FileObject root) {
-        super(new FolderChildren(root));
+        // TODO I'm hiding here a bug in FS, it wrongly works over deleted roots and shows random files!
+        // visible after deserialization of old setting that used already deleted folders
+        super(FileUtil.toFile(root).exists() ? new FolderChildren(root) : Children.LEAF);
         this.root = root;
         init();
     }
@@ -127,6 +131,7 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
         String s = formatRoot.format (
                        new Object[] {fileSystem().getDisplayName (), fileSystem().getSystemName ()}
                    );
+        // TODO distinquish invalid FSs after external deletion
         setDisplayName (s);
     }
 
