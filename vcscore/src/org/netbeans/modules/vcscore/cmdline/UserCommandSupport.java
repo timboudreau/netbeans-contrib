@@ -671,7 +671,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 String actionClassName = (String) actionClassNameObj;
                 try {
                     actionClass = Class.forName(actionClassName, false,
-                                                org.openide.TopManager.getDefault().currentClassLoader());
+                                                VcsUtilities.getSFSClassLoader());
                 } catch (ClassNotFoundException e) {
                     ErrorManager.getDefault().notify(
                         ErrorManager.getDefault().annotate(e,

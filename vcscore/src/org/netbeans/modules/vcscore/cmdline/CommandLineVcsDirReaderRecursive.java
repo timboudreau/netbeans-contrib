@@ -118,7 +118,7 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
         Class listClass = null;
         try {
             listClass =  Class.forName(className, true,
-                                       org.openide.TopManager.getDefault().currentClassLoader());
+                                       VcsUtilities.getSFSClassLoader());
         } catch (ClassNotFoundException e) {
             //fileSystem.debug ("LIST_SUB: "+g("ERR_ClassNotFound", className)); // NOI18N
             //container.match("LIST_SUB: "+g("ERR_ClassNotFound", className)); // NOI18N

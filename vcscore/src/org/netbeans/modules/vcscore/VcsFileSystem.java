@@ -1312,8 +1312,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     protected InputOutput getCommandsIO () {
-        if (cmdIO == null) {
-            cmdIO = TopManager.getDefault().getIO(
+        if (cmdIO == null) {            
+            cmdIO = org.openide.windows.IOProvider.getDefault().getIO(
                         NbBundle.getMessage(VcsFileSystem.class, "LBL_VCS_Output"),
                         false);            
             cmdIO.setErrSeparated(false);

@@ -639,18 +639,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         } catch (ClassNotFoundException e) {}
         if (execClass == null) {
             try {
-                execClass =  Class.forName(className, true,
-                                           org.openide.TopManager.getDefault().currentClassLoader());
-            } catch (ClassNotFoundException e) {
-                //fileSystem.debug ("EXEC: " + g("ERR_ClassNotFound", className)); // NOI18N
-                try {
-                    printErrorOutput("CLASS EXEC: " + g("ERR_ClassNotFound", className)); // NOI18N
-                } catch(java.util.MissingResourceException mrexc) {
-                    // Likely to be called when the module is being uninstalled
-                    printErrorOutput("CLASS EXEC: Class " + className + " not found"); // NOI18N
-                }
-                success = false;
+                printErrorOutput("CLASS EXEC: " + g("ERR_ClassNotFound", className)); // NOI18N
+            } catch(java.util.MissingResourceException mrexc) {
+                // Likely to be called when the module is being uninstalled
+                printErrorOutput("CLASS EXEC: Class " + className + " not found"); // NOI18N
             }
+            success = false;
         }
         VcsAdditionalCommand execCommand = null;
         if (success) {

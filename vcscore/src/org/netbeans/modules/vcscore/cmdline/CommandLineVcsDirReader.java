@@ -135,7 +135,7 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
         Class listClass = null;
         try {
             listClass =  Class.forName(className, true,
-                                       org.openide.TopManager.getDefault().currentClassLoader());
+                                       VcsUtilities.getSFSClassLoader());
         } catch (ClassNotFoundException e) {
             //fileSystem.debug ("LIST: "+g("ERR_ClassNotFound", className)); // NOI18N
             //container.match("LIST: "+g("ERR_ClassNotFound", className)); // NOI18N
