@@ -24,7 +24,7 @@ import org.openide.explorer.view.TreeTableView;
 /**
  * Contains fixes that need access to final protected methods.
  */
-final class MyTreeTableView extends TreeTableView implements TreeTableIntf {
+public final class MyTreeTableView extends TreeTableView {
 
     private static final long serialVersionUID = 1;
 

@@ -48,7 +48,6 @@ import org.openide.DialogDisplayer;
  * visible columns, sorting column, etc.
  *
  * @author Tor Norbye
- * @author Tim Lebedkov
  */
 public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.AbstractTranslator {
     // these values are stored temporary during export

@@ -95,7 +95,8 @@ public abstract class TaskListView extends TopComponent
     /** Cached toolbar height */
     private static int toolbarHeight = -1;
 
-    public static final String DEFAULT_FILTER_NAME = NbBundle.getMessage(TaskListView.class, "default-filter-name");
+    public static final String DEFAULT_FILTER_NAME = 
+        NbBundle.getMessage(TaskListView.class, "default-filter-name");
 
 
     /**
@@ -131,7 +132,7 @@ public abstract class TaskListView extends TopComponent
     private static Map defColumns = new HashMap();
 
     transient protected Node rootNode = null;
-    transient protected TreeTableIntf treeTable;
+    transient protected MyTreeTableView treeTable;
 
     protected transient ColumnProperty[] columns = null;
 
@@ -438,42 +439,42 @@ public abstract class TaskListView extends TopComponent
 
 
     protected void loadFilters() {
-      FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-      FileObject fo = fs.findResource("TaskList/" + category + "/filters.settings"); // NOI18N
-      assert fo != null : "Missing config TaskList/" + category + "/filters.settings";  // NOI18N
-
-      try {
-	DataObject dobj = DataObject.find(fo);
-	InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
-	filters = (FilterRepository) ic.instanceCreate();
-	
-// 	filters.addPropertyChangeListener(new PropertyChangeListener() {
-// 	    public void propertyChange(PropertyChangeEvent evt) {
-// 	      if (evt.getPropertyName().equals(FilterRepository.PROP_ACTIVE_FILTER)) {
-// 		setFilter(filters.getActive());
-// 		//		setFiltered();
-// 	      }
-// 	    }
-// 	  });     
-	filters.setActive(null);
-
-	// create a default filter if there is none
-	if (filters.size() == 0) {
-	  Filter f = createFilter();
-	  f.setName(DEFAULT_FILTER_NAME);
-	  filters.add(f);
-	}
-      
-      } catch (ClassNotFoundException e) {
-	ErrorManager.getDefault().notify(e);
-      } catch (DataObjectNotFoundException e) {
-	ErrorManager.getDefault().notify(e);
-      } catch (IOException e) {
-	ErrorManager.getDefault().notify(e);
-      }
-
+        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
+        FileObject fo = fs.findResource("TaskList/" + category + "/filters.settings"); // NOI18N
+        assert fo != null : "Missing config TaskList/" + category + "/filters.settings";  // NOI18N
+        
+        try {
+            DataObject dobj = DataObject.find(fo);
+            InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
+            filters = (FilterRepository) ic.instanceCreate();
+            
+            // 	filters.addPropertyChangeListener(new PropertyChangeListener() {
+            // 	    public void propertyChange(PropertyChangeEvent evt) {
+            // 	      if (evt.getPropertyName().equals(FilterRepository.PROP_ACTIVE_FILTER)) {
+            // 		setFilter(filters.getActive());
+            // 		//		setFiltered();
+            // 	      }
+            // 	    }
+            // 	  });
+            filters.setActive(null);
+            
+            // create a default filter if there is none
+            if (filters.size() == 0) {
+                Filter f = createFilter();
+                f.setName(DEFAULT_FILTER_NAME);
+                filters.add(f);
+            }
+            
+        } catch (ClassNotFoundException e) {
+            ErrorManager.getDefault().notify(e);
+        } catch (DataObjectNotFoundException e) {
+            ErrorManager.getDefault().notify(e);
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
+        }
+        
     }
-
+    
     /** 
      * Called when the object is opened. Add the GUI.
      * @todo Trigger source listening on window getting VISIBLE instead
@@ -1786,33 +1787,4 @@ for (int i = 0; i < columns.length; i++) {
         }
         return (ColumnProperty[]) ret.toArray(new ColumnProperty[ret.size()]);
     }
-
-    ///* For debugging purposes:
-    public void nodePrint() {
-        System.err.println("\nTask List (As Seen via Nodes):\n-------------");
-        nodeRecursivePrint(getEffectiveRoot(), 0);
-        System.err.println("\n\n");
-    }
-
-    private void nodeRecursivePrint(Node node, int depth) {
-        if (depth > 20) { // probably invalid list
-            Thread.dumpStack();
-            return;
-        }
-        for (int i = 0; i < depth; i++) {
-            System.err.print("   "); // NOI18N
-        }
-        System.err.println(node.getDisplayName());
-        if ((node.getChildren() != null) &&
-                (node.getChildren().getNodes() != null)) {
-            Node[] nodes = node.getChildren().getNodes();
-            for (int i = 0; i < nodes.length; i++) {
-                nodeRecursivePrint(nodes[i], depth + 1);
-            }
-        }
-    }
-
-
-    // */
-
 }

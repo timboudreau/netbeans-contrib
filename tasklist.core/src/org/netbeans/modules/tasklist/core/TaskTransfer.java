@@ -34,7 +34,6 @@ import org.openide.util.datatransfer.ExClipboard;
  * Utilities dealing with data transfer operations on todo items.
  *
  * @author Tor Norbye
- * @author Tim Lebedkov
  */
 public final class TaskTransfer implements ExClipboard.Convertor {
     private static final Logger LOGGER = TLUtils.getLogger(TaskNode.class);

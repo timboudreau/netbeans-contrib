@@ -30,8 +30,6 @@ import org.openide.windows.WindowManager;
 
 /** 
  * Shows/closes a view.
- *
- * @author Tim Lebedkov
  */
 public abstract class ToggleViewAction extends BooleanStateAction implements
 PropertyChangeListener, Presenter.Menu {

@@ -429,4 +429,27 @@ public final class TLUtils {
         return count;
     }
 
+    /**
+     * Prints a tree of nodes.
+     *
+     * @param node root node
+     * @param depth maximal depth
+     */
+    public static void nodeRecursivePrint(Node node, int depth) {
+        if (depth > 20) { // probably invalid list
+            Thread.dumpStack();
+            return;
+        }
+        for (int i = 0; i < depth; i++) {
+            System.err.print("   "); // NOI18N
+        }
+        System.err.println(node.getDisplayName());
+        if ((node.getChildren() != null) &&
+                (node.getChildren().getNodes() != null)) {
+            Node[] nodes = node.getChildren().getNodes();
+            for (int i = 0; i < nodes.length; i++) {
+                nodeRecursivePrint(nodes[i], depth + 1);
+            }
+        }
+    }
 }
