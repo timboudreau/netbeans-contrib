@@ -190,7 +190,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public static final String VAR_STATUS_SCHEDULED_ADD = "STATUS_SCHEDULED_ADD";
     public static final String VAR_STATUS_SCHEDULED_REMOVE = "STATUS_SCHEDULED_REMOVE";
 
-    protected static final int REFRESH_TIME = 15000; // This is default in LocalFileSystem
+    protected static final int REFRESH_TIME = 0; // Disabled by default (see #28352).
     protected volatile int refreshTimeToSet = REFRESH_TIME;
 
     private static final String LOCAL_FILES_ADD_VAR = "SHOWLOCALFILES"; // NOI18N
