@@ -297,6 +297,8 @@ public class JellyBranch extends JellyTestCase {
         CVSCheckoutFolderAdvDialog co = new CVSCheckoutFolderAdvDialog();
         co.setModuleS(hRoot);
         co.checkPruneEmptyFolders(false);
+        Helper.sleep(1000);
+        getLog ().println (co.cbPruneEmptyFolders ().isSelected ());
         co.oK();
         assertTrue("Check Out command failed", history.waitCommand("Check Out", hRoot));
         
