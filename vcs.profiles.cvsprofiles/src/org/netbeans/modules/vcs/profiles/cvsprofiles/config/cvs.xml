@@ -737,7 +737,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>vcs.commands.CvsCommit.class COMMIT_CMD</value>
+	  <value>vcs.commands.CvsCommit.class COMMIT_CMD ${RECURSIVE}</value>
 	</property>
         <property name="inputDescriptor">
           <value>
@@ -788,6 +788,12 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="refreshFileRelativePath">
           <value></value>
+        </property>
+        <property name="refreshProcessedFiles">
+          <value>true</value>
+        </property>
+        <property name="refreshRecursivelyPatternUnmatched">
+          <value>-l</value>
         </property>
 	<property name="onRoot">
 	  <value>true</value>
