@@ -453,18 +453,19 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         cmd.setAdditionalVariables(vars);
         //System.out.println("subFiles = "+subFiles+", files = "+files+", MODULE = "+cmd.getAdditionalVariables().get("MODULE")+", DIR = "+cmd.getAdditionalVariables().get("DIR"));
         if (finalCustomizer == null) {
+            VcsDescribedCommand lastCmd = cmd;
             if (!cmdCanRunOnMultipleFiles || cmdCanRunOnMultipleFilesInFolder) {
-                cmd = createNextCustomizedCommand(cmd, subFiles, cacheProvider,
-                                                  valueAdjustment, vars,
-                                                  cmdCanRunOnMultipleFiles,
-                                                  cmdCanRunOnMultipleFilesInFolder);
+                lastCmd = createNextCustomizedCommand(cmd, subFiles, cacheProvider,
+                                                      valueAdjustment, vars,
+                                                      cmdCanRunOnMultipleFiles,
+                                                      cmdCanRunOnMultipleFilesInFolder);
             }
             for (Iterator it = subFiles.keySet().iterator(); it.hasNext(); ) {
                 files.remove(it.next());
             }
             // If there is no customizer, so let's continue with the rest of the files
             if (files.size() > 0) {
-                VcsDescribedCommand nextCmd = createNextCommand(files, cmd);
+                VcsDescribedCommand nextCmd = createNextCommand(files, lastCmd);
                 // Do not attempt to create a customizer again if it was already null
                 doCustomization(false, null, nextCmd, files, cacheProvider,
                                 valueAdjustment, new Hashtable(vars), forEachFile,
@@ -589,12 +590,35 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     subFiles.put(singleFile, files.get(singleFile));
                     setVariables(subFiles, vars, QUOTING, valueAdjustment, cacheProvider,
                                  fileSystem.getRelativeMountPoint(), true);
+                    command.setAdditionalVariables(vars);
+                    //System.out.println("RestrictedFileMap = "+subFiles+", files = "+files+", MODULE = "+command.getAdditionalVariables().get("MODULE")+", DIR = "+command.getAdditionalVariables().get("DIR"));
                     //System.out.println("\nVARS for cmd = "+command+" ARE:"+vars+"\n");
                     VcsDescribedCommand nextCmd = createNextCommand(files, command);
                     files.remove(singleFile);
                     doCustomization(true, finalCustomizer, nextCmd, files, cacheProvider,
                                     valueAdjustment, cmdCanRunOnMultipleFiles,
                                     cmdCanRunOnMultipleFilesInFolder);
+                } else {
+                    VcsCommand vcsCmd = command.getVcsCommand();
+                    Table subFiles = setupRestrictedFileMap(files, vars, vcsCmd);
+                    VcsDescribedCommand lastCmd = command;
+                    if (!cmdCanRunOnMultipleFiles || cmdCanRunOnMultipleFilesInFolder) {
+                        lastCmd = createNextCustomizedCommand(command, subFiles, cacheProvider,
+                                                              valueAdjustment, vars,
+                                                              cmdCanRunOnMultipleFiles,
+                                                              cmdCanRunOnMultipleFilesInFolder);
+                    }
+                    for (Iterator it = subFiles.keySet().iterator(); it.hasNext(); ) {
+                        files.remove(it.next());
+                    }
+                    // I'm customized, but I have to setup commands for the rest of the files.
+                    if (files.size() > 0) {
+                        VcsDescribedCommand nextCmd = createNextCommand(files, lastCmd);
+                        // Do not attempt to create a customizer again
+                        doCustomization(false, null, nextCmd, files, cacheProvider,
+                                        valueAdjustment, new Hashtable(vars), forEachFile,
+                                        cmdCanRunOnMultipleFiles, cmdCanRunOnMultipleFilesInFolder);
+                    }
                 }
             }
         });
