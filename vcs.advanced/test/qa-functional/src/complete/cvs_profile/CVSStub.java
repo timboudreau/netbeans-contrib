@@ -17,6 +17,7 @@ import complete.GenericStub;
 import complete.GenericStub.GenericNode;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import org.netbeans.jellytools.actions.Action;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
 import org.netbeans.jellytools.modules.vcsgeneric.actions.VCSGenericMountAction;
 import org.netbeans.jellytools.modules.vcsgeneric.wizard.VCSWizardAdvanced;
@@ -52,6 +53,8 @@ public abstract class CVSStub extends GenericStub {
     }
     
     protected void mountVCSFileSystem () {
+        new Action ("Versioning|Mount Version Control", null).performMenu (); // workaround for issue #31026
+        new Action ("Tools", null).performMenu (); // workaround for issue #31026
         new VCSGenericMountAction().perform();
         VCSWizardProfile wizard = new VCSWizardProfile();
         wizard.verify("");
