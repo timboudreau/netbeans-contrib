@@ -24,6 +24,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * A grid of logical lines which represents the dividers. Used to provide
@@ -187,6 +188,33 @@ public final class Grid {
         return lines;
     }
     
+    public Point[] getIntersections () {
+        Line[] l = getLines();
+        ArrayList vertical = new ArrayList();
+        ArrayList horizontal = new ArrayList();
+        for (int i=0; i < l.length; i++) {
+            if (l[i].isHorizontal()) {
+                horizontal.add(l[i]);
+            } else {
+                vertical.add(l[i]);
+            }
+        }
+        ArrayList results = new ArrayList (l.length / 2);
+        for (Iterator horizontals=vertical.iterator(); horizontals.hasNext();) {
+            Line horiz = (Line) horizontals.next();
+            for (Iterator verticals=horizontal.iterator(); verticals.hasNext();) {
+                Line vert = (Line) verticals.next();
+                Point p = horiz.getIntersection(vert);
+                if (p != null) {
+                    results.add(p);
+                }
+            }
+        }
+        Point[] result = new Point[results.size()];
+        result = (Point[]) results.toArray(result);
+        return result;
+    }
+    
     public void show () {
         //For debugging
         new JF().show();
@@ -297,6 +325,18 @@ public final class Grid {
         
         public Point getPointB() {
             return new Point (x1, y1);
+        }
+        
+        public Point getIntersection (Line line) {
+            if (line == this || line.isHorizontal() == isHorizontal()) {
+                return null;
+            }
+            Line horiz = line.isHorizontal() ? line : this;
+            Line vert = horiz == this ? line : this;
+            if (horiz.x1 >= vert.x && horiz.y < vert.y1 && horiz.x <= vert.x && horiz.y >= vert.y) {
+                return new Point (vert.x, horiz.y);
+            }
+            return null;
         }
         
         public boolean isHorizontal() {

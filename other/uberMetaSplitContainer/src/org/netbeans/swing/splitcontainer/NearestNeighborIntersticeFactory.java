@@ -49,6 +49,19 @@ public class NearestNeighborIntersticeFactory extends IntersticeFactory {
         int relA = relationTo (p, rects[idxA]);
         int relB = relationTo (p, rects[idxB]);
         
+        
+        /*
+        XXX This does not handle the case where there are two above and one
+        below, i.e.
+         -------------
+         |        |   |
+         -------X-----
+         |    |       |
+         -------------
+         
+         and similar permutations.  Maybe use Grid for detection here.
+         */
+        
         Component[] empty = new Component[0];
         if (relA == ABOVE && relB == BELOW) {
             result = new Interstice (empty, empty, new Component[] { children[idxA] }, new Component[] {
@@ -144,7 +157,7 @@ public class NearestNeighborIntersticeFactory extends IntersticeFactory {
         
     }  
     
-    private static class PointComparator implements Comparator {
+     static class PointComparator implements Comparator {
 
         private Point origin;
         public PointComparator (Point origin) {

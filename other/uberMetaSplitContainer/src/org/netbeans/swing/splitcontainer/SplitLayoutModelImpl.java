@@ -355,18 +355,69 @@ public class SplitLayoutModelImpl implements SplitLayoutModel {
             //the one above in the aboveComponents array is the same as the
             //index of the one below in the belowComponents array
             Arrays.sort (rects, new RectComparator (container.getWidth()));
-//            System.err.println("RECTSORT: " + Arrays.asList (rects));
             Arrays.sort (comps, new ComponentComparator(container.getWidth()));
             
             result = container.getIntersticeFactory().createInterstice(
                 container, p, rects, comps);
             
-//            new Grid (container.getSize(), rects, 8).show();
+            //XXX this is a really awful way to do this!
+            if (result != null) {
+                boolean hasY = result.getComponentsAbove().length != 0 || result.getComponentsBelow().length !=0;
+                boolean hasX = result.getComponentsToLeft().length != 0 || result.getComponentsToRight().length != 0;
+
+                if (hasX && hasY) {
+                    normalize(p, rects);
+                    result = container.getIntersticeFactory().createInterstice(
+                        container, p, rects, comps);
+                }
+            }
         }
         return result;
     }
     
-    
+    /**
+     * Adjusts the point slightly, so it lies either at the nearest 
+     * intersection, or in the middle of the clicked line.  There are 
+     * a few perversities of the line-of-sight algorithm, wherein it is
+     * possible to get an interstice that misses the line of sight one
+     * row down, so one splitter disappears when we drag.  Rather than
+     * handle every possible point on the parent, we simply adjust the
+     * incoming point to one we know will work.  Basically the problem this
+     * solves is this:  Given a grid<pre>
+     *
+     *  ---------------------------------------------------------------
+     *
+     *  ------------------------------------------   ------------------
+     *                                            |  |
+     *                                            |  | <-1
+     *                                            |  |
+     *  ------------------------------------------   ------------------
+     *                                             a  A
+     *  ------------------------------------------   ------------------
+     *                                            |  |
+     *                                            |  | <-2
+     *                                            |  |
+     *  ------------------------------------------   ------------------
+     *
+     *  ------------------------------------------   ------------------
+     *                                            |  |
+     *                                            |  | <-3
+     *                                            |  |
+     *                                            |  |
+     *</pre>
+     * clicking on point A will "see" edges 1 and 2, but not 3, so we
+     * adjust it to be point a.
+     *
+     */
+    private void normalize (Point p, Rectangle[] rects) {
+        Point[] pts = new Grid(container.getSize(), rects, 8).getIntersections();
+        if (pts.length > 0) {
+            NearestNeighborIntersticeFactory.PointComparator pc = new NearestNeighborIntersticeFactory.PointComparator (p);
+            Arrays.sort (pts, pc);
+            System.err.println("Normalize " + p + " to " + pts[0]);
+            p.setLocation(pts[0]);
+        }
+    }
     
     public synchronized void addChangeListener(ChangeListener l) {
         listeners.remove(l);
