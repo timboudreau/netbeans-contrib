@@ -507,7 +507,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     
     final UserVariablesEditor variableEditor= new UserVariablesEditor();
     variableEditor.setValue( fileSystem.getVariables() );
-    panel.add (new UserVariablesPanel (variableEditor), gridBagConstraints1);
+    UserVariablesPanel variablePanel = new UserVariablesPanel (variableEditor);
+    panel.add (variablePanel, gridBagConstraints1);
 
     PropertyEditor advancedEditor = fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ().getEditor (fileSystem);
     JPanel advancedPanel = fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ().getPanel (advancedEditor);
@@ -516,9 +517,9 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     panel.add (advancedPanel, gridBagConstraints1);
     
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); 
-    screenSize.setSize(screenSize.width*ADVANCED_DLG_WIDTH_RELATIVE,
-                        screenSize.height*ADVANCED_DLG_HEIGHT_RELATIVE);
-    panel.setMaximumSize(screenSize);
+    screenSize.setSize((int) (screenSize.width*ADVANCED_DLG_WIDTH_RELATIVE),
+                        variablePanel.getPreferredSize().height+advancedPanel.getPreferredSize().height);
+    panel.setPreferredSize(screenSize);
     
     DialogDescriptor dd = new DialogDescriptor (panel, "Advanced Properties Editor");
     TopManager.getDefault ().createDialog (dd).show ();
@@ -872,6 +873,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  14   Jaga      1.11.1.1    3/9/00   Martin Entlicher Fix of long width of 
+*       advanced panel.
 *  13   Jaga      1.11.1.0    2/24/00  Martin Entlicher Read configuration files 
 *       from filesystem.
 *  12   Gandalf   1.11        2/11/00  Martin Entlicher Different argument to 
