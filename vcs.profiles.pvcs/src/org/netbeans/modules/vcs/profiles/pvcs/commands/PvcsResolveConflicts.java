@@ -114,7 +114,11 @@ public class PvcsResolveConflicts implements VcsAdditionalCommand {
         File f1 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
         File f2 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
         File f3 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
-        
+        if (!file.exists()) {
+            DialogDisplayer.getDefault ().notify (new org.openide.NotifyDescriptor.Message(
+                org.openide.util.NbBundle.getMessage(PvcsResolveConflicts.class, "NoConflictsInFile", file)));
+            return ;
+        }
         final Difference[] diffs = copyParts(true, file, f1, true);
         if (diffs.length == 0) {
             DialogDisplayer.getDefault ().notify (new org.openide.NotifyDescriptor.Message(

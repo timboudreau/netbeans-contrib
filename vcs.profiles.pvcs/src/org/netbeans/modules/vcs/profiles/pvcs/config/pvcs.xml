@@ -1276,6 +1276,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="onRoot">
             <value>false</value>
         </property>
+        <property name="disabledOnStatus">
+            <value>"Missing"</value>
+	</property>
     </command>
 
     <command name="REVISION_LIST">
