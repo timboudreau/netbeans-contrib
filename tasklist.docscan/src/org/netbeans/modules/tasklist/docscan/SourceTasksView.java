@@ -14,9 +14,7 @@
 package org.netbeans.modules.tasklist.docscan;
 
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
@@ -180,7 +178,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         KeyStroke selectFolder = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.SHIFT_MASK);
         inputMap.put(selectFolder, selectFolder);
         getActionMap().put(selectFolder, new DelegateAction(getFolderSelector()));
-
     }
 
     public int getPersistenceType() {
@@ -846,6 +843,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         panel.add(ministatus, BorderLayout.CENTER);
         panel.add(rightpanel, BorderLayout.EAST);
         return panel;
+
     }
 
 
@@ -1262,4 +1260,5 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         boolean filtered;  // filter enabled
         Filter filter; // last filter
     }
+
 }

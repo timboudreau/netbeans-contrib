@@ -17,6 +17,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 
+import javax.swing.*;
 import java.awt.*;
 
 
@@ -27,6 +28,7 @@ import java.awt.*;
  * @author Tor Norbye
  */
 public class GoToTaskAction extends NodeAction {
+
     protected boolean asynchronous() {
         return false;
     }
@@ -35,11 +37,15 @@ public class GoToTaskAction extends NodeAction {
      * @param nodes Nodes, where the selected node should be a task
      * node. */    
     protected void performAction(Node[] nodes) {
-        TaskListView tlv = TaskListView.getCurrent();
+        final TaskListView tlv = TaskListView.getCurrent();
         if (tlv != null) {
-            Task item = TaskNode.getTask(nodes[0]); // safe - see enable check
+            final Task item = TaskNode.getTask(nodes[0]); // safe - see enable check
             assert item != null;
-            tlv.showTaskInEditor(item, null);
+            SwingUtilities.invokeLater(new Runnable() {  //#39904 eliminate problems with focus
+                public void run() {
+                    tlv.showTaskInEditor(item, null);
+                }
+            });
         } else {
             //XXX System.out.println("No current view!");
             Toolkit.getDefaultToolkit().beep();

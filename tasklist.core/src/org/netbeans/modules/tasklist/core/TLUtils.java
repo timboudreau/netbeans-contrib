@@ -25,6 +25,9 @@ import java.util.ListIterator;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.awt.*;
+import java.awt.event.FocusListener;
+import java.awt.event.FocusEvent;
 import javax.swing.JEditorPane;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -386,4 +389,30 @@ public final class TLUtils {
         logger.setLevel(Level.FINE);
         return logger;
     }
+
+    /** For debugging purposes only */
+    public static void traceFocus(final Container c) {
+
+        c.addFocusListener(new FocusListener() {
+            public void focusGained(FocusEvent e) {
+                System.err.println("Component " + c + " gained focus.");
+                Thread.dumpStack();
+            }
+            public void focusLost(FocusEvent e) {
+                System.err.println("Component " + c + " lost focus.");
+                Thread.dumpStack();
+            }
+
+        });
+        Component[] cs = c.getComponents();
+        if (cs != null) {
+            for (int i = 0; i<cs.length; i++) {
+                if (cs[i] instanceof Container) {
+                    traceFocus((Container)cs[i]);
+                }
+            }
+        }
+    }
+
+
 }
