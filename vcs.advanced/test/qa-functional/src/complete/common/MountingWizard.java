@@ -394,6 +394,7 @@ public class MountingWizard extends NbTestCase {
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
             wizardProfile.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+            new File(getWorkDirPath()).mkdirs();
             wizardProfile.setWorkingDirectory(getWorkDirPath());
             wizardProfile.next();
             new VCSWizardAdvanced().next();
