@@ -111,30 +111,6 @@ final public class SuggestionTypes {
         return allTypes.values();
     }
 
-    /** Iterator of all suggestion type names in the system */
-    /* XXX Not yet needed
-    public Iterator getSuggestionTypeNames() {
-        loadTypes();
-
-        // if following code throws NPE the problem is that
-        // in SuggestionTypes folder there is a XML file
-        // which could not be succesfully parsed. This resulted
-        // in that allTypes array is null
-        Set temp = new HashSet();
-        temp.addAll(allTypes.keySet());
-        return temp.iterator();
-    }
-    */
-    
-    /** Gets count of all suggestion type names */
-    /* XXX Not yet needed
-    public int getSuggestionTypeNamesCount() {
-        loadTypes();
-        
-        return allTypes.keySet().size();
-    }
-    */
-    
     /** Check if the types were loaded and load them if not */
     private void loadTypes() {
         if (initializedTypes)

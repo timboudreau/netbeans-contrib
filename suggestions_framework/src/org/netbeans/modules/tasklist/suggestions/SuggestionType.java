@@ -105,29 +105,6 @@ final public class SuggestionType {
         return localizedDesc;
     }
 
-
-// Commented out for now: we do global settings of these scanning
-// preferences - not per-type
-//    /** Return true iff this type should be rescanned when a file is shown */
-//    boolean scanOnShow() {
-//        return scanOnShow;
-//    }
-//    
-//    /** Return true iff this type should be rescanned when a file is saved */
-//    boolean scanOnSave() {
-//        return scanOnSave;
-//    }
-//    
-//    /** Return true iff this type should rescanned when a file is edited */
-//    boolean scanOnEdit() {
-//        return scanOnEdit;
-//    }
-//    // XXX Initialize these from XML files
-//    private boolean scanOnShow = true;
-//    private boolean scanOnSave = true;
-//    private boolean scanOnEdit = false;
-    
-    
    /** Return a description of this object. Format may change any time
      * and is not localized. Do not depend on its content or format. */
     public String toString() {

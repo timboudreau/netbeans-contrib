@@ -14,7 +14,6 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.awt.Image;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,7 +22,6 @@ import java.awt.event.ComponentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.netbeans.modules.tasklist.core.TaskListView;
-import org.netbeans.modules.tasklist.core.TaskList;
 import org.netbeans.modules.tasklist.core.TLUtils;
 import java.io.File;
 import java.util.Arrays;
@@ -38,7 +36,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
@@ -65,15 +62,12 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import org.openide.util.Lookup;
 import org.openide.ErrorManager;
-import org.openide.util.WeakListener;
 import org.openide.util.RequestProcessor;
 
 import org.netbeans.api.tasklist.*;
 import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.api.tasklist.DocumentSuggestionProvider;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
-import org.openide.cookies.LineCookie;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
@@ -91,11 +85,6 @@ import org.openide.windows.Workspace;
 /**
  * Actual suggestion manager provided to clients when the Suggestions
  * module is running.
- *<p>
- * @todo In propertyChange(), when notified by the TopComponent.Registry
- *   that the set of visible top components have changed, I should figure
- *   out which document(s) have been closed (if any) and clear them out
- *   of the suggestion cache.
  * <p>
  * @author Tor Norbye
  */
@@ -110,37 +99,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
     /** Cache tracking suggestions in recently visited files */
     private SuggestionCache cache = null;
 
-    /** Construct a new SuggestionManager instance. */
+    /** Create nnew SuggestionManagerImpl.  Public because it needs to be
+     * instantiated via lookup, but DON'T go creating instances of this class!
+     */
     public SuggestionManagerImpl() {
     }
 
-    /**
-     * Construct a new suggestion, of the given type, with the given
-     * summary, and performing the designated action.
-     *
-     * @param type The type of this suggestion. This is a unique string
-     *             id, which corresponds to the layer-declaration of a
-     *             Suggestion Type which has a user description; you can
-     *             also query the SuggestionManager to ask if this
-     *             type of Suggestion has been disabled by the user.
-     * @param summary A one-line summary of the task; this is what appears
-     *             in the Suggestions Window main column.
-     * @param action An action to be performed when the user "runs" this
-     *             task. Some actions may actually fix the problem that
-     *             the suggestion is  describing, for example "update
-     *             the copyright to include 2002" might edit the document
-     *             when the action is run; other actions may point the
-     *             user to the problem: the compiler may add tasks to
-     *             fix errors and running these actions open the editor
-     *             on the relevant source line.
-     * @param provider The SuggestionProvider creating this suggestion,
-     *             if any. May be null.
-     *
-     * @todo Provide specific guidelines here for how these sentences
-     *       should be worded so that we get a consistent set of
-     *       descriptions.
-     *
-     */
+    // See super for accurate javadoc
     public Suggestion createSuggestion(String type,
                                        String summary,
                                        SuggestionPerformer action,
@@ -149,7 +114,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         // " " or ":" (let's pick one).
         // (Oh crap. What do we do about CRLF's? Replace with ": " ?
         // This won't work right for \r-only systems, but surely OSX didn't
-        // keep that bad MacOS habit, did it? XXX
+        // keep that bad MacOS habit, did it?
         if (summary.indexOf('\n') != -1) {
             int n = summary.length();
             StringBuffer sb = new StringBuffer(2*n); // worst case
@@ -375,10 +340,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     docProviders.add(sp);
                 }
             }
-
-            // TODO Sort providers by suggestion type position - this may
-            // provide better refresh behavior since the suggestion
-            // updates will move top to bottom
         }
         return providers;
     }
@@ -598,14 +559,14 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * a confirmation popup.
      * <p>
      *
-     * @param id The String id of the Suggestion Type. See the
+     * @param type The Suggestion Type. See the
      *    {@link Suggestion} documentation for how Suggestion Types
      *    are registered and named.
      * @param write Write to disk the update iff true.
-     * @param enabled True iff the suggestion type should have a confirmation
+     * @param confirm True iff the suggestion type should have a confirmation
      *     dialog
      */
-    public synchronized void setConfirm(SuggestionType type, boolean confirm, boolean write) {
+    synchronized void setConfirm(SuggestionType type, boolean confirm, boolean write) {
         if (noconfirm == null) {
             noconfirm = new HashSet(40);
         }
@@ -622,8 +583,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
     
     /** Notify the SuggestionManager that a particular category filter
      * is in place.
-     *
-     * @todo Fix this method; currently the bulk of the body is commented out
      *
      * @param type SuggestionType to be shown, or
      *     null if the view should not be filtered (e.g. show all)
@@ -694,7 +653,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
         unfiltered = null;
 
-        // XXX Do NOT NOT NOT confuse disabling modules for performance
+        // Do NOT NOT NOT confuse disabling modules for performance
         // (to achieve filtering) with disabling modules done by the
         // user! In particular, applying a filter and then removing it
         // should not leave previously undisabled module disabled!
@@ -706,8 +665,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
             SuggestionProvider provider = (SuggestionProvider)it.next();
 
             // XXX This will process diabled providers/types as well!
-
-
             String typeNames[] = provider.getTypes();
             if (type != null) {
                 // We're adding a filter: gotta disable all providers
@@ -985,11 +942,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         readTypeRegistry();
         if (expandedTypes == null) {
             // Special case: default parse errors to expanded
-            if (type.getName() == "nb-java-errors") { // NOI18N
-                return true;
-            } else {
-                return false;
-            }
+            return (type.getName() == "nb-java-errors"); // NOI18N
         }
         return expandedTypes.contains(type);
     }
@@ -1286,6 +1239,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
      */
     private static final int MAX_INLINE = 4;
     
+    // Consult super for correct javadoc
     public void register(String type, List add, List remove, Object request) {
         //System.out.println("register(" + type + ", " + add +
         //                   ", " + remove + ", " + request + ")");
@@ -1299,14 +1253,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
             register(type, add, remove, getList(), request, !switchingFiles);
         }
     }
-
-    /* XXX
-        This method fails for the case where you have a category
-        node, and you try to remove a single item. It removes
-        the category node because it simply looks at the size of
-        the add, not the size of the list AFTER the removes have 
-        been applied!
-     */
 
     public synchronized void register(String typeName, 
                                       List addList, List removeList,
@@ -1450,8 +1396,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
         // Assume no stupidity like overlaps in tasks between the lists
         int newSize = currnum + addnum - remnum;
         if ((newSize > MAX_INLINE) && (unfilteredType == null)) {
-            // TODO - show the first two "inlined" ? Or hide all below
-            // the category node
+            // TODO - show the first MAX_INLINE-1 "inlined", followed by the
+            // category node? Or hide all below the category node? For now,
+            // doing the latter since it's a lot easier.
 
             if (category == null) {
                 // Now should have subtasks, but previously we didn't;
@@ -1529,7 +1476,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     
     
-    /**
+    /*
      * Code related to Document scanning. It listens to the source editor and
      * tracks document opens and closes, as well as "current document" changes.
      * <p>
@@ -1547,9 +1494,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * @todo Document threading behavior
      * @todo Document timer behavior (some of the methods are called after
      *   a delay, others are called immediately.)
-     * @todo Add timer methods; e.g. we both want to know when the document
-     *   has been edited (immediately), and when the document has been edited
-     *   and has been idle for a while
      *
      */
 
@@ -1579,7 +1523,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 */
 
     /** Set to the request generation when a new file has been shown */
-    private volatile Long haveShown = null; // XXX use Long instead?
+    private volatile Long haveShown = null;
     
     /** Set to the request generation when a file has been saved */
     private volatile Long haveSaved = null;
@@ -1601,49 +1545,16 @@ final public class SuggestionManagerImpl extends SuggestionManager
     private boolean scanOnShow(DocumentSuggestionProvider provider) {
         // For now, just use "global" flag (shared for all providers)
         return scanOnShow;
-        /*
-        SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
-        String typeNames[] = provider.getTypes();
-        for (int j = 0; j < typeNames.length; j++) {
-            SuggestionType type = suggestionTypes.getType(typeNames[j]);
-            if (type.scanOnShow()) {
-                return true;
-            }
-        }
-        return false;
-        */
     }
     /** Return true iff the given provider should rescan when a file is saved */
     private boolean scanOnSave(DocumentSuggestionProvider provider) {
         // For now, just use "global" flag (shared for all providers)
         return scanOnSave;
-        /*
-        SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
-        String typeNames[] = provider.getTypes();
-        for (int j = 0; j < typeNames.length; j++) {
-            SuggestionType type = suggestionTypes.getType(typeNames[j]);
-            if (type.scanOnSave()) {
-                return true;
-            }
-        }
-        return false;
-        */
     }
     /** Return true iff the given provider should rescan when a file is edited */
     private boolean scanOnEdit(DocumentSuggestionProvider provider) {
         // For now, just use "global" flag (shared for all providers)
         return scanOnEdit;
-        /*
-        SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
-        String typeNames[] = provider.getTypes();
-        for (int j = 0; j < typeNames.length; j++) {
-            SuggestionType type = suggestionTypes.getType(typeNames[j]);
-            if (type.scanOnEdit()) {
-                return true;
-            }
-        }
-        return false;
-        */
     }
     
     /**
@@ -1807,7 +1718,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             if (cache != null) {
                 cache.remove(document);
             }
-            // TODO - remove the items we've registered so far... (partial
+            // Remove the items we've registered so far... (partial
             // registration) since we're in the middle of a request
             stuffCache(document, dataobject, true);
         } else {
@@ -1872,27 +1783,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
             register(null, null, sgs, getList(), null, true);
         }
     }
-
-    /**
-     * The given document has been closed; stop reporting suggestions
-     * for this document and free up associated resources.
-     * <p>
-     * @param document The document being closed
-     * @param dataobject The Data Object for the file being opened
-     * <p>
-     * This method is called internally by the toolkit and should not be
-     * called directly by programs.
-     */
-/* Not yet called from anywhere. Does anyone need it?
-    public void docClosed(Document document, DataObject dataobject) {
-        List providers = getDocProviders();
-        ListIterator it = providers.listIterator();
-        while (it.hasNext()) {
-            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
-            provider.docClosed(document, dataobject);
-        }
-    }
-*/
 
     public void changedUpdate(DocumentEvent e) {
 	// Do nothing.
@@ -2107,28 +1997,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
      */
 
-    /** 
-        @todo Put this on a delayed timer, such that rapid changes
-              in node selection doesn't cause excessive parsing.
-              Studio seemed to have a 2 second delay.
-        @todo Limit scan to objects shown in the source editor.
-              Try getting associated topcomponent, and ensure isShowing(),
-              as well as editor component subclass. Check my NewTaskAction
-              where I searched for the editor component to get the
-              current file name.
-        @todo This method doesn't really scan, it really does additional
-	      validation that the data object is an appropriate scan target;
-	      so factor this into a validation method or something like that
-	      along with the propertyChange code, e.g. isCurrentEditorObject
-    */
     private void findCurrentFile(boolean delayed) {
 	// Unregister previous listeners
 	if (current != null) {
 	    current.removeComponentListener(this);
 	    current = null;
-            
 	}
-	// XXX is this the right thing to do?
         if (document != null) {
 	    document.removeDocumentListener(this);
             switchingFiles = true;
@@ -2371,26 +2245,19 @@ final public class SuggestionManagerImpl extends SuggestionManager
         editors = null;
     }
 
-    /** The component is now showing: tell debugger to send us updates! */
     public void componentShown(ComponentEvent e) {
 	// Don't care
     }
 
-    /** The component is no longer showing: tell debugger to stop computing
-	updates on our behalf! */
     public void componentHidden(ComponentEvent e) {
         componentsChanged();
     }
 
-    /** Don't care - but must implement full ComponentListener interface */
     public void componentResized(ComponentEvent e) {
-        //super.componentResized();
 	// Don't care
     }
     
-    /** Don't care - but must implement full ComponentListener interface */
     public void componentMoved(ComponentEvent e) {
-        //super.componentMoved();
 	// Don't care
     }
 
@@ -2455,24 +2322,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
             DataObject.getRegistry().removeChangeListener(rl);
             rl = null;
         }
-
-	/*
-	org.openide.windows.TopComponent.getRegistry().
-	    removePropertyChangeListener(this);
-	WindowManager manager = WindowManager.getDefault();
-	manager.removePropertyChangeListener(this);
-	Workspace workspace = WindowManager.getDefault().
-	    getCurrentWorkspace();
-	workspace.removePropertyChangeListener(this);
-	*/
-	
 	
 	// Unregister previous listeners
 	if (current != null) {
 	    current.removeComponentListener(this);
 	    current = null;
 	}
-	// XXX is this the right thing to do?
 	if (document != null) {
 	    document.removeDocumentListener(this);
 	    // NOTE: we do NOT null it out since we still need to
@@ -2481,11 +2336,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
         if (editors != null) {
             removeCaretListeners();
         }
-
-	/*
-	org.openide.windows.TopComponent.getRegistry().
-	    removePropertyChangeListener(this);
-	*/
 
         switchingFiles = true;
         docHidden(document, dataobject);
@@ -2528,80 +2378,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
         String prop = ev.getPropertyName();
         if(prop.equals(TopComponent.Registry.PROP_OPENED)) {
             componentsChanged();
-
-            /* Clear cache documents that are closed
-            if (cache != null) {
-                // A document may have been closed - we've gotta
-                // go clear the item
-                document = ?
-                cache.remove(document);
-            }
-            */
         }
     }    
-    //public void propertyChange(PropertyChangeEvent ev) {
-
-        //String prop = ev.getPropertyName();
-	//err.log("propertyChange: prop name is " + prop);
     
-	
-	/* OLD This is the old implementation. See the long comment in
-	   start() explaining the new scheme which seems to work quite
-	   a bit better. The below code relies on this scanner object
-	   being added as a property change listener on the
-	   TopComponent registry - which is currently not the case
-	   (commented out in start() and stop(). You may also have to
-	   tweak the code in scan(Node) a bit such that it checks for
-	   a corresponding editor component for the node, since we're
-	   going to hit lots of nodes in the property change listener
-	   which do not correspond to editor window changes
-
-	// [PENDING] Use PROP_ACTIVATED_NODES or PROP_CURRENT_NODES?
-	// Study RegistryImpl in org.netbeans.core.windows
-	// [PENDING] Listen for TopComponent changes instead?
-	if (TopComponent.Registry.PROP_ACTIVATED_NODES.equals(
-						     ev.getPropertyName())) {
-
-	    // Stop our current timer; the previous node has not
-	    // yet been scanned; too brief an interval
-	    if (runTimer != null) {
-		runTimer.stop();
-		runTimer = null;
-	    }
-
-	    Node[] nodes = (Node[])ev.getNewValue();
-	    if (nodes == null) {
-		return;
-	    }
-	    
-	    if (nodes.length != 1) {
-		// If you've selected multiple nodes, this is not a
-		// node event we're interested in; we only care when
-		// you switch from one editor pane to another, not when
-		// you say select a series of files in the explorer
-		return;
-	    }
-
-	    scan(nodes[0]);
-	}
-	*/
-
-	/*
-	if (WindowManager.PROP_CURRENT_WORKSPACE == ev.getPropertyName()) {
-	    Workspace oldWs = (Workspace)ev.getOldValue();
-	    Workspace newWs = (Workspace)ev.getNewValue();
-	    S ystem.out.println("Current workspace changed: old " + oldWs + "; new " + newWs);
-	} else if (Workspace.PROP_MODES == ev.getPropertyName()) {
-	    Mode[] oldModes = (Mode[])ev.getOldValue();
-	    Mode[] newModes = (Mode[])ev.getNewValue();
-	    S ystem.out.println("Mode set changed: old " + oldModes + "; new " + newModes);
-	    // Check to see if the editor window has come or left
-	}
-	*/
-    //}
-
     int prevLineNo = -1;
-
     
     /** Moving the cursor position should cause a delay in document scanning,
      * but not trigger a new update */
@@ -2627,21 +2407,20 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
             // Go to the given line
             Line line = null;
+            line = TLUtils.getLineByNumber(dataobject, lineno+1);
+            /*
             try {
                 LineCookie lc = (LineCookie)dataobject.getCookie(LineCookie.class);
                 if (lc != null) {
                     Line.Set ls = lc.getLineSet();
                     if (ls != null) {
-                        // XXX HACK
-                        // I'm subtracting 1 because empirically I've discovered
-                        // that the editor highlights whatever line I ask for plus 1
                         line = ls.getCurrent(lineno);
                     }
                 }
             } catch (Exception e) {
                 ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
             }
-            
+            */            
             if (line != null) {
                 setCursorLine(line);
             }

@@ -58,22 +58,6 @@ final public class SuggestionTypesFolder extends FolderInstance {
         instanceFinished();
         
         this.fo = fo;
-
-        /* XXX Not needed
-        // add listener on changes in suggestion types folder
-        fo.addFileChangeListener(new FileChangeAdapter() {
-            public void fileDeleted(FileEvent fe) {
-                SuggestionType type;
-                for (Iterator it = SuggestionTypes.getTypes().getSuggestionTypeNames(); it.hasNext(); ) {
-                    type = SuggestionTypes.getTypes().getType((String)it.next());
-                    if ( type != null && ((FileObject)type.getProp(SuggestionType.PROP_FILE)).equals(fe.getFile()) ) {
-                        SuggestionTypes.getTypes().removeType(type.getName());
-                        break;
-                    }
-                }
-            }
-        });
-        */
     }
 
     /** Gets SuggestionTypesFolder singleton instance. */
