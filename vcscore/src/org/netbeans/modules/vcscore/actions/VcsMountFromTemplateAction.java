@@ -172,7 +172,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
     * @return the name of the action
     */
     public String getName() {
-        return org.openide.util.NbBundle.getBundle(VcsMountAction.class).getString("CTL_MountActionName");
+        return org.openide.util.NbBundle.getBundle(VcsMountFromTemplateAction.class).getString("CTL_MountActionName");
         //return ActionConstants.BUNDLE.getString("NewTemplate");
     }
 
