@@ -184,7 +184,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        // inputMap.put() see also escKeyStrokeHook()
+        KeyStroke stop = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        inputMap.put(stop, STOP_ACTION_KEY);
         getActionMap().put(STOP_ACTION_KEY, new StopAction());
 
         KeyStroke refresh = KeyStroke.getKeyStroke(KeyEvent.VK_R, 0);
@@ -242,28 +243,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_ONLY_OPENED;
-    }
-
-    /**
-     * Installs/uninstalls hook on ESC keystoke.
-     * Necessary to manage explicitly because ESC is used by sliding windows too.
-     */
-    private void escKeyStrokeHook(boolean install) {
-        InputMap inputMap = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        KeyStroke stop = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-
-        // System.err.println("escKeyStrokeHook: " + install + " " + windowSystemESCActionKey);
-        if (install) {
-            Object old = inputMap.get(stop);
-            if (old != STOP_ACTION_KEY) {
-                windowSystemESCActionKey = old;
-                inputMap.put(stop, STOP_ACTION_KEY);
-            }
-        } else {
-            if (windowSystemESCActionKey != null) {
-                inputMap.put(stop, windowSystemESCActionKey);
-            }
-        }
     }
 
     protected Node createRootNode() {
@@ -1066,7 +1045,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 reasonMsg = null;
                 getProgress().setVisible(true);
                 getStop().setVisible(true);
-                escKeyStrokeHook(true);
                 getRefresh().setEnabled(false);
 
                 getMiniStatus().setVisible(false);
@@ -1116,7 +1094,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 estimatedFolders = -1;
                 getProgress().setVisible(false);
                 getStop().setVisible(false);
-                escKeyStrokeHook(false);
                 getRefresh().setEnabled(job == null);
                 updateMiniStatus();
             }
@@ -1146,6 +1123,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             if (getStop().isVisible()) {
                 handleStop();
             }
+        }
+
+        public boolean isEnabled() {
+            return getStop().isVisible();
         }
     }
 
