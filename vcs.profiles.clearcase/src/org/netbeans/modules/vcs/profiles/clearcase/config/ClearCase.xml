@@ -40,6 +40,9 @@ Microsystems, Inc. All Rights Reserved.
         <variable basic="false" name="MODULE">
             <value></value>
         </variable>
+        <variable name="QUOTE" basic="false">
+            <value>\"</value>
+        </variable>
     </variables>
     <commands>
         <command displayName="ClearCase" name="ROOT">
@@ -89,7 +92,7 @@ Microsystems, Inc. All Rights Reserved.
             <separator/>
             <command displayName="Check In" name="CHECKIN">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} checkin -c \&quot;${REASON}\&quot; ${FILE} ${NUR}</value>
+                    <value>${RUN} ${ClearCaseCMD} checkin -c ${QUOTE}${REASON}${QUOTE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value>LABEL(Check In) PROMPT_FOR(REASON, &quot;Reason:&quot;) </value>
@@ -103,7 +106,7 @@ Microsystems, Inc. All Rights Reserved.
             </command>
             <command displayName="Check Out Reserved" name="CHECKOUT RESERVED">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} checkout -c \&quot;${REASON}\&quot; ${FILE} ${NUR}</value>
+                    <value>${RUN} ${ClearCaseCMD} checkout -c ${QUOTE}${REASON}${QUOTE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value>LABEL(Check Out Reserved) PROMPT_FOR(REASON, &quot;Reason:&quot;) </value>
@@ -117,7 +120,7 @@ Microsystems, Inc. All Rights Reserved.
             </command>
             <command displayName="Check Out Unreserved" name="CHECKOUT UNRESERVED">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} checkout -c \&quot;${REASON}\&quot; -unreserved ${FILE} ${NUR}</value>
+                    <value>${RUN} ${ClearCaseCMD} checkout -c ${QUOTE}${REASON}${QUOTE} -unreserved ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value>LABEL(Check Out Unreserved) PROMPT_FOR(REASON, &quot;Reason:&quot;) </value>
@@ -132,7 +135,7 @@ Microsystems, Inc. All Rights Reserved.
             <separator/>
             <command displayName="Undo Checkout" name="UNDO CHECKOUT">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} unco -keep ${FILE} ${NUR}</value>
+                    <value>${RUN} ${ClearCaseCMD} unco -keep ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="onRoot">
                     <value>true</value>
@@ -143,7 +146,7 @@ Microsystems, Inc. All Rights Reserved.
             </command>
             <command displayName="Unreserve" name="UNRESERVE">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} unreserve ${FILE} ${NUR}</value>
+                    <value>${RUN} ${ClearCaseCMD} unreserve ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="onRoot">
                     <value>true</value>
@@ -154,7 +157,7 @@ Microsystems, Inc. All Rights Reserved.
             </command>
             <command displayName="Add To Source Control" name="ADD">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseDLG} /addtosrc ${FILE} ${NUR}</value>
+                    <value>${RUN} ${ClearCaseDLG} /addtosrc ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="onRoot">
                     <value>true</value>
@@ -166,7 +169,7 @@ Microsystems, Inc. All Rights Reserved.
             <separator/>
             <command displayName="Find Checkouts" name="FIND CHECKOUTS">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} lscheckout ${FILE} ${NUR}</value>
+                    <value>${RUN} ${ClearCaseCMD} lscheckout ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="display">
                     <value>true</value>
@@ -177,7 +180,7 @@ Microsystems, Inc. All Rights Reserved.
             </command>
             <command displayName="History" name="HISTORY">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} lshistory -graphical ${FILE} ${NUR}</value>
+                    <value>${RUN} ${ClearCaseCMD} lshistory -graphical ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="display">
                     <value>true</value>
@@ -188,7 +191,7 @@ Microsystems, Inc. All Rights Reserved.
             </command>
             <command displayName="Version Tree" name="VERSION TREE">
                 <property name="exec">
-                    <value>${RUN} clearvtree ${FILE} ${NUR}</value>
+                    <value>${RUN} clearvtree ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="display">
                     <value>true</value>
@@ -200,7 +203,7 @@ Microsystems, Inc. All Rights Reserved.
             <separator/>
             <command displayName="Properties Of Version" name="PROPERTIES OF VERSION">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} describe ${FILE} ${NUR}</value>
+                    <value>${RUN} ${ClearCaseCMD} describe ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="display">
                     <value>true</value>
@@ -211,7 +214,7 @@ Microsystems, Inc. All Rights Reserved.
             </command>
             <command displayName="Compare With Previous Version" name="COMPARE WITH PREVIOUS">
                 <property name="exec">
-                    <value>${RUN} ${ClearCaseCMD} diff -g -predecessor ${FILE} ${NUR}</value>
+                    <value>${RUN} ${ClearCaseCMD} diff -g -predecessor ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="onRoot">
                     <value>true</value>
@@ -222,7 +225,7 @@ Microsystems, Inc. All Rights Reserved.
             </command>
             <command displayName="Compare With..." name="COMPARE WITH">
                 <property name="exec">
-                    <value>${ClearCaseCMD} diff -g -predecessor ${CONVERSION_VAR_0}${PS}${CONVERSION_VAR_1} ${NUR}</value>
+                    <value>${ClearCaseCMD} diff -g -predecessor ${QUOTE}${CONVERSION_VAR_0}${PS}${CONVERSION_VAR_1}${QUOTE} ${NUR}</value>
                 </property>
                 <property name="display">
                     <value>true</value>
