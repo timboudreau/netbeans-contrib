@@ -68,6 +68,11 @@ public final class SuggestionContext {
                 }
             }
 
+            if (fo.hasExt("properties")) { // NOI18N
+                cachedString = PropertiesSuggestionContext.getContent(fo);
+                return cachedString;
+            }
+
             EditorCookie edit =
                 (EditorCookie) dataObject.getCookie(EditorCookie.class);
             if (edit != null) {
