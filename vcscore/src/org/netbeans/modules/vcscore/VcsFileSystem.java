@@ -24,6 +24,7 @@ import javax.swing.*;
 import org.openide.*;
 import org.openide.util.actions.*;
 import org.openide.util.NbBundle;
+import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileSystem.Status;
@@ -54,8 +55,10 @@ import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.revision.RevisionListener;
+import org.netbeans.modules.vcscore.versioning.VcsFileObject;
 import org.netbeans.modules.vcscore.versioning.VersioningSystem;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
+import org.netbeans.modules.vcscore.versioning.RevisionEvent;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.impl.FileSystemInfo;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
@@ -322,6 +325,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient Set unimportantFiles;
     
     private transient DefaultVersioningSystem versioningSystem = null;
+    
+    private transient Hashtable revisionListsByName = null;
 
     public boolean isLockFilesOn () {
         return lockFilesOn && isEnabledLockFiles();
@@ -1038,6 +1043,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         if (createRuntimeCommands == null) createRuntimeCommands = Boolean.TRUE;
         if (createVersioningSystem == null) createVersioningSystem = Boolean.FALSE;
+        if (revisionListsByName == null) revisionListsByName = new Hashtable();
         commandsPool = new CommandsPool(this, false);
         if (numberOfFinishedCmdsToCollect == null) {
             numberOfFinishedCmdsToCollect = new Integer(CommandsPool.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
@@ -2130,6 +2136,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         if (vcsFiles == null || isHideShadowFiles()) files = getLocalFiles(name);
         else files = addLocalFiles(name, vcsFiles, removedFilesScheduledForRemove);
+        //cleanupNonExistingAddedFiles(name, files);
         //D.deb("children('"+name+"') = "+VcsUtilities.arrayToString(files));
         if (cache != null) {
             VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
@@ -2139,7 +2146,32 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         //System.out.println("children = "+files);
         //System.out.println("  children = "+VcsUtilities.arrayToString(files));
+        if (versioningSystem != null) addVersioningFolderListener(name);
         return files;
+    }
+    
+    private transient WeakHashMap versioningFolderListeners;
+    private static final Object versioningFolderListenersLock = new Object();
+    
+    private void addVersioningFolderListener(String name) {
+        System.out.println("addVersioningFolderListener("+name+")");
+        FileObject fo = findResource(name);
+        System.out.println("  fo = "+fo);
+        if (fo != null) {
+            synchronized (versioningFolderListenersLock) {
+                if (versioningFolderListeners == null) {
+                    versioningFolderListeners = new WeakHashMap();
+                }
+                FileChangeListener listener = (FileChangeListener) versioningFolderListeners.get(fo);
+                System.out.println(" listener for "+fo+" = "+listener);
+                if (listener == null) {
+                    FileChangeListener chListener = new VersioningFolderChangeListener(name);
+                    listener = WeakListener.fileChange(chListener, fo);
+                    fo.addFileChangeListener(listener);
+                    versioningFolderListeners.put(fo, chListener);
+                }
+            }
+        }
     }
     
     private transient Vector scheduledFilesToBeProcessed;
@@ -2227,6 +2259,41 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         return (String[]) filtered.toArray(new String[0]);
+    }
+    
+    /**
+     * Remove scheduling attributes for files scheduled for ADD, but not present any more.
+     * @param packageName the name of the package
+     * @param files the array of all files in this package
+     */
+    private void cleanupNonExistingAddedFiles(String packageName, String[] files) {
+        ArrayList filtered = new ArrayList(Arrays.asList(files));
+        boolean emptyPackage = (packageName.length() == 0);
+        HashMap addedFilesNotPresentAnyMore = new HashMap();
+        for (int i = 0; i < files.length; i++) {
+            String fileName = (emptyPackage) ? files[i] : (packageName + "/" + files[i]);
+            Set[] scheduled = (Set[]) attr.readAttribute(fileName, VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
+            if (scheduled != null && scheduled[1] != null) {
+                for (Iterator it = scheduled[1].iterator(); it.hasNext(); ) {
+                    String secFile = (String) it.next();
+                    if (!emptyPackage && secFile.startsWith(packageName) ||
+                        emptyPackage && secFile.indexOf('/') < 0) {
+                        //System.out.println("removing '"+secFile.substring(packageName.length() + 1)+"'");
+                        String nameOnly = (emptyPackage) ? secFile : secFile.substring(packageName.length() + 1);
+                        if (!filtered.contains(nameOnly)) {
+                            addedFilesNotPresentAnyMore.put(secFile, fileName);
+                        }
+                    }
+                }
+            }
+        }
+        if (addedFilesNotPresentAnyMore.size() > 0) {
+            for (Iterator secIt = addedFilesNotPresentAnyMore.keySet().iterator(); secIt.hasNext(); ) {
+                String secFile = (String) secIt.next();
+                String primaryFile = (String) addedFilesNotPresentAnyMore.get(secFile);
+                removeScheduledFromPrimary(secFile, primaryFile, 1);
+            }
+        }
     }
     
     /**
@@ -2940,15 +3007,107 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     private class VersioningVersions extends Object implements VersioningSystem.Versions {
-        public RevisionList getRevisions(String name) {
-            RevisionList list = new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList();
-            list.add(new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem("1.1"));
-            list.add(new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem("1.2"));
+        public RevisionList getRevisions(final String name) {
+            RevisionList list = (RevisionList) revisionListsByName.get(name);//new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList();
+            if (list == null) {
+                //org.openide.util.RequestProcessor.postRequest(new Runnable() {
+                //    public void run() {
+                list = createRevisionList(name);
+                        //versioningSystem.fireRevisionChange(name);
+                //    }
+                //});
+                //System.out.println("createRevisionList("+name+") = "+list);
+            }
+            //list.add(new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem("1.1"));
+            //list.add(new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem("1.2"));
             return list;
+        }
+        
+        private RevisionList createRevisionList(final String name) {
+            //System.out.println("createRevisionList("+name+")");
+            VcsCommand cmd = getCommand(VcsCommand.NAME_REVISION_LIST);
+            if (cmd == null) return null;
+            //VcsCommandExecutor vce = getVcsFactory().getCommandExecutor(cmd, getVariablesAsHashtable());
+            Table files = new Table();
+            files.put(name, findFileObject(name));
+            final StringBuffer dataBuffer = new StringBuffer();
+            CommandDataOutputListener dataListener = new CommandDataOutputListener() {
+                public void outputData(String[] data) {
+                    if (data != null && data.length > 0) {
+                        if (data[0] != null) dataBuffer.append(data[0]);
+                    }
+                }
+            };
+            VcsCommandExecutor[] vces = VcsAction.doCommand(files, cmd, null, VcsFileSystem.this, null, null, dataListener, null);
+            if (vces.length > 0) {
+                final VcsCommandExecutor vce = vces[0];
+                getCommandsPool().waitToFinish(vce);
+                addEncodedRevisionList(name, dataBuffer.toString());
+            }
+            return (RevisionList) revisionListsByName.get(name);
+        }
+        
+        private void addEncodedRevisionList(String name, String encodedRL) {
+            //System.out.println("addEncodedRevisionList("+name+", "+encodedRL.length()+")");
+            if (encodedRL.length() == 0) return ;
+            RevisionList list = null;
+            try {
+                list = (RevisionList) VcsUtilities.decodeValue(encodedRL);
+            } catch (IOException ioExc) {
+                ioExc.printStackTrace();
+                list = null;
+            }
+            if (list != null) revisionListsByName.put(name, list);
+            //versioningSystem.fireRevisionChange(name, new RevisionEvent());
         }
         
         public java.io.InputStream getInputStream(String name, String revision) throws java.io.FileNotFoundException {
             return inputStream(name);
+        }
+    }
+    
+    private class VersioningFolderChangeListener extends Object implements FileChangeListener {
+        
+        /** the folder name */
+        private String name;
+        
+        public VersioningFolderChangeListener(String name) {
+            this.name = name;
+        }
+        
+        /** Fired when a file attribute is changed. */
+        public void fileAttributeChanged(org.openide.filesystems.FileAttributeEvent fe) {
+        }
+
+        /** Fired when a file is changed. */
+        public void fileChanged(org.openide.filesystems.FileEvent fe) {
+        }
+
+        /** Fired when a new file is created. */
+        public void fileDataCreated(org.openide.filesystems.FileEvent fe) {
+            refreshVersioning();
+        }
+
+        /** Fired when a file is deleted. */
+        public void fileDeleted(org.openide.filesystems.FileEvent fe) {
+            refreshVersioning();
+        }
+
+        /** Fired when a new folder is created. */
+        public void fileFolderCreated(org.openide.filesystems.FileEvent fe) {
+            refreshVersioning();
+        }
+
+        /** Fired when a file is renamed. */
+        public void fileRenamed(org.openide.filesystems.FileRenameEvent fe) {
+            refreshVersioning();
+        }
+        
+        private void refreshVersioning() {
+            System.out.println("refreshVersioning("+name+")");
+            VcsFileObject fo = versioningSystem.findResource(name, false);
+            System.out.println("  resource = "+fo);
+            if (fo != null) fo.refresh();
         }
     }
     
