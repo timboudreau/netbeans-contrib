@@ -166,6 +166,10 @@ public class PCLICommand implements VcsAdditionalCommand, VcsAdditionalCommand.I
         return success[0].booleanValue();
     }
     
+    boolean isFinished() {
+        return success[0] != null;
+    }
+    
     public void waitFinished() throws InterruptedException {
         synchronized (success) {
             if (success[0] == null) {

@@ -264,6 +264,9 @@ public class PCLICommandExecutor implements Runnable {
                     canSendInput.notify();
                 }
             }
+            if (commandToProcess != null && !commandToProcess.isFinished()) {
+                commandToProcess.setFailed();
+            }
         }
     }
     
