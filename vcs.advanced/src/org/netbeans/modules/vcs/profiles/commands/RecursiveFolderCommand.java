@@ -155,7 +155,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
     }
     
     private void waitToLoad(VcsCacheDir dir, boolean recursively) throws InterruptedException {
-        if (!dir.isLoaded()) {
+        if (!dir.isLoaded() || !dir.isIgnoreListSet()) {
             waitToLoad((VcsCacheDir) dir);
             if (recursively) {
                 CacheDir[] subDirs = dir.getSubDirs();
