@@ -493,6 +493,10 @@ public class CommandNode extends AbstractNode {
                             if (value == null) {
                                 if (Boolean.TYPE.equals(getValueType())) {
                                     value = Boolean.FALSE;
+                                } else if (Integer.TYPE.equals(getValueType()) &&
+                                           defaultValue != null &&
+                                           Integer.class.equals(defaultValue.getClass())) {
+                                    value = defaultValue;
                                 }
                             }
                             return value;
