@@ -391,7 +391,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints.gridy = 100;
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
-        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.weighty = 0.000001;
         variablePanel.add(pushPanel1, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -414,7 +414,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints.gridy = 100;
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
-        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.weighty = 0.000001;
         globalInputPanel.add(pushPanel2, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -1823,11 +1823,6 @@ public class VariableInputDialog extends javax.swing.JPanel {
         area.setBorder(new javax.swing.border.BevelBorder(javax.swing.border.BevelBorder.LOWERED));
         variablePanel.add(label, gridBagConstraints1);
         variablePanel.add(scrollArea, gridBagConstraints2);
-        if (variablePanel.isAncestorOf(pushPanel1)) {
-            variablePanel.remove(pushPanel1);
-        } else if (variablePanel.isAncestorOf(pushPanel2)) {
-            variablePanel.remove(pushPanel2);
-        }
         //fileLabels.addElement(label);
         //areas.addElement(area);
         //VcsUtilities.removeEnterFromKeymap(field);
@@ -2392,8 +2387,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints1.gridy = gridy;
         gridBagConstraints1.gridwidth = GridBagConstraints.REMAINDER;
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints1.weightx = 1.0;
+        gridBagConstraints1.weighty = 1.0;
         gridBagConstraints1.insets = new java.awt.Insets(0, leftInset, 8, 0);
         
         inputPanel.add(eggAsComponent, gridBagConstraints1);
