@@ -24,8 +24,6 @@ Microsystems, Inc. All Rights Reserved.
       <file name="vcs-explorer-sep-1[javax-swing-JSeparator].instance" />
       <attr name="vcs-explorer-sep-1[javax-swing-JSeparator].instance/org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" boolvalue="true"/>
       <file name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" /> 
-      <attr name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance/org-netbeans-modules-vcscore-actions-VcsSettingsAction.instance" boolvalue="true"/>
-      <file name="org-netbeans-modules-vcscore-actions-VcsSettingsAction.instance" />
     </folder>
   </folder>
 
