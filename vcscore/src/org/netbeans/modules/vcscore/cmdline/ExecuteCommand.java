@@ -807,7 +807,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 path = commonParent + "/" + path;
             }
             if (path != null) {
-                String fullPath = ((path.length() > 0) ? path.replace(separatorChar, '/') + "/" : "") + ((file == null) ? "" : file);
+                String fullPath = ((path.length() > 0) ? path.replace(separatorChar, '/') : "") + ((file == null) ? "" : "/" + file);
                 return Collections.singleton(fullPath);
             } else {
                 return Collections.EMPTY_SET;
