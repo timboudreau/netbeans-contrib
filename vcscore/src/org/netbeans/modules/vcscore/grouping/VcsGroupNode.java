@@ -95,6 +95,7 @@ public class VcsGroupNode extends AbstractNode {
                         SystemAction[] acts = fo.getFileSystem().getActions();
                         for (int m =0; m < acts.length; m++) {
 //                            System.out.println("group action class=" + acts[m]);
+                            if (!acts[m].isEnabled()) continue;
                             if (!acts[m].getClass().equals(org.netbeans.modules.vcscore.actions.AddToGroupAction.class)) {
                                 actions.add(acts[m]);
                                 actionsList.add(acts[m]);
