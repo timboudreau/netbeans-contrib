@@ -9,7 +9,8 @@ OpenIDE-Module-Module-Dependencies:
   org.netbeans.modules.vcscore/1 = promotionD,
   org.netbeans.modules.diff/1 = promotionD,
   org.openide.io > 1.0,
-  org.openide.loaders > 4.11
+  org.openide.loaders > 4.11,
+  org.netbeans.modules.queries/0 > 1.0
 OpenIDE-Module-Requires: org.openide.windows.IOProvider
 OpenIDE-Module-Layer: org/netbeans/modules/vcs/advanced/config/mf-layer.xml
 

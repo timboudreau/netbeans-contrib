@@ -928,20 +928,31 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.api.vcs.commands.AddCommand</value>
         </property>
       </command>
+      <command name="ADD_ALL_CMD">
+	<property name="exec">
+	  <value>$[? FILES_IS_FOLDER] [${RUNCDF_NMK}] [${RUN}] ${QUOTE}${VSSCMD}${QUOTE} add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} $[? FILES_IS_FOLDER] [$[? IS_RECURSIVE] [-R] [-R-] * {INSERT_OUTPUT_OF_DIR_FOLDERS(0)}] [${QFILES}] ${NUR}</value>
+	</property>
+        <property name="preCommands">
+          <value>$[? FILES_IS_FOLDER] [$[? CACHED_ISLOCAL] [CREATE_CMD] []] []</value>
+        </property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+      </command>
       <command name="ADD_ALL" displayName="ResourceMsg(VSS_ADD_ALL)">
         <property name="labelMnemonic">
           <value>ResourceMsg(VSS_ADD_ALL_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUNCDF_NMK} ${QUOTE}${VSSCMD}${QUOTE} add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} ${RECURSIVE} * {INSERT_OUTPUT_OF_DIR_FOLDERS(0)} ${NUR}</value>
+          <value>org.netbeans.modules.vcs.profiles.commands.SharableFilesCommand.class $[? IS_RECURSIVE] [] [-l] ADD_ALL_CMD CREATE_CMD</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
-         </property>
+        </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_ADD)))
                  PROMPT_FOR_FILE(DESCRIPTION_FILE, ResourceMsg(COMMAND_VSS_ADD_Reason),"",ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Reason_mnc)))
-                 ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_ADD_ALL_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_ALL_Rec_mnc)), "-R", "-R-")
+                 ASK_FOR(IS_RECURSIVE, ResourceMsg(COMMAND_VSS_ADD_ALL_Rec), "true", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_ALL_Rec_mnc)), "true", "")
                  PROMPT_FOR_EXPERT(ADD_OPTIONS, ResourceMsg(COMMAND_VSS_ADD_Options), "", ACCESSIBILITY(MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_ADD_Options_mnc)))
           </value>
 	</property>
@@ -964,13 +975,10 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
         <property name="refreshRecursivelyPatternUnmatched">
-          <value> -R- </value>
+          <value> -l </value>
         </property>
         <property name="concurrentExec">
-          <value>16</value> <!-- EXEC_SERIAL_ALL -->
-        </property>
-        <property name="preCommands">
-          <value>$[? CACHED_ISLOCAL] [CREATE_CMD] []</value>
+          <value>-1</value> <!-- EXEC_SERIAL_INERT -->
         </property>
         <property name="notificationSuccessMsg">
           <value>ResourceMsg(NOTIFICATION_VSS_ADD_ALL_Success)</value>

@@ -30,6 +30,7 @@ Microsystems, Inc. All Rights Reserved.
       <pathelement location="${openide/io.dir}/${nb.modules.dir}/org-openide-io.jar"/>
       <pathelement location="${vcscore.dir}/${nb.modules.dir}/org-netbeans-modules-vcscore.jar"/>
       <pathelement location="${diff.dir}/${nb.modules.dir}/diff.jar"/>
+      <pathelement location="${projects/queries.dir}/${nb.modules.dir}/org-netbeans-modules-queries.jar"/>
     </path>
   </target>
 
