@@ -12,28 +12,13 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <project default="all" name="Build Differences Between NetBeans APIs">
-    <property name="new-nb" location="sources/new" />
+    <property name="new-nb" location="../.." />
     <property name="new-javadoc" location="${new-nb}/nbbuild/modules_javadoc" />
     <property name="old-nb" location="sources/old" /> 
     <property name="old-javadoc" location="${old-nb}/nbbuild/modules_javadoc" />
     
     <property name="netbeans.no.pre.unscramble" value="true" />
     
-    <target name="new-co" description="Checkouts the sources for the current version" >
-        <cvs 
-            dest="${new-nb}"
-            cvsRoot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
-            compressionlevel="3" 
-            package="nbbuild diff editor libs xml autoupdate java/srcmodel java/arch debuggercore/oldapi debuggercore/arch"
-        />
-        <cvs 
-            dest="${new-nb}"
-            cvsRoot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
-            compressionlevel="3" 
-            tag="winsys_29836"
-            package="openide core"
-        />
-    </target>
     
     <target name="old-co" description="Checkouts the sources for the old version" >
         <cvs 
@@ -123,11 +108,12 @@ Microsystems, Inc. All Rights Reserved.
         <copy file="list.html" tofile="diff/index.html" />  
     </target>
     
-    <target name="all" depends="new-co, old-co, new-javadoc, old-javadoc, api-list, diff" />
+    <target name="all" depends="old-co, new-javadoc, old-javadoc, api-list, diff" />
 
     <target name="clean" >
         <delete dir="diff" />
         <delete file="list.html" />
+        <delete dir="sources/new" />
         <ant dir="${new-nb}/nbbuild" target="clean" />
         <!-- do real clean due to patching -->
         <ant dir="${old-nb}/nbbuild" target="real-clean" />
