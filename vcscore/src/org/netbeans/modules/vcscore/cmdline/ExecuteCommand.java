@@ -462,7 +462,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //System.out.println("ExecuteCommand.run(): exec = "+exec+"\npreferredExec = "+preferredExec);
         if (preferredExec != null) exec = preferredExec;
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
-        if (exec == null) return ; // Silently ignore null exec
+        if (exec == null || exec.trim().length() == 0) return ; // Silently ignore null or empty exec
         exec = Variables.expand(vars, exec, true);
         exec = exec.trim();
         
