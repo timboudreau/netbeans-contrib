@@ -90,6 +90,8 @@ public abstract class TaskListView extends TopComponent
 
     protected static int TOOLBAR_HEIGHT_ADJUSTMENT = -2;
 
+    public static final String DEFAULT_FILTER_NAME = NbBundle.getMessage(TaskListView.class, "default-filter-name");
+
     /**
      * Registers a view
      *
@@ -421,6 +423,13 @@ public abstract class TaskListView extends TopComponent
 // 	    }
 // 	  });     
 	filters.setActive(null);
+
+	// create a default filter if there is none
+	if (filters.size() == 0) {
+	  Filter f = createFilter();
+	  f.setName(DEFAULT_FILTER_NAME);
+	  filters.add(f);
+	}
       
       } catch (ClassNotFoundException e) {
 	ErrorManager.getDefault().notify(e);
