@@ -474,7 +474,12 @@ public class VcsMountFromTemplateAction extends NodeAction {
         private void doSetKeys () {
             rootFolder = wizard.getTemplatesFolder ();
             if (rootFolder.isValid()) {
-                setKeys (rootFolder.getNodeDelegate ().getChildren ().getNodes (true));
+                DataObject[] dobjs = rootFolder.getChildren();
+                Node[] nodes = new Node[dobjs.length];
+                for (int i = 0; i < dobjs.length; i++) {
+                    nodes[i] = dobjs[i].getNodeDelegate();
+                }
+                setKeys (nodes);
             } else {
                 setKeys(new Object[0]);
             }
