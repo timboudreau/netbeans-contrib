@@ -1109,10 +1109,27 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //System.out.println("fileSystem Removed("+this+")");
         commandsPool.cleanup();
         super.removeNotify();
-        if (isCreateVersioningSystem()) {
+        if (versioningSystem != null) {
             org.openide.util.RequestProcessor.postRequest(new Runnable() {
                 public void run() {
                     VersioningRepository.getRepository().removeVersioningSystem(versioningSystem);
+                    try {
+                        VcsFileSystem.this.runAtomicAction(new FileSystem.AtomicAction() {
+                            public void run() {
+                                if (versioningFolderListeners != null) {
+                                    for (Iterator it = versioningFolderListeners.keySet().iterator(); it.hasNext(); ) {
+                                        FileObject fo = (FileObject) it.next();
+                                        FileChangeListener changeL = (FileChangeListener) versioningFolderListeners.get(fo);
+                                        fo.removeFileChangeListener(changeL);
+                                    }
+                                    versioningFolderListeners = null;
+                                }
+                                versioningSystem = null;
+                            }
+                        });
+                    } catch (IOException exc) {
+                        TopManager.getDefault().notifyException(exc);
+                    }
                 }
             });
         }
