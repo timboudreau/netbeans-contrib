@@ -126,7 +126,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
 
         setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(10, 10, 10, 10)));
         setMinimumSize(new java.awt.Dimension(460, 164));
-        setPreferredSize(new java.awt.Dimension(750, 260));
+        setPreferredSize(new java.awt.Dimension(500, 330));
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
         tableLabel.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_lblVersionedDirs_mnc").charAt(0));
