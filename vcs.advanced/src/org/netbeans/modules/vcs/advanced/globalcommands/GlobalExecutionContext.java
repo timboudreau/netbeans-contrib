@@ -44,6 +44,7 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 import org.netbeans.modules.vcs.advanced.Profile;
+import org.netbeans.modules.vcs.advanced.variables.Condition;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 
 /**
@@ -195,7 +196,26 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
         if (commandsRoot == null) {
             Profile profile = (Profile) profileRef.get();
             if (profile != null) {
-                profile.preLoadContent(false, false, false, true);
+                if (variables == null) {
+                    // It's too expensive to load all variables, obtaining of commands must be fast,
+                    // because a GUI menu is created from them. Therefore conditions used in
+                    // global commands are resolved according to defined conditions, not variables.
+                    // This should be sufficient anyway.
+                    profile.preLoadContent(true, false, false, true);
+                    Condition[] conditions = profile.getConditions();
+                    if (conditions != null) {
+                        for (int i = 0; i < conditions.length; i++) {
+                            String name = conditions[i].getName();
+                            if (conditions[i].isSatisfied(variablesByNames)) {
+                                variablesByNames.put(name, Boolean.TRUE.toString());
+                            } else {
+                                variablesByNames.remove(name);
+                            }
+                        }
+                    }
+                } else {
+                    profile.preLoadContent(false, false, false, true);
+                }
                 setCommands(copySharedCommands(profile.getGlobalCommands().getCommands(variablesByNames)));
             }
         }
