@@ -25,7 +25,7 @@ import com.netbeans.ide.src.*;
 * This class is final only for performance reasons,
 * can be happily unfinaled if desired.
 *
-* @author Dafe Simonek
+* @author Dafe Simonek, Jan Jancura
 */
 public final class SourceElementImpl extends MemberElementImpl
                                      implements SourceElement.Impl {
@@ -35,11 +35,6 @@ public final class SourceElementImpl extends MemberElementImpl
 
   /* Soft reference to the class element */
   private SoftReference topClass;
-
-  /** Soft reference to the map of class elements of
-  * all classes and interfaces declared in the hierarchy tree under
-  * the class which we are representing */
-  private SoftReference classesMap;
 
   /** Soft ref to the map holding all inners */
   private SoftReference allClasses;
@@ -97,26 +92,14 @@ public final class SourceElementImpl extends MemberElementImpl
   * @return the element or null if such class does not exist
   */
   public ClassElement getClass (Identifier name) {
-    Map allClassesMap = (Map)allClasses.get();
-    if (allClassesMap == null) {
-      // soft ref null, we must recreate
-      allClassesMap = createClassesMap();
-      allClasses = new SoftReference(allClassesMap);
-    }
-    return (ClassElement)allClassesMap.get(name);
+    return (ClassElement)getAllClassesMap ().get(name);
   }
 
   /** @return Top level class which we are asociated with
   * and all its innerclasses and innerinterfaces.
   */
   public ClassElement[] getAllClasses () {
-    Map allClassesMap = (Map)allClasses.get();
-    if (allClassesMap == null) {
-      // soft ref null, we must recreate
-      allClassesMap = createClassesMap();
-      allClasses = new SoftReference(allClassesMap);
-    }
-    return (ClassElement[])allClassesMap.values().toArray();
+    return (ClassElement[])getAllClassesMap ().values().toArray (new ClassElement[0]);
   }
 
   /** @return Always returns STATUS_OK, 'cause we always have the class...
@@ -145,6 +128,20 @@ public final class SourceElementImpl extends MemberElementImpl
       topClass = new SoftReference(result);
     }
     return result;
+  }
+
+  /** Returns map with all innerclasses.
+  * @return map with all innerclasses.
+  */
+  private Map getAllClassesMap () {
+    Map allClassesMap = (allClasses == null) ? null : (Map)allClasses.get();
+    if (allClassesMap == null) {
+      // soft ref null, we must recreate
+      allClassesMap = createClassesMap();
+      // remember it, please ...
+      allClasses = new SoftReference(allClassesMap);
+    }
+    return allClassesMap;
   }
 
   /** Recursively creates the map of all classes.
@@ -184,6 +181,7 @@ public final class SourceElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  5    src-jtulach1.4         4/1/99   Jan Jancura     Object browser support
 *  4    src-jtulach1.3         3/26/99  David Simonek   properties, actions 
 *       completed, more robust now
 *  3    src-jtulach1.2         2/17/99  Petr Hamernik   serialization changed.
