@@ -104,6 +104,9 @@ public class CORBASupport {
     public static final String CANT_FIND_IMPLS = CORBASupport.bundle.getString 
 	("CTL_CANT_FIND_IMPLS");
 
+    public static final String WAIT =  CORBASupport.bundle.getString
+	("CTL_WAIT");
+
     /** constant for idl extension */
     public static final String IDL_EXT = "idl";
 

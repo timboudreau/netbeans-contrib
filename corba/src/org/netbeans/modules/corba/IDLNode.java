@@ -55,18 +55,18 @@ public class IDLNode extends DataNode {
     public static final String IDL_ERROR_ICON =
         "org/netbeans/modules/corba/settings/idl-error";
 
-    IDLDocumentChildren children;
-    IDLDataObject ido;
+    IDLDocumentChildren _M_children;
+    IDLDataObject _M_ido;
 
     /** Default constructor, constructs node */
-    public IDLNode (DataObject dataObject) throws Exception {
+    public IDLNode (DataObject __data_object) throws Exception {
         //super(dataObject, Children.LEAF);
         //try {
-        super (dataObject, new IDLDocumentChildren ((IDLDataObject) dataObject));
-        ido = (IDLDataObject)dataObject;
-        setIconBase (IDL_ICON_BASE);
-        children = (IDLDocumentChildren) getChildren ();
-        children.setNode (this);
+        super (__data_object, new IDLDocumentChildren ((IDLDataObject) __data_object));
+        _M_ido = (IDLDataObject)__data_object;
+        this.setIconBase (IDL_ICON_BASE);
+        _M_children = (IDLDocumentChildren)this.getChildren ();
+        _M_children.setNode (this);
         //children.startParsing ();
         //} catch (ParseException e) {
         //setIconBase(IDL_ERROR_ICON);
@@ -88,13 +88,14 @@ public class IDLNode extends DataNode {
         return true;
     }
 
-    protected IDLDataObject getIDLDataObject () {
-        return (IDLDataObject) getDataObject ();
+    public IDLDataObject getIDLDataObject () {
+        return (IDLDataObject) this.getDataObject ();
     }
 
     public void update () {
-        children.setSrc (ido.getSources ());
-        children.createKeys ();
+	//System.out.println ("IDLNode::update ();");
+        _M_children.setSrc (_M_ido.getSources ());
+        _M_children.createKeys ();
     }
 
     // for better debuging

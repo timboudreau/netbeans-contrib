@@ -31,6 +31,7 @@ import java.io.InputStream;
 import org.openide.TopManager;
 
 import org.openide.cookies.OpenCookie;
+import org.openide.cookies.CloseCookie;
 import org.openide.cookies.CompilerCookie;
 import org.openide.cookies.LineCookie;
 
@@ -100,15 +101,22 @@ public class IDLDataObject extends MultiDataObject {
     //public static final boolean DEBUG = true;
     private static final boolean DEBUG = false;
 
-    private static final int STATUS_OK = 0;
-    private static final int STATUS_ERROR = 1;
+    public static final int STATUS_OK = 0;
+    public static final int STATUS_ERROR = 1;
+    public static final int STATUS_PARSING = 2;
+    public static final int STATUS_NOT_PARSED = 3;
 
     private static final int STYLE_NOTHING = 0;
     private static final int STYLE_FIRST_LEVEL = 1;
     private static final int STYLE_FIRST_LEVEL_WITH_NESTED_TYPES = 2;
     private static final int STYLE_ALL = 3;
 
-    private int status;
+    private static RequestProcessor _S_request_processor 
+	= new RequestProcessor ("CORBA - IDL Parser");
+    private static RequestProcessor _S_request_processor2 
+	= new RequestProcessor ("CORBA - Implementation Generator");
+
+    private int _M_status;
     private IDLElement _M_src;
 
     //private Vector idlConstructs;
@@ -116,9 +124,9 @@ public class IDLDataObject extends MultiDataObject {
     private Hashtable _M_possible_names;
 
     private MultiFileLoader idl_loader;
-    private IDLParser parser;
+    //private IDLParser _M_parser;
 
-    private IDLNode idlNode;
+    private IDLNode _M_idl_node;
 
     private ImplGenerator generator;
 
@@ -142,6 +150,7 @@ public class IDLDataObject extends MultiDataObject {
         if (DEBUG)
             System.out.println ("IDLDataObject::IDLDataObject (...)");
         idl_loader = loader;
+	_M_status = STATUS_NOT_PARSED;
         // use editor support
         MultiDataObject.Entry entry = getPrimaryEntry ();
         CookieSet cookies = getCookieSet ();
@@ -208,20 +217,23 @@ public class IDLDataObject extends MultiDataObject {
     protected Node createNodeDelegate () {
         //return new DataNode (this, Children.LEAF);
         if (DEBUG)
-            System.out.println ("createNodeDelegate");
+	    System.out.println ("createNodeDelegate");
         try {
-            idlNode = new IDLNode (this);
-            idlNode.update ();
-            if (status == STATUS_ERROR) {
+            _M_idl_node = new IDLNode (this);
+            //if (_M_status == STATUS_OK) {
+	    // parser is quicker - so we have parsed idl file
+	    _M_idl_node.update ();
+	    //}
+            if (_M_status == STATUS_ERROR) {
                 if (DEBUG)
                     System.out.println ("set error icon...");
-                idlNode.setIconBase (IDLNode.IDL_ERROR_ICON);
+                _M_idl_node.setIconBase (IDLNode.IDL_ERROR_ICON);
             }
         } catch (Exception e) {
             if (Boolean.getBoolean ("netbeans.debug.exceptions"))
 		e.printStackTrace ();
         }
-        return idlNode;
+        return _M_idl_node;
     }
 
     /** Help context for this object.
@@ -229,6 +241,10 @@ public class IDLDataObject extends MultiDataObject {
      */
     public HelpCtx getHelpCtx () {
         return HelpCtx.DEFAULT_HELP;
+    }
+
+    public int getStatus () {
+	return _M_status;
     }
 
     public void openAtPosition (int line_pos, int offset) {
@@ -748,8 +764,15 @@ public class IDLDataObject extends MultiDataObject {
         */
     }
     public void startParsing () {
-        parse ();
-
+	if (DEBUG)
+	    System.out.println ("IDLDataObject::startParsing ();");
+	_M_status = STATUS_PARSING;
+	this.firePropertyChange ("_M_status", null, null);
+        _S_request_processor.post (new Runnable () {
+		public void run () {
+		    parse ();
+		}
+	    }, 0, Thread.MIN_PRIORITY);
         //if (src != null)
         //  src.xDump (" ");
         /*
@@ -758,56 +781,44 @@ public class IDLDataObject extends MultiDataObject {
           else
           setKeys (new Vector ());
         */
-    }
+	if (DEBUG)
+	    System.out.println ("IDLDataObject::startParsing (); --> END");
+    }    
 
     public void parse () {
+	if (DEBUG)
+	    System.out.println ("IDLDataObject::parse () of " + this.getPrimaryFile ());
 	InputStream __stream = null;
         try {
 	    __stream = this.getPrimaryFile ().getInputStream ();
-            parser = new IDLParser (getPrimaryFile ().getInputStream ());
-            if (DEBUG)
-                System.out.println ("parsing of " + getPrimaryFile ().getName ());
-            _M_src = (IDLElement)parser.Start ();
+            IDLParser __parser = new IDLParser (getPrimaryFile ().getInputStream ());
+            //if (DEBUG)
+	    if (DEBUG)
+		System.out.println ("parsing of " + getPrimaryFile ().getName ());
+            _M_src = (IDLElement)__parser.Start ();
             //_M_src.xDump (" ");
             _M_src.setDataObject (this);
-            if (idlNode != null)
-                idlNode.setIconBase (IDLNode.IDL_ICON_BASE);
-            status = STATUS_OK;
-            if (DEBUG)
+            _M_status = STATUS_OK;	    
+	    if (DEBUG)
                 _M_src.dump ("");
             if (DEBUG)
-                System.out.println ("parse OK :-)");
+		System.out.println ("parse OK :-)");
         } catch (ParseException e) {
-            if (DEBUG) {
-                System.out.println ("parse exception");
-                e.printStackTrace ();
-            }
-            if (idlNode != null) {
-                idlNode.setIconBase (IDLNode.IDL_ERROR_ICON);
-            } else {
-                if (DEBUG)
-                    System.out.println ("can't setup error icon!");
-            }
-            status = STATUS_ERROR;
-            _M_src = null;
+            if (DEBUG)
+		System.out.println ("parse exception");
+            _M_status = STATUS_ERROR;
         } catch (TokenMgrError e) {
-            if (idlNode != null) {
-                idlNode.setIconBase (IDLNode.IDL_ERROR_ICON);
-            } else {
-                if (DEBUG)
-                    System.out.println ("can't setup error icon!");
-            }
-            if (DEBUG) {
-                System.out.println ("parser error!!!");
-                e.printStackTrace ();
-            }
-            status = STATUS_ERROR;
-            _M_src = null;
+            if (DEBUG)
+		System.out.println ("parser error!!!");
+            _M_status = STATUS_ERROR;
         } catch (java.io.FileNotFoundException e) {
-            // e.printStackTrace ();
+            if (Boolean.getBoolean ("netbeans.debug.exceptions")) {
+		e.printStackTrace ();
+	    }
         } catch (Exception ex) {
-            TopManager.getDefault ().notifyException (ex);
-	    //System.out.println ("IDLParser exception in " + this.getPrimaryFile ());
+            //TopManager.getDefault ().notifyException (ex);
+	    if (DEBUG)
+		System.out.println ("IDLParser exception in " + this.getPrimaryFile ());
             if (Boolean.getBoolean ("netbeans.debug.exceptions"))
 		ex.printStackTrace ();
         } finally {
@@ -817,6 +828,28 @@ public class IDLDataObject extends MultiDataObject {
 	    } catch (IOException __ex) {
 	    }
 	}
+	if (DEBUG)
+	    System.out.println ("status: " + _M_status);
+	if (_M_idl_node != null) {
+	    if (_M_status == STATUS_OK) {
+		if (DEBUG)
+		    System.out.println ("STATUS_OK");
+		_M_idl_node.setIconBase (IDLNode.IDL_ICON_BASE);
+	    }
+	    if (_M_status == STATUS_ERROR) {
+		if (DEBUG)
+		    System.out.println ("STATUS_ERROR");
+                _M_idl_node.setIconBase (IDLNode.IDL_ERROR_ICON);
+		_M_src = null;
+	    }
+	    
+	    _M_idl_node.update ();
+	} 
+	else {
+	    if (DEBUG)
+		System.out.println ("idl node is null");
+	}
+	this.firePropertyChange ("_M_status", null, null);
     }
 
     public IDLElement getSources () {
@@ -830,8 +863,8 @@ public class IDLDataObject extends MultiDataObject {
             //IDLDataObject.this.handleFindDataObject (
             //IDLDataObject.this.startParsing ();
             IDLDataObject.this.update ();
-	    if (IDLDataObject.this.idlNode != null)
-		IDLDataObject.this.idlNode.update ();
+	    if (IDLDataObject.this._M_idl_node != null)
+		IDLDataObject.this._M_idl_node.update ();
             CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                        (CORBASupportSettings.class, true);
 	    if (css.getActiveSetting ().getSynchro () == CORBASupport.SYNCHRO_ON_SAVE)
@@ -910,7 +943,7 @@ public class IDLDataObject extends MultiDataObject {
         }
 
         if (DEBUG)
-            System.out.println ("generating of idl implemenations...");
+	    System.out.println ("generating of idl implemenations...");
         generator = new ImplGenerator (this);
         generator.setSources (getSources ());
 	// this can be done in system RequestProcessor
@@ -918,16 +951,18 @@ public class IDLDataObject extends MultiDataObject {
 	synchronized (this) {
 	    if (!_M_generation) {
 		_M_generation = true;
-		RequestProcessor.postRequest (new Runnable () {
+		//RequestProcessor.postRequest (new Runnable () {
+		_S_request_processor2.post (new Runnable () {
 			public void run () {
 			    generator.generate ();
 			    _M_generation = false;
 			}
-		    });
+		    }, 0, Thread.MIN_PRIORITY);
 	    }
 	    else {
 		//System.out.println ("can't generate while generating!");
-		TopManager.getDefault ().notify (new NotifyDescriptor.Message ("can't generate while generating!"));
+		TopManager.getDefault ().notify 
+		    (new NotifyDescriptor.Message (CORBASupport.CANT_GENERATE));
 	    }
 	}
     }
@@ -947,7 +982,14 @@ public class IDLDataObject extends MultiDataObject {
 	return _M_orb_for_compilation;
     }
    
-    
+    public RequestProcessor getGeneratorProcessor () {
+	return _S_request_processor2;
+    }
+
+    public RequestProcessor getParserProcessor () {
+	return _S_request_processor;
+    }
+
     protected FileObject handleMove (DataFolder __dfolder) throws IOException {
 	if (DEBUG)
 	    System.out.println ("IDLDataObject::handleMove (" + __dfolder + ");");
@@ -958,6 +1000,16 @@ public class IDLDataObject extends MultiDataObject {
 	//__pfile.addFileChangeListener (new FileListener ());
 	__result.addFileChangeListener (new FileListener ());
 	return __result;
+    }
+
+    protected void handleDelete () throws IOException {
+	if (DEBUG)
+	    System.out.println ("IDLDataObject::handleDelete ();");
+	CloseCookie __cookie = (CloseCookie)this.getCookie (CloseCookie.class);
+	if (__cookie.close ()) {
+	    // user really want to close this data object
+	    super.handleDelete ();
+	}
     }
 
     public Set files () {
@@ -975,35 +1027,4 @@ public class IDLDataObject extends MultiDataObject {
     }
 
 }
-
-/*
- * <<Log>>
- *  22   Gandalf   1.21        2/8/00   Karel Gardas    
- *  21   Gandalf   1.20        11/27/99 Patrik Knakal   
- *  20   Gandalf   1.19        11/9/99  Karel Gardas    - better exception 
- *       handling for CORBA 2.3 types
- *  19   Gandalf   1.18        11/4/99  Karel Gardas    - update from CVS
- *  18   Gandalf   1.17        11/4/99  Karel Gardas    update from CVS
- *  17   Gandalf   1.16        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  16   Gandalf   1.15        10/5/99  Karel Gardas    update from CVS
- *  15   Gandalf   1.14        10/1/99  Karel Gardas    updates from CVS
- *  14   Gandalf   1.13        8/7/99   Karel Gardas    changes in code which 
- *       hide generated files
- *  13   Gandalf   1.12        8/3/99   Karel Gardas    
- *  12   Gandalf   1.11        7/10/99  Karel Gardas    
- *  11   Gandalf   1.10        6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  10   Gandalf   1.9         6/4/99   Karel Gardas    
- *  9    Gandalf   1.8         5/28/99  Karel Gardas    
- *  8    Gandalf   1.7         5/28/99  Karel Gardas    
- *  7    Gandalf   1.6         5/28/99  Karel Gardas    
- *  6    Gandalf   1.5         5/22/99  Karel Gardas    
- *  5    Gandalf   1.4         5/15/99  Karel Gardas    
- *  4    Gandalf   1.3         5/8/99   Karel Gardas    
- *  3    Gandalf   1.2         4/29/99  Ian Formanek    Fixed to compile
- *  2    Gandalf   1.1         4/24/99  Karel Gardas    
- *  1    Gandalf   1.0         4/23/99  Karel Gardas    
- * $
- */
 

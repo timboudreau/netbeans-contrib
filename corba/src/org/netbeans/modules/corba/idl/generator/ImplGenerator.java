@@ -23,6 +23,8 @@ import java.text.MessageFormat;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
@@ -31,6 +33,7 @@ import org.openide.src.*;
 import org.openide.src.nodes.*;
 import org.openide.*;
 import org.openide.nodes.*;
+import org.openide.util.RequestProcessor;
 
 import org.netbeans.modules.java.JavaConnections;
 import org.netbeans.modules.java.JavaDataObject;
@@ -45,14 +48,14 @@ import org.netbeans.modules.corba.*;
  * @author Karel Gardas
  */
 
-public class ImplGenerator {
+public class ImplGenerator implements PropertyChangeListener {
 
     //public static final boolean DEBUG = true;
     private static final boolean DEBUG = false;
 
 
     private boolean showMessage; // Fix of showing message when the sync is disabled
-    private IDLElement src;
+    private IDLElement _M_src;
 
     private String IMPLBASE_IMPL_PREFIX;
     private String IMPLBASE_IMPL_POSTFIX;
@@ -69,7 +72,7 @@ public class ImplGenerator {
 
     private int where_generate = IN_IDL_PACKAGE;
 
-    private IDLDataObject ido;
+    private IDLDataObject _M_ido;
 
     private List _M_generated_impls;
 
@@ -77,12 +80,15 @@ public class ImplGenerator {
     // this variable indicate if in calling of hasTemplateParent is template type or not
     // => it must be setuped to
 
+    private boolean _M_open = true;
 
     CORBASupportSettings css;
 
+    private boolean _M_listen = false;
+
     public ImplGenerator (IDLDataObject _do) {
 
-        ido = _do;
+        _M_ido = _do;
 
         css = (CORBASupportSettings) CORBASupportSettings.findObject
               (CORBASupportSettings.class, true);
@@ -123,7 +129,15 @@ public class ImplGenerator {
     }
 
     public void setSources (IDLElement e) {
-        src = e;
+        _M_src = e;
+    }
+
+    public void setOpen (boolean __value) {
+	_M_open = __value;
+    }
+
+    public boolean getOpen () {
+	return _M_open;
     }
 
     public String simple2java (IDLType idl_type) {
@@ -1754,8 +1768,10 @@ public class ImplGenerator {
         //System.out.println ("methods: ");
         MethodElement[] methods = clazz.getMethods ();
         for (int i=0; i<methods.length; i++) {
-            System.out.println (i + ". " + methods[i]);
-            System.out.println ("id: " + methods[i].getName ());
+            if (DEBUG) {
+		System.out.println (i + ". " + methods[i]);
+		System.out.println ("id: " + methods[i].getName ());
+	    }
             if (id.equals (methods[i].getName ())) {
                 exist_id = true;
                 MethodParameter[] params = methods[i].getParameters ();
@@ -1792,7 +1808,7 @@ public class ImplGenerator {
     }
 
     public void attribute2java (AttributeElement attr, ClassElement clazz) {
-        String _package = ido.getPrimaryFile ().getParent ().getPackageName ('.');
+        String _package = _M_ido.getPrimaryFile ().getParent ().getPackageName ('.');
         InterfaceElement _interface = (InterfaceElement)attr.getParent ();
         Type attr_type = type2java (attr.getType (), Parameter.IN, _package, _interface);
         if (DEBUG)
@@ -1842,7 +1858,7 @@ public class ImplGenerator {
     public void operation2java (OperationElement operation, ClassElement clazz) {
         if (DEBUG)
             System.out.println ("operation2java");
-        String _package = ido.getPrimaryFile ().getParent ().getPackageName ('.');
+        String _package = _M_ido.getPrimaryFile ().getParent ().getPackageName ('.');
         InterfaceElement _interface = (InterfaceElement)operation.getParent ();
         Type rettype = type2java (operation.getReturnType (), Parameter.IN, _package, _interface);
         if (DEBUG) {
@@ -1971,13 +1987,13 @@ public class ImplGenerator {
         if (DEBUG)
             System.out.println ("interface2java: " + element.getName ());
         if (DEBUG)
-            System.out.println ("name: " + ido.getPrimaryFile ().getName ());
+            System.out.println ("name: " + _M_ido.getPrimaryFile ().getName ());
 
 
         String impl_name = "";
         String super_name = "";
         String modules = modules2package (element);
-        String _package = ido.getPrimaryFile ().getParent ().getPackageName ('.');
+        String _package = _M_ido.getPrimaryFile ().getParent ().getPackageName ('.');
 	
         if (DEBUG) {
             System.out.println ("modules:>" + modules + "<");
@@ -2060,7 +2076,7 @@ public class ImplGenerator {
         }
             */
 
-            FileObject folder = ido.getPrimaryFile ().getParent ();
+            FileObject folder = _M_ido.getPrimaryFile ().getParent ();
             FileObject impl;
 
             if ((impl = folder.getFileObject (impl_name, "java")) != null) {
@@ -2079,17 +2095,21 @@ public class ImplGenerator {
                 }
 
 		if (css.getActiveSetting ().getSynchro () != CORBASupport.SYNCHRO_DISABLE) {
-		    javax.swing.SwingUtilities.invokeLater (new Runnable () {
-			    public void run () {
-				List changes = new LinkedList ();
-				JavaConnections.compareMethods 
-				    (dest, clazz, changes, "Add Method {0}",
-				     "Update Method {0}");
-				if (changes.size () > 0)
-				    JavaConnections.showChangesDialog 
-					(changes, (byte)JavaConnections.TYPE_ALL);
-			    }
-			});
+		    /*
+		      javax.swing.SwingUtilities.invokeLater (new Runnable () {
+		      public void run () {
+		    */
+		    List changes = new LinkedList ();
+		    JavaConnections.compareMethods 
+			(dest, clazz, changes, "Add Method {0}",
+			 "Update Method {0}");
+		    if (changes.size () > 0)
+			JavaConnections.showChangesDialog 
+			    (changes, (byte)JavaConnections.TYPE_ALL);
+		    /*
+		      }
+		      });
+		    */
                 }
 		else {
 		    this.showMessage = false;
@@ -2112,7 +2132,7 @@ public class ImplGenerator {
 
                 // add comment
                 printer.println ("/*\n * This file was generated from "
-                                 + ido.getPrimaryFile ().getName () + ".idl\n"
+                                 + _M_ido.getPrimaryFile ().getName () + ".idl\n"
                                  + " */");
 		
                 if (_package.length() > 0) // If it isn't in file system root
@@ -2139,7 +2159,7 @@ public class ImplGenerator {
         if (DEBUG) {
             System.out.println ("generate :-))");
             try {
-                src.dump ("");
+                _M_src.dump ("");
             } catch (NullPointerException ex) {
                 ex.printStackTrace ();
             }
@@ -2147,14 +2167,39 @@ public class ImplGenerator {
 	
 	_M_generated_impls = new LinkedList ();
 
-        if (src == null) {
-            TopManager.getDefault ().setStatusText ("Parse Error in " + ido.getPrimaryFile ().getName ()
-                                                    + ".");
+        //if (_M_src == null) {
+	if (DEBUG)
+	    System.out.println ("status = " + _M_ido.getStatus ());
+	if (_M_ido.getStatus () == IDLDataObject.STATUS_ERROR) {
+            TopManager.getDefault ().setStatusText 
+		("Parse Error in " + _M_ido.getPrimaryFile ().getName () + ".");
+	    if (_M_listen) {
+		_M_ido.removePropertyChangeListener (this);
+		_M_listen = false;
+	    }
+            return;
+        }
+	if (_M_ido.getStatus () == IDLDataObject.STATUS_NOT_PARSED) {
+            TopManager.getDefault ().setStatusText 
+		("Waiting For Idl Parser...");
+	    if (!_M_listen) {
+		_M_ido.addPropertyChangeListener (this);
+		_M_listen = true;
+	    }
+            return;
+        }
+	if (_M_ido.getStatus () == IDLDataObject.STATUS_PARSING) {
+            TopManager.getDefault ().setStatusText 
+		("Parsing " + _M_ido.getPrimaryFile ().getName () + "...");
+	    if (!_M_listen) {
+		_M_ido.addPropertyChangeListener (this);
+		_M_listen = true;
+	    }
             return;
         }
 
-        //Vector members = src.getMembers ();     // update for working with modules :-))
-        Vector members = getInterfaces (src.getMembers ());
+        //Vector members = _M_src.getMembers ();     // update for working with modules :-))
+        Vector members = this.getInterfaces (_M_src.getMembers ());
         for (int i=0; i<members.size (); i++) {
             if (members.elementAt (i) instanceof InterfaceElement)
                 try {
@@ -2171,17 +2216,20 @@ public class ImplGenerator {
 		}
         }
 
-	// open all generated classes in IDE Editor
-	Iterator __iterator = _M_generated_impls.iterator ();
-	while (__iterator.hasNext ()) {
-	    FileObject __fo = null;
-	    try {
-		__fo = (FileObject)__iterator.next ();
-		JavaDataObject __jdo = (JavaDataObject)DataObject.find (__fo);
-		OpenCookie __cookie = (OpenCookie)__jdo.getCookie (OpenCookie.class);
-		__cookie.open ();
-	    } catch (DataObjectNotFoundException __ex) {
-		System.out.println ("can't find " + __fo.toString ());
+	if (this.getOpen ()) {
+	    // open all generated classes in IDE Editor
+	    Iterator __iterator = _M_generated_impls.iterator ();
+	    while (__iterator.hasNext ()) {
+		FileObject __fo = null;
+		try {
+		    __fo = (FileObject)__iterator.next ();
+		    JavaDataObject __jdo = (JavaDataObject)DataObject.find (__fo);
+		    OpenCookie __cookie = (OpenCookie)__jdo.getCookie (OpenCookie.class);
+		    __cookie.open ();
+		} catch (DataObjectNotFoundException __ex) {
+		    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+			System.out.println ("can't find " + __fo.toString ());
+		}
 	    }
 	}
 
@@ -2190,12 +2238,17 @@ public class ImplGenerator {
 		    public void run () {
 			TopManager.getDefault ().setStatusText 
 			    ("Successfully Generated Implementation Classes for "
-			     + ido.getPrimaryFile ().getName () + ".");
+			     + _M_ido.getPrimaryFile ().getName () + ".");
 		    }
 		});
 	}
 	else {
 	    TopManager.getDefault ().setStatusText ("Idl synchronization for this project is disabled.");
+	}
+
+	if (_M_listen) {
+	    _M_ido.removePropertyChangeListener (this);
+	    _M_listen = false;
 	}
 
     }
@@ -2225,32 +2278,19 @@ public class ImplGenerator {
 
     }
 
-
-    public static void main (String[] args) {
-        try {
-            IDLParser parser = new IDLParser (new FileInputStream (args[0]));
-
-            IDLElement src = (IDLElement)parser.Start ();
-
-            ImplGenerator generator = new ImplGenerator ();
-            generator.setSources (src);
-            generator.generate ();
-
-        } catch (Exception e) {
-            e.printStackTrace ();
-        }
-
-
+    
+    public void propertyChange (PropertyChangeEvent __event) {
+	if (DEBUG)
+	    System.out.println ("property change: " + __event.getPropertyName ());
+	if (__event.getPropertyName ().equals ("_M_status")) {
+	    _M_src = _M_ido.getSources ();
+	    RequestProcessor __processor = _M_ido.getGeneratorProcessor ();
+	    __processor.post (new Runnable () {
+		    public void run () {
+			ImplGenerator.this.generate ();
+		    }
+		});
+	}
     }
 
 }
-
-
-/*
- * $Log
- * $
- */
-
-
-
-
