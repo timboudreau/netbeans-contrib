@@ -316,6 +316,15 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
     
+    private void setNotModifiableStatusesFromVars() {
+        VcsConfigVariable var = (VcsConfigVariable) variablesByName.get("NOT_MODIFIABLE_FILE_STATUSES");
+        if (var != null) {
+            ArrayList notModifiableStatuses = new ArrayList();
+            String[] statuses = VcsUtilities.getQuotedStrings(var.getValue());
+            setNotModifiableStatuses(Arrays.asList(statuses));
+        }
+    }
+    
     private void setLocalFileFilterFromVars() {
         VcsConfigVariable varLocalFilter = (VcsConfigVariable) variablesByName.get("LOCAL_FILES_FILTERED_OUT");
         VcsConfigVariable varLocalFilterCS = (VcsConfigVariable) variablesByName.get("LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE");
@@ -359,9 +368,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
     
+    /**
+     * Set the file system's variables.
+     * @param variables the vector of <code>VcsConfigVariable</code> objects.
+     */
     public void setVariables(Vector variables){
         super.setVariables(variables);
         setPossibleFileStatusesFromVars();
+        setNotModifiableStatusesFromVars();
         setLocalFileFilterFromVars();
         setDocumentCleanupFromVars();
         setAdditionalParamsLabels();
