@@ -17,25 +17,30 @@ Microsystems, Inc. All Rights Reserved.
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" value="../nbbuild/standard-nbm-license.txt"/>
+  <property name="build" location="../nbbuild/netbeans"/>
 
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../nbbuild/nbantext.jar"/>
   <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../nbbuild/nbantext.jar"/>
+
+  <patternset id="sysprops.files">
+    <include name="modules/sysprops.jar"/>
+  </patternset>
 
   <target name="compile">
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <classpath>
 	<pathelement location="../openide/openide-13javac-workaround.jar"/>
-        <pathelement location="../openide/netbeans/lib/openide.jar"/>
-        <pathelement location="../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
+        <pathelement location="${build}/lib/openide.jar"/>
+        <pathelement location="${build}/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
       </classpath>
     </javac>
   </target>
 
   <target name="jars" depends="compile">
-    <mkdir dir="netbeans/modules"/>
+    <mkdir dir="${build}/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <jar jarfile="netbeans/modules/sysprops.jar"
+    <jar jarfile="${build}/modules/sysprops.jar"
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="../nbbuild/standard-jar-excludes.txt"
@@ -43,13 +48,17 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist targetname="nbm" outputfiledir="netbeans"/>
+      <genlist outputfiledir="${build}" module="modules/sysprops.jar">
+          <fileset dir="${build}">
+	      <patternset refID="sysprops.files"/>
+          </fileset>
+      </genlist>
   </target>
 
   <target name="nbm" depends="netbeans">
     <makenbm file="sysprops.nbm"
-             topdir="."
-             module="netbeans/modules/sysprops.jar"
+             productDir="${build}"
+             module="modules/sysprops.jar"
              needsrestart="false"
 	     homepage="http://sysprops.${homepage.base}/"
 	     distribution="http://${dist.base}/sysprops.nbm">
@@ -75,11 +84,12 @@ Microsystems, Inc. All Rights Reserved.
       <fileset dir="src">
         <include name="**/*.class"/>
       </fileset>
+      <fileset dir="${build}">
+        <patternset refID="sysprops.files"/>
+      </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
-    <delete dir="netbeans"/>
     <delete file="sysprops.nbm"/>
-    <delete dir="Info"/>
   </target>
 
 </project>

@@ -25,18 +25,23 @@ Microsystems, Inc. All Rights Reserved.
     <property name="homepage.base" value="netbeans.org"/>
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
+    <property name="build" location="../nbbuild/netbeans"/>
   
+    <patternset id="tasklist/core.files">
+      <include name="modules/autoload/tasklist-core.jar"/>
+    </patternset>
+
     <target name="compile" depends="init-14,compile-14">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
             <exclude name="org/netbeans/**/*14.java"/>
             <classpath>
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
-                <fileset dir="${nb_all}/openide/netbeans/lib">
+                <fileset dir="${build}/lib">
                     <include name="openide*.jar" />
                 </fileset>
                 <!-- tasklist api -->
                 <pathelement path="../api/src"/>
-                <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
+                <pathelement path="${build}/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
             </classpath>
         </javac>
     </target>
@@ -50,22 +55,22 @@ Microsystems, Inc. All Rights Reserved.
             <include name="org/netbeans/**/*14.java"/>
             <classpath>
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
-                <fileset dir="${nb_all}/openide/netbeans/lib">
+                <fileset dir="${build}/lib">
                     <include name="openide*.jar" />
                 </fileset>
                 <!-- tasklist api -->
                 <pathelement path="../api/src"/>
-                <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
+                <pathelement path="${build}/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
             </classpath>
       </javac>
     </target>
 
 
     <target name="jars" depends="compile">
-        <mkdir dir="netbeans/modules"/>
+        <mkdir dir="${build}/modules"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/autoload/tasklist-core.jar"
+        <locjar jarfile="${build}/modules/autoload/tasklist-core.jar"
                 manifest="manifest-subst.mf"
                 basedir="src"
 	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
@@ -75,13 +80,17 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="netbeans" depends="jars">
-        <genlist targetname="nbm" outputfiledir="netbeans"/>
+      <genlist outputfiledir="${build}" module="modules/autoload/tasklist-core.jar">
+          <fileset dir="${build}">
+	      <patternset refID="tasklist/core.files"/>
+          </fileset>
+      </genlist>
     </target>
 
     <target name="nbm" depends="netbeans">
         <makenbm file="../tasklist-core.nbm"
-                 topdir="."
-                 module="netbeans/modules/autoload/tasklist-core.jar"
+                 productDir="${build}"
+                 module="modules/autoload/tasklist-core.jar"
                  homepage="http://tasklist.${homepage.base}/"
                  distribution="http://${dist.base}/tasklist-core.nbm">
             <license file="${license.file}"/>
@@ -95,11 +104,12 @@ Microsystems, Inc. All Rights Reserved.
             <fileset dir="src">
                 <include name="**/*.class"/>
             </fileset>
+            <fileset dir="${build}">
+	        <patternset refID="tasklist/core.files"/>
+            </fileset>
         </delete>
         <delete file="manifest-subst.mf"/>
         <delete file="../tasklist-core.nbm"/>
-        <delete dir="netbeans"/>
-        <delete dir="Info"/>
         <delete dir="javadoc"/>
     </target>
 

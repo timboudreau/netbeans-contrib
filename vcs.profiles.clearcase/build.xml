@@ -94,7 +94,7 @@ Microsystems, Inc. All Rights Reserved.
   <target name="nbm" depends="netbeans">
     <makenbm file="clearcase-profile.nbm"
              topdir="."
-             module="netbeans/modules/clearcase-profile.jar"
+             module="modules/clearcase-profile.jar"
 	     homepage="http://vcsgeneric.${homepage.base}/"
 	     distribution="http://${dist.base}/clearcase-profile.nbm">
       <license file="${license.file1}"/>

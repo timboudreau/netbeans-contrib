@@ -24,29 +24,34 @@ Microsystems, Inc. All Rights Reserved.
     <property name="homepage.base" value="netbeans.org"/>
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
+    <property name="build" location="../nbbuild/netbeans"/>
   
+    <patternset id="tasklist/suggestion.files">
+      <include name="modules/tasklist-suggestions.jar"/>
+    </patternset>
+
     <target name="compile">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
             <classpath>
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
-                <fileset dir="${nb_all}/openide/netbeans/lib">
+                <fileset dir="${build}/lib">
                     <include name="openide*.jar" />
                 </fileset>
                 <!-- tasklist api -->
                 <pathelement path="../api/src"/>
                 <!-- tasklist core -->
                 <pathelement path="../core/src"/>
-                <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
+                <pathelement path="${build}/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
 		<pathelement path="../../core/external/xml-apis-1.0b2.jar"/>
             </classpath>
         </javac>
     </target>
 
     <target name="jars" depends="compile">
-        <mkdir dir="netbeans/modules"/>
+        <mkdir dir="${build}/modules"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/tasklist-suggestions.jar"
+        <locjar jarfile="${build}/modules/tasklist-suggestions.jar"
                 manifest="manifest-subst.mf"
                 basedir="src"
 	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
@@ -56,13 +61,17 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="netbeans" depends="jars">
-        <genlist targetname="nbm" outputfiledir="netbeans"/>
+      <genlist outputfiledir="${build}" module="modules/tasklist-suggestions.jar">
+          <fileset dir="${build}">
+	      <patternset refID="tasklist/suggestion.files"/>
+          </fileset>
+      </genlist>
     </target>
 
     <target name="nbm" depends="netbeans">
         <makenbm file="../tasklist-suggestions.nbm"
-                 topdir="."
-                 module="netbeans/modules/tasklist-suggestions.jar"
+                 productDir="${build}"
+                 module="modules/tasklist-suggestions.jar"
                  homepage="http://tasklist.${homepage.base}/"
                  distribution="http://${dist.base}/tasklist-suggestions.nbm">
             <license file="${license.file}"/>
@@ -76,11 +85,12 @@ Microsystems, Inc. All Rights Reserved.
             <fileset dir="src">
                 <include name="**/*.class"/>
             </fileset>
+            <fileset dir="${build}">
+	        <patternset refID="tasklist/suggestion.files"/>
+            </fileset>
         </delete>
         <delete file="manifest-subst.mf"/>
         <delete file="../tasklist-suggestions.nbm"/>
-        <delete dir="netbeans"/>
-        <delete dir="Info"/>
         <delete dir="javadoc"/>
     </target>
 
