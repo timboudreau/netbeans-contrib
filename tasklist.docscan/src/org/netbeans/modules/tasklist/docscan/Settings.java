@@ -162,7 +162,7 @@ public class Settings extends SystemOption {
 
 	// Try compiling the regular expression to make sure it's valid
 	try {
-	    RE re = new RE(regexp);
+	    new RE(regexp);
 	} catch (RESyntaxException e) {
 	    // Internal error: the regexp should have been validated when
 	    // the user edited it

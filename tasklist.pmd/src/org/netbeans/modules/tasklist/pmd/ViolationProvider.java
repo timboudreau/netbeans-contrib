@@ -108,7 +108,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
     protected void docEditedStable(Document document, DocumentEvent event,
                                    DataObject dataobject) {
         if (scanning) {
-            scan(document, dataobject);
+            update(document, dataobject);
         }
     }
 
@@ -121,35 +121,41 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         if ((document == null) || (dataobject == null)) {
             return;
         }
-        scan(document, dataobject);
+        update(document, dataobject);
     }
 
-    /** The actual workhorse of this class - scan a document for rule violations */
-    private void scan(Document doc, DataObject dobj) {
-        try {
-            
+    /** Update the manager with the current document contents */
+    private void update(Document doc, DataObject dobj) {
+        List newTasks = scan(doc, dobj);
         SuggestionManager manager = SuggestionManager.getDefault();
-        if (!manager.isEnabled(SUGGESTIONTYPE)) {
-            return;
-        }
 
         // Remove old contents
         if (showingTasks != null) {
             manager.remove(showingTasks);
-            showingTasks.clear();
         }
         
+        showingTasks = newTasks;
+        if (showingTasks != null) {
+            manager.add(showingTasks);
+        }      
+    }
+    
+    /** The actual workhorse of this class - scan a document for rule violations */
+    protected List scan(Document doc, DataObject dobj) {
+        List tasks = null;
+        try {
+            
+        SuggestionManager manager = SuggestionManager.getDefault();
+        if (!manager.isEnabled(SUGGESTIONTYPE)) {
+            return null;
+        }
+
         SourceCookie cookie =
             (SourceCookie)dobj.getCookie(SourceCookie.class);
 
         // The file is not a java file
         if(cookie == null) {
-            return;
-        }
-
-        if (showingTasks == null) {
-            int defSize = 10;
-            showingTasks = new ArrayList(defSize);
+            return null;
         }
 
         String text = null;
@@ -159,7 +165,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         } catch (BadLocationException e) {
             TopManager.getDefault().
                 getErrorManager().notify(ErrorManager.WARNING, e);
-            return;
+            return null;
         }
         Reader reader = new StringReader(text);
         String name = cookie.getSource().getClasses()[0].getName().getFullName();
@@ -185,91 +191,89 @@ public class ViolationProvider extends DocumentSuggestionProvider {
             while(iterator.hasNext()) {
                 RuleViolation violation = (RuleViolation)iterator.next();
                 try {
+                    // Violation line numbers seem to be 0-based
+                    final Line line = getLine(dobj, violation.getLine());
                     
-                    if (manager.isEnabled(SUGGESTIONTYPE)) {
-                        // Violation line numbers seem to be 0-based
-                        final Line line = getLine(dobj, violation.getLine());
-
-                        //System.out.println("Next violation = " + violation.getRule().getName() + " with description " + violation.getDescription() + " on line " + violation.getLine());
-                        
-                        boolean fixable = false;
-                        SuggestionPerformer action = null;
-
-                        String rulename = violation.getRule().getName();
-                        if (rulename.equals("UnusedImports") || // NOI18N
-                            rulename.equals("DuplicateImports")) { // NOI18N
-                            fixable = true;
-                            action = new SuggestionPerformer() {
-                                    public void perform(Suggestion s) {
-                                        // Remove the particular line
-                                        deleteLine(line, "import ", // NOI18N
-                                                   false); // whitespace etc.?
-                                    }
-                                    public boolean hasConfirmation() {
-                                        return true;
-                                    }
-                                    public Object getConfirmation(Suggestion s) {
-                                        DataObject dao = line.getDataObject();
-                                        int linenumber = line.getLineNumber();
-                                        Integer lineobj = new Integer(linenumber);
-                                        String text = getLineContents(line);
-                                        String filename = dao.getPrimaryFile().getNameExt();
-                                        return NbBundle.getMessage(ViolationProvider.class,
-                                              "ImportConfirmation", text, filename, lineobj);
-                                    }
-                                };
-                        } else if ((rulename.equals("UnusedPrivateField") || // NOI18N
-                                    rulename.equals("UnusedLocalVariable")) && // NOI18N
-                                   deleteLine(line, "", true)) { // only a check
-                            fixable = true;
-                            action = new SuggestionPerformer() {
-                                    public void perform(Suggestion s) {
-                                        // Remove the particular line
-                                        deleteLine(line, "", false);
-                                    }
-                                    public boolean hasConfirmation() {
-                                        return true;
-                                    }
-                                    public Object getConfirmation(Suggestion s) {
-                                        DataObject dao = line.getDataObject();
-                                        int linenumber = line.getLineNumber();
-                                        Integer lineobj = new Integer(linenumber);
-                                        String text = getLineContents(line);
-                                        String filename = dao.getPrimaryFile().getNameExt();
-                                        return NbBundle.getMessage(ViolationProvider.class,
-                                              "UnusedConfirmation", text, filename, lineobj);
-                                    }
-                                };
-                        } else {
-                            action = new LineSuggestionPerformer();
-                        }
-                      
-                        Suggestion s = manager.createSuggestion(
-                                                    SUGGESTIONTYPE,
-                                                    rulename + " : " + // NOI18N
-                                                    violation.getDescription(),
-                                                    action);
-                        // XXX Is there a priority for each rule?
-                        s.setPriority(SuggestionPriority.NORMAL);
-                        s.setLine(line);
-                        if (fixable) {
-                            s.setIcon(taskIcon);
-                        }
-                        
-                        showingTasks.add(s);
+                    //System.out.println("Next violation = " + violation.getRule().getName() + " with description " + violation.getDescription() + " on line " + violation.getLine());
+                    
+                    boolean fixable = false;
+                    SuggestionPerformer action = null;
+                    
+                    String rulename = violation.getRule().getName();
+                    if (rulename.equals("UnusedImports") || // NOI18N
+                    rulename.equals("DuplicateImports")) { // NOI18N
+                        fixable = true;
+                        action = new SuggestionPerformer() {
+                            public void perform(Suggestion s) {
+                                // Remove the particular line
+                                deleteLine(line, "import ", // NOI18N
+                                false); // whitespace etc.?
+                            }
+                            public boolean hasConfirmation() {
+                                return true;
+                            }
+                            public Object getConfirmation(Suggestion s) {
+                                DataObject dao = line.getDataObject();
+                                int linenumber = line.getLineNumber();
+                                Integer lineobj = new Integer(linenumber);
+                                String text = line.getText();
+                                String filename = dao.getPrimaryFile().getNameExt();
+                                return NbBundle.getMessage(ViolationProvider.class,
+                                "ImportConfirmation", text, filename, lineobj);
+                            }
+                        };
+                    } else if ((rulename.equals("UnusedPrivateField") || // NOI18N
+                    rulename.equals("UnusedLocalVariable")) && // NOI18N
+                    deleteLine(line, "", true)) { // only a check
+                        fixable = true;
+                        action = new SuggestionPerformer() {
+                            public void perform(Suggestion s) {
+                                // Remove the particular line
+                                deleteLine(line, "", false);
+                            }
+                            public boolean hasConfirmation() {
+                                return true;
+                            }
+                            public Object getConfirmation(Suggestion s) {
+                                DataObject dao = line.getDataObject();
+                                int linenumber = line.getLineNumber();
+                                Integer lineobj = new Integer(linenumber);
+                                String text = line.getText();
+                                String filename = dao.getPrimaryFile().getNameExt();
+                                return NbBundle.getMessage(ViolationProvider.class,
+                                "UnusedConfirmation", text, filename, lineobj); // NOI18N
+                            }
+                        };
+                    } else {
+                        action = new LineSuggestionPerformer();
                     }
+                    
+                    Suggestion s = manager.createSuggestion(
+                        SUGGESTIONTYPE,
+                        rulename + " : " + // NOI18N
+                           violation.getDescription(),
+                        action);
+                    // XXX Is there a priority for each rule?
+                    s.setPriority(SuggestionPriority.NORMAL);
+                    s.setLine(line);
+                    if (fixable) {
+                        s.setIcon(taskIcon);
+                    }
+                    if (tasks == null) {
+                        tasks = new ArrayList(ctx.getReport().size());
+                    }
+                    tasks.add(s);
                 } catch (Exception e) {
                     ErrorManager.getDefault().notify(e);
                 }
             }
-
-            manager.add(showingTasks);
         }
         } catch (Exception e) {
             ErrorManager.getDefault().notify(e);
         }
+        return tasks;
     }
-
+    
     /** Look up the Line object for a particular file:linenumber */
     Line getLine(DataObject dataobject, int lineno) {
         // Go to the given line
@@ -293,29 +297,6 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         
     }
     
-    private String getLineContents(Line line) {
-        Document doc = getDoc(line);
-        if (doc == null) {
-                        ErrorManager.getDefault().log(ErrorManager.USER, "doc was null");
-        }
-        Element elm = getElement(doc, line);
-        if (elm == null) {
-            ErrorManager.getDefault().log(ErrorManager.USER, "getElement was null");
-            return null;
-        }
-        int offset = elm.getStartOffset();
-        int endOffset = elm.getEndOffset();
-
-        try {
-            String text = doc.getText(offset, endOffset-offset);
-            return text;
-        } catch (BadLocationException ex) {
-            TopManager.getDefault().
-                getErrorManager().notify(ErrorManager.WARNING, ex);
-        }
-        return null;
-    }
-
     private Element getElement(Document d, Line line) {
 	if (d == null) {
             ErrorManager.getDefault().log(ErrorManager.USER, "d was null");

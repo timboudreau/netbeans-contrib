@@ -29,18 +29,13 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
-import org.openide.TopManager;
-import org.openide.cookies.EditorCookie;
 import org.openide.explorer.view.*;
 import org.openide.nodes.*;
 
 
 
 
-import org.openide.ErrorManager;
-import org.openide.cookies.LineCookie;
 import org.openide.loaders.DataObject;
-import org.openide.text.Line;
 
 
 /**
@@ -50,7 +45,6 @@ import org.openide.text.Line;
  * @todo Consider showing only a few of the scanned tasks (to prevent a file
  *     with lots of todos from hiding say the syntax errors). It might be
  *     useful to show the N tasks closest to the cursor position!
- * @todo Process copyrights and source tasks separately
  *
  * @author Tor Norbye
  */
@@ -58,8 +52,7 @@ import org.openide.text.Line;
 
 public class SourceTaskProvider extends DocumentSuggestionProvider {
 
-    final private static String COMMENTTYPE = "nb-tasklist-scannedtask"; // NOI18N
-    final private static String COPYRIGHTTYPE = "nb-tasklist-copyright"; // NOI18N
+    final private static String TYPE = "nb-tasklist-scannedtask"; // NOI18N
     
     /**
      * Return the typenames of the suggestions that this provider
@@ -69,7 +62,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      *  be an array with one element.
      */
     public String[] getTypes() {
-        return new String[] { COMMENTTYPE, COPYRIGHTTYPE };
+        return new String[] { TYPE };
     }
     
     private boolean scanning = false;
@@ -120,7 +113,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
                                    DataObject dataobject) {
         //System.out.println("docEditedStable(" + document + ")");
 	if (scanning && scanner != null) {
-            scan(document, dataobject);
+            update(document, dataobject);
 	}
     }
 
@@ -137,64 +130,54 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
         tasklist = new TaskList();
 	scanner = new SourceScanner(tasklist, skipCode);
 	//scanner.start(false);
-
-        scan(document, dataobject);
+        update(document, dataobject);
     }
 
-    private void scan(Document doc, DataObject dobj) {
+    /** Update the manager with the current document contents */
+    private void update(Document doc, DataObject dobj) {
+        List newTasks = scan(doc, dobj);
         SuggestionManager manager = SuggestionManager.getDefault();
+
+        // Remove old contents
+        if (showingTasks != null) {
+            manager.remove(showingTasks);
+        }
         
-        if (!manager.isEnabled(COMMENTTYPE) &&
-            !manager.isEnabled(COPYRIGHTTYPE)) {
-            return;
+        showingTasks = newTasks;
+        if (showingTasks != null) {
+            manager.add(showingTasks);
+        }      
+    }
+    
+    protected List scan(Document doc, DataObject dobj) {
+        SuggestionManager manager = SuggestionManager.getDefault();
+        if (!manager.isEnabled(TYPE)) {
+            return null;
         }
 
         // Don't update old tasks - just generate new ones!
         tasklist.clear();
 
-        // Remove old contents
-        if (showingTasks != null) {
-            manager.remove(showingTasks);
-            showingTasks.clear();
-        } else {
-            int defSize = 10;
-            showingTasks = new ArrayList(defSize);
-        }
-
-        if (manager.isEnabled(COMMENTTYPE)) {
-            scanner.scan(doc, dobj, false, false);
-
-            SuggestionPerformer action = new LineSuggestionPerformer();
-            ListIterator it = tasklist.getTasks().listIterator();
-            while (it.hasNext()) {
-                DocTask subtask = (DocTask)it.next();
-                String summary = subtask.getSummary();
-                Suggestion s = manager.createSuggestion(COMMENTTYPE,
-                                                        summary,
-                                                        action);
-                s.setLine(subtask.getLine());
-                s.setPriority(SuggestionPriority.NORMAL);
-                showingTasks.add(s);
+        scanner.scan(doc, dobj, false, false);
+        
+        SuggestionPerformer action = new LineSuggestionPerformer();
+        ListIterator it = tasklist.getTasks().listIterator();
+        List tasks = null;
+        while (it.hasNext()) {
+            DocTask subtask = (DocTask)it.next();
+            String summary = subtask.getSummary();
+            Suggestion s = manager.createSuggestion(TYPE,
+                summary,
+                action);
+            s.setLine(subtask.getLine());
+            s.setPriority(SuggestionPriority.NORMAL);
+            if (tasks == null) {
+                tasks = new ArrayList(tasklist.getTasks().size()+1); // room for copyright
             }
-            manager.add(showingTasks);
+            tasks.add(s);
         }
         
-        
-        if (manager.isEnabled(COPYRIGHTTYPE)) {
-            DocTask copyright = scanner.checkCopyright(doc, dobj);
-            if (copyright != null) {
-                String summary = copyright.getSummary();
-                SuggestionPerformer action = copyright.getAction();
-                Suggestion s = manager.createSuggestion(COPYRIGHTTYPE,
-                                                        summary,
-                                                        action);
-                s.setLine(copyright.getLine());
-                s.setPriority(SuggestionPriority.NORMAL);
-                showingTasks.add(s);
-                manager.add(s);
-            }
-        }
-        
+        return tasks;
     }
     
     

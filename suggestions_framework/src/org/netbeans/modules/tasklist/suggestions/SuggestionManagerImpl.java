@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.suggestions;
 
+import java.awt.Image;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskList;
 import java.io.File;
@@ -23,6 +24,7 @@ import java.io.BufferedWriter;
 import java.io.Reader;
 import java.io.FileReader;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,7 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import javax.swing.text.Document;
 
 import org.openide.xml.XMLUtil;
 import org.xml.sax.Attributes;
@@ -46,6 +49,13 @@ import org.openide.ErrorManager;
 
 import org.netbeans.api.tasklist.*;
 import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.spi.tasklist.LineSuggestionPerformer;
+import org.openide.awt.StatusDisplayer;
+import org.openide.cookies.EditorCookie;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
+import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
 /**
  * Actual suggestion manager provided to clients when the Suggestions
@@ -175,6 +185,10 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      * @param suggestion The Suggestion to be added to the list.
      */
     public void add(Suggestion suggestion) {
+        add(suggestion, getList());
+    }
+
+    public void add(Suggestion suggestion, SuggestionList tasklist) {
         // TODO check instanceof Task here, and throw an exception if not?
         SuggestionImpl s = null;
         try {
@@ -187,10 +201,10 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         }
 
         SuggestionType type = s.getSType();
-        SuggestionImpl category = getCategoryTask(type);
+        SuggestionImpl category = tasklist.getCategoryTask(type);
         s.setParent(category);
         synchronized(this) {
-            getList().add(s, false, false);
+            tasklist.add(s, false, false);
         }
         updateCategoryCount(category); // TODO: skip this when filtered
     }
@@ -208,6 +222,10 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      * NOTE: All Suggestions should have the same SuggestionType.
      */
     public void add(List suggestions) {
+        add(suggestions, getList());
+    }
+    
+    public void add(List suggestions, SuggestionList tasklist) {
         if (suggestions.size() == 0) {
             return;
         }
@@ -226,36 +244,13 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             return;
         }
 
-        SuggestionImpl category = getCategoryTask(type);
+        SuggestionImpl category = tasklist.getCategoryTask(type);
         // XXX Do I need to set the parent field on each item?
         synchronized(this) {
-            getList().addRemove(suggestions, null, false, category);
+            list.addRemove(suggestions, null, false, category);
         }
         updateCategoryCount(category); // TODO: skip this when filtered
     }
-
-    private synchronized SuggestionImpl getCategoryTask(SuggestionType type) {
-        SuggestionImpl category = null;
-        if (categoryTasks != null) {
-            category = (SuggestionImpl)categoryTasks.get(type);
-        }
-        if (category == null) {
-            category = new SuggestionImpl();
-
-            category.setSummary(type.getLocalizedName());
-            category.setAction(null);
-            category.setType(type.getName());
-            category.setSType(type);
-            category.setIcon(type.getIconImage());
-            if (categoryTasks == null) {
-                categoryTasks = new HashMap(20);
-            }
-            categoryTasks.put(type, category);
-            getList().add(category, false, false);
-        }
-        return category;
-    }
-    private Map categoryTasks = null;
 
     private void updateCategoryCount(SuggestionImpl category) {
         SuggestionType type = category.getSType();
@@ -280,6 +275,10 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      * @param suggestion The Suggestion to be added to the list.
      */
     public void remove(Suggestion suggestion) {
+        remove(suggestion, getList());
+    }
+    
+    public void remove(Suggestion suggestion, SuggestionList tasklist) {
         // TODO check instanceof Task here, and throw an exception if not?
         //getList().remove((Task)suggestion);
 
@@ -293,7 +292,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         }
 
         synchronized(this) {
-            getList().remove(s);
+            tasklist.remove(s);
         }
 
         
@@ -301,20 +300,13 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         // (Need new Task attribute and appropriate handling in filter
         // and export methods.)    By leaving it around, we don't reorder
         // the tasks on the user.
-        //removeCategory(s);
+        //tasklist.removeCategory(s);
 
         SuggestionType type = s.getSType();
-        SuggestionImpl category = getCategoryTask(type);
+        SuggestionImpl category = tasklist.getCategoryTask(type);
         updateCategoryCount(category); // TODO: skip this when filtered
     }
 
-    private synchronized void removeCategory(SuggestionImpl s) {
-        SuggestionImpl category = (SuggestionImpl)s.getParent();
-        if ((category != null) && !category.hasSubtasks()) {
-            getList().remove(category);
-            categoryTasks.remove(category.getSType());
-        }
-    }
     
     /**
      * Same as {@link remove(Suggestion)}, but unregister a set of
@@ -325,6 +317,10 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      * once at the end of the removal, instead of after every removal.
      */
     public void remove(List suggestions) {
+        remove(suggestions, getList());
+    }
+    
+    public void remove(List suggestions, SuggestionList tasklist) {
         if (suggestions.size() == 0) {
             return;
         }
@@ -332,17 +328,17 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         // TODO check instanceof Task here, and throw an exception if not?
         
         synchronized(this) {
-            getList().addRemove(null, suggestions, false, null);
+            tasklist.addRemove(null, suggestions, false, null);
         }
 
         // Leave category task around? Or simply make it invisible?
         // (Need new Task attribute and appropriate handling in filter
         // and export methods.)    By leaving it around, we don't reorder
         // the tasks on the user.
-        //removeCategory((SuggestionImpl)suggestions.get(0));
+        //tasklist.removeCategory((SuggestionImpl)suggestions.get(0));
 
         SuggestionType type = ((SuggestionImpl)(suggestions.get(0))).getSType();
-        SuggestionImpl category = getCategoryTask(type);
+        SuggestionImpl category = tasklist.getCategoryTask(type);
         updateCategoryCount(category); // TODO: skip this when filtered
 
     }
@@ -456,21 +452,25 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         return providers;
     }
 
+    SuggestionList list = null;
+
     /**
      * Return the TaskList that we're managing
      */
-    TaskList getList() {
-	TaskListView view = 
-	    TaskListView.getTaskListView(SuggestionsView.CATEGORY); // NOI18N
-        if (view == null) {
-            view = new SuggestionsView();
+    SuggestionList getList() {
+        if (list == null) {
+            TaskListView view =
+            TaskListView.getTaskListView(SuggestionsView.CATEGORY); // NOI18N
+            if (view == null) {
+                view = new SuggestionsView();
             /* Let user open the window
                TODO Find a way to manage the tasklist so that I -don't-
                have to create it now; only when it's opened by the user!
-            view.showInMode();  
-            */
+            view.showInMode();
+             */
+            }
+            list = (SuggestionList)view.getList();
         }
-        TaskList list = view.getList();
         return list;
     }
 
@@ -656,26 +656,27 @@ final public class SuggestionManagerImpl extends SuggestionManager {
 
         // "Flatten" the list when I'm filtering so that I don't show
         // category nodes!
+        SuggestionList tasklist = getList();
         if (type != null) {
-            getList().clear();
-        
-            if (categoryTasks != null) {
-                Collection values = categoryTasks.values();
+            tasklist.clear();
+       
+            Collection values = tasklist.getCategoryTasks();
+            if (values != null) {
                 Iterator it = values.iterator();
                 ArrayList list = new ArrayList(200);
                 while (it.hasNext()) {
                     SuggestionImpl s = (SuggestionImpl)it.next();
                     list.addAll(s.getSubtasks());
                 }
-                getList().addRemove(list, null, false, null);
+                tasklist.addRemove(list, null, false, null);
             }
         } else {
             // "Merge" the list when I'm going to no-filter
-            categoryTasks = null; // recreate such that they get reinserted etc.
-            List oldList = getList().getTasks();
+            tasklist.clearCategoryTasks();
+            List oldList = tasklist.getTasks();
             List suggestions = new ArrayList(oldList.size());
             suggestions.addAll(oldList);
-            getList().clear();
+            tasklist.clear();
             Iterator it = suggestions.iterator();
             while (it.hasNext()) {
                 SuggestionImpl s = (SuggestionImpl)it.next();
@@ -900,4 +901,149 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         }
         return false;
     }
+    
+    /** Iterate over the folder recursively (optional) and scan all files.
+        We skip CVS and SCCS folders intentionally. Would be nice if
+        the filesystem hid these things from us. */
+    void scan(DataFolder[] folders, SuggestionList list,
+	boolean recursive) {
+        // package-private instead of private for the benefit of the testsuite
+        for (int i = 0; i < folders.length; i++) {
+            DataFolder folder = folders[i];
+            scan(folder, recursive, list);
+        }
+    }
+    
+    private void scan(DataFolder folder, boolean recursive, SuggestionList list) {
+        if (TaskList.err.isLoggable(ErrorManager.INFORMATIONAL)) {
+            TaskList.err.log("Scanning folder " + folder.getPrimaryFile().
+                             getNameExt());
+        }
+        
+        DataObject[] children = folder.getChildren();
+        for (int i = 0; i < children.length; i++) {
+            DataObject f = children[i];
+            if (TaskList.err.isLoggable(ErrorManager.INFORMATIONAL)) {
+                TaskList.err.log(" Checking " + f.getPrimaryFile().getNameExt());
+            }
+        
+            if (f instanceof DataFolder) {
+		if (!recursive) {
+		    continue;
+		}
+		
+                // Skip CVS and SCCS folders
+                String name = f.getPrimaryFile().getNameExt();
+                if ("CVS".equals(name) || "SCCS".equals(name)) { // NOI18N
+                    continue;
+                }
+
+                StatusDisplayer.getDefault ().setStatusText(
+                   NbBundle.getMessage(ScanSuggestionsAction.class,
+                                    "ScanningFolder",  // NOI18N
+                                       f.getPrimaryFile().getNameExt()));
+
+                scan((DataFolder)f, true, list); // recurse!
+            } else {
+                // Get document, and I do mean now!
+
+                if (!f.isValid()) {
+                    continue;
+                }
+
+                EditorCookie edit =
+                    (EditorCookie)f.getCookie(EditorCookie.class);
+                if (edit == null) {
+                    continue;
+                }
+	
+                Document doc;
+                try {
+                    doc = edit.openDocument(); // DOES block
+                } catch (IOException e) {
+                    continue;
+                }
+                if (doc == null) {
+                    continue;
+                }
+
+                StatusDisplayer.getDefault ().setStatusText(
+                   NbBundle.getMessage(ScanSuggestionsAction.class,
+                                       "ScanningFile", // NOI18N
+                                       f.getPrimaryFile().getNameExt()));
+
+                if (TaskList.err.isLoggable(ErrorManager.INFORMATIONAL)) {
+                    TaskList.err.log("   About to scan: " + // NOI18N
+                                     f.getPrimaryFile().getNameExt());
+                }
+                
+                scan(doc, list, f);
+            }
+        }
+    }
+    
+     void scan(Document doc, SuggestionList list, DataObject f) {
+         List providers = getProviders();
+         ListIterator it = providers.listIterator();
+         while (it.hasNext()) {
+             SuggestionProvider provider = (SuggestionProvider)it.next();
+             if (((unfiltered == null) ||
+                 (unfiltered == provider)) &&
+                 (provider instanceof DocumentSuggestionProvider)) {
+                     List l = DocumentSuggestionProvider.scan((DocumentSuggestionProvider)provider, doc, f);
+                   //  List l = SpringBoard.scan((DocumentSuggestionProvider)provider, doc, f);
+                     if (l != null) {
+                        add(l, list);
+                     }
+             }
+         }
+
+     
+     }
+   
+      List erase = null;
+      List origIcon = null;
+   
+      /** Set a series of suggestions as highlighted. Or, clear the current
+      * selection of highlighted nodes.
+      * <p>
+      * @param suggestions List of suggestions that should be highlighted.
+      *      If null, the selection is cleared.
+      *
+      */
+     public void setHighlighted(List suggestions) {
+         // Clear out previously highlighted items
+         if (erase != null) {
+             Iterator it = erase.iterator();
+             Iterator itorig = origIcon.iterator();
+             while (it.hasNext()) {
+                 SuggestionImpl s = (SuggestionImpl)it.next();
+                 Image icon = (Image)itorig.next();
+                 s.setIcon(icon);
+                 s.setHighlighted(false);
+             }
+         }
+         erase = null;
+         origIcon = null;
+         
+         if (suggestions != null) {
+             Iterator it = suggestions.iterator();
+             while (it.hasNext()) {
+                 SuggestionImpl s = (SuggestionImpl)it.next();
+                     if (erase == null) {
+                         origIcon = new ArrayList(suggestions.size());
+                         erase = new ArrayList(suggestions.size());
+                     }
+                     origIcon.add(s.getIcon());
+                     s.setHighlighted(true);
+                     
+                    // s.setIcon(Utilities.loadImage("org/netbeans/modules/tasklist/suggestions/highlight.gif")); // NOI18N
+                     Image badge = Utilities.loadImage("org/netbeans/modules/tasklist/suggestions/badge.gif"); // NOI18N
+                     Image image = Utilities.mergeImages(s.getIcon(), badge,
+                           0, 0);
+                     s.setIcon(image);
+                     erase.add(s);
+                 }
+         }
+     }
 }

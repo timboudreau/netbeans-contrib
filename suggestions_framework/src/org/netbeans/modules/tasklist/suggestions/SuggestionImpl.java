@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.awt.Image;
+import org.openide.util.Utilities;
 import org.netbeans.modules.tasklist.core.Task;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
@@ -34,6 +35,7 @@ final public class SuggestionImpl extends Task {
     private int linenumber;
     private String category = null;
     private SuggestionType stype = null;
+    private boolean highlighted = false;
 
     /** Field (package private) used by the SourceScanner as a tag
         to improve search speeds. Don't muck with it. */
@@ -64,9 +66,9 @@ final public class SuggestionImpl extends Task {
             Line l = getLine();
             if (l == null) {
                 basename = "";
-            } else {
-                DataObject dao = l.getDataObject();
-                basename = dao.getPrimaryFile().getNameExt();
+            } else if ((l.getDataObject() != null) &&
+                       (l.getDataObject().getPrimaryFile() != null)) {
+                basename = l.getDataObject().getPrimaryFile().getNameExt();
             }
         }
         return basename;
@@ -130,7 +132,8 @@ final public class SuggestionImpl extends Task {
         linenumber = from.linenumber;
         basename = from.basename;
         category = from.category;
-
+        highlighted = from.highlighted;
+        
         // TODO XXX Copy fields from Suggestion as well!
     }
 
@@ -174,7 +177,26 @@ final public class SuggestionImpl extends Task {
 	} else {
 	    return null;
 	}
+ 
     }    
+
+    public boolean isHighlighted() {
+        return highlighted;
+    }
+
+    public void setHighlighted(boolean highlight) {
+        /*
+        if (highlight) {
+            setSummary("<html><b>" + getSummary() + "</b></html>");
+        } else {
+            String desc = getSummary();
+            setSummary(desc.substring(9, desc.length()-11)); // remove <html><b></b></html>
+        }
+        
+        // getIcon will get called and will report new icon
+         */
+        updatedValues(); // TODO - just set this on the setIcon method?
+    }
 }
 
 

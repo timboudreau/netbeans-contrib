@@ -28,6 +28,10 @@ Microsystems, Inc. All Rights Reserved.
              <attr name="instanceOf" stringvalue="org.netbeans.api.tasklist.SuggestionProvider"/>
              <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.docscan.SourceTaskProvider"/>
           </file>
+          <file name="org-netbeans-modules-tasklist-docscan-CopyrightChecker.instance">
+             <attr name="instanceOf" stringvalue="org.netbeans.api.tasklist.SuggestionProvider"/>
+             <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.docscan.CopyrightChecker"/>
+          </file>
        </folder>
 
 	<file name="org-netbeans-modules-tasklist-docscan-Settings.settings" url="Settings.settings">
