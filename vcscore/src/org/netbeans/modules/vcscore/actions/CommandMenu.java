@@ -493,8 +493,13 @@ public class CommandMenu extends JMenuPlus {
                             }
                         }
                         for (int i = 0; i < cmds.length; i++) {
+                            if (cmds[i].getApplicableFiles(files) == null) {
+                                cmds[i] = null; // Remove all commands that can not be executed
+                            }
+                        }
+                        for (int i = 0; i < cmds.length; i++) {
                             Command cmd = cmds[i];
-                            if (cmd.getApplicableFiles(files) == null) {
+                            if (cmd == null) {
                                 continue;
                             }
                             if (message != null && cmd instanceof MessagingCommand) {
