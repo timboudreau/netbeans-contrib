@@ -1665,7 +1665,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if (configInputDescriptorStr != null) {
             try {
                 configInputDescriptor = VariableInputDescriptor.parseItems(configInputDescriptorStr);
-            } catch (VariableInputFormatException vifex) {}
+            } catch (VariableInputFormatException vifex) {
+                TopManager.getDefault().getErrorManager().notify(vifex);//TopManager.getDefault().getErrorManager().annotate(vifex, "
+            }
         }
         if (configInputDescriptor != null) {
             //Hashtable dlgVars = new Hashtable(fsVars);
