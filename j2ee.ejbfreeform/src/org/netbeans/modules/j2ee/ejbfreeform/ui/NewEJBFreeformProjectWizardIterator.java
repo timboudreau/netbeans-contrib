@@ -29,14 +29,17 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.ant.freeform.spi.support.NewFreeformProjectSupport;
 import org.netbeans.modules.ant.freeform.spi.support.Util;
-import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
+import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
+import org.netbeans.modules.j2ee.dd.api.ejb.EjbJar;
 import org.netbeans.modules.java.freeform.spi.support.NewJavaFreeformProjectSupport;
 import org.netbeans.modules.j2ee.ejbfreeform.EJBProjectGenerator;
 import org.netbeans.modules.j2ee.ejbfreeform.EJBProjectNature;
+import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarImplementation;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 
@@ -103,6 +106,20 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
                     }
                     
                     Project p = ProjectManager.getDefault().findProject(helper.getProjectDirectory());
+                    
+                    EjbJarImplementation imp = (EjbJarImplementation)p.getLookup().lookup(EjbJarImplementation.class);
+                    if (imp != null) {
+                        FileObject ejbJarFile = imp.getDeploymentDescriptor();
+                        EjbJar dd = DDProvider.getDefault().getDDRoot(ejbJarFile);
+                        if (null != dd) {
+                            String dispName = dd.getDefaultDisplayName();
+                            if (null == dispName || dispName.trim().length() == 0) {
+                                dd.setDisplayName(helper.getProjectDirectory().getName());
+                                dd.write(ejbJarFile);
+                            }
+                        }
+                    }
+                    
                     ProjectManager.getDefault().saveProject(p);
                 } catch (IOException e) {
                     ioe[0] = e;
