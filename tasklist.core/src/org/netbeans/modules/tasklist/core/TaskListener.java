@@ -43,6 +43,10 @@ public interface TaskListener  {
 	been added. */
     void removedTask(Task t);
 
+    /**
+     * A task has been changed.
+     */
+    void changedTask(Task t);
 
     /** Called to indicate that a particular task should be hidden.
 	This typically means that the task was deleted so it should

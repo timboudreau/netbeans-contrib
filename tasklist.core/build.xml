@@ -113,11 +113,11 @@ Microsystems, Inc. All Rights Reserved.
       <mkdir dir="../javahelp/org/netbeans/modules/tasklist/help/JavaHelpSearch"/>
       <jhindexer basedir="../javahelp/org/netbeans/modules/tasklist/help"
                  db="../javahelp/org/netbeans/modules/tasklist/help/JavaHelpSearch">
-        <classpath>
+       <!-- <classpath>
           <fileset dir="../../nbbuild/external">
             <include name="jhall*.jar"/>
           </fileset>
-        </classpath>
+        </classpath>-->
         <include name="**/*.html"/>
         <exclude name="JavaHelpSearch/"/>
       </jhindexer>

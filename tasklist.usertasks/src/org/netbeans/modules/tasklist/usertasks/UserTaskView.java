@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import org.netbeans.modules.tasklist.core.Task;
 
 
 import org.netbeans.modules.tasklist.core.TaskListView;
@@ -389,7 +390,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
         return new UserTaskNode(root, root.getSubtasks());
     }
     
-    public String toString() {
+    public String toString() { 
         return "UserTaskView(" + title + ", " + category + ", " + tasklist + ")"; // NOI18N
     }
 }

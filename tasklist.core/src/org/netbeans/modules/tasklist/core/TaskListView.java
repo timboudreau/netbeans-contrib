@@ -135,6 +135,13 @@ public abstract class TaskListView extends ExplorerPanel
 
     }
 
+    public void changedTask(Task task) {
+        // Part of fix for #27670
+        // It leads to an exception (see bugzilla)
+        // if(filter != null)
+            // setRoot();
+    }
+    
     /**
      * Returns the <code>TableColumnModel</code> that contains all column information
      * of the table header.
@@ -242,7 +249,7 @@ public abstract class TaskListView extends ExplorerPanel
             getExplorerManager().setRootContext(rootNode);
         }
 
-        // Select the root node, such that the empty tasklist has
+        /*// Select the root node, such that the empty tasklist has
         // a context menu - but only if there are no items in the list
         if (!tasklist.getRoot().hasSubtasks()) {
             // See http://www.netbeans.org/issues/show_bug.cgi?id=27696
@@ -253,7 +260,7 @@ public abstract class TaskListView extends ExplorerPanel
                 TopManager.getDefault().getErrorManager().notify(
                                            ErrorManager.INFORMATIONAL, e);
             }
-        }
+        }*/
     }
    
     protected void hideList() {

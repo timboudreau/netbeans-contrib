@@ -99,7 +99,7 @@ public class Task extends Suggestion implements Cloneable {
         if (!silentUpdate) {
             supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
 	    if (!isTemporary() && (list != null)) {
-		list.markChanged();
+		list.markChanged(this);
 	    }
         }
     }
@@ -108,7 +108,7 @@ public class Task extends Suggestion implements Cloneable {
         if (!silentUpdate) {
             supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
 	    if (!isTemporary() && (list != null)) {
-		list.markChanged();
+		list.markChanged(this);
 	    }
         }
     }

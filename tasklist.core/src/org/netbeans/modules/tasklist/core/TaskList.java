@@ -213,6 +213,16 @@ public class TaskList { // XXX remove the publicness
 	needSave = true;
         save();
     }
+
+    /**
+     * Mark this list as changed.
+     *
+     * @param task a task that was changed.
+     */
+    void markChanged(Task task) {
+        markChanged();
+        notifyChanged(task);
+    }
     
     /** Write todo items out to disk */
     public void save() {
@@ -266,6 +276,16 @@ public class TaskList { // XXX remove the publicness
 	    return;
 	}
 	listeners.remove(listener);
+    }
+
+    public void notifyChanged(Task task) {
+	if (listeners != null) {
+	    int n = listeners.size();
+	    for (int i = 0; i < n; i++) {
+		TaskListener tl = (TaskListener)listeners.get(i);
+		tl.changedTask(task);
+	    }
+	}
     }
 
     public void notifyAdded(Task task) {

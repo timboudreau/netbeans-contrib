@@ -481,16 +481,6 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
             this.view = view;
         }
 
-        /** TODO: create my own FilterNode subclass so I can fix
-            the icon problem; right now, the setIconBase call below
-            modifies the original node, no the created filter node,
-            which is not good.
-
-            TODO 2: This method is not correct, it only checks direct
-            descendants, not recursively. We have to know NOW if any
-            descendant of a failed match matches.
-        
-        */
         protected Node [] createNodes(Object key) {
             if ((key != null) && (key instanceof Node)) {
                 Node n = (Node)key;
