@@ -98,7 +98,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static final String LOCK_FILES_ON = "LOCKFILES"; // NOI18N
     private static final String PROMPT_FOR_LOCK_ON = "PROMPTFORLOCK"; // NOI18N
 
-    private static final String DEFAULT_QUOTING_VALUE = "\\\\\""; // NOI18N
+    private static final String DEFAULT_QUOTING_VALUE = "\\\""; // NOI18N
 
     private static final String DEFAULT_CACHE_ID = "VCS_Cache"; // NOI18N
     /**
