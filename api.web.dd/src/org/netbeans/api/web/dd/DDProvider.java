@@ -165,11 +165,15 @@ public final class DDProvider {
         return null;
     }
 
-    private static WebApp createWebApp(java.io.InputStream is, String version) throws java.io.IOException {
-        if (WebApp.VERSION_2_3.equals(version)) {
-            return org.netbeans.modules.web.dd.impl.model_2_3.WebApp.createGraph(is);
-        } else {
-            return org.netbeans.modules.web.dd.impl.model_2_4.WebApp.createGraph(is);
+    private static WebApp createWebApp(java.io.InputStream is, String version) throws java.io.IOException, SAXException {
+        try {
+            if (WebApp.VERSION_2_3.equals(version)) {
+                return org.netbeans.modules.web.dd.impl.model_2_3.WebApp.createGraph(is);
+            } else {
+                return org.netbeans.modules.web.dd.impl.model_2_4.WebApp.createGraph(is);
+            }
+        } catch (RuntimeException ex) {
+            throw new SAXException (ex.getMessage());
         }
     }
     
