@@ -609,13 +609,17 @@ public class VcsAction extends NodeAction implements ActionListener {
      * Get a menu item that can present this action in a <code>JMenu</code>.
      */
     public JMenuItem getMenuPresenter() {
-        return getPopupPresenter();
+        return getPresenter(true);
     }
     
     /**
      * Get a menu item that can present this action in a <code>JPopupMenu</code>.
      */
     public JMenuItem getPopupPresenter() {
+        return getPresenter(false);
+    }
+    
+    private JMenuItem getPresenter(boolean inMenu) {
         boolean onRoot = isOnRoot();
         boolean onDir;
         boolean onFile;
@@ -631,18 +635,18 @@ public class VcsAction extends NodeAction implements ActionListener {
         ArrayList menuItems = new ArrayList();
         for (int i = 0; i < actionCommandsSubTrees.length; i++) {
             JMenuItem menuItem = getPopupPresenter(actionCommandsSubTrees[i], onDir,
-                                                   onFile, onRoot, statuses);
+                                                   onFile, onRoot, statuses, inMenu);
             if (menuItem != null) menuItems.add(menuItem);
         }
         inlineMenu.setMenuItems((JMenuItem[]) menuItems.toArray(new JMenuItem[menuItems.size()]));
         return inlineMenu;
     }
-    
+
     /**
      * Get a menu item that can present this action in a <code>JPopupMenu</code>.
      */
     private JMenuItem getPopupPresenter(Node commandRoot, boolean onDir, boolean onFile,
-                                        boolean onRoot, Set statuses) {
+                                        boolean onRoot, Set statuses, boolean inMenu) {
         String name = commandRoot.getDisplayName();
         /*
         if (name == null) {
@@ -650,6 +654,9 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
          */
         JMenuItem menu = new JMenuPlus(name);
+        if (inMenu) {
+            menu.setIcon(getIcon());
+        }
         addMenu(commandRoot, /*first, lastOrder, */(JMenu) menu, onDir, onFile, onRoot, statuses);
         if (menu.getSubElements().length == 0) {
             VcsCommand cmd = (VcsCommand) commandRoot.getCookie(VcsCommand.class);
@@ -664,6 +671,9 @@ public class VcsAction extends NodeAction implements ActionListener {
                         menu = null;
                 } else {
                     menu = createItem(cmd.getName());
+                    if (inMenu) {
+                        menu.setIcon(getIcon());
+                    }
                 }
             }
         }
