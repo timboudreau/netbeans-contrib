@@ -67,7 +67,7 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
 
     public Identifier getSuperclass() {
         if (superClass == null) {
-            String sc = ((ClassFile)data).getSuperClass().getExternalName();
+            String sc = ((ClassFile)data).getSuperClass();
             superClass = Identifier.create(sc == null ? "" : sc); // NOI18N
         }
         return superClass;
@@ -75,7 +75,7 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     
     protected Identifier createName(Object data) {
 	//String fullName = Utilities.getClassName((ClassFile)data).replace('$', '.'); // NOI18N
-        String fullName = ((ClassFile)data).getName().getExternalName(); // NOI18N
+        String fullName = ((ClassFile)data).getFullName().replace('$', '.'); // NOI18N
 	int lastDot = fullName.lastIndexOf('.');
 	return lastDot == -1 ? 
 	    Identifier.create(fullName) :
@@ -307,17 +307,12 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     /** Creates map for inner classes of this class,
     * consisting of identifier - class element entries */
     private Map createInnersMap () {
-boolean report = false;
-if (((ClassFile)data).getName().equals("javax.swing.Box")) {
-    System.out.println("found Box");
-    report = true;
-}
         // obtain array of interfaces and inner classes
         InnerClass[] reflInners = null;
         String name = null;
         try {
             reflInners = (InnerClass[])((ClassFile)data).getInnerClasses().toArray(new InnerClass[0]);
-            name = ((ClassFile)data).getName().getExternalName();
+            name = ((ClassFile)data).getName();
         } catch (Throwable exc) {
             // rethrow only ThreadDeath, ignore otherwise
             if (exc instanceof ThreadDeath)

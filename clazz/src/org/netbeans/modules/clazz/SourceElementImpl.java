@@ -104,7 +104,7 @@ final class SourceElementImpl extends MemberElementImpl
             return null;
         
         if (packg == null) {
-            packg = Identifier.create(((ClassFile)data).getName().getPackage());
+            packg = Identifier.create(((ClassFile)data).getPackage());
         }
         return packg;
     }
@@ -185,7 +185,7 @@ final class SourceElementImpl extends MemberElementImpl
             // assume we have a valid classloader
             ClassFile cf = (ClassFile)data;
             StringBuffer sb = new StringBuffer();
-            sb.append(cf.getName().getPackage().replace('.', '/'));
+            sb.append(cf.getPackage().replace('.', '/'));
             sb.append('/');
             sb.append(n);
             sb.append(".class"); // NOI18N
