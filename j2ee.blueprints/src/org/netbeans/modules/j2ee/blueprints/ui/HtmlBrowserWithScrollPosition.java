@@ -57,12 +57,7 @@ public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkLi
     public void hyperlinkUpdate(HyperlinkEvent e) {
         HyperlinkEvent.EventType type = e.getEventType();
         if (type == HyperlinkEvent.EventType.ACTIVATED) {
-            try {
-                e.getURL().openStream();
-                setURL(e.getURL());
-            } catch (IOException ioe) {
-                statusBar.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("doc_not_found"));
-            }
+            setURL(e.getURL());
         } else if (type == HyperlinkEvent.EventType.ENTERED) {
             statusBar.setText(e.getURL().toString());
         } else if (type == HyperlinkEvent.EventType.EXITED) {
@@ -77,6 +72,12 @@ public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkLi
             if (protocol != null && (protocol.equals("http") || protocol.equals("https"))) {
                 displayer.showURL(u);
             } else {
+                try {
+                    u.openStream();
+                } catch (IOException ioe) {
+                    statusBar.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("doc_not_found"));
+                    return;
+                }
                 Cursor currentC = html.getCursor();
                 Cursor busyC = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
                 html.setCursor(busyC);
