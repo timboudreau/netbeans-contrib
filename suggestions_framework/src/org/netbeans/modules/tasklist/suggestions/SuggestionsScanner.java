@@ -292,7 +292,7 @@ public final class SuggestionsScanner implements Cancellable {
 
                 //XXX Skip CVS and SCCS folders
                 String name = f.getPrimaryFile().getNameExt();
-                if ("CVS".equals(name) || "SCCS".equals(name)) { // NOI18N
+                if ("CVS".equals(name) || "SCCS".equals(name) || ".svn".equals(name)) { // NOI18N
                     continue;
                 }
 
@@ -371,6 +371,7 @@ public final class SuggestionsScanner implements Cancellable {
         if (edit == null) return;
 
         String extension = dobj.getPrimaryFile().getExt();
+        // TODO replace by VisibilityQuery
         if (extension.equals("java~") || extension.equals("properties~")) return;  // I didn't understand the logic below behind isPrimed but I definitely don't want backups to be scanned
         boolean directAccess = "java".equals(extension) || "properties".equals(extension);  // #38476      
         boolean isPrimed = edit.getDocument() == null && directAccess == false;
@@ -575,7 +576,7 @@ public final class SuggestionsScanner implements Cancellable {
         while (en.hasMoreElements()) {
             FileObject next = (FileObject) en.nextElement();
             String name = next.getNameExt();
-            if ("CVS".equals(name) || "SCCS".equals(name)) { // NOI18N
+            if ("CVS".equals(name) || "SCCS".equals(name) || ".svn".equals(name)) { // NOI18N
                 continue;
             }
             count++;
