@@ -72,6 +72,7 @@ import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 import org.netbeans.modules.vcscore.commands.ActionCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
+import org.netbeans.modules.vcscore.commands.RecursionAwareCommand;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.TextErrorListener;
 import org.netbeans.modules.vcscore.commands.RegexOutputListener;
@@ -139,6 +140,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         List classes = new ArrayList();
         classes.add(VcsDescribedCommand.class);
         classes.add(CustomizationStatus.class);
+        classes.add(RecursionAwareCommand.class);
         Class cmdClass = findImplementedCommandClass(cmd);
         if (cmdClass != null) {
             classes.add(cmdClass);
@@ -1488,9 +1490,17 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 PropertyDescriptor[] propDescrs = beanInfo.getPropertyDescriptors();
                 for (int j = 0; j < propDescrs.length; j++) {
                     String name = propDescrs[j].getName();
+                    if (vars.get(name) != null) {
+                        // The var is already defined - ignoring, do not want to reset
+                        continue;
+                    }
                     Object value = propDescrs[j].getReadMethod().invoke(cmd, new Object[0]);
                     if (value != null) {
-                        vars.put(name, value.toString());
+                        if (value instanceof Boolean) {
+                            vars.put(name, ((Boolean) value).booleanValue() ? "true" : "");
+                        } else {
+                            vars.put(name, value.toString());
+                        }
                     }
                 }
             } catch (IntrospectionException iex) {

@@ -33,6 +33,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import org.netbeans.api.fileinfo.NonRecursiveFolder;
+
 import org.openide.awt.Actions;
 import org.openide.awt.JInlineMenu;
 import org.openide.awt.JMenuPlus;
@@ -74,7 +76,7 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
     
     protected Collection selectedFileObjects = null;
     //protected CommandsTree actionCommandsTree = null;
-    // The latest map of providers and associated map of files with the message
+    // The latest map of providers and associated map of files with the file info
     private Map filesByCommandProviders;
 
     // List of commands, that can switch the expert mode on/off
@@ -87,10 +89,12 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
     }
     
     /**
-     * @return a map of array of FileObjects and their messages if any.
+     * @return a map of array of FileObjects and associated file info, if any.
+     * Currently the info can be a String message, or NonRecursiveFolder.class
+     * or <code>null</code>.
      */
     private Map getSelectedFileObjectsFromActiveNodes (Lookup lookup) {
-        Map filesWithMessages = new Table();
+        Map filesWithInfo = new Table();
         ArrayList files = new ArrayList();
         Node[] nodes = (Node[])lookup.lookup (new Lookup.Template (Node.class)).allInstances().toArray (new Node[0]);
         for (int i = 0; i < nodes.length; i++) {
@@ -114,28 +118,42 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
                     if (dd == null) continue;
                     addAllFromSingleFS(dd.getPrimaryFile(), dd.files(), messageFiles);
                 }
-                filesWithMessages.put(messageFiles.toArray(new FileObject[0]), message);
+                filesWithInfo.put(messageFiles.toArray(new FileObject[0]), message);
             } else {
-                Lookup.Result fileObjects = nodes[i].getLookup().lookup(new Lookup.Template(FileObject.class));
-                Collection fos;
-                if (fileObjects != null && (fos = fileObjects.allInstances()).size() > 0) {
-                    FileObject one = (FileObject) fos.iterator().next();
-                    addAllFromSingleFS(one, fos, files);
-                } else {
-                    DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
-                    if (dd == null) continue;
-                    if (dd instanceof DataShadow) {
-                        // We want to have the same VCS actions on the link as on the original.
-                        dd = ((DataShadow) dd).getOriginal();
+                Lookup.Result nonRecFolders = nodes[i].getLookup().lookup(new Lookup.Template(NonRecursiveFolder.class));
+                Collection nrfs = nonRecFolders.allInstances();
+                if (nrfs != null && nrfs.size() > 0) {
+                    List nrFiles = new ArrayList(nrfs.size());
+                    Collection fos = new ArrayList(nrfs.size());
+                    for (Iterator it = nrfs.iterator(); it.hasNext(); ) {
+                        NonRecursiveFolder nrf = (NonRecursiveFolder) it.next();
+                        fos.add(nrf.getFolder());
                     }
-                    //files.addAll(dd.files());
-                    //addAllWorkaround(dd.files(), files);
-                    addAllFromSingleFS(dd.getPrimaryFile(), dd.files(), files);
+                    FileObject one = (FileObject) fos.iterator().next();
+                    addAllFromSingleFS(one, fos, nrFiles);
+                    filesWithInfo.put(nrFiles.toArray(new FileObject[0]), NonRecursiveFolder.class);
+                } else {
+                    Lookup.Result fileObjects = nodes[i].getLookup().lookup(new Lookup.Template(FileObject.class));
+                    Collection fos;
+                    if (fileObjects != null && (fos = fileObjects.allInstances()).size() > 0) {
+                        FileObject one = (FileObject) fos.iterator().next();
+                        addAllFromSingleFS(one, fos, files);
+                    } else {
+                        DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
+                        if (dd == null) continue;
+                        if (dd instanceof DataShadow) {
+                            // We want to have the same VCS actions on the link as on the original.
+                            dd = ((DataShadow) dd).getOriginal();
+                        }
+                        //files.addAll(dd.files());
+                        //addAllWorkaround(dd.files(), files);
+                        addAllFromSingleFS(dd.getPrimaryFile(), dd.files(), files);
+                    }
                 }
             }
         }
-        if (files.size() > 0) filesWithMessages.put(files.toArray(new FileObject[0]), null);
-        return filesWithMessages;
+        if (files.size() > 0) filesWithInfo.put(files.toArray(new FileObject[0]), null);
+        return filesWithInfo;
     }
     
     /**
@@ -238,11 +256,11 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
     }
     
     public JMenuItem[] createMenuItems(boolean inMenu, Lookup lookup) {
-        Map filesWithMessages = getSelectedFileObjectsFromActiveNodes (lookup);
-        //System.out.println("VcsFSCommandsAction.getPresenter(): selected filesWithMessages: "+filesWithMessages);
+        Map filesWithInfo = getSelectedFileObjectsFromActiveNodes (lookup);
+        //System.out.println("VcsFSCommandsAction.getPresenter(): selected filesWithInfo: "+filesWithInfo);
         ArrayList menuItems = new ArrayList();
         //CommandsTree[] commands = actionCommandsTree.children();
-        filesByCommandProviders = findCommandProvidersForFiles(filesWithMessages);
+        filesByCommandProviders = findCommandProvidersForFiles(filesWithInfo);
 	//System.out.println("filesByCommandProviders.size() = "+filesByCommandProviders.size());
         if (filesByCommandProviders.size() == 0) return new JMenuItem[] {}; // return empty JInlineMenu
         CommandsTree commands;
@@ -273,16 +291,16 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
         if (commands == null) {
             return new JMenuItem[] {};
         }
-        return createMenuItems(commands, filesWithMessages, inMenu, globalExpertMode);
+        return createMenuItems(commands, filesWithInfo, inMenu, globalExpertMode);
     }
     
-    private JMenuItem[] createMenuItems(CommandsTree commands, Map filesWithMessages,
+    private JMenuItem[] createMenuItems(CommandsTree commands, Map filesWithInfo,
                                         boolean inMenu, boolean globalExpertMode) {
         ArrayList menuItems = new ArrayList();
         CommandsTree[] subCommands = commands.children();
         for (int i = 0; i < subCommands.length; i++) {
             //System.out.println("GlobAction.getPresenter() subCommands["+i+"] = "+subCommands[i]);
-            JMenuItem menuItem = getPopupPresenter(subCommands[i], filesWithMessages,
+            JMenuItem menuItem = getPopupPresenter(subCommands[i], filesWithInfo,
                                                    inMenu, globalExpertMode);
             //System.out.println("  menu item = "+menuItem);
             if (menuItem != null) menuItems.add(menuItem);
@@ -293,12 +311,12 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
     /**
      * Get a menu item that can present this action in a <code>JPopupMenu</code>.
      */
-    private JMenuItem getPopupPresenter(CommandsTree commands, Map filesWithMessages,
+    private JMenuItem getPopupPresenter(CommandsTree commands, Map filesWithInfo,
                                         boolean inMenu, boolean globalExpertMode) {
         JMenuItem menu;
         //System.out.println("  has Children = "+commands.hasChildren());
         if (commands.hasChildren()) {
-            menu = new CommandMenu(commands, filesWithMessages, true, inMenu,
+            menu = new CommandMenu(commands, filesWithInfo, true, inMenu,
                                    globalExpertMode);
         } else {
             CommandSupport cmd = commands.getCommandSupport();
@@ -306,11 +324,11 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
             // TODO expert mode. (Can be a global property ?!?)
             if (cmd.getDisplayName() == null) return null;
             FileObject[] allFiles;
-            if (filesWithMessages.size() == 1) {
-                allFiles = (FileObject[]) filesWithMessages.keySet().iterator().next();
+            if (filesWithInfo.size() == 1) {
+                allFiles = (FileObject[]) filesWithInfo.keySet().iterator().next();
             } else {
                 List files = new ArrayList();
-                for (Iterator it = filesWithMessages.keySet().iterator(); it.hasNext(); ) {
+                for (Iterator it = filesWithInfo.keySet().iterator(); it.hasNext(); ) {
                     files.addAll(Arrays.asList((FileObject[]) it.next()));
                 }
                 allFiles = (FileObject[]) files.toArray(new FileObject[files.size()]);
@@ -320,7 +338,7 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
                 //menu.setEnabled(false);
             }
             menu = CommandMenu.createItem(cmd, globalExpertMode, CommandMenu.DEFAULT_ADVANCED_OPTIONS_SIGN,
-                                          inMenu, filesWithMessages);
+                                          inMenu, filesWithInfo);
         }
         if (inMenu && menu != null) {
             menu.setIcon(getIcon());
@@ -376,40 +394,40 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
     
     /**
      * Returns a map of providers and the associated files. The associated
-     * files are a map of files and appropriate messages (if any).
+     * files are a map of files and appropriate file info (if any).
      */
-    private static Map findCommandProvidersForFiles(Map filesWithMessages) {
-        //System.out.println("findCommandProvidersForFiles("+filesWithMessages+")");
+    private static Map findCommandProvidersForFiles(Map filesWithInfo) {
+        //System.out.println("findCommandProvidersForFiles("+filesWithInfo+")");
         Map providers = new HashMap();
-        for (Iterator fileLists = filesWithMessages.keySet().iterator(); fileLists.hasNext(); ) {
+        for (Iterator fileLists = filesWithInfo.keySet().iterator(); fileLists.hasNext(); ) {
             //for (Iterator it = fileObjects.iterator(); it.hasNext(); ) {
             FileObject[] files = (FileObject[]) fileLists.next();
-            String message = (String) filesWithMessages.get(files);
+            Object fileInfo = filesWithInfo.get(files);
             for (int i = 0; i < files.length; i++) {
                 FileObject fo = files[i];
                 VcsCommandsProvider provider = VcsCommandsProvider.findProvider(fo);
                 //System.out.println("  fo = "+fo+" provider = "+provider);
                 if (provider != null) {
                     if (providers.containsKey(provider)) {
-                        Map msgFiles = (Map) providers.get(provider);
+                        Map infoFiles = (Map) providers.get(provider);
                         List fileList = null;
-                        if (msgFiles.values().contains(message)) {
-                            for (Iterator it = msgFiles.keySet().iterator(); it.hasNext(); ) {
+                        if (infoFiles.values().contains(fileInfo)) {
+                            for (Iterator it = infoFiles.keySet().iterator(); it.hasNext(); ) {
                                 fileList = (List) it.next();
-                                if (message == null && msgFiles.get(fileList) == null ||
-                                    message != null && message.equals(msgFiles.get(fileList))) break;
+                                if (fileInfo == null && infoFiles.get(fileList) == null ||
+                                    fileInfo != null && fileInfo.equals(infoFiles.get(fileList))) break;
                             }
                         } else {
                             fileList = new ArrayList();
-                            msgFiles.put(fileList, message);
+                            infoFiles.put(fileList, fileInfo);
                         }
                         fileList.add(fo);
                     } else {
-                        Map msgFiles = new Table();
-                        providers.put(provider, msgFiles);
+                        Map infoFiles = new Table();
+                        providers.put(provider, infoFiles);
                         List fileList = new ArrayList();
                         fileList.add(fo);
-                        msgFiles.put(fileList, message);
+                        infoFiles.put(fileList, fileInfo);
                         //System.out.println("  put("+provider+", "+fileList+")");
                     }
                 }
@@ -417,17 +435,17 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener,
         }
         for (Iterator it = providers.keySet().iterator(); it.hasNext(); ) {
             VcsCommandsProvider provider = (VcsCommandsProvider) it.next();
-            Map msgFilesList = (Map) providers.get(provider);
-            Map msgFilesArray = new Table();
-            for (Iterator it2 = msgFilesList.keySet().iterator(); it2.hasNext(); ) {
+            Map infoFilesList = (Map) providers.get(provider);
+            Map infoFilesArray = new Table();
+            for (Iterator it2 = infoFilesList.keySet().iterator(); it2.hasNext(); ) {
                 List fileList = (List) it2.next();
                 FileObject[] files = (FileObject[]) fileList.toArray(new FileObject[fileList.size()]);
-                String message = (String) msgFilesList.get(fileList);
-                msgFilesArray.put(files, message);
-                //System.out.println("  For provider "+provider+": have files = "+fileList+", with message '"+message+"'");
+                Object fileInfo = infoFilesList.get(fileList);
+                infoFilesArray.put(files, fileInfo);
+                //System.out.println("  For provider "+provider+": have files = "+fileList+", with info '"+fileInfo+"'");
             }
-            msgFilesList.clear();
-            msgFilesList.putAll(msgFilesArray);
+            infoFilesList.clear();
+            infoFilesList.putAll(infoFilesArray);
         }
         return providers;
     }

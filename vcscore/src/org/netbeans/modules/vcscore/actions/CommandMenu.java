@@ -34,6 +34,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
 import javax.swing.event.MenuKeyListener;
 
+import org.netbeans.api.fileinfo.NonRecursiveFolder;
+
 import org.openide.awt.Actions;
 import org.openide.awt.JMenuPlus;
 import org.openide.filesystems.FileObject;
@@ -49,6 +51,7 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 import org.netbeans.modules.vcscore.VcsFSCommandsAction;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
+import org.netbeans.modules.vcscore.commands.RecursionAwareCommand;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -85,7 +88,7 @@ public class CommandMenu extends JMenuPlus {
         org.openide.util.NbBundle.getMessage(CommandMenu.class, "CTL_AdvancedOptionsSign");
     
     private CommandsTree commandRoot;
-    private Map filesWithMessages;
+    private Map filesWithInfo;
     private List switchableList;
     private String advancedOptionsSign;
     private boolean removeDisabled;
@@ -100,34 +103,36 @@ public class CommandMenu extends JMenuPlus {
     /**
      * Creates a new instance of CommandMenu.
      * @param commandRoot The root of the tree structure of commands.
-     * @param filesWithMessages The map of array of FileObjects and the messages,
-     *        that are usedin MessagingCommands
+     * @param filesWithInfo The map of array of FileObjects and the associated
+     *        file info. This is either a String message, used in MessagingCommands,
+     *        or NonRecursiveFolder.class, according to which RecursionAwareCommand
+     *        is set up.
      * @param removeDisabled Remove the disabled commands from the popup menu
      * @param inMenu Whether a menu or a popup-menu should be created.
      */
-    public CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
+    public CommandMenu(CommandsTree commandRoot, Map filesWithInfo,
                        boolean removeDisabled, boolean inMenu,
                        boolean globalExpertMode) {
-        this(commandRoot, filesWithMessages, DEFAULT_ADVANCED_OPTIONS_SIGN,
+        this(commandRoot, filesWithInfo, DEFAULT_ADVANCED_OPTIONS_SIGN,
              removeDisabled, inMenu, globalExpertMode, null, new HashMap());
     }
     
-    private CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
+    private CommandMenu(CommandsTree commandRoot, Map filesWithInfo,
                        String advancedOptionsSign,
                        boolean removeDisabled, boolean inMenu, boolean globalExpertMode,
                        ActionListener listener, Map actionCommandMap) {
-        this(commandRoot, filesWithMessages, new ArrayList(), advancedOptionsSign,
+        this(commandRoot, filesWithInfo, new ArrayList(), advancedOptionsSign,
              removeDisabled, inMenu, globalExpertMode, listener, actionCommandMap,
              new boolean[] { false, false }); // two elements: 1) whether CTRL was pressed, 2) expertMode
     }
     
-    private CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
+    private CommandMenu(CommandsTree commandRoot, Map filesWithInfo,
                         List switchableList, String advancedOptionsSign,
                         boolean removeDisabled, boolean inMenu, boolean globalExpertMode,
                         ActionListener listener, Map actionCommandMap, boolean[] CTRL_Down) {
         super();
         this.commandRoot = commandRoot;
-        this.filesWithMessages = filesWithMessages;
+        this.filesWithInfo = filesWithInfo;
         this.switchableList = switchableList;
         this.advancedOptionsSign = advancedOptionsSign;
         this.removeDisabled = removeDisabled;
@@ -138,7 +143,7 @@ public class CommandMenu extends JMenuPlus {
         this.listener = (listener != null) ?
                          listener :
                          new CommandMenu.CommandActionListener(CTRL_Down, actionCommandMap,
-                                                               filesWithMessages);
+                                                               filesWithInfo);
         this.actionCommandMap = actionCommandMap;
         CommandSupport cmd = (CommandSupport) commandRoot.getCommandSupport();
         if (cmd != null) {
@@ -162,11 +167,11 @@ public class CommandMenu extends JMenuPlus {
         boolean willAddSeparator = false; // Whether a separator should be added before the command
         CommandsTree[] children = commandRoot.children();
         FileObject[] allFiles;
-        if (filesWithMessages.size() == 1) {
-            allFiles = (FileObject[]) filesWithMessages.keySet().iterator().next();
+        if (filesWithInfo.size() == 1) {
+            allFiles = (FileObject[]) filesWithInfo.keySet().iterator().next();
         } else {
             List files = new ArrayList();
-            for (Iterator it = filesWithMessages.keySet().iterator(); it.hasNext(); ) {
+            for (Iterator it = filesWithInfo.keySet().iterator(); it.hasNext(); ) {
                 files.addAll(Arrays.asList((FileObject[]) it.next()));
             }
             allFiles = (FileObject[]) files.toArray(new FileObject[files.size()]);
@@ -198,7 +203,7 @@ public class CommandMenu extends JMenuPlus {
             JMenuItem item;
             if (children[i].hasChildren()) {
                 JMenu submenu;
-                submenu = new CommandMenu(children[i], filesWithMessages,
+                submenu = new CommandMenu(children[i], filesWithInfo,
                                           switchableList, advancedOptionsSign,
                                           removeDisabled, inMenu, globalExpertMode,
                                           listener, actionCommandMap, CTRL_Down);
@@ -333,7 +338,7 @@ public class CommandMenu extends JMenuPlus {
      */
     public static JMenuItem createItem(CommandSupport cmd, boolean expertMode,
                                        String advancedOptionsSign,
-                                       boolean inMenu, Map filesWithMessages) {
+                                       boolean inMenu, Map filesWithInfo) {
         String label = cmd.getDisplayName();
         //System.out.println("VcsAction.createItem("+name+"): menu '"+label+"' created.");
         if (label == null) return null;
@@ -346,7 +351,7 @@ public class CommandMenu extends JMenuPlus {
         List switchableList = new ArrayList();
         ActionListener listener = new CommandMenu.CommandActionListener(CTRL_Down,
                                                                         actionCommandMap,
-                                                                        filesWithMessages);
+                                                                        filesWithInfo);
         JMenuItem item = new JMenuItem();
         Actions.setMenuText(item, label, inMenu);
         String commandStr = cmd.getName();
@@ -383,14 +388,14 @@ public class CommandMenu extends JMenuPlus {
         
         private boolean[] CTRL_Down;
         private Map actionCommandMap;
-        private Map filesWithMessages;
+        private Map filesWithInfo;
         private GeneralVcsSettings settings;
         
         public CommandActionListener(boolean[] CTRL_Down, Map actionCommandMap,
-        Map filesWithMessages) {
+        Map filesWithInfo) {
             this.CTRL_Down = CTRL_Down;
             this.actionCommandMap = actionCommandMap;
-            this.filesWithMessages = filesWithMessages;
+            this.filesWithInfo = filesWithInfo;
         }
         
         /** Invoked when an action occurs.
@@ -432,9 +437,16 @@ public class CommandMenu extends JMenuPlus {
         private void invokeCommand(final CommandSupport[] cmdSupports, final String cmdName, final boolean changeExpertMode, final boolean expertMode){
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
-                    for (Iterator it = filesWithMessages.keySet().iterator(); it.hasNext(); ) {
+                    for (Iterator it = filesWithInfo.keySet().iterator(); it.hasNext(); ) {
                         FileObject[] files = (FileObject[]) it.next();
-                        String message = (String) filesWithMessages.get(files);
+                        Object fileInfo = filesWithInfo.get(files);
+                        String message = null;
+                        boolean nonRecursive = false;
+                        if (fileInfo instanceof String) {
+                            message = (String) fileInfo;
+                        } else if (fileInfo == NonRecursiveFolder.class) {
+                            nonRecursive = true;
+                        }
                         Command[] cmds;
                         if (cmdSupports != null) {
                             cmds = new Command[cmdSupports.length];
@@ -459,6 +471,9 @@ public class CommandMenu extends JMenuPlus {
                             }
                             if (message != null && cmd instanceof MessagingCommand) {
                                 ((MessagingCommand) cmd).setMessage(message);
+                            }
+                            if (nonRecursive && cmd instanceof RecursionAwareCommand) {
+                                ((RecursionAwareCommand) cmd).setRecursionBanned(true);
                             }
                             cmd.setGUIMode(true);
                             if (changeExpertMode) cmd.setExpertMode(expertMode);
