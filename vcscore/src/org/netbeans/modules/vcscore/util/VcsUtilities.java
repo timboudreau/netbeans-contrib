@@ -446,9 +446,11 @@ public class VcsUtilities {
      * Get just the system environment variables.
      */
     public static Map getSystemEnvVars() {
+        /*
         if (systemEnvVariables == null) {
             synchronized (systemEnvVariablesLock) {
                 if (systemEnvVariables == null) {
+         */
                     systemEnvVariables = new HashMap();
                     for (Enumeration enum = System.getProperties().propertyNames(); enum.hasMoreElements(); ) {
                         String key = (String) enum.nextElement();
@@ -459,9 +461,11 @@ public class VcsUtilities {
                             }
                         }
                     }
+                    /*
                 }
             }
         }
+                     */
         return systemEnvVariables;
     }
     
