@@ -2813,11 +2813,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             //System.out.println(preDisplayNameVar.getValue() + " " + rootFile.toString());
             return preDisplayNameVar.getValue() + " " + rootFile.toString();
         } else if (commandsRoot != null) {
-            String VCSName = commandsRoot.getCommandSupport().getDisplayName();
-            //System.out.println("VCSName = '"+VCSName+"'");
-            if (VCSName != null && VCSName.length() > 0) {
-                //System.out.println("VcsFileSystem.getDisplayName() = "+VCSName + " " + rootFile.toString());
-                return VCSName + " " + rootFile.toString();
+            CommandSupport cmdSupport = commandsRoot.getCommandSupport();
+            if (cmdSupport != null) {
+                String VCSName = cmdSupport.getDisplayName();
+                //System.out.println("VCSName = '"+VCSName+"'");
+                if (VCSName != null && VCSName.length() > 0) {
+                    //System.out.println("VcsFileSystem.getDisplayName() = "+VCSName + " " + rootFile.toString());
+                    return VCSName + " " + rootFile.toString();
+                }
             }
         }
         //System.out.println(g("LAB_FileSystemValid", rootFile.toString ()));
