@@ -80,6 +80,14 @@ public class Variables {
      */
     
     /**
+     * This variable is defined only when used in the execution string
+     * and is filled with the full path to a temporary file, that is created
+     * and exists ONLY while the command is running. The file is deleted
+     * automatically as soon as the command finish.
+     */
+    public static final String TEMPORARY_FILE = "TEMPORARY_FILE"; // NOI18N
+
+    /**
      * When non-empty, the directory reader should read also files, which were deleted
      * from the version control system, but their old revisions exist.
      */

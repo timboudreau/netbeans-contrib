@@ -42,7 +42,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         
     public static final String DEFAULT_REGEX = "^(.*$)"; // Match the whole line by default.
     public static final String STATUS_USE_REG_EXP_PARSE_OUTPUT = "REG_EXP_PARSE_OUTPUT"; // Use the output of the parsing as the status
-
+    
     private VcsFileSystem fileSystem = null;
     private UserCommand cmd = null;
     private Hashtable vars = null;
@@ -620,6 +620,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec == null) return ; // Silently ignore null exec
         String execOrig = exec;
+        File tempFile = null;
+        if (exec.indexOf(Variables.TEMPORARY_FILE) >= 0) {
+            try {
+                tempFile = File.createTempFile("VCS", "tmp");
+                tempFile.deleteOnExit();
+                vars.put(Variables.TEMPORARY_FILE, tempFile.getAbsolutePath());
+            } catch (IOException ioex) {}
+        }
         exec = Variables.expand(vars, exec, false);
         exec = exec.trim();
         if (exec.trim().length() == 0) {
@@ -650,6 +658,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 runCommand(execs);
         } finally {
             if (disableRefresh) fileSystem.enableRefresh();
+            if (tempFile != null) tempFile.delete();
         }
     }
     
