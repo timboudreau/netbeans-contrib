@@ -59,6 +59,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private HashMap autoFillVars = new HashMap();
     
+    private HashMap cache = new HashMap ();
+    
     //private static transient FileLock configSaveLock = FileLock.NONE;
 
     static final long serialVersionUID = -8801742771957370172L;
@@ -817,6 +819,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         switch( evt.getStateChange() ){
         case ItemEvent.SELECTED:
             String selectedLabel=(String)evt.getItem();
+            updateVariables (selectedLabel);
             E.deb ("config state changed to:"+selectedLabel);
             if(selectedLabel.equalsIgnoreCase("empty")) { // NOI18N
                 removeConfigButton.setEnabled (false);
@@ -1182,11 +1185,15 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if (configCombo.getItemCount() > 0) {
             configCombo.removeAllItems();
         }
-
+        
+        // Clear all current settings
+        if (this.cache.size() >0)
+            this.cache.clear();
         configLabels = new Vector();
         configVariablesByLabel = new Hashtable();
         configAdvancedByLabel = new Hashtable();
         configNamesByLabel = new Hashtable();
+
 
         String selectedConfig = fileSystem.getConfig();
         int newIndex = 0;
@@ -1195,39 +1202,34 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             String name = (String) configNames.get(i);
             if (CommandLineVcsFileSystem.TEMPORARY_CONFIG_FILE_NAME.equals(name)) continue;
             String label;
-            Vector variables;
-            Object advanced;
             if (name.endsWith(VariableIOCompat.CONFIG_FILE_EXT)) {
                 Properties props = VariableIOCompat.readPredefinedProperties
                                   (fileSystem.getConfigRootFO(), name);
                 //( fileSystem.getConfigRoot()+File.separator+name+".properties"); // NOI18N
-
                 label = props.getProperty("label", g("CTL_No_label_configured"));
-                variables = VariableIOCompat.readVariables(props);
-                advanced = CommandLineVcsAdvancedCustomizer.readConfig (props);
+                this.cache.put (label,props);
             } else {
                 org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations
                                           (fileSystem.getConfigRootFO(), name);
                 if (doc == null) continue;
                 try {
-                    variables = VariableIO.readVariables(doc);
-                    advanced = CommandLineVcsAdvancedCustomizer.readConfig (doc);
                     label = VariableIO.getConfigurationLabel(doc);
+                    this.cache.put (label, doc);
                 } catch (org.w3c.dom.DOMException exc) {
                     org.openide.TopManager.getDefault().notifyException(exc);
-                    variables = new Vector();
-                    advanced = null;
+//                    variables = new Vector();
+//                    advanced = null;
                     label = g("CTL_No_label_configured");
                 }
             }
+            
+            configNamesByLabel.put(label,name);
+            
             if (label == null) label = "";
             configLabels.addElement(label);
             if (label.equals(selectedConfig)) {
                 newIndex = i;
             }
-            configNamesByLabel.put(label,name);
-            configVariablesByLabel.put(label,variables);
-            configAdvancedByLabel.put(label, advanced);
             //configCombo.addItem(label);
         }
         String[] sortedLabels = (String[]) configLabels.toArray(new String[0]);
@@ -1244,6 +1246,28 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if (configCombo.getItemCount() > 0)
             configCombo.setSelectedIndex( newIndex );
         promptForConfigComboChange = false;
+    }
+    
+    private void updateVariables (String label) {
+        if (configVariablesByLabel.get(label) != null)
+            return;         // Already done
+        Object obj = this.cache.get (label);
+        if (obj == null)
+            throw new IllegalArgumentException (label);
+        Vector variables;
+        Object advanced;
+        if (obj instanceof java.util.Properties) {
+            java.util.Properties props = (java.util.Properties) obj;
+            variables = VariableIOCompat.readVariables(props);
+            advanced = CommandLineVcsAdvancedCustomizer.readConfig (props);
+        }
+        else {
+            org.w3c.dom.Document doc = (org.w3c.dom.Document) obj;
+            variables = VariableIO.readVariables(doc);
+            advanced = CommandLineVcsAdvancedCustomizer.readConfig (doc);
+        }
+        configVariablesByLabel.put(label,variables);
+        configAdvancedByLabel.put(label, advanced);
     }
 
     private void updateAdvancedConfig() {

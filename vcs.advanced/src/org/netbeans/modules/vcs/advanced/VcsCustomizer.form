@@ -2,7 +2,6 @@
 
 <Form version="1.0" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <SyntheticProperties>
-    <SyntheticProperty name="encoding" type="java.lang.String" value="UTF-8"/>
   </SyntheticProperties>
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
@@ -125,8 +124,8 @@
                 </Component>
                 <Component class="javax.swing.JTextField" name="rootDirTextField">
                   <Properties>
-                    <Property name="columns" type="int" editor="sun.beans.editors.IntEditor" value="15"/>
-                    <Property name="text" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="."/>
+                    <Property name="columns" type="int" value="15"/>
+                    <Property name="text" type="java.lang.String" value="."/>
                     <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection component="browseButton" type="bean"/>
                     </Property>
@@ -220,8 +219,8 @@
                 </Component>
                 <Component class="javax.swing.JTextField" name="refreshTextField">
                   <Properties>
-                    <Property name="columns" type="int" editor="sun.beans.editors.IntEditor" value="8"/>
-                    <Property name="text" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="0"/>
+                    <Property name="columns" type="int" value="8"/>
+                    <Property name="text" type="java.lang.String" value="0"/>
                   </Properties>
 
                   <Events>
@@ -269,7 +268,7 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="linkLabel">
                   <Properties>
-                    <Property name="text" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="http://vcsgeneric.netbeans.org/profiles/index.html"/>
+                    <Property name="text" type="java.lang.String" value="http://vcsgeneric.netbeans.org/profiles/index.html"/>
                   </Properties>
 
                   <Events>
