@@ -54,6 +54,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor hideShadowFiles = null;
         PropertyDescriptor ignoredGarbageFiles = null;
         PropertyDescriptor rememberPassword = null;
+        PropertyDescriptor shortStatuses = null;
 
         try {
             rootDirectory=new PropertyDescriptor
@@ -108,13 +109,15 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             rememberPassword = new PropertyDescriptor
                                 ("rememberPassword", CommandLineVcsFileSystem.class, "isRememberPassword", "setRememberPassword"); // NOI18N
             rememberPassword.setExpert(true);
+            shortStatuses = new PropertyDescriptor
+                                (CommandLineVcsFileSystem.PROP_SHORT_FILE_STATUSES, CommandLineVcsFileSystem.class, "isShortFileStatuses", "setShortFileStatuses");
 
 
             desc = new PropertyDescriptor[] {
                        rootDirectory, debug, variables, commands, cacheId, config,
                        acceptUserParams, runRefreshCommand, processAllFiles,
                        annotationPattern, autoRefresh, notification, hideShadowFiles,
-                       ignoredGarbageFiles, rememberPassword
+                       ignoredGarbageFiles, rememberPassword, shortStatuses
                    };
 
             ResourceBundle bundle = NbBundle.getBundle (CommandLineVcsFileSystemBeanInfo.class);
@@ -154,6 +157,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             ignoredGarbageFiles.setShortDescription(bundle.getString("HINT_ignoredGarbageFiles"));
             rememberPassword.setDisplayName   (bundle.getString("PROP_rememberPassword"));
             rememberPassword.setShortDescription(bundle.getString("HINT_rememberPassword"));
+            shortStatuses.setDisplayName      (bundle.getString("PROP_shortFileStatuses"));
+            shortStatuses.setShortDescription (bundle.getString("HINT_shortFileStatuses"));
 
         } catch (IntrospectionException ex) {
             ex.printStackTrace ();

@@ -56,6 +56,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public static final String VAR_LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE = "LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE";
     public static final String VAR_POSSIBLE_FILE_STATUSES = "POSSIBLE_FILE_STATUSES";
     public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED = "POSSIBLE_FILE_STATUSES_LOCALIZED";
+    public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT = "POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT";
     public static final String VAR_NOT_MODIFIABLE_FILE_STATUSES = "NOT_MODIFIABLE_FILE_STATUSES";
     public static final String VAR_ICONS_FOR_FILE_STATUSES = "ICONS_FOR_FILE_STATUSES";
     
@@ -76,6 +77,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * It's supposed to return the ignored files on its data output.
      */
     public static final String CMD_CREATE_FOLDER_IGNORE_LIST = "CREATE_FOLDER_IGNORE_LIST";
+    
+    public static final String PROP_SHORT_FILE_STATUSES = "shortFileStatuses";
     
     private static final boolean DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE = true;
     
@@ -102,6 +105,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private String cacheRoot;
     private String cachePath;
     private long cacheId = 0;
+    private boolean shortFileStatuses = false;
     private transient boolean doInitialCheckout = false; // whether to do an initial checkout after the FS is mounted
 
     static final long serialVersionUID =-1017235664394970926L;
@@ -392,9 +396,35 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
     
+    public boolean isShortFileStatuses() {
+        return shortFileStatuses;
+    }
+    
+    public void setShortFileStatuses(boolean shortFileStatuses) {
+        if (this.shortFileStatuses != shortFileStatuses) {
+            this.shortFileStatuses = shortFileStatuses;
+            setPossibleFileStatusesFromVars();
+            refreshStatusOfExistingFiles();
+        }
+    }
+    
+    protected void refreshStatusOfExistingFiles() {
+        Enumeration enum = existingFileObjects(getRoot());
+        HashSet existingFOs = new HashSet();
+        while (enum.hasMoreElements()) {
+            existingFOs.add(enum.nextElement());
+        }
+        fireFileStatusChanged(new org.openide.filesystems.FileStatusEvent(this, existingFOs, false, true));
+    }
+    
     private void setPossibleFileStatusesFromVars() {
         VcsConfigVariable varStatuses = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES);
-        VcsConfigVariable varStatusesLclz = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES_LOCALIZED);
+        VcsConfigVariable varStatusesLclz;
+        if (isShortFileStatuses()) {
+            varStatusesLclz = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT);
+        } else {
+            varStatusesLclz = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES_LOCALIZED);
+        }
         if (additionalPossibleFileStatusesMap != null) VcsUtilities.removeKeys(possibleFileStatusesMap, additionalPossibleFileStatusesMap);
         additionalPossibleFileStatusesMap = null;
         if (varStatuses != null) {
