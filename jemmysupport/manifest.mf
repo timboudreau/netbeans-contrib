@@ -1,7 +1,8 @@
+Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.jemmysupport/1
-OpenIDE-Module-Name: JemmySupport
-OpenIDE-Module-Display-Category: Tools
-OpenIDE-Module-Specification-Version: 1.1.5
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jemmysupport/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.2.0
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Layer: org/netbeans/modules/jemmysupport/mf-layer.xml
-OpenIDE-Module-Short-Description: Support module for Jemmy components automated generation
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 2.3
+Class-Path: ext/jemmy.jar

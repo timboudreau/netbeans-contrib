@@ -161,6 +161,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
         splitPane.setLeftComponent(scrollPane);
 
         propertySheet.setToolTipText(org.openide.util.NbBundle.getMessage(ComponentsEditorPanel.class, "TTT_Properties", new Object[] {}));
+        propertySheet.setDisplayWritableOnly(true);
         splitPane.setRightComponent(propertySheet);
         propertySheet.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ComponentsEditorPanel.class, "LBL_Properties", new Object[] {}));
 

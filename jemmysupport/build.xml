@@ -29,14 +29,14 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="prepare-lib">
     <ant dir="../jemmy/" target="jar"/>
-    <mkdir dir="netbeans/lib/ext"/>
-    <copy file="../jemmy/jemmy.jar" tofile="netbeans/lib/ext/jemmy.jar" filtering="off"/>
+    <mkdir dir="netbeans/modules/ext"/>
+    <copy file="../jemmy/jemmy.jar" tofile="netbeans/modules/ext/jemmy.jar" filtering="off"/>
   </target>
 
   <target name="compile" depends="prepare-lib">
   <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <classpath>
-        <pathelement location="netbeans/lib/ext/jemmy.jar"/>
+        <pathelement location="netbeans/modules/ext/jemmy.jar"/>
         <pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <fileset dir="${nbroot}/openide/netbeans/lib">
           <include name="openide*.jar" />
@@ -47,7 +47,16 @@ Microsystems, Inc. All Rights Reserved.
     </javac>
   </target>
 
-  <target name="jars" depends="compile">
+  <target name="prepare-docs">
+      <!-- ant dir="../jemmy/" target="api"/ -->
+      <mkdir dir="netbeans/docs"/>
+      <zip zipfile="netbeans/docs/jemmy-javadoc.zip"
+             basedir="../jemmy/www/javadoc"
+             compress="true">
+      </zip>
+  </target>
+
+  <target name="jars" depends="compile,prepare-docs">
     <mkdir dir="netbeans/modules"/>
     <tstamp>
         <format property="buildnumber" pattern="yyyyMMddhhmm"/>
@@ -90,7 +99,8 @@ Microsystems, Inc. All Rights Reserved.
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="jemmysupport.nbm"/>
-    <delete dir="netbeans"/>
+    <delete dir="netbeans/docs"/>
+    <delete dir="netbeans/modules"/>
     <delete dir="Info"/>
   </target>
 
