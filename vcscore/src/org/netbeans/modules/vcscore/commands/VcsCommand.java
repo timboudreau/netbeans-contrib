@@ -191,12 +191,17 @@ public interface VcsCommand extends VcsCommandCookie {
      * will not be permitted to run inside a single package at the same time.
      */
     public static final int EXEC_SERIAL_ON_PACKAGE = 2;
+    /** Serial execution of commands with respect to commands running on a parent folders.
+     * The command will not run on a child before
+     * all commands on parent folders are finished. This flag is necessary for ADD command.
+     */
+    public static final int EXEC_SERIAL_WITH_PARENT = 4;
     /** Serial execution of commands of this name.
      * That means that only one command of this name will run at a given time.
      * It can be restricted to a single file or a single package by using <code>EXEC_SERIAL_ON_FILE</code>
      * or <code>EXEC_SERIAL_ON_PACKAGE</code> properties.
      */
-    public static final int EXEC_SERIAL_OF_COMMAND = 4;
+    public static final int EXEC_SERIAL_OF_COMMAND = 8;
     /** Serial execution of all commands.
      */
     public static final int EXEC_SERIAL_ALL = -1;
