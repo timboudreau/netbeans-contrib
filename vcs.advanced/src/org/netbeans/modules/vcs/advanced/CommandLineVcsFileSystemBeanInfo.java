@@ -168,7 +168,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
     /* Provides the VCSFileSystem's icon */
     public java.awt.Image getIcon(int type) {
         if (icon == null) {
-            icon = loadImage("/org/netbeans/modules/vcscore/vcs2.gif"); // NOI18N
+            icon = loadImage("/org/netbeans/modules/vcs/advanced/vcsGeneric"); // NOI18N
             icon32 = icon;
         }
         if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16))
@@ -189,7 +189,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         BeanDescriptor bd = new BeanDescriptor(CommandLineVcsFileSystem.class,
                                                org.netbeans.modules.vcs.advanced.VcsCustomizer.class);
         bd.setValue(VcsFileSystem.VCS_PROVIDER_ATTRIBUTE, new Boolean(true));
-        bd.setValue(VcsFileSystem.VCS_FILESYSTEM_ICON_BASE, "/org/netbeans/modules/vcscore/vcs2");
+        bd.setValue(VcsFileSystem.VCS_FILESYSTEM_ICON_BASE, "/org/netbeans/modules/vcs/advanced/vcsGeneric");
         
         return bd;
     }
