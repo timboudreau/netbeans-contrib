@@ -180,6 +180,14 @@ class UserTaskNode extends TaskNode {
             
             
             p = new Reflection(item, SuggestionPriority.class, "getPriority", "setPriority"); // NOI18N
+            /*    public Object getValue(String attributeName) {
+                    if (attributeName.equals("inplaceEditor")) {
+                        return PriorityInplaceEditor.getInstance();
+                    } else {
+                        return super.getValue(attributeName);
+                    }
+                }
+            }; todo inplace editor not yet implemented */
             p.setName(UserTaskView.PROP_TASK_PRIO);
             p.setPropertyEditorClass(PriorityPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Priority")); // NOI18N
