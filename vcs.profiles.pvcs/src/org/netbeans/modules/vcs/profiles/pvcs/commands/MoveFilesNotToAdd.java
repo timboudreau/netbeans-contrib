@@ -99,6 +99,7 @@ public class MoveFilesNotToAdd implements VcsAdditionalCommand {
         
     private boolean moveFilesRec(File f1, File f2, String relPath, Collection names) {
         File[] files = f1.listFiles();
+        if (files == null) files = new File[0];
         if (relPath.length() > 0) relPath = relPath + "/"; // NOI18N
         for (int i = 0; i < files.length; i++) {
             String name = files[i].getName();
@@ -142,6 +143,7 @@ public class MoveFilesNotToAdd implements VcsAdditionalCommand {
     
     private boolean moveFiles(File f1, File f2) {
         File[] files = f1.listFiles();
+        if (files == null) return true;
         for (int i = 0; i < files.length; i++) {
             if (files[i].isDirectory()) {
                 boolean status = moveFiles(files[i], new File(f2,  files[i].getName()));
@@ -169,6 +171,7 @@ public class MoveFilesNotToAdd implements VcsAdditionalCommand {
     
     private boolean delete(File folder) {
         File[] files = folder.listFiles();
+        if (files == null) return true;
         for (int i = 0; i < files.length; i++) {
             if (files[i].isDirectory()) {
                 boolean success = delete(files[i]);
