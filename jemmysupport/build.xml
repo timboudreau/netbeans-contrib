@@ -21,6 +21,7 @@ Microsystems, Inc. All Rights Reserved.
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" value="${nbext}/standard-nbm-license.txt"/>
+  <property name="build.compiler.debug" value="true"/>
 
     <target name="init" depends="default.init">
       <patternset id="jemmysupport.files">
@@ -41,7 +42,15 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${diff.dir}/${nb.modules.dir}/diff.jar" />
         <!-- Hopefully set up by nbbuild/build.xml: -->
         <pathelement location="${jdkhome}/lib/tools.jar"/>
+        <!-- classpath for internal execution support -->
+        <pathelement location="${projects/queries.dir}/${nb.modules.dir}/org-netbeans-modules-queries.jar"/>
+        <pathelement location="${java/srcmodel.dir}/${nb.modules.dir}/org-openide-src.jar"/>
+<!--        <pathelement location="${projects/projectui.dir}/${nb.modules.dir}/org-netbeans-modules-projectui.jar"/> -->
+        <pathelement location="${java/api.dir}/${nb.modules.dir}/org-netbeans-api-java.jar"/>
+        <pathelement location="${projects/projectapi.dir}/${nb.modules.dir}/org-netbeans-modules-projectapi.jar"/>
       </classpath>
+      <!-- XXX temp -->
+      <exclude name="**/Main.java" />
     </javac>
   </target>
 
@@ -54,17 +63,13 @@ Microsystems, Inc. All Rights Reserved.
   <target name="jars" depends="compile">
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/org-netbeans-modules-jemmysupport.jar"
          manifest="manifest-subst.mf"
          basedir="src"
 	 excludesfile="../nbbuild/standard-jar-excludes.txt"
 	 compress="false">
     </jar>
-    <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
-      <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
-        <include name="${nb.modules.dir}/org-netbeans-modules-jemmysupport.jar"/>
-      </enabled>
-    </createmodulexml>
   </target>
 
   <target name="netbeans" depends="jars,javahelp">
@@ -73,6 +78,11 @@ Microsystems, Inc. All Rights Reserved.
         <patternset refID="jemmysupport.files"/>
       </fileset>
     </genlist>
+    <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
+      <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
+        <include name="${nb.modules.dir}/org-netbeans-modules-jemmysupport.jar"/>
+      </enabled>
+    </createmodulexml>
   </target>
 
   <target name="nbm" depends="netbeans">
@@ -117,6 +127,7 @@ Microsystems, Inc. All Rights Reserved.
     </jhindexer>
     <mkdir dir="javahelp/org/netbeans/modules/usersguide"/>
     <copy file="../usersguide/javahelp/org/netbeans/modules/usersguide/ide.css" tofile="javahelp/org/netbeans/modules/usersguide/ide.css"/>
+    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/docs.dir}"/>
     <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/docs.dir}/jemmysupport.jar" compress="true">
         <fileset dir="javahelp" excludesfile="${nbext}/standard-jar-excludes.txt" excludes="org/netbeans/modules/usersguide/"/>
     </jar>

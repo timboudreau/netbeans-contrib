@@ -1,11 +1,10 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.jemmysupport/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jemmysupport/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.12
+OpenIDE-Module-Specification-Version: 1.13
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Layer: org/netbeans/modules/jemmysupport/mf-layer.xml
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.21
-OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help, org.openide.execution.ExecutionEngine
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.jemmy/2, org.netbeans.modules.diff/1, org.openide.execution > 1.0, org.netbeans.core/1 > 1.0
-Class-Path: docs/jemmysupport.jar
+OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.jemmy/2, org.netbeans.modules.diff/1, org.openide.execution > 1.0, org.netbeans.core/1 > 1.0, org.openide.src, org.netbeans.modules.queries/0, org.netbeans.modules.projectapi/0, org.netbeans.api.java/1
 

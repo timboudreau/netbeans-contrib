@@ -21,6 +21,7 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
                 <file name="org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.instance"/>
+                <file name="org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.instance"/>
         </folder>
     </folder>
     <folder name="Shortcuts">
@@ -33,12 +34,16 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
         <file name="CA-A.instance">
 	    <attr name="instanceClass" stringvalue="org.netbeans.modules.jemmysupport.namelookup.NameLookupAction"/>
 	</file>
+        <file name="CA-F6.instance">
+	    <attr name="instanceClass" stringvalue="org.netbeans.modules.jemmysupport.runinternally.RunInternallyAction"/>
+	</file>
     </folder>
     <folder name="Toolbars">
         <folder name="Jemmy Support">
                 <file name="org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.instance"/>
+                <file name="org-netbeans-modules-jemmysupport-runinternally-RunInternallyAction.instance"/>
         </folder>
     </folder>
     <folder name="Services">
