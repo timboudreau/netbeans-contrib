@@ -22,8 +22,10 @@ import java.util.HashMap;
  */
 public interface AnnotationProvider {
 
+    public static final String ANN_PROVIDER_FO_ATTRIBUTE = "AnnotationProviderObject"; //NOI18N
+    
     /**
-     * for a specified file (relative path from the fs root), 
+     * for a specified file (relative path from the fs root - FileObject getPackageNameExt() method), 
      * returns the value of the attribute (if defined) otherwise null
      */
  
