@@ -16,6 +16,8 @@ package org.netbeans.modules.latex.guiproject.wizard;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +27,7 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.ProjectManager;
 
 import org.netbeans.modules.latex.guiproject.CreateNewLaTeXProject;
+import org.openide.ErrorManager;
 
 import org.openide.WizardDescriptor;
 import org.openide.WizardDescriptor.InstantiatingIterator;
@@ -90,14 +93,34 @@ public class NewLaTeXGUIProjectWizardIterator implements org.openide.WizardDescr
         FileObject documentTexSource = Repository.getDefault().getDefaultFileSystem().findResource("latex/guiproject/document.tex");
         
         if (mainFileFO.getSize() == 0) {
-            FileLock lock = null;
+            FileLock     lock = null;
+            InputStream  ins  = null;
+            OutputStream outs = null;
             
             try {
                 lock = mainFileFO.lock();
-                FileUtil.copy(documentTexSource.getInputStream(), mainFileFO.getOutputStream(lock));
+                ins  = documentTexSource.getInputStream();
+                outs = mainFileFO.getOutputStream(lock);
+                FileUtil.copy(ins, outs);
             } finally {
                 if (lock != null)
                     lock.releaseLock();
+                
+                if (ins != null) {
+                    try {
+                        ins.close();
+                    } catch (IOException e) {
+                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    }
+                }
+                
+                if (outs != null) {
+                    try {
+                        outs.close();
+                    } catch (IOException e) {
+                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    }
+                }
             }
         }
         
