@@ -66,8 +66,10 @@ public class VcsAction extends NodeAction implements ActionListener {
     private Node[] actionCommandsSubTrees = null; // the commands subtrees to construct actions from
 
     boolean CTRL_Down = false;
+    private String advancedOptionsSign;
     
     public VcsAction() {
+        advancedOptionsSign = org.openide.util.NbBundle.getMessage(VcsAction.class, "CTL_AdvancedOptionsSign");
     }
 
     public void setFileSystem(VcsFileSystem fileSystem) {
@@ -826,15 +828,20 @@ public class VcsAction extends NodeAction implements ActionListener {
         //    label = v.expandFast(vars, label, true);
         //}
         //System.out.println("VcsAction.createItem("+name+"): menu '"+label+"' created.");
+        boolean hasExpert = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_SUPPORTS_ADVANCED_MODE);
+        if (hasExpert && expertMode) label += advancedOptionsSign;
         item = new JMenuItem(label);
+        String mnemonic = (String) cmd.getProperty(VcsCommand.PROPERTY_LABEL_MNEMONIC);
+        if (mnemonic != null && mnemonic.length() > 0) {
+            item.setMnemonic(mnemonic.charAt(0));
+        }
         String[] props = cmd.getPropertyNames();
         if (props != null && props.length > 0) {
             item.setActionCommand(cmd.getName());
             item.addActionListener(this);
         }
-        Boolean hasExpert = (Boolean)cmd.getProperty(cmd.PROPERTY_SUPPORTS_ADVANCED_MODE);
-        if (hasExpert != null && hasExpert.booleanValue() == true && (!expertMode)) {
-               switchableList.add(item);
+        if (hasExpert && (!expertMode)) {
+            switchableList.add(item);
         }
         return item;
     }
@@ -844,6 +851,13 @@ public class VcsAction extends NodeAction implements ActionListener {
      */
     private void addMenu(Node commands, JMenu parent, boolean onDir, boolean onFile,
                          boolean onRoot, Set statuses) {
+        VcsCommand parentCmd = (VcsCommand) commands.getCookie(VcsCommand.class);
+        if (parentCmd != null) {
+            String mnemonic = (String) parentCmd.getProperty(VcsCommand.PROPERTY_LABEL_MNEMONIC);
+            if (mnemonic != null && mnemonic.length() > 0) {
+                parent.setMnemonic(mnemonic.charAt(0));
+            }
+        }
         Children children = commands.getChildren();
         for (Enumeration subnodes = children.nodes(); subnodes.hasMoreElements(); ) {
             Node child = (Node) subnodes.nextElement();
@@ -1361,10 +1375,10 @@ public class VcsAction extends NodeAction implements ActionListener {
             String text = item.getText();
             if (newValue) {
                 // do turn ctrl sign on
-                if (!text.endsWith("+")) {text = text + "+";}
+                if (!text.endsWith(advancedOptionsSign)) {text = text + advancedOptionsSign;}
             }   else { 
                 // turn it off - ctrl released
-                if (text.endsWith("+")) {text = text.substring(0,text.length() - 1);}
+                if (text.endsWith(advancedOptionsSign)) {text = text.substring(0, text.length() - advancedOptionsSign.length());}
             }    
             item.setText(text);
         }    

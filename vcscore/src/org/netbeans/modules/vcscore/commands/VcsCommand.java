@@ -83,6 +83,11 @@ public interface VcsCommand extends VcsCommandCookie {
     public static final String NAME_SCHEDULE_REMOVE = "SCHEDULE_REMOVE";
     
     /**
+     * If the command label is not null, this property is used as a mnemonic
+     * for the command lanel.
+     */
+    public static final String PROPERTY_LABEL_MNEMONIC = "labelMnemonic";
+    /**
      * Command may set this property which will be visible on the VariableInputDialog.
      * Can be used to tell the user about the specific command appearance.
      */
