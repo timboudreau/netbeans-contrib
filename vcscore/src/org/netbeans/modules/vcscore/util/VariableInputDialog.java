@@ -184,6 +184,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * @return true if the input is valid, false otherwise
      */
     private boolean testValidInput() {
+        if (inputDescriptor == null) return true;
         VariableInputValidator validator = inputDescriptor.validate();
         boolean valid = validator.isValid();
         if (!valid) {
@@ -516,7 +517,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints2.weightx = 1.0;
         gridBagConstraints2.weighty = 1.0;
         gridBagConstraints2.insets = new java.awt.Insets (0, 0, 8, 0);
-        gridBagConstraints2.gridwidth = 2;
+        gridBagConstraints2.gridwidth = 3;
         area.setBorder(new javax.swing.border.BevelBorder(javax.swing.border.BevelBorder.LOWERED));
         variablePanel.add(label, gridBagConstraints1);
         variablePanel.add(scrollArea, gridBagConstraints2);
