@@ -21,7 +21,7 @@ Microsystems, Inc. All Rights Reserved.
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" value="../nbbuild/standard-nbm-license.txt"/>
+  <property name="license.file1" value="${nbroot1}/nbbuild/standard-nbm-license.txt"/>
 
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext1}/nbantext.jar"/>
   <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext1}/nbantext.jar"/>
@@ -44,32 +44,39 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot1}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
 	<pathelement location="${nbroot1}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
         <pathelement location="${binroot1}/core/release/lib/ext/xerces.jar"/>
+        <pathelement location="${binroot1}/core/release/lib/ext/regexp.jar"/>
       </classpath>
     </javac>
   </target>
 
   <target name="jars" depends="compile">
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/cvsprofiles/layer-includes-commands.xml" absolutepath="true">
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*.class"/>
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*.java"/>
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*.form"/>
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*.properties"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*.class"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*.form"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*.properties"/>
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/cvsprofiles/layer-includes-commands-passwd.xml" absolutepath="true">
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*.class"/>
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*.java"/>
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*.form"/>
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*.properties"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*.class"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*.form"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*.properties"/>
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/cvsprofiles/layer-includes-config.xml" absolutepath="true">
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/config/*.*"/>
-       <exclude name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/config/*_ja.*"/>
-       <exclude name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/config/*_XX.*"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/config/*.*"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/cvsprofiles/config/*_ja.*"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/cvsprofiles/config/*_XX.*"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle.properties"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle_*.properties"/>
+    </makelayer>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/cvsprofiles/layer-includes-configRB.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle.properties"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle_*.properties"/>
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/cvsprofiles/layer-includes-list.xml" absolutepath="true">
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/list/*.class"/>
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/list/*.java"/>
-       <include name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/list/*.properties"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/list/*.class"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/list/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/list/*.properties"/>
     </makelayer>
     <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
@@ -93,7 +100,7 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist targetname="nbm" outputfiledir="../nbbuild/netbeans"/>
+    <genlist targetname="nbm" outputfiledir="${nbext1}/netbeans"/>
   </target>
 
   <target name="nbm" depends="netbeans">
@@ -102,7 +109,7 @@ Microsystems, Inc. All Rights Reserved.
              module="netbeans/modules/cvs-profile.jar"
 	     homepage="http://vcsgeneric.${homepage.base}/"
 	     distribution="http://${dist.base}/cvs-profile.nbm">
-      <license file="${license.file}"/>
+      <license file="${license.file1}"/>
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>

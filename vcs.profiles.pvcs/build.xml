@@ -21,7 +21,7 @@ Microsystems, Inc. All Rights Reserved.
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" value="${nbroot1}/nbbuild/standard-nbm-license.txt"/>
+  <property name="license.file1" value="${nbroot1}/nbbuild/standard-nbm-license.txt"/>
 
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext1}/nbantext.jar"/>
   <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext1}/nbantext.jar"/>
@@ -44,6 +44,7 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot1}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
 	<pathelement location="${nbroot1}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
         <pathelement location="${binroot1}/core/release/lib/ext/xerces.jar"/>
+        <pathelement location="${binroot1}/core/release/lib/ext/regexp.jar"/>
       </classpath>
     </javac>
   </target>
@@ -97,7 +98,7 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist targetname="nbm" outputfiledir="../nbbuild/netbeans"/>
+    <genlist targetname="nbm" outputfiledir="${nbext1}/netbeans"/>
   </target>
 
   <target name="nbm" depends="netbeans">
@@ -106,7 +107,7 @@ Microsystems, Inc. All Rights Reserved.
              module="netbeans/modules/pvcs-profile.jar"
 	     homepage="http://vcsgeneric.${homepage.base}/"
 	     distribution="http://${dist.base}/pvcs-profile.nbm">
-      <license file="${license.file}"/>
+      <license file="${license.file1}"/>
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>
@@ -116,7 +117,7 @@ Microsystems, Inc. All Rights Reserved.
       <fileset dir="src">
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
-        <include name="org/netbeans/modules/vcs/profile/pvcs/layer-include*.xml"/>
+        <include name="org/netbeans/modules/vcs/profiles/pvcs/layer-include*.xml"/>
       </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
