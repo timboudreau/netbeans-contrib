@@ -1017,16 +1017,16 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="exec">
-	  <value>$[? FOLDER_CONTENTS] [vcs.commands.RecursiveFolderCommand.class ${RUN_RECURSIVELY} ADD_CMD] []</value>
+	  <value>$[? NO_CONTENT] [] [vcs.commands.RecursiveFolderCommand.class ${RUN_RECURSIVELY} ADD_CMD]</value>
 	  <!-- If the folder content is not to be added, only ADD_CMD command is executed as a post-command.
                This is necessary due to concurrentExec being -1 -->
 	</property>
         <property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_ADD_Label),
                     ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Label)))
-                 VARIABLE_DEFAULTS(FOLDER_CONTENTS USER, RUN_RECURSIVELY USER, DO_COMMIT USER)
-                 SELECT_RADIO(FOLDER_CONTENTS, "", "", [ResourceMsg1(COMMAND_ADD_JustFolder), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_JustFolder);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_JustFolder_mnc))],
-                                                       [ResourceMsg1(COMMAND_ADD_FolderContents), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_FolderContents);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_FolderContents_mnc)),
+                 VARIABLE_DEFAULTS(NO_CONTENT USER, RUN_RECURSIVELY USER, DO_COMMIT USER)
+                 SELECT_RADIO(NO_CONTENT, "", "true",  [ResourceMsg1(COMMAND_ADD_JustFolder), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_JustFolder);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_JustFolder_mnc))],
+                                                       [ResourceMsg1(COMMAND_ADD_FolderContents), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_FolderContents);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_FolderContents_mnc)),
                                                         PROMPT_FOR(DESCRIPTION, ResourceMsg1(COMMAND_ADD_Description), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Description);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Description_mnc)))
                                                         IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RUN_RECURSIVELY, ResourceMsg1(COMMAND_ADD_Recursively), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Recursively);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Recursively_mnc)) ,"", "-l")
                                                         ASK_FOR(DO_COMMIT, ResourceMsg1(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_DoCommit_mnc)))])
@@ -1076,7 +1076,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ADD_LOCAL_PARENTS</value>
         </property>
         <property name="commandsAfterSuccess">
-          <value>$[? FOLDER_CONTENTS] [$[? DO_COMMIT] [COMMIT][]] [ADD_CMD]</value>
+          <value>$[? NO_CONTENT] [ADD_CMD] [$[? DO_COMMIT] [COMMIT][]]</value>
         </property>
         <property name="disabledOnStatus">
           <value>&versioned-statuses;, "Yet-Unknown"</value>
@@ -1308,7 +1308,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>3</value>
 	</property>
         <property name="commandsAfterSuccess">
-          <value>$[? DO_COMMIT] [$[? FOLDER_CONTENTS] [] [COMMIT]][]</value>
+          <value>$[? DO_COMMIT] [$[? NO_CONTENT] [COMMIT] []][]</value>
         </property>
       </command>
       <command name="ADD_LOCAL_PARENTS">
