@@ -136,6 +136,10 @@ public class VersioningExplorer {
     
         static final long serialVersionUID =-264310566346550916L;
         Panel() {
+            // http://www.netbeans.org/issues/show_bug.cgi?id=24199
+            // the TabPolicy property's value makes sure that the tab is not shown 
+            // for the topcomponent when it is alone in the mode.
+            putClientProperty("TabPolicy", "HideWhenAlone");            
         }
 
         public void open(Workspace workspace) {

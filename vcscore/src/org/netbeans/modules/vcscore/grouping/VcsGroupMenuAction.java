@@ -150,6 +150,14 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         
         private static final long serialVersionUID = 7160066451512137154L;
         
+        public GroupExplorerPanel() {
+            super();
+            // http://www.netbeans.org/issues/show_bug.cgi?id=24199
+            // the TabPolicy property's value makes sure that the tab is not shown 
+            // for the topcomponent when it is alone in the mode.
+            putClientProperty("TabPolicy", "HideWhenAlone");        
+        }
+        
         public void open() {
             if (!isOpened()) {
                 Node root = null;

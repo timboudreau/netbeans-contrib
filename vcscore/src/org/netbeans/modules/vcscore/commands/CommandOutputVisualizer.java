@@ -60,6 +60,12 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         outputPanel = new CommandOutputPanel();
         setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
         putClientProperty("PersistenceType", "Never");
+
+        // http://www.netbeans.org/issues/show_bug.cgi?id=24199
+        // the TabPolicy property's value makes sure that the tab is not shown 
+        // for the topcomponent when it is alone in the mode.
+        putClientProperty("TabPolicy", "HideWhenAlone");
+        
         initComponents();
         synchronized (CommandOutputVisualizer.class) {
             if (outputDisplayRequestProcessor == null) {
