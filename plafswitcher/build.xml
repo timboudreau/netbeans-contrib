@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='ISO-8859-1' ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
                 Sun Public License Notice
 
@@ -8,73 +8,9 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
-
-Contributor(s): Petr Nejedly
 -->
-
-<project name="plafswitcher" default="netbeans" basedir=".">
-  <property name="src.root" value="../.."/>
-
-  <property name="nbm_alias" value="nb_ide"/>
-  <property name="homepage.base" value="netbeans.org"/>
-  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" value="${src.root}/nbbuild/standard-nbm-license.txt"/>
-
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${src.root}/nbbuild/nbantext.jar"/>
-  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${src.root}/nbbuild/nbantext.jar"/>
-  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${src.root}/nbbuild/nbantext.jar"/>
-
-  <target name="compile">
-    <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
-      <classpath>
-        <fileset dir="${src.root}/openide/netbeans/lib">
-          <include name="openide*.jar" />
-        </fileset>
-      </classpath>
-    </javac>
-  </target>
-
-  <target name="jars" depends="compile">
-    <mkdir dir="netbeans/modules"/>
-    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
-    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <locjar jarfile="netbeans/modules/plafswitcher.jar"
-            manifest="manifest-subst.mf"
-            basedir="src"
-	    excludesfile="${src.root}/nbbuild/standard-jar-excludes.txt"
-	    compress="false">
-      <locale name="ja"/>
-    </locjar>
-  </target>
-
-  <target name="netbeans" depends="jars">
-    <genlist targetname="nbm" outputfiledir="netbeans"/>
-  </target>
-
-  <target name="nbm" depends="netbeans">
-    <makenbm file="plafswitcher.nbm"
-             topdir="."
-             module="netbeans/modules/plafswitcher.jar"
-	     homepage="http://contrib.${homepage.base}/plafswitcher/"
-	     distribution="http://${dist.base}/plafswitcher.nbm">
-      <license file="${license.file}"/>
-      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-    </makenbm>
-  </target>
-
-  <target name="clean">
-    <delete>
-      <fileset dir="src">
-        <include name="**/*.class"/>
-        <include name="**/*.jar"/>
-      </fileset>
-    </delete>
-    <delete file="manifest-subst.mf"/>
-    <delete file="plafswitcher.nbm"/>
-    <delete dir="netbeans"/>
-    <delete dir="Info"/>
-  </target>
-
+<project name="contrib/plafswitcher" default="netbeans" basedir=".">
+    <import file="../../nbbuild/templates/projectized.xml"/>
 </project>
