@@ -60,6 +60,13 @@ public class VersioningExplorerAction extends GeneralCommandAction {
         return null;
     }
     
+    /**
+     * @return false to run in AWT thread.
+     */
+    public boolean asynchronous() {
+        return false;
+    }
+    
     protected void performAction(Node[] nodes) {
         VersioningExplorer.Panel explorer = VersioningExplorer.getRevisionExplorer();
         explorer.open();
