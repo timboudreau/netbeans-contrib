@@ -322,6 +322,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private Boolean createVersioningSystem = Boolean.FALSE;
     
+    private transient VcsActionSupporter actionSupporter = null;
+    
     private transient IgnoreListSupport ignoreListSupport = null;
     
     private transient Set unimportantFiles;
@@ -1245,6 +1247,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return versioningSystem;
     }
     
+    protected VcsActionSupporter getVcsActionSupporter() {
+        return actionSupporter;
+    }
+    
     private static final long serialVersionUID =8108342718973310275L;
 
     /**
@@ -1255,7 +1261,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         deserialized = false;
         info = this;
         change = this;
-        VcsAttributes a = new VcsAttributes (info, change, this, this, new VcsActionSupporter(this));
+        actionSupporter = new VcsActionSupporter(this);
+        VcsAttributes a = new VcsAttributes (info, change, this, this, actionSupporter);
         attr = a;
         list = a;
         vcsList = new VcsList();
@@ -1311,12 +1318,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         deserialized = true;
         boolean localFilesOn = in.readBoolean ();
         in.defaultReadObject();
+        actionSupporter = new VcsActionSupporter(this);
         if (!(attr instanceof VcsAttributes)) {
-            VcsAttributes a = new VcsAttributes (info, change, this, this, new VcsActionSupporter(this));
+            VcsAttributes a = new VcsAttributes (info, change, this, this, actionSupporter);
             attr = a;
             list = a;
         } else {
-            ((VcsAttributes) attr).setCurrentSupporter(new VcsActionSupporter(this));
+            ((VcsAttributes) attr).setCurrentSupporter(actionSupporter);
         }
         if (vcsList == null) vcsList = new VcsList();
         //last_rootFile = rootFile;
@@ -3048,9 +3056,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 setAdvancedConfig(advanced);
             }
         } else {
+            if (commandsByName != null) {
+                removeCmdActionsFromSupporter();
+            }
             commandsRoot = root;
             commandsByName = new Hashtable();
             addCommandsToHashTable(root);
+            addCmdActionsToSupporter();
         }
         VariableInputDescriptorCompat.createInputDescriptorFormExec(commandsByName);
         firePropertyChange(PROP_COMMANDS, old, commandsRoot);
@@ -3073,6 +3085,39 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             setCommands (getCommands());
         }
         return (VcsCommand) commandsByName.get(name);
+    }
+    
+    private void addCmdActionsToSupporter() {
+        for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
+            VcsCommand cmd = (VcsCommand) it.next();
+            Class actionClass = (Class) cmd.getProperty(VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "generalCommandActionClass"); // NOI18N
+            if (actionClass == null) {
+                Object actionClassNameObj = cmd.getProperty(VcsCommand.PROPERTY_GENERAL_COMMAND_ACTION_CLASS_NAME);
+                if (actionClassNameObj instanceof String) {
+                    String actionClassName = (String) actionClassNameObj;
+                    try {
+                        actionClass = Class.forName(actionClassName, false,
+                                                    TopManager.getDefault().currentClassLoader());
+                    } catch (ClassNotFoundException e) {
+                        TopManager.getDefault().notifyException(
+                            TopManager.getDefault().getErrorManager().annotate(e, g("EXC_CouldNotFindAction", actionClassName)));
+                        continue;
+                    }
+                }
+                cmd.setProperty(VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "generalCommandActionClass", actionClass); // NOI18N
+            }
+            actionSupporter.addSupportForAction(actionClass, cmd.getName());
+        }
+    }
+    
+    private void removeCmdActionsFromSupporter() {
+        for (Iterator it = commandsByName.values().iterator(); it.hasNext(); ) {
+            VcsCommand cmd = (VcsCommand) it.next();
+            Class actionClass = (Class) cmd.getProperty(VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY + "generalCommandActionClass"); // NOI18N
+            if (actionClass != null) {
+                actionSupporter.removeSupportForAction(actionClass);
+            }
+        }
     }
 
     public FilenameFilter getLocalFileFilter() {

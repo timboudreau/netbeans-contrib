@@ -287,6 +287,12 @@ public interface VcsCommand extends VcsCommandCookie {
     public static final String PROPERTY_DISTINGUISH_BINARY_FILES = "distinguishBinaryFiles";
     
     /**
+     * This String property contains the name of class of an action, that will run
+     * this command. The action has to sublass the GeneralCommandAction class.
+     */
+    public static final String PROPERTY_GENERAL_COMMAND_ACTION_CLASS_NAME = "generalCommandActionClassName";
+    
+    /**
      * Properties wich contains this string in their names can be added to the command
      * by the vcscore or any other module. They should not be interpreted in any way
      * and not stored persistently. Only the module, that set this property is able
