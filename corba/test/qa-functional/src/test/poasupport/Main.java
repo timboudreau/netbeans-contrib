@@ -104,9 +104,11 @@ public class Main extends JellyTestCase {
 	
     public void dumpFile (String node, String name) {
         new OpenAction ().perform (new Node (exp.repositoryTab ().tree (), node));
+        Helper.sleep (1000);
         ev.waitNoEvent (1000);
         EditorWindowOperator ewo = new EditorWindowOperator ();
         EditorOperator eo = ewo.getEditor (name);
+        Helper.sleep (1000);
         ev.waitNoEvent (1000);
         String str = eo.getText ();
         StringTokenizer tok = new StringTokenizer (str, "\n");
@@ -271,6 +273,10 @@ public class Main extends JellyTestCase {
         for (int a = 0; a < cbm.getSize (); a ++)
             out.println ("Item no." + a + ": " + cbm.getElementAt(a));
         cbp.setValue("var_4_child_Parent_of_children");
+        Helper.sleep (5000);
+        pso = new PropertySheetOperator (PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, "1.child of 4.child Parent_of_children");
+        cbp = new ComboBoxProperty (pso, "POA Manager");
+        cbm = cbp.comboBox().getModel();
         out.println ("SELECTED: " + cbm.getSelectedItem());
         pso.close();
         compareReferenceFiles ();

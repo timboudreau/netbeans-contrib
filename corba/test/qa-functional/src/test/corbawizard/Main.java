@@ -129,6 +129,8 @@ public class Main extends JellyTestCase {
     
     public void printTreePath (TreePath tp) {
         out.print ("Path: ");
+        if (tp == null)
+            out.println ("<NULL>");
         for (int a = 2; a < tp.getPathCount(); a ++)
             out.print ("|" + tp.getPathComponent(a).toString ());
         out.println ();
@@ -462,7 +464,7 @@ public class Main extends JellyTestCase {
         SelectSourceIDLStep ss = new SelectSourceIDLStep ();
         ss.verify ();
         out.println ("IDLFileName: " + ss.getIDLFileName());
-        printTreePath (ss.tree().getSelectionPath());
+//        printTreePath (ss.tree().getSelectionPath());
         ss.next ();
         ta = new TypeAplicationStep ();
         ta.verify ();

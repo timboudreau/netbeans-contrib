@@ -44,7 +44,7 @@ public class Orbix2000 {
             props.put("org.omg.CORBA.ORBSingletonClass", "com.iona.corba.art.artimpl.ORBSingleton");
             System.setProperties(props);
             ORB orb = ORB.init(args, props);
-            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));//GEN-BEGIN:poa_section_orbix20004j
             
             Policy[] _policies;
             
@@ -86,9 +86,9 @@ public class Orbix2000 {
                 orb.create_policy(com.iona.corba.IT_PortableServer.OBJECT_DEACTIVATION_POLICY_ID.value, _odPolicyAny3),
                 orb.create_policy(com.iona.corba.IT_WorkQueue.WORK_QUEUE_POLICY_ID.value, _wqPolicyAny3)
             };
-            POA myPOA3 = poa.create_POA("MyPOA3", null, _policies);
+            POA myPOA3 = poa.create_POA("MyPOA3", null, _policies);//GEN-END:poa_section_orbix20004j
             // add your creating of object implementation here
-            
+            //GEN-LINE:servant_section
             // the server will use Naming Service
             org.omg.CORBA.Object ns = orb.resolve_initial_references("NameService");
             if (ns == null)
@@ -126,10 +126,10 @@ public class Orbix2000 {
             aName[0].id = name_of_server[0];
             aName[0].kind = name_of_server[1];
             nc.bind(aName, poa.servant_to_reference(/*servant_variable*/));
-            poa.the_POAManager().activate();
+            poa.the_POAManager().activate();//GEN-BEGIN:poa_activate_section
             myPOA1.the_POAManager().activate();
             myPOA2.the_POAManager().activate();
-            myPOA3.the_POAManager().activate();
+            myPOA3.the_POAManager().activate();//GEN-END:poa_activate_section
             orb.run();
         } catch (Exception ex) {
             ex.printStackTrace();
