@@ -20,13 +20,17 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.TabbedPaneUI;
 
@@ -55,6 +59,7 @@ public class CommandOutputTopComponent extends TopComponent {
     protected Object eventSource;
     private JPopupMenu menu;
     private static CommandOutputTopComponent outputTopComponent;
+    private Action discardAction;
     
 //    private static final long serialVersionUID = -8901733341334731237L;
     
@@ -64,7 +69,11 @@ public class CommandOutputTopComponent extends TopComponent {
         setName(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.topName")); //NOI18N
         initPopupMenu();
         new CommandOutputTopComponent.OutputTabPopupListener();  
-       
+        getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(       
+        KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.CTRL_DOWN_MASK),
+        "discard"); //NOI18N
+        
+        getActionMap().put("discard", discardAction);//NOI18N
     }
 
     // -------- TopComponent singelton & persistence stuff ----------
@@ -126,16 +135,21 @@ public class CommandOutputTopComponent extends TopComponent {
     
     private void initPopupMenu() {
         this.menu = new JPopupMenu();
-        JMenuItem discardTab = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N
-        discardTab.addActionListener( new java.awt.event.ActionListener() {
+        JMenuItem discardTab = new JMenuItem(); //NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N        
+        discardAction = new AbstractAction(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab")) { //NOI18N
             public void actionPerformed(java.awt.event.ActionEvent event) {
                 tabPane.remove(tabPane.getSelectedIndex());
+                if(tabPane.getComponentCount() == 0)
+                    close();
             }
-        });
+        };        
+        discardTab.setAction(discardAction);
+        discardTab.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4,KeyEvent.CTRL_DOWN_MASK));
         JMenuItem discardAll = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardAll"));//NOI18N
         discardAll.addActionListener( new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent event) {
                 tabPane.removeAll();
+                close();
             }
         });
         
@@ -194,10 +208,13 @@ public class CommandOutputTopComponent extends TopComponent {
     
     public void discard(JComponent comp){        
         tabPane.remove(tabPane.getSelectedComponent());
+        if(tabPane.getComponentCount() == 0)
+            close();
     }
     
     public void discardAll(){
         tabPane.removeAll();
+        close();
     }
     
     protected void componentActivated() {

@@ -19,6 +19,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.io.IOException;
@@ -59,6 +60,7 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     private JTextArea stdDataOutput;
     private JTextArea errDataOutput;
     private CommandOutputCollector outputCollector;
+    private Action discardAction;
     
     /** Creates new form OutputPanel */
     public AbstractOutputPanel() {
@@ -88,6 +90,10 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
             getDataErrOutputArea().getDocument().addDocumentListener(new OutputButtonEnabler(btnDataErr));
         }
         setStandardContent();
+        getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(       
+        KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.CTRL_DOWN_MASK),
+        "discard"); //NOI18N
+        getActionMap().put("discard", discardAction);//NOI18N
     }
     
     /**
@@ -105,12 +111,7 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     }
     
     protected void initPopupMenu() {
-        JPopupMenu menu = new JPopupMenu();
-        java.awt.event.ActionListener discardlistener = new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent event) {
-                CommandOutputTopComponent.getInstance().discard(AbstractOutputPanel.this);
-            }
-        };
+        JPopupMenu menu = new JPopupMenu();        
         java.awt.event.ActionListener discardAllListener = new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent event) {
                 CommandOutputTopComponent.getInstance().discardAll();
@@ -121,8 +122,14 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                saveToFile();
            }
         };
-        JMenuItem discardTab = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N
-        discardTab.addActionListener(discardlistener);
+        discardAction = new AbstractAction(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab")) { //NOI18N
+            public void actionPerformed(java.awt.event.ActionEvent event) {
+                CommandOutputTopComponent.getInstance().discard(AbstractOutputPanel.this);
+            }
+        };    
+        JMenuItem discardTab = new JMenuItem();//NOI18N
+        discardTab.setAction(discardAction);
+        discardTab.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.CTRL_DOWN_MASK));
         JMenuItem discardAll = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardAll"));//NOI18N
         discardAll.addActionListener(discardAllListener);
         JMenuItem save = new JMenuItem (NbBundle.getBundle (OutputPanel.class).getString("CMD_Save"));//NOI18N
@@ -140,8 +147,9 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                    viewTextLog();
                }
             });
-            discardTab = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N
-            discardTab.addActionListener(discardlistener);
+            discardTab = new JMenuItem();//NOI18N
+            discardTab.setAction(discardAction);
+            discardTab.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.CTRL_DOWN_MASK));
             discardAll = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardAll"));//NOI18N
             discardAll.addActionListener(discardAllListener);
             save = new JMenuItem (NbBundle.getBundle (OutputPanel.class).getString("CMD_Save"));//NOI18N
@@ -163,15 +171,31 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         PopupListener popupListener = new PopupListener(menu);
         PopupListener popupListenerView = new PopupListener(viewMenu);
         getErrComponent().addMouseListener(popupListener);
+        adjustInputMap(getErrComponent());
         getStdComponent().addMouseListener(popupListenerView);
+        adjustInputMap(getStdComponent());
+                       
         JComponent c = getDataStdComponent();
-        if (c != null) c.addMouseListener(popupListener);
+        if (c != null){
+            c.addMouseListener(popupListener);
+            adjustInputMap(c);
+        }
         c = getDataErrComponent();
-        if (c != null) c.addMouseListener(popupListener);
+        if (c != null)  {
+            c.addMouseListener(popupListener);
+            adjustInputMap(c);
+        }
         this.addMouseListener(popupListener);
         toolbar.addMouseListener(popupListener);
         scroll.addMouseListener(popupListenerView);
         
+    }
+    
+    private void adjustInputMap(JComponent c){
+        c.getInputMap().put(
+        KeyStroke.getKeyStroke(KeyEvent.VK_F4, KeyEvent.CTRL_DOWN_MASK),
+        "discard");
+        getStdComponent().getActionMap().put("discard", discardAction);//NOI18N
     }
     
     private void saveToFile() {
@@ -287,9 +311,9 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                         }
                     }
                 } catch (Exception exc) {
-                   ErrorManager.getDefault().notify(
-                        ErrorManager.getDefault().annotate(exc,
-                            NbBundle.getBundle(SaveToFilePanel.class).getString("SaveToFile.errorWhileWriting"))); //NOI18N
+                    ErrorManager.getDefault().notify(
+                    ErrorManager.getDefault().annotate(exc,
+                    NbBundle.getBundle(SaveToFilePanel.class).getString("SaveToFile.errorWhileWriting"))); //NOI18N
                 } finally {
                     if (writer != null) {
                         try {
@@ -335,28 +359,28 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         }
         editor.setValue(value);
         java.awt.Component c = editor.getCustomEditor();
-        DialogDescriptor dd = new DialogDescriptor(c, NbBundle.getBundle (OutputPanel.class).getString("CMD_TextOutput"));
+        DialogDescriptor dd = new DialogDescriptor(c, NbBundle.getBundle(OutputPanel.class).getString("CMD_TextOutput"));
         DialogDisplayer ddisp = DialogDisplayer.getDefault();
         ddisp.notify(dd);
     }
     
-    public void addKillActionListener(java.awt.event.ActionListener l) {        
+    public void addKillActionListener(java.awt.event.ActionListener l) {
         btnStop.addActionListener(l);
         killActionListeners.add(l);
     }
     
-    public void removeKillActionListener(java.awt.event.ActionListener l) {       
+    public void removeKillActionListener(java.awt.event.ActionListener l) {
         btnStop.removeActionListener(l);
         killActionListeners.remove(l);
     }
     
     public void commandFinished(final int exit) {
         while (killActionListeners.size() > 0) {
-            java.awt.event.ActionListener l = (java.awt.event.ActionListener)killActionListeners.remove(0);            
+            java.awt.event.ActionListener l = (java.awt.event.ActionListener)killActionListeners.remove(0);
             btnStop.removeActionListener(l);
         }
         SwingUtilities.invokeLater(new Runnable(){
-            public void run(){                    
+            public void run(){
                 btnStop.setEnabled(false);
                 if (exit == CommandTask.STATUS_SUCCEEDED) {
                     lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFinished"));
@@ -373,8 +397,8 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                     btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
             }
         });
-    }    
-       
+    }
+    
     
     class PopupListener extends java.awt.event.MouseAdapter {
         
@@ -406,7 +430,7 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         }
         
         public void removeUpdate(DocumentEvent e) {}
-
+        
     }
     
     
