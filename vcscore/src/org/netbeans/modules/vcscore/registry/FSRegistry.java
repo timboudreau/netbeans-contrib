@@ -14,6 +14,8 @@
 package org.netbeans.modules.vcscore.registry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +31,7 @@ public class FSRegistry {
     
     private List registryListeners = new LinkedList();
     private List fsInfos = new LinkedList();
+    private Comparator fsInfoComparator = new FSInfoComparator();
     
     /** Creates a new instance of FSRegistry */
     private FSRegistry() {
@@ -92,9 +95,12 @@ public class FSRegistry {
      * Get all registered filesystem infos.
      */
     public FSInfo[] getRegistered() {
+        FSInfo[] info;
         synchronized (fsInfos) {
-            return (FSInfo[]) fsInfos.toArray(new FSInfo[fsInfos.size()]);
+            info = (FSInfo[]) fsInfos.toArray(new FSInfo[fsInfos.size()]);
         }
+        Arrays.sort(info, fsInfoComparator);
+        return info;
     }
     
     /**
@@ -138,5 +144,18 @@ public class FSRegistry {
             if (added) l.fsAdded(evt);
             else l.fsRemoved(evt);
         }
+    }
+    
+    /**
+     * Compare the FSInfo objects by their FS root directories.
+     */
+    private static final class FSInfoComparator extends Object implements Comparator {
+        
+        public int compare(Object o1, Object o2) {
+            FSInfo fi1 = (FSInfo) o1;
+            FSInfo fi2 = (FSInfo) o2;
+            return fi1.getFSRoot().compareTo(fi2.getFSRoot());
+        }
+        
     }
 }
