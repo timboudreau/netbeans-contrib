@@ -68,7 +68,7 @@ class VcsEnvironmentProvider extends SharedClassObject implements Environment.Pr
         Document doc = ((XMLDataObject) obj).getDocument();
         //FileObject fo = obj.getPrimaryFile();
         InstanceContent ic = new InstanceContent();
-        ic.add((InstanceCookie) new CommandLineVcsFileSystemInstance(obj.getPrimaryFile(), doc));
+        ic.add((InstanceCookie) new CommandLineVcsFileSystemInstance(obj.getPrimaryFile(), doc, ic));
         return ic;
     }
     
