@@ -91,7 +91,7 @@ public final class SuggestionProviders {
             SuggestionProvider[] provA =
                     (SuggestionProvider[]) provList.toArray(
                             new SuggestionProvider[provList.size()]);
-            final SuggestionTypes types = SuggestionTypes.getTypes();
+            final SuggestionTypes types = SuggestionTypes.getDefault();
             Arrays.sort(provA, new Comparator() {
                 public int compare(Object o1, Object o2) {
                     SuggestionProvider a = (SuggestionProvider) o1;
@@ -131,7 +131,7 @@ public final class SuggestionProviders {
      * of a particular type */
     public SuggestionProvider getProvider(SuggestionType type) {
         if (providersByType == null) {
-            SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
+            SuggestionTypes suggestionTypes = SuggestionTypes.getDefault();
             //Collection types = suggestionTypes.getAllTypes();
             List providers = getProviders();
             providersByType = new HashMap(100); // XXXXX ?<??

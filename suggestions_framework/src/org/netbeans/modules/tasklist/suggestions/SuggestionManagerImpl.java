@@ -275,7 +275,8 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      * @return True iff the given suggestion type is enabled
      */
     public synchronized boolean isEnabled(String id) {
-        return ManagerSettings.getDefault().isEnabled(id);
+        ManagerSettings settings = ManagerSettings.getDefault();
+        return settings != null ? settings.isEnabled(id) : true;
     }
 
     /**
@@ -293,7 +294,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      */
     public synchronized void setEnabled(String id, boolean enabled,
                                         boolean dontSave) {
-        SuggestionType type = SuggestionTypes.getTypes().getType(id);
+        SuggestionType type = SuggestionTypes.getDefault().getType(id);
 
         ManagerSettings.getDefault().setEnabled(id, enabled);
 
@@ -424,7 +425,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
                 List allTasks = new ArrayList(oldList.size());
                 allTasks.addAll(oldList);
                 tasklist.clear();
-                Collection types = SuggestionTypes.getTypes().getAllTypes();
+                Collection types = SuggestionTypes.getDefault().getAllTypes();
                 Iterator it = types.iterator();
                 while (it.hasNext()) {
                     SuggestionType t = (SuggestionType) it.next();
@@ -485,7 +486,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
         // should not leave previously undisabled module disabled!
 
         List providers = getProviders();
-        SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
+        SuggestionTypes suggestionTypes = SuggestionTypes.getDefault();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             SuggestionProvider provider = (SuggestionProvider) it.next();
@@ -772,7 +773,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
             }
         }
 
-        Iterator allIt = SuggestionTypes.getTypes().getAllTypes().iterator();
+        Iterator allIt = SuggestionTypes.getDefault().getAllTypes().iterator();
         while (allIt.hasNext()) {
             SuggestionType t = (SuggestionType) allIt.next();
             it = confirmation.iterator();

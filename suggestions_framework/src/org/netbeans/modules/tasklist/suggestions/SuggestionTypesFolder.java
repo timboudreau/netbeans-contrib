@@ -97,7 +97,7 @@ final public class SuggestionTypesFolder extends FolderInstance {
         }
         
         // set all these types to SuggestionType static member
-        SuggestionTypes.getTypes().setTypes(suggestionTypes);
+        SuggestionTypes.getDefault().setTypes(suggestionTypes);
         
         return null;
     }

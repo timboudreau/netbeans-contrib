@@ -215,7 +215,7 @@ public class TypesCustomizer extends javax.swing.JPanel
          * Constructor. Creates TableModel for all registered SuggestionTypes.
          */
         public SuggTypesTableModel() {
-            Collection cl = SuggestionTypes.getTypes().getAllTypes();
+            Collection cl = SuggestionTypes.getDefault().getAllTypes();
             Iterator it = cl.iterator();
             SuggestionManagerImpl manager = 
                 (SuggestionManagerImpl) SuggestionManager.getDefault();

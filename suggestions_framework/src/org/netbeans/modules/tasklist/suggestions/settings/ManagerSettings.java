@@ -231,14 +231,14 @@ public final class ManagerSettings implements Node.Handle {
                     if (noconfirm == null) {
                         noconfirm = new HashSet(50);
                     }
-                    SuggestionType type = SuggestionTypes.getTypes().getType(id);
+                    SuggestionType type = SuggestionTypes.getDefault().getType(id);
                     noconfirm.add(type);
                 } else if (parsingExpanded) {
                     String id = (String)attrs.getValue("id"); // NOI18N
                     if (expanded == null) {
                         expanded = new HashSet(50);
                     }
-                    SuggestionType type = SuggestionTypes.getTypes().getType(id);
+                    SuggestionType type = SuggestionTypes.getDefault().getType(id);
                     expanded.add(type);
                 } else {
                     ErrorManager.getDefault().log(ErrorManager.WARNING, "SuggestionType Registry Parsing Error: " + name + ", " + attrs); // NOI18N
@@ -522,11 +522,11 @@ public final class ManagerSettings implements Node.Handle {
     public void setExpandedType(SuggestionType type, boolean expanded) {
         readTypeRegistry();
         if (expandedTypes == null) {
-            expandedTypes = new HashSet(2*SuggestionTypes.getTypes().getCount());
+            expandedTypes = new HashSet(2*SuggestionTypes.getDefault().getCount());
             // Ensure that we default to showing java compilation errors
             // expanded
             SuggestionType jc =
-                SuggestionTypes.getTypes().getType("nb-java-errors"); // NOI18N
+                SuggestionTypes.getDefault().getType("nb-java-errors"); // NOI18N
             if (jc != null) {
                 expandedTypes.add(jc);
             }

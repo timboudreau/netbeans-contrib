@@ -66,7 +66,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
             summary = sb.toString();
         }
 
-        SuggestionType st = SuggestionTypes.getTypes().getType(type);
+        SuggestionType st = SuggestionTypes.getDefault().getType(type);
         if (st == null) {
             throw new IllegalArgumentException("type " + st +
                     " is not registered");
@@ -119,7 +119,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
         // (meta?) type.
         SuggestionType type = null;
         if (typeName != null) {
-            type = SuggestionTypes.getTypes().getType(typeName);
+            type = SuggestionTypes.getDefault().getType(typeName);
             if (type == null) {
                 throw new IllegalArgumentException("No such SuggestionType: " + typeName);
             }

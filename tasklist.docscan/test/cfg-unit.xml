@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mconfig PUBLIC "-//NetBeans//DTD XTest cfg 1.0//EN" "http://www.netbeans.org/dtds/xtest-cfg-1_0.dtd">
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!--
+  These classes are excluded by default (defined in build.xml):
+    "**/*Suite.class"
+    "**/*$$*.class"
+    "**/data/**"
+    "**/hidden/**"
+    "**/*Hidden.*"
+    "**/*Hid.*"
+-->
+
+<!-- =========================================================================
+      This file contains testbag declarations used by xtest harness runtime.
+     ========================================================================= -->
+
+<mconfig name="tasklist/core/test">
+    <!-- Tests which should be run before commit to validate IDE, needs IDE mode for ValidateLayer suites -->
+    <testbag testattribs="x-commit" executor="ide" name="Before Commit Validation in IDE" resultsprocessor="unit">
+        <testset dir="unit/src">
+            <patternset>
+            </patternset>
+        </testset>
+    </testbag>
+
+    <testbag testattribs="x-stable" executor="ide" name="Unit tests running in the IDE" resultsprocessor="unit">
+        <testset dir="unit/src">
+            <patternset>
+            </patternset>
+        </testset>
+    </testbag>
+
+    <testbag testattribs="stable" executor="code" name="Unit tests" resultsprocessor="unit">
+        <testset dir="unit/src">
+            <patternset>
+                <include name="org/netbeans/modules/tasklist/**/*Test.class"/>
+                <!--exclude name="org/netbeans/core/ValidateClassLinkageTest.class"/-->
+            </patternset>
+        </testset>
+    </testbag>
+
+    <testbag testattribs="x-failing" executor="code" name="testbag_4" resultsprocessor="unit">
+        <testset dir="unit/src">
+            <patternset>
+            </patternset>
+        </testset>
+    </testbag>
+
+    <!-- Xtest runtime configuration -->
+
+    <executor name="code" antfile="build-unit.xml" target="runcodetest"/>
+    <executor name="ide" antfile="build-unit.xml" target="runidetest"/>
+    <compiler name="unit-compiler" antfile="build-unit.xml" target="unit-compiler" default="true"/>
+    <resultsprocessor name="unit" antfile="build.xml" target="test_report" default="true"/>
+
+</mconfig>
+

@@ -27,7 +27,7 @@ import java.io.*;
  *
  * @author Trond Norbye
  */
-public class SourceCodeCommentParser {
+final class SourceCodeCommentParser {
     
     /**
      * Default instance, treat all lines as comments!!

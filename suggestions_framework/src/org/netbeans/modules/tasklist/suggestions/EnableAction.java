@@ -144,7 +144,7 @@ public class EnableAction extends CallableSystemAction
 		(SuggestionManagerImpl)SuggestionManager.getDefault();
 
             int n = 0;
-            SuggestionTypes types = SuggestionTypes.getTypes();
+            SuggestionTypes types = SuggestionTypes.getDefault();
             
             Iterator it = types.getAllTypes().iterator();
             while (it.hasNext()) {
