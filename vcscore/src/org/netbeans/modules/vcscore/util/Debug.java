@@ -20,25 +20,28 @@ import java.io.*;
  * @author Michal Fadljevic
  */
 //-------------------------------------------
-public class Debug implements Serializable {
+public class Debug //implements Serializable 
+{
 
     private String debClass=null;
-    private boolean debEnabled=true;
-    private boolean debGeneralEnabled=true;
+    private boolean debEnabled;
+    public static boolean debGeneralEnabled=false;
 
+    static final long serialVersionUID = -2570656225846594430L;
+   
     //-------------------------------------------
-    static final long serialVersionUID =-2570656225846594430L;
-    public Debug(String debClass, boolean debEnabled){
+//    static final long serialVersionUID =-2570656225846594430L;
+    public Debug(String debClass, boolean debEnable){
         this.debClass=debClass;
-        this.debEnabled=debEnabled;
+        debEnabled=debEnable;
     }
 
     //-------------------------------------------
     public void deb(String prefix,String msg){
-        if(debEnabled && debGeneralEnabled){
-            System.err.println(prefix+": "+msg);
-            System.err.flush();
-        }
+        if (!debGeneralEnabled) return;
+        if (!debEnabled) return;
+        System.err.println(prefix+": "+msg);
+        System.err.flush();
     }
 
     //-------------------------------------------
@@ -48,7 +51,7 @@ public class Debug implements Serializable {
 
     //-------------------------------------------
     public void err(String prefix, Exception exc, String msg){
-        System.out.println(prefix+": Error: "+msg); // NOI18N
+        System.out.println(prefix+":ERR:"+msg); // NOI18N
         if(exc!=null){
             System.out.print("-------------------------------------------"); // NOI18N
             System.out.println("-------------------------------------------"); // NOI18N
@@ -76,14 +79,4 @@ public class Debug implements Serializable {
 
 }
 
-/*
- * Log
- *  6    Gandalf   1.5         1/15/00  Ian Formanek    NOI18N
- *  5    Gandalf   1.4         11/27/99 Patrik Knakal   
- *  4    Gandalf   1.3         10/25/99 Pavel Buzek     copyright and log
- *  3    Gandalf   1.2         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  2    Gandalf   1.1         10/13/99 Pavel Buzek     
- *  1    Gandalf   1.0         9/30/99  Pavel Buzek     
- * $
- */
+
