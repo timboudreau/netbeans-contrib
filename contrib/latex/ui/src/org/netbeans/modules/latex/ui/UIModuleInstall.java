@@ -29,6 +29,7 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import javax.swing.SwingUtilities;
 import org.netbeans.modules.latex.ui.wizards.install.PostInstallIterator;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
