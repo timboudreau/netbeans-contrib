@@ -674,14 +674,16 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
           super.writeExternal(out);
           out.writeObject(propSupport);
           }
-          
-          public void readExternal (ObjectInput in)
-          throws IOException, ClassNotFoundException {
-          super.readExternal(in);
-          propSupport = (IDLEditorSupport)in.readObject();
-          initMe();
-          }
-          
+	*/
+
+	public void readExternal (ObjectInput in)
+	    throws IOException, ClassNotFoundException {
+	    super.readExternal(in);
+	    propSupport = (IDLEditorSupport)obj.getCookie(IDLEditorSupport.class);
+	    initMe();
+	}
+
+	/* 
           } // end of IDLEditor inner class
         */
         /** EntrySavingManager manages two tasks concerning saving:<P>
