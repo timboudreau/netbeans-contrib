@@ -34,6 +34,7 @@ public class MountingWizard extends JellyTestCase {
     public static String VERSIONING_MENU = "Versioning";
     public static String MOUNT_MENU = VERSIONING_MENU + "|Mount Version Control|Generic VCS";
     public static String UNMOUNT_MENU = "File|Unmount Filesystem";
+    public static String PVCS_SET_PASSWORD = "PVCS|Set Password";
     public static String PVCS_LOCK = "PVCS|Lock";
     public static String PVCS_REFRESH = "PVCS|Refresh";
     public static String EMPTY_REFRESH = "Empty|Refresh";
@@ -72,29 +73,9 @@ public class MountingWizard extends JellyTestCase {
     /** Method called before each testcase. Redirects system output.
      */
     protected void setUp() throws Exception {
-        String workingDir = getWorkDirPath();
-        new File(workingDir).mkdirs();
-        File outputFile = new File(workingDir + "/output.txt");
-        outputFile.createNewFile();
-        File errorFile = new File(workingDir + "/error.txt");
-        errorFile.createNewFile();
-        PrintWriter outputWriter = new PrintWriter(new FileWriter(outputFile));
-        PrintWriter errorWriter = new PrintWriter(new FileWriter(errorFile));
-        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(org.netbeans.jemmy.TestOut.getNullOutput());
     }
 
-    /** Method will create a file and capture the screen.
-     */
-    private void captureScreen() throws Exception {
-        File file;
-        try {
-            file = new File(getWorkDirPath() + "/dump.png");
-            file.getParentFile().mkdirs();
-            file.createNewFile();
-        } catch(IOException e) { throw new Exception("Error: Can't create dump file."); }
-        org.netbeans.jemmy.util.PNGEncoder.captureScreen(file.getAbsolutePath());
-    }
-    
     /** Tests profile selector. No item must be missing and behavior must be correct.
      * @throws Exception any unexpected exception thrown during test.
      */
@@ -130,7 +111,6 @@ public class MountingWizard extends JellyTestCase {
             wizard.cancel();
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen();
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new QuestionDialogOperator().no(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -184,7 +164,6 @@ public class MountingWizard extends JellyTestCase {
             wizard.cancel();
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen();
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -202,16 +181,19 @@ public class MountingWizard extends JellyTestCase {
             OptionsOperator.invoke();
             OptionsOperator options = new OptionsOperator();
             options.selectOption("IDE Configuration|System|System Settings");
-            org.netbeans.jellytools.properties.ComboBoxProperty webBrowser = new org.netbeans.jellytools.properties.ComboBoxProperty(options, "Web Browser");
-            webBrowser.setValue("Swing HTML Browser");
+            org.netbeans.jellytools.properties.Property property = new org.netbeans.jellytools.properties.Property(options, "Web Browser");
+            property.setValue("External Browser (Command Line)");
+            options.selectOption("IDE Configuration|Server and External Tool Settings|Web Browsers|External Browser (Command Line)");
+            property = new org.netbeans.jellytools.properties.Property(options, "Browser Executable");
+            property.setValue("abcd");
             options.close();
             new ActionNoBlock(MOUNT_MENU, null).perform();
-            VCSWizardProfile wizard = new VCSWizardProfile();
+            final VCSWizardProfile wizard = new VCSWizardProfile();
             new JLabelOperator(wizard, "http://vcsgeneric.netbeans.org/profiles/index.html").clickMouse();
+            new NbDialogOperator("Warning").ok();
             wizard.cancel();
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen();
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -252,19 +234,31 @@ public class MountingWizard extends JellyTestCase {
             wizardAdvanced.txtMessageLOCK().enterText("Do you want to lock the file ?");
             wizardAdvanced.editCommands();
             CommandEditor commandEditor = new CommandEditor();
-            commandEditor.selectCommand("Empty|Refresh");
+            commandEditor.addCommand("Empty", "Status");
+            commandEditor.selectCommand("Empty|Status");
             PropertySheetOperator sheet = new PropertySheetOperator(commandEditor);
-            PropertySheetTabOperator sheetTab = sheet.getPropertySheetTabOperator("Refresh Info");
-            TextFieldProperty locker = new TextFieldProperty(sheetTab, "Locker Index");
-            locker.setValue("-1");
+            Property property = new Property(sheet, "Exec");
+            property.setValue(Utilities.isUnix() ? "sh -c \"echo ${FILE} New\"" : "cmd /x /c \"echo ${FILE} New\"");
+            property = new Property(sheet, "Data Regex");
+            property.setValue("^(.*) (.*$)");
+            property = new Property(sheet, "File Index");
+            property.setValue("0");
+            property = new Property(sheet, "Status Index");
+            property.setValue("1");
             commandEditor.ok();
             wizardAdvanced.finish();
             Thread.sleep(2000);
             Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath());
             filesystemNode.expand();
-            new OpenAction().perform(new Node(filesystemNode, "A_File"));
+            Node fileNode = new Node(filesystemNode, "A_File");
+            new Action(null, "Empty|Status").perform(fileNode);
+            new OpenAction().perform(fileNode);
+            Thread.sleep(2000);
             EditorOperator editor = new EditorOperator(new EditorWindowOperator(), "A_File");
-            editor.pushTabKey();
+            java.awt.Robot robot = new java.awt.Robot();
+            robot.keyPress(32);
+            robot.delay(100);
+            robot.keyRelease(32);
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new QuestionDialogOperator("Do you want to lock the file ?").yes(); }
@@ -274,7 +268,6 @@ public class MountingWizard extends JellyTestCase {
             new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath()));
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen();
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -326,8 +319,11 @@ public class MountingWizard extends JellyTestCase {
             commandEditor.selectCommand("CVS|Refresh");
             String executionString = "sh -c \"echo A_File.java Up-to-date\"";
             if (org.openide.util.Utilities.isWindows()) executionString = "cmd /x /c \"echo A_File.java Up-to-date\"";
-            commandEditor.setProperty("CVS|Refresh", "Properties", "Exec", executionString);
-            commandEditor.setProperty("CVS|Refresh", "Expert", "Data Regex", "^(.*) (.*$)");
+            PropertySheetOperator sheet = new PropertySheetOperator(commandEditor);
+            Property property = new Property(sheet, "Exec");
+            property.setValue(executionString);
+            property = new Property(sheet, "Data Regex");
+            property.setValue("^(.*) (.*$)");
             commandEditor.ok();
             wizardAdvanced.finish();
             Thread.sleep(2000);
@@ -336,17 +332,20 @@ public class MountingWizard extends JellyTestCase {
             new OpenAction().perform(new Node(filesystemNode, "A_File"));
             new Action(null, "CVS|Refresh").perform(new Node(filesystemNode, "A_File"));
             EditorOperator editor = new EditorOperator("A_File");
-            editor.pressKey(32);
+            java.awt.Robot robot = new java.awt.Robot();
+            robot.keyPress(32);
+            robot.delay(100);
+            robot.keyRelease(32);
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new QuestionDialogOperator("Do you want to edit the file ?").yes(); }
             catch (org.netbeans.jemmy.TimeoutExpiredException te) { throw new Exception("Error: Auto-editing does not work."); }
+            try { new NbDialogOperator("Information").ok(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
             new Node(new ExplorerOperator().runtimeTab().getRootNode(), "VCS Commands|CVS " + getWorkDirPath() + "|Edit");
             new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "CVS " + getWorkDirPath()));
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen();
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -407,7 +406,6 @@ public class MountingWizard extends JellyTestCase {
             wizardProfile.cancel();
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen();
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -469,12 +467,11 @@ public class MountingWizard extends JellyTestCase {
             new Node(commandEditor.treeCommands(), "Empty|Lock").select();
             NbDialogOperator dialog = new NbDialogOperator("Command Editor");
             PropertySheetOperator sheet = new PropertySheetOperator(dialog);
-            PropertySheetTabOperator sheetTab = sheet.getPropertySheetTabOperator("Properties");
-            TextFieldProperty exec = new TextFieldProperty(sheetTab, "Exec");
+            Property property = new Property(sheet, "Exec");
             String command = "cmd /x /c \"echo My name is: %MYNAME% && echo Path = %PATH%\"";
-            exec.setValue(Utilities.isUnix() ? "sh -c \"echo My name is: $MYNAME; echo Path = $PATH\"" : command);
-            ComboBoxProperty displayOutput = new ComboBoxProperty(sheetTab, "Display Output");
-            displayOutput.setValue("True");
+            property.setValue(Utilities.isUnix() ? "sh -c \"echo My name is: $MYNAME; echo Path = $PATH\"" : command);
+            property = new Property(sheet, "Display Output");
+            property.setValue("True");
             commandEditor.ok();
             wizardEnvironment.finish();
             Thread.sleep(2000);
@@ -491,7 +488,6 @@ public class MountingWizard extends JellyTestCase {
                 throw new Exception("Error: Incorrect output result. Actual: |" + output + "| Requested: |" + desired + "|");
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen();
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new CommandEditor().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
@@ -523,7 +519,7 @@ public class MountingWizard extends JellyTestCase {
             Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
             filesystemNode.select();
             PropertySheetOperator sheet = new PropertySheetOperator();
-            ComboBoxProperty property = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Properties"), "Advanced Options");
+            Property property = new Property(sheet, "Advanced Options");
             if (property.getValue().equals("False"))
                 throw new Exception("Error: Can't propagate Advanced Mode setting from wizard to filesystem property.");
             property = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Properties"), "Offline Mode");
@@ -549,7 +545,6 @@ public class MountingWizard extends JellyTestCase {
             new UnmountFSAction().perform(filesystemNode);
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen();
             try { new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "PVCS " + getWorkDirPath())); }
             catch (Exception te) {}
             throw e;
@@ -580,19 +575,19 @@ public class MountingWizard extends JellyTestCase {
             Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
             new org.netbeans.jellytools.actions.Action(VERSIONING_MENU + "|" + PVCS_REFRESH, PVCS_REFRESH).perform(filesystemNode);
             new QuestionDialogOperator("Refresh is disabled in offline mode. Do you want to turn offline mode off?").no();
-            new org.netbeans.jellytools.actions.Action(VERSIONING_MENU + "|" + PVCS_LOCK + "...", PVCS_LOCK + "...").perform(filesystemNode);
-            new NbDialogOperator("Lock -").cancel();
+            new org.netbeans.jellytools.actions.Action(VERSIONING_MENU + "|" + PVCS_SET_PASSWORD, PVCS_SET_PASSWORD).perform(filesystemNode);
+            new NbDialogOperator("Password").cancel();
             OutputWindowOperator outputWindow = new OutputWindowOperator();
             String output = outputWindow.getText();
-            if (output.indexOf("Preprocessing Lock, exec = org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand.class") == -1)
+            if (output.indexOf("Command Set Password finished.") == -1)
                 throw new Exception("Error: Print Command Output property does not work.");
             filesystemNode.select();
             PropertySheetOperator sheet = new PropertySheetOperator();
-            ComboBoxProperty property = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Properties"), "Advanced Options");
+            Property property = new Property(sheet, "Advanced Options");
             property.setValue("False");
-            property = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Properties"), "Offline Mode");
+            property = new Property(sheet, "Offline Mode");
             property.setValue("False");
-            property = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Properties"), "Print Command Output");
+            property = new Property(sheet, "Print Command Output");
             property.setValue("False");
             outputWindow.clearOutput();
             new org.netbeans.jellytools.actions.Action(VERSIONING_MENU + "|" + PVCS_LOCK, PVCS_LOCK).perform(filesystemNode);
@@ -601,8 +596,10 @@ public class MountingWizard extends JellyTestCase {
             try { new JLabelOperator(dialog, "Select what to lock:"); } catch(Exception e) {okay = true;}
             dialog.cancel();
             if (!okay) throw new Exception("Error: Advanced Option property does not work.");
+            new org.netbeans.jellytools.actions.Action(VERSIONING_MENU + "|" + PVCS_SET_PASSWORD, PVCS_SET_PASSWORD).perform(filesystemNode);
+            new NbDialogOperator("Password").cancel();
             output = outputWindow.getText();
-            if (output.indexOf("Preprocessing Lock, exec = org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand.class") != -1)
+            if (output.indexOf("Command Set Password finished.") != -1)
                 throw new Exception("Error: Print Command Output property does not work.");
             new org.netbeans.jellytools.actions.Action(VERSIONING_MENU + "|" + PVCS_REFRESH, PVCS_REFRESH).perform(filesystemNode);
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
@@ -614,7 +611,6 @@ public class MountingWizard extends JellyTestCase {
             new UnmountFSAction().perform(filesystemNode);
             System.out.println(". done !");
         } catch (Exception e) {
-            captureScreen();
             try { new UnmountFSAction().perform(new Node(new ExplorerOperator().repositoryTab().getRootNode(), "PVCS " + getWorkDirPath())); }
             catch (Exception te) {}
             throw e;
