@@ -32,7 +32,10 @@ public class VcsManagerAction extends CallableSystemAction {
     static final long serialVersionUID = -3240759228704433330L;
     
     private Dialog dlg;
-
+    
+    public VcsManagerAction() {
+        putValue("noIconInMenu", Boolean.TRUE);
+    }
     /** Human presentable name of the action. This should be
      * presented as an item in a menu.
      * @return the name of the action
@@ -43,11 +46,10 @@ public class VcsManagerAction extends CallableSystemAction {
 
     /** The action's icon location.
      * @return the action's icon location
-     *
+     */
     protected String iconResource () {        
         return "org/netbeans/modules/vcscore/actions/VcsManagerActionIcon.gif"; // NOI18N
     }
-     */
 
     /** Help context where to find more about the action.
      * @return the help context for this action
