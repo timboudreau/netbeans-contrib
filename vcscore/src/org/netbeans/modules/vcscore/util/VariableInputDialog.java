@@ -417,9 +417,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
         final boolean[] selectorMatched = new boolean[] { false };
         ec.addDataOutputListener(new CommandDataOutputListener() {
             public void outputData(String[] elements) {
-                System.out.println("getSelectorText(): match = "+elements);
                 if (elements != null) {
-                    System.out.println("match:'"+VcsUtilities.array2string(elements).trim()+"'");
                     selectorMatched[0] = true;
                     selectorOutput.append(VcsUtilities.array2string(elements).trim());
                 }
