@@ -749,10 +749,10 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
                 elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].length() > 0) {
                 
+                elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].replace(java.io.File.separatorChar, '/');
                 String fileName = elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME];
                 String fileDir = "";
                 String filePath;
-                fileName.replace(java.io.File.separatorChar, '/');
                 int sepIndex = fileName.indexOf('/');
                 if (sepIndex < 0 || sepIndex == (fileName.length() - 1)) {
                     fileDir = findFileDir(fileName);
@@ -780,6 +780,11 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                         }
                         continue;
                     }
+                }
+                fileName = elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME];
+                if (!fileName.endsWith("/") && fileSystem.folder(fileDir+"/"+fileName)) {
+                    fileName += "/";
+                    elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
                 }
                 //System.out.println("readFileFinished("+fileDir+", "+VcsUtilities.arrayToString(elements)+")");
                 for (Iterator it = fileReaderListeners.iterator(); it.hasNext(); ) {
