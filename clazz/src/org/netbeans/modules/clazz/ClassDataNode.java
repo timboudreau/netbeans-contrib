@@ -79,7 +79,10 @@ class ClassDataNode extends DataNode implements Runnable {
   /** @param obj is a ClassDataObject that is to be represented
   */
   ClassDataNode(final ClassDataObject obj) {
+    /* Changed for multiple factories
     super(obj, new SourceChildren(ClassElementNodeFactory.getInstance()));
+    */
+    super(obj, new SourceChildren( ClassDataObject.getExplorerFactory()) );
     this.obj = obj;
     initialize();
   }
@@ -260,6 +263,8 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  22   Gandalf   1.21        6/28/99  Petr Hrebejk    Multiple node factories 
+ *       added
  *  21   Gandalf   1.20        6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
  *  20   Gandalf   1.19        5/10/99  Jaroslav Tulach DataNode.canRename

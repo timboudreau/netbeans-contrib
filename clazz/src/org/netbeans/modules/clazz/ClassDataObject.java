@@ -23,6 +23,8 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.text.MessageFormat;
 import javax.swing.JApplet;
@@ -40,8 +42,8 @@ import org.openide.nodes.CookieSet;
 import org.openide.src.SourceElement;
 import org.openide.src.nodes.SourceChildren;
 import org.openide.src.nodes.SourceElementFilter;
-
-
+import org.openide.src.nodes.FilterFactory;
+import org.openide.src.nodes.ElementNodeFactory;
 /* TODO:
   - check the showDeclaredOnly flag - it works different for
     variables/constructors than for methods (i.e. for variables/constructors
@@ -207,8 +209,12 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
    * @see org.openide.loaders.DataObject#getNodeDelegate
   */
   public Node getElementsParent () {
+    
+    /* Changed for multiple factories
     ClassElementNodeFactory cef = new ClassElementNodeFactory ();
     cef.setGenerateForTree (true);
+    */
+    ElementNodeFactory cef = getBrowserFactory();
     SourceChildren sourceChildren = new SourceChildren (cef);
     SourceElementFilter sourceElementFilter = new SourceElementFilter();
     sourceElementFilter.setAllClasses (true);
@@ -401,6 +407,65 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
     return destName;
   }
 
+  // =============== The mechanism for regeisteing node factories ==============
+
+  private static ArrayList explorerFactories = new ArrayList();
+  private static ArrayList browserFactories = new ArrayList();
+
+  static {
+    explorerFactories.add( new ClassElementNodeFactory() );
+
+    ClassElementNodeFactory cef = new ClassElementNodeFactory();
+    cef.setGenerateForTree (true);
+
+    browserFactories.add( cef ) ;
+  }
+
+  public static void addExplorerFilterFactory( FilterFactory factory ) {
+    System.out.println( "Registering explorer factory" );
+    addFactory( explorerFactories, factory );
+  }
+
+  public static void removeExplorerFilterFactory( FilterFactory factory ) {
+    removeFactory( explorerFactories, factory );
+  }
+
+  static ElementNodeFactory getExplorerFactory() {
+    return (ElementNodeFactory)explorerFactories.get( explorerFactories.size() - 1); 
+  }
+
+  public static void addBrowserFilterFactory( FilterFactory factory ) { 
+    System.out.println( "Registering browser factory" );
+    addFactory( browserFactories, factory );
+  }
+
+  public static void removeBrowserFilterFactory( FilterFactory factory ) {
+    removeFactory( browserFactories, factory );
+  }
+
+  static ElementNodeFactory getBrowserFactory() {
+    return (ElementNodeFactory)browserFactories.get( browserFactories.size() - 1 ); 
+  }
+
+  private static void addFactory( List factories, FilterFactory factory ) {
+    factory.attachTo( (ElementNodeFactory)factories.get( factories.size() - 1 ) );
+    factories.add( factory );
+  }
+
+  private static void removeFactory( List factories, FilterFactory factory ) {
+    int index = factories.indexOf( factory );
+
+    if ( index <= 0 )
+      return;
+    else if ( index == factories.size() - 1 )
+      factories.remove( index );
+    else {
+      ((FilterFactory)factories.get( index + 1 )).attachTo( (ElementNodeFactory)factories.get( index - 1 ) );
+      factories.remove( index );
+    }
+
+  }
+ 
 
   // innerclasses .......................................................
 
@@ -463,6 +528,8 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  21   Gandalf   1.20        6/28/99  Petr Hrebejk    Multiple node factories 
+ *       added
  *  20   Gandalf   1.19        6/24/99  Jesse Glick     Gosh-honest HelpID's.
  *  19   Gandalf   1.18        6/22/99  Ian Formanek    employed DEFAULT_HELP
  *  18   Gandalf   1.17        6/9/99   Ian Formanek    ---- Package Change To 
