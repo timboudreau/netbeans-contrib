@@ -39,6 +39,7 @@ import org.openide.windows.WindowManager;
 public class CvsCommitVisualizer extends OutputVisualizer {
     
     public static final String UNKNOWN = "commit: nothing known about `";               //NOI18N
+    /*
     public static final String EXAM_DIR = "server: Examining";                          //NOI18N
     public static final String CHECKING_IN = "Checking in ";                            //NOI18N
     public static final String REMOVING = "Removing ";                                  //NOI18N
@@ -47,6 +48,7 @@ public class CvsCommitVisualizer extends OutputVisualizer {
     public static final String DONE = "done";                                           //NOI18N
     public static final String RCS_FILE = "RCS file: ";                                 //NOI18N
     public static final String ADD = "commit: use `cvs add' to create an entry for ";   //NOI18N       
+     */
            
     private CommitInformation commitInformation;
     private boolean isAdding;
@@ -57,7 +59,6 @@ public class CvsCommitVisualizer extends OutputVisualizer {
      */
     private String localPath;
     private CommitInfoPanel contentPane = null;
-    private HashMap output;
     private int exit = Integer.MIN_VALUE; // unset exit status
     private List outputInfosToShow; // cached information when the command is providing
     // output sooner then the GUI is created.
@@ -75,7 +76,7 @@ public class CvsCommitVisualizer extends OutputVisualizer {
     
     public Map getOutputPanels() {
         debug("getOutputPanel");
-        output = new HashMap();
+        HashMap output = new HashMap();
         contentPane = new CommitInfoPanel(this);
         contentPane.setVcsTask(getVcsTask());
         contentPane.setOutputCollector(getOutputCollector());
@@ -126,44 +127,8 @@ public class CvsCommitVisualizer extends OutputVisualizer {
      * This method is called, with the output line.
      * @param line The output line.
      */
-    public void stdOutputLine(String line) {        
-        if (line.indexOf(UNKNOWN) >= 0) {
-            processUnknownFile(line.substring(line.indexOf(UNKNOWN) + UNKNOWN.length()).trim());
-        }
-        else if (line.indexOf(ADD) > 0) {
-            processToAddFile(line.substring(line.indexOf(ADD) + ADD.length()).trim());
-        }
-        else if (line.startsWith(CHECKING_IN)) {
-            // - 1 means to cut the ';' character
-            processFile(line.substring(CHECKING_IN.length(), line.length() - 1));
-            if (isAdding) {
-                commitInformation.setType(commitInformation.ADDED);
-                isAdding = false;
-            }
-            else {
-                commitInformation.setType(commitInformation.CHANGED);
-            }
-        }
-        else if (line.startsWith(REMOVING)) {
-            processFile(line.substring(REMOVING.length(), line.length() - 1));
-            // - 1 means to cut the ';' character
-            commitInformation.setType(commitInformation.REMOVED);
-        }
-        else if (line.indexOf(EXAM_DIR) >= 0) {
-            fileDirectory = line.substring(line.indexOf(EXAM_DIR) + EXAM_DIR.length()).trim();
-        }
-        else if (line.startsWith(RCS_FILE)) {
-            isAdding = true;
-        }
-        else if (line.startsWith(DONE)) {
-            outputDone();
-        }
-        else if (line.startsWith(INITIAL_REVISION)) {
-            processRevision(line.substring(INITIAL_REVISION.length()));
-        }
-        else if (line.startsWith(NEW_REVISION)) {
-            processRevision(line.substring(NEW_REVISION.length()));
-        }
+    public void stdOutputLine(String line) {
+        // Ignored, we get the parsed output from data output.
     }
     
     private File createFile(String fileName) {
@@ -174,42 +139,17 @@ public class CvsCommitVisualizer extends OutputVisualizer {
         commitInformation = new CommitInformation();
         commitInformation.setType(commitInformation.UNKNOWN);
         int index = line.indexOf('\'');
-        String fileName = line.substring(0, index - 1).trim();
+        String fileName = line.substring(0, index).trim();
         commitInformation.setFile(createFile(fileName));
         outputDone();
     }
     
-    private void processToAddFile(String line) {
+    private void processFile(String fileName, String commitInfo, String revision) {
         commitInformation = new CommitInformation();
-        commitInformation.setType(commitInformation.TO_ADD);
-        String fileName = line.trim();
-        if (fileName.endsWith(";")) { //NOI18N
-            fileName = fileName.substring(0, fileName.length() - 2);
-        }
+        commitInformation.setType(commitInfo);
         commitInformation.setFile(createFile(fileName));
+        commitInformation.setRevision(revision);
         outputDone();
-    }
-    
-    private void processFile(String filename) {
-        if (commitInformation == null) {
-            commitInformation = new CommitInformation();
-        }
-        
-        if (filename.startsWith("no file")) { //NOI18N
-            filename = filename.substring(8);
-        }
-        commitInformation.setFile(createFile(filename));
-    }
-    
-    private void processRevision(String revision) {
-        int index = revision.indexOf(';');
-        if (index >= 0) {
-            revision = revision.substring(0, index);
-        }
-        commitInformation.setRevision(revision.trim());
-    }
-    
-    public void parseEnhancedMessage(String key, Object value) {
     }
     
     public void outputDone() {        
@@ -276,6 +216,9 @@ public class CvsCommitVisualizer extends OutputVisualizer {
             }
             errOutput.addText(line+'\n');
         }
+        if (line.indexOf(UNKNOWN) >= 0) {
+            processUnknownFile(line.substring(line.indexOf(UNKNOWN) + UNKNOWN.length()).trim());
+        }
     }
     
     /**
@@ -290,6 +233,10 @@ public class CvsCommitVisualizer extends OutputVisualizer {
                 }
             }
             stdDataOutput.addText(VcsUtilities.arrayToString(data)+'\n');
+        }
+        if (data.length < 9) return ;
+        if (data[8] != null) {
+            processFile(data[0], data[8], data[2]);
         }
     }
     

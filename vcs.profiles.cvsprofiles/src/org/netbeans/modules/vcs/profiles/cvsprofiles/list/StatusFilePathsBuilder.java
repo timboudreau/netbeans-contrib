@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.status.StatusInformation;
+import org.openide.filesystems.FileUtil;
 
 /**
  * A builder that assembles files paths in working directories
@@ -160,6 +161,43 @@ public class StatusFilePathsBuilder {
         return found[0];
     }
     
+    /**
+     * Fill in the complete file path in the status information.
+     * It's supposed, that this method is called once for every file.
+     * This is necessary in order to assure, that one file is not
+     * filled twice when there are more possibilities.
+     * @param fileName The name of the file (only name without path)
+     * @param info the status information about that file
+     * @return The file path relative to the working directory, or <code>null</code>,
+     *         when the file path was not found.
+     */
+    public String getStatusFilePath(String fileName, String repositoryFileName) {
+        String[] filePaths = getFilePaths(fileName, repositoryFileName);
+        if (filePaths == null) {
+            if (!examiningPaths.isEmpty()) {
+                filePaths = (String[]) examiningPaths.toArray(new String[0]);
+            } else {
+                filePaths = (String[]) workReposPaths.keySet().toArray(new String[0]);
+            }
+        }
+        boolean[] found = new boolean[] { true };
+        File dir = findSuitableDir(workingDir, filePaths, fileName, null,
+                                   processedFilePaths, found);
+        if (!found[0]) return null;
+        else {
+            String dirPath = dir.getAbsolutePath();
+            int wl = workingDir.getAbsolutePath().length();
+            if (wl < dirPath.length()) {
+                dirPath = dirPath.substring(wl);
+                while (dirPath.startsWith(File.separator)) dirPath = dirPath.substring(1);
+            } else {
+                dirPath = "";
+            }
+            if (dirPath.length() == 0) return fileName;
+            else return dirPath + File.separator + fileName;
+        }
+    }
+    
     private static File findSuitableDir(File workingDir, String[] filePaths,
                                         String fileName, StatusInformation info,
                                         Set processedFilePaths, boolean[] found_ptr) {
@@ -191,13 +229,15 @@ public class StatusFilePathsBuilder {
                 String revision = entryItems[1];
                 //System.out.println("revision = "+revision);
                 String status;
-                if (revision.startsWith("-")) {
-                    if (!"Locally Removed".equals(info.getStatus())) {
-                        continue;
-                    }
-                } else if (revision.equals("0")) {
-                    if (!"Locally Added".equals(info.getStatus())) {
-                        continue;
+                if (info != null) {
+                    if (revision.startsWith("-")) {
+                        if (!"Locally Removed".equals(info.getStatus())) {
+                            continue;
+                        }
+                    } else if (revision.equals("0")) {
+                        if (!"Locally Added".equals(info.getStatus())) {
+                            continue;
+                        }
                     }
                 }
                 String filePath = new File(dir, fileName).getAbsolutePath();
@@ -211,6 +251,7 @@ public class StatusFilePathsBuilder {
             found_ptr[0] = false;
             dir = workingDir; // The dir was not found!
         }
+        dir = FileUtil.normalizeFile(dir);
         return dir;
     }
 

@@ -730,6 +730,9 @@ Microsystems, Inc. All Rights Reserved.
             IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Recursive), "true",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Recursive);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Recursive_mnc)),"-R", "-l") 
           </value>
 	</property>
+        <property name="visualizer">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.commit.CvsCommitVisualizer</value>
+        </property>
 	<property name="input">
 	  <value></value>
 	</property>
@@ -739,6 +742,33 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="error.regex">
 	  <value>(.*$)</value>
 	</property>
+	<property name="data.fileName.index">
+	  <value>0</value>
+	</property>
+	<property name="data.status.index">
+	  <value>1</value>
+	</property>
+        <property name="data.revision.index">
+	  <value>2</value>
+	</property>
+	<property name="data.time.index">
+	  <value>3</value>
+	</property>
+	<property name="data.date.index">
+	  <value>4</value>
+	</property>
+        <property name="data.sticky.index">
+	  <value>5</value>
+	</property>
+	<property name="data.locker.index">
+	  <value>6</value>
+	</property>
+        <property name="data.removedFileName.index">
+          <value>7</value>
+        </property>
+        <property name="refreshFileRelativePath">
+          <value></value>
+        </property>
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
@@ -762,9 +792,6 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="exec">
 	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} commit ${FORCE} ${RUN_MODULE_PROGRAM}  ${RECURSIVE} $[? BRANCH] [-r ${BRANCH}] [] -F ${QUOTE}${TEMPLATE_FILE}${QUOTE} $[? PATHS] [${QPATHS}] [] ${NUR}</value>
 	</property>
-        <property name="visualizer">
-          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.commit.CvsCommitVisualizer</value>
-        </property>
 	<property name="checkForModifications">
 	  <value>true</value>
 	</property>
@@ -773,25 +800,6 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="changingNumRevisions">
           <value>true</value>
-        </property>
-        <property name="data.regex">
-          <!-- <value>^RCS file.*Checking in (.*);.*initial revision: (.*)(done)$|^Checking in (.*);.*new revision: (.*);.*(done)$|^(R)(e)(moving) (.*);.*new revision.*done$</value> -->
-          <value>^Checking( )in( )(.*);$|initial( )revision: (.*)$|new( )revision: (.*);.*$|(done)$|^(R)(e)(moving) (.*);$</value>
-        </property>
-        <property name="data.fileName.index">
-          <value>2</value>
-        </property>
-        <property name="data.status.index">
-           <value>0</value>
-        </property>
-        <property name="refreshFileStatusSubstitutions">
-          <value>"done", "Up-to-date"</value>
-        </property>
-        <property name="data.revision.index">
-           <value>1</value>
-        </property>
-        <property name="data.removedFileName.index">
-           <value>3</value>
         </property>
         <property name="concurrentExec">
           <value>10</value> <!-- EXEC_SERIAL_ON_PACKAGE + EXEC_SERIAL_OF_COMMAND -->

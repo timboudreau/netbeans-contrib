@@ -19,6 +19,10 @@ import java.util.*;
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
 
+import org.netbeans.modules.vcs.profiles.cvsprofiles.list.CvsListOffline;
+import org.netbeans.modules.vcs.profiles.cvsprofiles.list.StatusFilePathsBuilder;
+import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.commit.CommitInformation;
+
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -50,9 +54,17 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
     private static final String TEMP_FILE_PREFIX = "tempCommit";
     private static final String TEMP_FILE_SUFFIX = "output";
     
+    private static final String REPOSITORY_FILE_PATTERN = ",v  <-- "; // NOI18N
+    private static final String NEW_REVISION = "new revision: "; // NOI18N
+    private static final String PREVIOUS_REVISION = "; previous revision: "; // NOI18N
+    private static final String INITIAL_REVISION = "initial revision: "; //NOI18N
+    private static final String DELETED_REVISION = "delete"; //NOI18N
+    
     private VcsFileSystem fileSystem = null;
     
     private HashMap cachedEntries = new HashMap();
+    
+    private FileStatusUpdater fileStatusUpdater;
 
     /** Creates new CvsCommit */
     public CvsCommit() {
@@ -228,9 +240,12 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
     /**
      * Run the commit and return the appropriate task IDs.
      */
-    private long[] doCommit(CommandsPool cpool, VcsCommand cmdCommit, ArrayList filesList, Hashtable vars) {
+    private long[] doCommit(CommandsPool cpool, VcsCommand cmdCommit, ArrayList filesList,
+                            Hashtable vars, CommandOutputListener stderrNRListener,
+                            CommandDataOutputListener stderrListener,
+                            VcsCommandExecutor[][] executorsRet) {
         Table files = getFiles(filesList);
-        VcsCommandExecutor[] executors = VcsAction.doCommand(files, cmdCommit, vars, fileSystem);
+        VcsCommandExecutor[] executors = VcsAction.doCommand(files, cmdCommit, vars, fileSystem, fileStatusUpdater, stderrNRListener, null, stderrListener);
         //VcsCommandExecutor commit = fileSystem.getVcsFactory().getCommandExecutor(cmdCommit, vars);
         //int preprocessStatus = cpool.preprocessCommand(commit, vars);
         //cpool.startExecutor(commit);
@@ -238,17 +253,8 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         long[] IDs = new long[executors.length];
         for (int i = 0; i < executors.length; i++) {
             IDs[i] = cpool.getCommandID(executors[i]);
-            /*
-            try {
-                cpool.waitToFinish(executors[i]);
-            } catch (InterruptedException iexc) {
-                for (int j = i; j < executors.length; j++) {
-                    cpool.kill(executors[j]);
-                }
-                return new VcsCommandExecutor[0];
-            }
-             */
         }
+        executorsRet[0] = executors;
         return IDs;
     }
     
@@ -282,6 +288,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         if (relativePath != null) {
             relativePath = relativePath.replace(File.separatorChar, '/');
         }
+        fileStatusUpdater = new FileStatusUpdater(new File(fsRoot, relativePath), relativePath, (String) vars.get("CVS_REPOSITORY"), stdoutNRListener, stdoutListener);
         fsRoot = fsRoot.replace('/', ps);
         //final StringBuffer buff = new StringBuffer();
         ArrayList filePaths = getFilePaths((String) vars.get("COMMON_PARENT"), (String) vars.get("PATHS"), ps);
@@ -316,7 +323,9 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             filesCommited.removeAll(alreadyCommittedFiles);
             if (filesCommited.size() == 0) return true;//break ;
             //setProcessingFiles(filesCommited, vars);
-            long[] IDs = doCommit(cpool, cmdCommit, filesCommited, vars);
+            VcsCommandExecutor[][] executors = new VcsCommandExecutor[1][];
+            long[] IDs = doCommit(cpool, cmdCommit, filesCommited, vars,
+                                  stderrNRListener, stderrListener, executors);
             //cmdCommit1.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED,
             //    cmdCommit.getProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED));
             if (IDs.length == 0) {
@@ -327,14 +336,15 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             alreadyCommittedFiles.addAll(filesCommited);
             filePaths.removeAll(filesCommited);
             //vars = new Hashtable(varsOriginal);
+            StringBuffer IDBuff = new StringBuffer();
+            for (int i = 0; i < IDs.length; i++) {
+                if (i > 0) IDBuff.append(" ,");
+                IDBuff.append(Long.toString(IDs[i]));
+            }
+            final String IDStr = IDBuff.toString();
             if (filePaths.size() > 0) {
                 vars.put("TEMPLATE_FILE_PLEASE_WAIT_TEXT", NbBundle.getMessage(CvsCommit.class, "CvsCommit.templateFileCheck"));
-                StringBuffer IDStr = new StringBuffer();
-                for (int i = 0; i < IDs.length; i++) {
-                    if (i > 0) IDStr.append(" ,");
-                    IDStr.append(Long.toString(IDs[i]));
-                }
-                vars.put("COMMIT_COMMANDS_IDS", IDStr.toString());
+                vars.put("COMMIT_COMMANDS_IDS", IDStr);
                 CommandSupport cmdSupport = fileSystem.getCommandSupport("COMMIT"); // Myself
                 Command cmd = cmdSupport.createCommand();
                 if (cmd instanceof VcsDescribedCommand) {
@@ -344,9 +354,22 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                     cmd.execute();
                 }
             }
-        //} while (filePaths.size() > 0);
+            boolean status = true;
+            for(int i = 0; i < executors[0].length; i++) {
+                try {
+                    cpool.waitToFinish(executors[0][i]);
+                } catch (InterruptedException iexc) {
+                    for (int j = i; j < executors[0].length; j++) {
+                        cpool.kill(executors[0][j]);
+                    }
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                status = status && (executors[0][i].getExitStatus() == VcsCommandExecutor.SUCCEEDED);
+            }
+            fileStatusUpdater.flushElements();
         //cpool.preprocessCommand(vce, vars);
-        return true;
+        return status;
     }
     
     private static String fileOutput(String buffer) {
@@ -370,5 +393,125 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             }
         }
         return outputFile.getAbsolutePath();
+    }
+    
+    /** Gets the output of "cvs commit" command and updates the status of committed files. */
+    private static class FileStatusUpdater extends Object implements CommandOutputListener {
+        
+        private StatusFilePathsBuilder pathsBuilder;
+        private File workingDir;
+        private int workPathLength;
+        private String relativePath;
+        private CommandOutputListener stdoutNRListener; // The listener to propagate the standard output to
+        private CommandDataOutputListener fileUpdateListener; // The listener to send data output to
+        private String lastFilePath;
+        private String lastFileDir;
+        private List elementsToSend;
+        
+        public FileStatusUpdater(File workingDir, String relativePath, String cvsRepository,
+                                 CommandOutputListener stdoutNRListener,
+                                 CommandDataOutputListener fileUpdateListener) {
+            this.stdoutNRListener = stdoutNRListener;
+            this.fileUpdateListener = fileUpdateListener;
+            this.pathsBuilder = new StatusFilePathsBuilder(workingDir, cvsRepository);
+            this.workingDir = workingDir;
+            workPathLength = workingDir.getAbsolutePath().length();
+            this.relativePath = relativePath;
+            if (relativePath.length() > 0) {
+                this.relativePath += "/";
+            }
+            elementsToSend = new ArrayList();
+        }
+        
+        public void outputLine(String line) {
+            stdoutNRListener.outputLine(line);
+            int reposFileIndex = line.indexOf(REPOSITORY_FILE_PATTERN);
+            if (reposFileIndex > 0) {
+                String reposFile = line.substring(0, reposFileIndex);
+                int fileIndex = reposFile.lastIndexOf('/');
+                String file = reposFile.substring(fileIndex + 1);
+                lastFilePath = pathsBuilder.getStatusFilePath(file, reposFile);
+                if (lastFilePath != null) {
+                    lastFilePath = lastFilePath.replace(File.separatorChar, '/');
+                }
+            } else if (line.startsWith(NEW_REVISION) && lastFilePath != null) {
+                int endRevision = line.indexOf(';', NEW_REVISION.length());
+                if (endRevision <= 0) return ;
+                String revision = line.substring(NEW_REVISION.length(), endRevision).trim();
+                if (DELETED_REVISION.equals(revision)) {
+                    endRevision += PREVIOUS_REVISION.length();
+                    if (endRevision < line.length()) {
+                        revision = line.substring(endRevision).trim();
+                    }
+                    revision(revision, CommitInformation.REMOVED);
+                } else {
+                    revision(revision, CommitInformation.CHANGED);
+                }
+            } else if (line.startsWith(INITIAL_REVISION) && lastFilePath != null) {
+                String revision = line.substring(INITIAL_REVISION.length()).trim();
+                revision(revision, CommitInformation.ADDED);
+            }
+        }
+        
+        private void revision(String revision, String operationType) {
+            int fileIndex = lastFilePath.lastIndexOf('/');
+            String fileDir;
+            if (fileIndex <= 0) fileDir = "";
+            else fileDir = lastFilePath.substring(0, fileIndex);
+            if (!fileDir.equals(lastFileDir)) {
+                // Do that asynchronously for all files in a given folder,
+                // after there's a chance that the CVS/Entries file is updated and closed.
+                flushElements();
+                lastFileDir = fileDir;
+            }
+            String[] elements = new String[9];
+            elements[0] = relativePath + lastFilePath;
+            elements[1] = "Up-to-date";
+            elements[2] = revision;
+            elements[3] = ""; // time
+            elements[4] = ""; // date
+            elements[5] = null;// findSticky(lastFilePath); - load it asynchronously in flushElements()
+            elements[6] = ""; // lockers
+            if (CommitInformation.REMOVED == operationType) {
+                elements[7] = relativePath + lastFilePath; // removed file
+            } else {
+                elements[7] = null; // removed file
+            }
+            elements[8] = operationType; // information for the visualizer
+            //fileUpdateListener.outputData(elements);
+            elementsToSend.add(elements);
+            lastFilePath = null;
+        }
+        
+        public void flushElements() {
+            if (lastFileDir == null) return ;
+            File folder = new File(workingDir, lastFileDir);
+            File entries = new File(folder, "CVS/Entries"); // NOI18N
+            Map entriesByFiles = CvsListOffline.createEntriesByFiles(CvsListOffline.loadEntries(entries));
+            for (Iterator it = elementsToSend.iterator(); it.hasNext(); ) {
+                String[] elements = (String[]) it.next();
+                elements[5] = findSticky(elements[0], entriesByFiles);
+                fileUpdateListener.outputData(elements);
+            }
+            elementsToSend.clear();
+        }
+        
+        private String findSticky(String filePath, Map entriesByFiles) {
+            int fileIndex = filePath.lastIndexOf('/');
+            String fileName;
+            if (fileIndex <= 0) fileName = filePath;
+            else fileName = filePath.substring(fileIndex + 1);
+            String entry = (String) entriesByFiles.get(fileName);
+            if (entry == null) return "";
+            String[] entryItems = CvsListOffline.parseEntry(entry);
+            String sticky;
+            if (entryItems.length > 4) {
+                sticky = entryItems[4];
+                if (sticky.length() > 0) sticky = sticky.substring(1, sticky.length());
+            } else {
+                sticky = "";
+            }
+            return sticky;
+        }
     }
 }
