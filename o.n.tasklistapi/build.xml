@@ -13,57 +13,53 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="tasklist/api" default="netbeans" basedir=".">
+    <import file="../../nbbuild/default.xml"/>
 
-    <property name="nb_all" value="../.."/>
-
-    <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-
-    <property name="nbm_alias" value="nb_ide"/>
-    <property name="homepage.base" value="netbeans.org"/>
-    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-    <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
     <property file="../version.properties"/>
-
-    <path id="cp">
-        <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
-        <fileset dir="${nb_all}/openide/netbeans/lib">
-            <include name="openide*.jar" />
-        </fileset>
-        <pathelement location="${nb_all}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-        <pathelement location="${nb_all}/java/netbeans/modules/java.jar"/>  <!-- Hard compile-time, soft run-time dependency -->
-    </path>
   
-    <target name="compile">
+    <target name="init" depends="default.init">
+      <patternset id="tasklist/api.files">
+        <include name="${nb.modules/autoload.dir}/tasklist-api.jar"/>
+      </patternset>
+      <path id="cp">
+        <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+        <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+        <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+        <pathelement location="${java.dir}/${nb.modules.dir}/java.jar"/>  <!-- Hard compile-time, soft run-time dependency -->
+      </path>
+    </target>
+  
+    <target name="compile" depends="init">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4">
             <classpath refid="cp"/>
         </javac>
     </target>
 
     <target name="jars" depends="compile">
-        <mkdir dir="netbeans/modules/autoload"/>
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload.dir}"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <filter filtersfile="../version.properties"/>
         <filter token="tl.api.spec" value="${tl.api.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/autoload/tasklist-api.jar"
-                manifest="manifest-subst.mf"
-                basedir="src"
-	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
-	        compress="false">
-            <locale name="ja"/>
-        </locjar>
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"
+             manifest="manifest-subst.mf"
+             basedir="src"
+	     excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
+	     compress="false"/>
     </target>
 
     <target name="netbeans" depends="jars">
-        <genlist targetname="nbm" outputfiledir="netbeans"/>
+        <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules/autoload.dir}/tasklist-api.jar">
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+                <patternset refID="tasklist/api.files"/>
+           </fileset>
+        </genlist>
     </target>
 
     <target name="nbm" depends="netbeans">
-        <makenbm file="../tasklist-api.nbm"
-                 topdir="."
-                 module="netbeans/modules/autoload/tasklist-api.jar"
+        <makenbm file="tasklist-api.nbm"
+                 productdir="${netbeans.dest.dir}/${cluster.dir}"
+                 module="${nb.modules/autoload.dir}/tasklist-api.jar"
                  homepage="http://tasklist.${homepage.base}/"
                  distribution="http://${dist.base}/tasklist-api.nbm"
                  needsrestart="false">
@@ -72,14 +68,15 @@ Microsystems, Inc. All Rights Reserved.
         </makenbm>
     </target>
   
-    <target name="clean">
+    <target name="clean" depends="init">
         <delete>
             <fileset dir="." includes="**/*.class"/>
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+               <patternset refID="tasklist/api.files"/>
+            </fileset>
         </delete>
         <delete file="manifest-subst.mf"/>
-        <delete file="../tasklist-api.nbm"/>
-        <delete dir="netbeans"/>
-        <delete dir="Info"/>
+        <delete file="tasklist-api.nbm"/>
         <delete dir="javadoc"/>
     </target>
 

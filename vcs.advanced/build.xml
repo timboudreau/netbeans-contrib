@@ -14,42 +14,34 @@ Microsystems, Inc. All Rights Reserved.
 
 
 <project name="vcsgeneric" default="netbeans" basedir=".">
-
-  <property name="nbroot" location=".."/>
-  <property name="nbext" location="${nbroot}/nbbuild"/>
-  <property name="nbext_root" location="${nbroot}/nbbuild"/>
-  <property name="nbm_alias" value="nb_ide"/>
-  <property name="homepage.base" value="netbeans.org"/>
-  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" value="../nbbuild/standard-nbm-license.txt"/>
+  <import file="../nbbuild/default.xml"/> 
 
   <property name="stdprofiles" value="cvsprofiles, pvcs, vss"/>
+  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
 
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="for-each" classname="org.netbeans.nbbuild.ForEach" classpath="${nbext_root}/nbantext.jar"/>
-  <taskdef name="nbmerge" classname="org.netbeans.nbbuild.NbMerge" classpath="${nbext}/nbantext.jar"/>
+  <target name="init" depends="default.init">
+    <patternset id="vcsgeneric.files">
+      <include name="${nb.modules.dir}/vcsgen.jar"/>
+    </patternset>
+    <path id="cp">
+      <pathelement location="${openidex.dir}/${nb.modules/autoload.dir}/openidex.jar"/>
+      <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+      <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+      <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+      <pathelement location="${openide/io.dir}/${nb.modules/autoload.dir}/openide-io.jar"/>
+      <pathelement location="${vcscore.dir}/${nb.modules/autoload.dir}/vcscore.jar"/>
+      <pathelement location="${diff.dir}/${nb.modules.dir}/diff.jar"/>
+    </path>
+  </target>
 
-  <target name="compile">
+  <target name="compile" depends="init">
     <javac srcdir="src" 
         deprecation="${build.compiler.deprecation}" 
         debug="${build.compiler.debug}"
         destdir="src"
         excludes="org/netbeans/modules/vcs/advanced/config/">
-      <classpath>        
-	      <pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
-        <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
-        <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-        <pathelement location="${nbroot}/openide/io/netbeans/modules/autoload/openide-io.jar"/>
-	      <pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
-	      <pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
-        <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
-      </classpath>
+      <classpath refID="cp"/>
     </javac>
-    <!-- <ant dir="profiles/pvcs" inheritAll="false" target="compile"/> -->
-    <!-- <for-each locations="${stdprofiles}" startdir="profiles"/> -->
   </target>
 
   <target name="jars" depends="compile">
@@ -74,17 +66,16 @@ Microsystems, Inc. All Rights Reserved.
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-resources.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/resources/*.*"/>
     </makelayer>
-    <mkdir dir="netbeans/modules"/>
+    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <locjar jarfile="netbeans/modules/vcsgen.jar"
+    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/vcsgen.jar"
          manifest="manifest-subst.mf"
          basedir="src"
-         excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
+         excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
 	 excludes="org/netbeans/modules/vcs/advanced/config/mf-layer_XX.xml" 
          compress="false">
-      <locale name="ja"/>
-      <fileset dir="src/" excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt">
+      <fileset dir="src/" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt">
         <include name="org/netbeans/modules/vcs/profiles/**/*"/>
 	<exclude name="org/netbeans/modules/vcs/profiles/config/*_XX.*"/>
       </fileset>
@@ -92,33 +83,7 @@ Microsystems, Inc. All Rights Reserved.
         <include name="org/netbeans/modules/vcs/profiles/**/*.java"/>
         <include name="org/netbeans/modules/vcs/profiles/**/*.form"/>
       </fileset>
-    </locjar>
-    <!-- <for-each locations="${stdprofiles}" startdir="profiles"/> -->
-<!--    <nbmerge dest="netbeans" topdir="profiles" modules="${stdprofiles}" targetprefix="profile-"/>-->
-   <!--
-    <patternset id="stdprofilesFolders" includes="${stdprofiles}"/>
-    <copy todir="netbeans/modules" flatten="true" includeEmptyDirs="false">
-      <fileset dir="profiles">
-        <patternset refid="stdprofilesFolders">
-          <include name="**/*.jar"/>
-          <exclude name="**/*_??.jar"/>
-        </patternset>
-      </fileset>
-    </copy>
-   -->
-   <!--
-    <copydir src="profiles" dest="netbeans/modules" flatten="true" includes="${stdprofiles}">
-      <patternset id="stdprofiles.jars">
-        <include name="**/*.jar"/>
-        <exclude name="**/*_??.jar"/>
-      </patternset>
-    </copydir>
-    <copydir src="profiles" dest="netbeans/modules/locale" flatten="true" includes="${stdprofiles}">
-      <patternset id="stdprofiles.jars">
-        <include name="**/*_??.jar"/>
-      </patternset>
-    </copydir>
-  -->
+    </jar>
   </target>
 
   <target name="profile-cvsprofiles">
@@ -135,13 +100,17 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist targetname="nbm" outputfiledir="netbeans"/>
+    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/vcsgen.jar">
+       <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+         <patternset refID="vcsgeneric.files"/>
+       </fileset>
+    </genlist>
   </target>
 
   <target name="nbm" depends="netbeans">
     <makenbm file="vcsgen.nbm"
-             topdir="."
-             module="netbeans/modules/vcsgen.jar"
+             productdir="${netbeans.dest.dir}/${cluster.dir}"
+             module="${nb.modules.dir}/vcsgen.jar"
 	     homepage="http://vcsgeneric.${homepage.base}/"
 	     distribution="http://${dist.base}/vcsgen.nbm">
       <license file="${license.file}"/>
@@ -149,22 +118,23 @@ Microsystems, Inc. All Rights Reserved.
     </makenbm>
   </target>
 
-  <target name="clean">
+  <target name="clean" depends="init">
     <delete>
       <fileset dir="src">
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
         <include name="org/netbeans/modules/vcs/advanced/config/layer-include*.xml"/>
       </fileset>
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="vcsgeneric.files"/>
+      </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="vcsgen.nbm"/>
-    <delete dir="netbeans"/>
     <delete dir="javadoc"/>
-    <delete dir="Info"/>
   </target>
 
-  <target name="javadoc" description="Build vcsgeneric module API documentation.">
+  <target name="javadoc" depends="init" description="Build vcsgeneric module API documentation.">
     <tstamp/>
     <property name="apis-footer" value="&lt;font size=-2 color=gray&gt;Built on ${TODAY}.&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Portions Copyright 1997-2003 Sun Microsystems, Inc. All rights reserved.&lt;/font&gt;"/>
     <echo message="Build vcsgeneric module API documentation..."/>
@@ -188,17 +158,7 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="profiles/starteam/common"/>
         <pathelement location="profiles/vss/src"/>
       </sourcepath>
-      <classpath>
-	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
-        <!--<pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>-->
-        <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-        <fileset dir="${nbroot}/openide/netbeans/lib">
-          <include name="openide*.jar" />
-        </fileset>
-	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
-	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
-        <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
-      </classpath>
+      <classpath refID="cp"/>
     </javadoc>    
   </target>
 

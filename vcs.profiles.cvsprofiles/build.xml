@@ -14,34 +14,33 @@ Microsystems, Inc. All Rights Reserved.
 
 
 <project name="vcsgeneric/profiles/cvsprofiles" default="netbeans" basedir=".">
+  <import file="../../../nbbuild/default.xml"/>
 
-  <property name="nbroot" location="../../.."/>
-  <property name="nbext" location="${nbroot}/nbbuild"/>
-  <property name="nbm_alias" value="nb_ide"/>
-  <property name="homepage.base" value="netbeans.org"/>
-  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" value="${nbroot}/nbbuild/standard-nbm-license.txt"/>
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
-  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbext}/nbantext.jar"/>
+  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
 
-  <target name="compile">
+  <target name="init" depends="default.init">
+    <patternset id="vcsgeneric/profiles/cvsprofiles.files">
+      <include name="${nb.modules.dir}/cvs-profile.jar"/>
+    </patternset>
+    <path id="cp">
+      <pathelement location="${nb_all}/openide-13javac-workaround.jar"/>
+      <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+      <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+      <pathelement location="${openidex.dir}/${nb.modules/autoload.dir}/openidex.jar"/>
+      <pathelement location="${vcscore.dir}/${nb.modules/autoload.dir}/vcscore.jar"/>
+      <pathelement location="${vcsgeneric.dir}/${nb.modules.dir}/vcsgen.jar"/>
+      <pathelement location="${diff.dir}/${nb.modules.dir}/diff.jar"/>
+      <pathelement location="${javacvs/libmodule.dir}/${nb.modules/autoload.dir}/cvslib.jar"/>
+    </path>
+  </target>
+
+  <target name="compile" depends="init">
     <!--<echo message="basedir = ${basedir}, nbroot1 = ${nbroot1}, nbext1 = ${nbext1}"/>-->
     <javac srcdir="src" 
         deprecation="${build.compiler.deprecation}" 
         debug="${build.compiler.debug}"
         destdir="src">
-      <classpath>        
-				<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
-        <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
-        <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-	      <pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
-	      <pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
-	      <pathelement location="${nbroot}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
-        <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
-        <pathelement location="${nbroot}/javacvs/libmodule/netbeans/modules/autoload/cvslib.jar"/>
-      </classpath>
+      <classpath refID="cp"/>
     </javac>
   </target>
 
@@ -76,17 +75,16 @@ Microsystems, Inc. All Rights Reserved.
        <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/list/*.java"/>
        <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/list/*.properties"/>
     </makelayer>
-    <mkdir dir="netbeans/modules"/>
+    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <locjar jarfile="netbeans/modules/cvs-profile.jar"
+    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/cvs-profile.jar"
          manifest="manifest-subst.mf"
          basedir="src"
-         excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
+         excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
 	 excludes="src/org/netbeans/modules/vcs/profiles/cvsprofiles/mf-layer_XX.xml" 
          compress="false">
-      <locale name="ja"/>
-      <fileset dir="src/" excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt">
+      <fileset dir="src/" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt">
         <include name="**/*"/>
 	<exclude name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/**/*_XX.*"/>
       </fileset>
@@ -94,17 +92,21 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*.java"/>
         <include name="**/*.form"/>
       </fileset>
-    </locjar>
+    </jar>
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist targetname="nbm" outputfiledir="netbeans"/>
+    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/cvs-profile.jar">
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="vcsgeneric/profiles/cvsprofiles.files"/>
+      </fileset>
+    </genlist>
   </target>
 
   <target name="nbm" depends="netbeans">
     <makenbm file="cvs-profile.nbm"
-             topdir="."
-             module="netbeans/modules/cvs-profile.jar"
+             productdir="${netbeans.dest.dir}/${cluster.dir}"
+             module="${nb.modules.dir}/cvs-profile.jar"
 	     homepage="http://vcsgeneric.${homepage.base}/"
 	     distribution="http://${dist.base}/cvs-profile.nbm">
       <license file="${license.file}"/>
@@ -112,18 +114,19 @@ Microsystems, Inc. All Rights Reserved.
     </makenbm>
   </target>
 
-  <target name="clean">
+  <target name="clean" depends="init">
     <delete>
       <fileset dir="src">
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
         <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/layer-include*.xml"/>
       </fileset>
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="vcsgeneric/profiles/cvsprofiles.files"/>
+      </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="cvs-profile.nbm"/>
-    <delete dir="netbeans"/>
-    <delete dir="Info"/>
   </target>
 
 </project>

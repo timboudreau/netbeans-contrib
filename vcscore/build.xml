@@ -15,53 +15,51 @@ Microsystems, Inc. All Rights Reserved.
 <!-- Special targets: vcs-apis -->
 
 <project name="vcscore" default="netbeans" basedir=".">
+  <import file="../nbbuild/default.xml"/> 
 
-  <property name="nbroot" value=".."/>
-  <property name="nbm_alias" value="nb_ide"/>
-  <property name="homepage.base" value="netbeans.org"/>
-  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" location="../nbbuild/standard-nbm-license.txt"/>
+  <target name="init" depends="default.init">
+    <patternset id="vcscore.files">
+      <include name="${nb.modules/autoload.dir}/vcscore.jar"/>
+    </patternset>
+    <path id="cp">
+      <pathelement location="${openidex.dir}/${nb.modules/autoload.dir}/openidex.jar"/>
+      <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+      <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+      <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+      <pathelement location="${openide/io.dir}/${nb.modules/autoload.dir}/openide-io.jar"/>
+      <pathelement location="${openide/execution.dir}/${nb.modules/autoload.dir}/openide-execution.jar"/>
+    </path>
+  </target>
 
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../nbbuild/nbantext.jar"/>
-  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../nbbuild/nbantext.jar"/>
-  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="../nbbuild/nbantext.jar"/>
-
-  <path id="cp">
-    <pathelement location="../openidex/netbeans/modules/autoload/openidex.jar"/>
-    <pathelement location="../openide/openide-13javac-workaround.jar"/>
-    <pathelement location="../openide/netbeans/lib/openide.jar"/>
-    <pathelement location="../openide/loaders/netbeans/lib/openide-loaders.jar"/>
-    <pathelement location="../openide/io/netbeans/modules/autoload/openide-io.jar"/>
-    <pathelement location="../openide/execution/netbeans/modules/autoload/openide-execution.jar"/>
-  </path>
-
-  <target name="compile">
+  <target name="compile" depends="init">
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <classpath refid="cp"/>
     </javac>
   </target>
 
   <target name="jars" depends="compile">
-    <mkdir dir="netbeans/modules/autoload"/>
+    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <locjar jarfile="netbeans/modules/autoload/vcscore.jar"
-            manifest="manifest-subst.mf"
-            basedir="src"
-	    excludesfile="../nbbuild/standard-jar-excludes.txt"
-	    compress="false">
-      <locale name="ja"/>
-    </locjar>
+    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/autoload.dir}/vcscore.jar"
+         manifest="manifest-subst.mf"
+         basedir="src"
+	 excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
+	 compress="false"/>
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist targetname="nbm" outputfiledir="netbeans"/>
+    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules/autoload.dir}/vcscore.jar">
+       <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+         <patternset refID="vcscore.files"/>
+       </fileset>
+    </genlist>
   </target>
 
   <target name="nbm" depends="netbeans">
     <makenbm file="vcscore.nbm"
-             topdir="."
-             module="netbeans/modules/autoload/vcscore.jar"
+             productdir="${netbeans.dest.dir}/${cluster.dir}"
+             module="${nb.modules/autoload.dir}/vcscore.jar"
 	     homepage="http://vcscore.${homepage.base}/"
 	     distribution="http://${dist.base}/vcscore.nbm">
       <license file="${license.file}"/>
@@ -69,7 +67,7 @@ Microsystems, Inc. All Rights Reserved.
     </makenbm>
   </target>
 
-  <target name="javadoc" description="Build Javadoc.">
+  <target name="javadoc" depends="init" description="Build Javadoc.">
     <ant dir="${nbroot}/nbbuild/javadoctools" antfile="template.xml" target="javadoc">
       <property name="javadoc.base" location="."/>
       <property name="javadoc.name" value="VCSAPI"/>
@@ -82,17 +80,18 @@ Microsystems, Inc. All Rights Reserved.
     </ant>
   </target>
 
-  <target name="clean">
+  <target name="clean" depends="init">
     <delete>
       <fileset dir="src">
         <include name="**/*.class"/>
       </fileset>
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="vcscore.files"/>
+      </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="vcscore.nbm"/>
-    <delete dir="netbeans"/>
     <delete dir="javadoc"/>
-    <delete dir="Info"/>
   </target>
 
 </project>
