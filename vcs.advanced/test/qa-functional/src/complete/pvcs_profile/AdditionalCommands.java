@@ -13,9 +13,8 @@
 
 package complete.pvcs_profile;
 
-import complete.pvcs_profile.JellyStub;
+import complete.GenericStub.GenericNode;
 import java.io.File;
-import java.io.IOException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,38 +28,25 @@ import org.netbeans.jellytools.NbDialogOperator;
 import org.netbeans.jellytools.NewWizardOperator;
 import org.netbeans.jellytools.TopComponentOperator;
 import org.netbeans.jellytools.actions.PropertiesAction;
-import org.netbeans.jellytools.actions.RenameAction;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
-import org.netbeans.jellytools.modules.vcsgeneric.pvcs.ApplyDeltaCommandOperator;
-import org.netbeans.jellytools.modules.vcsgeneric.pvcs.DiffCommandOperator;
-import org.netbeans.jellytools.modules.vcsgeneric.pvcs.GetCommandOperator;
-import org.netbeans.jellytools.modules.vcsgeneric.pvcs.HistoryCommandOperator;
-import org.netbeans.jellytools.modules.vcsgeneric.pvcs.MergeCommandOperator;
-import org.netbeans.jellytools.modules.vcsgeneric.pvcs.RemoveCommandOperator;
+import org.netbeans.jellytools.modules.vcsgeneric.pvcs.*;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
-import org.netbeans.jellytools.properties.ComboBoxProperty;
-import org.netbeans.jellytools.properties.Property;
-import org.netbeans.jellytools.properties.PropertySheetOperator;
-import org.netbeans.jellytools.properties.PropertySheetTabOperator;
-import org.netbeans.jellytools.properties.StringProperty;
+import org.netbeans.jellytools.properties.*;
 import org.netbeans.jellytools.util.StringFilter;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
 import org.netbeans.jemmy.operators.JTreeOperator;
-import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.junit.NbTestSuite;
-import org.openide.filesystems.FileSystem;
 import org.openide.util.Utilities;
-import util.History;
 
-public class AdditionalCommands extends JellyStub {
+public class AdditionalCommands extends PVCSStub {
     
     public AdditionalCommands(String testName) {
         super(testName);
     }
     
     public static Test suite() {
-//        JellyStub.DEBUG = true;
+//        complete.GenericStub.DEBUG = true;
         TestSuite suite = new NbTestSuite();
         suite.addTest(new AdditionalCommands("configure"));
         suite.addTest(new AdditionalCommands("testUnlockSpecificRevision"));
@@ -94,117 +80,106 @@ public class AdditionalCommands extends JellyStub {
         TestRunner.run(suite());
     }
     
-    static FileSystem sfs;
+    GenericNode test, another, A_File, B_File, D_File, Formular;
     
-    protected void setUp() throws Exception {
-        super.setUp ();
-        if (!"configure".equals (getName ())) {
-            history = new History (sfs, info);
-            root = new MyNode (null, sfs.getDisplayName ().substring (5));
-            createFSStruct();
-        }
+    public void createStructure () {
+        test = new GenericNode (root, "test");
+        another = new GenericNode (test, "another");
+        A_File = new GenericNode (root, "A_File", ".java");
+        B_File = new GenericNode (test, "B_File", ".java");
+        D_File = new GenericNode (another, "D_File", ".java");
+//        Formular = new GenericNode (test, "Formular", new String[] { ".java", ".form" }); // bug in add command - serial execution needed
+        Formular = new GenericNode (test, "Formular", ".java" ); // workaround for previous line
     }
     
-    MyNode test, another, A_File, B_File, D_File, Formular;
-    
-    public void createFSStruct () {
-        test = new MyNode (root, "test");
-        another = new MyNode (test, "another");
-        A_File = new MyNode (root, "A_File", ".java");
-        B_File = new MyNode (test, "B_File", ".java");
-        D_File = new MyNode (another, "D_File", ".java");
-//        Formular = new MyNode (test, "Formular", new String[] { ".java", ".form" }); // bug in add command - serial execution needed
-        Formular = new MyNode (test, "Formular", ".java" ); // workaround for previous line
-    }
-    
-    public void configure() {
-        super.configureWorkDir();
-        sfs = history.getFileSystem ();
-        createFSStruct ();
+    public void prepareClient () {
+        super.prepareClient ();
         
-        if (!JellyStub.DEBUG) {
-            test.mkdirs();
-            another.mkdirs ();
-            refresh (root);
-            test.waitStatus ("Local");
-            createProject (test);
-            refresh (test);
-            another.waitStatus ("Local");
-            createProject (another);
+        test.mkdirs();
+        another.mkdirs ();
+        refresh (root);
+        test.waitStatus ("Local");
+        createProject (test);
+        refresh (test);
+        another.waitStatus ("Local");
+        createProject (another);
 
-            NewWizardOperator.create("Java Classes|Main", A_File.parent ().node (), "A_File");
-            A_File.waitStatus ("Local");
-            addFile (A_File, "A_File add description");
-            A_File.waitStatus ("Current; 1.1");
-            
-            A_File.save ("Version 1\nLine1\nLine3\nLine4\nLine6\nLine7\nLine8\n");
-            refreshFile(A_File);
-            A_File.waitStatus ("Locally Modified; 1.1");
-//            putFileLabel (A_File, "Revision 1", "First for Diff"); // cause error - issue #28995
-            putFileLabel (A_File, "Revision1", "First for Diff"); // workaround
-            A_File.waitStatus ("Current; 1.2");
+        NewWizardOperator.create("Java Classes|Main", A_File.parent ().node (), "A_File");
+        A_File.waitStatus ("Local");
+        addFile (A_File, "A_File add description");
+        A_File.waitStatus ("Current; 1.1");
 
-            A_File.save ("Version 2\nLine1\n  Line2\nLine4\n  Line5\nLine6\nLine8\n");
-            refreshFile(A_File);
-            A_File.waitStatus ("Locally Modified; 1.2");
-//            putFileLabel (A_File, "Revision 2", "Second for Diff"); // cause error - issue #28995
-            putFileLabel (A_File, "Revision2", "Second for Diff"); // workaround
-            A_File.waitStatus ("Current; 1.3");
+        A_File.save ("Version 1\nLine1\nLine3\nLine4\nLine6\nLine7\nLine8\n");
+        refreshFile(A_File);
+        A_File.waitStatus ("Locally Modified; 1.1");
+//        putFileLabel (A_File, "Revision 1", "First for Diff"); // cause error - issue #28995
+        putFileLabel (A_File, "Revision1", "First for Diff"); // workaround
+        A_File.waitStatus ("Current; 1.2");
 
-            A_File.save ("    Version 2\nLine1\n  Line2\n  Line4\nLine5\nLine6\n  Line8\n");
-            refreshFile(A_File);
-            A_File.waitStatus ("Locally Modified; 1.3");
-//            putFileLabel (A_File, "Revision 3", "Third for Diff"); // cause error - issue #28995
-            putFileLabel (A_File, "Revision3", "Third for Diff"); // workaround
-            A_File.waitStatus ("Current; 1.4");
+        A_File.save ("Version 2\nLine1\n  Line2\nLine4\n  Line5\nLine6\nLine8\n");
+        refreshFile(A_File);
+        A_File.waitStatus ("Locally Modified; 1.2");
+//        putFileLabel (A_File, "Revision 2", "Second for Diff"); // cause error - issue #28995
+        putFileLabel (A_File, "Revision2", "Second for Diff"); // workaround
+        A_File.waitStatus ("Current; 1.3");
 
-            NewWizardOperator.create("Java Classes|Class", B_File.parent ().node (), "B_File");
-            B_File.waitStatus ("Local");
-            addFile (B_File, "B_File add description");
-            B_File.waitStatus ("Current; 1.1");
+        A_File.save ("    Version 2\nLine1\n  Line2\n  Line4\nLine5\nLine6\n  Line8\n");
+        refreshFile(A_File);
+        A_File.waitStatus ("Locally Modified; 1.3");
+//        putFileLabel (A_File, "Revision 3", "Third for Diff"); // cause error - issue #28995
+        putFileLabel (A_File, "Revision3", "Third for Diff"); // workaround
+        A_File.waitStatus ("Current; 1.4");
 
-            B_File.save ("Version B 1\nLine1\nLine3\nLine5\n");
-            refreshFile(B_File);
-            B_File.waitStatus ("Locally Modified; 1.1");
-//            putFileLabel (B_File, "Revision B1", "First for Diff"); // cause error - issue #28995
-            putFileLabel (B_File, "RevisionB1", "First for Diff"); // workaround
-            B_File.waitStatus ("Current; 1.2");
+        NewWizardOperator.create("Java Classes|Class", B_File.parent ().node (), "B_File");
+        B_File.waitStatus ("Local");
+        addFile (B_File, "B_File add description");
+        B_File.waitStatus ("Current; 1.1");
 
-            B_File.save ("Version B 1\nLine1\nLine2\nLine3\nLine5\n");
-            refreshFile(B_File);
-            B_File.waitStatus ("Locally Modified; 1.2");
-//            putFileLabel (B_File, "Revision B2", "Second for Diff"); // cause error - issue #28995
-            putFileLabel (B_File, "RevisionB2", "Second for Diff"); // workaround
-            B_File.waitStatus ("Current; 1.3");
+        B_File.save ("Version B 1\nLine1\nLine3\nLine5\n");
+        refreshFile(B_File);
+        B_File.waitStatus ("Locally Modified; 1.1");
+//        putFileLabel (B_File, "Revision B1", "First for Diff"); // cause error - issue #28995
+        putFileLabel (B_File, "RevisionB1", "First for Diff"); // workaround
+        B_File.waitStatus ("Current; 1.2");
 
-            B_File.save ("Version B 1\nLine1\nLine3\nLine4\nLine5\n");
-            refreshFile(B_File);
-            B_File.waitStatus ("Locally Modified; 1.3");
-//            putFileLabel (B_File, "Revision B3", "Third for Diff"); // cause error - issue #28995
-            putFileLabel (B_File, "RevisionB3", "Third for Diff"); // workaround
-            B_File.waitStatus ("Current; 1.4");
+        B_File.save ("Version B 1\nLine1\nLine2\nLine3\nLine5\n");
+        refreshFile(B_File);
+        B_File.waitStatus ("Locally Modified; 1.2");
+//        putFileLabel (B_File, "Revision B2", "Second for Diff"); // cause error - issue #28995
+        putFileLabel (B_File, "RevisionB2", "Second for Diff"); // workaround
+        B_File.waitStatus ("Current; 1.3");
 
-            NewWizardOperator.create("Java Classes|Class", D_File.parent ().node (), "D_File");
-            D_File.waitStatus ("Local");
-            addFile (D_File, "D_File add description");
-            D_File.waitStatus ("Current; 1.1");
+        B_File.save ("Version B 1\nLine1\nLine3\nLine4\nLine5\n");
+        refreshFile(B_File);
+        B_File.waitStatus ("Locally Modified; 1.3");
+//        putFileLabel (B_File, "Revision B3", "Third for Diff"); // cause error - issue #28995
+        putFileLabel (B_File, "RevisionB3", "Third for Diff"); // workaround
+        B_File.waitStatus ("Current; 1.4");
 
-            putFileVersion (D_File, "2.0", "description of 2.0 version");
-            D_File.waitStatus ("Current; 2.1");
-            putFileBranch (D_File, "floating_version", "description of floating_version");
-            D_File.waitStatus ("Current; 2.0.1.1");
-            
-//            NewWizardOperator.create("Java GUI Forms|JFrame", Formular.parent ().node (), "Formular"); // bug in add command - serial execution needed
-            NewWizardOperator.create("Java Classes|Main", Formular.parent ().node (), "Formular"); // workaround for previous line
-            Formular.waitStatus ("Local");
-            addFileLabel (Formular, "My_Version", "Formular add description");
-            Formular.waitStatus ("Current; 1.1");
+        NewWizardOperator.create("Java Classes|Class", D_File.parent ().node (), "D_File");
+        D_File.waitStatus ("Local");
+        addFile (D_File, "D_File add description");
+        D_File.waitStatus ("Current; 1.1");
 
-            unlockFile (Formular, null, null, null);
-            Formular.waitStatus ("Current");
-        }
+        putFileVersion (D_File, "2.0", "description of 2.0 version");
+        D_File.waitStatus ("Current; 2.1");
+        putFileBranch (D_File, "floating_version", "description of floating_version");
+        D_File.waitStatus ("Current; 2.0.1.1");
+
+//        NewWizardOperator.create("Java GUI Forms|JFrame", Formular.parent ().node (), "Formular"); // bug in add command - serial execution needed
+        NewWizardOperator.create("Java Classes|Main", Formular.parent ().node (), "Formular"); // workaround for previous line
+        Formular.waitStatus ("Local");
+        addFileLabel (Formular, "My_Version", "Formular add description");
+        Formular.waitStatus ("Current; 1.1");
+
+        unlockFile (Formular, null, null, null);
+        Formular.waitStatus ("Current");
     }
-
+    
+    public void configure () {
+        super.configure ();
+    }
+    
     public void testUnlockSpecificRevision () {
         unlockFile (D_File, "2.0.1.1", null, null);
         D_File.waitStatusLock ("Current");
@@ -216,7 +191,7 @@ public class AdditionalCommands extends JellyStub {
     }
     
     public void testUnlockByUser () {
-        String username = getUserName (D_File.pvcsNode ().getText());
+        String username = getLockText(D_File.pvcsNode ().getText());
         unlockFile (D_File, null, null, username);
         D_File.waitStatusLock ("Current");
     }
@@ -252,8 +227,8 @@ public class AdditionalCommands extends JellyStub {
         dia.checkGetAllSubdirectories(false);
         dia.ok ();
         dia.waitClosed ();
-        assertQuestionDialogYes ();
-//        assertQuestionDialogYes ();
+        assertQuestionYesDialog (null);
+//        assertQuestionYesDialog (null);
         assertRetrievingDialog ();
         D_File.waitStatus ("Missing; 2.0.1.1");
 
@@ -262,8 +237,8 @@ public class AdditionalCommands extends JellyStub {
         dia.checkGetAllSubdirectories(true);
         dia.ok ();
         dia.waitClosed ();
-//        assertQuestionDialogNo ();
-//        assertQuestionDialogNo ();
+//        assertQuestionNoDialog (null);
+//        assertQuestionNoDialog (null);
         assertRetrievingDialog ();
         D_File.waitStatus ("Current; 2.0.1.1");
     }
@@ -330,7 +305,7 @@ public class AdditionalCommands extends JellyStub {
         A_File.waitHistory("Diff");
         
         EditorWindowOperator ewo = new EditorWindowOperator ();
-        TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + A_File.file (0));
+        TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + A_File.filename (0));
         try {
             out.println ("!!!! ==== Graphical comparing revisions: 1.1 and 1.2 ==== !!!!");
             dumpDiffGraphical (tco);
@@ -357,7 +332,7 @@ public class AdditionalCommands extends JellyStub {
         A_File.waitHistory("Diff");
         
         EditorWindowOperator ewo = new EditorWindowOperator ();
-        TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + A_File.file (0));
+        TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + A_File.filename (0));
         try {
             out.println ("!!!! ==== Graphical comparing labels: Revision 1 and Revision 2 ==== !!!!");
             dumpDiffGraphical (tco);
@@ -375,7 +350,7 @@ public class AdditionalCommands extends JellyStub {
         DiffCommandOperator diff = new DiffCommandOperator ("");
         diff.ok();
         diff.waitClosed();
-        assertInformationDialog ("No differences were found in " + A_File.file (0) + ".");
+        assertInformationDialog ("No differences were found in " + A_File.filename (0) + ".");
         A_File.waitHistory("Diff");
     } 
     
@@ -387,7 +362,7 @@ public class AdditionalCommands extends JellyStub {
         diff.checkIgnoreWhiteSpacesAtBeginningAndEndOfLine(true);
         diff.ok();
         diff.waitClosed();
-        assertInformationDialog ("No differences were found in " + A_File.file (0) + ".");
+        assertInformationDialog ("No differences were found in " + A_File.filename (0) + ".");
         A_File.waitHistory("Diff");
     }
     
@@ -414,8 +389,8 @@ public class AdditionalCommands extends JellyStub {
         String deltafilepath = root.file() + "/../deltafile";
         lockFile (A_File, null, null);
         A_File.waitLock (true);
-        unlockFile(A_File, null, null, getUserName (A_File.pvcsNode ().getText()));
-        assertQuestionDialogYes();
+        unlockFile(A_File, null, null, getLockText (A_File.pvcsNode ().getText()));
+//        assertQuestionYesDialog (null);
         getFile (A_File, "1.2", null);
         A_File.waitStatus ("Locally Modified; 1.2.1.0");
         A_File.pvcsNode ().pVCSApplyDelta();
@@ -430,7 +405,7 @@ public class AdditionalCommands extends JellyStub {
         DiffCommandOperator diff = new DiffCommandOperator ("");
         diff.ok ();
         diff.waitClosed ();
-        assertInformationDialog ("No differences were found in " + A_File.file (0) + ".");
+        assertInformationDialog ("No differences were found in " + A_File.filename (0) + ".");
         A_File.waitHistory ("Diff");
     }
     
@@ -520,12 +495,12 @@ public class AdditionalCommands extends JellyStub {
         coo.close ();
         coo.waitClosed();
         
-        String username = getUserName (B_File.pvcsNode ().getText ());
+        String username = getLockText (B_File.pvcsNode ().getText ());
         Date date = findDate (output, "Rev 1.2");
         SimpleDateFormat sdf = new SimpleDateFormat ("dd/MM/yy HH:mm:ss");
         StringFilter sf = new StringFilter ();
         sf.addReplaceAllFilter(username, "<username>");
-        sf.addReplaceFilter("", B_File.file(0), "<filepath>");
+        sf.addReplaceFilter("", B_File.filename(0), "<filepath>");
         sf.addReplaceFilter ("Checked in:", "", "<check_in_date>");
         sf.addReplaceFilter ("Last modified:", "", "<last_modified>");
         
@@ -554,14 +529,14 @@ public class AdditionalCommands extends JellyStub {
     
     public void testRemoveParticularRevision () {
         B_File.pvcsNode ().pVCSRemoveRevision();
-        assertQuestionDialogYes();
+        assertQuestionYesDialog (null);
         RemoveCommandOperator rco = new RemoveCommandOperator ("");
         rco.specificRevisionS();
         rco.setBySpecificRevisions("1.2");
         rco.ok ();
         rco.waitClosed();
         B_File.waitHistory("Remove Revision");
-        assertInformationDialogOk();
+        assertInformationDialog (null);
 
         B_File.pvcsNode ().pVCSHistory ();
         HistoryCommandOperator hi = new HistoryCommandOperator ("");
@@ -590,7 +565,7 @@ public class AdditionalCommands extends JellyStub {
     
     public void testRemoveParticularRevision2 () {
         B_File.pvcsNode ().pVCSRemoveRevision();
-        assertQuestionDialogYes();
+        assertQuestionYesDialog (null);
         RemoveCommandOperator rco = new RemoveCommandOperator ("");
         rco.revisionsIdentifiedByVersionLabelS();
 //        rco.setByVersionLabels("Revision B1"); // cause error - issue #28995
@@ -598,7 +573,7 @@ public class AdditionalCommands extends JellyStub {
         rco.ok ();
         rco.waitClosed();
         B_File.waitHistory("Remove Revision");
-        assertInformationDialogOk();
+        assertInformationDialog (null);
 
         B_File.pvcsNode ().pVCSHistory ();
         HistoryCommandOperator hi = new HistoryCommandOperator ("");
