@@ -65,6 +65,16 @@ Contributor(s): Jan Lahoda
         <folder name="AnnotationTypes">
             <file name="org-netbeans-latex-command-parser-error.xml" url="error-annotation.xml" />
         </folder>
+      
+        <folder name="AnnotationTypes">
+            <folder name="StatusForAnnotationType">
+                <file name="org-netbeans-modules-latex-command-parser-error">
+                    <attr name="status" stringvalue="error" />
+                    <attr name="browseable" boolvalue="true" />
+                </file>
+            </folder>
+      </folder>
+        
     </folder>
     
 </filesystem>
