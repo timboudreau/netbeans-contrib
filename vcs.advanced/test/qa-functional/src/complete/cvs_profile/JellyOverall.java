@@ -214,12 +214,7 @@ public class JellyOverall extends CVSStub {
         });
         CVSCommitFileAdvDialog co = new CVSCommitFileAdvDialog();
         co.txtEnterReason().setCaretPosition(0);
-        co.txtEnterReason().typeText("Initial commit - text1 and text2");
-        co.oK();
-        co.waitClosed();
-        co = new CVSCommitFileAdvDialog();
-        co.txtEnterReason().setCaretPosition(0);
-        co.txtEnterReason().typeText("Initial commit - binary");
+        co.txtEnterReason().typeText("Initial commit - text1, text2, and binary");
         co.oK();
         co.waitClosed();
         waitCommand ("Commit", new GenericNode [] { Text1, Text2, Binary });
