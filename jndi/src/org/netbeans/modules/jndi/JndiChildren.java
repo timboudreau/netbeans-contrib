@@ -163,6 +163,8 @@ final class JndiChildren extends Children.Keys {
 
 /*
  * <<Log>>
+ *  7    Gandalf   1.6         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  6    Gandalf   1.5         7/9/99   Ales Novak      localization + code 
  *       requirements followed
  *  5    Gandalf   1.4         6/18/99  Ales Novak      redesigned + delete 

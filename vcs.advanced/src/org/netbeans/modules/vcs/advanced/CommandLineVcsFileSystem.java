@@ -72,6 +72,8 @@ public class CommandLineVcsFileSystem extends CvsFileSystem {
 
 /*
  * <<Log>>
+ *  46   Gandalf   1.45        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  45   Gandalf   1.44        10/10/99 Pavel Buzek     
  *  44   Gandalf   1.43        10/9/99  Pavel Buzek     
  *  43   Gandalf   1.42        10/9/99  Pavel Buzek     

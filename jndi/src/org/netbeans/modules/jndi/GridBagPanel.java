@@ -71,6 +71,8 @@ class GridBagPanel extends JPanel {
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  5    Gandalf   1.4         7/9/99   Ales Novak      localization + code 
  *       requirements followed
  *  4    Gandalf   1.3         6/10/99  Ales Novak      gemstone support + 

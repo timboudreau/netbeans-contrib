@@ -328,3 +328,24 @@ public final class JndiRootNode extends AbstractNode{
   
   
 }
+
+/*
+ * <<Log>>
+ *  10   Gandalf   1.9         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
+ *  9    Gandalf   1.8         10/6/99  Tomas Zezula    
+ *  8    Gandalf   1.7         8/7/99   Ian Formanek    getString->getLocalizedString
+ *        to avoid compiler warnings
+ *  7    Gandalf   1.6         7/9/99   Ales Novak      localization + code 
+ *       requirements followed
+ *  6    Gandalf   1.5         6/10/99  Ales Novak      GemStone support
+ *  5    Gandalf   1.4         6/9/99   Ales Novak      refresh action + 
+ *       destroying subcontexts
+ *  4    Gandalf   1.3         6/9/99   Ian Formanek    ToolsAction
+ *  3    Gandalf   1.2         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
+ *  2    Gandalf   1.1         6/8/99   Ales Novak      sources beautified + 
+ *       subcontext creation
+ *  1    Gandalf   1.0         6/4/99   Ales Novak      
+ * $
+ */

@@ -63,3 +63,10 @@ public class NewProviderPanel extends AbstractNewPanel {
   }
   
 }
+/*
+ * <<Log>>
+ *  2    Gandalf   1.1         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
+ *  1    Gandalf   1.0         10/6/99  Tomas Zezula    
+ * $
+ */

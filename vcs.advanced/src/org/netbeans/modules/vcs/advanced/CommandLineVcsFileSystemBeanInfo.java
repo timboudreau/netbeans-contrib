@@ -121,6 +121,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  15   Gandalf   1.14        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
+*       Microsystems Copyright in File Comment
 *  14   Gandalf   1.13        9/30/99  Pavel Buzek     
 *  13   Gandalf   1.12        9/8/99   Pavel Buzek     class model changed, 
 *       customization improved, several bugs fixed
