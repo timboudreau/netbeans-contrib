@@ -265,7 +265,12 @@ private void browseButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN
       //D.deb("no directory selected");
       return ;
     }
-    File dir=new File(selected);
+    rootDirTextField.setText(selected);
+    rootDirChanged();
+    /*
+    String module = getModuleValue();
+    String moduleDir = module.equals ("") ? selected : selected + java.io.File.separator + module; // NOI18N
+    File dir=new File(moduleDir);
     if( !dir.isDirectory() ){
       E.err("not directory "+dir);
       return ;
@@ -280,7 +285,8 @@ private void browseButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN
     }
     catch (IOException e){
       E.err(e,"setRootDirectory() failed");
-    }  
+    }
+    */
   }//GEN-LAST:event_browseButtonActionPerformed
 
 private void rootDirTextFieldActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rootDirTextFieldActionPerformed
@@ -404,6 +410,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
   private Hashtable configVariablesByLabel;
   private Hashtable configAdvancedByLabel;
   private Hashtable configNamesByLabel;
+  private boolean isRootNotSetDlg = true;
     
   //-------------------------------------------
   private void loadConfig(String label){
@@ -692,6 +699,16 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     File dir=new File(selected);
     if( !dir.isDirectory() ){
       E.err("not directory "+dir);
+      final String badDir = dir.toString();
+      javax.swing.SwingUtilities.invokeLater(new Runnable () {
+        public void run () {
+          if (isRootNotSetDlg) {
+            isRootNotSetDlg = false;
+            TopManager.getDefault ().notify (new NotifyDescriptor.Message(MessageFormat.format (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.notDirectory"), new Object[] { badDir } )));
+            isRootNotSetDlg = true;
+          }
+        }
+      });
       return ;
     }
     try{
@@ -699,11 +716,21 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       //rootDirTextField.setText(selected);
     }
     catch (PropertyVetoException veto){
-      fileSystem.debug("I can not change the working directory");
+      fileSystem.debug(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD"));
       //E.err(veto,"setRootDirectory() failed");
     }
     catch (IOException e){
       E.err(e,"setRootDirectory() failed");
+      final String badDir = dir.toString();
+      javax.swing.SwingUtilities.invokeLater(new Runnable () {
+        public void run () {
+          if (isRootNotSetDlg) {
+            isRootNotSetDlg = false;
+            TopManager.getDefault ().notify (new NotifyDescriptor.Message(MessageFormat.format (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.cannotSetDirectory"), new Object[] { badDir } )));
+            isRootNotSetDlg = true;
+          }
+        }
+      });
     }  
   }
 
@@ -791,6 +818,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  8    Gandalf   1.7         1/26/00  Martin Entlicher Check whether the module 
+*       directory exists  
 *  7    Gandalf   1.6         1/3/00   Martin Entlicher 
 *  6    Gandalf   1.5         12/16/99 Martin Entlicher 
 *  5    Gandalf   1.4         12/15/99 Martin Entlicher Refresh time: check for 
