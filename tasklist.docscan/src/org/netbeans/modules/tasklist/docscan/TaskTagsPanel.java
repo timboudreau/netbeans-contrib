@@ -233,6 +233,11 @@ public class TaskTagsPanel extends javax.swing.JPanel
             TaskTagsPanel.class, 
             "HINT_TagList"
         ));
+        patternsTable.setToolTipText (NbBundle.getMessage (
+            TaskTagsPanel.class, 
+            "HINT_TagList"
+        ));
+        
 
 //        prioLabel.setLabelFor(prioCombo);
 //        tagLabel.setLabelFor(tokenList);
