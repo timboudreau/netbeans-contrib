@@ -142,7 +142,10 @@ public class History {
             Node no = rc[a].getNodeDelegate();
             String s1 = getPropertyValue (no, "Properties", "Processed Files");
             String s2 = getPropertyValue (no, "Properties", "Execution String");
-            log.println("History: " + a + " - Name: " + no.getDisplayName () + " - File: " + s1 + " Exec: " + s2);
+            String stat = "Run" + rc[a].getState ();
+            if (rc[a].getState() == RuntimeCommand.STATE_DONE)
+                stat = (rc[a].getExitStatus() == RuntimeCommand.SUCCEEDED) ? "OK" : "Fail";
+            log.println("History: " + a + " - Status: " + stat + " - Name: " + no.getDisplayName () + " - File: " + s1 + " Exec: " + s2);
         }
     }
     
