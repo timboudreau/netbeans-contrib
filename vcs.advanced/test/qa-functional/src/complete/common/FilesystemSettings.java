@@ -28,6 +28,8 @@ import org.netbeans.test.oo.gui.jelly.vcsgeneric.wizard.*;
 import org.openide.util.Utilities;
 import org.netbeans.jellytools.*;
 import org.netbeans.jellytools.nodes.Node;
+import org.netbeans.jellytools.actions.PropertiesAction;
+import org.netbeans.jellytools.properties.*;
 
 /** XTest / JUnit test class performing check of all settings of filesystems mounted
  * using Generic VCS module.
@@ -61,6 +63,7 @@ public class FilesystemSettings extends NbTestCase {
         suite.addTest(new FilesystemSettings("testAnnotationPattern"));
         suite.addTest(new FilesystemSettings("testCommandNotification"));
         suite.addTest(new FilesystemSettings("testProcessAllFiles"));
+        suite.addTest(new FilesystemSettings("testIgnoredFiles"));
         return suite;
     }
     
@@ -222,10 +225,10 @@ public class FilesystemSettings extends NbTestCase {
             Node command = new Node(commandsHistory, i);
             if (!command.getText().equals("Lock")) continue;
             command.select();
-            org.netbeans.jellytools.actions.PropertiesAction propertiesAction = new org.netbeans.jellytools.actions.PropertiesAction();
+            PropertiesAction propertiesAction = new PropertiesAction();
             propertiesAction.perform(command);
-            org.netbeans.jellytools.properties.PropertySheetOperator sheet = new org.netbeans.jellytools.properties.PropertySheetOperator();
-            org.netbeans.jellytools.properties.StringProperty files = new org.netbeans.jellytools.properties.StringProperty(sheet.getPropertySheetTabOperator("Properties"), "Processed Files");
+            PropertySheetOperator sheet = new PropertySheetOperator();
+            StringProperty files = new StringProperty(sheet.getPropertySheetTabOperator("Properties"), "Processed Files");
             if (files.getStringValue().equals("A_File.class")) {
                 found = true;
                 sheet.close();
@@ -233,9 +236,35 @@ public class FilesystemSettings extends NbTestCase {
             }
             sheet.close();
         }
-        if (!found) throw new Exception("Error: Wrong processed files of Lock command.");
+        if (!found) throw new Exception("Error: Unable to find Lock command processed on A_File.class.");
         api.getFilesystemsTab();
         selectNode(new String[] {filesystem}, true);
+        MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
+        System.out.println(". done !");
+    }
+
+    /** Checks whether "Ignored Files" property works correctly.
+     * @throws Any unexpected exception thrown during test.
+     */
+    public void testIgnoredFiles() throws Exception {
+        System.out.print(".. Testing ignored files property ..");
+        filesystem = "Empty " + workingDirectory;
+        mountFilesystem(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
+        APIController.sleep(2000);
+        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+        Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
+        filesystemNode.tree().expandPath(filesystemNode.getTreePath());
+        Node fileNode = new Node(explorer.getRootNode(), filesystem + "|A_File");
+        fileNode.select();
+        PropertiesAction propertiesAction = new PropertiesAction();
+        propertiesAction.perform(filesystemNode);
+        PropertySheetOperator sheet = new PropertySheetOperator();
+        StringProperty ignoredFiles = new StringProperty(sheet.getPropertySheetTabOperator("Expert"), "Ignored Files");
+        ignoredFiles.setStringValue("A_File");
+        sheet.close();
+        if (filesystemNode.getChildren().length != 0) throw new Exception("Error: A_File node has not disappeared.");;
+        api.getFilesystemsTab();
+        filesystemNode.select();
         MainFrame.getMainFrame().pushMenu(UNMOUNT_MENU);
         System.out.println(". done !");
     }
