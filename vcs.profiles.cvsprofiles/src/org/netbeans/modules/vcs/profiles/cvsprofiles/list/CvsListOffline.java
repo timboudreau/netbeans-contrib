@@ -124,6 +124,19 @@ public class CvsListOffline extends VcsListCommand {
         }
     }
     
+    private void addRemoteFiles(Hashtable filesByName) {
+        File d = new File(dir);
+        getEntry(d, "test"); // This will initialize entries if they are not yet loaded
+        if (entriesByFiles != null) {
+            for (Iterator it = entriesByFiles.keySet().iterator(); it.hasNext(); ) {
+                String fileName = (String) it.next();
+                if (!new File(d, fileName).exists()) {
+                    fillCVSFileStatus(d, fileName, filesByName);
+                }
+            }
+        }
+    }
+    
     private void fillCVSFileStatus(File dir, String fileName, Hashtable filesByName) {
         String entry = getEntry(dir, fileName);
         if (entry == null) return ;
@@ -164,6 +177,9 @@ public class CvsListOffline extends VcsListCommand {
         }
         if (cvsDateStr.startsWith(INITIAL_TIMESTAMP)) {
             return "Locally Added";
+        }
+        if (!realFile.exists()) {
+            return "Needs Checkout";
         }
         DateFormat cvsDateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.US); //NOI18N
         cvsDateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0000")); //NOI18N
@@ -323,6 +339,7 @@ public class CvsListOffline extends VcsListCommand {
         //this.errorRegex = errorRegex;
         initVars(vars, args);
         addLocalFiles(filesByName);
+        addRemoteFiles(filesByName);
         return true;
     }
 }
