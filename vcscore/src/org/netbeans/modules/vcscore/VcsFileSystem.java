@@ -2879,7 +2879,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      *    by the {@link org.openide.filesystems.Repository Repository})
      * @exception IOException if the root does not exists or some other error occured
      */
-    public synchronized void setRootDirectory (File r) throws PropertyVetoException, IOException {
+    public void setRootDirectory (File r) throws PropertyVetoException, IOException {
         setRootDirectory(r, false);
     }
 
