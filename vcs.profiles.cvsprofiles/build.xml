@@ -40,7 +40,7 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
 	<pathelement location="${nbroot}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
         <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
-        <fileset dir="${nbroot}/core/external">
+        <fileset dir="${nbroot}/libs/external">
           <include name="regexp*.jar"/>
         </fileset>
       </classpath>

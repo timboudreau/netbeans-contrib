@@ -41,7 +41,7 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot1}/openidex/netbeans/modules/autoload/openidex.jar"/>
 	<pathelement location="${nbroot1}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
 	<pathelement location="${nbroot1}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
-        <fileset dir="${nbroot1}/core/external">
+        <fileset dir="${nbroot1}/libs/external">
           <include name="regexp*.jar"/>
         </fileset>
       </classpath>

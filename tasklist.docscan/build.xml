@@ -39,9 +39,8 @@ Microsystems, Inc. All Rights Reserved.
                 <pathelement path="../usertasks/src"/>
                 <pathelement location="../../editor/netbeans/modules/ext/nb-editor.jar"/>
                <pathelement location="../../editor/netbeans/modules/editor.jar"/>
-               <fileset dir="../../core/external">
+               <fileset dir="../../libs/external">
                   <include name="regexp*.jar" />
-                  <include name="xml-apis*.jar"/>
                </fileset>
             </classpath>
         </javac>

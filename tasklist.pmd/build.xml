@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -52,9 +52,8 @@ Microsystems, Inc. All Rights Reserved.
                 <pathelement path="${pmdmod}"/>
                 <pathelement path="${pmdlib}"/>
 
-               <fileset dir="../../core/external">
+               <fileset dir="../../libs/external">
                   <include name="regexp*.jar" />
-                  <include name="xml-apis*.jar"/>
                </fileset>
             </classpath>
         </javac>
