@@ -23,7 +23,7 @@ import java.util.*;
 import org.openide.TopManager;
 import org.openide.awt.JMenuPlus;
 import org.openide.awt.JInlineMenu;
-//import org.openide.filesystems.*;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.util.enum.*;
@@ -34,7 +34,7 @@ import org.openide.windows.TopComponent.Registry;
 import org.netbeans.modules.vcscore.util.OrderedSet;
 import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
-import org.netbeans.modules.vcscore.versioning.VersioningSystem;
+import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 //import org.netbeans.modules.vcscore.cmdline.*;
 //import org.netbeans.modules.vcscore.cmdline.exec.ExternalCommand;
 
@@ -107,8 +107,12 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
                 Map.Entry entry = (Map.Entry)entrySetIt.next();
                 RevisionList list = (RevisionList) entry.getKey();
                 Set itemSet = (Set) entry.getValue();
-                VersioningSystem vs = list.getFileObject().getVersioningSystem();
-                result.put(vs.getRevisionActions(list.getFileObject(), itemSet));
+                try {
+                    VersioningFileSystem vs = (VersioningFileSystem) list.getFileObject().getFileSystem();
+                    result.put(vs.getRevisionActions(list.getFileObject(), itemSet));
+                } catch (FileStateInvalidException exc) {
+                    continue;
+                }
             }
             return createMenu(result, popUp);
         }

@@ -26,12 +26,13 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.explorer.ExplorerPanel;
 import org.openide.nodes.Node;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.actions.NodeAction;
 
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
-import org.netbeans.modules.vcscore.versioning.VersioningSystem;
-import org.netbeans.modules.vcscore.versioning.VcsFileObject;
+import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
+//import org.netbeans.modules.vcscore.versioning.VcsFileObject;
 
 /**
  * This action openes the Versioning Explorer tab.
@@ -118,16 +119,18 @@ public class VersioningExplorerAction extends NodeAction {
             Map.Entry entry = (Map.Entry) it.next();
             String fileName = (String) entry.getKey();
             String fsName = (String) entry.getValue();
-            VersioningSystem vs = repository.getSystem(fsName);
+            VersioningFileSystem vs = repository.getSystem(fsName);
             //System.out.println("getVersioningNodes("+fileName+", "+fsName+")");
             //System.out.println("  VersioningSystem = "+vs);
             if (vs != null) {
-                VcsFileObject fo = vs.findResource(fileName);
+                FileObject fo = vs.findResource(fileName);
                 //System.out.println("  Resource ="+fileName);
                 if (fo != null) {
                     //Node root;
                     //root.getChildren().
-                    nodes.add(fo.getNodeDelegate());
+                    try {
+                        nodes.add(DataObject.find(fo).getNodeDelegate());
+                    } catch (DataObjectNotFoundException exc) {}
                     //System.out.println("  Node Delegate = "+nodes.get(nodes.size() - 1));
                 }
             }
@@ -137,21 +140,26 @@ public class VersioningExplorerAction extends NodeAction {
     
     private static void selectVersioningFiles(final ExplorerPanel explorer, final Map filesByFS) {
         VersioningRepository repository = VersioningRepository.getRepository();
-        LinkedList nodes = new LinkedList();
+        final org.openide.explorer.ExplorerManager manager = explorer.getExplorerManager();
+        final LinkedList nodes = new LinkedList();
         for (Iterator it = filesByFS.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry) it.next();
             String fileName = (String) entry.getKey();
             String fsName = (String) entry.getValue();
-            VersioningSystem vs = repository.getSystem(fsName);
+            VersioningFileSystem vs = repository.getSystem(fsName);
             if (vs != null) {
-                VcsFileObject fo = vs.findResource(fileName);
+                FileObject fo = vs.findResource(fileName);
                 if (fo != null) {
-                    nodes.add(selectVersioningFile(explorer, vs.getRoot().getNodeDelegate(), fileName));
+                    //try {
+                        //Node versioningRoot = org.netbeans.modules.vcscore.versioning.impl.VersioningDataSystem.getVersioningDataSystem();
+                        Node fsRoot = manager.getRootContext().getChildren().findChild(vs.getSystemName());
+                        nodes.add(selectVersioningFile(explorer, fsRoot, fileName));
+                        //nodes.add(DataObject.find(fo).getNodeDelegate());
+                    //} catch (DataObjectNotFoundException exc) {}
                 }
             }
         }
         final Node[] nodeArray = (Node[]) nodes.toArray(new Node[nodes.size()]);
-        final org.openide.explorer.ExplorerManager manager = explorer.getExplorerManager();
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 for (int i = 0; i < nodeArray.length; i++) {
