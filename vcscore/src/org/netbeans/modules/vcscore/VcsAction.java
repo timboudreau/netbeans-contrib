@@ -693,6 +693,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
      */
     public static void assureFilesSaved(Collection fos) {
         Collection folders = new LinkedList();
+        boolean wasSaved = false;
         for (Iterator it = fos.iterator(); it.hasNext(); ) {
             FileObject fo = (FileObject) it.next();
             if (fo == null) continue;
@@ -708,7 +709,10 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
             if (dobj != null && dobj.isModified()) {
                 Node.Cookie cake = dobj.getCookie(SaveCookie.class);
                 try {
-                    if (cake != null) ((SaveCookie) cake).save();
+                    if (cake != null) {
+                        ((SaveCookie) cake).save();
+                        wasSaved = true;
+                    }
                 } catch (java.io.IOException exc) {
                     ErrorManager.getDefault().notify(exc);
                 }
@@ -724,12 +728,22 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
                     if (isAFileInAFolder(folders, files)) {
                         try {
                             sc.save();
+                            wasSaved = true;
                         } catch (java.io.IOException exc) {
                            ErrorManager.getDefault().notify(exc);
                         }
                     }
                 }
             }
+        }
+        if (wasSaved) {
+            // If we saved some data, we need to wait at least one second.
+            // This will assure, that any further command, that will modify
+            // the conent of a saved file will actually change the modification
+            // time (time resolution is ~1s). See issue #36065 for details.
+            try {
+                Thread.currentThread().sleep(1000);
+            } catch (InterruptedException iex) {}
         }
     }
     
