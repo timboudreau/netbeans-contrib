@@ -130,9 +130,15 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
     }
     
     protected Node[] createNodes(Object key) {
+
         if (WAIT_KEY.equals(key)) {
             return new Node[] { createWaitingNode() };
         }
+
+        // XXX workaround for synchronization problems
+        // list is asynchonously nulled
+        if (list == null) return new Node[0];
+
         Node[] nodes; //new Node[] { Node.EMPTY };
         RevisionItem item = (RevisionItem) key;
         //System.out.println("createNodes("+item.getRevision()+")");
