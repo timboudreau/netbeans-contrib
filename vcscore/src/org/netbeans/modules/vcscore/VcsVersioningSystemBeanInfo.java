@@ -104,6 +104,8 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
         } catch (IntrospectionException ex) {
             TopManager.getDefault().notifyException(ex);
         }
+        beanDescriptor = new BeanDescriptor(VcsVersioningSystem.class, null);
+        beanDescriptor.setValue(VcsFileSystem.VCS_PROVIDER_ATTRIBUTE, new Boolean(true));
     }
     
     /**
