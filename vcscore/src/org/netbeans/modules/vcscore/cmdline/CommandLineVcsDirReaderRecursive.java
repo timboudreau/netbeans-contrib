@@ -172,25 +172,25 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
     
     private void printOutput(String line) {
         for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandOutputListener) it).outputLine(line);
+            ((CommandOutputListener) it.next()).outputLine(line);
         }
     }
 
     private void printErrorOutput(String line) {
         for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandOutputListener) it).outputLine(line);
+            ((CommandOutputListener) it.next()).outputLine(line);
         }
     }
 
     private void printDataOutput(String[] data) {
         for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandDataOutputListener) it).outputData(data);
+            ((CommandDataOutputListener) it.next()).outputData(data);
         }
     }
 
     private void printDataErrorOutput(String[] data) {
         for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandDataOutputListener) it).outputData(data);
+            ((CommandDataOutputListener) it.next()).outputData(data);
         }
     }
 
@@ -241,6 +241,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
 
         VcsDirContainer filesByName = new VcsDirContainer(path);
         if (!shouldFail) {
+            ExecuteCommand.setAdditionalParams(listCommand, fileSystem);
             vars.put("DATAREGEX", (String) listSub.getProperty(UserCommand.PROPERTY_DATA_REGEX)); // NOI18N
             vars.put("ERRORREGEX", (String) listSub.getProperty(UserCommand.PROPERTY_ERROR_REGEX)); // NOI18N
             vars.put("INPUT", (String) listSub.getProperty(UserCommand.PROPERTY_INPUT)); // NOI18N

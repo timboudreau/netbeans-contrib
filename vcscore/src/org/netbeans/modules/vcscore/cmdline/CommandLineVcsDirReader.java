@@ -195,25 +195,25 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
 
     private void printOutput(String line) {
         for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandOutputListener) it).outputLine(line);
+            ((CommandOutputListener) it.next()).outputLine(line);
         }
     }
 
     private void printErrorOutput(String line) {
         for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandOutputListener) it).outputLine(line);
+            ((CommandOutputListener) it.next()).outputLine(line);
         }
     }
 
     private void printDataOutput(String[] data) {
         for (Iterator it = commandDataOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandDataOutputListener) it).outputData(data);
+            ((CommandDataOutputListener) it.next()).outputData(data);
         }
     }
 
     private void printDataErrorOutput(String[] data) {
         for (Iterator it = commandDataErrorOutputListener.iterator(); it.hasNext(); ) {
-            ((CommandDataOutputListener) it).outputData(data);
+            ((CommandDataOutputListener) it.next()).outputData(data);
         }
     }
 
@@ -339,6 +339,7 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
 
         Hashtable filesByName = new Hashtable();
         if (!shouldFail) {
+            ExecuteCommand.setAdditionalParams(listCommand, fileSystem);
             vars.put("DATAREGEX", (String) list.getProperty(UserCommand.PROPERTY_DATA_REGEX)); // NOI18N
             vars.put("ERRORREGEX", (String) list.getProperty(UserCommand.PROPERTY_ERROR_REGEX)); // NOI18N
             vars.put("INPUT", (String) list.getProperty(UserCommand.PROPERTY_INPUT)); // NOI18N
