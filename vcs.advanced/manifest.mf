@@ -1,5 +1,6 @@
 OpenIDE-Module: org.netbeans.modules.vcs.advanced/1
 OpenIDE-Module-Name: Generic Command-Line VCS
+OpenIDE-Module-Description: org.netbeans.modules.vcs.advanced.docs.vcs
 OpenIDE-Module-Display-Category: Version Control
 OpenIDE-Module-Install: org/netbeans/modules/vcs/advanced/CommandLineVcsModule.class
 OpenIDE-Module-Specification-Version: 1.3

@@ -100,7 +100,13 @@ Microsystems, Inc. All Rights Reserved.
     </copy>
   </target>
 
-  <target name="netbeans" depends="jars,release"/>
+  <target name="netbeans" depends="jars,release,javahelp"/>
+
+  <target name="javahelp">
+    <copy todir="netbeans/docs">
+      <fileset dir="javahelp"/>
+    </copy>
+  </target>
 
 <!-- TODO:-->
   <target name="nbm" depends="netbeans">

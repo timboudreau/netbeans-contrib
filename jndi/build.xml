@@ -61,7 +61,13 @@ Microsystems, Inc. All Rights Reserved.
     </copy>
   </target>
 
-  <target name="netbeans" depends="jars,release"/>
+  <target name="javahelp">
+    <copy todir="netbeans/docs">
+      <fileset dir="javahelp"/>
+    </copy>
+  </target>
+
+  <target name="netbeans" depends="jars,release,javahelp"/>
 
   <target name="nbm" depends="netbeans">
     <makenbm file="jndi.nbm"
