@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.accessibility.AccessibleContext;
 
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -1173,5 +1174,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return filter;
     }
 
-
+    public AccessibleContext getAccessibleContext() {
+        AccessibleContext ret = super.getAccessibleContext();
+        if (job == null) {
+            ret.setAccessibleDescription(Util.getMessage("folder_desc11", createLabel(selectedFolder)));
+        } else {
+            ret.setAccessibleDescription(Util.getString("file_desc11"));
+        }
+        return ret;
+    }
 }
