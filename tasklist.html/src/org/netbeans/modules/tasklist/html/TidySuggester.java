@@ -98,7 +98,7 @@ public class TidySuggester extends DocumentSuggestionProvider
     }
 
     static boolean isJSP(DataObject dobj) {
-        String file = dobj.getPrimaryFile().getName();
+        String file = dobj.getPrimaryFile().getNameExt();
         return file.endsWith(".jsp") || // NOI18N
             file.endsWith(".JSP") || // NOI18N
             // There are several data objects in web/core/.../jsploader
@@ -108,7 +108,7 @@ public class TidySuggester extends DocumentSuggestionProvider
     }
 
     static boolean isXML(DataObject dobj) {
-        String file = dobj.getPrimaryFile().getName();
+        String file = dobj.getPrimaryFile().getNameExt();
         return file.endsWith(".xml") || // NOI18N
             file.endsWith(".XML") || // NOI18N
             (dobj.getClass().getName().indexOf("XMLDataObject") != -1); // NOI18N
@@ -162,7 +162,9 @@ public class TidySuggester extends DocumentSuggestionProvider
             tidy.setOnlyErrors(true);
             tidy.setShowWarnings(true);
             tidy.setQuiet(true);
-            tidy.setXmlTags(isXML);
+            // XXX Apparently JSP pages (at least those involving
+            // JSF) need XML handling in order for JTidy not to choke on them
+            tidy.setXmlTags(isXML || isJSP);
 
             PrintWriter output = new ReportWriter(this);
             tidy.setErrout(output);

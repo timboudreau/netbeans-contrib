@@ -129,7 +129,9 @@ public class RewriteAction extends NodeAction
         tidy.setShowWarnings(false);
         tidy.setQuiet(true);
         
-        tidy.setXmlTags(isXML);
+        // XXX Apparently JSP pages (at least those involving
+        // JSF) need XML handling in order for JTidy not to choke on them
+        tidy.setXmlTags(isXML || isJSP);
 
         RewritePanel panel = new RewritePanel(this, doc, dobj);
         panel.setXHTML(tidy.getXHTML());
