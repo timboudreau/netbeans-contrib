@@ -1948,8 +1948,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             ((java.awt.Window) comp).pack ();
         }
         if (configInputPanels != null) {
+            Hashtable dialogVars = new Hashtable(fsVars);
             for (int i = 0; i < configInputPanels.length; i++) {
-                configInputPanels[i].updateVariableValues(fsVars);
+                configInputPanels[i].updateVariableValues(dialogVars);
             }
         }
         if (doAutoFillVars) {
@@ -1983,15 +1984,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 } else {
                     var.setValue(newValue);
                 }
-                //System.out.println("  "+varName+"="+newValue);
-                fsVars.put(varName, newValue);
-                if (!setSpecialProperties(varName, newValue, fsVars)) {
-                    String cmd = (String) autoFillVars.get(varName);
-                    if (cmd != null) {
-                        if (autoFillCommands == null) {
-                            autoFillCommands = new HashSet();
+                //System.out.println("  "+varName+"='"+newValue+"', fsVars = '"+fsVars.get(varName)+"'");
+                if (!newValue.equals(fsVars.get(varName))) {
+                    fsVars.put(varName, newValue);
+                    if (!setSpecialProperties(varName, newValue, fsVars)) {
+                        String cmd = (String) autoFillVars.get(varName);
+                        if (cmd != null) {
+                            if (autoFillCommands == null) {
+                                autoFillCommands = new HashSet();
+                            }
+                            autoFillCommands.add(cmd);
                         }
-                        autoFillCommands.add(cmd);
                     }
                 }
             }
@@ -2030,6 +2033,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             return ;
         }
         var = (VcsConfigVariable) fsVarsByName.get(varName);
+        if (var != null && newValue.equals(var.getValue())) return ;
         Vector vars = fileSystem.getVariables();
         //System.out.println("variable changed: "+varName+" = '"+newValue+"'");
         if (var == null) {
