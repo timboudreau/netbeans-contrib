@@ -20,6 +20,10 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.AbstractAction;
+import org.netbeans.modules.latex.model.bibtex.Entry;
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
+
+
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.nodes.BeanNode;
@@ -38,6 +42,8 @@ public class EditEntryAction extends AbstractAction implements PropertyChangeLis
         
         //Temporary hack. (leaks etc...)
         TopComponent.getRegistry().addPropertyChangeListener(this);
+        
+        updateEnabledState();
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -64,6 +70,10 @@ public class EditEntryAction extends AbstractAction implements PropertyChangeLis
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
+        updateEnabledState();
+    }
+    
+    private void updateEnabledState() {
         Node[] activatedNodes = TopComponent.getRegistry().getActivatedNodes();
         
         if (activatedNodes.length != 1) {

@@ -27,6 +27,12 @@ import java.util.Stack;
 import javax.swing.JFrame;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
+
+import org.netbeans.modules.latex.model.bibtex.Entry;
+import org.netbeans.modules.latex.model.bibtex.FreeFormEntry;
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
+import org.netbeans.modules.latex.model.bibtex.StringEntry;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 
 /**
@@ -170,18 +176,18 @@ public class BiBParser {
 //        return result;
 //    }
     
-    public Entry parseEntry(Document doc, int startOffset, int supposedEnd) throws IOException {
+    public Entry parseEntry(Document doc, int startOffset) throws IOException {
         source = doc;
         currentOffset = startOffset;
         
-        return parseEntry(supposedEnd);
+        return parseEntry();
     }
     
     private boolean isStopParsingInsideEntryToken(int token) {
         return token == EOF || token == AT_CHAR;
     }
     
-    private Entry parseEntry(int supposedEnd) throws IOException {
+    private Entry parseEntry() throws IOException {
         int token;
         
         while ((token = getToken()) != AT_CHAR && token != EOF)
@@ -206,12 +212,12 @@ public class BiBParser {
         Entry result;
         
         if (STRING_TYPE.equalsIgnoreCase(type)) {
-            result = parseStringEntry(supposedEnd);
+            result = parseStringEntry();
         } else {
             if (COMMENT_TYPE.equalsIgnoreCase(type) || PREAMBLE_TYPE.equalsIgnoreCase(type)) {
-                result = parseFreeFormEntry(type, supposedEnd);
+                result = parseFreeFormEntry(type);
             } else {
-                result = parsePublicationEntry(type, supposedEnd);
+                result = parsePublicationEntry(type);
             }
         }
         
@@ -223,7 +229,7 @@ public class BiBParser {
         return result;
     }
     
-    private Entry parseStringEntry(int supposedEnd) throws IOException {
+    private Entry parseStringEntry() throws IOException {
         StringEntry entry = new StringEntry();
         int token = -2;
         
@@ -248,7 +254,7 @@ public class BiBParser {
         return entry;
     }
 
-    private Entry parseFreeFormEntry(String type, int supposedEnd/*ignored..*/) throws IOException {
+    private Entry parseFreeFormEntry(String type) throws IOException {
         FreeFormEntry entry = new FreeFormEntry();
         int token = -2;
         
@@ -274,7 +280,7 @@ public class BiBParser {
         return entry;
     }
 
-    private Entry parsePublicationEntry(String type, int supposedEnd) throws IOException {
+    private Entry parsePublicationEntry(String type) throws IOException {
         PublicationEntry entry = new PublicationEntry();
         int token;
         
@@ -294,13 +300,13 @@ public class BiBParser {
         
         entry.setTag(identifier);
         
-        while (parseMap(entry, supposedEnd))
+        while (parseMap(entry))
             ;
         
         return entry;
     }
     
-    private boolean parseMap(PublicationEntry entry, int supposedEnd) throws IOException {
+    private boolean parseMap(PublicationEntry entry) throws IOException {
         int token = -2;
         
         while ((token = getToken()) != TEXT && !isStopParsingInsideEntryToken(token) && token != CL_BRAC)
@@ -318,7 +324,7 @@ public class BiBParser {
             return false;
 
         
-        return readValueString(entry, key, supposedEnd);
+        return readValueString(entry, key);
     }
     
     private void appendContent(StringBuffer buffer, int token) {
@@ -329,7 +335,7 @@ public class BiBParser {
         }
         
     }
-    private boolean readValueString(PublicationEntry entry, String key, int supposedEnd) throws IOException {
+    private boolean readValueString(PublicationEntry entry, String key) throws IOException {
         StringBuffer result = new StringBuffer();
         int token;
         
@@ -345,7 +351,7 @@ public class BiBParser {
                 //TODO: describe the error detection and correction used here!
                 int lastClosingBracket = -1;
                 
-                while ((token = getToken()) != STRING && !isStopParsingInsideEntryToken(token) && (supposedEnd == (-1) || currentOffset < supposedEnd)) {
+                while ((token = getToken()) != STRING && !isStopParsingInsideEntryToken(token)) {
                     if (token == CL_BRAC)
                         lastClosingBracket = currentOffset;
                     
@@ -354,8 +360,8 @@ public class BiBParser {
                 
                 //TODO: well, not sure whether this error correction is correct and whether it will work correctly under all circumstaces.
                 //Forcing a ".
-                if ((supposedEnd != (-1) && currentOffset >= supposedEnd))
-                    currentOffset--;
+//                if ((supposedEnd != (-1) && currentOffset >= supposedEnd))
+//                    currentOffset--;
                 
                 if (isStopParsingInsideEntryToken(token)) {
                     if (lastClosingBracket != (-1))

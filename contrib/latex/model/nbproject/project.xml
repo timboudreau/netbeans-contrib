@@ -38,6 +38,7 @@ Microsystems, Inc. All Rights Reserved.
             </module-dependencies>
             <public-packages>
 	        <package>org.netbeans.modules.latex.model.command</package>
+	        <package>org.netbeans.modules.latex.model.bibtex</package>
 	        <package>org.netbeans.modules.latex.model.structural</package>
 	        <package>org.netbeans.modules.latex.model</package>
 	    </public-packages>

@@ -23,11 +23,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Locale;
 import javax.swing.Icon;
-import org.netbeans.modules.latex.bibtex.BiBTeXModel;
-import org.netbeans.modules.latex.bibtex.BiBTeXModelChangeListener;
-import org.netbeans.modules.latex.bibtex.BiBTeXModelChangedEvent;
-import org.netbeans.modules.latex.bibtex.Entry;
-import org.netbeans.modules.latex.bibtex.PublicationEntry;
+import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
+
+import org.netbeans.modules.latex.model.bibtex.BiBTeXModelChangeListener;
+import org.netbeans.modules.latex.model.bibtex.BiBTeXModelChangedEvent;
+
+import org.netbeans.modules.latex.model.bibtex.Entry;
+
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
+
+
 
 import org.openide.ErrorManager;
 import org.openide.loaders.DataNode;

@@ -23,6 +23,12 @@ import javax.swing.AbstractAction;
 import javax.swing.text.Document;
 import org.netbeans.modules.latex.bibtex.loaders.BiBTexDataObject;
 import org.netbeans.modules.latex.model.Utilities;
+import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
+import org.netbeans.modules.latex.model.bibtex.Entry;
+
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
+
+
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.nodes.BeanNode;
@@ -41,12 +47,12 @@ public class NewEntryAction extends AbstractAction implements PropertyChangeList
         
         //Temporary hack. (leaks etc...)
         TopComponent.getRegistry().addPropertyChangeListener(this);
+        
+        updateEnabledState();
     }
     
     public void actionPerformed(ActionEvent e) {
-        Node node = TopComponent.getRegistry().getActivatedNodes()[0];
-        BiBTexDataObject file = (BiBTexDataObject) node.getLookup().lookup(BiBTexDataObject.class); //see propertyChange
-        BiBTeXModel model = BiBTeXModel.getModel(file.getPrimaryFile());
+        BiBTeXModel model = getModelForActivatedNodes();
         
         PublicationEntry pEntry = new PublicationEntry();
         
@@ -68,16 +74,37 @@ public class NewEntryAction extends AbstractAction implements PropertyChangeList
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
+        updateEnabledState();
+    }
+    
+    public void updateEnabledState() {
+        setEnabled(getModelForActivatedNodes() != null);
+    }
+    
+    private BiBTeXModel getModelForActivatedNodes() {
         Node[] activatedNodes = TopComponent.getRegistry().getActivatedNodes();
         
         if (activatedNodes.length != 1) {
-            setEnabled(false);
-            return ;
+            return null;
         }
         
         Node active = activatedNodes[0];
         
-        setEnabled(active.getLookup().lookup(BiBTexDataObject.class) != null);
+        BiBTexDataObject file = (BiBTexDataObject) active.getLookup().lookup(BiBTexDataObject.class); //see propertyChange
+        
+        if (file == null) {
+            Entry e = (Entry) active.getLookup().lookup(Entry.class);
+            
+            if (e == null)
+                return null;
+            
+            BiBTeXModel model = e.getModel();
+            
+            assert model != null : "The model of each visible node is supposed to be != null!";
+            
+            return model;
+        }
+        
+        return BiBTeXModel.getModel(file.getPrimaryFile());
     }
-    
 }

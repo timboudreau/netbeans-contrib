@@ -35,6 +35,8 @@ import javax.swing.event.ListDataListener;
 
 import javax.swing.table.DefaultTableModel;
 
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
+
 /**
  *
  * @author Jan Lahoda
