@@ -40,8 +40,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import org.netbeans.api.tasklist.SuggestionManager;
-import org.netbeans.modules.tasklist.core.checklist.AbstractCheckListModel;
-import org.netbeans.modules.tasklist.core.checklist.CheckList;
 import org.openide.util.NbBundle;
 import org.openide.awt.Mnemonics;
 
