@@ -147,7 +147,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
                 FileObject[] fos = URLMapper.findFileObjects(url);
                 if ((fos != null) && (fos.length > 0)) {
                     showList(new UserTaskList(fos[0]));
-                    title = fos[0].getName();
+                    // todo title = fos[0].getName();
                 }
                 // XXX I do extra work here. I read in the global task
                 // list each time (default UserTaskView constructor)
@@ -465,6 +465,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     public String toString() { 
-        return "UserTaskView(" + title + ", " + category + ", " + getModel() + ")"; // NOI18N
+        return "UserTaskView(" + getName() + ", " + category + ", " + getModel() + ")"; // NOI18N
     }
 }

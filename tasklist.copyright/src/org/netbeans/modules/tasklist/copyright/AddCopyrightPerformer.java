@@ -268,7 +268,7 @@ public class AddCopyrightPerformer implements SuggestionPerformer {
     private boolean startsWithComment(String str, int index, int len,
     String commentPrefix) {
         while ((index < len) &&
-        (Character.isSpace(str.charAt(index)))) {
+        (Character.isSpaceChar(str.charAt(index)))) {
             index++;
         }
         return str.startsWith(commentPrefix, index);

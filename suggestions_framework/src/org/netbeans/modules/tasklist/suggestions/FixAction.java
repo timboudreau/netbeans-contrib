@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.Iterator;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
 import org.netbeans.api.tasklist.SuggestionPerformer;
 import org.netbeans.api.tasklist.SuggestionManager;
@@ -74,7 +73,8 @@ public final class FixAction extends NodeAction {
         boolean skipConfirm = false;
 
         assert node[0] instanceof SuggestionNode : "Need to be softened later on";
-        TaskListView tlv = ((SuggestionNode)node[0]).getView();
+        TaskListView tlv = TaskListView.getCurrent();
+        // todo this line causes NPE ((SuggestionNode)node[0]).getView();
 
         Collection originalModified =
             new ArrayList(DataObject.getRegistry().getModifiedSet());

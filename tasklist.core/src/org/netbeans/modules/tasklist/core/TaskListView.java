@@ -60,7 +60,6 @@ import org.openide.text.Line;
 import org.openide.util.actions.ActionPerformer;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
-import org.openide.windows.Workspace;
 import org.openide.windows.WindowManager;
 import org.openide.windows.TopComponent;
 import org.openide.util.actions.CallbackSystemAction;
@@ -95,12 +94,6 @@ public abstract class TaskListView extends TopComponent
     private transient boolean filterEnabled =  false;
     transient protected Filter filter = null;
 
-    /** Gotta stash away my own version of the name of the top component,
-     since the explorer manager aggressively changes the name I
-     set in the constructor with setName to "Explorer[<root name>]"
-     */
-    transient protected String title = null;
-
     /** Annotation showing the current position */
     transient protected TaskAnnotation taskMarker = null;
 
@@ -113,18 +106,19 @@ public abstract class TaskListView extends TopComponent
 
     private transient ExplorerManager manager;
 
-    /** Construct a new TaskListView. Most work is deferred to
-     componentOpened. NOTE: this is only for use by the window
-     system when deserializing windows. Client code should not call
-     it; use the constructor which takes category, title and icon
-     parameters. I can't make it protected because then the window
-     system wouldn't be able to get to this. But the code relies on
-     readExternal getting called after this constructor to finalize
-     construction of the window.*/
+    /** 
+     * Construct a new TaskListView. Most work is deferred to
+     * componentOpened. NOTE: this is only for use by the window
+     * system when deserializing windows. Client code should not call
+     * it; use the constructor which takes category, title and icon
+     * parameters. I can't make it protected because then the window
+     * system wouldn't be able to get to this. But the code relies on
+     * readExternal getting called after this constructor to finalize
+     * construction of the window.
+     */
     public TaskListView() {
         initExplorerManager();
     }
-
 
     /**
      * @param category view's category. This value will be used as the name
@@ -630,15 +624,6 @@ public abstract class TaskListView extends TopComponent
 
 
     /**
-     * Returns tree used to draw the first column in this view.
-     *
-     * @return tree
-     */
-    public JTree getTree() {
-        return treeTable.getTree();
-    }
-
-    /**
      * Returns table with tasks.
      *
      * @return table
@@ -805,7 +790,7 @@ for (int i = 0; i < columns.length; i++) {
 
         if (ver >= 2) {
             category = (String) objectInput.readObject();
-            title = (String) objectInput.readObject();
+            objectInput.readObject(); // ignoring title
             int persistentInt = objectInput.read();
             persistent = (persistentInt != 0);
         } else {
@@ -1064,20 +1049,18 @@ for (int i = 0; i < columns.length; i++) {
         listeners = null;
     }
 
-
-    public void showInMode() { // TODO Pick a better name!
-        // TODO make method package private! Can't yet - used in editor/
-        Workspace workspace = WindowManager.getDefault().
-                getCurrentWorkspace();
-        if (!isOpened(workspace)) {
-            Mode mode = workspace.findMode("output"); // NOI18N
+    // TODO Pick a better name!
+    // TODO make method package private! Can't yet - used in editor/
+    public void showInMode() { 
+        if (!isOpened()) {
+            Mode mode = WindowManager.getDefault().findMode("output"); // NOI18N
             if (mode != null) {
                 mode.dockInto(TaskListView.this);
             }
         }
-        open(workspace);
+        open();
         requestVisible();
-        requestFocus();
+        requestActive();
     }
 
 
@@ -1614,9 +1597,7 @@ for (int i = 0; i < columns.length; i++) {
         });
     }
 
-    /** Transfer focus to the dialog */
-    public void requestFocus() {
-        super.requestFocus();
+    public void requestActive() {
         if (treeTable != null) {
             treeTable.getTable().requestFocus();
         }

@@ -45,7 +45,7 @@ import org.openide.nodes.PropertySupport;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.PasteType;
@@ -75,12 +75,9 @@ public class TaskNode extends AbstractNode {
         setName(item.getSummary());
         //setIconBase("org/netbeans/modules/tasklist/core/task"); // NOI18N
         //setDefaultAction(SystemAction.get(ShowTaskAction.class));
-
-
         monitor = new Monitor();
         item.getList().addListener(monitor);
         item.addPropertyChangeListener(monitor);
-
         updateDisplayStuff();
         getCookieSet().add(new InstanceSupport.Instance(item));
         
@@ -143,7 +140,6 @@ public class TaskNode extends AbstractNode {
     }
     
     protected SystemAction[] createActions() {
-	
 	// TODO Perform lookup here to compute an aggregate
 	// menu from other modules as well. But how do we determine
 	// order? I think NetBeans 4.0's actions re-work will have

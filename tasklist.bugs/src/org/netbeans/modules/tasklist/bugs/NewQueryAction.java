@@ -25,15 +25,13 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.text.EditorSupport;
+import org.openide.text.CloneableEditorSupport;
 import org.openide.text.NbDocument;
-import org.openide.text.EditorSupport.Editor;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
-import org.openide.windows.Workspace;
 import org.openide.windows.WindowManager;
 
 
@@ -60,20 +58,20 @@ public class NewQueryAction extends NodeAction {
         // So, we go hunting for the topmosteditor tab, and when we find it,
         // ask for its nodes.
         Node[] nodes = null;
-        Workspace workspace = WindowManager.getDefault().getCurrentWorkspace();
+        WindowManager wm = WindowManager.getDefault();
         
         // HACK ALERT !!! HACK ALERT!!! HACK ALERT!!!
         // Look for the source editor window, and then go through its
         // top components, pick the one that is showing - that's the
         // front one!
-        Mode mode  = workspace.findMode(EditorSupport.EDITOR_MODE);
+        Mode mode  = wm.findMode(CloneableEditorSupport.EDITOR_MODE);
 	if (mode == null) {
 	    return null;
 	}
         TopComponent [] tcs = mode.getTopComponents();
         for (int j = 0; j < tcs.length; j++) {
             TopComponent tc = tcs[j];
-            if (tc instanceof Editor) {
+            if (tc instanceof org.openide.text.EditorSupport.Editor) {
                 // Found the source editor...
                 if (tcs[j].isShowing()) {
                     nodes = tcs[j].getActivatedNodes();

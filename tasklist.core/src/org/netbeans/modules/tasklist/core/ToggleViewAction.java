@@ -27,7 +27,6 @@ import org.openide.util.actions.Presenter;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import org.openide.windows.Workspace;
 
 /** 
  * Shows/closes a view.
@@ -74,8 +73,7 @@ PropertyChangeListener, Presenter.Menu {
      * @return true = the view is opened on the current workspace
      */
     protected boolean isViewOpened() {
-        return getView().isOpened(WindowManager.getDefault().
-            getCurrentWorkspace());
+        return getView().isOpened();
     }
     
     /**
@@ -88,17 +86,16 @@ PropertyChangeListener, Presenter.Menu {
             return;
 
         TopComponent view = getView();
-        Workspace workspace = WindowManager.getDefault().
-            getCurrentWorkspace();
+        WindowManager wm = WindowManager.getDefault();
         if (!visible) {
-            Mode mode = workspace.findMode(view);
+            Mode mode = wm.findMode(view);
             if (mode != null)
                 this.mode = mode.getName();
             view.close();
             if (activated != null) {
                 TopComponent act = (TopComponent) activated.get();
                 if (act != null)
-                    act.requestFocus();
+                    act.requestActive();
             }
         } else if (visible) {
             TopComponent act = WindowManager.getDefault().
@@ -107,13 +104,13 @@ PropertyChangeListener, Presenter.Menu {
                 activated = null;
             else
                 activated = new WeakReference(act);
-            Mode mode  = workspace.findMode(this.mode);
+            Mode mode  = wm.findMode(this.mode);
             if (mode != null) {
                 mode.dockInto(view);
             }
-            view.open(workspace);
+            view.open();
             view.requestVisible();
-            view.requestFocus(); 
+            view.requestActive(); 
         }
     }
 
@@ -130,8 +127,7 @@ PropertyChangeListener, Presenter.Menu {
 
     public void propertyChange(PropertyChangeEvent e) {
         String p = e.getPropertyName();
-        if (p.equals(TopComponent.Registry.PROP_OPENED) ||
-            p.equals(WindowManager.PROP_CURRENT_WORKSPACE)) {
+        if (p.equals(TopComponent.Registry.PROP_OPENED)) {
             super.setBooleanState(isViewOpened());
         }
     }
