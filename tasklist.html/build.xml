@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="tasklist/html" default="netbeans" basedir=".">
+
+    <property name="nb_all" value="../.."/>
+
+    <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+    <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+    <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+
+    <property name="nbm_alias" value="nb_ide"/>
+    <property name="homepage.base" value="netbeans.org"/>
+    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
+    <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
+
+    <!-- TODO Remove this when the module is part of the full tasklist build -->
+    <property name="build.compiler.debug" value="on"/>
+  
+    <target name="init">
+       <ant dir="external" target="unscramble"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+            <classpath>
+                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+                <fileset dir="${nb_all}/openide/netbeans/lib">
+                    <include name="openide*.jar" />
+                </fileset>
+                <!-- tasklist api -->
+                <pathelement path="../api/src"/>
+                <!-- html -->
+                <pathelement path="../../html/netbeans/modules/html.jar"/>
+                <!-- diff -->
+                <pathelement path="../../diff/netbeans/modules/diff.jar"/>
+                <!-- Tidy library -->
+                <fileset dir="external">
+                    <include name="Tidy*.jar"/>
+                </fileset>
+                <!-- tasklist core -->
+                <pathelement path="../core/src"/>
+                <pathelement path="../../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="jars" depends="compile">
+        <mkdir dir="netbeans/modules"/>
+        <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+        <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+        <locjar jarfile="netbeans/modules/tasklist-html.jar"
+                manifest="manifest-subst.mf"
+                basedir="src"
+	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
+	        compress="false">
+            <locale name="ja"/>
+        </locjar>
+    </target>
+
+    <target name="netbeans" depends="jars">
+        <genlist targetname="nbm" outputfiledir="netbeans"/>
+    </target>
+
+    <target name="nbm" depends="netbeans">
+        <makenbm file="../tasklist-html.nbm"
+                 topdir="."
+                 module="netbeans/modules/tasklist-html.jar"
+                 homepage="http://tasklist.${homepage.base}/"
+                 distribution="http://${dist.base}/tasklist-html.nbm"
+                 needsrestart="false">
+            <license file="${license.file}"/>
+            <notification file="module-updates.txt"/>
+            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+        </makenbm>
+    </target>
+  
+    <target name="clean">
+        <delete>
+            <fileset dir="src">
+                <include name="**/*.class"/>
+            </fileset>
+        </delete>
+        <delete file="manifest-subst.mf"/>
+        <delete file="../tasklist-html.nbm"/>
+        <delete dir="netbeans"/>
+        <delete dir="Info"/>
+        <delete dir="javadoc"/>
+    </target>
+
+    <target name="release" depends="init">
+       <mkdir dir="netbeans/modules/ext"/>
+       <copy todir="netbeans/modules/ext">
+         <fileset dir="external">
+           <include name="Tidy*.jar"/>
+         </fileset>
+       </copy>
+    </target>
+
+    <target name="javahelp">
+    </target>
+
+</project>
