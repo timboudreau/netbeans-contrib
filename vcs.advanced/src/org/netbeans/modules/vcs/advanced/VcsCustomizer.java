@@ -1120,6 +1120,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             String cmd = (String) it.next();
             autoFillVariables(cmd);
         }
+        updateAdvancedConfig();
     }
 
     private void variableChanged (java.awt.AWTEvent evt) {
@@ -1280,6 +1281,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         promptLockCheckBox.setSelected(fileSystem.isPromptForLockOn());
         promptLockCheckBox.setEnabled(lockCheckBox.isSelected());
         offLineCheckBox.setSelected(fileSystem.isOffLine());
+        boolean isEdit = fileSystem.isEnabledEditFiles();
+        editCheckBox.setEnabled(isEdit);
+        promptEditCheckBox.setEnabled(isEdit);
+        boolean isLock = fileSystem.isEnabledLockFiles();
+        lockCheckBox.setEnabled(isLock);
+        promptLockCheckBox.setEnabled(isLock);
     }
     
     //-------------------------------------------
