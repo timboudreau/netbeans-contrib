@@ -67,7 +67,7 @@ final public class SuggestionImpl extends Task implements Node.Cookie {
     /** Return the name of the file associated with this
      * task, or the empty string if none.
      * @return basename, or empty string */    
-    public java.lang.String getFileBaseName() {
+    public String getFileBaseName() {
         if (basename == null) {
 
             Line l = getLine();
