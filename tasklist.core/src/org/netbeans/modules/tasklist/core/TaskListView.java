@@ -59,6 +59,7 @@ import org.openide.actions.DeleteAction;
 import org.openide.actions.FindAction;
 import org.openide.explorer.ExplorerPanel;
 import org.openide.explorer.view.Visualizer;
+import org.openide.util.actions.ActionPerformer;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.Workspace;
@@ -91,6 +92,8 @@ public abstract class TaskListView extends ExplorerPanel
     */
     transient protected String title = null;
     
+    transient private ActionPerformer deletePerformer;
+    
     /** Construct a new TaskListView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
 	system when deserializing windows. Client code should not call
@@ -106,11 +109,13 @@ public abstract class TaskListView extends ExplorerPanel
 			boolean persistent, TaskList tasklist) {
 	super();
 
-	this.category = category;
+        this.category = category;
 	this.title = title;
 	this.persistent = persistent;
 	this.tasklist = tasklist;
 	
+        deletePerformer = new DeleteActionPerformer(this.getExplorerManager());
+        
 	setIcon(icon);
 
 	if (persistent) {
@@ -281,55 +286,6 @@ public abstract class TaskListView extends ExplorerPanel
         };
         SystemAction[] sa = super.getSystemActions ();
         return SystemAction.linkActions (sa, todoActions);
-    }
-    
-    /**
-     * Deletes a node and selects another one.
-     *
-     * @param node a node to delete
-     */
-    public void destroy(TaskNode node) {
-        JTree tree = treeTable.getTree();
-        int sel = tree.getMaxSelectionRow();
-        if (sel >= 0) {
-            Node selnode = Visualizer.findNode(
-                tree.getPathForRow(sel).getLastPathComponent());
-            if (selnode == node) {
-                TreePath tp = null;
-                if (sel + 1 < tree.getRowCount()) {
-                    tp = tree.getPathForRow(sel + 1);
-                } else if (sel - 1 >= 0) {
-                    tp = tree.getPathForRow(sel - 1);
-                }
-                if (tp != null) {
-                    try {
-                        getExplorerManager().setSelectedNodes(
-                            new Node[] {
-                                (Node) Visualizer.findNode(
-                                    tp.getLastPathComponent())
-                            }
-                        );
-                    } catch (PropertyVetoException e) {
-                        ErrorManager.getDefault().notify(e);
-                    }
-                }
-            }
-        }
-        node.destroy();
-        
-        // Select the root node, such that the empty tasklist has
-        // a context menu - but only if there are no items in the list
-        if (!tasklist.getRoot().hasSubtasks()) {
-            // See http://www.netbeans.org/issues/show_bug.cgi?id=27696
-            try {
-                getExplorerManager().setSelectedNodes(
-                    new Node[] { getExplorerManager().getRootContext() }
-                );
-            } catch (PropertyVetoException e) {
-                TopManager.getDefault().getErrorManager().notify(
-                                           ErrorManager.INFORMATIONAL, e);
-            }
-        }
     }
     
     // Workaround - is this no longer necessary?
@@ -1103,7 +1059,7 @@ public abstract class TaskListView extends ExplorerPanel
         find.setActionPerformer(filter);
         
         DeleteAction delete = (DeleteAction) DeleteAction.get(DeleteAction.class);
-        delete.setActionPerformer(new DeleteActionPerformer(this));
+        delete.setActionPerformer(deletePerformer);
     } 
     
     public void componentDectivated() {
