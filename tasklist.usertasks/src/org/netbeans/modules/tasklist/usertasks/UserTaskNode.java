@@ -459,8 +459,8 @@ final class UserTaskNode extends AbstractNode {
                     if (mto.areDataFlavorsSupported(
                         new DataFlavor[] {TaskTransfer.TODO_FLAVOR})) {
                         for (int i = 0; i < mto.getCount(); i++) {
-                            Task item = (Task)
-                            mto.getTransferData(i, TaskTransfer.TODO_FLAVOR);
+                            UserTask item = (UserTask)
+                                mto.getTransferData(i, TaskTransfer.TODO_FLAVOR);
                             addTask(item);
                         }
                         return null;
@@ -468,7 +468,8 @@ final class UserTaskNode extends AbstractNode {
                 } 
                 
                 if (t.isDataFlavorSupported(TaskTransfer.TODO_FLAVOR)) {
-                    Task item = (Task)t.getTransferData(TaskTransfer.TODO_FLAVOR);
+                    UserTask item = 
+                        (UserTask) t.getTransferData(TaskTransfer.TODO_FLAVOR);
                     addTask(item);
                 } 
             } catch (UnsupportedFlavorException ufe) {
@@ -485,12 +486,12 @@ final class UserTaskNode extends AbstractNode {
          *
          * @param item a task
          */
-        private void addTask(Task item) {
+        private void addTask(UserTask item) {
             UserTask ut;
             if (item instanceof UserTask) {
                 ut = (UserTask) item;
             } else {
-                ut = new UserTask(item.getSummary());
+                ut = new UserTask(item.getSummary(), item.getList());
                 ut.setDetails(item.getDetails());
                 ut.setLine(item.getLine());
                 ut.setPriority(item.getPriority());
