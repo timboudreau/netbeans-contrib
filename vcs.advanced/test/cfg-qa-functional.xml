@@ -58,6 +58,14 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
+    <testbag testattribs="full,cvs_profile_5" name="cvs_profile_5">
+        <testset dir="qa-functional/src">
+            <patternset>
+                <include name="complete/cvs_profile/JellyCommands.class"/>
+            </patternset>
+        </testset>
+    </testbag>
+
     <testbag testattribs="full" name="common_functionality">
         <testset dir="qa-functional/src">
             <patternset>
