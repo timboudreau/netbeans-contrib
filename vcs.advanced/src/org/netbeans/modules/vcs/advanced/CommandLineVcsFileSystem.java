@@ -426,12 +426,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     
     private void saveCurrentConfig() {
         configFileName = TEMPORARY_CONFIG_FILE_NAME + cacheId + "." + VariableIO.CONFIG_FILE_EXT;
-        FileObject file;
-        try {
-            file = CONFIG_ROOT_FO.createData(TEMPORARY_CONFIG_FILE_NAME + cacheId, VariableIO.CONFIG_FILE_EXT);
-        } catch (IOException ioexc) {
-            TopManager.getDefault().notifyException(ioexc);
-            return ;
+        FileObject file = CONFIG_ROOT_FO.getFileObject(TEMPORARY_CONFIG_FILE_NAME + cacheId, VariableIO.CONFIG_FILE_EXT);
+        if (file == null) {
+            try {
+                file = CONFIG_ROOT_FO.createData(TEMPORARY_CONFIG_FILE_NAME + cacheId, VariableIO.CONFIG_FILE_EXT);
+            } catch (IOException ioexc) {
+                TopManager.getDefault().notifyException(ioexc);
+                return ;
+            }
         }
         org.w3c.dom.Document doc = null;
         /*
