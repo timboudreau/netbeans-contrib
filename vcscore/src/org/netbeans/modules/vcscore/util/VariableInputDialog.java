@@ -1516,7 +1516,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
         }
         java.awt.Dimension dimension = component.getDimension();
         if (dimension == null) dimension = new java.awt.Dimension(TEXTAREA_ROWS, TEXTAREA_COLUMNS);
-        final javax.swing.JTextArea area = new javax.swing.JTextArea(dimension.width, dimension.height);
+        final javax.swing.JTextArea area = new javax.swing.JTextArea();
+        java.awt.Font font = area.getFont();
+        area.setFont(new java.awt.Font("Monospaced", font.getStyle(), font.getSize()));
+        area.setRows(dimension.width);
+        area.setColumns(dimension.height);
         mainComponent_ptr[0] = area;
         label.setLabelFor(area);
         if (component.getLabelMnemonic() != null) {
