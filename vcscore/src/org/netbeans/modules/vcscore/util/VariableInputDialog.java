@@ -1604,12 +1604,16 @@ public class VariableInputDialog extends javax.swing.JPanel {
             // Apply all actions to the copy of the original variables
             for (Iterator it = actionList.iterator(); it.hasNext(); ) {
                 ActionListener listener = (ActionListener) it.next();
-                listener.actionPerformed(null);  // XXX probably modifies this.vars
+                listener.actionPerformed(null);  // XXX modifies this.vars
             }
 
+            // Command customization vs. FS customization adjusting
             // #53603 overwrite only visible vars, execution context defines rest
+            s// #54354 add variables that are provided by command customization
             Hashtable dialogContext = new Hashtable();
-            Iterator it = componentsByVars.keySet().iterator();
+            Set contextVariableNames = new HashSet(componentsByVars.keySet());
+            contextVariableNames.addAll(Variables.getContextVariablesNames());
+            Iterator it = contextVariableNames.iterator();
             while (it.hasNext()) {
                 String varName = (String) it.next();
                 Object value = vars.get(varName);

@@ -14,12 +14,7 @@
 package org.netbeans.modules.vcscore;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 import org.openide.ErrorManager;
 
@@ -61,8 +56,15 @@ public class Variables {
      * quoted by the value of the QUOTING variable and delimeted by spaces.
      */
     public static final String QFILES = "QFILES";
-    
+
+    /** Relative path (from MODULE) to particular file. */
     public static final String DIR = "DIR";
+
+    /**
+     * Greatest common parent (GCP) of selected files. Relative path
+     * to ROOTDIR (defined at FS)
+     */
+    public static final String MODULE = "MODULE";
     public static final String PATH = "PATH";
     public static final String QPATH = "QPATH";
     public static final String PATHS = "PATHS";
@@ -131,26 +133,30 @@ public class Variables {
         "os.name", "os.arch", "os.version", "user.name", "user.home", // NOI18N
     };
     
-    private static Collection contextVariablesNames = null;
+    private static Set contextVariablesNames = null;
     private static Map defaultVariablesMap = null;
 
     private Variables() {
     }
-    
-    public static synchronized Collection getContextVariablesNames() {
+
+    /**
+     * Variable names that forms actual command execution target.
+     * These differ from execution to execution.
+     */
+    public static synchronized Set getContextVariablesNames() {
         if (contextVariablesNames == null) {
             contextVariablesNames = createContextVariablesNames();
         }
         return contextVariablesNames;
     }
     
-    private static Collection createContextVariablesNames() {
+    private static Set createContextVariablesNames() {
         HashSet varNames = new HashSet();
         varNames.addAll(Arrays.asList(new String[] {
             FILE, QFILE, FILES, QFILES, DIR,
             PATH, QPATH, PATHS, QPATHS, MPATHS, QMPATHS,
             MIMETYPE, NUM_FILES, NUM_IMPORTANT_FILES,
-            FILE_IS_FOLDER, FILES_IS_FOLDER, MULTIPLE_FILES
+            FILE_IS_FOLDER, FILES_IS_FOLDER, MULTIPLE_FILES, MODULE
         }));
         return Collections.unmodifiableSet(varNames);
     }
