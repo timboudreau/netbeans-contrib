@@ -15,7 +15,11 @@ package org.netbeans.modules.tasklist.bugs.bugzilla;
 
 import org.netbeans.modules.tasklist.bugs.BugQuery;
 import org.netbeans.modules.tasklist.bugs.QueryPanelIF;
+import org.netbeans.modules.tasklist.bugs.BugEngine;
+import org.netbeans.modules.tasklist.bugs.ProjectDesc;
+import org.netbeans.modules.tasklist.bugs.javanet.ProjectList;
 import org.netbeans.modules.tasklist.bugs.issuezilla.Issuezilla;
+import org.openide.util.RequestProcessor;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -24,37 +28,61 @@ import java.net.URL;
 import java.net.MalformedURLException;
 
 /**
- * Allows to customize bug database connection.
+ * Allows to customize IZ and java.net bug database connection.
  *
  * @author  Petr Kuzel
  */
 public class SourcePanel extends javax.swing.JPanel implements QueryPanelIF {
-    
-    /** Creates new form SourcePanel */
-    public SourcePanel() {
+
+    /**
+     * Creates new form SourcePanel
+     *
+     * @param showServiceField XXX on true allows to enter IZ server on false access java.net
+     */
+    public SourcePanel(boolean showServiceField) {
         initComponents();
 
-        serviceTextField.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                URL url = null;
-                try {
-                    serviceExampleLabel.setText("probing...");
-                    url = new URL(serviceTextField.getText());
-                    String [] comps = Issuezilla.getComponents(url);
-                    DefaultComboBoxModel model = new DefaultComboBoxModel(comps);
-                    componentComboBox.setModel(model);
-                    serviceExampleLabel.setText("Server OK");
-                } catch (MalformedURLException e1) {
-                    serviceExampleLabel.setText("Invalid server URL!");
-                }
-            }
-        });
+        serviceExampleLabel.setVisible(showServiceField);
+        serviceLabel.setVisible(showServiceField);
+        serviceTextField.setVisible(showServiceField);
 
+        if (showServiceField) {
+            serviceTextField.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    URL url = null;
+                    try {
+                        serviceExampleLabel.setText("probing...");
+                        url = new URL(serviceTextField.getText());
+                        String [] comps = Issuezilla.getComponents(url);
+                        DefaultComboBoxModel model = new DefaultComboBoxModel(comps);
+                        componentComboBox.setModel(model);
+                        serviceExampleLabel.setText("Server OK");
+                    } catch (MalformedURLException e1) {
+                        serviceExampleLabel.setText("Invalid server URL!");
+                    }
+                }
+            });
+        } else {
+            componentComboBox.setEnabled(false);
+            RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                    ProjectDesc[] projects = ProjectList.listProjects();
+                    DefaultComboBoxModel model = new DefaultComboBoxModel(projects);
+                    componentComboBox.setModel(model);
+                    componentComboBox.setEnabled(true);
+                }
+            });
+        }
     }
 
 
     public BugQuery getQueryOptions(BugQuery inQuery) {
-        inQuery.setBaseUrl(serviceTextField.getText());
+        if (serviceTextField.isVisible()) {
+            inQuery.setBaseUrl(serviceTextField.getText());
+        } else {
+            inQuery.setBaseUrl("https://" + componentComboBox.getSelectedItem() + ".dev.java.net/issues/");
+        }
+
         if (componentRadioButton.isSelected()) {
             inQuery.setQueryString("component=" + componentComboBox.getSelectedItem() + "&issue_status=NEW&issue_status=STARTED&issue_status=REOPENED");
         } else {

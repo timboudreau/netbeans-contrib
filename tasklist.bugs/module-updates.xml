@@ -1,6 +1,10 @@
 <updates>
 
-    <!-- not yet released -->
+    <update version="0.14">
+        <change>Added support for Java.net bug database</change> 
+    </update>
+
+
     <update version="0.13">
         <change>New Connection UI supports module queries for Bugzilla based systems.</change> 
         <change>Local toolbar with refresh and view bug actions added</change>

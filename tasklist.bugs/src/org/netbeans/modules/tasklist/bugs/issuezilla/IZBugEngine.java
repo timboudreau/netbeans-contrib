@@ -38,7 +38,7 @@ import javax.swing.*;
  *
  * @author Tor Norbye
  */
-public final class IZBugEngine implements BugEngine { // XXX remove the publicness
+public class IZBugEngine implements BugEngine { // XXX remove the publicness
 
     public IZBugEngine() {
     }
@@ -52,7 +52,7 @@ public final class IZBugEngine implements BugEngine { // XXX remove the publicne
 
     public void refresh(final BugQuery query, final BugList list) {
         // Do in the background
-        RequestProcessor.postRequest(new Runnable() {
+        RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 doRefresh(query, list);
             }
@@ -60,7 +60,7 @@ public final class IZBugEngine implements BugEngine { // XXX remove the publicne
     }
 
     public JComponent getQueryCustomizer(BugQuery query, boolean edit) {
-        return new SourcePanel();
+        return new SourcePanel(true);
     }
 
     public void doRefresh(BugQuery inQuery, BugList list) {

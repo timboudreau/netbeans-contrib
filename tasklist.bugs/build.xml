@@ -17,7 +17,8 @@ Microsystems, Inc. All Rights Reserved.
     
     <property name="nb_all" value="../.."/>
     <property file="../version.properties"/>
-  
+    <property name="build.compiler.debug" value="on"/>
+
     <target name="init" depends="default.init">
       <patternset id="tasklist/bugs.files">
         <include name="${nb.modules.dir}/tasklist-bugs.jar"/>

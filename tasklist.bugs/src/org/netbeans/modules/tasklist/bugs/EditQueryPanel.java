@@ -45,20 +45,16 @@ import org.openide.util.NbBundle;
  * The panel contains a dropdown box that contains the different bug engines
  * available to the user to search aginst.  It also contains another panel with 
  * the custom search parameters for each bug engine.  This panel will be pulled in
- * using reflection based on the name of the bugEngine picked.  For this to work
- * every new bug engine must implement a class with this naming scheme:<br>
- * <code><Engine-Name>QueryPanel</code> ex. <code>BugzillaQueryPanel</code><br>
+ * using reflection based on the name of the bugEngine picked.
  *
- * @todo get the reflection working
- * @todo have a default button they can click and set the query as a default query.  
+ * @todo have a default button they can click and set the query as a default query.
  *       this might end up being an "Add To Queries" button that will add the 
  *       query to a list of saved queries
  * @todo Finish all the getting of data from the other panel.
- * @todo Add an action listener for the dropdown box to switch out the QueryPanel
  *
  * @author  serff
  */
-public class EditQueryPanel extends JPanel {
+public final class EditQueryPanel extends JPanel {
 
     private static final long serialVersionUID = 1;
 
@@ -89,7 +85,6 @@ public class EditQueryPanel extends JPanel {
     
     private void initComponents() {
         mTopPanel = new JPanel();
-        mQueryPanel = new JPanel();
         mEngineLabel = new JLabel();
         mBugEngines = new JComboBox();
         mButtonPanel = new JPanel();
@@ -100,17 +95,28 @@ public class EditQueryPanel extends JPanel {
         mEngineLabel.setText(NbBundle.getMessage(EditQueryPanel.class, "BugEngine_Label")); // NOI18N
 
         //Now i have to get the list of bug engines
-        //FIXME Need a way to get the bug engines dynamically
-        mBugEngines.addItem("Issuezilla");
-        mBugEngines.addItem("Bugzilla");
-        mBugEngines.setSelectedItem("Issuezilla");
+        String[] engines = BugEngines.list();
+        for (int i= 0; i<engines.length; i++) {
+            mBugEngines.addItem(engines[i]);
+        }
 
         mTopPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 6, 6));
         mTopPanel.add(mEngineLabel);
         mTopPanel.add(mBugEngines);
         
-        //now get the query panel
+        //now prepare the query panel
+        final JPanel hotSwap = new JPanel();
         mQueryPanel = getQueryPanel((String)mBugEngines.getSelectedItem());
+        hotSwap.add(mQueryPanel);
+        mBugEngines.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                hotSwap.removeAll();
+                mQueryPanel = getQueryPanel((String)mBugEngines.getSelectedItem());
+                hotSwap.add(mQueryPanel);
+                hotSwap.revalidate();
+                EditQueryPanel.this.repaint();
+            }
+        });
 
         //Do the button panel
         mDefaultButton.setText(NbBundle.getMessage(EditQueryPanel.class, "DefaultButton_Text"));
@@ -122,11 +128,11 @@ public class EditQueryPanel extends JPanel {
         mDefaultButton.setEnabled(false);
         mDefaultButton.setToolTipText("Not yet implemented");
         mButtonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 6, 6));
-        mButtonPanel.add(mDefaultButton);
+        // mButtonPanel.add(mDefaultButton);
         
         add(mTopPanel, BorderLayout.NORTH);
-        mQueryPanel.setBorder(BorderFactory.createEmptyBorder(0,6,0,6));
-        add(mQueryPanel, BorderLayout.CENTER);
+        hotSwap.setBorder(BorderFactory.createEmptyBorder(0,6,0,6));
+        add(hotSwap, BorderLayout.CENTER);
         add(mButtonPanel, BorderLayout.SOUTH);
     }
     
@@ -135,8 +141,12 @@ public class EditQueryPanel extends JPanel {
      * @param engineName the name of the bug engine they are going to use
      */
     public JPanel getQueryPanel(String engineName) {
-        //FIXME
-        return new SourcePanel();
+        // XXX force all to return JPanel
+        JPanel ret = null;
+        BugEngine engine = BugEngines.get(getBugEngine());
+        ret = (JPanel) engine.getQueryCustomizer(getQuery(), false);
+        assert ret instanceof QueryPanelIF : "Engine " + engine + " returned " + ret;
+        return ret;
     }
     
     private void defaultButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -150,7 +160,9 @@ public class EditQueryPanel extends JPanel {
     
     public BugQuery getQuery() {
         mQuery.setBugEngine(((String)mBugEngines.getSelectedItem()));
-        mQuery = ((QueryPanelIF)mQueryPanel).getQueryOptions(mQuery);
+        if (mQueryPanel != null) {
+            mQuery = ((QueryPanelIF)mQueryPanel).getQueryOptions(mQuery);
+        }
         return mQuery;
     }
     

@@ -35,17 +35,9 @@ public class BugList extends TaskList { // XXX remove the publicness
     // List category
     final static String USER_CATEGORY = "bugs"; // NOI18N
 
-
-    BugEngine[] engines = null;
-    
-    
     /** Creates a new instance of TaskList */
     public BugList(BugQuery inQuery) {
         mQuery = inQuery;
-        IZBugEngine issuezilla = new IZBugEngine();
-        BZBugEngine bugzilla = new BZBugEngine();
-        // Later, allow these puppies to be registered via Lookup
-        engines = new BugEngine[] { issuezilla, bugzilla };
     }
 
     private static BugList tasklist = null;
@@ -61,19 +53,14 @@ public class BugList extends TaskList { // XXX remove the publicness
     }
 
     
-
-    
     /** Write todo items out to disk */
     public void save() {
     }
 
     public void refresh() {
         if (mQuery != null) {
-            for (int i = 0; i < engines.length; i++) {
-                if (engines[i].getName().equals("NetBeans " + mQuery.getBugEngine())) {
-                    engines[i].refresh(mQuery, this);
-                }
-            }
+            BugEngine engine = BugEngines.get(mQuery.getBugEngine());
+            engine.refresh(mQuery, this);
         }
     }
 
@@ -96,14 +83,4 @@ public class BugList extends TaskList { // XXX remove the publicness
 	    engine.viewBug(bug, mQuery.getBaseUrl());
     }
 
-    BugEngine getDefaultEngine() {
-        if (mQuery != null) {
-            for (int i = 0; i < engines.length; i++) {
-                if (engines[i].getName().equals("NetBeans " + mQuery.getBugEngine())) {
-                    return engines[i];
-                }
-            }
-        }
-        return null;
-    }
 }

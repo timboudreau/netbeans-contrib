@@ -104,7 +104,7 @@ public class NewQueryAction extends NodeAction {
             String bugEngine = panel.getBugEngine();
             String queryString = panel.getQueryString();
             query = panel.getQuery();
-            System.out.println("bugEngine = " + bugEngine + " queryString = \n" + queryString);
+            System.out.println("bugEngine = " + bugEngine + "\nqueryString = " + queryString);
 
             TaskListView tv = new BugsView(query);
             tv.showInMode();

@@ -224,13 +224,12 @@ public final class Issuezilla extends java.lang.Object {
                 synchronized ( this ) {
                     try {
                         StatusDisplayer.getDefault().setStatusText(
-                                   MessageFormat.format(
-                                    NbBundle.getMessage(Issuezilla.class, 
-					     "CantConnect"), // NOI18N
-				    new String[] { 
-                                       new Date().toString(),
-                                       urlBase.getHost()
-                                   }));
+                            NbBundle.getMessage(
+                                Issuezilla.class, "CantConnect", // NOI18N
+                                new Date().toString(),
+                                urlBase.getHost()
+                            )
+                        );
                         rotateProxy();
                         this.wait( 5000 );
                     }
