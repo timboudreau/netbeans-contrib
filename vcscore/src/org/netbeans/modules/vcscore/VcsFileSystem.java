@@ -2160,7 +2160,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return the file
      */
     public File getFile (String name) {
-        return new File (rootFile, name);
+        File file = new File (rootFile, name);
+        String path = file.getAbsolutePath();
+        boolean repaired = false;
+        if (path.endsWith(File.separator + ".")) {
+            path = path.substring(0, path.length() - 2);
+            repaired = true;
+        }
+        if (path.endsWith(File.separator)) {
+            path = path.substring(0, path.length() - 1);
+            repaired = true;
+        }
+        if (repaired) {
+            return new File(path);
+        } else {
+            return file;
+        }
     }
 
     //-------------------------------------------
@@ -3058,7 +3073,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public VcsCommand getCommand(String name){
         if (commandsByName == null) {
-            setCommands (getCommands());
+            Node commands = getCommands();
+            if (commands == null) return null;
+            setCommands (commands);
         }
         return (VcsCommand) commandsByName.get(name);
     }
