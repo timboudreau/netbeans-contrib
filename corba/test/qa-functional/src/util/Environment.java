@@ -95,12 +95,20 @@ public class Environment {
         public void load () {
             super.load ();
             NbProcessDescriptor pd = css.getActiveSetting().getIdl();
+            String prog = System.getProperty ("java.home", null);
+            if (prog != null) {
+                if (winOS)
+                    prog += "/bin/java.exe";
+                else
+                    prog += "/bin/java";
+            } else
+                prog = pd.getProcessName();
             String args = pd.getArguments();
             int i = args.indexOf("{classpath}");
             if (i >= 0) {
                 args = args.substring(0, i) + "{filesystems}" + args.substring(i + 11);
 //                css.getActiveSetting().setIdl(new NbProcessDescriptor(System.getProperty ("java.home") + ((winOS) ? "/bin/java.exe" : "/bin/java"), args, pd.getInfo()));
-                css.getActiveSetting().setIdl(new NbProcessDescriptor(pd.getProcessName(), args, pd.getInfo()));
+                css.getActiveSetting().setIdl(new NbProcessDescriptor(prog, args, pd.getInfo()));
             }
         }
         
