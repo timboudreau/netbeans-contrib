@@ -13,8 +13,10 @@
 
 package org.netbeans.modules.vcs.advanced.wizard.mount;
 
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -33,6 +35,7 @@ import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
+import org.netbeans.modules.vcs.advanced.VcsCustomizer;
 import org.netbeans.modules.vcs.advanced.recognizer.CommandLineVcsFileSystemInfo;
 
 /**
@@ -40,21 +43,21 @@ import org.netbeans.modules.vcs.advanced.recognizer.CommandLineVcsFileSystemInfo
  *
  * @author  Martin Entlicher
  */
-public class MountWizardIterator extends Object implements TemplateWizard.Iterator {
+public class MountWizardIterator extends Object implements TemplateWizard.Iterator, PropertyChangeListener {
 
     private static MountWizardIterator instance;
     
-    private WizardDescriptor.Panel[] panels;
-    String[] names;
+    //private WizardDescriptor.Panel[] panels;
+    private MyArrayList panels;
+   // String[] names;
+    MyArrayList names;
     private javax.swing.event.EventListenerList listenerList;
-    private int currentIndex;
-    //private int relativeIndex_;
-    private MountWizardData data;
+    private int currentIndex;    
+    private MountWizardData data;    
+    private TemplateWizard templateWizard;
     
     private static final long serialVersionUID = 6804299241178632175L;
     
-    //private TemplateWizard 
-
     /** Creates new MountWizardIterator */
     public MountWizardIterator() {
     }
@@ -70,22 +73,14 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     }
     
     public boolean hasNext() {
-        return currentIndex < panels.length - 1;
+        return currentIndex < panels.size() - 1;
     }
     
     public void initialize(org.openide.loaders.TemplateWizard templateWizard) {
         if (panels == null) {
-            Object instance = new org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem();/*null;
-            try {
-                instance = ((InstanceCookie) templateWizard.getTemplate().getCookie(InstanceCookie.class)).instanceCreate();
-            } catch (java.io.IOException ioExc) {
-                org.openide.TopManager.getDefault().notifyException(ioExc);
-            } catch (ClassNotFoundException cnfExc) {
-                org.openide.TopManager.getDefault().notifyException(cnfExc);
-            }
-            if (instance == null) return ;
-                                                              */
+            Object instance = new org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem();/*null;                                                              */
             data = new MountWizardData(instance);
+            data.addProfileChangeListener(this);
             setupPanels(templateWizard);
             listenerList = new javax.swing.event.EventListenerList();
         }
@@ -130,7 +125,7 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     }
     
     public String name() {
-        return names[currentIndex];
+        return (String)names.get(currentIndex);
     }
     
     public void nextPanel() {
@@ -147,31 +142,55 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     }
     
     public org.openide.WizardDescriptor.Panel current() {
-        return this.panels[this.currentIndex];
+        return (WizardDescriptor.Panel)panels.get(this.currentIndex);
     }
     
-    private void setupPanels(TemplateWizard templateWizard) {
-        this.panels = new WizardDescriptor.Panel[] {
-            //templateWizard.targetChooser(),
-            new ProfilePanel(0)
-        };
+    private void setupPanels(TemplateWizard templateWizard) { 
+        this.templateWizard = templateWizard;
+        this.panels = new MyArrayList();
+        this.names = new MyArrayList();
+        this.panels.add(new ProfilePanel(0));
         java.awt.Component panel = templateWizard.templateChooser().getComponent();
-        this.names = new String[] {
-            panel.getName(),
-            NbBundle.getMessage(MountWizardIterator.class, "CTL_ProfilePanel"),
-        };
-        //System.out.println("target chooser panel = "+panel);
-        //System.out.println(" panel is JComponent = "+(panel instanceof javax.swing.JComponent));
-        templateWizard.putProperty ("WizardPanel_contentData", names);
-        templateWizard.putProperty ("WizardPanel_contentSelectedIndex", new Integer (1)); // NOI18N
+        this.names.add(panel.getName());
+        this.names.add(NbBundle.getMessage(MountWizardIterator.class, "CTL_ProfilePanel"));
+        
+        templateWizard.putProperty("WizardPanel_contentData", names);
+        templateWizard.putProperty("WizardPanel_contentSelectedIndex", new Integer(1)); // NOI18N
         this.currentIndex = 0;// = this.relativeIndex_ = 0;
     }
     
-    /*
-    private void setContentData () {
-        ((javax.swing.JPanel)this.panels[this.currentIndex]).putClientProperty (
-            "WizardPanel_contentSelectedIndex", new Integer(this.currentIndex));
+    public void propertyChange(java.beans.PropertyChangeEvent evt) {        
+        VcsCustomizer customizer = data.getCustomizer();
+        if(panels.size() > 1){            
+            panels.myRemoveRange(1, panels.size());
+            names.myRemoveRange(2, names.size());            
+        }
+        int num = customizer.getNumConfigPanels();        
+        for(int i = 1; i < num; i++){
+            ProfilePanel panel = new ProfilePanel(i);
+            panels.add(panel);
+            names.add(customizer.getConfigPanelName(i));
+        }
+        setContentData();
     }
-     */
+    
+    private void setContentData () {
+        String[] namesAr = (String[])names.toArray(new String[0]);
+        //javax.swing.JPanel panel = (javax.swing.JPanel) this.panels.get(this.currentIndex);
+        templateWizard.putProperty("WizardPanel_contentData", namesAr);
+        //templateWizard.putProperty("WizardPanel_contentSelectedIndex", new Integer(1)); // NOI18N
+        //panel.putClientProperty (CvsWizardData.SELECTED_INDEX, new Integer(this.relativeIndex_));
+        //panel.putClientProperty (data.CONTENT_DATA, names);        
+    }
+    
+    public class MyArrayList extends ArrayList{
+        MyArrayList(){
+            super();
+        }
+        void myRemoveRange(int fromIndex,int toIndex){
+            super.removeRange(fromIndex,toIndex);
+        }
+    }
+     
     
 }

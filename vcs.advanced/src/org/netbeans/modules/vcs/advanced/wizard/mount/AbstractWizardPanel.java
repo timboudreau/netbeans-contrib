@@ -19,7 +19,7 @@ import org.openide.loaders.TemplateWizard;
  *
  * @author  Tomas Zezula
  */
-public abstract class AbstractWizardPanel implements org.openide.WizardDescriptor.FinishPanel {
+public abstract class AbstractWizardPanel implements org.openide.WizardDescriptor.FinishablePanel {
 
     private java.util.ArrayList listeners_;
     
@@ -41,7 +41,9 @@ public abstract class AbstractWizardPanel implements org.openide.WizardDescripto
         MountWizardIterator wizIter;
         wizIter = (MountWizardIterator) wizard.getIterator(wizard.getTemplate());
         MountWizardData mountData = wizIter.getData();
-        wizard.putProperty ("WizardPanel_contentData", wizIter.names);
+        String[] namesAr = (String[])wizIter.names.toArray(new String[0]);
+        //wizard.putProperty ("WizardPanel_contentData", wizIter.names);
+        wizard.putProperty ("WizardPanel_contentData", namesAr);
         readWizardSettings (mountData);
     }
     
@@ -67,4 +69,6 @@ public abstract class AbstractWizardPanel implements org.openide.WizardDescripto
             ((javax.swing.event.ChangeListener)iterator.next()).stateChanged (event);
         }
     }
+ 
+    
 }

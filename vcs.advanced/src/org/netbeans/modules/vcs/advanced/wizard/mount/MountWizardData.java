@@ -73,6 +73,10 @@ public class MountWizardData {
         return customizer.isNoneProfileSelected();
     }
     
+    VcsCustomizer getCustomizer(){
+        return customizer;
+    }
+    
     void addProfileChangeListener(java.beans.PropertyChangeListener l) {
         customizer.addPropertyChangeListener(VcsCustomizer.PROP_PROFILE_SELECTION_CHANGED, l);
     }

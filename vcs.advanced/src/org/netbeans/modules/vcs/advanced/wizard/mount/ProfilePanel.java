@@ -64,6 +64,7 @@ public class ProfilePanel extends AbstractWizardPanel {
         return index > 0 || !data.isNoneProfileSelected();
     }
     
+    
     /** Get the component displayed in this panel.
      *
      * Note; method can be called from any thread, but not concurrently
@@ -80,6 +81,11 @@ public class ProfilePanel extends AbstractWizardPanel {
         if(panelUI == null)
             panelUI = new ProfilePanelUI(index, data);
         return panelUI;
+    }
+    
+    public boolean isFinishPanel() {
+        //todo add logic
+        return false;
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
