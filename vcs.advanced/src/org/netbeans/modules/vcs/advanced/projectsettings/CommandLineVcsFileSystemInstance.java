@@ -64,6 +64,7 @@ import org.netbeans.modules.vcs.advanced.commands.ConditionedCommands;
 import org.netbeans.modules.vcs.advanced.commands.UserCommandIO;
 import org.netbeans.modules.vcs.advanced.variables.Condition;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
+import org.netbeans.modules.vcs.advanced.variables.ConditionedVariablesUpdater;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcscore.Variables;
 
@@ -455,7 +456,14 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         String configFile = fs.getConfigFileName();
         Profile profile = ProfilesFactory.getDefault().getProfile(configFile);
         fs.setProfile(profile);
-        fs.setVariables(mergeInVars(fs.getVariables(), customizedVariables));
+        if (profile != null) {
+            ConditionedVariables cVars = profile.getVariables();
+            ConditionedVariablesUpdater updater = new ConditionedVariablesUpdater(cVars, fs.getVariablesAsHashtable());
+            fs.setVariables(mergeInVars(fs.getVariables(), customizedVariables));
+            fs.setVariables(updater.updateConditionalValues(cVars, fs.getVariablesAsHashtable(), null, fs.getVariables()));
+        } else {
+            fs.setVariables(mergeInVars(fs.getVariables(), customizedVariables));
+        }
     }
     
     private static Vector mergeInVars(Vector vars, Collection customizedVariables) {

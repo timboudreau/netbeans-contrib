@@ -52,6 +52,7 @@ import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder;
 import org.netbeans.modules.vcs.advanced.commands.UserCommandIO;
 import org.netbeans.modules.vcs.advanced.variables.Condition;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
+import org.netbeans.modules.vcs.advanced.variables.ConditionedVariablesUpdater;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
 import org.openide.explorer.ExplorerManager;
@@ -112,6 +113,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     private String noProfileSelectedLabel;
     
     private boolean useWizardDescriptors;
+    
+    private transient ConditionedVariablesUpdater cVarsUpdater;
     
     //private static transient FileLock configSaveLock = FileLock.NONE;
 
@@ -1989,9 +1992,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         }
     }
     
-    /** A map of variable names as keys and their last values as values. */
-    private Map lastConditionValues = new HashMap();
-    
     /**
      * Initialize the last conditioned values. This is necessary so that
      * {@link #updateConditionalValues()} does not reset variables that
@@ -2001,26 +2001,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         Profile profile = fileSystem.getProfile();
         if (profile == null) return ;
         ConditionedVariables cVars = profile.getVariables();
-        Map conditionsByVariables = cVars.getConditionsByVariables();
-        Map varsByConditions = cVars.getVariablesByConditions();
-        if (conditionsByVariables.size() == 0) return ;
-        Hashtable vars = fileSystem.getVariablesAsHashtable();
-        for(Iterator it = conditionsByVariables.keySet().iterator(); it.hasNext(); ) {
-            String name = (String) it.next();
-            Condition[] conditions = (Condition[]) conditionsByVariables.get(name);
-            for (int i = 0; i < conditions.length; i++) {
-                if (conditions[i].isSatisfied(vars)) {
-                    VcsConfigVariable var = (VcsConfigVariable) varsByConditions.get(conditions[i]);
-                    if (var != null) {
-                        String value = (String) lastConditionValues.get(name);
-                        if (!var.getValue().equals(value)) {
-                            value = var.getValue();
-                            lastConditionValues.put(name, value);
-                        }
-                    }
-                }
-            }
-        }
+        cVarsUpdater = new ConditionedVariablesUpdater(cVars, fileSystem.getVariablesAsHashtable());
     }
     
     /**
@@ -2034,44 +2015,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         Profile profile = fileSystem.getProfile();
         if (profile == null) return ;
         ConditionedVariables cVars = profile.getVariables();
-        Map conditionsByVariables = cVars.getConditionsByVariables();
-        Map varsByConditions = cVars.getVariablesByConditions();
-        if (conditionsByVariables.size() == 0) return ;
-        Hashtable vars = fileSystem.getVariablesAsHashtable();
-        Map newVars = new HashMap();
-        Set removedVars = new HashSet();
-        for(Iterator it = conditionsByVariables.keySet().iterator(); it.hasNext(); ) {
-            String name = (String) it.next();
-            Condition[] conditions = (Condition[]) conditionsByVariables.get(name);
-            for (int i = 0; i < conditions.length; i++) {
-                //System.out.println(" Condition: "+Condition.printCondition(conditions[i])+"; VAR = "+varsByConditions.get(conditions[i]));
-                //System.out.println("  Conditioned var '"+conditions[i].getName()+"' "+(conditions[i].isSatisfied(vars) ? "is" : "is not")+" satisfied");
-                if (conditions[i].isSatisfied(vars)) {
-                    VcsConfigVariable var = (VcsConfigVariable) varsByConditions.get(conditions[i]);
-                    //System.out.println("  Conditioned var '"+conditions[i].getName()+"' = "+(var == null ? "''" : "'"+var.getValue()+"'"));
-                    if (var != null) {
-                        String value = (String) lastConditionValues.get(name);
-                        if (!var.getValue().equals(value)) {
-                            newVars.put(name, var.clone());
-                            value = var.getValue();
-                            lastConditionValues.put(name, value);
-                        }
-                    } else removedVars.add(name);
-                }
-            }
-        }
-        Vector variables = fileSystem.getVariables();
-        for (int i = 0; i < variables.size(); i++) {
-            VcsConfigVariable var = (VcsConfigVariable) variables.get(i);
-            String name = var.getName();
-            VcsConfigVariable newVar = (VcsConfigVariable) newVars.get(name);
-            if (newVar != null) {
-                variables.set(i, newVar);
-                if (fsVarsByName != null) fsVarsByName.put(name, newVar);
-            } else if (removedVars.contains(name)) {
-                variables.remove(i);
-            }
-        }
+        Vector variables = cVarsUpdater.updateConditionalValues(cVars, fileSystem.getVariablesAsHashtable(),
+                                                                fsVarsByName, fileSystem.getVariables());
         fileSystem.setVariables(variables);
         updateFinishableState(fileSystem.getVariablesAsHashtable());
     }
