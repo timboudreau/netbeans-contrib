@@ -25,6 +25,7 @@ import org.openide.util.HelpCtx;
 import org.openide.filesystems.*;
 import org.openide.nodes.*;
 import org.openide.loaders.*;
+import org.openide.cookies.SaveCookie;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.Table;
@@ -217,6 +218,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                                                  CommandDataOutputListener stdoutDataListener, CommandDataOutputListener stderrDataListener) {
         //System.out.println("doCommand("+files+", "+cmd+")");
         if (files.size() == 0) return new VcsCommandExecutor[0];
+        assureFilesSaved(files.values());
         ArrayList executors = new ArrayList();
         boolean[] askForEachFile = null;
         String quoting = fileSystem.getQuoting();
@@ -277,6 +279,29 @@ public class VcsAction extends NodeAction implements ActionListener {
      */
     private void doCommand(Table files, VcsCommand cmd) {
         VcsAction.doCommand(files, cmd, null, fileSystem);
+    }
+    
+    /** Make sure, that the files are saved. If not, save them.
+     * @param fos the collection of FileObjects
+     */
+    private static void assureFilesSaved(Collection fos) {
+        for (Iterator it = fos.iterator(); it.hasNext(); ) {
+            FileObject fo = (FileObject) it.next();
+            DataObject dobj = null;
+            try {
+                dobj = DataObject.find(fo);
+            } catch (DataObjectNotFoundException exc) {
+                // ignored
+            }
+            if (dobj != null || dobj.isModified()) {
+                Node.Cookie cake = dobj.getCookie(SaveCookie.class);
+                try {
+                    if (cake != null) ((SaveCookie) cake).save();
+                } catch (java.io.IOException exc) {
+                    TopManager.getDefault().notifyException(exc);
+                }
+            }
+        }
     }
 
     /**
