@@ -595,7 +595,9 @@ public abstract class GenericStub extends JellyTestCase {
         }
     }
     
-    protected void dumpDiffGraphical (TopComponentOperator tco) {
+//    protected void
+    
+    protected void dumpDiffGraphicalGraphical (TopComponentOperator tco) {
         new JComboBoxOperator (tco).selectItem("Graphical Diff Viewer");
         JEditorPaneOperator p1 = new JEditorPaneOperator (tco, 0);
         JEditorPaneOperator p2 = new JEditorPaneOperator (tco, 1);

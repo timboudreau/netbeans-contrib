@@ -100,6 +100,7 @@ public class AdditionalCommands extends PVCSStub {
         another.mkdirs ();
         root.pvcsNode ().pVCSRefresh ();
         history.waitCommand ("Refresh", root.history ());
+        test.pvcsNode ();
         test.waitStatus ("Local");
         createProject (test);
         test.pvcsNode ().pVCSRefresh ();
@@ -312,7 +313,7 @@ public class AdditionalCommands extends PVCSStub {
         TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + A_File.filename (0));
         try {
             out.println ("!!!! ==== Graphical comparing revisions: 1.1 and 1.2 ==== !!!!");
-            dumpDiffGraphical (tco);
+            dumpDiffGraphicalGraphical (tco);
             out.println ("!!!! ==== Textual comparing revisions: 1.1 and 1.2 ==== !!!!");
             dumpDiffGraphicalTextual(tco);
         } finally {
@@ -339,7 +340,7 @@ public class AdditionalCommands extends PVCSStub {
         TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + A_File.filename (0));
         try {
             out.println ("!!!! ==== Graphical comparing labels: Revision 1 and Revision 2 ==== !!!!");
-            dumpDiffGraphical (tco);
+            dumpDiffGraphicalGraphical (tco);
             out.println ("!!!! ==== Textual comparing labels: Revision 1 and Revision 2 ==== !!!!");
             dumpDiffGraphicalTextual(tco);
         } finally {

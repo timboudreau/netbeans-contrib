@@ -263,7 +263,7 @@ public class JellyAddCommands extends CVSStub {
         TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.1 and 1.2 ==== !!!!");
-            dumpDiffGraphical (tco);
+            dumpDiffGraphicalGraphical (tco);
         } finally {
             tco.close();
             waitIsShowing(tco.getSource());
@@ -281,7 +281,7 @@ public class JellyAddCommands extends CVSStub {
         tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.2 and 1.3 ==== !!!!");
-            dumpDiffGraphical (tco);
+            dumpDiffGraphicalGraphical (tco);
         } finally {
             tco.close();
             waitIsShowing(tco.getSource());

@@ -218,7 +218,7 @@ public class StubAllTogether extends PVCSStub {
         TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + A_File.filename (0));
         try {
             out.println ("!!!! ==== Comparing revisions: HEAD and Local ==== !!!!");
-            dumpDiffGraphical (tco);
+            dumpDiffGraphicalGraphical (tco);
             compareReferenceFiles();
         } finally {
             tco.close();
@@ -407,7 +407,7 @@ public class StubAllTogether extends PVCSStub {
         TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + A_File.filename (0));
         try {
             out.println ("!!!! ==== Comparing revisions: 1.0 and Local ==== !!!!");
-            dumpDiffGraphical (tco);
+            dumpDiffGraphicalGraphical (tco);
             compareReferenceFiles();
         } finally {
             tco.close();
