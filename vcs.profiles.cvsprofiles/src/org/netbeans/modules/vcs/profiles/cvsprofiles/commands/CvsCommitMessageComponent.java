@@ -127,7 +127,21 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
         }
         return null;
     }
-    
+
+    // #54683 put focus directly into text area
+    public void requestFocus() {
+        textArea.requestFocus();
+    }
+
+    public boolean requestFocus(boolean temporary) {
+        return textArea.requestFocus(temporary);
+    }
+
+    public boolean requestFocusInWindow() {
+        return textArea.requestFocusInWindow();
+    }
+
+
     /**
      * Save the cleaned content of the text area into a temp file.
      * @return the file full path.
@@ -183,13 +197,13 @@ public class CvsCommitMessageComponent extends JPanel implements NestableInputCo
     private static String cleanupContent(String template) {
         BufferedReader r = new BufferedReader(new StringReader(template));
         try {
-            StringWriter w = new StringWriter(template.length());
+            PrintWriter w = new PrintWriter(new StringWriter(template.length()));
             while (true) {
                 try {
                     String line = r.readLine();
                     if (line == null) break;
                     if (line.startsWith("CVS:")) continue;   // NOI18N
-                    w.write(line);
+                    w.println(line);
                 } catch (IOException e) {
                     ErrorManager err = ErrorManager.getDefault();
                     err.notify(e);
