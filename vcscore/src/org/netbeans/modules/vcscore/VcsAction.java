@@ -124,9 +124,9 @@ public class VcsAction extends NodeAction implements ActionListener {
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         FileCacheProvider cache = fileSystem.getCacheProvider();
         if (statusProvider == null) return;
+        //System.out.println("cache = "+cache+", cache.isDir("+path+") = "+cache.isDir(path));
         if (cache == null || cache.isDir(path)) {
             statusProvider.refreshDir(path);
-            return ;
         } else {
             String dirName = VcsUtilities.getDirNamePart(path);
             statusProvider.refreshDir(dirName);
