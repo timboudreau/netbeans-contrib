@@ -29,7 +29,7 @@ final class MethodElementImpl extends ConstructorElementImpl
     * java reflection Method element.
     */
     public MethodElementImpl(final org.netbeans.modules.classfile.Method data) {
-        super(data, null);
+        super(data);
     }
 
     /** @return returns teh Type representing return type of this method.

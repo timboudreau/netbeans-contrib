@@ -97,11 +97,28 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     }
     
     protected Identifier createName(Object data) {
-        String fullName = ((ClassFile)data).getName().getExternalName();
-	int lastDot = fullName.lastIndexOf('.');
-	return lastDot == -1 ? 
-	    Identifier.create(fullName) :
-	    Identifier.create(fullName, fullName.substring(lastDot + 1));
+        String simpleName;
+        String outerName;
+        int len;
+        
+        if (innerclass!=null) {
+            simpleName=innerclass.getSimpleName();
+            outerName=((ClassElement)element).getDeclaringClass().getName().getFullName();
+            len=outerName.length();
+        } else {
+            ClassName cname=((ClassFile)data).getName();
+            String iname=cname.getInternalName();
+            
+            outerName=cname.getPackage();
+            len=outerName.length();
+            if (len==0)
+                simpleName=iname;
+            else
+                simpleName=iname.substring(len+1);
+        }
+	return len==0 ? 
+	    Identifier.create(simpleName) :
+	    Identifier.create(outerName+"."+simpleName, simpleName);
     }
 
     /** Not supported. Throws Source Exception */
@@ -391,7 +408,7 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
         Map result = new HashMap(reflCons.length);
         for (int i = 0; i < reflCons.length; i++) {
             if( isConstructor(reflCons[i]) ){
-                curCE = new ConstructorElement(new ConstructorElementImpl(reflCons[i], data),
+                curCE = new ConstructorElement(new ConstructorElementImpl(reflCons[i]),
                                                (ClassElement)element);
                 result.put(new ConstructorElement.Key(curCE), curCE);
             }

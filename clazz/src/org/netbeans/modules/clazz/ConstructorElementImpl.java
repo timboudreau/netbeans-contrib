@@ -30,16 +30,13 @@ class ConstructorElementImpl extends MemberElementImpl
     private Identifier[] exceptions;
     /** One JavaDoc empty implementation for all objects */
     private static final ClassJavaDocImpl.Method METHOD_JAVADOC_IMPL = new ClassJavaDocImpl.Method();
-
-    private Object declaringClass;
     
     static final long serialVersionUID =5714347955571851240L;
     /** Default constructor, asocitates this object
     * with java reflection Constructor instance.
     */
-    public ConstructorElementImpl (final org.netbeans.modules.classfile.Method data, Object declaringClass ) {
+    public ConstructorElementImpl (final org.netbeans.modules.classfile.Method data) {
         super(data);
-        this.declaringClass = declaringClass;
     }
 
     /** @return the array specifying the parameters
@@ -54,13 +51,9 @@ class ConstructorElementImpl extends MemberElementImpl
     protected Identifier createName(Object data) {
 	if (this instanceof MethodElementImpl) {
 	    return super.createName(data);
-	}    
-        //if( 
-	String n = ((org.netbeans.modules.classfile.ClassFile)declaringClass).getName().getSimpleName();//(org.netbeans.modules.classfile.Field)data).getClass().getName();
-	int lastDot = n.lastIndexOf('.'); // NOI18N
-	return lastDot == -1 ? 
-	    Identifier.create(n) :
-	    Identifier.create(n.substring(lastDot + 1));
+	}
+	String n = ((ConstructorElement)element).getDeclaringClass().getName().getSourceName();
+	return Identifier.create(n);
     }
 
     /** Unsupported, throws SourceException
