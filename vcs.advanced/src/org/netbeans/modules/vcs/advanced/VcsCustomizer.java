@@ -2041,6 +2041,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 vars.add(new VcsConfigVariable(varName, null, newValue, false, false, false, null));
             }
             fileSystem.setVariables(vars);
+            updateConditionalValues();
             return ;
         }
         var = (VcsConfigVariable) fsVarsByName.get(varName);
@@ -2177,8 +2178,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 }
                 for (Iterator it = variables.iterator(); it.hasNext(); ) {
                     VcsConfigVariable var = (VcsConfigVariable) it.next();
-                    String value = (String) vars.get(var.getName());
-                    if (value != null) var.setValue(value);
+                    String name = var.getName();
+                    String value = (String) vars.get(name);
+                    if (value != null && !value.equals(varsOrig.get(name))) {
+                        String oldValue = var.getValue();
+                        if (oldValue != null) {
+                            if (oldValue.indexOf("${") >= 0 || oldValue.indexOf("$[?") >= 0) {
+                                continue; // Skip expandable values, they must not be reset
+                            }
+                        }
+                        var.setValue(value);
+                    }
                 }
                 /*
                 if (varsOrig != null) {
@@ -2197,6 +2207,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             fileSystem.setVariables(variables);
             lastCommandName = null;
             autoFillTask = null;
+            updateConditionalValues();
         }
     }
     
@@ -2224,6 +2235,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             String name = (String) it.next();
             Condition[] conditions = (Condition[]) conditionsByVariables.get(name);
             for (int i = 0; i < conditions.length; i++) {
+                //System.out.println(" Condition: "+Condition.printCondition(conditions[i])+"; VAR = "+varsByConditions.get(conditions[i]));
                 //System.out.println("  Conditioned var '"+conditions[i].getName()+"' "+(conditions[i].isSatisfied(vars) ? "is" : "is not")+" satisfied");
                 if (conditions[i].isSatisfied(vars)) {
                     VcsConfigVariable var = (VcsConfigVariable) varsByConditions.get(conditions[i]);
@@ -2231,7 +2243,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                     if (var != null) {
                         String value = (String) lastConditionValues.get(name);
                         if (!var.getValue().equals(value)) {
-                            newVars.put(name, var);
+                            newVars.put(name, var.clone());
                             value = var.getValue();
                             lastConditionValues.put(name, value);
                         }
@@ -2246,7 +2258,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             VcsConfigVariable newVar = (VcsConfigVariable) newVars.get(name);
             if (newVar != null) {
                 variables.set(i, newVar);
-                fsVarsByName.put(name, newVar);
+                if (fsVarsByName != null) fsVarsByName.put(name, newVar);
             } else if (removedVars.contains(name)) {
                 variables.remove(i);
             }
