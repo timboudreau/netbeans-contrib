@@ -1,14 +1,20 @@
 package org.netbeans.modules.tasklist.usertasks;
 
+import java.awt.Component;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
+import javax.swing.JTable;
 
 import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
@@ -33,6 +39,7 @@ import org.netbeans.modules.tasklist.usertasks.treetable.NodesTreeTable;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
 import org.netbeans.modules.tasklist.usertasks.treetable.BooleanTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.treetable.SortingHeaderRenderer;
 
 /**
  * TT for user tasks
@@ -161,8 +168,13 @@ public class UserTasksTreeTable extends NodesTreeTable {
         
         tcm.getColumn(1).setCellRenderer(
             new PriorityTableCellRenderer());
+        SortingHeaderRenderer r = new SortingHeaderRenderer();
+        r.setIcon(new ImageIcon(
+            UserTasksTreeTable.class.getResource("checkbox.gif"))); // NOI18N
+        tcm.getColumn(2).setHeaderRenderer(r);
         tcm.getColumn(2).setCellRenderer(
             new BooleanTableCellRenderer());
+        tcm.getColumn(2).setMinWidth(17);
         tcm.getColumn(3).setCellRenderer(
             new PercentsTableCellRenderer());
         DurationTableCellRenderer dr = new DurationTableCellRenderer();

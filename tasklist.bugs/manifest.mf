@@ -9,3 +9,6 @@ OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/2 = @tl.c
   org.netbeans.tasklistapi/1 = @tl.api.impl@
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/bugs/mf-layer.xml
 OpenIDE-Module-Public-Packages: -
+
+Name: org/netbeans/modules/tasklist/bugs/issues/IssuesLoader.class
+OpenIDE-Module-Class: Loader
