@@ -286,12 +286,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
         final String finalName = name;
+        RuntimeCommand rCom = new VcsRuntimeCommand(vce, CommandsPool.this);
+        RuntimeSupport.addRunning(runtimeNode, rCom);
         RequestProcessor.postRequest(new Runnable() {
             public void run() {
                 TopManager.getDefault().setStatusText(g("MSG_Command_name_running", finalName));
                 fileSystem.debug(g("MSG_Command_started", finalName, vce.getExec()));
-                RuntimeCommand rCom = new VcsRuntimeCommand(vce, CommandsPool.this);
-                RuntimeSupport.addRunning(runtimeNode, rCom);
             }
         });
         //System.out.println("command "+vce.getCommand()+" STARTED.");
