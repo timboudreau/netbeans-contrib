@@ -50,13 +50,39 @@ Microsystems, Inc. All Rights Reserved.
 	     compress="false"/>
     </target>
 
-    <target name="netbeans" depends="jars">
+    <target name="netbeans" depends="jars, simulate_module_autorecognition">
         <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/tasklist-copyright.jar">
             <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
                 <patternset refID="tasklist/copyright.files"/>
            </fileset>
         </genlist>
     </target>
+
+    <!--
+        NetBeans 4.0 is not able to generate this information in runtime anymore.
+        Missing information confuses system (and users).
+        It's done for standard distribution on centralized place in nbbuild/build.xml.
+    -->
+    <target name="simulate_module_autorecognition">
+
+        <echo message="Simulating module autorecognition in ${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules ..."/>
+
+        <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="../../nbbuild/nbantext.jar"/>
+
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules"/>
+        <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
+          <!--enabled dir="${netbeans.dest.dir}/${one.cluster.dir}">
+            <include name="${nb.modules.dir}/*.jar"/>
+          </enabled>
+          <autoload dir="${netbeans.dest.dir}/${one.cluster.dir}">
+            <include name="${nb.modules/autoload.dir}/*.jar"/>
+          </autoload-->
+          <eager dir="${netbeans.dest.dir}/${cluster.dir}">
+            <include name="${nb.modules.dir}/tasklist-copyright.jar"/>
+          </eager>
+        </createmodulexml>
+    </target>
+
 
     <target name="nbm" depends="netbeans">
         <makenbm distribution="http://${dist.base}/tasklist-copyright.nbm" file="tasklist-copyright.nbm" 

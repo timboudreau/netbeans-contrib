@@ -160,9 +160,7 @@ public class SuggestionNode extends TaskNode {
     /** Creates properties.
      */
     protected Sheet createSheet() {
-        Sheet s = Sheet.createDefault();
-        if (item.getParent() == null)
-            return s;
+        Sheet s = Sheet.createDefault();        
         Set ss = s.get(Sheet.PROPERTIES);
         
         try {
