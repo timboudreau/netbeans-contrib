@@ -196,11 +196,23 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
     }
     
+    private void setAdditionalParamsLabels() {
+        VcsConfigVariable userParams = (VcsConfigVariable) variablesByName.get("USER_GLOBAL_PARAM_LABELS");
+        if (userParams != null) {
+            setUserParamsLabels(MiscStuff.getQuotedStrings(userParams.getValue()));
+        }
+        userParams = (VcsConfigVariable) variablesByName.get("USER_LOCAL_PARAM_LABELS");
+        if (userParams != null) {
+            setUserLocalParamsLabels(MiscStuff.getQuotedStrings(userParams.getValue()));
+        }
+    }
+    
     public void setVariables(Vector variables){
         super.setVariables(variables);
         setPossibleFileStatusesFromVars();
         setLocalFileFilterFromVars();
         setDocumentCleanupFromVars();
+        setAdditionalParamsLabels();
     }
 
     public FilenameFilter getLocalFileFilter() {
