@@ -52,6 +52,13 @@ Contributor(s): Jan Lahoda
                 <file name="org-netbeans-modules-latex-editor-BlockFoldMaintainer$BlockFoldMaintainerFactory.instance"/>
                 <file name="org-netbeans-modules-latex-editor-SectionFoldMaintainer$SectionFoldMaintainerFactory.instance"/>
             </folder>
+            
+            <folder name="HyperlinkProviders">
+                <file name="LaTeXHyperlinkProvider.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.editor.LaTeXHyperlinkProvider"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProvider"/>
+                </file>
+            </folder>
           </folder>
       </folder>
    </folder>

@@ -87,6 +87,8 @@ public abstract class Utilities {
      */
     public abstract Document openDocument(Object obj) throws IOException;
     
+    public abstract void     openPosition(SourcePosition position);
+    
     public abstract Object[] getRelativeFileList(Object file, String relativePath) throws IOException;
     
     public abstract Object   getRelativeFileName(Object file, String relativeFile) throws IOException;

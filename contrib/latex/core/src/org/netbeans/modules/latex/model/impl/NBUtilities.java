@@ -21,14 +21,11 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JEditorPane;
 import javax.swing.text.Document;
-import javax.swing.text.TextAction;
 import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
@@ -37,13 +34,11 @@ import org.netbeans.modules.latex.model.structural.Model;
 import org.netbeans.modules.latex.model.structural.parser.MainStructuralElement;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
+import org.openide.cookies.LineCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.CloneableEditor;
+import org.openide.text.Line;
 import org.openide.windows.TopComponent;
 
 /**
@@ -278,6 +273,18 @@ public class NBUtilities extends Utilities implements PropertyChangeListener {
         FileObject fo = (FileObject) file;
         
         return fo.getNameExt();
+    }
+
+    public void openPosition(SourcePosition position) {
+        try {
+            DataObject od = DataObject.find((FileObject) position.getFile());
+            LineCookie lc = (LineCookie) od.getCookie(LineCookie.class);
+            Line line = lc.getLineSet().getCurrent(position.getLine());
+            
+            line.show(Line.SHOW_GOTO);
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+        }
     }
 
 }

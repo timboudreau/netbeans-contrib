@@ -177,70 +177,13 @@ public final class ActionsFactory {
         
         public GoToDeclarationAction() {
             super(GO_TO_DECLARATION_ACTION, SAVE_POSITION);
-            System.err.println("Go to declaration action constructor."); //NOI18N
-        }
-        
-        private void openPosition(SourcePosition position) throws IOException {
-            DataObject od = DataObject.find((FileObject) position.getFile());
-            LineCookie lc = (LineCookie) od.getCookie(LineCookie.class);
-            Line line = lc.getLineSet().getCurrent(position.getLine());
-            
-            line.show(Line.SHOW_GOTO);
         }
         
         public void actionPerformed(ActionEvent actionEvent, JTextComponent target) {
-            System.err.println("Go to declaration, actionPerformed."); //NOI18N
-            int         position = target.getCaret().getDot();
-            Document    doc      = target.getDocument();
-            Object      file     = org.netbeans.modules.latex.model.Utilities.getDefault().getFile(doc);
-            LaTeXSource source   = LaTeXSource.get(file);
-            LaTeXSource.Lock lock = null;
+            Node found = LaTeXGoToImpl.getDefault().getGoToNode(target.getDocument(), target.getCaretPosition(), true);
             
-            try {
-                lock = source.lock();
-                
-                Node        node     = source.findNode(doc, position);
-                
-                if (node instanceof ArgumentNode) {
-                    ArgumentNode anode = (ArgumentNode) node;
-                    CommandNode  cnode = anode.getCommand();
-                    SourcePosition targetPosition = null;
-                    
-                    if ("\\ref".equals(cnode.getCommand().getCommand())) {
-                        String       label  = cnode.getArgument(0).getText().toString();
-                        List         labels = org.netbeans.modules.latex.model.Utilities.getDefault().getLabels(source);
-                        
-                        for (Iterator i = labels.iterator(); i.hasNext(); ) {
-                            LabelInfo info = (LabelInfo) i.next();
-                            
-                            if (label.equals(info.getLabel()))
-                                targetPosition = info.getStartingPosition();
-                        }
-                    } else {
-                        if (cnode.getCommand().isInputLike()) {
-                            targetPosition = ((InputNode) cnode).getContent().getStartingPosition();
-                        }
-                    }
-                    
-                    if (targetPosition == null) {
-                        //Not found!!! Some dialog??/
-                        Toolkit.getDefaultToolkit().beep();
-                        System.err.println("Go to declaration failed for: " + cnode.getCommand().getCommand() + ", " + cnode.getText()); //NOI18N
-                    } else {
-                        openPosition(targetPosition);
-                    }
-                } else {
-                    Toolkit.getDefaultToolkit().beep();
-                }
-            } catch (IOException e) {
-                IllegalStateException exc = new IllegalStateException();
-                
-                ErrorManager.getDefault().annotate(exc, e);
-                
-                throw exc;
-            } finally {
-                if (lock != null)
-                    source.unlock(lock);
+            if (found == null) {
+                Toolkit.getDefaultToolkit().beep();
             }
         }
         
