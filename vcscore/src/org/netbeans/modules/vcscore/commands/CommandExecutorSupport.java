@@ -392,6 +392,8 @@ public class CommandExecutorSupport extends Object {
                     int index = currentFolder.lastIndexOf('/');
                     if (index > 0) {
                         parent = currentFolder.substring(0, index);
+                    } else {
+                        parent = "";
                     }
                 }
                 if (!refreshPaths.contains(parent)) {
