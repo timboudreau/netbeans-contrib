@@ -11,31 +11,24 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--
+ *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+>   *     Use is subject to license terms.
+>   *
+>   *     Copyright 2001 Sun Microsystems, Inc. Tous droits réservés.
+>   *     L'utilisation est régie par les termes de cette licence.
+>   *
+>   *
+> -->
 <html>
 <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="lastupdated" content="29aug2000">
-   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
-   <title>Generating Client-side Files</title>
-<!--       
- *        Copyright (C) 2000  Sun Microsystems, Inc
- *                    All rights reserved.
- *          Notice of copyright on this source code 
- *          product does not indicate publication. 
- * 
- * RESTRICTED RIGHTS LEGEND: Use, duplication, or disclosure by 
- * the U.S. Government is subject to restrictions as set forth 
- * in subparagraph (c)(1)(ii) of the Rights in Technical Data
- * and Computer Software Clause at DFARS 252.227-7013 (Oct. 1988) 
- * and FAR 52.227-19 (c) (June 1988).
- *
- *    Sun Microsystems, Inc., 901 San Antonio Road,
- *    Palo Alto, California 94303 U.S.A.
- *
--->
+<meta name="lastupdated" content="18apr2001">
+<title>Generating Client-side Files</title>
+<link rel="StyleSheet" href="../ide.css" type="text/css">
 </head>
-<body bgcolor="#FFFFFF">
+<body bgcolor="#ffffff">
+
 
 <h2>
 Generating Client-side Files</h2>
@@ -51,7 +44,7 @@ From the main window, choose Tools&nbsp;<img SRC="arrow.gif" height=13 width=6>
 CORBA Wizard to open the first page of the CORBA Wizard.</li>
 
 <li>
-On this page::</li>
+On this page:</li>
 
 <ol>
 <li>
@@ -82,7 +75,7 @@ box.</li>
 On the third page of the wizard, choose the settings that describe the
 implementation that your client will be working with.</li>
 
-<br>If you are writing a client for an existing server, you need to know
+If you are writing a client for an existing server, you need to know
 whih binding method the server uses and whether the server is tie-based
 or inheritance-based.
 <li>
@@ -104,10 +97,10 @@ Module's Interface Repository Browser.)</li>
 On the fifth page of the wizard, review the description of the actions
 the wizard will take, and click the Finish button to begin code generation.</li>
 
-<br>If you are generating a client for an existing server, the description
-will read, "The CORBA Wizard will now import IDL, generate Client."
+If you are generating a client for an existing server, the description
+reads, "The CORBA Wizard will now import IDL, generate Client."
 <li>
-The CORBA Module generates a local copy of the IDL you specified and a
+The CORBA module generates a local copy of the IDL you specified and a
 java source file named <tt>&lt;IDL_interface_name>Client</tt>. For example,
 if you specified <tt>hello.idl</tt>, the wizard will create a local copy
 of <tt>hello.idl</tt> and <tt>helloClient.java</tt>.</li>
@@ -131,7 +124,7 @@ a name for your client file and the package in which it should be generated.</li
 <li>
 Click the Finish button.</li>
 
-<br>The CORBA module creates a CORBA client source file, named <tt>&lt;Name_You_Input>.java</tt>.
+The CORBA module creates a CORBA client source file, named <tt>&lt;Name_You_Input>.java</tt>.
 <li>
 In addition to generating client program source code with the template,
 you need to copy the IDL on which your client is based to the client program's
