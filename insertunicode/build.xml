@@ -60,6 +60,7 @@ Microsystems, Inc. All Rights Reserved.
                  topdir="."
                  module="netbeans/modules/org-netbeans-modules-insertunicode.jar"
                  distribution="http://${dist.base}/org-netbeans-modules-insertunicode.nbm"
+                 homepage="http://contrib.netbeans.org/insertunicode/"
                  needsrestart="false">
             <license name="insertunicode-license.txt">
                 <text>For the module itself:</text>
