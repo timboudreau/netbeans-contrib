@@ -4,7 +4,7 @@ OpenIDE-Module-Layer: org/netbeans/modules/clazz/resources/mf-layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/clazz/Bundle.properties
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.17
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
-OpenIDE-Module-Specification-Version: 1.13
+OpenIDE-Module-Specification-Version: 1.14
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.classfile/1, org.openide.src > 1.0, org.openide.execution > 1.2, org.openide.io > 1.0, org.netbeans.api.java/1
 OpenIDE-Module: org.netbeans.modules.clazz/1
 
