@@ -25,7 +25,7 @@ Microsystems, Inc. All Rights Reserved.
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" value="${nb_root}/nbbuild/standard-nbm-license.txt"/>
   <property name="nbm_alias" value="nb_ide"/>
-  <property name="tomcat.filename" value="jakarta-tomcat-5.0.14"/>
+  <property name="tomcat.filename" value="jakarta-tomcat-5.0.16"/>
 
   <target name="init">
     <ant dir="${nb_root}/tomcatint/external" target="unscramble-tomcat5"/>
