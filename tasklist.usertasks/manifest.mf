@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 1.8
+OpenIDE-Module-Specification-Version: 1.9
 OpenIDE-Module: org.netbeans.modules.tasklist.usertasks/2
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/usertasks/Bundle.properties
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@

@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -20,6 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import javax.swing.JTable;
 import org.openide.text.Annotation;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.ColumnProperty;
@@ -33,6 +35,7 @@ import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskListener;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
+import org.netbeans.modules.tasklist.core.ObservableList;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.openide.actions.DeleteAction;
 import org.openide.actions.PasteAction;
@@ -136,7 +139,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public void readExternal(ObjectInput objectInput) throws IOException, java.lang.ClassNotFoundException {
         super.readExternal(objectInput);
 	int ver = objectInput.read();
-        //assert ver == 1 : "serialization version incorrect; should be 1";
 
         if (ver >= 2) {
             // Read tasklist file name
@@ -145,7 +147,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
                 URL url = new URL(urlString);
                 FileObject[] fos = URLMapper.findFileObjects(url);
                 if ((fos != null) && (fos.length > 0)) {
-                    showList(new UserTaskList(fos[0]));
+                    setModel(new UserTaskList(fos[0]));
                     // todo title = fos[0].getName();
                 }
                 // XXX I do extra work here. I read in the global task
@@ -451,8 +453,8 @@ public class UserTaskView extends TaskListView implements TaskListener {
         }
     }
 
-    protected void showList() {
-        super.showList();
+    protected void setModel(ObservableList list) {
+        super.setModel(list);
         UserTaskList utl = (UserTaskList) this.getList();
         utl.showAnnotations((UserTask)utl.getRoot());
     }
@@ -460,9 +462,16 @@ public class UserTaskView extends TaskListView implements TaskListener {
     protected void hideList() {
         super.hideList();
         UserTaskList utl = (UserTaskList) this.getModel();
-        utl.hideAnnotations((UserTask)utl.getRoot());
+        if (utl != null)
+            utl.hideAnnotations((UserTask)utl.getRoot());
     }
 
+    protected Component createCenterComponent() {
+        Component c = super.createCenterComponent();
+        treeTable.setTableAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        return c;
+    }
+    
     public String toString() { 
         return "UserTaskView(" + getName() + ", " + category + ", " + getModel() + ")"; // NOI18N
     }
