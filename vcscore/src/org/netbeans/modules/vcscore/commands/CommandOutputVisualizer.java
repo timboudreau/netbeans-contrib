@@ -51,57 +51,44 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     private ArrayList closeListeners = new ArrayList();
     private VcsCommandExecutor vce;
     private CommandsPool pool = null;
-    private CommandKillListener killListener = null;
+    private java.awt.event.ActionListener killListener = null;
     
     
     private static final long serialVersionUID = -8901790341334731237L;
     
-    /** Creates new CommandOutputVisualizer */
-    public CommandOutputVisualizer(VcsCommandExecutor vce) {
-        this.vce = vce;
+    protected CommandOutputVisualizer() {
         outputPanel = new CommandOutputPanel();
-        killListener = new CommandKillListener();
-        outputPanel.addKillActionListener(killListener);
-        initComponents();
-        outputPanel.setExec(vce.getExec());
-        String name = vce.getCommand().getDisplayName();
-        if (name == null || name.length() == 0) name = vce.getCommand().getName();
-        setName(java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
-                new Object[] { name }));
         setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
         putClientProperty("PersistenceType", "Never");
+        initComponents();
         synchronized (CommandOutputVisualizer.class) {
             if (outputDisplayRequestProcessor == null) {
                 outputDisplayRequestProcessor = new RequestProcessor("Output Display Request Processor");
                 outputDisplayRequestProcessor.post(new OutputDisplayer());
             }
         }
-        /*
-        vce.addOutputListener(new CommandOutputListener() {
-            public void outputLine(String line) {
-                stdOutputLine(line);
-                //outputPanel.getStdOutputArea().append(line + "\n");
-            }
-        });
-        vce.addErrorOutputListener(new CommandOutputListener() {
-            public void outputLine(String line) {
-                errOutputLine(line);
-                //outputPanel.getErrOutputArea().append(line + "\n");
-            }
-        });
-        vce.addDataOutputListener(new CommandDataOutputListener() {
-            public void outputData(String[] data) {
-                stdOutputData(data);
-                //outputPanel.getStdDataOutputArea().append(VcsUtilities.arrayToString(data));
-            }
-        });
-        vce.addDataErrorOutputListener(new CommandDataOutputListener() {
-            public void outputData(String[] data) {
-                errOutputData(data);
-                //outputPanel.getErrDataOutputArea().append(VcsUtilities.arrayToString(data));
-            }
-        });
-         */
+    }
+    
+    /** Creates new CommandOutputVisualizer */
+    public CommandOutputVisualizer(VcsCommandExecutor vce) {
+        this();
+        this.vce = vce;
+        killListener = new CommandKillListener();
+        outputPanel.addKillActionListener(killListener);
+        outputPanel.setExec(vce.getExec());
+        String name = vce.getCommand().getDisplayName();
+        if (name == null || name.length() == 0) name = vce.getCommand().getName();
+        setName(java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
+                new Object[] { name }));
+    }
+    
+    public CommandOutputVisualizer(java.awt.event.ActionListener killListener, String execString, String name) {
+        this();
+        this.killListener = killListener;
+        outputPanel.addKillActionListener(this.killListener);
+        outputPanel.setExec(execString);
+        setName(java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
+                new Object[] { name }));
     }
     
     private void initComponents() {
