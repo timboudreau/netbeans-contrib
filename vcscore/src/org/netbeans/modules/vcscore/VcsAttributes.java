@@ -189,6 +189,8 @@ public class VcsAttributes extends DefaultAttributes {
         } else if (VCS_REFRESH.equals(attrName)) {
             performRefresh(name, value);
         } else if (VCS_SCHEDULING_SECONDARY_FO_ACTION.equals(attrName) && value instanceof String) {
+            // Set the scheduling action for a secondary file. value is the action name,
+            // currently "ADD" and "REMOVE" are the only supported values
             final FileObject fo = fileSystem.findFileObject(name);
             //System.out.println("scheduleSecondaryFOVcsAction("+name+", "+actionName+") = "+fo);
             if (fo == null) return ;
@@ -202,6 +204,7 @@ public class VcsAttributes extends DefaultAttributes {
                 exc.printStackTrace();
                 return ;
             }
+            // The scheduling is started. When all scheduling actions are done, a refresh is introduced.
             startFileScheduling(name);
             final FileObject primaryFO = primary;
             RequestProcessor.postRequest(new Runnable() {
@@ -215,6 +218,15 @@ public class VcsAttributes extends DefaultAttributes {
         }
     }
     
+    /**
+     * Perform a VCS command on a specific file.
+     * @param name the file the command should run on
+     * @param descriptor the descriptor of the command. descriptor.getName() should
+     *        return the command name, attributes can contain variable values
+     *        which are given to the command. VCS_ACTION_DONE attribute is set
+     *        when the action is done with the value being Boolean.TRUE or Boolean.FALSE
+     *        depending on the command exit status.
+     */
     private void performVcsAction(final String name, final FeatureDescriptor descriptor) throws java.net.UnknownServiceException {
         //System.out.println("performVcsAction("+name+")");
         String cmdName = descriptor.getName();
@@ -240,6 +252,12 @@ public class VcsAttributes extends DefaultAttributes {
         });
     }
     
+    /**
+     * Do a refresh of the folder.
+     * @param name the folder name
+     * @param recursive if it's value is Boolean.TRUE, a recursive refresh
+     * of this folder is performed.
+     */
     private void performRefresh(String name, Object recursive) {
         boolean rec = Boolean.TRUE.equals(recursive);
         FileCacheProvider cache = fileSystem.getCacheProvider();
@@ -252,15 +270,26 @@ public class VcsAttributes extends DefaultAttributes {
         }
     }
     
+    /**
+     * Schedule a secondary file for "ADD" or "REMOVE". Files scheduled for remove are filtered from children().
+     * Files scheduled are added as a special file attribute to the primary file.
+     * @param name the name of a secondary file to be scheduled.
+     * @param actionName "ADD" or "REMOVE"
+     * @param fo the file object associated to the file
+     * @param primary the associated primary file
+     */
     private boolean scheduleSecondaryFOVcsAction(final String name, final String actionName, FileObject fo, FileObject primary) {
         if (VCS_STATUS_LOCAL.equals(primary.getAttribute(VCS_STATUS))) {
+            // do not schedule local files
             endFileScheduling(name);
             return false;
         }
         int id;
+        // create the descriptor of a scheduling action
         FeatureDescriptor descriptor = new FeatureDescriptor() {
             public void setValue(String attrName, Object value) {
                 if (VCS_ACTION_DONE.equals(attrName)) {
+                    // the scheduling action is done, inform the file system
                     fileSystem.removeScheduledFileToBeProcessed(name);
                     endFileScheduling(name);
                 }
@@ -296,6 +325,7 @@ public class VcsAttributes extends DefaultAttributes {
             endFileScheduling(name);
             return false;
         }
+        // the file is being scheduled, add it to the primary file attribute.
         Set[] scheduled = (Set[]) primary.getAttribute(VCS_SCHEDULED_FILES_ATTR);
         if (scheduled == null) scheduled = new HashSet[2];
         if (scheduled[id] == null) scheduled[id] = new HashSet();
@@ -312,6 +342,9 @@ public class VcsAttributes extends DefaultAttributes {
     
     private transient Map schedulingFilesByFolders;
     
+    /**
+     * Remember the file as being scheduled for it's folder.
+     */
     private void startFileScheduling(String name) {
         synchronized (this) {
             if (schedulingFilesByFolders == null) {
@@ -329,6 +362,10 @@ public class VcsAttributes extends DefaultAttributes {
         }
     }
     
+    /**
+     * The scheduling action for this file was done, if no more actions are being
+     * processed in the file's folder, do a refresh of that folder.
+     */
     private void endFileScheduling(String name) {
         Set files;
         String dir;
