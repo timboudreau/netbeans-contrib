@@ -50,13 +50,11 @@ Microsystems, Inc. All Rights Reserved.
   <target name="jars" depends="compile">
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/cvsprofiles/layer-includes-commands.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*.class"/>       
-       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*.form"/>
        <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*.properties"/>
        <exclude name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/*_ja.properties"/>
     </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/cvsprofiles/layer-includes-commands-passwd.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*.class"/>       
-       <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*.form"/>
        <include name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*.properties"/>
        <exclude name="org/netbeans/modules/vcs/profiles/cvsprofiles/commands/passwd/*_ja.properties"/>
     </makelayer>
