@@ -37,11 +37,11 @@ import org.openide.cookies.SourceCookie;
 import org.openide.loaders.ExecSupport;
 import org.openide.ErrorManager;
 
-/** Represents ClassDataObject
-*
+/** Represents ClassDataObject. Common base for CompiledDataNode (.class)
+* and SerDataNode (.ser and other serialized extensions)
 * @author Ales Novak, Ian Formanek, Jan Jancura, Dafe Simonek
 */
-class ClassDataNode extends DataNode implements Runnable {
+abstract class ClassDataNode extends DataNode implements Runnable {
     /** generated Serialized Version UID */
     static final long serialVersionUID = -1543899241509520203L;
 
@@ -49,23 +49,6 @@ class ClassDataNode extends DataNode implements Runnable {
     private final static String PROP_CLASS_NAME = "className"; // NOI18N
     private final static String PROP_IS_JAVA_BEAN = "isJavaBean"; // NOI18N
     private final static String PROP_IS_APPLET = "isApplet"; // NOI18N
-    private final static String PROP_IS_EXECUTABLE = "isExecutable"; // NOI18N
-    private final static String PROP_FILE_PARAMS = "fileParams"; // NOI18N
-    private final static String PROP_EXECUTION = "execution"; // NOI18N
-
-    private final static String EXECUTION_SET_NAME     = "Execution"; // NOI18N
-
-    /** Icon bases for icon manager */
-    private final static String CLASS_BASE =
-        "/org/netbeans/modules/clazz/resources/class"; // NOI18N
-    private final static String CLASS_MAIN_BASE =
-        "/org/netbeans/modules/clazz/resources/classMain"; // NOI18N
-    private final static String ERROR_BASE =
-        "/org/netbeans/modules/clazz/resources/classError"; // NOI18N
-    private final static String BEAN_BASE =
-        "/org/netbeans/modules/clazz/resources/bean"; // NOI18N
-    private final static String BEAN_MAIN_BASE =
-        "/org/netbeans/modules/clazz/resources/beanMain"; // NOI18N
 
     /** a flag whether the children of this object are only items declared
     * by this class, or all items (incl. inherited)
@@ -73,6 +56,7 @@ class ClassDataNode extends DataNode implements Runnable {
     private boolean showDeclaredOnly = true;  // [PENDING - get default value from somewhere ?]
     /** ClassDataObject that is represented */
     protected ClassDataObject obj;
+
     /** The flag indicating whether right icon has been already found */
     transient boolean iconResolved = false;
     /** Holds error message shown in node tooltip */
@@ -91,35 +75,19 @@ class ClassDataNode extends DataNode implements Runnable {
         this.obj = obj;
         initialize();
     }
-
+    
     /** Returns icon base string which should be used for
     * icon inicialization. Subclasses can ovveride this method
     * to provide their own icon base string.
     */
-    protected String initialIconBase () {
-        return CLASS_BASE;
-    }
+    protected abstract String initialIconBase ();
+    
+    protected abstract void resolveIcons();
 
     private void initialize () {
         setIconBase(initialIconBase());
         // icons...
         RequestProcessor.postRequest(this, 200);
-    }
-
-    public void setParams (final String params) throws IOException {
-        ((ClassDataObject) getDataObject()).setParams(params);
-    }
-
-    public String getParams () {
-        return ((ClassDataObject) getDataObject()).getParams();
-    }
-
-    void setExecution (boolean i) throws IOException {
-        ((ClassDataObject) getDataObject()).setExecution (i);
-    }
-
-    boolean getExecution () {
-        return ((ClassDataObject) getDataObject()).getExecution ();
     }
 
     /** Creates property set for this node */
@@ -174,16 +142,6 @@ class ClassDataNode extends DataNode implements Runnable {
                    }
                });
         ps.put(new PropertySupport.ReadOnly (
-                   PROP_IS_EXECUTABLE,
-                   Boolean.TYPE,
-                   bundle.getString ("PROP_isExecutable"),
-                   bundle.getString ("HINT_isExecutable")
-               ) {
-                   public Object getValue () throws InvocationTargetException {
-                       return new Boolean(obj.isExecutable());
-                   }
-               });
-        ps.put(new PropertySupport.ReadOnly (
                    ElementProperties.PROP_CLASS_OR_INTERFACE,
                    Boolean.TYPE,
                    bundle.getString ("PROP_isInterface"),
@@ -213,19 +171,6 @@ class ClassDataNode extends DataNode implements Runnable {
                        return new Boolean (obj.isJavaBean());
                    }
                });
-        // execution property set, if possible (not for ser objects)
-        if (!(this instanceof SerDataNode)) {
-            ExecSupport es = (ExecSupport)getCookie(ExecSupport.class);
-            if (es != null) {
-                Sheet.Set exps = new Sheet.Set();
-                exps.setName(EXECUTION_SET_NAME);
-                exps.setDisplayName(bundle.getString ("PROP_executionSetName"));
-                exps.setShortDescription(bundle.getString ("HINT_executionSetName"));
-                es.addProperties (exps);
-                s.put(exps);
-            }
-        }
-
         return s;
     }
 
@@ -245,39 +190,6 @@ class ClassDataNode extends DataNode implements Runnable {
 
     // --------------------------------------------------------------------
     // private methods
-
-    /** Find right icon for this node. */
-    protected void resolveIcons () {
-        ClassDataObject dataObj = (ClassDataObject)getDataObject();
-        try {
-            dataObj.getBeanClass (); // check exception
-            if (dataObj.isJavaBean ()) {
-                if (dataObj.isExecutable ())
-                    setIconBase(BEAN_MAIN_BASE);
-                else
-                    setIconBase(BEAN_BASE);
-            } else
-                if (dataObj.isExecutable ())
-                    setIconBase(CLASS_MAIN_BASE);
-                else
-                    setIconBase(CLASS_BASE);
-        } catch (IOException ex) {
-            // log exception only and set error tooltip
-            TopManager.getDefault().getErrorManager().notify(
-                ErrorManager.INFORMATIONAL, ex
-            );
-            setIconBase(ERROR_BASE);
-            setErrorToolTip(ex);
-        } catch (ClassNotFoundException ex) {
-            // log exception only and set error tooltip
-            TopManager.getDefault().getErrorManager().notify(
-                ErrorManager.INFORMATIONAL, ex
-            );
-            setIconBase(ERROR_BASE);
-            setErrorToolTip(ex);
-        }
-        iconResolved = true;
-    }
 
     
     /** Sets error tooltip based on given exception message.

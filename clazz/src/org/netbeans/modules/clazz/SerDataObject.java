@@ -19,7 +19,10 @@ import org.openide.loaders.InstanceSupport;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
+
 import org.openide.nodes.Node;
+import org.openide.nodes.CookieSet;
+
 import org.openide.util.HelpCtx;
 
 /** DataObject which represents JavaBeans (".ser" files).
@@ -37,34 +40,53 @@ public final class SerDataObject extends ClassDataObject {
         super (fo, loader);
     }
     
+    /**
+     * All serialized objects are treated as JavaBeans since the instance of
+     * the object can be obtained (using deserialization).
+     * @returns true
+     */
+    public boolean isJavaBean() {
+        return true;
+    }
+    
+    /**
+     * All serialized objects can be copied using ordinary file copy.
+     * @returns true
+     */
     public boolean isCopyAllowed() {
         return true;
     }
 
-    /** Getter for move action.
-    * @return true if the object can be moved
-    */
+    /**
+     * Move is allowed iff the primary file can be written to.
+     * @return true if the object can be moved.
+     */
     public boolean isMoveAllowed () {
         return !getPrimaryFile ().isReadOnly ();
     }
 
-    /** Getter for rename action.
-    * @return true if the object can be renamed
-    */
+    /**
+     * Rename is allowed iff the primary file can be written to.
+     * @return true if the object can be renamed.
+     */
     public boolean isRenameAllowed () {
         return !getPrimaryFile ().isReadOnly ();
     }
 
-    /** Creates another delegate.
+    /** 
+     * Creates NodeDelegate for this DataObject
+     * @returns node that represent the obejct
     */
     protected Node createNodeDelegate () {
         return new SerDataNode (this);
     }
-    
-    protected DataObject handleCopy(DataFolder f) throws java.io.IOException {
-        return superHandleCopy(f);
-    }
 
+    /**
+     * Provides special processing for the serialized objects:
+     * if the help can be found for the class that is serialized inside
+     * the ser file, returns that help. The default is the help for SerDataObject.
+     * @returns appropriate HelpCtx
+     */
     public HelpCtx getHelpCtx () {
         HelpCtx test = InstanceSupport.findHelp (instanceSupport);
         if (test != null)
@@ -73,21 +95,11 @@ public final class SerDataObject extends ClassDataObject {
             return new HelpCtx (SerDataObject.class);
     }
 
+    protected void initCookies() {
+        super.initCookies();
+        CookieSet cs = getCookieSet();
+        // since all serializable object can be treated as JavaBeans, 
+        // always add an InstanceCookie.
+        cs.add(instanceSupport);
+    }
 }
-
-/*
- * Log
- *  6    src-jtulach1.5         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  5    src-jtulach1.4         6/25/99  Jesse Glick     Instance context help.
- *  4    src-jtulach1.3         6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  3    src-jtulach1.2         2/25/99  Jaroslav Tulach Change of clipboard 
- *       management  
- *  2    src-jtulach1.1         2/1/99   David Simonek   
- *  1    src-jtulach1.0         1/15/99  David Simonek   
- * $
- * Beta Change History:
- *  0    Tuborg    0.20        --/--/98 Jan Formanek    SWITCHED TO NODES
- *  0    Tuborg    0.21        --/--/98 Jan Formanek    icons tweak
- */

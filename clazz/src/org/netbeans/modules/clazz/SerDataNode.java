@@ -23,7 +23,7 @@ import org.openide.TopManager;
 import org.openide.ErrorManager;
 import org.openide.util.datatransfer.ExTransferable;
 
-/** Exetends ClassDataNode, overrides one method
+/** Exetends ClassDataNode, adds behaviour specific to serialized objects.
 * This class is final only for performance reasons,
 * can be happily unfinaled if desired.
 *
@@ -59,11 +59,7 @@ final class SerDataNode extends ClassDataNode {
         try {
             ClassDataObject dataObj = (ClassDataObject)getDataObject();
             dataObj.getBeanClass(); // check exception
-            if (dataObj.isExecutable()) {
-                setIconBase(SER_MAIN_BASE);
-            } else {
-                setIconBase(SER_BASE);
-            }
+            setIconBase(SER_BASE);
         } catch (IOException ex) {
             // log exception only and set error tooltip
             TopManager.getDefault().getErrorManager().notify(
@@ -81,24 +77,4 @@ final class SerDataNode extends ClassDataNode {
         }
         iconResolved = true;
     }
-
 }
-
-/*
- * Log
- *  10   src-jtulach1.9         1/13/00  David Simonek   i18n
- *  9    src-jtulach1.8         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  8    src-jtulach1.7         6/11/99  Jaroslav Tulach System.out commented
- *  7    src-jtulach1.6         6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  6    src-jtulach1.5         3/22/99  Ian Formanek    Icons location fixed
- *  5    src-jtulach1.4         3/22/99  Ian Formanek    Icons moved from 
- *       modules/resources to this package
- *  4    src-jtulach1.3         2/25/99  Jaroslav Tulach Change of clipboard 
- *       management  
- *  3    src-jtulach1.2         1/20/99  David Simonek   icon managing repaired
- *  2    src-jtulach1.1         1/19/99  David Simonek   
- *  1    src-jtulach1.0         1/15/99  David Simonek   
- * $
- */

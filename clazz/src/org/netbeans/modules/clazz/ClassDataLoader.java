@@ -102,7 +102,7 @@ public final class ClassDataLoader extends MultiFileLoader {
         }
         if (CLASS_EXT.equals(primaryFile.getExt())) {
             // class file, return class data object
-            return new ClassDataObject (primaryFile, this);
+            return new CompiledDataObject (primaryFile, this);
         }
         // otherwise
         return null;
