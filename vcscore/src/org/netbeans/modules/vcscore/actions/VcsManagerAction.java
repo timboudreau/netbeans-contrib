@@ -61,7 +61,7 @@ public class VcsManagerAction extends CallableSystemAction {
      * is not null otherwise the action is ignored.
      */
     public void performAction () {               
-        Object[] options = new Object[]{"&Close"};     
+        Object[] options = new Object[]{ NbBundle.getMessage(VcsManagerAction.class, "LBL_VcsManagerClose") };     
         DialogDescriptor desc = new DialogDescriptor(getVcsManager(),NbBundle.getBundle (VcsManagerAction.class).getString ("CTL_VcsManagerTitle"));        
         desc.setOptions(options);
         desc.setValue(options[0]);
