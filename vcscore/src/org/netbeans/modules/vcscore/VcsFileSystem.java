@@ -2129,10 +2129,78 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return annotationPattern;
     }
 
-    public void setAnnotationPattern(String annotationPattern) {
+    public void setAnnotationPattern(final String annotationPattern) throws IllegalArgumentException {
+        if (!isValidAnnotationPattern(annotationPattern)) {
+            throw (IllegalArgumentException) ErrorManager.getDefault().annotate(
+                new IllegalArgumentException("Not valid HTML annotation pattern '"+annotationPattern+"' !"),
+                NbBundle.getMessage(VcsFileSystem.class, "EXC_InvalidAnnotationPatern", annotationPattern));
+        }
         String old = this.annotationPattern;
         this.annotationPattern = annotationPattern;
         firePropertyChange(PROP_ANNOTATION_PATTERN, old, this.annotationPattern);
+    }
+    
+    private static boolean isValidAnnotationPattern(String pattern) {
+        final String[] testStatus = { "" };
+        FileStatusProvider testProvider = new FileStatusProvider() {
+            public Set getPossibleFileStatusInfos() {
+                return java.util.Collections.EMPTY_SET;
+            }
+            public String getNotInSynchStatus() { return "NSynch"; } // NOI18N
+            public String getFileStatus(String fullName) {
+                return testStatus[0];
+            }
+            public FileStatusInfo getFileStatusInfo(String fullName) { return null; }
+            public String getFileLocker(String fullName) {
+                return testStatus[0];
+            }
+            public String getFileRevision(String fullName) {
+                return testStatus[0];
+            }
+            public String getFileSticky(String fullName) {
+                return testStatus[0];
+            }
+            public String getFileAttribute(String fullName) {
+                return testStatus[0];
+            }
+            public String getFileSize(String fullName) {
+                return testStatus[0];
+            }
+            public String getFileDate(String fullName) {
+                return testStatus[0];
+            }
+            public String getFileTime(String fullName) {
+                return testStatus[0];
+            }
+            public void setFileStatus(String path, String status) {}
+            public void setFileModified(String path) {}
+            public String getLocalFileStatus() { return "Local"; } // NOI18N
+            public void refreshDir(String path) {}
+            public void refreshDirRecursive(String path) {}
+        };
+        String annot = RefreshCommandSupport.getHtmlStatusAnnotation("name", "full/name", pattern, testProvider, new Hashtable()); // NOI18N
+        java.awt.image.BufferedImage bimage =
+            new java.awt.image.BufferedImage(100, 100, java.awt.image.BufferedImage.TYPE_3BYTE_BGR);
+        try {
+            org.openide.awt.HtmlRenderer.renderHTML(annot, bimage.getGraphics(), 0, 0,
+                0, 0, bimage.getGraphics().getFont(), bimage.getGraphics().getColor(), 0, true);
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+            //System.out.println("INVALID HTML");
+            return false;
+        }
+        testStatus[0] = "test"; // NOI18N
+        annot = RefreshCommandSupport.getHtmlStatusAnnotation("name", "full/name", pattern, testProvider, new Hashtable()); // NOI18N
+        try {
+            org.openide.awt.HtmlRenderer.renderHTML(annot, bimage.getGraphics(), 0, 0,
+                0, 0, bimage.getGraphics().getFont(), bimage.getGraphics().getColor(), 0, true);
+        } catch (Exception ex) {
+            //ex.printStackTrace();
+            //System.out.println("INVALID HTML");
+            return false;
+        }
+        //System.out.println("VALID HTML");
+        return true;
     }
 
     public int[] getMultiFileAnnotationTypes() {
