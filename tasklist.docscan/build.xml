@@ -53,7 +53,7 @@ Microsystems, Inc. All Rights Reserved.
         <mkdir dir="netbeans/modules"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/eager/tasklist-docscan.jar"
+        <locjar jarfile="netbeans/modules/tasklist-docscan.jar"
                 manifest="manifest-subst.mf"
                 basedir="src"
 	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
@@ -69,7 +69,7 @@ Microsystems, Inc. All Rights Reserved.
     <target name="nbm" depends="netbeans">
         <makenbm file="../tasklist-docscan.nbm"
                  topdir="."
-                 module="netbeans/modules/eager/tasklist-docscan.jar"
+                 module="netbeans/modules/tasklist-docscan.jar"
                  homepage="http://tasklist.${homepage.base}/"
                  distribution="http://${dist.base}/tasklist-docscan.nbm">
             <license file="${license.file}"/>

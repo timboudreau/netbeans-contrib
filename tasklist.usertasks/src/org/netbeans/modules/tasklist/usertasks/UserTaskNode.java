@@ -18,6 +18,7 @@ import java.util.List;
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
+import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.netbeans.modules.tasklist.core.ImportAction;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.openide.ErrorManager;
@@ -108,7 +109,7 @@ class UserTaskNode extends TaskNode {
                 SystemAction.get(NewTaskAction.class),
                 null,
                 SystemAction.get(ShowTaskAction.class),
-		// XXX moved to editor package: SystemAction.get(GoToTaskAction.class),
+                SystemAction.get(GoToTaskAction.class),
                 null,
                 SystemAction.get(FilterAction.class),
                 null,

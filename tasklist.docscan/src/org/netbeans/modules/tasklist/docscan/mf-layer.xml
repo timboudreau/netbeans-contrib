@@ -15,5 +15,51 @@ Microsystems, Inc. All Rights Reserved.
 
 <filesystem>
 
+    <folder name="Actions">
+	<folder name="View">
+            <file name="org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance" />
+        </folder>
+    </folder>        
+            
+    <folder name="Menu">
+        <folder name="View">
+            <file name="org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance" />
+            <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance" boolvalue="true" />
+            <attr name="org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
+         </folder>
+
+        <folder name="Tools">
+            <file name="org-netbeans-modules-tasklist-docscan-ScanTasksAction.instance" />
+         </folder>
+
+     </folder>
+
+     <folder name="Toolbars">  
+         <folder name="Task">
+             <file name="org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance" />
+             <attr name="org-netbeans-modules-tasklist-usertasks-ViewTasksAction.instance/org-netbeans-modules-tasklist-docscan-ViewScanListAction.instance" boolvalue="true" />
+        </folder>
+    </folder>
+
+    <folder name="Services">
+
+	<file name="org-netbeans-modules-tasklist-docscan-TaskEdSettings.settings" url="TaskEdSettings.settings">
+	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.docscan.Bundle"/>
+	    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/tasklist/core/task.gif"/>
+            <!-- Project specific? attr name="SystemFileSystem.layer"
+               stringvalue="project"/ -->
+	</file>
+    </folder>
+
+    <folder name="UI">
+	<folder name="Services">
+	    <folder name="Editing">
+		<file name="org-netbeans-modules-tasklist-docscan-TaskEdSettings.shadow">
+                    <attr name="originalFile" stringvalue="Services/org-netbeans-modules-tasklist-docscan-TaskEdSettings.settings"/>
+		</file>
+	    </folder>
+	</folder>
+    </folder>
+
 </filesystem>
 
