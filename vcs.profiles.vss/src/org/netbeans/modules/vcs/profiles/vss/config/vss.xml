@@ -202,6 +202,9 @@ Microsystems, Inc. All Rights Reserved.
              PROMPT_FOR(GET_OPTIONS, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GET_Options), "-GWA", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GET_Options_mnc)))
       </value>
     </variable>
+    <variable name="AUTO_EXEC"> <!-- executed after filesystem instantiation if defined -->
+      <value>$[? DO_VSS_CHECKOUT][GET][]</value>
+    </variable>
   </variables>
   <commands>
     <command name="ROOT" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS)">
