@@ -540,6 +540,17 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         //FileObject fo = fileEvent.getFile();
         //fsInstances.remove(fo.getPackageNameExt('/', '.'));
         //fo.removeFileChangeListener(this);
+        synchronized (this) {
+            CommandLineVcsFileSystem fs = (CommandLineVcsFileSystem) weakFsInstance.get();
+            if (fs != null) {
+                fs.removePropertyChangeListener(fsPropertyChangeListener);
+                weakFsInstance = new WeakReference(null);
+                fsPropertyChangeListener = null;
+            }
+        }
+        fo = null;
+        doc = null;
+        ic = null;
     }
     
     public void fileFolderCreated(org.openide.filesystems.FileEvent fileEvent) {
@@ -631,6 +642,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             RequestProcessor.Task task = RequestProcessor.postRequest(new Runnable() {
                 public void run() {
                     try {
+                        if (fo == null) return ;
                         fo.getFileSystem().runAtomicAction(new org.openide.filesystems.FileSystem.AtomicAction() {
                             public void run() throws java.io.IOException {
                                 CommandLineVcsFileSystem fs = (CommandLineVcsFileSystem) weakFsInstance.get();
@@ -641,10 +653,8 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                                     java.io.OutputStream out = null;
                                     try {
                                         lock = fo.lock();
-                                        if (lock.isValid()) { // Ignore the change when e.g. the file is already gone. (FS is unmounted)
-                                            out = fo.getOutputStream(lock);
-                                            XMLUtil.write(doc, out, null);
-                                        }
+                                        out = fo.getOutputStream(lock);
+                                        XMLUtil.write(doc, out, null);
                                         //System.out.println("  written to "+fo+", File = "+org.openide.filesystems.FileUtil.toFile(fo));
                                     } finally {
                                         try {
