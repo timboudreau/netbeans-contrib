@@ -17,11 +17,8 @@ import java.beans.PropertyEditorManager;
 import java.util.Date;
 import java.util.List;
 import org.netbeans.api.tasklist.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.ExpandAllAction;
-import org.netbeans.modules.tasklist.core.ExportAction;
-import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
-import org.netbeans.modules.tasklist.core.ImportAction;
+import org.netbeans.modules.tasklist.core.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.openide.ErrorManager;
@@ -33,7 +30,6 @@ import org.openide.actions.PropertiesAction;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 
-import org.openide.nodes.Node.Property;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.PropertySupport.Reflection;
 import org.openide.nodes.Sheet.Set;
@@ -225,6 +221,7 @@ class UserTaskNode extends TaskNode {
 
             p = new Reflection(item, Integer.TYPE, "getLineNumber", "setLineNumber"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_LINE);
+            p.setPropertyEditorClass(LineNumberPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Line")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "LineHint")); // NOI18N
             ss.put(p);

@@ -84,7 +84,7 @@ public class TypesCustomizer extends javax.swing.JPanel
         java.awt.GridBagConstraints gridBagConstraints;
 
         activeLabel = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        typeDescLabel = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         descTextArea = new javax.swing.JTextArea();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -101,16 +101,16 @@ public class TypesCustomizer extends javax.swing.JPanel
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(activeLabel, gridBagConstraints);
 
-        jLabel1.setLabelFor(descTextArea);
+        typeDescLabel.setLabelFor(descTextArea);
         /*
-        jLabel1.setText(NbBundle.getMessage(TypesCustomizer.class, "TypeDesc")); // NOI18N();
+        typeDescLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "TypeDesc")); // NOI18N();
         */
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
-        add(jLabel1, gridBagConstraints);
+        add(typeDescLabel, gridBagConstraints);
 
         descTextArea.setEditable(false);
         descTextArea.setLineWrap(true);
@@ -126,17 +126,6 @@ public class TypesCustomizer extends javax.swing.JPanel
         gridBagConstraints.weighty = 1.0;
         add(jScrollPane1, gridBagConstraints);
 
-        typesTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
         jScrollPane3.setViewportView(typesTable);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -161,8 +150,8 @@ public class TypesCustomizer extends javax.swing.JPanel
           I can see them when visually editing the GUI.
         */
 
-        Mnemonics.setLocalizedText(activeLabel, NbBundle.getMessage(TypesCustomizer.class, "ActiveTypes")); // NOI18N
-        Mnemonics.setLocalizedText(jLabel1, NbBundle.getMessage(TypesCustomizer.class, "TypeDesc")); // NOI18N
+        Mnemonics.setLocalizedText(activeLabel, activeLabel.getText());
+        Mnemonics.setLocalizedText(typeDescLabel, typeDescLabel.getText());
         
         this.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(TypesCustomizer.class, "ACSD_TypesCustomizer")); // NOI18N
@@ -176,9 +165,9 @@ public class TypesCustomizer extends javax.swing.JPanel
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable typesTable;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JTextArea descTextArea;
     private javax.swing.JLabel activeLabel;
+    private javax.swing.JLabel typeDescLabel;
     private javax.swing.JScrollPane jScrollPane3;
     // End of variables declaration//GEN-END:variables
     
@@ -186,9 +175,6 @@ public class TypesCustomizer extends javax.swing.JPanel
      * Apply changes in the dialog 
      */
     public void apply() {
-        SuggestionManagerImpl manager = 
-            (SuggestionManagerImpl)SuggestionManager.getDefault();
-
         SuggTypesTableModel model = (SuggTypesTableModel) typesTable.getModel();
         model.save();
     }

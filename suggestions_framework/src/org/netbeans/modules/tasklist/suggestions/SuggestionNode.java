@@ -38,6 +38,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import java.awt.datatransfer.Transferable;
 import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.core.LineNumberPropertyEditor;
 import org.openide.text.Line;
 
 
@@ -172,6 +173,7 @@ class SuggestionNode extends TaskNode {
 
             p = new Reflection(item, Integer.TYPE, "getLineNumber", null /* Don't allow users to edit this! "setLineNumber" */); // NOI18N
             p.setName(SuggestionsView.PROP_SUGG_LINE);
+            p.setPropertyEditorClass(LineNumberPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Line")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "LineHint")); // NOI18N
             ss.put(p);
