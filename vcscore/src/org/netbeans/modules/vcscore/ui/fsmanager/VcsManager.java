@@ -200,10 +200,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         treeTableView1.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(VcsManager.class, "ACSD.VCSManager.treeTableView1"));
         //mnemonics
         tableLabel.setDisplayedMnemonic(NbBundle.getMessage(VcsManager.class, "VCSManager.tableLabel.Mnem").charAt(0));        
-      /*  newButton.setMnemonic(NbBundle.getMessage(VcsManager.class, "VCSManager.recognizeButton.Mnem").charAt(0));
-        removeButton.setMnemonic(NbBundle.getMessage(VcsManager.class, "VCSManager.unrecognizeButton.Mnem").charAt(0));
-        editButton.setMnemonic(NbBundle.getMessage(VcsManager.class, "VCSManager.customizeButton.Mnem").charAt(0));        
-       */
+    
     }
     
     /** Get the explorer manager.
