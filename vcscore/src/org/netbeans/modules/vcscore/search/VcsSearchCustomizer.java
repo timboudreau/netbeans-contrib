@@ -31,8 +31,15 @@ public class VcsSearchCustomizer extends javax.swing.JPanel implements Customize
     public VcsSearchCustomizer() {
         initComponents ();
         localizeComponents();
+        initAccessibility();
     }
-
+    
+    private void initAccessibility() {
+        findExceptCheckBox.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/search/Bundle").getString("ACS_VcsSearchCustomizer.findExceptCheckBox.text"));
+        statusList.getAccessibleContext().setAccessibleName(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/search/Bundle").getString("ACSN_VcsSearchCustomizer.statusList.text"));
+        statusList.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/search/Bundle").getString("ACSD_VcsSearchCustomizer.statusList.text"));
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
