@@ -7,12 +7,10 @@ Version 1.0 (the "License"). You may not use this file except in
 compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
-The Original Code is NetBeans.
-The Initial Developer of the Original Code is Jan Becicka.
-Portions created by Jan Becicka are Copyright (C) 2002.
-All Rights Reserved.
-
-Contributor(s): Jan Becicka.-->
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
 
 <project name="java3d" default="netbeans" basedir=".">
 
@@ -23,7 +21,7 @@ Contributor(s): Jan Becicka.-->
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../nbbuild/nbantext.jar"/>
 
   <target name="compile">
-    <ant dir="j3dedit" target="compile"/>
+    <ant dir="J3dEditor_2.0/src" target="compile"/>
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <classpath>
         <fileset dir="../openide/netbeans/lib">
@@ -32,16 +30,19 @@ Contributor(s): Jan Becicka.-->
        <pathelement location="release/lib/ext/vrml97.jar"/>
        <pathelement location="release/lib/ext/portfolio.jar"/>
        <pathelement location="release/lib/ext/StarfireExt.jar"/>
-       <pathelement location="j3dfly"/>
-       <pathelement location="j3dedit"/>
-
+       <pathelement location="J3dFly_2.0/src"/>
+       <pathelement location="J3dEditor_2.0/src"/>
        <pathelement location="../core/netbeans/lib/core.jar"/>
       </classpath>
     </javac>
   </target>
 
   <target name="jars" depends="compile">
-    <ant dir="j3dedit" target="jars"/>
+    <ant dir="J3dEditor_2.0/src" target="jars"/>
+    <mkdir dir="release/lib/ext"/>
+    <copy file="J3dEditor_2.0/lib/j3dedit.jar" tofile="release/lib/ext/j3dedit.jar"/>
+    <copy file="J3dFly_2.0/lib/j3dfly-utils.jar" tofile="release/lib/ext/j3dfly-utils.jar"/>
+    <copy file="J3dFly_2.0/lib/j3dfly.jar" tofile="release/lib/ext/j3dfly.jar"/>
     <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
@@ -74,7 +75,7 @@ Contributor(s): Jan Becicka.-->
   </target>
 
   <target name="clean">
-  <ant dir="j3dedit" target="clean"/>
+  <ant dir="J3dEditor_2.0/src" target="clean"/>
   <delete>
       <fileset dir="src">
         <include name="**/*.class"/>
@@ -84,6 +85,9 @@ Contributor(s): Jan Becicka.-->
     <delete file="java3d.nbm"/>
     <delete dir="netbeans"/>
     <delete dir="Info"/>
+    <delete file="release/lib/ext/j3dedit.jar"/>
+    <delete file="release/lib/ext/j3dfly-utils.jar"/>
+    <delete file="release/lib/ext/j3dfly.jar"/>
   </target>
 
 </project>
