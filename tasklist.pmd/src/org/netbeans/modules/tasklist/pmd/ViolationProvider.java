@@ -207,13 +207,11 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                             }
                         };
 
-                        /* In progress
                     } else if (rulename.equals("UnusedPrivateMethod")) {
                         fixable = true;
                         boolean comment = false;
                         action = new MethodRemovePerformer(line, violation, 
                                                            comment);
-                        */
                     } else {
                         action = null;
                     }
