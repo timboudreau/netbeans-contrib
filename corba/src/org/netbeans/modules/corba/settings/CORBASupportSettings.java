@@ -1069,12 +1069,12 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
   }
 
   public Vector getInterfaceRepositoryChildren () {
-    System.out.println ("getInterfaceRepositoryChildren: " + IRChildren.size ());
+    //System.out.println ("getInterfaceRepositoryChildren: " + IRChildren.size ());
     return IRChildren;
   }
 
   public void setInterfaceRepositoryChildren (Vector children) {
-    System.out.println ("setInterfaceRepositoryChildren: " + children.size ());
+    //System.out.println ("setInterfaceRepositoryChildren: " + children.size ());
     IRChildren = children;
   }
 

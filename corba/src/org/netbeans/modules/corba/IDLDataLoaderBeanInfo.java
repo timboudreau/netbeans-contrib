@@ -71,13 +71,9 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
       descriptors =  new PropertyDescriptor[] {
         new PropertyDescriptor ("displayName", IDLDataLoader.class,
                                 "getDisplayName", null),
-        new PropertyDescriptor ("extensions", IDLDataLoader.class,
-                                "getExtensions", "setExtensions")
       };
       descriptors[0].setDisplayName(bundle.getString("PROP_Name"));
       descriptors[0].setShortDescription(bundle.getString("HINT_Name"));
-      descriptors[1].setDisplayName(bundle.getString("PROP_Extensions"));
-      descriptors[1].setShortDescription(bundle.getString("HINT_Extensions"));
     } catch (IntrospectionException e) {
       e.printStackTrace ();
     }
@@ -87,6 +83,7 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  12   Gandalf   1.11        10/13/99 Karel Gardas    Update from CVS
 *  11   Gandalf   1.10        10/1/99  Karel Gardas    updates from CVS
 *  10   Gandalf   1.9         8/3/99   Karel Gardas    
 *  9    Gandalf   1.8         7/10/99  Karel Gardas    

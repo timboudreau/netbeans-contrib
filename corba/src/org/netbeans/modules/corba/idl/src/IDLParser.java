@@ -2164,7 +2164,17 @@ void array_declarator() :
     label_17:
     while (true) {
       tmp = fixed_array_size();
-                                            dim.add (new Integer (tmp.substring (1, tmp.length () - 1)));
+    Integer number = null;
+    try {
+      number = new Integer (tmp.substring (1, tmp.length () - 1));
+    } catch (NumberFormatException e) {
+    }
+    if (number != null) {
+      dim.add (number);
+    }
+    else {
+      dim.add (tmp.substring (1, tmp.length () - 1));
+    }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case 55:
         ;
@@ -2852,16 +2862,16 @@ void floating_pt_literal() :
     return false;
   }
 
-  final private boolean jj_3R_23() {
-    if (jj_3R_26()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    if (jj_scan_token(11)) return true;
+  final private boolean jj_3R_28() {
+    if (jj_scan_token(ID)) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }
 
-  final private boolean jj_3R_28() {
-    if (jj_scan_token(ID)) return true;
+  final private boolean jj_3R_23() {
+    if (jj_3R_26()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    if (jj_scan_token(11)) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }
@@ -2884,6 +2894,12 @@ void floating_pt_literal() :
     return false;
   }
 
+  final private boolean jj_3R_32() {
+    if (jj_scan_token(55)) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
   final private boolean jj_3_2() {
     if (jj_3R_24()) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
@@ -2892,12 +2908,6 @@ void floating_pt_literal() :
 
   final private boolean jj_3R_29() {
     if (jj_3R_31()) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
-  final private boolean jj_3R_32() {
-    if (jj_scan_token(55)) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }

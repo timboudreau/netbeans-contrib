@@ -1555,9 +1555,11 @@ public class ImplGenerator {
     if (mode != Parameter.IN)
       full_name = full_name + "Holder";
     type = Type.createClass (org.openide.src.Identifier.create (full_name));
-    for (int i=0; i<dim; i++) {
-      // creating array from type 
-      type = Type.createArray (type);
+    if (mode == Parameter.IN) {
+      for (int i=0; i<dim; i++) {
+	// creating array from type 
+	type = Type.createArray (type);
+      }
     }
       
     return type;

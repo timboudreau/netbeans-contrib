@@ -1409,7 +1409,20 @@ Vector array_declarator() :
 {}
 {
   { String tmp; Vector dim = new Vector ();}
-  identifier() ( tmp = fixed_array_size() { dim.add (new Integer (tmp.substring (1, tmp.length () - 1)));} )+
+  identifier() ( tmp = fixed_array_size() 
+  { 
+    Integer number = null;
+    try {
+      number = new Integer (tmp.substring (1, tmp.length () - 1));
+    } catch (NumberFormatException e) {
+    }
+    if (number != null) {
+      dim.add (number);
+    }
+    else {
+      dim.add (tmp.substring (1, tmp.length () - 1));
+    } 
+  } )+
   { return dim;}
 }
 
