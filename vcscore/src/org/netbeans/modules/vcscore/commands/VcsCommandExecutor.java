@@ -75,6 +75,12 @@ public interface VcsCommandExecutor extends Runnable {
     public int getExitStatus();
     
     /**
+     * Get the graphical visualization of the command.
+     * @return the visualizer or null when no visualization is desired.
+     */
+    public VcsCommandVisualizer getVisualizer();
+    
+    /**
      * Add the listener to the standard output of the command. The listeners should be
      * released by the implementing class, when the command finishes.
      */
