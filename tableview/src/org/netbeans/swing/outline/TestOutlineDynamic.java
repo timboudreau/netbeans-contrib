@@ -35,6 +35,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -71,7 +72,7 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
         treeMdl = createModel();
         
         OutlineModel mdl = DefaultOutlineModel.createOutlineModel(treeMdl, 
-            new NodeRowModel(), false);
+            new NodeRowModel(), true);
         
         outline = new Outline();
         
@@ -82,15 +83,26 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
         outline.setModel (mdl);
         
         JPanel buttons = new JPanel();
+        
+        JLabel jl = new JLabel("Read the button tooltips");
+        
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
+        buttons.add(jl);
+        
         final JButton add = new JButton ("Add child");
         final JButton remove = new JButton ("Delete child");
         final JButton clear = new JButton("Clear");
         final JButton addDis = new JButton ("Add discontiguous");
-        final JButton removeDis = new JButton ("Remove discontiguous");
+        final JButton removeDis = new JButton ("Delete discontiguous");
         
+        addDis.setEnabled(false);
+        removeDis.setEnabled(false);
         removeDis.setToolTipText("To enable, select more than one immediate child node of the same parent node");
         addDis.setToolTipText("To enable, select a node with more than one child");
+        add.setToolTipText("Add a child to the selected node");
+        remove.setToolTipText("Delete the selected node");
+        clear.setToolTipText("Clear the model, leaving only the root node");
+        clear.setEnabled(false);
         
         add.addActionListener (this);
         remove.addActionListener(this);
@@ -175,6 +187,8 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
         
         if ("add".equals(b.getName())) {
             Node newNode = new Node();
+            DefaultMutableTreeNode nd = new DefaultMutableTreeNode(newNode, true);
+            nd.setParent(n);
             mdl.insertNodeInto(new DefaultMutableTreeNode(newNode, true), n, n.getChildCount());
             
         } else if ("remove".equals(b.getName())) {
@@ -199,20 +213,45 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
             
         } else if ("removeDis".equals(b.getName())) {
             int[] sels = getSelectedIndices();
+            
+            System.err.println("Going to remove " + Arrays.asList(Utilities.toObjectArray(sels)));
+            
             //they all have the same parent if the button is enabled
             DefaultMutableTreeNode aNode = (DefaultMutableTreeNode) 
                 outline.getValueAt(sels[0], 0);
+            
             DefaultMutableTreeNode parent = (DefaultMutableTreeNode) aNode.getParent();
             
-            ArrayList nodes = new ArrayList();
+            //reverse sort the selections, so we remove nodes from bottom to top
             for (int i=0; i < sels.length; i++) {
-                aNode = (DefaultMutableTreeNode) outline.getValueAt(sels[i], 0);
-                sels[i] = parent.getIndex(aNode);
-                parent.remove(aNode);
-                nodes.add(aNode);
+                sels[i] *= -1;
+            }
+            Arrays.sort(sels);
+            for (int i=0; i < sels.length; i++) {
+                sels[i] *= -1;
             }
             
-            mdl.nodesWereRemoved(parent, sels, nodes.toArray());
+            ArrayList nodes = new ArrayList();
+            int[] indices = new int[sels.length];
+            //Build the list of nodes we'll play with before we start
+            //modifying the model - we can't do it while we're going
+            for (int i=0; i < sels.length; i++) {
+                aNode = (DefaultMutableTreeNode) outline.getValueAt(sels[i], 0);
+                nodes.add (aNode);
+                indices[i] = parent.getIndex(aNode);
+            }
+            
+            for (int i=0; i < nodes.size(); i++) {
+                aNode = (DefaultMutableTreeNode) nodes.get(i);
+                if (aNode.getParent() != parent) {
+                    System.err.println(aNode + " not child of " + parent + " but of " + aNode.getParent());
+                } else {
+                    parent.remove(aNode);
+                    nodes.add(aNode);
+                }
+            }
+            
+            mdl.nodesWereRemoved(parent, indices, nodes.toArray());
             
         }
     }
@@ -228,8 +267,8 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
         for (int i=min; i <= max; i++) {
             if (lsm.isSelectedIndex(i)) {
                 System.err.println(i + " is selected");
+                al.add (new Integer(i));
             }
-            al.add (new Integer(i));
         }
         Integer[] ints = (Integer[]) al.toArray(new Integer[0]);
         return (int[]) Utilities.toPrimitiveArray(ints);

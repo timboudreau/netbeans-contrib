@@ -287,12 +287,25 @@ public class DefaultOutlineModel implements OutlineModel {
         }
         
         public void treeNodesInserted(TreeModelEvent e) {
+            if (isDiscontiguous(e)) {
+                System.err.println("Discontiguous event: " + e);
+                //XXX just for the output
+                getContiguousIndexBlocks (e, false);
+            }
+            
             getLayout().treeNodesInserted(e);
             fireTreeChange (e, NODES_INSERTED);
         }
         
         public void treeNodesRemoved(TreeModelEvent e) {
             System.err.println("\nTreeNodesRemoved");
+            
+            
+//            if (isDiscontiguous(e)) {
+                System.err.println("Discontiguous event: " + e);
+                //XXX just for the output
+                getContiguousIndexBlocks (e, true);
+//            }
             
             //Okay, one or more nodes was removed.  The event's tree path
             //will be the parent.  Now we need to find out about any children
@@ -454,6 +467,114 @@ public class DefaultOutlineModel implements OutlineModel {
         }
     }
 
+    /** Determine if the indices referred to by a TreeModelEvent are
+     * contiguous.  If they are not, we will need to generate multiple
+     * TableModelEvents for each contiguous block */
+    private boolean isDiscontiguous (TreeModelEvent e) {
+        int[] indices = e.getChildIndices();
+        System.err.println("isDiscontiguous " + e);
+        if (indices.length == 1) {
+            System.err.println("length is 1 - false");
+            return false;
+        }
+        Arrays.sort(indices);
+        int lastVal = indices[0];
+        for (int i=1; i < indices.length; i++) {
+            if (indices[i] != lastVal + 1) {
+                System.err.println("  found discontinuity");
+                return true;
+            } else {
+                lastVal++;
+            }
+        }
+        return false;
+    }
+
+    /** Returns an array of int[]s each one representing a contiguous set of 
+     * indices in the tree model events child indices - each of which can be
+     * fired as a single TableModelEvent.  The length of the return value is
+     * the number of TableModelEvents required to represent this TreeModelEvent.
+     * If reverseOrder is true (needed for remove events, where the last indices
+     * must be removed first or the indices of later removals will be changed),
+     * the returned int[]s will be sorted in reverse order, and the order in
+     * which they are returned will also be from highest to lowest. */
+    private Object[] getContiguousIndexBlocks (TreeModelEvent e, boolean reverseOrder) {
+        int[] indices = e.getChildIndices();
+        
+        //Quick check if there's only one index
+        if (indices.length == 1) {
+            return new Object[] {indices};
+        }
+        
+        //The array of int[]s we'll return
+        ArrayList al = new ArrayList();
+        
+        //Sort the indices as requested
+        if (reverseOrder) {
+            inverseSort (indices);
+        } else {
+            Arrays.sort (indices);
+        }
+
+
+        //The starting block
+        ArrayList currBlock = new ArrayList(indices.length / 2);
+        al.add(currBlock);
+        
+        //The value we'll check against the previous one to detect the
+        //end of contiguous segment
+        int lastVal = -1;
+        
+        //Iterate the indices
+        for (int i=0; i < indices.length; i++) {
+            if (i != 0) {
+                //See if we've hit a discontinuity
+                boolean newBlock = reverseOrder ? indices[i] != lastVal - 1 :
+                    indices[i] != lastVal + 1;
+                    
+                if (newBlock) {
+                    currBlock = new ArrayList(indices.length - 1);
+                    al.add(currBlock);
+                }
+            }
+            System.err.println("Adding " + indices[i] + " to block " + al.size());
+            currBlock.add (new Integer(indices[i]));
+            lastVal = indices[i];
+        }
+        
+        System.err.println("Found " + al.size() + " discontiguous blocks");
+         
+        for (int i=0; i < al.size(); i++) {
+            ArrayList curr = (ArrayList) al.get(i);
+            Integer[] ints = (Integer[]) curr.toArray(new Integer[0]);
+            
+            System.err.println("Block " + i + ": " + curr);
+            al.set(i, toArrayOfInt(ints));
+        }
+        
+        return al.toArray();
+    }
+    
+    private int[] toArrayOfInt (Integer[] ints) {
+        int[] result = new int[ints.length];
+        for (int i=0; i < ints.length; i++) {
+            result[i] = ints[i].intValue();
+        }
+        return result;
+    }
+    
+    /** Sort an array of ints from highest to lowest */
+    private void inverseSort (int[] array) {
+        //Kinda brute force & ugly
+        for (int i=0; i < array.length; i++) {
+            array[i] *= -1;
+        }
+        Arrays.sort(array);
+        for (int i=0; i < array.length; i++) {
+            array[i] *= -1;
+        }
+    }
+    
     
     /** Translates a TreeExpansionEvent into a precise TableModelEvent indicating
      * the type of change and the rows affected */
