@@ -444,7 +444,23 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 addActionToProcess(new ActionListener() {
                     public void actionPerformed(ActionEvent ev) {
                         if (vars != null) {
-                            vars.put(component.getVariable(), component.getDefaultValue());
+                            if (VariableInputDescriptor.INPUT_ASK == component.getComponent()) {
+                                String value;
+                                String valueSelected = component.getValueSelected();
+                                String valueUnselected = component.getValueUnselected();
+                                String defaultValue = component.getDefaultValue();
+                                if (valueSelected != null && valueUnselected != null) {
+                                    // The default value is either selected or unselected value
+                                    value = defaultValue;
+                                } else if (Boolean.TRUE.toString().equalsIgnoreCase(defaultValue)) {
+                                    value = Boolean.TRUE.toString();
+                                } else {
+                                    value = ""; // NOI18N
+                                }
+                                vars.put(component.getVariable(), value);
+                            } else {
+                                vars.put(component.getVariable(), component.getDefaultValue());
+                            }
                         }
                     }
                 });
