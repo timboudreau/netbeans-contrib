@@ -5,6 +5,7 @@ import junit.textui.TestRunner;
 import org.netbeans.jellytools.Bundle;
 import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.NbDialogOperator;
+import org.netbeans.jellytools.RepositoryTabOperator;
 import org.netbeans.jellytools.nodes.FolderNode;
 import org.netbeans.jellytools.nodes.JavaNode;
 import org.netbeans.jemmy.EventTool;
@@ -62,6 +63,7 @@ public class ClazzNodeTest extends JellyTestCase {
     /** setUp method  */
     public void setUp() {
         System.out.println("########  "+getName()+"  #######"); //NOI18N
+        RepositoryTabOperator.invoke();
     }
     
     /** tearDown method */
