@@ -15,9 +15,10 @@ package org.netbeans.modules.vcscore.cmdline.exec;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.text.*;
-
-import org.apache.regexp.*;
 
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
@@ -573,10 +574,10 @@ public class ExternalCommand {
     public void addRegexOutputListener(RegexOutputListener l, String regex) throws BadRegexException {
         synchronized(stdOutDataLock) {
             if (stdOutDataListeners.contains(l)) return;
-            RE pattern = null;
+            Pattern pattern = null;
             try {
-                pattern = new RE(regex);
-            } catch(RESyntaxException e) {
+                pattern = Pattern.compile(regex);
+            } catch(PatternSyntaxException e) {
                 //E.err(e,"RE failed regexp"); // NOI18N
                 throw new BadRegexException("Bad regexp.", e); // NOI18N
             }
@@ -594,10 +595,10 @@ public class ExternalCommand {
     public void addRegexErrorListener(RegexOutputListener l, String regex) throws BadRegexException {
         synchronized(stdErrDataLock) {
             if (stdErrDataListeners.contains(l)) return;
-            RE pattern = null;
+            Pattern pattern = null;
             try {
-                pattern = new RE(regex);
-            } catch(RESyntaxException e) {
+                pattern = Pattern.compile(regex);
+            } catch(PatternSyntaxException e) {
                 //E.err(e,"RE failed regexp"); // NOI18N
                 throw new BadRegexException("Bad regexp.", e); // NOI18N
             }
@@ -653,21 +654,15 @@ public class ExternalCommand {
 
 
     //-------------------------------------------
-    public static String[] matchToStringArray(RE pattern, String line) {
-        Vector v=new Vector(5);
-        if (!pattern.match(line)) {
+    public static String[] matchToStringArray(Pattern pattern, String line) {
+        Matcher matcher = pattern.matcher(line);
+        if (!matcher.matches()) {
             return new String[0];
         }
-        for(int i=1; i < pattern.getParenCount(); i++){
-            int subStart=pattern.getParenStart(i);
-            int subEnd=pattern.getParenEnd(i);
-            if (subStart >= 0 && subEnd > subStart)
-                v.addElement(line.substring(subStart, subEnd));
+        String[] sa = new String[matcher.groupCount()];
+        for(int i = 0; i < sa.length; i++) {
+            sa[i] = matcher.group(i + 1);
         }
-        int count=v.size();
-        if (count <= 0) count = 1;
-        String[]sa=new String[count];
-        v.toArray(sa);
         return sa;
     }
 
@@ -676,7 +671,7 @@ public class ExternalCommand {
         synchronized(stdOutDataLock) {
             int n = stdOutDataListeners.size();
             for (int i = 0; i < n; i++) {
-                RE pattern = (RE) stdOutRegexps.get(i);
+                Pattern pattern = (Pattern) stdOutRegexps.get(i);
                 String[] sa = matchToStringArray(pattern, line);
                 if (sa != null && sa.length > 0) ((RegexOutputListener) stdOutDataListeners.get(i)).outputMatchedGroups(sa);
             }
@@ -694,7 +689,7 @@ public class ExternalCommand {
         synchronized(stdErrDataLock) {
             int n = stdErrDataListeners.size();
             for (int i = 0; i < n; i++) {
-                RE pattern = (RE) stdErrRegexps.get(i);
+                Pattern pattern = (Pattern) stdErrRegexps.get(i);
                 String[] sa = matchToStringArray(pattern, line);
                 if (sa != null && sa.length > 0) ((RegexOutputListener) stdErrDataListeners.get(i)).outputMatchedGroups(sa);
             }
