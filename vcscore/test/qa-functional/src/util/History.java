@@ -25,10 +25,18 @@ import org.openide.nodes.Node.PropertySet;
 
 public class History {
     
+    public static final String FILES_PROPERTY_VCS = "Processed Files";
+    public static final String FILES_PROPERTY_JCVS = "Files";
+    public static final String EXEC_PROPERTY_VCS = "Execution String";
+    public static final String EXEC_PROPERTY_JCVS = null;
+    
     FileSystem filesystem;
     RuntimeCommandsProvider provider;
     RuntimeCommand breakpoint, startpoint;
     PrintStream log;
+    String filesproperty = FILES_PROPERTY_VCS;
+    String execproperty = FILES_PROPERTY_VCS;
+    int timeout = 60;
     
     public History(FileSystem filesystem) {
         this (filesystem, null);
@@ -44,6 +52,20 @@ public class History {
     
     public FileSystem getFileSystem () {
         return filesystem;
+    }
+    
+    public void switchToVCS () {
+        filesproperty = FILES_PROPERTY_VCS;
+        execproperty = EXEC_PROPERTY_VCS;
+    }
+    
+    public void switchToJCVS () {
+        filesproperty = FILES_PROPERTY_JCVS;
+        execproperty = EXEC_PROPERTY_JCVS;
+    }
+    
+    public void setTimeout (int timeout) {
+        this.timeout = timeout;
     }
     
     public RuntimeCommand getBreakpoint () {
@@ -67,7 +89,7 @@ public class History {
             if (rc[a] == breakpoint)
                 break;
             Node no = rc[a].getNodeDelegate();
-            String s = getPropertyValue (no, "Properties", "Processed Files");
+            String s = getPropertyValue (no, "Properties", filesproperty);
             if (name.equals (no.getDisplayName ())  &&  (file == null  ||  file.equals (s)))
                 return rc[a];
         }
@@ -97,7 +119,7 @@ public class History {
     }
     
     public RuntimeCommand getWaitCommand (String name, String file) {
-        for (int a = 0; a < 60; a ++) {
+        for (int a = 0; a < timeout; a ++) {
             RuntimeCommand rc = getLastCommand (name, file);
             if (rc != null  &&  rc.getState() == RuntimeCommand.STATE_DONE) {
                 breakpoint = rc;
@@ -110,7 +132,7 @@ public class History {
     }
     
     public boolean waitCommand (String name, String file) {
-        for (int a = 0; a < 60; a ++) {
+        for (int a = 0; a < timeout; a ++) {
             RuntimeCommand rc = getLastCommand (name, file);
             if (rc != null  &&  rc.getState() == RuntimeCommand.STATE_DONE) {
                 breakpoint = rc;
@@ -140,12 +162,16 @@ public class History {
             if (rc[a] == startpoint)
                 log.print ("==== Startpoint - ");
             Node no = rc[a].getNodeDelegate();
-            String s1 = getPropertyValue (no, "Properties", "Processed Files");
-            String s2 = getPropertyValue (no, "Properties", "Execution String");
-            String stat = "Run" + rc[a].getState ();
+            log.print("History: " + a + " - Status: ");
             if (rc[a].getState() == RuntimeCommand.STATE_DONE)
-                stat = (rc[a].getExitStatus() == RuntimeCommand.SUCCEEDED) ? "OK" : "Fail";
-            log.println("History: " + a + " - Status: " + stat + " - Name: " + no.getDisplayName () + " - File: " + s1 + " Exec: " + s2);
+                log.print ((rc[a].getExitStatus() == RuntimeCommand.SUCCEEDED) ? "OK" : "Fail");
+            else
+                log.print ("Run" + rc[a].getState ());
+            log.print (" - Name: " + no.getDisplayName () + " - File: " + getPropertyValue (no, "Properties", filesproperty));
+            if (execproperty != null)
+                log.println (" Exec: " + getPropertyValue (no, "Properties", execproperty));
+            else
+                log.println ();
         }
     }
     
