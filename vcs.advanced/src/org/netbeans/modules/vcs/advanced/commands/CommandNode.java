@@ -95,6 +95,7 @@ public class CommandNode extends AbstractNode {
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_CHANGING_REVISION, Boolean.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_USER_PARAMS, String[].class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_LOAD_ATTRS_TO_VARS, String[].class);
+        expert_propertyClassTypes.put(VcsCommand.PROPERTY_GENERAL_COMMAND_ACTION_CLASS_NAME, String.class);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_FILE_NAME, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_REMOVED_FILE_NAME, Integer.TYPE);
         list_propertyClassTypes.put(UserCommand.PROPERTY_LIST_INDEX_STATUS, Integer.TYPE);
@@ -517,8 +518,8 @@ public class CommandNode extends AbstractNode {
         if (getParentNode() != null) {  // Delete not present on the root node.
             actions.add(SystemAction.get(DeleteAction.class));//delete);
         }
-        actions.add(null);
-        actions.add(SystemAction.get(PropertiesAction.class));
+        //actions.add(null);
+        //actions.add(SystemAction.get(PropertiesAction.class)); -- properties action has caused problems on modal dialogs
         SystemAction[] array = new SystemAction [actions.size()];
         actions.toArray(array);
         return array;
