@@ -79,6 +79,10 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
         return img;
     }
 
+    public java.awt.Image getOpenedIcon (int type) {
+        return this.getIcon(type);
+    }
+    
     private RevisionList getRevisionList(boolean refresh) {
         VersioningFileSystem vfs;
         try {
