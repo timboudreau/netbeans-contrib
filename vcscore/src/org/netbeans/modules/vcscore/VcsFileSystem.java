@@ -101,18 +101,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static final String DEFAULT_QUOTING_VALUE = "\\\""; // NOI18N
 
     private static final String DEFAULT_CACHE_ID = "VCS_Cache"; // NOI18N
-    /**
-     * The name of the variable for which we get user input.
-     */
-    private static final String PROMPT_FOR = "PROMPT_FOR"; // NOI18N
-    /**
-     * The name of the variable for which we get user to set true or false.
-     */
-    private static final String ASK_FOR = "ASK_FOR"; // NOI18N
-    /**
-     * The name of the variable for which we get user file input.
-     */
-    private static final String PROMPT_FOR_FILE_CONTENT = "PROMPT_FOR_FILE_CONTENT"; // NOI18N
+
     private static final String FILE_PROMPT_PREFIX = "tmppf"; // NOI18N
     /**
      * The name of the variable for the global additional parameters.
@@ -195,7 +184,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     /**
      * Whether to prompt the user for variables for each selected file. Value of this variable
-     * willl be the default value in the VariableInputDialog and changing the value there will
+     * will be the default value in the VariableInputDialog and changing the value there will
      * change the value of this variable.
      */
     private boolean promptForVarsForEachFile = false;
@@ -281,6 +270,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         userLocalParamsLabels = labels;
     }
     
+    public String[] getUserLocalParamsLabels() {
+        return userLocalParamsLabels;
+    }
+    
     public void setUserParamsLabels(String[] labels) {
         userParamsLabels = labels;
         userParams = new String[labels.length];
@@ -290,15 +283,20 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return userParamsLabels;
     }
     
+    public void setUserParams(String[] userParams) {
+        this.userParams = userParams;
+    }
+    
     public String[] getUserParams() {
         return userParams;
     }
     
     public void setExpertMode(boolean expertMode) {
         this.expertMode = expertMode;
+        setAcceptUserParams(expertMode);
     }
     
-    public boolean getExpertMode() {
+    public boolean isExpertMode() {
         return expertMode;
     }
     
@@ -308,6 +306,23 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     public boolean isCommandNotification() {
         return commandNotification;
+    }
+    
+    /**
+     * Set whether to prompt the user for variables for each selected file. Set the
+     * initial default value in the VariableInputDialog.
+     */
+    public void setPromptForVarsForEachFile(boolean promptForVarsForEachFile) {
+        this.promptForVarsForEachFile = promptForVarsForEachFile;
+    }
+    
+    /**
+     * Whether to prompt the user for variables for each selected file. This value
+     * will be the default value in the VariableInputDialog and changing the value
+     * there will change the value returned.
+     */
+    public boolean isPromptForVarsForEachFile() {
+        return promptForVarsForEachFile;
     }
 
     public CommandsPool getCommandsPool() {
@@ -1115,196 +1130,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         // TODO: should be called when the last VCS command finished
     }
 
-    /**
-     * Find out what to prompt for the user for before running the command.
-     * @param exec The command to exec
-     * @param vars The variables to use
-     * @return The table of variable labels for the user to input as keys and prompt type as values
-     */
-    private Table needPromptFor(String exec, Hashtable vars) {
-        Table results = new Table();
-        String search = "${"+PROMPT_FOR; //+"(";
-        int pos = 0;
-        int index;
-        while((index = exec.indexOf(search, pos)) >= 0) {
-            index += search.length();
-            int parIndex = exec.indexOf("(", index);
-            if (parIndex < 0) break;
-            String promptType = exec.substring(index, parIndex);
-            String promptIdentifier = exec.substring(index - PROMPT_FOR.length(), parIndex);
-            if (PROMPT_FOR_FILE_CONTENT.equals(promptIdentifier)) {
-                pos = parIndex;
-                continue;
-            }
-            index = parIndex + 1;
-            int index2 = exec.indexOf(")", index);
-            if (index2 < 0) break;
-            String str = exec.substring(index, index2);
-            results.put(str, promptType);
-            //results.addElement(str);
-            pos = index2;
-        }
-        //return (String[]) results.toArray(new String[0]);
-        return results;
-    }
-
-    /**
-     * Find out what to ask the user for before running the command.
-     * @param exec The command to exec
-     * @param vars The variables to use
-     * @return The table of questions for the user as keys and prompt type as values
-     */
-    private Table needAskFor(String exec, Hashtable vars) {
-        Table results = new Table();
-        HashSet labels = new HashSet();
-        String search = /*"${"+*/ASK_FOR; //+"("; // to be able to put this to conditional expression
-        int pos = 0;
-        int index;
-        while((index = exec.indexOf(search, pos)) >= 0) {
-            index += search.length();
-            int parIndex = exec.indexOf("(", index);
-            if (parIndex < 0) break;
-            String promptType = exec.substring(index, parIndex);
-            index = parIndex + 1;
-            int index2 = exec.indexOf(")", index);
-            if (index2 < 0) break;
-            String str = exec.substring(index, index2);
-            if (!labels.contains(str)) { // Do not add one label more than ones.
-                labels.add(str);
-                results.put(str, promptType);
-            }
-            pos = index2;
-        }
-        /*
-        // Assure, that the items are unique. I don't wanna use set 'cause don't wanna alter the order.
-        for (int i = 0; i < results.size(); i++) {
-            if (results.indexOf(results.get(i)) < i) results.remove(i);
-        }
-        return (String[]) results.toArray(new String[0]);
-         */
-        return results;
-    }
-
-    /**
-     * Find out what to prompt the user for to write a content of a temporary file.
-     * @param exec The command to exec
-     * @param vars The variables to use
-     * @return the table of questions and files to read the content from
-     */
-    private Hashtable needPrompForFileContent(String exec, Hashtable vars, Hashtable varNames) {
-        D.deb("needPrompForFileContent("+exec+")");
-        Hashtable results = new Hashtable();
-        String search = "${"+PROMPT_FOR_FILE_CONTENT+"(";
-        int pos = 0;
-        int index;
-        while((index = exec.indexOf(search, pos)) >= 0) {
-            int varBegin = index + 2;
-            index += search.length();
-            int index2 = exec.indexOf(",", index);
-            int index3 = exec.indexOf(")}", index);
-            if (index3 < 0) break;
-            if (index2 < 0 || index2 > index3) index2 = index3;
-            String message = exec.substring(index, index2);
-            message = Variables.expandFast(vars, message, true);
-            pos = index2 + 1;
-            String fileName = "";
-            if (pos < index3) {
-                fileName = exec.substring(pos, index3).trim();
-                fileName = Variables.expand(vars, fileName, true);
-                pos = index3;
-            }
-            D.deb("needPrompForFileContent(): message = "+message+", fileName = "+fileName);
-            results.put(message, fileName);
-            varNames.put(exec.substring(varBegin, index3 + 1), message);
-            D.deb("needPrompForFileContent() varName = "+exec.substring(varBegin, index3 + 1)+", for message = "+message);
-        }
-        return results;
-    }
-
-    /**
-     * Find out which additional user parameters prompt the use for.
-     * @return The table of parameter labels for the user to input, one for each parameter
-     *         and default values.
-     */
-    private Table needPromptForUserParams(String exec, Hashtable vars, Hashtable varNames, Hashtable userParamsIndexes, VcsCommand cmd) {
-        Table results = new Table();
-        String search = "${"+USER_GLOBAL_PARAM;
-        int pos = 0;
-        int index;
-        while((index = exec.indexOf(search, pos)) >= 0) {
-            int varBegin = index + 2;
-            index += search.length();
-            char cnum = exec.charAt(index);
-            int num = 1;
-            if (Character.isDigit(cnum)) {
-                num = Character.digit(cnum, 10);
-                index++;
-            }
-            num--;
-            int varEnd = VcsUtilities.getPairIndex(exec, index, '{', '}');
-            if (varEnd < 0) {
-                pos = index; //TODO: wrong command syntax: '}' is missing
-                continue;
-            }
-            String varName = exec.substring(varBegin, varEnd);
-            String defaultParam = "";
-            if (exec.charAt(index) == '(') {
-                index++;
-                int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
-                if (index2 > 0) defaultParam = exec.substring(index, index2);
-            }
-            if (acceptUserParams && userParamsLabels != null) {
-                if (num >= userParamsLabels.length) num = userParamsLabels.length - 1;
-                if (userParams[num] != null) defaultParam = userParams[num];
-                results.put(userParamsLabels[num], defaultParam);
-                varNames.put(varName, userParamsLabels[num]);
-                userParamsIndexes.put(varName, new Integer(num));
-            } else {
-                vars.put(varName, defaultParam);
-            }
-            pos = varEnd;
-        }
-        search = "${"+USER_PARAM;
-        pos = 0;
-        while((index = exec.indexOf(search, pos)) >= 0) {
-            int varBegin = index + 2;
-            index += search.length();
-            char cnum = exec.charAt(index);
-            int num = 1;
-            if (Character.isDigit(cnum)) {
-                num = Character.digit(cnum, 10);
-                index++;
-            }
-            num--;
-            int varEnd = VcsUtilities.getPairIndex(exec, index, '{', '}');
-            if (varEnd < 0) {
-                pos = index; //TODO: wrong command syntax: '}' is missing
-                continue;
-            }
-            String varName = exec.substring(varBegin, varEnd);
-            String defaultParam = "";
-            if (exec.charAt(index) == '(') {
-                index++;
-                int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
-                if (index2 > 0) defaultParam = exec.substring(index, index2);
-            }
-            if (acceptUserParams && userLocalParamsLabels != null) {
-                String[] cmdUserParams = (String[]) cmd.getProperty(VcsCommand.PROPERTY_USER_PARAMS);
-                if (cmdUserParams == null) cmdUserParams = new String[userLocalParamsLabels.length];
-                cmd.setProperty(VcsCommand.PROPERTY_USER_PARAMS, cmdUserParams);
-                if (num >= userLocalParamsLabels.length) num = userLocalParamsLabels.length - 1;
-                if (cmdUserParams[num] != null) defaultParam = cmdUserParams[num];
-                results.put(userLocalParamsLabels[num], defaultParam);
-                varNames.put(varName, userLocalParamsLabels[num]);
-                userParamsIndexes.put(varName, new Integer(-num - 1));
-            } else {
-                vars.put(varName, defaultParam);
-            }
-            pos = varEnd;
-        }
-        return results;
-    }
-    
     //-------------------------------------------
     private boolean needPromptForPR(String name, String exec, Hashtable vars){
         //D.deb("needPromptFor('"+name+"','"+exec+"')"); // NOI18N
@@ -1331,131 +1156,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public void filePromptDocumentCleanup(javax.swing.JTextArea ta, int promptNum, Object docIdentif) {
         // Let the document unchanged by default
-    }
-    
-
-    /**
-     * Ask the user for the value of some variables.
-     * @param exec the updated exec of the command to execute
-     * @param vars the variables
-     * @param cmd the command
-     * @param forEachFile whether to ask for these variables for each file being processed
-     * @return true if all variables were entered, false otherways
-     */
-    public boolean promptForVariables(String exec, Hashtable vars, VcsCommand cmd, boolean[] forEachFile) {
-        synchronized (vars) {
-        if (needPromptForPR("PASSWORD", exec, vars)) { // NOI18N
-            String password = getPassword();
-            if (password == null) {
-                password = ""; // NOI18N
-                NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
-                if (NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault ().notify (nd))) {
-                    password = nd.getInputText ();
-                } else {
-                    return false;
-                }
-                setPassword(password);
-            }
-            vars.put("PASSWORD", password); // NOI18N
-            /* Do not change forEachFile, if the command is successful it will not ask any more */
-        }
-        if (forEachFile == null || forEachFile[0] == true) {
-            boolean reasonPrompt = needPromptForPR("REASON", exec, vars);
-            String reason=""; // NOI18N
-            String file = (String) vars.get("FILE"); // NOI18N
-            String path = (String) vars.get("DIR"); // NOI18N
-            String filePath = (path.length() == 0) ? file : path.replace(((String) vars.get("PS")).charAt(0), '/')+"/"+file;
-            if (filePath != null && cache != null && cache.isDir(filePath)) file = file + java.io.File.separator;
-            Table prompt = needPromptFor(exec, vars);
-            if (reasonPrompt) {
-                if (prompt != null) {
-                    prompt.putFirst(new String(g("MSG_Reason")), "");
-                } else {
-                    prompt = new Table();
-                    prompt.put(new String(g("MSG_Reason")), "");
-                }
-            }
-            exec = Variables.expandKnownOnly(vars, exec);
-            Table ask = needAskFor(exec, vars);
-            Hashtable varNames = new Hashtable(); // Variable names of prompt for file variables with message names
-            Hashtable promptFile = needPrompForFileContent(exec, vars, varNames);
-            Hashtable userParamsVarNames = new Hashtable(); // Variable names of prompt for additional parameters
-            Hashtable userParamsIndexes = new Hashtable();
-            Table userParamsPromptLabels = needPromptForUserParams(exec, vars, userParamsVarNames, userParamsIndexes, cmd);
-            createTempPromptFiles(promptFile);
-            if (prompt != null && prompt.size() > 0 || ask != null && ask.size() > 0 ||
-                promptFile.size() > 0 || userParamsPromptLabels.size() > 0) {
-                    
-                VariableInputDialog dlg = new VariableInputDialog(/*new java.awt.Frame(), true, */new String[] { file });
-                dlg.setVCSFileSystem(this, vars);
-                //dlg.setCommandDisplayName(cmd.getDisplayName());
-                dlg.setFilePromptLabels(promptFile);
-                dlg.setVarPromptLabels(prompt);
-                dlg.setVarAskLabels(ask);
-                dlg.setUserParamsPromptLabels(userParamsPromptLabels, (String) cmd.getProperty(VcsCommand.PROPERTY_ADVANCED_NAME));
-                if (promptFile.size() > 0) dlg.setFilePromptDocumentListener(this, cmd);
-                if (forEachFile == null) dlg.showPromptEach(false);
-                else dlg.setPromptEach(promptForVarsForEachFile);
-                String title = java.text.MessageFormat.format(
-                    org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.titleWithName"),
-                    new Object[] { cmd.getDisplayName() }
-                );
-                Dialog dialog = TopManager.getDefault().createDialog(new DialogDescriptor(dlg, title, true, dlg.getActionListener()));
-                dialog.show();
-                if (dlg.isValidInput()) {
-                //if (dlg.showDialog()) {
-                    String[] values = dlg.getVarPromptValues();
-                    int first = 0;
-                    Enumeration promptLabels = prompt.keys();
-                    if (reasonPrompt) {
-                        reason = values[0];
-                        first++;
-                        if (promptLabels.hasMoreElements()) promptLabels.nextElement(); // throw the first element if the reason was it.
-                    }
-                    for(int i = first; promptLabels.hasMoreElements(); i++) {
-                        String label = (String) promptLabels.nextElement();
-                        vars.put(PROMPT_FOR+prompt.get(label)+"("+label+")", VcsUtilities.msg2CmdlineStr(values[i], isUseUnixShell()));
-                    }
-                    values = dlg.getVarAskValues();
-                    Enumeration askLabels = ask.keys();
-                    for(int i = 0; askLabels.hasMoreElements(); i++) {
-                        String label = (String) askLabels.nextElement();
-                        vars.put(ASK_FOR+ask.get(label)+"("+label+")", values[i]);
-                    }
-                    for (Enumeration enum = varNames.keys(); enum.hasMoreElements(); ) {
-                        String varName = (String) enum.nextElement();
-                        vars.put(varName, promptFile.get(varNames.get(varName)));
-                        D.deb("put("+varName+", "+promptFile.get(varNames.get(varName))+")");
-                    }
-                    Hashtable valuesTable = dlg.getUserParamsValuesTable();
-                    for (Enumeration enum = userParamsVarNames.keys(); enum.hasMoreElements(); ) {
-                        String varName = (String) enum.nextElement();
-                        //System.out.println("varName = "+varName+", label = "+userParamsVarNames.get(varName));
-                        String value = (String) valuesTable.get(userParamsVarNames.get(varName));
-                        vars.put(varName, value);
-                        int index = ((Integer) userParamsIndexes.get(varName)).intValue();
-                        if (index >= 0) userParams[index] = value;
-                        else {
-                            String[] cmdUserParams = (String[]) cmd.getProperty(VcsCommand.PROPERTY_USER_PARAMS);
-                            cmdUserParams[-index - 1] = value;
-                            cmd.setProperty(VcsCommand.PROPERTY_USER_PARAMS, cmdUserParams);
-                        }
-                        D.deb("put("+varName+", "+valuesTable.get(userParamsVarNames.get(varName))+")");
-                    }
-                    if (forEachFile != null) {
-                        forEachFile[0] = dlg.getPromptForEachFile();
-                        promptForVarsForEachFile = forEachFile[0];
-                    }
-                } else return false;
-                if (reasonPrompt) vars.put("REASON", VcsUtilities.msg2CmdlineStr(reason, isUseUnixShell())); // NOI18N
-            } else {
-                if (forEachFile != null) {
-                    forEachFile[0] = false;
-                }
-            }
-        }
-        return true;
-        }
     }
 
     protected void warnDirectoriesDoNotExists() {
@@ -2429,6 +2129,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         commandsRoot = root;
         commandsByName = new Hashtable();
         addCommandsToHashTable(root);
+        VariableInputDescriptorCompat.createInputDescriptorFormExec(commandsByName);
         firePropertyChange(PROP_COMMANDS, old, commandsRoot);
     }
 

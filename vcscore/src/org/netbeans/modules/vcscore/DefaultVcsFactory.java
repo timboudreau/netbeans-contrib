@@ -23,6 +23,7 @@ import org.openide.nodes.Node;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.VcsFSCache;
@@ -90,7 +91,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
         }
 
         String exec = (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
-        if (exec != null && !fileSystem.promptForVariables(exec, vars, list, null)) return null;
+        if (exec != null && !CommandExecutorSupport.promptForVariables(fileSystem, exec, vars, list, null)) return null;
         if (list instanceof UserCommand) {
             return new CommandLineVcsDirReader(listener, fileSystem, (UserCommand) list, vars);
         } else {
@@ -120,7 +121,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
         }
 
         String exec = (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
-        if (exec != null && !fileSystem.promptForVariables(exec, vars, list, null)) return null;
+        if (exec != null && !CommandExecutorSupport.promptForVariables(fileSystem, exec, vars, list, null)) return null;
         if (list instanceof UserCommand) {
             return new CommandLineVcsDirReaderRecursive(listener, fileSystem, (UserCommand) list, vars);
         } else {

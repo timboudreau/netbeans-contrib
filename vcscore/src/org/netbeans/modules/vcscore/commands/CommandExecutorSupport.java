@@ -18,13 +18,16 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JCheckBox;
+import java.awt.Dialog;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Hashtable;
+import java.util.Enumeration;
 
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
+import org.openide.DialogDescriptor;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
@@ -32,7 +35,12 @@ import org.netbeans.modules.vcscore.RetrievingDialog;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.revision.RevisionListener;
+import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
+import org.netbeans.modules.vcscore.util.VariableInputDialog;
+import org.netbeans.modules.vcscore.util.VariableInputFormatException;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.netbeans.modules.vcscore.util.Table;
+import org.netbeans.modules.vcscore.util.NotifyDescriptorInputPassword;
 
 /**
  * This class contains a support for VCS commands execution.
@@ -40,6 +48,18 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  * @author  Martin Entlicher
  */
 public class CommandExecutorSupport extends Object {
+    
+    /**
+     * The name of the variable for the global additional parameters.
+     */
+    private static final String USER_GLOBAL_PARAM = "USER_GLOBAL_PARAM";
+    /**
+     * The name of the variable for the local additional parameters.
+     */
+    private static final String USER_PARAM = "USER_PARAM";
+    
+    private static final String VAR_INPUT_MULTIPLE_FILES_TITLE_APPEND = " ...";
+    private static final String VAR_INPUT_FILE_SEPARATOR = " - ";
 
     /** Creates new CommandExecutorSupport */
     private CommandExecutorSupport() {
@@ -71,6 +91,10 @@ public class CommandExecutorSupport extends Object {
         return num;
     }
     
+    /**
+     * Pre process the command. Ask for the confirmation, execute any precommands,
+     * prompt the user for input variables.
+     */
     public static int preprocessCommand(VcsFileSystem fileSystem, VcsCommandExecutor vce,
                                         Hashtable vars, boolean[] askForEachFile) {
         VcsCommand cmd = vce.getCommand();
@@ -97,8 +121,8 @@ public class CommandExecutorSupport extends Object {
             }
         }
         // II. Then filll output from pre commands:
-        PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, cmd, vars);
-        String exec = cmdPerf.process();
+        PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
+        String exec = cmdPerf.process((String) cmd.getProperty(VcsCommand.PROPERTY_EXEC));
         // III. Perform the default variable expansion
         //exec = Variables.expand(vars, exec, true);
         // III. Ask for the variable input
@@ -112,7 +136,7 @@ public class CommandExecutorSupport extends Object {
         }
          */
         // III. Ask for the variable input
-        if (!fileSystem.promptForVariables(exec, vars, cmd, askForEachFile)) {
+        if (!promptForVariables(fileSystem, exec, vars, cmd, askForEachFile)) {
             return CommandsPool.PREPROCESS_CANCELLED; // The command is cancelled for that file
         }
         /*
@@ -141,7 +165,7 @@ public class CommandExecutorSupport extends Object {
             }
         }
         // IV. Perform the default variable expansion
-        //exec = Variables.expand(vars, exec, true); - moved to ExecuteCommand. Each command executor have to take care of it
+        //exec = Variables.expand(vars, exec, true); // NO: - moved to ExecuteCommand. Each command executor have to take care of it
         //vce.updateExec(exec);
         // V. Allow a custom preprocessing
         exec = vce.preprocessCommand(cmd, vars, exec);
@@ -289,6 +313,285 @@ public class CommandExecutorSupport extends Object {
     public static String preprocessCommand(VcsCommand cmd, Hashtable vars) {
     }
      */
+
+    /**
+     * Find out which additional user parameters prompt the use for.
+     * @return The table of parameter labels for the user to input, one for each parameter
+     *         and default values.
+     */
+    private static Table needPromptForUserParams(VcsFileSystem fileSystem, String exec,
+                                                 Hashtable vars, Hashtable varNames,
+                                                 Hashtable userParamsIndexes, VcsCommand cmd) {
+        Table results = new Table();
+        String search = "${"+USER_GLOBAL_PARAM;
+        int pos = 0;
+        int index;
+        String[] userParamsLabels = fileSystem.getUserParamsLabels();
+        String[] userParams = fileSystem.getUserParams();
+        String[] userLocalParamsLabels = fileSystem.getUserLocalParamsLabels();
+        while((index = exec.indexOf(search, pos)) >= 0) {
+            int varBegin = index + 2;
+            index += search.length();
+            char cnum = exec.charAt(index);
+            int num = 1;
+            if (Character.isDigit(cnum)) {
+                num = Character.digit(cnum, 10);
+                index++;
+            }
+            num--;
+            int varEnd = VcsUtilities.getPairIndex(exec, index, '{', '}');
+            if (varEnd < 0) {
+                pos = index; //TODO: wrong command syntax: '}' is missing
+                continue;
+            }
+            String varName = exec.substring(varBegin, varEnd);
+            String defaultParam = "";
+            if (exec.charAt(index) == '(') {
+                index++;
+                int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
+                if (index2 > 0) defaultParam = exec.substring(index, index2);
+            }
+            if (fileSystem.isAcceptUserParams() && userParamsLabels != null) {
+                if (num >= userParamsLabels.length) num = userParamsLabels.length - 1;
+                if (userParams[num] != null) defaultParam = userParams[num];
+                results.put(userParamsLabels[num], defaultParam);
+                varNames.put(varName, userParamsLabels[num]);
+                userParamsIndexes.put(varName, new Integer(num));
+            } else {
+                vars.put(varName, defaultParam);
+            }
+            pos = varEnd;
+        }
+        search = "${"+USER_PARAM;
+        pos = 0;
+        while((index = exec.indexOf(search, pos)) >= 0) {
+            int varBegin = index + 2;
+            index += search.length();
+            char cnum = exec.charAt(index);
+            int num = 1;
+            if (Character.isDigit(cnum)) {
+                num = Character.digit(cnum, 10);
+                index++;
+            }
+            num--;
+            int varEnd = VcsUtilities.getPairIndex(exec, index, '{', '}');
+            if (varEnd < 0) {
+                pos = index; //TODO: wrong command syntax: '}' is missing
+                continue;
+            }
+            String varName = exec.substring(varBegin, varEnd);
+            String defaultParam = "";
+            if (exec.charAt(index) == '(') {
+                index++;
+                int index2 = VcsUtilities.getPairIndex(exec, index, '(', ')');
+                if (index2 > 0) defaultParam = exec.substring(index, index2);
+            }
+            if (fileSystem.isAcceptUserParams() && userLocalParamsLabels != null) {
+                String[] cmdUserParams = (String[]) cmd.getProperty(VcsCommand.PROPERTY_USER_PARAMS);
+                if (cmdUserParams == null) cmdUserParams = new String[userLocalParamsLabels.length];
+                cmd.setProperty(VcsCommand.PROPERTY_USER_PARAMS, cmdUserParams);
+                if (num >= userLocalParamsLabels.length) num = userLocalParamsLabels.length - 1;
+                if (cmdUserParams[num] != null) defaultParam = cmdUserParams[num];
+                results.put(userLocalParamsLabels[num], defaultParam);
+                varNames.put(varName, userLocalParamsLabels[num]);
+                userParamsIndexes.put(varName, new Integer(-num - 1));
+            } else {
+                vars.put(varName, defaultParam);
+            }
+            pos = varEnd;
+        }
+        return results;
+    }
+    
+    private static boolean needPromptForPR(String name, String exec, Hashtable vars){
+        //D.deb("needPromptFor('"+name+"','"+exec+"')"); // NOI18N
+        boolean result=false;
+        String oldPassword=(String)vars.get("PASSWORD"); vars.put("PASSWORD",""); // NOI18N
+        String oldReason=(String)vars.get("REASON"); vars.put("REASON",""); // NOI18N
+
+        String test="variable_must_be_prompt_for"; // NOI18N
+        vars.put(name,test);
+        String s = Variables.expand(vars, exec, false);
+        result = (s.indexOf(test) >= 0) ? true : false ;
+
+        if (oldPassword != null) { vars.put("PASSWORD", oldPassword); } // NOI18N
+        if (oldReason != null) { vars.put("REASON", oldReason); } // NOI18N
+
+        return result ;
+    }
+
+    /**
+     * Ask the user for the value of some variables.
+     * @param inputDescriptor the descriptor of variable input components
+     * @param vars the variables
+     * @param cmd the command
+     * @param forEachFile whether to ask for these variables for each file being processed
+     * @return true if all variables were entered, false otherways
+     */
+    public static boolean promptForVariables(VcsFileSystem fileSystem, String exec,
+                                             Hashtable vars, VcsCommand cmd, boolean[] forEachFile) {
+        String inputDescriptorStr = (String) cmd.getProperty(VcsCommand.PROPERTY_INPUT_DESCRIPTOR);
+        VariableInputDescriptor inputDescriptor = null;
+        if (inputDescriptorStr != null) {
+            // Perform the variable expansion to be able to use variables there
+            System.out.println("promptForVariables(): inputDescriptorStr = "+inputDescriptorStr);
+            inputDescriptorStr = Variables.expand(vars, inputDescriptorStr, true);
+            System.out.println("FILES_IS_FOLDER = '"+vars.get("FILES_IS_FOLDER")+"'");
+            System.out.println("promptForVariables(): after expand: inputDescriptorStr = "+inputDescriptorStr);
+            PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
+            inputDescriptorStr = cmdPerf.process(inputDescriptorStr);
+            try {
+                inputDescriptor = VariableInputDescriptor.parseItems(inputDescriptorStr);
+            } catch (VariableInputFormatException exc) {
+                TopManager.getDefault().notifyException(exc);
+                return false;
+            }
+        }
+        synchronized (vars) {
+            if (needPromptForPR("PASSWORD", exec, vars)) { // NOI18N
+                String password = fileSystem.getPassword();
+                if (password == null) {
+                    password = ""; // NOI18N
+                    NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
+                    if (NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault ().notify (nd))) {
+                        password = nd.getInputText ();
+                    } else {
+                        return false;
+                    }
+                    fileSystem.setPassword(password);
+                }
+                vars.put("PASSWORD", password); // NOI18N
+            /* Do not change forEachFile, if the command is successful it will not ask any more */
+            }
+            if (forEachFile == null || forEachFile[0] == true) {
+                /*
+                boolean reasonPrompt = needPromptForPR("REASON", exec, vars);
+                String reason=""; // NOI18N
+                String file = (String) vars.get("FILE"); // NOI18N
+                String path = (String) vars.get("DIR"); // NOI18N
+                String filePath = (path.length() == 0) ? file : path.replace(((String) vars.get("PS")).charAt(0), '/')+"/"+file;
+                if (filePath != null && cache != null && cache.isDir(filePath)) file = file + java.io.File.separator;
+                Table prompt = needPromptFor(exec, vars);
+                if (reasonPrompt) {
+                    if (prompt != null) {
+                        prompt.putFirst(new String(g("MSG_Reason")), "");
+                    } else {
+                        prompt = new Table();
+                        prompt.put(new String(g("MSG_Reason")), "");
+                    }
+                }
+                exec = Variables.expandKnownOnly(vars, exec);
+                Table ask = needAskFor(exec, vars);
+                Hashtable varNames = new Hashtable(); // Variable names of prompt for file variables with message names
+                Hashtable promptFile = needPrompForFileContent(exec, vars, varNames);
+                 */
+                String[] userParams = fileSystem.getUserParams();
+                Hashtable userParamsVarNames = new Hashtable(); // Variable names of prompt for additional parameters
+                Hashtable userParamsIndexes = new Hashtable();
+                Table userParamsPromptLabels = needPromptForUserParams(fileSystem, exec, vars, userParamsVarNames, userParamsIndexes, cmd);
+                /*
+                createTempPromptFiles(promptFile);
+                if (prompt != null && prompt.size() > 0 || ask != null && ask.size() > 0 ||
+                promptFile.size() > 0 || userParamsPromptLabels.size() > 0) {
+                    */
+                if (inputDescriptor != null && inputDescriptor.components().length > 0
+                    || userParamsPromptLabels.size() > 0) {
+
+                    String file = (String) vars.get("FILE"); // NOI18N
+                    VariableInputDialog dlg = new VariableInputDialog(new String[] { file }, inputDescriptor, fileSystem.isExpertMode());
+                    dlg.setVCSFileSystem(fileSystem, vars);
+                    //dlg.setCommandDisplayName(cmd.getDisplayName());
+                    /*
+                    dlg.setFilePromptLabels(promptFile);
+                    dlg.setVarPromptLabels(prompt);
+                    dlg.setVarAskLabels(ask);
+                     */
+                    dlg.setUserParamsPromptLabels(userParamsPromptLabels, (String) cmd.getProperty(VcsCommand.PROPERTY_ADVANCED_NAME));
+                    /*if (promptFile.size() > 0)*/ dlg.setFilePromptDocumentListener(fileSystem, cmd);
+                    if (forEachFile == null) dlg.showPromptEach(false);
+                    else dlg.setPromptEach(fileSystem.isPromptForVarsForEachFile());
+                    String title = (inputDescriptor != null) ? inputDescriptor.getLabel() : null;
+                    if (title == null) {
+                        /*
+                        title = java.text.MessageFormat.format(
+                            org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.titleWithName"),
+                            new Object[] { cmd.getDisplayName() }
+                        );
+                         */
+                        title = cmd.getDisplayName();
+                    }
+                    title += VAR_INPUT_FILE_SEPARATOR + file;
+                    String multipleFiles = (String) vars.get("MULTIPLE_FILES");
+                    if (multipleFiles != null && multipleFiles.length() > 0) title += VAR_INPUT_MULTIPLE_FILES_TITLE_APPEND;
+                    DialogDescriptor dialogDescriptor = new DialogDescriptor(dlg, title, true, dlg.getActionListener());
+                    dialogDescriptor.setClosingOptions(new Object[] { NotifyDescriptor.CANCEL_OPTION });
+                    final Dialog dialog = TopManager.getDefault().createDialog(dialogDescriptor);
+                    dlg.setCloseListener(new java.awt.event.ActionListener() {
+                        public void actionPerformed(java.awt.event.ActionEvent ev) {
+                            dialog.dispose();
+                        }
+                    });
+                    dialog.setVisible(true);
+                    if (dlg.isValidInput()) {
+                        /*
+                        //if (dlg.showDialog()) {
+                        String[] values = dlg.getVarPromptValues();
+                        int first = 0;
+                        Enumeration promptLabels = prompt.keys();
+                        if (reasonPrompt) {
+                            reason = values[0];
+                            first++;
+                            if (promptLabels.hasMoreElements()) promptLabels.nextElement(); // throw the first element if the reason was it.
+                        }
+                        for(int i = first; promptLabels.hasMoreElements(); i++) {
+                            String label = (String) promptLabels.nextElement();
+                            vars.put(PROMPT_FOR+prompt.get(label)+"("+label+")", VcsUtilities.msg2CmdlineStr(values[i], isUseUnixShell()));
+                        }
+                        values = dlg.getVarAskValues();
+                        Enumeration askLabels = ask.keys();
+                        for(int i = 0; askLabels.hasMoreElements(); i++) {
+                            String label = (String) askLabels.nextElement();
+                            vars.put(ASK_FOR+ask.get(label)+"("+label+")", values[i]);
+                        }
+                        for (Enumeration enum = varNames.keys(); enum.hasMoreElements(); ) {
+                            String varName = (String) enum.nextElement();
+                            vars.put(varName, promptFile.get(varNames.get(varName)));
+                            D.deb("put("+varName+", "+promptFile.get(varNames.get(varName))+")");
+                        }
+                         */
+                        dlg.processActions();
+                        Hashtable valuesTable = dlg.getUserParamsValuesTable();
+                        for (Enumeration enum = userParamsVarNames.keys(); enum.hasMoreElements(); ) {
+                            String varName = (String) enum.nextElement();
+                            //System.out.println("varName = "+varName+", label = "+userParamsVarNames.get(varName));
+                            String value = (String) valuesTable.get(userParamsVarNames.get(varName));
+                            vars.put(varName, value);
+                            int index = ((Integer) userParamsIndexes.get(varName)).intValue();
+                            if (index >= 0) userParams[index] = value;
+                            else {
+                                String[] cmdUserParams = (String[]) cmd.getProperty(VcsCommand.PROPERTY_USER_PARAMS);
+                                cmdUserParams[-index - 1] = value;
+                                cmd.setProperty(VcsCommand.PROPERTY_USER_PARAMS, cmdUserParams);
+                            }
+                            //D.deb("put("+varName+", "+valuesTable.get(userParamsVarNames.get(varName))+")");
+                        }
+                        fileSystem.setUserParams(userParams);
+                        if (forEachFile != null) {
+                            forEachFile[0] = dlg.getPromptForEachFile();
+                            fileSystem.setPromptForVarsForEachFile(forEachFile[0]);
+                        }
+                    } else return false;
+                    //if (reasonPrompt) vars.put("REASON", VcsUtilities.msg2CmdlineStr(reason, isUseUnixShell())); // NOI18N
+                } else {
+                    if (forEachFile != null) {
+                        forEachFile[0] = false;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
 
     private static String g(String s) {
         return org.openide.util.NbBundle.getBundle(CommandExecutorSupport.class).getString(s);
