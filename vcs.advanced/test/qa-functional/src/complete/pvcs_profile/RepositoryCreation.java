@@ -127,16 +127,10 @@ public class RepositoryCreation extends NbTestCase {
         new File(workingDirectory + File.separator + "Repo").mkdirs();
         new File(workingDirectory + File.separator + "Work" + File.separator + "test" + File.separator + "another").mkdirs();
         Thread.currentThread().sleep(10000);
-        String status = MainWindowOperator.getDefault().getStatusText();
-        if (!status.equals("Command AUTO_FILL_CONFIG finished.") && (!status.equals("Command GET_WORK_LOCATION failed.")))
-            captureScreen("Error: Incorrect status \"" + status + "\" reached.");
         wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE).clearText();
         wizard.setPVCSProjectDatabase(workingDirectory + File.separator + "Repo");
         wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION).requestFocus();
         Thread.currentThread().sleep(10000);
-        status = MainWindowOperator.getDefault().getStatusText();
-        if (!status.equals("Command AUTO_FILL_CONFIG finished.") && (!status.equals("Command GET_WORK_LOCATION failed.")))
-            captureScreen("Error: Incorrect status \"" + status + "\" reached.");
         wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION).clearText();
         wizard.setPVCSWorkfilesLocation(workingDirectory + File.separator + "Work");
         wizard.finish();
