@@ -18,6 +18,7 @@ Microsystems, Inc. All Rights Reserved.
   <folder name="Templates">
     <attr name="Classes/CORBA" boolvalue="true" />
     <folder name="CORBA">
+      <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.resources.Bundle"/>
       <attr name="CallBackClientMain.java/ClientMain.java" boolvalue="true"/>
       <attr name="ClientMain.java/Empty.idl" boolvalue="true"/>
       <attr name="Empty.idl/POA" boolvalue="true"/>
@@ -25,40 +26,48 @@ Microsystems, Inc. All Rights Reserved.
       <attr name="ServerMain.java/Simple.idl" boolvalue="true"/>
       <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/CORBA.html"/>
       <file name="Empty.idl" url="templates/Empty.itemplate">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.resources.Bundle"/>
 	<attr name="template" boolvalue="true"/>
 	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/Empty.html"/>
         <attr name="templateWizardIterator" newvalue="org.netbeans.modules.corba.wizard.IDLWizard" />
       </file>
       <file name="Simple.idl" url="templates/Simple.itemplate">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.resources.Bundle"/>
 	<attr name="template" boolvalue="true"/>
 	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/Simple.html"/>
       </file>
       <file name="ServerMain.java" url="templates/ServerMain.jtemplate">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.resources.Bundle"/>
 	<attr name="template" boolvalue="true"/>
 	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ServerMain.html"/>
       </file>
       <file name="ClientMain.java" url="templates/ClientMain.jtemplate">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.resources.Bundle"/>
 	<attr name="template" boolvalue="true"/>
 	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ClientMain.html"/>
       </file>
       <file name="CallBackClientMain.java" url="templates/CallBackClientMain.jtemplate">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.resources.Bundle"/>
 	<attr name="template" boolvalue="true"/>
 	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/CallBackClientMain.html"/>
       </file>
-      
       <folder name="POA">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.resources.Bundle"/>
         <attr name="AdapterActivator.java/ServantActivator.java" boolvalue="true"/>
 	<attr name="ServantActivator.java/ServantLocator.java" boolvalue="true"/>
         <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/POA.html"/>
 	<file name="AdapterActivator.java" url="templates/AdapterActivator.jtemplate">
+          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.resources.Bundle"/>
 	  <attr name="template" boolvalue="true"/>
 	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/AdapterActivator.html"/>
 	</file>
 	<file name="ServantActivator.java" url="templates/ServantActivator.jtemplate">
+          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.resources.Bundle"/>
 	  <attr name="template" boolvalue="true"/>
 	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ServantActivator.html"/>
 	</file>
 	<file name="ServantLocator.java" url="templates/ServantLocator.jtemplate">
+          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.corba.resources.Bundle"/>
 	  <attr name="template" boolvalue="true"/>
 	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ServantLocator.html"/>
 	</file>
