@@ -17,4 +17,6 @@ vcscore/src/org/netbeans/modules/vcscore/revision/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/annotation/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/versioning/impl/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/versioning/Bundle.properties
+vcscore/src/org/netbeans/modules/vcscore/resources/templatesCVSFS.html
+vcscore/src/org/netbeans/modules/vcscore/resources/templatesVCSFS.html
 
