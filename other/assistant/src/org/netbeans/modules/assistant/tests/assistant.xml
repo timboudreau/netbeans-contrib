@@ -45,10 +45,10 @@
         <section name="IDE Navigator">
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">New File...</item>
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">New Filesystem...</item>
-						<item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">Remove Filesystem...</item>                        
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">Remove Filesystem...</item>                        
         </section>
         <section name="Dynamic Helper">
-								<item url="/org/netbeans/modules/assistant/pages/DefaultContent3.html">What is Filesystem</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent3.html">What is Filesystem</item>
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to work with Filesystem</item>            
         </section>        
     </id>
@@ -56,11 +56,11 @@
         <section name="IDE Navigator">
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">New Project...</item>
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Switch to Project..</item>
-						<item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">Deafult Project...</item>                        
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">Deafult Project...</item>                        
         </section>
         <section name="Dynamic Helper">
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is Deafult Project</item>
-						<item url="/org/netbeans/modules/assistant/pages/DefaultContent3.html">How to work with Projects</item>            
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent3.html">How to work with Projects</item>            
         </section>
         <section name="Description">
             <item url="DefaultContent2.html" type="text">Project is base</item>

@@ -12,7 +12,7 @@
         <frame type="window" constraints="right" state="normal" />
         <container type="split" active-tc="assistant" >
         </container>
-				<icon url="nbresboot:/org/netbeans/modules/assistant/resources/assistant.gif" />
+				<icon url="nbres:/org/netbeans/modules/assistant/resources/assistant.gif" />
         <other defined-by="module" mode-state="visible" />
     </ui-type>
     <ui-type type="mdi" >
@@ -22,7 +22,7 @@
             <area constraint="center" relative-x="0" relative-y="0" relative-width="100" relative-height="70" />
             <area constraint="bottom" relative-x="0" relative-y="70" relative-width="100" relative-height="30" />
         </container>
-				<icon url="nbresboot:/org/netbeans/modules/assistant/resources/assistant.gif" />
+				<icon url="nbres:/org/netbeans/modules/assistant/resources/assistant.gif" />
         <other defined-by="module" mode-state="visible" />
     </ui-type>
 </mode>

@@ -27,7 +27,8 @@
                 <folder name="assistant">
                     <file name="assistant.wstcref" url="windowmanager/Editing/assistant/assistant.wstcref" />
                     <!--experimental toolbox - assistant mode is split with two components-->
-                    <file name="toolbox.wstcref" url="windowmanager/Editing/assistant/toolbox.wstcref" />
+										<file name="toolbox.wstcref" url="windowmanager/Editing/assistant/toolbox.wstcref" />
+										<file name="search.wstcref" url="windowmanager/Editing/assistant/search.wstcref" />
                 </folder>
                 <folder name="editor">
                     <file name="assistantcontentviewer.wstcref" url="windowmanager/Editing/editor/assistantcontentviewer.wstcref" />
@@ -49,7 +50,9 @@
             </file>
             <!--experimental toolbox -->
             <file name="toolbox.settings" url="components/toolbox.settings" >		
-            </file>
+						</file>
+						<file name="search.settings" url="components/search.settings" >
+						</file>
             <file name="AssistantContentViewer.settings" url="components/AssistantContentViewer.settings" >
             </file>
         </folder>

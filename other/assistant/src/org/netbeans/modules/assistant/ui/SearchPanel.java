@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.assistant.ui;
 
+import org.netbeans.modules.assistant.search.SearchResultComponent;
+
 import java.util.*;
 /*
  * SearchPanel.java
@@ -53,6 +55,12 @@ public class SearchPanel extends javax.swing.JPanel {
         add(label, gridBagConstraints);
 
         field.setColumns(10);
+        field.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fieldActionPerformed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -60,6 +68,12 @@ public class SearchPanel extends javax.swing.JPanel {
         add(field, gridBagConstraints);
 
     }//GEN-END:initComponents
+
+    private void fieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldActionPerformed
+        SearchResultComponent srcomp = SearchResultComponent.getDefault();
+        srcomp.find(field.getText());      
+        
+    }//GEN-LAST:event_fieldActionPerformed
     
     private void initAccessibility(){
         getAccessibleContext().setAccessibleDescription(bundle.getString("ACS_Search_Panel_DESC"));
@@ -67,8 +81,8 @@ public class SearchPanel extends javax.swing.JPanel {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField field;
     private javax.swing.JLabel label;
+    private javax.swing.JTextField field;
     // End of variables declaration//GEN-END:variables
     
 }
