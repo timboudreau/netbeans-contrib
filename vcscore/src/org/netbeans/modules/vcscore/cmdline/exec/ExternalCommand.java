@@ -28,6 +28,7 @@ import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.RegexOutputListener;
+import org.netbeans.modules.vcscore.commands.TextInput;
 import org.openide.ErrorManager;
 
 /** Single external command to be executed. See {@link TestCommand} for typical usage.
@@ -35,7 +36,7 @@ import org.openide.ErrorManager;
  * @author Michal Fadljevic
  */
 //-------------------------------------------
-public class ExternalCommand {
+public class ExternalCommand implements TextInput {
     private Debug E=new Debug("ExternalCommand",true); // NOI18N
     private Debug D=new Debug("ExternalCommand",true); // NOI18N
 

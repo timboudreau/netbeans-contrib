@@ -38,6 +38,7 @@ import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.RegexOutputListener;
+import org.netbeans.modules.vcscore.commands.TextInput;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
@@ -90,8 +91,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     /** The CommandTask associated with this executor. */
     private CommandTask task = null;
     
-    /** The underlying external command, if any. */
-    private ExternalCommand externalCommand = null;
+    /** The underlying text input command, if any. */
+    private TextInput txtInputCommand = null;
 
     //private RegexListener stdoutListener = null;
     //private RegexListener stderrListener = null;
@@ -331,8 +332,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
     
     public void sendInput(String input) {
-        if (externalCommand != null) {
-            externalCommand.sendInput(input);
+        if (txtInputCommand != null) {
+            txtInputCommand.sendInput(input);
         }
     }
     
@@ -730,7 +731,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
     
     private void setupExternalCommand(ExternalCommand ec) {
-        this.externalCommand = ec;
+        this.txtInputCommand = (TextInput) ec;
         //ec.setTimeout(cmd.getTimeout());
         ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT),
                     VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_INPUT_REPEAT));
@@ -859,6 +860,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             if (input != null) vars.put("INPUT", input); // NOI18N
             //vars.put("TIMEOUT", new Long(cmd.getTimeout())); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", cmd.getName()));
+            if (execCommand instanceof TextInput) {
+                this.txtInputCommand = (TextInput) execCommand;
+            }
             try {
                 if (execCommand instanceof VcsAdditionalCommand.ImmediateOutput) {
                     VcsAdditionalCommand.ImmediateOutput io = (VcsAdditionalCommand.ImmediateOutput) execCommand;
