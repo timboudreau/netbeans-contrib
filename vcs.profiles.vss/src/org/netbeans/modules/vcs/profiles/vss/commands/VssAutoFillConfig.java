@@ -39,16 +39,16 @@ public class VssAutoFillConfig extends Object implements VcsAdditionalCommand {
                         CommandDataOutputListener stdoutListener, String dataRegex,
                         CommandDataOutputListener stderrListener, String errorRegex) {
                             
-        String workdir = (String)vars.get("ROOTDIR");
+        String workdir = (String)vars.get("ROOTDIR");  //NOI18N
         if(workdir != null){
             if(workdir.length() > 0){
                 File dir = new File(workdir);
                 File[] children = dir.listFiles();
                 if(children != null)
                     if(children.length > 0)
-                        vars.put("DO_VSS_CHECKOUT","");
+                        vars.put("DO_VSS_CHECKOUT",""); //NOI18N
                     else
-                        vars.put("DO_VSS_CHECKOUT","true");
+                        vars.put("DO_VSS_CHECKOUT","true"); //NOI18N
             }
         }
            
