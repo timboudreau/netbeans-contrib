@@ -13,6 +13,7 @@
 package org.netbeans.modules.mdr;
 
 import org.netbeans.api.mdr.*;
+import org.netbeans.mdr.NBMDRepositoryImpl;
 import org.openide.util.Lookup;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
@@ -28,7 +29,7 @@ import org.openide.ErrorManager;
  * @author Martin Matula
  * @version 
  */
-public class MDRManagerImpl extends MDRManager implements FileChangeListener {
+public class MDRManagerImpl extends MDRManager implements FileChangeListener, NBMDRepositoryImpl.ShutdownListener {
     
     private static final String FOLDER_REPOSITORY = "MDRepositories";
     private static final String DEFAULT_REPOSITORY = "Default";
@@ -90,6 +91,72 @@ public class MDRManagerImpl extends MDRManager implements FileChangeListener {
         instance = this;
     }
 
+    public void shutdownAll() {
+        String names[] = getRepositoryNames();
+        MDRepository[] repos = new MDRepository[names.length];
+        int stepCount = 0;
+        for (int i = 0; i < names.length; i++) {
+            repos[i] = getRepository(names[i]);
+            if (repos[i] instanceof NBMDRepositoryImpl) {
+                stepCount += ((NBMDRepositoryImpl) repos[i]).getShutdownSteps();
+            } else {
+                stepCount++;
+            }
+        }
+        fireProgressListenerStart(stepCount);
+        for (int i = 0; i < names.length; i++) {
+            ((NBMDRepositoryImpl) repos[i]).addShutdownListener(this);
+            repos[i].shutdown();
+            ((NBMDRepositoryImpl) repos[i]).removeShutdownListener(this);
+        }
+        fireProgressListenerStop();
+    }
+    
+    // === ShutdownListener implementation ===
+    
+    public void shutdown() {
+    }
+    
+    public void stepFinished() {
+        fireProgressListenerStep();
+    } // === end of ShutdownListener implementation ===
+    
+    //=== Progress suppport ===
+    
+    private ShutDownProgressListener progress = null;
+    private boolean stopFired = false;
+    
+    boolean setProgressListener(ShutDownProgressListener pl) {
+        boolean shutdownListenerRegistered = false;
+        if (progress == null) {
+            progress = pl;
+            shutdownListenerRegistered = true;
+        }
+        return shutdownListenerRegistered && !stopFired;
+    }
+    
+    private void fireProgressListenerStart(int count) {
+        if (progress == null)
+            return;
+        progress.start(count);
+    }
+        
+    public void fireProgressListenerStep() {
+        if (progress == null)
+            return;
+        progress.step();
+    }
+    
+    private void fireProgressListenerStop() {
+        if (progress == null) {
+            stopFired = true;
+            return;
+        }
+        progress.stop();
+    }
+    //== end of Progress Support ==
+
+    
     public MDRepository getRepository(String name) {
         init();
         MDRDataObject dataObject = (MDRDataObject) repositoryMap.get(name);

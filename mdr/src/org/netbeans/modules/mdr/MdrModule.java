@@ -12,27 +12,41 @@
  */
 package org.netbeans.modules.mdr;
 
+import org.netbeans.mdr.persistence.btreeimpl.btreestorage.MDRCache;
 import org.openide.modules.ModuleInstall;
 import org.netbeans.api.mdr.MDRManager;
+import org.openide.util.RequestProcessor;
+import org.openide.util.Task;
 
 /** Module installation class for MDR module
  *
  * @author Petr Hrebejk
  */
 public class MdrModule extends ModuleInstall {
-
+    
     /** Module was uninstalled.
      */
     public void uninstalled () {
-        closing();
+        close();
         MDRManagerImpl.uninstall(); // cleanup
     }
 
     /** Module is being closed.
      * @return True if the close is O.K.
      */
-    public boolean closing () {
-        MDRManager.getDefault().shutdownAll();
-        return true; // agree to close
+    public void close () {
+        final MDRManager manager = MDRManager.getDefault();
+        if (manager instanceof MDRManagerImpl) {
+            ((MDRManagerImpl) manager).setProgressListener(new ShutDownProgressListener());
+        }
+        Task task = RequestProcessor.getDefault().post(new Runnable () {
+            public void run() {
+                manager.shutdownAll();
+            }
+        });
+        if (manager instanceof MDRManagerImpl) {
+            ShutDownProgressPanel.getDefault().setVisible(true);
+        }
+        task.waitFinished();
     }
 }
