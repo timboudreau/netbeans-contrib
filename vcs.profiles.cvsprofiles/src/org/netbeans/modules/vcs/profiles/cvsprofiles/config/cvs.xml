@@ -1011,6 +1011,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value>  <!-- INERT -->
         </property>
+        <property name="concurrentExecWith">
+          <value>ADD_DIR_RECURSIVE 38</value>  <!-- myself - (SERIAL_ON_PACKAGE || SERIAL_WITH_PARENT) + SERIAL_WITH_PENDING -->
+        </property>
         <property name="runOnMultipleFilesInFolder">
           <value>true</value>
         </property>
