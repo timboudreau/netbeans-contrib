@@ -74,6 +74,8 @@ public class IDLDataLoader extends MultiFileLoader {
 	 SystemAction.get(OpenAction.class),
 	    null,
 	    SystemAction.get (CompileAction.class),
+	    //null,
+	    //SystemAction.get (GenerateImplAction.class),
 	    null,
 	    SystemAction.get(CutAction.class),
 	    SystemAction.get(CopyAction.class),

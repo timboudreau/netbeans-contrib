@@ -158,6 +158,7 @@ public class CORBASupport {
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         5/22/99  Karel Gardas    
  *  5    Gandalf   1.4         5/15/99  Karel Gardas    
  *  4    Gandalf   1.3         5/10/99  Ian Formanek    Fixed to compile
  *  3    Gandalf   1.2         5/8/99   Karel Gardas    

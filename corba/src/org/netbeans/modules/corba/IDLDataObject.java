@@ -35,6 +35,7 @@ import com.netbeans.ide.nodes.Children;
 import com.netbeans.ide.loaders.*;
 import com.netbeans.ide.nodes.CookieSet;
 
+import com.netbeans.enterprise.modules.corba.settings.*;
 
 /** Object that provides main functionality for idl data loader.
 * This class is final only for performance reasons,
@@ -45,6 +46,9 @@ import com.netbeans.ide.nodes.CookieSet;
 
 public class IDLDataObject extends MultiDataObject {
 
+   public static final boolean DEBUG = true;
+   //public static final boolean DEBUG = false;
+
   public IDLDataObject (final FileObject obj, final MultiFileLoader loader)
                        throws DataObjectExistsException {
     super(obj, loader);
@@ -53,8 +57,20 @@ public class IDLDataObject extends MultiDataObject {
     CookieSet cookies = getCookieSet ();
 
 
-    cookies.add(new EditorSupport (entry));
+    cookies.add (new EditorSupport (entry));
     cookies.add (new CompilerSupport.Compile (entry));
+    /*
+    cookies.add (new IDLNodeCookie () {
+       public void GenerateImpl () {
+	  if (DEBUG)
+	     System.out.println ("generating of idl implemenations...");
+	  CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
+	     (CORBASupportSettings.class, true);
+	  css.loadImpl ();
+	  css.setJavaTemplateTable ();
+       }
+    });
+    */
     FileUtil.setMIMEType ("idl", "text/plain");
 
   }
@@ -85,6 +101,7 @@ public class IDLDataObject extends MultiDataObject {
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         5/22/99  Karel Gardas    
  *  5    Gandalf   1.4         5/15/99  Karel Gardas    
  *  4    Gandalf   1.3         5/8/99   Karel Gardas    
  *  3    Gandalf   1.2         4/29/99  Ian Formanek    Fixed to compile

@@ -56,7 +56,7 @@ public class IDLModule implements ModuleInstall {
 
    public void copyImpls () {
 
-      String[] list_of_files = {"orbacus", "javaorb", "visibroker", "orbixweb"};
+      String[] list_of_files = {"orbacus", "javaorb", "visibroker", "orbixweb", "jacorb"};
       String _package =   "/com/netbeans/enterprise/modules/corba/impl";
       TopManager tm = TopManager.getDefault ();
       
@@ -104,11 +104,8 @@ public class IDLModule implements ModuleInstall {
 	       BufferedReader in = new BufferedReader (new InputStreamReader (input));
 	       String tmp;
 	       try {
-		  while (true) {
-		     if ((tmp = in.readLine ()) != null)
-			out.println (tmp);
-		     else
-			break;
+		  while ((tmp = in.readLine ()) != null) {
+		     out.println (tmp);
 		  }
 	       } catch (IOException e) {
 		  e.printStackTrace ();
@@ -215,6 +212,7 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  5    Gandalf   1.4         5/22/99  Karel Gardas    
  *  4    Gandalf   1.3         5/15/99  Karel Gardas    
  *  3    Gandalf   1.2         5/8/99   Karel Gardas    
  *  2    Gandalf   1.1         4/24/99  Karel Gardas    

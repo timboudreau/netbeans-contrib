@@ -125,7 +125,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
       addPropertyChangeListener (this); 
       //addOption (getCORBASupportAdvancedSettings ());
       //      setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
-
+      //this.getCookieSet.add (UpdateCookie.class);
    }
 
    public void propertyChange (PropertyChangeEvent event) {
@@ -172,6 +172,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
    }
 
    public String getOrb () {
+      //loadImpl ();
       return orb;
    }
 
@@ -184,6 +185,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 	 e.printStackTrace ();
       }
       //setAdvancedOptions ();
+      //loadImpl (); -- it's for template debuging only !!!
    }
 
    /*
@@ -743,7 +745,13 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
    }
 
 
-   private void loadImpl () {
+   public void loadImpl () {
+
+      names = new Vector (5);
+      props = new Vector (5);
+      clientBindings = new Vector (5);
+      serverBindings = new Vector (5);
+      
 
       if (DEBUG)
 	 System.out.println ("loadImpl () ...");
