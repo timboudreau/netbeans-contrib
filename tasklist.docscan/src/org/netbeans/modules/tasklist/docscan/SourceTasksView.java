@@ -966,7 +966,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         toolbar.add(getProgress());
         toolbar.add(getStop());
 
-        // Eliminates double width toolbar on Metal L&F
+        // Eliminates double height toolbar on Metal L&F
         toolbar.setPreferredSize(new Dimension(Integer.MAX_VALUE, getToolbarHeight()));
         return toolbar;
 
