@@ -29,14 +29,16 @@ Microsystems, Inc. All Rights Reserved.
     <!-- TODO Remove this when the module is part of the full tasklist build -->
     <property name="build.compiler.debug" value="on"/>
 
-    <!-- Location of PMD module -->
-    <!-- Let user override it via the build.properties file -->
-    <property file="build.properties"/>
-    <property name="netbeans.home" location="../../nbbuild/netbeans"/>
-    <property name="pmdmod" value="${netbeans.home}/modules/pmd.jar"/>
-    <property name="pmdlib" value="${netbeans.home}/modules/ext/pmd-1.2.1.jar"/>
+    <target name="init">
+        <property name="pmd" location="${nb_all}/contrib/pmd-nb-wrapper"/>
+        <ant dir="${pmd}" target="netbeans"/>
+        <path id="pmd.cp">
+            <pathelement location="${pmd}/netbeans/modules/pmd.jar"/>
+            <pathelement location="${pmd}/netbeans/modules/ext/pmd-1.2.1.jar"/>
+        </path>
+    </target>
 
-    <target name="compile">
+    <target name="compile" depends="init">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4">
             <classpath>
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
@@ -49,12 +51,7 @@ Microsystems, Inc. All Rights Reserved.
                 <!-- java src model -->
                 <pathelement path="../../java/srcmodel/netbeans/modules/autoload/java-src-model.jar"/>
                 <!-- pmd -->
-                <pathelement path="${pmdmod}"/>
-                <pathelement path="${pmdlib}"/>
-
-               <fileset dir="../../libs/external">
-                  <include name="regexp*.jar" />
-               </fileset>
+                <path refid="pmd.cp"/>
             </classpath>
         </javac>
     </target>
@@ -99,13 +96,6 @@ Microsystems, Inc. All Rights Reserved.
         <delete file="../tasklist-pmd.nbm"/>
         <delete dir="netbeans"/>
         <delete dir="Info"/>
-        <delete dir="javadoc"/>
-    </target>
-
-    <target name="release">
-    </target>
-
-    <target name="javahelp">
     </target>
 
 </project>

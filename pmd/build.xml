@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!-- Simply a wrapper for an externally distributed NBM. -->
+<project name="contrib/pmd-nb-wrapper" basedir="." default="netbeans">
+
+    <target name="init">
+        <ant dir="../../libs/external" target="unscramble"/>
+        <mkdir dir="tmp"/>
+        <unzip src="../../libs/external/pmd-netbeans35-bin-0.9.zip" dest="tmp">
+            <patternset>
+                <include name="pmd.nbm"/>
+            </patternset>
+        </unzip>
+    </target>
+
+    <target name="netbeans" depends="init">
+        <mkdir dir="netbeans"/>
+        <unzip src="tmp/pmd.nbm" dest=".">
+            <patternset>
+                <include name="netbeans/**/*.jar"/>
+            </patternset>
+        </unzip>
+        <!-- genlist cannot handle the nbm target currently; cf. #14839 -->
+    </target>
+
+    <target name="nbm" depends="init">
+        <copy file="tmp/pmd.nbm" tofile="pmd.nbm"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="tmp"/>
+        <delete dir="netbeans"/>
+        <delete file="pmd.nbm"/>
+    </target>
+
+</project>

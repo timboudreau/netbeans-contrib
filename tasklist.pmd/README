@@ -1,18 +1,4 @@
 This module provides integration with the PMD module for NetBeans,
 available from pmd.sf.net.
 
-You'll need to have that module installed before you can build
-this bridge module.
-
-If it's installed in the IDE's module directory, ant should be
-able to find it and the build will work. 
-
-Otherwise, create a file named "build.properties" in this directory
-containing for example
-
-pmdmod=/tmp/cvs/pmd-netbeans/build/pmd.jar
-pmdlib=/tmp/cvs/pmd-netbeans/lib/pmd-1.01.jar
-
-Here, ${pmdmod} is the PMD module jar file built by the
-PMD NetBeans module, and ${pmdlib} is the PMD library jar
-itself (used by many IDE plugins.)
+This is bundled in CVS in contrib/pmd-nb-wrapper and libs/external/pmd*.
