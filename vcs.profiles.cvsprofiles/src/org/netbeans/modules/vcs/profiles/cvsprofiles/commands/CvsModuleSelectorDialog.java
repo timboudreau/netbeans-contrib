@@ -19,6 +19,7 @@ import javax.swing.table.*;
 import javax.swing.*;
 
 import org.openide.*;
+import org.openide.util.NbBundle;
 
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.util.*;
@@ -87,6 +88,9 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         taPaths = new javax.swing.JTextArea();
         lbPaths = new javax.swing.JLabel();
+        lbModules = new javax.swing.JLabel();
+
+        FormListener formListener = new FormListener();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -113,11 +117,7 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
         add(lblOptions, gridBagConstraints);
 
         rbCheckoutModule.setSelected(true);
-        rbCheckoutModule.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbCheckoutModuleActionPerformed(evt);
-            }
-        });
+        rbCheckoutModule.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -128,11 +128,7 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(6, 12, 6, 12);
         add(rbCheckoutModule, gridBagConstraints);
 
-        rbIgnore.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rbIgnoreActionPerformed(evt);
-            }
-        });
+        rbIgnore.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -156,11 +152,7 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
 
         refresh.setText(org.openide.util.NbBundle.getMessage(CvsModuleSelectorDialog.class, "CvsModuleSelectorDialog.refresh"));
         refresh.setToolTipText(org.openide.util.NbBundle.getMessage(CvsModuleSelectorDialog.class, "ACS_CvsModuleSelectorDialog.refreshA11yDesc"));
-        refresh.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                refreshModules(evt);
-            }
-        });
+        refresh.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -173,7 +165,7 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 0.5;
@@ -188,12 +180,12 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
         gridBagConstraints.weightx = 0.5;
         gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
         add(jScrollPane1, gridBagConstraints);
 
         lbPaths.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/commands/Bundle").getString("ACS_CvsModuleSelectorDialog_paths_mnc").charAt(0));
@@ -201,12 +193,39 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
         lbPaths.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/commands/Bundle").getString("CvsSelectorModuleDialog.pathsLBL"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
         add(lbPaths, gridBagConstraints);
 
+        lbModules.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/commands/Bundle").getString("CvsSelectorModuleDialog.lbModules_mnc").charAt(0));
+        lbModules.setLabelFor(tblModules);
+        lbModules.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/commands/Bundle").getString("CvsSelectorModuleDialog.lbModules"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        add(lbModules, gridBagConstraints);
+        lbModules.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/commands/Bundle").getString("CvsSelectorModuleDialog.lbModules"));
+
+    }
+
+    // Code for dispatching events from components to event handlers.
+
+    private class FormListener implements java.awt.event.ActionListener {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            if (evt.getSource() == rbCheckoutModule) {
+                CvsModuleSelectorDialog.this.rbCheckoutModuleActionPerformed(evt);
+            }
+            else if (evt.getSource() == rbIgnore) {
+                CvsModuleSelectorDialog.this.rbIgnoreActionPerformed(evt);
+            }
+            else if (evt.getSource() == refresh) {
+                CvsModuleSelectorDialog.this.refreshModules(evt);
+            }
+        }
     }//GEN-END:initComponents
 
     private void refreshModules(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshModules
@@ -399,6 +418,7 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lbModules;
     private javax.swing.JLabel lbPaths;
     private javax.swing.JLabel lblOptions;
     private javax.swing.JLabel lblWarning;
