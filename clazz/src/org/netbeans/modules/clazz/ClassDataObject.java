@@ -134,7 +134,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   * @return help context
   */
   public HelpCtx getHelpCtx () {
-    return new HelpCtx ("com.netbeans.developer.docs.Users_Guide.usergd-using-div-12", "USERGD-USING-TABLE-2");
+    return org.openide.util.HelpCtx.DEFAULT_HELP;
   }
 
   /** Getter for copy action.
@@ -463,6 +463,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  19   Gandalf   1.18        6/22/99  Ian Formanek    employed DEFAULT_HELP
  *  18   Gandalf   1.17        6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
  *  17   Gandalf   1.16        4/8/99   David Simonek   obscure dialog bugfix 
