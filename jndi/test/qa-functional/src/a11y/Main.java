@@ -23,6 +23,8 @@ import java.io.PrintWriter;
 import java.awt.Component;
 import javax.swing.JDialog;
 import java.io.OutputStreamWriter;
+import org.netbeans.jellytools.actions.ActionNoBlock;
+import org.netbeans.jellytools.nodes.Node;
 
 public class Main extends JellyTestCase {
 
@@ -91,8 +93,10 @@ public class Main extends JellyTestCase {
             new JButtonOperator (JButtonOperator.findJButton(testDialog, "Cancel", true, true)).push();
         }
 
-        new ComponentOperator (exp.getJFrame ()).activateWindow ();
-        exp.pushPopupMenuNoBlock("Customize", "JNDI|Providers|CNCtxFactory");
+//        new ComponentOperator (exp.getJFrame ()).activateWindow ();
+        ExplorerOperator expl = new ExplorerOperator ();
+        new ActionNoBlock (null, "Customize").perform (new Node (expl.runtimeTab().tree (), "JNDI|Providers|CNCtxFactory"));
+//        exp.pushPopupMenuNoBlock("Customize", "JNDI|Providers|CNCtxFactory");
         testDialog = JDialogOperator.waitJDialog ("Customizer Dialog", true, true);
         try {
             testA11Y (testDialog, true);
