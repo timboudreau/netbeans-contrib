@@ -175,20 +175,20 @@ public class Main extends JellyTestCase {
         
         new JavaNode (exp.repositoryTab().tree (), "|data|cwfunc|jdk14|AppCallBackClient").compile ();
         sbt.removeText ("Compiling AppCallBackClient...");
-        sbt.removeText ("Compiling data.cwfunc.jdk14.AppCallBackClient");
-        out.println (sbt.removeText ("AppCallBackClient.", false));
+        sbt.removeText ("Compiling data/cwfunc/jdk14/AppCallBackClient.java");
+        out.println (sbt.removeText ("AppCallBackClient.", false, true));
         sbt.clear ();
         
         new JavaNode (exp.repositoryTab().tree (), "|data|cwfunc|jdk14|AppClient").compile ();
         sbt.removeText ("Compiling AppClient...");
-        sbt.removeText ("Compiling data.cwfunc.jdk14.AppClient");
-        out.println (sbt.removeText ("AppClient.", false));
+        sbt.removeText ("Compiling data/cwfunc/jdk14/AppClient.java");
+        out.println (sbt.removeText ("AppClient.", false, true));
         sbt.clear ();
         
         new JavaNode (exp.repositoryTab().tree (), "|data|cwfunc|jdk14|AppServer").compile ();
         sbt.removeText ("Compiling AppServer...");
-        sbt.removeText ("Compiling data.cwfunc.jdk14.AppServer");
-        out.println (sbt.removeText ("AppServer.", false));
+        sbt.removeText ("Compiling data/cwfunc/jdk14/AppServer.java");
+        out.println (sbt.removeText ("AppServer.", false, true));
         sbt.clear ();
         
         compareReferenceFiles();
