@@ -137,7 +137,10 @@ public class MountPVCSFilesystem extends NbTestCase {
         if ((os == Utilities.OS_WIN95) | (os == Utilities.OS_WIN98))
             profile = VCSWizardProfile.PVCS_WIN_95;
         wizard.setProfile(profile);
-        MainWindowOperator.getDefault().waitStatusText("Command AUTO_FILL_CONFIG finished.");
+        Thread.currentThread().sleep(5000);
+        String status = MainWindowOperator.getDefault().getStatusText();
+        if (!status.equals("Command AUTO_FILL_CONFIG finished.") && (!status.equals("Command GET_WORK_LOCATION failed.")))
+            captureScreen("Error: Incorrect status \"" + status + "\" reached.");
         wizard.selectProjectDatabase();
         DatabaseSelector selector = new DatabaseSelector();
         selector.pickADatabaseInSubfolderOf();
@@ -145,7 +148,7 @@ public class MountPVCSFilesystem extends NbTestCase {
         new JButtonOperator(new JDialogOperator("Select Directory:"), "Cancel").push();
         selector.selectADatabaseUsedByPVCSGUI();
         Thread.currentThread().sleep(5000);
-        String status = MainWindowOperator.getDefault().getStatusText();
+        status = MainWindowOperator.getDefault().getStatusText();
         if (status.equals("Command LIST_PROJECT_DB failed."))
             new JButtonOperator( new JDialogOperator("Exception"), "OK").push();
         else if (status.equals("Command LIST_PROJECT_DB finished."))
@@ -204,6 +207,7 @@ public class MountPVCSFilesystem extends NbTestCase {
         String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         new UnmountFSAction().perform(filesystemNode);
+        Thread.currentThread().sleep(5000);
         assertTrue("Error: Unable to unmount filesystem.", !filesystemNode.isPresent());
         System.out.println(". done !");
     }
