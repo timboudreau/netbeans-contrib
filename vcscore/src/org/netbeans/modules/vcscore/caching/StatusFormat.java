@@ -13,10 +13,14 @@
 package org.netbeans.modules.vcscore.caching;
 
 import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.modules.vcscore.VcsAttributes;
+import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.turbo.Statuses;
 import org.netbeans.api.vcs.FileStatusInfo;
 import org.openide.filesystems.FileObject;
+import org.openide.util.NbBundle;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -254,12 +258,21 @@ public final class StatusFormat {
         Hashtable vars = new Hashtable();
         if (extraVars != null) vars.putAll(extraVars);
         vars.put(StatusFormat.ANNOTATION_PATTERN_FILE_NAME, name);
-        Turbo.prepareMeta(fileObject);
-        FileProperties fprops = Turbo.getMemoryMeta(fileObject);
-        String status = FileProperties.getStatus(fprops);
-        FileStatusInfo statusInfo = (FileStatusInfo) possibleFileStatusInfoMap.get(status);
-        if (statusInfo != null) {
-            status = statusInfo.getDisplayName();
+
+        String status;
+        FileProperties fprops = null;
+        FileObject vfo = (FileObject) fileObject.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
+        if (vfo != null && vfo.isRoot()) {
+            // in favourites view mark versioned workspace roots
+            status = NbBundle.getMessage(StatusFormat.class, "vfs_root");
+        } else {
+            Turbo.prepareMeta(fileObject);
+            fprops = Turbo.getMemoryMeta(fileObject);
+            status = FileProperties.getStatus(fprops);
+            FileStatusInfo statusInfo = (FileStatusInfo) possibleFileStatusInfoMap.get(status);
+            if (statusInfo != null) {
+                status = statusInfo.getDisplayName();
+            }
         }
         return substitute(pattern, status, fprops, vars);
 
@@ -309,28 +322,40 @@ public final class StatusFormat {
         if ("${fileName}".equals(annotationPattern)) { // NOI18N
             return Variables.expand(vars, annotationPattern, false);
         }
-        //String status = statusProvider.getFileStatus(fullName);
-        Turbo.prepareMeta(fo);
-        FileProperties fprops = Turbo.getMemoryMeta(fo);
-        String status = FileProperties.getStatus(fprops);
-        FileStatusInfo statusInfo = (FileStatusInfo) possibleFileStatusInfoMap.get(status);
-        if (statusInfo != null) {
-            status = statusInfo.getDisplayName();
-            if (statusInfo instanceof javax.swing.colorchooser.ColorSelectionModel) {
-                java.awt.Color c = ((javax.swing.colorchooser.ColorSelectionModel) statusInfo).getSelectedColor();
-                if (c != null) {
-                    String r = Integer.toHexString(c.getRed());
-                    if (r.length() == 1) r = "0"+r;
-                    String g = Integer.toHexString(c.getGreen());
-                    if (g.length() == 1) g = "0"+g;
-                    String b = Integer.toHexString(c.getBlue());
-                    if (b.length() == 1) b = "0"+b;
-                    status = "<font color=#"+r+g+b+">" + status + "</font>"; //NOI18N
-                }
-            }
-        } else {
+
+        String status;
+        FileProperties fprops = null;
+        FileObject vfo = (FileObject) fo.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
+        if (vfo != null && vfo.isRoot()) {
+            // in favourites view mark versioned workspace roots
+            status = NbBundle.getMessage(StatusFormat.class, "vfs_root");
             status = escapeSpecialHTMLCharacters(status);
+        } else {
+            Turbo.prepareMeta(fo);
+            fprops = Turbo.getMemoryMeta(fo);
+            status = FileProperties.getStatus(fprops);
+
+            FileStatusInfo statusInfo = (FileStatusInfo) possibleFileStatusInfoMap.get(status);
+            if (statusInfo != null) {
+                status = statusInfo.getDisplayName();
+                status = escapeSpecialHTMLCharacters(status);
+                if (statusInfo instanceof javax.swing.colorchooser.ColorSelectionModel) {
+                    java.awt.Color c = ((javax.swing.colorchooser.ColorSelectionModel) statusInfo).getSelectedColor();
+                    if (c != null) {
+                        String r = Integer.toHexString(c.getRed());
+                        if (r.length() == 1) r = "0"+r;
+                        String g = Integer.toHexString(c.getGreen());
+                        if (g.length() == 1) g = "0"+g;
+                        String b = Integer.toHexString(c.getBlue());
+                        if (b.length() == 1) b = "0"+b;
+                        status = "<font color=#"+r+g+b+">" + status + "</font>"; //NOI18N
+                    }
+                }
+            } else {
+                status = escapeSpecialHTMLCharacters(status);
+            }
         }
+
         return substitute(annotationPattern, status, fprops, vars);
     }
 

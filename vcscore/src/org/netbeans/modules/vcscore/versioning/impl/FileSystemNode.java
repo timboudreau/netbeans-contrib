@@ -28,6 +28,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
+import org.netbeans.modules.vcscore.annotation.Icons;
 
 
 /**
@@ -149,37 +150,12 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
     }
 
     /** Finds an icon for this node. The filesystem's icon is returned.
-    * @see java.bean.BeanInfo
-    * @see org.openide.filesystems.FileSystem#getIcon
     * @param type constants from <CODE>java.bean.BeanInfo</CODE>
     * @return icon to use to represent the bean
     */
     public Image getIcon (int type) {
-        BeanInfo bi;
-        try {
-            bi = org.openide.util.Utilities.getBeanInfo(fileSystem().getClass());
-        } catch (java.beans.IntrospectionException e) {
-            return super.getIcon(type);
-        }
-        Image icon =  bi.getIcon(type);
-        if (icon == null) {
-            icon = (Image) getFSMethodValue("getFSIcon", type);
-        }
+        Image icon =  Icons.forFileSystem(fileSystem(), type);
         return icon==null ? super.getIcon(type) : icon;
-    }
-
-    private Object getFSMethodValue(String name, int i) {
-        Object value = null;
-        try {
-            java.lang.reflect.Method getFsMethod = fileSystem().getClass().getMethod(name, new Class[] { Integer.TYPE });
-            value = getFsMethod.invoke(fileSystem(), new Object[] { new Integer(i) });
-        } catch (NoSuchMethodException nsmex) {
-        } catch (SecurityException sex) {
-        } catch (IllegalAccessException iaex) {
-        } catch (IllegalArgumentException iarex) {
-        } catch (java.lang.reflect.InvocationTargetException itex) {
-        }
-        return value;
     }
 
     /** The DataFolderRoot's opened icon is the same as the closed one.
@@ -220,7 +196,6 @@ final class FileSystemNode extends AbstractNode implements java.beans.PropertyCh
             //return false;
         }
         return false;
-        //return getFSMethodValue("getFSCustomizer") != null;
     }
 
     /** Property sheet with file system.

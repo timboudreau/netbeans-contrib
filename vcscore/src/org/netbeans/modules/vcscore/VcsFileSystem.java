@@ -88,6 +88,7 @@ import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 import org.netbeans.modules.vcscore.versioning.VersioningRepository;
 import org.netbeans.modules.vcscore.turbo.*;
 import org.netbeans.modules.vcscore.turbo.local.FileAttributeQuery;
+import org.netbeans.modules.vcscore.annotation.Icons;
 
 /** Generic VCS filesystem.
  *
@@ -315,13 +316,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient Map genericStatusTranslation = null;
     /** The lock for synchronized access to structures holding possible file status information. */
     private transient Object possibleFileStatusesLock = new Object();
-
-    /**
-     * The table used to get the icon badge on the objects' data node.
-     * The table contains the original statuses (obtained from the VCS tool)
-     * as keys and the icons of type <code>Image</code> as values.
-     */
-    //protected transient HashMap statusIconMap = null;
 
     /**
      * The default icon badge, that is used when no icon can be obtained from {@link statusIconMap}.
@@ -2253,10 +2247,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
 
         if (oo.length == 1) {
-            Turbo.prepareMeta((FileObject)oo[0]);
-            FileProperties fprops = Turbo.getMemoryMeta((FileObject)oo[0]);
-            String status = FileProperties.getStatus(fprops);
-            return badgeByStatus(status, icon);
+            FileObject fileObject = (FileObject)oo[0];
+            FileObject vfo = (FileObject) fileObject.getAttribute(VcsAttributes.VCS_NATIVE_FILEOBJECT);
+            if (vfo != null && vfo.isRoot()) {
+                // in favourites view mark versioned workspace roots
+                return Icons.forFileSystem(this, iconType);
+            } else {
+                Turbo.prepareMeta(fileObject);
+                FileProperties fprops = Turbo.getMemoryMeta((FileObject)oo[0]);
+                String status = FileProperties.getStatus(fprops);
+                return badgeByStatus(status, icon);
+            }
         } else {
             String mergedStatus = mergeStatus(oo);
             return badgeByStatus(mergedStatus, icon);

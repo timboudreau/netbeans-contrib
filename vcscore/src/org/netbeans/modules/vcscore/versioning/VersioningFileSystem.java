@@ -89,53 +89,6 @@ public abstract class VersioningFileSystem {
     protected void removeNotify() {
     }
 
-    /**
-     * Get the filesystem icon. The default implementation returns the icon
-     * of the file system associated with this Versioning file system.
-     * <p>
-     * Called by refrection from FilesystemNode
-     *
-     * @return the icon or null
-     */
-    public java.awt.Image getFSIcon(int type) {//BeanInfo() {
-        try {
-            java.beans.BeanInfo bi = org.openide.util.Utilities.getBeanInfo(fileSystem.getClass());
-            if (bi != null) return bi.getIcon(type);
-        } catch (java.beans.IntrospectionException iexc) {
-
-        }
-        return null;
-    }
-    
-    /**
-     * Get the filesystem customizer. The default implementation returns the customizer
-     * of the file system associated with this Versioning file system.
-     *
-     * @return the customizer object or null
-     */
-    public Object getFSCustomizer() {
-        try {
-            java.beans.BeanInfo bi = org.openide.util.Utilities.getBeanInfo(fileSystem.getClass());
-            if (bi != null) {
-                Class c = bi.getBeanDescriptor().getCustomizerClass();
-                if (c == null) return null;
-                try {
-                    Object i = c.newInstance();
-                    if (i instanceof java.beans.Customizer) {
-                        java.beans.Customizer cust = (java.beans.Customizer)i;
-                        cust.setObject(fileSystem);
-                    }
-                    return i;
-                } catch (InstantiationException iex) {
-                } catch (IllegalAccessException iaex) {
-                }
-            }
-        } catch (java.beans.IntrospectionException iexc) {
-
-        }
-        return null;
-    }
-
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);
     }
@@ -171,6 +124,7 @@ public abstract class VersioningFileSystem {
         return fileSystem.getDisplayName();
     }
 
+    // unused or called by reflection?
     public SystemAction[] getActions(Set vfoSet) {
         SystemAction[] actions = fileSystem.getActions(vfoSet);
         SystemAction myAction = SystemAction.get(VersioningExplorerAction.class);
