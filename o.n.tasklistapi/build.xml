@@ -93,4 +93,10 @@ Microsystems, Inc. All Rights Reserved.
         </ant>
     </target>
 
+    <target name="release">
+    </target>
+
+    <target name="javahelp">
+    </target>
+
 </project>
