@@ -44,6 +44,10 @@ public class MemberElementImpl extends ElementImpl
   /** @return Modifiers for this element.
   */
   public int getModifiers () {
+    if (data instanceof Class) {
+      // Class doesn't implement Member interface...
+      return ((Class)data).getModifiers();
+    }
     return ((Member)data).getModifiers();
   }
 
@@ -57,8 +61,13 @@ public class MemberElementImpl extends ElementImpl
   * @return the name
   */
   public Identifier getName () {
-    if (name == null)
-      name = Identifier.create(((Member)data).getName());
+    if (name == null) {
+      if (data instanceof Class)
+        // Class doesn't implement Member interface...
+        name = Identifier.create(((Class)data).getName());
+      else
+        name = Identifier.create(((Member)data).getName());
+    }
     return name;
   }
 
@@ -80,6 +89,7 @@ public class MemberElementImpl extends ElementImpl
 
 /*
 * Log
+*  2    src-jtulach1.1         2/3/99   David Simonek   
 *  1    src-jtulach1.0         1/22/99  David Simonek   
 * $
 */

@@ -77,12 +77,12 @@ implements DebuggerCookie {
 
   // variables ...................................................................................
 
+  /** Support for working with class */
   transient protected InstanceSupport instanceSupport;
-
+  /** Support for executing the class */
   transient protected ExecSupport execSupport;
-
-  /** Cookie initializing Task */
-  transient private Task cookieInit;
+  /** The flag for recognizing if cookies are initialized or not */
+  transient private boolean cookiesInitialized = false;
 
   // constructors ...................................................................................
 
@@ -90,25 +90,14 @@ implements DebuggerCookie {
   public ClassDataObject (final FileObject fo, final ClassDataLoader loader)
   throws com.netbeans.ide.loaders.DataObjectExistsException {
     super (fo, loader);
-    initCookies();
-  }
-
-  private void initCookies () {
     MultiDataObject.Entry pe = getPrimaryEntry();
     instanceSupport = new InstanceSupport.Origin(pe);
     execSupport = new ExecSupport(pe);
-    // asociate cookies (can be slow, do it in separate task)
-    cookieInit = RequestProcessor.postRequest(
-      new Runnable () {
-        public void run () {
-          doInitCookies();
-        }
-      }
-    );
   }
 
-  /** Actually performs the work of assigning cookies */
-  private void doInitCookies () {
+  /** Performs cookie initialization. */
+  private void initCookies () {
+    // asociate cookies
     boolean isExecutable = false;
     Class ourClass = null;
     try {
@@ -127,17 +116,20 @@ implements DebuggerCookie {
   }
 
   /** Overrides superclass getCookie.<P>
-  * Blocks until cookie initialization is finished.
+  * Lazily initialize cookies. (When they are requested for the first time)
   */
   public Node.Cookie getCookie (Class type) {
-    cookieInit.waitFinished();
+    if (!cookiesInitialized) {
+      initCookies();
+      cookiesInitialized = true;
+    }
     return super.getCookie(type);
   }
 
   private void readObject (java.io.ObjectInputStream is)
   throws java.io.IOException, ClassNotFoundException {
     is.defaultReadObject();
-    initCookies();
+    cookiesInitialized = false;
   }
 
   // DataObject implementation .............................................
@@ -473,6 +465,7 @@ implements DebuggerCookie {
 
 /*
  * Log
+ *  9    Gandalf   1.8         2/3/99   David Simonek   
  *  8    Gandalf   1.7         2/1/99   David Simonek   
  *  7    Gandalf   1.6         1/26/99  David Simonek   util.Task used for 
  *       synchronization

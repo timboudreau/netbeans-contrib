@@ -15,6 +15,7 @@ package com.netbeans.developer.modules.loaders.clazz;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collection;
 import java.util.Collections;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.*;
@@ -29,6 +30,11 @@ import com.netbeans.ide.src.*;
 */
 final class ClassElementImpl extends MemberElementImpl
                              implements ClassElement.Impl {
+  /** Empty array of initializers - constant to return from getInitializers() */
+  private static final InitializerElement[] EMPTY_INITIALIZERS =
+    new InitializerElement[0];
+  private static final Object[] EMPTY_ARRAY = new Object[0];
+
   /** Identifier of superclass of this class element,
   * can be empty */
   private Identifier superClass;
@@ -78,9 +84,9 @@ final class ClassElementImpl extends MemberElementImpl
     throw new SourceException();
   }
 
-  /** Not supported. Throws Unsupported exception */
+  /** Not available. Always returns empty array */
   public InitializerElement[] getInitializers () {
-    throw new UnsupportedOperationException();
+    return EMPTY_INITIALIZERS;
   }
 
   /** Changes set of elements.
@@ -92,13 +98,13 @@ final class ClassElementImpl extends MemberElementImpl
   }
 
   public FieldElement[] getFields () {
-    Map fieldsMap = (Map)fields.get();
+    Map fieldsMap = (fields == null) ? null : (Map)fields.get();
     if (fieldsMap == null) {
       // soft ref null, we must recreate
       fieldsMap = createFieldsMap();
       fields = new SoftReference(fieldsMap);
     }
-    return (FieldElement[])fieldsMap.values().toArray();
+    return (FieldElement[])fieldsMap.values().toArray(new FieldElement[0]);
   }
 
   /** Finds a field with given name.
@@ -106,7 +112,7 @@ final class ClassElementImpl extends MemberElementImpl
   * @return the element or null if field with such name does not exist
   */
   public FieldElement getField (Identifier name) {
-    Map fieldsMap = (Map)fields.get();
+    Map fieldsMap = (fields == null) ? null : (Map)fields.get();
     if (fieldsMap == null) {
       // soft ref null, we must recreate
       fieldsMap = createFieldsMap();
@@ -124,13 +130,13 @@ final class ClassElementImpl extends MemberElementImpl
   }
 
   public MethodElement[] getMethods () {
-    Map methodsMap = (Map)methods.get();
+    Map methodsMap = (methods == null) ? null : (Map)methods.get();
     if (methodsMap == null) {
       // soft ref null, we must recreate
       methodsMap = createMethodsMap();
       methods = new SoftReference(methodsMap);
     }
-    return (MethodElement[])methodsMap.values().toArray();
+    return (MethodElement[])methodsMap.values().toArray(new MethodElement[0]);
   }
 
   /** Finds a method with given name and argument types.
@@ -139,7 +145,7 @@ final class ClassElementImpl extends MemberElementImpl
   * @return the element or null if such method does not exist
   */
   public MethodElement getMethod (Identifier name, Type[] arguments) {
-    Map methodsMap = (Map)methods.get();
+    Map methodsMap = (methods == null) ? null : (Map)methods.get();
     if (methodsMap == null) {
       // soft ref null, we must recreate
       methodsMap = createMethodsMap();
@@ -158,13 +164,15 @@ final class ClassElementImpl extends MemberElementImpl
   }
 
   public ConstructorElement[] getConstructors () {
-    Map constructorsMap = (Map)constructors.get();
+    Map constructorsMap =
+      (constructors == null) ? null :(Map)constructors.get();
     if (constructorsMap == null) {
       // soft ref null, we must recreate
       constructorsMap = createConstructorsMap();
       constructors = new SoftReference(constructorsMap);
     }
-    return (ConstructorElement[])constructorsMap.values().toArray();
+    return (ConstructorElement[])constructorsMap.values().
+            toArray(new ConstructorElement[0]);
   }
 
   /** Finds a constructor with argument types.
@@ -172,7 +180,8 @@ final class ClassElementImpl extends MemberElementImpl
   * @return the element or null if such method does not exist
   */
   public ConstructorElement getConstructor (Type[] arguments) {
-    Map constructorsMap = (Map)constructors.get();
+    Map constructorsMap =
+      (constructors == null) ? null :(Map)constructors.get();
     if (constructorsMap == null) {
       // soft ref null, we must recreate
       constructorsMap = createConstructorsMap();
@@ -191,13 +200,13 @@ final class ClassElementImpl extends MemberElementImpl
   }
 
   public ClassElement[] getClasses () {
-    Map innersMap = (Map)inners.get();
+    Map innersMap = (inners == null) ? null : (Map)inners.get();
     if (innersMap == null) {
       // soft ref null, we must recreate
       innersMap = createInnersMap();
       inners = new SoftReference(innersMap);
     }
-    return (ClassElement[])innersMap.values().toArray();
+    return (ClassElement[])innersMap.values().toArray(new ClassElement[0]);
   }
 
   /** Finds an inner class with given name.
@@ -205,7 +214,7 @@ final class ClassElementImpl extends MemberElementImpl
   * @return the element or null if such class does not exist
   */
   public ClassElement getClass (Identifier name) {
-    Map innersMap = (Map)inners.get();
+    Map innersMap = (inners == null) ? null : (Map)inners.get();
     if (innersMap == null) {
       // soft ref null, we must recreate
       innersMap = createInnersMap();
@@ -268,7 +277,6 @@ final class ClassElementImpl extends MemberElementImpl
     ClassElement curCE = null;
     Map result = new HashMap(reflInners.length);
     for (int i = 0; i < reflInners.length; i++) {
-      if (reflInners[i].isInterface()) continue;
       curCE = new ClassElement(new ClassElementImpl(reflInners[i]),
                                (ClassElement)element);
       result.put(curCE.getName(), curCE);
@@ -295,7 +303,7 @@ final class ClassElementImpl extends MemberElementImpl
   /** Creates map for methods of this class,
   * consisting of method key - method element entries */
   private Map createMethodsMap () {
-    // obtain constructors array
+    // obtain methods array
     Method[] reflMethods = ((Class)data).getDeclaredMethods();
     // create map
     MethodElement curME = null;
@@ -313,6 +321,7 @@ final class ClassElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  3    src-jtulach1.2         2/3/99   David Simonek   
 *  2    src-jtulach1.1         1/29/99  David Simonek   
 *  1    src-jtulach1.0         1/22/99  David Simonek   
 * $

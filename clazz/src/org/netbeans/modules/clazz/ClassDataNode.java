@@ -28,7 +28,9 @@ import com.netbeans.ide.util.datatransfer.TransferableOwner;
 import com.netbeans.ide.util.RequestProcessor;
 import com.netbeans.ide.util.NbBundle;
 import com.netbeans.ide.src.ElementProperties;
+import com.netbeans.ide.src.ClassElement;
 import com.netbeans.ide.src.nodes.SourceChildren;
+import com.netbeans.ide.src.nodes.DefaultFactory;
 import com.netbeans.ide.cookies.SourceCookie;
 
 /** Represents ClassDataObject
@@ -41,7 +43,6 @@ class ClassDataNode extends DataNode implements Runnable {
 
   /** Properties */
   private final static String PROP_CLASS_NAME = "className";
-  private final static String PROP_SHOWDECLAREDONLY = "showDeclaredOnly";
   private final static String PROP_IS_JAVA_BEAN = "isJavaBean";
   private final static String PROP_IS_APPLET = "isApplet";
   private final static String PROP_IS_EXECUTABLE = "isExecutable";
@@ -79,7 +80,7 @@ class ClassDataNode extends DataNode implements Runnable {
   /** @param obj is a ClassDataObject that is to be represented
   */
   ClassDataNode(final ClassDataObject obj) {
-    super(obj, new SourceChildren());
+    super(obj, new SourceChildren(new NodeFactory()));
     this.obj = obj;
     initialize();
   }
@@ -113,7 +114,7 @@ class ClassDataNode extends DataNode implements Runnable {
     return ((ClassDataObject) getDataObject()).getExecution ();
   }
 
-  /** Creates property set for this data object */
+  /** Creates property set for this node */
   protected Sheet createSheet () {
     Sheet s = super.createSheet();
     ResourceBundle bundle = NbBundle.getBundle(this);
@@ -262,8 +263,9 @@ class ClassDataNode extends DataNode implements Runnable {
     // set right source element to our children
     SourceCookie sc =
       (SourceCookie)getDataObject().getCookie(SourceCookie.class);
-    if (sc != null)
+    if (sc != null) {
       ((SourceChildren)getChildren()).setElement(sc.getSource());
+    }
   }
 
 // --------------------------------------------------------------------
@@ -292,10 +294,22 @@ class ClassDataNode extends DataNode implements Runnable {
     iconResolved = true;
   }
 
+  /** Factory for creating nodes which are special for us.
+  */
+  private static final class NodeFactory extends DefaultFactory {
+
+    /** @return ClassNode instance. */
+    public Node createClassNode (final ClassElement element) {
+      return new ClassNode(this, element);
+    }
+
+  } // end of NodeFactory inner class
+
 }
 
 /*
  * Log
+ *  7    Gandalf   1.6         2/3/99   David Simonek   
  *  6    Gandalf   1.5         2/1/99   David Simonek   
  *  5    Gandalf   1.4         1/20/99  David Simonek   rework of class DO
  *  4    Gandalf   1.3         1/19/99  David Simonek   

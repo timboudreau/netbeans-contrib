@@ -14,6 +14,7 @@
 package com.netbeans.developer.modules.loaders.clazz;
 
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
@@ -45,7 +46,11 @@ class ConstructorElementImpl extends MemberElementImpl
   public MethodParameter[] getParameters () {
     if (parameters == null) {
       // build method params
-      Class[] reflPars = ((Constructor)data).getParameterTypes();
+      Class[] reflPars = null;
+      if (data instanceof Method)
+        reflPars = ((Method)data).getParameterTypes();
+      else
+        reflPars = ((Constructor)data).getParameterTypes();
       parameters = new MethodParameter[reflPars.length];
       // helper variables
       Class curPar = null;
@@ -112,6 +117,7 @@ class ConstructorElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  2    src-jtulach1.1         2/3/99   David Simonek   
 *  1    src-jtulach1.0         1/22/99  David Simonek   
 * $
 */

@@ -39,18 +39,16 @@ public class ElementImpl extends Object implements Element.Impl {
   *
   * @param element the element we are attached to
   */
-  public void attachedToElement (Element el) {
+  public void attachedToElement (Element element) {
     this.element = element;
   }
 
-  /** We don't support property changes - throws Unsupported exception */
+  /** We don't support property changes - does nothing */
   public void addPropertyChangeListener (PropertyChangeListener l) {
-    throw new UnsupportedOperationException();
   }
 
-  /** We don't support property changes - throws Unsupported exception */
+  /** We don't support property changes - does nothing */
   public void removePropertyChangeListener (PropertyChangeListener l) {
-    throw new UnsupportedOperationException();
   }
 
   public void writeExternal(ObjectOutput oi) throws IOException {
@@ -63,6 +61,7 @@ public class ElementImpl extends Object implements Element.Impl {
 
 /*
 * Log
+*  2    src-jtulach1.1         2/3/99   David Simonek   
 *  1    src-jtulach1.0         1/22/99  David Simonek   
 * $
 */
