@@ -34,11 +34,12 @@ import com.netbeans.ide.filesystems.DefaultAttributes;
 
 /* TODO:
  * 
- * - "Details..." s detaily stavu jednotlivych souboru
  * - zobrazovat uzivatelske prikazy v popup menu na konci
+ * - "Details..." s detaily stavu jednotlivych souboru
  * - kdyz je pouzita promenna, ktera neni definovana, zeptat se na
  * - napoveda
  * - lokalizace
+ *
  * - "Customize" tlacitko na upravu konfiguraci
  *
  */
@@ -74,7 +75,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   private Vector commands=new Vector(10);
 
   /** Just convenience table.
-      [key='LIST' value=UserCommand]
+      [key="LIST" value=UserCommand]
   */
   private transient Hashtable commandsByName=null;
   
@@ -766,6 +767,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  24   Gandalf   1.23        5/25/99  Michal Fadljevic 
  *  23   Gandalf   1.22        5/24/99  Michal Fadljevic 
  *  22   Gandalf   1.21        5/24/99  Michal Fadljevic 
  *  21   Gandalf   1.20        5/21/99  Michal Fadljevic 
