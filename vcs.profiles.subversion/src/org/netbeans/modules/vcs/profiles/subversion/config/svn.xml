@@ -115,7 +115,7 @@ PROMPT_FOR(ENCODING_D,"Encoding:", "${ENCODING_D}", ACCESSIBILITY(DESCRIPTION_De
         </variable>
         <variable basic="false" name="POSSIBLE_FILE_STATUSES">
             <!-- "?" which means the file is "Local" is purposefully ommitted b/c the regex will never match lines starting with "?" -->
-            <value xml:space="preserve">"","A","C","D","G","I","M","R","X","!","~"</value>
+            <value xml:space="preserve">" ","A","C","D","G","I","M","R","X","!","~"</value>
         </variable>
         <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED" basic="false">
             <value xml:space="preserve">
