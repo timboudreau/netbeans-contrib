@@ -408,6 +408,12 @@ err.log("Couldn't find current nodes...");
         if (tc == null) {
             // The last editor-support window in the editor was probably
             // just closed - or was not on top
+
+            // remove suggestions 
+            List previous = new ArrayList(getCurrentSuggestionsList().getTasks());
+            getCurrentSuggestionsList().addRemove(null, previous, false, null, null);
+            // for opened files list it's done ahandeTopComponentCloased
+
             LOGGER.fine("Cannot find active source editor!");   // during startup
             return;
         }
