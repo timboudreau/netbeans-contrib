@@ -20,6 +20,7 @@ import java.util.Map;
 import org.netbeans.lib.cvsclient.CVSRoot;
 import org.netbeans.modules.vcs.advanced.globalcommands.GlobalExecutionContext;
 import org.netbeans.modules.vcs.advanced.recognizer.CommandLineVcsFileSystemInfo;
+import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 
 import org.netbeans.modules.vcscore.commands.*;
@@ -56,9 +57,13 @@ public class CvsGlobalRegister extends Object implements VcsAdditionalCommand {
                         CommandDataOutputListener stderrListener, String errorRegex) {
         
         String dirName = (String) vars.get(ROOT_DIR);
-        String rootStr = (String) vars.get("CVS_ROOT");// NOI18N
-        if((dirName == null)|| (dirName.length() ==0))
-            return false;        
+        if ((dirName == null) || (dirName.length() ==0))
+            return false;
+        String rootStr = (String) vars.get("CVS_ROOT"); // NOI18N
+        if (rootStr == null) {
+            rootStr = (String) vars.get("CVSROOT"); // NOI18N
+        }
+        rootStr = Variables.expand(vars, rootStr, false);
         String serverType = null;
         String repository = null;
         String userName = null;

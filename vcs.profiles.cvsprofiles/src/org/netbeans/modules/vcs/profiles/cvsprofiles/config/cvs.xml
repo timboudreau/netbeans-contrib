@@ -363,6 +363,9 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="INITIAL_CO_MODULE" basic="false">
       <value>.</value>
     </variable>  
+    <variable name="INITIAL_CO_MODULES" basic="false">
+      <value></value>
+    </variable>  
     <variable name="INITIAL_CO_TAG" basic="false">
       <value></value>
     </variable>  
@@ -394,7 +397,7 @@ Microsystems, Inc. All Rights Reserved.
       <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Label)))
                  
                  SELECT_RADIO(INITIAL_CO_MODULE, "", ".", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_All)", ".", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_All);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_All_Mnemonic))"],
-                                            ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Module)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Module);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Module_mnc))",PROMPT_FOR(CO_MODULE, "", ${MPATHS_\/},SELECTOR_CMD_SELECTOR_MODULES)])
+                                            ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Module)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Module);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Module_mnc))",PROMPT_FOR(INITIAL_CO_MODULES, "", ${MPATHS_\/},SELECTOR_CMD_SELECTOR_MODULES)])
                  PROMPT_FOR(INITIAL_CO_TAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Tag), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Tag);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Tag_mnc)) ,IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_REVISIONS)
                  PROMPT_FOR(INITIAL_CO_DATE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Date), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Date);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Date_mnc)) ,SELECTOR_DATE_CVS)
                  ASK_FOR(INITIAL_CO_FORCE_HEAD_MATCH, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Force_Head_Match), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Force_Head_Match);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_Force_Head_Match_mnc)) ,"-f", "")
@@ -1686,9 +1689,12 @@ Microsystems, Inc. All Rights Reserved.
           <value>-1</value>
         </property>
       </command>
-      <command name="INITIAL_CHECKOUT_COMMAND">
+      <command name="INITIAL_CHECKOUT_COMMAND" displayName="getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_CHECKOUT)">
+        <property name="hidden">
+          <value>true</value>
+        </property>
 	<property name="exec">
-	  <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${INITIAL_CO_FORCE_HEAD_MATCH} ${INITIAL_CO_DO_NOT_SHORTEN} ${INITIAL_CO_RCS_KFLAG} ${INITIAL_CO_RUN_MODULE_PROGRAM} $[? INITIAL_CO_DIRECTORY] [-d ${INITIAL_CO_DIRECTORY}] [] $[? INITIAL_CO_TAG] [-r ${INITIAL_CO_TAG}] [] $[? INITIAL_CO_DATE] [-D ${QUOTE}${INITIAL_CO_DATE}${QUOTE}] [] ${INITIAL_CO_PRUNE_EMPTY}  ${INITIAL_CO_RECURSIVE} ${INITIAL_CO_MODULE} ${NUR}</value>
+	  <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${INITIAL_CO_FORCE_HEAD_MATCH} ${INITIAL_CO_DO_NOT_SHORTEN} ${INITIAL_CO_RCS_KFLAG} ${INITIAL_CO_RUN_MODULE_PROGRAM} $[? INITIAL_CO_DIRECTORY] [-d ${INITIAL_CO_DIRECTORY}] [] $[? INITIAL_CO_TAG] [-r ${INITIAL_CO_TAG}] [] $[? INITIAL_CO_DATE] [-D ${QUOTE}${INITIAL_CO_DATE}${QUOTE}] [] ${INITIAL_CO_PRUNE_EMPTY}  ${INITIAL_CO_RECURSIVE} $[? INITIAL_CO_MODULE] [${INITIAL_CO_MODULE}] [${INITIAL_CO_MODULES}] ${NUR}</value>
 	</property>
 	<property name="display">
 	  <value>true</value>
@@ -2955,9 +2961,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}]
-                                 [$[? IS_WIN9X] [${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}] 
-                                 [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}]]
+	  <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} $[? CO_ALL] [${CO_ALL}] [${CO_MODULE}] ${NUR}]
+                                 [$[? IS_WIN9X] [${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} $[? CO_ALL] [${CO_ALL}] [${CO_MODULE}] ${NUR}] 
+                                 [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} $[? CO_ALL] [${CO_ALL}] [${CO_MODULE}] ${NUR}]]
           </value>
 	</property>
 	<property name="display">
@@ -3001,7 +3007,7 @@ Microsystems, Inc. All Rights Reserved.
                  PROMPT_FOR_PASSWORD(PASSWORD, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Password)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_Password);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Password_Mnemonic))", SELECTOR_CMD_(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(LOGIN_Button))CONNECTION_LOGIN)
                                                                 TEXT(LOGGED_IN_TEXT, 1, 1, LINE_SINGLE)
                  SELECT_RADIO(CO_ALL, "", ".", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_All)", ".", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_All);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_All_Mnemonic))"],
-                                            ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Module)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Module);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Module_mnc))",PROMPT_FOR(CO_MODULE, "", ${MPATHS_\/},SELECTOR_CMD_SELECTOR_MODULES)])                 
+                                            ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Module)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Module);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Module_mnc))",PROMPT_FOR(CO_MODULE, "", "",SELECTOR_CMD_SELECTOR_MODULES)])
                  PROMPT_FOR(TAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Tag), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Tag);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Tag_mnc)))
                  PROMPT_FOR(DATE, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Date), "",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Date);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Date_mnc)) ,SELECTOR_DATE_CVS)
                  ASK_FOR(FORCE_HEAD_MATCH, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_Force_Head_Match), "false",ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_Force_Head_Match);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_GL_COMMAND_Force_Head_Match_mnc)) ,"-f", "")
