@@ -18,8 +18,6 @@ import org.netbeans.modules.vcscore.registry.FSRegistry;
 import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.openide.filesystems.FileObject;
-import org.openide.windows.WindowManager;
-import org.openide.nodes.NodeOperation;
 import org.openide.util.NbBundle;
 
 import javax.swing.*;
