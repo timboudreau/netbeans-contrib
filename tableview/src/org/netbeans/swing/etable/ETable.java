@@ -13,6 +13,7 @@ package org.netbeans.swing.etable;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.*;
@@ -21,14 +22,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
@@ -65,6 +74,9 @@ public class ETable extends JTable {
     /** Possible value for editing property */
     private final static int DEFAULT = 3;
 
+    // icon of column button
+    private static final String DEFAULT_COLUMNS_ICON = "columns.gif"; // NOI18N
+    
     /**
      * Property allowing to make the table FULLY_NONEDITABLE and
      * FULLY_EDITABLE.
@@ -369,18 +381,22 @@ public class ETable extends JTable {
      */
     public void setNETCellBackground(Component renderer, boolean isSelected,
             int row, int column) {
+        Color c = null;
         if (row%2 == 0) { //Background 2
             if(isSelected) {
-                renderer.setBackground(UIManager.getColor("Table.selectionBackground2"));
+                c = UIManager.getColor("Table.selectionBackground2");
             } else {
-                renderer.setBackground(UIManager.getColor("Table.background2"));
+                c = UIManager.getColor("Table.background2");
             }
         } else { // Background 1
             if(isSelected) {
-                renderer.setBackground(UIManager.getColor("Table.selectionBackground1"));
+                c = UIManager.getColor("Table.selectionBackground1");
             } else {
-                renderer.setBackground(UIManager.getColor("Table.background1"));
+                c = UIManager.getColor("Table.background1");
             }
+        }
+        if (c != null) {
+            renderer.setBackground(c);
         }
     }
 
@@ -534,6 +550,74 @@ public class ETable extends JTable {
         return retValue;
     }
 
+    /**
+     * Overriden to install special button into the upper right hand corner.
+     */
+    protected void configureEnclosingScrollPane() {
+        super.configureEnclosingScrollPane();
+        Container p = getParent();
+        if (p instanceof JViewport) {
+            Container gp = p.getParent();
+            if (gp instanceof JScrollPane) {
+                JScrollPane scrollPane = (JScrollPane)gp;
+                // Make certain we are the viewPort's view and not, for
+                // example, the rowHeaderView of the scrollPane -
+                // an implementor of fixed columns might do this.
+                JViewport viewport = scrollPane.getViewport();
+                if (viewport == null || viewport.getView() != this) {
+                    return;
+                }
+                Icon ii = UIManager.getIcon("Table.columnSelection");
+                if (ii == null) {
+                    ii = new ImageIcon(ETable.class.getResource(DEFAULT_COLUMNS_ICON));
+                }
+                final JButton b = new JButton(ii);
+                b.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) {
+                        showColumnSelectionPopup(b);
+                    }
+                });
+                b.addMouseListener(new MouseAdapter() {
+                    public void mouseClicked(MouseEvent me) {
+                        if (me.getButton() == MouseEvent.BUTTON3) {
+                            showColumnSelectionDialog();
+                        }
+                    }
+                });
+                scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, b);
+            }
+        }
+    }
+    
+    /**
+     * Shows the popup allowing to show/hide columns.
+     */
+    private void showColumnSelectionPopup(Component c) {
+        JPopupMenu popup = new JPopupMenu();
+        TableColumnModel columnModel = getColumnModel();
+        if (! (columnModel instanceof ETableColumnModel)) {
+            return;
+        }
+        final ETableColumnModel etcm = (ETableColumnModel)columnModel;
+        List columns = Collections.list(etcm.getColumns());
+        columns.addAll(etcm.hiddenColumns);
+        Collections.sort(columns);
+        for (Iterator it = columns.iterator(); it.hasNext(); ) {
+            final ETableColumn etc = (ETableColumn)it.next();
+            final JCheckBoxMenuItem checkBox = new JCheckBoxMenuItem();
+            checkBox.setText(etc.getHeaderValue().toString());
+            checkBox.setSelected(! etcm.isColumnHidden(etc));
+            checkBox.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent evt) {
+                    etcm.setColumnHidden(etc,! checkBox.isSelected());
+                }
+            });
+
+            popup.add(checkBox);
+        }
+        popup.show(c, 8, 8);
+    }
+    
     /**
      * When the user clicks the header this method returns either
      * the column that should be resized or null.
@@ -735,6 +819,18 @@ public class ETable extends JTable {
     }
     
     /**
+     * Shows dialog allowing to show/hide columns.
+     */
+    private void showColumnSelectionDialog() {
+        // right click will open the column visibility dialog
+        ColumnSelectionPanel panel = new ColumnSelectionPanel(getColumnModel());
+        int res = JOptionPane.showConfirmDialog(ETable.this, panel, "Select visible columns", JOptionPane.OK_CANCEL_OPTION);
+        if (res == JOptionPane.OK_OPTION) {
+            panel.changeColumnVisibility();
+        }
+    }
+    
+    /**
      * Mouse listener attached to the JTableHeader of this table. Single
      * click on the table header should trigger sorting on that column.
      * Double click on the column divider automatically resizes the column.
@@ -742,12 +838,7 @@ public class ETable extends JTable {
     private class HeaderMouseListener extends MouseAdapter {
         public void mouseClicked(MouseEvent me) {
             if (me.getButton() == MouseEvent.BUTTON3) {
-                // right click will open the column visibility dialog
-                ColumnSelectionPanel panel = new ColumnSelectionPanel(getColumnModel());
-                int res = JOptionPane.showConfirmDialog(ETable.this, panel, "Select visible columns", JOptionPane.OK_CANCEL_OPTION);
-                if (res == JOptionPane.OK_OPTION) {
-                    panel.changeColumnVisibility();
-                }
+                showColumnSelectionDialog();
                 return;
             }
             TableColumn resColumn = getResizingColumn(me.getPoint());
