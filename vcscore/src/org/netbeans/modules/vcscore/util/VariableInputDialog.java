@@ -147,6 +147,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private Vector varVariables = new Vector ();
     private volatile org.openide.util.RequestProcessor.Task autoFillTask;
     private volatile String lastCommandName;
+    private boolean rapidVariablesAssignment = false;
+    private VariableInputComponent componentBeingRapidlyAssigned = null;
+    private Object componentBeingRapidlyAssignedLock = new Object();
     
     static final long serialVersionUID = 8363935602008486018L;
     
@@ -167,7 +170,25 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * @param expert the expert mode
      * @param vars the filesystem variables
      */
-    public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor, boolean expert, Hashtable vars) {      
+    public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor, boolean expert, Hashtable vars) {
+        this(files, inputDescriptor, expert, vars, false);
+    }
+    
+    /** Creates new form VariableInputDialog. This JPanel should be used
+     * with DialogDescriptor to get the whole dialog.
+     * @param files the files to get the input for
+     * @param inputDescriptor the input descriptor
+     * @param expert the expert mode
+     * @param vars the filesystem variables
+     * @param rapidVariablesAssignment If true, assign the variable values as soon as possible,
+     *        even before the user has finished explicitely the input (by focus lost, etc.).
+     *        Currently this makes any difference only for textfields, which listen on key typed
+     *        events and update the variables immediately.
+     *
+     */
+    public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor,
+                               boolean expert, Hashtable vars, boolean rapidVariablesAssignment) {
+        this.rapidVariablesAssignment = rapidVariablesAssignment;
         initComponents();
         this.inputDescriptor = inputDescriptor;
         this.expert = expert;
@@ -281,7 +302,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     public java.awt.Component getInitialFocusedComponent() {
         return firstFocusedComponent;
     }
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -716,6 +737,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
             if (inComponent == null) {
                 continue;
             }
+            if (rapidVariablesAssignment) {
+                synchronized (componentBeingRapidlyAssignedLock) {
+                    if (componentBeingRapidlyAssigned == inComponent) {
+                        // Do not modify a component, that is being rapidly assigned!
+                        continue;
+                    }
+                }
+            }
             java.awt.Component[] components = (java.awt.Component[]) awtComponentsByVars.get(varName);
             
             String oldValue = inComponent.getValue();
@@ -1110,9 +1139,19 @@ public class VariableInputDialog extends javax.swing.JPanel {
         FocusListener l;
         field.addFocusListener(l = new FocusListener() {
             public void focusGained(FocusEvent fevt) {}
-            public void focusLost(FocusEvent fevt) {                
+            public void focusLost(FocusEvent fevt) {
+                boolean wasRapidlyAssigned = false;
+                if (rapidVariablesAssignment) {
+                    synchronized (componentBeingRapidlyAssignedLock) {
+                        if (componentBeingRapidlyAssigned == component) {
+                            componentBeingRapidlyAssigned = null; // We're going to assign the component ourselves
+                            wasRapidlyAssigned = true;
+                        }
+                    }
+                }
                 Object oldValue = component.getValue();
                 component.setValue(field.getText());
+                if (wasRapidlyAssigned) oldValue = null; // to force autofill and fire
                 if (!component.getValue().equals(oldValue)) {
                     doAutofill(component.getVariable());
                     firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), oldValue, component.getValue());
@@ -1120,6 +1159,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
             }
         });
         focusListenersToCallBeforeValidate.add(l);
+        if (rapidVariablesAssignment) {
+            field.getDocument().addDocumentListener(new RapidDocumentChangeListener(component, field));
+            
+        }
         if (selector != null) {
             java.awt.Component awtComponent = null;
             if (VariableInputDescriptor.SELECTOR_DIR.equals(selector)) {
@@ -2416,6 +2459,70 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     private interface HistoryListener {
         public void changeHistory(int index1, int index2);
+    }
+    
+    // Can not be inside RapidDocumentChangeListener, where it belongs
+    private static RequestProcessor rapidRequestProcessor;
+    
+    private class RapidDocumentChangeListener extends Object implements DocumentListener, Runnable {
+        
+        private static final int SCHEDULE_TIME = 100;
+        
+        private RequestProcessor.Task task;
+        private VariableInputComponent component;
+        private JTextComponent text;
+        
+        public RapidDocumentChangeListener(VariableInputComponent component, JTextComponent text) {
+            this.component = component;
+            this.text = text;
+            synchronized (RapidDocumentChangeListener.class) {
+                if (rapidRequestProcessor == null) {
+                    rapidRequestProcessor = new RequestProcessor();
+                }
+            }
+        }
+        
+        public void changedUpdate(DocumentEvent e) {
+            changed(e);
+        }
+        
+        public void insertUpdate(DocumentEvent e) {
+            changed(e);
+        }
+        
+        public void removeUpdate(DocumentEvent e) {
+            changed(e);
+        }
+
+        private void changed(DocumentEvent e) {
+            synchronized (componentBeingRapidlyAssignedLock) {
+                componentBeingRapidlyAssigned = component;
+            }
+            if (task != null) {
+                task.schedule(SCHEDULE_TIME);
+            } else {
+                task = rapidRequestProcessor.post(this, SCHEDULE_TIME);
+            }
+        }
+        
+        public void run() {
+            boolean fire;
+            Object oldValue;
+            synchronized (componentBeingRapidlyAssignedLock) {
+                if (componentBeingRapidlyAssigned != component) { // Someone else is involved
+                    return ;
+                }
+                oldValue = component.getValue();
+                component.setValue(text.getText());
+                fire = !component.getValue().equals(oldValue);
+            }
+            if (fire) {
+                // Do not do autofill here, this is going to be called possibly very often!
+                // Autofill will be launched after focus lost
+                VariableInputDialog.this.firePropertyChange(PROP_VAR_CHANGED + component.getVariable(),
+                                                            oldValue, component.getValue());
+            }
+        }
     }
     
     private class AutoFillRunner extends Object implements Runnable {
