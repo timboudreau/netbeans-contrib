@@ -20,6 +20,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.*;
@@ -89,9 +90,14 @@ public abstract class TaskListView extends TopComponent
      */
     private transient static Map views = null;
 
-    protected static int TOOLBAR_HEIGHT_ADJUSTMENT = -2;
+    /** Expected border height */
+    private static int TOOLBAR_HEIGHT_ADJUSTMENT = 3;
+
+    /** Cached toolbar height */
+    private static int toolbarHeight = -1;
 
     public static final String DEFAULT_FILTER_NAME = NbBundle.getMessage(TaskListView.class, "default-filter-name");
+
 
     /**
      * Registers a view
@@ -301,7 +307,7 @@ public abstract class TaskListView extends TopComponent
         JLabel ret =  new JLabel();
         ret.setBorder(BorderFactory.createEmptyBorder());
         Dimension dim = ret.getPreferredSize();
-        dim.height += TOOLBAR_HEIGHT_ADJUSTMENT;
+        dim.height = getToolbarHeight();
         ret.setPreferredSize(dim);
         return ret;
     }
@@ -309,6 +315,31 @@ public abstract class TaskListView extends TopComponent
     protected final void setMiniStatus(String text) {
         getMiniStatus().setText(text);
     }
+
+    /**
+     * Computes vertical toolbar components height that can used for layout manager hinting.
+     * @return size based on font size and expected border.
+     */
+    public static int getToolbarHeight() {
+
+        if (toolbarHeight == -1) {
+            BufferedImage image = new BufferedImage(1,1,BufferedImage.TYPE_BYTE_GRAY);
+            Graphics2D g = image.createGraphics();
+            UIDefaults def = UIManager.getLookAndFeelDefaults();
+
+            int height = 0;
+            String[] fonts = {"Label.font", "Button.font", "ToggleButton.font"};      // NOI18N
+            for (int i=0; i<fonts.length; i++) {
+                Font f = def.getFont(fonts[i]);
+                FontMetrics fm = g.getFontMetrics(f);
+                height = Math.max(height, fm.getHeight());
+            }
+            toolbarHeight = height + TOOLBAR_HEIGHT_ADJUSTMENT;
+        }
+
+        return toolbarHeight;
+    }
+
 
     // XXX probably new instance per view would be better
     // or explicit hideTaskInEditor should not hide foreign annotations

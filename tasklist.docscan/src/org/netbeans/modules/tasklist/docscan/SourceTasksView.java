@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.docscan;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -43,6 +44,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.nodes.*;
 import org.openide.loaders.*;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 
 import org.netbeans.modules.tasklist.core.*;
@@ -667,6 +669,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             JButton button = new DropDown();
             button.setToolTipText(Util.getString("selector_hint") + " (S)"); // NOI18N
             button.addActionListener(dispatcher);
+            adjustHeight(button);
 
             button.getAccessibleContext().setAccessibleName(Util.getString("select-folder"));
             button.getAccessibleContext().setAccessibleDescription(Util.getString("selector_hint"));
@@ -679,16 +682,17 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     class DropDown extends JButton {
 
         private static final long serialVersionUID = 1;
+        private static final int DROPDOWN_WIDTH = 15;
 
         DropDown() {
             super(new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/dropdown.gif")));  // NOI18N
-            setMargin(new Insets(10, 0, 9, 0));
+            // setMargin(new Insets(10, 0, 9, 0));
         }
 
         public Dimension getPreferredSize() {
-            Dimension dim = getAllFiles().getPreferredSize();
-            int HEURITICS_FOR_OCEAN_LF = 1;    // get botton aligned with Selected Folder button
-            return new Dimension(11, dim.height + HEURITICS_FOR_OCEAN_LF);
+//            Dimension dim = getAllFiles().getPreferredSize();
+//            int HEURITICS_FOR_OCEAN_LF = 1;    // get botton aligned with Selected Folder button
+            return new Dimension(DROPDOWN_WIDTH, getToolbarHeight());
         }
     }
 
@@ -886,7 +890,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private final ActionListener dispatcher = new Dispatcher();
 
     /** Toolbar controls must be smaller*/
-    private static void adjustHeight(AbstractButton button) {
+    private void adjustHeight(AbstractButton button) {
 
         button.setMargin(new Insets(0, 3, 0, 3));
 
@@ -909,11 +913,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         adjustHeightComponent(button);
     }
     
-    private static void adjustHeightComponent(JComponent button) {
+    private void adjustHeightComponent(JComponent button) {
         // as we cannot get the button small enough using the margin and border...
         if (button.getBorder() instanceof CompoundBorder) { // from BasicLookAndFeel
             Dimension pref = button.getPreferredSize();
-            pref.height += TOOLBAR_HEIGHT_ADJUSTMENT;
+            pref.height = getToolbarHeight();
 
             // XXX #41827 workaround w2k, that adds eclipsis (...) insted of actual text
             if ("Windows".equals(UIManager.getLookAndFeel().getID())) {  // NOI18N
@@ -930,23 +934,23 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     protected Component createNorthComponent() {
 
-        // toolbars are used to get desired visual rollover effect
-
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
-        toolbar.setBorder(null);
+        Border verysoftbevelborder = BorderFactory.createMatteBorder(0,0,1,0,toolbar.getBackground().darker().darker());
+        toolbar.setBorder(verysoftbevelborder);
+        toolbar.setLayout(new ToolbarLayout());
 
         toolbar.add(getCurrentFile());
         toolbar.add(getOpenedFiles());
         toolbar.add(getAllFiles());
 
+        // wrapped in JPanel it looks better on Ocean, GTK+ plaf worse on Metal
         JPanel wrapper = new JPanel();
         wrapper.setLayout(new FlowLayout(FlowLayout.CENTER,0,0));
         wrapper.add(getFolderSelector());
-        // DBG wrapper.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-        wrapper.setBorder(BorderFactory.createEmptyBorder(1,0,0,0));
         toolbar.add(wrapper);
+
         //JSeparator separator = new JSeparator(JSeparator.VERTICAL);  // Ocean L&F doe snot support vertical separators
         JPanel separator = new JPanel();
         toolbar.add(separator);
@@ -954,31 +958,71 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         toolbar.add(getRefresh());
         toolbar.add(getFilterIconButton());
         toolbar.add(getFilterCombo());
+
         //JSeparator separator2 = new JSeparator(JSeparator.VERTICAL);  // Ocean L&F doe snot support vertical separators
         JPanel separator2 = new JPanel();
         toolbar.add(separator2);
+        toolbar.add(getMiniStatus());
+        toolbar.add(getProgress());
+        toolbar.add(getStop());
 
-        JPanel rightpanel = new JPanel();
-        rightpanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 0));
-        rightpanel.add(getProgress());
-        JToolBar stoptoolbar = new JToolBar();
-        stoptoolbar.setFloatable(false);
-        stoptoolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
-        stoptoolbar.setBorder(null);
-        stoptoolbar.add(getStop());
-        rightpanel.add(stoptoolbar);
+        // Eliminates double width toolbar on Metal L&F
+        toolbar.setPreferredSize(new Dimension(Integer.MAX_VALUE, getToolbarHeight()));
+        return toolbar;
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        Border verysoftbevelborder = BorderFactory.createMatteBorder(0,0,1,0,panel.getBackground().darker().darker());
-        panel.setBorder(verysoftbevelborder);
+    }
 
-        panel.add(toolbar, BorderLayout.WEST);
-        JLabel ministatus = getMiniStatus();
-        ministatus.setBorder(BorderFactory.createEmptyBorder(0,6,0,0));
-        panel.add(ministatus, BorderLayout.CENTER);
-        panel.add(rightpanel, BorderLayout.EAST);
-        return panel;
+    /**
+     * Hardcoded toolbar layout. It eliminates need
+     * for nested panels their look is hardly maintanable
+     * accross several look and feels
+     * (e.g. strange layouting panel borders on GTK+).
+     */
+    private class ToolbarLayout implements LayoutManager {
+
+        public void removeLayoutComponent(Component comp) {
+        }
+
+        public void layoutContainer(Container parent) {
+            Dimension max = parent.getSize();
+            int label = max.width - preferredLayoutSize(parent).width;
+
+            int components = parent.getComponentCount();
+            int horizont = 0;
+            for (int i = 0; i<components; i++) {
+                Component comp = parent.getComponent(i);
+                if (comp.isVisible() == false) continue;
+                comp.setLocation(horizont, 0);
+                Dimension pref = comp.getPreferredSize();
+                int width = pref.width;
+                if (comp == getMiniStatus()) {
+                    width = label;
+                }
+                comp.setSize(width, getToolbarHeight());
+                horizont += width;
+            }
+        }
+
+        public void addLayoutComponent(String name, Component comp) {
+        }
+
+        public Dimension minimumLayoutSize(Container parent) {
+            int components = parent.getComponentCount();
+            int horizont = 0;
+            for (int i = 0; i<components; i++) {
+                Component comp = parent.getComponent(i);
+                if (comp.isVisible() == false) continue;
+                comp.setLocation(horizont, 0);
+                Dimension pref = comp.getPreferredSize();
+                horizont += pref.width;
+            }
+
+            return new Dimension(horizont, getToolbarHeight());
+        }
+
+        public Dimension preferredLayoutSize(Container parent) {
+            return getMinimumSize();
+        }
 
     }
 
@@ -1727,6 +1771,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             adjustHeightComponent(filterCombo);
             Dimension dim = filterCombo.getPreferredSize();
             dim.width = 150;
+            dim.height = getToolbarHeight();
             filterCombo.setPreferredSize(dim);
 
             filterCombo.setToolTipText(Util.getString("choose-filter_hint") + " (f)");  // NOI18N
@@ -1737,7 +1782,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         
         return filterCombo;
     }
-    
 
 
 }
