@@ -328,6 +328,12 @@ public abstract class TaskListView extends ExplorerPanel
         FileSystem fs = Repository.getDefault().getDefaultFileSystem();
         FileObject fo = fs.findResource("TaskList/" + category + "/columns.settings"); // NOI18N
         
+        // todo remove
+        if (fo == null) {
+            System.out.println("cannot find file for " + category);
+            Thread.dumpStack();
+        }
+        
         try {
             DataObject dobj = DataObject.find(fo);
             InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
