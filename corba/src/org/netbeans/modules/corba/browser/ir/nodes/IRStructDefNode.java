@@ -14,9 +14,9 @@
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
-import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
+import org.openide.nodes.Node;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
@@ -27,12 +27,8 @@ public class IRStructDefNode extends IRContainerNode {
     private static final String STRUCT_ICON_BASE =
         "org/netbeans/modules/corba/idl/node/struct";
   
-    private static class StructCodeGenerator implements GenerateSupport {
-        private StructDef _struct;
+    private class StructCodeGenerator implements GenerateSupport {
     
-        public StructCodeGenerator ( StructDef struct){
-            this._struct = struct;
-        }
     
         public String generateHead (int indent, StringHolder currentPrefix) {
             String code = Util.generatePreTypePragmas (_struct.id(), _struct.absolute_name(), currentPrefix, indent);
@@ -45,16 +41,62 @@ public class IRStructDefNode extends IRContainerNode {
     
         public String generateSelf (int indent, StringHolder currentPrefix) {
             String code = "";
-            String fill = "";
             code = code + generateHead (indent, currentPrefix);
-            StructMember[] members = _struct.members();
-            for (int i=0; i<= indent; i++)
-                fill = fill + SPACE;
-            for (int i = 0; i < members.length; i++){
-                StringHolder dimension = new StringHolder();
-                code = code + fill + Util.typeCode2TypeString(members[i].type,dimension)+" "+members[i].name+((dimension.value==null)?"":dimension.value)+";\n";
+            String prefixBackUp = currentPrefix.value;
+            Children cld = (Children)IRStructDefNode.this.getChildren();
+            if (cld.getState() == Children.NOT_INITIALIZED)
+                ((Children)getChildren()).state = Children.SYNCHRONOUS;
+            Node[] nodes = cld.getNodes();
+            for (int i=0; i< nodes.length; i++) {
+                System.out.println (nodes[i]);
+            }
+            int varIndex = 0;
+            for (int i = 0; i< nodes.length; i++) {
+                if (nodes[i] instanceof IRPrimitiveNode){
+                    varIndex = i;
+                    break;
+                }
+            }
+            
+            for (int i=varIndex; i< nodes.length; i++) {
+                boolean generated = false;
+                GenerateSupport gs = (GenerateSupport) nodes[i].getCookie (GenerateSupport.class);
+                for (int j=0; j< varIndex; j++) {
+                    if (nodes[j] == null)
+                        continue;
+                    GenerateSupport tgs = (GenerateSupport) nodes[j].getCookie (GenerateSupport.class);
+                    if (tgs == null)
+                        continue;
+                    try {
+                        if (tgs.getRepositoryId().equals(((IRPrimitiveNode)nodes[i]).getTypeCode().id())) {
+                            String tmp = tgs.generateSelf (indent+1, currentPrefix);
+                            tmp = tmp.substring (0, tmp.lastIndexOf(';')) + " ";
+                            boolean first = true;
+                            try {
+                                do {
+                                    if (first) {
+                                        first =false;
+                                        tmp = tmp + nodes[i].getName();
+                                    }
+                                    else {
+                                        tmp = tmp + ", " + nodes[i].getName();
+                                    }
+                                    i++;
+                                }while (i < nodes.length && tgs.getRepositoryId().equals(((IRPrimitiveNode)nodes[i]).getTypeCode().id()));
+                            }catch (org.omg.CORBA.TypeCodePackage.BadKind badKind){}
+                            i--;
+                            code = code + tmp + ";\n";
+                            nodes[j] = null;
+                            generated = true;
+                            break;
+                        }
+                    } catch (org.omg.CORBA.TypeCodePackage.BadKind bk){}
+                }
+                if (!generated && gs != null)
+                    code = code + gs.generateSelf (indent+1, currentPrefix);
             }
             code = code + generateTail (indent);
+            currentPrefix.value = prefixBackUp;
             return code;
         }
     
@@ -65,6 +107,10 @@ public class IRStructDefNode extends IRContainerNode {
             code = code + "}; //" + _struct.name() + "\n"+Util.generatePostTypePragmas(_struct.name(),_struct.id(),indent)+"\n";
             return code;
         }
+        
+        public String getRepositoryId() {
+            return _struct.id();
+        }
     
     }
   
@@ -73,6 +119,7 @@ public class IRStructDefNode extends IRContainerNode {
         super ( new StructChildren (StructDefHelper.narrow(value)));
         _struct = StructDefHelper.narrow(value);
         setIconBase(STRUCT_ICON_BASE);
+        this.getCookieSet().add ( new StructCodeGenerator ());
     }
   
     public String getDisplayName() {
@@ -111,22 +158,7 @@ public class IRStructDefNode extends IRContainerNode {
         return s;
     }
   
-    public GenerateSupport createGenerator (){
-        if (this.generator == null)
-            this.generator = new StructCodeGenerator (_struct);
-        return this.generator;
-    }
-  
-    public String getRepositoryId() {
-        return this._struct.id();
-    }
-  
-    public static GenerateSupport createGeneratorFor (Contained type){
-        StructDef struct = StructDefHelper.narrow ( type);
-        if (struct == null)
-            return null;
-        return new StructCodeGenerator (struct);
-    }
+    
   
   
 }

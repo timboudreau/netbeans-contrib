@@ -28,12 +28,32 @@ public class EnumEntryNode extends IRLeafNode {
 
     private static final String ENUM_ENTRY_ICON_BASE =
         "org/netbeans/modules/corba/idl/node/declarator";
+    
+    private class EnumEntryCodeGenerator implements GenerateSupport {
+        
+        public String generateHead (int indent, StringHolder currentPrefix) {
+            return "";
+        }
+        
+        public String generateTail (int indent) {
+            return "";
+        }
+        
+        public String generateSelf (int indent, StringHolder currentPrefix) {
+            return getName();
+        }
+        
+        public String getRepositoryId () {
+            return Util.getLocalizedString("MSG_EnumEntry");
+        }
+    }
   
     /** Creates new EnumEntryNode */
     public EnumEntryNode(String name) {
         super();
         this.name = name;
         this.setIconBase(ENUM_ENTRY_ICON_BASE);
+        this.getCookieSet().add(new EnumEntryCodeGenerator ());
     }
   
   
@@ -54,22 +74,6 @@ public class EnumEntryNode extends IRLeafNode {
                 }
             });
         return s;
-    }
-  
-    public String getRepositoryId () {
-        return Util.getLocalizedString("MSG_EnumEntry");
-    }
-  
-    /** This node does not support generation of content
-     */
-    public GenerateSupport createGenerator(){
-        return null;
-    }
-  
-    /** This node does not support generation of content
-     */
-    public static GenerateSupport createGeneratorFor (Contained type){
-        return null;
     }
   
 }

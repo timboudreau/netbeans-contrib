@@ -37,12 +37,8 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
         "org/netbeans/modules/corba/idl/node/declarator";
     private AliasDef _alias;
   
-    private static class AliasCodeGenerator implements GenerateSupport {
-        private AliasDef _alias;
+    private class AliasCodeGenerator implements GenerateSupport {
     
-        public AliasCodeGenerator (AliasDef alias){
-            this._alias = alias;
-        }
     
         public String generateHead (int indent, StringHolder currentPrefix) {
             return Util.generatePreTypePragmas (_alias.id(), _alias.absolute_name(), currentPrefix, indent);
@@ -64,6 +60,10 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
         public String generateTail (int indent) {
             return Util.generatePostTypePragmas (_alias.name(), _alias.id(), indent) + "\n";
         }
+        
+        public String getRepositoryId () {
+            return _alias.id();
+        }
     
     }
   
@@ -74,6 +74,7 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
         this._alias = AliasDefHelper.narrow(value);
         this.getCookieSet().add(this);
         this.setIconBase(ALIAS_ICON_BASE);
+        this.getCookieSet().add ( new AliasCodeGenerator ());
     }
   
     public String getName(){
@@ -137,23 +138,6 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
     public void generateCode (PrintWriter out) throws IOException {
         out.println ( this.generateHierarchy ());
     }
-  
-    public String getRepositoryId () {
-        return this._alias.id();
-    }
-  
-    public GenerateSupport createGenerator () {
-        if (this.generator == null)
-            this.generator = new AliasCodeGenerator (_alias);
-        return this.generator;
-    }
-  
-    public static GenerateSupport createGeneratorFor (Contained type){
-        AliasDef alias = AliasDefHelper.narrow ( type);
-        if (alias == null) 
-            return null;
-        return new AliasCodeGenerator (alias);
-    }
 
     private String generateHierarchy () {
         Node node = this.getParentNode();
@@ -161,7 +145,7 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
         // Generate the start of namespace
         ArrayList stack = new ArrayList();
         while ( node instanceof IRContainerNode){
-            stack.add(((GenerateSupportFactory)node).createGenerator());
+            stack.add(node.getCookie(GenerateSupport.class));
             node = node.getParentNode();
         }
         StringHolder currentPrefix = new StringHolder ("");
@@ -169,7 +153,7 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
         for (int i = size - 1; i>=0; i--)
             code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1), currentPrefix);
         // Generate element itself
-        code = code + this.createGenerator().generateSelf(size, currentPrefix);
+        code = code + ((GenerateSupport)this.getCookie(GenerateSupport.class)).generateSelf(size, currentPrefix);
         //Generate tail of namespace
         for (int i = 0; i< stack.size(); i++)
             code = code + ((GenerateSupport)stack.get(i)).generateTail((size -i));

@@ -14,14 +14,13 @@
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
-import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.*;
 import org.netbeans.modules.corba.browser.ir.util.Refreshable;
-import org.netbeans.modules.corba.browser.ir.nodes.keys.IRTypeCodeKey;
+import org.netbeans.modules.corba.browser.ir.nodes.keys.IRUnionMemberKey;
+import org.netbeans.modules.corba.browser.ir.nodes.keys.IRContainedKey;
 
-
-public class UnionChildren extends Children.Keys implements Refreshable {
+public class UnionChildren extends Children implements Refreshable {
 
     UnionDef union;
 
@@ -31,17 +30,38 @@ public class UnionChildren extends Children.Keys implements Refreshable {
     }
 
 
-    public void addNotify(){
-        createKeys();
+    public void addNotify() {
+        synchronized (this) {
+            if (this.state == SYNCHRONOUS) {
+                this.createKeys();
+                this.state = INITIALIZED;
+            }else {
+                this.state = TRANSIENT;
+                this.waitNode = new WaitNode ();
+                this.add ( new Node[] { this.waitNode});
+                org.netbeans.modules.corba.browser.ir.IRRootNode.getDefault().performAsync (this);
+            }
+        }
     }
 
 
     public void createKeys(){
         try {
             UnionMember[] members = this.union.members();
-            java.lang.Object[] keys = new java.lang.Object[members.length];
-            for (int i = 0; i<members.length; i++)
-                keys[i] = new IRTypeCodeKey ( members[i].name, members[i].type, members[i].label);
+            Contained[] contained  = null;
+            if (this.union._is_a ("IDL:omg.org/CORBA/Container:1.0") || this.union._is_a ("IDL:omg.org/CORBA/Container:2.3")) { 
+                contained = this.union.contents (DefinitionKind.dk_all, false);
+            }
+            else {
+                contained = new Contained[0];
+            }
+            java.lang.Object[] keys = new java.lang.Object[members.length + contained.length];
+            for (int i = 0; i<contained.length; i++) {
+                keys[i] = new IRContainedKey (contained[i]);
+            }
+            for (int i = 0; i<members.length; i++) {
+                keys[contained.length + i] = new IRUnionMemberKey ( members[i]);
+            }
             setKeys(keys);
         }catch (final SystemException e) {
             setKeys ( new java.lang.Object[0]);
@@ -55,15 +75,28 @@ public class UnionChildren extends Children.Keys implements Refreshable {
 
     public Node[] createNodes(java.lang.Object key){
         if (key != null){
-            if (key instanceof IRTypeCodeKey){
+            if (key instanceof IRUnionMemberKey){
                 try {
-                    return new Node[] { new IRPrimitiveNode(((IRTypeCodeKey)key).type,((IRTypeCodeKey)key).name)};
+                    return new Node[] { new IRUnionMemberNode (((IRUnionMemberKey)key).getValue())};
                 }catch (final Exception t) {
                     java.awt.EventQueue.invokeLater ( new Runnable () {
                         public void run () {
                             TopManager.getDefault().notify ( new NotifyDescriptor.Message (t.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
                         }});
                     return new Node[0];
+                }
+            }
+            else if ( key instanceof IRContainedKey) {
+                Contained contained = ((IRContainedKey)key).contained;
+                switch (contained.def_kind().value()) {
+                    case DefinitionKind._dk_Struct:
+                        return new Node[] { new IRStructDefNode (contained)};
+                    case DefinitionKind._dk_Union:
+                        return new Node[]{ new IRUnionDefNode(contained)};
+                    case DefinitionKind._dk_Enum:
+                        return new Node[]{ new IREnumDefNode(contained)};
+                    default:
+                        return new Node[]{ new IRUnknownTypeNode()};
                 }
             }
         }

@@ -75,7 +75,7 @@ public abstract class IRContainerNode extends IRAbstractNode implements Node.Coo
         // Generate the start of namespace
         ArrayList stack = new ArrayList();
         while ( node instanceof IRContainerNode){
-            stack.add(((GenerateSupportFactory)node).createGenerator());
+            stack.add(node.getCookie (GenerateSupport.class));
             node = node.getParentNode();
         }
         int size = stack.size();
@@ -84,7 +84,7 @@ public abstract class IRContainerNode extends IRAbstractNode implements Node.Coo
             code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1), currentPrefix);
 
         // Generate element itself
-        code = code + this.createGenerator().generateSelf(size, currentPrefix);
+        code = code + ((GenerateSupport)this.getCookie (GenerateSupport.class)).generateSelf(size, currentPrefix);
         //Generate tail of namespace
         for (int i = 0; i< stack.size(); i++)
             code = code + ((GenerateSupport)stack.get(i)).generateTail((size -i));

@@ -26,11 +26,9 @@ public class IROperationDefNode extends IRLeafNode {
     private static final String OPERATION_ICON_BASE =
         "org/netbeans/modules/corba/idl/node/const";
   
-    private static class OperationCodeGenerator implements GenerateSupport {
-        private OperationDef _operation;
+    private class OperationCodeGenerator implements GenerateSupport {
     
-        public OperationCodeGenerator (OperationDef operation){
-            this._operation = operation;
+        public OperationCodeGenerator (){
         }
     
         public String generateHead (int indent, StringHolder currentPrefix){
@@ -51,7 +49,7 @@ public class IROperationDefNode extends IRLeafNode {
             for (int i = 0; i < params.length; i++){
                 if (i != 0)
                     code = code +", ";
-                code = code + OperationCodeGenerator.pm2Str(params[i].mode) + " ";
+                code = code + pm2Str(params[i].mode) + " ";
                 code = code + Util.typeCode2TypeString (params[i].type) + " ";
                 code = code + params[i].name;
             }
@@ -84,19 +82,11 @@ public class IROperationDefNode extends IRLeafNode {
         public String generateTail (int indent){
             return Util.generatePostTypePragmas (_operation.name(), _operation.id(), indent);
         }
-    
-        public static String pm2Str(ParameterMode pm){
-            switch (pm.value()){
-            case ParameterMode._PARAM_IN:
-                return "in";          // NO I18N
-            case ParameterMode._PARAM_OUT:
-                return "out";         // NO I18N
-            case ParameterMode._PARAM_INOUT:
-                return "inout";       // NO I18N
-            default:
-                return "";            // NO I18N
-            }
+        
+        public String getRepositoryId () {
+            return _operation.id();
         }
+    
     }
   
     /** Creates new IROperationDefNode */
@@ -104,6 +94,7 @@ public class IROperationDefNode extends IRLeafNode {
         super();
         _operation = OperationDefHelper.narrow(value);
         setIconBase(OPERATION_ICON_BASE);
+        this.getCookieSet().add (new OperationCodeGenerator());
     }
   
   
@@ -147,7 +138,7 @@ public class IROperationDefNode extends IRLeafNode {
                     String parameter = "";
                     for (int i=0; i< parameters.length; i++){
                         if (i!=0) parameter+=", ";
-                        parameter+=OperationCodeGenerator.pm2Str(parameters[i].mode)+" "+Util.typeCode2TypeString(parameters[i].type)+" "+parameters[i].name;
+                        parameter+= pm2Str(parameters[i].mode)+" "+Util.typeCode2TypeString(parameters[i].type)+" "+parameters[i].name;
                     }
                     return parameter;
                 }
@@ -193,22 +184,18 @@ public class IROperationDefNode extends IRLeafNode {
             });
         return s;
     }
-  
-    public String getRepositoryId () {
-        return this._operation.id();
-    }
-  
-    public GenerateSupport createGenerator () {
-        if (this.generator == null)
-            this.generator = new OperationCodeGenerator (_operation);
-        return this.generator;
-    }
-  
-    public static GenerateSupport createGeneratorFor (Contained type){
-        OperationDef operation = OperationDefHelper.narrow (type);
-        if (operation == null)
-            return null;
-        return new OperationCodeGenerator ( operation);
+    
+    private String pm2Str(ParameterMode pm) {
+        switch (pm.value()){
+            case ParameterMode._PARAM_IN:
+                return "in";          // NO I18N
+            case ParameterMode._PARAM_OUT:
+                return "out";         // NO I18N
+            case ParameterMode._PARAM_INOUT:
+                return "inout";       // NO I18N
+            default:
+                return "";            // NO I18N
+            }
     }
   
 }

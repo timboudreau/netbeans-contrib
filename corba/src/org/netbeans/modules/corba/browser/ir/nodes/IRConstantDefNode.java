@@ -43,12 +43,8 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
         "org/netbeans/modules/corba/idl/node/const";
   
   
-    private static class ConstantCodeGenerator implements GenerateSupport {
-        private ConstantDef _constant;
+    private class ConstantCodeGenerator implements GenerateSupport {
     
-        public ConstantCodeGenerator ( ConstantDef constant){
-            this._constant = constant;
-        }
     
         public String generateHead (int indent, StringHolder currentPrefix){
             return Util.generatePreTypePragmas (_constant.id(), _constant.absolute_name(), currentPrefix, indent);
@@ -62,7 +58,7 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
             code = code + fill + "const ";
             code = code + Util.typeCode2TypeString ( _constant.value().type())+ " ";
             code = code + _constant.name() + " = ";
-            code = code + ConstantCodeGenerator.getValue(this._constant) + ";\n";
+            code = code + getValue() + ";\n";
             code = code + generateTail(indent) +"\n";
             return code;
         }
@@ -74,11 +70,14 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
         /** Returns the value of constant as String
          *  @return String value
          */
-        public static String getValue(ConstantDef constant) {
-            Any value = constant.value();
+        public String getValue() {
+            Any value = _constant.value();
             switch (value.type().kind().value()){
             case TCKind._tk_boolean:
-                return new Boolean (value.extract_boolean()).toString();
+                if (value.extract_boolean())
+                    return "TRUE";
+                else
+                    return "FALSE";
             case TCKind._tk_char:
                 return "\'" + new Character(value.extract_char()).toString() + "\'";
             case TCKind._tk_wchar:
@@ -102,23 +101,27 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
             case TCKind._tk_longlong:
                 return new Long (value.extract_longlong()).toString();
             case TCKind._tk_ushort:
-                return new Short(value.extract_short()).toString();
+                return new Short(value.extract_ushort()).toString();
             case TCKind._tk_ulong:
-                return new Integer(value.extract_long()).toString();
+                return new Integer(value.extract_ulong()).toString();
             case TCKind._tk_ulonglong:
-                return new Long (value.extract_longlong()).toString();
-	    case TCKind._tk_enum:
-		try{
-		    org.omg.CORBA.portable.InputStream in = value.create_input_stream();
-		    int val = in.read_long();
-		    String name = value.type().member_name(val);
-		    return name;
-	    }catch(Exception e){
-		return "";
-	    }
+                return new Long (value.extract_ulonglong()).toString();
+            case TCKind._tk_enum:
+                    try{
+                        org.omg.CORBA.portable.InputStream in = value.create_input_stream();
+                            int val = in.read_long();
+                            String name = value.type().member_name(val);
+                            return name;
+                        }catch(Exception e){
+                            return "";
+                        }
             default:
                 return "";
             }
+        }
+        
+        public String getRepositoryId () {
+            return _constant.id();
         }
   
     }
@@ -129,6 +132,7 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
         _constant = ConstantDefHelper.narrow (value);
         this.getCookieSet().add(this);
         setIconBase (CONSTANT_ICON_BASE);
+        this.getCookieSet().add ( new ConstantCodeGenerator ());
     }
 
     public String getDisplayName () {
@@ -178,28 +182,11 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
     
         ss.put ( new PropertySupport.ReadOnly (Util.getLocalizedString("TITLE_Value"),String.class,Util.getLocalizedString("TITLE_Value"),Util.getLocalizedString("TIP_ConstValue")){
                 public java.lang.Object getValue(){
-                    return ConstantCodeGenerator.getValue(_constant);
+                    return ((ConstantCodeGenerator)IRConstantDefNode.this.getCookie(GenerateSupport.class)).getValue();
                 }
             });
     
         return s;
-    }
-  
-    public String getRepositoryId () {
-        return this._constant.id();
-    }
-  
-    public GenerateSupport createGenerator () {
-        if (this.generator == null)
-            this.generator = new ConstantCodeGenerator (_constant);
-        return this.generator;
-    }
-  
-    public static GenerateSupport createGeneratorFor (Contained type){
-        ConstantDef constant = ConstantDefHelper.narrow ( type);
-        if ( type == null )
-            return null;
-        return new ConstantCodeGenerator (constant);
     }
 
     public void generateCode() {
@@ -219,7 +206,7 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
         // Generate the start of namespace
         ArrayList stack = new ArrayList();
         while ( node instanceof IRContainerNode){
-            stack.add(((GenerateSupportFactory)node).createGenerator());
+            stack.add(node.getCookie(GenerateSupport.class));
             node = node.getParentNode();
         }
         StringHolder currentPrefix = new StringHolder ("");
@@ -227,7 +214,7 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
         for (int i = size -1 ; i>=0; i--)
             code = code + ((GenerateSupport)stack.get(i)).generateHead((size -i -1), currentPrefix);
         // Generate element itself
-        code = code + this.createGenerator().generateSelf(size, currentPrefix);
+        code = code + ((GenerateSupport) this.getCookie (GenerateSupport.class)).generateSelf(size, currentPrefix);
         //Generate tail of namespace
         for (int i = 0; i< stack.size(); i++)
             code = code + ((GenerateSupport)stack.get(i)).generateTail((size -i));

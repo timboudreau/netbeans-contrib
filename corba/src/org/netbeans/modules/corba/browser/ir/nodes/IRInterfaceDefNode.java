@@ -14,7 +14,9 @@
 package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
-import org.openide.nodes.*;
+import org.openide.nodes.Sheet;
+import org.openide.nodes.Node;
+import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 import org.netbeans.modules.corba.browser.ir.Util;
@@ -25,16 +27,14 @@ import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 public class IRInterfaceDefNode extends IRContainerNode {
 
     InterfaceDef _interface;
+    boolean isAbstract;
 
     private static final String INTERFACE_ICON_BASE =
         "org/netbeans/modules/corba/idl/node/interface";
   
-    private static class InterfaceCodeGenerator implements GenerateSupport {
-        private InterfaceDef _interface;
+    private class InterfaceCodeGenerator implements GenerateSupport {
+     
     
-        public InterfaceCodeGenerator ( InterfaceDef interf ){
-            this._interface = interf;
-        }
     
         //* DANGER!!! Semantic shift of function */
         public String generateHead (int indent, StringHolder currentPrefix) {
@@ -42,7 +42,10 @@ public class IRInterfaceDefNode extends IRContainerNode {
             String fill ="";
             for (int i=0; i<indent; i++)
                 fill = fill + SPACE;
-            code = code + fill +"interface " + _interface.name () + " {\n";
+            code = code + fill;
+            if (isAbstract || _interface.is_abstract ())
+                code = code + "abstract ";
+            code = code + "interface " + _interface.name () + " {\n";
             return code;
         }
     
@@ -53,7 +56,12 @@ public class IRInterfaceDefNode extends IRContainerNode {
             int dk;
             for (int i=0; i<indent; i++)
                 fill = fill + SPACE;
-            code = code + fill + "interface " + _interface.name ();
+            code = code + fill;
+            try {
+                if (isAbstract || _interface.is_abstract ())
+                    code = code + "abstract ";
+            } catch (org.omg.CORBA.BAD_OPERATION bo) {}
+            code = code + "interface " + _interface.name ();
             InterfaceDef[] base = _interface.base_interfaces();
             if (base.length > 0){
                 code = code + " : ";
@@ -64,45 +72,14 @@ public class IRInterfaceDefNode extends IRContainerNode {
                 }
             }
             code = code +" {\n";
-            Contained[] contained = _interface.contents (DefinitionKind.dk_all, true);
-            for (int i=0 ; i < contained.length; i++){
-                // Workaround for bug in Jdk 1.2 implementation
-                // if MARSHAL exception ocured, try to introspect
-                // object in another way.
-                try{
-                    dk = contained[i].def_kind().value();
-                }catch (org.omg.CORBA.MARSHAL marshalException){
-                    if (contained[i]._is_a("IDL:omg.org/CORBA/OperationDef:1.0"))
-                        dk = DefinitionKind._dk_Operation;
-                    else 
-                        throw new RuntimeException ("Inner Exception is: "+marshalException);
-                }
-                switch (dk){
-                case DefinitionKind._dk_Exception:
-                    code = code + IRExceptionDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Struct:
-                    code = code + IRStructDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Union:
-                    code = code + IRUnionDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Constant:
-                    code = code + IRConstantDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Attribute:
-                    code = code + IRAttributeDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Operation:
-                    code = code + IROperationDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Alias:
-                    code = code + IRAliasDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Enum:
-                    code = code + IREnumDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                }
+            Children cld = (Children) getChildren ();
+            if (cld.getState() == Children.NOT_INITIALIZED)
+                ((Children)getChildren()).state = Children.SYNCHRONOUS;
+            Node[] nodes = cld.getNodes();
+            for (int i=0; i< nodes.length; i++) {
+                GenerateSupport gs = (GenerateSupport) nodes[i].getCookie (GenerateSupport.class);
+                if (gs != null)
+                    code = code + gs.generateSelf (indent+1, currentPrefix);
             }
             code = code + generateTail(indent);
             // Going out of scope restore prefix
@@ -116,13 +93,23 @@ public class IRInterfaceDefNode extends IRContainerNode {
                 code = code + SPACE;
             return code + "}; // " + _interface.name() + "\n" +Util.generatePostTypePragmas (_interface.name(), _interface.id(), indent) +"\n";
         }
+        
+        public String getRepositoryId () {
+            return _interface.id();
+        }
     
     }
+    
+    public IRInterfaceDefNode (Container value) {
+        this (value, false);
+    }
 
-    public IRInterfaceDefNode(Container value) {
+    public IRInterfaceDefNode(Container value, boolean isAbstract) {
         super (new ContainerChildren(value));
         setIconBase (INTERFACE_ICON_BASE);
-        _interface = InterfaceDefHelper.narrow (value);
+        this._interface = InterfaceDefHelper.narrow (value);
+        this.isAbstract = isAbstract;
+        this.getCookieSet().add ( new InterfaceCodeGenerator ());
     }
 
     public String getDisplayName () {
@@ -179,25 +166,20 @@ public class IRInterfaceDefNode extends IRContainerNode {
                     return inher;
                 }
             });
+        ss.put ( new PropertySupport.ReadOnly (Util.getLocalizedString("TITLE_Abstract"), String.class, Util.getLocalizedString("TITLE_Abstract"), Util.getLocalizedString ("TIP_InterfaceAbstract")) {
+            public java.lang.Object getValue () {
+                if (isAbstract || _interface.is_abstract())
+                    return Util.getLocalizedString ("MSG_Yes");
+                else
+                    return Util.getLocalizedString ("MSG_No");
+            }
+        });
         return s;
     }
   
-    public String getRepositoryId () {
-        return this._interface.id();
-    }
+    
   
-    public GenerateSupport createGenerator(){
-        if (this.generator == null)
-            this.generator = new InterfaceCodeGenerator(_interface);
-        return this.generator;
-    }
-  
-    public static GenerateSupport createGeneratorFor (Contained type){
-        InterfaceDef interf = InterfaceDefHelper.narrow (type);
-        if (type == null)
-            return null;
-        return new InterfaceCodeGenerator(interf);
-    }
+    
 
 }
 

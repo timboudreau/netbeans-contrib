@@ -20,7 +20,7 @@ import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
 
 
-public abstract class IRAbstractNode extends AbstractNode implements GenerateSupportFactory {
+public abstract class IRAbstractNode extends AbstractNode {
 
     /** Creates new IRAbstractNode
      *  @param Children children

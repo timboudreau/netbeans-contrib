@@ -34,13 +34,6 @@ public class IRUnknownTypeNode extends IRLeafNode {
         setIconBase (UNKNOWN_ICON_BASE);
         setName (Util.getLocalizedString("TITLE_UnknownIRType")); 
     }
-  
-    public GenerateSupport createGenerator () {
-        return null;
-    }
-  
-    public String getRepositoryId () {
-        return Util.getLocalizedString("MSG_Invalid");
-    }
+ 
   
 }

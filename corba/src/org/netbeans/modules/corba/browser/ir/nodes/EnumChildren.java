@@ -17,11 +17,10 @@ import org.omg.CORBA.*;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
-import org.openide.nodes.Children;
 import org.netbeans.modules.corba.browser.ir.util.Refreshable;
 
 
-public class EnumChildren extends Children.Keys implements Refreshable {
+public class EnumChildren extends Children implements Refreshable {
 
     private EnumDef enum;
 
@@ -33,7 +32,18 @@ public class EnumChildren extends Children.Keys implements Refreshable {
 
 
     public void addNotify(){
-        createKeys();
+        synchronized (this) {
+            if (this.state == SYNCHRONOUS) {
+                this.createKeys();
+                this.state = INITIALIZED;
+            }
+            else {
+                this.state = TRANSIENT;
+                this.waitNode = new WaitNode ();
+                this.add ( new Node[] { this.waitNode});
+                org.netbeans.modules.corba.browser.ir.IRRootNode.getDefault().performAsync (this);
+            }
+        }
     }
 
 

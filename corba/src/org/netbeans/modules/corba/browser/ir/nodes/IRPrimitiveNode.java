@@ -26,14 +26,8 @@ public class IRPrimitiveNode extends IRLeafNode {
         "org/netbeans/modules/corba/idl/node/declarator";
     private TypeCode tc;
   
-    private static class PrimitiveCodeGenerator implements GenerateSupport {
-        private TypeCode tc;
-        private String name;
+    private class PrimitiveCodeGenerator implements GenerateSupport {
     
-        public PrimitiveCodeGenerator (String name, TypeCode tc){
-            this.tc = tc;
-            this.name = name;
-        }
     
         public String generateHead(int indent, StringHolder currentPrefix){
             // Can not have its own prefix
@@ -48,12 +42,16 @@ public class IRPrimitiveNode extends IRLeafNode {
             for (int i=0; i<indent; i++)
                 code =code + SPACE;
             StringHolder dimension = new StringHolder();
-            code = code + Util.typeCode2TypeString(tc, dimension) + " " + name + ((dimension.value==null)?"":dimension.value)+";\n";
+            code = code + Util.typeCode2TypeString(tc, dimension) + " " + getName() + ((dimension.value==null)?"":dimension.value)+";\n";
             return code;
         }
     
         public String generateTail (int indent){
             return "";
+        }
+        
+        public String getRepositoryId () {
+            return Util.getLocalizedString("MSG_PrimitiveType");
         }
     
     }
@@ -63,6 +61,7 @@ public class IRPrimitiveNode extends IRLeafNode {
         this.name = name;
         this.tc = tc;
         this.setIconBase(PRIMITIVE_ICON_BASE);
+        this.getCookieSet().add (new PrimitiveCodeGenerator());
     }
   
     public String getName(){
@@ -96,16 +95,7 @@ public class IRPrimitiveNode extends IRLeafNode {
         return s;
     }
   
-    public String getRepositoryId () {
-        return Util.getLocalizedString("MSG_PrimitiveType");
+    public TypeCode getTypeCode () {
+        return tc;
     }
-  
-    // This node has only the generator for instance,
-    // because the generation is handled by its paarent
-    public GenerateSupport createGenerator (){
-        if (this.generator == null)
-            this.generator = new PrimitiveCodeGenerator (this.name, this.tc);
-        return this.generator;
-    }
-  
 }

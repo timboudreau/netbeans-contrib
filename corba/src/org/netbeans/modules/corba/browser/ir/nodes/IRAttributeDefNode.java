@@ -26,13 +26,9 @@ public class IRAttributeDefNode extends IRLeafNode {
     private static final String ATTRIBUTE_ICON_BASE =
         "org/netbeans/modules/corba/idl/node/attribute";  //NOI18N
   
-    private static class AttributeCodeGenerator  implements GenerateSupport {
-        private AttributeDef _attribute;
+    private class AttributeCodeGenerator  implements GenerateSupport {
     
-        public AttributeCodeGenerator (AttributeDef attribute){
-            this._attribute = attribute;
-        }
-    
+
         public String generateHead (int indent, StringHolder currentPrefix){
             return Util.generatePreTypePragmas (_attribute.id(), _attribute.absolute_name(), currentPrefix, indent);      //NOI18N
         }
@@ -60,6 +56,10 @@ public class IRAttributeDefNode extends IRLeafNode {
         public String generateTail (int indent){
             return Util.generatePostTypePragmas (_attribute.name(), _attribute.id(), indent);      //NOI18N
         }
+        
+        public String getRepositoryId () {
+            return _attribute.id();
+        }
     
     }
   
@@ -68,6 +68,7 @@ public class IRAttributeDefNode extends IRLeafNode {
         super();
         _attribute = AttributeDefHelper.narrow(value);
         setIconBase(ATTRIBUTE_ICON_BASE);
+        this.getCookieSet().add ( new AttributeCodeGenerator ());
     }
   
     public String getDisplayName(){
@@ -124,23 +125,6 @@ public class IRAttributeDefNode extends IRLeafNode {
                 }
             });
         return s;
-    }
-  
-    public String getRepositoryId () {
-        return this._attribute.id();
-    }
- 
-    public GenerateSupport createGenerator () {
-        if (this.generator == null)
-            this.generator = new AttributeCodeGenerator(_attribute);
-        return this.generator;
-    }
-  
-    public static GenerateSupport createGeneratorFor (Contained type){
-        AttributeDef attribute = AttributeDefHelper.narrow ( type);
-        if (attribute == null)
-            return null;
-        return new AttributeCodeGenerator (attribute);
     }
   
 }

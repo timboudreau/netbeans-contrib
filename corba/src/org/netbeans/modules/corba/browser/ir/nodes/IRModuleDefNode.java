@@ -28,11 +28,9 @@ public class IRModuleDefNode extends IRContainerNode {
     private static final String MODULE_ICON_BASE =
         "org/netbeans/modules/corba/idl/node/module";
   
-    private static class ModuleCodeGenerator implements GenerateSupport {
-        private ModuleDef _module;
+    private class ModuleCodeGenerator implements GenerateSupport {
     
-        public ModuleCodeGenerator (ModuleDef module){
-            this._module = module;
+        public ModuleCodeGenerator (){
         }
     
         public String generateHead (int indent, StringHolder currentPrefix){
@@ -47,40 +45,14 @@ public class IRModuleDefNode extends IRContainerNode {
             String code = "";
             code = code + generateHead(indent, currentPrefix);
             String prefixBackUp = currentPrefix.value;
-            Contained[] contained = _module.contents (DefinitionKind.dk_all, true);
-            for (int i=0 ; i < contained.length; i++){
-                switch (contained[i].def_kind().value()){
-                case DefinitionKind._dk_Interface:
-                    code = code + IRInterfaceDefNode.createGeneratorFor(contained[i]).generateSelf(indent+1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Module:
-                    code = code + IRModuleDefNode.createGeneratorFor (contained[i]).generateSelf(indent+1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Exception:
-                    code = code + IRExceptionDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Struct:
-                    code = code + IRStructDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Union:
-                    code = code + IRUnionDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Constant:
-                    code = code + IRConstantDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Attribute:
-                    code = code + IRAttributeDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Operation:
-                    code = code + IROperationDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Alias:
-                    code = code + IRAliasDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                case DefinitionKind._dk_Enum:
-                    code = code + IREnumDefNode.createGeneratorFor (contained[i]).generateSelf(indent + 1, currentPrefix);
-                    break;
-                }
+            Children cld = (Children) getChildren();
+            if (cld.getState() == Children.NOT_INITIALIZED)
+                ((Children)getChildren()).state = Children.SYNCHRONOUS;
+            Node[] nodes = cld.getNodes();
+            for (int i=0; i< nodes.length; i++) {
+                GenerateSupport gs = (GenerateSupport) nodes[i].getCookie (GenerateSupport.class);
+                if (gs != null)
+                    code = code + gs.generateSelf (indent +1, currentPrefix);
             }
             code = code + generateTail(indent);
             // We go out of scope, restore prefix
@@ -88,18 +60,25 @@ public class IRModuleDefNode extends IRContainerNode {
             return code;
         }
     
-        public String generateTail (int indent){
+        public String generateTail (int indent) {
             String code ="";
             for (int i=0; i<indent; i++)
                 code = code + SPACE;
             return code + "}; // "+_module.name() + "\n" + Util.generatePostTypePragmas(_module.name(), _module.id(), indent)+"\n";
         }
+        
+        
+        public String getRepositoryId () {
+            return _module.id();
+        }
+        
     } // End of Inner Class
 
     public IRModuleDefNode(Container value) {
         super (new ContainerChildren (value));
         _module = ModuleDefHelper.narrow (value);
         setIconBase (MODULE_ICON_BASE);
+        this.getCookieSet().add ( new ModuleCodeGenerator());
     }
 
     public String getDisplayName () {
@@ -142,23 +121,6 @@ public class IRModuleDefNode extends IRContainerNode {
             });
 
         return s;
-    }
-  
-    public String getRepositoryId () {
-        return this._module.id();
-    }
-  
-    public GenerateSupport createGenerator(){
-        if (this.generator == null)
-            this.generator = new ModuleCodeGenerator(_module);
-        return this.generator;
-    }
-  
-    public static GenerateSupport createGeneratorFor (Contained type){
-        ModuleDef module = ModuleDefHelper.narrow (type);
-        if (module == null) 
-            return null;
-        return new ModuleCodeGenerator ( module);
     }
 	
 }

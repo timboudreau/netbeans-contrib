@@ -15,6 +15,7 @@ package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 import org.openide.nodes.Sheet;
+import org.openide.nodes.Node;
 import org.openide.nodes.PropertySupport;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
@@ -27,12 +28,9 @@ public class IREnumDefNode extends IRContainerNode {
         "org/netbeans/modules/corba/idl/node/enum";
   
   
-    private static class EnumCodeGenerator implements GenerateSupport {
+    private class EnumCodeGenerator implements GenerateSupport {
     
-        private EnumDef _enum;
-    
-        public EnumCodeGenerator (EnumDef enum){
-            this._enum = enum;
+        public EnumCodeGenerator (){
         }
     
         public String generateHead (int indent, StringHolder currentPrefix){
@@ -46,11 +44,15 @@ public class IREnumDefNode extends IRContainerNode {
     
         public String generateSelf (int indent, StringHolder currentPrefix){
             String code = generateHead(indent, currentPrefix);
-            String[] members = _enum.members();
-            for (int i = 0; i < members.length; i++){
-                if (i != 0)
-                    code = code + ", ";
-                code = code + members[i]; 
+            if (((Children)getChildren()).getState() == Children.NOT_INITIALIZED)
+                ((Children)getChildren()).state = Children.SYNCHRONOUS;
+            Node[] nodes = getChildren().getNodes();
+            for (int i=0; i< nodes.length; i++) {
+                GenerateSupport gs = (GenerateSupport) nodes[i].getCookie (GenerateSupport.class);
+                if (i!=0)
+                    code = code +", ";
+                if (gs != null)
+                    code = code + gs.generateSelf (indent+1, currentPrefix);
             }
             code = code + generateTail(indent);
             return code;
@@ -58,6 +60,10 @@ public class IREnumDefNode extends IRContainerNode {
     
         public String generateTail (int indent){
             return "};\n"+Util.generatePostTypePragmas(_enum.name(),_enum.id(), indent)+"\n";	 
+        }
+        
+        public String getRepositoryId () {
+            return _enum.id();
         }
     
     }
@@ -67,6 +73,7 @@ public class IREnumDefNode extends IRContainerNode {
         super(new EnumChildren(EnumDefHelper.narrow(value)));
         _enum = EnumDefHelper.narrow(value);
         setIconBase(ENUM_ICON_BASE);
+        this.getCookieSet().add ( new EnumCodeGenerator ());
     }
   
     public String getName(){
@@ -103,23 +110,6 @@ public class IREnumDefNode extends IRContainerNode {
                 }
             });
         return s;
-    }
-  
-    public String getRepositoryId () {
-        return this._enum.id();
-    }
-  
-    public GenerateSupport createGenerator () {
-        if (this.generator == null)
-            this.generator = new EnumCodeGenerator (this._enum);
-        return this.generator;
-    }
-  
-    public static GenerateSupport createGeneratorFor (Contained type){
-        EnumDef enum = EnumDefHelper.narrow (type);
-        if (enum == null)
-            return null;
-        return new EnumCodeGenerator (enum);
     }
 
 }

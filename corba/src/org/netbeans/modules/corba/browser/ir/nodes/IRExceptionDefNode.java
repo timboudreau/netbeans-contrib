@@ -16,8 +16,10 @@ package org.netbeans.modules.corba.browser.ir.nodes;
 import org.omg.CORBA.*;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
+import org.openide.nodes.Node;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
+
 
 /** 
  *
@@ -31,11 +33,9 @@ public class IRExceptionDefNode extends IRContainerNode {
     private static final String EXCEPTION_ICON_BASE =
         "org/netbeans/modules/corba/idl/node/exception";
   
-    private static class ExceptionCodeGenerator implements GenerateSupport {
-        private ExceptionDef _exception;
+    private class ExceptionCodeGenerator implements GenerateSupport {
     
-        public ExceptionCodeGenerator (ExceptionDef exception){
-            this._exception = exception;
+        public ExceptionCodeGenerator (){
         }
     
         public String generateHead (int indent, StringHolder currentPrefix){
@@ -49,16 +49,60 @@ public class IRExceptionDefNode extends IRContainerNode {
     
         public String generateSelf (int indent, StringHolder currentPrefix){
             String code = generateHead(indent, currentPrefix);
+            String prefixBackUp = currentPrefix.value;
             String fill = "";
             for (int i=0; i<=indent; i++)
                 fill = fill + SPACE;
-            StructMember[] members = _exception.members();
-            StringHolder dimension = new StringHolder();
-            for (int i = 0; i < members.length; i++){
-                dimension.value = null;
-                code = code + fill + Util.typeCode2TypeString ( members[i].type, dimension) + " "+members[i].name+((dimension.value==null)?"":dimension.value)+";\n";
+            Children cld = (Children) getChildren();
+            if (cld.getState() == Children.NOT_INITIALIZED)
+                ((Children)getChildren()).state = Children.SYNCHRONOUS;
+            Node[] nodes = cld.getNodes();
+            int varIndex = 0;
+            for (int i = 0; i< nodes.length; i++) {
+                if (nodes[i] instanceof IRPrimitiveNode){
+                    varIndex = i;
+                    break;
+                }
+            }
+            for (int i=varIndex; i< nodes.length; i++) {
+                boolean generated = false;
+                GenerateSupport gs = (GenerateSupport) nodes[i].getCookie (GenerateSupport.class);
+                for (int j=0; j< varIndex; j++) {
+                    if (nodes[j] == null)
+                        continue;
+                    GenerateSupport tgs = (GenerateSupport) nodes[j].getCookie (GenerateSupport.class);
+                    if (tgs == null)
+                        continue;
+                    try {
+                        if (tgs.getRepositoryId().equals(((IRPrimitiveNode)nodes[i]).getTypeCode().id())) {
+                            String tmp = tgs.generateSelf (indent+1, currentPrefix);
+                            tmp = tmp.substring (0, tmp.lastIndexOf(';')) + " ";
+                            boolean first = true;
+                            try {
+                                do {
+                                    if (first) {
+                                        first =false;
+                                        tmp = tmp + nodes[i].getName();
+                                    }
+                                    else {
+                                        tmp = tmp + ", " + nodes[i].getName();
+                                    }
+                                    i++;
+                                }while (i < nodes.length && tgs.getRepositoryId().equals(((IRPrimitiveNode)nodes[i]).getTypeCode().id()));
+                            }catch (org.omg.CORBA.TypeCodePackage.BadKind badKind){}
+                            i--;
+                            code = code + tmp + ";\n";
+                            nodes[j] = null;
+                            generated = true;
+                            break;
+                        }
+                    } catch (org.omg.CORBA.TypeCodePackage.BadKind bk){}
+                }
+                if (!generated && gs != null)
+                    code = code + gs.generateSelf (indent+1, currentPrefix);
             }
             code = code + generateTail (indent);
+            currentPrefix.value = prefixBackUp;
             return code;
         }
     
@@ -70,6 +114,10 @@ public class IRExceptionDefNode extends IRContainerNode {
             code = code + Util.generatePostTypePragmas (_exception.name(),_exception.id(),indent)+"\n";
             return code;
         }
+        
+        public String getRepositoryId () {
+            return _exception.id();
+        }
     
     }
   
@@ -78,6 +126,7 @@ public class IRExceptionDefNode extends IRContainerNode {
         super(new ExceptionChildren(ExceptionDefHelper.narrow(value)));
         _exception = ExceptionDefHelper.narrow(value);
         setIconBase(EXCEPTION_ICON_BASE);
+        this.getCookieSet().add (new ExceptionCodeGenerator ());
     }
   
   
@@ -115,23 +164,6 @@ public class IRExceptionDefNode extends IRContainerNode {
                 }
             });
         return s;
-    }
-  
-    public String getRepositoryId () {
-        return this._exception.id();
-    }
-  
-    public GenerateSupport createGenerator () {
-        if (this.generator == null)
-            this.generator = new ExceptionCodeGenerator (_exception);
-        return this.generator;
-    }
-  
-    public static GenerateSupport createGeneratorFor (Contained type){
-        ExceptionDef exception = ExceptionDefHelper.narrow (type);
-        if (exception == null)
-            return null;
-        return new ExceptionCodeGenerator (exception);
     }
   
 }

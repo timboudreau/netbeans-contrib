@@ -15,7 +15,7 @@ package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 import org.omg.CORBA.ORBPackage.InconsistentTypeCode;
-import org.omg.CORBA.DynAnyPackage.Invalid;
+import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.netbeans.modules.corba.browser.ir.Util;
@@ -31,13 +31,8 @@ public class IRUnionDefNode extends IRContainerNode {
     private static final String UNION_ICON_BASE =
         "org/netbeans/modules/corba/idl/node/union";
   
-    private static class UnionCodeGenerator implements GenerateSupport {
-        private UnionDef _union;
-    
-        public UnionCodeGenerator (UnionDef union) {
-            this._union = union;
-        }
-    
+    private class UnionCodeGenerator implements GenerateSupport {
+        
         public String generateHead (int indent, StringHolder currentPrefix) {
             String code = Util.generatePreTypePragmas (_union.id(), _union.absolute_name(), currentPrefix, indent);
             String fill = "";
@@ -50,7 +45,8 @@ public class IRUnionDefNode extends IRContainerNode {
         public String generateSelf (int indent, StringHolder currentPrefix){
             String code = "";
             code = code + generateHead(indent, currentPrefix);
-            String fill = "";
+            String prefixBackUp = currentPrefix.value;
+            /* String fill = "";
             for (int i=0; i<=indent; i++)
                 fill =fill + SPACE;
             UnionMember[] members = _union.members();
@@ -60,13 +56,13 @@ public class IRUnionDefNode extends IRContainerNode {
                 TypeCode tc = members[i].label.type();
                 switch (tc.kind().value()){
                 case TCKind._tk_boolean:
-            	    code = code +"case ";
-		    if (members[i].label.extract_boolean())
-			code = code + "TRUE";
+                    code = code +"case ";
+                    if (members[i].label.extract_boolean())
+                        code = code + "TRUE";
                     else
-	                code = code + "FALSE";
-		    break;
-		case TCKind._tk_char:
+                        code = code + "FALSE";
+                    break;
+                case TCKind._tk_char:
                     code = code +"case "+ "\'" + new Character (members[i].label.extract_char()).toString() + "\'";
                     break;
                 case TCKind._tk_short:
@@ -98,12 +94,17 @@ public class IRUnionDefNode extends IRContainerNode {
                         }catch(Exception e){org.openide.TopManager.getDefault().notifyException(e);};
                     }
                     else{
-                        try{
-                            DynEnum denum = ORB.init().create_dyn_enum (tc);
-                            denum.from_any ( members[i].label);
-                            code = code +"case "+ denum.value_as_string();
-                        }catch (InconsistentTypeCode itc){}
-                        catch (Invalid invalid){}
+                        try {
+                            DynAnyFactory factory = DynAnyFactoryHelper.narrow(ORB.init().resolve_initial_references ("DynAnyFactory"));
+                            if (factory != null) {
+                                org.omg.DynamicAny.DynEnum denum = org.omg.DynamicAny.DynEnumHelper.narrow (factory.create_dyn_any(members[i].label));
+                                code = code +"case "+ denum.get_as_string();
+                            }
+                            else {
+                                code = code +"case ???";
+                            }
+                        }catch (org.omg.CORBA.ORBPackage.InvalidName invalid){}
+                        catch (org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode inconsistent) {}
                     }
                     break;
                 default:
@@ -113,8 +114,46 @@ public class IRUnionDefNode extends IRContainerNode {
                 dimension.value = null;
                 code = code + Util.typeCode2TypeString (members[i].type, dimension)+" ";
                 code = code + members[i].name + ((dimension.value==null)?"":dimension.value) + ";\n";
-            } 
+            }
+             */
+            Children cld = (Children) getChildren();
+            if (cld.getState() == Children.NOT_INITIALIZED)
+                ((Children)getChildren()).state = Children.SYNCHRONOUS;
+            Node[] nodes = cld.getNodes ();
+            int varIndex = 0;
+            for (int i = 0; i< nodes.length; i++) {
+                if (nodes[i] instanceof IRUnionMemberNode) {
+                    varIndex = i;
+                    break;
+                }
+            }
+            for (int i=varIndex; i< nodes.length; i++) {
+                boolean generated = false;
+                IRUnionMemberNode.UnionMemberCodeGenerator gs = (IRUnionMemberNode.UnionMemberCodeGenerator) nodes[i].getCookie (GenerateSupport.class);
+                for (int j=0; j< varIndex; j++) {
+                    if (nodes[j] == null)
+                        continue;
+                    GenerateSupport tgs = (GenerateSupport) nodes[j].getCookie (GenerateSupport.class);
+                    if (tgs == null)
+                        continue;
+                    try {
+                        if (tgs.getRepositoryId().equals(((IRUnionMemberNode)nodes[i]).getTypeCode().id())) {
+                            String tmp = gs.generateLabel (indent+1, currentPrefix);
+                            tmp = tmp + tgs.generateSelf (indent+1, currentPrefix).trim();
+                            tmp = tmp.substring (0, tmp.lastIndexOf (';')) + " ";
+                            tmp = tmp + nodes[i].getName();
+                            code = code + tmp + ";\n";
+                            nodes[j] = null;
+                            generated = true;
+                            break;
+                        }
+                    } catch (org.omg.CORBA.TypeCodePackage.BadKind bk){}
+                }
+                if (!generated && gs != null)
+                    code = code + gs.generateSelf (indent+1, currentPrefix);
+            }
             code = code + generateTail (indent);
+            currentPrefix.value = prefixBackUp;
             return code;
         }
     
@@ -124,6 +163,10 @@ public class IRUnionDefNode extends IRContainerNode {
                 code =code + SPACE;
             return code + "}; // " + _union.name() +"\n"+Util.generatePostTypePragmas(_union.name(),_union.id(),indent)+"\n";
         }
+        
+        public String getRepositoryId () {
+            return _union.id();
+        }
     
     }
 
@@ -132,6 +175,7 @@ public class IRUnionDefNode extends IRContainerNode {
         super ( new UnionChildren(UnionDefHelper.narrow(value)));
         _union = UnionDefHelper.narrow(value);
         setIconBase(UNION_ICON_BASE);
+        this.getCookieSet().add ( new UnionCodeGenerator());
     }
   
     public String getDisplayName(){
@@ -173,23 +217,6 @@ public class IRUnionDefNode extends IRContainerNode {
                 }
             });
         return s;
-    }
-  
-    public String getRepositoryId () {
-        return this._union.id();
-    }
-  
-    public GenerateSupport createGenerator () {
-        if (this.generator == null) 
-            this.generator = new UnionCodeGenerator (_union);
-        return this.generator;
-    }
-  
-    public static GenerateSupport createGeneratorFor (Contained type){
-        UnionDef union = UnionDefHelper.narrow (type);
-        if (union == null)
-            return null;
-        return new UnionCodeGenerator (union);
     }
   
 }

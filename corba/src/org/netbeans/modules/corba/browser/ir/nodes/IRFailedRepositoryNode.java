@@ -41,13 +41,7 @@ public class IRFailedRepositoryNode extends IRLeafNode implements Removable, Nod
             SystemAction.get(org.netbeans.modules.corba.browser.ir.actions.RemoveRepository.class)
         };
     }
+    
   
-    public String getRepositoryId () {
-        return Util.getLocalizedString("MSG_Invalid");
-    }
-  
-    public GenerateSupport createGenerator(){
-        return null;
-    }
   
 }
