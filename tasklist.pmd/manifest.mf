@@ -9,5 +9,6 @@ OpenIDE-Module-Module-Dependencies: pmd > 0.90,
   org.netbeans.tasklistapi/1 = @tl.api.impl@,
   org.netbeans.modules.tasklist.core/2 = @tl.core.impl@
 OpenIDE-Module-Implementation-Version: @tl.pmd.impl@
+OpenIDE-Module-Build-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Public-Packages: -
 

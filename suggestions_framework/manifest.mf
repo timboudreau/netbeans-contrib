@@ -3,6 +3,7 @@ OpenIDE-Module-Specification-Version: @tl.suggestions.spec@
 OpenIDE-Module: org.netbeans.modules.suggestions_framework/2
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/suggestions/Bundle.properties
 OpenIDE-Module-Implementation-Version: @tl.suggestions.impl@
+OpenIDE-Module-Build-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.4
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/suggestions/mf-layer.xml
 OpenIDE-Module-Provides: org.netbeans.api.tasklist.SuggestionManager

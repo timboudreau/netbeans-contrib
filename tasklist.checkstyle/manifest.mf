@@ -8,6 +8,7 @@ OpenIDE-Module-Module-Dependencies: org.openide.src > 1.0,
   org.netbeans.tasklistapi/1 = @tl.api.impl@,
   org.netbeans.modules.tasklist.core/2 = @tl.core.impl@
 OpenIDE-Module-Implementation-Version: @tl.checkstyle.impl@
+OpenIDE-Module-Build-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Public-Packages: -
 Class-Path: ext/checkstyle-all-3.1.jar
 
