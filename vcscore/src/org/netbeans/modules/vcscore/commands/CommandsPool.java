@@ -391,13 +391,15 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     public void removeFinishedCommand(VcsCommandExecutor removedExecutor) {
         VcsCommandWrapper removedWrapper = (VcsCommandWrapper) commandsWrappers.get(removedExecutor);
-        if (removedWrapper == null) return ;
+        CommandOutputCollector collector = null;
         synchronized (this) {
-            commandsFinished.remove(removedWrapper);
+            if (removedWrapper == null) commandsFinished.remove(removedWrapper);
             //System.out.println("commandDone("+removedWrapper.getExecutor().getCommand().getName()+"): removing command "+removedExecutor.getCommand().getName());
             commandsWrappers.remove(removedExecutor);
-            outputContainers.remove(removedExecutor);
+            collector =  (CommandOutputCollector) outputContainers.remove(removedExecutor);
         }
+        if (collector != null) collector.finalize();
+        if (removedWrapper == null) return ;
         RuntimeCommand runCom = removedWrapper.getRuntimeCommand();
         removedWrapper.setRuntimeCommand(null);
         //VcsFileSystem fs = removedWrapper.getFileSystem();
