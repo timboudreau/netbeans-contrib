@@ -29,11 +29,11 @@ public class BundleLookupAction extends NodeAction {
     private static final long serialVersionUID = 2491826043823675616L;
     
     private String tryGetText(Node[] nodes) {
-        for (int i=0; i<nodes.length; i++) {
+        for (int i=0; nodes!=null && i<nodes.length; i++) {
             EditorCookie cookie=(EditorCookie)nodes[i].getCookie(EditorCookie.class);
             if (cookie!=null) {
                 JEditorPane panes[]=cookie.getOpenedPanes();
-                for (int j=0; j<panes.length; j++) {
+                for (int j=0; panes!=null && j<panes.length; j++) {
                     String text=panes[j].getSelectedText();
                     if (text!=null && text.length()>0) {
                         if (text.startsWith("\"") && text.endsWith("\"")) text=text.substring(1, text.length()-1);
