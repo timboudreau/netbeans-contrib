@@ -60,6 +60,7 @@ import org.netbeans.modules.vcscore.grouping.GroupCookie;
 import org.netbeans.modules.vcscore.objectintegrity.VcsObjectIntegritySupport;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.WeakList;
+import org.openide.filesystems.FileSystem;
 
 /**
  * The system action with VCS commands, that are provided by the FileSystem.
@@ -110,7 +111,8 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
                     DataObject dd = (DataObject) nd.getCookie(DataObject.class);
                     if (dd == null) continue;
                     //messageFiles.addAll(dd.files());
-                    addAllWorkaround(dd.files(), messageFiles);
+                    //addAllWorkaround(dd.files(), messageFiles);
+                    addAllFromSingleFS(dd.getPrimaryFile(), dd.files(), messageFiles);
                     /*
                     variablesForSelectedFiles.put(additionalVars, varFiles);
                      */
@@ -124,7 +126,8 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
                     dd = ((DataShadow) dd).getOriginal();
                 }
                 //files.addAll(dd.files());
-                addAllWorkaround(dd.files(), files);
+                //addAllWorkaround(dd.files(), files);
+                addAllFromSingleFS(dd.getPrimaryFile(), dd.files(), files);
             }
         }
         if (files.size() > 0) filesWithMessages.put(files.toArray(new FileObject[0]), null);
@@ -139,6 +142,26 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
      */
     private static final void addAllWorkaround(Collection src, Collection dest) {
         for (Iterator it = src.iterator(); it.hasNext(); dest.add(it.next()));
+    }
+    
+    /**
+     * Add all FileObject, that are from the primary's filesystem to "dest".
+     */
+    private static final void addAllFromSingleFS(FileObject primary, Collection files, Collection dest) {
+        if (files.size() == 1) {
+            dest.add(primary);
+        } else {
+            FileSystem primaryFS = (FileSystem) primary.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
+            for (Iterator it = files.iterator(); it.hasNext(); ) {
+                FileObject fo = (FileObject) it.next();
+                FileSystem fs = (FileSystem) fo.getAttribute(org.netbeans.modules.vcscore.VcsAttributes.VCS_NATIVE_FS);
+                if (primaryFS != null && !primaryFS.equals(fs)) {
+                    // We have a secondary file on another filesystem!
+                    continue;
+                }
+                dest.add(fo);
+            }
+        }
     }
     
     /*
