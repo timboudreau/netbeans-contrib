@@ -86,7 +86,7 @@ Microsystems, Inc. All Rights Reserved.
       <value>"</value>
     </variable>
     <variable name="IDENT" basic="false">
-      <value>-Y${USER_NAME},${PASSWORD}</value>
+      <value>-Y${QUOTE}${USER_NAME},${PASSWORD}${QUOTE}</value>
     </variable>
     <variable name="WORKPROJ" basic="false">
       <value>${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []</value>
