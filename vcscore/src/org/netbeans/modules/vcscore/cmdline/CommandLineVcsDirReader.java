@@ -363,8 +363,12 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         Hashtable filesByName = new Hashtable();
         if (!shouldFail) {
             ExecuteCommand.setAdditionalParams(listCommand, fileSystem);
-            vars.put("DATAREGEX", (String) list.getProperty(UserCommand.PROPERTY_DATA_REGEX)); // NOI18N
-            vars.put("ERRORREGEX", (String) list.getProperty(UserCommand.PROPERTY_ERROR_REGEX)); // NOI18N
+            String dataRegex = (String) list.getProperty(UserCommand.PROPERTY_DATA_REGEX);
+            if (dataRegex == null) dataRegex = ExecuteCommand.DEFAULT_REGEX;
+            vars.put("DATAREGEX", dataRegex); // NOI18N
+            String errorRegex = (String) list.getProperty(UserCommand.PROPERTY_ERROR_REGEX);
+            if (errorRegex == null) errorRegex = ExecuteCommand.DEFAULT_REGEX;
+            vars.put("ERRORREGEX", errorRegex); // NOI18N
             String input = (String) list.getProperty(UserCommand.PROPERTY_INPUT);
             if (input != null) vars.put("INPUT", input); // NOI18N
             //vars.put("TIMEOUT", new Long(list.getTimeout())); // NOI18N
