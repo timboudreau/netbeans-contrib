@@ -14,7 +14,6 @@
 package com.netbeans.enterprise.modules.corba.idl.editor.coloring;
 
 import com.netbeans.editor.Syntax;
-import com.netbeans.editor.BaseSyntax;
 
 /**
 * Syntax analyzes for IDL source files.
@@ -24,25 +23,14 @@ import com.netbeans.editor.BaseSyntax;
 * @version 1.00
 */
 
-public class IDLSyntax extends BaseSyntax {
+public class IDLSyntax extends Syntax {
 
   // Token names
-  public static final String TN_KEYWORD = "keyword";
-  public static final String TN_IDENTIFIER = "identifier";
-  public static final String TN_METHOD = "method";
-  public static final String TN_OPERATOR = "operator";
-  public static final String TN_LINE_COMMENT = "line-comment";
-  public static final String TN_BLOCK_COMMENT = "block-comment";
-  public static final String TN_CHAR = "char";
-  public static final String TN_STRING = "string";
-  public static final String TN_INT = "int";
-  public static final String TN_HEX = "hex";
-  public static final String TN_OCTAL = "octal";
-  public static final String TN_LONG = "long";
-  public static final String TN_FLOAT = "float";
   public static final String TN_DIRECTIVE = "directive";
 
   // Token IDs
+  public static final int TEXT = 0; // plain text
+  public static final int ERROR = 1; // errorneous text
   public static final int KEYWORD = 2; // keyword
   public static final int IDENTIFIER = 3; // identifier
   public static final int METHOD = 4; // method call i.e. name()
@@ -102,21 +90,17 @@ public class IDLSyntax extends BaseSyntax {
   public IDLSyntax() {
   }
 
-  public boolean isIdentifierPart(char ch) {
-    return Character.isJavaIdentifierPart(ch);
-  }
-
   protected int parseToken() {
     char actChar;
 
-    while(curInd < stopInd) {
-      actChar = buffer[curInd];
+    while(offset < stopOffset) {
+      actChar = buffer[offset];
 
       switch (state) {
         case INIT:
           switch (actChar) {
             case '\n':
-              curInd++;
+              offset++;
               return EOL;
             case ' ':
             case '\t':
@@ -185,7 +169,7 @@ public class IDLSyntax extends BaseSyntax {
               }
 
               // everything else is an operator
-              curInd++;
+              offset++;
               return OPERATOR;
           }
           break;
@@ -213,7 +197,7 @@ public class IDLSyntax extends BaseSyntax {
             case '\t':
               break;
             default:
-              curInd = hlpInd;
+              offset = hlpInd;
               hlpInd = -1; // make hlpInd invalid
               state = INIT;
               return (actChar == '(') ? METHOD : IDENTIFIER;
@@ -231,8 +215,8 @@ public class IDLSyntax extends BaseSyntax {
         case ISI_BLOCK_COMMENT:
           switch (actChar) {
             case '\n':
-              if (curInd == begInd) { // only '\n'
-                curInd++;
+              if (offset == tokenOffset) { // only '\n'
+                offset++;
                 return EOL; // stay in ISI_BLOCK_COMMENT state for next line
               } else { // return comment token to qualify for previous if()
                 return BLOCK_COMMENT;
@@ -252,7 +236,7 @@ public class IDLSyntax extends BaseSyntax {
               state = INIT;
               return STRING;
             case '"':
-              curInd++;
+              offset++;
               state = INIT;
               return STRING;
           }
@@ -264,7 +248,7 @@ public class IDLSyntax extends BaseSyntax {
             case '\\':
               break;
             default:
-              curInd--;
+              offset--;
               break;
           }
           state = ISI_STRING;
@@ -279,7 +263,7 @@ public class IDLSyntax extends BaseSyntax {
               state = INIT;
               return CHAR;
             case '\'':
-              curInd++;
+              offset++;
               state = INIT;
               return CHAR;
           }
@@ -291,7 +275,7 @@ public class IDLSyntax extends BaseSyntax {
             case '\\':
               break;
             default:
-              curInd--;
+              offset--;
               break;
           }
           state = ISI_CHAR;
@@ -310,7 +294,7 @@ public class IDLSyntax extends BaseSyntax {
                 case ' ':
                 case '\t':
                   state = ISI_WS_P_IDENTIFIER;
-                  hlpInd = curInd; // end of identifier
+                  hlpInd = offset; // end of identifier
                   break;
                 default:
                   state = INIT;
@@ -323,7 +307,7 @@ public class IDLSyntax extends BaseSyntax {
         case ISA_SLASH:
           switch (actChar) {
             case '=':
-              curInd++;
+              offset++;
               state = INIT;
               return OPERATOR;
             case '/':
@@ -341,7 +325,7 @@ public class IDLSyntax extends BaseSyntax {
         case ISA_EQ:
           switch (actChar) {
             case '=':
-              curInd++;
+              offset++;
               return  OPERATOR;
             default:
               state = INIT;
@@ -355,7 +339,7 @@ public class IDLSyntax extends BaseSyntax {
               state = ISA_GTGT;
               break;
             case '=':
-              curInd++;
+              offset++;
               return OPERATOR;
             default:
               state = INIT;
@@ -369,7 +353,7 @@ public class IDLSyntax extends BaseSyntax {
               state = ISA_GTGTGT;
               break;
             case '=':
-              curInd++;
+              offset++;
               return OPERATOR;
             default:
               state = INIT;
@@ -380,7 +364,7 @@ public class IDLSyntax extends BaseSyntax {
         case ISA_GTGTGT:
           switch (actChar) {
             case '=':
-              curInd++;
+              offset++;
               return OPERATOR;
             default:
               state = INIT;
@@ -395,7 +379,7 @@ public class IDLSyntax extends BaseSyntax {
               state = ISA_LTLT;
               break;
             case '=':
-              curInd++;
+              offset++;
               return OPERATOR;
             default:
               state = INIT;
@@ -409,7 +393,7 @@ public class IDLSyntax extends BaseSyntax {
               state = ISI_ERROR;
               break;
             case '=':
-              curInd++;
+              offset++;
               return OPERATOR;
             default:
               state = INIT;
@@ -422,7 +406,7 @@ public class IDLSyntax extends BaseSyntax {
             case '+':
               // let it flow to '='
             case '=':
-              curInd++;
+              offset++;
               return OPERATOR;
             default:
               state = INIT;
@@ -435,7 +419,7 @@ public class IDLSyntax extends BaseSyntax {
             case '-':
               // let it flow to '='
             case '=':
-              curInd++;
+              offset++;
               return OPERATOR;
             default:
               state = INIT;
@@ -446,10 +430,10 @@ public class IDLSyntax extends BaseSyntax {
         case ISA_STAR:
           switch (actChar) {
             case '=':
-              curInd++;
+              offset++;
               return OPERATOR;
             case '/':
-              curInd++;
+              offset++;
               state = INIT;
               return ERROR; // '*/' outside comment
             default:
@@ -461,11 +445,11 @@ public class IDLSyntax extends BaseSyntax {
         case ISA_STAR_I_BLOCK_COMMENT:
           switch (actChar) {
             case '/':
-              curInd++;
+              offset++;
               state = INIT;
               return BLOCK_COMMENT;
             default:
-              curInd--;
+              offset--;
               state = ISI_BLOCK_COMMENT;
               break;
           }
@@ -474,7 +458,7 @@ public class IDLSyntax extends BaseSyntax {
         case ISA_PIPE:
           switch (actChar) {
             case '=':
-              curInd++;
+              offset++;
               state = INIT;
               return OPERATOR;
             default:
@@ -486,7 +470,7 @@ public class IDLSyntax extends BaseSyntax {
         case ISA_PERCENT:
           switch (actChar) {
             case '=':
-              curInd++;
+              offset++;
               state = INIT;
               return OPERATOR;
             default:
@@ -498,7 +482,7 @@ public class IDLSyntax extends BaseSyntax {
         case ISA_AND:
           switch (actChar) {
             case '=':
-              curInd++;
+              offset++;
               state = INIT;
               return OPERATOR;
             default:
@@ -510,7 +494,7 @@ public class IDLSyntax extends BaseSyntax {
         case ISA_XOR:
           switch (actChar) {
             case '=':
-              curInd++;
+              offset++;
               state = INIT;
               return OPERATOR;
             default:
@@ -522,7 +506,7 @@ public class IDLSyntax extends BaseSyntax {
         case ISA_EXCLAMATION:
           switch (actChar) {
             case '=':
-              curInd++;
+              offset++;
               state = INIT;
               return OPERATOR;
             default:
@@ -542,14 +526,14 @@ public class IDLSyntax extends BaseSyntax {
               break;
             case 'l':
             case 'L':
-              curInd++;
+              offset++;
               state = INIT;
               return LONG;
             case 'f':
             case 'F':
             case 'd':
             case 'D':
-              curInd++;
+              offset++;
               state = INIT;
               return FLOAT;
             case '8': // it's error to have '8' and '9' in octal number
@@ -570,7 +554,7 @@ public class IDLSyntax extends BaseSyntax {
           switch (actChar) {
             case 'l':
             case 'L':
-              curInd++;
+              offset++;
               state = INIT;
               return LONG;
             case '.':
@@ -598,7 +582,7 @@ public class IDLSyntax extends BaseSyntax {
             case 'F':
             case 'd':
             case 'D':
-              curInd++;
+              offset++;
               state = INIT;
               return FLOAT;
             case 'e':
@@ -621,7 +605,7 @@ public class IDLSyntax extends BaseSyntax {
             case 'F':
             case 'd':
             case 'D':
-              curInd++;
+              offset++;
               state = INIT;
               return FLOAT;
             default:
@@ -685,8 +669,8 @@ public class IDLSyntax extends BaseSyntax {
 	    
       } // end of switch(state)
       
-      curInd = ++curInd;
-    } // end of while(curInd...)
+      offset = ++offset;
+    } // end of while(offset...)
 
     /** At this stage there's no more text in the scanned buffer.
     * Scanner first checks whether this is completely the last
@@ -700,7 +684,7 @@ public class IDLSyntax extends BaseSyntax {
         case ISA_HASH:
           return matchDirective() ? DIRECTIVE : TEXT;
         case ISI_WS_P_IDENTIFIER:
-          curInd = hlpInd;
+          offset = hlpInd;
           hlpInd = -1;
           state = INIT;
           return IDENTIFIER;
@@ -760,8 +744,8 @@ public class IDLSyntax extends BaseSyntax {
       case ISI_STRING:
         return STRING;
       case ISI_STRING_A_BSLASH:
-        if (curInd - begInd > 1) {
-          curInd--; // go to backslash char
+        if (offset - tokenOffset > 1) {
+          offset--; // go to backslash char
           state = ISI_STRING;
           return STRING;
         } else {
@@ -770,8 +754,8 @@ public class IDLSyntax extends BaseSyntax {
       case ISI_CHAR:
         return CHAR;
       case ISI_CHAR_A_BSLASH:
-        if (curInd - begInd > 1) {
-          curInd--; // go to backslash char
+        if (offset - tokenOffset > 1) {
+          offset--; // go to backslash char
           state = ISI_CHAR;
           return CHAR;
         } else {
@@ -815,84 +799,84 @@ public class IDLSyntax extends BaseSyntax {
 
    /** match IDL keywords */
    private boolean matchKeywords() {
-      if (curInd - begInd > 9)
+      if (offset - tokenOffset > 9)
 	 return false;
-      if (curInd - begInd <= 0)
+      if (offset - tokenOffset <= 0)
 	 return false;
-      switch (buffer[begInd + 0]) {
+      switch (buffer[tokenOffset + 0]) {
       case 'F':
-	 return curInd - begInd == 5
-	    && buffer[begInd + 1] == 'A'
-	    && buffer[begInd + 2] == 'L'
-	    && buffer[begInd + 3] == 'S'
-	    && buffer[begInd + 4] == 'E';
+	 return offset - tokenOffset == 5
+	    && buffer[tokenOffset + 1] == 'A'
+	    && buffer[tokenOffset + 2] == 'L'
+	    && buffer[tokenOffset + 3] == 'S'
+	    && buffer[tokenOffset + 4] == 'E';
       case 'O':
-	 return curInd - begInd == 6
-	    && buffer[begInd + 1] == 'b'
-	    && buffer[begInd + 2] == 'j'
-	    && buffer[begInd + 3] == 'e'
-	    && buffer[begInd + 4] == 'c'
-	    && buffer[begInd + 5] == 't';
+	 return offset - tokenOffset == 6
+	    && buffer[tokenOffset + 1] == 'b'
+	    && buffer[tokenOffset + 2] == 'j'
+	    && buffer[tokenOffset + 3] == 'e'
+	    && buffer[tokenOffset + 4] == 'c'
+	    && buffer[tokenOffset + 5] == 't';
       case 'T':
-	 return curInd - begInd == 4
-	    && buffer[begInd + 1] == 'R'
-	    && buffer[begInd + 2] == 'U'
-	    && buffer[begInd + 3] == 'E';
+	 return offset - tokenOffset == 4
+	    && buffer[tokenOffset + 1] == 'R'
+	    && buffer[tokenOffset + 2] == 'U'
+	    && buffer[tokenOffset + 3] == 'E';
       case 'a':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'n':
-	    return curInd - begInd == 3
-	       && buffer[begInd + 2] == 'y';
+	    return offset - tokenOffset == 3
+	       && buffer[tokenOffset + 2] == 'y';
 	 case 't':
-	    return curInd - begInd == 9
-	       && buffer[begInd + 2] == 't'
-	       && buffer[begInd + 3] == 'r'
-	       && buffer[begInd + 4] == 'i'
-	       && buffer[begInd + 5] == 'b'
-	       && buffer[begInd + 6] == 'u'
-	       && buffer[begInd + 7] == 't'
-	       && buffer[begInd + 8] == 'e';
+	    return offset - tokenOffset == 9
+	       && buffer[tokenOffset + 2] == 't'
+	       && buffer[tokenOffset + 3] == 'r'
+	       && buffer[tokenOffset + 4] == 'i'
+	       && buffer[tokenOffset + 5] == 'b'
+	       && buffer[tokenOffset + 6] == 'u'
+	       && buffer[tokenOffset + 7] == 't'
+	       && buffer[tokenOffset + 8] == 'e';
 	 default:
 	    return false;
 	 }
       case 'b':
-	 return curInd - begInd == 7
-	    && buffer[begInd + 1] == 'o'
-	    && buffer[begInd + 2] == 'o'
-	    && buffer[begInd + 3] == 'l'
-	    && buffer[begInd + 4] == 'e'
-	    && buffer[begInd + 5] == 'a'
-	    && buffer[begInd + 6] == 'n';
+	 return offset - tokenOffset == 7
+	    && buffer[tokenOffset + 1] == 'o'
+	    && buffer[tokenOffset + 2] == 'o'
+	    && buffer[tokenOffset + 3] == 'l'
+	    && buffer[tokenOffset + 4] == 'e'
+	    && buffer[tokenOffset + 5] == 'a'
+	    && buffer[tokenOffset + 6] == 'n';
       case 'c':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'a':
-	    return curInd - begInd == 4
-	       && buffer[begInd + 2] == 's'
-	       && buffer[begInd + 3] == 'e';
+	    return offset - tokenOffset == 4
+	       && buffer[tokenOffset + 2] == 's'
+	       && buffer[tokenOffset + 3] == 'e';
 	 case 'h':
-	    return curInd - begInd == 4
-	       && buffer[begInd + 2] == 'a'
-	       && buffer[begInd + 3] == 'r';
+	    return offset - tokenOffset == 4
+	       && buffer[tokenOffset + 2] == 'a'
+	       && buffer[tokenOffset + 3] == 'r';
 	 case 'o':
-	    if (curInd - begInd <= 2)
+	    if (offset - tokenOffset <= 2)
 	       return false;
-	    switch (buffer[begInd + 2]) {
+	    switch (buffer[tokenOffset + 2]) {
 	    case 'n':
-	       if (curInd - begInd <= 3)
+	       if (offset - tokenOffset <= 3)
 		  return false;
-	       switch (buffer[begInd + 3]) {
+	       switch (buffer[tokenOffset + 3]) {
 	       case 's':
-		  return curInd - begInd == 5
-		     && buffer[begInd + 4] == 't';
+		  return offset - tokenOffset == 5
+		     && buffer[tokenOffset + 4] == 't';
 	       case 't':
-		  return curInd - begInd == 7
-		     && buffer[begInd + 4] == 'e'
-		     && buffer[begInd + 5] == 'x'
-		     && buffer[begInd + 6] == 't';
+		  return offset - tokenOffset == 7
+		     && buffer[tokenOffset + 4] == 'e'
+		     && buffer[tokenOffset + 5] == 'x'
+		     && buffer[tokenOffset + 6] == 't';
 	       default:
 		  return false;
 	       }
@@ -903,82 +887,82 @@ public class IDLSyntax extends BaseSyntax {
 	    return false;
 	 }
       case 'd':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'e':
-	    return curInd - begInd == 7
-	       && buffer[begInd + 2] == 'f'
-	       && buffer[begInd + 3] == 'a'
-	       && buffer[begInd + 4] == 'u'
-	       && buffer[begInd + 5] == 'l'
-	       && buffer[begInd + 6] == 't';
+	    return offset - tokenOffset == 7
+	       && buffer[tokenOffset + 2] == 'f'
+	       && buffer[tokenOffset + 3] == 'a'
+	       && buffer[tokenOffset + 4] == 'u'
+	       && buffer[tokenOffset + 5] == 'l'
+	       && buffer[tokenOffset + 6] == 't';
 	 case 'o':
-	    return curInd - begInd == 6
-	       && buffer[begInd + 2] == 'u'
-	       && buffer[begInd + 3] == 'b'
-	       && buffer[begInd + 4] == 'l'
-	       && buffer[begInd + 5] == 'e';
+	    return offset - tokenOffset == 6
+	       && buffer[tokenOffset + 2] == 'u'
+	       && buffer[tokenOffset + 3] == 'b'
+	       && buffer[tokenOffset + 4] == 'l'
+	       && buffer[tokenOffset + 5] == 'e';
 	 default:
 	    return false;
 	 }
       case 'e':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'n':
-	    return curInd - begInd == 4
-	       && buffer[begInd + 2] == 'u'
-	       && buffer[begInd + 3] == 'm';
+	    return offset - tokenOffset == 4
+	       && buffer[tokenOffset + 2] == 'u'
+	       && buffer[tokenOffset + 3] == 'm';
 	 case 'x':
-	    return curInd - begInd == 9
-	       && buffer[begInd + 2] == 'c'
-	       && buffer[begInd + 3] == 'e'
-	       && buffer[begInd + 4] == 'p'
-	       && buffer[begInd + 5] == 't'
-	       && buffer[begInd + 6] == 'i'
-	       && buffer[begInd + 7] == 'o'
-	       && buffer[begInd + 8] == 'n';
+	    return offset - tokenOffset == 9
+	       && buffer[tokenOffset + 2] == 'c'
+	       && buffer[tokenOffset + 3] == 'e'
+	       && buffer[tokenOffset + 4] == 'p'
+	       && buffer[tokenOffset + 5] == 't'
+	       && buffer[tokenOffset + 6] == 'i'
+	       && buffer[tokenOffset + 7] == 'o'
+	       && buffer[tokenOffset + 8] == 'n';
 	 default:
 	    return false;
 	 }
       case 'f':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'i':
-	    return curInd - begInd == 5
-	       && buffer[begInd + 2] == 'x'
-	       && buffer[begInd + 3] == 'e'
-	       && buffer[begInd + 4] == 'd';
+	    return offset - tokenOffset == 5
+	       && buffer[tokenOffset + 2] == 'x'
+	       && buffer[tokenOffset + 3] == 'e'
+	       && buffer[tokenOffset + 4] == 'd';
 	 case 'l':
-	    return curInd - begInd == 5
-	       && buffer[begInd + 2] == 'o'
-	       && buffer[begInd + 3] == 'a'
-	       && buffer[begInd + 4] == 't';
+	    return offset - tokenOffset == 5
+	       && buffer[tokenOffset + 2] == 'o'
+	       && buffer[tokenOffset + 3] == 'a'
+	       && buffer[tokenOffset + 4] == 't';
 	 default:
 	    return false;
 	 }
       case 'i':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'n':
-	    if (curInd - begInd == 2)
+	    if (offset - tokenOffset == 2)
 	       return true;
-	    switch (buffer[begInd + 2]) {
+	    switch (buffer[tokenOffset + 2]) {
 	    case 'o':
-	       return curInd - begInd == 5
-		  && buffer[begInd + 3] == 'u'
-		  && buffer[begInd + 4] == 't';
+	       return offset - tokenOffset == 5
+		  && buffer[tokenOffset + 3] == 'u'
+		  && buffer[tokenOffset + 4] == 't';
 	    case 't':
-	       return curInd - begInd == 9
-		  && buffer[begInd + 3] == 'e'
-		  && buffer[begInd + 4] == 'r'
-		  && buffer[begInd + 5] == 'f'
-		  && buffer[begInd + 6] == 'a'
-		  && buffer[begInd + 7] == 'c'
-		  && buffer[begInd + 8] == 'e';
+	       return offset - tokenOffset == 9
+		  && buffer[tokenOffset + 3] == 'e'
+		  && buffer[tokenOffset + 4] == 'r'
+		  && buffer[tokenOffset + 5] == 'f'
+		  && buffer[tokenOffset + 6] == 'a'
+		  && buffer[tokenOffset + 7] == 'c'
+		  && buffer[tokenOffset + 8] == 'e';
 	    default:
 	       return false;
 	    }
@@ -986,92 +970,92 @@ public class IDLSyntax extends BaseSyntax {
 	    return false;
 	 }
       case 'l':
-	 return curInd - begInd == 4
-	    && buffer[begInd + 1] == 'o'
-	    && buffer[begInd + 2] == 'n'
-	    && buffer[begInd + 3] == 'g';
+	 return offset - tokenOffset == 4
+	    && buffer[tokenOffset + 1] == 'o'
+	    && buffer[tokenOffset + 2] == 'n'
+	    && buffer[tokenOffset + 3] == 'g';
       case 'm':
-	 return curInd - begInd == 6
-	    && buffer[begInd + 1] == 'o'
-	    && buffer[begInd + 2] == 'd'
-	    && buffer[begInd + 3] == 'u'
-	    && buffer[begInd + 4] == 'l'
-	    && buffer[begInd + 5] == 'e';
+	 return offset - tokenOffset == 6
+	    && buffer[tokenOffset + 1] == 'o'
+	    && buffer[tokenOffset + 2] == 'd'
+	    && buffer[tokenOffset + 3] == 'u'
+	    && buffer[tokenOffset + 4] == 'l'
+	    && buffer[tokenOffset + 5] == 'e';
       case 'o':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'c':
-	    return curInd - begInd == 5
-	       && buffer[begInd + 2] == 't'
-	       && buffer[begInd + 3] == 'e'
-	       && buffer[begInd + 4] == 't';
+	    return offset - tokenOffset == 5
+	       && buffer[tokenOffset + 2] == 't'
+	       && buffer[tokenOffset + 3] == 'e'
+	       && buffer[tokenOffset + 4] == 't';
 	 case 'n':
-	    return curInd - begInd == 6
-	       && buffer[begInd + 2] == 'e'
-	       && buffer[begInd + 3] == 'w'
-	       && buffer[begInd + 4] == 'a'
-	       && buffer[begInd + 5] == 'y';
+	    return offset - tokenOffset == 6
+	       && buffer[tokenOffset + 2] == 'e'
+	       && buffer[tokenOffset + 3] == 'w'
+	       && buffer[tokenOffset + 4] == 'a'
+	       && buffer[tokenOffset + 5] == 'y';
 	 case 'u':
-	    return curInd - begInd == 3
-	       && buffer[begInd + 2] == 't';
+	    return offset - tokenOffset == 3
+	       && buffer[tokenOffset + 2] == 't';
 	 default:
 	    return false;
 	 }
       case 'r':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'a':
-	    return curInd - begInd == 6
-	       && buffer[begInd + 2] == 'i'
-	       && buffer[begInd + 3] == 's'
-	       && buffer[begInd + 4] == 'e'
-	       && buffer[begInd + 5] == 's';
+	    return offset - tokenOffset == 6
+	       && buffer[tokenOffset + 2] == 'i'
+	       && buffer[tokenOffset + 3] == 's'
+	       && buffer[tokenOffset + 4] == 'e'
+	       && buffer[tokenOffset + 5] == 's';
 	 case 'e':
-	    return curInd - begInd == 8
-	       && buffer[begInd + 2] == 'a'
-	       && buffer[begInd + 3] == 'd'
-	       && buffer[begInd + 4] == 'o'
-	       && buffer[begInd + 5] == 'n'
-	       && buffer[begInd + 6] == 'l'
-	       && buffer[begInd + 7] == 'y';
+	    return offset - tokenOffset == 8
+	       && buffer[tokenOffset + 2] == 'a'
+	       && buffer[tokenOffset + 3] == 'd'
+	       && buffer[tokenOffset + 4] == 'o'
+	       && buffer[tokenOffset + 5] == 'n'
+	       && buffer[tokenOffset + 6] == 'l'
+	       && buffer[tokenOffset + 7] == 'y';
 	 default:
 	    return false;
 	 }
       case 's':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'e':
-	    return curInd - begInd == 8
-	       && buffer[begInd + 2] == 'q'
-	       && buffer[begInd + 3] == 'u'
-	       && buffer[begInd + 4] == 'e'
-	       && buffer[begInd + 5] == 'n'
-	       && buffer[begInd + 6] == 'c'
-	       && buffer[begInd + 7] == 'e';
+	    return offset - tokenOffset == 8
+	       && buffer[tokenOffset + 2] == 'q'
+	       && buffer[tokenOffset + 3] == 'u'
+	       && buffer[tokenOffset + 4] == 'e'
+	       && buffer[tokenOffset + 5] == 'n'
+	       && buffer[tokenOffset + 6] == 'c'
+	       && buffer[tokenOffset + 7] == 'e';
 	 case 'h':
-	    return curInd - begInd == 5
-	       && buffer[begInd + 2] == 'o'
-	       && buffer[begInd + 3] == 'r'
-	       && buffer[begInd + 4] == 't';
+	    return offset - tokenOffset == 5
+	       && buffer[tokenOffset + 2] == 'o'
+	       && buffer[tokenOffset + 3] == 'r'
+	       && buffer[tokenOffset + 4] == 't';
 	 case 't':
-	    if (curInd - begInd <= 2)
+	    if (offset - tokenOffset <= 2)
 	       return false;
-	    switch (buffer[begInd + 2]) {
+	    switch (buffer[tokenOffset + 2]) {
 	    case 'r':
-	       if (curInd - begInd <= 3)
+	       if (offset - tokenOffset <= 3)
 		  return false;
-	       switch (buffer[begInd + 3]) {
+	       switch (buffer[tokenOffset + 3]) {
 	       case 'i':
-		  return curInd - begInd == 6
-		     && buffer[begInd + 4] == 'n'
-		     && buffer[begInd + 5] == 'g';
+		  return offset - tokenOffset == 6
+		     && buffer[tokenOffset + 4] == 'n'
+		     && buffer[tokenOffset + 5] == 'g';
 	       case 'u':
-		  return curInd - begInd == 6
-		     && buffer[begInd + 4] == 'c'
-		     && buffer[begInd + 5] == 't';
+		  return offset - tokenOffset == 6
+		     && buffer[tokenOffset + 4] == 'c'
+		     && buffer[tokenOffset + 5] == 't';
 	       default:
 		  return false;
 	       }
@@ -1079,41 +1063,41 @@ public class IDLSyntax extends BaseSyntax {
 	       return false;
 	    }
 	 case 'w':
-	    return curInd - begInd == 6
-	       && buffer[begInd + 2] == 'i'
-	       && buffer[begInd + 3] == 't'
-	       && buffer[begInd + 4] == 'c'
-	       && buffer[begInd + 5] == 'h';
+	    return offset - tokenOffset == 6
+	       && buffer[tokenOffset + 2] == 'i'
+	       && buffer[tokenOffset + 3] == 't'
+	       && buffer[tokenOffset + 4] == 'c'
+	       && buffer[tokenOffset + 5] == 'h';
 	 default:
 	    return false;
 	 }
       case 't':
-	 return curInd - begInd == 7
-	    && buffer[begInd + 1] == 'y'
-	    && buffer[begInd + 2] == 'p'
-	    && buffer[begInd + 3] == 'e'
-	    && buffer[begInd + 4] == 'd'
-	    && buffer[begInd + 5] == 'e'
-	    && buffer[begInd + 6] == 'f';
+	 return offset - tokenOffset == 7
+	    && buffer[tokenOffset + 1] == 'y'
+	    && buffer[tokenOffset + 2] == 'p'
+	    && buffer[tokenOffset + 3] == 'e'
+	    && buffer[tokenOffset + 4] == 'd'
+	    && buffer[tokenOffset + 5] == 'e'
+	    && buffer[tokenOffset + 6] == 'f';
       case 'u':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'n':
-	    if (curInd - begInd <= 2)
+	    if (offset - tokenOffset <= 2)
 	       return false;
-	    switch (buffer[begInd + 2]) {
+	    switch (buffer[tokenOffset + 2]) {
 	    case 'i':
-	       return curInd - begInd == 5
-		  && buffer[begInd + 3] == 'o'
-		  && buffer[begInd + 4] == 'n';
+	       return offset - tokenOffset == 5
+		  && buffer[tokenOffset + 3] == 'o'
+		  && buffer[tokenOffset + 4] == 'n';
 	    case 's':
-	       return curInd - begInd == 8
-		  && buffer[begInd + 3] == 'i'
-		  && buffer[begInd + 4] == 'g'
-		  && buffer[begInd + 5] == 'n'
-		  && buffer[begInd + 6] == 'e'
-		  && buffer[begInd + 7] == 'd';
+	       return offset - tokenOffset == 8
+		  && buffer[tokenOffset + 3] == 'i'
+		  && buffer[tokenOffset + 4] == 'g'
+		  && buffer[tokenOffset + 5] == 'n'
+		  && buffer[tokenOffset + 6] == 'e'
+		  && buffer[tokenOffset + 7] == 'd';
 	    default:
 	       return false;
 	    }
@@ -1121,26 +1105,26 @@ public class IDLSyntax extends BaseSyntax {
 	    return false;
 	 }
       case 'v':
-	 return curInd - begInd == 4
-	    && buffer[begInd + 1] == 'o'
-	    && buffer[begInd + 2] == 'i'
-	    && buffer[begInd + 3] == 'd';
+	 return offset - tokenOffset == 4
+	    && buffer[tokenOffset + 1] == 'o'
+	    && buffer[tokenOffset + 2] == 'i'
+	    && buffer[tokenOffset + 3] == 'd';
       case 'w':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'c':
-	    return curInd - begInd == 5
-	       && buffer[begInd + 2] == 'h'
-	       && buffer[begInd + 3] == 'a'
-	       && buffer[begInd + 4] == 'r';
+	    return offset - tokenOffset == 5
+	       && buffer[tokenOffset + 2] == 'h'
+	       && buffer[tokenOffset + 3] == 'a'
+	       && buffer[tokenOffset + 4] == 'r';
 	 case 's':
-	    return curInd - begInd == 7
-	       && buffer[begInd + 2] == 't'
-	       && buffer[begInd + 3] == 'r'
-	       && buffer[begInd + 4] == 'i'
-	       && buffer[begInd + 5] == 'n'
-	       && buffer[begInd + 6] == 'g';
+	    return offset - tokenOffset == 7
+	       && buffer[tokenOffset + 2] == 't'
+	       && buffer[tokenOffset + 3] == 'r'
+	       && buffer[tokenOffset + 4] == 'i'
+	       && buffer[tokenOffset + 5] == 'n'
+	       && buffer[tokenOffset + 6] == 'g';
 	 default:
 	    return false;
 	 }
@@ -1150,65 +1134,65 @@ public class IDLSyntax extends BaseSyntax {
    }
 
    private boolean matchDirective () {
-      if (curInd - begInd > 8)
+      if (offset - tokenOffset > 8)
 	 return false;
-      if (curInd - begInd <= 0)
+      if (offset - tokenOffset <= 0)
 	 return false;
-      switch (buffer[begInd + 0]) {
+      switch (buffer[tokenOffset + 0]) {
       case '#':
-	 if (curInd - begInd <= 1)
+	 if (offset - tokenOffset <= 1)
 	    return false;
-	 switch (buffer[begInd + 1]) {
+	 switch (buffer[tokenOffset + 1]) {
 	 case 'd':
-	    return curInd - begInd == 7
-	       && buffer[begInd + 2] == 'e'
-	       && buffer[begInd + 3] == 'f'
-	       && buffer[begInd + 4] == 'i'
-	       && buffer[begInd + 5] == 'n'
-	       && buffer[begInd + 6] == 'e';
+	    return offset - tokenOffset == 7
+	       && buffer[tokenOffset + 2] == 'e'
+	       && buffer[tokenOffset + 3] == 'f'
+	       && buffer[tokenOffset + 4] == 'i'
+	       && buffer[tokenOffset + 5] == 'n'
+	       && buffer[tokenOffset + 6] == 'e';
 	 case 'e':
-	    return curInd - begInd == 6
-	       && buffer[begInd + 2] == 'n'
-	       && buffer[begInd + 3] == 'd'
-	       && buffer[begInd + 4] == 'i'
-	       && buffer[begInd + 5] == 'f';
+	    return offset - tokenOffset == 6
+	       && buffer[tokenOffset + 2] == 'n'
+	       && buffer[tokenOffset + 3] == 'd'
+	       && buffer[tokenOffset + 4] == 'i'
+	       && buffer[tokenOffset + 5] == 'f';
 	 case 'i':
-	    if (curInd - begInd <= 2)
+	    if (offset - tokenOffset <= 2)
 	       return false;
-	    switch (buffer[begInd + 2]) {
+	    switch (buffer[tokenOffset + 2]) {
 	    case 'f':
-	       if (curInd - begInd <= 3)
+	       if (offset - tokenOffset <= 3)
 		  return false;
-	       switch (buffer[begInd + 3]) {
+	       switch (buffer[tokenOffset + 3]) {
 	       case 'd':
-		  return curInd - begInd == 6
-		     && buffer[begInd + 4] == 'e'
-		     && buffer[begInd + 5] == 'f';
+		  return offset - tokenOffset == 6
+		     && buffer[tokenOffset + 4] == 'e'
+		     && buffer[tokenOffset + 5] == 'f';
 	       case 'n':
-		  return curInd - begInd == 7
-		     && buffer[begInd + 4] == 'd'
-		     && buffer[begInd + 5] == 'e'
-		     && buffer[begInd + 6] == 'f';
+		  return offset - tokenOffset == 7
+		     && buffer[tokenOffset + 4] == 'd'
+		     && buffer[tokenOffset + 5] == 'e'
+		     && buffer[tokenOffset + 6] == 'f';
 	       default:
 		  return false;
 	       }
 	    case 'n':
-	       return curInd - begInd == 8
-		  && buffer[begInd + 3] == 'c'
-		  && buffer[begInd + 4] == 'l'
-		  && buffer[begInd + 5] == 'u'
-		  && buffer[begInd + 6] == 'd'
-		  && buffer[begInd + 7] == 'e';
+	       return offset - tokenOffset == 8
+		  && buffer[tokenOffset + 3] == 'c'
+		  && buffer[tokenOffset + 4] == 'l'
+		  && buffer[tokenOffset + 5] == 'u'
+		  && buffer[tokenOffset + 6] == 'd'
+		  && buffer[tokenOffset + 7] == 'e';
 	    default:
 	       return false;
 	    }
 	 case 'p':
-	    return curInd - begInd == 7
-	       && buffer[begInd + 2] == 'r'
-	       && buffer[begInd + 3] == 'a'
-	       && buffer[begInd + 4] == 'g'
-	       && buffer[begInd + 5] == 'm'
-	       && buffer[begInd + 6] == 'a';
+	    return offset - tokenOffset == 7
+	       && buffer[tokenOffset + 2] == 'r'
+	       && buffer[tokenOffset + 3] == 'a'
+	       && buffer[tokenOffset + 4] == 'g'
+	       && buffer[tokenOffset + 5] == 'm'
+	       && buffer[tokenOffset + 6] == 'a';
 	 default:
 	    return false;
 	 }
@@ -1217,37 +1201,37 @@ public class IDLSyntax extends BaseSyntax {
       }
    }
 
-  public void relocate(char buffer[], int offset, int len) {
+  public void relocate(char buffer[], int offset, int len, boolean lastBuffer) {
     if (hlpInd >= 0) { // relocate hlpInd before calling super.relocScan()
-      hlpInd += (offset - curInd);
+      hlpInd += (offset - offset);
     }
-    super.relocate(buffer, offset, len);
+    super.relocate(buffer, offset, len, lastBuffer);
   }
 
   /** Create scan state appropriate for particular scanner */
-  protected MarkState createMarkState() {
-    return new IDLMarkState();
+  public Syntax.StateInfo createStateInfo() {
+    return new IDLStateInfo();
   }
 
   /** Store state of this scanner into given scan state. */
-  protected void storeState(MarkState markState) {
-    super.storeState(markState);
-    ((IDLMarkState)markState).hlpPreScan = (hlpInd >= 0) ? (curInd - hlpInd) : -1;
+  public void storeState(Syntax.StateInfo stateInfo) {
+    super.storeState(stateInfo);
+    ((IDLStateInfo)stateInfo).hlpPreScan = (hlpInd >= 0) ? (offset - hlpInd) : -1;
   }
 
   /** Load state into scanner. Indexes are already initialized
   * when this function is called.
   */
-  protected void loadState(MarkState markState) {
-    super.loadState(markState);
-    int hi = ((IDLMarkState)markState).hlpPreScan;
-    hlpInd = (hi >= 0) ? (curInd - hi) : -1;
+  public void loadState(Syntax.StateInfo stateInfo) {
+    super.loadState(stateInfo);
+    int hi = ((IDLStateInfo)stateInfo).hlpPreScan;
+    hlpInd = (hi >= 0) ? (offset - hi) : -1;
   }
 
   /** Initialize scanner in case the state stored in syntax mark
   * is null.
   */
-  protected void loadInitState() {
+  public void loadInitState() {
     super.loadInitState();
     hlpInd = -1;
   }
@@ -1333,7 +1317,7 @@ public class IDLSyntax extends BaseSyntax {
       case IDENTIFIER:
         return TN_IDENTIFIER;
       case METHOD:
-        return TN_METHOD;
+        return TN_FUNCTION;
       case OPERATOR:
         return TN_OPERATOR;
       case LINE_COMMENT:
@@ -1361,34 +1345,13 @@ public class IDLSyntax extends BaseSyntax {
     }
   }
 
-  /** Create array of arrays of chars containing wrong characters */
-  protected char[][] createWrongCharsArray() {
-    return new char[][] {
-      WRONG_NL, // wrong chars for text
-      WRONG_NL, // error
-      WRONG_NL_TAB_SPC, // keyword
-      WRONG_NL_TAB_SPC, // identifier
-      WRONG_NL_TAB_SPC, // method
-      WRONG_NL_TAB_SPC, // operator
-      WRONG_NL, // line comment
-      WRONG_NL, // block comment
-      WRONG_NL, // char
-      WRONG_NL, // string
-      WRONG_NL_TAB_SPC, // int
-      WRONG_NL_TAB_SPC, // hex
-      WRONG_NL_TAB_SPC, // octal
-      WRONG_NL_TAB_SPC, // long
-      WRONG_NL_TAB_SPC // float
-    };
-  }
-
   public String toString() {
     String s = super.toString();
     s += ", hlpInd=" + hlpInd;
     return s;
   }
   
-  class IDLMarkState extends Syntax.MarkState {
+  class IDLStateInfo extends Syntax.BaseStateInfo {
 
     /** Helper prescan for method coloring */
     int hlpPreScan;
@@ -1399,6 +1362,8 @@ public class IDLSyntax extends BaseSyntax {
 
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         12/28/99 Miloslav Metelka Structural change and 
+ *       some renamings
  *  1    Gandalf   1.0         11/9/99  Karel Gardas    
  * $
  */
