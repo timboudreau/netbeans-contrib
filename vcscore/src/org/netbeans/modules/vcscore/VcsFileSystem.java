@@ -1601,6 +1601,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 public void run() {
                     if (versioningSystem == null) return ;
                     VersioningRepository.getRepository().removeVersioningFileSystem(versioningSystem);
+                    versioningSystem = null;
                     try {
                         VcsFileSystem.this.runAtomicAction(new FileSystem.AtomicAction() {
                             public void run() {
@@ -1612,7 +1613,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                     }
                                     versioningFolderListeners = null;
                                 }
-                                versioningSystem = null;
                             }
                         });
                     } catch (IOException exc) {
