@@ -42,6 +42,7 @@ import com.netbeans.developer.modules.vcs.util.Debug;
 public class CommandLineVcsFileSystem extends VcsFileSystem implements java.beans.PropertyChangeListener {
   private Debug D = new Debug ("CommandLineVcsFileSystem", true); // NOI18N
   private /*static transient*/ String CONFIG_ROOT="vcs/config"; // NOI18N
+  private FileObject CONFIG_ROOT_FO;
   private transient Hashtable commandsByName=null;
  
   static final long serialVersionUID =-1017235664394970926L;
@@ -66,14 +67,24 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     CONFIG_ROOT = s;
   }
 
+  public FileObject getConfigRootFO() {
+    return CONFIG_ROOT_FO;
+  }
+  
   protected void readConfiguration () {
     D.deb ("readConfiguration ()"); // NOI18N
     CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
       "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
-    Properties props=VcsConfigVariable.readPredefinedProperties(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
+    CONFIG_ROOT = "vcs"+File.separator+"config"; // NOI18N
+    CONFIG_ROOT_FO = TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot ();
+    CONFIG_ROOT_FO = CONFIG_ROOT_FO.getFileObject("vcs");
+    CONFIG_ROOT_FO = CONFIG_ROOT_FO.getFileObject("config");
+    //Properties props=VcsConfigVariable.readPredefinedPropertiesIO(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
+    Properties props = VcsConfigVariable.readPredefinedProperties(CONFIG_ROOT_FO, "empty.properties"); // NOI18N
     setVariables (VcsConfigVariable.readVariables(props));
     D.deb("setVariables DONE."); // NOI18N
     setAdvancedConfig (getVcsFactory ().getVcsAdvancedCustomizer().readConfig (props));
+    D.deb("readConfiguration() done"); // NOI18N
   }  
 
   public void propertyChange (PropertyChangeEvent evt) {
@@ -98,6 +109,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
 
 /*
  * <<Log>>
+ *  57   Jaga      1.55.1.0    2/24/00  Martin Entlicher Read configuration from 
+ *       filesystem.
  *  56   Gandalf   1.55        2/11/00  Martin Entlicher 
  *  55   Gandalf   1.54        2/10/00  Martin Entlicher Warning of nonexistent 
  *       directories called when mounted.
