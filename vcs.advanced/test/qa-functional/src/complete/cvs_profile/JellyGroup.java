@@ -432,16 +432,25 @@ public class JellyGroup extends JellyTestCase {
     public void dumpTable (JTableOperator table) {
         int height = table.getRowCount();
         int width = table.getColumnCount();
-        getRef ().println("Height: " + height);
-        getRef ().println("Width: " + width);
-        for (int a = 0; a < height; a ++)
+        out.println("Height: " + height);
+        out.println("Width: " + width);
+        String[] strs = new String[height];
+        for (int a = 0; a < height; a ++) {
+            String comp = "";
             for (int b = 0; b < width; b ++) {
+                if (b != 0)
+                    comp += "    ";
                 String str = (table.getValueAt(a, b) != null) ? table.getValueAt(a, b).toString () : "<NULL>";
                 int i = str.indexOf (nRoot);
                 if (i >= 0)
                     str = str.substring (0, i) + "<FS>" + str.substring (i + nRoot.length());
-                out.println ("[" + a + "," + b + "] " + str);
+                comp += str;
             }
+            strs[a] = comp;
+        }
+        java.util.Arrays.sort (strs);
+        for (int a = 0; a < height; a ++)
+            out.println (a + ". - " + strs[a]);
     }
     
     
