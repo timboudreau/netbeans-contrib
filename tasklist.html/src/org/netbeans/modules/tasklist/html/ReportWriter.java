@@ -98,6 +98,21 @@ class ReportWriter extends PrintWriter {
         }
 
         public void println(String msg) {
+            if (msg.startsWith("Error: ")) { // from TidyMessages.properties
+                warning = false;
+                /* Leave Error prefix around: gives more weight to these
+                if (msg.length() == 7) {
+                    return;
+                }
+                msg = msg.substring(7); // Chop off Warning prefix
+                */
+            } else if (msg.startsWith("Warning: ")) { // from TidyMessages.properties
+                warning = true;
+                if (msg.length() == 8) {
+                    return;
+                }
+                msg = msg.substring(8); // Chop off Warning prefix
+            }
             String content;
             if (sb.length() > 0) {
                 sb.append(msg);
