@@ -113,7 +113,7 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="clean" depends="init">
-    <delete>
+    <delete failonerror="true">
       <fileset dir="src">
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
