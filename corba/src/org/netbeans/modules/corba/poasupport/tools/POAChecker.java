@@ -102,6 +102,13 @@ public class POAChecker {
                 return false;
             }
         }
+        if (element instanceof ServantElement && name.equals(((ServantElement)element).getIDVarName())) {
+            if (notify) {
+                String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
+                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+            }
+            return false;
+	}
         return true;
     }
     
@@ -131,6 +138,13 @@ public class POAChecker {
             }
             return false;
         }
+        if (name.equals(element.getVarName())) {
+            if (notify) {
+                String msg = MessageFormat.format(POASupport.getString("MSG_Identifier_Already_Exists"), new Object[] {name});
+                TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+            }
+            return false;
+	}
         return true;
     }
     
@@ -364,6 +378,8 @@ public class POAChecker {
                 else
                     alreadyDisabled = POASettings.SERVANT_WITH_USER_ID;
         }
+        if ((alreadyDisabled != null) && (element.getServants().size() > 0) && (alreadyDisabled.equals(((ServantElement)element.getServants().get(0)).getIDAssignmentMode())))
+            return POASettings.ALL_SERVANTS;
         return (alreadyDisabled != null) ? alreadyDisabled : "" ; // NOI18N
     }
     
