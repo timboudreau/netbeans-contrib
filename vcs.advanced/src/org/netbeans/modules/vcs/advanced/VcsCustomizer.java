@@ -498,12 +498,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private void cmdButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdButtonActionPerformed
         // Add your handling code here:
-        PropertyEditor advancedEditor = CommandLineVcsAdvancedCustomizer.getEditor (fileSystem);
-        JPanel advancedPanel = CommandLineVcsAdvancedCustomizer.getPanel (advancedEditor);
+        UserCommandsEditor commandsEditor = new UserCommandsEditor();
+        commandsEditor.setValue(fileSystem.getCommands());
+        UserCommandsPanel advancedPanel = new UserCommandsPanel(commandsEditor);
         DialogDescriptor dd = new DialogDescriptor (advancedPanel, org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("TIT_CommandsEditor"));//, "Advanced Properties Editor");
-        TopManager.getDefault ().createDialog (dd).show ();
+        TopManager.getDefault ().createDialog (dd).setVisible(true);
+        commandsEditor.setValue(advancedPanel.getPropertyValue());
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
-            fileSystem.setCommands ((Node) advancedEditor.getValue ());
+            fileSystem.setCommands ((Node) commandsEditor.getValue ());
         }
     }//GEN-LAST:event_cmdButtonActionPerformed
 
@@ -513,13 +515,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         variableEditor.setValue( fileSystem.getVariables() );
         UserVariablesPanel variablePanel = new UserVariablesPanel (variableEditor);
 
-        //Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        //screenSize.setSize((int) (screenSize.width*ADVANCED_DLG_WIDTH_RELATIVE),
-        //                   variablePanel.getPreferredSize().height+advancedPanel.getPreferredSize().height+16);
-        //panel.setPreferredSize(screenSize);
-
         DialogDescriptor dd = new DialogDescriptor (variablePanel, org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("TIT_VariablesEditor"));//, "Advanced Properties Editor");
-        TopManager.getDefault ().createDialog (dd).show ();
+        TopManager.getDefault ().createDialog (dd).setVisible(true);
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
             fileSystem.setVariables ((Vector) variableEditor.getValue ());
         }
