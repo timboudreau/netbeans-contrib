@@ -24,8 +24,6 @@ import org.openide.util.NbBundle;
 /**
  * This class represents the tasklist itself
  * <p>
- * @todo Create a getTasks() method so I don't have to have all
- *       that silly tasklist.getRoot().getSubtasks() code around...
  *
  * @author Tor Norbye
  */
@@ -129,10 +127,6 @@ public class TaskList { // XXX remove the publicness
 		Task task = (Task)it.next();
 		if (!task.isTemporary()) {
 		    modified = true;
-		}
-
-		if (task.getParent() == null) {
-		    task.setParent(parent);
 		}
             }
 
@@ -421,5 +415,10 @@ public class TaskList { // XXX remove the publicness
             return cache.readXML(input);
         }
         return null;
+    }
+
+    /** Return the list of tasks in this tasklist */
+    public List getTasks() {
+        return getRoot().getSubtasks();
     }
 }

@@ -39,6 +39,7 @@ import org.openide.nodes.Sheet;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.Node;
+import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.HelpCtx;
@@ -55,7 +56,7 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
 
     // Leaf
     public TaskNode(Task item) {
-        super(org.openide.nodes.Children.LEAF);
+        super(Children.LEAF);
         init(item);
     } 
 
@@ -120,7 +121,23 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
 	}
     }
 
+    public Image getOpenedIcon(int type) {
+	if (item.getIcon() != null) {
+	    return item.getIcon();
+	} else {
+	    return super.getOpenedIcon(type);
+	}
+    }
+    
     public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName() == Task.PROP_CHILDREN_CHANGED) {
+            // Special case -- we've made a leaf into one containing children!
+            Children c = getChildren();
+            if ((c == Children.LEAF) && (item.hasSubtasks())) {
+                // XXX This seems to get called more frequently than is necessary!
+                setChildren(new TaskChildren(item));
+            }
+        }
         // Some aspects of the module may have changed. Redisplay everything.
         updateDisplayStuff();
         firePropertyChange(null, null, null);

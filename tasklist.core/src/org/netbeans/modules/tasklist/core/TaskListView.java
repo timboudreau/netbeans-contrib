@@ -210,6 +210,11 @@ public abstract class TaskListView extends ExplorerPanel
     protected void componentClosed() {
 	hideList();
 
+        // Remove any task markers we've added to the editor
+        if (unshowItem != null) {
+            removedTask(unshowItem);
+        }
+        
 	// Unregister listeners
 	unregisterListeners();
     }
@@ -1039,14 +1044,15 @@ public abstract class TaskListView extends ExplorerPanel
     
     /** Set the filter to be used in this view.
      * @param filter The filter to be set, or null, to remove filtering.
+     * @param showStatusBar When true, show a status bar with a remove button etc.
      */
-    public void setFilter(Filter filter) {
+    public void setFilter(Filter filter, boolean showStatusBar) {
         this.filter = filter;
         try {
             getExplorerManager().setSelectedNodes(new Node[0]);
         } catch (PropertyVetoException e) {
         }
-        if (filter != null) {
+        if (showStatusBar && (filter != null)) {
             addFilterPanel();
             //expandAll(); // [PENDING] Make this optional?
         } else {
@@ -1104,7 +1110,7 @@ public abstract class TaskListView extends ExplorerPanel
      */
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource() == removeFilterButton) {
-            setFilter(null);
+            setFilter(null, false);
             /*
         } else {
             super.actionPerformed(evt);

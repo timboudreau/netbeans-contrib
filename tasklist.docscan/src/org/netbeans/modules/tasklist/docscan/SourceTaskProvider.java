@@ -232,6 +232,25 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
             showingTasks = new ArrayList(defSize);
         }
 
+        if (manager.isEnabled(COMMENTTYPE)) {
+            scanner.scan(doc, dobj, false, false);
+
+            SuggestionPerformer action = new LineSuggestionPerformer();
+            ListIterator it = tasklist.getTasks().listIterator();
+            while (it.hasNext()) {
+                DocTask subtask = (DocTask)it.next();
+                String summary = subtask.getSummary();
+                Suggestion s = manager.createSuggestion(COMMENTTYPE,
+                                                        summary,
+                                                        action);
+                s.setLine(subtask.getLine());
+                s.setPriority(SuggestionPriority.NORMAL);
+                showingTasks.add(s);
+            }
+            manager.add(showingTasks);
+        }
+        
+        
         if (manager.isEnabled(COPYRIGHTTYPE)) {
             DocTask copyright = scanner.checkCopyright(doc, dobj);
             if (copyright != null) {
@@ -243,27 +262,10 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
                 s.setLine(copyright.getLine());
                 s.setPriority(SuggestionPriority.NORMAL);
                 showingTasks.add(s);
+                manager.add(s);
             }
         }
         
-        if (manager.isEnabled(COMMENTTYPE)) {
-            scanner.scan(doc, dobj, false, false);
-
-            SuggestionPerformer action = new LineSuggestionPerformer();
-            ListIterator it = tasklist.getRoot().getSubtasks().listIterator();
-            while (it.hasNext()) {
-                DocTask subtask = (DocTask)it.next();
-                String summary = subtask.getSummary();
-                Suggestion s = manager.createSuggestion(COMMENTTYPE,
-                                                        summary,
-                                                        action);
-                s.setLine(subtask.getLine());
-                s.setPriority(SuggestionPriority.NORMAL);
-                showingTasks.add(s);
-            }
-        }
-        
-        manager.add(showingTasks);
     }
 
     

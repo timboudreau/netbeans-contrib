@@ -23,7 +23,15 @@ import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.Writer;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.Reader;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +42,13 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import org.openide.xml.XMLUtil;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 import org.openide.util.Lookup;
 import org.openide.TopManager;
@@ -88,8 +103,6 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         // "Sanitize" the summary: replace newlines with ':'
         // " " or ":" (let's pick one).
         // (Oh crap. What do we do about CRLF's? Replace with ": " ?
-        // For now let's replace \n with ' ', \r with ':' such that
-        // we can do an inplace replacement of the string.
         // This won't work right for \r-only systems, but surely OSX didn't
         // keep that bad MacOS habit, did it? XXX
         if (summary.indexOf('\n') != -1) {
@@ -131,14 +144,21 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      * hardware and access-APIs.)
      * <p>
      *
+     * @param id The String id of the Suggestion Type we're
+     *    interested in. You may pass null to ask about any/all
+     *    Suggestion Types. See the {@link Suggestion} documentation
+          for how Suggestion Types are registered and named.
+     *
      * @return True iff the suggestions are observed by the user.
      */
-    public boolean isObserved() {
+    public boolean isObserved(String id) {
 	TaskListView view = 
 	    TaskListView.getTaskListView(SuggestionsView.CATEGORY); // NOI18N
         if (view == null) {
             return false;
         }
+        // TODO: Check if there are filters on the view, and if so,
+        // return something appropriate.
         return view.isShowing();
     }
 
@@ -165,9 +185,25 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      */
     public void add(Suggestion suggestion) {
         // TODO check instanceof Task here, and throw an exception if not?
-        getList().add((Task)suggestion, false, false);
+        SuggestionImpl s = null;
+        try {
+            s = (
+                 SuggestionImpl)suggestion;
+        } catch (ClassCastException e) {
+            TopManager.getDefault().getErrorManager().notify(
+                                         ErrorManager.ERROR, e);
+            return;
+        }
+
+        SuggestionType type = s.getSType();
+        SuggestionImpl category = getCategoryTask(type);
+        s.setParent(category);
+        getList().add(s, false, false);
+        updateCategoryCount(category); // TODO: skip this when filtered
     }
 
+
+    
     /**
      * Same as {@link add(Suggestion)}, but register a set of suggestions
      * in one operation. Useful when you for example want to preserve
@@ -175,12 +211,68 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      * them one by one means the Suggestion Manager gets to order them
      * (so for example, if it prepends each item your suggestions end up
      * in the reverse order of the order you registered them.)
+     * <p>
+     * NOTE: All Suggestions should have the same SuggestionType.
      */
     public void add(List suggestions) {
+        if (suggestions.size() == 0) {
+            return;
+        }
         // TODO check instanceof Task here, and throw an exception if not?
-        getList().addRemove(suggestions, null, false, null);
+
+        // Get the first element, and use its type as the type for all.
+        // This works because all elements in the list must have the same
+        // (meta?) type.
+        SuggestionType type = null;
+        try {
+            SuggestionImpl s = (SuggestionImpl)suggestions.get(0);
+            type = s.getSType();
+        } catch (ClassCastException e) {
+            TopManager.getDefault().getErrorManager().notify(
+                                         ErrorManager.ERROR, e);
+            return;
+        }
+
+        SuggestionImpl category = getCategoryTask(type);
+        // XXX Do I need to set the parent field on each item?
+        getList().addRemove(suggestions, null, false, category);
+        updateCategoryCount(category); // TODO: skip this when filtered
     }
 
+    private SuggestionImpl getCategoryTask(SuggestionType type) {
+        SuggestionImpl category = null;
+        if (categoryTasks != null) {
+            category = (SuggestionImpl)categoryTasks.get(type);
+        }
+        if (category == null) {
+            category = new SuggestionImpl();
+
+            category.setSummary(type.getLocalizedName());
+            category.setAction(null);
+            category.setType(type.getName());
+            category.setSType(type);
+            category.setIcon(type.getIconImage());
+            if (categoryTasks == null) {
+                categoryTasks = new HashMap(20);
+            }
+            categoryTasks.put(type, category);
+            getList().add(category, false, false);
+        }
+        return category;
+    }
+    private HashMap categoryTasks = null;
+
+    private void updateCategoryCount(SuggestionImpl category) {
+        SuggestionType type = category.getSType();
+        int count = category.hasSubtasks() ?
+            category.getSubtasks().size() : 0;
+        String summary = type.getLocalizedName() + " (" + // NOI18N
+            Integer.toString(count) + ")"; // NOI18N
+        category.setSummary(summary);
+    }
+
+
+    
     /**
      * Remove a suggestion from the list of suggestions.
      * Suggestions are automatically removed after they have been "performed",
@@ -194,9 +286,39 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      */
     public void remove(Suggestion suggestion) {
         // TODO check instanceof Task here, and throw an exception if not?
-        getList().remove((Task)suggestion);
+        //getList().remove((Task)suggestion);
+
+        SuggestionImpl s = null;
+        try {
+            s = (SuggestionImpl)suggestion;
+        } catch (ClassCastException e) {
+            TopManager.getDefault().getErrorManager().notify(
+                                         ErrorManager.ERROR, e);
+            return;
+        }
+
+        getList().remove(s);
+
+        
+        // Leave category task around? Or simply make it invisible?
+        // (Need new Task attribute and appropriate handling in filter
+        // and export methods.)    By leaving it around, we don't reorder
+        // the tasks on the user.
+        //removeCategory(s);
+
+        SuggestionType type = s.getSType();
+        SuggestionImpl category = getCategoryTask(type);
+        updateCategoryCount(category); // TODO: skip this when filtered
     }
 
+    private void removeCategory(SuggestionImpl s) {
+        SuggestionImpl category = (SuggestionImpl)s.getParent();
+        if ((category != null) && !category.hasSubtasks()) {
+            getList().remove(category);
+            categoryTasks.remove(category.getSType());
+        }
+    }
+    
     /**
      * Same as {@link remove(Suggestion)}, but unregister a set of
      * suggestions one operation. In addition to being a convenience
@@ -206,8 +328,23 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      * once at the end of the removal, instead of after every removal.
      */
     public void remove(List suggestions) {
+        if (suggestions.size() == 0) {
+            return;
+        }
+
         // TODO check instanceof Task here, and throw an exception if not?
         getList().addRemove(null, suggestions, false, null);
+
+        // Leave category task around? Or simply make it invisible?
+        // (Need new Task attribute and appropriate handling in filter
+        // and export methods.)    By leaving it around, we don't reorder
+        // the tasks on the user.
+        //removeCategory((SuggestionImpl)suggestions.get(0));
+
+        SuggestionType type = ((SuggestionImpl)(suggestions.get(0))).getSType();
+        SuggestionImpl category = getCategoryTask(type);
+        updateCategoryCount(category); // TODO: skip this when filtered
+
     }
 
 
@@ -337,6 +474,20 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         return list;
     }
 
+    private File getRegistryFile(boolean create) {
+        String loc = System.getProperty("netbeans.user") + // NOI18N
+            File.separatorChar + "system" + File.separatorChar + "TaskList" + //NOI18N
+            File.separatorChar + "suggestiontype-registry.xml"; // NOI18N
+        File file = new File(loc);
+        if (create) {
+            if (!file.exists()) {
+                File parent = file.getParentFile();
+                parent.mkdirs();
+            }
+        }
+        return file;
+    }
+    
     /**
      * Return true iff the type of suggestion indicated by the
      * id argument is enabled. By default, all suggestion types
@@ -352,27 +503,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      */
     public boolean isEnabled(String id) {
         if (disabled == null) {
-            /* TODO -- write custom XML code here
-
-            // Read disabled-state map from disk
-            File file = new File(LOCATION);
-            if (file.exists()) {
-                try {
-                    InputStream input = new BufferedInputStream(
-                                           new FileInputStream(file));
-                    java.beans.XMLDecoder d = new java.beans.XMLDecoder(input);
-                    Object result = d.readObject();
-                    d.close();
-                    if (result instanceof Set) {
-                        disabled = (Set)result;
-                    }
-                } catch (Exception e) {
-                    TopManager.getDefault().getErrorManager().notify(
-                                          ErrorManager.INFORMATIONAL, e);
-                }
-            }
-            */
-            
+            readTypeRegistry();
             if (disabled == null) {
                 disabled = new HashSet(40);
             }
@@ -418,7 +549,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             notifyRun(provider);
         } else {
             // Remove suggestions of this type
-            List tasks = getList().getRoot().getSubtasks();
+            List tasks = getList().getTasks();
             Iterator ti = tasks.iterator();
             ArrayList removeTasks = new ArrayList(50);
             while (ti.hasNext()) {
@@ -430,20 +561,8 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             remove(removeTasks);
         }
 
-        System.out.println("SuggestionManagerImpl: TODO - store enabled state.");
-        /* TODO -- write custom XML code here
-        // Persist the map
-	try {
-            OutputStream output =  new java.io.BufferedOutputStream(
-                                         new java.io.FileOutputStream(LOCATION));
- 	    java.beans.XMLEncoder e = new java.beans.XMLEncoder(output);
-	    e.writeObject(disabled);
-	    e.close();
-        } catch (Exception e) {
-            TopManager.getDefault().getErrorManager().notify(
-                                           ErrorManager.INFORMATIONAL, e);
-        }
-        */
+        writeTypeRegistry();
+        
     }
 
     Set getDisabledTypes() {
@@ -451,10 +570,6 @@ final public class SuggestionManagerImpl extends SuggestionManager {
     }
 
     
-    // XXX need better location!
-    final private static String LOCATION = "/tmp/suggestions-disabled.xml";
-
-
     /** Notify the SuggestionManager that a particular category filter
      * is in place.
      *
@@ -464,6 +579,36 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      *     null if the view should not be filtered (e.g. show all)
      */
     void notifyFiltered(SuggestionType type) {
+
+        // "Flatten" the list when I'm filtering so that I don't show
+        // category nodes!
+        if (type != null) {
+            getList().clear();
+        
+            if (categoryTasks != null) {
+                Collection values = categoryTasks.values();
+                Iterator it = values.iterator();
+                ArrayList list = new ArrayList(200);
+                while (it.hasNext()) {
+                    SuggestionImpl s = (SuggestionImpl)it.next();
+                    list.addAll(s.getSubtasks());
+                }
+                getList().addRemove(list, null, false, null);
+            }
+        } else {
+            // "Merge" the list when I'm going to no-filter
+            categoryTasks = null; // recreate such that they get reinserted etc.
+            List oldList = getList().getTasks();
+            List suggestions = new ArrayList(oldList.size());
+            suggestions.addAll(oldList);
+            getList().clear();
+            Iterator it = suggestions.iterator();
+            while (it.hasNext()) {
+                SuggestionImpl s = (SuggestionImpl)it.next();
+                add(s);
+            }
+        }
+        
         /** TODO Get this working; it's currently a bit broken so commented
             out
 
@@ -528,5 +673,122 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             }
         }
         return (SuggestionProvider)providersByType.get(type);
+    }
+
+
+
+
+
+    private static class TypeXMLHandler extends DefaultHandler {
+        private boolean parsingDisabled = false;
+        private Set disabled = null;
+
+        
+        TypeXMLHandler() {
+        }
+
+        public Set getDisabled() {
+            return disabled;
+        }
+		
+        public void startDocument() {
+        }
+
+        public void endDocument() {
+        }
+
+        public void startElement(String uri, String localName,
+                                 String name, Attributes attrs)
+            throws SAXException {
+            //System.out.println("startElement(" + name + ")");
+            if (name.equals("type")) { // NOI18N
+                if (parsingDisabled) {
+                    String type = (String)attrs.getValue("id"); // NOI18N
+                    if (disabled == null) {
+                        disabled = new HashSet(50);
+                    }
+                    disabled.add(type);
+                }
+            } else if (name.equals("disabled")) { // NOI18N
+                parsingDisabled = true;
+            }
+        }
+            
+        public void endElement(String uri, String localName, String name) throws SAXException {
+            if (name.equals("disabled")) { // NOI18N
+                parsingDisabled = false;
+            }
+
+        }
+        
+        /** No validation - don't read the DTD. Assume importers won't
+            require external entities. */
+        public InputSource resolveEntity(String pubid, String sysid) {
+            return new InputSource(new ByteArrayInputStream(new byte[0]));
+        }
+    }
+
+    /** Read in the SuggestionType registry preferences.
+     * @return True iff the registry was completely initialized without error
+     */
+    private boolean readTypeRegistry() {
+        File file = getRegistryFile(false);
+        if (file.exists()) {
+            try {
+                Reader fileReader = new BufferedReader(new FileReader(file));
+                try {
+                    XMLReader reader = XMLUtil.createXMLReader(false);
+                    
+                    TypeXMLHandler handler = new TypeXMLHandler();
+                    reader.setContentHandler(handler);
+                    reader.setErrorHandler(handler);
+                    reader.setEntityResolver(handler);
+                    reader.parse(new InputSource(fileReader));
+                    disabled = handler.getDisabled();
+                    return true;
+                } catch (SAXException e) {
+                    TopManager.getDefault().getErrorManager().notify(
+                                               ErrorManager.INFORMATIONAL, e);
+                }
+                fileReader.close();
+            } catch (Exception e) {
+                TopManager.getDefault().getErrorManager().notify(
+                                               ErrorManager.INFORMATIONAL, e);
+            }
+        }
+        return false;
+    }
+
+    /** Write out the SuggestionType registry preferences.
+     * @return True iff the registry was completely written out without error
+     */
+    private boolean writeTypeRegistry()  {
+        File file = getRegistryFile(true);
+	try {
+            Writer writer = new BufferedWriter(new FileWriter(file));
+            writer.write("<?xml version=\"1.0\"?>\n"); // NOI18N
+            writer.write("<!DOCTYPE suggestionregistry PUBLIC '-//NetBeans//DTD suggestion registry 1.0//EN' 'http://www.netbeans.org/dtds/suggestion-registry-1_0.dtd'>\n"); // NOI18N
+            writer.write("<typeregistry>\n"); // NOI18N
+            writer.write("  <disabled>\n"); // NOI18N
+            Iterator it = disabled.iterator();
+            while (it.hasNext()) {
+                String typeName = (String)it.next();
+                writer.write("    <type id=\""); // NOI18N
+                writer.write(typeName);
+                writer.write("\"/>\n"); // NOI18N
+            }
+            writer.write("  </disabled>\n"); // NOI18N
+            /* TODO
+               writer.write("  <noconfirm>\n"); // NOI18N
+               writer.write("  </noconfirm>\n"); // NOI18N
+            */
+            writer.write("</typeregistry>\n"); // NOI18N
+            writer.close();
+            return true;
+        } catch (Exception e) {
+            TopManager.getDefault().getErrorManager().notify(
+                                           ErrorManager.INFORMATIONAL, e);
+        }
+        return false;
     }
 }

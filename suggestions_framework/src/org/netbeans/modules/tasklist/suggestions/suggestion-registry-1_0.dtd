@@ -1,0 +1,13 @@
+<!--
+-//NetBeans//DTD suggestion registry 1.0//EN
+http://www.netbeans.org/dtds/suggestion-registry-1_0.dtd
+Document type declaration for Suggestion Manager Registry.
+-->
+
+<!ELEMENT typeregistry (disabled?,noconfirm?)>
+<!ELEMENT disabled (type?)>
+<!ELEMENT noconfirm (type?)>
+<!ELEMENT type EMPTY>
+<!ATTLIST type 
+	id CDATA #REQUIRED>
+

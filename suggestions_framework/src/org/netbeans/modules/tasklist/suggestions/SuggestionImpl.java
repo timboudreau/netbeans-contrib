@@ -91,7 +91,7 @@ final public class SuggestionImpl extends Task {
      * Use generate() instead.
      * @return summary string */    
     public String toString() {
-        return "SuggestionImpl(" + super.toString() + ")[\"" + getSummary() + "\", " + filename + ":" + linenumber + "]"; // NOI18N
+        return "SuggestionImpl(" + super.toString() + ")[\"" + getSummary() + "\", " + filename + ":" + linenumber + ", " + stype + "]"; // NOI18N
     }
 
     /** Create a node for this item */

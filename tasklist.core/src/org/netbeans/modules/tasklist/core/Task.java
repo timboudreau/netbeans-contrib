@@ -177,6 +177,7 @@ public class Task extends Suggestion implements Cloneable {
      * this subtask directly AFTER the specified
      * task) */    
     public void addSubtask(Task subtask, Task after) {
+        subtask.parent = this;
         if (subtasks == null) {
             // Internal error - shouldn't call this unless you already have a subtask "after")
             TopManager.getDefault().getErrorManager().log("addSubtask(subtask,after) called where subtasks==null"); // NOI18N
@@ -194,11 +195,61 @@ public class Task extends Suggestion implements Cloneable {
     * @param subtasks The tasks to add
     * @param append When true, append to the list, otherwise prepend
     */
+    public void addSubtasks(List tasks, boolean append) {
+	ListIterator it = tasks.listIterator();
+	while (it.hasNext()) {
+	    Task task = (Task)it.next();
+	    task.list = list;
+            task.parent = this;
+	}
+
+	if (subtasks == null) {
+            subtasks = new LinkedList();
+        }
+        if (append) {
+            subtasks.addAll(tasks);
+        } else {
+            subtasks.addAll(0, tasks);
+        }
+        updatedStructure();
+    }
+    
+   /** Add a subtask to this task.
+    * @param append When true, add to the end of the list of subtasks instead
+    *  of the beginning.
+    */
+    public void addSubtask(Task subtask, boolean append) {
+	subtask.list = list;
+        subtask.parent = this;
+        if (subtasks == null) {
+            subtasks = new LinkedList();
+        }
+        if (append) {
+            subtasks.addLast(subtask);
+        } else {
+            subtasks.addFirst(subtask);
+        }
+        updatedStructure();
+    }
+    
+
+   /** Add a list of subtasks to this task. 
+    * @param subtasks The tasks to add
+    * @param append When true, append to the list, otherwise prepend
+    */
+    /* OLD implementation which used a "hack" to be able to render
+       nodes as leaf nodes, even though they can later become non-leaf
+       when subtasks are added. I did this by recreating the parent node.
+       That has some unfortunate side effects (like collapsing the parent
+       node) which became a problem elsewhere; but luckily there's a new
+       API in NB 4.0 I can take advantage of to fix this. But keep this code
+       around so I can get 3.4 limping along as well in the release34 branch.
     public void addSubtasks(List tasks, boolean append) { // XXX remove publicness
 	ListIterator it = tasks.listIterator();
 	while (it.hasNext()) {
 	    Task task = (Task)it.next();
 	    task.list = list;
+            task.parent = this;
 	}
 
 	if (subtasks == null) {
@@ -261,12 +312,21 @@ public class Task extends Suggestion implements Cloneable {
             }
 	}
     }
+    */
     
    /** Convert a particular node from being a leaf to being
      * a container node.  The only way to do that now is to
      * delete the item, and recreate it */
+    /* OLD implementation which used a "hack" to be able to render
+       nodes as leaf nodes, even though they can later become non-leaf
+       when subtasks are added. I did this by recreating the parent node.
+       That has some unfortunate side effects (like collapsing the parent
+       node) which became a problem elsewhere; but luckily there's a new
+       API in NB 4.0 I can take advantage of to fix this. But keep this code
+       around so I can get 3.4 limping along as well in the release34 branch.
     public void addSubtask(Task subtask, boolean append) { // XXX remove publicness
 	subtask.list = list;
+        subtask.parent = this;
         if (subtasks != null) {
             // Parent already has subtasks - just do a normal add
             if (append) {
@@ -323,7 +383,8 @@ public class Task extends Suggestion implements Cloneable {
             }
         }
     }
-    
+    */    
+
     /** Remove a particular subtask
      * @param subtask The subtask to be removed */    
     public void removeSubtask(Task subtask) {
@@ -336,7 +397,6 @@ public class Task extends Suggestion implements Cloneable {
             subtasks = null;
         }
         if (!silentUpdate && !subtask.silentUpdate) {
-            supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
             updatedStructure();
         }
     }
@@ -357,7 +417,6 @@ public class Task extends Suggestion implements Cloneable {
             subtasks = null;
         }
         if (!silentUpdate && !item.silentUpdate) {
-            supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
             updatedStructure();
         }
     }
@@ -376,7 +435,7 @@ public class Task extends Suggestion implements Cloneable {
         this.parent = parent;
         // Should we broadcast this change??? Probably not, it's always
         // manipulated as part of add/deletion operations which are tracked
-        // elsewhere (see addSupTask for example)
+        // elsewhere (see addSubTask for example)
         // if (!silentUpdate) {
         //     supp.firePropertyChange(PROP_CHILDREN_CHANGED, null, null);
         // }
@@ -490,7 +549,8 @@ public class Task extends Suggestion implements Cloneable {
     
     /** Create a node for this item */
     protected Node[] createNode() {
-        if (hasSubtasks()) {
+        //if (hasSubtasks()) {
+        if (subtasks != null) {  // Want to make root a non-leaf; empty list, not null
             return new Node[] { new TaskNode(this, getSubtasks())};
         } else {
             return new Node[] { new TaskNode(this)};

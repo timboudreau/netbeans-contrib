@@ -30,7 +30,7 @@ as follows:
       to add is welcome by the user:
    <pre>
       if (manager.isEnabled(suggestionTypeId) &&
-          manager.isObserved()) {
+          manager.isObserved(suggestionTypeId)) {
    </pre>
    <p>
  <li> Create a new {@link org.netbeans.api.tasklist.Suggestion}:
@@ -99,7 +99,7 @@ So here's what a complete code segment might look like:
   String suggestionType = "beepid";
   SuggestionManager mgr = SuggestionManager.getDefault();
   if ((mgr != null) && mgr.isEnabled(suggestionType) &&
-      mgr.isObserved()) {
+      mgr.isObserved(suggestionType)) {
      String summary = "Ring the system bell to annoy others";
      SuggestionPerformer performer = new SuggestionPerformer() {
         public void perform(Suggestion s) {
