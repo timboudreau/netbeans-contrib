@@ -40,51 +40,7 @@ import java.util.*;
  */
 public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
 
-    // TODO: replace this garbage with dynamic metric loading... (tball)
-    private Metric[] metrics = {
-        new WMCMetric(this),
-        new CBOMetric(this),
-        new RFCMetric(this),
-        new MPCMetric(this),
-        new DITMetric(this),
-        new NOCMetric(this),
-        new NTMetric(this)
-    };
-    private static Class[] metricClasses = {
-        WMCMetric.class,
-        CBOMetric.class,
-        RFCMetric.class,
-        MPCMetric.class,
-        DITMetric.class,
-        NOCMetric.class,
-        NTMetric.class
-    };
-    static final int MAX_METRICS = 7;
-
-    static String[] columnTitles = new String[MAX_METRICS + 1];
-    static {
-        columnTitles[0] = MetricsNode.bundle.getString("STR_ClassName");
-        columnTitles[1] = WMCMetric.displayName;
-        columnTitles[2] = CBOMetric.displayName;
-        columnTitles[3] = RFCMetric.displayName;
-        columnTitles[4] = MPCMetric.displayName;
-        columnTitles[5] = DITMetric.displayName;
-        columnTitles[6] = NOCMetric.displayName;
-        columnTitles[7] = NTMetric.displayName;
-    };
-    
-    static String[] columnToolTips = new String[MAX_METRICS + 1];
-    static {
-        columnToolTips[0] = MetricsNode.bundle.getString("STR_ClassName");
-        columnToolTips[1] = WMCMetric.shortDescription;
-        columnToolTips[2] = CBOMetric.shortDescription;
-        columnToolTips[3] = RFCMetric.shortDescription;
-        columnToolTips[4] = MPCMetric.shortDescription;
-        columnToolTips[5] = DITMetric.shortDescription;
-        columnToolTips[6] = NOCMetric.shortDescription;
-        columnToolTips[7] = NTMetric.shortDescription;
-    };
-    
+    Metric[] metrics;
     ClassName className;
     ClassFile classFile;
     ClassMetrics parent;
@@ -195,6 +151,7 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
     /** Creates new ClassMetrics */
     private ClassMetrics(ClassName name) {
 	className = name;
+	metrics = MetricsLoader.createMetricsSet(this);
     }
 
     private InputStream lookupClass() throws IOException {
@@ -327,10 +284,6 @@ public class ClassMetrics extends FileChangeAdapter implements NodeHandler {
     
     public Metric[] getMetrics() {
         return metrics;
-    }
-
-    public static Class[] getMetricClasses() {
-	return metricClasses;
     }
 
     Metric getMetric(int index) {

@@ -14,6 +14,8 @@
 package org.netbeans.modules.metrics.options;
 
 import org.netbeans.modules.metrics.ClassMetrics;
+import org.netbeans.modules.metrics.Metric;
+import org.netbeans.modules.metrics.MetricsLoader;
 
 import java.lang.reflect.*;
 import org.openide.options.*;
@@ -28,29 +30,18 @@ public class MetricsContextOption extends ContextSystemOption {
 
     /** Creates new MetricsContextOption */
     public MetricsContextOption() {
-    	// Add metrics children.  Introspection is used because
-	// Java doesn't support metaclasses.
-	Class[] metricClasses = ClassMetrics.getMetricClasses();
-	Class[] noParamCls = new Class[0];
-	Class[] oneParamCls = new Class[] {
-	    ClassMetrics.class
-	};
-	Object[] noParams = new Object[0];
-	Object[] nullParam = new Object[1];
+    	// A null ClassMetrics object is used to avoid classfile
+	// loading or node creation, since this metrics set is
+	// only used for introspection.
+	Metric[] metrics = MetricsLoader.createMetricsSet(null);
 	MetricsContextOption mco = getDefault();
-	for (int i = 0; i < metricClasses.length; i++) {
-	    Class cls = metricClasses[i];
+	for (int i = 0; i < metrics.length; i++) {
+	    Class cls = metrics[i].getClass();
 	    try {
-		/* Create an instance of each metric and get its
-                 * associated SystemOption singleton.  By passing
-                 * in a null constructor parameter, all classfile
-                 * loading and metrics calcucation is avoided 
-                 * (which would slow down node creation).
-                 */
-		Constructor c = cls.getConstructor(oneParamCls);
-		Object metric = c.newInstance(nullParam);
-		Method m = cls.getMethod("getSettings", noParamCls);
-		SystemOption option = (SystemOption)m.invoke(metric, noParams);
+		// Get each metric's associated SystemOption singleton.  
+		Method m = cls.getMethod("getSettings", new Class[0]);
+		SystemOption option = 
+		    (SystemOption)m.invoke(metrics[i], new Object[0]);
 		mco.addOption(option);
 	    } catch (Exception e) {
 		System.err.println("couldn't add metrics option: " + 

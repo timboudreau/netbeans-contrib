@@ -123,7 +123,7 @@ class ApprovalsFile {
 
     private static HashMap metricClasses = new HashMap();
     static {
-	Class[] classes = ClassMetrics.getMetricClasses();
+	Class[] classes = MetricsLoader.getMetricClasses();
 	for (int i = 0; i < classes.length; i++) {
 	    Class cls = classes[i];
 	    metricClasses.put(cls.getName(), cls);

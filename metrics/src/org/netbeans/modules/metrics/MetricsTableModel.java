@@ -72,11 +72,12 @@ public class MetricsTableModel extends AbstractTableModel
         ClassMetrics cm = entries[nRow];
         if (nCol == 0)
             return cm.getName();
-        else if (nCol <= ClassMetrics.MAX_METRICS)
+        else if (nCol <= maxMetrics)
             return cm.getMetric(nCol - 1);
         else
             return "MetricTableModel.getValueAt is broken";
     }
+    private static int maxMetrics = MetricsLoader.getNumberOfMetricClasses();
 
     // By default forward all events to all the listeners. 
     public void tableChanged(TableModelEvent e) {

@@ -50,13 +50,15 @@ class MetricsPane extends JDialog {
         table.setAutoCreateColumnsFromModel(false);
 
         model = new MetricsTableModel(metricsList);
-        model.setColumnTitles(ClassMetrics.columnTitles);
+        model.setColumnTitles(getColumnTitles());
         TableSorter sorter = new TableSorter(model);
 
         // Install a mouse listener in the TableHeader as the sorter UI.
         sorter.addMouseListenerToHeaderInTable(table);
 
         table.setModel(sorter);
+
+	String[] tooltips = getColumnToolTips();
 
         // Add classname column first.
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
@@ -65,13 +67,12 @@ class MetricsPane extends JDialog {
             new TableColumn(0, NAME_COL_WIDTH, renderer, null);
         table.addColumn(column);
 
-        for (int i = 0; i < ClassMetrics.MAX_METRICS; i++) {
+        for (int i = 1; i < tooltips.length; i++) {
             renderer = new DefaultTableCellRenderer();
             renderer.setHorizontalAlignment(JLabel.RIGHT);
             MetricDetailsInvoker detailsInvoker = new MetricDetailsInvoker();
-            column = new TableColumn(i + 1, METRIC_COL_WIDTH, renderer, detailsInvoker);
-	    column.setHeaderRenderer(
-		createHeaderRenderer(ClassMetrics.columnToolTips[i + 1]));
+            column = new TableColumn(i, METRIC_COL_WIDTH, renderer, detailsInvoker);
+	    column.setHeaderRenderer(createHeaderRenderer(tooltips[i]));
             table.addColumn(column);
         }
 
@@ -106,4 +107,34 @@ class MetricsPane extends JDialog {
 	label.setToolTipText(tooltip);
 	return label;
     }
+
+    private static String[] columnTitles;
+    private static String[] getColumnTitles() {
+	if (columnTitles == null)
+	    initTitlesAndToolTips();
+	return columnTitles;
+    }
+
+    private static String[] columnToolTips;
+    private static String[] getColumnToolTips() {
+	if (columnToolTips == null)
+	    initTitlesAndToolTips();
+	return columnToolTips;
+    }
+
+    private static void initTitlesAndToolTips() {
+	Metric[] metrics = MetricsLoader.createMetricsSet(null);
+	int n = metrics.length;
+
+	columnTitles = new String[n + 1];
+	columnToolTips = new String[n + 1];
+	String clsName = MetricsNode.bundle.getString("STR_ClassName");
+        columnTitles[0] = clsName;
+        columnToolTips[0] = clsName;
+
+	for (int i = 0; i < n; i++) {
+	    columnTitles[i + 1] = metrics[i].getDisplayName();
+	    columnToolTips[i + 1] = metrics[i].getShortDescription();
+	}
+    }    
 }
