@@ -32,6 +32,7 @@ import org.openide.filesystems.FileStatusEvent;
 import org.openide.filesystems.FileStatusListener;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 
 import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
@@ -199,40 +200,48 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
      * @param path the directory path
      * @param recursivey whether to refresh recursively
      */
-    public void statusChanged (String path, boolean recursively) {
-        //D.deb("statusChanged("+path+")"); // NOI18N
-        FileObject fo = findResource(path);
-        if (fo == null) return;
-        //D.deb("I have root = "+fo.getName()); // NOI18N
-        //Enumeration enum = existingFileObjects(fo);
-        //D.deb("I have root = "+fo.getName()); // NOI18N
-        Enumeration enum = fo.getChildren(recursively);
-        HashSet hs = new HashSet();
-        while(enum.hasMoreElements()) {
-            fo = (FileObject) enum.nextElement();
-            hs.add(fo);
-            /*
-            FileObject chfo = (FileObject) enum.nextElement();
-            if (!fo.equals(chfo.getParent()) && !recursively) break;
-            hs.add(chfo);
-             */
-            //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
-        }
-        Set s = Collections.synchronizedSet(hs);
-        fireFileStatusChanged (new FileStatusEvent(this, s, true, true));
-        //checkScheduledStates(s);
+    public void statusChanged (final String path, final boolean recursively) {
+        RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                //D.deb("statusChanged("+path+")"); // NOI18N
+                FileObject fo = findResource(path);
+                if (fo == null) return;
+                //D.deb("I have root = "+fo.getName()); // NOI18N
+                //Enumeration enum = existingFileObjects(fo);
+                //D.deb("I have root = "+fo.getName()); // NOI18N
+                Enumeration enum = fo.getChildren(recursively);
+                HashSet hs = new HashSet();
+                while(enum.hasMoreElements()) {
+                    fo = (FileObject) enum.nextElement();
+                    hs.add(fo);
+                    /*
+                    FileObject chfo = (FileObject) enum.nextElement();
+                    if (!fo.equals(chfo.getParent()) && !recursively) break;
+                    hs.add(chfo);
+                    */
+                    //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
+                }
+                Set s = Collections.synchronizedSet(hs);
+                fireFileStatusChanged(new FileStatusEvent(VersioningFileSystem.this, s, true, true));
+                //checkScheduledStates(s);
+            }
+        });
     }
     
     /**
      * Perform refresh of status information of a file
      * @param name the full file name
      */
-    public void statusChanged (String name) {
-        FileObject fo = findExistingResource(name);
-        //System.out.println("findResource("+name+") = "+fo);
-        if (fo == null) return;
-        fireFileStatusChanged (new FileStatusEvent(this, fo, true, true));
-        //checkScheduledStates(Collections.singleton(fo));
+    public void statusChanged (final String name) {
+        RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                FileObject fo = findExistingResource(name);
+                //System.out.println("findResource("+name+") = "+fo);
+                if (fo == null) return;
+                fireFileStatusChanged (new FileStatusEvent(VersioningFileSystem.this, fo, true, true));
+                //checkScheduledStates(Collections.singleton(fo));
+            }
+        });
     }
     
     public SystemAction[] getRevisionActions(FileObject fo, Set revisionItems) {

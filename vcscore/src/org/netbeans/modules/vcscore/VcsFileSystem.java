@@ -39,6 +39,7 @@ import org.openide.filesystems.RepositoryReorderedEvent;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
+import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 import org.openide.util.SharedClassObject;
 import org.openide.util.UserQuestionException;
@@ -877,27 +878,31 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param path the directory path
      * @param recursivey whether to refresh recursively
      */
-    public void statusChanged (String path, boolean recursively) {
-        //D.deb("statusChanged("+path+")"); // NOI18N
-        FileObject fo = findResource(path);
-        if (fo == null) return;
-        //Enumeration enum = existingFileObjects(fo);
-        //D.deb("I have root = "+fo.getName()); // NOI18N
-        Enumeration enum = fo.getChildren(recursively);
-        HashSet hs = new HashSet();
-        while(enum.hasMoreElements()) {
-            fo = (FileObject) enum.nextElement();
-            hs.add(fo);
-            /*
-            FileObject chfo = (FileObject) enum.nextElement();
-            if (!fo.equals(chfo.getParent()) && !recursively) break;
-            hs.add(chfo);
-             */
-            //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
-        }
-        Set s = Collections.synchronizedSet(hs);
-        fireFileStatusChanged (new FileStatusEvent(this, s, true, true));
-        checkScheduledStates(s);
+    public void statusChanged (final String path, final boolean recursively) {
+        RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                //D.deb("statusChanged("+path+")"); // NOI18N
+                FileObject fo = findResource(path);
+                if (fo == null) return;
+                //Enumeration enum = existingFileObjects(fo);
+                //D.deb("I have root = "+fo.getName()); // NOI18N
+                Enumeration enum = fo.getChildren(recursively);
+                HashSet hs = new HashSet();
+                while(enum.hasMoreElements()) {
+                    fo = (FileObject) enum.nextElement();
+                    hs.add(fo);
+                    /*
+                    FileObject chfo = (FileObject) enum.nextElement();
+                    if (!fo.equals(chfo.getParent()) && !recursively) break;
+                    hs.add(chfo);
+                    */
+                    //D.deb("Added "+fo.getName()+" fileObject to update status"+fo.getName()); // NOI18N
+                }
+                Set s = Collections.synchronizedSet(hs);
+                fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, s, true, true));
+                checkScheduledStates(s);
+            }
+        });
         if (versioningSystem != null) versioningSystem.statusChanged(path, recursively);
     }
     
@@ -905,24 +910,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Perform refresh of status information of a file
      * @param name the full file name
      */
-    public void statusChanged (String name) {
-        FileObject fo = findExistingResource(name);
-        //System.out.println("findResource("+name+") = "+fo);
-        if (fo == null) return;
-        fireFileStatusChanged (new FileStatusEvent(this, fo, true, true));
-        checkScheduledStates(Collections.singleton(fo));
-        /*
-        try {
-            DataObject dobj = DataObject.find(fo);
-            Set fos = dobj.files();
-            Set ds = Collections.synchronizedSet(fos);
-            fireFileStatusChanged (new FileStatusEvent(this, ds, false, true));
-        } catch (org.openide.loaders.DataObjectNotFoundException exc) {
-            exc.printStackTrace();
-        }
-         */
-        //statusChanged(fo.getParent().getPackageNameExt('/', '.'), false);
-        //System.out.println("fo = "+fo+" and parent = "+fo.getParent()+" refreshed.");
+    public void statusChanged (final String name) {
+        RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                FileObject fo = findExistingResource(name);
+                //System.out.println("findResource("+name+") = "+fo);
+                if (fo == null) return;
+                fireFileStatusChanged(new FileStatusEvent(VcsFileSystem.this, fo, true, true));
+                checkScheduledStates(Collections.singleton(fo));
+            }
+        });
         if (versioningSystem != null) versioningSystem.statusChanged(name);
     }
     
