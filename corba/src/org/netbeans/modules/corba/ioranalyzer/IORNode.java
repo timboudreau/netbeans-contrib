@@ -27,14 +27,6 @@ public class IORNode extends DataNode implements Node.Cookie {
         this.getCookieSet().add (this);
     }
     
-    public String getName () {
-        return this.getDataObject().getName();
-    }
-    
-    public String getDisplayName () {
-        return this.getName();
-    }
-    
     
     public Sheet createSheet () {
         Sheet s = Sheet.createDefault();
