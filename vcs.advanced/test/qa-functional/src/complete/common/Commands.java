@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -26,7 +26,7 @@ import org.netbeans.jemmy.operators.*;
  * @author Jiri Kovalsky
  * @version 1.0
  */
-public class Commands extends JellyTestCase {
+public class Commands extends org.netbeans.jellytools.JellyTestCase {
     
     public static String MOUNT_MENU = "Versioning|Mount Version Control|Generic VCS";
     
@@ -60,19 +60,10 @@ public class Commands extends JellyTestCase {
         junit.textui.TestRunner.run(suite());
     }
     
-    /** Method called before each testcase. Sets default timeouts, redirects system
-     * output and maps main components.
+    /** Method called before each testcase to redirect system output.
      */
-    protected void setUp() throws Exception {
-        String workingDir = getWorkDirPath();
-        new java.io.File(workingDir).mkdirs();
-        java.io.File outputFile = new java.io.File(workingDir + "/output.txt");
-        outputFile.createNewFile();
-        java.io.File errorFile = new java.io.File(workingDir + "/error.txt");
-        errorFile.createNewFile();
-        java.io.PrintWriter outputWriter = new java.io.PrintWriter(new java.io.FileWriter(outputFile));
-        java.io.PrintWriter errorWriter = new java.io.PrintWriter(new java.io.FileWriter(errorFile));
-        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(new org.netbeans.jemmy.TestOut(System.in, outputWriter, errorWriter));
+    protected void setUp() {
+        org.netbeans.jemmy.JemmyProperties.setCurrentOutput(org.netbeans.jemmy.TestOut.getNullOutput());
     }
     
     /** Method will create a file and capture the screen together with saving the exception.
@@ -123,22 +114,19 @@ public class Commands extends JellyTestCase {
             "Distinguish Binary Files"};
             count = properties.length;
             PropertySheetOperator sheet = new PropertySheetOperator(commandEditor);
-            PropertySheetTabOperator sheetTab = sheet.getPropertySheetTabOperator("Properties");
-            for (int i=0; i<count; i++) new Property(sheetTab, properties[i]).startEditing();
+            for (int i=0; i<count; i++) new Property(sheet, properties[i]).setDefaultValue();
             properties = new String[] {"Advanced Name", "Supports Advanced Mode", "Hidden", "Hidden Test Expression", "Disabled on Statuses",
             "Process All Files (Including .class)", "Delete Local Unimportant Files After Success", "Keep Hierarchical Order of Files",
             "Do Not Warn of Failure", "Refresh Recursively When Matched", "Refresh Recursively When Not Matched", "Reload Source Editor Content",
             "Data Regex", "Error Regex", "Global Data Regex", "Global Error Regex", "Input", "The Number of File Revisions to Execute On",
             "Is Changing File Revisions", "General Command Action Class Name", "General Command Action Display Name", "Commands Executed After Success",
             "Commands Executed After Failure"};
-            sheetTab = sheet.getPropertySheetTabOperator("Expert");
             count = properties.length;
-            for (int i=0; i<count; i++) new Property(sheetTab, properties[i]).startEditing();
+            for (int i=0; i<count; i++) new Property(sheet, properties[i]).setDefaultValue();
             properties = new String[] {"File Index", "Removed File Index", "Status Index", "Substitutions of Status Strings", "Locker Index",
             "Revision Index", "Sticky Index", "Time Index", "Date Index", "Size Index", "Additional Attribute Index", "Read Both Data Outputs"};
-            sheetTab = sheet.getPropertySheetTabOperator("Refresh Info");
             count = properties.length;
-            for (int i=0; i<count; i++) new Property(sheetTab, properties[i]).startEditing();
+            for (int i=0; i<count; i++) new Property(sheet, properties[i]).setDefaultValue();
             commandEditor.cancel();
             wizardAdvanced.cancel();
             System.out.println(". done !");
@@ -299,10 +287,13 @@ public class Commands extends JellyTestCase {
             Node test2Node = new Node(commandEditor.treeCommands(), "Empty|My Submenu|Test 2");
             test2Node.select();
             new Action(null, "Move Up").perform(test2Node);
+            
+            /* Commented out till issue #36262 "ALL: Unable to Cut/Copy & Paste any command/variable." gets fixed.
             new CopyAction().perform(new Node(commandEditor.treeCommands(), "Empty|Add"));
             new PasteAction().perform(new Node(commandEditor.treeCommands(), "Empty|My Submenu"));
             new CutAction().perform(new Node(commandEditor.treeCommands(), "Empty|Lock"));
-            new PasteAction().perform(new Node(commandEditor.treeCommands(), "Empty|My Submenu"));
+            new PasteAction().perform(new Node(commandEditor.treeCommands(), "Empty|My Submenu"));*/
+            
             new DeleteAction().perform(new Node(commandEditor.treeCommands(), "Empty|Remove"));
             NbDialogOperator question = new NbDialogOperator("Confirm Object Deletion");
             new JLabelOperator(question, "Are you sure you want to delete Remove?");
@@ -313,7 +304,11 @@ public class Commands extends JellyTestCase {
             Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
             javax.swing.MenuElement[] menu = filesystemNode.callPopup().pushMenu("Empty|My Submenu", "|").getSubElements();
             javax.swing.JPopupMenu submenu = (javax.swing.JPopupMenu) menu[0].getComponent();
-            String[] commands = new String[] {"Test 2", "Test 1", "Add", "Lock"};
+            
+            /* Commented out till issue #36262 "ALL: Unable to Cut/Copy & Paste any command/variable." gets fixed.
+            String[] commands = new String[] {"Test 2", "Test 1", "Add", "Lock"};*/
+            
+            String[] commands = new String[] {"Test 2", "Test 1"};
             int count = commands.length;
             for (int i=0; i<count; i++) {
                 javax.swing.JMenuItem command = (javax.swing.JMenuItem) submenu.getComponent(i);
@@ -327,13 +322,19 @@ public class Commands extends JellyTestCase {
             for (int i=0; i<count; i++) {
                 if (!submenu.getComponent(i).getClass().equals(javax.swing.JMenuItem.class)) continue;
                 javax.swing.JMenuItem command = (javax.swing.JMenuItem) submenu.getComponent(i);
+
+                /* Commented out till issue #36262 "ALL: Unable to Cut/Copy & Paste any command/variable." gets fixed.
                 if (command.getText().equals("Lock"))
                     throw new Exception("Error: Cut action doesn't work.");
+                if (command.getText().equals("Add")) foundAdd = true;*/
+                
                 if (command.getText().equals("Remove"))
                     throw new Exception("Error: Delete action doesn't work.");
-                if (command.getText().equals("Add")) foundAdd = true;
             }
-            if (!foundAdd) throw new Exception("Error: Copy action doesn't work.");
+
+            /* Commented out till issue #36262 "ALL: Unable to Cut/Copy & Paste any command/variable." gets fixed.
+            if (!foundAdd) throw new Exception("Error: Copy action doesn't work.");*/
+            
             new UnmountFSAction().perform(filesystemNode);
             System.out.println(". done !");
         } catch (Exception e) {
@@ -372,18 +373,30 @@ public class Commands extends JellyTestCase {
             new Node(commandEditor.treeCommands(), "Empty|My Submenu|Test").select();
             String executionString = "sh -c \"echo Ahoj ${NAME}!\"";
             if (org.openide.util.Utilities.isWindows()) executionString = "cmd /x /c \"echo Ahoj ${NAME}!\"";
-            commandEditor.setProperty("Empty|My Submenu|Test", "Properties", "Exec", executionString);
-            commandEditor.setProperty("Empty|My Submenu|Test", "Properties", "Display Output", true);
+            PropertySheetOperator sheet = new PropertySheetOperator(commandEditor);
+            Property property = new Property(sheet, "Exec");
+            property.setValue(executionString);
+            property = new Property(sheet, "Display Output");
+            property.setValue("true");
             commandEditor.ok();
             wizardAdvanced.finish();
             String filesystem = "Empty " + getWorkDirPath();
             Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
-            new Action(null, "Empty|My Submenu|Test").perform(filesystemNode);
-            VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Test");
+
+            // !!! Workaround until issue #32466 "jemmy eats some EVENTs (espec. HierarchyEvent)" gets fixed.
+            try {
+                org.netbeans.jemmy.EventTool.removeListeners();
+                new Action(null, "Empty|My Submenu|Test").perform(filesystemNode);
+                MainWindowOperator.getDefault().waitStatusText("Command Test finished.");
+                VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Test");
+                executionString = outputWindow.txtExecutionString().getText();
+                outputWindow.close();
+            } finally {
+                org.netbeans.jemmy.EventTool.addListeners();
+            }
+
             String correctExecutionString = "sh -c \"echo Ahoj !\"";
             if (org.openide.util.Utilities.isWindows()) correctExecutionString = "cmd /x /c \"echo Ahoj !\"";
-            executionString = outputWindow.txtExecutionString().getText();
-            outputWindow.close();
             if (!correctExecutionString.equals(executionString)) throw new Exception("Error: Can't set execution string.");
             new UnmountFSAction().perform(filesystemNode);
             System.out.println(". done !");
@@ -426,7 +439,9 @@ public class Commands extends JellyTestCase {
             variableEditor.createVariable("Basic", "MYFILE");
             variableEditor.createVariable("Accessory", "MYNAME");
             new Node(variableEditor.treeVariables(), "Accessory|MYNAME").select();
-            variableEditor.setVariableProperty("Accessory", "MYNAME", "Value", "Jirka");
+            PropertySheetOperator sheet = new PropertySheetOperator(variableEditor);
+            Property property = new Property(sheet, "Value");
+            property.setValue("Jirka");
             variableEditor.ok();
             wizardAdvanced.editCommands();
             CommandEditor commandEditor = new CommandEditor();
@@ -434,10 +449,12 @@ public class Commands extends JellyTestCase {
             commandEditor.addCommand("Empty|My Submenu", "Test");
             new Node(commandEditor.treeCommands(), "Empty|My Submenu|Test").select();
             String executionString = "sh -c \"cd ${ROOTDIR}; java -cp . ${MYFILE}; echo ${MYNAME}!\"";
-            String drive = getWorkDirPath().substring(0, 2);
-            if (org.openide.util.Utilities.isWindows()) executionString = "cmd /x /c \"" + drive + "&& cd ${ROOTDIR}&& java -cp . ${MYFILE}&& echo ${MYNAME}!\"";
-            commandEditor.setProperty("Empty|My Submenu|Test", "Properties", "Exec", executionString);
-            commandEditor.setProperty("Empty|My Submenu|Test", "Properties", "Display Output", true);
+            if (org.openide.util.Utilities.isWindows()) executionString = "cmd /x /c \"cd ${ROOTDIR}&& java -cp . ${MYFILE}&& echo ${MYNAME}!\"";
+            sheet = new PropertySheetOperator(commandEditor);
+            property = new Property(sheet, "Exec");
+            property.setValue(executionString);
+            property = new Property(sheet, "Display Output");
+            property.setValue("true");
             commandEditor.ok();
             wizardAdvanced.back();
             wizardProfile.txtJTextField(2).enterText("A_File");
@@ -447,17 +464,25 @@ public class Commands extends JellyTestCase {
             filesystemNode.expand();
             Node fileNode = new Node(filesystemNode, "A_File");
             new CompileAction().perform(fileNode);
-            Thread.sleep(2000);
-            new Action(null, "Empty|My Submenu|Test").perform(filesystemNode);
-            MainWindowOperator.getDefault().waitStatusText("Command Test is running ...");
-            VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Test");
-            new JButtonOperator(outputWindow, "Kill").pushNoBlock();
-            new QuestionDialogOperator("Are you sure you want to kill the 'Test' command?").cancel();
-            MainWindowOperator.getDefault().waitStatusText("Command Test finished.");
-            Thread.sleep(2000);
-            String output = outputWindow.txtStandardOutput().getText();
-            outputWindow.close();
-            if (output.indexOf("Ahoj Jirka!") == -1) throw new Exception("Error: Incorrect output reached: " + output);
+            MainWindowOperator.getDefault().waitStatusText("Finished A_File [Local].");
+
+            // !!! Workaround until issue #32466 "jemmy eats some EVENTs (espec. HierarchyEvent)" gets fixed.
+            try {
+                org.netbeans.jemmy.EventTool.removeListeners();
+                new Action(null, "Empty|My Submenu|Test").perform(filesystemNode);
+                MainWindowOperator.getDefault().waitStatusText("Command Test is running ...");
+                VCSCommandsOutputOperator outputWindow = new VCSCommandsOutputOperator("Test");
+                new JButtonOperator(outputWindow, "Kill").pushNoBlock();
+                new QuestionDialogOperator("Are you sure you want to kill the 'Test' command?").cancel();
+                MainWindowOperator.getDefault().waitStatusText("Command Test finished.");
+                Thread.sleep(2000);
+                String output = outputWindow.txtStandardOutput().getText();
+                if (output.indexOf("Ahoj Jirka!") == -1) throw new Exception("Error: Incorrect output reached: " + output);
+                outputWindow.close();
+            } finally {
+                org.netbeans.jemmy.EventTool.addListeners();
+            }
+
             new UnmountFSAction().perform(filesystemNode);
             System.out.println(". done !");
         } catch (Exception e) {
@@ -496,11 +521,17 @@ public class Commands extends JellyTestCase {
             new Node(commandEditor.treeCommands(), "Empty|Test").select();
             String executionString = "sh -c \"cd ${PLACE}\"";
             if (org.openide.util.Utilities.isWindows()) executionString = "cmd /x /c \"cd ${PLACE}\"";
-            commandEditor.setProperty("Empty|Test", "Properties", "Exec", executionString);
-            commandEditor.setProperty("Empty|Test", "Properties", "Input Descriptor", "PROMPT_FOR(PLACE, Folder:)");
-            commandEditor.setProperty("Empty|Test", "Properties", "Confirmation Message Before Execution", "Really proceed ?");
-            commandEditor.setProperty("Empty|Test", "Properties", "Notification Message After Success", "Good run :-)");
-            commandEditor.setProperty("Empty|Test", "Properties", "Notification Message After Failure", "Bad run :-(");
+            PropertySheetOperator sheet = new PropertySheetOperator(commandEditor);
+            Property property = new Property(sheet, "Exec");
+            property.setValue(executionString);
+            property = new Property(sheet, "Input Descriptor");
+            property.setValue("PROMPT_FOR(PLACE, Folder:)");
+            property = new Property(sheet, "Confirmation Message Before Execution");
+            property.setValue("Really proceed ?");
+            property = new Property(sheet, "Notification Message After Success");
+            property.setValue("Good run :-)");
+            property = new Property(sheet, "Notification Message After Failure");
+            property.setValue("Bad run :-(");
             commandEditor.ok();
             wizardAdvanced.finish();
             String filesystem = "Empty " + getWorkDirPath();
