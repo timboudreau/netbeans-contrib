@@ -169,6 +169,13 @@ public interface VcsCommand extends VcsCommandCookie {
     public static final String PROPERTY_RUN_ON_MULTIPLE_FILES = "runOnMultipleFiles";
     
     /**
+     * A boolean property, if true the command can run on multiple files inside a single folder. The executor will
+     * be started only once for all selected files in a folder. If this property is true, PROPERTY_RUN_ON_MULTIPLE_FILES
+     * has no effect.
+     */
+    public static final String PROPERTY_RUN_ON_MULTIPLE_FILES_IN_FOLDER = "runOnMultipleFilesInFolder";
+    
+    /**
      * A boolean property, if true the files that are to be processed are sorted
      * by the hierarchical order prior calling the command (the child file never goes before its parent).
      */
