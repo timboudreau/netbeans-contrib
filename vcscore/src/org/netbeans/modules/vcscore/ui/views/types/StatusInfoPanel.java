@@ -17,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JComponent;
 import org.netbeans.modules.vcscore.util.table.*;
 import java.io.File;
-import org.netbeans.modules.vcscore.util.Debug;
 import java.lang.reflect.Method;
 import org.openide.util.NbBundle;
 import java.awt.GridBagConstraints;
