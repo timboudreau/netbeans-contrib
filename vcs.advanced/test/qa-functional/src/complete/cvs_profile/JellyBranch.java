@@ -13,41 +13,19 @@
 
 package complete.cvs_profile;
 
+import complete.GenericStub.GenericNode;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Enumeration;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.netbeans.jellytools.ExplorerOperator;
-import org.netbeans.jellytools.JellyTestCase;
-import org.netbeans.jellytools.NbDialogOperator;
-import org.netbeans.jellytools.NbFrameOperator;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
-import org.netbeans.jellytools.modules.vcscore.VersioningFrameOperator;
-import org.netbeans.jellytools.modules.vcsgeneric.actions.VCSGenericMountAction;
-import org.netbeans.jellytools.modules.vcsgeneric.nodes.*;
-import org.netbeans.jellytools.modules.vcsgeneric.wizard.VCSWizardAdvanced;
-import org.netbeans.jellytools.modules.vcsgeneric.wizard.VCSWizardProfile;
+import org.netbeans.jellytools.modules.vcsgeneric.nodes.CVSVersioningBranchNode;
+import org.netbeans.jellytools.modules.vcsgeneric.nodes.CVSVersioningFileNode;
+import org.netbeans.jellytools.modules.vcsgeneric.nodes.CVSVersioningVersionNode;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
-import org.netbeans.jellytools.properties.PropertySheetOperator;
-import org.netbeans.jellytools.properties.PropertySheetTabOperator;
-import org.netbeans.jellytools.properties.StringProperty;
-import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.junit.NbTestSuite;
-import org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardData;
-import org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardIterator;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.Repository;
-import org.openide.util.Utilities;
-import util.Helper;
-import util.History;
 
 
 public class JellyBranch extends CVSStub {
@@ -122,7 +100,7 @@ public class JellyBranch extends CVSStub {
         CVSCheckoutFolderAdvDialog co = new CVSCheckoutFolderAdvDialog();
         co.setModuleS(hRoot);
         co.checkPruneEmptyFolders(false);
-        Helper.sleep(1000);
+        sleep(1000);
         getLog ().println (co.cbPruneEmptyFolders ().isSelected ());
         co.oK();
         root.waitHistory ("Check Out");

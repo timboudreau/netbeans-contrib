@@ -26,7 +26,6 @@ import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
-import util.Helper;
 
 
 public class JellyOverall extends CVSStub {
@@ -101,7 +100,7 @@ public class JellyOverall extends CVSStub {
         CVSCheckoutFolderAdvDialog co = new CVSCheckoutFolderAdvDialog();
         co.setModuleS(hRoot);
         co.checkPruneEmptyFolders(false);
-        Helper.sleep(1000);
+        sleep(1000);
         getLog().println(co.cbPruneEmptyFolders().isSelected());
         co.oK();
         root.waitHistory("Check Out");
@@ -113,7 +112,7 @@ public class JellyOverall extends CVSStub {
         
         refresh (root);
         InitDir.waitStatus(null);
-        Helper.sleep(5000); // stabilization - read lock problem
+        sleep(5000); // stabilization - read lock problem
         refreshRecursively (root);
         InitDir.waitStatus(null);
         InitSubDir.waitStatus(null);

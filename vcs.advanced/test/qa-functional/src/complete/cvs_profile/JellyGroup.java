@@ -15,7 +15,6 @@ package complete.cvs_profile;
 
 import complete.GenericStub.GenericNode;
 import java.io.File;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -32,7 +31,6 @@ import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jellytools.properties.PropertySheetOperator;
 import org.netbeans.jellytools.properties.PropertySheetTabOperator;
 import org.netbeans.jellytools.properties.StringProperty;
-import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
 import org.netbeans.jemmy.util.PNGEncoder;
 import org.netbeans.junit.NbTestSuite;
@@ -40,7 +38,6 @@ import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFileAdvDialog
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFolderAdvDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCommitFileAdvDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSUpdateFileAdvDialog;
-import util.Helper;
 
 public class JellyGroup extends CVSStub {
     
@@ -188,17 +185,17 @@ public class JellyGroup extends CVSStub {
         
         closeAllProperties();
         new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP).select (); // stabilization
-        Helper.sleep (2000); // stabilization
+        sleep (2000); // stabilization
         new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP).properties ();
         PropertySheetOperator pso = new PropertySheetOperator (PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, TEST_GROUP);
         PropertySheetTabOperator pst = pso.getPropertySheetTabOperator("Properties");
         new StringProperty(pst, "Description").setStringValue(GROUP_DESCRIPTION);
-        Helper.sleep (2000); // stabilization
+        sleep (2000); // stabilization
         //pso.close();
         
         closeAllProperties();
         new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP).select (); // stabilization
-        Helper.sleep (2000); // stabilization
+        sleep (2000); // stabilization
         new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP).properties ();
         pso = new PropertySheetOperator (PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, TEST_GROUP);
         pst = pso.getPropertySheetTabOperator("Properties");
@@ -219,7 +216,7 @@ public class JellyGroup extends CVSStub {
         waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text1.name (), "Locally Modified; 1.1", true);
         waitNodeStatus (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + Text2.name (), "Locally Modified; 1.1", true);
         new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP).select (); // stabilization
-	Helper.sleep (2000); // stabilization
+	sleep (2000); // stabilization
         new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP).cVSCommit ();
         CVSCommitFileAdvDialog co = new CVSCommitFileAdvDialog ();
         String str = co.txtEnterReason().getText ();
@@ -254,30 +251,6 @@ public class JellyGroup extends CVSStub {
         // assertTrue ("Invalid description in group commit dialog", validDescription); // fails due to issue #28679
     }
     
-    public void dumpTable (JTableOperator table) {
-        int height = table.getRowCount();
-        int width = table.getColumnCount();
-        out.println("Height: " + height);
-        out.println("Width: " + width);
-        String[] strs = new String[height];
-        for (int a = 0; a < height; a ++) {
-            String comp = "";
-            for (int b = 0; b < width; b ++) {
-                if (b != 0)
-                    comp += "    ";
-                String str = (table.getValueAt(a, b) != null) ? table.getValueAt(a, b).toString () : "<NULL>";
-                int i = str.indexOf (root.node ());
-                if (i >= 0)
-                    str = str.substring (0, i) + "<FS>" + str.substring (i + root.node ().length());
-                comp += str;
-            }
-            strs[a] = comp;
-        }
-        Arrays.sort (strs);
-        for (int a = 0; a < height; a ++)
-            out.println (a + ". - " + strs[a]);
-    }
-    
     public void testVerifyGroupToAdd () {
         closeAllVCSWindows();
         openGroupsFrame();
@@ -288,8 +261,8 @@ public class JellyGroup extends CVSStub {
         
         new Action (null,"Verify").performPopup (new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP));
         GroupVerificationOperator gvo = new GroupVerificationOperator ();
-        //Helper.sleep (2000);
-        dumpTable (gvo.tabLocalFilesToAdd());
+        //sleep (2000);
+        dumpVerifyGroupTable (gvo.tabLocalFilesToAdd());
 //        gvo.tabLocalFilesToAdd().waitCell (tText3, 0, 0);
 //        gvo.tabLocalFilesToAdd().waitCell (tInitDir, 0, 1);
         
@@ -317,11 +290,11 @@ public class JellyGroup extends CVSStub {
         waitNodeStatus (vgf.treeVCSGroupsTreeView(), TEST_GROUP + "|" + Text2.name (), "Needs Update", false);
         
         new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP).select (); // stabilization
-        Helper.sleep (2000); // stabilization
+        sleep (2000); // stabilization
         new Action (null,"Verify").performPopup (new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP));
         GroupVerificationOperator gvo = new GroupVerificationOperator ();
-        //Helper.sleep (2000);
-        dumpTable (gvo.tabFilesNeedsUpdate());
+        //sleep (2000);
+        dumpVerifyGroupTable (gvo.tabFilesNeedsUpdate());
         
         gvo.checkSynchronizeWorkingCopyWithRepository(true);
         gvo.updateAllFiles();
@@ -341,8 +314,8 @@ public class JellyGroup extends CVSStub {
 
         new Action (null,"Verify").performPopup (new Node (vgf.treeVCSGroupsTreeView (), TEST_GROUP));
         GroupVerificationOperator gvo = new GroupVerificationOperator ();
-        //Helper.sleep (2000);
-        dumpTable (gvo.tabNotChangedFiles());
+        //sleep (2000);
+        dumpVerifyGroupTable (gvo.tabNotChangedFiles());
         
         gvo.checkRemoveFilesFromGroup(true);
         gvo.removeAllFiles();

@@ -34,7 +34,6 @@ import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
 import util.Filter;
-import util.Helper;
 
 public class JellyCommands extends CVSStub {
     
@@ -131,9 +130,9 @@ public class JellyCommands extends CVSStub {
         dia.waitClosed();
 //        Helper.waitNoNode (exp.repositoryTab ().tree (), root.node (), releaseNode.name()); // fails due to bug #28223
         for (int a = 0; a < 60; a ++) {
-            Helper.sleep (1000);
+            sleep (1000);
             if (!new File (releaseFileNode1.file ()).exists()  &&  !new File (releaseFileNode2.file ()).exists()) {
-                Helper.sleep (10000); // recovery from bug #28223
+                sleep (10000); // recovery from bug #28223
                 if (new File (releaseNode.file ()).exists ()) { // recovery from bug #28223
                     info.println ("Recovering from bug #28223"); // recovery from bug #28223
                     deleteRecursively (new File (releaseNode.file ())); // recovery from bug #28223
