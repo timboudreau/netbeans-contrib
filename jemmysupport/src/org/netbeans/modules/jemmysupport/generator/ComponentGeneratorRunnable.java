@@ -38,11 +38,13 @@ import org.netbeans.spi.diff.DiffProvider;
 import org.netbeans.spi.diff.MergeVisualizer;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
+import org.openide.util.Mutex;
 import org.openide.util.NbBundle;
 
 
@@ -145,13 +147,22 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     private static final String newLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_NewComponent"); // NOI18N
     private static final String resultLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_ResultOfMerge"); // NOI18N
     
-    void mergeConflicts(File f, ComponentGenerator gen, final FileObject fo) throws IOException {
-        StreamSource s1=new ComponentSource(f, oldLabel);
-        StreamSource s2=new ComponentSource(f.getName(), gen.getComponentCode(), newLabel);
-        StreamSource s3=new ComponentSource(f, resultLabel);
-        DiffProvider diff=(DiffProvider)Lookup.getDefault().lookup(DiffProvider.class);
-        MergeVisualizer merge=(MergeVisualizer)Lookup.getDefault().lookup(MergeVisualizer.class);
-        Component c=merge.createView(diff.computeDiff(s1.createReader(), s2.createReader()), s1, s2, s3);
+    void mergeConflicts(File f, ComponentGenerator gen, final FileObject fo) {
+        final StreamSource s1 = new ComponentSource(f, oldLabel);
+        final StreamSource s2 = new ComponentSource(f.getName(), gen.getComponentCode(), newLabel);
+        final StreamSource s3 = new ComponentSource(f, resultLabel);
+        final DiffProvider diff = (DiffProvider)Lookup.getDefault().lookup(DiffProvider.class);
+        final MergeVisualizer merge = (MergeVisualizer)Lookup.getDefault().lookup(MergeVisualizer.class);
+        // must be called from AWT event queue
+        Mutex.EVENT.writeAccess(new Runnable() {
+            public void run () {
+                try {
+                    Component c = merge.createView(diff.computeDiff(s1.createReader(), s2.createReader()), s1, s2, s3);
+                } catch (IOException e) {
+                    ErrorManager.getDefault().notify(e);
+                }
+            }
+        });
         /* MergeDialogComponent is not public anymore, but it should work as before
         if (c instanceof MergeDialogComponent) {
             ((MergeDialogComponent)c).getSelectedMergePanel().firePropertyChange(MergePanel.PROP_CAN_BE_SAVED,false,true);
@@ -180,8 +191,15 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     private void openInEditor(FileObject fo) {
         try {
             DataObject dob = DataObject.find(fo);
-            // selects node in explorer
-            NbMainExplorer.RepositoryTab.getDefaultRepositoryTab().doSelectNode(dob);
+            // selects node in projects view
+            /* it would be nice to do it. But we are only able to find the right node.
+            org.netbeans.api.project.Project p = org.netbeans.api.project.FileOwnerQuery.getOwner(fo);
+            if(p != null) {
+                org.netbeans.spi.project.ui.LogicalViewProvider lvp = (org.netbeans.spi.project.ui.LogicalViewProvider)p.getLookup().lookup(org.netbeans.spi.project.ui.LogicalViewProvider.class);
+                org.openide.nodes.Node node = lvp.findPath(lvp.createLogicalView(), fo);
+                System.out.println("NODE="+node);
+            }
+             */
             // open in editor
             ((EditorCookie)dob.getCookie(EditorCookie.class)).open();
         } catch (Exception e) {
@@ -206,6 +224,8 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                 Toolkit.getDefaultToolkit().removeAWTEventListener(this);
                 help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Processing")); // NOI18N
                 removeFocus();
+                // lock used when creating source file
+                FileLock lock = null;
                 try {
                     gen.grabComponents((Container)window, packageName, showEditor, useComponentName);
                     BufferedImage shot=null;
@@ -229,10 +249,12 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                             mergeConflicts(file, gen, fo);
                         } else {
                             FileObject fo = targetDataFolder.getPrimaryFile().createData(gen.getClassName()+".java");
-                            out = new PrintStream(fo.getOutputStream(fo.lock()));
+                            lock = fo.lock();
+                            out = new PrintStream(fo.getOutputStream(lock));
                             // write generated source to a stream
                             out.println(gen.getComponentCode());
                             out.close();
+                            lock.releaseLock();
                             // open FileObject representing generated source code
                             // in source editor
                             openInEditor(fo);
@@ -249,6 +271,11 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                 } catch (Exception e) {
                     help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Exception")+e.getMessage()); // NOI18N
                     ErrorManager.getDefault().notify(e);
+                } finally {
+                    // release lock for sure
+                    if(lock != null && lock.isValid()) {
+                        lock.releaseLock();
+                    }
                 }
                 window=null;
             }
