@@ -371,8 +371,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
 
             gridBagConstraints = new java.awt.GridBagConstraints();
             gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-            gridBagConstraints.weightx = 1.0;
             navigationPanel.add(getDefaultButton, gridBagConstraints);
+
+            javax.swing.JPanel pushPanel = new javax.swing.JPanel();
+            gridBagConstraints = new java.awt.GridBagConstraints();
+            gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints.weightx = 1.0;
+            navigationPanel.add(pushPanel, gridBagConstraints);
 
         }
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -844,8 +849,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
         this.executionContext = executionContext;
         this.vars = vars;
         boolean hasDefaults = hasDefaults();
-        asDefaultButton.setEnabled(hasDefaults);
-        getDefaultButton.setEnabled(hasDefaults);
+        asDefaultButton.setVisible(hasDefaults);
+        getDefaultButton.setVisible(hasDefaults);
         if (nestedComponents != null) {
             for (Iterator it = nestedComponents.iterator(); it.hasNext(); ) {
                 NestableInputComponent nest = (NestableInputComponent) it.next();
