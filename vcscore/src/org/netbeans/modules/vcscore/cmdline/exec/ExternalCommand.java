@@ -21,6 +21,7 @@ import org.apache.regexp.*;
 
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+import org.openide.util.Utilities;
 
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
@@ -44,6 +45,7 @@ public class ExternalCommand {
     //private long timeoutMilis = 0;
     private int exitStatus = VcsCommandExecutor.SUCCEEDED;
     private String inputData = null;
+    private int osType = Utilities.getOperatingSystem();
 
     private Object stdOutDataLock = new Object();
     //private RegexListener[] stdoutListeners = new RegexListener[0];
@@ -400,7 +402,13 @@ public class ExternalCommand {
         /** Whether the grabber is stopped. If yes, should be flushed and garbage-collected. */
         public boolean isStopped() {
             try {
-                if (shouldStop && !stdout.ready() && !stderr.ready()) stopped = true;
+                //if (shouldStop && !stdout.ready() && !stderr.ready()) stopped = true;
+                // If the OS is OpenVMS, just assume there is no output available
+                if (osType != Utilities.OS_VMS) {
+                    if (shouldStop && !stdout.ready() && !stderr.ready()) stopped = true;
+                } else {
+                    if (shouldStop) stopped = true;
+                }
             } catch (IOException ioexc) {
                 stopped = true;
             }
@@ -419,7 +427,13 @@ public class ExternalCommand {
         public boolean hasOutput() {
             boolean has;
             try {
-                has = stdout.ready() || stderr.ready();
+                //has = stdout.ready() || stderr.ready();
+                // If the OS is OpenVMS, just assume there is output available
+                if (osType != Utilities.OS_VMS) {
+                    has = stdout.ready() || stderr.ready();
+                } else {
+                    has = true;
+                }
             } catch (IOException ioexc) {
                 has = false;
             }
@@ -431,7 +445,12 @@ public class ExternalCommand {
         public void run() {
             int n = 0;
             try {
-                if (stdout.ready() && (n = stdout.read(buff, 0, BUFF_LENGTH)) > -1) {
+                //if (stdout.ready() && (n = stdout.read(buff, 0, BUFF_LENGTH)) > -1) {
+                // Always try to read from stream if OS is OpenVMS
+                if ((osType == Utilities.OS_VMS) || stdout.ready()) {
+                    n = stdout.read(buff, 0, BUFF_LENGTH);
+                }
+                if (n > -1) {
                     for (int i = 0; i < n; i++) {
                         if (buff[i] == '\n') {
                             stdoutNextLine(outBuffer.toString());
@@ -444,7 +463,13 @@ public class ExternalCommand {
                     }
                 }
                 if (n < 0) stopped = true;
-                if (stderr.ready() && (n = stderr.read(buff, 0, BUFF_LENGTH)) > -1) {
+                //if (stderr.ready() && (n = stderr.read(buff, 0, BUFF_LENGTH)) > -1) {
+                n = 0;
+                // Always read from stream if OS is OpenVMS
+                if ((osType == Utilities.OS_VMS) || stderr.ready()) {
+                    n = stderr.read(buff, 0, BUFF_LENGTH);
+                }
+                if (n > -1) {
                     for (int i = 0; i < n; i++) {
                         if (buff[i] == '\n') {
                             stderrNextLine(errBuffer.toString());
