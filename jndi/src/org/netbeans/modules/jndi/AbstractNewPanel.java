@@ -195,6 +195,11 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
    */
   abstract javax.swing.JPanel createSubGUI();
   
+  /** Creates an lover panel of dialog where notes are placed
+   *  @return JPanel or null
+   */
+  abstract javax.swing.JPanel createNotesPanel();
+  
   /** Creates GUI of Panel
    *  @param int mode for which the dialog is opening
    */
@@ -264,6 +269,20 @@ abstract public class AbstractNewPanel extends JPanel implements ActionListener,
     gridBagConstraints.insets = new java.awt.Insets (8, 8, 8, 8);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
     add (p, gridBagConstraints);
+    p = createNotesPanel();
+    if (p != null){
+      gridBagConstraints = new java.awt.GridBagConstraints();
+      gridBagConstraints.gridx = 0;
+      gridBagConstraints.gridy = 4;
+      gridBagConstraints.gridwidth = GridBagConstraints.REMAINDER;
+      gridBagConstraints.gridheight = 2;
+      gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+      gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
+      gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 8);
+      gridBagConstraints.weightx = 1.0;
+      gridBagConstraints.weighty = 0.0;
+      add (p, gridBagConstraints);
+    }
   }
   
   

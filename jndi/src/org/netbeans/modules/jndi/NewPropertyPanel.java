@@ -25,7 +25,6 @@ final class NewPropertyPanel extends GridBagPanel {
   private JTextField name;
   private JTextField value;
   
-  static final long serialVersionUID =7753768583639621197L;
   /** Constructor
    */
   public NewPropertyPanel() {

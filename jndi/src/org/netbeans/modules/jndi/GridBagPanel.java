@@ -27,7 +27,6 @@ import javax.swing.JPanel;
  */
 class GridBagPanel extends JPanel {
   
-  static final long serialVersionUID =5832021125382823952L;
   public GridBagPanel() {
     this.setLayout(new GridBagLayout());
   }
@@ -93,6 +92,7 @@ class GridBagPanel extends JPanel {
 
 /*
  * <<Log>>
+ *  9    Gandalf   1.8         12/15/99 Tomas Zezula    
  *  8    Gandalf   1.7         11/27/99 Patrik Knakal   
  *  7    Gandalf   1.6         11/5/99  Tomas Zezula    
  *  6    Gandalf   1.5         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun

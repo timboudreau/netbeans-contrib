@@ -42,6 +42,7 @@ final class JndiDataType extends NewType {
   private NewJndiRootPanel panel;
   /** Hashtable of providers taken from JNDI root node */
   private JndiProvidersNode pnode;
+  private boolean state;
 
   /** Constructor
    *  @param node the Jndi root node
@@ -88,6 +89,7 @@ final class JndiDataType extends NewType {
               Runnable run = new Runnable() {
                 public void run() {
                   try {
+                    Class.forName(panel.getFactory());
                     ((JndiRootNode) node).addContext(
                       panel.getLabel(),
                       panel.getFactory(),
@@ -98,7 +100,18 @@ final class JndiDataType extends NewType {
                       panel.getCredentials(),
                       panel.getAditionalProperties()
                     );
-                  } catch (NamingException ne) {
+                  }catch (ClassNotFoundException cnfe){
+                    Runnable r = new Runnable(){
+                      public void run() {
+                      NotFoundPanel errdescriptor = new NotFoundPanel (panel.getFactory());
+                      TopManager.getDefault().notify(new NotifyDescriptor.Message(errdescriptor,NotifyDescriptor.ERROR_MESSAGE));
+                      }
+                    };
+                      java.awt.EventQueue.invokeLater(r);
+                      JndiDataType.this.setActionState(true);
+                  }
+                   catch (NamingException ne) {
+                    JndiDataType.this.setActionState(true);
                     Throwable e;
                     if (ne.getRootCause() != null) {
                       e = ne.getRootCause();
@@ -116,25 +129,31 @@ final class JndiDataType extends NewType {
                       JndiRootNode.notifyForeignException(e);
                     }
                   }
+                  catch (NullPointerException npe){
+                    // Thrown by some providers when bad url is given
+                    JndiDataType.this.setActionState(true);
+                    JndiRootNode.notifyForeignException(npe);
+                  }
                 }
               };
               Thread t = new Thread(run);
+              JndiDataType.this.setActionState(false);
               t.start();
               try {
-                int waitTime = 0;
+                int waitTime = 4000;
                 JndiSystemOption option = (JndiSystemOption) JndiSystemOption.findObject(JndiSystemOption.class,true);
                 if (option != null)
                   waitTime=option.getTimeOut();
-                else
-                  waitTime=4000;
                 t.join(waitTime);
               } catch (InterruptedException e)  {
               }
               if (t.isAlive()) {
                 t.interrupt();
               }
-              dlg.setVisible(false);
-              dlg.dispose();
+              if (!JndiDataType.this.getActionState()){
+                dlg.setVisible(false);
+                dlg.dispose();
+              }
             } else if (event.getSource() == DialogDescriptor.CANCEL_OPTION) {
               dlg.setVisible(false);
               dlg.dispose();
@@ -142,6 +161,9 @@ final class JndiDataType extends NewType {
           }
         }
       );
+      descriptor.setClosingOptions (new Object[] {
+        DialogDescriptor.CANCEL_OPTION
+      });
       dlg = TopManager.getDefault().createDialog(descriptor);
       dlg.setVisible(true);
     } else if (node instanceof JndiNode) {
@@ -158,7 +180,7 @@ final class JndiDataType extends NewType {
           public void actionPerformed(ActionEvent event) {
             if (event.getSource() == DialogDescriptor.OK_OPTION) {
               JndiChildren cld = (JndiChildren) node.getChildren();
-              DirContext context = cld.getContext();
+              Context context = cld.getContext();
               try {
                 Name nCtx = ((Name) cld.getOffset().clone()).add(subCtxPanel.getName());
                 context.createSubcontext(nCtx);
@@ -193,5 +215,13 @@ final class JndiDataType extends NewType {
     } else {
       return "";
     }
+  }
+  
+  private synchronized void setActionState(boolean state){
+    this.state=state;
+  }
+  
+  private synchronized boolean getActionState(){
+    return this.state;
   }
 }

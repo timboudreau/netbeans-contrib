@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import javax.naming.NamingException;
 import javax.naming.CompositeName;
-import javax.naming.directory.DirContext;
+import javax.naming.Context;
 
 import org.openide.TopManager;
 import org.openide.actions.CopyAction;
@@ -34,8 +34,8 @@ import org.openide.util.actions.SystemAction;
  */
 class JndiLeafNode extends JndiObjectNode {
 
-  /** InitalDirContext*/
-  protected DirContext ctx;
+  /** Inital Context*/
+  protected Context ctx;
   /** Offset of this node relative to ctx*/
   protected CompositeName offset;
   /** The class name*/
@@ -47,7 +47,7 @@ class JndiLeafNode extends JndiObjectNode {
    *  @param name name of this node
    *  @param classname name of Class represented by this name
    */ 
-  public JndiLeafNode(DirContext ctx, CompositeName parentOffset, String name, String classname) throws NamingException {
+  public JndiLeafNode(Context ctx, CompositeName parentOffset, String name, String classname) throws NamingException {
     super(Children.LEAF, name);
     this.ctx = ctx;
     this.offset = parentOffset;
@@ -93,13 +93,13 @@ class JndiLeafNode extends JndiObjectNode {
   }
 
   /** Returns initial directory context
-   *  @return DirContext the initial dir context
+   *  @return Context the initial dir context
    */
-  public DirContext getContext(){
+  public Context getContext(){
     return this.ctx;
   }
   
-  /** Returns the properties of InitialDirContext
+  /** Returns the properties of Initial Context
    *  @return Hashtable properties;
    */
   public Hashtable getInitialDirContextProperties() throws NamingException {

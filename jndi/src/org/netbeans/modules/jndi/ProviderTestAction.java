@@ -23,7 +23,6 @@ import org.openide.util.actions.NodeAction;
  */
 public class ProviderTestAction extends NodeAction {
 
-  static final long serialVersionUID =1866179936719922806L;
   /** Creates new ProviderTestAction */
   public ProviderTestAction() {
     super();

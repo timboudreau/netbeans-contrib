@@ -35,6 +35,14 @@ final class JndiObjectCreator {
         sb.insert(i, '\\');
         i++;
       }
+      else if (sb.charAt(i) == '\''){
+        sb.insert(i,'\\');
+        i++;
+      }
+      else if (sb.charAt(i) =='\"'){
+        sb.insert(i,'\\');
+        i++;
+      }
     }
     return sb.toString();
   }
@@ -48,7 +56,8 @@ final class JndiObjectCreator {
    */
   static String getLookupCode(Context ctx, CompositeName offset, String className) throws NamingException {
     String code = generateProperties(ctx);
-    code = code + generateObjectReference(offset, className);
+    String root = (String) ctx.getEnvironment().get(JndiRootNode.NB_ROOT);
+    code = code + generateObjectReference(offset, root, className);
     code = code + generateTail();
     return code;
   }
@@ -62,8 +71,9 @@ final class JndiObjectCreator {
    */
   public static String generateBindingCode (Context ctx, CompositeName offset, String className) throws NamingException {
     String code = generateProperties(ctx);
-    code = code + generateObjectReference(offset, className);
-    code+= "  jndiObject.bind(<Name>,<Object>);\n";
+    String root = (String) ctx.getEnvironment().get(JndiRootNode.NB_ROOT);
+    code = code + generateObjectReference(offset, root, className);
+    code+= "  jndiObject.bind(\"<Name>\",<Object>);\n";
     code = code + generateTail();
     return code;
   }
@@ -99,12 +109,19 @@ final class JndiObjectCreator {
   /** Creates code for getting instance of object
    *  @param CompositeName offset of object
    *  @param String className, name of class
+   *  @param String root, the root
    *  @return String code
    */
-  private static String generateObjectReference(CompositeName offset, String className){
+  private static String generateObjectReference(CompositeName offset, String root, String className){
     String code = new String();
     code = code + "try {\n  javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);\n";
-    code = code + "  "+className+" jndiObject = ("+className+")jndiCtx.lookup(\"" + offset.toString() + "\");\n";
+    if (root != null && root.length() > 0){
+      code = code + "  javax.naming.Context jndiRootCtx = (javax.naming.Context) jndiCtx.lookup(\""+correctValue(root)+"\");\n";
+      code = code + "  "+className+" jndiObject = ("+className+")jndiRootCtx.lookup(\"" + correctValue(offset.toString()) + "\");\n";
+    }
+    else{
+      code = code + "  "+className+" jndiObject = ("+className+")jndiCtx.lookup(\"" + correctValue(offset.toString()) + "\");\n";
+    }
     return code;
   }
   

@@ -14,7 +14,7 @@
 package com.netbeans.enterprise.modules.jndi;
 
 import java.util.Hashtable;
-import javax.naming.directory.DirContext;
+import javax.naming.Context;
 import javax.naming.NamingException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node;
@@ -52,7 +52,7 @@ public abstract class JndiAbstractNode extends AbstractNode {
   /** @creates actions */
   protected abstract SystemAction[] createActions();
  
-  /** Returns the properties of InitialDirContext*/
+  /** Returns the properties of InitialContext*/
   public abstract Hashtable getInitialDirContextProperties() throws NamingException;
   
 }

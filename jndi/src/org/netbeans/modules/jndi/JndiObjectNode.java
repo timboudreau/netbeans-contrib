@@ -15,11 +15,14 @@ package com.netbeans.enterprise.modules.jndi;
 
 import javax.naming.CompositeName;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.Attribute;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.StringSelection;
 import java.util.Enumeration;
 import java.io.IOException;
 import java.awt.datatransfer.*;
+import javax.naming.Context;
 import javax.naming.directory.DirContext;
 import org.openide.TopManager;
 import org.openide.nodes.Children;
@@ -63,6 +66,9 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
    */
   public Sheet createSheet () {
     Sheet sheet = Sheet.createDefault ();
+    Sheet.Set jndiSet = new Sheet.Set();
+    jndiSet.setName("Jndi");
+    jndiSet.setDisplayName(JndiRootNode.getLocalizedString("TITLE_JndiProperty"));
     sheet.get (Sheet.PROPERTIES).put (
       new JndiProperty ("NAME",
                         String.class,
@@ -78,20 +84,44 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
                         String.class,
 			JndiRootNode.getLocalizedString("TXT_Class"),
 			this.getClassName()));
-    Enumeration keys =	( (JndiDirContext) this.getContext()).getEnvironment ().keys();		
-    Enumeration elements =( (JndiDirContext) this.getContext ()).getEnvironment ().elements ();
-    while (keys.hasMoreElements()){
-	String key = (String)keys.nextElement();
-	String value = (String)elements.nextElement();
-	if (key.equals(JndiRootNode.NB_ROOT) || 
-	    key.equals(JndiRootNode.NB_LABEL)) {
+    try{
+      Enumeration keys =	this.getContext().getEnvironment ().keys();		
+      Enumeration elements =this.getContext().getEnvironment ().elements ();
+      while (keys.hasMoreElements()){
+  	String key = (String)keys.nextElement();
+  	String value = (String)elements.nextElement();
+	if (key.equals(JndiRootNode.NB_ROOT)){
+          if (value.length()>0){
+            sheet.get (Sheet.PROPERTIES).put (
+  	    new JndiProperty ("ROOT",
+	                        String.class,
+			        JndiRootNode.getLocalizedString("TXT_Start"),
+			        value));
+          }
+        }
+	else if (key.equals(JndiRootNode.NB_LABEL)) {
 	  continue;
-	}
-	sheet.get (Sheet.PROPERTIES).put (
+        }
+        else{
+       	  sheet.get (Sheet.PROPERTIES).put (
 	  new JndiProperty (key,
 	                    String.class,
 			    key,
 			    value));
+        }
+      }
+    }catch(NamingException ne){}
+    //Add jndiSet Properties here
+    if (this.getContext() instanceof javax.naming.directory.DirContext){
+      try{
+        Attributes attrs = ((DirContext)this.getContext()).getAttributes(this.getOffset());
+        java.util.Enumeration enum = attrs.getAll();
+        while (enum.hasMoreElements()){
+          Attribute attr = (Attribute) enum.nextElement();
+          jndiSet.put ( new JndiProperty (attr.getID(),String.class,attr.getID(),attr.get().toString()));
+        }
+        sheet.put( jndiSet);
+      }catch (NamingException ne){}
     }
     setSheet (sheet);			  
     return sheet;
@@ -100,7 +130,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
   /** Returns initial dir context
    *  @return DirContext initial context of this JNDI subtree 
    */
-  public abstract DirContext getContext();
+  public abstract Context getContext();
 
   /** Creates a java source code for obtaining 
    *  reference to this node
@@ -152,6 +182,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
 
 /*
 * <<Log>>
+*  7    Gandalf   1.6         12/15/99 Tomas Zezula    
 *  6    Gandalf   1.5         11/5/99  Tomas Zezula    
 *  5    Gandalf   1.4         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment

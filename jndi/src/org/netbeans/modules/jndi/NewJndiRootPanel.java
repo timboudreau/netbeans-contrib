@@ -62,7 +62,6 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
   Hashtable providers;
   
   
-  static final long serialVersionUID =7943572497359208842L;
   /** constructor takes as parameter array of factories and protocols
    * @param fcs array of factories
    * @param proto array of protocols
@@ -74,17 +73,8 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
     this.providers=providers;
     java.util.Enumeration enum = this.providers.keys ();
     while (enum.hasMoreElements () ) {
-      try{
-        className = (String) enum.nextElement ();
-        Class.forName (className);
-        this.factory.addItem (className);
-      }catch(ClassNotFoundException cnf){
-        if (panel==null) panel = new NotFoundPanel();
-        panel.add(className);
-      }
-    }
-    if (panel != null){
-      TopManager.getDefault().notify(new NotifyDescriptor.Message(panel,NotifyDescriptor.Message.WARNING_MESSAGE));
+      className = (String) enum.nextElement ();
+      this.factory.addItem (className);
     }
   }
 
@@ -261,24 +251,15 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
     gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
     gridBagConstraints.weightx = 1.0;
     p.add (this.credentials, gridBagConstraints);
-    
-//    p.add(new JLabel(JndiRootNode.getLocalizedString("TXT_ContextLabel")),0,0,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,0,0,8,8,0,0);
-//    p.add(this.label,1,0,3,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,1,0,8,8,0,8);
-//    p.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Factory")),0,1,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,0,0,8,8,0,0);
-//    p.add(this.factory,1,1,3,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,1,0,8,8,0,8);
-//    p.add(new JLabel(JndiRootNode.getLocalizedString("TXT_InitialContext")),0,2,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,0,0,8,8,0,0);
-//    p.add(this.context,1,2,3,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,1,0,8,8,0,8);
-//    p.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Root")),0,3,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,0,0,8,8,0,0);
-//    p.add(this.root,1,3,3,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,1,0,8,8,0,8);
-//    p.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Auth")),0,4,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,0,0,8,8,0,0);
-//    p.add(this.authentification,1,4,3,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,1,0,8,8,0,8);
-//    p.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Principal")),0,5,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,0,0,8,8,0,0);
-//    p.add(this.principal,1,5,3,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,1,0,8,8,0,8);
-//   p.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Credentials")),0,6,1,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,0,0,8,8,0,0);
-//    p.add(this.credentials,1,6,3,1,GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTHWEST,0,0,1,0,8,8,0,8);
     return p;
   }
 
+  /** Cretes notes panel
+   *  @return JPanel or null
+   */
+  javax.swing.JPanel createNotesPanel(){
+    return null;
+  }
   
   
   

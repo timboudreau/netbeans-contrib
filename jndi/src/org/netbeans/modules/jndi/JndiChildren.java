@@ -19,7 +19,7 @@ import javax.naming.CompositeName;
 import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NameClassPair;
-import javax.naming.directory.DirContext;
+import javax.naming.Context;
 
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -39,7 +39,7 @@ final class JndiChildren extends Children.Keys {
   private static Class ctxClass;
 
   /** Initial Directory context */
-  private final DirContext parentContext;
+  private final Context parentContext;
 
   /** Offset in Initial Directory context */
   private final CompositeName offset;	
@@ -49,7 +49,7 @@ final class JndiChildren extends Children.Keys {
    *  @param parentContext the initial context
    *  @param offset the relative offset of Node in context
    */
-  public JndiChildren(DirContext parentContext, CompositeName offset) throws NamingException {
+  public JndiChildren(Context parentContext, CompositeName offset) throws NamingException {
     this.parentContext = parentContext;
     this.offset = offset;
     prepareKeys();
@@ -65,7 +65,7 @@ final class JndiChildren extends Children.Keys {
   /** Returns context
    *  @return the initial context
    */
-  public DirContext getContext() {
+  public Context getContext() {
     return parentContext;
   }
     
@@ -129,7 +129,10 @@ final class JndiChildren extends Children.Keys {
           return true;
         }
       } catch (ClassNotFoundException e) {
-        JndiRootNode.notifyForeignException(e);
+        // Changed from notifying an exception to return false
+        // Needed by some directory services, that provides an
+        // Class repository with deployment.
+        return false;
       }
     }
     return false;
@@ -168,6 +171,7 @@ final class JndiChildren extends Children.Keys {
 
 /*
  * <<Log>>
+ *  9    Gandalf   1.8         12/15/99 Tomas Zezula    
  *  8    Gandalf   1.7         11/5/99  Tomas Zezula    
  *  7    Gandalf   1.6         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.awt.datatransfer.*;
 import javax.naming.NamingException;
 import javax.naming.CompositeName;
-import javax.naming.directory.DirContext;
+import javax.naming.Context;
 
 import org.openide.TopManager;
 import org.openide.actions.NewAction;
@@ -48,9 +48,9 @@ final class JndiNode extends JndiObjectNode {
   /**Constructor for creation of Top Level Directory
    * @param ctx DirContext which this node represents
    */
-  public JndiNode(DirContext ctx) throws NamingException {
+  public JndiNode(Context ctx) throws NamingException {
     this (ctx, 
-          new CompositeName(((String) ctx.getEnvironment().get(JndiRootNode.NB_ROOT))), 
+          new CompositeName(), 
           (String) ctx.getEnvironment().get(JndiRootNode.NB_LABEL));
     isRoot = true;
   }
@@ -60,7 +60,7 @@ final class JndiNode extends JndiObjectNode {
    *  parent_name offset of parent directory
    *  my_name	name of this directory
    */
-  public JndiNode(DirContext ctx, CompositeName parentName, String myName) throws NamingException {
+  public JndiNode(Context ctx, CompositeName parentName, String myName) throws NamingException {
     super (new JndiChildren(ctx, parentName), myName);
     isRoot = false;
     setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName("javax.naming.Context"));
@@ -102,7 +102,7 @@ final class JndiNode extends JndiObjectNode {
       try {
         // destroy this context first
         JndiChildren children = (JndiChildren) getChildren();
-        DirContext parentCtx = children.getContext();
+        Context parentCtx = children.getContext();
         parentCtx.destroySubcontext(children.getOffset());
         // Destroy the node
         super.destroy();
@@ -156,7 +156,7 @@ final class JndiNode extends JndiObjectNode {
   /** Returns initial directory context
    *  @return DirContext the initial dir context
    */ 
-  public DirContext getContext(){
+  public Context getContext(){
     return ((JndiChildren)this.getChildren()).getContext();
   }
   

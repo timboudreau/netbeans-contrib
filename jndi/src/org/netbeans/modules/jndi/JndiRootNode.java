@@ -228,8 +228,16 @@ public final class JndiRootNode extends AbstractNode{
    **/
   void addContext (Hashtable properties) throws NamingException {
       JndiDirContext ctx = new JndiDirContext(properties);
+      String root = (String) properties.get(NB_ROOT);
+      Context rootedCtx;
+      if (root != null){
+        rootedCtx = (Context) ctx.lookup(root);
+      }
+      else{
+        rootedCtx = ctx;
+      }
       JndiNode[] nodes = new JndiNode[1];
-      nodes[0]= new JndiNode(ctx);
+      nodes[0]= new JndiNode(rootedCtx);
       this.getChildren().add(nodes);
   }
   

@@ -30,7 +30,6 @@ public class NewProviderPanel extends AbstractNewPanel {
 
   JTextField factory;
   
-  static final long serialVersionUID =129555131347808701L;
   /** Creates new NewProviderPanel */
   public NewProviderPanel() {
     super();
@@ -156,21 +155,19 @@ public class NewProviderPanel extends AbstractNewPanel {
     gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
     gridBagConstraints.weightx = 1.0;
     p.add (this.credentials, gridBagConstraints);
-    
-    
-//    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Factory")),1,2,2,1,7,5,0,5);
-//    this.add(this.factory,3,2,2,1,7,0,0,5);
-//    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_InitialContext")),1,3,2,1,0,5,0,5);
-//    this.add(this.context,3,3,2,1,0,0,0,5);
-//    this.add ( new JLabel(JndiRootNode.getLocalizedString("TXT_Root")),1,4,2,1,0,5,0,5);
-//    this.add(this.root,3,4,2,1,0,0,0,5);
-//    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Auth")),1,5,2,1,0,5,0,5);
-//    this.add(this.authentification,3,5,2,1,0,0,0,5);
-//    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Principal")),1,6,2,1,0,5,0,5);
-//    this.add(this.principal,3,6,2,1,0,0,0,5);
-//    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Credentials")),1,7,2,1,0,5,0,5);
-//    this.add(this.credentials,3,7,2,1,0,0,0,5);
     return p;
+  }
+  
+  
+  javax.swing.JPanel createNotesPanel(){
+      javax.swing.JPanel p = new javax.swing.JPanel();
+      javax.swing.JTextArea area = new javax.swing.JTextArea(JndiRootNode.getLocalizedString("TIP_Installation"),2,66);
+      area.setEnabled(false);
+      area.setBackground(new javax.swing.JLabel().getBackground());
+      area.setLineWrap(true);
+      area.setWrapStyleWord(true);
+      p.add(area);
+      return p;
   }
   
 }
