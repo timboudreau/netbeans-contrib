@@ -749,7 +749,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return Reference to FileObject
      */
     protected java.lang.ref.Reference createReference(FileObject fo) {
-        return cache.createReference(fo);
+        if (cache != null) {
+            return cache.createReference(fo);
+        } else return super.createReference(fo);
     }
 
     /**
