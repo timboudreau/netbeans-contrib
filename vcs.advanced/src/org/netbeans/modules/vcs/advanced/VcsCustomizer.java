@@ -303,8 +303,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         propsPanel.add(browseButton, gridBagConstraints);
 
         relMountLabel.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountLabel.text"));
@@ -350,8 +351,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         propsPanel.add(relMountButton, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
