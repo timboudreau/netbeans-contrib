@@ -65,6 +65,9 @@ public class VariableValueAdjustment implements Serializable {
         String[] adjustVars = VcsUtilities.getQuotedStrings(adjustVarsStr);
         this.adjustedVars = new HashSet(Arrays.asList(adjustVars));
         quoting = (String) vars.get(org.netbeans.modules.vcscore.VcsFileSystem.VAR_QUOTING);
+        if (quoting != null && quoting.length() == 1 && adjustedChars.contains(new Character(quoting.charAt(0)))) {
+            quoting = null; // The quoting is already excaped.
+        }
     }
     
     /**
