@@ -324,11 +324,31 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
                     JRadioButtonMenuItem activate = new JRadioButtonMenuItem("Activate Filter");
                     activate.setSelected(isFiltered());
+                    activate.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            if (filter == null && isFiltered() == false) {
+                                SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
+                            } else if (isFiltered() == false) {
+                                setFiltered(true);
+                            } else {
+                                Toolkit.getDefaultToolkit().beep();
+                            }
+                        }
+                    });
                     group.add(activate);
                     popup.add(activate);
 
                     JRadioButtonMenuItem deactivate = new JRadioButtonMenuItem("Deactivate Filter");
                     deactivate.setSelected(isFiltered() == false);
+                    deactivate.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            if (isFiltered()) {
+                                setFiltered(false);
+                            } else {
+                                Toolkit.getDefaultToolkit().beep();
+                            }
+                        }
+                    });
                     group.add(deactivate);
                     popup.add(deactivate);
 
@@ -337,7 +357,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     JMenuItem editFilter = new JMenuItem("Edit Filter");
                     editFilter.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
-                            SystemAction.get(FilterAction.class).actionPerformed(e);
+                            SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
                         }
                     });
                     popup.add(editFilter);

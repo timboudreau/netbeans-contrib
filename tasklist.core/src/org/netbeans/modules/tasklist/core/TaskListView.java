@@ -66,7 +66,7 @@ import org.openide.windows.TopComponent;
 import org.openide.util.actions.CallbackSystemAction;
 
 
-/** 
+/**
  * View showing the task list items
  * @author Tor Norbye, Tim Lebedkov, Trond Norbye
  * @todo Figure out why the window system sometimes creates multiple objects
@@ -92,6 +92,7 @@ public abstract class TaskListView extends TopComponent
 
     transient protected TaskList tasklist = null;
 
+    private transient boolean filterEnabled =  false;
     transient protected Filter filter = null;
 
     /** Gotta stash away my own version of the name of the top component,
@@ -522,7 +523,7 @@ public abstract class TaskListView extends TopComponent
         //tasklist.getRoot();
         rootNode = createRootNode();
 
-        if (getFilter().hasConstraints()) {
+        if (filterEnabled) {
             // Create filtered view of the tasklist
             TaskNode.FilteredChildren children =
                     new TaskNode.FilteredChildren(this, rootNode, filter);
@@ -1234,9 +1235,11 @@ for (int i = 0; i < columns.length; i++) {
 
     // End of stuff taken from TreeTableView
 
-    /** Get the filter in effect for this view.
-     * @return The filter being used on this view, or null if there is
-     * no filter (e.g. all tasks are shown unconditionally).
+    /**
+     * Get the toggle filter for this view. It's
+     * applied if {@link #isFiltered} returns true.
+     *
+     * @return The toggle filter.
      */
     public Filter getFilter() {
         if (filter == null) {
@@ -1246,26 +1249,44 @@ for (int i = 0; i < columns.length; i++) {
     }
 
     /** Tests if any real filter is applied. */
-    protected final boolean isFiltered() {
-        if (filter == null) {
-            return false;
+    public final boolean isFiltered() {
+        return filterEnabled;
+    }
+
+    /**
+     * Controls filter enableness.
+     * @param enableFilter
+     */
+    public final void setFiltered(boolean enableFilter) {
+        if (enableFilter == filterEnabled) return;
+        if (enableFilter == true) {
+            setFilter(getFilter(), true);
         } else {
-            return filter.hasConstraints();
+            setFilter(null, false);
         }
     }
 
     /**
-    * Set the filter to be used in this view.
+     * Set the filter to be used in this view.
      * @param filter The filter to be set, or null, to remove filtering.
      * @param showStatusBar When true, show a status bar with a remove button etc.
      */
     public void setFilter(Filter filter, boolean showStatusBar) {
-        this.filter = filter;
+
+        // XXX mix of actual filter rule and its enableness
+        if (filter == null) {
+            filterEnabled = false;
+        } else {
+            this.filter = filter;
+            filterEnabled = true;
+        }
+
         try {
             getExplorerManager().setSelectedNodes(new Node[0]);
         } catch (PropertyVetoException e) {
         }
-        if (filter != null && showStatusBar && filter.hasConstraints()) {
+
+        if (filterEnabled && showStatusBar && filter.hasConstraints()) {
             setRoot();
             updateFilterCount(true);
             //expandAll(); // [PENDING] Make this optional?
