@@ -63,9 +63,9 @@ public class CommandExecutor {
     public Process createProcess(String[] cmdArr, String[] envp, File work,
                                  boolean mergeStreams) throws IOException {
         if (mergeStreams && Boolean.getBoolean("netbeans.vcsdebug")) { // NOI18N
-            ErrorManager.getDefault().notify(ErrorManager.getDefault().annotate(
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ErrorManager.getDefault().annotate(
                     new IllegalArgumentException(java.util.Arrays.asList(cmdArr).toString()),
-                    "Can not merge standard and error streams on JDK 1.4.x"));
+                    "Warning: can not merge standard and error streams on JDK 1.4.x"));
         }
         return Runtime.getRuntime().exec(cmdArr, envp, work);
     }
