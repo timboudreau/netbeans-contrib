@@ -343,6 +343,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         // restoring all data from caches (fields).
     }
 
+    /** Returns "todo-window" */
+    protected String preferredID() {
+        return "todo-window";  // NOI18N
+    }
 
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
 
