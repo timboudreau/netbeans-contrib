@@ -103,15 +103,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static final String DEFAULT_CACHE_ID = "VCS_Cache"; // NOI18N
 
     private static final String FILE_PROMPT_PREFIX = "tmppf"; // NOI18N
-    /**
+    /*
      * The name of the variable for the global additional parameters.
-     */
+     *
     private static final String USER_GLOBAL_PARAM = "USER_GLOBAL_PARAM";
-    /**
+    /*
      * The name of the variable for the local additional parameters.
-     */
+     *
     private static final String USER_PARAM = "USER_PARAM";
-    
+     */
     private static int last_refreshTime = REFRESH_TIME;
     private static volatile File last_rootFile = new File (System.getProperty("user.home")); // NOI18N
 
@@ -1439,7 +1439,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (module == null) module = "";
         String root = r.getCanonicalPath();
         if (module.length() > 0) {
-            int i = root.indexOf(module);
+            int i = root.lastIndexOf(module);
             if (i > 0) root = root.substring(0, i - 1);
         }
         r = new File(root);
@@ -1768,7 +1768,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     protected boolean deleteFile(final File file, String name) throws IOException {
-        if (!file.exists()) return false; // can not delete non existing files
+        if (!file.exists()) return true; // non existing file is successfully deleted
         if (!file.canWrite() || !file.canRead()) {
             throw new IOException() {
                 /** Localized message. */
