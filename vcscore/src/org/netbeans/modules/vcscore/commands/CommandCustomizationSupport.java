@@ -871,7 +871,7 @@ public class CommandCustomizationSupport extends Object {
                  */
         }
         synchronized (vars) {
-            if (needPromptForPR("PASSWORD", exec, vars)) { // NOI18N
+            if (exec != null && needPromptForPR("PASSWORD", exec, vars)) { // NOI18N
                 String password;
                 synchronized (promptLock) { // disable the possibility, that the user
                     // will be prompted multiple times at once by concurrenly running commands
@@ -898,8 +898,13 @@ public class CommandCustomizationSupport extends Object {
                 Boolean ctrlDown = (Boolean)vars.get(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION);
                 boolean expertCondition = fileSystem.isExpertMode() || (ctrlDown != null && ctrlDown.booleanValue() == true);
                 boolean acceptUserParams = fileSystem.isAcceptUserParams() || (ctrlDown != null && ctrlDown.booleanValue() == true);
-                Table userParamsPromptLabels = needPromptForUserParams(fileSystem, exec, vars, userParamsVarNames,
-                                                                       userParamsIndexes, cmd, acceptUserParams);
+                Table userParamsPromptLabels;
+                if (exec == null) {
+                    userParamsPromptLabels = new Table();
+                } else {
+                    userParamsPromptLabels = needPromptForUserParams(fileSystem, exec, vars, userParamsVarNames,
+                                                                     userParamsIndexes, cmd, acceptUserParams);
+                }
                 /*
                 createTempPromptFiles(promptFile);
                 if (prompt != null && prompt.size() > 0 || ask != null && ask.size() > 0 ||

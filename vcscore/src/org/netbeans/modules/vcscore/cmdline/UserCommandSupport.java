@@ -461,10 +461,11 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         //System.out.println("subFiles = "+subFiles+", files = "+files+", MODULE = "+vars.get("MODULE")+", DIR = "+vars.get("DIR"));
         //Hashtable vars = fileSystem.getVariablesAsHashtable();
         //System.out.println("\nVARS for cmd = "+cmd+" ARE:"+vars+"\n");
+        String commandExec = (String) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC);
         String newExec = CommandCustomizationSupport.preCustomize(fileSystem, vcsCmd, vars);
-        if (newExec == null) return new UserCancelException();
+        if (commandExec != null && newExec == null) return new UserCancelException();
         Object finalCustomizer = null;
-        if (newExec != null && doCreateCustomizer) {
+        if ((commandExec == null || newExec != null) && doCreateCustomizer) {
             finalCustomizer = createCustomizer(customizer, newExec, vars, forEachFile,
                                                cmd, files, cacheProvider, valueAdjustment,
                                                cmdCanRunOnMultipleFiles,
