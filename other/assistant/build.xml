@@ -31,7 +31,7 @@ Microsystems, Inc. All Rights Reserved.
                 </fileset>
 								<pathelement location="../../core/netbeans/lib/core.jar"/>
 								<pathelement location="../../utilities/netbeans/modules/utilities.jar"/>
-								<pathelement location="../../editor/netbeans/modules/ext/nb-editor.jar"/>
+								<pathelement location="../../editor/netbeans/modules/editor-lib.jar"/>
             </classpath>
         </javac>
     </target>

@@ -28,7 +28,7 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement path="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>
         <pathelement path="${tasklist/core.dir}/${nb.modules/autoload.dir}/tasklist-core.jar"/>
         <pathelement path="${tasklist/suggestions.dir}/${nb.modules/autoload.dir}/suggestions-framework.jar"/>
-        <pathelement location="${editor.dir}/${nb.modules.dir}/ext/nb-editor.jar"/>
+        <pathelement location="${editor.dir}/${nb.modules.dir}/editor-lib.jar"/>
         <pathelement location="${editor.dir}/${nb.modules.dir}/editor.jar"/>
         <pathelement location="${core/settings.dir}/${nb.modules.dir}/org-netbeans-modules-settings.jar"/>
 

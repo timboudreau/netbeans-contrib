@@ -84,7 +84,7 @@ Microsystems, Inc. All Rights Reserved.
           <include name="openide*.jar" />
         </fileset>
 	<pathelement location="../editor/netbeans/modules/editor.jar"/>
-	<pathelement location="../editor/netbeans/modules/ext/nb-editor.jar"/>
+	<pathelement location="../editor/netbeans/modules/editor-lib.jar"/>
       </classpath>
     </javac>
   </target>

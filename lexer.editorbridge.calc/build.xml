@@ -49,7 +49,7 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${xmlparser}"/>
         <pathelement location="../../netbeans/modules/lexer.jar"/>
         <pathelement location="../netbeans/modules/lexer-editorbridge.jar"/>
-        <pathelement location="../../../editor/netbeans/modules/ext/nb-editor.jar"/>
+        <pathelement location="../../../editor/netbeans/modules/editor-lib.jar"/>
         <pathelement location="../../../editor/netbeans/modules/editor.jar"/>
         <fileset dir="../../../openide/netbeans/lib">
           <include name="openide*.jar" />

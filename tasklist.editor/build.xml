@@ -33,7 +33,7 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${tasklist/usertasks.dir}/${nb.modules.dir}/tasklist-usertasks.jar"/>
 
         <!-- CCDB -->
-        <pathelement location="${editor.dir}/${nb.modules.dir}/ext/nb-editor.jar"/>
+        <pathelement location="${editor.dir}/${nb.modules.dir}/org-netbeans-modules-editor-lib.jar"/>
         <pathelement location="${editor.dir}/${nb.modules.dir}/org-netbeans-modules-editor.jar"/>
 
         <!-- java friend -->
