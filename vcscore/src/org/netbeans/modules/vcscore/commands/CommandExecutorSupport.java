@@ -229,7 +229,8 @@ public class CommandExecutorSupport extends Object {
                     VcsCommand cmd = ((VcsDescribedTask) tasks[i]).getVcsCommand();
                     boolean doRefreshCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER);
                     boolean doRefreshParent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER);
-                    if (doRefreshCurrent || doRefreshParent) {
+                    boolean doRefreshParentOfCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_OF_CURRENT_FOLDER);
+                    if (doRefreshCurrent || doRefreshParent || doRefreshParentOfCurrent) {
                         //System.out.println("  Command "+cmd+" running, will refresh later...");
                         refreshLater = true;
                         break;
@@ -319,8 +320,9 @@ public class CommandExecutorSupport extends Object {
         VcsCommand cmd = vce.getCommand();
         boolean doRefreshCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER);
         boolean doRefreshParent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER);
+        boolean doRefreshParentOfCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_OF_CURRENT_FOLDER);
         //System.out.println("getFoldersToRefresh("+fileSystem+", "+vce+", "+foldersOnly+"), current = "+doRefreshCurrent+", parent = "+doRefreshParent);
-        if (doRefreshCurrent || doRefreshParent) {
+        if (doRefreshCurrent || doRefreshParent || doRefreshParentOfCurrent) {
             Collection files = vce.getFiles();
             //System.out.println("  files = "+files);
             for(Iterator it = files.iterator(); it.hasNext(); ) {
@@ -332,13 +334,20 @@ public class CommandExecutorSupport extends Object {
                 String[] folderNames = getFolderToRefresh(fileSystem, vce.getExec(),
                                                           cmd, dir, file, foldersOnly,
                                                           doRefreshCurrent, doRefreshParent,
-                                                          recursively);
+                                                          doRefreshParentOfCurrent, recursively);
                 if (folderNames != null) {
                     for (int i = 0; i < folderNames.length; i++) {
                         String folderName = folderNames[i];
                         Boolean rec = (Boolean) foldersToRefresh.get(folderName);
                         if (!Boolean.TRUE.equals(rec)) {
-                            foldersToRefresh.put(folderName, recursively[0]);
+                            rec = recursively[0];
+                            if (i == 0 && rec.booleanValue() && folderNames.length > 1) {
+                                // we know that the parent folder will be the first in the array.
+                                // If there are two folders being refreshed, only the inner one
+                                // is refreshed recursively (see issue #48723).
+                                rec = Boolean.FALSE;
+                            }
+                            foldersToRefresh.put(folderName, rec);
                         }
                     }
                 }
@@ -354,43 +363,58 @@ public class CommandExecutorSupport extends Object {
     private static String[] getFolderToRefresh(VcsFileSystem fileSystem, String exec,
                                                VcsCommand cmd, String dir, String file,
                                                boolean foldersOnly, boolean doRefreshCurrent,
-                                               boolean doRefreshParent, Boolean[] recursively) {
+                                               boolean doRefreshParent, boolean doRefreshParentOfCurrent,
+                                               Boolean[] recursively) {
 
         FileCacheProvider cache = fileSystem.getCacheProvider();
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         if (statusProvider == null) return null; // No refresh without a status provider
-        if (doRefreshCurrent || doRefreshParent) { // NOI18N
+        if (doRefreshCurrent || doRefreshParent || doRefreshParentOfCurrent) { // NOI18N
             //D.deb("Now refresh folder after CheckIn,CheckOut,Lock,Unlock... commands for convenience"); // NOI18N
             //fileSystem.setAskIfDownloadRecursively(false); // do not ask if using auto refresh
             String refreshPath = dir;//(String) vars.get("DIR");
             refreshPath.replace(java.io.File.separatorChar, '/');
             String refreshPathFile = refreshPath + ((refreshPath.length() > 0) ? "/" : "") + file; //(String) vars.get("FILE");
-            String[] refreshPaths = null;
-            if (cache != null && cache.isDir(refreshPathFile)) {
-                if (doRefreshCurrent && doRefreshParent) {
-                    refreshPaths = new String[] { refreshPath, refreshPathFile };
-                } else if (!doRefreshParent) {
-                    refreshPath = refreshPathFile;
+            String currentFolder;
+            String parentFolder;
+            if (cache != null && cache.isDir(refreshPathFile)) { // folder is selected
+                currentFolder = refreshPathFile;
+                parentFolder = refreshPath;
+            } else { // file is selected
+                if (foldersOnly) return null;
+                currentFolder = parentFolder = refreshPath;
+            }
+            List refreshPaths = new ArrayList(2);
+            // it's important to return the parent folder first, because of the logic in getFoldersToRefresh()
+            if (doRefreshParentOfCurrent) {
+                String parent = parentFolder;
+                if (currentFolder.equals(parentFolder)) {
+                    int index = currentFolder.lastIndexOf('/');
+                    if (index > 0) {
+                        parent = currentFolder.substring(0, index);
+                    }
+                }
+                if (!refreshPaths.contains(parent)) {
+                    refreshPaths.add(parent);
                 }
             }
-            //if (!doRefreshParent && cache != null && cache.isDir(refreshPathFile)) refreshPath = refreshPathFile;
+            if (doRefreshParent && !refreshPaths.contains(parentFolder)) {
+                refreshPaths.add(parentFolder);
+            }
+            if (doRefreshCurrent && !refreshPaths.contains(currentFolder)) {
+                refreshPaths.add(currentFolder);
+            }
             String patternMatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED);
             String patternUnmatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED);
+            String innerRefreshFolder = (String) refreshPaths.get(refreshPaths.size() - 1);
             boolean rec = (exec != null
-                && (cache == null || !(cache.isFile(refreshPathFile)
-                                       || (!cache.isDir(refreshPathFile) && !fileSystem.folder(refreshPathFile))))
+                && (cache == null || !(cache.isFile(innerRefreshFolder)
+                                       || (!cache.isDir(innerRefreshFolder) && !fileSystem.folder(innerRefreshFolder))))
                 && (patternMatch != null && patternMatch.length() > 0 && exec.indexOf(patternMatch) >= 0
                     || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0));
             recursively[0] = (rec) ? Boolean.TRUE : Boolean.FALSE;
             //System.out.println("  !foldersOnly = "+(!foldersOnly)+", cache.isDir("+refreshPath+") = "+cache.isDir(refreshPath));
-            if (refreshPaths != null) {
-                return refreshPaths;
-            } else if (!foldersOnly || cache.isDir(refreshPath)) {
-                //System.out.println("  CALLING REFRESH!");
-                return new String[] { refreshPath };
-            } else {
-                return null;
-            }
+            return (String[]) refreshPaths.toArray(new String[0]);
         } else {
             return null;
         }

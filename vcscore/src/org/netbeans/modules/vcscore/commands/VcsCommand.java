@@ -162,12 +162,21 @@ public interface VcsCommand extends VcsCommandCookie {
     
     /**
      * When this property is true, refresh of the current folder is performed after successfull execution of this command.
+     * When a file is selected, the folder in which the file resides is refreshed,
+     * when a folder is selected, refresh of that folder is performed.
      */
     public static final String PROPERTY_REFRESH_CURRENT_FOLDER = "refreshCurrentFolder";
     /**
      * When this property is true, refresh of the parent folder is performed after successfull execution of this command.
+     * The parent folder of the selected file/folder is refreshed.
      */
     public static final String PROPERTY_REFRESH_PARENT_FOLDER = "refreshParentFolder";
+    /**
+     * When this property is true, refresh of the parent folder of the current folder is performed after successfull execution of this command.
+     * When a file is selected, it's grand-parent folder is refreshed,
+     * when a folder is selected, it's parent folder is refreshed.
+     */
+    public static final String PROPERTY_REFRESH_PARENT_OF_CURRENT_FOLDER = "refreshParentOfCurrentFolder";
     /**
      * Pattern that when matched from the exec string, the refresh is performed recursively.
      */
