@@ -171,13 +171,13 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     /**
      *Searchs tasks structure for valid displayName
      */
-    private String findDisplayName(CommandTask task){
-        String dispName = null;       
-        while(dispName == null && task != null){
+    private String findDisplayName(CommandTask task) {
+        String dispName = null;
+        while(dispName == null && task != null) {
             dispName = task.getDisplayName();
-            task = CommandProcessor.getInstance().getParentTask(task);            
+            task = CommandProcessor.getInstance().getParentTask(task);
         }
-        if(dispName == null)dispName = task.getName();
+        if (dispName == null) dispName = this.task.getName();
         return Actions.cutAmpersand(dispName);
     }
         
