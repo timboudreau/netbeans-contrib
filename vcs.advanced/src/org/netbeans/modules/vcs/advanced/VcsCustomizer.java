@@ -119,9 +119,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         promptLockLabel = new javax.swing.JLabel();
         promptLockTextField = new javax.swing.JTextField();
         debugCheckBox = new javax.swing.JCheckBox();
+        compatibleOSLabel = new javax.swing.JLabel();
         compatibleOSTextField = new javax.swing.JTextField();
-        compatibleOSCheckBox = new javax.swing.JCheckBox();
-        uncompatibleOSCheckBox = new javax.swing.JCheckBox();
+        uncompatibleOSLabel = new javax.swing.JLabel();
         uncompatibleOSTextField = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         cmdButton = new javax.swing.JButton();
@@ -571,6 +571,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6.weightx = 1.0;
         advancedPanel.add(debugCheckBox, gridBagConstraints6);
         
+        compatibleOSLabel.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.compatibleOSLabel.text"));
+        gridBagConstraints6 = new java.awt.GridBagConstraints();
+        gridBagConstraints6.gridx = 1;
+        gridBagConstraints6.gridy = 9;
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        advancedPanel.add(compatibleOSLabel, gridBagConstraints6);
+        
         compatibleOSTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 compatibleOSTextFieldFocusLost(evt);
@@ -584,31 +591,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6.weightx = 1.0;
         advancedPanel.add(compatibleOSTextField, gridBagConstraints6);
         
-        compatibleOSCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.compatibleOSCheckBox.text"));
-        compatibleOSCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                compatibleOSCheckBoxActionPerformed(evt);
-            }
-        });
-        
-        gridBagConstraints6 = new java.awt.GridBagConstraints();
-        gridBagConstraints6.gridx = 1;
-        gridBagConstraints6.gridy = 9;
-        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
-        advancedPanel.add(compatibleOSCheckBox, gridBagConstraints6);
-        
-        uncompatibleOSCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.uncompatibleOSCheckBox.text"));
-        uncompatibleOSCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                uncompatibleOSCheckBoxActionPerformed(evt);
-            }
-        });
-        
+        uncompatibleOSLabel.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.uncompatibleOSLabel.text"));
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
         gridBagConstraints6.gridy = 10;
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
-        advancedPanel.add(uncompatibleOSCheckBox, gridBagConstraints6);
+        advancedPanel.add(uncompatibleOSLabel, gridBagConstraints6);
         
         uncompatibleOSTextField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -827,19 +815,29 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private void compatibleOSTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_compatibleOSTextFieldFocusLost
         // Add your handling code here:
+        String OSStr = compatibleOSTextField.getText().trim();
+        Set OSSet;
+        if (OSStr.length() == 0) {
+            OSSet = Collections.EMPTY_SET;
+        } else {
+            String[] OSs = VcsUtilities.getQuotedStrings(OSStr);
+            OSSet = new HashSet(Arrays.asList(OSs));
+        }
+        fileSystem.setCompatibleOSs(OSSet);
     }//GEN-LAST:event_compatibleOSTextFieldFocusLost
 
     private void uncompatibleOSTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_uncompatibleOSTextFieldFocusLost
         // Add your handling code here:
+        String OSStr = uncompatibleOSTextField.getText().trim();
+        Set OSSet;
+        if (OSStr.length() == 0) {
+            OSSet = Collections.EMPTY_SET;
+        } else {
+            String[] OSs = VcsUtilities.getQuotedStrings(OSStr);
+            OSSet = new HashSet(Arrays.asList(OSs));
+        }
+        fileSystem.setUncompatibleOSs(OSSet);
     }//GEN-LAST:event_uncompatibleOSTextFieldFocusLost
-
-    private void compatibleOSCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_compatibleOSCheckBoxActionPerformed
-        // Add your handling code here:
-    }//GEN-LAST:event_compatibleOSCheckBoxActionPerformed
-
-    private void uncompatibleOSCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uncompatibleOSCheckBoxActionPerformed
-        // Add your handling code here:
-    }//GEN-LAST:event_uncompatibleOSCheckBoxActionPerformed
 
     private void allProfilesCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_allProfilesCheckBoxActionPerformed
         // Add your handling code here:
@@ -1152,7 +1150,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         String configLabel = chooseFile.getSelectedConfigLabel();
         FileObject file = dir.getFileObject(selected, VariableIO.CONFIG_FILE_EXT);
         boolean configExists = false;
-        String profileName = selected + "." + VariableIO.CONFIG_FILE_EXT;
+        //String profileName = selected + "." + VariableIO.CONFIG_FILE_EXT;
         if (file == null) {
             try {
                 file = dir.createData(selected, VariableIO.CONFIG_FILE_EXT);
@@ -1170,43 +1168,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             }
             configExists = true;
         }
-        org.w3c.dom.Document doc = null;
-        /*
-        DataObject dobj = null;
-        try {
-            dobj = DataObject.find(file);
-        } catch (DataObjectNotFoundException exc) {
-            dobj = null;
-        }
-        if (dobj != null && dobj instanceof XMLDataObject) {
-            doc = ((XMLDataObject) dobj).createDocument();
-        }
-         */
-        doc = org.openide.xml.XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, null, null);
         Vector variables = fileSystem.getVariables ();
         Node commands = fileSystem.getCommands();
         if (configLabel == null || configLabel.length() == 0) configLabel = selected;
-        //String label = selected;
-        if (doc != null) {
-            FileLock lock = null;
-            try {
-                lock = file.lock();
-                VariableIO.writeVariables(doc, configLabel, variables);
-                UserCommandIO.writeCommands(doc, commands);
-                org.openide.xml.XMLUtil.write(doc, file.getOutputStream(lock), null);
-                //XMLDataObject.write(doc, new BufferedWriter(new OutputStreamWriter(file.getOutputStream(lock))));
-            } catch (org.w3c.dom.DOMException exc) {
-                org.openide.TopManager.getDefault().notifyException(exc);
-            } catch (java.io.IOException ioexc) {
-                org.openide.TopManager.getDefault().notifyException(ioexc);
-            } finally {
-                if (lock != null) lock.releaseLock();
-            }
-            //cache.put(configLabel, doc);
-            cache.addProfile(profileName, configLabel, variables, commands);
-        } else {
-            //VariableIOCompat.write (file, label, variables, advanced, fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ());
-        }
+        cache.addProfile(selected, configLabel, variables, commands,
+                         fileSystem.getCompatibleOSs(), fileSystem.getUncompatibleOSs(), true);
         fileSystem.setConfig (configLabel);
         fileSystem.setConfigFileName(file.getNameExt());
         if (!configExists) {
@@ -1218,29 +1184,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 }
             });
         }
-        /*
-          ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(fileSystem.getConfigRoot()), true);
-          VcsUtilities.centerWindow (chooseFile);
-          chooseFile.show();
-          String selected=chooseFile.getSelectedFile ();
-          if(selected==null) return;
-          if(!selected.endsWith(".properties")) { // NOI18N
-            selected += ".properties"; // NOI18N
-          }
-          File f = new File (selected); 
-          if( selected==null ){
-            //D.deb("no directory selected"); // NOI18N
-            return ;
-          }
-          String label = selected;
-          label = f.getName ().substring (0, f.getName ().length() - ".properties".length()); // NOI18N
-          Vector variables=fileSystem.getVariables ();
-          Object advanced=fileSystem.getAdvancedConfig ();
-          VcsConfigVariable.writeConfiguration (selected, label, variables, advanced, fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ()); 
-          promptForConfigComboChange = false;
-          fileSystem.setConfig (label);
-          updateConfigurations ();
-        */
     }//GEN-LAST:event_saveAsButtonActionPerformed
 
     private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-FIRST:event_configComboItemStateChanged
@@ -1339,9 +1282,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private javax.swing.JLabel promptLockLabel;
     private javax.swing.JTextField promptLockTextField;
     private javax.swing.JCheckBox debugCheckBox;
+    private javax.swing.JLabel compatibleOSLabel;
     private javax.swing.JTextField compatibleOSTextField;
-    private javax.swing.JCheckBox compatibleOSCheckBox;
-    private javax.swing.JCheckBox uncompatibleOSCheckBox;
+    private javax.swing.JLabel uncompatibleOSLabel;
     private javax.swing.JTextField uncompatibleOSTextField;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JButton cmdButton;
@@ -1435,8 +1378,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         lockCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.lockCheckBox.mnemonic").charAt (0));
         promptLockCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.promptLockCheckBox.mnemonic").charAt (0));
         debugCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.debugCheckBox.mnemonic").charAt (0));
-        compatibleOSCheckBox.setMnemonic (g ("VcsCustomizer.compatibleOSCheckBox.mnemonic").charAt (0));
-        uncompatibleOSCheckBox.setMnemonic (g ("VcsCustomizer.uncompatibleOSCheckBox.mnemonic").charAt (0));
+        compatibleOSLabel.setLabelFor(compatibleOSTextField);
+        compatibleOSLabel.setDisplayedMnemonic(g ("VcsCustomizer.compatibleOSLabel.mnemonic").charAt (0));
+        //compatibleOSCheckBox.setMnemonic (g ("VcsCustomizer.compatibleOSCheckBox.mnemonic").charAt (0));
+        uncompatibleOSLabel.setLabelFor(uncompatibleOSTextField);
+        uncompatibleOSLabel.setDisplayedMnemonic(g ("VcsCustomizer.uncompatibleOSLabel.mnemonic").charAt (0));
+        //uncompatibleOSCheckBox.setMnemonic (g ("VcsCustomizer.uncompatibleOSCheckBox.mnemonic").charAt (0));
         promptLockLabel.setDisplayedMnemonic (g ("VcsCustomizer.promptLockLabel.mnemonic").charAt (0));
         promptLockLabel.setLabelFor (promptLockTextField);
         promptEditLabel.setDisplayedMnemonic (g ("VcsCustomizer.promptEditLabel.mnemonic").charAt (0));
@@ -1508,6 +1455,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             fileSystem.setCommands(commands);
             fileSystem.setConfig(label);
             fileSystem.setConfigFileName(cache.getProfileName(label));//(String) configNamesByLabel.get(label));
+            fileSystem.setCompatibleOSs(cache.getProfileCompatibleOSs(label));
+            fileSystem.setUncompatibleOSs(cache.getProfileUncompatibleOSs(label));
             String autoFillVarsStr = (String) fileSystem.getVariablesAsHashtable().get(VAR_AUTO_FILL);
             if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
         }
@@ -1951,6 +1900,20 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         promptLockCheckBox.setEnabled(isLock && lockCheckBox.isSelected());
         message = (String) fileSystem.getVariablesAsHashtable().get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
         promptLockTextField.setText((message == null) ? "" : message);
+        Set OSSet = fileSystem.getCompatibleOSs();
+        if (OSSet == null) {
+            compatibleOSTextField.setText("");
+        } else {
+            String[] OSs = (String[]) new TreeSet(OSSet).toArray(new String[0]);
+            compatibleOSTextField.setText((OSs.length > 0) ? VcsUtilities.arrayToQuotedStrings(OSs) : "");
+        }
+        OSSet = fileSystem.getUncompatibleOSs();
+        if (OSSet == null) {
+            uncompatibleOSTextField.setText("");
+        } else {
+            String[] OSs = (String[]) new TreeSet(OSSet).toArray(new String[0]);
+            uncompatibleOSTextField.setText((OSs.length > 0) ? VcsUtilities.arrayToQuotedStrings(OSs) : "");
+        }
     }
     
     //-------------------------------------------

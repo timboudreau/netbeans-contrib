@@ -426,15 +426,48 @@ public class VariableIO extends Object {
      * and localDir are false.
      */
     public static void writeVariables(Document doc, String label, Vector vars) throws DOMException {
+        writeVariables(doc, label, vars, null, null);
+    }
+    
+    /** Write list of VCS variables to the document.
+     * If there is only value specified, label is empty string and basic, localFile
+     * and localDir are false.
+     */
+    public static void writeVariables(Document doc, String label, Vector vars,
+                                      Set compatibleOSs, Set uncompatibleOSs) throws DOMException {
         Element rootElem = doc.getDocumentElement(); //doc.createElement(CONFIG_ROOT_ELEM);
         //doc.appendChild(rootElem);
         Element labelNode = doc.createElement(LABEL_TAG);
         Text labelText = doc.createTextNode(label);
         labelNode.appendChild(labelText);
         rootElem.appendChild(labelNode);
+        if (compatibleOSs != null && uncompatibleOSs != null) {
+            if (compatibleOSs.size() > 0 || uncompatibleOSs.size() > 0) {
+                Element osNode = doc.createElement(OS_TAG);
+                putOSs(doc, osNode, compatibleOSs, uncompatibleOSs);
+                rootElem.appendChild(osNode);
+            }
+        }
         Element varsNode = doc.createElement(VARIABLES_TAG);
         putVariables(doc, varsNode, vars);
         rootElem.appendChild(varsNode);
+    }
+    
+    private static void putOSs(Document doc, Node osNode, Set compatibleOSs, Set uncompatibleOSs) throws DOMException {
+        if (compatibleOSs.size() > 0) {
+            Element compElem = doc.createElement(OS_COMPATIBLE_TAG);
+            String compOS = VcsUtilities.arrayToQuotedStrings((String[]) new TreeSet(compatibleOSs).toArray(new String[0]));
+            Text valueElem = doc.createTextNode(compOS);
+            compElem.appendChild(valueElem);
+            osNode.appendChild(compElem);
+        }
+        if (uncompatibleOSs.size() > 0) {
+            Element uncompElem = doc.createElement(OS_UNCOMPATIBLE_TAG);
+            String uncompOS = VcsUtilities.arrayToQuotedStrings((String[]) new TreeSet(uncompatibleOSs).toArray(new String[0]));
+            Text valueElem = doc.createTextNode(uncompOS);
+            uncompElem.appendChild(valueElem);
+            osNode.appendChild(uncompElem);
+        }
     }
     
     private static void putVariables(Document doc, Node varsNode, Vector vars) throws DOMException {

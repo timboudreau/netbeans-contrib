@@ -106,6 +106,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private String cachePath;
     private long cacheId = 0;
     private boolean shortFileStatuses = false;
+    private Set compatibleOSs = null;
+    private Set uncompatibleOSs = null;
     private transient boolean doInitialCheckout = false; // whether to do an initial checkout after the FS is mounted
 
     static final long serialVersionUID =-1017235664394970926L;
@@ -651,6 +653,34 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return super.getCommands();
     }
 
+    /** Getter for property compatibleOSs.
+     * @return Value of property compatibleOSs.
+     */
+    public java.util.Set getCompatibleOSs() {
+        return compatibleOSs;
+    }
+    
+    /** Setter for property compatibleOSs.
+     * @param compatibleOSs New value of property compatibleOSs.
+     */
+    public void setCompatibleOSs(java.util.Set compatibleOSs) {
+        this.compatibleOSs = compatibleOSs;
+    }
+    
+    /** Getter for property uncompatibleOSs.
+     * @return Value of property uncompatibleOSs.
+     */
+    public java.util.Set getUncompatibleOSs() {
+        return uncompatibleOSs;
+    }
+    
+    /** Setter for property uncompatibleOSs.
+     * @param uncompatibleOSs New value of property uncompatibleOSs.
+     */
+    public void setUncompatibleOSs(java.util.Set uncompatibleOSs) {
+        this.uncompatibleOSs = uncompatibleOSs;
+    }
+    
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         in.defaultReadObject();
         setConfigFO();
@@ -773,5 +803,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private String clg(String s, Object obj) {
         return MessageFormat.format (clg(s), new Object[] { obj });
     }
+    
 }
 
