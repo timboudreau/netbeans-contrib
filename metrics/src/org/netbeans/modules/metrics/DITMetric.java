@@ -49,6 +49,13 @@ public class DITMetric extends AbstractMetric {
         super(classMetrics);
     }
 
+    /**
+     * Do not use this constructor!  It's only to be used by the Lookup
+     * service when dynamically loading metric classes.
+     */
+    public DITMetric() {
+    }
+
     public String getName() {
         return "DITMetric";
     }

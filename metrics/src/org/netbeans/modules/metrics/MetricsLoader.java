@@ -20,6 +20,13 @@
 package org.netbeans.modules.metrics;
 
 import java.lang.reflect.Constructor;
+import java.util.Collection;
+import java.util.Iterator;
+import org.openide.ErrorManager;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
+
 
 /**
  * The utility class responsible for discovering, loading and managing 
@@ -28,22 +35,40 @@ import java.lang.reflect.Constructor;
  * @author  tball
  * @version
  */
-public class MetricsLoader {
+public final class MetricsLoader {
 
     private MetricsLoader() {
 	// don't instantiate
     }
 
-    private static Class[] metricClasses = {
-        WMCMetric.class,
-        CBOMetric.class,
-        RFCMetric.class,
-        MPCMetric.class,
-        DITMetric.class,
-        NOCMetric.class,
-        NTMetric.class
-    };
-    private static int maxMetrics = metricClasses.length;
+    private static Class[] metricClasses;
+    private static int maxMetrics;
+
+    // Lookup installed metric classes.
+    static {
+	Lookup.Template template = new Lookup.Template(Metric.class);
+	final Lookup.Result result = Lookup.getDefault().lookup(template);
+	result.addLookupListener(new LookupListener() {
+		public void resultChanged(LookupEvent e) {
+		    loadMetricClasses(result);
+		}
+	    });
+	loadMetricClasses(result);
+    }
+
+    private static void loadMetricClasses(Lookup.Result result) {
+	synchronized (MetricsLoader.class) {
+	    Collection c = result.allInstances();
+	    maxMetrics = c.size();
+	    metricClasses = new Class[maxMetrics];
+	    int n = 0;
+	    for (Iterator i = c.iterator(); i.hasNext(); )
+		metricClasses[n++] = i.next().getClass();
+	}
+
+String msg = "metrics module: " + maxMetrics + " metric(s) were loaded";
+org.openide.ErrorManager.getDefault().log(ErrorManager.ERROR, msg);
+    }
 
     public static Class[] getMetricClasses() {
 	return metricClasses;
@@ -79,9 +104,11 @@ public class MetricsLoader {
 		oneParam[0] = cm;
 		metrics[i] = (Metric)c.newInstance(oneParam);
 	    } catch (Exception e) {
-		System.err.println("couldn't create metric: " + 
-				   cls.getName());
-		e.printStackTrace();
+		ErrorManager err = ErrorManager.getDefault();
+		err.notify(
+		    ErrorManager.ERROR, 
+		    err.annotate(e, 
+				 "couldn't create metric: " + cls.getName()));
 	    }
 	}
 	return metrics;

@@ -44,6 +44,13 @@ public class CBOMetric extends AbstractMetric {
         super(classMetrics);
     }
 
+    /**
+     * Do not use this constructor!  It's only to be used by the Lookup
+     * service when dynamically loading metric classes.
+     */
+    public CBOMetric() {
+    }
+
     public String getName() {
         return "CBOMetric";
     }

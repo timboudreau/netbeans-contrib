@@ -41,6 +41,13 @@ public class MPCMetric extends AbstractMetric {
         super(classMetrics);
     }
 
+    /**
+     * Do not use this constructor!  It's only to be used by the Lookup
+     * service when dynamically loading metric classes.
+     */
+    public MPCMetric() {
+    }
+
     public String getName() {
         return "MPCMetric";
     }

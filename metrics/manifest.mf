@@ -4,9 +4,8 @@ OpenIDE-Module-Module-Dependencies: org.netbeans.modules.classfile/1 > 1.2, org.
 OpenIDE-Module-Name: Java Metrics Module
 OpenIDE-Module-Short-Description: OO metrics for class files.
 OpenIDE-Module-Display-Category: Java
-OpenIDE-Module-Specification-Version: 0.5.2
+OpenIDE-Module-Specification-Version: 0.6
 OpenIDE-Module-Implementation-Version: 0.1
-OpenIDE-Module-Install: org/netbeans/modules/metrics/MetricsModule.class
 OpenIDE-Module-Layer: org/netbeans/modules/metrics/resources/mf-layer.xml
 
 Name: org/netbeans/modules/metrics/ShowMetricsAction.class

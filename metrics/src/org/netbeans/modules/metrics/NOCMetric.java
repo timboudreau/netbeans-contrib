@@ -42,6 +42,13 @@ public class NOCMetric extends AbstractMetric {
         super(classMetrics);
     }
 
+    /**
+     * Do not use this constructor!  It's only to be used by the Lookup
+     * service when dynamically loading metric classes.
+     */
+    public NOCMetric() {
+    }
+
     public String getName() {
         return "NOCMetric";
     }

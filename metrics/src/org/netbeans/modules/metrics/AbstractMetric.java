@@ -48,6 +48,9 @@ public abstract class AbstractMetric implements Metric {
         this.classMetrics = classMetrics;
     }
 
+    public AbstractMetric() {
+    }
+
     public String toString() {
         return getMetricValue().toString();
     }

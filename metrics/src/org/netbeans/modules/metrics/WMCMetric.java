@@ -58,6 +58,13 @@ public class WMCMetric extends AbstractMetric {
         super(classMetrics);
     }
 
+    /**
+     * Do not use this constructor!  It's only to be used by the Lookup
+     * service when dynamically loading metric classes.
+     */
+    public WMCMetric() {
+    }
+
     public String getName() {
         return "WMCMetric";
     }
