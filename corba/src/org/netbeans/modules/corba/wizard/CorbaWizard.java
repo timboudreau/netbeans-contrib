@@ -54,7 +54,6 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.enum.QueueEnumeration;
 import org.netbeans.modules.corba.wizard.panels.*;
-import org.netbeans.modules.projects.NewProjectAction;
 import org.netbeans.modules.corba.IDLDataObject;
 import org.netbeans.modules.corba.CORBASupport;
 import org.netbeans.modules.corba.IDLNodeCookie;
