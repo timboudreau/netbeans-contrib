@@ -38,6 +38,7 @@ import org.openide.filesystems.Repository;
 import org.openide.util.WeakListener;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.JInlineMenu;
 import org.openide.actions.FileSystemAction;
@@ -209,6 +210,10 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
                 for(int i = 0; i < globalMenu.length; i++){
                     if(globalMenu[i].getText().equals(eMenu.getText()))
                         m1[0] = globalMenu[i];
+                }
+                if (m1[0] == null) {
+                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "'"+eMenu.getText()+"' not found among global commands.");
+                    return ;
                 }
                 JMenuItem[] contextMenu = getContextMenu(inMenu, lookup);
                 //setMenuItems(mergeMenu(globalMenu, contextMenu));
