@@ -58,16 +58,31 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         if (dirName != null) {
             dir = new File(dir, dirName);
         }
-        File patchRoot = dir;
-        try {
-            patchRoot = patchRoot.getCanonicalFile();
-        } catch (IOException e) { }
+        String path = "";
+        if (module != null) {
+            path = module.replace(File.separatorChar, '/');
+            if (!path.endsWith("/")) {
+                path += "/";
+            }
+        }
+        if (dirName != null) {
+            path += dirName.replace(File.separatorChar, '/');
+            if (!path.endsWith("/")) {
+                path += "/";
+            }
+        }
         String fileName = (String) vars.get("FILE");
+        if (fileName != null) {
+            path += fileName;
+        }
         File file;
         if (fileName == null) {
             file = dir;
         } else {
             file = new File(dir, fileName);
+        }
+        if (file.isDirectory() && !path.endsWith("/")) {
+            path += "/";
         }
         File toFile = new File((String) vars.get("TOFILE"));
         String editedOnly = (String) vars.get("EDITED_FILES_ONLY");
@@ -77,7 +92,7 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         }
         try {
             PrintStream out = new PrintStream(new FileOutputStream(toFile));
-            diff(patchRoot, out, file, new Boolean(editedOnly).booleanValue(), date);
+            diff(path, out, file, new Boolean(editedOnly).booleanValue(), date);
             out.close();
             FileObject[] fos = FileUtil.fromFile(toFile);
             for (int i = 0; i < fos.length; i++) {
@@ -95,12 +110,12 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         return true;
     }
     
-    private void diff(File patchRoot, PrintStream out, File file, boolean editedOnly, String sinceDate) {
+    private void diff(String path, PrintStream out, File file, boolean editedOnly, String sinceDate) {
         CommandOutputListener devnull = new CommandOutputListener() {
             public void outputLine(String _) { }
         };
         if (file.isDirectory()) {
-            diffDir(patchRoot, out, file, editedOnly, sinceDate);
+            diffDir(path, out, file, editedOnly, sinceDate);
         } else {
             File sccsDir = new File(file.getParentFile(), "SCCS");
             String[] data = TeamwareRefreshSupport.listFile(file,
@@ -108,11 +123,11 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
             if (data[0] != null) {
                 if (editedOnly) {
                     if (data[0].equals("Editing")) {
-                        diffFile(patchRoot, out, file);
+                        diffFile(path, out, file);
                     }
                 } else {
                     if (data[0].equals("Editing") || data[0].equals("Checked in")) {
-                        diffFile(patchRoot, out, file, sinceDate);
+                        diffFile(path, out, file, sinceDate, data[0]);
                     }
                 }
                 
@@ -120,7 +135,7 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         }
     }
     
-    private void diffDir(File patchRoot, PrintStream out, File dir, boolean editedOnly, String sinceDate) {
+    private void diffDir(String path, PrintStream out, File dir, boolean editedOnly, String sinceDate) {
 	if (TeamwareRefreshSupport.ignoreFile(dir)) {
             return;
         }
@@ -129,16 +144,20 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
             return;
         }
         for (int i = 0 ; i < files.length; i++) {
-            diff(patchRoot, out, files[i], editedOnly, sinceDate);
+            String fileName = files[i].getName();
+            if (files[i].isDirectory()) {
+                fileName += "/";
+            }
+            diff(path + fileName, out, files[i], editedOnly, sinceDate);
         }
     }
     
-    private void diffFile(File patchRoot, final PrintStream out, File file) {
+    private void diffFile(String path, final PrintStream out, File file) {
         File rFile = null;
         try {
             rFile = File.createTempFile("sccs", "txt");
             boolean exists = retrieveOldVersion(file, rFile, "");
-            out.print(getDiffs(patchRoot, rFile, file, exists));
+            out.print(getDiffs(path, rFile, file, exists));
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
@@ -147,17 +166,30 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         }
     }
     
-    private void diffFile(File patchRoot, PrintStream out, File file, String sinceDate) {
+    private void diffFile(String path,
+        PrintStream out, File file, String sinceDate, String status) {
+            
         File rFile = null;
+        boolean deleteFile = false;
         try {
             rFile = File.createTempFile("sccs", "txt");
             boolean exists = retrieveOldVersion(file, rFile, "-c" + sinceDate);
-            out.print(getDiffs(patchRoot, rFile, file, exists));
+            if (status.equals("Checked in")) {
+                File kFile = File.createTempFile("sccs", "txt");
+                if (retrieveOldVersion(file, kFile, "")) {
+                    file = kFile;
+                    deleteFile = true;
+                }
+            }
+            out.print(getDiffs(path, rFile, file, exists));
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
         if (rFile != null) {
             rFile.delete();
+        }
+        if (deleteFile) {
+            file.delete();
         }
     }
     
@@ -169,7 +201,7 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         vars.put("WORKDIR", file.getParent());
         vars.put("FILE", file.getName());
         vars.put("TMPFILE", rFile.toString());
-        vars.put("REVARGS", revArgs);
+        vars.put("REVARGS", "-k" + (revArgs.length() == 0 ? "" : " ") + revArgs);
         VcsCommand cmd = fileSystem.getCommand("GET_REVISION");
                     VcsCommandExecutor ec =
             fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
@@ -193,7 +225,7 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
     private static final String LINE_PREP_REMOVE = "- ";
     private static final String LINE_PREP_CHANGE = "! ";
 
-    private String getDiffs(File patchRoot,
+    private String getDiffs(String path,
         File oldFile, File currentFile,
         boolean exists) throws IOException {
             
@@ -210,32 +242,16 @@ public class TeamwareCreatePatchCommand implements VcsAdditionalCommand {
         br1 = new BufferedReader(new FileReader(oldFile));
         br2 = new BufferedReader(new FileReader(currentFile));
         StringBuffer content = new StringBuffer();
-        try {
-            currentFile = currentFile.getCanonicalFile();
-        } catch (IOException e) { }
-        String oldFileName = currentFile.getPath();
-        String patchedFileName = oldFileName;
-        if (oldFileName.startsWith(patchRoot.getPath())) {
-            oldFileName = oldFileName.substring(patchRoot.getPath().length());
-            if (oldFileName.startsWith(File.separator)) {
-                oldFileName = oldFileName.substring(1);
-            }
-            patchedFileName = oldFileName + ".modified";
-        } else {
-            oldFileName = currentFile.getName();
-        }
-        oldFileName = oldFileName.replace(File.separatorChar, '/');
-        patchedFileName = patchedFileName.replace(File.separatorChar, '/');
         content.append("\n------- ");
-        content.append(currentFile.getName());
+        content.append(path);
         content.append(" -------\n");
         if (exists) {
             content.append(CONTEXT_MARK1B);
-            content.append(patchedFileName);
+            content.append(path);
             content.append("\n");
         }
         content.append(CONTEXT_MARK2B);
-        content.append(oldFileName);
+        content.append(path);
         content.append("\n");
         int contextNumLines = 3;
         int line1 = 1; // Current line read from 1st file
