@@ -44,15 +44,15 @@ public class ViewBugListAction extends CallableSystemAction {
         }
 
 	// View not already created: show it this time.
-	TaskListView tv = new BugsView();
-	tv.showInMode();
-
-
-        // Refresh bug list as well, if it isn't already showing
-        BugList list = (BugList)tv.getList();
-        if (list != null) {
-            list.refresh();
-        }
+//	TaskListView tv = new BugsView();
+//	tv.showInMode();
+//
+//
+//        // Refresh bug list as well, if it isn't already showing
+//        BugList list = (BugList)tv.getList();
+//        if (list != null) {
+//            list.refresh();
+//        }
     }
     
     public String getName() {

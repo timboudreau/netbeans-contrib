@@ -85,17 +85,17 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
 	return (NbBundle.getMessage(IZBugEngine.class, "IssueZilla")); // NOI18N;
     }
     
-    public void refresh() {
+    public void refresh(final BugQuery query) {
         // Do in the background
         RequestProcessor.postRequest(new Runnable() {
                 public void run() {
-		    doRefresh();
+		    doRefresh(query);
 		}
 	    }
         );
     }
 
-    public void doRefresh() {
+    public void doRefresh(BugQuery inQuery) {
         TaskListView v = TaskListView.getCurrent();
         BugsView view = null;
         if (v instanceof TaskListView) {
@@ -106,17 +106,25 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
             
         // Do a bug query
         String query = null;
-        query = System.getProperty("netbeans.tasklist.bugquery");
-        if (query == null) {
-            // TEMPORARY HACK     TODO
-            TopManager.getDefault().notify(new NotifyDescriptor.Message("Tasklist bug summary:\nAdd -J-Dnetbeans.tasklist.bugquery=\"<query>\"\nto your runide.sh startup arguments. (This is\nobviously only a temporary hack solution until\nI've added a query customizer.)\n\nTo determine what query to use, go to issuezilla:\n   http://www.netbeans.org/issues/query.cgi\nand create a custom query. Then, add that query as <query> above.\n\nAnd don't forget to make sure to set your\nproxies if you're behind a firewall! You can do that through Tools -> Setup Wizard.\n\n(It's important to include the quotes around the query as shown above)"));
-            return;
-        } else {
-            // See if I should strip out the prefix
-            if (query.startsWith("http://www.netbeans.org/issues/buglist.cgi?")) {
-                query = query.substring(43);
-            }
-        }
+        String baseurl = null;
+//        query = System.getProperty("netbeans.tasklist.bugquery");
+//        if (query == null) {
+//            // TEMPORARY HACK     TODO
+//            TopManager.getDefault().notify(new NotifyDescriptor.Message("Tasklist bug summary:\nAdd -J-Dnetbeans.tasklist.bugquery=http://your.bug.url?<query>\nto your runide.sh startup arguments. (This is\nobviously only a temporary hack solution until\nI've added a query customizer.)\n\nTo determine what query to use, go to issuezilla:\n   http://www.netbeans.org/issues/query.cgi\nand create a custom query. Then, add that query as <query> above.\n\nAnd don't forget to make sure to set your\nproxies if you're behind a firewall! You can do that through Tools -> Setup Wizard."));
+//            return;
+//        } else {
+//            //get the baseurl
+//            int index = query.indexOf("?");
+//            if (index != -1) {
+//                baseurl = query.substring(0, index + 1);
+//                query = query.substring(index + 1);
+//            } else {
+//                //we have to have the URL
+//                TopManager.getDefault().notify(new NotifyDescriptor.Message("Tasklist bug summary:\nAdd -J-Dnetbeans.tasklist.bugquery=You must have the full URL for this query (Ex. http://www.netbeans.org/issues/buglist.cgi?<query>"));
+//            }
+//        }
+        baseurl = inQuery.getBaseUrl() + "/buglist.cgi?";
+        query = inQuery.getQueryString();
 
         //String query= "issue_type=DEFECT&component=projects&issue_status=UNCONFIRMED&issue_status=NEW&issue_status=STARTED&issue_status=REOPENED&version=4.0+dev&email1=&emailtype1=substring&emailassigned_to1=1&email2=&emailtype2=substring&emailreporter2=1&issueidtype=include&issue_id=&changedin=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&short_desc=&short_desc_type=substring&long_desc=&long_desc_type=substring&issue_file_loc=&issue_file_loc_type=substring&status_whiteboard=&status_whiteboard_type=substring&keywords=&keywords_type=anywords&field0-0-0=noop&type0-0-0=noop&value0-0-0=&cmdtype=doit&newqueryname=&order=Reuse+same+sort+as+last+time";
 
@@ -125,7 +133,6 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
                           NbBundle.getMessage(IZBugEngine.class, 
                                               "Refreshing")); // NOI18N
 	URL url = null;
-        String baseurl = "http://www.netbeans.org/issues/";
 	try {
 	    url = new URL(baseurl);
 	} catch (MalformedURLException e) {

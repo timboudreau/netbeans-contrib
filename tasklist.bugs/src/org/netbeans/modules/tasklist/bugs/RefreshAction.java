@@ -42,11 +42,12 @@ public class RefreshAction extends NodeAction {
             final Bug item = (Bug)TaskNode.getTask(node[0]);
             list = (BugList)item.getList();
         }
-        if (list == null) {
-            list = BugList.getDefault();
+//        if (list == null) {
+//            list = BugList.getDefault();
+//        }
+        if (list != null) {
+            list.refresh();
         }
-        
-        list.refresh();
     }
     
     public String getName() {

@@ -31,6 +31,10 @@ public class BugsView extends TaskListView implements TaskListener {
 
     final static String CATEGORY = "bugs"; // NOI18N
     
+    public BugsView() {
+        this(null);
+    }
+    
     /** Construct a new TaskListView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
 	system when deserializing windows. Client code should not call
@@ -39,7 +43,7 @@ public class BugsView extends TaskListView implements TaskListener {
 	system wouldn't be able to get to this. But the code relies on
 	readExternal getting called after this constructor to finalize
 	construction of the window.*/
-    public BugsView() {
+    public BugsView(BugQuery inQuery) {
 	super(
 	   CATEGORY,  // NOI18N
 	   NbBundle.getMessage(BugsView.class, "ViewName"), // NOI18N
@@ -48,7 +52,7 @@ public class BugsView extends TaskListView implements TaskListener {
 	   Utilities.loadImage(
 		 "org/netbeans/modules/tasklist/bugs/bugsView.gif"),
 	   true,
-           BugList.getDefault());
+           BugList.getDefault(inQuery));
     }
 
     static final String PROP_BUG_ID = "bugId"; // NOI18N

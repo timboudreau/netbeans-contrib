@@ -22,7 +22,7 @@ package org.netbeans.modules.tasklist.bugs;
 public interface BugEngine {
     /** Fetch the buglist, then call BugList.setList() with the
 	results (preferably asynchronously) */
-    void refresh();
+    void refresh(BugQuery query);
 
     /** View a particular bug. */
     void viewBug(Bug bug);
