@@ -295,7 +295,7 @@ public class BugsView extends TaskListView implements TaskListener {
 
     /** Create the root node to be used in this view */
     protected Node createRootNode() {
-        return new TaskListNode(getModel());
+      return new TaskListNode(getModel());
     }
     
     public org.netbeans.modules.tasklist.core.filter.Filter createFilter() {

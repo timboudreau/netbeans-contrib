@@ -29,6 +29,8 @@ import org.netbeans.modules.tasklist.core.translators.IconManager;
 import org.netbeans.modules.tasklist.core.ColumnProperty;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskList;
+import org.netbeans.modules.tasklist.core.Task;
+import org.netbeans.modules.tasklist.core.TaskNode;
 import org.openide.NotifyDescriptor;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor.Confirmation;
@@ -299,7 +301,8 @@ public class HTMLSupport extends org.netbeans.modules.tasklist.core.translators.
      */
     private void exportOneNode(Node n, int level)
     throws IOException {
-        if(filter != null && level != -1 && !filter.accept(n)) 
+      Task t = TaskNode.getTask(n);
+        if (t != null && filter != null && level != -1 && !filter.accept(t)) 
             return;
             
         writer.write("<TR>\n"); // NOI18N

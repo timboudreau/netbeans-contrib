@@ -124,6 +124,8 @@ abstract public class Suggestion {
 
     private boolean valid;
 
+
+
     /** Use {@link org.netbeans.modules.tasklist.client.SuggestionManager#createSuggestion} to create these.
      * <p>
      * NOTE: This constructor may not be called except by a
@@ -447,5 +449,6 @@ abstract public class Suggestion {
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
         supp.firePropertyChange(propertyName, oldValue, newValue);
     }
+
 
 }

@@ -88,11 +88,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private final int LOCATION_COLUMN_UID = 6512;
 
     //XXX keep with sync with SuggestionNode, hidden dependency
-    static final String PROP_SUGG_PRIO = "suggPrio"; // NOI18N
-    static final String PROP_SUGG_FILE = "suggFile"; // NOI18N
-    static final String PROP_SUGG_LINE = "suggLine"; // NOI18N
-    static final String PROP_SUGG_CAT = "suggCat"; // NOI18N
-    static final String PROP_SUGG_LOC = "suggLoc"; // NOI18N
+//     static final String PROP_SUGG_PRIO = "suggPrio"; // NOI18N
+//     static final String PROP_SUGG_FILE = "suggFile"; // NOI18N
+//     static final String PROP_SUGG_LINE = "suggLine"; // NOI18N
+//     static final String PROP_SUGG_CAT = "suggCat"; // NOI18N
+//     static final String PROP_SUGG_LOC = "suggLoc"; // NOI18N
 
     private static final int CURRENT_FILE_MODE = 1;
     private static final int OPENED_FILES_MODE = 2;
@@ -211,11 +211,21 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return TopComponent.PERSISTENCE_ONLY_OPENED;
     }
 
-
     protected Node createRootNode() {
-        return new TaskListNode(getModel());
-//        Task root = getModel().getRoot();
-//        return new SourceTaskNode(root, this);
+      // we need to provide a specialized node factory because we need
+      // SourceTaskNodes for SuggestionImpls and don't want to
+      // override SuggestionImpl just for that (it would be correct
+      // but to much work)
+      return new TaskListNode(getModel(), 
+			      new TaskListNode.NodeFactory() {
+				public Node createNode(Object task) {
+				  if (task instanceof SuggestionImpl) {
+				    return new SourceTaskNode((SuggestionImpl)task);//, new SourceTaskChildren((SuggestionImpl)task));
+				  }
+				  else
+				    return ((Task)task).createNode()[0];
+				}
+			      });
     }
 
 
@@ -258,6 +268,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
+    protected ColumnProperty getMainColumn(int width) {
+      return createColumns()[0];
+    }
+
+
     protected void loadColumnsConfiguration() {
         // TODO read from proper file
     }
@@ -269,26 +284,18 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private ColumnProperty createMainColumn(int width) {
-        // Tree column
-        // NOTE: Task.getDisplayName() must also be kept in sync here
         return new ColumnProperty(
                 MAIN_COLUMN_UID, // UID -- never change (part of serialization
-                PROP_TASK_SUMMARY,
-                NbBundle.getMessage(SourceTaskNode.class, "TODO"), // NOI18N
-                NbBundle.getMessage(SourceTaskNode.class, "TODOHint"), // NOI18N
-                true,
-                width
-        );
+                SourceTaskProperties.PROP_TASK,
+		true,
+                width);
     }
 
 
     private ColumnProperty createPriorityColumn(boolean visible, int width) {
         return new ColumnProperty(
                 PRIORITY_COLUMN_UID, // UID -- never change (part of serialization
-                PROP_SUGG_PRIO,
-                SuggestionPriority.class,
-                NbBundle.getMessage(SourceTaskNode.class, "Priority"), // NOI18N
-                NbBundle.getMessage(SourceTaskNode.class, "PriorityHint"), // NOI18N
+                SourceTaskProperties.PROP_PRIORITY,
                 true,
                 visible,
                 width
@@ -298,10 +305,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private ColumnProperty createFileColumn(boolean visible, int width) {
         ColumnProperty file = new ColumnProperty(
                 FILE_COLUMN_UID, // UID -- never change (part of serialization
-                PROP_SUGG_FILE,
-                String.class,
-                NbBundle.getMessage(SourceTaskNode.class, "File"), // NOI18N
-                NbBundle.getMessage(SourceTaskNode.class, "FileHint"), // NOI18N
+		SourceTaskProperties.PROP_FILENAME,
                 true,
                 visible,
                 width
@@ -312,10 +316,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private ColumnProperty createLineColumn(boolean visible, int width) {
         return new ColumnProperty(
                 LINE_COLUMN_UID, // UID -- never change (part of serialization
-                PROP_SUGG_LINE,
-                Integer.TYPE,
-                NbBundle.getMessage(SourceTaskNode.class, "Line"), // NOI18N
-                NbBundle.getMessage(SourceTaskNode.class, "LineHint"), // NOI18N
+		SourceTaskProperties.PROP_LINE_NUMBER,
                 true,
                 visible,
                 width
@@ -325,10 +326,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private ColumnProperty createLocationColumn(boolean visible, int width) {
         ColumnProperty location = new ColumnProperty(
                 LOCATION_COLUMN_UID, // UID -- never change (part of serialization
-                PROP_SUGG_LOC,
-                String.class,
-                Util.getString("position"),
-                Util.getString("position_desc"),
+		SourceTaskProperties.PROP_LOCATION,
                 true,
                 visible,
                 width

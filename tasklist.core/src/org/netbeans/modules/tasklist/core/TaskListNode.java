@@ -38,9 +38,21 @@ public final class TaskListNode extends AbstractNode {
      */
     public TaskListNode(ObservableList tasklist) {
         super(new TaskListChildren(tasklist));
-//        TaskListChildren list = (TaskListChildren) getChildren();
-//        list.setNodeFactory(nodeFactory);
     }
+
+    /**
+     * Creates plain tasklist node. Properties that cannot
+     * be derrived from passed tasklist should be provided by
+     * client. It covers displayName etc.
+     *
+     * @param tasklist to be visualized never <code>null</code>
+     */
+    public TaskListNode(ObservableList tasklist, NodeFactory nodeFactory) {
+      super(new TaskListChildren(tasklist));
+      TaskListChildren list = (TaskListChildren) getChildren();
+      list.setNodeFactory(nodeFactory);
+    }
+
 
     /** Creates custom child nodes for TaskListNode */
     public static interface NodeFactory {

@@ -262,9 +262,9 @@ public final class Bug extends Task {
         // it can cause identity problems as the same IZ task is
         // nodeled by multiple TL tasks
         if (hasSubtasks()) {
-            return new Node[]{new BugNode(this, subtasksIterator())};
+            return new Node[]{ new BugNode(this, new BugNode.BugChildren(this))};
         } else {
-            return new Node[]{new BugNode(this)};
+            return new Node[]{ new BugNode(this)};
         }
     }
 

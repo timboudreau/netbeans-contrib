@@ -33,6 +33,7 @@ import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.MultiTransferObject;
 import org.openide.util.datatransfer.PasteType;
+import org.netbeans.modules.tasklist.core.TaskChildren;
 
 import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;
@@ -49,7 +50,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-class UserTaskNode extends TaskNode {
+final class UserTaskNode extends TaskNode {
     private static final Logger LOGGER = TLUtils.getLogger(UserTaskNode.class);
     
     static {
@@ -93,10 +94,27 @@ class UserTaskNode extends TaskNode {
     } 
 
     // Non-leaf/parent
-    UserTaskNode(UserTask item, Iterator subtasks) {
-        super(item, subtasks);
+    UserTaskNode(UserTask item, TaskChildren children) {
+        super(item, children);
         init();
     }
+
+    protected TaskChildren createChildren() {
+      return new UserTaskChildren(this.item);
+    }
+
+  // children for UserTaskNode , serve as a factory for nodes
+    static class UserTaskChildren extends TaskChildren {
+      
+      UserTaskChildren(Task parent) { super(parent);}
+
+      protected TaskNode createNode(Task task) {
+	return new UserTaskNode((UserTask)task);
+      }
+    }
+
+    
+
 
     /**
      * Common part of both constructors
@@ -114,12 +132,7 @@ class UserTaskNode extends TaskNode {
     
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):
     public Node cloneNode () {
-	UserTask uitem = (UserTask)item;
-        if (uitem.hasSubtasks()) {
-            return new UserTaskNode(uitem, uitem.subtasksIterator());
-        } else {
-            return new UserTaskNode(uitem);
-        }
+	return new UserTaskNode((UserTask)item);
     }
 
     protected void updateIcon() {

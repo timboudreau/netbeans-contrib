@@ -38,7 +38,6 @@ import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
-import org.netbeans.modules.tasklist.core.filter.NodeFilter;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
@@ -601,6 +600,7 @@ public abstract class TaskListView extends TopComponent
 
     private void setRoot() {
         rootNode = createRootNode();
+	rootNode.setDisplayName(getMainColumn(-1).getDisplayName());
 
         LOGGER.fine("root created " + rootNode);
 

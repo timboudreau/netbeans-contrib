@@ -16,6 +16,7 @@ package org.netbeans.modules.tasklist.core;
 import org.openide.nodes.PropertySupport;
 
 import java.beans.PropertyEditor;
+import org.netbeans.modules.tasklist.client.SuggestionProperty;
 
 /** 
  * Class holding column properties.
@@ -35,6 +36,27 @@ public class ColumnProperty extends PropertySupport.ReadOnly {
     public int width;
 
     private Class propertyEditorClass;
+
+    public ColumnProperty(
+			  int uid,
+			  SuggestionProperty prop,
+			  boolean sortable,
+			  boolean defaultVisiblity,
+			  int width
+			  ) {
+      this(uid, prop.getID(), prop.getValueClass(), prop.getName(), prop.getHint(), sortable, defaultVisiblity, width);
+    }
+
+    public ColumnProperty(
+			  int uid,
+			  SuggestionProperty prop,
+			  boolean sortable,
+			  int width
+			  ) {
+      this(uid, prop.getID(),prop.getName(), prop.getHint(), sortable, width);
+    }
+			  
+
 
     // Used for non-treetable columns
     /** Construct a new property for a "table column" (e.g. not

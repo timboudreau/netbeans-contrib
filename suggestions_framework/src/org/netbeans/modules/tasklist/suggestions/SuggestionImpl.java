@@ -98,11 +98,11 @@ public class SuggestionImpl extends Task implements Node.Cookie {
     }
 
     /** Create a node for this item */
-    public Node[] createNode() {
+    public Node [] createNode() {
         if (hasSubtasks()) {
-            return new Node[] { new SuggestionNode(this, subtasksIterator())};
+            return new Node[] {new SuggestionNode(this, new SuggestionChildren(this))};
         } else {
-            return new Node[] { new SuggestionNode(this)};
+            return new Node[] {new SuggestionNode(this)};
         }
     }
 

@@ -113,8 +113,26 @@ public class TaskChildren extends Children.Keys {
 
 //        Task item = (Task)keys2tasks.get(key);
 //        assert item != null : "The key was held by Children.Keys!";
-        return ((Task)key).createNode(); // XXX I do not like this model-view 1:1
+//        return ((Task)key).createNode(); // XXX I do not like this
+//        model-view 1:1
+      
+      Task task = (Task)key;
+      return new Node[] { createNode(task) };
     }
+
+    public Object clone() {
+      return new TaskChildren(this.parent);
+    }
+    
+
+
+    /** 
+     * A factory method for creating new task nodes 
+     */
+    protected TaskNode createNode(Task task) {
+      return new TaskNode(task);
+    }
+
 
     // Monitor tasklist and react to changes ~~~~~~~~~~~~~~~~~~~~~
 

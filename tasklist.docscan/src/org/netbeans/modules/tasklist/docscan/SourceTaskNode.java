@@ -48,21 +48,40 @@ import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
  *
  * @author Petr Kuzel
  */
-final class SourceTaskNode extends SuggestionNode {
+class SourceTaskNode extends SuggestionNode {
 
-    public SourceTaskNode(Task rootItem, TaskListView view) {
-        super(rootItem, view);
+    public SourceTaskNode(SuggestionImpl rootItem) {
+      super(rootItem, Children.LEAF);
+    }
+
+
+    public SourceTaskNode(SuggestionImpl rootItem, Children children) {
+      super(rootItem, children);
+    }
+
+    public Node cloneNode () {
+      SourceTaskNode clon = new SourceTaskNode((SuggestionImpl)this.item);
+      if (!clon.isLeaf()) 
+	clon.setChildren((Children)getTaskChildren().clone());
+      return clon;
+    }
+
+    protected TaskChildren createChildren() {
+      return new SourceTaskChildren((SuggestionImpl)this.item);
     }
 
     public Action[] getActions(boolean context) {
         return new Action[0];
     }
 
-    public String getDisplayName() {
-        return Util.getString("task-col");  // see TreeTableModelAdapter.getColumnName(int column)
-    }
+//     public String getDisplayName() {
+//         return Util.getString("task-col");  // see TreeTableModelAdapter.getColumnName(int column)
+//     }
 
-    public String getShortDescription() {
-        return Util.getString("TODOHint");
-    }
+//     public String getShortDescription() {
+//         return Util.getString("TODOHint");
+//     }
+
+    
 }
+

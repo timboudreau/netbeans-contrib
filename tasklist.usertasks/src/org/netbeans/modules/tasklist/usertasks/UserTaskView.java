@@ -255,10 +255,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getPriorityColumn(boolean visible, int width) {
         return new ColumnProperty(
 	    1, // UID -- never change (part of serialization
-            PROP_TASK_PRIO,
+            UserTaskProperties.PROP_PRIORITY.getID(),
             SuggestionPriority.class,
-            NbBundle.getMessage(UserTaskView.class, "Priority"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "PriorityHint"), // NOI18N
+            UserTaskProperties.PROP_PRIORITY.getName(),
+            UserTaskProperties.PROP_PRIORITY.getHint(),
             true,
             visible,
             width
@@ -268,10 +268,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getCategoryColumn(boolean visible, int width) {
         ColumnProperty cp = new ColumnProperty(
 	    2, // UID -- never change (part of serialization
-            PROP_TASK_CAT,
+            UserTaskProperties.PROP_CATEGORY.getID(),
             String.class,
-            NbBundle.getMessage(UserTaskView.class, "Category"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "CategoryHint"), // NOI18N
+            UserTaskProperties.PROP_CATEGORY.getName(),
+            UserTaskProperties.PROP_CATEGORY.getHint(),
             true,
             visible,
             width
@@ -282,10 +282,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getDetailsColumn(boolean visible, int width) {
         return new ColumnProperty(
 	    3, // UID -- never change (part of serialization
-            PROP_TASK_DETAILS,
+            UserTaskProperties.PROP_DETAILS.getID(),
             String.class,
-            NbBundle.getMessage(UserTaskView.class, "Details"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "DetailsHint"), // NOI18N
+            UserTaskProperties.PROP_DETAILS.getName(),
+            UserTaskProperties.PROP_DETAILS.getHint(),
             true,
             visible,
             width
@@ -295,10 +295,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getFileColumn(boolean visible, int width) {
         ColumnProperty cp = new ColumnProperty(
 	    4, // UID -- never change (part of serialization
-            PROP_TASK_FILE,
+            UserTaskProperties.PROP_FILENAME.getID(),
             String.class,
-            NbBundle.getMessage(UserTaskView.class, "File"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "FileHint"), // NOI18N
+            UserTaskProperties.PROP_FILENAME.getName(),
+            UserTaskProperties.PROP_FILENAME.getHint(),
             true,
             visible,
             width
@@ -309,10 +309,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getLineColumn(boolean visible, int width) {
         return new ColumnProperty(
 	    5, // UID -- never change (part of serialization
-            PROP_TASK_LINE,
+	    UserTaskProperties.PROP_LINE_NUMBER.getID(),
             Integer.TYPE,
-            NbBundle.getMessage(UserTaskView.class, "Line"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "LineHint"), // NOI18N
+	    UserTaskProperties.PROP_LINE_NUMBER.getName(),
+	    UserTaskProperties.PROP_LINE_NUMBER.getHint(),
             true,
             visible,
             width
@@ -322,11 +322,11 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getCreatedColumn(boolean visible, int width) {
         ColumnProperty cp = new ColumnProperty(
 	    6, // UID -- never change (part of serialization
-            PROP_TASK_CREATED,
+	    UserTaskProperties.PROP_CATEGORY.getID(),
             //String.class,
             Date.class,
-            NbBundle.getMessage(UserTaskView.class, "Created"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "CreatedHint"), // NOI18N
+	    UserTaskProperties.PROP_CATEGORY.getName(),
+	    UserTaskProperties.PROP_CATEGORY.getHint(),
             true,
             visible,
             width
@@ -337,11 +337,11 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getEditedColumn(boolean visible, int width) {
         ColumnProperty cp = new ColumnProperty(
 	    7, // UID -- never change (part of serialization
-            PROP_TASK_EDITED,
+	    UserTaskProperties.PROP_LAST_EDITED_DATE.getID(),
             //String.class,
             Date.class,
-            NbBundle.getMessage(UserTaskView.class, "Edited"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "EditedHint"), // NOI18N
+	    UserTaskProperties.PROP_LAST_EDITED_DATE.getName(),
+	    UserTaskProperties.PROP_LAST_EDITED_DATE.getHint(),
             true,
             visible,
             width
@@ -352,10 +352,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getDoneColumn(boolean visible, int width) {
         return new ColumnProperty(
 	    8, // UID -- never change (part of serialization
-            PROP_TASK_DONE,
+	    UserTaskProperties.PROP_DONE.getID(),
             Boolean.TYPE,
-            NbBundle.getMessage(UserTaskView.class, "Done"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "DoneHint"), // NOI18N
+	    UserTaskProperties.PROP_DONE.getName(),
+	    UserTaskProperties.PROP_DONE.getHint(),
             true,
             visible,
             width
@@ -365,11 +365,11 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getDueColumn(boolean visible, int width) {
         return new ColumnProperty(
 	    9, // UID -- never change (part of serialization
-            PROP_TASK_DUE,
+	    UserTaskProperties.PROP_DUE_DATE.getID(),
             //String.class,
             Date.class,
-            NbBundle.getMessage(UserTaskView.class, "Due"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "DueHint"), // NOI18N
+	    UserTaskProperties.PROP_DUE_DATE.getName(),
+	    UserTaskProperties.PROP_DUE_DATE.getHint(),
             true,
             visible,
             width
@@ -379,10 +379,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getPercentColumn(boolean visible, int width) {
         return new ColumnProperty(
     	    10, // UID -- never change (part of serialization
-            PROP_TASK_PERCENT,
+	    UserTaskProperties.PROP_PERCENT_COMPLETE.getID(),
             Integer.TYPE,
-            NbBundle.getMessage(UserTaskView.class, "Percent"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "PercentHint"), // NOI18N
+	    UserTaskProperties.PROP_PERCENT_COMPLETE.getName(),
+	    UserTaskProperties.PROP_PERCENT_COMPLETE.getHint(),
             true,
             visible,
             width
@@ -392,10 +392,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getEffortColumn(boolean visible, int width) {
         return new ColumnProperty(
     	    11, // UID -- never change (part of serialization
-            PROP_EFFORT,
+	    UserTaskProperties.PROP_EFFORT.getID(),
             Integer.TYPE,
-            NbBundle.getMessage(UserTaskView.class, "Effort2"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "EffortHint"), // NOI18N
+	    UserTaskProperties.PROP_EFFORT.getName(),
+	    UserTaskProperties.PROP_EFFORT.getHint(),
             true,
             visible,
             width
@@ -405,10 +405,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getRemainingEffortColumn(boolean visible, int width) {
         return new ColumnProperty(
     	    12, // UID -- never change (part of serialization
-            PROP_REMAINING_EFFORT,
+	    UserTaskProperties.PROP_REMAINING_EFFORT.getID(),
             Integer.TYPE,
-            NbBundle.getMessage(UserTaskView.class, "RemainingEffort"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "RemainingEffortHint"), // NOI18N
+	    UserTaskProperties.PROP_REMAINING_EFFORT.getName(),
+	    UserTaskProperties.PROP_REMAINING_EFFORT.getHint(),
             true,
             visible,
             width
@@ -418,10 +418,10 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public ColumnProperty getSpentTimeColumn(boolean visible, int width) {
         return new ColumnProperty(
     	    13, // UID -- never change (part of serialization
-            PROP_SPENT_TIME,
+	    UserTaskProperties.PROP_SPENT_TIME.getID(),
             Integer.TYPE,
-            NbBundle.getMessage(UserTaskView.class, "SpentTime"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "SpentTimeHint"), // NOI18N
+	    UserTaskProperties.PROP_SPENT_TIME.getName(),
+	    UserTaskProperties.PROP_SPENT_TIME.getHint(),
             true,
             visible,
             width
@@ -487,8 +487,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     protected Node createRootNode() {
-//        UserTask root = (UserTask)getModel().getRoot();
-//        return new UserTaskNode(root, root.subtasksIterator());
         return new TaskListNode(getModel());
     }
 

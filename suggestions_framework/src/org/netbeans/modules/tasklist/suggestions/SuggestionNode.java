@@ -36,11 +36,14 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 
 import javax.swing.*;
+import org.openide.nodes.Children;
 import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.modules.tasklist.core.TaskChildren;
+import org.netbeans.modules.tasklist.core.SuggestionNodeProperty;
 
 
 /**
@@ -54,24 +57,16 @@ public class SuggestionNode extends TaskNode {
     // the node is displayed in given view
     private TaskListView view;
 
-    // Leaf
+
     protected SuggestionNode(SuggestionImpl item) {
-        super(item);
+      this(item, Children.LEAF);
     }
 
-    // Non-leaf/parent
-    protected SuggestionNode(SuggestionImpl item, Iterator subtasks) {
-        super(item, subtasks);
-    }
-
-    /**
-     * Creates root node attached to given view.
-     * @param rootItem
-     * @param view
+    /** 
+     * @param subtasks show subtasks as children ? 
      */
-    public SuggestionNode(Task rootItem, TaskListView view) {
-        super(rootItem, Collections.EMPTY_LIST.iterator());  //XXX parametr existence is used as flag
-        this.view = view;
+    protected SuggestionNode(SuggestionImpl item, Children children) {
+        super(item, children);
     }
 
     public Action getPreferredAction() {
@@ -82,15 +77,19 @@ public class SuggestionNode extends TaskNode {
         }
     }
 
-    // Handle cloning specially (so as not to invoke the overhead of FilterNode):
+
     public Node cloneNode () {
-	SuggestionImpl eitem = (SuggestionImpl)item;
-        if (eitem.hasSubtasks()) {
-            return new SuggestionNode(eitem, eitem.subtasksIterator());
-        } else {
-            return new SuggestionNode(eitem);
-        }
+      SuggestionNode clon = new SuggestionNode((SuggestionImpl)this.item);
+      if (!clon.isLeaf()) 
+	clon.setChildren((Children)getTaskChildren().clone());
+      return clon;
     }
+
+    protected TaskChildren createChildren() {
+      return new SuggestionChildren((SuggestionImpl)this.item);
+    }
+
+
 
     protected void updateIcon() {
         setIconBase("org/netbeans/modules/tasklist/suggestions/suggTask"); // NOI18N
@@ -147,82 +146,21 @@ public class SuggestionNode extends TaskNode {
         }
     }
 
-
-    /**
-     * Returns parent view.
-     */
-    public final TaskListView getView() {
-        if (view != null) return view;
-        SuggestionNode parent = (SuggestionNode) getParentNode();
-        assert parent != null;
-        return parent.getView();  // recursion
-    }
-
     /** Creates properties.
      */
     protected Sheet createSheet() {
         Sheet s = Sheet.createDefault();
         Set ss = s.get(Sheet.PROPERTIES);
         
-        try {
-            PropertySupport.Reflection p;
-            p = new Reflection(item, String.class, "getSummary", null /* Don't allow users to edit this "setDescription" */); // NOI18N
-            p.setName(TaskListView.PROP_TASK_SUMMARY);
-            p.setDisplayName(NbBundle.getMessage(SuggestionsView.class, "SuggestionsRoot")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SuggestionsView.class, "SuggestionsRootHint")); // NOI18N
-            ss.put(p);
 
+	ss.put(new SuggestionNodeProperty(item, SuggestionImplProperties.PROP_SUMMARY));
+	ss.put(new SuggestionNodeProperty(item, SuggestionImplProperties.PROP_DETAILS));
+	ss.put(new SuggestionNodeProperty(item, SuggestionImplProperties.PROP_PRIORITY, PriorityPropertyEditor.class));
+	ss.put(new SuggestionNodeProperty(item, SuggestionImplProperties.PROP_FILENAME, StringPropertyEditor.class));
+	ss.put(new SuggestionNodeProperty(item, SuggestionImplProperties.PROP_LINE_NUMBER, StringPropertyEditor.class));
+	ss.put(new SuggestionNodeProperty(item, SuggestionImplProperties.PROP_CATEGORY));
+	ss.put(new SuggestionNodeProperty(item, SuggestionImplProperties.PROP_LOCATION, LocationPropertyEditor.class));
 
-            p = new Reflection(item, String.class, "getDetails", null); // NOI18N
-            p.setName(SuggestionsView.PROP_SUGG_DETAILS);
-            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Details")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "DetailsHint")); // NOI18N
-            ss.put(p);
-            
-
-            p = new Reflection(item, SuggestionPriority.class,
-                "getPriority", null); // NOI18N
-            p.setName(SuggestionsView.PROP_SUGG_PRIO);
-            p.setPropertyEditorClass(PriorityPropertyEditor.class);
-            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Priority")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "PriorityHint")); // NOI18N
-            ss.put(p);
-
-            
-            p = new Reflection(item, String.class, "getFileBaseName", null /* Don't allow users to edit this! "setFileBaseName" */); // NOI18N
-            p.setName(SuggestionsView.PROP_SUGG_FILE);
-            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "File")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "FileHint")); // NOI18N
-            p.setPropertyEditorClass(StringPropertyEditor.class);
-            ss.put(p);
-
-            p = new Reflection(item, Integer.TYPE, "getLineNumber", null /* Don't allow users to edit this! "setLineNumber" */); // NOI18N
-            p.setName(SuggestionsView.PROP_SUGG_LINE);
-            // LineNumberPropertyEditor sometimes does not paint anything and it
-            // uses right side aligment (HIE does not like it)
-            p.setPropertyEditorClass(StringPropertyEditor.class);
-            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Line")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "LineHint")); // NOI18N
-            ss.put(p);
-
-            p = new Reflection(item, String.class, "getCategory",
-                                               null); // NOI18N
-            p.setName(SuggestionsView.PROP_SUGG_CAT);
-            p.setDisplayName(getCategoryLabel()); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "CategoryHint")); // NOI18N
-            ss.put(p);
-
-            p = new Reflection(item, String.class, "getLocation", null); // NOI18N
-            p.setName(SuggestionsView.PROP_SUGG_LOC);
-            p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "position"));
-            p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "position_desc"));
-            // #38190 FIXME instead of renderer we do not have access to
-            p.setPropertyEditorClass(LocationPropertyEditor.class);
-            ss.put(p);
-
-        } catch (NoSuchMethodException nsme) {
-            ErrorManager.getDefault().notify(nsme);
-        }
         return s;
     }
 

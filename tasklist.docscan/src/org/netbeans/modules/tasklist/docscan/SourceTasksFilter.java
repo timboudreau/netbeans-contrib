@@ -25,6 +25,9 @@ import org.netbeans.modules.tasklist.suggestions.SuggestionFilter;
 import org.netbeans.modules.tasklist.suggestions.SuggestionImpl;
 import org.openide.util.NbBundle;
 import org.netbeans.modules.tasklist.core.filter.FilterConvertor;
+import org.netbeans.modules.tasklist.client.SuggestionProperty;
+import org.netbeans.modules.tasklist.core.filter.AppliedFilterCondition;
+import org.netbeans.modules.tasklist.suggestions.SuggestionImplProperties;
 
 
 
@@ -33,20 +36,14 @@ import org.netbeans.modules.tasklist.core.filter.FilterConvertor;
  * @author Tim Lebedkov
  */
 final class SourceTasksFilter extends Filter {
-    private static final String[] PROP_KEYS = {
-        "SuggestionsRoot", // NOI18N
-        "Priority", // NOI18N
-        "File", // NOI18N
-    };
-    
-    private static final String[] PROPS = new String[PROP_KEYS.length];
-    
-    static {
-        for (int i = 0; i < PROPS.length; i++) {
-            PROPS[i] = NbBundle.getMessage(SourceTasksFilter.class, PROP_KEYS[i]);
-        }
-    }
-    
+  
+    // these are the properties (columns) the filter filters
+    SuggestionProperty [] PROPS = new SuggestionProperty[] {
+      SourceTaskProperties.PROP_TASK,
+      SourceTaskProperties.PROP_PRIORITY,
+      SourceTaskProperties.PROP_FILENAME};
+
+
     /** 
      * Creates a new instance of UserTaskFilter 
      *
@@ -69,42 +66,22 @@ final class SourceTasksFilter extends Filter {
     private SourceTasksFilter() {}
 
 
-    public String[] getProperties() {
-        return PROPS;
+    public SuggestionProperty[] getProperties() { return PROPS;}
+
+  // map from properties to conditions      
+    public AppliedFilterCondition[] createConditions(SuggestionProperty property) {
+      if (property.equals(SourceTaskProperties.PROP_TASK)) {
+	return applyConditions(property, StringFilterCondition.createConditions());
+      } 
+      else if (property.equals(SourceTaskProperties.PROP_PRIORITY)) {
+	return applyConditions(property, PriorityCondition.createConditions());
+      } 
+      else if (property.equals(SourceTaskProperties.PROP_FILENAME)) {
+	return applyConditions(property, StringFilterCondition.createConditions());
+      } else
+	throw new IllegalArgumentException("Unknown property for SourceTasksFilter : " + property.getID());
     }
-    
-    public org.netbeans.modules.tasklist.core.filter.FilterCondition[] createConditions(int index) {
-        switch (index) {
-            case 0:
-                // SuggestionsRoot
-                return StringFilterCondition.createConditions(index);
-            case 1:
-                // Priority
-                return PriorityCondition.createConditions(index);
-            case 2:
-                // File
-                return StringFilterCondition.createConditions(index);
-            default:
-                throw new InternalError("Wrong index");
-        }
-    }
-    
-    public Object getProperty(Object obj, int property) {
-        SuggestionImpl s = (SuggestionImpl) obj;
-        switch (property) {
-            case 0:
-                // SuggestionsRoot
-                return s.getSummary();
-            case 1:
-                // Priority
-                return s.getPriority();
-            case 2:
-                // File
-                return s.getFileBaseName();
-            default:
-                throw new InternalError("Wrong index");
-        }
-    }
+	
 
   private static class Convertor extends FilterConvertor {
 
@@ -115,6 +92,14 @@ final class SourceTasksFilter extends Filter {
     public static SourceTasksFilter.Convertor create() { return new SourceTasksFilter.Convertor();}
 
     protected Filter createFilter() { return new SourceTasksFilter();}
+
+    protected SuggestionProperty getProperty(String propid) {
+      SuggestionProperty sp = SourceTaskProperties.getProperty(propid);
+      if (sp == null) 
+	return super.getProperty(propid);
+      else 
+	return sp;
+    }
     
   }
 }

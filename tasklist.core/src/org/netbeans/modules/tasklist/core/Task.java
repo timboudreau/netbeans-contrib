@@ -573,9 +573,9 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     public Node[] createNode() {
         //if (hasSubtasks()) {
         if (subtasks != null) {  // Want to make root a non-leaf; empty list, not null
-            return new Node[] { new TaskNode(this, subtasksIterator())};
+            return new Node[] {new TaskNode(this, new TaskChildren(this))};
         } else {
-            return new Node[] { new TaskNode(this)};
+            return new Node[] {new TaskNode(this)};
         }
     }
 

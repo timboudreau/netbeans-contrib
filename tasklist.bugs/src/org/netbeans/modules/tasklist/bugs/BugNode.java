@@ -30,6 +30,9 @@ import org.openide.nodes.PropertySupport.Reflection;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
+import org.netbeans.modules.tasklist.core.TaskChildren;
+import org.netbeans.modules.tasklist.core.Task;
+import org.openide.nodes.Children;
 
 import javax.swing.*;
 
@@ -43,9 +46,24 @@ class BugNode extends TaskNode {
     } 
 
     // Non-leaf/parent
-    BugNode(Bug item, Iterator subtasks) {
-        super(item, subtasks);
+    BugNode(Bug item, Children children) {
+        super(item, children);
         init();
+    }
+
+    protected TaskChildren createChildren() {
+      return new BugChildren((Bug)this.item);
+    }
+
+
+  // children for BugNode , serve as a factory for nodes
+    static class BugChildren extends TaskChildren {
+      
+      BugChildren(Bug parent) { super(parent);}
+
+      protected TaskNode createNode(Task task) {
+	return new BugNode((Bug)task);
+      }
     }
 
     private void init() {
@@ -55,12 +73,7 @@ class BugNode extends TaskNode {
 
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):
     public Node cloneNode () {
-	Bug eitem = (Bug)item;
-        if (eitem.hasSubtasks()) {
-            return new BugNode(eitem, eitem.subtasksIterator());
-        } else {
-            return new BugNode(eitem);
-        }
+      return new BugNode((Bug)item);
     }
 
     protected void updateIcon() {

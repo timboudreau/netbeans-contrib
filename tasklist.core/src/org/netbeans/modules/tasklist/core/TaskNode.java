@@ -54,12 +54,19 @@ public class TaskNode extends AbstractNode {
     private Monitor monitor;
 
     /**
-     * Leaf
+     * Task node. 
      */
-    public TaskNode(Task item) {
-        super(Children.LEAF);
+    public TaskNode(Task item, Children children) {
+        super(children);
         this.item = item;
         init();
+    }
+
+    /** 
+     * Leaf node. 
+     */
+    public TaskNode(Task item) {
+        this(item, Children.LEAF);
     }
 
     /**
@@ -73,17 +80,10 @@ public class TaskNode extends AbstractNode {
         }
     }
 
-    /**
-     * Non-leaf/parent
-     */
-    public TaskNode(Task item, Iterator subtasks) {
-        super(new TaskChildren(item));
-        this.item = item;
-        init();
-    }
 
     private void init() {
         setName(item.getSummary());
+
         monitor = new Monitor();
         item.addTaskListener(monitor);
         item.addPropertyChangeListener(monitor);
@@ -110,12 +110,22 @@ public class TaskNode extends AbstractNode {
     }
      
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):
+//     public Node cloneNode () {
+//         if (item.hasSubtasks()) {
+//             return new TaskNode(item, item.subtasksIterator());
+//         } else {
+//             return new TaskNode(item);
+//         }
+//     }
     public Node cloneNode () {
-        if (item.hasSubtasks()) {
-            return new TaskNode(item, item.subtasksIterator());
-        } else {
-            return new TaskNode(item);
-        }
+      TaskNode clon = new TaskNode(this.item);
+      if (!clon.isLeaf()) 
+	clon.setChildren((TaskChildren)getTaskChildren().clone());
+      return clon;
+    }
+
+    protected TaskChildren createChildren() {
+      return new TaskChildren(this.item);
     }
 
     protected final void updateDisplayStuff() {
@@ -201,18 +211,20 @@ public class TaskNode extends AbstractNode {
     protected Sheet createSheet() {
         Sheet s = Sheet.createDefault();
         Sheet.Set ss = s.get(Sheet.PROPERTIES);
-        
-        try {
-            Node.Property p;
-            p = new PropertySupport.Reflection(item, String.class, "getSummary", "setSummary"); // NOI18N
-            p.setName(TaskListView.PROP_TASK_SUMMARY);
-            p.setDisplayName(NbBundle.getMessage(TaskNode.class, "Description")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(TaskNode.class, "DescriptionHint")); // NOI18N
-            ss.put(p);
-        } catch (NoSuchMethodException nsme) {
-            ErrorManager.getDefault().notify(nsme);
-        }
+	ss.put(new SuggestionNodeProperty(item, TaskProperties.PROP_SUMMARY));
         return s;
+
+//         try {
+//             Node.Property p;
+//             p = new PropertySupport.Reflection(item, String.class, "getSummary", "setSummary"); // NOI18N
+//             p.setName(TaskListView.PROP_TASK_SUMMARY);
+//             p.setDisplayName(NbBundle.getMessage(TaskNode.class, "Description")); // NOI18N
+//             p.setShortDescription(NbBundle.getMessage(TaskNode.class, "DescriptionHint")); // NOI18N
+//             ss.put(p);
+//         } catch (NoSuchMethodException nsme) {
+//             ErrorManager.getDefault().notify(nsme);
+//         }
+
     }
     
     public boolean canRename() {
@@ -404,7 +416,7 @@ public class TaskNode extends AbstractNode {
                 if (c == Children.LEAF) {
                     assert item.hasSubtasks();
                     // XXX This seems to get called more frequently than is necessary!
-                    setChildren(new TaskChildren(item));
+                    setChildren(createChildren());
                 }
             }
         }
@@ -420,7 +432,7 @@ public class TaskNode extends AbstractNode {
                 Children c = getChildren();
                 if ((c == Children.LEAF) && (item.hasSubtasks())) {
                     // XXX This seems to get called more frequently than is necessary!
-                    setChildren(new TaskChildren(item));
+                    setChildren(createChildren());
                 }
             }
         }
