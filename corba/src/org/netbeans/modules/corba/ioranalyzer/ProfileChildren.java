@@ -21,9 +21,12 @@ package org.netbeans.modules.corba.ioranalyzer;
 
 import java.io.*;
 import java.util.ArrayList;
+import org.openide.TopManager;
+import org.openide.NotifyDescriptor;
 import org.openide.nodes.*;
 import org.openide.loaders.DataObject;
 import org.openide.filesystems.*;
+import org.openide.util.NbBundle;
 /**
  *
  * @author  root
@@ -114,11 +117,25 @@ public class ProfileChildren extends Children.Keys {
     
     private void lazyInit () {
         if (this.iorData == null) {
-            this.iorData = new IORData ( dataObject.getContent());
+            try {
+                this.iorData = new IORData ( dataObject.getContent());
+            } catch (IllegalStateException illegalState) {
+		illegalState.printStackTrace (System.out);
+                throw new org.omg.CORBA.BAD_PARAM ();
+            }
+            catch (IllegalArgumentException illegalArgument) {
+		illegalArgument.printStackTrace (System.out);
+                throw new org.omg.CORBA.BAD_PARAM ();
+            }
         }
     }
     
     private void handleBadIOR () {
+	java.awt.EventQueue.invokeLater ( new Runnable () {
+		public void run () {
+        		TopManager.getDefault ().notify ( new NotifyDescriptor.Message (NbBundle.getBundle(ProfileChildren.class).getString("TXT_InvalidIOR"), NotifyDescriptor.ERROR_MESSAGE));
+		}
+	});
     }
 
 }

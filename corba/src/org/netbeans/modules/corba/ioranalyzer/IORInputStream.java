@@ -24,7 +24,7 @@ public class IORInputStream {
         if (ior == null)
             throw new org.omg.CORBA.BAD_PARAM ("Not valid IOR");
 	int len = ior.length();
-	if (len < 4)
+	if (len < 12)
 	    throw new org.omg.CORBA.BAD_PARAM ("Not valid IOR");
 	if (!ior.startsWith("IOR:"))
 	    throw new org.omg.CORBA.BAD_PARAM ("Not valid IOR");
@@ -58,6 +58,8 @@ public class IORInputStream {
     
     public String readString () {
 	int i = this.readUnsignedLong () - 1;
+        if ((this.pos+i) > this.count)
+            throw new IllegalStateException ();
 	String res = new String (this.buf,this.pos,i);
 	this.pos+=i;
 	if (this.read() != 0)
@@ -69,6 +71,8 @@ public class IORInputStream {
 	int i = this.pos % 4;
 	if (i!= 0)
 	    this.pos += 4 - i;
+        if (this.pos+4 > this.count)
+            throw new IllegalStateException ();
 	if (little_endian)
 	    return this.buf[this.pos++] & 0xff | this.buf[this.pos++]<< 8 & 0xff00 | this.buf[this.pos++]<<16 & 0xff0000 | this.buf[this.pos++]<<24 &0xff000000;
 	else
@@ -79,6 +83,8 @@ public class IORInputStream {
 	int i = this.pos % 2;
 	if (i!= 0)
 	    this.pos += 2 - i;
+        if ((this.pos+2) > this.count)
+            throw new IllegalStateException ();
 	if (this.little_endian)
 	    return (short) (this.buf[this.pos++] & (short) 0xff | this.buf[this.pos++]<<8 & (short ) 0xff00);
 	else
@@ -86,11 +92,15 @@ public class IORInputStream {
     }
     
     public byte readOctet () {
+        if (this.pos+1 > this.count)
+            throw new IllegalStateException ();
 	return this.buf[this.pos++];
     }
     
     public byte[] readOctetArray () {
 	int len = this.readUnsignedLong();
+        if (this.pos+len > this.count)
+            throw new IllegalStateException ();
 	byte[] res = new byte[len];
 	System.arraycopy (this.buf,this.pos,res,0,len);
 	this.pos+= len;
@@ -116,14 +126,21 @@ public class IORInputStream {
     }
     
     public int read () {
+        if (this.pos + 1 > this.count)
+            throw new IllegalStateException ();
 	return this.buf[this.pos++];
     }
     
     public void skeep (int size) {
+        if (this.pos + size > this.count)
+            throw new IllegalArgumentException ();
 	this.pos+=size;
     }
     
     public void seek (int size) {
+        if (size > this.count ||
+            size < 0)
+            throw new IllegalArgumentException ();
 	this.pos = size;
     }
 }
