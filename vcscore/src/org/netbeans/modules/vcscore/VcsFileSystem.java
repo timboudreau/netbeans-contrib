@@ -137,6 +137,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * is added to the process environment.
      */
     public static final String VAR_ENVIRONMENT_PREFIX = "ENVIRONMENT_VAR_";
+    /**
+     * This is a prefix, for environment variable, that should be removed from the command
+     * environment. If a variable name starts with this prefix, variable of this name is
+     * removed from the list of environment variables. It's value is ignored.
+     */
+    public static final String VAR_ENVIRONMENT_REMOVE_PREFIX = "ENVIRONMENT_REMOVE_VAR_";
     
     public static final String VAR_STATUS_SCHEDULED_ADD = "STATUS_SCHEDULED_ADD";
     public static final String VAR_STATUS_SCHEDULED_REMOVE = "STATUS_SCHEDULED_REMOVE";
@@ -1179,7 +1185,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private void updateEnvironmentVars() {
         Map systemEnv = VcsUtilities.getSystemEnvVars();
-        Map env = VcsUtilities.addEnvVars(systemEnv, getVariablesAsHashtable(), VAR_ENVIRONMENT_PREFIX);
+        Map env = VcsUtilities.addEnvVars(systemEnv, getVariablesAsHashtable(),
+                                          VAR_ENVIRONMENT_PREFIX, VAR_ENVIRONMENT_REMOVE_PREFIX);
         environmentVars = VcsUtilities.getEnvString(env);
     }
 
