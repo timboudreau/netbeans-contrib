@@ -57,7 +57,12 @@ public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkLi
     public void hyperlinkUpdate(HyperlinkEvent e) {
         HyperlinkEvent.EventType type = e.getEventType();
         if (type == HyperlinkEvent.EventType.ACTIVATED) {
-            setURL(e.getURL());
+            try {
+                e.getURL().openStream();
+                setURL(e.getURL());
+            } catch (IOException ioe) {
+                statusBar.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("doc_not_found"));
+            }
         } else if (type == HyperlinkEvent.EventType.ENTERED) {
             statusBar.setText(e.getURL().toString());
         } else if (type == HyperlinkEvent.EventType.EXITED) {
@@ -78,7 +83,7 @@ public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkLi
                 try {
                     html.setPage(u);
                 } catch (IOException e) {
-                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    //ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
                 } finally {
                     html.setCursor(currentC);
                 }

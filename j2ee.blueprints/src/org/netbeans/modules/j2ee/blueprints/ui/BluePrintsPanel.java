@@ -95,6 +95,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         sunLogoLbl = new javax.swing.JLabel();
         titleSubPnl = new javax.swing.JPanel();
         titleLbl = new AntialiasedJLabel();
+        titleSubLbl = new AntialiasedJLabel();
         toolbarPanel = new javax.swing.JPanel();
         backBtn = new javax.swing.JButton();
         forwardBtn = new javax.swing.JButton();
@@ -121,22 +122,27 @@ public class BluePrintsPanel extends javax.swing.JPanel {
 
         titleSubPnl.setLayout(new java.awt.GridBagLayout());
 
-        titleSubPnl.setMaximumSize(new java.awt.Dimension(527, 43));
-        titleSubPnl.setMinimumSize(new java.awt.Dimension(527, 43));
-        titleSubPnl.setPreferredSize(new java.awt.Dimension(527, 43));
         titleLbl.setBackground(new java.awt.Color(251, 226, 73));
         titleLbl.setFont(new java.awt.Font("Dialog", 1, 24));
         titleLbl.setForeground(new java.awt.Color(89, 79, 191));
         titleLbl.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("NB_title"));
         titleLbl.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(1, 12, 1, 1)));
-        titleLbl.setMaximumSize(new java.awt.Dimension(527, 43));
         titleLbl.setOpaque(true);
-        titleLbl.setPreferredSize(new java.awt.Dimension(527, 43));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         titleSubPnl.add(titleLbl, gridBagConstraints);
+
+        titleSubLbl.setBackground(new java.awt.Color(251, 226, 73));
+        titleSubLbl.setForeground(new java.awt.Color(89, 79, 191));
+        titleSubLbl.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("NB_subtitle"));
+        titleSubLbl.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(1, 12, 1, 1)));
+        titleSubLbl.setOpaque(true);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        titleSubPnl.add(titleSubLbl, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -256,6 +262,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     private javax.swing.JTabbedPane tabbedPnl;
     private javax.swing.JLabel titleLbl;
     private javax.swing.JPanel titlePanel;
+    private javax.swing.JLabel titleSubLbl;
     private javax.swing.JPanel titleSubPnl;
     private javax.swing.JPanel toolbarPanel;
     // End of variables declaration//GEN-END:variables
@@ -471,7 +478,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         // Ensure the category panel is visible when no solution is selected
         // and the other panels are visible when an solution is selected.
         if(solution == null) {
-            if(category.getId().equals("HOME")) {
+            if(category.getId().equals("HOME")) { // NOI18N
                 showHome();
             } else {
                 tabbedPnl.removeAll();
@@ -551,7 +558,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
             Category[] categories = bpcatalog.getCategory();
             // hack to add HOME page
             Category homeCategory = new Category();
-            homeCategory.setId("HOME");
+            homeCategory.setId("HOME"); // NOI18N
             homeCategory.setDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("homeCatDesc"));
             homeCategory.setCategoryName(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("homeCatName"));
             entries.add(homeCategory);
@@ -610,15 +617,28 @@ public class BluePrintsPanel extends javax.swing.JPanel {
             Component result = super.getListCellRendererComponent(list, value,
                 index, isSelected, cellHasFocus);
             JLabel label = (JLabel)result;
+            ResourceBundle bundleBpcatalog = java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/BundleBpcatalog");
+            String catName=null;
+            String fullName=null;
             if(value instanceof Category) {
                 Category category = (Category)value;
                 label.setIcon(categoryIcon);
-                label.setText(category.getCategoryName().trim());
+                try {
+                    catName = bundleBpcatalog.getString(category.getCategoryName().trim());
+                } catch (Exception e) {
+                    catName = category.getCategoryName().trim();
+                }
+                label.setText(catName);
             }
             else if(value instanceof Solution) {
                 Solution solution = (Solution)value;
                 label.setIcon(articleIcon);
-                label.setText(solution.getFullName().trim());
+                try {
+                    fullName = bundleBpcatalog.getString(solution.getFullName().trim());
+                } catch (Exception e) {
+                    fullName = solution.getFullName().trim();
+                }
+                label.setText(fullName);
                 // Tab the articles so they look like they're in the category
                 label.setBorder(new EmptyBorder(0, 19, 0, 0));
             }
