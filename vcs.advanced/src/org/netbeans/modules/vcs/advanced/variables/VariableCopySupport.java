@@ -36,6 +36,9 @@ class VariableCopySupport extends Object {
         "VARIABLE_COPY_FLAVOR"); // NOI18N
 
     static class VariableDataFlavor extends DataFlavor {
+        
+        private static final long serialVersionUID = 3504410287291109201L;
+        
         VariableDataFlavor(Class representationClass, String name) {
             super(representationClass, name);
         }

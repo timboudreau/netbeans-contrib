@@ -33,6 +33,9 @@ class CommandCopySupport extends Object {
         "COMMAND_COPY_FLAVOR"); // NOI18N
 
     static class CommandDataFlavor extends DataFlavor {
+        
+        private static final long serialVersionUID = 6305496575494482601L;
+        
         CommandDataFlavor(Class representationClass, String name) {
             super(representationClass, name);
         }

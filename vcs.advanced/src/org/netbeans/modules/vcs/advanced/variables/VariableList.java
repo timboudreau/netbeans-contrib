@@ -24,6 +24,8 @@ public class VariableList extends TreeSet {
 
     private Vector listeners;
 
+    private static final long serialVersionUID = 6033245279678422552L;
+    
     /** Creates new VariableList */
     public VariableList() {
         listeners = new Vector();

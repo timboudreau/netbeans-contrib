@@ -25,6 +25,8 @@ public class ProfilePanel extends AbstractWizardPanel {
     
     MountWizardData data;
     
+    private static final long serialVersionUID = 1184058637535734526L;
+    
     /** Creates new form ProfilePanel */
     public ProfilePanel() {
         initComponents();

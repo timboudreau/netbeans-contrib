@@ -28,6 +28,8 @@ public class VariableTreeView extends BeanTreeView {
     private static final String DEFAULT_FOLDER = "/org/openide/resources/defaultFolder.gif";
     private static final String DEFAULT_OPEN_FOLDER = "/org/openide/resources/defaultFolderOpen.gif";
 
+    private static final long serialVersionUID = 9182191566511590728L;
+    
     /** Creates new VariableTreeView */
     public VariableTreeView() {
         DefaultTreeCellRenderer commandRenderer = new DefaultTreeCellRenderer();

@@ -35,6 +35,9 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     private int currentIndex;
     //private int relativeIndex_;
     private MountWizardData data;
+    
+    private static final long serialVersionUID = 6804299241178632175L;
+    
     //private TemplateWizard 
 
     /** Creates new MountWizardIterator */

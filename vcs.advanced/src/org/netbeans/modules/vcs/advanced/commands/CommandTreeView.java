@@ -28,6 +28,8 @@ public class CommandTreeView extends BeanTreeView {
     private static final String DEFAULT_FOLDER = "/org/openide/resources/defaultFolder.gif";
     private static final String DEFAULT_OPEN_FOLDER = "/org/openide/resources/defaultFolderOpen.gif";
 
+    private static final long serialVersionUID = -8586652914620083109L;
+    
     /** Creates new CommandTreeView */
     public CommandTreeView() {
         DefaultTreeCellRenderer commandRenderer = new DefaultTreeCellRenderer();
