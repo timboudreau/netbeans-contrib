@@ -503,15 +503,21 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
                     }
                     
                 });
-                for (int i = 0; i < preCommands.length; i++) {
-                    Command preCmd = getProvider().createCommand(preCommands[i]);
-                    if (preCmd != null) {
-                        ((VcsDescribedCommand) preCmd).setAdditionalVariables(executor.getVariables());
-                        synchronized (tasks) {
-                            tasks.add(preCmd.execute());
+                RequestProcessor.getDefault().post(new Runnable() {
+                    public void run() {
+                        // Run the commands asynchronously, we're called under locks that
+                        // execute in some necessary precustomization might want to acquire.
+                        for (int i = 0; i < preCommands.length; i++) {
+                            Command preCmd = getProvider().createCommand(preCommands[i]);
+                            if (preCmd != null) {
+                                ((VcsDescribedCommand) preCmd).setAdditionalVariables(executor.getVariables());
+                                synchronized (tasks) {
+                                    tasks.add(preCmd.execute());
+                                }
+                            }
                         }
                     }
-                }
+                });
             }
         }
         return preCommandsProcessed.booleanValue();
