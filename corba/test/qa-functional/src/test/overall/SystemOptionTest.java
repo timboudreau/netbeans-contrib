@@ -25,6 +25,7 @@ import org.openide.options.*;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import org.openide.util.Lookup;
 
 /**
  * SystemOption (settings) test looking for changed options.
@@ -72,7 +73,7 @@ public class SystemOptionTest {
         
         try {
             // get class
-            Class clazz = ClassLoader.getSystemClassLoader().loadClass(className);
+            Class clazz = ((ClassLoader) Lookup.getDefault().lookup(ClassLoader.class)).loadClass(className);
             println("  className = " + clazz.getName());
 
             // get option
