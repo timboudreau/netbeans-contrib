@@ -30,6 +30,7 @@ import org.openide.util.RequestProcessor;
 import org.netbeans.modules.vcscore.cmdline.exec.ExternalCommand;
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
+import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 
 /**
  * The efficient executor of PCLI commands.
@@ -155,6 +156,12 @@ public class PCLICommandExecutor implements Runnable {
         synchronized (canSendInput) {
             if (!canSendInput[0]) {
                 canSendInput.wait();
+                if (!canSendInput[0]) {
+                    // Still can not send input => something had to go wrong
+                    stopPCLIProcessLoop(); // for sure
+                    commandToProcess.setFailed();
+                    return commandToProcess.succeeded();
+                }
                 try {
                     // wait a while for all the previous output to finish.
                     Thread.currentThread().sleep(100);
@@ -243,13 +250,20 @@ public class PCLICommandExecutor implements Runnable {
         synchronized (pcliThread) {
             pcliThread[0] = Thread.currentThread();
         }
+        int exitStatus = VcsCommandExecutor.FAILED;
         try {
-            cmd.exec();
+            exitStatus = cmd.exec();
         } finally {
             synchronized (pcliThread) {
                 pcliThread[0] = null;
             }
             cmd = null;
+            if (exitStatus != VcsCommandExecutor.SUCCEEDED) {
+                synchronized (canSendInput) {
+                    canSendInput[0] = false;
+                    canSendInput.notify();
+                }
+            }
         }
     }
     
