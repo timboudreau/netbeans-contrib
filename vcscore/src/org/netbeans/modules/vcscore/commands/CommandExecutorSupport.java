@@ -720,7 +720,7 @@ public class CommandExecutorSupport extends Object {
                     // will be prompted multiple times at once by concurrenly running commands
                     password = fileSystem.getPassword();
                     if (password == null) {
-                        NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
+                        NotifyDescriptorInputPassword nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password"), g("MSG_Password.mnemonic").charAt(0)); // NOI18N
                         if (NotifyDescriptor.OK_OPTION.equals (TopManager.getDefault ().notify (nd))) {
                             password = nd.getInputText ();
                         } else {

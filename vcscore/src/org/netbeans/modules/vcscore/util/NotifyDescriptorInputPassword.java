@@ -27,11 +27,13 @@ import java.awt.Component;
 
 public class NotifyDescriptorInputPassword extends NotifyDescriptor.InputLine {
     private javax.swing.JPasswordField passwordField;
+    private JLabel textLabel;
+    private Character mnemonic = null;
 
     protected Component createDesign (String text) {
         //      System.out.println ("createDesign("+text+")"+this+" "+System.identityHashCode(this)); // NOI18N
         JPanel panel = new JPanel();
-        JLabel textLabel = new JLabel(text);
+        textLabel = new JLabel(text);
         textLabel.setBorder(new EmptyBorder(0, 0, 0, 10));
         panel.setLayout(new BorderLayout());
         panel.setBorder(new EmptyBorder(10, 10, 6, 6));
@@ -59,6 +61,10 @@ public class NotifyDescriptorInputPassword extends NotifyDescriptor.InputLine {
         textLabel.setLabelFor(passwordField);
         panel.getAccessibleContext().setAccessibleDescription(
             org.openide.util.NbBundle.getBundle(NotifyDescriptorInputPassword.class).getString("ACSD_NotifyDescriptorInputPassword.dialog"));
+        passwordField.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(NotifyDescriptorInputPassword.class).getString("ACSD_NotifyDescriptorInputPassword.passwordField"));
+        if (mnemonic != null) {
+            textLabel.setDisplayedMnemonic(mnemonic.charValue());
+        }
         return panel;
     }
 
@@ -85,6 +91,13 @@ public class NotifyDescriptorInputPassword extends NotifyDescriptor.InputLine {
     /** Creates new NotifyDescriptorInputPassword */
     public NotifyDescriptorInputPassword (java.lang.String text, java.lang.String title) {
         super (text, title);
+    }
+    
+    /** Creates new NotifyDescriptorInputPassword */
+    public NotifyDescriptorInputPassword (java.lang.String text, java.lang.String title, char mnemonic) {
+        super (text, title);
+        this.mnemonic = new Character(mnemonic);
+        textLabel.setDisplayedMnemonic(mnemonic);
     }
 
     /*
