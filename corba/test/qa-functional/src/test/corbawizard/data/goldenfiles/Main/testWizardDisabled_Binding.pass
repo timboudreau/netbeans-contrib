@@ -52,3 +52,98 @@ Next:   false
 Finish: true
 Cancel: true
 --
+-- Bindings for: J2EE ORB
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+-- Bindings for: JDK 1.3 ORB
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+-- Bindings for: JDK 1.4 ORB
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+-- Bindings for: ORBacus for Java 4.x
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+-- Bindings for: ORBacus for Java 4.x for Windows
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+-- Bindings for: Orbix 2000 1.x for Java
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+-- Bindings for: OrbixWeb 3.2
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+4. Proprietary Binder
+-- Bindings for: VisiBroker 3.4 for Java
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+4. Proprietary Binder
+-- Bindings for: VisiBroker 4.x for Java
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+4. Proprietary Binder
+-- Bindings for: eORB 1.x (unsupported)
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+-- Bindings for: JacORB 1.3.x (unsupported)
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+-- Bindings for: JavaORB 2.2.x (unsupported)
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+-- Bindings for: JDK 1.2 ORB (unsupported)
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+-- Bindings for: OpenORB 1.x (unsupported)
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+-- Bindings for: ORBacus for Java 3.x (unsupported)
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+4. Proprietary Binder
+-- Bindings for: ORBacus for Java 3.x for Windows (unsupported)
+1. Naming Service
+2. IOR to file
+3. IOR to standard output
+4. Proprietary Binder
+Server: 
+-- Binding Details
+Back:   true
+Next:   false
+Finish: false
+Cancel: true
+--
+-- Binding Details
+Back:   true
+Next:   false
+Finish: false
+Cancel: true
+--
+Server: ServerName
+-- Binding Details
+Back:   true
+Next:   true
+Finish: false
+Cancel: true
+--
+-- Finish
+Back:   true
+Next:   false
+Finish: true
+Cancel: true
+--

@@ -28,6 +28,7 @@ import org.netbeans.jellytools.modules.corba.corbawizard.FileBindingStep;
 import org.netbeans.jellytools.modules.corba.corbawizard.FinishStep;
 import org.netbeans.jellytools.modules.corba.corbawizard.NSBindingStep;
 import org.netbeans.jellytools.modules.corba.corbawizard.ORBSettingsStep;
+import org.netbeans.jellytools.modules.corba.corbawizard.ProprietaryBindingStep;
 import org.netbeans.jellytools.modules.corba.corbawizard.RootInterfaceStep;
 import org.netbeans.jellytools.modules.corba.corbawizard.RootInterfacesStep;
 import org.netbeans.jellytools.modules.corba.corbawizard.STDBindingStep;
@@ -38,6 +39,7 @@ import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jemmy.EventTool;
 import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.Timeouts;
+import org.netbeans.jemmy.operators.JComboBoxOperator;
 import org.netbeans.jemmy.operators.JListOperator;
 import org.netbeans.junit.NbTestSuite;
 import util.Environment;
@@ -74,7 +76,7 @@ public class Main extends JellyTestCase {
         exp = new ExplorerOperator ();
         ev = new EventTool ();
         out = getRef ();
-        closeAllModal = true;
+        closeAllModal = false;
 /*        filter = new Filter ();
         filter.addFilterAfter ("@author");
         filter.addFilterAfter ("Created on");
@@ -154,6 +156,14 @@ public class Main extends JellyTestCase {
         out.println ("ORB: " + ob.cboChooseORBImplementation().isEnabled());
         out.println ("Bind: " + ob.cboChooseBindingMethod().isEnabled());
         out.println ("--");
+    }
+    
+    public void printBindings (ORBSettingsStep ob, String orb) {
+        out.println ("-- Bindings for: " + orb);
+        ob.selectChooseORBImplementation(orb);
+        JComboBoxOperator cbo = ob.cboChooseBindingMethod();
+        for (int a = 0; a < cbo.getItemCount(); a ++)
+            out.println ("" + (a + 1) + ". " + cbo.getItemAt (a).toString ());
     }
 
     public void printRootInterfaceStep (RootInterfaceStep ri) {
@@ -312,6 +322,7 @@ public class Main extends JellyTestCase {
         
         ORBSettingsStep ob;
         RootInterfacesStep ri;
+        ProprietaryBindingStep pb;
         FinishStep fi;
         
         ob = new ORBSettingsStep ();
@@ -363,10 +374,49 @@ public class Main extends JellyTestCase {
         fi.verify ();
         printButtons (fi);
         backToORBSettingsStep ();
-        // !!! proprietary binding
+
+        ob = new ORBSettingsStep ();
+        ob.verify ();
+
+        printBindings (ob, ORBSettingsStep.ITEM_J2EEORB);
+        printBindings (ob, ORBSettingsStep.ITEM_JDK13ORB);
+        printBindings (ob, ORBSettingsStep.ITEM_JDK14ORB);
+        printBindings (ob, ORBSettingsStep.ITEM_ORBACUSFORJAVA4X);
+        printBindings (ob, ORBSettingsStep.ITEM_ORBACUSFORJAVA4XFORWINDOWS);
+        printBindings (ob, ORBSettingsStep.ITEM_ORBIX20001XFORJAVA);
+        printBindings (ob, ORBSettingsStep.ITEM_ORBIXWEB32);
+        printBindings (ob, ORBSettingsStep.ITEM_VISIBROKER34FORJAVA);
+        printBindings (ob, ORBSettingsStep.ITEM_VISIBROKER4XFORJAVA);
+        printBindings (ob, ORBSettingsStep.ITEM_EORB1XUNSUPPORTED);
+        printBindings (ob, ORBSettingsStep.ITEM_JACORB13XUNSUPPORTED);
+        printBindings (ob, ORBSettingsStep.ITEM_JAVAORB22XUNSUPPORTED);
+        printBindings (ob, ORBSettingsStep.ITEM_JDK12ORBUNSUPPORTED);
+        printBindings (ob, ORBSettingsStep.ITEM_OPENORB1XUNSUPPORTED);
+        printBindings (ob, ORBSettingsStep.ITEM_ORBACUSFORJAVA3XUNSUPPORTED);
+        printBindings (ob, ORBSettingsStep.ITEM_ORBACUSFORJAVA3XFORWINDOWSUNSUPPORTED);
+        
+        ob.selectChooseORBImplementation(Environment.winOS ? ORBSettingsStep.ITEM_ORBACUSFORJAVA3XFORWINDOWSUNSUPPORTED : ORBSettingsStep.ITEM_ORBACUSFORJAVA3XUNSUPPORTED);
+        ob.selectChooseBindingMethod(ORBSettingsStep.ITEM_PROPRIETARYBINDER);
+        ob.next ();
+        ri = new RootInterfacesStep ();
+        ri.verify ();
+        ri.next ();
+        pb = new ProprietaryBindingStep ();
+        pb.verify ();
+        out.println ("Server: " + pb.txtServerName().getText ());
+        printButtons (pb);
+        pb.txtServerName().clearText ();
+        printButtons (pb);
+        pb.txtServerName().typeText ("ServerName");
+        out.println ("Server: " + pb.txtServerName().getText ());
+        printButtons (pb);
+        pb.next ();
+        fi = new FinishStep ();
+        fi.verify ();
+        printButtons (fi);
+        backToORBSettingsStep ();
         
         compareReferenceFiles ();
-        backToTypeApplicationStep ();
     }
     
     public void testWizardDisabled_RevertChanges () {
@@ -376,6 +426,7 @@ public class Main extends JellyTestCase {
         FileBindingStep fb;
         FinishStep fi;
         
+        backToTypeApplicationStep ();
         ta = new TypeAplicationStep ();
         ta.verify ();
         ta.checkCreateImplementation(true);
