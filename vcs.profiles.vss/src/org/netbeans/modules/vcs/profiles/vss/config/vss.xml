@@ -13,7 +13,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -1075,6 +1075,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value> <!-- EXEC_SERIAL_INERT -->
         </property>
+        <property name="preCommands">
+          <value>ADD_LOCAL_PARENTS</value>
+        </property>
         <property name="notificationSuccessMsg">
           <value>ResourceMsg(NOTIFICATION_VSS_ADD_ALL_Success)</value>
         </property>
@@ -1174,6 +1177,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="needsHierarchicalOrder">
 	  <value>true</value>
         </property>
+        <property name="preCommands">
+          <value>ADD_LOCAL_PARENTS</value>
+        </property>
         <property name="notificationSuccessMsg">
           <value>$[? MULTIPLE_FILES] [ResourceMsg(NOTIFICATION_VSS_CREATEs_Success, ${NUM_FILES})] [ResourceMsg(NOTIFICATION_VSS_CREATE_Success, ${FILE})]</value>
         </property>
@@ -1190,6 +1196,21 @@ Microsystems, Inc. All Rights Reserved.
             <value>&versioned-statuses;</value>
           </property>
       </command>
+      <command name="ADD_LOCAL_PARENTS">
+	<property name="exec">
+	  <value>org.netbeans.modules.vcs.profiles.commands.AddLocalParents.class CREATE_CMD</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+	<property name="onDir">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
+	</property>
+      </command>
+      
       <command name="REMOVE_CONFIRM">
 	<property name="exec">
 	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} ${RECURSIVE} -I-N ${IDENT} ${QPATHS} ${NUR}</value>
