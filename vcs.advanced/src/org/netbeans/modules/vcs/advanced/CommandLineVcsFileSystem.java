@@ -1141,8 +1141,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 String propertyName = name.substring(VAR_FS_PROPERTY_PREFIX.length());
                 PropertyDescriptor pd = (PropertyDescriptor) propertyDescriptorsByNames.get(propertyName);
                 if (pd == null) {
-                    NotifyDescriptor nd = new NotifyDescriptor.Message("MSG_NoSuchProperty");
-                    DialogDisplayer.getDefault().notify(nd);
+                    final NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_NoSuchProperty", propertyName));
+                    org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
+                        public void run() {
+                            // Present the dialog asynchronously not to block the current thread.
+                            DialogDisplayer.getDefault().notify(nd);
+                        }
+                    });
                     continue;
                 }
                 Class pt = pd.getPropertyType();
