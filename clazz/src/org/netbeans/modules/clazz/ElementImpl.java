@@ -19,8 +19,11 @@ import java.io.IOException;
 import java.io.Externalizable;
 import java.beans.PropertyChangeListener;
 
+import org.openide.TopManager;
+import org.openide.ErrorManager;
 import org.openide.nodes.Node;
 import org.openide.src.Element;
+import org.openide.src.SourceException;
 
 /** Implementation of Element for classes.
 *
@@ -31,7 +34,7 @@ public abstract class ElementImpl extends Object implements Element.Impl, Extern
     /** The element we aare asociated to. We provide an implementation
     * to that element */
     protected Element element;
-
+    
     static final long serialVersionUID =6363778502021582852L;
     /** Default constructor
     */
@@ -70,22 +73,13 @@ public abstract class ElementImpl extends Object implements Element.Impl, Extern
         // nothing to do - class is not editable
     }
 
+    
+    protected final void throwReadOnlyException() throws SourceException {
+        throw (SourceException)TopManager.getDefault().getErrorManager().annotate(
+            new SourceException("Read-only element"), // NOI18N
+            ErrorManager.USER,
+            null, Util.getString("MSG_CantModify"),
+            null, null
+        );
+    }        
 }
-
-/*
-* Log
-*  9    src-jtulach1.8         1/20/00  David Simonek   #2119 bugfix
-*  8    src-jtulach1.7         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
-*       Microsystems Copyright in File Comment
-*  7    src-jtulach1.6         8/9/99   Ian Formanek    Generated Serial Version 
-*       UID
-*  6    src-jtulach1.5         7/8/99   Petr Hamernik   interface Element.Impl 
-*       changes
-*  5    src-jtulach1.4         6/9/99   Ian Formanek    ---- Package Change To 
-*       org.openide ----
-*  4    src-jtulach1.3         3/18/99  Petr Hamernik   
-*  3    src-jtulach1.2         2/17/99  Petr Hamernik   serialization changed.
-*  2    src-jtulach1.1         2/3/99   David Simonek   
-*  1    src-jtulach1.0         1/22/99  David Simonek   
-* $
-*/

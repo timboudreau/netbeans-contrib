@@ -65,7 +65,7 @@ public abstract class MemberElementImpl extends ElementImpl
     /** Unsupported. Throws SourceException
     */
     public void setModifiers (int mod) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** Getter for name of the field.
@@ -86,7 +86,7 @@ public abstract class MemberElementImpl extends ElementImpl
     /** Unsupported. Throws SourceException.
     */
     public void setName (Identifier name) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** Delegates to source element implementation class,

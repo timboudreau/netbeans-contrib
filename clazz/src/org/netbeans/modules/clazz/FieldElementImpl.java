@@ -49,7 +49,7 @@ final class FieldElementImpl extends MemberElementImpl
     /** Not supported. Throws SourceException.
     */
     public void setType (Type type) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** PENDING - don't know how to implement...
@@ -61,7 +61,7 @@ final class FieldElementImpl extends MemberElementImpl
     /** Not supported. Throws SourceException.
     */
     public void setInitValue (String value) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** @return java doc for the field
@@ -73,21 +73,4 @@ final class FieldElementImpl extends MemberElementImpl
     public Object readResolve() {
         return new FieldElement(this, null);
     }
-
 }
-
-/*
-* Log
-*  7    src-jtulach1.6         1/13/00  David Simonek   i18n
-*  6    src-jtulach1.5         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
-*       Microsystems Copyright in File Comment
-*  5    src-jtulach1.4         8/9/99   Ian Formanek    Generated Serial Version 
-*       UID
-*  4    src-jtulach1.3         6/9/99   Petr Hrebejk    Empty JavaDoc 
-*       implementation added.
-*  3    src-jtulach1.2         6/9/99   Ian Formanek    ---- Package Change To 
-*       org.openide ----
-*  2    src-jtulach1.1         2/17/99  Petr Hamernik   serialization changed.
-*  1    src-jtulach1.0         1/22/99  David Simonek   
-* $
-*/

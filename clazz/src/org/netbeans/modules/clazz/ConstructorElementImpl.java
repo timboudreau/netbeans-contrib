@@ -86,7 +86,7 @@ class ConstructorElementImpl extends MemberElementImpl
     /** Unsupported, throws SourceException
     */
     public void setParameters (MethodParameter[] params) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** @return the array of the exceptions throwed by the method.
@@ -111,13 +111,13 @@ class ConstructorElementImpl extends MemberElementImpl
     /** Unsupported, throws SourceException
     */
     public void setExceptions (Identifier[] exceptions) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** Unsupported, throws SourceException
     */
     public void setBody (String s) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** Unsupported, always return empty string.

@@ -62,7 +62,7 @@ public final class SourceElementImpl extends MemberElementImpl
     /** Not supported. Throws SourceException.
     */
     public void setPackage (Identifier id) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** @return The package of class which we are representing.
@@ -86,13 +86,13 @@ public final class SourceElementImpl extends MemberElementImpl
     /** Not supported. Throws SourceException.
     */
     public void changeImports (Import[] elems, int action) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** Not supported. Throws SourceException.
     */
     public void changeClasses (ClassElement[] elems, int action) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** Always returns only one class element which belongs to the

@@ -45,7 +45,7 @@ final class MethodElementImpl extends ConstructorElementImpl
 
     /** Unsupported. Throws an Source exception. */
     public void setReturn (Type ret) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     public Object readResolve() {

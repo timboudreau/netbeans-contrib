@@ -63,7 +63,7 @@ public final class ClassElementImpl extends MemberElementImpl
 
     /** Not supported. Throws source exception */
     public void setSuperclass(Identifier superClass) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     public Identifier getSuperclass() {
@@ -84,7 +84,7 @@ public final class ClassElementImpl extends MemberElementImpl
 
     /** Not supported. Throws Source Exception */
     public void setClassOrInterface(boolean isClass) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     public boolean isClassOrInterface() {
@@ -94,7 +94,7 @@ public final class ClassElementImpl extends MemberElementImpl
     /** Not supported. Throws SourceException.
     */
     public void changeInitializers (InitializerElement[] elems, int action) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** Not available. Always returns empty array */
@@ -107,7 +107,7 @@ public final class ClassElementImpl extends MemberElementImpl
     * @exception SourceException if the action cannot be handled
     */
     public void changeFields (FieldElement[] elems, int action) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     public FieldElement[] getFields () {
@@ -139,7 +139,7 @@ public final class ClassElementImpl extends MemberElementImpl
     * @exception SourceException if the action cannot be handled
     */
     public void changeMethods (MethodElement[] elems, int action) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     public MethodElement[] getMethods () {
@@ -173,7 +173,7 @@ public final class ClassElementImpl extends MemberElementImpl
     * @exception SourceException if the action cannot be handled
     */
     public void changeConstructors (ConstructorElement[] elems, int action) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     public ConstructorElement[] getConstructors () {
@@ -209,7 +209,7 @@ public final class ClassElementImpl extends MemberElementImpl
     * @exception SourceException if the action cannot be handled
     */
     public void changeClasses (ClassElement[] elems, int action) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     public ClassElement[] getClasses () {
@@ -241,7 +241,7 @@ public final class ClassElementImpl extends MemberElementImpl
     * @exception SourceException if the action cannot be handled
     */
     public void changeInterfaces (Identifier[] ids, int action) throws SourceException {
-        throw new SourceException();
+        throwReadOnlyException();
     }
 
     /** @return all interfaces which the class implements or interface extends.
