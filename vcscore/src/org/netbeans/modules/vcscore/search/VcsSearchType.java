@@ -173,22 +173,9 @@ public class VcsSearchType extends SearchType {
                 }
             }
 
-            try {
-                InstanceCookie ic = (InstanceCookie)root.getCookie (InstanceCookie.class);
-                if(ic != null && Repository.class.isAssignableFrom (ic.instanceClass ())) {
-                    acceptedRoots.add(root);
-                }
-                
-            } catch(IOException ioe) {
-                // does not provide instance
-                if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
-                    ioe.printStackTrace();
-                }
-            } catch(ClassNotFoundException cnfe) {
-                // does not provide instance
-                if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
-                    cnfe.printStackTrace();
-                }
+            InstanceCookie.Of ic = (InstanceCookie.Of)root.getCookie(InstanceCookie.Of.class);
+            if(ic != null && ic.instanceOf(Repository.class)) {
+                acceptedRoots.add(root);
             }
 
         }
@@ -233,38 +220,25 @@ public class VcsSearchType extends SearchType {
         }
 
         for(int i = 0; i < nodes.length; i++) {
-            try {
-                InstanceCookie ic = (InstanceCookie)nodes[i].getCookie (InstanceCookie.class);
-                if(ic != null && Repository.class.isAssignableFrom (ic.instanceClass ())) {
-                    FileSystem[] fileSystems = TopManager.getDefault().getRepository().toArray();
-                    
-                    for(int j = 0; j < fileSystems.length; j++) {
-                        if(fileSystems[j] instanceof VcsSearchTypeFileSystem) {
-                            String[] possibleStatuses = ((VcsSearchTypeFileSystem)fileSystems[j]).getPossibleFileStatuses();
-                            if(!statusesAdded) {
-                                statuses = new Vector();
-                                statusesAdded = true;
-                            }
-
-                            addStatuses(possibleStatuses);
-                            
-                            
-                            return true;
+            InstanceCookie.Of ic = (InstanceCookie.Of)nodes[i].getCookie(InstanceCookie.Of.class);
+            if(ic != null && ic.instanceOf(Repository.class)) {
+                
+                FileSystem[] fileSystems = TopManager.getDefault().getRepository().toArray();
+                for(int j = 0; j < fileSystems.length; j++) {
+                    if(fileSystems[j] instanceof VcsSearchTypeFileSystem) {
+                        String[] possibleStatuses = ((VcsSearchTypeFileSystem)fileSystems[j]).getPossibleFileStatuses();
+                        if(!statusesAdded) {
+                            statuses = new Vector();
+                            statusesAdded = true;
                         }
+                        
+                        addStatuses(possibleStatuses);
+                        
+                        return true;
                     }
-                    
-                    return false;
                 }
-            } catch(IOException ioe) {
-                // does not provide instance
-                if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
-                    ioe.printStackTrace();
-                }
-            } catch(ClassNotFoundException cnfe) {
-                // does not provide instance
-                if(Boolean.getBoolean("netbeans.debug.exceptions")) { // NOI18N
-                    cnfe.printStackTrace();
-                }
+                
+                return false;
             }
         }
 
