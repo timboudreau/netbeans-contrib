@@ -84,6 +84,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private HashMap autoFillVars = new HashMap();
     private Map fsVarsByName = null;
+    /** Whether we will reset FS values to the same values that are already set.
+     * If true, then e.g. auto-fill commands are executed even when nothing has actually changed. */
+    private boolean resetEqualFSVars = false;
     
     //private HashMap cache = new HashMap ();
     
@@ -137,6 +140,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         systemEnvLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.varButton.textA11yDesc"));  // NOI18N
         jTabbedPane1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizerTabbedPaneA11yName"));  // NOI18N
         jTabbedPane1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizerTabbedPaneA11yDesc"));  // NOI18N
+    }
+    
+    /**
+     * Set, whether we will reset FS values to the same values that are already set.
+     * If true, then e.g. auto-fill commands are executed even when nothing has actually changed.
+     */
+    public void setResetEqualFSVars(boolean resetEqualFSVars) {
+        this.resetEqualFSVars = resetEqualFSVars;
     }
 
     /** This method is called from within the constructor to
@@ -1985,7 +1996,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                     var.setValue(newValue);
                 }
                 //System.out.println("  "+varName+"='"+newValue+"', fsVars = '"+fsVars.get(varName)+"'");
-                if (!newValue.equals(fsVars.get(varName))) {
+                if (!resetEqualFSVars && !newValue.equals(fsVars.get(varName))) {
                     fsVars.put(varName, newValue);
                     if (!setSpecialProperties(varName, newValue, fsVars)) {
                         String cmd = (String) autoFillVars.get(varName);
@@ -2033,7 +2044,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             return ;
         }
         var = (VcsConfigVariable) fsVarsByName.get(varName);
-        if (var != null && newValue.equals(var.getValue())) return ;
+        if (!resetEqualFSVars && var != null && newValue.equals(var.getValue())) return ;
         Vector vars = fileSystem.getVariables();
         //System.out.println("variable changed: "+varName+" = '"+newValue+"'");
         if (var == null) {
@@ -2514,7 +2525,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         oldSelectedLabel = fileSystem.getConfig();
         updateConfigurations();
         updateAdvancedConfig();
-        initAdditionalComponents (false);
+        initAdditionalComponents (resetEqualFSVars);
         currentOSLabel.setText(org.openide.util.NbBundle.getMessage(VcsCustomizer.class, "VcsCustomizer.currentOSLabel.txt", System.getProperty("os.name")));
         /*
             // find if this fs is in the repository
