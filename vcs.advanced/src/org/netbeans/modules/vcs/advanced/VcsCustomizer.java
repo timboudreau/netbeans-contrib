@@ -87,86 +87,86 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     propsPanel.setLayout (new java.awt.GridBagLayout ());
     java.awt.GridBagConstraints gridBagConstraints2;
 
-    jLabel2.setText ("Root Directory:");
-
-    gridBagConstraints2 = new java.awt.GridBagConstraints ();
-    gridBagConstraints2.gridx = 0;
-    gridBagConstraints2.gridy = 2;
-    gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
-    gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-    propsPanel.add (jLabel2, gridBagConstraints2);
-
-    rootDirTextField.setText (".");
-    rootDirTextField.setNextFocusableComponent (browseButton);
-    rootDirTextField.addActionListener (new java.awt.event.ActionListener () {
-      public void actionPerformed (java.awt.event.ActionEvent evt) {
-        rootDirTextFieldActionPerformed (evt);
+      jLabel2.setText ("Root Directory:");
+  
+      gridBagConstraints2 = new java.awt.GridBagConstraints ();
+      gridBagConstraints2.gridx = 0;
+      gridBagConstraints2.gridy = 2;
+      gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
+      gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
+      propsPanel.add (jLabel2, gridBagConstraints2);
+  
+      rootDirTextField.setText (".");
+      rootDirTextField.setNextFocusableComponent (browseButton);
+      rootDirTextField.addActionListener (new java.awt.event.ActionListener () {
+        public void actionPerformed (java.awt.event.ActionEvent evt) {
+          rootDirTextFieldActionPerformed (evt);
+        }
       }
-    }
-    );
-    rootDirTextField.addFocusListener (new java.awt.event.FocusAdapter () {
-      public void focusLost (java.awt.event.FocusEvent evt) {
-        rootDirTextFieldFocusLost (evt);
+      );
+      rootDirTextField.addFocusListener (new java.awt.event.FocusAdapter () {
+        public void focusLost (java.awt.event.FocusEvent evt) {
+          rootDirTextFieldFocusLost (evt);
+        }
       }
-    }
-    );
-
-    gridBagConstraints2 = new java.awt.GridBagConstraints ();
-    gridBagConstraints2.gridx = 1;
-    gridBagConstraints2.gridy = 2;
-    gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
-    gridBagConstraints2.weightx = 0.8;
-    propsPanel.add (rootDirTextField, gridBagConstraints2);
-
-    browseButton.setText ("Browse...");
-    browseButton.setNextFocusableComponent (refreshTextField);
-    browseButton.addActionListener (new java.awt.event.ActionListener () {
-      public void actionPerformed (java.awt.event.ActionEvent evt) {
-        browseButtonActionPerformed (evt);
+      );
+  
+      gridBagConstraints2 = new java.awt.GridBagConstraints ();
+      gridBagConstraints2.gridx = 1;
+      gridBagConstraints2.gridy = 2;
+      gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
+      gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
+      gridBagConstraints2.weightx = 0.8;
+      propsPanel.add (rootDirTextField, gridBagConstraints2);
+  
+      browseButton.setText ("Browse...");
+      browseButton.setNextFocusableComponent (refreshTextField);
+      browseButton.addActionListener (new java.awt.event.ActionListener () {
+        public void actionPerformed (java.awt.event.ActionEvent evt) {
+          browseButtonActionPerformed (evt);
+        }
       }
-    }
-    );
-
-    gridBagConstraints2 = new java.awt.GridBagConstraints ();
-    gridBagConstraints2.gridx = 2;
-    gridBagConstraints2.gridy = 2;
-    gridBagConstraints2.gridwidth = 0;
-    gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
-    propsPanel.add (browseButton, gridBagConstraints2);
-
-    jLabel4.setText ("Refresh Period (milliseconds):");
-
-    gridBagConstraints2 = new java.awt.GridBagConstraints ();
-    gridBagConstraints2.gridx = 0;
-    gridBagConstraints2.gridy = 3;
-    gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
-    gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-    propsPanel.add (jLabel4, gridBagConstraints2);
-
-    refreshTextField.setText ("0");
-    refreshTextField.addActionListener (new java.awt.event.ActionListener () {
-      public void actionPerformed (java.awt.event.ActionEvent evt) {
-        refreshTextFieldActionPerformed (evt);
+      );
+  
+      gridBagConstraints2 = new java.awt.GridBagConstraints ();
+      gridBagConstraints2.gridx = 2;
+      gridBagConstraints2.gridy = 2;
+      gridBagConstraints2.gridwidth = 0;
+      gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
+      gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
+      propsPanel.add (browseButton, gridBagConstraints2);
+  
+      jLabel4.setText ("Refresh Period (milliseconds):");
+  
+      gridBagConstraints2 = new java.awt.GridBagConstraints ();
+      gridBagConstraints2.gridx = 0;
+      gridBagConstraints2.gridy = 3;
+      gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
+      gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
+      propsPanel.add (jLabel4, gridBagConstraints2);
+  
+      refreshTextField.setText ("0");
+      refreshTextField.addActionListener (new java.awt.event.ActionListener () {
+        public void actionPerformed (java.awt.event.ActionEvent evt) {
+          refreshTextFieldActionPerformed (evt);
+        }
       }
-    }
-    );
-    refreshTextField.addFocusListener (new java.awt.event.FocusAdapter () {
-      public void focusLost (java.awt.event.FocusEvent evt) {
-        refreshTextFieldFocusLost (evt);
+      );
+      refreshTextField.addFocusListener (new java.awt.event.FocusAdapter () {
+        public void focusLost (java.awt.event.FocusEvent evt) {
+          refreshTextFieldFocusLost (evt);
+        }
       }
-    }
-    );
-
-    gridBagConstraints2 = new java.awt.GridBagConstraints ();
-    gridBagConstraints2.gridx = 1;
-    gridBagConstraints2.gridy = 3;
-    gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
-    gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-    propsPanel.add (refreshTextField, gridBagConstraints2);
-
+      );
+  
+      gridBagConstraints2 = new java.awt.GridBagConstraints ();
+      gridBagConstraints2.gridx = 1;
+      gridBagConstraints2.gridy = 3;
+      gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
+      gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
+      gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
+      propsPanel.add (refreshTextField, gridBagConstraints2);
+  
 
     gridBagConstraints1 = new java.awt.GridBagConstraints ();
     gridBagConstraints1.gridx = 0;
@@ -179,51 +179,51 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     vcsPanel.setLayout (new java.awt.GridBagLayout ());
     java.awt.GridBagConstraints gridBagConstraints3;
 
-    configCombo.setNextFocusableComponent (saveAsButton);
-    configCombo.addItemListener (new java.awt.event.ItemListener () {
-      public void itemStateChanged (java.awt.event.ItemEvent evt) {
-        configComboItemStateChanged (evt);
+      configCombo.setNextFocusableComponent (saveAsButton);
+      configCombo.addItemListener (new java.awt.event.ItemListener () {
+        public void itemStateChanged (java.awt.event.ItemEvent evt) {
+          configComboItemStateChanged (evt);
+        }
       }
-    }
-    );
-
-    gridBagConstraints3 = new java.awt.GridBagConstraints ();
-    gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints3.insets = new java.awt.Insets (4, 4, 4, 4);
-    gridBagConstraints3.weightx = 0.8;
-    vcsPanel.add (configCombo, gridBagConstraints3);
-
-    saveAsButton.setText ("Save as...");
-    saveAsButton.setNextFocusableComponent (removeConfigButton);
-    saveAsButton.addActionListener (new java.awt.event.ActionListener () {
-      public void actionPerformed (java.awt.event.ActionEvent evt) {
-        saveAsButtonActionPerformed (evt);
+      );
+  
+      gridBagConstraints3 = new java.awt.GridBagConstraints ();
+      gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
+      gridBagConstraints3.insets = new java.awt.Insets (4, 4, 4, 4);
+      gridBagConstraints3.weightx = 0.8;
+      vcsPanel.add (configCombo, gridBagConstraints3);
+  
+      saveAsButton.setText ("Save as...");
+      saveAsButton.setNextFocusableComponent (removeConfigButton);
+      saveAsButton.addActionListener (new java.awt.event.ActionListener () {
+        public void actionPerformed (java.awt.event.ActionEvent evt) {
+          saveAsButtonActionPerformed (evt);
+        }
       }
-    }
-    );
-
-    gridBagConstraints3 = new java.awt.GridBagConstraints ();
-    gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints3.insets = new java.awt.Insets (4, 4, 4, 4);
-    vcsPanel.add (saveAsButton, gridBagConstraints3);
-
-    removeConfigButton.setText ("Remove");
-    removeConfigButton.setNextFocusableComponent (propsPanel);
-    removeConfigButton.addActionListener (new java.awt.event.ActionListener () {
-      public void actionPerformed (java.awt.event.ActionEvent evt) {
-        removeConfigButtonActionPerformed (evt);
+      );
+  
+      gridBagConstraints3 = new java.awt.GridBagConstraints ();
+      gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
+      gridBagConstraints3.insets = new java.awt.Insets (4, 4, 4, 4);
+      vcsPanel.add (saveAsButton, gridBagConstraints3);
+  
+      removeConfigButton.setText ("Remove");
+      removeConfigButton.setNextFocusableComponent (propsPanel);
+      removeConfigButton.addActionListener (new java.awt.event.ActionListener () {
+        public void actionPerformed (java.awt.event.ActionEvent evt) {
+          removeConfigButtonActionPerformed (evt);
+        }
       }
-    }
-    );
-
-    gridBagConstraints3 = new java.awt.GridBagConstraints ();
-    gridBagConstraints3.gridx = 2;
-    gridBagConstraints3.gridy = 0;
-    gridBagConstraints3.gridwidth = 0;
-    gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints3.insets = new java.awt.Insets (4, 4, 4, 4);
-    vcsPanel.add (removeConfigButton, gridBagConstraints3);
-
+      );
+  
+      gridBagConstraints3 = new java.awt.GridBagConstraints ();
+      gridBagConstraints3.gridx = 2;
+      gridBagConstraints3.gridy = 0;
+      gridBagConstraints3.gridwidth = 0;
+      gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
+      gridBagConstraints3.insets = new java.awt.Insets (4, 4, 4, 4);
+      vcsPanel.add (removeConfigButton, gridBagConstraints3);
+  
 
     gridBagConstraints1 = new java.awt.GridBagConstraints ();
     gridBagConstraints1.gridx = 0;
@@ -586,8 +586,9 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
   */
   //-------------------------------------------
   private void updateConfigurations(){
+    D.deb("configRoot = "+fileSystem.getConfigRoot());
     Vector configNames=VcsConfigVariable.readConfigurations(fileSystem.getConfigRoot());
-    //D.deb("configNames="+configNames);
+    D.deb("configNames="+configNames);
 
     if( configCombo.getItemCount()>0 ){ // necessary on Linux 
       configCombo.removeAllItems();
@@ -626,7 +627,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       configCombo.addItem(label);
     }
     
-    configCombo.setSelectedIndex( newIndex );
+    if (configCombo.getItemCount() > 0)
+      configCombo.setSelectedIndex( newIndex );
     promptForConfigComboChange = false;
   }
   
@@ -686,6 +688,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     }
     String module = getModuleValue();
     if (module != null && module.length() > 0) selected += File.separator + module;
+    D.deb("rootDirChanged(): module = "+module+", selected = "+selected);
     File dir=new File(selected);
     if( !dir.isDirectory() ){
       E.err("not directory "+dir);
@@ -788,6 +791,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  7    Gandalf   1.6         1/3/00   Martin Entlicher 
 *  6    Gandalf   1.5         12/16/99 Martin Entlicher 
 *  5    Gandalf   1.4         12/15/99 Martin Entlicher Refresh time: check for 
 *       correct input

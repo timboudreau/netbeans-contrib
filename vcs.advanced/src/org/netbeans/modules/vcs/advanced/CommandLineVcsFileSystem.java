@@ -41,7 +41,7 @@ import com.netbeans.developer.modules.vcs.util.Debug;
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends VcsFileSystem implements java.beans.PropertyChangeListener {
   private Debug D = new Debug ("CommandLineVcsFileSystem", true);
-  private static transient String CONFIG_ROOT="vcs/config";
+  private /*static transient*/ String CONFIG_ROOT="vcs/config";
   private transient Hashtable commandsByName=null;
  
   static final long serialVersionUID =-1017235664394970926L;
@@ -96,6 +96,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
 
 /*
  * <<Log>>
+ *  53   Gandalf   1.52        1/3/00   Martin Entlicher 
  *  52   Gandalf   1.51        12/28/99 Martin Entlicher Yury changes.
  *  51   Gandalf   1.50        12/21/99 Martin Entlicher Refresh time set after 
  *       mounting into the Repository.
