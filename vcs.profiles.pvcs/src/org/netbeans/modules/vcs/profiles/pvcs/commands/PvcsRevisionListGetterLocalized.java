@@ -88,6 +88,7 @@ public class PvcsRevisionListGetterLocalized extends Object implements VcsAdditi
         revisionItems = new ArrayList();
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(logCmd, vars);
         vce.addDataOutputListener(this);
+        fileSystem.getCommandsPool().preprocessCommand(vce, vars, fileSystem);
         fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
         try {
             fileSystem.getCommandsPool().waitToFinish(vce);

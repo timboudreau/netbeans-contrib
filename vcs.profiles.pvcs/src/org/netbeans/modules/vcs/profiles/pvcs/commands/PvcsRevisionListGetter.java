@@ -88,6 +88,7 @@ public class PvcsRevisionListGetter extends Object implements VcsAdditionalComma
         revisionItems = new ArrayList();
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(logCmd, vars);
         vce.addDataOutputListener(this);
+        fileSystem.getCommandsPool().preprocessCommand(vce, vars, fileSystem);
         fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
         try {
             fileSystem.getCommandsPool().waitToFinish(vce);
