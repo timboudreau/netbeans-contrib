@@ -3,13 +3,13 @@
 --------------------------------------------------------------------------------
 
   module JAR:       corba.jar
-  module code name: com.netbeans.enterprise.modules.corba/1
-  dependencies:     com.netbeans.developer.modules.loaders.java/1
+  module code name: org.netbeans.modules.corba/1
+  dependencies:     org.netbeans.modules.java/1
   lib/ext:          NONE
   modules/ext:      NONE
   
   packages: 
-    com.netbeans.enterprise.modules.corba.*
+    org.netbeans.modules.corba.*
 
   maintained by: Karel Gardas
 

@@ -11,13 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.vcs.cmdline;
+package org.netbeans.modules.vcs.advanced;
 import java.awt.*;
 import java.util.*;
 import java.beans.*;
 
-import com.netbeans.developer.modules.vcs.util.*;
-import com.netbeans.developer.modules.vcs.cmdline.*;
+import org.netbeans.modules.vcs.util.*;
+import org.netbeans.modules.vcs.cmdline.*;
 
 /** Property editor for UserCommand.
  * 
@@ -85,7 +85,7 @@ public class UserCommandsEditor implements PropertyEditor {
     commands=new Vector();
     Vector vect = (Vector) value;
     for(int i=0;i<vect.size (); i++) {
-      com.netbeans.developer.modules.vcs.cmdline.UserCommand cmd = (com.netbeans.developer.modules.vcs.cmdline.UserCommand) vect.get (i);
+      org.netbeans.modules.vcs.cmdline.UserCommand cmd = (org.netbeans.modules.vcs.cmdline.UserCommand) vect.get (i);
       commands.add (cmd.clone ());
     }
     

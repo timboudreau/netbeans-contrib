@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import java.util.Hashtable;
 import javax.naming.NamingException;
@@ -20,7 +20,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.DeleteAction;
-import com.netbeans.enterprise.modules.jndi.utils.Refreshable;
+import org.netbeans.modules.jndi.utils.Refreshable;
 
 /** This class represents a mounted Context which is from some 
  *  reason, e.g. the naming service is not running, not in progress.

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi.gui;
+package org.netbeans.modules.jndi.gui;
 
 /** 
  *

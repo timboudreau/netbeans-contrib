@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.util;
+package org.netbeans.modules.corba.browser.ir.util;
 
 import org.omg.CORBA.*;
 

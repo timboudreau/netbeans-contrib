@@ -11,12 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupportFactory;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupportFactory;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
 
 

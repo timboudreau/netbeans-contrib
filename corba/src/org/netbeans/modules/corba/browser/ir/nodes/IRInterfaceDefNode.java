@@ -11,14 +11,14 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 import org.openide.nodes.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
 
 
@@ -27,7 +27,7 @@ public class IRInterfaceDefNode extends IRContainerNode {
   InterfaceDef _interface;
 
   private static final String INTERFACE_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/idl/node/interface";
+    "org/netbeans/modules/corba/idl/node/interface";
   
   private static class InterfaceCodeGenerator implements GenerateSupport {
     private InterfaceDef _interface;

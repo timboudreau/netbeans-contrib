@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import javax.naming.NamingException;
 

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
@@ -21,16 +21,16 @@ import org.openide.nodes.Sheet;
 import org.openide.nodes.Node;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.datatransfer.ExClipboard;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.Generatable;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupportFactory;
+import org.netbeans.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.util.Generatable;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupportFactory;
 
 
 public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatable {
 
   private static final String ALIAS_ICON_BASE =
-   "com/netbeans/enterprise/modules/corba/idl/node/declarator";
+   "org/netbeans/modules/corba/idl/node/declarator";
   private AliasDef _alias;
   
   private static class AliasCodeGenerator implements GenerateSupport {

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.node;
+package org.netbeans.modules.corba.idl.node;
 
 import org.openide.nodes.Children;
 import org.openide.nodes.CookieSet;
@@ -21,9 +21,9 @@ import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 
-import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
-import com.netbeans.enterprise.modules.corba.idl.src.OperationElement;
-import com.netbeans.enterprise.modules.corba.idl.src.ParameterElement;
+import org.netbeans.modules.corba.idl.src.IDLElement;
+import org.netbeans.modules.corba.idl.src.OperationElement;
+import org.netbeans.modules.corba.idl.src.ParameterElement;
 
 /**
  * Class IDLOperationNode
@@ -34,7 +34,7 @@ public class IDLOperationNode extends IDLAbstractNode {
 
   OperationElement _operation;
   private static final String OPERATION_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/idl/node/operation";
+    "org/netbeans/modules/corba/idl/node/operation";
 
   public IDLOperationNode (OperationElement value) {
     //super (new IDLDocumentChildren ((SimpleNode)value));

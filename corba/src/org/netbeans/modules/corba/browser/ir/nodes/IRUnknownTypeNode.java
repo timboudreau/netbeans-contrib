@@ -11,14 +11,14 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.openide.actions.*;
 import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.SystemAction;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.Util;
 
 /** A node with some children.
  *
@@ -27,7 +27,7 @@ import com.netbeans.enterprise.modules.corba.browser.ir.Util;
 public class IRUnknownTypeNode extends IRLeafNode {
   
   private static final String UNKNOWN_ICON_BASE =
-   "com/netbeans/enterprise/modules/corba/browser/ir/resources/unknown";
+   "org/netbeans/modules/corba/browser/ir/resources/unknown";
 
   public IRUnknownTypeNode() {
     super ();

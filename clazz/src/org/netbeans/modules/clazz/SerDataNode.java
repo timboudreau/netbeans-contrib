@@ -11,7 +11,7 @@
  * Copyright 1997-2000 Sun Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.developer.modules.loaders.clazz;
+package org.netbeans.modules.clazz;
 
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -33,11 +33,11 @@ final class SerDataNode extends ClassDataNode {
   static final long serialVersionUID = -2645179282674800246L;
 
   private static final String SER_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/ser"; // NOI18N
+    "/org/netbeans/modules/clazz/resources/ser"; // NOI18N
   private static final String SER_MAIN_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/serMain"; // NOI18N
+    "/org/netbeans/modules/clazz/resources/serMain"; // NOI18N
   private static final String SER_ERROR_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/serError"; // NOI18N
+    "/org/netbeans/modules/clazz/resources/serError"; // NOI18N
 
   /** Constructs bean data node with asociated data object.
   */

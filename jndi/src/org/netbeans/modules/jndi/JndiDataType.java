@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import java.io.IOException;
 import java.awt.Dialog;
@@ -24,9 +24,9 @@ import javax.naming.directory.*;
 import org.openide.util.datatransfer.*;
 import org.openide.*;
 import org.openide.nodes.*;
-import com.netbeans.enterprise.modules.jndi.settings.JndiSystemOption;
-import com.netbeans.enterprise.modules.jndi.gui.TimeOutPanel;
-import com.netbeans.enterprise.modules.jndi.gui.NotFoundPanel;
+import org.netbeans.modules.jndi.settings.JndiSystemOption;
+import org.netbeans.modules.jndi.gui.TimeOutPanel;
+import org.netbeans.modules.jndi.gui.NotFoundPanel;
 
 /** This class represents Datatype for JNDI Nodes
  *  It is responsible for adding of new contexts and creating subdirs in Jndi tree

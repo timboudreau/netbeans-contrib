@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.rmi;
+package org.netbeans.modules.rmi;
 
 import java.util.*;
 import org.openide.src.*;

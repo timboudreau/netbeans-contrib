@@ -11,14 +11,14 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import org.openide.util.actions.NodeAction;
 import org.openide.util.HelpCtx;
 import org.openide.nodes.Node;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
-import com.netbeans.enterprise.modules.jndi.utils.AttributeManager;
+import org.netbeans.modules.jndi.utils.AttributeManager;
 /** 
  *
  * @author  tzezula

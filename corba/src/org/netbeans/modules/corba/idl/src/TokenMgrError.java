@@ -11,8 +11,8 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-//package com.netbeans.enterprise.modules.corba.idl.parser;
-package com.netbeans.enterprise.modules.corba.idl.src;
+//package org.netbeans.modules.corba.idl.parser;
+package org.netbeans.modules.corba.idl.src;
 
 public class TokenMgrError extends Error
 {

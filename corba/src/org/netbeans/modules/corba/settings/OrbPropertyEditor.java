@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.settings;
+package org.netbeans.modules.corba.settings;
 
 import java.beans.*;
 
@@ -23,7 +23,7 @@ import org.openide.util.NbBundle;
 * @version 0.01 March 29, 1999
 */
 
-import com.netbeans.enterprise.modules.corba.*;
+import org.netbeans.modules.corba.*;
 
 public class OrbPropertyEditor extends PropertyEditorSupport {
 

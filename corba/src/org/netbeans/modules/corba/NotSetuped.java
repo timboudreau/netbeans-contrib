@@ -11,14 +11,14 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba;
+package org.netbeans.modules.corba;
 
 import java.util.ResourceBundle;
 
 import org.openide.*;
 import org.openide.util.NbBundle;
 
-import com.netbeans.*;
+import org.netbeans.*;
 
 /*
  * @author Karel Gardas

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba;
+package org.netbeans.modules.corba;
 
 import java.beans.*;
 import java.awt.Image;
@@ -55,11 +55,11 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
     if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) ||
         (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
       if (icon == null)
-        icon = loadImage("/com/netbeans/enterprise/modules/corba/settings/idl.gif");
+        icon = loadImage("/org/netbeans/modules/corba/settings/idl.gif");
       return icon;
     } else {
       if (icon32 == null)
-        icon32 = loadImage ("/com/netbeans/enterprise/modules/corba/settings/idl32.gif");
+        icon32 = loadImage ("/org/netbeans/modules/corba/settings/idl32.gif");
       return icon32;
     }
   }

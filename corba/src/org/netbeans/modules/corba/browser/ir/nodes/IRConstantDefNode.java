@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 
@@ -22,10 +22,10 @@ import org.openide.TopManager;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 import org.openide.util.datatransfer.ExClipboard;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.Generatable;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupportFactory;
+import org.netbeans.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.util.Generatable;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupportFactory;
 
 
 /**
@@ -38,7 +38,7 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
   
 
   private static final String CONSTANT_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/idl/node/const";
+    "org/netbeans/modules/corba/idl/node/const";
   
   
   private static class ConstantCodeGenerator implements GenerateSupport {

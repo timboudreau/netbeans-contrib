@@ -11,16 +11,16 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.actions;
+package org.netbeans.modules.corba.browser.ir.actions;
 
 import org.openide.TopManager;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
-import com.netbeans.enterprise.modules.corba.browser.ir.nodes.IRInterfaceDefNode;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.Generatable;
+import org.netbeans.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.nodes.IRInterfaceDefNode;
+import org.netbeans.modules.corba.browser.ir.util.Generatable;
 
 
 public class GenerateCodeAction extends NodeAction {

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.settings;
+package org.netbeans.modules.corba.settings;
 
 import java.io.*;
 import org.omg.CORBA.*;
@@ -21,7 +21,7 @@ import org.openide.options.SystemOption;
 import org.openide.util.NbBundle;
 import org.openide.execution.NbProcessDescriptor;
 
-import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
+import org.netbeans.modules.java.settings.JavaSettings;
 
 import java.util.Properties;
 import java.util.Vector;
@@ -32,7 +32,7 @@ import java.beans.PropertyChangeEvent;
 
 import org.openide.TopManager;
 import org.openide.filesystems.FileObject;
-import com.netbeans.enterprise.modules.corba.*;
+import org.netbeans.modules.corba.*;
 
 public class CORBASupportSettings extends SystemOption implements PropertyChangeListener {
    

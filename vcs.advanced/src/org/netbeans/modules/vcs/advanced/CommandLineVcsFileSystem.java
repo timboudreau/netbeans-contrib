@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.vcs.cmdline;
+package org.netbeans.modules.vcs.advanced;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -30,9 +30,9 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
 
-import com.netbeans.developer.modules.vcs.*;
-//import com.netbeans.developer.modules.vcs.cmdline.*;
-import com.netbeans.developer.modules.vcs.util.Debug;
+import org.netbeans.modules.vcs.*;
+//import org.netbeans.modules.vcs.cmdline.*;
+import org.netbeans.modules.vcs.util.Debug;
 
 /** Generic command line VCS filesystem.
  * 
@@ -102,7 +102,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
   /*
   protected String g(String s) {
     return NbBundle.getBundle
-      ("com.netbeans.developer.modules.vcs.cmdline.BundleCVS").getString (s);
+      ("org.netbeans.modules.vcs.cmdline.BundleCVS").getString (s);
   }
   */
 }

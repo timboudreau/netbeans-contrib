@@ -11,14 +11,14 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.vcs.cmdline;
+package org.netbeans.modules.vcs.advanced;
 import java.beans.*;
 import java.util.ResourceBundle;
 
 import org.openide.util.NbBundle;
 import org.openide.filesystems.*;
 
-import com.netbeans.developer.modules.vcs.util.*;
+import org.netbeans.modules.vcs.util.*;
 
 /** BeanInfo for CommandLineVcsFileSystem.
  * 
@@ -56,12 +56,12 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
       variables=new PropertyDescriptor
 	("variables",CommandLineVcsFileSystem.class,"getVariables","setVariables"); // NOI18N
       variables.setPropertyEditorClass
-	(com.netbeans.enterprise.modules.vcs.cmdline.UserVariablesEditor.class);
+	(org.netbeans.modules.vcs.advanced.UserVariablesEditor.class);
 
       commands=new PropertyDescriptor
 	("commands",CommandLineVcsFileSystem.class,"getCommands","setCommands"); // NOI18N
       commands.setPropertyEditorClass
-	(com.netbeans.enterprise.modules.vcs.cmdline.UserCommandsEditor.class);
+	(org.netbeans.modules.vcs.advanced.UserCommandsEditor.class);
       
       cacheId=new PropertyDescriptor
 	("cacheId",CommandLineVcsFileSystem.class,"getCacheId",null); // NOI18N
@@ -81,7 +81,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
       };
 
       ResourceBundle bundle = NbBundle.getBundle
-	("com.netbeans.enterprise.modules.vcs.cmdline.Bundle"); // NOI18N
+	("org.netbeans.modules.vcs.advanced.Bundle"); // NOI18N
       rootDirectory.setDisplayName      (bundle.getString("PROP_rootDirectory"));
       rootDirectory.setShortDescription (bundle.getString("HINT_rootDirectory"));
       debug.setDisplayName              (bundle.getString("PROP_debug"));
@@ -107,7 +107,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
   /* Provides the VCSFileSystem's icon */
   public java.awt.Image getIcon(int type) {
     if (icon == null) {
-      icon = loadImage("/com/netbeans/enterprise/modules/vcs/cmdline/vcs2.gif"); // NOI18N
+      icon = loadImage("/org/netbeans/modules/vcs/advanced/vcs2.gif"); // NOI18N
       icon32 = icon;
     }
     if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16))
@@ -126,7 +126,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
   public BeanDescriptor getBeanDescriptor(){
     D.deb("getBeanDescriptor()"); // NOI18N
-    return new BeanDescriptor(CommandLineVcsFileSystem.class, com.netbeans.enterprise.modules.vcs.cmdline.VcsCustomizer.class);
+    return new BeanDescriptor(CommandLineVcsFileSystem.class, org.netbeans.modules.vcs.advanced.VcsCustomizer.class);
   }
   
 }

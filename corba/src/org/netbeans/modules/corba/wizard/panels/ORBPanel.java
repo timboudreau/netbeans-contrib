@@ -11,11 +11,11 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.wizard.panels;
+package org.netbeans.modules.corba.wizard.panels;
 
 import java.util.Vector;
-import com.netbeans.enterprise.modules.corba.wizard.CorbaWizardData;
-import com.netbeans.enterprise.modules.corba.settings.CORBASupportSettings;
+import org.netbeans.modules.corba.wizard.CorbaWizardData;
+import org.netbeans.modules.corba.settings.CORBASupportSettings;
 
 /** 
  *
@@ -69,7 +69,7 @@ public class ORBPanel extends AbstractWizardPanel {
     jPanel1.setLayout (new java.awt.GridBagLayout ());
     java.awt.GridBagConstraints gridBagConstraints2;
 
-      jLabel1.setText (java.util.ResourceBundle.getBundle("com/netbeans/enterprise/modules/corba/wizard/panels/Bundle").getString("TXT_OrbImplementations"));
+      jLabel1.setText (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_OrbImplementations"));
       jLabel1.setLabelFor (orbs);
   
       gridBagConstraints2 = new java.awt.GridBagConstraints ();
@@ -79,7 +79,7 @@ public class ORBPanel extends AbstractWizardPanel {
       gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
       jPanel1.add (jLabel1, gridBagConstraints2);
   
-      jLabel2.setText (java.util.ResourceBundle.getBundle("com/netbeans/enterprise/modules/corba/wizard/panels/Bundle").getString("TXT_BindingMethod"));
+      jLabel2.setText (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_BindingMethod"));
       jLabel2.setLabelFor (bindings);
   
       gridBagConstraints2 = new java.awt.GridBagConstraints ();
@@ -134,7 +134,7 @@ public class ORBPanel extends AbstractWizardPanel {
     gridBagConstraints1.weightx = 1.0;
     add (jPanel1, gridBagConstraints1);
 
-    jLabel3.setText (java.util.ResourceBundle.getBundle("com/netbeans/enterprise/modules/corba/wizard/panels/Bundle").getString("TXT_ImplementationsBindings"));
+    jLabel3.setText (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_ImplementationsBindings"));
     jLabel3.setFont (new java.awt.Font ("Dialog", 0, 18));
 
 

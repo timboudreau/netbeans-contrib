@@ -11,13 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.Refreshable;
-import com.netbeans.enterprise.modules.corba.browser.ir.nodes.keys.IRTypeCodeKey;
+import org.netbeans.modules.corba.browser.ir.util.Refreshable;
+import org.netbeans.modules.corba.browser.ir.nodes.keys.IRTypeCodeKey;
 
 
 public class ExceptionChildren extends Children.Keys implements Refreshable {

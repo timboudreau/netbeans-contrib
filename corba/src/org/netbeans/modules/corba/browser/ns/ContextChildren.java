@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ns;
+package org.netbeans.modules.corba.browser.ns;
 
 import org.omg.CosNaming.*;
 import org.omg.CORBA.*;
@@ -23,7 +23,7 @@ import org.openide.nodes.*;
 import org.openide.*;
 
 
-import com.netbeans.enterprise.modules.corba.*;
+import org.netbeans.modules.corba.*;
 
 /*
  * @author Karel Gardas

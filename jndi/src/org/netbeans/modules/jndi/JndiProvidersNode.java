@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import java.util.Hashtable;
 import java.io.IOException;
@@ -34,7 +34,7 @@ import org.openide.filesystems.Repository;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
-import com.netbeans.enterprise.modules.jndi.utils.Refreshable;
+import org.netbeans.modules.jndi.utils.Refreshable;
 
 
 /** This class represents the branch with providers (factories)
@@ -218,7 +218,7 @@ public class JndiProvidersNode extends AbstractNode implements PropertyChangeLis
     try{
       if (fo.getFileObject("JNDI")==null){
           fo=fo.createFolder("JNDI");
-          org.openide.filesystems.FileUtil.extractJar( fo, getClass().getClassLoader().getResourceAsStream("com/netbeans/enterprise/modules/jndi/templates/impls.jar"));
+          org.openide.filesystems.FileUtil.extractJar( fo, getClass().getClassLoader().getResourceAsStream("org/netbeans/modules/jndi/templates/impls.jar"));
       }
     }catch(java.io.IOException ioe){}
   }

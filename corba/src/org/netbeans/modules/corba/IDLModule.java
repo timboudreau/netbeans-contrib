@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba;
+package org.netbeans.modules.corba;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
@@ -32,13 +32,13 @@ import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileSystem;
 import org.openide.TopManager;
 
-import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
-import com.netbeans.developer.modules.loaders.java.settings.ExternalCompilerSettings;
-import com.netbeans.developer.modules.text.options.AllOptions;
-import com.netbeans.editor.Settings;
+import org.netbeans.modules.java.settings.JavaSettings;
+import org.netbeans.modules.java.settings.ExternalCompilerSettings;
+import org.netbeans.modules.editor.options.AllOptions;
+import org.netbeans.editor.Settings;
 
-import com.netbeans.enterprise.modules.corba.settings.*;
-import com.netbeans.enterprise.modules.corba.idl.editor.settings.IDLOptions;
+import org.netbeans.modules.corba.settings.*;
+import org.netbeans.modules.corba.idl.editor.settings.IDLOptions;
 
 
 /**
@@ -87,11 +87,11 @@ public class IDLModule extends ModuleInstall {
       System.out.println ("installColoring()");
     try {
       Class settings = Class.forName
-        ("com.netbeans.editor.Settings",
+        ("org.netbeans.editor.Settings",
          false, this.getClass().getClassLoader()); // only test for editor module
       
       Class restore = Class.forName
-        ("com.netbeans.enterprise.modules.corba.idl.editor.settings.RestoreColoring",
+        ("org.netbeans.modules.corba.idl.editor.settings.RestoreColoring",
          false, this.getClass().getClassLoader());
       Method restoreMethod = restore.getMethod ("restore", null);
       restoreMethod.invoke (restore.newInstance(), null);
@@ -136,7 +136,7 @@ public class IDLModule extends ModuleInstall {
     try {
       org.openide.filesystems.FileUtil.extractJar (
 						   org.openide.TopManager.getDefault ().getPlaces ().folders().templates ().getPrimaryFile (),
-						   getClass ().getClassLoader ().getResourceAsStream ("com/netbeans/enterprise/modules/corba/resources/templates.jar")
+						   getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/templates.jar")
 						   );
     } catch (java.io.IOException e) {
       org.openide.TopManager.getDefault ().notifyException (e);
@@ -147,7 +147,7 @@ public class IDLModule extends ModuleInstall {
     try {
       org.openide.filesystems.FileUtil.extractJar (
 						   org.openide.TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot (),
-						   getClass ().getClassLoader ().getResourceAsStream ("com/netbeans/enterprise/modules/corba/resources/impls.jar")
+						   getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/impls.jar")
 						   );
     } catch (java.io.IOException e) {
       org.openide.TopManager.getDefault ().notifyException (e);

@@ -11,20 +11,20 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
 
 public class IREnumDefNode extends IRContainerNode {
   
   private EnumDef _enum;
    private static final String ENUM_ICON_BASE =
-   "com/netbeans/enterprise/modules/corba/idl/node/enum";
+   "org/netbeans/modules/corba/idl/node/enum";
   
   
   private static class EnumCodeGenerator implements GenerateSupport {

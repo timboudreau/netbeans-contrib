@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.generator;
+package org.netbeans.modules.corba.idl.generator;
 
 import java.util.Vector;
 import java.util.List;
@@ -27,13 +27,13 @@ import org.openide.src.*;
 import org.openide.src.nodes.*;
 import org.openide.*;
 
-import com.netbeans.developer.modules.loaders.java.JavaConnections;
-import com.netbeans.*;
+import org.netbeans.modules.java.JavaConnections;
+import org.netbeans.*;
 
 
-import com.netbeans.enterprise.modules.corba.idl.src.*;
-import com.netbeans.enterprise.modules.corba.settings.*;
-import com.netbeans.enterprise.modules.corba.*;
+import org.netbeans.modules.corba.idl.src.*;
+import org.netbeans.modules.corba.settings.*;
+import org.netbeans.modules.corba.*;
 
 /*
  * @author Karel Gardas
@@ -1895,7 +1895,7 @@ public class ImplGenerator {
     Vector parents = element.getParents ();
     for (int i=0; i<parents.size (); i++) {
       /*
-	String name_of_parent = ((com.netbeans.enterprise.modules.corba.idl.src.Identifier)
+	String name_of_parent = ((org.netbeans.modules.corba.idl.src.Identifier)
 	parents.elementAt (i)).getName ();
       */
       String name_of_parent = (String)parents.elementAt (i);

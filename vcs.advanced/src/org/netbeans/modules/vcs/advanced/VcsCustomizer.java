@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.vcs.cmdline;
+package org.netbeans.modules.vcs.advanced;
 import java.io.*;
 import java.util.*;
 import java.beans.*;
@@ -26,10 +26,10 @@ import org.openide.*;
 import org.openide.util.*;
 import org.openide.filesystems.*;
 
-import com.netbeans.developer.modules.vcs.util.*;
-import com.netbeans.developer.modules.vcs.cmdline.*;
-import com.netbeans.developer.modules.vcs.cmdline.exec.*;
-import com.netbeans.developer.modules.vcs.*;
+import org.netbeans.modules.vcs.util.*;
+import org.netbeans.modules.vcs.cmdline.*;
+import org.netbeans.modules.vcs.cmdline.exec.*;
+import org.netbeans.modules.vcs.*;
 
 /** Customizer
  *
@@ -913,7 +913,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
   //-------------------------------------------
   String g(String s) {
     return NbBundle.getBundle
-      ("com.netbeans.developer.modules.vcs.cmdline.Bundle").getString (s);
+      ("org.netbeans.modules.vcs.cmdline.Bundle").getString (s);
   }
   String  g(String s, Object obj) {
     return MessageFormat.format (g(s), new Object[] { obj });

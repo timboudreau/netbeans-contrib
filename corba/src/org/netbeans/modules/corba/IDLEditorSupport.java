@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba;
+package org.netbeans.modules.corba;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -50,7 +50,7 @@ import org.openide.nodes.Node;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 
-import com.netbeans.enterprise.modules.corba.settings.CORBASupportSettings;
+import org.netbeans.modules.corba.settings.CORBASupportSettings;
  
 /** Support for viewing porperties files (EditCookie) by opening them in a text editor */
 public class IDLEditorSupport extends EditorSupport implements EditCookie {

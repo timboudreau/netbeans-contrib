@@ -11,19 +11,19 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
 
 public class IRPrimitiveNode extends IRLeafNode {
   
   private static final String PRIMITIVE_ICON_BASE=
-    "com/netbeans/enterprise/modules/corba/idl/node/declarator";
+    "org/netbeans/modules/corba/idl/node/declarator";
   private String name;
   private TypeCode tc;
   

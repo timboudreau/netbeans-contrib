@@ -11,13 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba;
+package org.netbeans.modules.corba;
 
 import org.openide.loaders.CompilerSupport;
 import org.openide.loaders.MultiDataObject;
 import org.openide.compiler.CompilerType;
 import org.openide.cookies.CompilerCookie;
-import com.netbeans.*;
+import org.netbeans.*;
 
 /*
  * @author Karel Gardas

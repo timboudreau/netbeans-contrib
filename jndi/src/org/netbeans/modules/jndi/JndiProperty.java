@@ -11,13 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import org.openide.nodes.Node;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
-import com.netbeans.enterprise.modules.jndi.utils.JndiPropertyMutator;
+import org.netbeans.modules.jndi.utils.JndiPropertyMutator;
 
 
 /** This class represents Property of JndiNodeObject

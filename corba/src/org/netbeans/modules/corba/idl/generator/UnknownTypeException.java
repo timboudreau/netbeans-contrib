@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.generator;
+package org.netbeans.modules.corba.idl.generator;
 
 
 /*

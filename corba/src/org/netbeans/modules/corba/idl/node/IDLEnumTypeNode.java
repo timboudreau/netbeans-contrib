@@ -11,13 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.node;
+package org.netbeans.modules.corba.idl.node;
 
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 
-import com.netbeans.enterprise.modules.corba.idl.src.TypeElement;
+import org.netbeans.modules.corba.idl.src.TypeElement;
 
 /**
  * Class IDLEnumTypeNode
@@ -27,7 +27,7 @@ import com.netbeans.enterprise.modules.corba.idl.src.TypeElement;
 public class IDLEnumTypeNode extends IDLTypeNode {
 
    private static final String ENUM_ICON_BASE =
-      "com/netbeans/enterprise/modules/corba/idl/node/enum";
+      "org/netbeans/modules/corba/idl/node/enum";
      
    public IDLEnumTypeNode (TypeElement value) {
       super (value);

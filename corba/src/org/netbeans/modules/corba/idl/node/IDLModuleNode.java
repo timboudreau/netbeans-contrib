@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.node;
+package org.netbeans.modules.corba.idl.node;
 
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Sheet;
@@ -20,8 +20,8 @@ import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 
-import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
-import com.netbeans.enterprise.modules.corba.idl.src.ModuleElement;
+import org.netbeans.modules.corba.idl.src.IDLElement;
+import org.netbeans.modules.corba.idl.src.ModuleElement;
 
 
 /**
@@ -35,7 +35,7 @@ public class IDLModuleNode extends IDLAbstractNode {
   ModuleElement _module;
 
   private static final String MODULE_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/idl/node/module";
+    "org/netbeans/modules/corba/idl/node/module";
 
   public IDLModuleNode (ModuleElement value) {
     super (new IDLDocumentChildren ((IDLElement)value));

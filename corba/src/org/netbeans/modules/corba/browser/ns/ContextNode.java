@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ns;
+package org.netbeans.modules.corba.browser.ns;
 
 import org.omg.CORBA.*;
 import org.omg.CosNaming.*;
@@ -24,8 +24,8 @@ import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.util.*;
 
-import com.netbeans.enterprise.modules.corba.*;
-import com.netbeans.enterprise.modules.corba.settings.*;
+import org.netbeans.modules.corba.*;
+import org.netbeans.modules.corba.settings.*;
 /*
  * @author Karel Gardas
  */
@@ -33,9 +33,9 @@ import com.netbeans.enterprise.modules.corba.settings.*;
 public class ContextNode extends AbstractNode implements Node.Cookie {
 
   static final String ICON_BASE 
-    = "com/netbeans/enterprise/modules/corba/browser/ns/resources/folder";
+    = "org/netbeans/modules/corba/browser/ns/resources/folder";
   static final String ICON_BASE_ROOT 
-    = "com/netbeans/enterprise/modules/corba/browser/ns/resources/ns-root";
+    = "org/netbeans/modules/corba/browser/ns/resources/ns-root";
 
   public static final boolean DEBUG = false;
   //public static final boolean DEBUG = true;
@@ -109,17 +109,17 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
     setDisplayName (getName ());
 
     systemActions = new SystemAction[] { 
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ns.CreateNewContext.class),
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ns.BindNewContext.class),
+      SystemAction.get (org.netbeans.modules.corba.browser.ns.CreateNewContext.class),
+      SystemAction.get (org.netbeans.modules.corba.browser.ns.BindNewContext.class),
       null,
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ns.UnbindContext.class),
+      SystemAction.get (org.netbeans.modules.corba.browser.ns.UnbindContext.class),
       null,
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ns.CopyServerCode.class),
+      SystemAction.get (org.netbeans.modules.corba.browser.ns.CopyServerCode.class),
       null,
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ns.BindNewObject.class),
+      SystemAction.get (org.netbeans.modules.corba.browser.ns.BindNewObject.class),
 	 
       null,
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ns.RefreshAction.class),
+      SystemAction.get (org.netbeans.modules.corba.browser.ns.RefreshAction.class),
       null,
       SystemAction.get(org.openide.actions.PropertiesAction.class)
     };

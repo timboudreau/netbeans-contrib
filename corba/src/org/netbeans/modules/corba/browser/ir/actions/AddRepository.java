@@ -11,19 +11,19 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.actions;
+package org.netbeans.modules.corba.browser.ir.actions;
 
 import java.util.Vector;
 import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.util.*;
 import org.openide.*;
-import com.netbeans.enterprise.modules.corba.browser.ir.IRRootNode;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
-import com.netbeans.enterprise.modules.corba.browser.ir.gui.AddRepositoryPanel;
+import org.netbeans.modules.corba.browser.ir.IRRootNode;
+import org.netbeans.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.gui.AddRepositoryPanel;
 
 
-import com.netbeans.enterprise.modules.corba.*;
+import org.netbeans.modules.corba.*;
 
 /*
  * @author Karel Gardas

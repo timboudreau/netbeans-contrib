@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.src;
+package org.netbeans.modules.corba.idl.src;
 
 import java.beans.*;
 import java.io.*;
@@ -21,7 +21,7 @@ import java.util.Vector;
 //import org.openide.nodes.Node;
 import org.openide.cookies.OpenCookie;
 
-import com.netbeans.enterprise.modules.corba.IDLDataObject;
+import org.netbeans.modules.corba.IDLDataObject;
 
 /*
  * @author Karel Gardas

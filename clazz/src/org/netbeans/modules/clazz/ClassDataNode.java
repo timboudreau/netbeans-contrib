@@ -11,7 +11,7 @@
  * Copyright 1997-2000 Sun Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.developer.modules.loaders.clazz;
+package org.netbeans.modules.clazz;
 
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -53,15 +53,15 @@ class ClassDataNode extends DataNode implements Runnable {
 
   /** Icon bases for icon manager */
   private final static String CLASS_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/class"; // NOI18N
+    "/org/netbeans/modules/clazz/resources/class"; // NOI18N
   private final static String CLASS_MAIN_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/classMain"; // NOI18N
+    "/org/netbeans/modules/clazz/resources/classMain"; // NOI18N
   private final static String ERROR_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/classError"; // NOI18N
+    "/org/netbeans/modules/clazz/resources/classError"; // NOI18N
   private final static String BEAN_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/bean"; // NOI18N
+    "/org/netbeans/modules/clazz/resources/bean"; // NOI18N
   private final static String BEAN_MAIN_BASE =
-    "/com/netbeans/developer/modules/loaders/clazz/resources/beanMain"; // NOI18N
+    "/org/netbeans/modules/clazz/resources/beanMain"; // NOI18N
 
   /** a flag whether the children of this object are only items declared
   * by this class, or all items (incl. inherited)

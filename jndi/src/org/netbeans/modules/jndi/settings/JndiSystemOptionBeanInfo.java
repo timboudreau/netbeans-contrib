@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi.settings;
+package org.netbeans.modules.jndi.settings;
 
 import java.awt.Image;
 import java.beans.SimpleBeanInfo;
@@ -19,7 +19,7 @@ import java.beans.BeanDescriptor;
 import java.beans.PropertyDescriptor;
 import java.beans.EventSetDescriptor;
 import java.beans.IntrospectionException;
-import com.netbeans.enterprise.modules.jndi.JndiRootNode;
+import org.netbeans.modules.jndi.JndiRootNode;
 /** 
  *
  * @author  tzezula
@@ -27,7 +27,7 @@ import com.netbeans.enterprise.modules.jndi.JndiRootNode;
  */
 public class JndiSystemOptionBeanInfo extends SimpleBeanInfo {
   
-  private static final String iconC16="/com/netbeans/enterprise/modules/jndi/resources/jndi.gif";
+  private static final String iconC16="/org/netbeans/modules/jndi/resources/jndi.gif";
   private static final String iconC32=null;
   private static final String iconM16=null;
   private static final String iconM32=null;

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import java.awt.Dialog;
 import java.util.StringTokenizer;
@@ -42,7 +42,7 @@ import org.openide.nodes.Sheet;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
-import com.netbeans.enterprise.modules.jndi.utils.Refreshd;
+import org.netbeans.modules.jndi.utils.Refreshd;
 
 /** Top Level JNDI Node
  *

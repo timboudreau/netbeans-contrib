@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba;
+package org.netbeans.modules.corba;
 
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -33,7 +33,7 @@ import org.openide.util.*;
 import org.openide.util.actions.*;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
-//import com.netbeans.developer.modules.text.EditorBase;
+//import org.netbeans.modules.editor.EditorBase;
 
 import org.openide.loaders.*;
 import org.openide.nodes.CookieSet;
@@ -43,12 +43,12 @@ import org.openide.compiler.CompilerJob;
 import org.openide.compiler.ExternalCompiler;
 import org.openide.execution.NbProcessDescriptor;
 
-import com.netbeans.developer.modules.loaders.java.JavaCompilerType;
-import com.netbeans.developer.modules.loaders.java.JavaExternalCompilerType;
+import org.netbeans.modules.java.JavaCompilerType;
+import org.netbeans.modules.java.JavaExternalCompilerType;
 
-import com.netbeans.enterprise.modules.corba.settings.*;
-import com.netbeans.enterprise.modules.corba.idl.src.*;
-import com.netbeans.enterprise.modules.corba.idl.generator.*;
+import org.netbeans.modules.corba.settings.*;
+import org.netbeans.modules.corba.idl.src.*;
+import org.netbeans.modules.corba.idl.generator.*;
 
 /** Object that provides main functionality for idl data loader.
 * This class is final only for performance reasons,

@@ -11,7 +11,7 @@
  * Copyright 1997-2000 Sun Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.developer.modules.loaders.clazz; 
+package org.netbeans.modules.clazz; 
 
 import java.beans.*;
 
@@ -119,8 +119,8 @@ final class ClassElementNodeFactory extends DefaultFactory {
       ch.setFilter (cel);
       n.setActions(getDefaultActions());
       n.setIconBase (element.isInterface () ? 
-        "/com/netbeans/developer/modules/loaders/clazz/resources/interfaceBr" : // NOI18N
-        "/com/netbeans/developer/modules/loaders/clazz/resources/classBr" // NOI18N
+        "/org/netbeans/modules/clazz/resources/interfaceBr" : // NOI18N
+        "/org/netbeans/modules/clazz/resources/classBr" // NOI18N
       );
       return n;
     }

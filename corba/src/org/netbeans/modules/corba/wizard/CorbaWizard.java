@@ -11,14 +11,14 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.wizard;
+package org.netbeans.modules.corba.wizard;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
 import javax.swing.event.*;
 import org.openide.*;
-import com.netbeans.enterprise.modules.corba.wizard.panels.*;
+import org.netbeans.modules.corba.wizard.panels.*;
 /** 
  *
  * @author  tzezula

@@ -11,15 +11,15 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.settings;
+package org.netbeans.modules.corba.settings;
 
 import java.awt.Image;
 import java.beans.*;
 import java.util.ResourceBundle;
 
 import org.openide.util.NbBundle;
-//import com.netbeans.developer.editors.FileOnlyEditor;
-import com.netbeans.developer.editors.NbProcessDescriptorEditor;
+//import org.netbeans.beaninfo.editors.FileOnlyEditor;
+import org.netbeans.beaninfo.editors.NbProcessDescriptorEditor;
 
 
 /** BeanInfo for CORBASupportSettings - defines property editor
@@ -28,7 +28,7 @@ import com.netbeans.developer.editors.NbProcessDescriptorEditor;
 * @version 0.11, March 27, 1999
 */
 
-import com.netbeans.enterprise.modules.corba.*;
+import org.netbeans.modules.corba.*;
 
 public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
     /** Icons for compiler settings objects. */
@@ -194,11 +194,11 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
     public Image getIcon(int type) {
 	if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
 	    if (icon == null)
-		icon = loadImage("/com/netbeans/enterprise/modules/corba/settings/orb.gif");
+		icon = loadImage("/org/netbeans/modules/corba/settings/orb.gif");
 	    return icon;
 	} else {
 	    if (icon32 == null)
-		icon32 = loadImage ("/com/netbeans/enterprise/modules/corba/settings/orb32.gif");
+		icon32 = loadImage ("/org/netbeans/modules/corba/settings/orb32.gif");
 	    return icon32;
 	}
     }

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.node;
+package org.netbeans.modules.corba.idl.node;
 
 import javax.swing.text.Position.Bias;
 
@@ -25,11 +25,11 @@ import org.openide.text.PositionRef;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 
-import com.netbeans.enterprise.modules.corba.IDLDataObject;
-import com.netbeans.enterprise.modules.corba.IDLNode;
-import com.netbeans.enterprise.modules.corba.IDLEditorSupport;
+import org.netbeans.modules.corba.IDLDataObject;
+import org.netbeans.modules.corba.IDLNode;
+import org.netbeans.modules.corba.IDLEditorSupport;
 
-import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
+import org.netbeans.modules.corba.idl.src.IDLElement;
 /*
  * @author Karel Gardas
  */

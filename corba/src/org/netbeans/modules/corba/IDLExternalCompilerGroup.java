@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba;
+package org.netbeans.modules.corba;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,12 +40,12 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.TopManager;
 
 
-import com.netbeans.enterprise.modules.corba.settings.*;
+import org.netbeans.modules.corba.settings.*;
 
-import com.netbeans.developer.modules.loaders.java.JavaDataObject;
-import com.netbeans.developer.modules.loaders.java.JavaCompilerType;
-import com.netbeans.developer.modules.loaders.java.settings.JavaSettings;
-import com.netbeans.developer.modules.loaders.java.JavaExternalCompilerType;
+import org.netbeans.modules.java.JavaDataObject;
+import org.netbeans.modules.java.JavaCompilerType;
+import org.netbeans.modules.java.settings.JavaSettings;
+import org.netbeans.modules.java.JavaExternalCompilerType;
 /** External Compiler Group 
   * 
   *

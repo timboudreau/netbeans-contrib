@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.node;
+package org.netbeans.modules.corba.idl.node;
 
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
@@ -20,9 +20,9 @@ import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 
-import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
-import com.netbeans.enterprise.modules.corba.idl.src.ExceptionElement;
-import com.netbeans.enterprise.modules.corba.idl.src.Identifier;
+import org.netbeans.modules.corba.idl.src.IDLElement;
+import org.netbeans.modules.corba.idl.src.ExceptionElement;
+import org.netbeans.modules.corba.idl.src.Identifier;
 
 /**
  * Class IDLExceptionNode
@@ -33,7 +33,7 @@ public class IDLExceptionNode extends IDLAbstractNode {
 
   ExceptionElement _exception;
   private static final String EXCEPTION_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/idl/node/exception";
+    "org/netbeans/modules/corba/idl/node/exception";
 
   public IDLExceptionNode (ExceptionElement value) {
     super (new IDLDocumentChildren ((IDLElement)value));

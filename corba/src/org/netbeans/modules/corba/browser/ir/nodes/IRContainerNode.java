@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import java.util.ArrayList;
 import org.openide.TopManager;
@@ -20,10 +20,10 @@ import java.awt.datatransfer.StringSelection;
 import org.openide.nodes.Children;
 import org.openide.util.actions.SystemAction;
 import org.openide.nodes.Node;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.Refreshable;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.Generatable;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupportFactory;
+import org.netbeans.modules.corba.browser.ir.util.Refreshable;
+import org.netbeans.modules.corba.browser.ir.util.Generatable;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupportFactory;
 /** 
  *
  * @author  Tomas Zezula
@@ -71,9 +71,9 @@ public abstract class IRContainerNode extends IRAbstractNode implements Node.Coo
   
   public SystemAction[] createActions (){
     return new SystemAction[] {
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ir.actions.GenerateCodeAction.class),
+      SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.GenerateCodeAction.class),
       null,
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ir.actions.RefreshAction.class),
+      SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.RefreshAction.class),
       null,
       SystemAction.get (org.openide.actions.PropertiesAction.class)
     };

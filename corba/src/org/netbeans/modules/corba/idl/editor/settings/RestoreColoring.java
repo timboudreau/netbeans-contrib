@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.editor.settings;
+package org.netbeans.modules.corba.idl.editor.settings;
 
 import javax.swing.JEditorPane;
 
@@ -20,8 +20,8 @@ import org.openide.options.SystemOption;
 import org.openide.text.PrintSettings;
 import org.openide.filesystems.FileUtil;
 
-import com.netbeans.developer.modules.text.options.AllOptions;
-import com.netbeans.editor.Settings;
+import org.netbeans.modules.editor.options.AllOptions;
+import org.netbeans.editor.Settings;
 
 /**
  * @author Karel Gardas
@@ -36,8 +36,8 @@ public class RestoreColoring {
     // Registration of the editor kits to JEditorPane
     JEditorPane.registerEditorKitForContentType
       (IDL_MIME_TYPE,
-       "com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLKit", 
-       /* "com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLKit", */
+       "org.netbeans.modules.corba.idl.editor.coloring.IDLKit", 
+       /* "org.netbeans.modules.corba.idl.editor.coloring.IDLKit", */
        this.getClass().getClassLoader());
     AllOptions all_options = (AllOptions)AllOptions.findObject (AllOptions.class, true);
     all_options.addOption (new IDLOptions());

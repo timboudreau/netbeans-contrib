@@ -11,13 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi.gui;
+package org.netbeans.modules.jndi.gui;
 
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.*;
-import com.netbeans.enterprise.modules.jndi.JndiRootNode;
+import org.netbeans.modules.jndi.JndiRootNode;
 
 
 /** This Class represents an Panel used for displaying warning

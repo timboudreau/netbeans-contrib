@@ -11,7 +11,7 @@
  * Copyright 1997-2000 Sun Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.examples.modules.sysprops;
+package org.netbeans.modules.sysprops;
 import java.util.*;
 import javax.swing.event.*;
 public class PropertiesNotifier {

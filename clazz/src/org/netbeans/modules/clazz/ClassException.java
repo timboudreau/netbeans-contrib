@@ -11,7 +11,7 @@
  * Copyright 1997-2000 Sun Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.developer.modules.loaders.clazz;
+package org.netbeans.modules.clazz;
 
 /**
 * Exception encapsulating other possible exceptions occurred while working with

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.wizard;
+package org.netbeans.modules.corba.wizard;
 
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
@@ -25,7 +25,7 @@ import java.util.ResourceBundle;
  */
 public class CorbaWizardAction extends CallableSystemAction {
   
-  public static final String ICON = "/com/netbeans/enterprise/modules/corba/wizard/resources/CorbaWizard.gif";
+  public static final String ICON = "/org/netbeans/modules/corba/wizard/resources/CorbaWizard.gif";
   private static ResourceBundle bundle = null;
   
 

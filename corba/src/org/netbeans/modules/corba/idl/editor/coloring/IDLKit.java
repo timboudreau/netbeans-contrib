@@ -11,13 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.editor.coloring;
+package org.netbeans.modules.corba.idl.editor.coloring;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import com.netbeans.editor.BaseAction;
-import com.netbeans.editor.Syntax;
-import com.netbeans.editor.Utilities;
+import org.netbeans.editor.BaseAction;
+import org.netbeans.editor.Syntax;
+import org.netbeans.editor.Utilities;
 import javax.swing.Action;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.TextAction;
@@ -26,7 +26,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.JEditorPane;
 
-import com.netbeans.developer.modules.text.NbEditorKit;
+import org.netbeans.modules.editor.NbEditorKit;
 
 /** 
 * Editor kit implementation for Idl content type

@@ -1,39 +1,39 @@
-OpenIDE-Module: com.netbeans.enterprise.modules.rmi/1
+OpenIDE-Module: org.netbeans.modules.rmi/1
 OpenIDE-Module-Name: RMI
-OpenIDE-Module-Install: com/netbeans/enterprise/modules/rmi/RMIModule.class
-OpenIDE-Module-Module-Dependencies: com.netbeans.developer.modules.loaders.java/1, com.netbeans.developer.modules.httpserver/1, com.netbeans.developer.modules.debugger.core/1, org.openidex.util/1, com.netbeans.developer.modules.utilities/1 > 1.0
+OpenIDE-Module-Install: org/netbeans/modules/rmi/RMIModule.class
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1, org.netbeans.modules.httpserver/1, org.netbeans.modules.debugger.core/1, org.openidex.util/1, org.netbeans.modules.utilities/1 > 1.0
 OpenIDE-Module-Specification-Version: 1.0
 OpenIDE-Module-Implementation-Version: 1.0
-OpenIDE-Module-Description: com.netbeans.enterprise.modules.rmi.docs.HelpSet
+OpenIDE-Module-Description: org.netbeans.modules.rmi.docs.HelpSet
 
-Name: com/netbeans/enterprise/modules/rmi/RMIDataLoader.class
+Name: org/netbeans/modules/rmi/RMIDataLoader.class
 OpenIDE-Module-Class: Loader
-Install-Before: com.netbeans.developer.modules.loaders.java.JavaDataObject
+Install-Before: org.netbeans.modules.java.JavaDataObject
 
-Name: com/netbeans/enterprise/modules/rmi/registry/RMIRegistryNode.class
+Name: org/netbeans/modules/rmi/registry/RMIRegistryNode.class
 OpenIDE-Module-Class: Node
 
-Name: com/netbeans/enterprise/modules/rmi/settings/RMISettings.class
+Name: org/netbeans/modules/rmi/settings/RMISettings.class
 OpenIDE-Module-Class: Option
 
-Name: com/netbeans/enterprise/modules/rmi/RMIExecutor.class
+Name: org/netbeans/modules/rmi/RMIExecutor.class
 OpenIDE-Module-Class: Service
 
-Name: com/netbeans/enterprise/modules/rmi/RMIDebugType.class
+Name: org/netbeans/modules/rmi/RMIDebugType.class
 OpenIDE-Module-Class: Service
 
-Name: com/netbeans/enterprise/modules/rmi/wizard/RMIWizardCookieAction.class
+Name: org/netbeans/modules/rmi/wizard/RMIWizardCookieAction.class
 OpenIDE-Module-Class: Action
 
-Name: com/netbeans/enterprise/modules/rmi/wizard/RMIEncapsulationAction.class
+Name: org/netbeans/modules/rmi/wizard/RMIEncapsulationAction.class
 OpenIDE-Module-Class: Action
 
-Name: com/netbeans/enterprise/modules/rmi/MarkRMIAction.class
+Name: org/netbeans/modules/rmi/MarkRMIAction.class
 OpenIDE-Module-Class: Action
 
-Name: com/netbeans/enterprise/modules/rmi/UnMarkRMIAction.class
+Name: org/netbeans/modules/rmi/UnMarkRMIAction.class
 OpenIDE-Module-Class: Action
 
-Name: com/netbeans/enterprise/modules/rmi/RMIStubCompilerType.class
+Name: org/netbeans/modules/rmi/RMIStubCompilerType.class
 OpenIDE-Module-Class: Service
 

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.editor.settings;
+package org.netbeans.modules.corba.idl.editor.settings;
 
 import java.beans.*;
 import java.awt.Image;
@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 
 import org.openide.util.NbBundle;
 
-import com.netbeans.developer.modules.text.options.PlainOptionsBeanInfo;
+import org.netbeans.modules.editor.options.PlainOptionsBeanInfo;
 
 /** BeanInfo for plain options
  *
@@ -28,7 +28,7 @@ import com.netbeans.developer.modules.text.options.PlainOptionsBeanInfo;
 public class IDLOptionsBeanInfo extends PlainOptionsBeanInfo {
 
   public IDLOptionsBeanInfo () {
-    super ("/com/netbeans/developer/modules/text/resources/htmlOptions");
+    super ("/org/netbeans/modules/editor/resources/htmlOptions");
     //System.out.println ("IDLOptionsBeanInfo ()");
   }
 

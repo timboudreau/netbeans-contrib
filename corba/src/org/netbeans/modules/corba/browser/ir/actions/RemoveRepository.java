@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.actions;
+package org.netbeans.modules.corba.browser.ir.actions;
 
 import java.util.Vector;
 //import java.awt.datatransfer.StringSelection;
@@ -20,11 +20,11 @@ import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.util.*;
 import org.openide.*;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
-import com.netbeans.enterprise.modules.corba.browser.ir.IRRootNode;
-import com.netbeans.enterprise.modules.corba.browser.ir.nodes.*;
-import com.netbeans.enterprise.modules.corba.*;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.Removable;
+import org.netbeans.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.IRRootNode;
+import org.netbeans.modules.corba.browser.ir.nodes.*;
+import org.netbeans.modules.corba.*;
+import org.netbeans.modules.corba.browser.ir.util.Removable;
 
 /*
  * @author Karel Gardas

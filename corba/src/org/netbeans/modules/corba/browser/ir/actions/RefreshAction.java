@@ -11,12 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.actions;
+package org.netbeans.modules.corba.browser.ir.actions;
 import org.openide.util.actions.NodeAction;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
-import com.netbeans.enterprise.modules.corba.browser.ir.nodes.IRContainerNode;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.nodes.IRContainerNode;
+import org.netbeans.modules.corba.browser.ir.Util;
 
 public class RefreshAction extends NodeAction {
 

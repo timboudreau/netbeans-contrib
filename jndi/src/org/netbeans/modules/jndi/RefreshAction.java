@@ -11,12 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import org.openide.nodes.Node;
 import org.openide.nodes.FilterNode;
 import org.openide.util.HelpCtx;
-import com.netbeans.enterprise.modules.jndi.utils.Refreshable;
+import org.netbeans.modules.jndi.utils.Refreshable;
 
 /** Is able to refresh selected JndiNode.
 *

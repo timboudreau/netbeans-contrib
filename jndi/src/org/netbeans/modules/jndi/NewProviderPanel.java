@@ -17,7 +17,7 @@
  * Created on September 21, 1999, 5:41 PM
  */
  
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import javax.swing.*;
 import java.awt.*;

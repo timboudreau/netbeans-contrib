@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.node;
+package org.netbeans.modules.corba.idl.node;
 
 import org.openide.nodes.Children;
 import org.openide.nodes.CookieSet;
@@ -21,9 +21,9 @@ import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 
-import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
-import com.netbeans.enterprise.modules.corba.idl.src.UnionMemberElement;
-import com.netbeans.enterprise.modules.corba.idl.src.DeclaratorElement;
+import org.netbeans.modules.corba.idl.src.IDLElement;
+import org.netbeans.modules.corba.idl.src.UnionMemberElement;
+import org.netbeans.modules.corba.idl.src.DeclaratorElement;
 /**
  * Class IDLUnionMemberNode
  *
@@ -35,7 +35,7 @@ public class IDLUnionMemberNode extends IDLAbstractNode {
   String name;
 
   private static final String UNIONMEMBER_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/idl/node/unionmember";
+    "org/netbeans/modules/corba/idl/node/unionmember";
 
   public IDLUnionMemberNode (UnionMemberElement value) {
     //super (new IDLDocumentChildren ((SimpleNode)value));

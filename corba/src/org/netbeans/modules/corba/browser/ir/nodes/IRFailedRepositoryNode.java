@@ -11,12 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.Removable;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.util.Removable;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 /** 
  *
  * @author  tzezula
@@ -25,7 +25,7 @@ import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
 public class IRFailedRepositoryNode extends IRLeafNode implements Removable, Node.Cookie {
 
   private static final String FAILED_ICON_BASE =
-   "com/netbeans/enterprise/modules/corba/browser/ir/resources/failedrep";
+   "org/netbeans/modules/corba/browser/ir/resources/failedrep";
   
   /** Creates new IRFailedNode */
   public IRFailedRepositoryNode(String name) {
@@ -37,7 +37,7 @@ public class IRFailedRepositoryNode extends IRLeafNode implements Removable, Nod
   
   public SystemAction[] createActions(){
     return new SystemAction[] {
-      SystemAction.get(com.netbeans.enterprise.modules.corba.browser.ir.actions.RemoveRepository.class)
+      SystemAction.get(org.netbeans.modules.corba.browser.ir.actions.RemoveRepository.class)
     };
   }
   

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 import java.io.*;
@@ -20,12 +20,12 @@ import java.util.Vector;
 import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.util.*;
-import com.netbeans.enterprise.modules.corba.*;
-import com.netbeans.enterprise.modules.corba.settings.*;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
-import com.netbeans.enterprise.modules.corba.browser.ir.IRRootNode;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.Removable;
+import org.netbeans.modules.corba.*;
+import org.netbeans.modules.corba.settings.*;
+import org.netbeans.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.IRRootNode;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.util.Removable;
 /*
  * @author Karel Gardas
  */
@@ -33,7 +33,7 @@ import com.netbeans.enterprise.modules.corba.browser.ir.util.Removable;
 public class IRRepositoryNode extends IRContainerNode implements Node.Cookie, Removable {
 
   static final String ICON_BASE_ROOT 
-    = "com/netbeans/enterprise/modules/corba/browser/ir/resources/ir-root";
+    = "org/netbeans/modules/corba/browser/ir/resources/ir-root";
   private SystemAction[] actions;
   private org.omg.CORBA.Container repository;
   private String name;
@@ -115,10 +115,10 @@ public class IRRepositoryNode extends IRContainerNode implements Node.Cookie, Re
   
   public SystemAction[] createActions () {
     return new SystemAction[] { 
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ir.actions.RemoveRepository.class),
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ir.actions.GenerateCodeAction.class),
+      SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.RemoveRepository.class),
+      SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.GenerateCodeAction.class),
       null,
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ir.actions.RefreshAction.class),
+      SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.RefreshAction.class),
       null,
       SystemAction.get(org.openide.actions.PropertiesAction.class)
     };

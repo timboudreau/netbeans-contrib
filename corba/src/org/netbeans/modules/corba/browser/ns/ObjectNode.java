@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ns;
+package org.netbeans.modules.corba.browser.ns;
 
 import org.omg.CORBA.*;
 import org.omg.CosNaming.*;
@@ -23,8 +23,8 @@ import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.util.*;
 
-import com.netbeans.enterprise.modules.corba.*;
-import com.netbeans.enterprise.modules.corba.settings.*;
+import org.netbeans.modules.corba.*;
+import org.netbeans.modules.corba.settings.*;
 /*
  * @author Karel Gardas
  */
@@ -32,7 +32,7 @@ import com.netbeans.enterprise.modules.corba.settings.*;
 public class ObjectNode extends AbstractNode implements Node.Cookie {
 
    static final String ICON_BASE 
-      = "com/netbeans/enterprise/modules/corba/browser/ns/resources/interface";
+      = "org/netbeans/modules/corba/browser/ns/resources/interface";
 
    public static final boolean DEBUG = false;
    //public static final boolean DEBUG = true;
@@ -68,9 +68,9 @@ public class ObjectNode extends AbstractNode implements Node.Cookie {
       //orb = css.getORB ();
 
       systemActions = new SystemAction[] { 
-	 SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ns.UnbindObject.class),
+	 SystemAction.get (org.netbeans.modules.corba.browser.ns.UnbindObject.class),
 	 null,
-	 SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ns.CopyClientCode.class),
+	 SystemAction.get (org.netbeans.modules.corba.browser.ns.CopyClientCode.class),
 	 null,
 	 SystemAction.get(org.openide.actions.PropertiesAction.class)
       };

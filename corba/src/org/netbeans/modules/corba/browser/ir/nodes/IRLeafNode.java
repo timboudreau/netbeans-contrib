@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -27,7 +27,7 @@ public abstract class IRLeafNode extends IRAbstractNode {
   }
   
   public SystemAction[] createActions () {
-    return new SystemAction[] {SystemAction.get(com.netbeans.enterprise.modules.corba.browser.ir.actions.GenerateCodeAction.class),
+    return new SystemAction[] {SystemAction.get(org.netbeans.modules.corba.browser.ir.actions.GenerateCodeAction.class),
                                 null,
                                 SystemAction.get(org.openide.actions.PropertiesAction.class)
                                 };

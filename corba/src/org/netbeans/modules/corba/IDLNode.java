@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba;
+package org.netbeans.modules.corba;
 
 import java.util.*;
 
@@ -27,7 +27,7 @@ import org.openide.actions.OpenAction;
 import org.openide.filesystems.FileUtil;
 
 
-import com.netbeans.enterprise.modules.corba.idl.node.*;
+import org.netbeans.modules.corba.idl.node.*;
 /**
  *
 *
@@ -46,9 +46,9 @@ public class IDLNode extends DataNode {
 
   /** Icon base for the IDLNode node */
   public static final String IDL_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/settings/idl";
+    "org/netbeans/modules/corba/settings/idl";
   public static final String IDL_ERROR_ICON =
-    "com/netbeans/enterprise/modules/corba/settings/idl-error";
+    "org/netbeans/modules/corba/settings/idl-error";
 
   IDLDocumentChildren children;
   IDLDataObject ido;

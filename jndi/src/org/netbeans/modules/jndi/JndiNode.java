@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import java.util.Vector;
 import java.util.Collection;
@@ -38,8 +38,8 @@ import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.ExClipboard;
 import org.openide.DialogDescriptor;
-import com.netbeans.enterprise.modules.jndi.utils.Refreshable;
-import com.netbeans.enterprise.modules.jndi.gui.AttributePanel;
+import org.netbeans.modules.jndi.utils.Refreshable;
+import org.netbeans.modules.jndi.gui.AttributePanel;
 
 
 /** This class represents JNDI subdirectory 
@@ -202,8 +202,8 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Node.
 
   /** Needs the node to be refreshed by Refreshd
    *  @return true if the node has children, that for any reason failed to open
-   *  @see com.netbeans.enterprise.modules.jndi.utils.Refreshd
-   *  @see com.netbeans.enterprise.modules.jndi.JndiChildren
+   *  @see org.netbeans.modules.jndi.utils.Refreshd
+   *  @see org.netbeans.modules.jndi.JndiChildren
    */
   public boolean needRefresh(){
     return this.needRefresh;

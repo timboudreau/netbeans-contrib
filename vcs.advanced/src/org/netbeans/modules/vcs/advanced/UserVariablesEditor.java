@@ -11,13 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.vcs.cmdline;
+package org.netbeans.modules.vcs.advanced;
 import java.awt.*;
 import java.util.*;
 import java.beans.*;
 
-import com.netbeans.developer.modules.vcs.*;
-import com.netbeans.developer.modules.vcs.util.*;
+import org.netbeans.modules.vcs.*;
+import org.netbeans.modules.vcs.util.*;
 
 /** Property editor for user variables.
  * 

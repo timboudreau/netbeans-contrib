@@ -11,12 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.editor.settings;
+package org.netbeans.modules.corba.idl.editor.settings;
 
 import org.openide.util.NbBundle;
 
-import com.netbeans.developer.modules.text.options.BaseOptions;
-import com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLKit;
+import org.netbeans.modules.editor.options.BaseOptions;
+import org.netbeans.modules.corba.idl.editor.coloring.IDLKit;
 
 /**
  * Options for the IDL Editor Kit

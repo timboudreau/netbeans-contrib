@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir;
+package org.netbeans.modules.corba.browser.ir;
 
 import org.omg.CORBA.*;
 //import org.omg.CosNaming.*;
@@ -24,8 +24,8 @@ import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.util.*;
 
-import com.netbeans.enterprise.modules.corba.*;
-import com.netbeans.enterprise.modules.corba.settings.*;
+import org.netbeans.modules.corba.*;
+import org.netbeans.modules.corba.settings.*;
 /*
  * @author Karel Gardas
  */
@@ -33,7 +33,7 @@ import com.netbeans.enterprise.modules.corba.settings.*;
 public class IRRootNode extends AbstractNode implements Node.Cookie {
 
   static final String ICON_BASE_ROOT 
-    = "com/netbeans/enterprise/modules/corba/browser/ir/resources/ir-root";
+    = "org/netbeans/modules/corba/browser/ir/resources/ir-root";
 
   public static final boolean DEBUG = false;
   //public static final boolean DEBUG = true;
@@ -82,7 +82,7 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
     ((IRRootNodeChildren)getChildren ()).setRootNode (this);
 
     systemActions = new SystemAction[] { 
-      SystemAction.get (com.netbeans.enterprise.modules.corba.browser.ir.actions.AddRepository.class)
+      SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.AddRepository.class)
     };
   }
 

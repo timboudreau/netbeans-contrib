@@ -11,13 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi.settings;
+package org.netbeans.modules.jndi.settings;
 
 import org.openide.options.SystemOption;
 import org.openide.nodes.Node;
-import com.netbeans.enterprise.modules.jndi.JndiRootNode;
-import com.netbeans.enterprise.modules.jndi.JndiAbstractNode;
-import com.netbeans.enterprise.modules.jndi.JndiProvidersNode;
+import org.netbeans.modules.jndi.JndiRootNode;
+import org.netbeans.modules.jndi.JndiAbstractNode;
+import org.netbeans.modules.jndi.JndiProvidersNode;
 import java.util.ArrayList;
 import java.util.Hashtable;
 

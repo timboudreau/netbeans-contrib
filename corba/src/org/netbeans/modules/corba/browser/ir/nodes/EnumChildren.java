@@ -11,12 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.Refreshable;
+import org.netbeans.modules.corba.browser.ir.util.Refreshable;
 
 
 public class EnumChildren extends Children.Keys implements Refreshable {

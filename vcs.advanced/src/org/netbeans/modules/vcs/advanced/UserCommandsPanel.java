@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.vcs.cmdline;
+package org.netbeans.modules.vcs.advanced;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -24,8 +24,8 @@ import org.openide.explorer.propertysheet.*;
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.util.*;
 
-import com.netbeans.developer.modules.vcs.util.*;
-import com.netbeans.developer.modules.vcs.cmdline.*;
+import org.netbeans.modules.vcs.util.*;
+import org.netbeans.modules.vcs.cmdline.*;
 
 /** User commands panel.
  * 
@@ -423,7 +423,7 @@ public class UserCommandsPanel extends JPanel
   //-------------------------------------------
   String g(String s) {
     return NbBundle.getBundle
-      ("com.netbeans.enterprise.modules.vcs.cmdline.Bundle").getString (s);
+      ("org.netbeans.modules.vcs.advanced.Bundle").getString (s);
   }
   String  g(String s, Object obj) {
     return MessageFormat.format (g(s), new Object[] { obj });

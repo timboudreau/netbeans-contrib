@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import java.util.Collection;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import javax.naming.NameClassPair;
 import javax.naming.Context;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import com.netbeans.enterprise.modules.jndi.utils.APCTarget;
+import org.netbeans.modules.jndi.utils.APCTarget;
 
 /** Children class for Directories in JNDI tree.
  *  It's responsible for lazy initialization as well
@@ -221,7 +221,7 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
   
   /** This method calls the refreshKey method of Children,
    *  used by Refreshd for changing the failed nodes
-   * @see com.netbeans.enterprise.modules.jndi.utils.Refreshd
+   * @see org.netbeans.modules.jndi.utils.Refreshd
    */
   public void updateKey(Object key){
     this.refreshKey(key);

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.node;
+package org.netbeans.modules.corba.idl.node;
 
 import java.util.Vector;
 import java.util.Enumeration;
@@ -20,8 +20,8 @@ import org.openide.nodes.*;
 import org.openide.filesystems.*;
 //import org.openide.
 
-import com.netbeans.enterprise.modules.corba.*;
-import com.netbeans.enterprise.modules.corba.idl.src.*;
+import org.netbeans.modules.corba.*;
+import org.netbeans.modules.corba.idl.src.*;
 
 
 /**
@@ -36,7 +36,7 @@ public class IDLDocumentChildren extends Children.Keys {
   private IDLDataObject ido;
    
 
-  //private com.netbeans.enterprise.modules.corba.idl.src.SimpleNode src;
+  //private org.netbeans.modules.corba.idl.src.SimpleNode src;
   private IDLElement src;
 
   private IDLNode idlNode;

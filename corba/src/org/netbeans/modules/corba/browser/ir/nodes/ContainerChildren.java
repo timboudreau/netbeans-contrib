@@ -11,17 +11,17 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 import java.util.Vector;
 import java.io.*;
 import org.openide.nodes.*;
 import org.openide.*;
-import com.netbeans.enterprise.modules.corba.*;
-import com.netbeans.enterprise.modules.corba.browser.ir.*;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.Refreshable;
-import com.netbeans.enterprise.modules.corba.browser.ir.nodes.keys.IRContainedKey;
+import org.netbeans.modules.corba.*;
+import org.netbeans.modules.corba.browser.ir.*;
+import org.netbeans.modules.corba.browser.ir.util.Refreshable;
+import org.netbeans.modules.corba.browser.ir.nodes.keys.IRContainedKey;
 
 
  

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba;
+package org.netbeans.modules.corba;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
@@ -38,7 +38,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.MapFormat;
 
 
-import com.netbeans.enterprise.modules.corba.settings.*;
+import org.netbeans.modules.corba.settings.*;
 
 /** Data loader which recognizes IDL files.
 *

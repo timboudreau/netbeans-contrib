@@ -11,22 +11,22 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.editor.settings;
+package org.netbeans.modules.corba.idl.editor.settings;
 
 import java.util.Map;
 import java.util.HashMap;
 
 import java.awt.Color;
 import java.awt.Font;
-import com.netbeans.editor.BaseKit;
-import com.netbeans.editor.Settings;
-import com.netbeans.editor.SettingsUtil;
-import com.netbeans.editor.SettingsNames;
-import com.netbeans.editor.SettingsDefaults;
-import com.netbeans.editor.Coloring;
-import com.netbeans.editor.Syntax;
-import com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLKit;
-import com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLSyntax;
+import org.netbeans.editor.BaseKit;
+import org.netbeans.editor.Settings;
+import org.netbeans.editor.SettingsUtil;
+import org.netbeans.editor.SettingsNames;
+import org.netbeans.editor.SettingsDefaults;
+import org.netbeans.editor.Coloring;
+import org.netbeans.editor.Syntax;
+import org.netbeans.modules.corba.idl.editor.coloring.IDLKit;
+import org.netbeans.modules.corba.idl.editor.coloring.IDLSyntax;
 
 public class IDLEditorSettingsInitializer implements Settings.Initializer {
 

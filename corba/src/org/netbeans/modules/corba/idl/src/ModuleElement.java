@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.src;
+package org.netbeans.modules.corba.idl.src;
 
 public class ModuleElement extends IDLElement {
 

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi.gui;
+package org.netbeans.modules.jndi.gui;
 
 import java.awt.Dialog;
 import java.awt.event.ActionListener;
@@ -28,9 +28,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import org.openide.TopManager;
 import org.openide.DialogDescriptor;
-import com.netbeans.enterprise.modules.jndi.JndiRootNode;
-import com.netbeans.enterprise.modules.jndi.JndiNode;
-import com.netbeans.enterprise.modules.jndi.utils.SimpleListModel;
+import org.netbeans.modules.jndi.JndiRootNode;
+import org.netbeans.modules.jndi.JndiNode;
+import org.netbeans.modules.jndi.utils.SimpleListModel;
 /** 
  * This class represents the Customizer for properties of jndi objects
  * @author  tzezula

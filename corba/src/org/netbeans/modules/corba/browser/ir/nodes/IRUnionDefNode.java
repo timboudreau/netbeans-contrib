@@ -11,15 +11,15 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 import org.omg.CORBA.ORBPackage.InconsistentTypeCode;
 import org.omg.CORBA.DynAnyPackage.Invalid;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
 
 
@@ -29,7 +29,7 @@ public class IRUnionDefNode extends IRContainerNode {
   public static final boolean DYN_ANY_WORKAROUND = true;
   private UnionDef _union;
   private static final String UNION_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/idl/node/union";
+    "org/netbeans/modules/corba/idl/node/union";
   
   private static class UnionCodeGenerator implements GenerateSupport {
     private UnionDef _union;

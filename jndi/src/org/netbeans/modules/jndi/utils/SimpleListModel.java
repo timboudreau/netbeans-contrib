@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi.utils;
+package org.netbeans.modules.jndi.utils;
 
 
 import javax.swing.AbstractListModel;

@@ -11,9 +11,9 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi.gui;
+package org.netbeans.modules.jndi.gui;
 
-import com.netbeans.enterprise.modules.jndi.JndiRootNode;
+import org.netbeans.modules.jndi.JndiRootNode;
 /** 
  *
  * @author  tzezula

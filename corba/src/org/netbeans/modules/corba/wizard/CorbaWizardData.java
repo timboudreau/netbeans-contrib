@@ -11,9 +11,9 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.wizard;
+package org.netbeans.modules.corba.wizard;
 
-import com.netbeans.enterprise.modules.corba.settings.CORBASupportSettings;
+import org.netbeans.modules.corba.settings.CORBASupportSettings;
 
 /** 
  *

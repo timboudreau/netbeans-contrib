@@ -11,14 +11,14 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.wizard.panels;
+package org.netbeans.modules.corba.wizard.panels;
 
 import java.util.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import org.openide.*;
 import org.openide.util.*;
-import com.netbeans.enterprise.modules.corba.wizard.CorbaWizardData;
+import org.netbeans.modules.corba.wizard.CorbaWizardData;
 
 /** 
  *
@@ -65,7 +65,7 @@ public class StartPanel extends AbstractWizardPanel {
     java.awt.GridBagConstraints gridBagConstraints1;
     setPreferredSize (new java.awt.Dimension(480, 320));
 
-    jLabel1.setText (java.util.ResourceBundle.getBundle("com/netbeans/enterprise/modules/corba/wizard/panels/Bundle").getString("TXT_TypeOfApp"));
+    jLabel1.setText (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_TypeOfApp"));
     jLabel1.setFont (new java.awt.Font ("Dialog", 0, 18));
 
 
@@ -82,7 +82,7 @@ public class StartPanel extends AbstractWizardPanel {
     jPanel1.setLayout (new java.awt.GridBagLayout ());
     java.awt.GridBagConstraints gridBagConstraints2;
 
-      appRadio.setText (java.util.ResourceBundle.getBundle("com/netbeans/enterprise/modules/corba/wizard/panels/Bundle").getString("TXT_Application"));
+      appRadio.setText (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_Application"));
       appRadio.setActionCommand ("clientSelected");
       appRadio.addActionListener (new java.awt.event.ActionListener () {
         public void actionPerformed (java.awt.event.ActionEvent evt) {
@@ -97,7 +97,7 @@ public class StartPanel extends AbstractWizardPanel {
       gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
       jPanel1.add (appRadio, gridBagConstraints2);
   
-      idlRadio.setText (java.util.ResourceBundle.getBundle("com/netbeans/enterprise/modules/corba/wizard/panels/Bundle").getString("TXT_Idl"));
+      idlRadio.setText (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_Idl"));
       idlRadio.setActionCommand ("idlSelected");
       idlRadio.addActionListener (new java.awt.event.ActionListener () {
         public void actionPerformed (java.awt.event.ActionEvent evt) {
@@ -114,7 +114,7 @@ public class StartPanel extends AbstractWizardPanel {
       gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
       jPanel1.add (idlRadio, gridBagConstraints2);
   
-      client.setText (java.util.ResourceBundle.getBundle("com/netbeans/enterprise/modules/corba/wizard/panels/Bundle").getString("TXT_Client"));
+      client.setText (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_Client"));
   
       gridBagConstraints2 = new java.awt.GridBagConstraints ();
       gridBagConstraints2.gridx = 0;
@@ -122,7 +122,7 @@ public class StartPanel extends AbstractWizardPanel {
       gridBagConstraints2.insets = new java.awt.Insets (4, 8, 4, 8);
       jPanel1.add (client, gridBagConstraints2);
   
-      server.setText (java.util.ResourceBundle.getBundle("com/netbeans/enterprise/modules/corba/wizard/panels/Bundle").getString("TXT_Server"));
+      server.setText (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_Server"));
   
       gridBagConstraints2 = new java.awt.GridBagConstraints ();
       gridBagConstraints2.gridx = 0;

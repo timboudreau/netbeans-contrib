@@ -17,7 +17,7 @@
  * Created on September 21, 1999, 4:39 PM
  */
  
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -28,7 +28,7 @@ import javax.swing.event.ListSelectionEvent;
 import org.openide.TopManager;
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
-import com.netbeans.enterprise.modules.jndi.utils.SimpleListModel;
+import org.netbeans.modules.jndi.utils.SimpleListModel;
 
 /** 
  *

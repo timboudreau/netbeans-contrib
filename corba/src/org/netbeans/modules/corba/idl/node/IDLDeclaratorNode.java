@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.node;
+package org.netbeans.modules.corba.idl.node;
 
 import java.util.Vector;
 
@@ -22,8 +22,8 @@ import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 
-import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
-import com.netbeans.enterprise.modules.corba.idl.src.DeclaratorElement;
+import org.netbeans.modules.corba.idl.src.IDLElement;
+import org.netbeans.modules.corba.idl.src.DeclaratorElement;
 
 /**
  * Class IDLDeclaratorNode
@@ -36,7 +36,7 @@ public class IDLDeclaratorNode extends IDLAbstractNode {
   String name;
 
   private static final String DECLARATOR_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/idl/node/declarator";
+    "org/netbeans/modules/corba/idl/node/declarator";
 
   public IDLDeclaratorNode (DeclaratorElement value) {
     //super (new IDLDocumentChildren ((SimpleNode)value));

@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.node;
+package org.netbeans.modules.corba.idl.node;
 
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
@@ -20,8 +20,8 @@ import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
 
-import com.netbeans.enterprise.modules.corba.idl.src.IDLElement;
-import com.netbeans.enterprise.modules.corba.idl.src.AttributeElement;
+import org.netbeans.modules.corba.idl.src.IDLElement;
+import org.netbeans.modules.corba.idl.src.AttributeElement;
 
 /**
  * Class IDLAttributeNode
@@ -32,7 +32,7 @@ public class IDLAttributeNode extends IDLAbstractNode {
 
   AttributeElement _attribute;
   private static final String ATTRIBUTE_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/idl/node/attribute";
+    "org/netbeans/modules/corba/idl/node/attribute";
 
   public IDLAttributeNode (AttributeElement value) {
     //super (new IDLDocumentChildren ((SimpleNode)value));

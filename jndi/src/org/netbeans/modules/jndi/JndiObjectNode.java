@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.jndi;
+package org.netbeans.modules.jndi;
 
 import javax.naming.CompositeName;
 import javax.naming.NamingException;
@@ -36,7 +36,7 @@ import org.openide.nodes.NodeMemberEvent;
 import org.openide.nodes.Sheet;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.ExClipboard;
-import com.netbeans.enterprise.modules.jndi.utils.JndiPropertyMutator;
+import org.netbeans.modules.jndi.utils.JndiPropertyMutator;
 
 /** Common base class for JndiNode and JndiLeafNode.
 * The class provides copy (source generating)/delete actions.

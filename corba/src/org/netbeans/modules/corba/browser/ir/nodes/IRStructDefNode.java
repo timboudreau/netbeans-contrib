@@ -11,21 +11,21 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.browser.ir.nodes;
+package org.netbeans.modules.corba.browser.ir.nodes;
 
 import org.omg.CORBA.*;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
-import com.netbeans.enterprise.modules.corba.browser.ir.Util;
-import com.netbeans.enterprise.modules.corba.browser.ir.util.GenerateSupport;
+import org.netbeans.modules.corba.browser.ir.Util;
+import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
 
 public class IRStructDefNode extends IRContainerNode {
 
   private StructDef _struct;
   private static final String STRUCT_ICON_BASE =
-    "com/netbeans/enterprise/modules/corba/idl/node/struct";
+    "org/netbeans/modules/corba/idl/node/struct";
   
   private static class StructCodeGenerator implements GenerateSupport {
     private StructDef _struct;

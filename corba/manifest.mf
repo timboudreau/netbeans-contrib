@@ -1,25 +1,25 @@
-OpenIDE-Module: com.netbeans.enterprise.modules.corba/1
+OpenIDE-Module: org.netbeans.modules.corba/1
 OpenIDE-Module-Name: CORBA
-OpenIDE-Module-Install: com/netbeans/enterprise/modules/corba/IDLModule.class
+OpenIDE-Module-Install: org/netbeans/modules/corba/IDLModule.class
 OpenIDE-Module-Specification-Version: 1.0
 OpenIDE-Module-Implementation-Version: 1.0
-OpenIDE-Module-Module-Dependencies: com.netbeans.developer.modules.loaders.java/1
-OpenIDE-Module-Description: com.netbeans.enterprise.modules.corba.docs.HelpSet
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1
+OpenIDE-Module-Description: org.netbeans.modules.corba.docs.HelpSet
 
-Name: com/netbeans/enterprise/modules/corba/IDLDataLoader.class
+Name: org/netbeans/modules/corba/IDLDataLoader.class
 OpenIDE-Module-Class: Loader
-Install-Before: com.netbeans.developer.modules.loaders.java.JavaDataObject
+Install-Before: org.netbeans.modules.java.JavaDataObject
 
-Name: com/netbeans/enterprise/modules/corba/settings/CORBASupportSettings.class
+Name: org/netbeans/modules/corba/settings/CORBASupportSettings.class
 OpenIDE-Module-Class: Option
 
-Name: com/netbeans/enterprise/modules/corba/browser/ns/ContextNode.class
+Name: org/netbeans/modules/corba/browser/ns/ContextNode.class
 OpenIDE-Module-Class: Node
 Type: Environment
 
-Name: com/netbeans/enterprise/modules/corba/browser/ir/IRRootNode.class
+Name: org/netbeans/modules/corba/browser/ir/IRRootNode.class
 OpenIDE-Module-Class: Node
 Type: Environment
 
-Name: com/netbeans/enterprise/modules/corba/wizard/CorbaWizardAction.class
+Name: org/netbeans/modules/corba/wizard/CorbaWizardAction.class
 OpenIDE-Module-Class: Action

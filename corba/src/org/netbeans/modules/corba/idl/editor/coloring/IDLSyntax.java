@@ -11,10 +11,10 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.corba.idl.editor.coloring;
+package org.netbeans.modules.corba.idl.editor.coloring;
 
-import com.netbeans.editor.Syntax;
-import com.netbeans.editor.TokenID;
+import org.netbeans.editor.Syntax;
+import org.netbeans.editor.TokenID;
 
 /**
 * Syntax analyzes for IDL source files.
