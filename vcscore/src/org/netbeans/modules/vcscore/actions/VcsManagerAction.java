@@ -32,6 +32,7 @@ public class VcsManagerAction extends CallableSystemAction {
     static final long serialVersionUID = -3240759228704433330L;
     
     private VcsManager manager = null;
+    private Dialog dlg;
 
     /** Human presentable name of the action. This should be
      * presented as an item in a menu.
@@ -61,7 +62,15 @@ public class VcsManagerAction extends CallableSystemAction {
      * This default implementation calls the assigned actionPerformer if it
      * is not null otherwise the action is ignored.
      */
-    public void performAction () {               
+    public void performAction () {
+        if (dlg != null) {
+            if (dlg.isShowing()) {
+                dlg.toFront();
+            } else {
+                dlg.show ();
+            }
+            return ;
+        }
         Object[] options = new Object[]{ NbBundle.getMessage(VcsManagerAction.class, "LBL_VcsManagerClose") };     
         DialogDescriptor desc = new DialogDescriptor(getVcsManager(),NbBundle.getBundle (VcsManagerAction.class).getString ("CTL_VcsManagerTitle"));        
         desc.setOptions(options);
@@ -69,8 +78,8 @@ public class VcsManagerAction extends CallableSystemAction {
         desc.setClosingOptions(options);        
         desc.setModal(false);
                                                      
-        final Dialog dlg = DialogDisplayer.getDefault ().createDialog (desc);
-        dlg.show ();                    
+        dlg = DialogDisplayer.getDefault ().createDialog (desc);
+        dlg.show ();
      
     }
     
