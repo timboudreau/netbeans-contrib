@@ -18,15 +18,28 @@ Microsystems, Inc. All Rights Reserved.
             <code-name-base>org.netbeans.modules.tasklist.api</code-name-base>
             <path>tasklist/api</path>
             <module-dependencies>
-<!--                <dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.java</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.16</specification-version>
                     </run-dependency>
-                </dependency>-->
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>4.47</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.loaders</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency/>
+                </dependency>	
             </module-dependencies>
             <public-packages/>
         </data>
