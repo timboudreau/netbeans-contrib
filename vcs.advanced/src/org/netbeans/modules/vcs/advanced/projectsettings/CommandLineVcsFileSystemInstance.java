@@ -666,6 +666,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     private class FSPropertyChangeListener extends Object implements PropertyChangeListener {
         //private Reference fs;
         private FileObject fo;
+        private FileLock lock;
         private RequestProcessor.Task writeTask = null;
         private volatile boolean reSchedule = false;
         
@@ -691,6 +692,13 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             if (CommandLineVcsFileSystem.PROP_VALID.equals(propertyChangeEvent.getPropertyName())) return ;
             //System.out.println("Property '"+propertyChangeEvent.getPropertyName()+"' changed.");
             synchronized (this) {
+                if (lock == null) {
+                    try {
+                        lock = fo.lock();
+                    } catch (IOException ioex) {
+                        TopManager.getDefault().getErrorManager().notify(ioex);
+                    }
+                }
                 if (writeTask == null) {
                     writeTask = createWriteTask();
                 }
@@ -706,8 +714,8 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             RequestProcessor.Task task = RequestProcessor.postRequest(new Runnable() {
                 public void run() {
                     try {
-                        if (fo == null) return ;
-                        getSaver().save(fo);
+                        if (fo == null || lock == null) return ;
+                        getSaver().save(fo, lock);
                         /*
                         fo.getFileSystem().runAtomicAction(new org.openide.filesystems.FileSystem.AtomicAction() {
                             public void run() throws java.io.IOException {
@@ -749,6 +757,8 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                             reSchedule = false;
                         } else {
                             FSPropertyChangeListener.this.notifyAll();
+                            if (lock != null) lock.releaseLock();
+                            lock = null;
                         }
                     }
                 }
@@ -818,6 +828,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         
         private CommandLineVcsFileSystemInstance vfsInstance;
         private FileObject fo = null;
+        private FileLock lock = null;
         
         private Saver(CommandLineVcsFileSystemInstance vfsInstance) {
             this.vfsInstance = vfsInstance;
@@ -833,10 +844,8 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             if (fs != null) {
                 Document doc = createEmptyFSPropertiesDocument();
                 writeFSProperties(fs, doc);
-                FileLock lock = null;
                 java.io.OutputStream out = null;
                 try {
-                    lock = fo.lock();
                     out = fo.getOutputStream(lock);
                     XMLUtil.write(doc, out, null);
                     //System.out.println("  written to "+fo+", File = "+org.openide.filesystems.FileUtil.toFile(fo));
@@ -848,16 +857,16 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                             out.close();
                         }
                     } catch (java.io.IOException ioexc) {}
-                    if (lock != null) lock.releaseLock();
                 }
             }
         }
         
         /** write down buffer to file
          */
-        public void save (FileObject fo) throws IOException {
+        public void save (FileObject fo, FileLock lock) throws IOException {
             synchronized (this) {
                 this.fo = fo;
+                this.lock = lock;
                 fo.getFileSystem().runAtomicAction(this);
                 this.fo = null;
             }
