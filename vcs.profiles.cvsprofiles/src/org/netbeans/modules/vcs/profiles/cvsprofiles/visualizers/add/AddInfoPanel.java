@@ -122,15 +122,9 @@ public class AddInfoPanel extends AbstractOutputPanel{
     }
     
     
-    public void showExecutionFailed() {
+    public void showFinishedCommand(int exit) {
         displayOutputData();
-        commandFinished(1);
-    }
-    
-    
-    public void showFinishedCommand() {
-        displayOutputData();
-        commandFinished(0);
+        commandFinished(exit);
     }
     
     public void showStartCommand() {

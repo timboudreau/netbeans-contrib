@@ -308,10 +308,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
             if (outputInfosToShow != null) {
                 outputDone(); // show cached infos
             }
-            if(exit == 0)
-                contentPane.showFinishedCommand();
-            else
-                contentPane.showExecutionFailed();
+            contentPane.showFinishedCommand(exit);
         }
     }
     
