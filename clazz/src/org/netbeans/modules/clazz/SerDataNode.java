@@ -17,6 +17,7 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.beans.BeanInfo;
+import java.io.IOException;
 
 import com.netbeans.ide.util.datatransfer.TransferableOwner;
 
@@ -56,14 +57,16 @@ final class SerDataNode extends ClassDataNode {
     try {
       ClassDataObject dataObj = (ClassDataObject)getDataObject();
       dataObj.getBeanClass(); // check exception
-      if (dataObj.getHasMainMethod()) {
+      if (dataObj.isExecutable()) {
         setIconBase(SER_MAIN_BASE);
       } else {
         setIconBase(SER_BASE);
       }
-    } catch (ThreadDeath td) {
-      throw td;
-    } catch (Throwable t) {
+    } catch (IOException ex) {
+      System.out.println ("IO EXCEPT");
+      setIconBase(SER_ERROR_BASE);
+    } catch (ClassNotFoundException ex) {
+      System.out.println ("CNF EXCEPT");
       setIconBase(SER_ERROR_BASE);
     }
     iconResolved = true;
@@ -73,6 +76,7 @@ final class SerDataNode extends ClassDataNode {
 
 /*
  * Log
+ *  3    src-jtulach1.2         1/20/99  David Simonek   icon managing repaired
  *  2    src-jtulach1.1         1/19/99  David Simonek   
  *  1    src-jtulach1.0         1/15/99  David Simonek   
  * $
