@@ -43,14 +43,20 @@
     some other concepts like naming of metamodels and repositories. Suggested target
     package for metamodel specific JMI interfaces is org.netbeans.jmi.
     <p/>
-    Regarding the <api name="MDR API/SPI" category="devel" group="java"  type="export" url="http://www.netbeans.org/download/dev/javadoc/MdrAPIs"/>
+    Regarding the <api name="MDRAPI" category="devel" group="java"  type="export" url="http://www.netbeans.org/download/dev/javadoc/MdrAPIs"/>
+    and <api name="MDRSPI" category="devel" group="java"  type="export" url="http://www.netbeans.org/download/dev/javadoc/MdrAPIs"/>
     as previously said, API and SPI is currently mixed in subpackages of org.netbeans.api.
     Thus I included the following table that walks through the individual interfaces and suggests their
     final locations:
     <table>
-        <th>Location</th>
-        <th>Interfaces</th>
-        <th>Note</th>
+        <thead>
+            <tr>
+            <th>Location</th>
+            <th>Interfaces</th>
+            <th>Note</th>
+            </tr>
+        </thead>
+        <tbody>
         <tr>
             <td><code>org.netbeans.api.mdr</code></td>
             <td><code>MDRManager, MDRepository, MDRObject</code></td>
@@ -112,6 +118,7 @@
                 XMIProducerFactory, XMIProducer</code></td>
             <td>&nbsp;</td>
         </tr>
+        </tbody>
     </table>
     Things to consider by Architecture Review Commitee:
     <ul>
@@ -219,9 +226,9 @@ Not yet.
         </question>
 -->
 <answer id="compat-standards">
-The module implements <api group="java" name="OMG Meta-Object Facility (MOF)" category="standard" type="export" url="http://www.omg.org/technology/documents/formal/mof.htm"/>,
-    <api group="java" name="OMG XML Metadata Interchange (XMI)" category="standard" type="export" url="http://www.omg.org/technology/documents/formal/xmi.htm"/>
-    and <api group="java" name="JSR-40: Java Metadata Interface" category="standard" type="export" url="http://java.sun.com/products/jmi"/>.
+The module implements <api group="java" name="OMG-Meta-Object-Facility" category="standard" type="export" url="http://www.omg.org/technology/documents/formal/mof.htm"/>,
+    <api group="java" name="OMG-XML-Metadata-Interchange" category="standard" type="export" url="http://www.omg.org/technology/documents/formal/xmi.htm"/>
+    and <api group="java" name="JSR-40-Java-Metadata-Interface" category="standard" type="export" url="http://java.sun.com/products/jmi"/>.
 </answer>
 
 
@@ -306,8 +313,8 @@ JRE is enough.
 -->
 <answer id="dep-non-nb">
 The module depends on output of MOF and JMI specifications. Particularily
-    <api group="java" name="MOF 1.4 Metamodel definition XML file" type="import" category="standard" url="http://www.omg.org/cgi-bin/doc?ptc/01-10-08"/>
-    and <api group="java" name="JMI Reflective API and JMI interfaces generated from the MOF metamodel" category="standard" type="import" url="http://java.sun.com/products/jmi"/>.
+    <api group="java" name="MOF-1.4-Metamodel-Definition-XML-file" type="import" category="standard" url="http://www.omg.org/cgi-bin/doc?ptc/01-10-08"/>
+    and <api group="java" name="JMI-Reflective-API-and-JMI-interfaces-generated-from-the-MOF-metamodel" category="standard" type="import" url="http://java.sun.com/products/jmi"/>.
 </answer>
 
 
