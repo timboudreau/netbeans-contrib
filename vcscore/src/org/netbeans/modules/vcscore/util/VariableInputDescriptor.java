@@ -812,7 +812,7 @@ public class VariableInputDescriptor extends Object {
         }
 
         FileObject index = defaults.getFileObject("command_index.properties"); // NOI18N
-        if (index == null && createIfDoesNotExist) {
+        if (index == null) {
             if (createIfDoesNotExist) {
                 index = defaults.createData("command_index.properties"); // NOI18N
             } else {
