@@ -689,10 +689,10 @@ public class IDLSyntax extends Syntax {
                     return IDLTokenContext.BLOCK_COMMENT;
                 case ISI_STRING:
                 case ISI_STRING_A_BSLASH:
-                    return IDLTokenContext.STRING;
+                    return IDLTokenContext.STRING_LITERAL;
                 case ISI_CHAR:
                 case ISI_CHAR_A_BSLASH:
-                    return IDLTokenContext.CHAR;
+                    return IDLTokenContext.CHAR_LITERAL;
                 case ISA_ZERO:
                 case ISI_INT:
                     return IDLTokenContext.INT_LITERAL;
