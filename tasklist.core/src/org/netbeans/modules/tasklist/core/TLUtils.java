@@ -18,10 +18,13 @@ import javax.swing.text.*;
 
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.ListIterator;
 import javax.swing.JEditorPane;
+import javax.swing.table.TableColumnModel;
+import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 
 import org.openide.cookies.LineCookie;
 import org.openide.loaders.DataObject;
@@ -644,5 +647,117 @@ public final class TLUtils {
             return null;
         
         return new Object[] {filename, new Integer(line)};
+    }
+
+    /**
+     * Loads column configuration from a view
+     *
+     * @param v a view
+     * @param cc a columns configuration
+     */
+    public static void loadColumnsFrom(TaskListView v, ColumnsConfiguration cc) {
+        // String[]
+        ArrayList props = new ArrayList();
+        
+        boolean ascending = false;
+        String sort = null;
+        ColumnProperty columns[] = v.getColumns();
+        for (int i = 0; i < columns.length; i++) {
+            Boolean treeColumn =
+                (Boolean) columns[i].getValue("TreeColumnTTV"); // NOI18N
+            // Is the column visible?
+            Boolean invisible =
+                (Boolean) columns[i].getValue("InvisibleInTreeTableView"); // NOI18N
+            
+            // Grrr.... openide must not be using the Boolean enum's;
+            // it must be creating new Boolean objects.... so I've
+            // gotta use boolean value instead of this nice line:
+            //    if (!(invisible == Boolean.TRUE)) {
+            if (treeColumn != null && treeColumn.booleanValue()) {
+                props.add(0, columns[i].getName());
+            } else if ((invisible == null) || !invisible.booleanValue()) {
+                props.add(columns[i].getName());
+            }
+            
+            Boolean sorting = (Boolean) columns[i].getValue(
+            "SortingColumnTTV"); // NOI18N
+            if ((sorting != null) && (sorting.booleanValue())) {
+                sort = columns[i].getName();
+                Boolean desc = (Boolean) columns[i].getValue(
+                "DescendingOrderTTV"); // NOI18N
+                ascending = (desc != Boolean.TRUE);
+            }
+        }
+        
+        TableColumnModel m = v.getTable().getColumnModel();
+        String[] properties = (String[]) props.toArray(new String[props.size()]);
+        
+        int[] widths = new int[props.size()];
+        for (int i = 0; i < props.size(); i++) {
+            widths[i] = m.getColumn(i).getWidth();
+        }
+        
+        cc.setValues(properties, widths, sort, ascending);
+    }
+    
+    /**
+     * Configures view's column widths.
+     *
+     * @param v view that should be configured
+     * @param cc a columns configuration
+     */
+    public static void configureColumns(TaskListView v, ColumnsConfiguration cc) {
+        String[] properties = cc.getProperties();
+        int[] widths = cc.getWidths();
+        String sortingColumn = cc.getSortingColumn();
+        boolean ascending = cc.getSortingOrder();
+        
+        ColumnProperty columns[] = v.getColumns();
+        
+        for (int i = 0; i < columns.length; i++) {
+            // NOTE reverse logic: this is INvisible
+            columns[i].setValue("InvisibleInTreeTableView", // NOI18N
+            Boolean.TRUE);
+        }
+        
+        for (int i = 0; i < properties.length; i++) {
+            ColumnProperty c = findColumn(columns, properties[i]);
+            if (c != null) {
+                // Necessary because by default some columns
+                // set invisible by default, so I have to
+                // override these
+                // NOTE reverse logic: this is INvisible
+                c.setValue("InvisibleInTreeTableView", // NOI18N
+                Boolean.FALSE);
+                c.width = widths[i];
+            }
+        }
+        
+        // Set sorting attribute
+        if (sortingColumn != null) {
+            ColumnProperty c = findColumn(columns, sortingColumn);
+            if (c != null) {
+                c.setValue("SortingColumnTTV", Boolean.TRUE); // NOI18N
+                // Descending sort?
+                c.setValue("DescendingOrderTTV", // NOI18N
+                (!ascending) ? Boolean.TRUE : Boolean.FALSE);
+            }
+        }
+    }
+    
+    /**
+     * Searches a column by name
+     *
+     * @param columns view columns
+     * @param name name of a property
+     * @return found column or null
+     */
+    private static ColumnProperty findColumn(ColumnProperty columns[], String name) {
+        for (int i = 0; i < columns.length; i++) {
+            if (columns[i].getName().equals(name))
+                return columns[i];
+        }
+        
+        return null;
     }
 }

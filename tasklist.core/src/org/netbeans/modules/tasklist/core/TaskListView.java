@@ -73,7 +73,33 @@ import org.openide.util.actions.CallbackSystemAction;
  */
 public abstract class TaskListView extends TopComponent
         implements TaskListener, PropertyChangeListener, ExplorerManager.Provider, Lookup.Provider, TaskSelector {
+    /** Keeps track of the category tabs we've added */
+    private transient static HashMap views = null; // LEAK?
 
+    /**
+     * Registers a view
+     *
+     * @param view a view to be registered
+     */
+    public static void registerTaskListView(TaskListView view) {
+        synchronized (TaskListView.class) {
+            if (views == null) {
+                views = new HashMap();
+            }
+            views.put(view.category, view);
+        }
+    }
+    
+    public static TaskListView getTaskListView(String category) {
+        assert category != null;
+        
+        if (views == null) {
+            return null;
+        }
+
+        return (TaskListView) views.get(category);
+    }
+    
     /** Property "task summary" */
     public static final String PROP_TASK_SUMMARY = "taskDesc"; // NOI18N
 
@@ -106,18 +132,21 @@ public abstract class TaskListView extends TopComponent
 
     private transient ExplorerManager manager;
 
+    protected boolean persistent = false;
+    
     /**
      * Construct a new TaskListView. Most work is deferred to
      * componentOpened. NOTE: this is only for use by the window
      * system when deserializing windows. Client code should not call
      * it; use the constructor which takes category, title and icon
-     * parameters. I can't make it protected because then the window
-     * system wouldn't be able to get to this. But the code relies on
+     * parameters. But the code relies on
      * readExternal getting called after this constructor to finalize
      * construction of the window.
+     *
+     * todo make private
      */
     public TaskListView() {
-        initExplorerManager();
+        init_();
     }
 
     /**
@@ -126,7 +155,7 @@ public abstract class TaskListView extends TopComponent
      */
     public TaskListView(String category, String title, Image icon,
                         boolean persistent, ObservableList tasklist) {
-        initExplorerManager();
+        init_();
 
         assert category != null : "category == null";
 
@@ -141,34 +170,26 @@ public abstract class TaskListView extends TopComponent
         } else {
             putClientProperty("PersistenceType", "Never"); // NOI18N
         }
-        initList(tasklist);
+        registerTaskListView(this);
+        setModel(tasklist);
     }
 
-    // replacement for subclassing ExplorerPanel
-    private void initExplorerManager() {
-        manager = new ExplorerManager();
-        ActionMap map = getActionMap();
-        map.put(javax.swing.text.DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
-        map.put(javax.swing.text.DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
-        map.put(javax.swing.text.DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
-        map.put("delete", ExplorerUtils.actionDelete(manager, true));  // NOI18N
-    }
-
-    protected final void initList(ObservableList list) {
-        assert tasklist == null; // call from readExterdnal only
-        this.tasklist = list;
-
-        synchronized (TaskListView.class) {
-            if (views == null) {
-                views = new HashMap();
-            }
-            views.put(category, this);
-        }
+    /**
+     * Common part for all constructors
+     */
+    protected void init_() {
     }
 
     public ExplorerManager getExplorerManager() {
-        assert manager != null :
-            "getExplorerManager() called before initExplorerManager()"; // NOI18N
+        if (manager == null) {
+            // replacement for subclassing ExplorerPanel
+            manager = new ExplorerManager();
+            ActionMap map = getActionMap();
+            map.put(javax.swing.text.DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
+            map.put(javax.swing.text.DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
+            map.put(javax.swing.text.DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
+            map.put("delete", ExplorerUtils.actionDelete(manager, true));  // NOI18N
+        }
         return manager;
     }
 
@@ -259,13 +280,6 @@ public abstract class TaskListView extends TopComponent
 
     protected final void setMiniStatus(String text) {
         getMiniStatus().setText(text);
-    }
-
-    /**
-     * Override default ExplorerPanel behaviour.
-     * It was set by explorer manager with setName to "Explorer[<root name>]"
-     */
-    protected void updateTitle() {
     }
 
     /** Show the given task. "Showing" means getting the editor to
@@ -405,8 +419,6 @@ public abstract class TaskListView extends TopComponent
         }
         initialized = true;
 
-        loadColumnsConfiguration();
-
         FindAction find = (FindAction) FindAction.get(FindAction.class);
         FilterAction filter = (FilterAction) FilterAction.get(FilterAction.class);
         getActionMap().put(find.getActionMapKey(), filter);
@@ -416,6 +428,8 @@ public abstract class TaskListView extends TopComponent
         centerPanel = new JPanel();
         centerPanel.setLayout(new BorderLayout());
         centerCmp = createCenterComponent();
+        loadColumnsConfiguration();
+        
         centerPanel.add(centerCmp, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
@@ -444,8 +458,7 @@ public abstract class TaskListView extends TopComponent
         add(toolbars, BorderLayout.WEST);
 
         // Populate the view
-        showList();
-
+        setModel(tasklist);
     }
 
     /**
@@ -455,7 +468,6 @@ public abstract class TaskListView extends TopComponent
      */
     protected Component createCenterComponent() {
         treeTable = new MyTreeTableView();
-        //treeTable.setProperties(createColumns());
         if (columns == null) {
             columns = createColumns();
         }
@@ -489,11 +501,15 @@ public abstract class TaskListView extends TopComponent
 
         // Unregister listeners
         unregisterListeners();
+        
+        storeColumnsConfiguration();
     }
 
     protected void componentActivated() {
         super.componentActivated();
-        assert initialized : "#37438 dangling componentActivated event, no componentOpened() called at " + this;
+        assert initialized : 
+            "#37438 dangling componentActivated event, no componentOpened()" + 
+            " called at " + this;
         installJumpActions(true);
         ExplorerUtils.activateActions(manager, true);
         RemoveFilterAction removeFilter =
@@ -513,7 +529,7 @@ public abstract class TaskListView extends TopComponent
      */
     protected void storeColumnsConfiguration() {
         ColumnsConfiguration columns = getDefaultColumns();
-        columns.loadFrom(this);
+        TLUtils.loadColumnsFrom(this, columns);
     }
 
     /**
@@ -521,54 +537,36 @@ public abstract class TaskListView extends TopComponent
      */
     protected void loadColumnsConfiguration() {
         ColumnsConfiguration cc = getDefaultColumns();
-        cc.configure(this);
+        TLUtils.configureColumns(this, cc);
     }
 
     /** Create the root node to be used in this view */
     abstract protected TaskNode createRootNode();
 
-    protected void showList() {
+    /**
+     * Start showing new tasklist.
+     *
+     * @param list new tree
+     */
+    protected void setModel(ObservableList list) {
+        hideList();
+        tasklist = list;
         getModel().addListener(this);
         setRoot();
     }
 
-    /**
-     * Start showing new tasklist.
-     */
-    protected final void showList(ObservableList list) {
-        if (list == getModel()) return;
-        hideList();
-        tasklist = list;
-        showList();
-    }
-
     private void setRoot() {
-        //tasklist.getRoot();
         rootNode = createRootNode();
 
         if (filterEnabled) {
             // Create filtered view of the tasklist
             TaskNode.FilteredChildren children =
-                    new TaskNode.FilteredChildren(this, rootNode, filter);
+                new TaskNode.FilteredChildren(this, rootNode, filter);
             FilterNode n = new TaskNode.FilterTaskNode(rootNode, children, false);
             getExplorerManager().setRootContext(n);
         } else {
             getExplorerManager().setRootContext(rootNode);
         }
-
-        // Select the root node, such that the empty tasklist has
-        // a context menu - but only if there are no items in the list
-        /* TODO not necessary anymore?
-         if (!tasklist.getRoot().hasSubtasks()) {
-            // See http://www.netbeans.org/issues/show_bug.cgi?id=27696
-            Node[] sel = new Node[] { getExplorerManager().getRootContext() };
-            try {
-                getExplorerManager().setSelectedNodes(sel);
-            } catch (PropertyVetoException e) {
-                ErrorManager.getDefault().notify(
-                                           ErrorManager.INFORMATIONAL, e);
-            }
-        }*/
     }
 
     protected void hideList() {
@@ -578,16 +576,13 @@ public abstract class TaskListView extends TopComponent
         }
     }
 
+    /**
+     * Returns the root node. It is never a filtered node.
+     *
+     * @return root node
+     */
     public Node getRootNode() {
-        // TODO - make sure you use the filternode etc. when appropriate!
         return rootNode;
-    }
-
-    public void setRootNode(TaskNode r) {
-        rootNode = r;
-        getExplorerManager().setRootContext(rootNode);
-
-        // TODO - update filter!
     }
 
     /** Ensures that even if no node is selected in the view,
@@ -1013,45 +1008,10 @@ for (int i = 0; i < columns.length; i++) {
         requestActive();
     }
 
-
-    protected boolean persistent = false;
-
-    /** Designate whether or not this window is "persisted", meaning
-     whether or not it will show up next time you start the IDE
-     if it is showing now.  By default, FALSE. */
-    public void setPersistent(boolean persistent) {
-        if (this.persistent && !persistent) {
-            // Turning OFF persistence on a window, not relying on
-            // the default: unusual, but let's handle it correctly
-            // anyway
-            putClientProperty("PersistenceType", "Never"); // NOI18N
-        }
-
-        this.persistent = persistent;
-
-        if (persistent) {
-            // Only persist window info if the window is opened on exit.
-            putClientProperty("PersistenceType", "OnlyOpened"); // NOI18N
-        }
-    }
-
-
-    /** Keeps track of the category tabs we've added */
-    private transient static HashMap views = null; // LEAK?
-
-    public static TaskListView getTaskListView(String category) {
-        assert category != null;
-
-        if (views == null) {
-            return null;
-        }
-
-        TaskListView view = (TaskListView) views.get(category);
-        return view;
-    }
-
-    /** Called to indicate that a particular task is made current.
-     Do what you can to "select" this task. */
+    /** 
+     * Called to indicate that a particular task is made current.
+     * Do what you can to "select" this task. 
+     */
     public void selectedTask(Task item) {
         if (listeners != null) {
             // Stash item so I can notify of deletion -- see TaskViewListener
@@ -1065,10 +1025,10 @@ for (int i = 0; i < columns.length; i++) {
         }
     }
 
-
-    /** Called to indicate that a particular task has been "warped to".
-     Do what you can to "warp to" this task. Typically means show
-     associated fileposition in the editor.
+    /** 
+     * Called to indicate that a particular task has been "warped to".
+     * Do what you can to "warp to" this task. Typically means show
+     * associated fileposition in the editor.
      */
     public void warpedTask(Task item) {
         // XXX currently identical to selectedTask above!
@@ -1084,9 +1044,6 @@ for (int i = 0; i < columns.length; i++) {
         }
     }
 
-
-    /** A task has been added. If null, a number of tasks have
-     been added. */
     public void addedTask(Task t) {
         // Nothing to do?
     }
@@ -1105,7 +1062,9 @@ for (int i = 0; i < columns.length; i++) {
     public void structureChanged(Task t) {
     }
 
-    /**  Return the tasklist shown in this view */
+    /**  
+     * Return the tasklist shown in this view 
+     */
     public TaskList getList() {
         // XXX  FilteredTasksList may appear here for TODOs Current File
         return (TaskList) getModel();
@@ -1437,7 +1396,6 @@ for (int i = 0; i < columns.length; i++) {
     protected TaskAnnotation getAnnotation(Task task) {
         return new TaskAnnotation(task, this);
     }
-
 
     /**
      * @return The currently selected task in the view,

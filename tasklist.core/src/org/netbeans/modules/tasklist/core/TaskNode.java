@@ -55,7 +55,9 @@ public class TaskNode extends AbstractNode {
     protected final Task item;
     private Monitor monitor;
 
-    // Leaf
+    /**
+     * Leaf
+     */
     public TaskNode(Task item) {
         super(Children.LEAF);
         this.item = item;
@@ -63,7 +65,9 @@ public class TaskNode extends AbstractNode {
         init();
     } 
 
-    // Non-leaf/parent
+    /**
+     * Non-leaf/parent
+     */
     public TaskNode(Task item, List subtasks) {
         super(new TaskChildren(item));
         this.item = item;
@@ -73,8 +77,6 @@ public class TaskNode extends AbstractNode {
 
     private void init() {
         setName(item.getSummary());
-        //setIconBase("org/netbeans/modules/tasklist/core/task"); // NOI18N
-        //setDefaultAction(SystemAction.get(ShowTaskAction.class));
         monitor = new Monitor();
         item.getList().addListener(monitor);
         item.addPropertyChangeListener(monitor);
@@ -102,19 +104,15 @@ public class TaskNode extends AbstractNode {
         }
     }
 
-    /**
-       @todo Should "task has associated filepos" and "task is sourcescan task"
-         have separate icons?
-    */
     protected void updateDisplayStuff() {
         setDisplayName(item.getDisplayName());
         updateIcon();
     }
 
     protected void updateIcon() {
+        // This lightbulb icon is really ugly, get something
+        // better!
         setIconBase((item.getAction() != null) ?
-			// This lightbulb icon is really ugly, get something
-			// better!
 		    "org/netbeans/modules/tasklist/core/lightbulb" : // NOI18N
                     "org/netbeans/modules/tasklist/core/task"); // NOI18N
     }
@@ -246,6 +244,7 @@ public class TaskNode extends AbstractNode {
         });
         return enriched;
     }
+    
     public Transferable clipboardCut() throws IOException {
         destroy();
         return clipboardCopy();

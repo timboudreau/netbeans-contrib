@@ -73,21 +73,29 @@ public class ColumnsConfiguration {
     }
     
     /**
+     * Sets the values
+     *
+     * @param properties names of the properties for visible columns
+     * @param widths widths of the visible columns
+     * @param sort name of the sorting column or null
+     * @param ascending true = ascending order, false = descending order
+     */
+    public void setValues(String[] properties, int[] widths, String sort,
+    boolean ascending) {
+        this.properties = properties;
+        this.widths = widths;
+        this.sortingColumn = sort;
+        this.ascending = ascending;
+        fireChange();
+    }
+    
+    /**
      * Returns widths of the columns
      *
      * @return widths
      */
     public int[] getWidths() {
         return widths;
-    }
-    
-    /**
-     * Sets widths of the columns
-     *
-     * @param widths widths. This array will NOT be copied!
-     */
-    public void setWidths(int[] widths) {
-        this.widths = widths;
     }
     
     /**
@@ -100,31 +108,12 @@ public class ColumnsConfiguration {
     }
 
     /**
-     * Sets visible columns.
-     *
-     * @param properties names of visible columns. != null
-     * This array will NOT be copied!
-     */
-    public void setProperties(String[] properties) {
-        this.properties = properties;
-    }
-    
-    /**
      * Returns property of the column the view is sorted on or null.
      *
      * @return name of a property or null
      */
     public String getSortingColumn() {
         return sortingColumn;
-    }
-    
-    /**
-     * Sets the property of the sorted column
-     *
-     * @param s sorted column
-     */
-    public void setSortingColumn(String s) {
-        this.sortingColumn = s;
     }
     
     /**
@@ -144,110 +133,6 @@ public class ColumnsConfiguration {
     public void setSortingOrder(boolean ascending) {
         this.ascending = ascending;
     }
-    
-    /**
-     * Loads column configuration from a view
-     *
-     * @param v a view
-     */
-    public void loadFrom(TaskListView v) {
-        // String[]
-        ArrayList props = new ArrayList();
-        
-        sortingColumn = null;
-        ColumnProperty columns[] = v.getColumns();
-        for (int i = 0; i < columns.length; i++) {
-            Boolean treeColumn = 
-                (Boolean) columns[i].getValue("TreeColumnTTV"); // NOI18N
-            // Is the column visible?
-            Boolean invisible =
-                (Boolean) columns[i].getValue("InvisibleInTreeTableView"); // NOI18N
-            
-            // Grrr.... openide must not be using the Boolean enum's;
-            // it must be creating new Boolean objects.... so I've
-            // gotta use boolean value instead of this nice line:
-            //    if (!(invisible == Boolean.TRUE)) {
-            if (treeColumn != null && treeColumn.booleanValue()) {
-                props.add(0, columns[i].getName());
-            } else if ((invisible == null) || !invisible.booleanValue()) {
-                props.add(columns[i].getName());
-            }
-
-            Boolean sorting = (Boolean) columns[i].getValue( 
-                "SortingColumnTTV"); // NOI18N
-            if ((sorting != null) && (sorting.booleanValue())) {
-                sortingColumn = columns[i].getName();
-                Boolean desc = (Boolean) columns[i].getValue( 
-                    "DescendingOrderTTV"); // NOI18N
-                ascending = (desc != Boolean.TRUE);
-            }
-        }
-
-        TableColumnModel m = v.getTable().getColumnModel();
-        properties = (String[]) props.toArray(new String[props.size()]);
-        
-        widths = new int[props.size()];
-        for (int i = 0; i < props.size(); i++) {
-            widths[i] = m.getColumn(i).getWidth();
-        }
-        
-        fireChange();
-    }
-
-    /**
-     * Configures view's column widths.
-     *
-     * @param v view that should be configured
-     */
-    public void configure(TaskListView v) {
-        ColumnProperty columns[] = v.getColumns();
-        
-        for (int i = 0; i < columns.length; i++) {
-            // NOTE reverse logic: this is INvisible
-            columns[i].setValue("InvisibleInTreeTableView", // NOI18N
-                Boolean.TRUE);
-        }
-
-        for (int i = 0; i < properties.length; i++) {
-            ColumnProperty c = findColumn(columns, properties[i]);
-            if (c != null) {
-                // Necessary because by default some columns
-                // set invisible by default, so I have to
-                // override these
-                // NOTE reverse logic: this is INvisible
-                c.setValue("InvisibleInTreeTableView", // NOI18N
-                    Boolean.FALSE);
-                c.width = widths[i];
-            }
-        }
-        
-        // Set sorting attribute
-        if (sortingColumn != null) {
-            ColumnProperty c = findColumn(columns, sortingColumn);
-            if (c != null) {
-                c.setValue("SortingColumnTTV", Boolean.TRUE); // NOI18N
-                // Descending sort?
-                c.setValue("DescendingOrderTTV", // NOI18N
-                    (!ascending) ? Boolean.TRUE : Boolean.FALSE);
-            }
-        }
-    }
-    
-    /**
-     * Searches a column by name
-     * 
-     * @param columns view columns
-     * @param name name of a property
-     * @return found column or null
-     */
-    private static ColumnProperty findColumn(ColumnProperty columns[], String name) {
-        for (int i = 0; i < columns.length; i++) {
-            if (columns[i].getName().equals(name))
-                return columns[i];
-        }
-        
-        return null;
-    }   
     
     /** 
      * Adds a ChangeListener to the listener list.

@@ -235,15 +235,17 @@ public class Task extends Suggestion implements Cloneable {
     protected void updatedValues() {
         if (!silentUpdate) {
             supp.firePropertyChange(PROP_ATTRS_CHANGED, null, null);
-            if (getList() instanceof TaskList) {
-                ((TaskList) getList()).changedTask(this);
+            if (getList() instanceof TaskListener) {
+                ((TaskListener) getList()).changedTask(this);
             }
         }
     }
 
     protected void updatedStructure() {
         if (!silentUpdate) {
-            getList().notifyStructureChanged(this);
+            if (getList() instanceof TaskListener) {
+                ((TaskListener) getList()).structureChanged(this);
+            }
         }
     }
 
