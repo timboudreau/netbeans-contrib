@@ -253,7 +253,7 @@ ExplorerManager.Provider, ExportImportProvider {
             " called at " + this;
         ExplorerUtils.activateActions(manager, true);
         RemoveFilterUserTaskAction removeFilter =
-                (RemoveFilterUserTaskAction) SystemAction.get(RemoveFilterUserTaskAction.class);
+            (RemoveFilterUserTaskAction) SystemAction.get(RemoveFilterUserTaskAction.class);
         removeFilter.enable();
     }
     
@@ -337,6 +337,13 @@ ExplorerManager.Provider, ExportImportProvider {
                     UserTaskList utl = new UserTaskList();
                     utl.readFile(fo);
                     setList(utl);
+                } else {
+                    Runnable r = new Runnable() {
+                        public void run() {
+                            close();
+                        }
+                    };
+                    SwingUtilities.invokeLater(r);
                 }
             } else {
                 setList(UserTaskList.getDefault());
@@ -727,14 +734,12 @@ ExplorerManager.Provider, ExportImportProvider {
      * of getting opened.
      */
     protected void componentOpened() {
-        // Register listeningViews, such as the editor support bridge module
-        // TODO: Listeners from Lookup will not be collected
-        // registerListeners();
-
         if (initialized) {
             return;
         }
         initialized = true;
+        ExplorerUtils.activateActions(manager, false);
+        ExplorerUtils.activateActions(manager, true);
     }
 
 
@@ -762,6 +767,9 @@ ExplorerManager.Provider, ExportImportProvider {
         storeColumnsConfiguration();
     }
 
+    /**
+     * Shows the TC in the output mode and activates it.
+     */
     public void showInMode() {
         if (!isOpened()) {
             Mode mode = WindowManager.getDefault().findMode("output"); // NOI18N

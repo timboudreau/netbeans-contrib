@@ -19,38 +19,27 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
 
-
 /** 
- * Show the User TaskList topcomponent
- *
- * @author Tor Norbye 
+ * Show the Schedule TC
  */
-public class ViewTasksAction extends CallableSystemAction {
-
+public class ShowScheduleViewAction extends CallableSystemAction {
     private static final long serialVersionUID = 1;
 
     public void performAction() {
-        show();
+        UserTaskView v = UserTaskView.getCurrent();
+        ScheduleTopComponent tc = new ScheduleTopComponent(
+            v.getName(), v.getList());
+        tc.open();
+        tc.requestActive();
     }
     
     protected boolean asynchronous() {
         return false;
     }
 
-    static void show() {
-        UserTaskView view = UserTaskView.getDefault();
-        if (view != null) {
-            view.showInMode();
-        }
-    }
-    
     public String getName() {
-        return NbBundle.getMessage(ViewTasksAction.class,
-                                   "LBL_ViewTodoList"); // NOI18N
-    }
-    
-    protected String iconResource() {
-        return "org/netbeans/modules/tasklist/usertasks/actions/taskView.gif"; // NOI18N
+        return NbBundle.getMessage(ShowScheduleViewAction.class,
+            "LBL_ViewScheduleWindow"); // NOI18N
     }
     
     public HelpCtx getHelpCtx() {

@@ -43,6 +43,7 @@ import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskListAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
+import org.netbeans.modules.tasklist.usertasks.actions.ShowScheduleViewAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.SingleLineCookie;
 import org.netbeans.modules.tasklist.usertasks.actions.StartCookie;
@@ -73,7 +74,9 @@ import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.MultiTransferObject;
 import org.openide.util.datatransfer.PasteType;
 
-
+/**
+ * Node for a user task
+ */
 public final class UserTaskNode extends AbstractNode {
     private UserTask item;
     private UserTaskList utl;
@@ -104,6 +107,12 @@ public final class UserTaskNode extends AbstractNode {
         item.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent e) {
                 String n = e.getPropertyName();
+                if (n == "progress") {
+                    int old = Math.round(((Float) e.getOldValue()).floatValue());
+                    int new_ = Math.round(((Float) e.getNewValue()).floatValue());
+                    UserTaskNode.this.firePropertyChange(
+                        "percentComplete", new Integer(old), new Integer(new_));
+                }
                 if (n != "line" && n != "started") {
                     UserTaskNode.this.firePropertyChange(e.getPropertyName(),
                         e.getOldValue(), e.getNewValue());
@@ -135,6 +144,7 @@ public final class UserTaskNode extends AbstractNode {
         return new SystemAction[] {
             SystemAction.get(NewTaskAction.class),
             SystemAction.get(NewTaskListAction.class),
+            SystemAction.get(ShowScheduleViewAction.class),
             null,
             SystemAction.get(StartTaskAction.class),
             SystemAction.get(PauseAction.class),
