@@ -51,6 +51,7 @@ import org.netbeans.modules.vcscore.RetrievingDialog;
 import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.netbeans.modules.vcscore.turbo.TurboUtil;
 import org.netbeans.modules.vcscore.turbo.Statuses;
+import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
@@ -125,6 +126,33 @@ public class CommandExecutorSupport extends Object {
     }
     
     private static void deleteUnimportantFiles(VcsFileSystem fileSystem, Collection processedFiles) {
+
+        if (Turbo.implemented()) {
+            String localFileStatus = Statuses.getLocalStatus();
+            String ignoredFileStatus = Statuses.STATUS_IGNORED;
+            for (Iterator filesIt = getAllFilesAssociatedWith(fileSystem, processedFiles).iterator(); filesIt.hasNext(); ) {
+                org.openide.filesystems.FileObject fo = (org.openide.filesystems.FileObject) filesIt.next();
+                String name = fo.getPath();
+                if (!fileSystem.isImportant(name)) {
+                    FileProperties fprops = Turbo.getMeta(fo);
+                    String status = FileProperties.getStatus(fprops);  // XXX this status is VCS specific
+                    // Do not delete unimportant files, that are version controled.
+                    if (!(localFileStatus.equals(status) || ignoredFileStatus.equals(status))) continue;
+                    if (fo != null) {
+                        try {
+                            fo.delete(fo.lock());
+                        } catch (java.io.IOException ioexc) {}
+                    } else {
+                        try {
+                            fileSystem.delete(name);
+                        } catch (java.io.IOException ioexc) {}
+                    }
+                }
+            }
+            return;
+        }
+
+        // original code
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         String localFileStatus = (statusProvider != null) ? statusProvider.getLocalFileStatus() : null;
         String ignoredFileStatus = Statuses.STATUS_IGNORED;

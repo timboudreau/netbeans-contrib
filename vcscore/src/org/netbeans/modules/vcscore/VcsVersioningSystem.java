@@ -44,6 +44,8 @@ import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.RevisionListener;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.netbeans.modules.vcscore.turbo.Turbo;
+import org.netbeans.modules.vcscore.turbo.FileProperties;
 import org.openide.ErrorManager;
 
 //import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionChildren;
@@ -111,6 +113,7 @@ class VcsVersioningSystem extends VersioningFileSystem {
     }        
     
     public FileStatusProvider getFileStatusProvider() {
+        assert Turbo.implemented() == false;
         return fileSystem.getStatusProvider();
     }
     
@@ -300,6 +303,21 @@ class VcsVersioningSystem extends VersioningFileSystem {
                             workOld.removeAll(newList);
                             //System.out.println("ADDING new revisions: "+workNew);
                             oldList.removeAll(workOld); // remove all old revisions (some VCS may perhaps allow removing revisions)
+
+                            if (Turbo.implemented()) {
+                                FileObject fo = findResource(name);
+                                FileProperties fprops = Turbo.getMeta(fo);
+                                String revision = fprops != null ? fprops.getRevision() : null;
+                                if (revision != null) {
+                                    for (Iterator it = oldList.iterator(); it.hasNext(); ) {
+                                        RevisionItem item = (RevisionItem) it.next();
+                                        item.setCurrent(revision.equals(item.getRevision()));
+                                    }
+                                }
+                                return;
+                            }
+
+                            // original implementation
                             FileStatusProvider status = getFileStatusProvider();
                             if (status != null) {
                                 String revision = status.getFileRevision(name);

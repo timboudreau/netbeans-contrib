@@ -2428,6 +2428,24 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return icon;
         }
 
+        if (Turbo.implemented()) {
+            assert oo.length == 1;  // not implemented for multiple files
+            FileProperties fprops = Turbo.getMeta((FileObject)oo[0]);
+            String status = FileProperties.getStatus(fprops);
+            Map statusInfoMap = getPossibleFileStatusInfoMap();
+            FileStatusInfo statusinfo = (FileStatusInfo) statusInfoMap.get(status);
+            if (statusinfo != null) {
+                Image img = statusinfo.getIcon();//(Image) statusIconMap.get(status);
+                //System.out.println("annotateIcon: status = "+status+" => img = "+img);
+                if (img == null) img = statusIconDefault;
+                if (img != null) {
+                    icon = org.openide.util.Utilities.mergeImages(icon, img, BADGE_ICON_SHIFT_X, BADGE_ICON_SHIFT_Y);
+                }
+            }
+            return icon;
+        }
+
+        // original implementation
         if (statusProvider != null) {
             ArrayList importantFiles = getImportantFiles(oo);
             len = importantFiles.size();
@@ -2941,8 +2959,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * deleted and reappeared.
      */
     private void checkScheduledLocals(String path, Collection locals, Map removedFilesScheduledForRemove) {
-        FileStatusProvider status = getStatusProvider();
-        if (status == null) return ;
+        if (Turbo.implemented() == false) {
+            // old strange code
+            FileStatusProvider status = getStatusProvider();
+            if (status == null) return ;
+        }
         VcsConfigVariable schVar = (VcsConfigVariable) variablesByName.get(VAR_STATUS_SCHEDULED_REMOVE);
         String scheduledStatusRemove = (schVar != null) ? schVar.getValue() : null;
         if (scheduledStatusRemove == null) return ;
@@ -3421,6 +3442,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             cache.addFile(name);
         }
          */
+
+        if (Turbo.implemented()) {
+            // TODO here we need to set status of fileobjct that does not exist yet
+            // add Turbo.setMeta(absolutePath, fileprops)
+            return;
+        }
+
+        // original implementation
         if (statusProvider != null) {
             statusProvider.setFileStatus(name, statusProvider.getLocalFileStatus());
         }
@@ -3730,7 +3759,65 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     private static final Object GROUP_LOCK = new Object();
+
+    /** Change file status and add it to a vcs group. */
     private void fileChanged(final String name) {
+
+        if(Turbo.implemented()) {
+            // Fire the change asynchronously to prevent deadlocks.
+            org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                    FileObject fo = findResource(name);
+                    FileProperties fprops = Turbo.getMeta(fo);
+                    String oldStatus = FileProperties.getStatus(fprops);
+                    if (!notModifiableStatuses.contains(oldStatus)) {
+                        String status = FileStatusInfo.MODIFIED.getName();
+                        Map tranls = getGenericStatusTranslation();
+                        if (tranls != null) {
+                            status = (String) tranls.get(status);
+                            if (status == null) {
+                                // There's no mapping, use the generic status name!
+                                status = FileStatusInfo.MODIFIED.getName();
+                            }
+                        }
+                        FileProperties updated = new FileProperties();
+                        updated.setName(fo.getNameExt());
+                        updated.setStatus(status);
+                        Turbo.setMeta(fo, updated);
+                    }
+                    VcsGroupSettings grSettings = (VcsGroupSettings) SharedClassObject.findObject(VcsGroupSettings.class, true);
+                    if (!grSettings.isDisableGroups()) {
+                        if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_TO_DEFAULT
+                        || grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_ASK) {
+
+                            if (fo != null) {
+                                try {
+                                    DataObject dobj = DataObject.find(fo);
+                                    if (VcsFileSystem.this.isImportant(name)) {
+                                        synchronized (GROUP_LOCK) {
+                                            DataShadow shadow = GroupUtils.findDOInGroups(dobj);
+                                            if (shadow == null) {
+                                                // it doesn't exist in groups, add it..
+                                                if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_ASK) {
+                                                    AddToGroupDialog.openChooseDialog(dobj);
+                                                } else {
+                                                    GroupUtils.addToDefaultGroup(new Node[] {dobj.getNodeDelegate()});
+                                                }
+                                            }
+                                        }
+                                    }
+                                } catch (DataObjectNotFoundException exc) {
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            return;
+        }
+
+        // original code
         if (statusProvider != null) {
             // Fire the change asynchronously to prevent deadlocks.
             org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
@@ -3902,6 +3989,27 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return VcsAction.shouldDoLock (files, VcsFileSystem.this);
         } else */
         if (getCommand(VcsCommand.NAME_LOCK) == null) return false; // The LOCK command is not defined
+
+        if (Turbo.implemented()) {
+            FileObject fo = findResource(name);
+            FileProperties fprops = Turbo.getMeta(fo);
+            String locker = fprops != null ? fprops.getLocker() : null;
+            String currentLocker = null;
+            VcsConfigVariable currentLockerVar = (VcsConfigVariable) variablesByName.get(VAR_LOCKER_USER_NAME);
+            if (currentLockerVar != null) {
+                currentLocker = currentLockerVar.getValue();
+                if (currentLocker != null && currentLocker.length() > 0) {
+                    currentLocker = Variables.expand(getVariablesAsHashtable(), currentLocker, false);
+                }
+            }
+            if (lockerMatch(locker, currentLocker)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        // original implementation
         if (statusProvider != null) {
             String locker = statusProvider.getFileLocker(name);
             String currentLocker = null;
