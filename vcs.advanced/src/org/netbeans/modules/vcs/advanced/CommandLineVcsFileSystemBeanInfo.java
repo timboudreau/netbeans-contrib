@@ -56,6 +56,8 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor rememberPassword = null;
         PropertyDescriptor shortStatuses = null;
         PropertyDescriptor refreshTime = null;
+        PropertyDescriptor hidden = null;
+        PropertyDescriptor readOnly = null;
 
         try {
             rootDirectory=new PropertyDescriptor
@@ -124,6 +126,10 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             refreshTime = new PropertyDescriptor
                                 ("refreshTime", CommandLineVcsFileSystem.class, "getCustomRefreshTime", "setCustomRefreshTime"); // NOI18N
             refreshTime.setExpert(true);
+            hidden = new PropertyDescriptor
+                                ("hidden", CommandLineVcsFileSystem.class, "isHidden", "setHidden"); // NOI18N
+            readOnly = new PropertyDescriptor
+                                ("readOnly", CommandLineVcsFileSystem.class, "isReadOnly", "setReadOnly"); // NOI18N
 
 
             desc = new PropertyDescriptor[] {
@@ -131,7 +137,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                        acceptUserParams, runRefreshCommand, processAllFiles,
                        annotationPattern, autoRefresh, notification, hideShadowFiles,
                        ignoredGarbageFiles, createBackupFiles, filterBackupFiles,
-                       rememberPassword, shortStatuses, refreshTime
+                       rememberPassword, shortStatuses, refreshTime, hidden, readOnly
                    };
 
             ResourceBundle bundle = NbBundle.getBundle (CommandLineVcsFileSystemBeanInfo.class);
@@ -179,6 +185,10 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             shortStatuses.setShortDescription (bundle.getString("HINT_shortFileStatuses"));
             refreshTime.setDisplayName        (bundle.getString("PROP_refreshTime"));
             refreshTime.setShortDescription   (bundle.getString("HINT_refreshTime"));
+            hidden.setDisplayName             (bundle.getString("PROP_hidden"));
+            hidden.setShortDescription        (bundle.getString("HINT_hidden"));
+            readOnly.setDisplayName           (bundle.getString("PROP_readOnly"));
+            readOnly.setShortDescription      (bundle.getString("HINT_readOnly"));
 
         } catch (IntrospectionException ex) {
             org.openide.ErrorManager.getDefault().notify(ex);
