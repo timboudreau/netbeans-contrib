@@ -65,13 +65,8 @@ public class TaskChildren extends Children.Keys {
             keys = parent.getSubtasks();
         }
 
-        // #37802 XXX workaround
-        final Task[] tasks = (Task[])keys.toArray(new Task[keys.size()]);
-        Mutex.EVENT.readAccess(new Runnable() {
-            public void run() {
-                setKeys(tasks);
-            }
-        });
+        Task[] tasks = (Task[])keys.toArray(new Task[keys.size()]);
+        setKeys(tasks);
     }
 
     /**
