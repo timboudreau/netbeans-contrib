@@ -48,6 +48,7 @@ public class PvcsGetWithQuestions implements VcsAdditionalCommand {
             return false;
         }
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+        fileSystem.getCommandsPool().preprocessCommand(vce, vars, fileSystem);
         fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
         try {
             fileSystem.getCommandsPool().waitToFinish(vce);
