@@ -115,7 +115,7 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
         if (unicodeNames == null) {
             unicodeNames = new String[65536];
             try {
-                BufferedReader r = new BufferedReader(new InputStreamReader(InsertUnicodeAction.class.getResourceAsStream("uninames.txt"), "ISO8859_1"));
+                BufferedReader r = new BufferedReader(new InputStreamReader(InsertUnicodeAction.class.getResourceAsStream("uni-names.txt"), "ISO8859_1"));
                 try {
                     String l;
                     while ((l = r.readLine()) != null) {

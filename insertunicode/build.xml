@@ -8,13 +8,17 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <project default="netbeans">
     <property name="license.file" value="../../nbbuild/standard-nbm-license.txt"/>
 
     <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../nbbuild/nbantext.jar"/>
+
+    <target name="init">
+        <ant dir="external" target="unscramble"/>
+    </target>
 
     <target name="compile">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
@@ -27,7 +31,8 @@ Microsystems, Inc. All Rights Reserved.
         </javac>
     </target>
 
-    <target name="jars" depends="compile">
+    <target name="jars" depends="compile,init">
+        <gunzip src="external/uni-names.txt.gz" dest="src/org/netbeans/modules/insertunicode/uni-names.txt"/>
         <mkdir dir="netbeans/modules"/>
         <jar jarfile="netbeans/modules/insertunicode.jar"
              manifest="manifest.mf"
@@ -47,7 +52,7 @@ Microsystems, Inc. All Rights Reserved.
                 <text>For the module itself:</text>
                 <file location="${license.file}"/>
                 <text>For the included Unicode naming data:</text>
-                <file location="UNIDATA-LICENSE.txt"/>
+                <file location="external/UNIDATA-LICENSE.txt"/>
             </license>
             <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
         </makenbm>
@@ -57,6 +62,7 @@ Microsystems, Inc. All Rights Reserved.
         <delete>
             <fileset dir="src">
                 <include name="**/*.class"/>
+                <include name="org/netbeans/modules/insertunicode/uni-names.txt"/>
             </fileset>
         </delete>
         <delete file="insertunicode.nbm"/>
