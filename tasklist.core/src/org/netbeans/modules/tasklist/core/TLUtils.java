@@ -144,6 +144,10 @@ public final class TLUtils {
             }
 
             int lineno = line.getLineNumber();
+            if (lineno+offset < 0) {
+                // Trying to surround the first line - no "before" line
+                return;
+            }
             Line before = ls.getCurrent(lineno+offset);
             appendHTMLString(sb, before.getText());
         } catch (Exception e) {
