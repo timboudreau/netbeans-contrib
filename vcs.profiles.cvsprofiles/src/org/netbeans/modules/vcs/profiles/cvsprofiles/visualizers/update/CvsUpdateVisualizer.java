@@ -250,7 +250,9 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         ensureExistingFileInfoContainer();
         
 
-        fileInfoContainer.setType(line.substring(0, 1));
+        if (fileInfoContainer.getType() != UpdateInformation.MERGED_FILE || !line.substring(0, 1).trim().equals("M")) {
+            fileInfoContainer.setType(line.substring(0, 1));
+        }
         fileInfoContainer.setFile(file);
         //outputDone();
     }
