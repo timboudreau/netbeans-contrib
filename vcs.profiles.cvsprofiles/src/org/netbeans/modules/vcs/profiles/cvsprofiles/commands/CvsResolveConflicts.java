@@ -331,7 +331,7 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                     return new FileWriter(outputFile);
                 }
             } else {
-                return new MergeConflictFileWriter(outputFile, conflicts,
+                return new MergeConflictFileWriter(outputFile, fo, conflicts,
                                                    leftFileRevision, rightFileRevision);
             }
         }
@@ -360,8 +360,9 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         private int currentConflict;
         private String leftName;
         private String rightName;
+        private FileObject fo;
         
-        public MergeConflictFileWriter(File file, Difference[] conflicts,
+        public MergeConflictFileWriter(File file, FileObject fo, Difference[] conflicts,
                                        String leftName, String rightName) throws IOException {
             super(file);
             this.conflicts = conflicts;
@@ -373,6 +374,7 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                 writeConflict(conflicts[currentConflict]);
                 currentConflict++;
             }
+            this.fo = fo;
         }
         
         public void write(String str) throws IOException {
@@ -401,6 +403,11 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                 n++;
             }
             return n;
+        }
+        
+        public void close() throws IOException {
+            super.close();
+            if (fo != null) fo.refresh(true);
         }
     }
 }
