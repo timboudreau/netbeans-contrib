@@ -15,53 +15,57 @@ Microsystems, Inc. All Rights Reserved.
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
 
 <filesystem>
-	<folder name="Templates">
-		<folder name="CORBA">
-			<file name="ClientMain.java" url="templates/ClientMain.jtemplate">
-				<attr name = "template" boolvalue="true"/>
-			</file>
-			<file name="Empty.idl" url="templates/Empty.itemplate">
-				<attr name = "template" boolvalue="true"/>
-			</file>
-			<file name="ServerMain.java" url="templates/ServerMain.jtemplate">
-				<attr name = "template" boolvalue="true"/>
-			</file>
-			<file name="Simple.idl" url="templates/Simple.itemplate">
-				<attr name = "template" boolvalue="true"/>
-			</file>
-		</folder>
-	</folder>
-	<folder name="CORBA">
-		<file name="j2ee-orb.properties" url="impls/j2ee-orb.properties">
-		</file>
-		<file name="jacorb.properties" url="impls/jacorb.properties">
-		</file>
-		<file name="javaorb.properties" url="impls/javaorb.properties">
-		</file>
-		<file name="jdk1.2-orb.properties" url="impls/jdk1.2-orb.properties">
-		</file>
-		<file name="jdk1.3-orb.properties" url="impls/jdk1.3-orb.properties">
-		</file>
-		<file name="orbacus-for-windows.properties" url="impls/orbacus-for-windows.properties">
-		</file>
-		<file name="orbacus.properties" url="impls/orbacus.properties">
-		</file>
-		<file name="orbacus4-for-windows.properties" url="impls/orbacus4-for-windows.properties">
-		</file>
-		<file name="orbacus4.properties" url="impls/orbacus4.properties">
-		</file>
-		<file name="orbix2000.properties" url="impls/orbix2000.properties">
-		</file>
-		<file name="orbixweb.properties" url="impls/orbixweb.properties">
-		</file>
-		<file name="visibroker.properties" url="impls/visibroker.properties">
-		</file>
-		<file name="visibroker4.properties" url="impls/visibroker4.properties">
-		</file>
-	</folder>
-	<folder name="Menu">
-		<folder name="Tools">
-			<file name="CORBA Wizard[org-netbeans-modules-corba-wizard-CorbaWizardAction].instance" />
-		</folder>
-	</folder>
+  <folder name="Templates">
+    <folder name="CORBA">
+      <file name="ClientMain.java" url="templates/ClientMain.jtemplate">
+	<attr name = "template" boolvalue="true"/>
+      </file>
+      <file name="Empty.idl" url="templates/Empty.itemplate">
+	<attr name = "template" boolvalue="true"/>
+      </file>
+      <file name="ServerMain.java" url="templates/ServerMain.jtemplate">
+	<attr name = "template" boolvalue="true"/>
+      </file>
+      <file name="Simple.idl" url="templates/Simple.itemplate">
+	<attr name = "template" boolvalue="true"/>
+      </file>
+    </folder>
+  </folder>
+  <folder name="CORBA">
+    <file name="j2ee-orb.properties" url="impls/j2ee-orb.properties">
+    </file>
+    <file name="jacorb.properties" url="impls/jacorb.properties">
+    </file>
+    <file name="javaorb.properties" url="impls/javaorb.properties">
+    </file>
+    <file name="jdk1.2-orb.properties" url="impls/jdk1.2-orb.properties">
+    </file>
+    <file name="jdk1.3-orb.properties" url="impls/jdk1.3-orb.properties">
+    </file>
+    <file name="orbacus-for-windows.properties" url="impls/orbacus-for-windows.properties">
+    </file>
+    <file name="orbacus.properties" url="impls/orbacus.properties">
+    </file>
+    <file name="orbacus4-for-windows.properties" url="impls/orbacus4-for-windows.properties">
+    </file>
+    <file name="orbacus4.properties" url="impls/orbacus4.properties">
+    </file>
+    <file name="orbix2000.properties" url="impls/orbix2000.properties">
+    </file>
+    <file name="orbixweb.properties" url="impls/orbixweb.properties">
+    </file>
+    <file name="visibroker.properties" url="impls/visibroker.properties">
+    </file>
+    <file name="visibroker4.properties" url="impls/visibroker4.properties">
+    </file>
+    <file name="orbacus4.xml" url="impls/orbacus4.xml">
+    </file>
+    <file name="ORBSettings.dtd" url="impls/ORBSettings.dtd">
+    </file>
+  </folder>
+  <folder name="Menu">
+    <folder name="Tools">
+      <file name="CORBA Wizard[org-netbeans-modules-corba-wizard-CorbaWizardAction].instance" />
+    </folder>
+  </folder>
 </filesystem>
