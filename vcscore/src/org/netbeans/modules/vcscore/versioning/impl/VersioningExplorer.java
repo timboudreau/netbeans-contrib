@@ -100,6 +100,7 @@ public class VersioningExplorer {
         panel.getAccessibleContext().setAccessibleDescription(
             org.openide.util.NbBundle.getMessage(VersioningExplorer.class, "ACSD_versioningSystemName.dialog"));
         panel.setView(VersioningBTV);
+        VersioningBTV.setRootVisible(false);
     }
     
     public static class Panel extends ExplorerPanel {
