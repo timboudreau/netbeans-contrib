@@ -6,7 +6,7 @@ OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.20
 OpenIDE-Module-Module-Dependencies: 
   org.netbeans.modules.vcscore/1 = promotionD,
-  org.netbeans.modules.diff/1 > 1.4,
+  org.netbeans.modules.diff/1 = promotionD,
   org.openide.io > 1.0,
   org.openide.loaders > 4.11
 OpenIDE-Module-Requires: org.openide.windows.IOProvider
