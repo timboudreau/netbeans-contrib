@@ -18,6 +18,7 @@ import org.netbeans.api.web.dd.common.*;
  *
  *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
  *</p>
+ * @deprecated Use the API for web module deployment descriptor in j2ee/ddapi module.
  */
 public interface InitParam extends CommonDDBean, DescriptionInterface {
         /** Setter for param-name property.

@@ -20,6 +20,7 @@ package org.netbeans.api.web.dd.common;
  *</p>
  *
  * @author Milan Kuchtiak
+ * @deprecated Use the API for web module deployment descriptor in j2ee/ddapi module.
  */
 public interface ComponentInterface extends CommonDDBean, DescriptionInterface, DisplayNameInterface, CreateCapability, FindCapability, IconInterface {
 }

@@ -28,7 +28,8 @@ import java.net.URL;
  * Provides access to Deployment Descriptor root ({@link org.netbeans.api.web.dd.WebApp} object)
  *
  * @author  Milan Kuchtiak
- */
+ * @deprecated Use the API for web module deployment descriptor in j2ee/ddapi module.
+*/
 
 public final class DDProvider {
     private static DDProvider ddProvider;

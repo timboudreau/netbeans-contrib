@@ -21,6 +21,7 @@ import org.netbeans.api.web.dd.common.VersionNotSupportedException;
  *
  *<p><b><font color="red"><em>Important note: Do not provide an implementation of this interface unless you are a DD API provider!</em></font></b>
  *</p>
+ * @deprecated Use the API for web module deployment descriptor in j2ee/ddapi module.
  */
 public interface WebApp extends org.netbeans.api.web.dd.common.RootInterface {
         public static final String PROPERTY_VERSION="dd_version"; //NOI18N

@@ -17,6 +17,7 @@ import org.openide.util.NbBundle;
 /**
  * Exception for cases when specific Servletx.x specification doesn't support the specific method.
  *
+ * @deprecated Use the API for web module deployment descriptor in j2ee/ddapi module.
  * @author  Milan Kuchtiak
  */
 public class VersionNotSupportedException extends java.lang.Exception {

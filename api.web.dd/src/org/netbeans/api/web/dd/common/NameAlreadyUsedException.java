@@ -18,7 +18,8 @@ import org.openide.util.NbBundle;
  * Exception for cases when adding a new element should be prevented for avoiding duplicity.<br>
  * See : {@link CreateCapability#addBean} method.
  *
- * @author  Milan Kuchtiak
+ * @deprecated Use the API for web module deployment descriptor in j2ee/ddapi module.
+* @author  Milan Kuchtiak
  */
 public class NameAlreadyUsedException extends java.lang.Exception {
     private java.lang.String keyProperty, keyValue, beanName;
