@@ -2564,7 +2564,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Vector commands = (Vector) advanced;
         int len = commands.size();
         if (len == 0) return ;
-        commandsByName = new Hashtable(len + 5);
+        commandsByName = new Hashtable(len * 4 / 3 + 1, 0.75f);
         //mainCommands = new Vector();
         //revisionCommands = new Vector();
         org.netbeans.modules.vcscore.cmdline.UserCommand root =
