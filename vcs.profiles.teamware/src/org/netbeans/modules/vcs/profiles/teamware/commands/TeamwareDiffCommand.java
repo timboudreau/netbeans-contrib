@@ -122,10 +122,10 @@ public class TeamwareDiffCommand implements VcsAdditionalCommand {
             rFile.deleteOnExit();
             TopComponent c = (TopComponent)
                 Diff.getDefault().createDiff(
-                    _name1, _name1,
-                    new FileReader(file),
                     _name2, _name2,
                     new FileReader(rFile),
+                    _name1, _name1,
+                    new FileReader(file),
                     "text/java");
             stdout.outputLine("c = " + c);
             if (c != null) {
