@@ -898,7 +898,7 @@ public class CommandCustomizationSupport extends Object {
                     ErrorManager.getDefault().notify(exc);
                     throw new UserCancelException();
                 }
-                ProvidedCommand pc = (ProvidedCommand) dcmd;
+//                ProvidedCommand pc = (ProvidedCommand) dcmd;
 // TODO implement 52621
 //                inputDescriptor.loadDefaults(dcmd.getName(), pc.getProvider().getType());
                 inputDescriptor.setValuesAsDefault();
