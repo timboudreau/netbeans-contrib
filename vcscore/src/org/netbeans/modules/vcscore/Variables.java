@@ -66,7 +66,10 @@ public class Variables {
             }
         } while(!expanded);
         D.deb ("after expansion ("+tab+","+cmd+")"); // NOI18N
-        return VcsUtilities.replaceBackslashDollars( cmd );
+        cmd = org.openide.util.Utilities.replaceString(cmd, "\\${", "${");
+        cmd = org.openide.util.Utilities.replaceString(cmd, "\\$[", "$[");
+        return cmd;
+        //return VcsUtilities.replaceBackslashDollars( cmd );
     }
 
     /** Expand all occurences of <code>${VARIABLE_NAME}</code>.
