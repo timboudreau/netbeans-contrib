@@ -17,6 +17,8 @@ package org.netbeans.modules.assistant;
 import org.openide.windows.*;
 import org.openide.text.EditorSupport.Editor;
 import org.openide.nodes.*;
+import org.openide.util.actions.CallableSystemAction;
+import org.openide.util.SharedClassObject;
 
 import org.netbeans.modules.assistant.event.*;
 import java.beans.*;
@@ -26,6 +28,8 @@ import javax.swing.event.*;
 import java.net.*;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
+
+
 
 /*
  * DefaultAssistantModel.java
@@ -267,7 +271,20 @@ public class DefaultAssistantModel implements AssistantModel, PropertyChangeList
         }        
     }
         
-        
+    /** 
+     * Performs the action
+     *
+     */
+    public void performAction(String action) {
+        debug("perform action:"+action);
+        try{
+            Class clazz = Class.forName(action);
+            ((CallableSystemAction) SharedClassObject.findObject(clazz, true)).performAction();
+        }catch(ClassNotFoundException e){
+            //do nothing
+        }
+    }
+    
     private static final boolean debug = false;
     private static void debug(String msg) {
 	if (debug) {

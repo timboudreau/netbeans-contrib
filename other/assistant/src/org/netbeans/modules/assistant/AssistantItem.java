@@ -26,20 +26,37 @@ import javax.swing.tree.*;
 public class AssistantItem extends Object{
     private String name;
     private URL url;    
-    /* Types of item */   
+    private String action;
+    /* Type of item */   
     public static final int LINK=0;
     public static final int TEXT = 1;
     /*Default type is LINK */
     private int type = this.LINK;
    
-    public AssistantItem(String name, URL url, int type){
+    /**
+     *If you define URL and Action then there will be page displayed and
+     *action performed. If you set type to TEXT then action and URl will be
+     *ignored. In case you define onlyu action and don't define URl, there
+     *will be last page displayed in viewer and action performed.
+     */
+    public AssistantItem(String name, URL url, String action, int type){
         this.name = name; 
         this.url = url;
         this.type = type;
+        this.action = action;
+    }
+    
+    public AssistantItem(String name, URL url, int type){
+        this(name, url, null,type);
+    }
+    
+    public AssistantItem(String name, String action){
+        this.name = name;
+        this.action = action;
     }
     
     public AssistantItem(String name, URL url){
-        this(name,url,LINK);              
+        this(name,url,null,LINK);              
     }
     
     public String getName(){
@@ -52,6 +69,10 @@ public class AssistantItem extends Object{
     
     public int getType(){
         return type;
+    }
+    
+    public String getAction(){
+        return action;
     }
     
     public String toString(){

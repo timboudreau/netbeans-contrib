@@ -13,8 +13,8 @@
 <assistant version="1.0">
     <id name="default_id">
         <section name="Getting Started">
-            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">What it is Assistant</item>
-            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">Customizing Assistant</item>            
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html" action="org.openide.actions.NewTemplateAction">What it is Assistant</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html" action="org.openide.actions.NewTemplateAction">Customizing Assistant</item>            
             <item url="/org/netbeans/modules/assistant/pages/DefaultContent3.html">Customizing IDE</item>            
         </section>
         <section name="Dynamic Helper">

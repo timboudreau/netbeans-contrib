@@ -99,12 +99,12 @@ public class AssistantContext {
             if (DEBUG) System.err.println("handle_item: " + data);
             URL url = null;
             url = getClass().getResource(meta.getValue("url"));
+            String action = meta.getValue("action");
             int type = AssistantItem.LINK;
             if((meta.getValue("type") != null) &&(meta.getValue("type").equals("text")))
                 type = AssistantItem.TEXT;
-            item = new AssistantItem(data,url,type);
-            section.add(new DefaultMutableTreeNode(item));
-            
+            item = new AssistantItem(data,url,action,type);
+            section.add(new DefaultMutableTreeNode(item));                        
         }
         
         public void start_section(final AttributeList meta) throws SAXException {           

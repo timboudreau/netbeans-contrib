@@ -65,6 +65,11 @@ public interface AssistantModel {
      */
     public URL getCurrentURL();
     
+    /**
+     * Performs the action
+     *
+     */
+    public void performAction(String action);
     
     /**
      * Adds a listener for the AssistantModelEvent posted after the model has

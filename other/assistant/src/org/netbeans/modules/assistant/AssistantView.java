@@ -134,6 +134,10 @@ public class AssistantView extends javax.swing.JPanel implements TreeSelectionLi
                             model.setCurrentURL(item.getURL());
                             
                         }
+                        String action = item.getAction();
+                        debug("action:"+action);
+                        if((action != null)&&(model != null))
+                            model.performAction(action);
                     }
                 }
             }
