@@ -15,7 +15,7 @@ package org.netbeans.modules.tasklist.bugs;
 
 import java.util.List;
 import org.netbeans.modules.tasklist.core.ExportAction;
-import org.netbeans.modules.tasklist.core.FilterAction;
+import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.openide.ErrorManager;
