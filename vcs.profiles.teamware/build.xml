@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<project name="vcsgeneric/profiles/teamware" default="netbeans" basedir=".">
+  <import file="../../../nbbuild/default.xml"/>
+
+  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+  <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="${nb_all}/nbbuild/nbantext.jar"/>
+  
+  <target name="init" depends="default.init">
+    <patternset id="vcsgeneric/profiles/teamware.files">
+      <include name="${nb.modules.dir}/teamware-profile.jar"/>
+    </patternset>
+    <path id="cp">
+      <pathelement location="${diff.dir}/${nb.modules.dir}/diff.jar"/>
+      <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+      <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+      <pathelement location="${openidex.dir}/${nb.modules.dir}/org-openidex-util.jar"/>
+      <pathelement location="${vcscore.dir}/${nb.modules.dir}/org-netbeans-modules-vcscore.jar"/>
+      <pathelement location="${vcsgeneric.dir}/${nb.modules.dir}/vcsgen.jar"/>
+    </path>
+  </target>
+
+  <target name="compile" depends="init">
+    <!-- <echo message="basedir = ${basedir}, nbroot1 = ${nbroot1}"/> -->
+    <javac srcdir="src" 
+        deprecation="${build.compiler.deprecation}" 
+        debug="${build.compiler.debug}"
+        destdir="src">
+      <classpath refID="cp"/>
+    </javac>
+  </target>
+
+  <target name="jars" depends="compile">
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/teamware/layer-includes-config.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/teamware/config/*.*"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/teamware/config/Bundle.properties"/>
+    </makelayer>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/teamware/layer-includes-configRB.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/teamware/config/Bundle.properties"/>
+    </makelayer>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/teamware/layer-includes-commands.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/teamware/commands/*.class"/>
+       <include name="org/netbeans/modules/vcs/profiles/teamware/commands/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/teamware/commands/*.properties"/>
+    </makelayer>
+    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
+    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+    <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/teamware-profile.jar"
+         manifest="manifest-subst.mf"
+         basedir="src"
+         excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
+         compress="false">
+      <fileset dir="src/" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt">
+        <include name="**/*"/>
+      </fileset>
+      <fileset dir="src/">
+        <include name="**/*.java"/>
+        <include name="**/*.form"/>
+      </fileset>
+    </jar>
+    <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
+      <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
+        <include name="${nb.modules.dir}/teamware-profile.jar"/>
+      </enabled>
+    </createmodulexml>
+  </target>
+
+  <target name="netbeans" depends="jars">
+    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/teamware-profile.jar">
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="vcsgeneric/profiles/teamware.files"/>
+      </fileset>
+    </genlist>
+  </target>
+
+  <target name="nbm" depends="netbeans">
+    <makenbm file="teamware-profile.nbm"
+             productdir="${netbeans.dest.dir}/${cluster.dir}"
+             module="${nb.modules.dir}/teamware-profile.jar"
+	     homepage="http://vcsgeneric.${homepage.base}/"
+	     distribution="http://${dist.base}/teamware-profile.nbm">
+      <license file="${license.file}"/>
+      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+    </makenbm>
+  </target>
+
+  <target name="clean" depends="init">
+    <delete>
+      <fileset dir="src">
+        <include name="**/*.class"/>
+        <include name="**/*.jar"/>
+        <include name="org/netbeans/modules/vcs/profiles/teamware/layer-include*.xml"/>
+      </fileset>
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="vcsgeneric/profiles/teamware.files"/>
+      </fileset>
+    </delete>
+    <delete file="manifest-subst.mf"/>
+    <delete file="teamware-profile.nbm"/>
+  </target>
+
+</project>

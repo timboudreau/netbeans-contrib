@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the Teamware module.
+The Initial Developer of the Original Code is Sun Microsystems, Inc.
+Portions created by Sun Microsystems, Inc. are Copyright (C) 2004.
+All Rights Reserved.
+
+Contributor(s): Daniel Blaukopf.
+-->
+
+<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN' 'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd'>
+<configuration>
+
+    <label>Teamware</label>
+    
+    <variables>
+        <variable basic="true" name="SCCS"
+            label="Path to SCCS executable"
+            localFile="true">
+            <value>sccs</value>
+        </variable>
+        <variable basic="false" name="FS_DISPLAY_NAME">
+            <value>Teamware</value>
+        </variable>
+        <variable basic="false" name="PS">
+            <value>${path.separator}</value>
+        </variable>
+        <variable basic="false" name="WORKDIR">
+            <value>${ROOTDIR}${PS}${MODULE}${PS}${DIR}</value>
+        </variable>
+        <variable basic="false" name="Q">
+            <value>&quot;</value>
+        </variable>
+        <variable basic="false" name="POSSIBLE_FILE_STATUSES">
+            <value>"Checked in", "Local", "Editing", "Ignored", ""</value>
+        </variable>
+        <variable basic="false" name="GENERIC_STATUS_MODIFIED">
+            <value>"Editing"</value>
+        </variable>
+        <variable basic="false" name="GENERIC_STATUS_UP_TO_DATE">
+            <value>"Checked in", ""</value>
+        </variable>
+    </variables>
+    
+    <commands>
+        <command name="CREATE_INITIAL_IGNORE_LIST">
+            <property name="exec">
+                <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareInitialIgnoreListCommand.class</value>
+            </property>
+        </command>
+
+        <command name="CREATE_FOLDER_IGNORE_LIST">
+            <property name="exec">
+                <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareFolderIgnoreListCommand.class</value>
+            </property>
+        </command>
+
+        <command displayName="Teamware" name="ROOT">
+            <command displayName="Edit" name="EDIT">
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="edit"/>
+                    <arg value="${FILE}"/>
+                </run>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Editing"</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>true</value>
+                </property>
+                <property name="refreshProcessedFiles">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Diff" name="DIFF">
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareDiffCommand.class</value>
+                </property>
+                <property name="generalCommandActionClassName">
+                    <value>org.netbeans.modules.vcscore.actions.DiffCommandAction</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local"</value>
+                </property>
+            </command>
+            <command displayName="Commit" name="CHECKIN">
+                <property name="inputDescriptor">
+                    <value>PROMPT_FOR(COMMENT, "Comment:", "")</value>
+                </property>
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="delget"/>
+                    <arg value="-y${COMMENT}"/>
+                    <arg line="${QFILES}"/>
+                </run>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Checked in"</value>
+                </property>
+                <property name="generalCommandActionClassName">
+                    <value>org.netbeans.modules.vcscore.actions.CommitCommandAction</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>true</value>
+                </property>
+                <property name="refreshProcessedFiles">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Add" name="ADD">
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="create"/>
+                    <arg value="${FILE}"/>
+                </run>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="generalCommandActionClassName">
+                    <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Editing", "Checked in"</value>
+                </property>
+                <property name="commandsAfterSuccess">
+                    <value>REMOVE_COMMA_FILE</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>true</value>
+                </property>
+                <property name="refreshProcessedFiles">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="History" name="HISTORY">
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="prs"/>
+                    <arg value="${FILE}"/>
+                </run>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="display">
+                    <value>true</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>Local</value>
+                </property>
+                <property name="generalCommandActionClassName">
+                    <value>org.netbeans.modules.vcscore.actions.HistoryCommandAction</value>
+                </property>
+            </command>
+            <command displayName="Cancel edit" name="UNEDIT">
+                <property name="confirmationMsg">
+                    <value>Do you want to stop editing ${FILE} ?
+
+You will lose any changes.</value>
+                </property>
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="unedit"/>
+                    <arg value="${FILE}"/>
+                </run>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Checked in"</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>true</value>
+                </property>
+                <property name="refreshProcessedFiles">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command basic="false" name="REMOVE_COMMA_FILE">
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareDeleteCommaFileCommand.class</value>
+                </property>
+            </command>
+            <command basic="false" name="GET_REVISION">
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="get"/>
+                    <arg value="-G${TMPFILE}"/>
+                    <arg line="${REVARGS}"/>
+                    <arg value="${FILE}"/>
+                </run>
+            </command>
+            <command basic="false" name="PRS">
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="prs"/>
+                    <arg value="${FILE}"/>
+                </run>
+            </command>
+            <command displayName="Refresh" name="LIST">
+                <property name="onDir">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareRefreshCommand.class</value>
+                </property>
+                <property name="generalCommandActionClassName">
+                    <value>org.netbeans.modules.vcscore.actions.UpdateCommandAction</value>
+                </property>
+                <property name="data.fileName.index">
+                    <value>1</value>
+                </property>
+                <property name="data.revision.index">
+                    <value>2</value>
+                </property>
+                <property name="data.status.index">
+                    <value>0</value>
+                </property>
+            </command>
+            <command displayName="Refresh Recursively" name="LIST_SUB">
+                <property name="onDir">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareRefreshRecursivelyCommand.class</value>
+                </property>
+                <property name="data.fileName.index">
+                    <value>1</value>
+                </property>
+                <property name="data.revision.index">
+                    <value>2</value>
+                </property>
+                <property name="data.status.index">
+                    <value>0</value>
+                </property>
+            </command>
+        </command>
+    </commands>
+    
+</configuration>
