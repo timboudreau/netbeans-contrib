@@ -1681,10 +1681,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
         
         dataobject = dao;
 
+        // XXX Use scheduleRescan instead? (but then I have to call docShown instead of docEditedStable)
 	if (delayed) {
 	    runTimer = new Timer(scanDelay,
 		     new ActionListener() {
 			 public void actionPerformed(ActionEvent evt) {
+                             runTimer = null;
                              if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
                                  err.log("Timer expired - time to scan " + dao);
                              }
