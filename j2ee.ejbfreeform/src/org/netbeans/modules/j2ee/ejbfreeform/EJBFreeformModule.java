@@ -19,11 +19,9 @@ import org.netbeans.modules.j2ee.dd.api.ejb.EjbJar;
 import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
 import org.netbeans.modules.j2ee.dd.api.webservices.Webservices;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
-import org.netbeans.modules.j2ee.ejbjarproject.ui.customizer.EjbJarProjectProperties;
 import org.netbeans.modules.schema2beans.BaseBean;
 import org.netbeans.modules.websvc.spi.webservices.WebServicesConstants;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
-import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -76,9 +74,7 @@ public class EJBFreeformModule implements J2eeModule {
     }
     
     public String getUrl() {
-        EditableProperties ep =  helper.getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
-        String name = ep.getProperty(EjbJarProjectProperties.JAR_NAME);
-        return name == null ? "" : ("/"+name); //NOI18N
+        return "";
     }
     
     public String getModuleVersion() {
@@ -90,16 +86,16 @@ public class EJBFreeformModule implements J2eeModule {
         return J2eeModule.EJB;
     }
     
-    public org.openide.filesystems.FileObject getContentDirectory() throws java.io.IOException {
-        return getFileObject(EjbJarProjectProperties.BUILD_CLASSES_DIR); //NOI18N
+    public FileObject getContentDirectory() throws java.io.IOException {
+        return null;
     }
     
-    public java.util.Iterator getArchiveContents() throws java.io.IOException {
-        return new IT(getContentDirectory());
+    public Iterator getArchiveContents() throws java.io.IOException {
+        return null;
     }
     
-    public org.openide.filesystems.FileObject getArchive() throws java.io.IOException {
-        return getFileObject(EjbJarProjectProperties.DIST_JAR); //NOI18N
+    public FileObject getArchive() throws java.io.IOException {
+        return null;
     }
     
     // private methods
@@ -146,45 +142,4 @@ public class EJBFreeformModule implements J2eeModule {
         return null;
     }
 
-    private static class IT implements Iterator {
-        java.util.Enumeration ch;
-        FileObject root;
-        
-        private IT(FileObject f) {
-            this.ch = f.getChildren(true);
-            this.root = f;
-        }
-        
-        public boolean hasNext() {
-            return ch.hasMoreElements();
-        }
-        
-        public Object next() {
-            FileObject f = (FileObject) ch.nextElement();
-            return new FSRootRE(root, f);
-        }
-        
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-        
-    }
-
-    private static final class FSRootRE implements J2eeModule.RootedEntry {
-        FileObject f;
-        FileObject root;
-        
-        FSRootRE(FileObject root, FileObject f) {
-            this.f = f;
-            this.root = root;
-        }
-        
-        public FileObject getFileObject() {
-            return f;
-        }
-        
-        public String getRelativePath() {
-            return FileUtil.getRelativePath(root, f);
-        }
-    }
 }
