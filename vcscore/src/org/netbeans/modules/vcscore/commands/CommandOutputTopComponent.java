@@ -212,12 +212,60 @@ public class CommandOutputTopComponent extends TopComponent {
         requestActive();
     }
 
-    public void addVisualizer(String name, JComponent component, boolean selected){        
+    public synchronized void addVisualizer(String name, final JComponent component, boolean selected) {
         if(tabPaneRemoved)
             initTabPane();
         tabPane.addTab(name,component);
-        if(selected)
-            tabPane.setSelectedComponent(component);
+        if(selected) {
+            final int index = tabPane.indexOfComponent(component);
+            SwingUtilities.invokeLater(new TabSelector(tabPane, index));
+        }
+    }
+    
+    /**
+     * Does exactly the same work like following code, but more efficiently
+     * (one class is defined only).
+     * <pre>
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    tabPane.setSelectedIndex(index);
+                    if (index > 0) {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                tabPane.setSelectedIndex(0);
+                                SwingUtilities.invokeLater(new Runnable() {
+                                    public void run() {
+                                        tabPane.setSelectedIndex(index);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+       </pre>
+     *
+     */
+    private static class TabSelector implements Runnable {
+        
+        JTabbedPane tabPane;
+        int index;
+        int count;
+        
+        public TabSelector(JTabbedPane tabPane, int index) {
+            this.tabPane = tabPane;
+            this.index = index;
+            this.count = 3;
+        }
+        
+        public void run() {
+            tabPane.setSelectedIndex(index*(count % 2)); // index or zero
+            count--;
+            if (index > 0 && count > 0) {
+                SwingUtilities.invokeLater(this);
+            }
+        }
+        
     }
     
     private void initTabPane(){               
