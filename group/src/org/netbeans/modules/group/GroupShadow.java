@@ -32,7 +32,6 @@ import org.openide.cookies.CompilerCookie;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
 import org.openide.nodes.*;
-import org.openide.TopManager;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.PasteType;
 import org.openide.util.datatransfer.ExTransferable;
@@ -40,6 +39,8 @@ import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
 import org.openide.WizardDescriptor;
+import org.openide.actions.ActionManager;
+import org.openide.util.Lookup;
 
 
 /** Group shadow.
@@ -288,7 +289,8 @@ public class GroupShadow extends DataObject {
      * @return FileObject */
     private static FileObject findFileObject(String filename) {
 
-        return TopManager.getDefault().getRepository().findResource(filename);
+        return org.openide.filesystems.Repository.getDefault()
+               .findResource(filename);
     }
 
     /** Get DataObject for given filename.
@@ -1072,7 +1074,7 @@ public class GroupShadow extends DataObject {
                 }
             } else { // use filesystems' folders
                 org.openide.filesystems.FileSystem[] fs =
-                    TopManager.getDefault().getRepository().toArray();
+                    org.openide.filesystems.Repository.getDefault().toArray();
                 parentFolders = new FileObject[fs.length];
 
                 for (int i=0; i < fs.length; i++)
@@ -1152,7 +1154,9 @@ public class GroupShadow extends DataObject {
                             Node node = obj.getNodeDelegate();
                             SystemAction sa = node.getDefaultAction();
                             if (sa != null) {
-                                TopManager.getDefault().getActionManager().invokeAction(sa, new ActionEvent(node, ActionEvent.ACTION_PERFORMED, "")); // NOI18N
+                                ActionManager actionManager
+                                        = (ActionManager) Lookup.getDefault().lookup(ActionManager.class);
+                                actionManager.invokeAction(sa, new ActionEvent(node, ActionEvent.ACTION_PERFORMED, "")); // NOI18N
                             }
                         }
                     }

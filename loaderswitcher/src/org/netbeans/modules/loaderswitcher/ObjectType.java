@@ -86,7 +86,7 @@ final class ObjectType extends ExplorerPanel implements DataLoader.RecognizedFil
             Object[] options = { DialogDescriptor.OK_OPTION, def, DialogDescriptor.CANCEL_OPTION };
             dd.setOptions (options);
             dd.setClosingOptions (options);
-            java.awt.Dialog d = org.openide.TopManager.getDefault ().createDialog (dd);
+            java.awt.Dialog d = org.openide.DialogDisplayer.getDefault ().createDialog (dd);
 
 
             d.show ();
@@ -115,11 +115,11 @@ final class ObjectType extends ExplorerPanel implements DataLoader.RecognizedFil
                 return;
             }
         } catch (ClassNotFoundException ex) {
-            org.openide.TopManager.getDefault ().notifyException(ex);
+            org.openide.ErrorManager.getDefault().notify(ex);
         } catch (java.io.IOException ex) {
-            org.openide.TopManager.getDefault ().notifyException(ex);
+            org.openide.ErrorManager.getDefault().notify(ex);
         } catch (java.beans.PropertyVetoException ex) {
-            org.openide.TopManager.getDefault ().notifyException(ex);
+            org.openide.ErrorManager.getDefault().notify(ex);
         }
     }
 
@@ -128,7 +128,9 @@ final class ObjectType extends ExplorerPanel implements DataLoader.RecognizedFil
      * @return list of loaders (first is the current that recognize the object)
      */
     private DataLoader[] findPossibleLoaders (DataObject obj) {
-        DataLoaderPool pool = org.openide.TopManager.getDefault ().getLoaderPool ();
+        DataLoaderPool pool = (DataLoaderPool)
+                              org.openide.util.Lookup.getDefault()
+                              .lookup(DataLoaderPool.class);
         
         ArrayList recognize = new ArrayList ();
         recognize.add (obj.getLoader ());

@@ -23,7 +23,6 @@ import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 
 import org.openide.loaders.DataLoader;
-import org.openide.TopManager;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -42,7 +41,7 @@ public class GroupShadowLoaderBeanInfo extends SimpleBeanInfo {
             extensions.setShortDescription (NbBundle.getBundle (GroupShadowLoaderBeanInfo.class).getString ("HINT_Extensions"));
             return new PropertyDescriptor[] { extensions };
         } catch (IntrospectionException ie) {
-            TopManager.getDefault().getErrorManager().notify(ie);
+            org.openide.ErrorManager.getDefault().notify(ie);
             
             return null;
         }
@@ -53,7 +52,7 @@ public class GroupShadowLoaderBeanInfo extends SimpleBeanInfo {
         try {
             return new BeanInfo[] { Introspector.getBeanInfo (DataLoader.class) };
         } catch (IntrospectionException ie) {
-            TopManager.getDefault().getErrorManager().notify(ie);
+            org.openide.ErrorManager.getDefault().notify(ie);
             
             return null;
         }
