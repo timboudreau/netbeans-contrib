@@ -42,7 +42,6 @@ public class Task extends Suggestion implements Cloneable {
     public static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
     protected boolean temporary;
-    protected String desc;
     protected TaskList list;
 
     /** When true, don't notify anybody of updates to this object - and don't
@@ -56,14 +55,12 @@ public class Task extends Suggestion implements Cloneable {
     
     public Task() { // TODO consider using a factory instead
         super(null, null, null);
-        desc = null;
         parent = null;
 	list = null;
     }
     
     public Task(String desc, Task parent) {
         super(null, desc, null);
-	this.desc = desc;
         this.parent = parent;
 	list = null;
     }
@@ -345,6 +342,7 @@ public class Task extends Suggestion implements Cloneable {
         }
 	item.list = null;
         it.remove();
+
         // XXX is the following allowed?
         if (subtasks.size() == 0) {
             subtasks = null;
@@ -388,7 +386,7 @@ public class Task extends Suggestion implements Cloneable {
 	// For some odd reason, my TodoTransfer's convert method never seems
 	// to get called, so I haven't been able to test this, that's why
 	// I haven't expanded the code as much as it should be.
-	w.write(item.desc);
+	w.write(item.getSummary());
     }
 
     /** Parse a task from a text stream.
@@ -511,7 +509,6 @@ public class Task extends Suggestion implements Cloneable {
         But the list of subitems should be unique. You get the idea.
     */
     protected void copyFrom(Task from) {
-        desc = from.desc;
         temporary = from.temporary;
         list = from.list;
 
