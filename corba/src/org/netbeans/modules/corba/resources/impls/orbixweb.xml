@@ -72,6 +72,7 @@ Microsystems, Inc. All Rights Reserved.
   <impl-generator-settings>
     <tie-class-prefix value='_tie_'/>
     <tie-class-postfix value=''/>
+    <impl-int-prefix value='_'/>
   </impl-generator-settings>
 
 </orb-settings>
