@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 0.2
+OpenIDE-Module-Specification-Version: 0.3
 OpenIDE-Module: org.netbeans.modules.tasklist.pmd/1
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/pmd/mf-layer.xml
 OpenIDE-Module-Module-Dependencies: pmd,org.openide.src > 1.0, org.openide.deprecated > 1.0, org.netbeans.api.tasklist/1 > 0.8.11, org.netbeans.modules.tasklist.suggestions/1 > 0.8.11

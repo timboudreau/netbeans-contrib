@@ -121,7 +121,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      */
     protected void notifyRun() {
         super.notifyRun();
-        System.out.println("notifyRun");
         scanning = true;
     }
 
@@ -133,7 +132,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
      */
     protected void notifyStop() {
         super.notifyStop();
-        System.out.println("notifyStop");
         scanning = false;
 
         // Nothing to do here -- docHidden takes care of everything
@@ -147,32 +145,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
     private TaskList tasklist = null;
 
     
-    /** The given document has been opened
-     * <p>
-     * @param document The document being opened
-     */
-    protected void docOpened(Document document, DataObject dataobject) {
-        //System.out.println("docOpened(" + document + ")");
-
-        // Nothing to do here -- docShown will be called soon and
-        // we'll parse it there
-    }
-
-    /**
-     * The given document has been edited right now. <b>Don't</b>
-     * do heavy processing here, since this is invoked immediately
-     * as the user is typing. Use this method to invalidate pending
-     * document editing actions. Use {@link #docEditedStable} to
-     * start rescanning a document, since that method is called after
-     * a time interval after the last edit.
-     * <p>
-     * @param document The document being edited
-     */
-    protected void docEdited(Document document, DocumentEvent event,
-                             DataObject dataobject) {
-        //System.out.println("docEdited(" + document + ")");
-    }
-
     /**
      * The given document has been edited, and a time interval (by default
      * around 2 seconds I think) has passed without any further edits.
@@ -190,10 +162,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
             scan(document, dataobject);
 	}
     }
-
-    
-    // XXX  Do I need separate changedUpdate, insertUpdate, removeUpdate
-    // methods, or is edited good enough?
 
     /**
      * The given document has been "shown"; it is now visible.
@@ -290,17 +258,15 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
 	}     
     }
 
-    /**
-     * The given document has been closed; stop reporting suggestions
-     * for this document and free up associated resources.
-     * <p>
-     * @param document The document being closed
-     */
     protected void docClosed(Document document, DataObject dataobject) {
-        //System.out.println("docClosed(" + document + ")");
     }
 
-    // TODO make sure we get rid of the various component listeners!
+    protected void docOpened(Document document, DataObject dataobject) {
+    }
+
+    protected void docEdited(Document document, DocumentEvent event,
+                             DataObject dataobject) {
+    }
 
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;

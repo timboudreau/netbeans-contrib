@@ -844,6 +844,7 @@ public abstract class TaskListView extends ExplorerPanel
         }
 	open(workspace);
 	requestVisible();
+        requestFocus();
     }
 
     

@@ -108,13 +108,8 @@ import org.openide.windows.Workspace;
 
 
 /**
- * This class scans the given document for source tasks and
- * copyright errors.
- *
- * @todo Consider showing only a few of the scanned tasks (to prevent a file
- *     with lots of todos from hiding say the syntax errors). It might be
- *     useful to show the N tasks closest to the cursor position!
- * @todo Process copyrights and source tasks separately
+ * This class uses the PMD rule checker to provide rule violation
+ * suggestions.
  *
  * @author Tor Norbye
  */
@@ -124,10 +119,6 @@ public class ViolationProvider extends DocumentSuggestionProvider {
 
     final private static String SUGGESTIONTYPE = "pmd-violations"; // NOI18N
 
-public ViolationProvider() {
-ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider constructor!");
-}
-    
     /**
      * Return the typenames of the suggestions that this provider
      * will create.
@@ -149,7 +140,6 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
      */
     protected void notifyRun() {
         super.notifyRun();
-        //System.out.println("notifyRun");
         scanning = true;
     }
 
@@ -161,38 +151,7 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
      */
     protected void notifyStop() {
         super.notifyStop();
-        //System.out.println("notifyStop");
         scanning = false;
-
-        // Nothing to do here -- docHidden takes care of everything
-    }
-
-    
-    
-    /** The given document has been opened
-     * <p>
-     * @param document The document being opened
-     */
-    protected void docOpened(Document document, DataObject dataobject) {
-        //System.out.println("docOpened(" + document + ")");
-
-        // Nothing to do here -- docShown will be called soon and
-        // we'll parse it there
-    }
-
-    /**
-     * The given document has been edited right now. <b>Don't</b>
-     * do heavy processing here, since this is invoked immediately
-     * as the user is typing. Use this method to invalidate pending
-     * document editing actions. Use {@link #docEditedStable} to
-     * start rescanning a document, since that method is called after
-     * a time interval after the last edit.
-     * <p>
-     * @param document The document being edited
-     */
-    protected void docEdited(Document document, DocumentEvent event,
-                             DataObject dataobject) {
-        //System.out.println("docEdited(" + document + ")");
     }
 
     /**
@@ -207,15 +166,10 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
      */
     protected void docEditedStable(Document document, DocumentEvent event,
                                    DataObject dataobject) {
-        //System.out.println("docEditedStable(" + document + ")");
         if (scanning) {
             scan(document, dataobject);
         }
     }
-
-    
-    // XXX  Do I need separate changedUpdate, insertUpdate, removeUpdate
-    // methods, or is edited good enough?
 
     /**
      * The given document has been "shown"; it is now visible.
@@ -223,10 +177,13 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
      * @param document The document being shown
      */
     protected void docShown(Document document, DataObject dataobject) {
-        //System.out.println("docShown(" + document + ")");
+        if ((document == null) || (dataobject == null)) {
+            return;
+        }
         scan(document, dataobject);
     }
 
+    /** The actual workhorse of this class - scan a document for rule violations */
     private void scan(Document doc, DataObject dobj) {
         try {
             
@@ -272,22 +229,12 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
         ctx.setSourceCodeFilename(name);
 
         RuleSet set = new RuleSet();
-        List rlist = ConfigUtils.createRuleList(PMDOptionsSettings.getDefault().getRules());
+        List rlist = ConfigUtils.createRuleList(
+                             PMDOptionsSettings.getDefault().getRules());
         Iterator it = rlist.iterator();
         while(it.hasNext()) {
             set.addRule((Rule)it.next());
         }
-        /* Old way
-        RuleSet set = null;
-        try {
-            RuleSetFactory ruleSetFactory = new RuleSetFactory();
-            set = ruleSetFactory.createRuleSet(
-                  PMDOptionsSettings.getDefault().getRulesets());
-        } catch(RuleSetNotFoundException e) {
-            e.printStackTrace();
-            TopManager.getDefault().getErrorManager().notify(e);
-        }
-        */
         pmd.processFile(reader, set, ctx);
         Iterator iterator = ctx.getReport().iterator();
 
@@ -297,42 +244,39 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
             ArrayList list = new ArrayList(ctx.getReport().size());
             while(iterator.hasNext()) {
                 RuleViolation violation = (RuleViolation)iterator.next();
-                // BEGIN Suggestion modifications
                 try {
                     
-                    if (manager.isEnabled(SUGGESTIONTYPE) /* && manager.isObserved(SUGGESTIONTYPE) */
-                        ) {
+                    if (manager.isEnabled(SUGGESTIONTYPE)) {
                         // Violation line numbers seem to be 0-based
                         final Line line = getLine(dobj, violation.getLine());
 
                         //System.out.println("Next violation = " + violation.getRule().getName() + " with description " + violation.getDescription() + " on line " + violation.getLine());
+                        
                         boolean fixable = false;
                         SuggestionPerformer action = null;
-                        // Allow lines to be deleted - automatically. Note, this has to use Line objects such that it works correctly.
 
-                        
-                        if (violation.getRule().getName().equals("UnusedImports") ||
-                            violation.getRule().getName().equals("DuplicateImports")) {
+                        String rulename = violation.getRule().getName();
+                        if (rulename.equals("UnusedImports") || // NOI18N
+                            rulename.equals("DuplicateImports")) { // NOI18N
                             fixable = true;
                             action = new SuggestionPerformer() {
                                     public void perform(Suggestion s) {
                                         // Remove the particular line
-                                        deleteLine(line, "import "); // whitespace etc.?
+                                        deleteLine(line, "import ", // NOI18N
+                                                   false); // whitespace etc.?
                                     }
                                     public Object getConfirmation(Suggestion s) {
                                         return null; // TODO provide a confirmation!
                                     }
                                 };
-                        } else if (violation.getRule().getName().equals("UnusedPrivateField") ||
-                            violation.getRule().getName().equals("UnusedLocalVariable")) {
-                            // XXX Dangerous - what if there are
-                            // multiple unused private fields on the
-                            // same line?
+                        } else if ((rulename.equals("UnusedPrivateField") || // NOI18N
+                                    rulename.equals("UnusedLocalVariable")) && // NOI18N
+                                   deleteLine(line, "", true)) { // only a check
                             fixable = true;
                             action = new SuggestionPerformer() {
                                     public void perform(Suggestion s) {
                                         // Remove the particular line
-                                        deleteLine(line, "");
+                                        deleteLine(line, "", false);
                                     }
                                     public Object getConfirmation(Suggestion s) {
                                         return null; // TODO provide a confirmation!
@@ -344,7 +288,8 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
                       
                         Suggestion s = manager.createSuggestion(
                                                     SUGGESTIONTYPE,
-                                                    violation.getRule().getName() + " : " + violation.getDescription(),
+                                                    rulename + " : " + // NOI18N
+                                                    violation.getDescription(),
                                                     action);
                         // XXX Is there a priority for each rule?
                         s.setPriority(SuggestionPriority.NORMAL);
@@ -367,6 +312,7 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
         }
     }
 
+    /** Look up the Line object for a particular file:linenumber */
     Line getLine(DataObject dataobject, int lineno) {
         // Go to the given line
         try {
@@ -391,33 +337,28 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
     
     /** Remove a particular line. Make sure that the line begins with
      * a given prefix, just in case.
+     * @param prefix A prefix that the line to be deleted must start with
+     * @param checkOnly When true, don't actually delete the line, only
+     *         report whether the deletion should be attempted or not
      */
-    void deleteLine(Line line, String prefix) {
-        // TODO - check the prefix
-        
+    boolean deleteLine(Line line, String prefix, boolean checkOnly) {
         DataObject dao = line.getDataObject();
-        //System.out.println("deleteLine(" + dao + ", " + line.getLineNumber());
-        
         if (!dao.isValid()) {
-            System.out.println("DATAOBJECT " + dao + " NOT VALID!");
-            return;
+            return false;
         }
 
 	final EditorCookie edit = (EditorCookie)dao.getCookie(EditorCookie.class);
 	if (edit == null) {
-	    System.out.println("No editor cookie - not doing anything");
-	    return;
+	    return false;
 	}
 
 	Document d = edit.getDocument(); // Does not block
 	if (d == null) {
-	    System.out.println("No document handle...");
-	    return;
+	    return false;
 	}
 
         if (!(d instanceof StyledDocument)) {
-	    System.out.println("d is not a StyledDocument! d =" + d.getClass().getName());
-            return;
+            return false;
         }
             
         StyledDocument doc = (StyledDocument)d;
@@ -430,28 +371,120 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
         int lineNumber = line.getLineNumber();
         Element elm = e.getElement(lineNumber);
         if (elm == null) {
-            System.out.println("NO such line (" + lineNumber + ")");
-            return;
+            return false;
         }
         int offset = elm.getStartOffset();
         int endOffset = elm.getEndOffset();
-        //System.out.println("Offset for line " + lineNumber + " is " + offset + " and endOffset = " + endOffset);
 
         try {
             String text = doc.getText(offset, endOffset-offset);
-            //System.out.println("The text is '" + text + "'");
             if (!text.startsWith(prefix)) {
-                System.out.println("WRONG PREFIX!");
-                return;
+                return false;
             }
-        
-            doc.remove(offset, endOffset-offset);
+            if (checkOnly) {
+                return isDeleteSafe(text);
+            } else {
+                doc.remove(offset, endOffset-offset);
+            }
         } catch (BadLocationException ex) {
             TopManager.getDefault().
                 getErrorManager().notify(ErrorManager.WARNING, ex);
         }
+        return false;
     }
 
+    
+    /**
+     * Checks designed to prevent deleting additional content on the
+     * line - for example, it won't delete anything if it detects
+     * multiple statements on the line, or function calls. It may err
+     * on the safe side; e.g. not delete even when it would be safe to do so.
+     */
+    private boolean isDeleteSafe(String text) {
+        // Does this line contain multiple statements?
+        // I consider that to be the case when there is at least one
+        //   - comma, or
+        //   - semicolon
+        // and the next nonspace character is not "/"
+        // TODO - fix it such that the following doesn't trip us up:
+        //   int y = "a,b";
+
+        /*
+          What about a weird corner case like this:
+          int z = 0;
+          for (int y = 0;
+          z < 5;
+          z++) {
+          importantCall();
+          }
+          Will I delete the "for(int y = 0" line since y is unused?
+        */
+
+        // A small statemachine to figure out if the line can
+        // be "safely" deleted
+        int n = text.length();
+        boolean inString = false;
+        boolean escaped = false;
+
+        //  What do we initialize comment too? It's POSSIBLE that you
+        //  have code like this
+        //  /* Begin comment:
+        //     end */    int unused = 5;
+        //  ...and I begin in the middle of a comment. But I think this
+        // is an unusual scenario...
+        boolean comment = false;
+                
+        boolean seenSemi = false;
+        boolean seenComma = false;
+        for (int i = 0; i < n; i++) {
+            char c = text.charAt(i);
+            if (comment) {
+                if ((c == '*') && (i < (n-1)) &&
+                    ((text.charAt(i+1) == '/'))) {
+                    comment = false;
+                } else {
+                    continue;
+                }
+            } else if (c == '\\') {
+                escaped = !escaped;
+            } else if (c == '"') {
+                if (!escaped) {
+                    inString = !inString;
+                }
+            } else if ((c == '/') && (i < (n-1)) &&
+                       ((text.charAt(i+1) == '*'))) {
+                comment = true;
+            } else if (c == '(') {
+                if (!inString && !escaped) {
+                    // BAIL! "(" on a line makes me nervous, e.g. unused
+                    // variable "success" in
+                    //   boolean success = saveData();
+                    //System.out.println("BAILING: function call on the line!");
+                    return false;
+                }
+            } else if (c == ',') {
+                if (!inString && !escaped) {
+                    seenComma = true;
+                }
+            } else if (c == ';') {
+                if (!inString && !escaped) {
+                    seenSemi = true;
+                }
+            } else if (Character.isWhitespace(c)) {
+                // do nothing
+            } else {
+                // Some other character
+                if (!inString && !escaped && (seenSemi || seenComma)) {
+                    // BAIL -- we've seen text after a semicolon or
+                    // comma - multiple statements on the line!
+                    //System.out.println("BAILING: character after semi=" + seenSemi + " or comma=" + seenComma);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
 
     /** 
      * The given document has been "hidden"; it's still open, but
@@ -460,8 +493,6 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
      * @param document The document being hidden
      */
     protected void docHidden(Document document, DataObject dataobject) {
-        //System.out.println("docHidden(" + document + ")");
-
 	// Remove existing items
         if (showingTasks != null) {
             SuggestionManager manager = SuggestionManager.getDefault();
@@ -470,18 +501,15 @@ ErrorManager.getDefault().log(ErrorManager.USER, "Here in ViolationProvider cons
 	}     
     }
 
-    /**
-     * The given document has been closed; stop reporting suggestions
-     * for this document and free up associated resources.
-     * <p>
-     * @param document The document being closed
-     */
+
     protected void docClosed(Document document, DataObject dataobject) {
-        //System.out.println("docClosed(" + document + ")");
     }
-
-    // TODO make sure we get rid of the various component listeners!
-
+    protected void docOpened(Document document, DataObject dataobject) {
+    }
+    protected void docEdited(Document document, DocumentEvent event,
+                             DataObject dataobject) {
+    }
+    
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;
 }
