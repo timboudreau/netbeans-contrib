@@ -1619,6 +1619,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="preCommands">
           <value>PRE_CHECKOUT_CREATE_CVS_FOLDER</value>
         </property>
+        <property name="commandsAfterSuccess">
+          <value>$[? NON_SHARABLE_FILES] [COPY_NON_SHARABLE] []</value>
+        </property>
         <property name="refreshParentFolder">
           <value>true</value>
         </property>
@@ -1630,6 +1633,17 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="notificationFailMsg">
           <value>ResourceMsg1(NOTIFICATION_IMPORT_Success_AND_CHECKOUT_Fail, ${FILE})</value>
+        </property>
+      </command>
+      <command name="COPY_NON_SHARABLE">
+	<property name="exec">
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CopyNonSharableFiles.class COPY_NON_SHARABLE_CMD</value>
+        </property>
+      </command>
+      <command name="COPY_NON_SHARABLE_CMD">
+	<property name="exec">
+          <value>${RUN} ${CD} ${QUOTE}${FOLDER_COPY_SRC}${QUOTE} &amp;&amp; cp -r -p ${QUOTE}${FILE_TO_COPY}${QUOTE} ${QUOTE}${FOLDER_COPY_DEST}${QUOTE} ${NUR}</value>
+          <value if="IS_WINNT">${RUN} ${CD} ${QUOTE}${FOLDER_COPY_SRC}${QUOTE} &amp;&amp; $[? FILE_TO_COPY_IS_FOLDER] [xcopy ${QUOTE}${FILE_TO_COPY}${QUOTE} ${QUOTE}${FOLDER_COPY_DEST}${PS}${FILE_TO_COPY}${QUOTE} /E /F /K /I] [xcopy ${QUOTE}${FILE_TO_COPY}${QUOTE} ${QUOTE}${FOLDER_COPY_DEST}${QUOTE} /E /F /K /I] ${NUR}</value>
         </property>
       </command>
       <command name="CHECKOUT_COMMAND">

@@ -38,6 +38,7 @@ import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.TextErrorListener;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
@@ -64,6 +65,7 @@ import org.openide.filesystems.FileUtil;
 public class SharableImport implements VcsAdditionalCommand {
     
     private static final String UNSHARABLE_IGNORE_VAR = "UNSHARABLE_IGNORE"; // NOI18N
+    public static final String VAR_NON_SHARABLE_FILES = "NON_SHARABLE_FILES"; // NOI18N
     
     private CommandExecutionContext execContext;
     private VcsFileSystem fileSystem;
@@ -106,7 +108,8 @@ public class SharableImport implements VcsAdditionalCommand {
         }
     }
     
-    private boolean runOnSharableFolders(CommandSupport cmdSupp, Map vars, Collection fileNames) {
+    private boolean runOnSharableFolders(CommandSupport cmdSupp, Map vars,
+                                         Collection fileNames, Collection nonSharableFiles) {
         for (Iterator it = fileNames.iterator(); it.hasNext(); ) {
             String name = (String) it.next();
             File file;
@@ -128,15 +131,18 @@ public class SharableImport implements VcsAdditionalCommand {
                 if (task.getExitStatus() != task.STATUS_SUCCEEDED) {
                     return false;
                 }
-            } else if (sharability == SharabilityQuery.MIXED) {
-                boolean status = runOnMixedFolders(cmdSupp, vars, file, name);
+            } else if (sharability == SharabilityQuery.MIXED || sharability == SharabilityQuery.UNKNOWN) {
+                boolean status = runOnMixedFolders(cmdSupp, vars, file, name, nonSharableFiles);
                 if (!status) return false;
+            } else {
+                nonSharableFiles.add(name);
             }
         }
         return true;
     }
     
-    private boolean runOnMixedFolders(CommandSupport cmdSupp, Map vars, File folder, String name) {
+    private boolean runOnMixedFolders(CommandSupport cmdSupp, Map vars, File folder,
+                                      String name, Collection nonSharableFiles) {
         File[] children = folder.listFiles();
         if (children == null) return true;
         Collection sharableFileNames = new ArrayList();
@@ -158,7 +164,7 @@ public class SharableImport implements VcsAdditionalCommand {
                 } else {
                     sharableFileNames.add(fileName);
                 }
-            } else if (sharability == SharabilityQuery.MIXED) {
+            } else if (sharability == SharabilityQuery.MIXED || sharability == SharabilityQuery.UNKNOWN) {
                 mixedFolders.add(fileName);
             } else {
                 if (children[i].isFile()) {
@@ -166,6 +172,7 @@ public class SharableImport implements VcsAdditionalCommand {
                 } else {
                     unsharableFolders.add(fileName);
                 }
+                nonSharableFiles.add(name + fileName);
             }
         }
         //System.out.println("sharableFileNames = "+sharableFileNames+", unsharableFileNames = "+unsharableFileNames+
@@ -226,7 +233,8 @@ public class SharableImport implements VcsAdditionalCommand {
         }
         for (Iterator it = mixedFolders.iterator(); it.hasNext(); ) {
             String fileName = (String) it.next();
-            boolean status = runOnMixedFolders(cmdSupp, vars, new File(folder, fileName), name + fileName);
+            boolean status = runOnMixedFolders(cmdSupp, vars, new File(folder, fileName),
+                                               name + fileName, nonSharableFiles);
             if (!status) return false;
         }
         return true;
@@ -346,6 +354,7 @@ public class SharableImport implements VcsAdditionalCommand {
             stderrListener.outputLine("Did not find command '"+args[0]+"'.");
             return false;
         }
+        Collection nonSharableFiles = new ArrayList();
         Collection processingFiles;
         if (fileSystem != null) {
             processingFiles = ExecuteCommand.createProcessingFiles(execContext, vars);
@@ -353,7 +362,10 @@ public class SharableImport implements VcsAdditionalCommand {
             processingFiles = Collections.singleton(vars.get("ROOTDIR"));
         }
         //System.out.println("Processing files = "+processingFiles);
-        boolean status = runOnSharableFolders(cmdSupp, vars, processingFiles);
+        boolean status = runOnSharableFolders(cmdSupp, vars, processingFiles, nonSharableFiles);
+        if (nonSharableFiles.size() > 0) {
+            vars.put(VAR_NON_SHARABLE_FILES, VcsUtilities.arrayToQuotedStrings((String[]) nonSharableFiles.toArray(new String[0])));
+        }
         return status;
     }
     
