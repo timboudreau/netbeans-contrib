@@ -64,11 +64,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   */
   private transient Hashtable commandsByName=null;
   
-  //private transient VcsCache cache=null;
+  private transient VcsCache cache=null;
   
   //-------------------------------------------
   public CommandLineVcsFileSystem () {
-    D.deb("CommandLineVcsFileSystem() - new bean instance");
+    D.deb("CommandLineVcsFileSystem()");
     info = this;
     change = this;
     DefaultAttributes a = new DefaultAttributes (info, change, this);
@@ -81,14 +81,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     variables=UserCommand.readVariables("st30",props);
     commands=UserCommand.readCommands("st30",props);
 
-    //cache=new VcsCache(this);
+    cache=new VcsCache(this);
   }
 
   //-------------------------------------------
   private void readObject(ObjectInputStream in) throws 
     ClassNotFoundException, IOException, NotActiveException{
     in.defaultReadObject();
-    //cache=new VcsCache(this);
+    cache=new VcsCache(this);
     D.deb("readObject() - restoring bean");
   }
 
@@ -235,7 +235,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
    * @param flag <code>true</code> if it should
   */
   public void setReadOnly(boolean flag) {
-    D.deb("setReadOnly() flag="+flag);
+    D.deb("setReadOnly("+flag+")");
     if (flag != readOnly) {
       readOnly = flag;
       firePropertyChange (PROP_READ_ONLY, new Boolean (!flag), new Boolean (flag));
@@ -247,7 +247,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
    * @return <true> if file system is read only
    */
   public boolean isReadOnly() {
-    D.deb("isReadOnly() ->"+readOnly);
+    //D.deb("isReadOnly() ->"+readOnly);
     return readOnly;
   }
 
@@ -291,17 +291,23 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   /* Scans children for given name
   */
   public String[] children (String name) {
-    D.deb("children("+name+")");
+    D.deb("children('"+name+"')");
     String[] files=null;
-    File f = getFile (name);
-    if (f.isDirectory ()) {
-      //files=cache.getSubdirs(name);
-      if( files==null ){
-	D.deb("fallback -> return local files");
-	files=f.list();
-      }
+    if( cache.isDir(name) ){
+      files=cache.getFilesAndSubdirs(name);
+      D.deb("files="+MiscStuff.arrayToString(files));
     }
     return files;
+
+    /*
+      D.deb("fallback -> return local files");
+      File f = getFile (name);
+      if (f.isDirectory ()) {
+      files=f.list();
+      }
+      }
+    */
+
   }
 
   //-------------------------------------------
@@ -314,7 +320,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @throws IOException if operation fails
   */
   public void createFolder (String name) throws java.io.IOException {
-    D.deb("createFolder("+name+")");
+    D.deb("createFolder('"+name+"')");
     File f = getFile (name);
     Object[] errorParams = new Object[] {
       f.getName (),
@@ -414,8 +420,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @return true if the file is folder, false otherwise
   */
   public boolean folder (String name) {
-    D.deb("folder("+name+")");
-    return getFile (name).isDirectory ();
+    return cache.isDir(name);
+    // return getFile (name).isDirectory ();
   }
 
   //-------------------------------------------  
@@ -424,7 +430,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @return <CODE>true</CODE> if file is read-only
   */
   public boolean readOnly (String name) {
-    D.deb("readOnly() name="+name);
+    //D.deb("readOnly('"+name+"')");
     return !getFile (name).canWrite ();
   }
   
@@ -435,7 +441,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @return the MIME type textual representation, e.g. <code>"text/plain"</code>
   */
   public String mimeType (String name) {
-    D.deb("mimeType() name="+name);
+    D.deb("mimeType('"+name+"')");
     int i = name.lastIndexOf ('.');
     String s;
     try {
@@ -553,6 +559,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  8    Gandalf   1.7         4/28/99  Michal Fadljevic 
  *  7    Gandalf   1.6         4/27/99  Michal Fadljevic 
  *  6    Gandalf   1.5         4/26/99  Michal Fadljevic 
  *  5    Gandalf   1.4         4/22/99  Michal Fadljevic 
