@@ -41,7 +41,7 @@ public abstract class MemberElementImpl extends ElementImpl implements MemberEle
     /** Cached name identifier */
     private transient Identifier name;
     
-    private int modifiers;
+    private int modifiers = -1;
 
     static final long serialVersionUID =-6841890195552268874L;
     /** Constructor, asociates this impl with java reflection
