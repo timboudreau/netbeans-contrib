@@ -19,7 +19,7 @@ import javax.swing.event.DocumentListener;
  * @author  root
  * @version 
  */
-public class UnionPanel extends javax.swing.JPanel implements DocumentListener {
+public class UnionPanel extends ExPanel implements DocumentListener {
 
   /** Creates new form UnionPanel */
   public UnionPanel() {
@@ -113,8 +113,10 @@ public class UnionPanel extends javax.swing.JPanel implements DocumentListener {
 
   private void checkState () {
     if (name.getText().length() >0 && type.getText().length() >0) {
+        enableOk();
     }
     else {
+        disableOk();
     }
   }
 

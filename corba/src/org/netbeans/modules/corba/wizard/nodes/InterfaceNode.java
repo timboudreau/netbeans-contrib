@@ -80,11 +80,10 @@ public class InterfaceNode extends FMNode implements Node.Cookie,
   public void createOperation() {
     TopManager tm = TopManager.getDefault ();
     final OperationPanel panel = new OperationPanel ();
-    DialogDescriptor descriptor = new DialogDescriptor ( panel, java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateOperation"), true,
-        DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION,
+    ExDialogDescriptor descriptor = new ExDialogDescriptor ( panel, java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateOperation"), true,
         new ActionListener () {
           public void actionPerformed (ActionEvent event) {
-            if (event.getSource () == DialogDescriptor.OK_OPTION) {
+            if (event.getActionCommand ().equals(ExDialogDescriptor.OK)) {
               String name = panel.getName ();
               String ret = panel.getReturnType ();
               String params = panel.getParameters ();
@@ -98,6 +97,7 @@ public class InterfaceNode extends FMNode implements Node.Cookie,
             dialog.dispose ();
           }
         });
+        descriptor.disableOk();
         dialog = tm.createDialog (descriptor);
         dialog.setVisible (true);
   }
@@ -105,11 +105,10 @@ public class InterfaceNode extends FMNode implements Node.Cookie,
   public void createAttribute() {
     TopManager tm = TopManager.getDefault ();
     final AttributePanel panel = new AttributePanel ();
-    DialogDescriptor descriptor = new DialogDescriptor ( panel, java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateAttribute"), true,
-        DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION,
+    ExDialogDescriptor descriptor = new ExDialogDescriptor ( panel, java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateAttribute"), true,
         new ActionListener () {
           public void actionPerformed (ActionEvent event) {
-            if (event.getSource () == DialogDescriptor.OK_OPTION) {
+            if (event.getActionCommand().equals(ExDialogDescriptor.OK)) {
               String name = panel.getName ();
               String type = panel.getType ();
               boolean isReadOnly = panel.isReadOnly ();

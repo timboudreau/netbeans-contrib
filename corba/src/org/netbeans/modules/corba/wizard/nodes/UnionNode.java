@@ -74,11 +74,10 @@ public class UnionNode extends AbstractMutableContainerNode implements Node.Cook
   public void createUnionMember() {
     TopManager tm = TopManager.getDefault ();
     final UnionMemberPanel panel = new UnionMemberPanel ();
-    DialogDescriptor descriptor = new DialogDescriptor ( panel, java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateMember"), true,
-        DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION,
+    ExDialogDescriptor descriptor = new ExDialogDescriptor ( panel, java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateMember"), true,
         new ActionListener () {
           public void actionPerformed (ActionEvent event) {
-            if (event.getSource () == DialogDescriptor.OK_OPTION) {
+            if (event.getActionCommand().equals(ExDialogDescriptor.OK)) {
               String name = panel.getName ();
               String type = panel.getType ();
               String length = panel.getLength ();
@@ -90,6 +89,7 @@ public class UnionNode extends AbstractMutableContainerNode implements Node.Cook
             dialog.dispose ();
           }
         });
+    descriptor.disableOk();
     this.dialog = tm.createDialog (descriptor);
     this.dialog.setVisible (true);
   }
@@ -97,11 +97,10 @@ public class UnionNode extends AbstractMutableContainerNode implements Node.Cook
   public void createUnionDefault () {
     TopManager tm = TopManager.getDefault ();
     final AliasPanel panel = new AliasPanel ();
-    DialogDescriptor descriptor = new DialogDescriptor ( panel, java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateUnionDefault"), true,
-        DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION,
+    ExDialogDescriptor descriptor = new ExDialogDescriptor ( panel, java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateUnionDefault"), true,
         new ActionListener () {
           public void actionPerformed ( ActionEvent event) {
-            if (event.getSource () == DialogDescriptor.OK_OPTION) {
+            if (event.getActionCommand().equals(ExDialogDescriptor.OK)) {
               String name = panel.getName ();
               String type = panel.getType ();
               String length = panel.getLength ();
@@ -113,6 +112,7 @@ public class UnionNode extends AbstractMutableContainerNode implements Node.Cook
             dialog.dispose ();
           }
         });
+    descriptor.disableOk();
     this.dialog = tm.createDialog (descriptor);
     this.dialog.setVisible (true);
   }

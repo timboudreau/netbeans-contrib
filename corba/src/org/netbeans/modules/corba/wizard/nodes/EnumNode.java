@@ -73,11 +73,10 @@ public class EnumNode extends AbstractMutableContainerNode implements Node.Cooki
   
   public void createEnumEntry () {
     final ModulePanel panel = new ModulePanel ();
-    DialogDescriptor descriptor = new DialogDescriptor (panel, java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateEntry"), true,
-        DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION, 
+    ExDialogDescriptor descriptor = new ExDialogDescriptor (panel, java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/Bundle").getString("TXT_CreateEntry"), true,
         new ActionListener () {
           public void actionPerformed (ActionEvent event) {
-            if (event.getSource () == DialogDescriptor.OK_OPTION){
+            if (event.getActionCommand().equals(ExDialogDescriptor.OK)){
               String name = panel.getName ();
               NamedKey key = new NamedKey (MutableKey.ENUM_MBR, name);
               ((MutableChildren)getChildren()).addKey (key);
@@ -86,6 +85,7 @@ public class EnumNode extends AbstractMutableContainerNode implements Node.Cooki
             dialog.dispose();
           }
         });
+    descriptor.disableOk();
     dialog = TopManager.getDefault().createDialog (descriptor);
     dialog.setVisible (true);
   }
