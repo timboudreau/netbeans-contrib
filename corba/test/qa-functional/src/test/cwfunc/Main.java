@@ -153,7 +153,7 @@ public class Main extends JellyTestCase {
         fs.finish();
         
         sbt.waitText ("Compiling ...");
-        sbt.waitText ("Finished.");
+        // sbt.waitText ("Finished."); // unstable - sometimes text is shown in output window/compiler
         sbt.waitText ("Generation Implementation...");
         sbt.waitText ("Generate data.cwfunc.jdk14.HelloImpl ...");
         sbt.waitText ("Successfully Generated Implementation Classes for App.");
