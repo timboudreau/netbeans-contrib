@@ -42,6 +42,9 @@ import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
 
 import org.netbeans.api.vcs.FileStatusInfo;
+import org.netbeans.api.vcs.VcsManager;
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
@@ -49,12 +52,7 @@ import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
-import org.netbeans.modules.vcscore.commands.CommandOutputListener;
-import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
-import org.netbeans.modules.vcscore.commands.CommandsPool;
-import org.netbeans.modules.vcscore.commands.CommandsTree;
-import org.netbeans.modules.vcscore.commands.VcsCommand;
-import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.*;
 //import org.netbeans.modules.vcscore.commands.VcsCommandNode;
 import org.netbeans.modules.vcscore.util.*;
 
@@ -1659,27 +1657,22 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         public ArrayList createInitialIgnoreList() {
             if (initialIgnoreList == null) {
                 initialIgnoreList = new ArrayList();
-                VcsCommand cmd = getCommand(CMD_CREATE_INITIAL_IGNORE_LIST);
+                FileObject[] workdir = new FileObject[] {getRoot()};
+                Command apiCmd = VcsManager.getDefault().createCommand(CMD_CREATE_INITIAL_IGNORE_LIST, workdir);
+                RegexOutputCommand cmd = (RegexOutputCommand) apiCmd;
                 if (cmd != null) {
-                    Table files = new Table();
-                    files.put ("", findFileObject(""));
-                    VcsCommandExecutor[] executors = VcsAction.doCommand(
-                        files, cmd, null, CommandLineVcsFileSystem.this, null, null,
-                        new CommandDataOutputListener() {
-                            public void outputData(String[] data) {
-                                for (int i = 0; i < data.length; i++) {
-                                    String element = data[i];
-                                    if ("!".equals(element)) initialIgnoreList.clear();  // XXX CVS specifics
-                                    else initialIgnoreList.add(element);
-                                }
+                    apiCmd.setFiles(new FileObject[0]);
+                    cmd.addRegexOutputListener(new RegexOutputListener() {
+                        public void outputMatchedGroups(String[] data) {
+                            for (int i = 0; i < data.length; i++) {
+                                String element = data[i];
+                                if ("!".equals(element)) initialIgnoreList.clear();  // XXX CVS specifics
+                                else initialIgnoreList.add(element);
                             }
-                        }, null, false);
-                    CommandsPool pool = getCommandsPool();
-                    for (int i = 0; i < executors.length; i++) {
-                        try {
-                            pool.waitToFinish (executors[i]);
-                        } catch (InterruptedException iexc) {}
-                    }
+                        }
+                    });
+                    CommandTask task = apiCmd.execute();
+                    task.waitFinished();
                 } else {
                     initialIgnoreList.addAll(createDefaultIgnoreList());
                 }
