@@ -289,6 +289,7 @@ public class PCLICommandExecutor implements Runnable {
                 text = lastLine + text;
                 lastLine = null;
             }
+            String lastBufferedLine = null;
             for (int pos = 0; pos < text.length(); ) {
                 int newline = text.indexOf('\n', pos);
                 if (newline >= 0) {
@@ -296,10 +297,29 @@ public class PCLICommandExecutor implements Runnable {
                     if (line.endsWith("\r")) line = line.substring(0, line.length() - 1);
                     if (line.startsWith("\r")) line = line.substring(1);
                     linesBuffer.add(line);
+                    lastBufferedLine = line;
                     pos = newline + 1;
                 } else {
                     lastLine = text.substring(pos);
                     break;
+                }
+            }
+            if (lastBufferedLine != null) {
+                if (lastBufferedLine.endsWith(PCLI_CMD_SUCCEEDED)) {
+                    String line = lastBufferedLine.substring(0, lastBufferedLine.length() - PCLI_CMD_SUCCEEDED.length());
+                    if (line.length() > 0) {
+                        linesBuffer.remove(linesBuffer.size() - 1);
+                        linesBuffer.add(line);
+                        linesBuffer.add(PCLI_CMD_SUCCEEDED);
+                    }
+                }
+                if (lastBufferedLine.endsWith(PCLI_CMD_FAILED)) {
+                    String line = lastBufferedLine.substring(0, lastBufferedLine.length() - PCLI_CMD_FAILED.length());
+                    if (line.length() > 0) {
+                        linesBuffer.remove(linesBuffer.size() - 1);
+                        linesBuffer.add(line);
+                        linesBuffer.add(PCLI_CMD_FAILED);
+                    }
                 }
             }
             String[] lines = (String[]) linesBuffer.toArray(new String[0]);
