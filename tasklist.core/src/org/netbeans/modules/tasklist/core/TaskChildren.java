@@ -66,10 +66,10 @@ public class TaskChildren extends Children.Keys {
         }
 
         // #37802 XXX workaround
-        final Collection finalKeys = keys;
+        final Task[] tasks = (Task[])keys.toArray(new Task[keys.size()]);
         Mutex.EVENT.readAccess(new Runnable() {
             public void run() {
-                setKeys(finalKeys);
+                setKeys(tasks);
             }
         });
     }

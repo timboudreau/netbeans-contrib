@@ -365,7 +365,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             progress = new JProgressBar();
             progress.setVisible(job == null);
             progress.setMinimum(0);
-            adjustHeight(progress);
+            // adjustHeight(progress); it removes bevel effect
         }
         return progress;
     }
@@ -642,9 +642,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public void scanTerminated(int reason) {
         if (reason == -1) {
-            reasonMsg = "(Low Memory Interrupted)";
+            reasonMsg = "(Low Memory Interrupt)";
         } else if (reason == -2) {
-            reasonMsg = "(User Interrupted)";
+            reasonMsg = "(Interrupted by User)";
+        } else if (reason == -3) {
+            reasonMsg = "(Usability Limit Reached)";
         }
     }
 

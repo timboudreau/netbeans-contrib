@@ -19,6 +19,7 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.util.NbBundle;
 import org.openide.util.Lookup;
 import org.openide.util.Cancellable;
+import org.openide.util.Utilities;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -37,6 +38,7 @@ import javax.swing.*;
 import java.util.*;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -73,7 +75,9 @@ public final class SuggestionsScanner implements Cancellable {
     // heuristically detect overload
     private static boolean lowMemoryWarning;
     private static int lowMemoryWarningCount;
+    private static Reference memoryReference;
     private volatile boolean interrupted;
+    private int suggestionsCounter;
 
     private SuggestionsScanner() {
         manager = (SuggestionManagerImpl) Lookup.getDefault().lookup(SuggestionManager.class);
@@ -129,6 +133,8 @@ public final class SuggestionsScanner implements Cancellable {
         lowMemoryWarning = false;
         lowMemoryWarningCount = 0;
         interrupted = false;
+        allocateMemory();   // guard low memory condition
+        suggestionsCounter = 0;
 
         try {
             this.list = list;
@@ -329,6 +335,7 @@ public final class SuggestionsScanner implements Cancellable {
                 List l = ((DocumentSuggestionProvider) provider).scan(env);
                 if (l != null) {
                     // XXX ensure that scan returns a homogeneous list of tasks
+                    suggestionsCounter += l.size();
                     manager.register(provider.getTypes()[0], l, null, list, true);
                 }
             }
@@ -339,26 +346,84 @@ public final class SuggestionsScanner implements Cancellable {
     private boolean shouldStop() {
         if (interrupted) return true;
         interrupted = Thread.interrupted();
-
-        Runtime rt = Runtime.getRuntime();
-        long total = rt.totalMemory();
-        long max = rt.maxMemory();  // XXX on some linux returns heap&native instead of -Xmx
-        long required = Math.max(total/13, 4*1024*1024);
-        if (total ==  max && rt.freeMemory() < required) {
-            lowMemoryWarning = true;
-        } else if (lowMemoryWarning) {
-            lowMemoryWarning = false;
-            lowMemoryWarningCount ++;
-        }
-        // gc is getting into corner
-        if (lowMemoryWarningCount > 7 || (total == max && rt.freeMemory() < 2*1024*1024)) {
+        if (interrupted) return true;
+        if (suggestionsCounter > getCountLimit()) {
+            interrupted = true;
             if (progressMonitor != null) {
-                progressMonitor.scanTerminated(-1);
+                progressMonitor.scanTerminated(-3);
             }
-            return true;
-        } else {
-            return false;
         }
+        return interrupted;
+
+// XXX on some 1.4.1 returns heap&native instead of -Xmx
+// meanwhile we use MemoryReference based approach bellow
+//        Runtime rt = Runtime.getRuntime();
+//        long total = rt.totalMemory();
+//        long max = rt.maxMemory();  // XXX on some 1.4.1 returns heap&native instead of -Xmx
+//        long required = Math.max(total/13, 4*1024*1024);
+//        if (total ==  max && rt.freeMemory() < required) {
+//            lowMemoryWarning = true;
+//        } else if (lowMemoryWarning) {
+//            lowMemoryWarning = false;
+//            lowMemoryWarningCount ++;
+//        }
+//        // gc is getting into corner
+//        if (lowMemoryWarningCount > 7 || (total == max && rt.freeMemory() < 2*1024*1024)) {
+//            if (progressMonitor != null) {
+//                progressMonitor.scanTerminated(-1);
+//            }
+//            return true;
+//        } else {
+//            return false;
+//        }
+    }
+
+    // Allocate some extra memory and keep soft reference to it
+    // once it gets collected JVM tries to eliminate unnecesary
+    // memory alocation from system resources
+    private class MemoryReference extends SoftReference implements Runnable {
+
+        MemoryReference(Object ref) {
+            super(ref, Utilities.activeReferenceQueue());
+        }
+
+        // gets called by Utilities.activeReferenceQueue
+        public void run() {
+            memoryReleased();
+        }
+    }
+
+    private void memoryReleased() {
+        long total = Runtime.getRuntime().totalMemory();
+        long free = Runtime.getRuntime().freeMemory();
+        allocateMemory();
+        if (total == Runtime.getRuntime().totalMemory()) {
+            // no new system memory allocated
+            // there were many soft references or we are getting to maxMemory limit
+            if (!interrupted) {
+                // XXX on most implementations it's maxMemory limit
+                interrupted = true;
+                if (progressMonitor != null) {
+                    progressMonitor.scanTerminated(-1);
+                }
+            }
+        }
+    }
+
+    private void allocateMemory() {
+        if (interrupted) return;
+        if (memoryReference != null && memoryReference.get() != null) return;
+        try {
+            byte[] memory = new byte[3*1024*1024];
+            memoryReference = new MemoryReference(memory);
+        } catch (OutOfMemoryError err) {
+            interrupted = true;
+        }
+    }
+
+    /** Stop scannig after discovering limit suggestions */
+    private int getCountLimit() {
+        return 303;
     }
 
     private static int countFolders(FileObject projectFolder) {
@@ -379,6 +444,9 @@ public final class SuggestionsScanner implements Cancellable {
 
     public boolean cancel() {
         interrupted = true;
+        if (progressMonitor != null) {
+            progressMonitor.scanTerminated(-2);
+        }
         return true;
     }
 
@@ -407,7 +475,7 @@ public final class SuggestionsScanner implements Cancellable {
 
         /**
          * Scan was terminated unfinished
-         * @param reason -1 out of memory, -2 user interrupt
+         * @param reason -1 out of memory, -2 user interrupt, -3 count limit
          */
         void scanTerminated(int reason);
     }
