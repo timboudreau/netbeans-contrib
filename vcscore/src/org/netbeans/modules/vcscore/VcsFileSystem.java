@@ -2771,6 +2771,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             throw new IOException(g("EXC_RootNotExist", r.toString ())); // NOI18N
         }
 
+        String rDir = r.getPath();
+        if (org.openide.util.Utilities.isWindows() && rDir.length() == 2 &&
+            Character.isLetter(rDir.charAt(0)) && ':' == rDir.charAt(1)) {
+            rDir += "\\"; // A special case for C:\
+            r = new File(rDir);
+        }
         File root;
         String module;
         synchronized (this) {
@@ -4134,12 +4140,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (root.length() == absPath.length()) {
                 path = "";
             } else {
-                path = absPath.substring(root.length() + 1, absPath.length());
-                /*
-                if (path.charAt(0) == File.separatorChar) { //another sanity check.
-                    path = path.substring(1);
+                if (root.endsWith(File.separator) || root.endsWith("/")) {
+                    path = absPath.substring(root.length(), absPath.length());
+                } else {
+                    path = absPath.substring(root.length() + 1, absPath.length());
                 }
-                 */
             }
 //            D.deb("statusChanged() absPath =" + absPath);
 //            D.deb("statusChanged() root =" + root);
@@ -4159,7 +4164,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (root.length() == absPath.length()) {
                 path = "";
             } else {
-                path = absPath.substring(root.length() + 1, absPath.length());
+                if (root.endsWith(File.separator) || root.endsWith("/")) {
+                    path = absPath.substring(root.length(), absPath.length());
+                } else {
+                    path = absPath.substring(root.length() + 1, absPath.length());
+                }
             }
             path = path.replace(File.separatorChar, '/');
             if (removedFile instanceof CacheDir) {
@@ -4189,12 +4198,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (root.length() == absPath.length()) {
                 path = "";
             } else {
-                path = absPath.substring(root.length() + 1, absPath.length());
-                /*
-                if (path.charAt(0) == File.separatorChar) { //another sanity check.
-                    path = path.substring(1);
+                if (root.endsWith(File.separator) || root.endsWith("/")) {
+                    path = absPath.substring(root.length(), absPath.length());
+                } else {
+                    path = absPath.substring(root.length() + 1, absPath.length());
                 }
-                 */
             }
 //            D.deb("statusChanged() absPath =" + absPath);
 //            D.deb("statusChanged() root =" + root);
