@@ -501,29 +501,26 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
 
             final boolean [] statusContainer = new boolean[1];
-            final JButton setAsDefault0 = btnStoreAsDefault;
-            ActionListener actionListener = new ActionListener() {
-                public void actionPerformed(ActionEvent evt) {
-                    if (evt.getID() == ActionEvent.ACTION_PERFORMED) {
-                        if (NotifyDescriptor.OK_OPTION.equals(evt.getSource())) {
-                            statusContainer[0] = true;
-                            dialog.dispose();
-                        } else if (NotifyDescriptor.CANCEL_OPTION.equals(evt.getSource())) {
-                            statusContainer[0] = false;
-                            dialog.dispose();
-                        } else if (evt.getSource() == setAsDefault0) {
-                            setAsDefault0.doClick(0);
+            
+            if (addActionListenerMethod != null) {
+                dlg.setClosingOptions(new Object[] { NotifyDescriptor.CANCEL_OPTION });
+                
+                final JButton setAsDefault0 = btnStoreAsDefault;
+                ActionListener actionListener = new ActionListener() {
+                    public void actionPerformed(ActionEvent evt) {
+                        if (evt.getID() == ActionEvent.ACTION_PERFORMED) {
+                            if (NotifyDescriptor.OK_OPTION.equals(evt.getSource())) {
+                                statusContainer[0] = true;
+                                dialog.dispose();
+                            } else if (NotifyDescriptor.CANCEL_OPTION.equals(evt.getSource())) {
+                                statusContainer[0] = false;
+                                dialog.dispose();
+                            } else if (evt.getSource() == setAsDefault0) {
+                                setAsDefault0.doClick(0);
+                            }
                         }
                     }
-                }
-            };
-            if (addActionListenerMethod == null) {
-                //status = NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dlg));
-
-                // XXX mess, mess there is already added the actionL in constructor
-                dlg.setButtonListener(actionListener);
-            } else {
-                dlg.setClosingOptions(new Object[] { NotifyDescriptor.CANCEL_OPTION });
+                };
                 
                 try {
                     //final boolean [] statusContainer = new boolean[1];
