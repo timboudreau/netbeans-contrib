@@ -107,7 +107,7 @@ public class BookmarkImpl implements Bookmark {
             jb.setIcon(new ImageIcon(icon));
         }
         if ((icon == null) || (icon.getHeight(null) < 16)) {
-            jb.setText(getName());
+            jb.setIcon(new ImageIcon(Utilities.loadImage("org/netbeans/modules/bookmarks/resources/bookmarksToolbarIcon.gif")));
         }
         return jb;
     }

@@ -12,15 +12,14 @@
  */
 package org.netbeans.modules.bookmarks.actions;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-
+import org.openide.util.*;
 import org.openide.windows.*;
 
 import org.netbeans.api.bookmarks.*;
@@ -32,7 +31,7 @@ import org.netbeans.modules.bookmarks.*;
  * with the BookmarkService.
  * @author David Strupl
  */
-public class AddBookmarkAction extends AbstractAction implements HelpCtx.Provider {
+public class AddBookmarkAction extends AbstractAction implements HelpCtx.Provider, PropertyChangeListener {
     
     /**
      * Default constructor.
@@ -40,6 +39,11 @@ public class AddBookmarkAction extends AbstractAction implements HelpCtx.Provide
     public AddBookmarkAction() {
         putValue(Action.NAME, getName());
         putValue(Action.SMALL_ICON, getIcon());
+        TopComponent.Registry reg = WindowManager.getDefault().getRegistry();
+        reg.addPropertyChangeListener(
+            WeakListener.propertyChange(this, reg));
+        TopComponent tc = reg.getActivated();
+        setEnabled(tc != null);
     }
     
     /**
@@ -77,4 +81,17 @@ public class AddBookmarkAction extends AbstractAction implements HelpCtx.Provide
         BookmarkService bs = BookmarkService.getDefault();
         bs.storeBookmark(bs.createDefaultBookmark(tc));
     }
+    
+    /**
+     * We are registered with TopComponent.Registry as propertyChange
+     * listener. When the activated top component is changed we
+     * recompute the state of our navigation controls.
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (TopComponent.Registry.PROP_ACTIVATED.equals(evt.getPropertyName())) {
+            TopComponent tc = WindowManager.getDefault().getRegistry().getActivated();
+            setEnabled(tc != null);
+        }
+    }
+
 }
