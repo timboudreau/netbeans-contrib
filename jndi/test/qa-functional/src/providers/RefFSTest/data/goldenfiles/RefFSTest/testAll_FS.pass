@@ -1,0 +1,44 @@
+Lookup copy code on node: RefFSTestDir
+/** Inserted by Jndi module */
+java.util.Properties jndiProperties = new java.util.Properties();
+jndiProperties.put("java.naming.provider.url","file://");
+jndiProperties.put("java.naming.factory.initial","com.sun.jndi.fscontext.RefFSContextFactory");
+try {
+    javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);
+    javax.naming.Context jndiRootCtx = (javax.naming.Context) jndiCtx.lookup("tmp");
+    javax.naming.Context jndiObject = (javax.naming.Context)jndiRootCtx.lookup("RefFSTestDir");
+} catch (javax.naming.NamingException ne) {
+    ne.printStackTrace();
+}
+
+Binding copy code on node: RefFSTestDir
+/** Inserted by Jndi module */
+java.util.Properties jndiProperties = new java.util.Properties();
+jndiProperties.put("java.naming.provider.url","file://");
+jndiProperties.put("java.naming.factory.initial","com.sun.jndi.fscontext.RefFSContextFactory");
+try {
+    javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);
+    javax.naming.Context jndiRootCtx = (javax.naming.Context) jndiCtx.lookup("tmp");
+    javax.naming.Context jndiObject = (javax.naming.Context)jndiRootCtx.lookup("RefFSTestDir");
+    jndiObject.bind("<Name>",<Object>);
+} catch (javax.naming.NamingException ne) {
+    ne.printStackTrace();
+}
+
+Lookup copy code on node: RefFSTestBinding
+/** Inserted by Jndi module */
+java.util.Properties jndiProperties = new java.util.Properties();
+jndiProperties.put("java.naming.provider.url","file://");
+jndiProperties.put("java.naming.factory.initial","com.sun.jndi.fscontext.RefFSContextFactory");
+try {
+    javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);
+    javax.naming.Context jndiRootCtx = (javax.naming.Context) jndiCtx.lookup("tmp");
+    javax.naming.Reference jndiObject = (javax.naming.Reference)jndiRootCtx.lookup("RefFSTestDir/RefFSTestBinding");
+} catch (javax.naming.NamingException ne) {
+    ne.printStackTrace();
+}
+
+dirNode.hasCustomizer (): false
+dirNode.getCustomizer (): null
+bindNode.hasCustomizer (): false
+bindNode.getCustomizer (): null

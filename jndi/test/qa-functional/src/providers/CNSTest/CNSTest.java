@@ -115,7 +115,7 @@ public class CNSTest extends org.netbeans.junit.NbTestCase {
     PrintStream ref;
     PrintStream log;
     
-    public void testAll () throws Exception {
+    public void testAll_CNS () throws Exception {
         
         name += new SimpleDateFormat ("yyyyMMddHHmmss").format (new Date (System.currentTimeMillis()));
         

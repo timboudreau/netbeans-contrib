@@ -113,7 +113,7 @@ public class LDAPTest extends org.netbeans.junit.NbTestCase {
     PrintStream ref;
     PrintStream log;
     
-    public void testAll () throws Exception {
+    public void testAll_LDAP () throws Exception {
         String dirname = System.getProperty("LDAP_SUB_CONTEXT");
         name += new SimpleDateFormat ("yyyyMMddHHmmss").format (new Date (System.currentTimeMillis()));
         

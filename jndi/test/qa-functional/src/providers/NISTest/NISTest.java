@@ -113,7 +113,7 @@ public class NISTest extends org.netbeans.junit.NbTestCase {
     PrintStream ref;
     PrintStream log;
     
-    public void testAll () throws Exception {
+    public void testAll_NIS () throws Exception {
         name += new SimpleDateFormat ("yyyyMMddHHmmss").format (new Date (System.currentTimeMillis()));
 
         String bindname = System.getProperty ("NIS_SUB_CONTEXT");

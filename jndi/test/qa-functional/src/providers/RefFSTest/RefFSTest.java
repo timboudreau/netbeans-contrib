@@ -129,7 +129,7 @@ public class RefFSTest extends org.netbeans.junit.NbTestCase {
     PrintStream ref;
     PrintStream log;
     
-    public void testAll () throws Exception {
+    public void testAll_FS () throws Exception {
         name += new SimpleDateFormat ("yyyyMMddHHmmss").format (new Date (System.currentTimeMillis()));
         
         try {
