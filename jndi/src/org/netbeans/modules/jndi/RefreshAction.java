@@ -56,7 +56,7 @@ public final class RefreshAction extends org.openide.util.actions.NodeAction {
 
   /** @return name of the action */
   public String getName() {
-    return JndiRootNode.getString("CTL_RefreshName");
+    return JndiRootNode.getLocalizedString("CTL_RefreshName");
   }
 
   /** @return help */

@@ -276,7 +276,7 @@ public final class JndiRootNode extends AbstractNode {
   /** Bundle with localizations. */
   private static ResourceBundle bundle;
   /** @return a localized string */
-  static String getString(String s) {
+  static String getLocalizedString(String s) {
     if (bundle == null) {
       bundle = NbBundle.getBundle(JndiRootNode.class);
     }

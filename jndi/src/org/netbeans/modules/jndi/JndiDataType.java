@@ -72,7 +72,7 @@ final class JndiDataType extends NewType {
       // Ask for new initial context and context factory
       panel = new NewJndiRootPanel();
       descriptor = new DialogDescriptor(panel,
-        JndiRootNode.getString("TITLE_NewContext"),
+        JndiRootNode.getLocalizedString("TITLE_NewContext"),
         true,
         DialogDescriptor.OK_CANCEL_OPTION,
         DialogDescriptor.OK_OPTION,
@@ -100,7 +100,7 @@ final class JndiDataType extends NewType {
                       e = ne;
                     }
                     if (e instanceof JndiException) {
-                      TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getString("EXC_Items"), NotifyDescriptor.Message.ERROR_MESSAGE));
+                      TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Items"), NotifyDescriptor.Message.ERROR_MESSAGE));
                     } else {
                       JndiRootNode.notifyForeignException(e);
                     }
@@ -135,7 +135,7 @@ final class JndiDataType extends NewType {
       // This is under construction
       final NewJndiSubContextPanel subCtxPanel = new NewJndiSubContextPanel();
       descriptor = new DialogDescriptor(subCtxPanel,
-        JndiRootNode.getString("TITLE_NewJndiDirectory"),
+        JndiRootNode.getLocalizedString("TITLE_NewJndiDirectory"),
         false,
         DialogDescriptor.OK_CANCEL_OPTION,
         DialogDescriptor.OK_OPTION,

@@ -88,17 +88,17 @@ abstract class JndiObjectNode extends AbstractNode implements Cookie, TemplateCr
     sheet.get (Sheet.PROPERTIES).put (
       new JndiProperty ("NAME",
                         String.class,
-			JndiRootNode.getString("TXT_Name"),
+			JndiRootNode.getLocalizedString("TXT_Name"),
 			this.getName ()));
     sheet.get (Sheet.PROPERTIES).put (
       new JndiProperty ("OFFSET",
                         String.class,
-			JndiRootNode.getString("TXT_Path"),
+			JndiRootNode.getLocalizedString("TXT_Path"),
 			this.getOffset().toString ()));
     sheet.get(Sheet.PROPERTIES).put (
       new JndiProperty ("CLASS",
                         String.class,
-			JndiRootNode.getString("TXT_Class"),
+			JndiRootNode.getLocalizedString("TXT_Class"),
 			this.getClassName()));
     Enumeration keys =	( (JndiDirContext) this.getContext()).getEnvironment ().keys();		
     Enumeration elements =( (JndiDirContext) this.getContext ()).getEnvironment ().elements ();
@@ -180,6 +180,8 @@ abstract class JndiObjectNode extends AbstractNode implements Cookie, TemplateCr
 
 /*
 * <<Log>>
+*  3    Gandalf   1.2         8/7/99   Ian Formanek    getString->getLocalizedString
+*        to avoid compiler warnings
 *  2    Gandalf   1.1         7/9/99   Ales Novak      localization + code 
 *       requirements followed
 *  1    Gandalf   1.0         6/18/99  Ales Novak      

@@ -87,31 +87,31 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
     this.credentials= new JTextField(26);
     this.properties = new Vector();
 
-    this.add(new JLabel(JndiRootNode.getString("TXT_ContextLabel")),1,2,2,1,7,5,0,5);
+    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_ContextLabel")),1,2,2,1,7,5,0,5);
     this.add(this.label,3,2,2,1,7,0,0,5);
-    this.add(new JLabel(JndiRootNode.getString("TXT_Factory")),1,3,2,1,0,5,0,5);
+    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Factory")),1,3,2,1,0,5,0,5);
     this.add(this.factory,3,3,2,1,0,0,0,5);
-    this.add(new JLabel(JndiRootNode.getString("TXT_InitialContext")),1,4,2,1,0,5,0,5);
+    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_InitialContext")),1,4,2,1,0,5,0,5);
     this.add(this.context,3,4,2,1,0,0,0,5);
-    this.add(new JLabel(JndiRootNode.getString("TXT_Auth")),1,5,2,1,0,5,0,5);
+    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Auth")),1,5,2,1,0,5,0,5);
     this.add(this.authentification,3,5,2,1,0,0,0,5);
-    this.add(new JLabel(JndiRootNode.getString("TXT_Principal")),1,6,2,1,0,5,0,5);
+    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Principal")),1,6,2,1,0,5,0,5);
     this.add(this.principal,3,6,2,1,0,0,0,5);
-    this.add(new JLabel(JndiRootNode.getString("TXT_Credentials")),1,7,2,1,0,5,0,5);
+    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_Credentials")),1,7,2,1,0,5,0,5);
     this.add(this.credentials,3,7,2,1,0,0,0,5);
-    this.add(new JLabel(JndiRootNode.getString("TXT_OtherProps")),5,1,2,1,0,0,0,0);
+    this.add(new JLabel(JndiRootNode.getLocalizedString("TXT_OtherProps")),5,1,2,1,0,0,0,0);
     list = new JList(this.properties);
     this.add(new JScrollPane(list),5,2,2,8);
     menu = new JPopupMenu();
-    JMenuItem item = new JMenuItem(JndiRootNode.getString("TXT_Add"));
+    JMenuItem item = new JMenuItem(JndiRootNode.getLocalizedString("TXT_Add"));
     item.setActionCommand("ADD");
     item.addActionListener (this);				
     menu.add(item);
-    item= new JMenuItem(JndiRootNode.getString("TXT_Rem"));
+    item= new JMenuItem(JndiRootNode.getLocalizedString("TXT_Rem"));
     item.setActionCommand("DEL");
     item.addActionListener(this);
     menu.add(item);
-    item = new JMenuItem(JndiRootNode.getString("TXT_Change"));
+    item = new JMenuItem(JndiRootNode.getLocalizedString("TXT_Change"));
     item.setActionCommand("CHANGE");
     item.addActionListener(this);
     menu.add(item);
@@ -195,7 +195,7 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
     if (event.getActionCommand().equals("ADD")) {
       panel = new NewPropertyPanel();
       DialogDescriptor descriptor = new DialogDescriptor(panel,
-        JndiRootNode.getString("TITLE_Add_property"),
+        JndiRootNode.getLocalizedString("TITLE_Add_property"),
         true,
         DialogDescriptor.OK_CANCEL_OPTION,
         DialogDescriptor.OK_OPTION,
@@ -204,7 +204,7 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
             if (event.getSource() == DialogDescriptor.OK_OPTION) {
               if ((panel.getName().length()==0) ||
                   (panel.getValue().length() == 0)) {
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
+                TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
                 return;
               }
               String pr = panel.getName() + "=" + panel.getValue();
@@ -239,7 +239,7 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
       panel.setName(tk.nextToken());
       panel.setValue(tk.nextToken());
       DialogDescriptor descriptor = new DialogDescriptor(panel,
-        JndiRootNode.getString("TITLE_Change_property"),
+        JndiRootNode.getLocalizedString("TITLE_Change_property"),
         true,  
         DialogDescriptor.OK_CANCEL_OPTION,
         DialogDescriptor.OK_OPTION,
@@ -248,7 +248,7 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
             if (event.getSource() == DialogDescriptor.OK_OPTION) {
               if ((panel.getName().length() == 0) ||
                   (panel.getValue().length() == 0)) {
-                TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
+                TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
                 return;
               }
               properties.removeElementAt(list.getSelectedIndex());
