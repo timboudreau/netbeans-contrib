@@ -96,8 +96,8 @@ public class TaskList implements ObservableList, TaskListener {
             while (it.hasNext()) {
                 Task task = (Task) it.next();
                 if (parent != null) {
-                    task.removeTaskListener(this);
                     parent.removeSubtask(task);
+                    task.removeTaskListener(this);
                 } else {
                     removeTask(task);
                 }
