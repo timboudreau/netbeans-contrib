@@ -25,6 +25,8 @@ package org.netbeans.modules.vcscore.turbo;
  */
 public final class FileProperties {
 
+    // It MUST not keep reference to associated FileObject
+
     private String status;
 
     /** Retrieved from repository on */

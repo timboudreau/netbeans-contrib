@@ -24,18 +24,21 @@ They are responsible for:
 
 <h3>Simplifications</h3>
 
-It works over {@link FileSystem} it's exected that we do not need
-to store FilePropeties for non FileObjects. Depending on figuring
-out FileSystem implementors contract memory layer can use absolute
-path addressing too.
+It works over {@link FileSystem} it's expected that we do not need
+to store FilePropeties for non FileObjects. It's safe
+to call <code>getRoot().getFileObject(path)</code> in FileSystem
+implementation except <code>children(folderName)</code> method.
 
 <p>
 Disk layer use FileObject attributes to store data
 instead of custom format. All recent file statuses persist.
+TODO Default attributes implemenaion may be perfomance problem.
 
 <p>
-Memory layer is not hierachical but simple plain map
-FileObject to FilePropeties.
+Memory layer is not hierachical but two simple plain maps
+FileObject to FilePropeties. Refs map content is driven by
+FileReference lifetime. Cache map holds few recent
+values for unreachable fileobjects.
 
 <p>
 Threading - no extra thread is spawned. All operation are
@@ -52,13 +55,13 @@ WORK IN PROGRESS - SHARING IDEA
 <p>
 Existing client code contains new code paths guarded by <code>Turbo.implemented()</code>
 checks. These are not ready to be used right now. There are still missing
-following client code conversions (it obviously excludes cache and caching packages):
+following client code (filesystem and commands) conversions
+(it obviously excludes cache and caching packages):
 <ul>
   <li>objectidentity package implements CacheHandlerListener, there is nothing like that in
      simplified implementation
   <li>VcsFileSystem.getRealStatus() used in search, it also implements CacheHandlerListener
      to perform refresh
-  <li>VcsFileSystem.Info implementation takes String arguments. Why? Can I convert to fileObject.
   <li>cvsprofiles.list package STATUS_DEAD management, where should it be defined? Also VcsFilesystem.List.children().
   <li>vcscore.commans package STATUS_IGNORED management, where should it be defined?
   <li>VcsFactory.getStatusProvider() and getCacheProvider() replacements not investigated yet

@@ -3037,6 +3037,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     private String[] filterDeadFilesOut(String name, String[] vcsFiles) {
+
+        assert Turbo.implemented() == false;
+
         if (vcsFiles == null) return null;
         FileStatusProvider statusProvider = getStatusProvider();
         if (statusProvider == null) return vcsFiles;
@@ -3866,9 +3869,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
             if (Turbo.implemented()) {
                 if (!file.canWrite ()) {
-                    // TODO why do I get here String instead fileobject, I can
-                    // access cached metadata by absolute path if really necessary
-                    FileProperties fprops = Turbo.getCachedMeta(null);
+                    FileObject fo = getRoot().getFileObject(name_);
+                    FileProperties fprops = Turbo.getCachedMeta(fo);
                     if (fprops != null && !fprops.isLocal () && !name.endsWith (".orig")) { // NOI18N
                         if (isPromptForEditOn()) {
                             VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
@@ -4024,8 +4026,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         if (Turbo.implemented()) {
             if(isLockFilesOn ()) {
-                // TODO same as lock()
-                FileProperties fprops = Turbo.getCachedMeta(null);
+                FileObject fo = getRoot().getFileObject(name);
+                FileProperties fprops = Turbo.getCachedMeta(fo);
                 if (fprops != null && !fprops.isLocal () && !name.endsWith (".orig")) { // NOI18N
                     CommandSupport cmd = getCommandSupport("UNLOCK");
                     if (cmd != null) {
@@ -4079,8 +4081,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     // TurboListener implementation of CacheHandlerListener ~~~~~~~~~~~~~~
     public void turboChanged(TurboEvent e) {
         FileObject fo = e.getFileObject();
-        String path = fo.getPath();
-        statusChanged(path);
+        try {
+
+            // for this filesystem forward as file status changes
+
+            if (fo.getFileSystem() == this) {
+                String path = fo.getPath();
+                statusChanged(path);
+            }
+        } catch (FileStateInvalidException e1) {
+            ErrorManager err = ErrorManager.getDefault();
+            err.annotate(e1, "FileObject = " + fo);  // NOI18N
+            err.notify(ErrorManager.INFORMATIONAL, e1);
+        }
     }
 
 
