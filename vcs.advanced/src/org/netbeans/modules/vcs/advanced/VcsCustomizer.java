@@ -426,11 +426,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private void saveAsButtonActionPerformed (java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsButtonActionPerformed
         // Add your handling code here:
         FileObject dir = fileSystem.getConfigRootFO();
-        ChooseFileObjectDialog chooseFile = new ChooseFileObjectDialog(new JFrame(), true, dir);
+        ConfigSaveAsDialog chooseFile = new ConfigSaveAsDialog(new JFrame(), true, dir);
         VcsUtilities.centerWindow (chooseFile);
         chooseFile.show();
         String selected=chooseFile.getSelectedFile ();
         if (selected == null) return;
+        String configLabel = chooseFile.getSelectedConfigLabel();
         FileObject file = dir.getFileObject(selected, VariableIO.CONFIG_FILE_EXT);
         if (file == null) {
             try {
@@ -457,12 +458,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
         Vector variables = fileSystem.getVariables ();
         Node commands = fileSystem.getCommands();
-        String label = selected;
+        if (configLabel == null) configLabel = selected;
+        //String label = selected;
         if (doc != null) {
             FileLock lock = null;
             try {
                 lock = file.lock();
-                VariableIO.writeVariables(doc, label, variables);
+                VariableIO.writeVariables(doc, configLabel, variables);
                 UserCommandIO.writeCommands(doc, commands);
                 XMLDataObject.write(doc, new BufferedWriter(new OutputStreamWriter(file.getOutputStream(lock))));
             } catch (org.w3c.dom.DOMException exc) {
@@ -476,9 +478,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             //VariableIOCompat.write (file, label, variables, advanced, fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ());
         }
         promptForConfigComboChange = false;
-        fileSystem.setConfig (label);
+        fileSystem.setConfig (configLabel);
         fileSystem.setConfigFileName(file.getNameExt());
         updateConfigurations ();
+        promptForConfigComboChange = true;
         /*
           ChooseFileDialog chooseFile=new ChooseFileDialog(new JFrame(), new File(fileSystem.getConfigRoot()), true);
           VcsUtilities.centerWindow (chooseFile);
