@@ -68,15 +68,15 @@ Microsystems, Inc. All Rights Reserved.
             </xsl:call-template>            
 
             <target name="build" depends="init,deps-build">
-                <mkdir dir="dist/{$name}.app/Contents/MacOS"/>
-                <copy file="start.sh" todir="dist/{$name}.app/Contents/MacOS">
+                <mkdir dir="dist/Macintosh/{$name}.app/Contents/MacOS"/>
+                <copy file="Configurations/Macintosh/start.sh" todir="dist/Macintosh/{$name}.app/Contents/MacOS">
                     <filterset>
                         <filter token="MAIN-CLASS" value="${{main.class}}"/>
                         <filter token="APPNAME" value="{$name}"/>
                     </filterset>
                 </copy>
-                <chmod file="dist/{$name}.app/Contents/MacOS/start.sh" perm="ugo+rx"/>
-                <copy file="Info.plist" todir="dist/{$name}.app/Contents">
+                <chmod file="dist/Macintosh/{$name}.app/Contents/MacOS/start.sh" perm="ugo+rx"/>
+                <copy file="Configurations/Macintosh/Info.plist" todir="dist/Macintosh/{$name}.app/Contents">
                     <filterset>
                         <filter token="APPNAME" value="{$name}"/>
                         <filter token="VERSION" value="1.0"/>
@@ -84,7 +84,7 @@ Microsystems, Inc. All Rights Reserved.
                         <filter token="ICONFILENAME" value="{$name}.icns"/>
                     </filterset>
                 </copy>
-                <copy file="{$name}.icns" tofile="dist/{$name}.app/Contents/Resources/{$name}.icns" failonerror="false"/>
+                <copy file="Configurations/Macintosh/{$name}.icns" tofile="dist/Macintosh/{$name}.app/Contents/Resources/{$name}.icns" failonerror="false"/>
             </target>
             
             <target name="run" depends="build">
@@ -92,7 +92,7 @@ Microsystems, Inc. All Rights Reserved.
                     <arg file="dist"/>
                 </exec>
                 <exec executable="open">
-                    <arg file="dist/{$name}.app"/>
+                    <arg file="dist/Macintosh/{$name}.app"/>
                 </exec>
             </target>
 
@@ -188,8 +188,8 @@ Microsystems, Inc. All Rights Reserved.
                     </xsl:if>
                 </ant>
                 <xsl:if test="$copyfiles='true'">
-                    <mkdir dir="dist/{$projname}.app/Contents/Resources"/>
-                    <copy todir="dist/{$projname}.app/Contents/Resources">
+                    <mkdir dir="dist/Macintosh/{$projname}.app/Contents/Resources"/>
+                    <copy todir="dist/Macintosh/{$projname}.app/Contents/Resources">
                         <xsl:attribute name="file">${reference.<xsl:value-of select="$subproj"/>.jar}</xsl:attribute>
                     </copy>
                 </xsl:if>

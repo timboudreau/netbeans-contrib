@@ -232,14 +232,14 @@ public class PackagerProject implements Project {
         protected void projectOpened() {
             URL buildXsl = PackagerProject.class.getResource("build.xsl"); //NOI18N
             URL buildImplXsl = PackagerProject.class.getResource("build-impl.xsl"); //NOI18N
-            URL startShXsl = PackagerProject.class.getResource("start.sh.xsl"); //NOI18N
-            URL infoPlistXsl = PackagerProject.class.getResource("info.plist.xsl"); //NOI18N
+            URL startShXsl = PackagerProject.class.getResource("resources/mac/start.sh.xsl"); //NOI18N
+            URL infoPlistXsl = PackagerProject.class.getResource("resources/mac/info.plist.xsl"); //NOI18N
             
             try {
                 genFilesHelper.refreshBuildScript(GeneratedFilesHelper.BUILD_XML_PATH, buildXsl, true);
                 genFilesHelper.refreshBuildScript(GeneratedFilesHelper.BUILD_IMPL_XML_PATH, buildImplXsl, true);
-                genFilesHelper.refreshBuildScript("start.sh", startShXsl, true); //NOI18N
-                genFilesHelper.refreshBuildScript("Info.plist", infoPlistXsl, true); //NOI18N
+                genFilesHelper.refreshBuildScript("Configurations/Macintosh/start.sh", startShXsl, true); //NOI18N
+                genFilesHelper.refreshBuildScript("Configurations/Macintosh/Info.plist", infoPlistXsl, true); //NOI18N
                 maybeRefreshIcon();
             } catch (Exception e) {
                 ErrorManager.getDefault().notify(e);
@@ -248,9 +248,9 @@ public class PackagerProject implements Project {
         
         private void maybeRefreshIcon() throws IOException, URISyntaxException {
             FileObject root = prj.getProjectDirectory();
-            String expectedName = ProjectUtils.getInformation(prj).getDisplayName() + ".icns"; //NOI18N
+            String expectedName = "Configurations/Macintosh/" + ProjectUtils.getInformation(prj).getDisplayName() + ".icns"; //NOI18N
             if (root.getFileObject(expectedName) == null) {
-                URL macIconFile = PackagerProject.class.getResource("generic.icns"); //NOI18N
+                URL macIconFile = PackagerProject.class.getResource("resources/mac/generic.icns"); //NOI18N
                 
                 InputStream in = macIconFile.openStream();
                 try {
