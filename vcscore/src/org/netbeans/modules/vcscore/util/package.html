@@ -1,0 +1,108 @@
+<body>
+This package provides declarative UI parsing and rendering engine.
+
+<h2>VID User Interface</h2>
+
+The package can parse <a href="http://vcscore.netbeans.org/doc.VCSUtilities.html">text format</a>
+and present it to user.
+
+TODO more data here.
+
+<h3>Defaults Support</h3>
+
+When used with profiles there are variables holding
+command context that can be partially customized by user.
+The command customization called from {@link CommandProcessor}
+shows the VID UI. The VID UI is described by VIDecriptors that
+map to subset of actual command variables. Some VIDescriptor
+values are computed so these values cannot be stored
+as literals.
+
+<p>
+Also there are variables that hold literal
+values but are not actually visualized. It happens
+for trivial vs expert mode. What values should
+be stored to defaults and restored later on
+in different mode? Two examples:
+
+
+<h4>Update Command</h4>
+
+<pre>
+ ASK_FOR_EXPERT(PRUNE_EMPTY, ...
+ ASK_FOR_EXPERT(CREATE_DIRS, ...
+ ASK_FOR_EXPERT(RESET_STICKY, ...
+ ASK_FOR_EXPERT(GET_CLEAN_COPY, ...
+ ASK_FOR_EXPERT(FORCE_HEAD_MATCH, ...
+ ASK_FOR_EXPERT(SEND_TO_STDOUT, ...
+ PROMPT_FOR_EXPERT(TAG, ...
+ PROMPT_FOR_EXPERT(DATE, ...
+ SELECT_RADIO_EXPERT(MERGE_SELECTION, ...
+ SELECT_COMBO_EXPERT(RCS_KFLAG, ...
+ IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ...
+</pre>
+
+<p>In trivial mode there is no component visible and no variable should be defined.
+In expert mode there are all (possibly minus RECURSIVE) components visible and previous
+value should be loaded.
+
+<p>In both modes default values reloading should be defined by actual components visibility
+(catching IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT).
+
+<h4>Add Command</h4>
+
+<pre>
+ SELECT_RADIO(FOLDER_CONTENTS, ...
+ PROMPT_FOR(DESCRIPTION, ...
+ IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RUN_RECURSIVELY, ...
+ ASK_FOR(DO_COMMIT, ...
+ SELECT_RADIO_TRIVIAL(KFLAG_TRIVIAL, ...
+ SELECT_COMBO_EXPERT(KFLAG_EXPERT, ...
+</pre>
+
+<p>In trivial mode there is simplified KFLAG component. In expert mode
+these is full blown KFLAG component. RUN_RECURSIVELY can be possibly
+hidden depending on execution context.
+
+<p>Ideally defaults reloading should translate between KFLAG
+trivial and expert modes. Actually it's permit-able to store
+values for both modes. Note here we do not want to loose
+trivial mode default in expert mode and vice versa. The storage
+is not defined by pure components visibility.
+
+<h4>Commit Command</h4>
+
+<pre>
+ PROMPT_FOR_FILE(TEMPLATE_FILE, ... {FILE_OUTPUT_OF_COMMIT_TEMPLATE_GETTER(0)} ...
+ ASK_FOR_EXPERT(FORCE, ...
+ PROMPT_FOR_EXPERT(BRANCH, ...
+ ASK_FOR_EXPERT(RUN_MODULE_PROGRAM, ...
+ IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ...
+</pre>
+
+<p>In trivial mode there is only description text visible. The field value
+it loaded dynamically by evaluating a template getter. There is nothing to
+store as default - no button should be visible. In expert mode there are
+visible additional components. RECURSIVE visibility depends on command execution
+context.
+
+<p>Here interesting situation happens. From user point of view value
+of recursive should be shared between modes in spite of
+fact that it's never visible in simple mode. Hopefully it could
+be permit-able to ignored it here.
+
+<h3>Defaults Support Summary</h3>
+
+Values must be loaded on visibility basics. No invisible
+value can be reloaded. It guarantees not ideal but
+permit-able behavior. Values must be stored in a such a way
+that old defaults are merged with existing defaults to avoid
+loosing defaults for variables defined in other mode. Ideally
+there should be variable convertors between modes but
+merging is permit-able behavior.
+
+<p>
+As of Jan 21 2005 the visibility is ignored and merging is not 
+used and it <b>must be fixed</b>!
+
+</body>
