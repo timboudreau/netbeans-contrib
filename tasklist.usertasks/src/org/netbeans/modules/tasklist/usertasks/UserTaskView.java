@@ -343,19 +343,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
             );
     }
 
-    public ColumnProperty getPercentColumn(boolean visible, int width) {
-        return new ColumnProperty(
-    	    8, // UID -- never change (part of serialization
-            PROP_TASK_PERCENT,
-            Integer.TYPE,
-            NbBundle.getMessage(UserTaskView.class, "Percent"), // NOI18N
-            NbBundle.getMessage(UserTaskView.class, "PercentHint"), // NOI18N
-            true,
-            visible,
-            width
-            );
-    }
-            
     public ColumnProperty getDueColumn(boolean visible, int width) {
         return new ColumnProperty(
 	    9, // UID -- never change (part of serialization
@@ -370,6 +357,20 @@ public class UserTaskView extends TaskListView implements TaskListener {
             );
     }
 
+    public ColumnProperty getPercentColumn(boolean visible, int width) {
+        return new ColumnProperty(
+    	    10, // UID -- never change (part of serialization
+            PROP_TASK_PERCENT,
+            Integer.TYPE,
+            NbBundle.getMessage(UserTaskView.class, "Percent"), // NOI18N
+            NbBundle.getMessage(UserTaskView.class, "PercentHint"), // NOI18N
+            true,
+            visible,
+            width
+            );
+    }
+            
+    
     private static UserTaskView defview = null;
 
     static UserTaskView getDefault() {
