@@ -654,6 +654,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                     filePath = fileName;
                     fileDir = VcsUtilities.getDirNamePart(filePath);
                     fileName = VcsUtilities.getFileNamePart(filePath);
+                    elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
                 }
                 if (substituteStatuses) {
                     elements = performStatusSubstitution(elements);
