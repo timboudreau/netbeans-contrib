@@ -242,6 +242,9 @@ public class RepositoryCreation extends NbTestCase {
         addCommand.checkFloatLabelWithTheTipRevision(true);
         addCommand.ok();
         MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        new Action(VERSIONING_MENU + "|" + REFRESH, REFRESH).perform(C_FileNode);
+        Thread.currentThread().sleep(2000);
+        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
         String children[] = testNode.getChildren();
         int count = children.length;
         boolean found = false;
