@@ -103,6 +103,8 @@ public class AnnotatePanel extends javax.swing.JPanel {
         cbRevisionList.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AnnotatePanel.class).getString("ACSD_AnnotatePanel.cbRevisionList"));
         cbAuthorList.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AnnotatePanel.class).getString("ACSN_AnnotatePanel.cbAuthorList"));
         cbAuthorList.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AnnotatePanel.class).getString("ACSD_AnnotatePanel.cbAuthorList"));
+        tblAnnotat.getAccessibleContext().setAccessibleName(NbBundle.getMessage(AnnotatePanel.class, "ACSN_AnnotatePanel.table"));
+        tblAnnotat.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(AnnotatePanel.class, "ACSD_AnnotatePanel.table"));
         this.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AnnotatePanel.class).getString("ACSD_AnnotatePanel"));
    }
         
