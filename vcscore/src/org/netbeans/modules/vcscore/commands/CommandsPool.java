@@ -278,17 +278,22 @@ public class CommandsPool extends Object /*implements CommandListener */{
         return preprocessStatus;
     }
     
-    private void commandStarted(VcsCommandExecutor vce) {
-        VcsFileSystem fileSystem = getVcsFileSystem();
+    private void commandStarted(final VcsCommandExecutor vce) {
+        final VcsFileSystem fileSystem = getVcsFileSystem();
         if (fileSystem == null) return ;
         VcsCommand cmd = vce.getCommand();
         //waitToRun(cmd, vce.getFiles());
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
-        TopManager.getDefault().setStatusText(g("MSG_Command_name_running", name));
-        fileSystem.debug(g("MSG_Command_started", name, vce.getExec()));
-        RuntimeCommand rCom = new VcsRuntimeCommand(vce, this);
-        RuntimeSupport.addRunning(runtimeNode, rCom);
+        final String finalName = name;
+        RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                TopManager.getDefault().setStatusText(g("MSG_Command_name_running", finalName));
+                fileSystem.debug(g("MSG_Command_started", finalName, vce.getExec()));
+                RuntimeCommand rCom = new VcsRuntimeCommand(vce, CommandsPool.this);
+                RuntimeSupport.addRunning(runtimeNode, rCom);
+            }
+        });
         //System.out.println("command "+vce.getCommand()+" STARTED.");
         synchronized (commandListeners) {
             for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
@@ -374,7 +379,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 }
                 break;
         }
-        TopManager.getDefault().setStatusText(message);
+        final String finalMessage = message;
+        RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                TopManager.getDefault().setStatusText(finalMessage);
+            }
+        });
         String notification = null;
         if (exit != VcsCommandExecutor.SUCCEEDED && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
             fileSystem.debugErr(message);
