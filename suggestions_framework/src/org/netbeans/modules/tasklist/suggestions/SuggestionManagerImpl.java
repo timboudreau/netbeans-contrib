@@ -14,6 +14,10 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskList;
 import java.io.File;
@@ -27,6 +31,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
@@ -34,7 +39,14 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import javax.swing.JEditorPane;
+import javax.swing.Timer;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
+import javax.swing.text.StyledDocument;
 
 import org.openide.xml.XMLUtil;
 import org.xml.sax.Attributes;
@@ -49,15 +61,23 @@ import org.openide.ErrorManager;
 
 import org.netbeans.api.tasklist.*;
 import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.api.tasklist.DocumentSuggestionProvider;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
+import org.openide.cookies.LineCookie;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
+import org.openide.text.CloneableEditor;
+import org.openide.text.EditorSupport;
 import org.openide.text.Line;
+import org.openide.text.NbDocument;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.windows.Mode;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
+import org.openide.windows.Workspace;
 
 /**
  * Actual suggestion manager provided to clients when the Suggestions
@@ -67,7 +87,10 @@ import org.openide.util.Utilities;
  */
 
 
-final public class SuggestionManagerImpl extends SuggestionManager {
+final public class SuggestionManagerImpl extends SuggestionManager
+    implements DocumentListener, CaretListener, ComponentListener {
+
+    public static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.modules.tasklist"); // NOI18N
 
     /** Construct a new SuggestionManager instance. */
     public SuggestionManagerImpl() {
@@ -116,8 +139,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                 if (c == '\n') {
                     sb.append(':');
                     sb.append(' ');
-                } else if (c == '\r') {
-                } else {
+                } else if (c != '\r') {
                     sb.append(c);
                 }
             }
@@ -224,6 +246,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                     provider.notifyRun();
                 }
             }
+            docStart();
             running = true;
         }
     }
@@ -240,6 +263,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                     provider.notifyStop();
                 }
             }
+            docStop();
             running = false;
         }
     }
@@ -261,6 +285,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
     }
 
     private List providers = null;
+    private List docProviders = null; // subset of elements in providers; these implement DocumentSuggestionProvider
     private Map providersByType = null;
     
     /** Return a list of the providers registered
@@ -269,6 +294,7 @@ final public class SuggestionManagerImpl extends SuggestionManager {
     List getProviders() {
         if (providers == null) {
             providers = new ArrayList(20);
+            docProviders = new ArrayList(20);
             Lookup.Template template =
                 new Lookup.Template(SuggestionProvider.class);
             Iterator it = Lookup.getDefault().lookup(template).
@@ -277,12 +303,23 @@ final public class SuggestionManagerImpl extends SuggestionManager {
                 SuggestionProvider sp = (SuggestionProvider)it.next();
                 if (sp != null) {
                     providers.add(sp);
+                    if (sp instanceof DocumentSuggestionProvider) {
+                        docProviders.add(sp);
+                    }
                 }
             }
         }
         return providers;
     }
 
+    List getDocProviders() {
+        if (docProviders == null) {
+            getProviders(); // side effect: initialize docProviders
+        }
+        return docProviders;
+    }
+    
+    
     private SuggestionList list = null;
 
     /**
@@ -372,24 +409,20 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         // Update the suggestions list: when disabling, rip out suggestions
         // of the same type, and when enabling, trigger a recompute in case
         // we have pending suggestions
+        SuggestionProvider provider = getProvider(type);
         if (enabled) {
-            SuggestionProvider provider = getProvider(type);
             // XXX This isn't exactly right. Make sure we do the
             // right life cycle for each provider.
             provider.notifyPrepare();
             provider.notifyRun();
+            
+            // XXX what about provider.docStart() (or whatever docStart will do to the document?)
         } else {
             // Remove suggestions of this type
-            List tasks = getList().getTasks();
-            Iterator ti = tasks.iterator();
-            ArrayList removeTasks = new ArrayList(50);
-            while (ti.hasNext()) {
-                SuggestionImpl suggestion = (SuggestionImpl)ti.next();
-                if (suggestion.getSType() == type) {
-                    removeTasks.add(suggestion);
-                }
-            }
-            register(id, null, removeTasks);
+            provider.notifyStop();
+            // XXX what about provider.docStop() (or whatever docStop will do to the document?)
+            provider.notifyFinish();
+            getList().removeCategory(type); // XXX should only do this once!
         }
 
         writeTypeRegistry();
@@ -456,21 +489,6 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         }
         if (write) {
             writeTypeRegistry();
-        }
-    }
-    
-    /** Notify manager that a fix (of potentially multiple suggetions)
-     * is in progress. */
-    void setFixing(boolean fixing) {
-        List providers = getProviders();
-        ListIterator it = providers.listIterator();
-        while (it.hasNext()) {
-            Object o = it.next();
-            if (o instanceof DocumentSuggestionProvider) {
-                DocumentSuggestionProvider provider =
-                 (DocumentSuggestionProvider)o;
-                provider.setWait(fixing);
-            }
         }
     }
     
@@ -556,9 +574,11 @@ final public class SuggestionManagerImpl extends SuggestionManager {
             // provider
             if (enabled) {
                 provider.notifyRun();
+                // what about docStart() or the equivalent
                 unfiltered = provider;
             } else {
                 provider.notifyStop();
+                // what about docStop or the equivalent
             }
         }
 
@@ -959,32 +979,68 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         register(type, add, remove, getList());
     }
 
-    public void register(String typeName, List add, List remove, SuggestionList tasklist) {
+    public void register(String typeName, List addList, List removeList,
+                         SuggestionList tasklist) {
         // TODO check instanceof Task here, and throw an exception if not?
 
         // Get the first element, and use its type as the type for all.
         // This works because all elements in the list must have the same
         // (meta?) type.
         SuggestionType type = null;
-        /*
-        try {
-            SuggestionImpl s = (SuggestionImpl)suggestions.get(0);
-            type = s.getSType();
-        } catch (ClassCastException e) {
-            TopManager.getDefault().getErrorManager().notify(
-                                         ErrorManager.ERROR, e);
-            return;
-        }
-         */
         type = SuggestionTypes.getTypes().getType(typeName);
         if (type == null) {
             throw new IllegalArgumentException("No such SuggestionType: " + typeName);
         }
+
+        List adds = addList;
+        /* Group nodes with identical descriptions together.
+           Not very useful. Need full subtypes instead.
+           Commented it out for now.
+        if ((addList != null) && (addList.size() > 0)) {
+            adds = new ArrayList(addList.size());
+            ListIterator it = addList.listIterator();
+            SuggestionImpl prev = (SuggestionImpl)it.next();
+            while (it.hasNext()) {
+                SuggestionImpl curr = (SuggestionImpl)it.next();
+                if (curr.getSummary().equals(prev.getSummary())) {
+                    LinkedList subtasks = new LinkedList();
+                    SuggestionImpl clone = new SuggestionImpl();
+                    clone.copyFrom(prev);
+                    clone.setAction(null);
+                    prev.setLine(null); // "category" node shouldn't have
+                       //  a line position
+                    subtasks.add(clone); // Include self in list of children
+                    subtasks.add(curr);
+                    String summary = prev.getSummary();
+                    
+                    // Stupid stupid stupid
+                    while (it.hasNext()) {
+                        curr = (SuggestionImpl)it.next();
+                        if (summary.equals(curr.getSummary())) {
+                            // Yup, one more
+                            subtasks.add(curr);
+                        } else {
+                            if (!it.hasNext()) {
+                                curr = null;
+                            }
+                            break;
+                        }
+                    }
+                    prev.setSubtasks(subtasks);
+                }
+                adds.add(prev);
+                prev = curr;
+            }
+            if (prev != null) {
+                adds.add(prev);
+            }
+        }
+        */
         
         SuggestionImpl category = tasklist.getCategoryTask(type);
         // XXX Do I need to set the parent field on each item?
         synchronized(this) {
-            tasklist.addRemove(add, remove, false, category);
+            tasklist.addRemove(adds, removeList, false, category);
         }
 
         // Leave category task around? Or simply make it invisible?
@@ -994,5 +1050,779 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         //tasklist.removeCategory((SuggestionImpl)suggestions.get(0));
 
         updateCategoryCount(category); // TODO: skip this when filtered
-    }    
+    } 
+    
+    
+    
+    /**
+     * Code related to Document scanning. It listens to the source editor and
+     * tracks document opens and closes, as well as "current document" changes.
+     * <p>
+     * For lightweight document analysis, you can redo the scanning
+     * whenever the editor is shown and hidden; for more expensive analysis,
+     * you may only want to do it when the document is opened (after a timeout).
+     * <p>
+     * The API does not define which thread these methods are called on,
+     * so don't make any assumptions. If you want to post something on
+     * the AWT event dispatching thread for example use SwingUtilities.
+     * <p>
+     * Note that changes in document attributes only are "ignored" (in
+     * the sense that they do not cause document edit notification.)
+     *
+     * @todo Document threading behavior
+     * @todo Document timer behavior (some of the methods are called after
+     *   a delay, others are called immediately.)
+     * @todo Add timer methods; e.g. we both want to know when the document
+     *   has been edited (immediately), and when the document has been edited
+     *   and has been idle for a while
+     *
+     */
+
+    
+    private Document document = null;
+    private DataObject dataobject = null;
+    
+    
+    /** The given document has been opened
+     * <p>
+     * @param document The document being opened
+     * @param dataobject The Data Object for the file being opened
+     * <p>
+     * This method is called internally by the toolkit and should not be
+     * called directly by programs.
+     */
+    private void docOpened(Document document, DataObject dataobject) {
+        List providers = getDocProviders();
+        ListIterator it = providers.listIterator();
+        while (it.hasNext()) {
+            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
+            provider.docOpened(document, dataobject);
+        }
+    }
+
+    /**
+     * The given document has been edited right now. <b>Don't</b>
+     * do heavy processing here, since this is invoked immediately
+     * as the user is typing. Use this method to invalidate pending
+     * document editing actions. Use {@link #docEditedStable} to
+     * start rescanning a document, since that method is called after
+     * a time interval after the last edit.
+     * <p>
+     * @param document The document being edited
+     * @param dataobject The Data Object for the file being opened
+     * <p>
+     * This method is called internally by the toolkit and should not be
+     * called directly by programs.
+     */
+    public void docEdited(Document document, DocumentEvent event,
+                                      DataObject dataobject) {
+        List providers = getDocProviders();
+        ListIterator it = providers.listIterator();
+        while (it.hasNext()) {
+            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
+            provider.docEdited(document, event, dataobject);
+        }
+    }
+
+    /**
+     * The given document has been edited, and a time interval (by default
+     * around 2 seconds I think) has passed without any further edits.
+     * Update your Suggestions as necessary. This may mean removing
+     * previously registered Suggestions, or editing existing ones,
+     * or adding new ones, depending on the current contents of the
+     * document.
+     * <p>
+     * @param document The document being edited
+     * @param dataobject The Data Object for the file being opened
+     * <p>
+     * This method is called internally by the toolkit and should not be
+     * called directly by programs.
+     */
+    public void docEditedStable(Document document,
+                                            DocumentEvent event,
+                                            DataObject dataobject) {
+        List providers = getDocProviders();
+        ListIterator it = providers.listIterator();
+        while (it.hasNext()) {
+            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
+            provider.docEditedStable(document, event, dataobject);
+        }
+    }
+    
+    // XXX  Do I need separate changedUpdate, insertUpdate, removeUpdate
+    // methods, or is edited good enough?
+
+    /**
+     * The given document has been "shown"; it is now visible.
+     * <p>
+     * @param document The document being shown
+     * @param dataobject The Data Object for the file being opened
+     * <p>
+     * This method is called internally by the toolkit and should not be
+     * called directly by programs.
+     */
+    public void docShown(Document document, DataObject dataobject) {
+        List providers = getDocProviders();
+        ListIterator it = providers.listIterator();
+        while (it.hasNext()) {
+            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
+            provider.docShown(document, dataobject);
+        }
+    }
+
+    /**
+     * The given document has been "hidden"; it's still open, but
+     * the editor containing the document is not visible.
+     * <p>
+     * @param document The document being hidden
+     * @param dataobject The Data Object for the file being opened
+     * <p>
+     * This method is called internally by the toolkit and should not be
+     * called directly by programs.
+     */
+    public void docHidden(Document document, DataObject dataobject) {
+        List providers = getDocProviders();
+        ListIterator it = providers.listIterator();
+        while (it.hasNext()) {
+            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
+            provider.docHidden(document, dataobject);
+        }
+    }
+
+    /**
+     * The given document has been closed; stop reporting suggestions
+     * for this document and free up associated resources.
+     * <p>
+     * @param document The document being closed
+     * @param dataobject The Data Object for the file being opened
+     * <p>
+     * This method is called internally by the toolkit and should not be
+     * called directly by programs.
+     */
+    public void docClosed(Document document, DataObject dataobject) {
+        List providers = getDocProviders();
+        ListIterator it = providers.listIterator();
+        while (it.hasNext()) {
+            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
+            provider.docClosed(document, dataobject);
+        }
+    }
+
+    // XXX: Do we need abstract public void docSaved(Document document); ?
+
+
+    public void changedUpdate(DocumentEvent e) {
+	// Do nothing.
+	// Changed update is only called for ATTRIBUTE changes in the
+	// document, which I define as not relevant to the Document
+	// Suggestion Providers.
+    }
+	
+    public void insertUpdate(DocumentEvent e) {
+        docEdited(document, e, dataobject);
+	scheduleRescan(e, false);
+    }
+
+    public void removeUpdate(DocumentEvent e) {
+        docEdited(document, e, dataobject);
+	scheduleRescan(e, false);
+    }
+
+    /** Plan a rescan (meaning: start timer)
+     * @param delay If true, don't create a rescan if one isn't already
+     * pending, but if one is, delay it.
+     * @param docEvent Document edit event. May be null. */
+    private void scheduleRescan(final DocumentEvent docEvent, boolean delay) {
+        if (wait) {
+            waitEvent = docEvent;
+            return;
+        }
+        
+        if (delay && (runTimer == null)) {
+            return;
+        }
+        
+	// Stop our current timer; the previous node has not
+	// yet been scanned; too brief an interval
+	if (runTimer != null) {
+	    runTimer.stop();
+	    runTimer = null;
+	}
+
+	runTimer = new Timer(scanDelay,
+		     new ActionListener() {
+			 public void actionPerformed(ActionEvent evt) {
+                             runTimer = null;
+                             if (!wait) {
+                                 docEditedStable(document, docEvent, dataobject);
+                             }
+			 }
+		     });
+	runTimer.setRepeats(false);
+	runTimer.setCoalesce(true);
+	runTimer.start();
+    }
+
+    private DocumentEvent waitEvent = null;
+    private boolean wait = false;
+    
+    /** Tell the DocumentListener to wait updating itself indefinitely
+     * (until it's told not to wait again). When it's told to stop waiting,
+     * itself, it will call docEditedStable if that was called and cancelled
+     * at some point during the wait
+     * <p>
+     * Typically, you should NOT call this method. It's intended for use
+     * by the Suggestions framework to allow for example the modal fix
+     * dialog which provides confirmations to suspend document updates until
+     * all fix actions have been processed.
+     */
+    void setFixing(boolean wait) {
+        boolean wasWaiting = this.wait;
+        this.wait = wait;
+        if (!wait && wasWaiting && (waitEvent != null)) {
+            scheduleRescan(waitEvent, false);
+        }
+    }
+    
+    /** Start scanning for source items. */
+    public void docStart() {
+	/* OLD:
+	org.openide.windows.TopComponent.getRegistry().
+	    addPropertyChangeListener(this);
+
+	// Also scan the current node right away: pretend source listener was
+	// notified of the change to the current node (which has already occurred)
+	// ... unfortunately this is not as easy as just calling getActivatedNodes
+	// on the registry -- because that node may not be the last EDITORvisible
+	// node... So resort to some hacks.
+	Node[] nodes = NewTaskAction.getEditorNodes();
+	if (nodes != null) {
+	    scanner.propertyChange(new PropertyChangeEvent(
+	      this,
+	      TopComponent.Registry.PROP_ACTIVATED_NODES,
+	      null,
+	      nodes));
+	} else {
+	    // Most likely you're not looking at a panel that has an
+	    // associated node, e.g. the welcome screen, or the editor isn't
+	    // open
+            if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
+            err.log("Couldn't find current nodes...");
+            }
+	}
+	*/
+
+	// NEW:
+	/** HACK: We need to always know what the current source file
+	    in the editor is - and even when there isn't a source file
+	    there, we need to know: if you for example switch to the
+	    Welcome screen we should remove the tasks for the formerly
+	    shown source file.
+	    
+	    I've tried listening to the global node, since we should
+	    always get notified when the current node changes. However,
+	    this has a couple of problems. First, we may get notified
+	    of the node change BEFORE the source file is done editing;
+	    in that case we can't find the node in the editor (we need
+	    to check that a node is in the editor since we don't want
+	    the task window to for example show the tasks for the 
+	    current selection in the explorer).  Another problem is
+	    a scenario I just ran into where if you open A, B from
+	    explorer, then select A in the explorer, then select B in
+	    the editor: when you now double click A in the explorer
+	    there's no rescan. (I may have to debug this).
+
+	    So instead I will go to a more reliable scheme, which 
+	    unfortunately smells more like a hack from a NetBeans
+	    perspective. The basic idea is this: I can find the
+	    source editor, and which top component is showing in
+	    the source editor.  I can get notified of when this
+	    changes - by listening for componentHidden of the
+	    top most pane. Then I just have to go and see which
+	    component is now showing, and switch my component listener
+	    to this new component. (From the component I can discover
+	    which source file it's editing).  This has the benefit
+	    that I'll know precisely when a new file has been loaded
+	    in, etc. It may have the disadvantage that if you open
+	    source files in other modes (by docking and undocking
+	    away from the standard configuration) things get
+	    broken. Perhaps I can keep my old activated-node-listener
+	    scheme in place as a backup solution when locating the
+	    source editor mode etc. fails.
+
+	    It gets more complicated. What if you open the task window
+	    when the editor is not visible? Then you can't attach a
+	    listener to the current window - so you don't get notified
+	    when a new file is opened. For that reason we also need to
+	    listen to the workspace's property change notification, which
+	    will tell us when the set of modes changes in the workspace.
+
+	    ...and of course the workspace itself can change. So we need
+	    to listen to the workspace change notification in the window
+	    manager as well...
+	*/
+
+	/*
+	WindowManager manager = TopManager.getDefault().getWindowManager();
+	manager.addPropertyChangeListener(this);
+	Workspace workspace = TopManager.getDefault().getWindowManager().
+	    getCurrentWorkspace();
+	workspace.addPropertyChangeListener(this);
+	*/
+	
+	findCurrentFile(false);
+    }
+
+    /** The topcomponent we're currently tracking as the showing
+	editor component */
+    private TopComponent current = null;
+
+    /** FOR DEBUGGING ONLY: Look up the data object for a top
+       component, if possible. Returns the object itself if no DO
+       was found (suitable for printing: DO is best, but component will
+       do.
+    private static Object tcToDO(TopComponent c) {
+	Node[] nodes = c.getActivatedNodes();	
+	if (nodes == null) {
+	    return c;
+	}
+	Node node = nodes[0];
+	if (node == null) {
+	    return c;
+	}
+	DataObject dao = (DataObject)node.getCookie(DataObject.class);
+	if (dao == null) {
+	    return c;
+	} else {
+	    return dao;
+	}
+    }
+     */
+
+    /** 
+        @todo Put this on a delayed timer, such that rapid changes
+              in node selection doesn't cause excessive parsing.
+              Studio seemed to have a 2 second delay.
+        @todo Limit scan to objects shown in the source editor.
+              Try getting associated topcomponent, and ensure isShowing(),
+              as well as editor component subclass. Check my NewTaskAction
+              where I searched for the editor component to get the
+              current file name.
+        @todo This method doesn't really scan, it really does additional
+	      validation that the data object is an appropriate scan target;
+	      so factor this into a validation method or something like that
+	      along with the propertyChange code, e.g. isCurrentEditorObject
+    */
+    private void findCurrentFile(boolean delayed) {
+	// Unregister previous listeners
+	if (current != null) {
+	    //System.err.println("Removing component listener from " + tcToDO(current));
+	    current.removeComponentListener(this);
+	    current = null;
+            
+	}
+	// XXX is this the right thing to do?
+        if (document != null) {
+	    document.removeDocumentListener(this);
+            docHidden(document, dataobject);
+        }
+        if (editors != null) {
+            removeCaretListeners();
+        }
+
+
+	// Find which component is showing in it
+	// Add my own component listener to it
+	// When componentHidden, unregister my own component listener
+	// Redo above
+
+	// Locate source editor
+        Workspace workspace = WindowManager.getDefault().getCurrentWorkspace();
+        
+        // HACK ALERT !!! HACK ALERT!!! HACK ALERT!!!
+        // Look for the source editor window, and then go through its
+        // top components, pick the one that is showing - that's the
+        // front one!
+        Mode mode  = workspace.findMode(EditorSupport.EDITOR_MODE);
+	if (mode == null) {
+	    // No source editor
+	    // Perhaps we're on a workspace without an editor. In that
+	    // case, look for the editor on the editing workspace.
+	    // ... nope, that won't work, it will cause havoc
+	    // for my visibility check. Yuck yuck yuck.
+	    return;
+	}
+        TopComponent [] tcs = mode.getTopComponents();
+        for (int j = 0; j < tcs.length; j++) {
+            TopComponent tc = tcs[j];
+            if (tc instanceof EditorSupport.Editor) {
+                // Found the source editor...
+                if (tc.isShowing()) {
+		    current = tc;
+                    break;
+                }
+            } else if (tc instanceof CloneableEditor) {
+                // Found the source editor...  html or text most likely
+                if (tc.isShowing()) {
+		    current = tc;
+                    break;
+                }
+            }
+        }
+	if (current == null) {
+	    // No source editor
+	    // "None of the editor components were on top!"
+            return;
+	}
+
+	// Listen for changes on this component so we know when
+	// it's replaced by something else
+	//System.err.println("Add component listener to " + tcToDO(current));
+	current.addComponentListener(this);
+
+	Node[] nodes = current.getActivatedNodes();
+	
+	if ((nodes == null) || (nodes.length != 1)) {
+            if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
+                err.log(
+                  "Unexpected editor component activated nodes " + // NOI18N
+                  " contents: " + nodes); // NOI18N
+            }
+	}
+
+	Node node = nodes[0];
+
+	final DataObject dao = (DataObject)node.getCookie(DataObject.class);
+	err.log("Considering data object " + dao);
+	if (dao == null) {
+	    return;
+	}
+
+	if (!dao.isValid()) {
+	    err.log("The data object is not valid!");
+	    return;
+	}
+
+
+        /*
+	if (dao == lastDao) {
+	    // We've been asked to scan the same dataobject as last time;
+	    // don't do that.
+	    // Most likely you've temporarily switched to another (non-editor)
+	    // node, and switched back (for example, double clicking on a node
+	    // in the task window) and we're still on the same file so there's
+	    // no reason to rescan.  We track changes to the currently scanned
+	    // object differently (through a document listener).
+	    err.log("Same dao as last time - not doing anything");
+	    return; // Don't scan again
+	}
+	lastDao = dao;
+        */
+        
+	final EditorCookie edit = (EditorCookie)dao.getCookie(EditorCookie.class);
+	if (edit == null) {
+	    err.log("No editor cookie - not doing anything");
+	    return;
+	}
+	
+	/* This is probably not necessary now with my new editor-tracking
+	   scheme: I'm only calling this on visible components. This is
+	   a leftover from my noderegistry listener days, and I'm keeping
+	   it around in case I leave the NodeRegistry lister code in as
+	   a fallback mechanism, since this is all a bit of a hack.
+	// See if it looks like this data object is visible
+	JEditorPane[] panes = edit.getOpenedPanes();
+	if (panes == null) {
+	    err.log("No editor panes for this data object");
+	    return;
+	}
+	int k = 0;
+	for (; k < panes.length; k++) {
+	    if (panes[k].isShowing()) {
+		break;
+	    }
+	}
+	if (k == panes.length) {
+	    err.log("No editor panes for this data object are visible");
+	    return;
+	}
+	*/
+
+	final Document doc = edit.getDocument(); // Does not block
+
+	/* This comment applies to the old implementation, where
+	   we're listening on activated node changes. Now that we're
+	   listening for tab changes, the document should already
+	   have been read in by the time the tab changes and we're
+	   notified of it:
+
+	// We might have a race condition here... you open the
+	// document, and our property change listener gets notified -
+	// but the document hasn't completed loading yet despite our
+	// 1 second timer. Thus we might not get a document... However
+	// since we continue listening for changes, eventually we WILL
+	// discover the document
+	*/
+	if (doc == null) {
+	    err.log("No document handle...");
+	    return;
+	}
+
+	if (document != null) {
+	    // Might be a duplicate removeDocumentListener -- that's
+	    // okay right?
+	    document.removeDocumentListener(this);
+	}
+	document = doc;
+	doc.addDocumentListener(this);
+        
+        dataobject = dao;
+
+	if (delayed) {
+	    runTimer = new Timer(scanDelay,
+		     new ActionListener() {
+			 public void actionPerformed(ActionEvent evt) {
+                             if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
+                                 err.log("Timer expired - time to scan " + dao);
+                             }
+                             docShown(doc, dataobject);
+                             addCaretListeners();
+			 }
+		     });
+	    runTimer.setRepeats(false);
+	    runTimer.setCoalesce(true);
+	    runTimer.start();
+	} else {
+	    // Do it right away
+            docShown(doc, dataobject);
+            addCaretListeners();
+	}
+    }
+
+    JEditorPane[] editors = null;
+    
+    private void addCaretListeners() {
+	EditorCookie edit = (EditorCookie)dataobject.getCookie(EditorCookie.class);
+	if (edit != null) {
+            JEditorPane panes[] = edit.getOpenedPanes();
+            if ((panes != null) && (panes.length > 0)) {
+                // We want to know about cursor changes in ALL panes
+                editors = panes;
+                for (int i = 0; i < editors.length; i++) {
+                    editors[i].addCaretListener(this);
+                }
+            }
+        }
+    }
+    
+    private void removeCaretListeners() {
+        if (editors != null) {
+            for (int i = 0; i < editors.length; i++) {
+                editors[i].removeCaretListener(this);
+            }
+        }
+        editors = null;
+    }
+
+    /** The component is now showing: tell debugger to send us updates! */
+    public void componentShown(ComponentEvent e) {
+        //super.componentShown();
+	// Don't care
+    }
+
+    /** The component is no longer showing: tell debugger to stop computing
+	updates on our behalf! */
+    public void componentHidden(ComponentEvent e) {
+        //super.componentHidden();
+	err.log("componentHidden");
+	findCurrentFile(true);
+    }
+
+    /** Don't care - but must implement full ComponentListener interface */
+    public void componentResized(ComponentEvent e) {
+        //super.componentResized();
+	// Don't care
+    }
+    
+    /** Don't care - but must implement full ComponentListener interface */
+    public void componentMoved(ComponentEvent e) {
+        //super.componentMoved();
+	// Don't care
+    }
+
+    /** Scan the given document for suggestions. Typically called
+     * when a document is shown or when a document is edited, but
+     * could also be called for example as part of a directory
+     * scan for suggestions.
+     * <p>
+     * @param document The document being hidden
+     * @param dataobject The Data Object for the file being opened
+     *
+     */
+    /*
+    public List scan(Document document, DataObject dataobject) {
+        List providers = getDocProviders();
+        ListIterator it = providers.listIterator();
+        while (it.hasNext()) {
+            DocumentSuggestionProvider provider = (DocumentSuggestionProvider)it.next();
+            provider.scan(document, dataobject);
+        }
+    } */
+    
+
+    /** Stop scanning for source items */
+    public void docStop() {
+	/*
+	WindowManager manager = TopManager.getDefault().getWindowManager();
+	manager.removePropertyChangeListener(this);
+	Workspace workspace = TopManager.getDefault().getWindowManager().
+	    getCurrentWorkspace();
+	workspace.removePropertyChangeListener(this);
+	*/
+	
+	
+	// Unregister previous listeners
+	if (current != null) {
+	    //System.err.println("Removing component listener from " + tcToDO(current));
+	    current.removeComponentListener(this);
+	    current = null;
+	}
+	// XXX is this the right thing to do?
+	if (document != null) {
+	    document.removeDocumentListener(this);
+	    // NOTE: we do NOT null it out since we still need to
+	    // see if the document is unchanged
+	}
+        if (editors != null) {
+            removeCaretListeners();
+        }
+
+	/*
+	org.openide.windows.TopComponent.getRegistry().
+	    removePropertyChangeListener(this);
+	*/
+
+        docHidden(document, dataobject);
+        document = null;
+    }
+    
+    /** Timer which keeps track of outstanding scan requests; we don't
+        scan briefly selected files */
+    private Timer runTimer; // make sure we get the right one
+
+    /** Cache for delay settings we want to use the timer for */
+    private int scanDelay = 1000;
+
+    
+    /** Reacts to changes */
+    //public void propertyChange(PropertyChangeEvent ev) {
+
+        //String prop = ev.getPropertyName();
+	//err.log("propertyChange: prop name is " + prop);
+    
+	
+	/* OLD This is the old implementation. See the long comment in
+	   start() explaining the new scheme which seems to work quite
+	   a bit better. The below code relies on this scanner object
+	   being added as a property change listener on the
+	   TopComponent registry - which is currently not the case
+	   (commented out in start() and stop(). You may also have to
+	   tweak the code in scan(Node) a bit such that it checks for
+	   a corresponding editor component for the node, since we're
+	   going to hit lots of nodes in the property change listener
+	   which do not correspond to editor window changes
+
+	// [PENDING] Use PROP_ACTIVATED_NODES or PROP_CURRENT_NODES?
+	// Study RegistryImpl in org.netbeans.core.windows
+	// [PENDING] Listen for TopComponent changes instead?
+	if (TopComponent.Registry.PROP_ACTIVATED_NODES.equals(
+						     ev.getPropertyName())) {
+
+	    // Stop our current timer; the previous node has not
+	    // yet been scanned; too brief an interval
+	    if (runTimer != null) {
+		runTimer.stop();
+		runTimer = null;
+	    }
+
+	    Node[] nodes = (Node[])ev.getNewValue();
+	    if (nodes == null) {
+		return;
+	    }
+	    
+	    if (nodes.length != 1) {
+		// If you've selected multiple nodes, this is not a
+		// node event we're interested in; we only care when
+		// you switch from one editor pane to another, not when
+		// you say select a series of files in the explorer
+		return;
+	    }
+
+	    scan(nodes[0]);
+	}
+	*/
+
+	/*
+	if (WindowManager.PROP_CURRENT_WORKSPACE == ev.getPropertyName()) {
+	    Workspace oldWs = (Workspace)ev.getOldValue();
+	    Workspace newWs = (Workspace)ev.getNewValue();
+	    System.out.println("Current workspace changed: old " + oldWs + "; new " + newWs);
+	} else if (Workspace.PROP_MODES == ev.getPropertyName()) {
+	    Mode[] oldModes = (Mode[])ev.getOldValue();
+	    Mode[] newModes = (Mode[])ev.getNewValue();
+	    System.out.println("Mode set changed: old " + oldModes + "; new " + newModes);
+	    // Check to see if the editor window has come or left
+	}
+	*/
+    //}
+
+    int prevLineNo = -1;
+
+    
+    /** Moving the cursor position should cause a delay in document scanning,
+     * but not trigger a new update */
+    public void caretUpdate(CaretEvent caretEvent) {
+	scheduleRescan(null, true);
+        
+         // Check to see if I have any existing errors on this line - and if so,
+        // highlight them.
+        if (document instanceof StyledDocument) {
+            int offset = caretEvent.getDot();
+            int lineno = NbDocument.findLineNumber((StyledDocument)document, offset);
+            if (lineno == prevLineNo) {
+                // Just caret motion on the same line as the previous one -- ignore
+                return;
+            }
+            prevLineNo = lineno;
+
+	    // Here we could add 1 to the line number, since findLineNumber
+	    // returns a 0-based line number, and most APIs return a 1-based
+	    // line number; however, Line.Set.getOriginal also expects
+	    // something zero based, so instead of doing the usual bit
+	    // of subtracting there, we drop the add and subtract altogether
+
+            // Go to the given line
+            Line line = null;
+            try {
+                LineCookie lc = (LineCookie)dataobject.getCookie(LineCookie.class);
+                if (lc != null) {
+                    Line.Set ls = lc.getLineSet();
+                    if (ls != null) {
+                        // XXX HACK
+                        // I'm subtracting 1 because empirically I've discovered
+                        // that the editor highlights whatever line I ask for plus 1
+                        line = ls.getCurrent(lineno);
+                    }
+                }
+            } catch (Exception e) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            }
+            
+            if (line != null) {
+                setCursorLine(line);
+            }
+        }
+    }
+    
+    
 }

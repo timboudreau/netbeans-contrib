@@ -23,7 +23,6 @@ import pmd.*;
 import pmd.config.ConfigUtils;
 import pmd.config.PMDOptionsSettings;
 import org.netbeans.api.tasklist.*;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
 import org.netbeans.spi.tasklist.LineSuggestionPerformer;
 import java.io.Reader;
 import java.io.StringReader;
@@ -56,7 +55,8 @@ import org.openide.util.Utilities;
  */
 
 
-public class ViolationProvider extends DocumentSuggestionProvider {
+public class ViolationProvider extends SuggestionProvider
+    implements DocumentSuggestionProvider {
 
     final private static String TYPE = "pmd-violations"; // NOI18N
 

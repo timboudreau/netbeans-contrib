@@ -14,7 +14,7 @@
 package org.netbeans.modules.tasklist.docscan;
 
 import org.netbeans.api.tasklist.*;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.api.tasklist.DocumentSuggestionProvider;
 import org.netbeans.spi.tasklist.LineSuggestionPerformer;
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.*;
@@ -50,7 +50,8 @@ import org.openide.loaders.DataObject;
  */
 
 
-public class SourceTaskProvider extends DocumentSuggestionProvider {
+public class SourceTaskProvider extends SuggestionProvider
+    implements DocumentSuggestionProvider {
 
     final private static String TYPE = "nb-tasklist-scannedtask"; // NOI18N
     
