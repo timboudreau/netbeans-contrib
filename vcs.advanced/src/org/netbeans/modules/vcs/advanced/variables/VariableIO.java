@@ -79,27 +79,6 @@ public class VariableIO extends Object {
     private VariableIO() {
     }
 
-    private static boolean bundleListContains(FileObject[] list, String name) {
-        for(int i = 0; i < list.length; i++) {
-            String buName = list[i].getName();
-            if (buName.equals(name)) return true;
-        }
-        return false;
-    }
-
-    /**
-     * Find out whether the locale extension exists as a locale name.
-     */
-    private static boolean isLocale(String localeExt) {
-        String lang;
-        int index = localeExt.indexOf('_');
-        if (index > 0) lang = localeExt.substring(0, index);
-        else lang = localeExt;
-        String[] languages = Locale.getISOLanguages();
-        List list = Arrays.asList(languages);
-        return list.contains(lang);
-    }
-    
     private static boolean isResourceBundle(FileObject fo) {
         return fo.getExt().equalsIgnoreCase("properties") &&
                 (fo.getName().startsWith("Bundle") ||
@@ -175,6 +154,21 @@ public class VariableIO extends Object {
     public static final ArrayList getLocalizedConfigurations(FileObject[] ch) {
         ArrayList res = new ArrayList();
         Locale locale = Locale.getDefault();
+        String language = locale.getLanguage();
+        String country = locale.getCountry();
+        String variant = locale.getVariant();
+        String localeStr = locale.toString();
+        String languageCountry = language+"_"+country;
+        String baseLocaleStr = "_"+localeStr;
+        String baseLanguage = "_"+language;
+        String baseLanguageCountry = baseLanguage+"_"+country;
+        String baseLanguageCountryVariant = baseLanguageCountry+variant;
+        String[] languages = Locale.getISOLanguages();
+        List languagesList = Arrays.asList(languages);
+        HashSet bundleList = new HashSet();
+        for (int i = 0; i < ch.length; i++) {
+            bundleList.add(ch[i].getName());
+        }
         for(int i = 0; i < ch.length; i++) {
             String name = ch[i].getName();
             //System.out.println("name = "+name+", locale = "+locale.toString());
@@ -186,16 +180,19 @@ public class VariableIO extends Object {
                 localeExt = name.substring(nameIndex + 1);
             }
             if (localeExt.equals(locale.toString())) ; // OK
-            else if (localeExt.equals(locale.getLanguage()+"_"+locale.getCountry())) {
-                if (bundleListContains(ch, baseName+"_"+locale.toString())) continue; // current variant is somewhere
+            else if (localeExt.equals(languageCountry)) {
+                if (bundleList.contains(baseName+baseLocaleStr)) continue; // current variant is somewhere
             } else if (localeExt.equals(locale.getLanguage())) {
-                if (bundleListContains(ch, baseName+"_"+locale.getLanguage()+"_"+locale.getCountry()) ||
-                    bundleListContains(ch, baseName+"_"+locale.getLanguage()+"_"+locale.getCountry()+"_"+locale.getVariant())) continue;
+                if (bundleList.contains(baseName+baseLanguageCountry) || bundleList.contains(baseName+baseLanguageCountryVariant)) continue;
             } else if (localeExt.length() == 0) {
-                if (bundleListContains(ch, baseName+"_"+locale.getLanguage()) ||
-                    bundleListContains(ch, baseName+"_"+locale.getLanguage()+"_"+locale.getCountry()) ||
-                    bundleListContains(ch, baseName+"_"+locale.getLanguage()+"_"+locale.getCountry()+"_"+locale.getVariant())) continue;
-            } else if (localeExt.length() > 0 && isLocale(localeExt)) continue;
+                if (bundleList.contains(baseName+baseLanguage) || bundleList.contains(baseName+baseLanguageCountry) || bundleList.contains(baseName+baseLanguageCountryVariant)) continue;
+            } else if (localeExt.length() > 0) {
+                String lang;
+                int index = localeExt.indexOf('_');
+                if (index > 0) lang = localeExt.substring(0, index);
+                else lang = localeExt;
+                if (languagesList.contains(lang)) continue;
+            }
             //System.out.println("adding: "+name+"."+ch[i].getExt());
             res.add(name+"."+ch[i].getExt());
         }
