@@ -53,7 +53,9 @@ public class RuntimeFolderNode extends AbstractNode {
 
     public Sheet createSheet() {
         Sheet sheet = Sheet.createDefault();
-        Sheet.Set set = sheet.get(Sheet.PROPERTIES);
+	Sheet.Set set = Sheet.createPropertiesSet();
+        sheet.put (set);
+        set.setValue("helpID", RuntimeFolderNode.class.getName()+"_properties");
         createProperties(set);
         return sheet;
     }
