@@ -46,8 +46,6 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
     private static final String WIN_CAT_FOLDER = "vcs";
     private static final String WIN_CAT_CONTENT = "@echo off\ntype %1\n";
     
-    private static final String SYSTEM = "system";
-
     private static final String COMMITTING = "CVS: Committing in";
     private static final String PRE_FILE = "CVS: \t";
 
@@ -210,8 +208,10 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             }
         }
         if (winCat != null) {
-            String userHome = System.getProperty("netbeans.user");
-            cat = userHome + File.separator + SYSTEM + File.separator + winCat.getPath();
+            File catFile = FileUtil.toFile(winCat);
+            if (catFile != null) {
+                cat = catFile.getAbsolutePath();
+            }
             cat = org.openide.util.Utilities.replaceString(cat, "\\", "\\\\");
             //System.out.println("cat = "+cat);
             //cat = getFilePath(fs, winCat);
