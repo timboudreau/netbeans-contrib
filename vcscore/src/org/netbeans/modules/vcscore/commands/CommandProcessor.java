@@ -118,8 +118,13 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     //private ArrayList commandsFinished;
     private int numRunningListCommands;
     
-    //private ThreadGroup group;
-    private RequestProcessor threadsPool;
+    /**
+     * The threads pool that is used to execute commands.
+     * Use a private threads pool for commands execution.
+     * This is necessary so that commands can not be accidentally started from
+     * a thread, that is later used as an execution thread for another command.
+     */
+    private CommandsThreadsPool threadsPool;
     
     /** Map of instances of VcsCommandProvider and associated list of command
      * process listeners. */
@@ -143,7 +148,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         //outputContainers = new Hashtable();
         //outputVisualizers = new Hashtable();
         numRunningListCommands = 0;
-        threadsPool = RequestProcessor.getDefault();
+        threadsPool = new CommandsThreadsPool();
         //group = new ThreadGroup("VCS Commands Group");
         //executorStarterLoop();
     }
@@ -214,7 +219,11 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     
     private synchronized void doPreprocess(final Command cmd) {
         commandsPreprocessing.add(cmd);
-        threadsPool.post(new Runnable() {
+        // Use a different RP for commands customization from the RP that is
+        // used for commands execution. This is necessary so that commands
+        // can not be accidentally started from a thread, that is later
+        // used as an execution thread for another command.
+        RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 List commandListeners;
                 Object provider = null;
@@ -393,73 +402,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         return status;
     }
 
-    /**
-     * Perform preprocessing of a new command. It will perform any needed input
-     * and update the execution string.
-     * @param vce the command to preprocess
-     * @return the preprocessing status, one of <code>CommandExecutorSupport.PROPEROCESS_*</code> constants
-     *
-    public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars,
-                                 VcsFileSystem fileSystem) {
-        return preprocessCommand(vce, vars, fileSystem, null);
-    }
-     */
-    
-    /**
-     * Perform preprocessing of a new command. It will perform any needed input
-     * and update the execution string.
-     * @param vce the command to preprocess
-     * @param vars the variables for this command
-     * @param fileSystem the file system this command is associated with. Can be <code>null</code>
-     *        if the command is not associated with any file system
-     * @param askForEachFile whether the user should be asked for options for each file
-     *        separately. If false, then the user is asked only once when the command acts
-     *        on multiple files. Only the first item in the array is used, new value
-     *        will be returned.
-     * @return the preprocessing status, one of <code>CommandExecutorSupport.PREPROCESS_*</code> constants
-     *
-    public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars,
-                                 VcsFileSystem fileSystem, boolean[] askForEachFile) {
-        //setCommandID(vce);
-        CommandTaskInfo cw = new CommandTaskInfo(vce, fileSystem);
-        taskInfos.put(vce, cw);
-        synchronized (commandsToRun) {
-            commandsToRun.add(cw);
-        }
-        VcsCommand cmd = vce.getCommand();
-        String name = cmd.getDisplayName();
-        if (name == null || name.length() == 0) name = cmd.getName();
-        String exec = vce.getExec();
-        RuntimeCommand rCom = null;
-        if (fileSystem != null) {
-            fileSystem.debug(g("MSG_Command_preprocessing", name, exec));
-            if (fileSystem.isCreateRuntimeCommands()) {
-                //rCom = new VcsRuntimeCommand(vce, this);
-                cw.setRuntimeCommand(rCom);
-                rCom.setState(RuntimeCommand.STATE_WAITING);
-                RuntimeSupport.getInstance().updateCommand(fileSystem.getSystemName(), rCom);
-            }
-        }
-        int preprocessStatus = CommandExecutorSupport.preprocessCommand(fileSystem, vce, vars, askForEachFile);
-        if (PREPROCESS_CANCELLED == preprocessStatus) {
-            synchronized (this) {
-                commandsToRun.remove(cw);
-                taskInfos.remove(vce);
-                //commandsFinished.add(vce);
-                notifyAll();
-            }
-            if (fileSystem != null) {
-                fileSystem.debug(g("MSG_Command_canceled", name));
-                if (fileSystem.isCreateRuntimeCommands()) {
-                    //RuntimeSupport.addCancelled(runtimeNode, vce, this);
-                    RuntimeSupport.getInstance().removeDone(fileSystem.getSystemName(), rCom);
-                }
-            }
-        }
-        return preprocessStatus;
-    }
-     */
-    
     private void commandStarted(final CommandTaskInfo cw) {
         //final VcsCommandExecutor vce = cw.getExecutor();
         //setCommandID(vce);
@@ -650,46 +592,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
          */
     }
 
-    /*
-    public void removeFinishedCommand(VcsCommandExecutor removedExecutor) {
-        CommandTaskInfo removedWrapper = (CommandTaskInfo) taskInfos.get(removedExecutor);
-        if (removedWrapper == null) return ;
-        synchronized (this) {
-            commandsFinished.remove(removedWrapper);
-            //System.out.println("commandDone("+removedWrapper.getExecutor().getCommand().getName()+"): removing command "+removedExecutor.getCommand().getName());
-            taskInfos.remove(removedExecutor);
-            outputContainers.remove(removedExecutor);
-        }
-        RuntimeCommand runCom = removedWrapper.getRuntimeCommand();
-        removedWrapper.setRuntimeCommand(null);
-        //VcsFileSystem fs = removedWrapper.getFileSystem();
-        //if (runCom != null) rSupport.removeDone(fileSystem.getSystemName(), runCom);
-    }
-     */
-    
-    /*
-    private void printErrorOutput(VcsCommandExecutor vce, final VcsFileSystem fileSystem) {
-        //final VcsFileSystem fileSystem = getVcsFileSystem();
-        if (fileSystem == null) return ;
-        fileSystem.debugErr(g("MSG_Check_whole_output"));
-        CommandOutputCollector collector = (CommandOutputCollector) outputContainers.get(vce);
-        //boolean isErrorOutput = false;
-        if (collector != null) {
-            collector.addErrorOutputListener(new CommandOutputListener() {
-                public void outputLine(String line) {
-                    //isErrorOutput = true;
-                    fileSystem.debugErr(line);
-                }
-            });
-        }
-        /*
-        if (!isErrorOutput) {
-            fileSystem.debugErr(g("MSG_No_error_output"));
-        }
-         *//*
-    }
-     */
-    
     /**
      * Start the executor. The method starts the executor in a separate thread.
      * @param vce the executor
@@ -723,7 +625,8 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     
     private synchronized void executorStarter(final CommandTaskInfo cw) {
         tasksRunning.add(cw);
-        threadsPool.post(new Runnable() {
+        threadsPool.processCommand(new Runnable() {
+        //new Thread(new Runnable() {
             public void run() {
                 VcsCommandExecutor vce;
                 synchronized (CommandProcessor.this) {
@@ -732,6 +635,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                     if (isListCommandTask(cw.getTask())) numRunningListCommands++;
                 }
                 commandStarted(cw);
+                //System.out.println("RUN: "+cw.getTask().getName()+", ID = "+cw.getCommandID()+", thread = "+Thread.currentThread()+", hash = "+Thread.currentThread().hashCode());
                 Error err = null;
                 try {
                     cw.run();
@@ -743,8 +647,10 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                     ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, t);
                 }
                 commandDone(cw);
+                //System.out.println("FINISHED: "+cw.getTask().getName()+", ID = "+cw.getCommandID()+", thread = "+Thread.currentThread()+", hash = "+Thread.currentThread().hashCode());
                 if (err != null) throw err;
             }
+        //}).start();
         });
     }
     
@@ -756,6 +662,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                 for (Iterator it = taskWaitQueue.iterator(); it.hasNext(); ) {
                     CommandTaskInfo cwTest = (CommandTaskInfo) it.next();
                     if (canRun(cwTest)) {
+                        //System.out.println("CommandProcessor: CAN RUN: "+cwTest.getTask().getName()+" ("+cwTest.getCommandID()+")");
                         cw = cwTest;
                         break;
                     }
@@ -765,18 +672,22 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                     executorStarter(cw);
                 }
             } while (cw != null);
-            Command cmd = null;
-            for (Iterator it = commandsToPreprocess.iterator(); it.hasNext(); ) {
-                Command cmdTest = (Command) it.next();
-                if (canPreprocess(cmdTest)) {
-                    cmd = cmdTest;
-                    break;
+            Command cmd;
+            do {
+                cmd = null;
+                for (Iterator it = commandsToPreprocess.iterator(); it.hasNext(); ) {
+                    Command cmdTest = (Command) it.next();
+                    if (canPreprocess(cmdTest)) {
+                        cmd = cmdTest;
+                        //System.out.println("CommandProcessor: CAN Preprocess: "+cmd.getName());
+                        break;
+                    }
                 }
-            }
-            if (cmd != null) {
-                commandsToPreprocess.remove(cmd);
-                doPreprocess(cmd);
-            }
+                if (cmd != null) {
+                    commandsToPreprocess.remove(cmd);
+                    doPreprocess(cmd);
+                }
+            } while (cmd != null);
             try {
                 wait();
             } catch (InterruptedException intrexc) {
@@ -800,53 +711,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         execStarterLoopStarted = true;
     }
 
-    /**
-     * Open the default visualizer of the command.
-     * @return true if the output was successfully opened, false otherwise
-     * (i.e. output is not available)
-     *
-    public boolean openCommandOutput(final VcsCommandExecutor vce) {
-        CommandOutputVisualizer visualizer = (CommandOutputVisualizer) outputVisualizers.get(vce);
-        if (visualizer != null) {
-            visualizer.requestFocus();
-            return true;
-        }
-        CommandOutputCollector outputCollector = (CommandOutputCollector) outputContainers.get(vce);
-        if (outputCollector == null) return false;
-        final CommandOutputVisualizer outputVisualizer = new CommandOutputVisualizer(vce);
-        outputVisualizer.addCloseListener(new TopComponentCloseListener() {
-            public void closing() {
-                outputVisualizers.remove(vce);
-            }
-        });
-        //if (isRunning(vce)) outputVisualizer.setCommandsPool(this);
-        outputVisualizer.open();
-        outputVisualizers.put(vce, outputVisualizer);
-        outputCollector.addOutputListener(new CommandOutputListener() {
-            public void outputLine(String line) {
-                outputVisualizer.stdOutputLine(line);
-            }
-        });
-        outputCollector.addErrorOutputListener(new CommandOutputListener() {
-            public void outputLine(String line) {
-                outputVisualizer.errOutputLine(line);
-            }
-        });
-        outputCollector.addDataOutputListener(new CommandDataOutputListener() {
-            public void outputData(String[] data) {
-                outputVisualizer.stdOutputData(data);
-            }
-        });
-        outputCollector.addDataErrorOutputListener(new CommandDataOutputListener() {
-            public void outputData(String[] data) {
-                outputVisualizer.errOutputData(data);
-            }
-        });
-        if (!isRunning(vce) && !isWaiting(vce)) outputVisualizer.setExitStatus(vce.getExitStatus());
-        return true;
-    }
-     */
-        
     /**
      * Whether some command is still running.
      * @return true when at least one command is running, false otherwise.
@@ -918,32 +782,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         return false;
     }
     
-    /**
-     * @param concurrencyWith the pairs of command names and concurrent execution integer value
-     *   <p> i.e.: "ADD 4", "STATUS 1"
-     * @return the map of command names and associated integer values
-     */
-    private HashMap createConcurrencyMap(String concurrencyWith) {
-        HashMap map = new HashMap();
-        if (concurrencyWith != null) {
-            String[] items = VcsUtilities.getQuotedStrings(concurrencyWith);
-            for (int i = 0; i < items.length; i++) {
-                int index = items[i].lastIndexOf(' ');
-                if (index < 0) continue;
-                String cmdName = items[i].substring(0, index);
-                String concStr = items[i].substring(index + 1);
-                int conc;
-                try {
-                    conc = Integer.parseInt(concStr);
-                } catch (NumberFormatException nfexc) {
-                    continue;
-                }
-                map.put(cmdName, new Integer(conc));
-            }
-        }
-        return map;
-    }
-    
     private boolean isListCommandTask(CommandTask task) {
         return task.getName().startsWith("LIST");
     }
@@ -994,25 +832,44 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         if (tasksRunning.size() >= MAX_NUM_RUNNING_COMMANDS ||
             isListCommandTask(task) && numRunningListCommands >= MAX_NUM_RUNNING_LISTS) {
             
-            //System.out.println("canRun("+vce.getCommand().getName()+") - limit reached.");
+            //System.out.println("canRun("+task.getName()+") - limit reached.");
             Thread submitter = cw.getSubmittingThread();
-            //System.out.println("  submitter = "+submitter);
+            //System.out.println("  submitter = "+submitter+", hash = "+submitter.hashCode());
             //System.out.println("  runningThreads = "+getRunningThreadsFromCommands(tasksRunning));
+            //Collection threads = getRunningThreadsFromCommands(tasksRunning);
+            //System.out.println("  runningThreads = "+threads.size());
+            //for (Iterator it = threads.iterator(); it.hasNext(); ) {
+            //    Object th = it.next();
+            //    System.out.println("   thread: "+th+", hash = "+th.hashCode());
+            //}
+            //System.out.println("   running contains submitter = "+threads.contains(submitter));
             if (getRunningThreadsFromCommands(tasksRunning).contains(submitter)) {
                 //System.out.println("  tasksExceptionallyRunning = "+tasksExceptionallyRunning);
+                /*
+                { HashSet exceptionallyRunning = new HashSet(tasksExceptionallyRunning);
+                  for (Iterator it = exceptionallyRunning.iterator(); it.hasNext(); ) {
+                      CommandTaskInfo testCw = (CommandTaskInfo) it.next();
+                      System.out.println("    ex. running "+((testCw.getTask() != null) ? testCw.getTask().getName() : null)+
+                                         ", ID = "+testCw.getCommandID()+", thread = "+testCw.getRunningThread()+", hash = "+
+                                         ((testCw.getRunningThread() != null) ? testCw.getRunningThread().hashCode() : 0));
+                  }
+                }
+                 */
                 if ((tasksExceptionallyRunning.size() == 0 || areExcRunningPredecessorsOf(cw))
                     && cw.canRun()) {
                     
                     tasksExceptionallyRunning.add(cw);
+                    //System.out.println("      can run EXCEPTIONALLY");
                     return true;
                 } else {
+                    //System.out.println("      can NOT EXCEPTIONALLY");
                     return false;
                 }
             }
             return false;
         }
         boolean canRun = cw.canRun();
-        //System.out.println("haveToWait = "+haveToWait);
+        //System.out.println("canRun("+task.getName()+") = "+canRun);
         return canRun;
     }
     
