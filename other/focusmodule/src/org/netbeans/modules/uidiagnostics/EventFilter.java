@@ -119,6 +119,9 @@ public class EventFilter implements PropertyChangeListener {
             out.append (" and a method \"" + getMethodNameFilter() + "\" is on the stack");
         }
         if (isStackTrace()) out.append (" print a stack trace");
+        if (isShowEvent()) out.append (" and the current awt event");
+        
+        
         stringRep=out.toString();
     }
     
@@ -321,6 +324,16 @@ public class EventFilter implements PropertyChangeListener {
     public String getPropertyNameFilter() {
         return this.propertyNameFilter;
     }
+    
+    public void setShowEvent(boolean b) {
+        showEvent = b;
+    }
+    
+    public boolean isShowEvent() {
+        return showEvent;
+    }
+    
+    private boolean showEvent=false;
     
     /** Setter for property propertyNameFilter.
      * @param propertyNameFilter New value of property propertyNameFilter.

@@ -55,7 +55,7 @@ public class FilterConfigPanel extends TopComponent implements PropertyChangeLis
         addButton.setText("Add new filter");
         addButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FilterConfigPanel.this.addButtonActionPerformed(evt);
+                addButtonActionPerformed(evt);
             }
         });
 
@@ -64,7 +64,7 @@ public class FilterConfigPanel extends TopComponent implements PropertyChangeLis
         removeButton.setText("Remove selected filter");
         removeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FilterConfigPanel.this.removeButtonActionPerformed(evt);
+                removeButtonActionPerformed(evt);
             }
         });
 
@@ -87,8 +87,9 @@ public class FilterConfigPanel extends TopComponent implements PropertyChangeLis
 
         add(jSplitPane1, java.awt.BorderLayout.CENTER);
 
-        jTextArea1.setBackground((java.awt.Color) javax.swing.UIManager.getDefaults().get("control"));
+        jTextArea1.setBackground(javax.swing.UIManager.getDefaults().getColor("control"));
         jTextArea1.setEditable(false);
+        jTextArea1.setFont(new java.awt.Font("Dialog", 0, 12));
         jTextArea1.setLineWrap(true);
         jTextArea1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/uidiagnostics/Bundle").getString("LBL_ConfigDescription"));
         jTextArea1.setWrapStyleWord(true);
@@ -154,13 +155,13 @@ public class FilterConfigPanel extends TopComponent implements PropertyChangeLis
     }    
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JList list;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JButton addButton;
     private org.netbeans.modules.uidiagnostics.FilterPanel filterpanel;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JList list;
     private javax.swing.JButton removeButton;
     // End of variables declaration//GEN-END:variables
 

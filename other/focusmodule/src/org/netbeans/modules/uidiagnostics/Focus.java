@@ -23,6 +23,7 @@ import javax.swing.event.*;
 import java.awt.*;
 import java.beans.*;
 import java.awt.event.*;
+import java.util.EventObject;
 
 /** A class that can optionally listen to events and report on those that
  *  pass its filters.
@@ -102,10 +103,12 @@ class Focus extends Object implements PropertyChangeListener {
         if (filters == null) return;
         boolean doOut = false;
         boolean stackTrace=false;
+        boolean showEvent = false;
         for (int i=0; i < filters.length; i++) {
             if (filters[i].match (evt)) {
                 doOut = true;
                 stackTrace |= filters[i].isStackTrace();
+                showEvent |= filters[i].isShowEvent();
             }
         }
         if (!doOut) return;
@@ -116,16 +119,83 @@ class Focus extends Object implements PropertyChangeListener {
             System.out.println("--------------------------------------------------\n");
         }
         
-        StringBuffer out = new StringBuffer();
+        final StringBuffer out = new StringBuffer();
         out.append (l);
         out.append (NbBundle.getMessage(Focus.class, "MSG_Prop") + evt.getPropertyName()); //NOI18N
         Object o = evt.getOldValue();
         Object n = evt.getNewValue();
         out.append (NbBundle.getMessage(Focus.class, "MSG_From") + o2string(o)); //NOI18N
         out.append (NbBundle.getMessage(Focus.class, "MSG_To") + o2string(n)); //NOI18N
-        System.out.println(out.toString());
-        if (stackTrace) Thread.dumpStack();
+        
+        if (showEvent) {
+            out.append ("\n current event:");
+            out.append (eventToString(EventQueue.getCurrentEvent()));
+        }
+        
+        final Exception ex = new Exception();
+        ex.fillInStackTrace();
+        final boolean trace = stackTrace;
+        //Doing this inline can alter timing, changing the behavior of what
+        //we're trying to measure
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                System.err.println(out.toString());
+                if (trace) {
+                ex.printStackTrace();
+                }
+            }
+        });
         lastTime=l;
+    }
+    
+    static String eventToString (EventObject e) {
+        if (e == null) {
+            return "null";
+        }
+        StringBuffer sb = new StringBuffer();
+        sb.append (e.getClass().getName().substring(e.getClass().getName().lastIndexOf('.')));
+        sb.append (' ');
+        if (e instanceof MouseEvent) {
+            MouseEvent me = (MouseEvent) e;
+            switch (me.getID()) {
+                case MouseEvent.MOUSE_CLICKED : sb.append("MOUSE_CLICKED");
+                    break;
+                case MouseEvent.MOUSE_PRESSED : sb.append("MOUSE_PRESSED");
+                    break;
+                case MouseEvent.MOUSE_RELEASED : sb.append("MOUSE_RELEASED");
+                    break;
+                case MouseEvent.MOUSE_ENTERED : sb.append("MOUSE_ENTERED");
+                    break;
+                case MouseEvent.MOUSE_EXITED : sb.append("MOUSE_EXITED");
+                    break;
+                case MouseEvent.MOUSE_DRAGGED : sb.append("MOUSE_DRAGGED");
+                    break;
+                case MouseEvent.MOUSE_WHEEL : sb.append("MOUSE_WHEEL");
+                    break;
+                case MouseEvent.MOUSE_MOVED : sb.append("MOUSE_MOVED");
+                    break;
+            }
+            sb.append (" modifiers=");
+            sb.append (me.getModifiersExText(me.getModifiersEx()));
+        } else if (e instanceof KeyEvent) {
+            KeyEvent ke = (KeyEvent) e;
+            switch (ke.getID()) {
+                case KeyEvent.KEY_PRESSED : sb.append ("KEY_PRESSED");
+                case KeyEvent.KEY_TYPED : sb.append("KEY_TYPED");
+                case KeyEvent.KEY_RELEASED : sb.append ("KEY_RELEASED");
+            }
+            sb.append (" key=");
+            sb.append(ke.getKeyText(ke.getKeyCode()));
+            sb.append (" modifiers=");
+            sb.append(KeyEvent.getModifiersExText(ke.getModifiersEx()));
+        }
+        sb.append (" source:");
+        sb.append (e.getSource() != null ? e.getSource().getClass().getName() : " null");
+        if (e.getSource() instanceof Component && ((Component) e.getSource()).getName() != null) {
+            sb.append (" name=");
+            sb.append (((Component) e.getSource()).getName());
+        }
+        return sb.toString();
     }
     
     static String o2string (Object o) {

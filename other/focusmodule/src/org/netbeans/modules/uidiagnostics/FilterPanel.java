@@ -90,6 +90,7 @@ public class FilterPanel extends javax.swing.JPanel implements ActionListener, F
         nonNullButton.addFocusListener (this);
         anythingButton.setSelected(true);
         findbutton.addFocusListener (this);
+        eventBox.addActionListener(this);
     }
     
     public Dimension getPreferredSize() {
@@ -130,6 +131,7 @@ public class FilterPanel extends javax.swing.JPanel implements ActionListener, F
         nonNullButton.setSelected (t == filter.TYPE_NONNULL);
         toStringButton.setSelected (t == filter.TYPE_TOSTRING);
         
+        eventBox.setSelected(filter.isShowEvent());
         methodMatchBox.setSelected (filter.isUseMethodFilter());
         filtertext.setText (filter.toString());
         
@@ -159,6 +161,7 @@ public class FilterPanel extends javax.swing.JPanel implements ActionListener, F
         filter.setUseMethodFilter(methodMatchBox.isSelected());
         filtertext.setText (filter.toString());
         filter.setStringFilter(toStringField.getText());
+        filter.setShowEvent(eventBox.isSelected());
         updateEnabled();
     }
     
@@ -240,216 +243,115 @@ public class FilterPanel extends javax.swing.JPanel implements ActionListener, F
         findbutton = new javax.swing.JButton();
         toStringButton = new javax.swing.JRadioButton();
         toStringField = new javax.swing.JTextField();
+        eventBox = new javax.swing.JCheckBox();
 
-        setLayout(new java.awt.GridBagLayout());
+        setLayout(null);
 
         jLabel1.setText("When");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        add(jLabel1, gridBagConstraints);
+        add(jLabel1);
+        jLabel1.setBounds(10, 64, 29, 15);
 
         anythingButton.setText("anything");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 40, 0, 10);
-        add(anythingButton, gridBagConstraints);
+        add(anythingButton);
+        anythingButton.setBounds(79, 82, 756, 23);
 
-        nullButton.setText("null");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 40, 0, 10);
-        add(nullButton, gridBagConstraints);
+        nullButton.setText(null);
+        add(nullButton);
+        nullButton.setBounds(79, 105, 756, 21);
 
         classNameButton.setText("classname contains");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 40, 0, 0);
-        add(classNameButton, gridBagConstraints);
+        add(classNameButton);
+        classNameButton.setBounds(79, 149, 121, 23);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        add(classMatchField, gridBagConstraints);
+        add(classMatchField);
+        classMatchField.setBounds(208, 150, 450, 21);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 6;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 0.05;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
-        add(whichCombo, gridBagConstraints);
+        add(whichCombo);
+        whichCombo.setBounds(49, 61, 280, 21);
 
         matches.setText("matches");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 7;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        add(matches, gridBagConstraints);
+        add(matches);
+        matches.setBounds(342, 63, 375, 15);
 
         stackTraceBox.setText("Print a stack trace");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 10;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 20, 10);
-        add(stackTraceBox, gridBagConstraints);
+        add(stackTraceBox);
+        stackTraceBox.setBounds(10, 284, 825, 23);
 
         methodMatchBox.setText("Match only if stack trace contains a method matching");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        add(methodMatchBox, gridBagConstraints);
+        add(methodMatchBox);
+        methodMatchBox.setBounds(10, 239, 281, 23);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 8;
-        gridBagConstraints.gridwidth = 7;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        add(methodMatchField, gridBagConstraints);
+        add(methodMatchField);
+        methodMatchField.setBounds(377, 239, 280, 21);
 
         jLabel3.setText("When the property name matches");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(20, 10, 0, 0);
-        add(jLabel3, gridBagConstraints);
+        add(jLabel3);
+        jLabel3.setBounds(10, 20, 164, 15);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(20, 0, 20, 10);
-        add(nameField, gridBagConstraints);
+        add(nameField);
+        nameField.setBounds(208, 20, 450, 21);
 
         invertBox.setText("Invert this filter (display only events that don't match)");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
-        add(invertBox, gridBagConstraints);
+        add(invertBox);
+        invertBox.setBounds(10, 261, 825, 23);
 
-        filtertext.setBackground((java.awt.Color) javax.swing.UIManager.getDefaults().get("control"));
+        filtertext.setBackground(javax.swing.UIManager.getDefaults().getColor("control"));
         filtertext.setEditable(false);
         filtertext.setLineWrap(true);
         filtertext.setWrapStyleWord(true);
         filtertext.setBorder(new javax.swing.border.BevelBorder(javax.swing.border.BevelBorder.LOWERED));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 11;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.gridheight = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weighty = 0.25;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        add(filtertext, gridBagConstraints);
+        add(filtertext);
+        filtertext.setBounds(10, 340, 640, 100);
 
         nonNullButton.setText("non-null");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 40, 0, 10);
-        add(nonNullButton, gridBagConstraints);
+        add(nonNullButton);
+        nonNullButton.setBounds(79, 126, 756, 23);
 
         specificComponent.setText("a specific component");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 7;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 40, 20, 0);
-        add(specificComponent, gridBagConstraints);
+        add(specificComponent);
+        specificComponent.setBounds(79, 195, 129, 23);
 
         findbutton.setText("Find...");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 7;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 0.1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 40, 0, 0);
-        add(findbutton, gridBagConstraints);
+        add(findbutton);
+        findbutton.setBounds(210, 200, 90, 20);
 
         toStringButton.setText("toString() contains");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 40, 0, 10);
-        add(toStringButton, gridBagConstraints);
+        add(toStringButton);
+        toStringButton.setBounds(79, 172, 119, 23);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        add(toStringField, gridBagConstraints);
+        add(toStringField);
+        toStringField.setBounds(208, 173, 450, 21);
+
+        eventBox.setText("Display the current AWT event");
+        add(eventBox);
+        eventBox.setBounds(10, 305, 173, 23);
 
     }//GEN-END:initComponents
 
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JRadioButton anythingButton;
+    private javax.swing.JTextField classMatchField;
+    private javax.swing.JRadioButton classNameButton;
+    private javax.swing.JCheckBox eventBox;
+    private javax.swing.JTextArea filtertext;
+    private javax.swing.JButton findbutton;
+    private javax.swing.ButtonGroup group;
     private javax.swing.JCheckBox invertBox;
-    private javax.swing.JCheckBox methodMatchBox;
-    private javax.swing.JLabel matches;
-    private javax.swing.JTextField nameField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel matches;
+    private javax.swing.JCheckBox methodMatchBox;
     private javax.swing.JTextField methodMatchField;
-    private javax.swing.JRadioButton specificComponent;
-    private javax.swing.JComboBox whichCombo;
-    private javax.swing.JTextArea filtertext;
-    private javax.swing.JRadioButton classNameButton;
-    private javax.swing.JRadioButton toStringButton;
+    private javax.swing.JTextField nameField;
     private javax.swing.JRadioButton nonNullButton;
-    private javax.swing.JTextField classMatchField;
-    private javax.swing.ButtonGroup group;
-    private javax.swing.JTextField toStringField;
-    private javax.swing.JCheckBox stackTraceBox;
     private javax.swing.JRadioButton nullButton;
-    private javax.swing.JButton findbutton;
-    private javax.swing.JRadioButton anythingButton;
+    private javax.swing.JRadioButton specificComponent;
+    private javax.swing.JCheckBox stackTraceBox;
+    private javax.swing.JRadioButton toStringButton;
+    private javax.swing.JTextField toStringField;
+    private javax.swing.JComboBox whichCombo;
     // End of variables declaration//GEN-END:variables
     
 }
