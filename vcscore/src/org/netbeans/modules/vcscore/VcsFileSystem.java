@@ -3319,10 +3319,28 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * and its content should be refreshed.
      */
     public void checkForModifications(String path) {
+        checkForModifications(path, true, true, true);
+    }
+    
+    /**
+     * Should be called when the modification in a file or folder is expected
+     * and its content should be refreshed.
+     */
+    public void checkForModifications(String path, final boolean recursively,
+                                      boolean refreshData, boolean refreshFolders) {
         //System.out.println("checkForModifications("+path+")");
-        Enumeration enum = existingFileObjects(this.findResource(path));
+        FileObject first = this.findResource(path);
+        Enumeration enum = existingFileObjects(first);
         while(enum.hasMoreElements()) {
             FileObject fo = (FileObject) enum.nextElement();
+            if (!(fo.isData() && refreshData || fo.isFolder() && refreshFolders)) {
+                continue;
+            }
+            if (!recursively) {
+                if (!first.equals(fo.getParent())) {
+                    if (!first.equals(fo)) break;
+                }
+            }
             String name = fo.getPackageNameExt('/', '.');
             //System.out.println("refreshResource("+name+")");
             refreshResource(name, true);
