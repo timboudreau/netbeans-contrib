@@ -1641,6 +1641,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 if (var.getLabelMnemonic() != null) {
                     lb.setDisplayedMnemonic(var.getLabelMnemonic().charValue());
                 }
+                if (Boolean.getBoolean("netbeans.accessibility")) {
+                    if (var.getA11yName() != null)
+                        tf.getAccessibleContext().setAccessibleName(var.getA11yName());
+                    if (var.getA11yDescription() != null)
+                        tf.getAccessibleContext().setAccessibleDescription(var.getA11yDescription());
+                }
                 if (var.isLocalFile ()) {
                     button = new JButton ();
                     button.addActionListener (new BrowseLocalFile (tf));
