@@ -184,7 +184,7 @@ public class Main extends NbTestCase {
 
         ((IDLNodeCookie) data.getCookie(IDLNodeCookie.class)).GenerateImpl(data);
         int timeout;
-        timeout = 20;
+        timeout = 60;
         while (timeout > 0) {
             try { Thread.currentThread().sleep(1000); } catch (Exception e) {}
             try {
