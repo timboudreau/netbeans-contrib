@@ -1333,15 +1333,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     /** Notifies this file system that it has been added to the repository. 
      */
     public void addNotify() {
-        // To distinguish the mounted FS. Necessary in Customizers.
-        String systemName = getSystemName();
-        if (!systemName.endsWith(" Mounted")) { // NOI18N
-            try {
-                setSystemName(systemName + " Mounted"); // NOI18N
-            } catch (PropertyVetoException exc) {
-                // Ignored.
-            }
-        }
         //System.out.println("fileSystemAdded("+this+")");
         //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
 //        if (Boolean.TRUE.equals(createRuntimeCommands)) commandsPool.setupRuntime();
@@ -1723,9 +1714,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         varValueAdjustment.setAdjust(getVariablesAsHashtable());
 
         firePropertyChange(PROP_VARIABLES, old, variables);
-        try {
-            setSystemName(computeSystemName(rootFile));
-        } catch (PropertyVetoException exc) {}
+        //try {
+        setAdjustedSystemName(computeSystemName(rootFile));
+        //} catch (PropertyVetoException exc) {}
     }
 
     public static String substractRootDir(String rDir, String module) {
@@ -2316,7 +2307,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
          */
         D.deb("Setting system name '"+name+"'"); // NOI18N
-        setSystemName(name);
+        setAdjustedSystemName(name);
 
         rootFile = root;
         last_rootFile = new File(getFSRoot());
@@ -2330,6 +2321,20 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             cache.setFSRoot(r.getAbsolutePath());
             cache.setRelativeMountPoint(module);
         }
+    }
+    
+    /** Modified to never throw PropertyVetoException by the name adjustment. */
+    public void setAdjustedSystemName(String name) {
+        int seed = 0;
+        String testName = name;
+        do {
+            try {
+                setSystemName(testName);
+                testName = null;
+            } catch (PropertyVetoException pvexc) {
+                testName = name + " - " + (++seed); // NOI18N
+            }
+        } while (testName != null);
     }
 
     /** Get the root directory of the file system.
