@@ -247,7 +247,7 @@ public class IDLIndentEngine extends IndentEngine {
                         int delta = newWidth - oldWidth;
                         if (delta < 0) {
                             doc.remove (currentLine.getStartOffset(),-delta);
-                            return off-delta;
+                            return off+delta;
                         }
                         else if (delta > 0) {
                             String fill = formater.generateIndent (delta);
