@@ -107,11 +107,18 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
     }
 
     public void testFiringOfChangesGeneratesEvents () throws Exception {
+        doFiringOfChanges (false);
+    }
+    public void testFiringOfChangesOnAllObjectsGeneratesEvents () throws Exception {
+        doFiringOfChanges (true);
+    }
+    
+    private void doFiringOfChanges (boolean fireChangeOnAllObjects) {
         Class[] supported = { Runnable.class };
         
         Implementation runImpl = new Implementation ();
         AspectProvider provider = Singletonizer.create (supported, runImpl);
-        Object representedObject = "sampleRO";
+        Object representedObject = new String ("sampleRO");
         Lookup lookup = Aspects.getLookup(representedObject, provider);
         
         assertSame ("Next time the same lookup is returned", lookup, Aspects.getLookup(representedObject, provider));
@@ -134,24 +141,36 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         assertEquals ("Runnable2 is there once", 1, resultRunnable2.allInstances ().size ()); 
         
         runImpl.isEnabled = false;
-        runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+        if (fireChangeOnAllObjects) {
+            runImpl.listener.stateChanged (new ChangeEvent (runImpl)); // change in all
+        } else {
+            runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+        }
         
         assertEquals ("Runnable is not there anymore", 0, resultRunnable.allInstances ().size ()); 
-        assertEquals ("Runnable2 is still there as nobody fired a change", 1, resultRunnable2.allInstances ().size ()); 
+        if (fireChangeOnAllObjects) {
+            assertEquals ("Runnable2 is not there anomore", 0, resultRunnable2.allInstances ().size ());
+        } else {
+            assertEquals ("Runnable2 is still there as nobody fired a change", 1, resultRunnable2.allInstances ().size ()); 
+        }
         assertEquals ("ActionListener is not there still", 0, resultListener.allInstances ().size ()); 
         listenerRunnable.assertCount ("This one changed", 1);
-        listenerRunnable2.assertCount ("No change in run2", 0);
+        listenerRunnable2.assertCount ("No change in run2 or 1", fireChangeOnAllObjects ? 1 : 0);
         listenerListener.assertCount ("This one have not", 0);
 
         runImpl.isEnabled = true;
-        runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+        if (fireChangeOnAllObjects) {
+            runImpl.listener.stateChanged (new ChangeEvent (runImpl)); // change in all
+        } else {
+            runImpl.listener.stateChanged (new ChangeEvent (representedObject));
+        }
         
         assertEquals ("Runnable reappeared", 1, resultRunnable.allInstances ().size ()); 
         assertEquals ("Runnable2 is still there as nobody fired a change", 1, resultRunnable.allInstances ().size ()); 
         assertEquals ("ActionListener is not there still", 0, resultListener.allInstances ().size ()); 
         listenerRunnable.assertCount ("This one changed", 1);
         listenerListener.assertCount ("This one have not", 0);
-        listenerRunnable2.assertCount ("No change in run2 again", 0);
+        listenerRunnable2.assertCount ("No change in run2 again or 1", fireChangeOnAllObjects ? 1 : 0);
         
         java.lang.ref.WeakReference refRunnable = new java.lang.ref.WeakReference (resultRunnable);
         java.lang.ref.WeakReference refRunnable2 = new java.lang.ref.WeakReference (resultRunnable2);
@@ -175,7 +194,7 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         assertGC ("Represeted object shall disappear as well", refRepresented2);
         
     }
-    
+
     /** Counting listener */
     private static class Listener implements org.openide.util.LookupListener {
         public int cnt;
