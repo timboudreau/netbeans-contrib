@@ -156,7 +156,7 @@ public class CommandOutputTopComponent extends TopComponent {
     public void open() {       
         if((lastMode == null)||(lastMode.getName().startsWith("anonymous"))){     //NOI18N       
             Mode mode = WindowManager.getDefault().findMode("output");            //NOI18N
-            mode.dockInto(outputTopComponent);
+            if (mode != null) mode.dockInto(outputTopComponent);
         }else if(!isOpened())
             lastMode.dockInto(outputTopComponent);
         super.open();
