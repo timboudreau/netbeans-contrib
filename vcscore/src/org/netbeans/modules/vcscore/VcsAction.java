@@ -157,6 +157,10 @@ public class VcsAction extends NodeAction implements ActionListener {
         //D.deb("doList('"+path+"')"); // NOI18N
         //System.out.println("VcsAction.doList("+path+")");
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
+        doList(fileSystem, path);
+    }
+    
+    public static void doList(VcsFileSystem fileSystem, String path) {
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         FileCacheProvider cache = fileSystem.getCacheProvider();
         if (statusProvider == null) return;
@@ -1198,6 +1202,48 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
         return remaining;
     }
+    
+    /**
+     * Perform the specified VCS command on a collection of FileObjects.
+     * Can handle also LIST and LIST_SUB commands.
+     */
+    public static void performVcsCommand(VcsCommand cmd, VcsFileSystem fileSystem, Collection fileObjects, boolean isExpert) {
+        boolean processAll = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_PROCESS_ALL_FILES) || fileSystem.isProcessUnimportantFiles();
+        Table files = new Table();
+        //boolean refreshDone = false;
+        addImportantFiles(fileObjects, files, processAll, fileSystem, true);
+        files = removeDisabled(fileSystem.getStatusProvider(), files, cmd);
+        if (VcsCommand.NAME_REFRESH.equals(cmd.getName())) {
+            ArrayList paths = new ArrayList();
+            for (Iterator it = files.values().iterator(); it.hasNext(); ) {
+                FileObject fo = (FileObject) it.next();
+                if (fo == null) continue;
+                String path = fo.getPackageName('/');
+                if (!paths.contains(path)) {
+                    doList(fileSystem, path);
+                    paths.add(path);
+                }
+            }
+        } else if (VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName())) {
+            ArrayList paths = new ArrayList();
+            for (Iterator it = files.values().iterator(); it.hasNext(); ) {
+                FileObject fo = (FileObject) it.next();
+                if (fo == null) continue;
+                String path = fo.getPackageName('/');
+                if (!paths.contains(path)) {
+                    CommandExecutorSupport.doRefresh(fileSystem, path, true);
+                    paths.add(path);
+                }
+            }
+        } else if (files.size() > 0) {
+            Hashtable map = null;
+            if (isExpert && !fileSystem.isExpertMode()) {
+                map = new Hashtable();
+                map.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE);
+            }
+            doCommand(files, cmd, map, fileSystem);
+        }
+    }
             
     protected void performCommand(final String cmdName, final Node[] nodes) {
         //System.out.println("performCommand("+cmdName+")");// on "+nodes.length+" nodes.");
@@ -1210,11 +1256,21 @@ public class VcsAction extends NodeAction implements ActionListener {
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         final VcsCommand cmd = fileSystem.getCommand(cmdName);
         if (cmd == null) return;
-        boolean processAll = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_PROCESS_ALL_FILES) || fileSystem.isProcessUnimportantFiles();
-        Table files = new Table();
+        if (selectedFileObjects != null) {
+            performVcsCommand(cmd, fileSystem, selectedFileObjects, CTRL_Down);
+        } else {
+            ArrayList fileObjects = new ArrayList();
+            for(int i = 0; i < nodes.length; i++) {
+                //D.deb("nodes["+i+"]="+nodes[i]); // NOI18N
+                DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
+                if (dd != null) fileObjects.addAll(dd.files());
+                else continue;
+            }
+            performVcsCommand(cmd, fileSystem, selectedFileObjects, CTRL_Down);
+        }
         //String mimeType = null;
         //String path = "";
-        boolean refreshDone = false;
+        /*
         if (selectedFileObjects != null) {
             addImportantFiles(selectedFileObjects, files, processAll, true);
         } else {
@@ -1225,32 +1281,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 else continue;
             }
         }
-        files = removeDisabled(fileSystem.getStatusProvider(), files, cmd);
-        if (cmdName.equals(VcsCommand.NAME_REFRESH)) {
-            ArrayList paths = new ArrayList();
-            for (Iterator it = files.values().iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                if (fo == null) continue;
-                String path = fo.getPackageName('/');
-                if (!paths.contains(path)) {
-                    doList(path);
-                    paths.add(path);
-                }
-            }
-        } else if (cmdName.equals(VcsCommand.NAME_REFRESH_RECURSIVELY)) {
-            ArrayList paths = new ArrayList();
-            for (Iterator it = files.values().iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                if (fo == null) continue;
-                String path = fo.getPackageName('/');
-                if (!paths.contains(path)) {
-                    doListSub(path);
-                    paths.add(path);
-                }
-            }
-        } else if (files.size() > 0) {
-            doCommand (files, cmd);
-        }
+         */
     }
 
     public void performAction(Node[] nodes) {
