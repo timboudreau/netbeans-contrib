@@ -1,10 +1,7 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.jmiutils/1
-OpenIDE-Module-Name: JMI Utilities
-OpenIDE-Module-Display-Category: MDR
-OpenIDE-Module-Short-Description: Set of JMI tools.
-OpenIDE-Module-Long-Description: The module contains tools that should work with any implementation of JMI standard. These tools include XMIReader, XMIWriter, JMI mapping utility, etc.
 OpenIDE-Module-Layer: org/netbeans/modules/jmiutils/resources/layer.xml
 OpenIDE-Module-Specification-Version: 0.83
 OpenIDE-Module-Implementation-Version: ${mdr.jmiutils.impl.version}
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jmiutils/Bundle.properties
 Class-Path: ext/jmiutils.jar

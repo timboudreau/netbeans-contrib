@@ -1,7 +1,6 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Name: API for metadata repositories
-OpenIDE-Module-Display-Category: MDR
-OpenIDE-Module-Short-Description: The module defines API for metadata repositories.
-OpenIDE-Module-Long-Description: The module defines API for metadata repositories.
 OpenIDE-Module-Specification-Version: 0.985
 OpenIDE-Module: org.netbeans.api.mdr/1
+OpenIDE-Module-Localizing-Bundle: org/netbeans/api/mdr/Bundle.properties
+
+

@@ -1,4 +1,5 @@
 OpenIDE-Module-Specification-Version: 1.1
 OpenIDE-Module: javax.jmi.reflect/1
-OpenIDE-Module-Name: JMI reflective API
+OpenIDE-Module-Localizing-Bundle: Bundle.properties
 Class-Path: ext/jmi.jar
+
