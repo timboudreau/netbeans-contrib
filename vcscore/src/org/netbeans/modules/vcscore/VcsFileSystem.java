@@ -39,6 +39,8 @@ import org.openide.filesystems.RepositoryReorderedEvent;
 import org.openide.loaders.DataLoader;
 import org.openide.loaders.DataLoaderPool;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.loaders.DataShadow;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.util.RequestProcessor;
@@ -59,6 +61,9 @@ import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.util.virtuals.VirtualsDataLoader;
 import org.netbeans.modules.vcscore.commands.*;
+import org.netbeans.modules.vcscore.grouping.AddToGroupDialog;
+import org.netbeans.modules.vcscore.grouping.GroupUtils;
+import org.netbeans.modules.vcscore.grouping.VcsGroupSettings;
 import org.netbeans.modules.vcscore.runtime.RuntimeSupport;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
@@ -3231,6 +3236,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return in;
     }
 
+    private static final Object GROUP_LOCK = new Object();
     private void fileChanged(final String name) {
         D.deb("fileChanged("+name+")");
         if (statusProvider != null) {
@@ -3243,6 +3249,31 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     }
                 }
             });
+        }
+        VcsGroupSettings grSettings = (VcsGroupSettings) SharedClassObject.findObject(VcsGroupSettings.class, true);
+        if (!grSettings.isDisableGroups()) {
+            if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_TO_DEFAULT
+                || grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_ASK) {
+                
+                FileObject fo = findResource(name);
+                if (fo != null) {
+                    try {
+                        DataObject dobj = DataObject.find(fo);
+                        synchronized (GROUP_LOCK) {
+                            DataShadow shadow = GroupUtils.findDOInGroups(dobj);
+                            if (shadow == null) {
+                                // it doesn't exist in groups, add it..
+                                if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_ASK) {
+                                    AddToGroupDialog.openChooseDialog(dobj);
+                                } else {
+                                    GroupUtils.addToDefaultGroup(new Node[] {dobj.getNodeDelegate()});
+                                }
+                            }
+                        }
+                    } catch (DataObjectNotFoundException exc) {
+                    }
+                }
+            }
         }
     }
 
