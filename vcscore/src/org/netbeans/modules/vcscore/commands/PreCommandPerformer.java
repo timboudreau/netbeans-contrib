@@ -50,21 +50,21 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     private static final String TEMP_FILE_SUFFIX = "output";
 
     private VcsFileSystem fileSystem;
-    private VcsCommand cmd;
+    //private VcsCommand cmd;
     private Hashtable vars;
 
     private volatile Vector[] preCommandOutput;
     //private volatile int preCommandExecuting = 0;
 
     /** Creates new CommandPerformer */
-    public PreCommandPerformer(VcsFileSystem fileSystem, VcsCommand cmd, Hashtable vars) {
+    public PreCommandPerformer(VcsFileSystem fileSystem, /*VcsCommand cmd, */Hashtable vars) {
         this.fileSystem = fileSystem;
-        this.cmd = cmd;
+        //this.cmd = cmd;
         this.vars = vars;
     }
 
-    public String process() {
-        String exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
+    public String process(String exec) {
+        //String exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec == null) return null;
         //UserCommand[] preCommands = cmd.getPreCommands();
         ArrayList commands = findPreCommands(exec);
