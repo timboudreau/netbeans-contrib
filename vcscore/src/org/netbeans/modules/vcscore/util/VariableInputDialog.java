@@ -18,6 +18,7 @@ import java.awt.event.*;
 import java.io.*;
 
 import org.openide.TopManager;
+import org.openide.NotifyDescriptor;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.*;
@@ -29,12 +30,11 @@ import org.netbeans.modules.vcscore.commands.*;
  */
 public class VariableInputDialog extends javax.swing.JPanel {
 
-    public static final String PROMPT_DIR = "_DIR";
-    public static final String PROMPT_FILE = "_FILE";
-    public static final String PROMPT_DATE_CVS = "_DATE_CVS";
-    public static final String PROMPT_DEFAULT_VALUE_SEPARATOR = "\"";
+    //public static final String PROMPT_DIR = "_DIR";
+    //public static final String PROMPT_FILE = "_FILE";
+    //public static final String PROMPT_DATE_CVS = "_DATE_CVS";
+    //public static final String PROMPT_DEFAULT_VALUE_SEPARATOR = "\"";
     
-    private static final String OK_COMMAND = "OK";
     private static final int TEXTFIELD_COLUMNS = 20;
     private static final int TEXTAREA_COLUMNS = 40;
     private static final int TEXTAREA_ROWS = 6;
@@ -55,6 +55,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     private VcsFileSystem fileSystem = null;
     private Hashtable vars = null;
+    private boolean expert = false;
+    
+    private VariableInputDescriptor inputDescriptor;
+    
+    private ArrayList actionList = new ArrayList();
+    private ActionListener closeListener = null;
+    private int promptAreaNum = 0;
     
     static final long serialVersionUID = 8363935602008486018L;
     
@@ -63,9 +70,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * @param files the files to get the input for
      * @param actionListener the listener to OK and Cancel buttons
      */
-    public VariableInputDialog(String[] files) {
+    public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor, boolean expert) {
         initComponents();
-        initFileLabel(files[0]);
+        this.inputDescriptor = inputDescriptor;
+        this.expert = expert;
+        initComponentsFromDescriptor();
+        //initFileLabel(files[0]);
     }
 
     public void setFilePromptDocumentListener(VariableInputDialog.FilePromptDocumentListener docListener) {
@@ -92,7 +102,6 @@ public class VariableInputDialog extends javax.swing.JPanel {
         promptEachCheckBox = new javax.swing.JCheckBox();
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
-        setBorder(new javax.swing.border.EtchedBorder());
         
         variablePanel.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints2;
@@ -131,24 +140,108 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private javax.swing.JCheckBox promptEachCheckBox;
     // End of variables declaration//GEN-END:variables
 
+    private void initComponentsFromDescriptor() {
+        int gridy = 0;
+        if (inputDescriptor != null) {
+            VariableInputComponent[] components = inputDescriptor.components();
+            for (int i = 0; i < components.length; i++) {
+                gridy = addComponent(components[i], gridy);
+            }
+        }
+        labelOffset = gridy;
+    }
+    
+    private int addComponent(VariableInputComponent component, int gridy) {
+        if (expert || !component.isExpert()) {
+            int componentId = component.getComponent();
+            switch (componentId) {
+                case VariableInputDescriptor.INPUT_PROMPT_FIELD:
+                    addVarPromptField(component, gridy);
+                    gridy++;
+                    break;
+                case VariableInputDescriptor.INPUT_PROMPT_AREA:
+                    addVarPromptArea(component, gridy, promptAreaNum++);
+                    gridy += 2;
+                    break;
+                case VariableInputDescriptor.INPUT_ASK:
+                    addAskChBox(component, gridy);
+                    gridy++;
+                    break;
+                case VariableInputDescriptor.INPUT_SELECT_RADIO:
+                    gridy = addSelectRadio(component, gridy);
+                    break;
+                case VariableInputDescriptor.INPUT_SELECT_COMBO:
+                    addSelectCombo(component, gridy);
+                    gridy++;
+                    break;
+            }
+        }
+        return gridy;
+    }
+    
+    /**
+     * Test if the input is valid and warn the user if it is not.
+     * @return true if the input is valid, false otherwise
+     */
+    private boolean testValidInput() {
+        VariableInputValidator validator = inputDescriptor.validate();
+        boolean valid = validator.isValid();
+        if (!valid) {
+            TopManager.getDefault().notify(new NotifyDescriptor.Message(validator.getMessage(), NotifyDescriptor.Message.WARNING_MESSAGE));
+        }
+        return valid;
+    }
+    
     public ActionListener getActionListener() {
         return new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 if (ev.getID() == ActionEvent.ACTION_PERFORMED) {
-                    if (OK_COMMAND.equals(ev.getActionCommand())) {
-                        validInput = true;
-                        writeFileContents();
+                    if (NotifyDescriptor.OK_OPTION.equals(ev.getSource())) {
+                        if (testValidInput()) {
+                            validInput = true;
+                            if (closeListener != null) {
+                                closeListener.actionPerformed(ev);
+                                closeListener = null;
+                            }
+                            //setVisible(false);
+                        }
+                        //writeFileContents();
+                        //processActions(); -- do not do it now in AWT !
                     } else {
                         validInput = false;
+                        freeReferences();
                     }
-                    fileSystem = null; // Free the reference to the file system
-                    docIdentif = null;
-                    docListener = null;
                 }
             }
         };
     }
     
+    public void setCloseListener(ActionListener closeListener) {
+        this.closeListener = closeListener;
+    }
+    
+    private void freeReferences() {
+        fileSystem = null;
+        docIdentif = null;
+        docListener = null;
+    }
+    
+    private void addActionToProcess(ActionListener l) {
+        actionList.add(l);
+    }
+    
+    public void processActions() {
+        for (Iterator it = actionList.iterator(); it.hasNext(); ) {
+            ActionListener listener = (ActionListener) it.next();
+            listener.actionPerformed(null);
+        }
+        freeReferences();
+    }
+    
+    /**
+     * Test, whether the input in this dialog is valid and variables can be assigned.
+     * @return true if the input is valid, false otherwise
+     */
     public boolean isValidInput() {
         return validInput;
     }
@@ -162,9 +255,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         this.vars = vars;
     }
     
-    /**
+    /*
      * Set the file name.
-     */
+     *
     private void initFileLabel(String file) {
         if (file == null || file.trim().length() == 0) return;
         javax.swing.JLabel label;
@@ -187,57 +280,59 @@ public class VariableInputDialog extends javax.swing.JPanel {
         this.add(label, gridBagConstraints1, 0);
         //pack();
     }
-        
-    /**
-     * Create variable labels and text fields.
      */
-    public void setVarPromptLabels(Table varLabels) {
-        Vector labels = new Vector();
-        Vector fields = new Vector();
-        //for(int i = 0; i < varLabels.size(); i++) {
-        int i = 0;
-        for(Enumeration enum = varLabels.keys(); enum.hasMoreElements(); i++) {
-            String varLabel = (String) enum.nextElement();
-            String varType = (String) varLabels.get(varLabel);
-            javax.swing.JLabel label = new javax.swing.JLabel(varLabel+":");
-            javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
-            java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
-            java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();
-            gridBagConstraints1.gridx = 0;
-            gridBagConstraints1.gridy = i + labelOffset;
-            gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-            gridBagConstraints1.insets = new java.awt.Insets (0, 0, 8, 8);
-            gridBagConstraints2.gridx = 1;
-            gridBagConstraints2.gridy = i + labelOffset;
-            gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints2.weightx = 1.0;
-            gridBagConstraints2.insets = new java.awt.Insets (0, 0, 8, 0);
-            variablePanel.add(label, gridBagConstraints1);
-            variablePanel.add(field, gridBagConstraints2);
-            labels.addElement(label);
-            fields.addElement(field);
-            if (varType.startsWith(PROMPT_DEFAULT_VALUE_SEPARATOR)) {
-                int index = varType.indexOf(PROMPT_DEFAULT_VALUE_SEPARATOR, 1);
-                if (index > 0) {
-                    String defaultValue = varType.substring(PROMPT_DEFAULT_VALUE_SEPARATOR.length(), index);
-                    field.setText(defaultValue);
-                    varType = varType.substring(index + PROMPT_DEFAULT_VALUE_SEPARATOR.length());
-                }
-            }
-            VcsUtilities.removeEnterFromKeymap(field);
-            if (PROMPT_DIR.equals(varType)) {
-                addBrowseDir(variablePanel, field, i + labelOffset);
-            } else if (PROMPT_DATE_CVS.equals(varType)) {
-                addDateCVS(variablePanel, field, i + labelOffset);
-            } else if (varType.startsWith("[") && varType.endsWith("]")) {
-                addSelector(variablePanel, field, i + labelOffset,
-                            varType.substring(1, varType.length() - 1));
+    
+    private void addVarPromptField(final VariableInputComponent component, int gridy) {
+        String varLabel = component.getLabel();
+        //String varType = (String) varLabels.get(varLabel);
+        javax.swing.JLabel label = new javax.swing.JLabel(varLabel);
+        final javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
+        String value = component.getValue();
+        if (value != null) field.setText(value);
+        java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
+        java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();
+        gridBagConstraints1.gridx = 0;
+        gridBagConstraints1.gridy = gridy;
+        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints1.insets = new java.awt.Insets (0, 0, 8, 8);
+        gridBagConstraints2.gridx = 1;
+        gridBagConstraints2.gridy = gridy;
+        gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints2.weightx = 1.0;
+        gridBagConstraints2.insets = new java.awt.Insets (0, 0, 8, 0);
+        variablePanel.add(label, gridBagConstraints1);
+        variablePanel.add(field, gridBagConstraints2);
+        VcsUtilities.removeEnterFromKeymap(field);
+        String selector = component.getSelector();
+        if (selector != null) {
+            if (VariableInputDescriptor.SELECTOR_DIR.equals(selector)) {
+                addBrowseDir(variablePanel, field, gridy);
+            } else if (VariableInputDescriptor.SELECTOR_FILE.equals(selector)) {
+                addBrowseFile(variablePanel, field, gridy);
+            } else if (VariableInputDescriptor.SELECTOR_DATE_CVS.equals(selector)) {
+                addDateCVS(variablePanel, field, gridy);
+            } else if (selector.indexOf(VariableInputDescriptor.SELECTOR_CMD) == 0) {
+                addSelector(variablePanel, field, gridy,
+                            selector.substring(VariableInputDescriptor.SELECTOR_CMD.length()));
             }
         }
-        labelOffset += i;
-        //pack();
-        this.varPromptLabels = (javax.swing.JLabel[]) labels.toArray(new javax.swing.JLabel[0]);
-        this.varPromptFields = (javax.swing.JTextField[]) fields.toArray(new javax.swing.JTextField[0]);
+        field.addActionListener(new ActionListener () {
+            public void actionPerformed(ActionEvent aevt) {
+                component.setValue(field.getText());
+            }
+        });
+        field.addFocusListener(new FocusListener() {
+            public void focusGained(FocusEvent fevt) {}
+            public void focusLost(FocusEvent fevt) {
+                component.setValue(field.getText());
+            }
+        });
+        addActionToProcess(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                component.setValue(field.getText());
+                if (vars != null) vars.put(component.getVariable(), field.getText());
+            }
+        });
     }
     
     private void addBrowseDir(final javax.swing.JPanel panel, final javax.swing.JTextField field, int y) {
@@ -253,6 +348,28 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 VcsUtilities.centerWindow (chooseDir);
                 chooseDir.show();
                 String selected = chooseDir.getSelectedDir();
+                if (selected == null) {
+                    //D.deb("no directory selected"); // NOI18N
+                    return ;
+                }
+                field.setText(selected);
+            }
+        });
+    }
+    
+    private void addBrowseFile(final javax.swing.JPanel panel, final javax.swing.JTextField field, int y) {
+        java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints ();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = y;
+        gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 0);
+        javax.swing.JButton button = new javax.swing.JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Browse"));
+        panel.add(button, gridBagConstraints);
+        button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ChooseFileDialog chooseFile = new ChooseFileDialog(new javax.swing.JFrame(), new File(field.getText ()), false);
+                VcsUtilities.centerWindow (chooseFile);
+                chooseFile.show();
+                String selected = chooseFile.getSelectedFile();
                 if (selected == null) {
                     //D.deb("no directory selected"); // NOI18N
                     return ;
@@ -318,80 +435,193 @@ public class VariableInputDialog extends javax.swing.JPanel {
             return selectorOutput.toString();
         } else return null;
     }
-
-    /**
-     * Create variable labels and check boxes.
-     */
-    public void setVarAskLabels(Table varLabels) {
-        Vector chboxes = new Vector();
-        int i = 0;
-        for(Enumeration enum = varLabels.keys(); enum.hasMoreElements(); i++) {
-        //for(int i = 0; i < varLabels.length; i++) {
-            String label = (String) enum.nextElement();
-            javax.swing.JCheckBox chbox = new javax.swing.JCheckBox(" "+label);
-            String askType = (String) varLabels.get(label);
-            if (askType.startsWith(PROMPT_DEFAULT_VALUE_SEPARATOR)) {
-                int index = askType.indexOf(PROMPT_DEFAULT_VALUE_SEPARATOR, 1);
-                if (index > 0) {
-                    String defaultValue = askType.substring(PROMPT_DEFAULT_VALUE_SEPARATOR.length(), index);
-                    chbox.setSelected(Boolean.TRUE.toString().equalsIgnoreCase(defaultValue));
+    
+    private void addAskChBox(final VariableInputComponent component, int gridy) {
+        String label = component.getLabel();
+        final javax.swing.JCheckBox chbox = new javax.swing.JCheckBox(" "+label);
+        String askDefault = component.getValue();
+        if (askDefault != null) {
+            chbox.setSelected(Boolean.TRUE.toString().equalsIgnoreCase(askDefault));
+        }
+        java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
+        gridBagConstraints1.gridx = 0;
+        gridBagConstraints1.gridy = gridy;
+        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints1.insets = new java.awt.Insets (0, 0, 8, 0);
+        gridBagConstraints1.gridwidth = 2;
+        variablePanel.add(chbox, gridBagConstraints1);
+        chbox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                boolean selected = chbox.isSelected();
+                String valueSelected = component.getValueSelected();
+                String valueUnselected = component.getValueUnselected();
+                if (selected && valueSelected != null) {
+                    component.setValue(valueSelected);
+                } else if (!selected && valueUnselected != null) {
+                    component.setValue(valueUnselected);
+                } else {
+                    component.setValue(selected ? Boolean.TRUE.toString() : "");
                 }
             }
-            java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
-            gridBagConstraints1.gridx = 0;
-            gridBagConstraints1.gridy = i + labelOffset;
-            gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-            gridBagConstraints1.insets = new java.awt.Insets (0, 0, 8, 0);
-            variablePanel.add(chbox, gridBagConstraints1);
-            chboxes.addElement(chbox);
-        }
-        labelOffset += varLabels.size();
-        //pack();
-        this.varAskCheckBoxes = (javax.swing.JCheckBox[]) chboxes.toArray(new javax.swing.JCheckBox[0]);
+        });
+        addActionToProcess(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                boolean selected = chbox.isSelected();
+                String valueSelected = component.getValueSelected();
+                String valueUnselected = component.getValueUnselected();
+                if (selected && valueSelected != null) {
+                    component.setValue(valueSelected);
+                } else if (!selected && valueUnselected != null) {
+                    component.setValue(valueUnselected);
+                } else {
+                    component.setValue(selected ? Boolean.TRUE.toString() : "");
+                }
+                if (vars != null) vars.put(component.getVariable(), component.getValue());
+            }
+        });
     }
 
-    /**
-     * Create file labels and text areas.
-     */
-    public void setFilePromptLabels(Hashtable filePrompts) {
-        Vector fileLabels = new Vector();
-        Vector areas = new Vector();
-        Vector fileNames = new Vector();
-        int i = 0;
-        for(Enumeration enum = filePrompts.keys(); enum.hasMoreElements(); i++) {
-            String message = (String) enum.nextElement();
-            javax.swing.JLabel label = new javax.swing.JLabel(message+":");
-            javax.swing.JTextArea area = new javax.swing.JTextArea(TEXTAREA_ROWS, TEXTAREA_COLUMNS);
-            javax.swing.JScrollPane scrollArea = new javax.swing.JScrollPane(area);
-            //javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
+    private void addVarPromptArea(final VariableInputComponent component, int gridy, final int promptAreaNum) {
+        String message = component.getLabel();
+        javax.swing.JLabel label = new javax.swing.JLabel(message);
+        java.awt.Dimension dimension = component.getDimension();
+        if (dimension == null) dimension = new java.awt.Dimension(TEXTAREA_ROWS, TEXTAREA_COLUMNS);
+        final javax.swing.JTextArea area = new javax.swing.JTextArea(dimension.width, dimension.height);
+        javax.swing.JScrollPane scrollArea = new javax.swing.JScrollPane(area);
+        //javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
+        java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
+        java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();
+        gridBagConstraints1.gridx = 0;
+        gridBagConstraints1.gridy = gridy;
+        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints1.insets = new java.awt.Insets (0, 0, 8, 0);
+        gridBagConstraints1.gridwidth = 2;
+        gridBagConstraints2.gridx = 0;
+        gridBagConstraints2.gridy = gridy + 1;
+        gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints2.weightx = 1.0;
+        gridBagConstraints2.weighty = 1.0;
+        gridBagConstraints2.insets = new java.awt.Insets (0, 0, 8, 0);
+        gridBagConstraints2.gridwidth = 2;
+        area.setBorder(new javax.swing.border.BevelBorder(javax.swing.border.BevelBorder.LOWERED));
+        variablePanel.add(label, gridBagConstraints1);
+        variablePanel.add(scrollArea, gridBagConstraints2);
+        //fileLabels.addElement(label);
+        //areas.addElement(area);
+        //VcsUtilities.removeEnterFromKeymap(field);
+        //fileNames.add(filePrompts.get(message));
+        initArea(area, component.getValue());
+        addActionToProcess(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                //component.setValue(chbox.isSelected() ? Boolean.TRUE.toString() : "");
+                writeFileContents(area, component.getValue(), promptAreaNum);
+                if (vars != null) vars.put(component.getVariable(), component.getValue());
+            }
+        });
+    }
+
+    private int addSelectRadio(final VariableInputComponent component, int gridy) {
+        String message = component.getLabel();
+        if (message != null && message.length() > 0) {
+            javax.swing.JLabel label = new javax.swing.JLabel(message);
             java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
-            java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();
             gridBagConstraints1.gridx = 0;
-            gridBagConstraints1.gridy = 2*i + labelOffset;
+            gridBagConstraints1.gridy = gridy;
+            gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints1.insets = new java.awt.Insets (0, 0, 4, 0);
+            gridBagConstraints1.gridwidth = 2;
+            variablePanel.add(label, gridBagConstraints1);
+            gridy++;
+        }
+        final VariableInputComponent[] subComponents = component.subComponents();
+        final javax.swing.ButtonGroup group = new javax.swing.ButtonGroup();
+        for (int i = 0; i < subComponents.length; i++) {
+            addRadioButton(subComponents[i], gridy++, group);
+        }
+        selectButton(component.getValue(), group);
+        addActionToProcess(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                int selected = 0;
+                Enumeration enum = group.getElements();
+                for (int i = 0; enum.hasMoreElements(); i++) {
+                    javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
+                    if (radio.isSelected()) {
+                        selected = i;
+                        break;
+                    }
+                }
+                component.setValue(subComponents[selected].getValue());
+                if (vars != null) vars.put(component.getVariable(), component.getValue());
+            }
+        });
+        return gridy;
+    }
+    
+    private void addRadioButton(final VariableInputComponent component, int gridy,
+                                javax.swing.ButtonGroup group) {
+        String label = component.getLabel();
+        javax.swing.JRadioButton button = new javax.swing.JRadioButton(label);
+        group.add(button);
+        java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
+        gridBagConstraints1.gridx = 0;
+        gridBagConstraints1.gridy = gridy;
+        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints1.insets = new java.awt.Insets (0, 0, 4, 0);
+        gridBagConstraints1.gridwidth = 2;
+        variablePanel.add(button, gridBagConstraints1);
+    }
+    
+    private static void selectButton(String value, javax.swing.ButtonGroup group) {
+        int index;
+        try {
+            index = Integer.parseInt(value);
+        } catch (NumberFormatException exc) {
+            index = 0;
+        }
+        Enumeration enum = group.getElements();
+        for (int i = 0; enum.hasMoreElements(); i++) {
+            javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
+            if (i == index) radio.setSelected(true);
+        }
+    }
+
+    private void addSelectCombo(final VariableInputComponent component, int gridy) {
+        String message = component.getLabel();
+        if (message != null && message.length() > 0) {
+            javax.swing.JLabel label = new javax.swing.JLabel(message);
+            java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
+            gridBagConstraints1.gridx = 0;
+            gridBagConstraints1.gridy = gridy;
             gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints1.insets = new java.awt.Insets (0, 0, 8, 0);
-            gridBagConstraints1.gridwidth = 2;
-            gridBagConstraints2.gridx = 0;
-            gridBagConstraints2.gridy = 2*i + 1 + labelOffset;
-            gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
-            gridBagConstraints2.weightx = 1.0;
-            gridBagConstraints2.weighty = 1.0;
-            gridBagConstraints2.insets = new java.awt.Insets (0, 0, 8, 0);
-            gridBagConstraints2.gridwidth = 2;
-            area.setBorder(new javax.swing.border.BevelBorder(javax.swing.border.BevelBorder.LOWERED));
+            gridBagConstraints1.gridwidth = 1;
             variablePanel.add(label, gridBagConstraints1);
-            variablePanel.add(scrollArea, gridBagConstraints2);
-            fileLabels.addElement(label);
-            areas.addElement(area);
-            //VcsUtilities.removeEnterFromKeymap(field);
-            fileNames.add(filePrompts.get(message));
         }
-        labelOffset += 2*i;
-        //pack();
-        this.filePromptLabels = (javax.swing.JLabel[]) fileLabels.toArray(new javax.swing.JLabel[0]);
-        this.filePromptAreas = (javax.swing.JTextArea[]) areas.toArray(new javax.swing.JTextArea[0]);
-        this.fileNames = (String[]) fileNames.toArray(new String[0]);
-        initAreas();
+        final VariableInputComponent[] subComponents = component.subComponents();
+        int items = subComponents.length;
+        final String[] labels = new String[items];
+        final String[] values = new String[items];
+        for (int i = 0; i < items; i++) {
+            labels[i] = subComponents[i].getLabel();
+            values[i] = subComponents[i].getValue();
+        }
+        final javax.swing.JComboBox comboBox = new javax.swing.JComboBox(labels);
+        java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();
+        gridBagConstraints2.gridx = 1;
+        gridBagConstraints2.gridy = gridy;
+        gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints2.weightx = 1.0;
+        gridBagConstraints2.weighty = 1.0;
+        gridBagConstraints2.insets = new java.awt.Insets (0, 0, 8, 0);
+        gridBagConstraints2.gridwidth = 1;
+        variablePanel.add(comboBox, gridBagConstraints2);
+        addActionToProcess(new ActionListener() {
+            public void actionPerformed(ActionEvent ev) {
+                int selected = comboBox.getSelectedIndex();
+                component.setValue(subComponents[selected].getValue());
+                if (vars != null) vars.put(component.getVariable(), component.getValue());
+            }
+        });
     }
 
     /**
@@ -422,7 +652,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             //gridBagConstraints2.weightx = 1.0;
             gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints2.insets = new java.awt.Insets (0, 0, 8, 0);
-            variablePanel.add(sep, gridBagConstraints1);
+            if (labelOffset > 0) variablePanel.add(sep, gridBagConstraints1);
             variablePanel.add(label, gridBagConstraints2);
             labelOffset += 2;
         }
@@ -516,35 +746,35 @@ public class VariableInputDialog extends javax.swing.JPanel {
     /**
      * Read content of input files into Text Areas.
      */
-    private void initAreas() {
-        for(int i = 0; i < filePromptAreas.length; i++) {
-            String name = fileNames[i];
-            if (name.length() == 0) continue;
-            File file = new File(name);
+    private void initArea(javax.swing.JTextArea filePromptArea, String fileName) {
+        //for(int i = 0; i < filePromptAreas.length; i++) {
+        //    String name = fileNames[i];
+            if (fileName.length() == 0) return ;
+            File file = new File(fileName);
             if (file.exists() && file.canRead()) {
                 try {
-                    filePromptAreas[i].read(new FileReader(file), null);
+                    filePromptArea.read(new FileReader(file), null);
                 } catch (FileNotFoundException exc) {
                     TopManager.getDefault().notifyException(exc);
                 } catch (IOException exc) {
                     TopManager.getDefault().notifyException(exc);
                 }
             }
-        }
+        //}
     }
     
-    private void writeFileContents() {
-        for(int i = 0; i < filePromptAreas.length; i++) {
-            if (docListener != null) docListener.filePromptDocumentCleanup(filePromptAreas[i], i, docIdentif);
-            String name = fileNames[i];
-            if (name.length() == 0) continue;
-            File file = new File(name);
+    private void writeFileContents(javax.swing.JTextArea filePromptArea, String fileName, int promptAreaNum) {
+        //for(int i = 0; i < filePromptAreas.length; i++) {
+            if (docListener != null) docListener.filePromptDocumentCleanup(filePromptArea, promptAreaNum, docIdentif);
+            //String name = fileNames[i];
+            if (fileName.length() == 0) return ;
+            File file = new File(fileName);
             try {
-                filePromptAreas[i].write(new FileWriter(file));
+                filePromptArea.write(new FileWriter(file));
             } catch (IOException exc) {
                 TopManager.getDefault().notifyException(exc);
             }
-        }
+        //}
     }
     
     public interface FilePromptDocumentListener {
