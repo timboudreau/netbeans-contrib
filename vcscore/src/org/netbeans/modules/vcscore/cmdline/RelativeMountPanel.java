@@ -48,7 +48,9 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     private boolean resultRelativePaths;
     
     private boolean mouseEnter = false;
-    
+
+    private Set alreadyExpandedNodes;
+
     public RelativeMountPanel() {
         this(null, (char) 0, null, (char) 0);
     }
@@ -94,6 +96,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
             }
         }); 
         initAccessibility();
+        alreadyExpandedNodes = new HashSet();
     }
 
     public void requestFocus () {
@@ -379,7 +382,14 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     private void folderTreeNodes(final MyTreeNode parent) {
         //boolean hasChild = false;
         final ArrayList children = new ArrayList();
+		
         synchronized (trRelMount) {
+            if (alreadyExpandedNodes.contains(parent)) {
+                return;
+            }
+            // Remember this node as expanded.
+            alreadyExpandedNodes.add(parent);
+
             try {
                 SwingUtilities.invokeAndWait(new Runnable() {
                     public void run() {
@@ -391,6 +401,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
             } catch (java.lang.reflect.InvocationTargetException itexc) {
                 // Ignored
             }
+
             String parentFileStr = (String) parent.getUserObject(); 
             //File childFile;
             String[] list;
