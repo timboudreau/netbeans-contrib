@@ -304,6 +304,10 @@ public class VcsSearchType extends SearchType {
         firePropertyChange("Status", null, null);
         matchStatuses = getMatchStatuses();
     }
+    
+    public int[] getStatusIndexes() {
+        return indexes;
+    }
 
     public boolean getMatchExcept() {
         return matchExcept;

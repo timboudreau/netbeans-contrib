@@ -117,6 +117,11 @@ public class VcsSearchCustomizer extends javax.swing.JPanel implements Customize
         //statusTextField.setText(peer.getMatchStatus());
         findExceptCheckBox.setSelected(peer.getMatchExcept());
         fillStatuses(peer.getStatuses());
+        if (peer.getStatusIndexes() != null) {
+            statusList.setSelectedIndices(peer.getStatusIndexes());
+            peer.setStatusIndexes(statusList.getSelectedIndices());
+            // hack to put peer in the right state..
+        }
     }
 
     public void addPropertyChangeListener(final java.beans.PropertyChangeListener p1) {
