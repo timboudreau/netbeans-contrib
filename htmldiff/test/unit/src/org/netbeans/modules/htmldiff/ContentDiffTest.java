@@ -203,4 +203,22 @@ public final class ContentDiffTest extends NbTestCase {
         
         assertEquals ("Second cluster has no deps", 0, diff.getClusters()[1].getReferences().length);
     }
+
+
+    public void testRelativeReferences () throws Exception {
+        String[] oldPages = {
+            "index.html", "<h1>Hi</h1> This is a simple <a href=\"index.html#in-my-middle\">page</a>."
+        };
+        String[] newPages = {
+        };
+        
+        ContentDiff diff = diff (oldPages, newPages);
+        
+        assertNotNull (diff);
+        assertEquals ("One cluster", 1, diff.getClusters().length);
+        
+        
+        Page index = diff.findPage ("index.html");
+        assertTrue ("Is removed", index.isRemoved ());
+    }
 }

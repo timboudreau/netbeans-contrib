@@ -85,7 +85,9 @@ public final class ContentDiff extends Object {
                 HashSet s = new HashSet ();
                 Iterator it = sets[i].iterator();
                 while (it.hasNext ()) {
-                    s.add (findPage ((String)it.next ()));
+                    String name = (String)it.next ();
+                    Page p = findPage (name);
+                    s.add (p);
                 }
                 clusters[i] = new Cluster (s);
             }
@@ -133,6 +135,10 @@ public final class ContentDiff extends Object {
         String b = base.toExternalForm();
         for (int i = 0; i < refs.length; i++) {
             String e = refs[i].toExternalForm ();
+            int hash = e.indexOf ('#');
+            if (hash >= 0) {
+                e = e.substring (0, hash);
+            }
             if (e.startsWith (b)) {
                 String s = e.substring (b.length ());
                 Collection c = (Collection)deps.get (name);
@@ -155,7 +161,11 @@ public final class ContentDiff extends Object {
      * @param files2 set of filenames <String> to parse
      * @return result of comparation
      */
-    public static ContentDiff diff (URL base1, Set files1, URL base2, Set files2, Source source) throws IOException {
+    public static ContentDiff diff (URL base1, Set files1, URL base2, Set files2) throws IOException {
+        return diff (base1, files1, base2, files2, URLSource.DEFAULT);
+    }
+    
+    static ContentDiff diff (URL base1, Set files1, URL base2, Set files2, Source source) throws IOException {
         
         Set allFiles = new HashSet (files1);
         allFiles.addAll (files2);
@@ -328,4 +338,12 @@ public final class ContentDiff extends Object {
         }
         
     } // end of Page
+    
+    private static final class URLSource implements Source {
+        public static final URLSource DEFAULT = new URLSource ();
+        
+        public java.io.Reader getReader(URL url) throws java.io.IOException {
+            return new InputStreamReader (url.openStream());
+        }
+    } // end of URLSource
 }
