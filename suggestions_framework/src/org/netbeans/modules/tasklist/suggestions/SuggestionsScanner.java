@@ -72,6 +72,7 @@ public final class SuggestionsScanner {
     // heuristically detect overload
     private static boolean lowMemoryWarning;
     private static int lowMemoryWarningCount;
+    private boolean interrupted;
 
     private SuggestionsScanner() {
         manager = (SuggestionManagerImpl) Lookup.getDefault().lookup(SuggestionManager.class);
@@ -126,6 +127,7 @@ public final class SuggestionsScanner {
 
         lowMemoryWarning = false;
         lowMemoryWarningCount = 0;
+        interrupted = false;
 
         try {
             this.list = list;
@@ -316,7 +318,8 @@ public final class SuggestionsScanner {
         List providers = registry.getProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
-            if (Thread.currentThread().isInterrupted()) return;
+            if (interrupted) return;
+            interrupted = Thread.interrupted();
             SuggestionProvider provider = (SuggestionProvider) it.next();
             // FIXME no initialization events possibly fired
             // I guess that reponsibility for recovering from missing
@@ -333,7 +336,9 @@ public final class SuggestionsScanner {
 
     /** Test stop condition (thread interrupted or low memory) */
     private boolean shouldStop() {
-        if (Thread.currentThread().isInterrupted()) return true;
+        if (interrupted) return true;
+        interrupted = Thread.interrupted();
+
         Runtime rt = Runtime.getRuntime();
         long total = rt.totalMemory();
         long max = rt.maxMemory();  // XXX on some linux returns heap&native instead of -Xmx
@@ -345,7 +350,14 @@ public final class SuggestionsScanner {
             lowMemoryWarningCount ++;
         }
         // gc is getting into corner
-        return lowMemoryWarningCount > 7 || (total == max && rt.freeMemory() < 2*1024*1024);
+        if (lowMemoryWarningCount > 7 || (total == max && rt.freeMemory() < 2*1024*1024)) {
+            if (progressMonitor != null) {
+                progressMonitor.scanTerminated(-1);
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private static int countFolders(FileObject projectFolder) {
@@ -386,6 +398,12 @@ public final class SuggestionsScanner {
         void folderScanned(FileObject folder);
 
         void scanFinished();
+
+        /**
+         * Scan was terminated unfinished
+         * @param reason -1 out of memory, -2 user interrupt
+         */
+        void scanTerminated(int reason);
     }
 
 

@@ -22,6 +22,7 @@ import org.netbeans.modules.tasklist.suggestions.SuggestionManagerImpl;
 import org.netbeans.modules.tasklist.suggestions.SuggestionsScanner;
 import org.netbeans.modules.tasklist.suggestions.SuggestionsBroker;
 import org.netbeans.modules.tasklist.core.TaskListView;
+import org.netbeans.modules.tasklist.core.Background;
 
 /**
  * Opens window with scanned project source tasks.
@@ -53,7 +54,8 @@ public final class SourceTasksAction extends CallableSystemAction {
 
                 view.showInMode();
                 RepaintManager.currentManager(view).paintDirtyRegions();
-                SourceTasksScanner.scanTasksAsync(view);  // delayed class loading
+                Background back = SourceTasksScanner.scanTasksAsync(view);  // delayed class loading
+                view.setBackground(back);
             } else {
                 TaskListView tlv = new SourceTasksView(SuggestionsBroker.getDefault().startBroker());
                 tlv.showInMode();

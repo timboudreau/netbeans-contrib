@@ -48,11 +48,11 @@ final class SourceTasksScanner {
      *
      * @param view requestor
      */
-    public static void scanTasksAsync(final SourceTasksView view) {
+    public static Background scanTasksAsync(final SourceTasksView view) {
 
         final SuggestionList list = (SuggestionList) view.getList();
 
-        Background.execute( new Runnable() {
+        return Background.execute( new Runnable() {
             public void run() {
                 try {
                     try {

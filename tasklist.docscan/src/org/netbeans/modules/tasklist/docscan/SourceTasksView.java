@@ -77,6 +77,12 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     // all files results or null
     private TaskList resultsSnapshot;
 
+    // if terminated then describes why
+    private String reasonMsg;
+
+    /** background scanning or null */
+    private Background background;
+
     /**
      * Externalization entry point (readExternal).
      */
@@ -231,7 +237,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     protected void componentClosed() {
         super.componentClosed();
-        interrupt = true;  // stop the background process
+        if (background != null) background.interrupt();
         Cache.store();
         releaseWorkaround();
         if (job != null) {
@@ -419,7 +425,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private void handleRefresh() {
         this.getList().clear();
-        SourceTasksScanner.scanTasksAsync(this);
+        background = SourceTasksScanner.scanTasksAsync(this);
     }
 
     private JToggleButton allFilesButton;
@@ -577,7 +583,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     // Monitor impl ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    private boolean interrupt = false;
     private int realFolders = 0;
     private int estimatedFolders = -1;
 
@@ -586,9 +591,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (estimate == -1) {
             getProgress().setVisible(true);
             getStop().setVisible(true);
-            getStop().setEnabled(false);  // cannot deliver cancel to RP.Task
             getProgress().setIndeterminate(true);
-            getMiniStatus().setText("Estimating media searching complexity...");
+            getMiniStatus().setText("Estimating media search complexity...");
             Cache.load(); // hide this possibly long operation here
         } else {
             getProgress().setIndeterminate(false);
@@ -598,20 +602,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public void scanStarted() {
         realFolders = 0;
-        interrupt = false;
-        Thread.currentThread().interrupted(); // consume/clear the flag
+        reasonMsg = null;
         getProgress().setVisible(true);
         getStop().setVisible(true);
-        getStop().setEnabled(true);
         getRefresh().setEnabled(false);
     }
 
     public void folderEntered(FileObject folder) {
-        if (interrupt) {
-            Thread.currentThread().interrupt();
-            return;
-        }
-
         if (estimatedFolders >0) {
             realFolders++;
             getProgress().setValue(realFolders);
@@ -621,19 +618,19 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     public void fileScanned(FileObject fo) {
-        if (interrupt) {
-            Thread.currentThread().interrupt();
-            return;
-        }
         handlePendingAWTEvents();
     }
 
     public void folderScanned(FileObject fo) {
-        if (interrupt) {
-            Thread.currentThread().interrupt();
-            return;
-        }
         handlePendingAWTEvents();
+    }
+
+    public void scanTerminated(int reason) {
+        if (reason == -1) {
+            reasonMsg = "(Low Memory Interrupted)";
+        } else if (reason == -2) {
+            reasonMsg = "(User Interrupted)";
+        }
     }
 
     public void scanFinished() {
@@ -647,14 +644,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (getAllFiles().isSelected()) {
             String text = NbBundle.getMessage(SourceTasksView.class,
                                                    "TodoScanDone", new Integer(todos)); // NOI18N
-            getMiniStatus().setText(text);
+            getMiniStatus().setText(text + (reasonMsg != null ? reasonMsg : ""));
         }
     }
 
     private void handleStop() {
+        background.interrupt();
         getMiniStatus().setText("Stopping...");
-        interrupt = true;
-        Thread.currentThread().interrupt();
     }
 
     private class StopAction extends AbstractAction {
@@ -688,8 +684,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         setFiltered(false);
         getRefresh().setEnabled(true);
         if (list != resultsSnapshot) {
-            interrupt = false;
-            SourceTasksScanner.scanTasksAsync(this);
+            background = SourceTasksScanner.scanTasksAsync(this);
         }
     }
 
@@ -703,6 +698,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private void handleCurrentFile() {
         if (job != null) return;
+        background = null;
         try {
             handleStop();  //XXX if all files pressed promply it may be wrongly over ridden
             job = SuggestionsBroker.getDefault().startBroker();
@@ -727,6 +723,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private void handleNext() {
         nextTask();
+    }
+
+    /** Set background process that feeds this view */
+    final void setBackground(Background background) {
+        this.background = background;
     }
 
 
@@ -768,5 +769,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
         return filter;
     }
-    
+
+
 }

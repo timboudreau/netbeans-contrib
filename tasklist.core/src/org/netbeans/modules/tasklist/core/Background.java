@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.core;
 
 import org.openide.util.RequestProcessor;
+import org.openide.util.Cancellable;
 import org.openide.ErrorManager;
 
 /**
@@ -30,20 +31,37 @@ public final class Background {
     private static boolean loaded = false;
     private static boolean loadfailed = false;
 
-    private Background() {
+    private Thread peer;
+    private Cancellable cancel;
+
+    private Background(Thread peer, Cancellable c) {
+        this.peer = peer;
+        cancel = c;
     }
 
-    public static void execute(Runnable run) {
+    public static Background execute(Runnable run) {
+        Cancellable cancel = (Cancellable) (run instanceof Cancellable ? run : null);
         if (useHack()) {
             Thread t = new Thread(new Wrapper(run), "TODOs search");  // NOI18N
             t.setPriority(Thread.MIN_PRIORITY);
             t.setDaemon(true);
             t.start();
+
+            return new Background(t, cancel);
         } else {
-            RequestProcessor.getDefault().post(run, 0, Thread.MIN_PRIORITY);
+            ThreadExtractor extractor = new ThreadExtractor(run);
+            RequestProcessor.getDefault().post(extractor, 0, Thread.MIN_PRIORITY);
+            return new Background(extractor.getThread(), cancel);
         }
     }
 
+    public final void interrupt() {
+        if (peer != null) {
+            peer.interrupt();  // it's not enough see #38399
+            peer.interrupt();
+        }
+        if (cancel != null) cancel.cancel();
+    }
 
     // use hack on linux JVM with successfuly loaded library
     private static boolean useHack() {
@@ -67,6 +85,39 @@ public final class Background {
             peer.run();
         }
 
+    }
+
+    /**
+     * Get actual RP thread for given Runnable.
+     */
+    private static class ThreadExtractor implements Runnable {
+
+        private final Runnable peer;
+        private Thread thread;
+
+        ThreadExtractor(Runnable run) {
+            peer = run;
+        }
+
+        public void run() {
+            Thread.currentThread().interrupted(); // consume/clear the flag
+            synchronized (this) {
+                thread = Thread.currentThread();
+                notifyAll();
+            }
+            peer.run();
+        }
+
+        public synchronized Thread getThread() {
+            while (thread == null) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    // null thread
+                }
+            }
+            return thread;
+        }
     }
 
     // JNI related section ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
