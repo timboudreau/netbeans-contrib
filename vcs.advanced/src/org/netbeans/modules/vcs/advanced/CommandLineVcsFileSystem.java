@@ -156,7 +156,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   //-------------------------------------------
   public void setVariables(Vector variables){
+    if( variables.equals(this.variables) ){
+      return ;
+    }
+    Vector old=this.variables;
     this.variables=variables;
+    firePropertyChange("variables", old, variables);
   }
   
   //-------------------------------------------
@@ -600,6 +605,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  10   Gandalf   1.9         5/4/99   Michal Fadljevic 
  *  9    Gandalf   1.8         4/29/99  Michal Fadljevic 
  *  8    Gandalf   1.7         4/28/99  Michal Fadljevic 
  *  7    Gandalf   1.6         4/27/99  Michal Fadljevic 

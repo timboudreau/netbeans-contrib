@@ -27,10 +27,13 @@ import com.netbeans.ide.explorer.propertysheet.*;
  * @author Michal Fadljevic
  */
 //-------------------------------------------
-public class UserCommandsPanel extends JPanel implements NbCustomPropertyEditor{
+public class UserCommandsPanel extends JPanel 
+  implements NbCustomPropertyEditor {
+
   private Debug E=new Debug("UserCommandsPanel",true);
   private Debug D=E;
 
+  // GUI
   private JList list=null;
   private DefaultListModel listModel=null;
   private JButton editButton=null;
@@ -40,7 +43,7 @@ public class UserCommandsPanel extends JPanel implements NbCustomPropertyEditor{
   private UserCommandsEditor editor;
 
   private Vector commands=null;
-  
+
   //-------------------------------------------
   public UserCommandsPanel(UserCommandsEditor editor){
     this.editor = editor;
@@ -61,14 +64,13 @@ public class UserCommandsPanel extends JPanel implements NbCustomPropertyEditor{
     }
     return newCommands;
   }
-  
 
   //-------------------------------------------
   private JButton createButton(String name){
     JButton button = new JButton(name);
     return button;
   }
-  
+
   //-------------------------------------------
   private JScrollPane createList(){
     list=new JList();
@@ -224,8 +226,10 @@ public class UserCommandsPanel extends JPanel implements NbCustomPropertyEditor{
     }
     list.requestFocus();
     updateButtons();
+
+    editor.setValue( getPropertyValue() );
   }
-  
+
   //-------------------------------------------
   private void addCommand(){
     UserCommand uc=new UserCommand();
@@ -238,6 +242,8 @@ public class UserCommandsPanel extends JPanel implements NbCustomPropertyEditor{
     }
     list.requestFocus();
     updateButtons();
+
+    editor.setValue( getPropertyValue() );
   }
 
   //-------------------------------------------
@@ -249,6 +255,8 @@ public class UserCommandsPanel extends JPanel implements NbCustomPropertyEditor{
     commands.removeElementAt(index);
     listModel.removeElementAt(index);
     updateButtons();
+
+    editor.setValue( getPropertyValue() );
   }
 
   //-------------------------------------------
@@ -261,6 +269,7 @@ public class UserCommandsPanel extends JPanel implements NbCustomPropertyEditor{
 
 /*
  * <<Log>>
+ *  4    Gandalf   1.3         5/4/99   Michal Fadljevic 
  *  3    Gandalf   1.2         4/26/99  Michal Fadljevic 
  *  2    Gandalf   1.1         4/22/99  Michal Fadljevic 
  *  1    Gandalf   1.0         4/21/99  Michal Fadljevic 
