@@ -500,7 +500,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     
     /**
      * Provides the String representation. Mainly for debug purposes.
-     */
+     *
     public String toString() {
         StringBuffer localSecondaryFiles = new StringBuffer();
         int numLocSec;
@@ -515,28 +515,35 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 if (it.hasNext()) localSecondaryFiles.append(",\n");
             }
             numLocSec = filesMap.size();
-            for (Iterator it = primaryLocalFiles.iterator(); it.hasNext(); ) {
-                String name = (String) it.next();
-                primaryLocal.append("\t");
-                primaryLocal.append(name);
-                if (it.hasNext()) primaryLocal.append(",\n");
+            synchronized (primaryLocalFiles) {
+                for (Iterator it = primaryLocalFiles.iterator(); it.hasNext(); ) {
+                    String name = (String) it.next();
+                    primaryLocal.append("\t");
+                    primaryLocal.append(name);
+                    if (it.hasNext()) primaryLocal.append(",\n");
+                }
+                numPrimLoc = primaryLocalFiles.size();
             }
-            numPrimLoc = primaryLocalFiles.size();
         }
-        for (Iterator it = ignoredSecondaryLocalFiles.iterator(); it.hasNext(); ) {
-            String name = (String) it.next();
-            ignored.append("\t");
-            ignored.append(name);
-            if (it.hasNext()) ignored.append(",\n");
+        int numIgnored;
+        synchronized (ignoredSecondaryLocalFiles) {
+            for (Iterator it = ignoredSecondaryLocalFiles.iterator(); it.hasNext(); ) {
+                String name = (String) it.next();
+                ignored.append("\t");
+                ignored.append(name);
+                if (it.hasNext()) ignored.append(",\n");
+            }
+            numIgnored = ignoredSecondaryLocalFiles.size();
         }
         return "VcsObjectIntegritySupport "+Integer.toHexString(hashCode())+"\n"+
             "  Local Secondary Files: "+numLocSec+"\n"+
             ((localSecondaryFiles.length() > 0) ? localSecondaryFiles.toString()+"\n" : "")+
             "  Local Primary Files: "+numPrimLoc+"\n"+
             ((primaryLocal.length() > 0) ? primaryLocal.toString()+"\n" : "")+
-            "  Ignored Local Secondary Files: "+ignoredSecondaryLocalFiles.size()+"\n"+
+            "  Ignored Local Secondary Files: "+numIgnored+"\n"+
             ((ignored.length() > 0) ? ignored.toString()+"\n" : "");
     }
+     */
     
     
     /**
