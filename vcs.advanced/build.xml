@@ -16,7 +16,7 @@ Microsystems, Inc. All Rights Reserved.
 <project name="vcsgeneric" default="netbeans" basedir=".">
 
   <property name="nbroot" value=".."/>
-  <property name="binroot" value=".."/>
+  <property name="binroot" location=".."/>
   <property name="nbext" value="${nbroot}/nbbuild"/>
 
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
@@ -38,6 +38,7 @@ Microsystems, Inc. All Rights Reserved.
         </fileset>
 	<pathelement location="${nbroot}/openidex/netbeans/modules/openidex.jar"/>
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/vcscore.jar"/>
+        <pathelement location="${binroot}/core/release/lib/ext/xerces.jar"/>
       </classpath>
     </javac>
     <javac srcdir="src/org/netbeans/modules/vcs/advanced/config"
