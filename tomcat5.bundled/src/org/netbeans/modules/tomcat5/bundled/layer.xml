@@ -21,6 +21,10 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="url" stringvalue="tomcat:home=jakarta-tomcat-5.0.16:base=jakarta-tomcat-5.0.16_base"/>
                 <attr name="host" stringvalue="localhost"/>
                 <attr name="server_port" stringvalue="8080"/>
+                <attr name="admin_port" stringvalue="8005"/>
+                <attr name="debugger_port" stringvalue="11555"/>
+                <attr name="classic" stringvalue="false"/>
+                <attr name="name_for_shared_memory_access" stringvalue="tomcat_shared_memory_id"/>
                 <attr name="username" stringvalue="ide"/>
                 <attr name="password" stringvalue="ide_manager"/>
             </file>
