@@ -2644,7 +2644,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             //D.deb("no directory selected"); // NOI18N
             return ;
         }
-        RequestProcessor.postRequest(new Runnable() {
+        RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 changeRootDir(selected);
             }

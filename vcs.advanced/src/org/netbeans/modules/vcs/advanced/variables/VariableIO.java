@@ -249,7 +249,7 @@ public class VariableIO extends Object {
     public static synchronized String[] getConfigurationLabelAndOS(FileObject configRoot, final String name) {
         FileObject config = configRoot.getFileObject(name);
         if (config == null) {
-            org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
                     org.openide.ErrorManager.getDefault().notify(new FileNotFoundException("Problems while reading predefined properties.") {
                         public String getLocalizedMessage() {

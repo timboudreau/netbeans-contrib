@@ -769,7 +769,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         }
         
         private RequestProcessor.Task createWriteTask() {
-            RequestProcessor.Task task = RequestProcessor.postRequest(new Runnable() {
+            RequestProcessor.Task task = RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
                     try {
                         if (fo == null || lock == null) return ;
