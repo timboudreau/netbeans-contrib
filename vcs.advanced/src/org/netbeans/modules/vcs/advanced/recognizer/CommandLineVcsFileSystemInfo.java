@@ -86,7 +86,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
      */
     public CommandLineVcsFileSystemInfo(CommandLineVcsFileSystem fileSystem){
         this.root = fileSystem.getWorkingDirectory();
-        this.profileName = fileSystem.getProfile().getName();
+        this.profileName = fileSystem.getProfile().getName();        
         fileSystemRef = new WeakReference(fileSystem);
         initSettingsFolder();
         storeFSSettings(fileSystem);
@@ -112,18 +112,24 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
      * information.
      */
     public String getDisplayType() {
-        if (additionalVars == null) {
-            return DEFAULT_DISPLAY_TYPE;
+       if (additionalVars == null) {         
+            CommandLineVcsFileSystem fs = (CommandLineVcsFileSystem) fileSystemRef.get();
+            if(fs == null)
+                return DEFAULT_DISPLAY_TYPE;
+            else
+                return fs.getProfile().getDisplayName();            
         } else {
             String displayType = (String) additionalVars.get(CommandLineVcsFileSystem.VAR_FS_DISPLAY_NAME);
             if (displayType == null) {
+                System.err.println("default2");
                 return DEFAULT_DISPLAY_TYPE;
             } else {
+                System.err.println("dispType:"+displayType);
                 return displayType;
             }
         }
     }
-    
+   
     /**
      * Get the root of the filesystem.
      */
