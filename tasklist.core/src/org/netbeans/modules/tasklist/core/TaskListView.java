@@ -1301,7 +1301,7 @@ public abstract class TaskListView extends ExplorerPanel
     private boolean wrapWarned = false;
 
     /** Show the next task in the view */
-    void nextTask() {
+    protected final void nextTask() {
         TaskList list = getList();
         Task curr = getCurrentTask();
         Task next = null;
@@ -1337,7 +1337,7 @@ public abstract class TaskListView extends ExplorerPanel
     }
     
     /** Show the previous task in the view */
-    void prevTask() {
+    protected final void prevTask() {
         TaskList list = getList();
         Task curr = getCurrentTask();
         Task prev = null;

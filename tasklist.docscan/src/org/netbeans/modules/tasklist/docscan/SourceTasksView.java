@@ -200,6 +200,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private JButton stop;
     private JLabel  status;
     private JComponent refresh;
+    private JComponent prev;
+    private JComponent next;
 
     private JProgressBar getProgress() {
         if (progress == null) {
@@ -242,18 +244,62 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return refresh;
     }
 
+    private JComponent getPrev() {
+        if (prev == null) {
+            JButton button = new JButton("Prev [Shift-F12]");
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    handlePrev();
+                }
+            });
+            prev = button;
+        }
+        return prev;
+    }
+
+    private JComponent getNext() {
+        if (next == null) {
+            JButton button = new JButton("Next [F12]");
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    handleNext();
+                }
+            });
+            next = button;
+        }
+        return next;
+    }
+
     private void handleRefresh() {
         this.getList().clear();
         SourceTasksAction.scanTasksAsync(this);
     }
 
+    private void handlePrev() {
+        prevTask();
+    }
+
+    private void handleNext() {
+        nextTask();
+    }
+
     protected Component createNorthComponent() {
+        JPanel leftpanel = new JPanel();
+        leftpanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        leftpanel.add(getPrev());
+        leftpanel.add(getNext());
+        leftpanel.add(getRefresh());
+
+        JPanel rightpanel = new JPanel();
+        rightpanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        rightpanel.add(getProgress());
+        rightpanel.add(getStop());
+
         JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        panel.add(getRefresh());
-        panel.add(getStatus());
-        panel.add(getProgress());
-        panel.add(getStop());
+        panel.setLayout(new BorderLayout());
+        panel.add(leftpanel, BorderLayout.WEST);
+        panel.add(getStatus(), BorderLayout.CENTER);
+        panel.add(rightpanel, BorderLayout.EAST);
         return panel;
     }
 
