@@ -31,6 +31,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Hashtable;
 
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
@@ -44,7 +46,6 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.cmdline.*;
-import org.openide.DialogDisplayer;
 
 /**
  * This class is used to resolve merge conflicts in a graphical way using a merge visualizer.
@@ -273,9 +274,73 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         }
     }
     
+    /**
+     * Repair the CVS/Entries of the file - remove the conflict.
+     * @param file The file to remove the conflict for
+     */
+    private static void repairEntries(File file) throws IOException {
+        String name = file.getName();
+        File entries = new File(file.getParentFile(), "CVS"+File.separator+"Entries");
+        File backup = new File(entries.getAbsolutePath()+".Backup");
+        int attemps = 100;
+        while (backup.exists() && attemps-- > 0) {
+            // Someone else is occupying Entries, wait a while...
+            try {
+                Thread.currentThread().sleep(500);
+            } catch (InterruptedException intrex) {
+                attemps = 0;
+            }
+        }
+        if (attemps <= 0) return ; // Give up, someone else is occupying Entries
+        backup.createNewFile();
+        try {
+            BufferedReader reader = null;
+            BufferedWriter writer = null;
+            try {
+                reader = new BufferedReader(new FileReader(entries));
+                writer = new BufferedWriter(new FileWriter(backup));
+                String line;
+                String pattern = "/"+name;
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith(pattern)) {
+                        line = removeConflict(line);
+                    }
+                    writer.write(line+"\n");
+                }
+            } finally {
+                if (reader != null) reader.close();
+                if (writer != null) writer.close();
+            }
+            backup.renameTo(entries);
+        } finally {
+            if (backup.exists()) backup.delete();
+        }
+    }
+    
+    private static String removeConflict(String line) {
+        StringBuffer result = new StringBuffer();
+        int n = line.length();
+        int slashNum = 0;
+        boolean ignoreField = false;
+        for (int i = 0; i < n; i++) {
+            char c = line.charAt(i);
+            if (!ignoreField) result.append(c);
+            if (c == '/') {
+                ignoreField = false;
+                slashNum++;
+                if (slashNum == 3) {
+                    result.append("Result of merge/"); // NOI18N
+                    ignoreField = true;
+                }
+            }
+        }
+        return result.toString();
+    }
+    
     private static class MergeResultWriterInfo extends StreamSource {
         
         private File tempf1, tempf2, tempf3, outputFile;
+        private File fileToRepairEntriesOf;
         private String mimeType;
         private String leftFileRevision;
         private String rightFileRevision;
@@ -326,6 +391,7 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
          */
         public Writer createWriter(Difference[] conflicts) throws IOException {
             if (conflicts == null || conflicts.length == 0) {
+                fileToRepairEntriesOf = outputFile;
                 if (fo != null) {
                     return new OutputStreamWriter(fo.getOutputStream((lock != null) ? lock : (lock = fo.lock())));
                 } else {
@@ -350,6 +416,14 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                 lock = null;
             }
             fo = null;
+            if (fileToRepairEntriesOf != null) {
+                try {
+                    repairEntries(fileToRepairEntriesOf);
+                } catch (IOException ioex) {
+                    // The Entries will not be repaired at worse
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
+                }
+            }
         }
         
     }
