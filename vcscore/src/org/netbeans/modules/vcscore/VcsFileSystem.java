@@ -1434,9 +1434,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         boolean processAll = isProcessUnimportantFiles();
         for(int i = 0; i < len; i++) {
             FileObject ff = (FileObject) oo[i];
-            String fullName = ff.getPackageNameExt('/','.');
-            if (processAll || isImportant(fullName)) {
-                result.add(fullName);
+            boolean isFromThisFs = true;
+            try {
+                isFromThisFs = ff.getFileSystem().equals(this);
+            } catch (org.openide.filesystems.FileStateInvalidException exc) {
+                isFromThisFs = true;
+            }
+            if (isFromThisFs) {            
+                String fullName = ff.getPackageNameExt('/','.');
+                if (processAll || isImportant(fullName)) {
+                    result.add(fullName);
+                }
             }
         }
         return result;
