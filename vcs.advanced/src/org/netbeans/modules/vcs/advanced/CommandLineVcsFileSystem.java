@@ -378,6 +378,25 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                };
     }
     
+    /**
+     * Finds out, whether the configuration file name is a temporary configuration.
+     * Temporary configurations are saved during serialization of the FS.
+     */
+    public static boolean isTemporaryConfig(String configFileName) {
+        if (configFileName.startsWith(TEMPORARY_CONFIG_FILE_NAME)) {
+            String tempNo = configFileName.substring(TEMPORARY_CONFIG_FILE_NAME.length());
+            if (tempNo.length() == 5) {
+                try {
+                    Integer.parseInt(tempNo);
+                } catch (NumberFormatException exc) {
+                    return false;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private void loadCurrentConfig() {
         org.openide.nodes.Node commands = null;
         org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName);
