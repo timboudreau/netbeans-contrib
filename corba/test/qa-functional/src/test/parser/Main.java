@@ -15,7 +15,6 @@ package test.parser;
 
 import java.io.PrintStream;
 import org.netbeans.junit.NbTestCase;
-import org.openide.TopManager;
 import org.openide.filesystems.FileObject;
 import org.netbeans.modules.corba.IDLDataObject;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;

@@ -20,9 +20,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import org.openide.TopManager;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
+import org.openide.util.Lookup;
 import org.openide.util.datatransfer.ExClipboard;
 
 public class Helper {
@@ -50,7 +50,7 @@ public class Helper {
 
     public static String getStringFromClipboard() {
         try {
-            ExClipboard clip = TopManager.getDefault().getClipboard();
+            ExClipboard clip = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
             Transferable str = (Transferable) clip.getContents(null);
             Object o = str.getTransferData(DataFlavor.stringFlavor);
             return o.toString ();

@@ -72,7 +72,7 @@ public class SystemOptionTest {
         
         try {
             // get class
-            Class clazz = org.openide.TopManager.getDefault().systemClassLoader().loadClass(className);
+            Class clazz = ClassLoader.getSystemClassLoader().loadClass(className);
             println("  className = " + clazz.getName());
 
             // get option

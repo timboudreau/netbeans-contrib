@@ -14,7 +14,6 @@
 package test.overall;
 
 import java.io.File;
-import org.openide.TopManager;
 import org.openide.nodes.Node;
 import org.netbeans.modules.corba.browser.ns.ContextNode;
 import org.netbeans.modules.corba.browser.ir.IRRootNode;
@@ -57,12 +56,11 @@ public class Main extends org.netbeans.junit.NbTestCase {
                 out.println();
                 
         /* Get CORBA Naming Service and CORBA Interface Repository node */
-                Node n, rn = TopManager.getDefault().getPlaces().nodes().environment();
-                n = Helper.waitSubNode(rn, "CORBA Naming Service");
+                Node n = ContextNode.getDefault ();
                 assertNotNull ("CORBA Naming Service node does not exists!", n);
                 //ContextNode nsNode = (ContextNode) Helper.getOriginalNode (n);
                 ContextNode nsNode = ContextNode.getDefault();
-                n = Helper.waitSubNode(rn, "CORBA Interface Repository");
+                n = IRRootNode.getDefault();
                 assertNotNull ("CORBA Interface Repository node does not exists!", n);
                 //IRRootNode irNode = (IRRootNode) Helper.getOriginalNode (n);
                 IRRootNode irNode = IRRootNode.getDefault();

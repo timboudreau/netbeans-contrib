@@ -59,6 +59,7 @@ Microsystems, Inc. All Rights Reserved.
 	       <pathelement location="${netbeans.home}/modules/properties.jar"/>
 	       <pathelement location="${netbeans.home}/modules/corba.jar"/>
 	       <pathelement location="${netbeans.home}/modules/java.jar"/>
+	       <pathelement location="${netbeans.home}/modules/autoload/java-src-model.jar"/>
         </path>
     </target>
 

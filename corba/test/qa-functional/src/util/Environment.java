@@ -17,7 +17,6 @@ import java.io.File;
 import java.util.Enumeration;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
 import org.netbeans.modules.corba.settings.ORBSettingsBundle;
-import org.openide.TopManager;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -178,11 +177,11 @@ public class Environment {
     
     public static String mountDir(String name) {
         try {
-            if (TopManager.getDefault().getRepository().findFileSystem(name) != null)
+            if (Repository.getDefault ().findFileSystem(name) != null)
                 return null;
             LocalFileSystem lfs = new LocalFileSystem();
             lfs.setRootDirectory(new File(name));
-            TopManager.getDefault().getRepository().addFileSystem(lfs);
+            Repository.getDefault ().addFileSystem(lfs);
             return lfs.getDisplayName ();
         } catch (Exception e) {
             return null;
@@ -191,11 +190,11 @@ public class Environment {
     
     public static void mountJar(String name) {
         try {
-            if (TopManager.getDefault().getRepository().findFileSystem(name) != null)
+            if (Repository.getDefault ().findFileSystem(name) != null)
                 return;
             JarFileSystem jfs = new JarFileSystem();
             jfs.setJarFile(new File(name));
-            TopManager.getDefault().getRepository().addFileSystem(jfs);
+            Repository.getDefault ().addFileSystem(jfs);
         } catch (Exception e) {
         }
     }
@@ -213,11 +212,11 @@ public class Environment {
     
     public static void unmountDir(String name) {
         name = removeEndingSeparator (name);
-        Enumeration e = TopManager.getDefault().getRepository().getFileSystems();
+        Enumeration e = Repository.getDefault ().getFileSystems();
         while (e.hasMoreElements()) {
             FileSystem fs = (FileSystem) e.nextElement();
             if (compareFileSystemNames (fs.getSystemName(), name))
-                TopManager.getDefault().getRepository().removeFileSystem (fs);
+                Repository.getDefault ().removeFileSystem (fs);
         }
     }
     
@@ -227,13 +226,13 @@ public class Environment {
         } catch (Exception e) {
             return;
         }
-        Enumeration e = TopManager.getDefault().getRepository().getFileSystems();
+        Enumeration e = Repository.getDefault ().getFileSystems();
         while (e.hasMoreElements()) {
             FileSystem fs = (FileSystem) e.nextElement();
             if (fs instanceof JarFileSystem) {
                 JarFileSystem jfs = (JarFileSystem) fs;
                 if (compareFileSystemNames (jfs.getJarFile().getAbsolutePath(), name))
-                    TopManager.getDefault().getRepository().removeFileSystem (jfs);
+                    Repository.getDefault ().removeFileSystem (jfs);
             }
         }
     }

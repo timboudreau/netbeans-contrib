@@ -16,8 +16,8 @@ package test.overall;
 import java.io.*;
 import java.awt.datatransfer.*;
 
-import org.openide.TopManager;
 import org.openide.nodes.*;
+import org.openide.util.Lookup;
 import org.openide.util.actions.*;
 import org.openide.util.datatransfer.*;
 
@@ -79,7 +79,7 @@ public class Helper {
  * @throws UnsupportedFlavorException
  */    
     public static void printClipboardAsString (PrintStream out) throws IOException, UnsupportedFlavorException {
-        ExClipboard clip = TopManager.getDefault ().getClipboard ();
+        ExClipboard clip = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
         Transferable str = (Transferable) clip.getContents (null);
         out.println (str.getTransferData (DataFlavor.stringFlavor).toString ());
     }

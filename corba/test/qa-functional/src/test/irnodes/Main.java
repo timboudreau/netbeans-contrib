@@ -33,7 +33,6 @@ import org.netbeans.jemmy.EventTool;
 import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.Timeouts;
 import org.netbeans.modules.corba.browser.ir.IRRootNode;
-import org.openide.TopManager;
 import org.openide.nodes.Node;
 import org.openide.actions.PropertiesAction;
 import org.openide.util.actions.SystemAction;

@@ -20,7 +20,6 @@ import org.netbeans.modules.corba.settings.CORBASupportSettings;
 import org.openide.nodes.Node;
 import javax.swing.text.StyledDocument;
 import org.netbeans.modules.corba.settings.ORBSettingsBundle;
-import org.openide.TopManager;
 import java.util.StringTokenizer;
 import org.openide.loaders.DataFolder;
 import org.netbeans.modules.corba.IDLDataObject;
@@ -352,9 +351,12 @@ public class AppGenerator {
     }
     
     public static DataObject getTemplateFromTokenizer(StringTokenizer st) {
-        if (! st.hasMoreTokens())
+        return null;
+        // !!! do it - always fail
+/*        if (! st.hasMoreTokens())
             return null;
-        DataObject dao = TopManager.getDefault().getPlaces().folders().templates();
+        FileSystem fs = Repository.getDefault().getDefaultFileSystem();
+        DataObject dao = .templates();
         while (st.hasMoreTokens()) {
             String str = st.nextToken();
             DataObject[] daos = ((DataFolder) dao).getChildren();
@@ -368,7 +370,7 @@ public class AppGenerator {
             if (dao == null)
                 return null;
         }
-        return dao;
+        return dao;*/
     }
     
     public void doGenerateAndCompile() {

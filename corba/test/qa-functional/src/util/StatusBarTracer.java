@@ -13,13 +13,13 @@
 
 package util;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import junit.framework.AssertionFailedError;
-import org.openide.TopManager;
+import org.openide.awt.StatusDisplayer;
 
-public class StatusBarTracer implements PropertyChangeListener {
+public class StatusBarTracer implements ChangeListener {
     
     ArrayList array;
     
@@ -28,18 +28,16 @@ public class StatusBarTracer implements PropertyChangeListener {
     }
     
     public void start () {
-        TopManager.getDefault().addPropertyChangeListener(this);
+        StatusDisplayer.getDefault().addChangeListener(this);
     }
     
     public void stop () {
-        TopManager.getDefault().removePropertyChangeListener(this);
+        StatusDisplayer.getDefault().removeChangeListener(this);
     }
     
-    public void propertyChange(PropertyChangeEvent evt) {
-        if ("statusText".equals (evt.getPropertyName())) {
-            synchronized (this) {
-                array.add ((evt.getNewValue() != null) ? evt.getNewValue().toString () : "<NULL>");
-            }
+    public void stateChanged(ChangeEvent evt) {
+        synchronized (this) {
+            array.add (StatusDisplayer.getDefault ().getStatusText ());
         }
     }
     

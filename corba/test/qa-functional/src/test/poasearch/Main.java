@@ -32,9 +32,9 @@ import org.netbeans.jemmy.operators.JComboBoxOperator;
 import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
 import org.netbeans.modules.corba.settings.ORBSettingsBundle;
-import org.openide.TopManager;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.LocalFileSystem;
+import org.openide.filesystems.Repository;
 import util.Environment;
 import util.Helper;
 
@@ -87,11 +87,11 @@ public class Main extends JellyTestCase {
         try {
             String name = System.getProperty("work.dir") + "/tests/qa-functional/src/data/poasearch";
             System.out.println (name);
-            FileSystem fs = TopManager.getDefault().getRepository().findFileSystem(name);
+            FileSystem fs = Repository.getDefault ().findFileSystem(name);
             if (fs == null) {
                 LocalFileSystem lfs = new LocalFileSystem();
                 lfs.setRootDirectory(new File(name));
-                TopManager.getDefault().getRepository().addFileSystem(lfs);
+                Repository.getDefault ().addFileSystem(lfs);
                 fsroot = lfs.getDisplayName ();
             } else
                 fsroot = fs.getDisplayName ();
