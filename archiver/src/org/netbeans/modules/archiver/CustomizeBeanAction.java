@@ -134,7 +134,11 @@ public class CustomizeBeanAction extends CookieAction {
                     FileLock lock = serFile.lock();
                     try {
                         ClassLoader origL = Thread.currentThread().getContextClassLoader();
-                        Thread.currentThread().setContextClassLoader(bean.getClass().getClassLoader());
+                        ClassLoader nue = bean.getClass().getClassLoader();
+                        if (nue == null) {
+                            nue = ClassLoader.getSystemClassLoader();
+                        }
+                        Thread.currentThread().setContextClassLoader(nue);
                         OutputStream os = serFile.getOutputStream(lock);
                         try {
                             XMLEncoder e = new XMLEncoder(os);
