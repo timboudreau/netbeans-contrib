@@ -52,7 +52,7 @@ Microsystems, Inc. All Rights Reserved.
                  topdir="."
                  module="netbeans/modules/archiver.jar"
                  needsrestart="false"
-                 distribution="http://${dist.base}/ant.nbm">
+                 distribution="http://${dist.base}/archiver.nbm">
             <license file="${license.file}"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
         </makenbm>
