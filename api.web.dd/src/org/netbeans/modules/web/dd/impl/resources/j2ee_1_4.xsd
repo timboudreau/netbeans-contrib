@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ Copyright 2004 Sun Microsystems, Inc. All rights reserved.
+ SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+-->
+
 <xsd:schema
      targetNamespace="http://java.sun.com/xml/ns/j2ee"
      xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
@@ -8,14 +14,14 @@
      version="1.4">
   <xsd:annotation>
     <xsd:documentation>
-      @(#)j2ee_1_4.xsds	1.40 03/04/10
+      @(#)j2ee_1_4.xsds	1.43 03/09/16
     </xsd:documentation>
   </xsd:annotation>
 
   <xsd:annotation>
     <xsd:documentation>
 
-      Copyright 2002 Sun Microsystems, Inc., 901 San Antonio
+      Copyright 2003 Sun Microsystems, Inc., 901 San Antonio
       Road, Palo Alto, California 94303, U.S.A. All rights
       reserved.
 
@@ -46,6 +52,7 @@
 
     </xsd:documentation>
   </xsd:annotation>
+
 <xsd:annotation>
 <xsd:documentation>
 
@@ -497,7 +504,11 @@ Deployment File may indicate one of the following:
       <xsd:documentation>
 
 	The elements that use this type designate the name of a
-	Java class or interface.
+	Java class or interface.  The name is in the form of a
+	"binary name", as defined in the JLS.  This is the form
+	of name used in Class.forName().  Tools that need the
+	canonical name (the name used in source code) will need
+	to convert this binary name to the canonical name.
 
       </xsd:documentation>
     </xsd:annotation>
@@ -643,6 +654,25 @@ Deployment File may indicate one of the following:
 
 <!-- **************************************************** -->
 
+  <xsd:complexType name="java-typeType">
+    <xsd:annotation>
+      <xsd:documentation>
+
+	This is a generic type that designates a Java primitive
+	type or a fully qualified name of a Java interface/type,
+	or an array of such types.
+
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+      <xsd:restriction base="j2ee:string">
+	<xsd:pattern value="[^\p{Z}]*"/>
+      </xsd:restriction>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+<!-- **************************************************** -->
+
   <xsd:complexType name="jndi-nameType">
     <xsd:annotation>
       <xsd:documentation>
@@ -692,6 +722,37 @@ Deployment File may indicate one of the following:
 		   minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
   </xsd:group>
+
+<!-- **************************************************** -->
+
+  <xsd:complexType name="listenerType">
+    <xsd:annotation>
+      <xsd:documentation>
+
+	The listenerType indicates the deployment properties for a web
+	application listener bean.
+
+      </xsd:documentation>
+    </xsd:annotation>
+
+    <xsd:sequence>
+      <xsd:group ref="j2ee:descriptionGroup"/>
+      <xsd:element name="listener-class"
+		   type="j2ee:fully-qualified-classType">
+	<xsd:annotation>
+	  <xsd:documentation>
+
+	    The listener-class element declares a class in the
+	    application must be registered as a web
+	    application listener bean. The value is the fully
+	    qualified classname of the listener class.
+
+	  </xsd:documentation>
+	</xsd:annotation>
+      </xsd:element>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:ID"/>
+  </xsd:complexType>
 
 <!-- **************************************************** -->
 
