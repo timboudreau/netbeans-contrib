@@ -12,8 +12,6 @@
  */
 package org.netbeans.modules.tasklist.core;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
