@@ -13,7 +13,6 @@
 
 package org.netbeans.modules.jemmysupport.runinternally;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -24,7 +23,6 @@ import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -32,7 +30,6 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectUtils;
 
 import org.netbeans.api.queries.FileBuiltQuery;
 import org.netbeans.spi.project.ActionProvider;
@@ -58,7 +55,7 @@ public class RunInternallyAction extends NodeAction {
      * @param nodes selected nodes
      */
     protected void performAction(Node[] nodes) {
-        // release lock (it may be locked form previous run)
+        // release lock (it may be locked from previous run)
         synchronized (compileLock) {
             try {
                 compileLock.notifyAll();
@@ -126,108 +123,36 @@ public class RunInternallyAction extends NodeAction {
         String classname = getSelectedMainClass(context);
         
         FileBuiltQuery.Status status = FileBuiltQuery.getStatus(fObj);
-        if(status == null) {
-            if(isSourceOK(dObj)) {
-                // this is workaround for issue 43609 (FileBuiltQuery.getStatus(fObj) returns null for file object is from project with existing sources)
-                Project project = FileOwnerQuery.getOwner(fObj);
-                ActionProvider ap = (ActionProvider)project.getLookup().lookup(ActionProvider.class );
-                ap.invokeAction(ActionProvider.COMMAND_COMPILE_SINGLE, context);
+        if(!status.isBuilt()) {
+            // if not built add listener to wait for the end of compilation
+            CompileListener listener = new CompileListener();
+            status.addChangeListener(listener);
 
-                String projectName = ProjectUtils.getInformation(project).getName();
-                String fileName = null;
-                String targetList = "compile-single";  // NOI18N
-                String pattern = NbBundle.getBundle("org.apache.tools.ant.module.run.Bundle").getString("TITLE_output_target");
-                String outputDisplayName = java.text.MessageFormat.format(pattern, new Object[] {projectName, fileName, targetList});
-                //System.out.println("outputDisplayName="+outputDisplayName);
-                waitCompilationFinished(outputDisplayName);
-                // it is hopefully built, so execute. I don't know how to check it
-                // is built successfully.
-                execute(fObj, classname);
-            }
-        } else if(!status.isBuilt()) {
             // try to compile
-            // this cannot be called because it is not made public in manifest
+            // This cannot be called because it is not made public in manifest
             //Actions.compileSingle().actionPerformed(null);
             Project project = FileOwnerQuery.getOwner(fObj);
             ActionProvider ap = (ActionProvider)project.getLookup().lookup(ActionProvider.class );
             ap.invokeAction(ActionProvider.COMMAND_COMPILE_SINGLE, context);
-            
-            if(isSourceOK(dObj)) {
-                if(!status.isBuilt()) {
-                    // if not built so far, wait until compilation finishes
-                    CompileListener listener = new CompileListener();
-                    try {
-                        status.addChangeListener(listener);
-                        synchronized (compileLock) {
-                            // wait max. 20 seconds
-                            compileLock.wait(20000);
-                        }
-                    } catch (Exception e) {
-                        ErrorManager.getDefault().notify(e);
-                    } finally {
-                        status.removeChangeListener(listener);
-                    }
+
+            //wait until compilation finishes
+            try {
+                synchronized (compileLock) {
+                    // wait max. 30 seconds
+                    compileLock.wait(30000);
                 }
-                if(status.isBuilt()) {
-                    // finally if really built, execute it
-                    execute(fObj, classname);
-                }
+            } catch (Exception e) {
+                ErrorManager.getDefault().notify(e);
+            } finally {
+                status.removeChangeListener(listener);
+            }
+            if(status.isBuilt()) {
+                // finally if really built, execute it
+                execute(fObj, classname);
             }
         } else {
             // it is built, so execute
             execute(fObj, classname);
-        }
-    }
-    
-    /** Used for workaround 43609. Returns true if compilation is finished. 
-     * It checks whether output tab can be reused.
-     */
-    private boolean isCompilationFinished(String outputDisplayName) throws Exception {
-        // has to be loaded by IDE's ssytem classloader because class TargetExecutor is not public
-        Class clazz = getSystemClassLoader().loadClass("org.apache.tools.ant.module.run.TargetExecutor");
-        Field field = clazz.getDeclaredField("freeTabs");
-        field.setAccessible(true);
-        Map map = (Map)field.get(null);
-        Iterator it = map.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry)it.next();
-            //InputOutput free = (InputOutput)entry.getKey();
-            String freeName = (String)entry.getValue();
-            if(outputDisplayName.equals(freeName)) {
-                // output is released => compilation finished
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    /** Used for workaround 43609. Waits until compilation is finished. It
-     * waits max 60 seconds.
-     */
-    private void waitCompilationFinished(final String outputDisplayName) {
-        Thread waitingThread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    while(!isCompilationFinished(outputDisplayName)) {
-                        Thread.sleep(100);
-                    }
-                }
-                catch (Exception ex) {
-                    ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
-                }
-            }
-        });
-        waitingThread.start();
-        try {
-            waitingThread.join(60000L);  // wait 1 minute at the most
-            // interrupt waiting thread (something wrong happens that compilation
-            // doesn't finished in 1 minute
-            if(waitingThread.isAlive()) {
-                waitingThread.interrupt();
-            }
-        }
-        catch (InterruptedException iex) {
-            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, iex);
         }
     }
     
@@ -265,13 +190,6 @@ public class RunInternallyAction extends NodeAction {
             }
         }
         return null;
-    }
-    
-    /** Checks whether given data object is parsed and is OK. */
-    private boolean isSourceOK(DataObject dObj) {
-        SourceCookie cookie = (SourceCookie)dObj.getCookie(SourceCookie.class);
-        SourceElement source = cookie.getSource();
-        return source.getStatus() == source.STATUS_OK;
     }
     
     private Object compileLock = new Object();
