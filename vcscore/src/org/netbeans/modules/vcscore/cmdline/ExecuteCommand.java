@@ -654,8 +654,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 if (globalDataOutputWhole == null) {
                     globalDataOutputWhole = globalDataOutput;
                 } else {
-                    globalDataOutputWhole[0].append(globalDataOutput[0]);
-                    globalDataOutputWhole[1].append(globalDataOutput[1]);
+                    if (globalDataOutputWhole[0] != null) {
+                        globalDataOutputWhole[0].append(globalDataOutput[0]);
+                    }
+                    if (globalDataOutputWhole[1] != null) {
+                        globalDataOutputWhole[1].append(globalDataOutput[1]);
+                    }
                 }
             }
         }
