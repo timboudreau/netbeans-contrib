@@ -19,6 +19,7 @@ import org.openide.actions.PropertiesAction;
 import org.openide.filesystems.*;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import java.beans.*;
+import org.openide.util.HelpCtx;
 
 /**
  * The folder node, which contains RuntimeFolderNodes nodes.
@@ -47,6 +48,9 @@ public class RuntimeMainNode extends AbstractNode {
         return org.openide.util.NbBundle.getBundle(RuntimeMainNode.class).getString(name);
     }
     
+    public HelpCtx getHelpCtx() {
+        return new HelpCtx(RuntimeMainNode.class);
+    }    
 
     
 
