@@ -16,6 +16,9 @@ package org.netbeans.modules.vcscore.commands;
 import java.util.*;
 
 import org.openide.TopManager;
+import org.openide.nodes.Node;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.util.Table;
@@ -26,37 +29,27 @@ import org.netbeans.modules.vcscore.util.Table;
  */
 public class CommandsPool extends Object /*implements CommandListener */{
 
-    /**
-     * Contains instances of VcsCommandExecutor, which are to be run.
-     */
+    private static final String VCS_RUNTIME_NODE_NAME = "VcsRuntime";
+    /** Contains instances of VcsCommandExecutor, which are to be run.  */
     private ArrayList commandsToRun;
-    /**
-     * Contains pairs of instances of VcsCommandExecutor and threads in which are running.
-     */
+    /** Contains pairs of instances of VcsCommandExecutor and threads in which are running. */
     private Table commands;
-    /**
-     * Contains finished instances of VcsCommandExecutor.
-     */
+    /** The containers of output of commands. Contains pairs of instances of VcsCommandExecutor
+     * and instances of CommandOutputCollector */
+    private Hashtable outputContainers;
+    /** The table of currently opened standard Visualizers */
+    private Hashtable outputVisualizers;
+    /** Contains finished instances of VcsCommandExecutor. */
     private ArrayList commandsFinished;
     
     private ThreadGroup group;
     
-    /**
-     * Whether to collect finished commands.
-     */
-    private boolean collectFinishedCmds = true;
-    /**
-     * Whether to collect standard output from commands.
-     */
-    private boolean collectStdOut = true;
-    /**
-     * Whether to collect error output from commands.
-     */
-    private boolean collectErrOut = true;
-    /**
-     * The maximun number of finished commands stored.
-     */
-    private int collectMax = 10;
+    /** The number of finished commands to collect. */
+    private int collectFinishedCmdsNum = 20;
+    /** Whether to collect the whole output of commands. */
+    private boolean collectOutput = true;
+    /** Whether to collect error output of commands. */
+    private boolean collectErrOutput = true;
     
     private ArrayList commandListeners = new ArrayList();
     
@@ -67,33 +60,62 @@ public class CommandsPool extends Object /*implements CommandListener */{
         commandsToRun = new ArrayList();
         commands = new Table();
         commandsFinished = new ArrayList();
+        outputContainers = new Hashtable();
+        outputVisualizers = new Hashtable();
         group = new ThreadGroup("VCS Commands Goup");
         this.fileSystem = fileSystem;
+        initRuntime();
+    }
+    
+    private void initRuntime() {
+        Node runtime = TopManager.getDefault().getPlaces().nodes().environment();
+        Children runtimeCh = runtime.getChildren();
+        Node vcsRuntime = getVcsRuntime(runtimeCh);
+    }
+    
+    private Node getVcsRuntime(Children ch) {
+        Node[] nodes = ch.getNodes();
+        for(int i = 0; i < nodes.length; i++) {
+            if (VCS_RUNTIME_NODE_NAME.equals(nodes[i].getName())) return nodes[i];
+        }
+        AbstractNode vcsRuntime = new AbstractNode(new Children.Array());
+        vcsRuntime.setName(VCS_RUNTIME_NODE_NAME);
+        vcsRuntime.setDisplayName(g("CTL_VcsRuntime"));
+        ch.add(new Node[] { vcsRuntime });
+        return vcsRuntime;
     }
 
-    public void setCollectFinishedCmds(boolean collectFinishedCmds) {
-        this.collectFinishedCmds = collectFinishedCmds;
+    /**
+     * Set the number of finished commands to collect.
+     */
+    public void setCollectFinishedCmdsNum(int collectFinishedCmdsNum) {
+        this.collectFinishedCmdsNum = collectFinishedCmdsNum;
     }
     
-    public boolean isCollectFinishedCmds() {
-        return collectFinishedCmds;
+    /**
+     * Get the number of finished commands to collect.
+     */
+    public int getCollectFinishedCmds() {
+        return collectFinishedCmdsNum;
     }
     
-    public void setCollectStdOut(boolean collectStdOut) {
-        this.collectStdOut = collectStdOut;
+    public void setCollectOutput(boolean collectOutput) {
+        this.collectOutput = collectOutput;
     }
     
-    public boolean isCollectStdOut() {
-        return collectStdOut;
+    public boolean isCollectOutput() {
+        return collectOutput;
+    }
+
+    /*
+    public void setCollectErrOutput(boolean collectErrOutput) {
+        this.collectErrOutput = collectErrOutput;
     }
     
-    public void setCollectErrOut(boolean collectErrOut) {
-        this.collectErrOut = collectErrOut;
+    public boolean isCollectErrOutput() {
+        return collectErrOutput;
     }
-    
-    public boolean isCollectErrOut() {
-        return collectErrOut;
-    }
+     */
 
     /**
      * Add a new command.
@@ -111,6 +133,18 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 ((CommandListener) it.next()).commandStarted(vce);
             }
         }
+        CommandOutputCollector collector = new CommandOutputCollector(vce);
+        outputContainers.put(vce, collector);
+        VcsCommandVisualizer visualizer = vce.getVisualizer();
+        if (visualizer != null) {
+            if (!visualizer.openAfterCommandFinish()) visualizer.open();
+        }
+        if (VcsCommandIO.getBooleanProperty(vce.getCommand(), VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT)) {
+            openCommandOutput(vce);
+            //CommandOutputVisualizer outputVisualizer = new CommandOutputVisualizer(vce);
+            //outputVisualizer.open();
+            //outputVisualizers.put(vce, outputVisualizer);
+        }
         //System.out.println("command "+vce.getCommand()+" STARTED, LISTENERS DONE.");
     }
     
@@ -120,6 +154,16 @@ public class CommandsPool extends Object /*implements CommandListener */{
             commands.remove(vce);
             commandsFinished.add(vce);
             notifyAll();
+        }
+        synchronized (commandsFinished) {
+            //commandsFinished.removeRange(0, commandsFinished.size() - collectFinishedCmdsNum);
+            while (commandsFinished.size() > collectFinishedCmdsNum) {
+                VcsCommandExecutor removedExecutor = (VcsCommandExecutor) commandsFinished.remove(0);
+                outputContainers.remove(removedExecutor);
+            }
+        }
+        if (!isCollectOutput()) {
+            outputContainers.remove(vce);
         }
         synchronized (commandListeners) {
             for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
@@ -143,6 +187,15 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 break;
         }
         TopManager.getDefault().setStatusText(message);
+        VcsCommandVisualizer visualizer = vce.getVisualizer();
+        if (visualizer != null) {
+            visualizer.setExitStatus(exit);
+            if (visualizer.openAfterCommandFinish()) visualizer.open();
+        }
+        VcsCommandVisualizer outputVisualizer = (VcsCommandVisualizer) outputVisualizers.get(vce);
+        if (outputVisualizer != null) {
+            outputVisualizer.setExitStatus(exit);
+        }
     }
     
     /**
@@ -157,9 +210,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
             commandsToRun.remove(vce);
             commands.put(vce, t);
         }
+        commandStarted(vce);
         t.start();
         //System.out.println("startExecutor, thread started.");
-        commandStarted(vce);
         new Thread(group, "VCS Command Execution Waiter") {
             public void run() {
                 //System.out.println("startExecutor.Waiter: thread checking ...");
@@ -177,7 +230,41 @@ public class CommandsPool extends Object /*implements CommandListener */{
         //System.out.println("startExecutor, waiter started.");
     }
 
-    
+    /**
+     * Open the default visualizer of the command.
+     * @return true if the output was successfully opened, false otherwise
+     * (i.e. output is not available)
+     */
+    public boolean openCommandOutput(VcsCommandExecutor vce) {
+        if (outputVisualizers.get(vce) != null) return true;
+        CommandOutputCollector outputCollector = (CommandOutputCollector) outputContainers.get(vce);
+        if (outputCollector == null) return false;
+        final CommandOutputVisualizer outputVisualizer = new CommandOutputVisualizer(vce);
+        outputVisualizer.open();
+        outputVisualizers.put(vce, outputVisualizer);
+        outputCollector.addOutputListener(new CommandOutputListener() {
+            public void outputLine(String line) {
+                outputVisualizer.stdOutputLine(line);
+            }
+        });
+        outputCollector.addErrorOutputListener(new CommandOutputListener() {
+            public void outputLine(String line) {
+                outputVisualizer.errOutputLine(line);
+            }
+        });
+        outputCollector.addDataOutputListener(new CommandDataOutputListener() {
+            public void outputData(String[] data) {
+                outputVisualizer.stdOutputData(data);
+            }
+        });
+        outputCollector.addDataErrorOutputListener(new CommandDataOutputListener() {
+            public void outputData(String[] data) {
+                outputVisualizer.errOutputData(data);
+            }
+        });
+        return true;
+    }
+        
     /**
      * Whether some command is still running.
      * @return true when at least one command is running, false otherwise.
@@ -352,24 +439,6 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (t != null) t.interrupt();
     }
     
-    /*
-     * This method is called when the command is just started.
-     *
-    public synchronized void commandStarted(VcsCommandExecutor vce) {
-        commandsToRun.remove(vce);
-        commands.add(vce);
-    }
-    
-    /*
-     * This method is called when the command is done.
-     *
-    public synchronized void commandDone(VcsCommandExecutor vce) {
-        if (isCollectFinishedCmds()) commandsFinished.add(vce);
-        commands.remove(vce);
-        notifyAll();
-    }
-     */
-
     /**
      * Add a command listener.
      */
@@ -382,6 +451,169 @@ public class CommandsPool extends Object /*implements CommandListener */{
      */
     public synchronized void removeCommandListener(CommandListener listener) {
         commandListeners.remove(listener);
+    }
+    
+    /**
+     * This class stores the output of the command.
+     */
+    private class CommandOutputCollector implements CommandListener {
+        
+        //private VcsCommandExecutor vce;
+        private ArrayList stdOutput = new ArrayList();
+        private ArrayList errOutput = new ArrayList();
+        private ArrayList stdDataOutput = new ArrayList();
+        private ArrayList errDataOutput = new ArrayList();
+        
+        private ArrayList stdOutputListeners = new ArrayList();
+        private ArrayList errOutputListeners = new ArrayList();
+        private ArrayList stdDataOutputListeners = new ArrayList();
+        private ArrayList errDataOutputListeners = new ArrayList();
+        
+        public CommandOutputCollector(VcsCommandExecutor vce/*, boolean errOnly*/) {
+            //this.vce = vce;
+            //if (!errOnly) {
+                vce.addOutputListener(new CommandOutputListener() {
+                    public void outputLine(String line) {
+                        synchronized (stdOutput) {
+                            stdOutput.add(line);
+                            //if (stdOutputListeners != null) {
+                                for(Iterator it = stdOutputListeners.iterator(); it.hasNext(); ) {
+                                    ((CommandOutputListener) it.next()).outputLine(line);
+                                }
+                            //}
+                        }
+                    }
+                });
+                vce.addDataOutputListener(new CommandDataOutputListener() {
+                    public void outputData(String[] elements) {
+                        synchronized (stdDataOutput) {
+                            stdDataOutput.add(elements);
+                            //if (stdDataOutputListeners != null) {
+                                for(Iterator it = stdDataOutputListeners.iterator(); it.hasNext(); ) {
+                                    ((CommandDataOutputListener) it.next()).outputData(elements);
+                                }
+                            //}
+                        }
+                    }
+                });
+            //}
+            vce.addErrorOutputListener(new CommandOutputListener() {
+                public void outputLine(String line) {
+                    synchronized (errOutput) {
+                        errOutput.add(line);
+                        //if (errOutputListeners != null) {
+                            for(Iterator it = errOutputListeners.iterator(); it.hasNext(); ) {
+                                ((CommandOutputListener) it.next()).outputLine(line);
+                            }
+                        //}
+                    }
+                }
+            });
+            vce.addDataErrorOutputListener(new CommandDataOutputListener() {
+                public void outputData(String[] elements) {
+                    synchronized (errDataOutput) {
+                        errDataOutput.add(elements);
+                        //if (errDataOutputListeners != null) {
+                            for(Iterator it = errDataOutputListeners.iterator(); it.hasNext(); ) {
+                                ((CommandDataOutputListener) it.next()).outputData(elements);
+                            }
+                        //}
+                    }
+                }
+            });
+            addCommandListener(this);
+        }
+        
+        /**
+         * This method is called when the command is just started.
+         */
+        public void commandStarted(VcsCommandExecutor vce) {
+            //if (this.vce == vce)
+        }
+        
+        /**
+         * This method is called when the command is done.
+         */
+        public void commandDone(VcsCommandExecutor vce) {
+            synchronized (stdOutput) {
+                stdOutputListeners = null;
+            }
+            synchronized (stdDataOutput) {
+                stdDataOutputListeners = null;
+            }
+            synchronized (errOutput) {
+                errOutputListeners = null;
+            }
+            synchronized (errDataOutput) {
+                errDataOutputListeners = null;
+            }
+        }
+        
+        /**
+         * Add the listener to the standard output of the command. The listeners are removed
+         * when the command finishes.
+         */
+        public void addOutputListener(CommandOutputListener l) {
+            synchronized (stdOutput) {
+                for (Iterator it = stdOutput.iterator(); it.hasNext(); ) {
+                    l.outputLine((String) it.next());
+                }
+                if (stdOutputListeners != null) {
+                    stdOutputListeners.add(l);
+                }
+            }
+        }
+        
+        /**
+         * Add the listener to the error output of the command. The listeners are removed
+         * when the command finishes.
+         */
+        public void addErrorOutputListener(CommandOutputListener l) {
+            synchronized (errOutput) {
+                for (Iterator it = errOutput.iterator(); it.hasNext(); ) {
+                    l.outputLine((String) it.next());
+                }
+                if (errOutputListeners != null) {
+                    errOutputListeners.add(l);
+                }
+            }
+        }
+        
+        /**
+         * Add the listener to the data output of the command. This output may contain
+         * a parsed information from its standard output or some other data provided
+         * by this command. The listeners are removed when the command finishes.
+         */
+        public void addDataOutputListener(CommandDataOutputListener l) {
+            synchronized (stdDataOutput) {
+                for (Iterator it = stdDataOutput.iterator(); it.hasNext(); ) {
+                    l.outputData((String[]) it.next());
+                }
+                if (stdDataOutputListeners != null) {
+                    stdDataOutputListeners.add(l);
+                }
+            }
+        }
+        
+        /**
+         * Add the listener to the data error output of the command. This output may contain
+         * a parsed information from its error output or some other data provided
+         * by this command. If there are some data given to this listener, the command
+         * is supposed to fail. The listeners are removed when the command finishes.
+         */
+        public synchronized void addDataErrorOutputListener(CommandDataOutputListener l) {
+            synchronized (errDataOutputListeners) {
+                for (Iterator it = errDataOutput.iterator(); it.hasNext(); ) {
+                    l.outputData((String[]) it.next());
+                }
+                if (errDataOutputListeners != null) {
+                    errDataOutputListeners.add(l);
+                }
+            }
+        }
+        
+        
+        
     }
     
     private String g(String s) {
