@@ -686,7 +686,9 @@ public class UserCommandIO extends Object {
     
     private static Element putStructuredExec(Document doc, Element commandElm, StructuredExec exec) throws DOMException {
         Element runElm = doc.createElement(RUN_TAG);
-        runElm.setAttribute(RUN_DIR_ATTR, exec.getWorking().getPath());
+        if (exec.getWorking() != null) {
+            runElm.setAttribute(RUN_DIR_ATTR, exec.getWorking().getPath());
+        }
         Element execElm = doc.createElement(EXEC_TAG);
         execElm.setAttribute(EXEC_VALUE_ATTR,  exec.getExecutable());
         runElm.appendChild(execElm);
