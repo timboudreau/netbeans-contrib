@@ -11,211 +11,55 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-
 package org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update;
 
-import java.awt.BorderLayout;
-import org.netbeans.lib.cvsclient.command.FileInfoContainer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.JTableHeader;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
-
-import org.openide.util.NbBundle;
-import org.netbeans.lib.cvsclient.event.MessageEvent;
-import org.netbeans.lib.cvsclient.event.EnhancedMessageEvent;
-import org.openide.DialogDescriptor;
-import javax.accessibility.*;
-
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.lang.reflect.Method;
-import javax.swing.BorderFactory;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import org.netbeans.api.vcs.commands.CommandTask;
-import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.OutputVisualizer;
-
-import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.GrowingTableInfoModel;
-import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.TypeComparator;
-import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.UpdateInformation;
-import org.netbeans.modules.vcscore.commands.CommandOutputTopComponent;
-import org.netbeans.modules.vcscore.ui.OutputPanel;
+import java.lang.reflect.*;
+import javax.swing.*;
+import javax.swing.table.*;
+import org.netbeans.api.vcs.commands.*;
+import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.*;
+import org.netbeans.modules.vcscore.ui.*;
 import org.netbeans.modules.vcscore.util.table.*;
-import org.openide.DialogDisplayer;
+import org.openide.util.*;
 
-
-public class UpdateInfoPanel extends JPanel{
-    
-    private static final int MAX_SCROLLBAR_GAP = 50;
-    
-    GrowingTableInfoModel model;
+/**
+ * UpdateInfoPanel.java
+ *
+ * Created on December 21, 2003, 7:42 PM
+ * @author  Richard Gregor
+ */
+public class UpdateInfoPanel extends AbstractOutputPanel{
+    private JTable tblUpdates;
+    private JTextArea errOutput;
+    private GrowingTableInfoModel model;
+    private CommandTask task;
     long currentTimeStamp;
     long firedTimeStamp = 0;
     int addedCount = 0;
     int totalCount = 0;
     int lastSelection = -1;
     int lastHBar = 0;
-    private String labelString;          
-    private CommandTask task;
-    private StringBuffer buff;
     private OutputVisualizer visualizer;
-    private JTextArea errTextArea;
-    private boolean errEnabled = false;
-    private JPopupMenu menu;
-    private JMenuItem kill;
     
-    /** Creates new form UpdateInfoPanel */
+    
     public UpdateInfoPanel(OutputVisualizer visualizer) {
         super();
         this.visualizer = visualizer;
-        initComponents();   
-        Font font = btnErr.getFont();
-        FontMetrics fm = btnErr.getFontMetrics(font);
-        int height = fm.getHeight();
-        Dimension dim = toolbar.getPreferredSize();
-        toolbar.setPreferredSize(new Dimension(dim.width,height+6));
-        toolbar.setMaximumSize(new Dimension(dim.width,height+6));
-        toolbar.setMinimumSize(new Dimension(dim.width,height+6));
-        errTextArea = new JTextArea();
-        errTextArea.setEditable(false);
-        errTextArea.getDocument().addDocumentListener(new DocumentListener(){
-            public void changedUpdate(DocumentEvent e){
-                
-            }
-            public void insertUpdate(DocumentEvent e){
-                btnErr.setEnabled(true);
-                errEnabled = true;                 
-            }
-            public void removeUpdate(DocumentEvent e){
-                
-            }
-            
-        });
-        initPopupMenu();
-        initAccessibility();
- 
-        setPreferredSize(new java.awt.Dimension(450, 200));
-        setMinimumSize(new java.awt.Dimension(450, 200));
-        labelString = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.lblSending.text"); // NOI18N
-        // setting the model....
-        model = new GrowingTableInfoModel();
-        Class classa = UpdateInformation.class;
-        String  column1 = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateTableInfoModel.type"); // NOI18N
-        String  column2 = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateTableInfoModel.fileName"); // NOI18N
-        String  column3 = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateTableInfoModel.path"); // NOI18N
-        try {
-            Method method1 = classa.getMethod("getType", null);     // NOI18N
-            Method method2 = classa.getMethod("getFile", null);     // NOI18N
-            model.setColumnDefinition(0, column1, method1, true, new TypeComparator());
-            model.setColumnDefinition(1, column2, method2, true, new FileComparator());
-            model.setColumnDefinition(2, column3, method2, true, null);
-        } catch (NoSuchMethodException exc) {
-            Thread.dumpStack();
-        } catch (SecurityException exc2) {
-            Thread.dumpStack();
-        }
-        TableCellRenderer renderer = new ColoringUpdateRenderer(model);
-        tblUpdates.setDefaultRenderer(tblUpdates.getColumnClass(0), renderer);
-        tblUpdates.setDefaultRenderer(tblUpdates.getColumnClass(1), renderer);
-        tblUpdates.setDefaultRenderer(tblUpdates.getColumnClass(2), renderer);
+        addKillActionListener(new UpdateInfoPanel.StopActionListener());
     }
     
-    public void setVcsTask(CommandTask task){
-        this.task = task;
-    }
-   
-    
-    private void initPopupMenu() {
-        this.menu = new JPopupMenu();
-        JMenuItem discardTab = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N
-        discardTab.addActionListener( new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent event) {
-                CommandOutputTopComponent.getInstance().discard(UpdateInfoPanel.this);
-            }
-        });
-        JMenuItem discardAll = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardAll"));//NOI18N
-        discardAll.addActionListener( new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent event) {
-                CommandOutputTopComponent.getInstance().discardAll();
-            }
-        });
-        
-        kill = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_Kill"));//NOI18N
-        kill.addActionListener(new UpdateInfoPanel.StopActionListener());
-        
-        this.menu.add(discardTab);
-        this.menu.add(discardAll);
-        this.menu.addSeparator();
-        this.menu.add(kill);
-        
-        this.errTextArea.add(menu);        
-        PopupListener popupListener = new PopupListener();        
-        this.errTextArea.addMouseListener(popupListener);
-        this.tblUpdates.addMouseListener(popupListener);
-        this.addMouseListener(popupListener);
-        toolbar.addMouseListener(popupListener);
-        this.addMouseListener(popupListener);
-        spCentral.addMouseListener(popupListener);        
-        
+    protected JComponent getErrComponent() {
+        if(errOutput == null){
+            errOutput = new JTextArea();
+            errOutput.setEditable(false);
+        }
+        return errOutput;
     }
     
-    class PopupListener extends java.awt.event.MouseAdapter {
-        public void mousePressed(MouseEvent e) {
-            maybeShowPopup(e);
-        }
-        
-        public void mouseReleased(MouseEvent e) {
-            maybeShowPopup(e);
-        }
-        
-        private void maybeShowPopup(MouseEvent e) {
-            if (e.isPopupTrigger()) {
-                menu.show(e.getComponent(),
-                e.getX(), e.getY());
-            }
-        }
-
-    }
-    /*    public void mousePressed(java.awt.event.MouseEvent event) {
-            if ((event.getModifiers() & java.awt.event.MouseEvent.BUTTON3_MASK) == java.awt.event.MouseEvent.BUTTON3_MASK) {
-                OutputPanel.this.eventSource = event.getSource();
-                OutputPanel.this.menu.show((java.awt.Component)event.getSource(),event.getX(),event.getY());
-            }
-        }
-    }*/
-    
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the FormEditor.
-     */
-    private void initComponents() {//GEN-BEGIN:initComponents
-        java.awt.GridBagConstraints gridBagConstraints;
-
-        spCentral = new javax.swing.JScrollPane();
-        tblUpdates = new javax.swing.JTable();
-        toolbar = new javax.swing.JToolBar();
-        btnStd = new javax.swing.JToggleButton();
-        btnErr = new javax.swing.JToggleButton();
-
-        setLayout(new java.awt.GridBagLayout());
-
-        spCentral.setPreferredSize(new java.awt.Dimension(250, 60));
-        tblUpdates.setModel(new javax.swing.table.DefaultTableModel(
+    protected JComponent getStdComponent(){
+        if(tblUpdates == null){
+            tblUpdates = new JTable();
+            tblUpdates.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -225,140 +69,42 @@ public class UpdateInfoPanel extends JPanel{
             new String [] {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
-        ));
-        spCentral.setViewportView(tblUpdates);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(1, 2, 1, 1);
-        add(spCentral, gridBagConstraints);
-
-        toolbar.setBorder(null);
-        toolbar.setFloatable(false);
-        toolbar.setRollover(true);
-        toolbar.setPreferredSize(new java.awt.Dimension(205, 24));
-        btnStd.setMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.btnStd_mnc").charAt(0));
-        btnStd.setSelected(true);
-        btnStd.setText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("OutputPanel.btnStd"));
-        btnStd.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnStdActionPerformed(evt);
+            ));
+            model = new GrowingTableInfoModel();
+            Class classa = UpdateInformation.class;
+            String  column1 = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateTableInfoModel.type"); // NOI18N
+            String  column2 = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateTableInfoModel.fileName"); // NOI18N
+            String  column3 = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateTableInfoModel.path"); // NOI18N
+            try {
+                Method method1 = classa.getMethod("getType", null);     // NOI18N
+                Method method2 = classa.getMethod("getFile", null);     // NOI18N
+                model.setColumnDefinition(0, column1, method1, true, new TypeComparator());
+                model.setColumnDefinition(1, column2, method2, true, new FileComparator());
+                model.setColumnDefinition(2, column3, method2, true, null);
+            } catch (NoSuchMethodException exc) {
+                Thread.dumpStack();
+            } catch (SecurityException exc2) {
+                Thread.dumpStack();
             }
-        });
-
-        toolbar.add(btnStd);
-        btnStd.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.btnStd"));
-
-        btnErr.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.btnErr_mnc").charAt(0));
-        btnErr.setText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("OutputPanel.btnErr"));
-        btnErr.setEnabled(false);
-        btnErr.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnErrActionPerformed(evt);
-            }
-        });
-
-        toolbar.add(btnErr);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 1);
-        add(toolbar, gridBagConstraints);
-        toolbar.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.toolbar"));
-        toolbar.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.toolbar"));
-
-    }//GEN-END:initComponents
-
-    private void btnStdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStdActionPerformed
-        if(errEnabled){
-            btnErr.setSelected(false);
+            TableCellRenderer renderer = new ColoringUpdateRenderer(model);
+            tblUpdates.setDefaultRenderer(tblUpdates.getColumnClass(0), renderer);
+            tblUpdates.setDefaultRenderer(tblUpdates.getColumnClass(1), renderer);
+            tblUpdates.setDefaultRenderer(tblUpdates.getColumnClass(2), renderer);           
         }
-        btnStd.setSelected(true);
-        setStandardContent();
-    }//GEN-LAST:event_btnStdActionPerformed
+        return tblUpdates;
+    }
+    
+    protected boolean isErrOutput() {
+        return (errOutput.getText().length() > 0);
+    }
+    
+    protected boolean isStdOutput() {
+        return (tblUpdates.getModel().getRowCount() == 0);
+    }
+    
 
-    private void btnErrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnErrActionPerformed
-        btnStd.setSelected(false);
-        btnErr.setSelected(true);
-        setErrorContent();
-    }//GEN-LAST:event_btnErrActionPerformed
-    
-    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
-        
-    }//GEN-LAST:event_btnEditActionPerformed
-    
-    private void setErrorContent(){
-        spCentral.setViewportView(errTextArea);
-    }
-    
-    public JTextArea getErrOutputArea(){
-        return errTextArea;
-    }
-    
-    private void setStandardContent(){
-        spCentral.setViewportView(tblUpdates);
-            
-    }
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JToggleButton btnErr;
-    private javax.swing.JToggleButton btnStd;
-    private javax.swing.JScrollPane spCentral;
-    private javax.swing.JTable tblUpdates;
-    private javax.swing.JToolBar toolbar;
-    // End of variables declaration//GEN-END:variables
-    
-    
-    private void initAccessibility() {
-        
-        AccessibleContext context = this.getAccessibleContext();
-        context.setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel"));
-
-        context = tblUpdates.getAccessibleContext();
-        context.setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSN_UpdateInfoPanel.tblUpdates"));
-        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.tblUpdates"));
-       
-        context = errTextArea.getAccessibleContext();
-        context.setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSN_UpdateInfoPanel.errTextArea"));
-        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.errTextArea"));
-    }
-    
-    
-    /** this method should be used with Choosers to display the dialog..
-     * then later the displayOutputData will just present the datat gotten from server
-     * Reason: to have something displayer right away..
-     * This method is to be called when creating the command and Chooser.
-     */
-    public void displayFrameWork() {
-        tblUpdates.setModel(model);
-        TableColumn col = tblUpdates.getColumnModel().getColumn(0);
-        col.setMaxWidth(40);
-        
-       // stopActionListener = new StopActionListener();
-        
-    }
-    
-    protected void shutDownCommand() {
-        // we can do that because it's running from other thread then command and won't kill itself
-        if(this.task.isRunning()){
-            this.task.stop();
-            disableKill();
-        }
-    }
-    
-    private void disableKill(){
-        SwingUtilities.invokeLater(new Runnable(){
-            public void run(){
-                kill.setEnabled(false);                
-                if((tblUpdates.getModel().getRowCount() == 0)&&(errTextArea.getText().length() > 0))
-                    btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
-            }
-        });
+    public void setVcsTask(CommandTask task){
+        this.task = task;
     }
     
     /** Does the actual display - docking into the javacvs Mode,
@@ -372,19 +118,26 @@ public class UpdateInfoPanel extends JPanel{
     }
     
     
-    public void showExecutionFailed() {            
+    public void showExecutionFailed() {
         displayOutputData();
-        disableKill();
+        commandFinished(1);
     }
- 
     
-    public void showFinishedCommand() { 
+    
+    public void showFinishedCommand() {
         displayOutputData();
-        disableKill();
+        commandFinished(0);
     }
     
     public void showStartCommand() {
         displayFrameWork();
+    }
+    
+    public void displayFrameWork() {
+        tblUpdates.setModel(model);
+        TableColumn col = tblUpdates.getColumnModel().getColumn(0);
+        col.setMaxWidth(40);
+        
     }
     
     public void showFileInfoGenerated(UpdateInformation info) {
@@ -405,7 +158,14 @@ public class UpdateInfoPanel extends JPanel{
             }
         }
     }
- 
+    
+    protected void shutDownCommand() {
+        // we can do that because it's running from other thread then command and won't kill itself
+        if(this.task.isRunning()){
+            this.task.stop();
+          //  commandFinished(-1); //command stopped
+        }
+    }
     
     private class ColoringUpdateRenderer extends DefaultTableCellRenderer {
         
@@ -445,10 +205,4 @@ public class UpdateInfoPanel extends JPanel{
         }
     }
     
-    public class CloseActionListener implements java.awt.event.ActionListener {
-        public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
-           // visualizer.close();
-        }
-    }    
-
 }
