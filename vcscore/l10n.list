@@ -1,3 +1,4 @@
 vcscore/src/**/Bundle.properties
 vcscore/src/**/*.html
 exclude vcscore/src/**/*_??.html
+exclude vcscore/src/org/netbeans/modules/vcscore/versioning/impl/package.html
