@@ -212,18 +212,18 @@ public final class DDProvider {
             return resolver;
         }        
         public InputSource resolveEntity (String publicId, String systemId) {
+            String resource=null;
+            // return a proper input source
             if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId)) { //NOI18N
-                  // return a special input source
-             return new InputSource("nbres:/org/netbeans/modules/web/dd/impl/resources/web-app_2_3.dtd"); //NOI18N
+                resource="/org/netbeans/modules/web/dd/impl/resources/web-app_2_3.dtd"; //NOI18N
             } else if ("-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) { //NOI18N
-                  // return a special input source
-             return new InputSource("nbres:/org/netbeans/modules/web/dd/impl/resources/web-app_2_2.dtd"); //NOI18N
+                resource="/org/netbeans/modules/web/dd/impl/resources/web-app_2_2.dtd"; //NOI18N
             } else if ("http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd".equals(systemId)) {
-                return new InputSource("nbres:/org/netbeans/modules/web/dd/impl/resources/web-app_2_4.xsd"); //NOI18N
-            } else {
-                // use the default behaviour
-                return null;
+                resource="/org/netbeans/modules/web/dd/impl/resources/web-app_2_4.xsd"; //NOI18N
             }
+            if (resource==null) return null;
+            java.net.URL url = this.getClass().getResource(resource);
+            return new InputSource(url.toString());
         }
     }
     
