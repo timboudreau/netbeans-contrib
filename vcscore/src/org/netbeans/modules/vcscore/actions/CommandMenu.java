@@ -64,7 +64,7 @@ public class CommandMenu extends JMenuPlus {
     private Map actionCommandMap;
     private boolean popupCreated = false;
     /** two elements: 1) whether CTRL was pressed, 2) expertMode */
-    private boolean[] CTRL_Down = { false, false };
+    private boolean[] CTRL_Down;
 
     /**
      * Creates a new instance of CommandMenu.
@@ -86,13 +86,14 @@ public class CommandMenu extends JMenuPlus {
                        boolean removeDisabled, boolean inMenu, boolean globalExpertMode,
                        ActionListener listener, Map actionCommandMap) {
         this(commandRoot, filesWithMessages, new ArrayList(), advancedOptionsSign,
-             removeDisabled, inMenu, globalExpertMode, listener, actionCommandMap);
+             removeDisabled, inMenu, globalExpertMode, listener, actionCommandMap,
+             new boolean[] { false, false }); // two elements: 1) whether CTRL was pressed, 2) expertMode
     }
     
     private CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
                         List switchableList, String advancedOptionsSign,
                         boolean removeDisabled, boolean inMenu, boolean globalExpertMode,
-                        ActionListener listener, Map actionCommandMap) {
+                        ActionListener listener, Map actionCommandMap, boolean[] CTRL_Down) {
         super();
         this.commandRoot = commandRoot;
         this.filesWithMessages = filesWithMessages;
@@ -101,7 +102,8 @@ public class CommandMenu extends JMenuPlus {
         this.removeDisabled = removeDisabled;
         this.inMenu = inMenu;
         this.globalExpertMode = globalExpertMode;
-        this.CTRL_Down[1] = globalExpertMode;
+        this.CTRL_Down = CTRL_Down;
+        CTRL_Down[1] = globalExpertMode;
         this.listener = (listener != null) ?
                          listener :
                          new CommandMenu.CommandActionListener(CTRL_Down, actionCommandMap,
@@ -162,7 +164,7 @@ public class CommandMenu extends JMenuPlus {
                 submenu = new CommandMenu(children[i], filesWithMessages,
                                           switchableList, advancedOptionsSign,
                                           removeDisabled, inMenu, globalExpertMode,
-                                          listener, actionCommandMap);
+                                          listener, actionCommandMap, CTRL_Down);
                 add(submenu);
                 item = submenu;
             } else {
