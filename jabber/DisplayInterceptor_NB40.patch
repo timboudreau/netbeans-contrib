@@ -1,0 +1,300 @@
+For proper function of the remote assistance part, the NetBeans have
+to be patched. Here is the patch against the NetBeans 4.0 development
+version, as of ~ 15th May 2004
+
+Index: openide/src/org/openide/windows/DisplayInterceptor.java
+===================================================================
+RCS file: openide/src/org/openide/windows/DisplayInterceptor.java
+diff -N openide/src/org/openide/windows/DisplayInterceptor.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ openide/src/org/openide/windows/DisplayInterceptor.java	24 May 2004 21:02:12 -0000
+@@ -0,0 +1,43 @@
++/*
++ *                         Sun Public License Notice
++ *
++ * The contents of this file are subject to the Sun Public License Version
++ * 1.0 (the "License"). You may not use this file except in compliance with 
++ * the License. A copy of the License is available at http://www.sun.com/
++ *
++ * The Original Code is the Jabber module.
++ * The Initial Developer of the Original Code is Petr Nejedly
++ * Portions created by Petr Nejedly are Copyright (c) 2004.
++ * All Rights Reserved.
++ *
++ * Contributor(s): Petr Nejedly
++ */
++
++package org.openide.windows;
++
++import java.awt.*;
++import org.openide.util.Lookup;
++
++public abstract class DisplayInterceptor {
++    public abstract Graphics createGraphics(Graphics delegate, Component comp);
++
++    public abstract void windowCreated(Window win);
++
++    private static DisplayInterceptor instance;
++    public static synchronized DisplayInterceptor getDefault() {
++	if (instance == null) {
++	    instance = (DisplayInterceptor)Lookup.getDefault().lookup(DisplayInterceptor.class);
++	    if (instance == null) instance = new Trivial();
++	}
++	return instance;
++    }
++    
++    private static class Trivial extends DisplayInterceptor {
++	public Graphics createGraphics(Graphics del, Component comp) {
++	    return del;
++	}
++
++	public void windowCreated(Window win) {
++	}
++    }
++}
+\ No newline at end of file
+Index: core/windows/src/org/netbeans/core/windows/services/NbPresenter.java
+===================================================================
+RCS file: /cvs/core/windows/src/org/netbeans/core/windows/services/NbPresenter.java,v
+retrieving revision 1.10
+diff -u -r1.10 NbPresenter.java
+--- core/windows/src/org/netbeans/core/windows/services/NbPresenter.java	22 Apr 2004 13:09:45 -0000	1.10
++++ core/windows/src/org/netbeans/core/windows/services/NbPresenter.java	24 May 2004 21:03:24 -0000
+@@ -25,6 +25,7 @@
+ import org.openide.util.Mutex;
+ import org.openide.util.NbBundle;
+ import org.openide.util.Utilities;
++import org.openide.windows.DisplayInterceptor;
+ 
+ import javax.swing.*;
+ import javax.swing.event.ChangeEvent;
+@@ -94,6 +95,10 @@
+     private transient boolean haveCalledInitializeButtons = false;
+     
+     static final long serialVersionUID =-4508637164126678997L;
++
++    public java.awt.Graphics getGraphics() {
++	return DisplayInterceptor.getDefault().createGraphics(super.getGraphics(), this);
++    }
+     
+     /** Creates a new Dialog from specified NotifyDescriptor,
+      * with given frame owner.
+@@ -102,6 +107,7 @@
+     public NbPresenter(NotifyDescriptor d, Frame owner, boolean modal) {
+         super(owner, d.getTitle(), modal); // modal
+         initialize(d);
++	DisplayInterceptor.getDefault().windowCreated(this);
+     }
+     
+     /** Creates a new Dialog from specified NotifyDescriptor,
+@@ -111,6 +117,7 @@
+     public NbPresenter(NotifyDescriptor d, Dialog owner, boolean modal) {
+         super(owner, d.getTitle(), modal); // modal
+         initialize(d);
++	DisplayInterceptor.getDefault().windowCreated(this);
+     }
+     
+     private void initAccessibility(){
+Index: core/windows/src/org/netbeans/core/windows/view/ui/MainWindow.java
+===================================================================
+RCS file: /cvs/core/windows/src/org/netbeans/core/windows/view/ui/MainWindow.java,v
+retrieving revision 1.24
+diff -u -r1.24 MainWindow.java
+--- core/windows/src/org/netbeans/core/windows/view/ui/MainWindow.java	22 Apr 2004 13:09:52 -0000	1.24
++++ core/windows/src/org/netbeans/core/windows/view/ui/MainWindow.java	24 May 2004 21:03:37 -0000
+@@ -26,6 +26,7 @@
+ import org.openide.util.HelpCtx;
+ import org.openide.util.NbBundle;
+ import org.openide.util.Utilities;
++import org.openide.windows.DisplayInterceptor;
+ 
+ import javax.swing.*;
+ import javax.swing.border.Border;
+@@ -57,10 +58,17 @@
+     
+     /** Flag indicating main window is initialized. */ 
+     private boolean inited;
++ 
++    public java.awt.Graphics getGraphics() {
++	return DisplayInterceptor.getDefault().createGraphics(super.getGraphics(), this);
++    }
++ 
++     /** Getter for only instance of main window in the system */
+     
+ 
+     /** Constructs main window. */
+     public MainWindow() {
++	DisplayInterceptor.getDefault().windowCreated(this);
+     }
+     
+     /** Overrides superclass method, adds help context to the new root pane. */
+Index: utilities/src/org/netbeans/modules/openfile/OpenFileAction.java
+===================================================================
+RCS file: /cvs/utilities/src/org/netbeans/modules/openfile/OpenFileAction.java,v
+retrieving revision 1.33
+diff -u -r1.33 OpenFileAction.java
+--- utilities/src/org/netbeans/modules/openfile/OpenFileAction.java	16 Mar 2004 15:37:22 -0000	1.33
++++ utilities/src/org/netbeans/modules/openfile/OpenFileAction.java	24 May 2004 21:03:43 -0000
+@@ -12,14 +12,24 @@
+  */
+ package org.netbeans.modules.openfile;
+ 
++import java.awt.BorderLayout;
++import java.awt.Component;
++import java.awt.Container;
++import java.awt.Frame;
++import java.awt.HeadlessException;
+ import java.io.File;
++import javax.swing.JDialog;
+ import javax.swing.JFileChooser;
++import javax.swing.JRootPane;
++import javax.swing.SwingUtilities;
++import javax.swing.UIManager;
+ import javax.swing.filechooser.FileFilter;
+ import org.netbeans.modules.utilities.Manager;
+ import org.openide.util.HelpCtx;
+ import org.openide.util.NbBundle;
+ import org.openide.util.UserCancelException;
+ import org.openide.util.actions.CallableSystemAction;
++import org.openide.windows.DisplayInterceptor;
+ import org.openide.windows.WindowManager;
+ 
+ /** 
+@@ -56,7 +66,7 @@
+      * @return  the initialized file chooser
+      */
+     protected JFileChooser prepareFileChooser() {
+-        JFileChooser chooser = new JFileChooser(currDir);
++        JFileChooser chooser = new MyFileChooser(currDir);
+         HelpCtx.setHelpIDString(chooser, getHelpCtx().getHelpID());
+         
+         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+@@ -185,5 +195,51 @@
+             return description;
+         }
+     } // End of Filter class.
++    
++    private static class MyFileChooser extends JFileChooser {
++        MyFileChooser(File f) {
++            super(f);
++        }
++        
++	protected JDialog createDialog(Component parent) throws HeadlessException {
++    	    Frame frame = parent instanceof Frame ? (Frame) parent
++                : (Frame)SwingUtilities.getAncestorOfClass(Frame.class, parent);
++
++	    String title = getUI().getDialogTitle(this);
++    	    getAccessibleContext().setAccessibleDescription(title);
++
++    	    JDialog dialog = new MyDialog(frame, title, true);
++
++    	    Container contentPane = dialog.getContentPane();
++    	    contentPane.setLayout(new BorderLayout());
++    	    contentPane.add(this, BorderLayout.CENTER);
++ 
++    	    if (JDialog.isDefaultLookAndFeelDecorated()) {
++        	boolean supportsWindowDecorations = 
++        	UIManager.getLookAndFeel().getSupportsWindowDecorations();
++        	if (supportsWindowDecorations) {
++            	    dialog.getRootPane().setWindowDecorationStyle(JRootPane.FILE_CHOOSER_DIALOG);
++        	}
++    	    }
++
++    	    dialog.pack();
++    	    dialog.setLocationRelativeTo(parent);
++
++	    return dialog;
++	}
++    }
++    
++    private static class MyDialog extends JDialog {
++    	public MyDialog(Frame frame, String title, boolean modal) {
++	    super(frame, title, modal);
++            DisplayInterceptor.getDefault().windowCreated(this);
++	}
++        
++        public java.awt.Graphics getGraphics() {
++            return DisplayInterceptor.getDefault().createGraphics(
++                super.getGraphics(), this);
++        }
++        
++    }
+ 
+ }
+Index: projects/projectui/src/org/netbeans/modules/project/ui/ProjectChooserAccessory.java
+===================================================================
+RCS file: /cvs/projects/projectui/src/org/netbeans/modules/project/ui/ProjectChooserAccessory.java,v
+retrieving revision 1.8
+diff -u -r1.8 ProjectChooserAccessory.java
+--- projects/projectui/src/org/netbeans/modules/project/ui/ProjectChooserAccessory.java	9 May 2004 20:53:49 -0000	1.8
++++ projects/projectui/src/org/netbeans/modules/project/ui/ProjectChooserAccessory.java	24 May 2004 21:04:01 -0000
+@@ -13,6 +13,7 @@
+ 
+ package org.netbeans.modules.project.ui;
+ 
++import java.awt.*;
+ import java.awt.event.ActionEvent;
+ import java.awt.event.ActionListener;
+ import java.beans.PropertyChangeEvent;
+@@ -24,6 +25,8 @@
+ import java.util.Collections;
+ import java.util.Iterator;
+ import java.util.List;
++
++import javax.swing.*;
+ import javax.swing.DefaultListModel;
+ import javax.swing.Icon;
+ import javax.swing.ImageIcon;
+@@ -40,6 +43,7 @@
+ import org.openide.filesystems.FileUtil;
+ import org.openide.util.NbBundle;
+ import org.openide.util.Utilities;
++import org.openide.windows.DisplayInterceptor;
+ 
+ /**
+  *
+@@ -404,6 +408,44 @@
+             
+         }
+         
++	protected JDialog createDialog(Component parent) throws HeadlessException {
++    	    Frame frame = parent instanceof Frame ? (Frame) parent
++                : (Frame)SwingUtilities.getAncestorOfClass(Frame.class, parent);
++
++	    String title = getUI().getDialogTitle(this);
++    	    getAccessibleContext().setAccessibleDescription(title);
++
++    	    JDialog dialog = new MyDialog(frame, title, true);
++
++    	    Container contentPane = dialog.getContentPane();
++    	    contentPane.setLayout(new BorderLayout());
++    	    contentPane.add(this, BorderLayout.CENTER);
++ 
++    	    if (JDialog.isDefaultLookAndFeelDecorated()) {
++        	boolean supportsWindowDecorations = 
++        	UIManager.getLookAndFeel().getSupportsWindowDecorations();
++        	if (supportsWindowDecorations) {
++            	    dialog.getRootPane().setWindowDecorationStyle(JRootPane.FILE_CHOOSER_DIALOG);
++        	}
++    	    }
++
++    	    dialog.pack();
++    	    dialog.setLocationRelativeTo(parent);
++
++	    return dialog;
++	}
++    }
++    
++    private static class MyDialog extends JDialog {
++    	public MyDialog(Frame frame, String title, boolean modal) {
++	    super(frame, title, modal);
++            DisplayInterceptor.getDefault().windowCreated(this);
++	}
++        
++        public java.awt.Graphics getGraphics() {
++            return DisplayInterceptor.getDefault().createGraphics(
++                super.getGraphics(), this);
++        }
+         
+     }
+     
