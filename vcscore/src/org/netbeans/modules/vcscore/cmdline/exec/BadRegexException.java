@@ -43,6 +43,14 @@ public class BadRegexException extends Exception {
         super(msg);
         this.e=e;
     }
+    
+    public String getLocalizedMessage() {
+        if (e != null) {
+            return org.openide.util.NbBundle.getMessage(BadRegexException.class, "MSG_BadRegexMessageInfo", e.getLocalizedMessage());
+        } else {
+            return org.openide.util.NbBundle.getMessage(BadRegexException.class, "MSG_BadRegexMessage");
+        }
+    }
 
     //-------------------------------------------
     public String toString(){
