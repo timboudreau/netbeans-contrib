@@ -301,7 +301,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
             path = getFSPath(dir);
         }
         if (printDebug) stdoutListener.outputData(new String[] { "Collecting files for command "+info.cmd.getName()+" in folder '"+path+"'" });
-        FilenameFilter fsFilter = fileSystem.getLocalFileFilter();
+        FilenameFilter fsFilter = fileSystem.getFileFilter();
         File dirFile = new File(dir.getAbsolutePath());
         if (info.canRunOnFolders) {
             if ((info.canRunOnRoot || !(path.length() == 0 || ".".equals(path))) && info.canRunOnStatus(dir.getStatus())) {
@@ -385,7 +385,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
     private void fillLocalDirFiles(Table files, CacheDir dir, File dirFile, CommandInfo info, boolean recursive) {
         String path = getFSPath(dirFile.getAbsolutePath());
         if (printDebug) stdoutListener.outputData(new String[] { "Collecting files for command "+info.cmd.getName()+" in folder '"+path+"'" });
-        FilenameFilter fsFilter = fileSystem.getLocalFileFilter();
+        FilenameFilter fsFilter = fileSystem.getFileFilter();
         if (info.canRunOnFolders && (info.canRunOnRoot || !(path.length() == 0 || ".".equals(path)))) {
             if (printDebug) stdoutListener.outputData(new String[] { " Processing folder = "+path });
             files.put(path, (findFileResource) ? fileSystem.findResource(path) : null);
@@ -499,7 +499,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         //System.out.println("runCommandsSomewhatRecursively("+dir+"), localOnly = "+localOnly);
         if (dirFile == null) waitToLoad(dir, false);
         CommandsPool cPool = fileSystem.getCommandsPool();
-        FilenameFilter fsFilter = fileSystem.getLocalFileFilter();
+        FilenameFilter fsFilter = fileSystem.getFileFilter();
         boolean status = true;
         for (Iterator it = cmdInfos.iterator(); it.hasNext(); ) {
             CommandInfo info = (CommandInfo) it.next();
