@@ -285,21 +285,19 @@ public class DDApiTest extends NbTestCase {
         
     }
     
-    private DDProvider ddProvider;
-    private FileObject fo;
+    private static DDProvider ddProvider;
+    private static FileObject fo;
     
     protected void setUp() throws Exception {
         super.setUp();
         System.out.println("setUp() .......................");
         
-        ddProvider = DDProvider.getDefault();
+        if (ddProvider==null) ddProvider = DDProvider.getDefault();
         assertTrue("DDProvider object not found",null != ddProvider);
 
-        File dataDir = new File(System.getProperty("test.data.dir"));
-        FileObject dataFolder = FileUtil.toFileObject(dataDir);
-
-        fo = dataFolder.getFileObject("web","xml");
         if (fo==null) {
+            File dataDir = new File(System.getProperty("test.data.dir"));
+            FileObject dataFolder = FileUtil.toFileObject(dataDir);
             FileObject orgFo = dataFolder.getFileObject("web_org","xml");
             FileUtil.copyFile(orgFo,dataFolder,"web","xml");
             fo = dataFolder.getFileObject("web","xml");
