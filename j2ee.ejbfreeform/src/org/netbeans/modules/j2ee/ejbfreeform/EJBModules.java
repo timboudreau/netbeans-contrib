@@ -294,6 +294,10 @@ public class EJBModules implements EjbJarProvider, AntProjectListener, ClassPath
         public FileObject getMetaInf () {
             return configFilesFO;
         }
+
+        public FileObject[] getJavaSources() {
+            return sourcesFOs;
+        }
         
     }
 }

@@ -168,6 +168,10 @@ public class EJBProjectNature implements ProjectNature {
         public FileObject getDeploymentDescriptor() {
             return getEjbjarImplementation().getDeploymentDescriptor();
         }
+        
+        public FileObject[] getJavaSources() {
+            return getEjbjarImplementation().getJavaSources();
+        }
     }
     
     private static final class ProjectLookup extends ProxyLookup implements AntProjectListener {
