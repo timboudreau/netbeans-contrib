@@ -64,8 +64,25 @@ public class VersioningExplorerAction extends GeneralCommandAction {
         VersioningExplorer.Panel explorer = VersioningExplorer.getRevisionExplorer();
         explorer.open();
         HashMap filesByFS = getFilesByFS(nodes);
-        //System.out.println("SELECTED NODES = "+(new java.util.HashSet(java.util.Arrays.asList(explorer.getExplorerManager().getSelectedNodes()))));
+        if (Boolean.getBoolean("netbeans.vcsdebug")) {
+            System.out.println("\nVersioningExplorer.performAction()");
+            //System.out.println("SELECTED NODES = "+(new java.util.HashSet(java.util.Arrays.asList(explorer.getExplorerManager().getSelectedNodes()))));
+            System.out.println("SELECTED NODES = "+(new java.util.HashSet(java.util.Arrays.asList(nodes))));
+            System.out.println("FILES BY FS (size = "+filesByFS.size()+"):");
+            for (Iterator it = filesByFS.keySet().iterator(); it.hasNext(); ) {
+                String foPath = (String) it.next();
+                String fsSystemName = (String) filesByFS.get(foPath);
+                System.out.println("  file '"+foPath+"' from '"+fsSystemName+"'");
+            }
         //explorer.setActivatedNodes(getVersioningNodes(filesByFS));
+            VersioningRepository repository = VersioningRepository.getRepository();
+            java.util.List vfsl = repository.getVersioningFileSystems();
+            System.out.println("\nList of versioning filesystems (size = "+vfsl.size()+"):");
+            for (Iterator it = vfsl.iterator(); it.hasNext(); ) {
+                VersioningFileSystem vfs = (VersioningFileSystem) it.next();
+                System.out.println(vfs+" with system name = '"+vfs.getSystemName()+"'");
+            }
+        }
         selectVersioningFiles(explorer, filesByFS);
         explorer.requestFocus();
     }
@@ -166,12 +183,21 @@ public class VersioningExplorerAction extends GeneralCommandAction {
             String fileName = (String) entry.getKey();
             String fsName = (String) entry.getValue();
             VersioningFileSystem vs = repository.getSystem(fsName);
+            if (Boolean.getBoolean("netbeans.vcsdebug")) {
+                System.out.println("Versioning FS of name '"+fsName+"' = "+vs);
+            }
             if (vs != null) {
                 FileObject fo = vs.findResource(fileName);
+                if (Boolean.getBoolean("netbeans.vcsdebug")) {
+                    System.out.println("  resource of name '"+fileName+"' = "+fo);
+                }
                 if (fo != null) {
                     //try {
                         //Node versioningRoot = org.netbeans.modules.vcscore.versioning.impl.VersioningDataSystem.getVersioningDataSystem();
                         Node fsRoot = manager.getRootContext().getChildren().findChild(vs.getSystemName());
+                        if (Boolean.getBoolean("netbeans.vcsdebug")) {
+                            System.out.println("  filesystem root = "+fsRoot);
+                        }
                         nodes.add(selectVersioningFile(explorer, fsRoot, fileName));
                         //nodes.add(DataObject.find(fo).getNodeDelegate());
                     //} catch (DataObjectNotFoundException exc) {}
@@ -205,6 +231,9 @@ public class VersioningExplorerAction extends GeneralCommandAction {
         }
         //System.out.println("setting explored context to "+node);
         //explorer.getExplorerManager().setExploredContext(node);
+        if (Boolean.getBoolean("netbeans.vcsdebug")) {
+            System.out.println("  node for versioning file '"+fileName+"' = "+node);
+        }
         return node;
     }
     
