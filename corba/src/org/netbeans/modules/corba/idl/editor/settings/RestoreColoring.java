@@ -31,7 +31,7 @@ public class RestoreColoring {
 
   public void restore () {
     //System.out.println ("restore ()");
-    Settings.addInitializer (new IDLEditorSettings());
+    Settings.addInitializer (new IDLEditorSettingsInitializer());
 
     // Registration of the editor kits to JEditorPane
     JEditorPane.registerEditorKitForContentType
@@ -48,6 +48,7 @@ public class RestoreColoring {
 }
 /*
  * <<Log>>
+ *  3    Jaga      1.1.1.0     3/16/00  Miloslav Metelka patch
  *  2    Gandalf   1.1         2/8/00   Karel Gardas    
  *  1    Gandalf   1.0         11/9/99  Karel Gardas    
  * $
