@@ -13,8 +13,6 @@
 
 package org.netbeans.modules.clazz;
 
-import java.lang.reflect.Field;
-
 import org.openide.src.*;
 
 /** The implementation of the field element for class objects.
@@ -33,7 +31,7 @@ final class FieldElementImpl extends MemberElementImpl
     /** Default constructor. Asociates with given
     * reflection Field data.
     */
-    public FieldElementImpl (final Field data) {
+    public FieldElementImpl (final org.netbeans.modules.classfile.Field data) {
         super(data);
     }
 
@@ -42,7 +40,9 @@ final class FieldElementImpl extends MemberElementImpl
     */
     public Type getType () {
         if (type == null)
-            type = Type.createFromClass(((Field)data).getType());
+            //XXX
+            //type = Type.createFromClass(((org.netbeans.modules.classfile.Field)data).getType());            
+            type = new Util.SignatureToType(((org.netbeans.modules.classfile.Field)data).getDescriptor()).getReturnType();
         return type;
     }
 

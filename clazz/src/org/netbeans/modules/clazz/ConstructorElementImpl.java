@@ -13,11 +13,6 @@
 
 package org.netbeans.modules.clazz;
 
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-
 import org.openide.src.*;
 
 /** Implementation of the constructor element for class objects.
@@ -36,38 +31,22 @@ class ConstructorElementImpl extends MemberElementImpl
     /** One JavaDoc empty implementation for all objects */
     private static final ClassJavaDocImpl.Method METHOD_JAVADOC_IMPL = new ClassJavaDocImpl.Method();
 
+    private Object declaringClass;
+    
     static final long serialVersionUID =5714347955571851240L;
     /** Default constructor, asocitates this object
     * with java reflection Constructor instance.
     */
-    public ConstructorElementImpl (final Member data) {
+    public ConstructorElementImpl (final org.netbeans.modules.classfile.Method data, Object declaringClass ) {
         super(data);
+        this.declaringClass = declaringClass;
     }
 
     /** @return the array specifying the parameters
     */
     public MethodParameter[] getParameters () {
         if (parameters == null) {
-            // build method params
-            Class[] reflPars = null;
-            if (data instanceof Method)
-                reflPars = ((Method)data).getParameterTypes();
-            else
-                reflPars = ((Constructor)data).getParameterTypes();
-            parameters = new MethodParameter[reflPars.length];
-            // helper variables
-            Class curPar = null;
-            Type curType = null;
-            String curName = null;
-            for (int i = 0; i < reflPars.length; i++) {
-                curPar = reflPars[i];
-                // create method parameter
-                parameters[i] = new MethodParameter(
-                                    "", Type.createFromClass(curPar), // NOI18N
-				    // no idea whether the parameter was really specified as final or not.
-                                    false
-                                );
-            }
+            parameters = new Util.SignatureToType(((org.netbeans.modules.classfile.Method)data).getDescriptor()).getMethodParameters();
         }
         return parameters;
     }
@@ -75,12 +54,13 @@ class ConstructorElementImpl extends MemberElementImpl
     protected Identifier createName(Object data) {
 	if (this instanceof MethodElementImpl) {
 	    return super.createName(data);
-	}
-	String n = ((Member)data).getName();
-	int lastDollar = n.lastIndexOf('$'); // NOI18N
-	return lastDollar == -1 ? 
+	}    
+        //if( 
+	String n = ((org.netbeans.modules.classfile.ClassFile)declaringClass).getName();//(org.netbeans.modules.classfile.Field)data).getClass().getName();
+	int lastDot = n.lastIndexOf('.'); // NOI18N
+	return lastDot == -1 ? 
 	    Identifier.create(n) :
-	    Identifier.create(n.substring(lastDollar + 1));
+	    Identifier.create(n.substring(lastDot + 1));
     }
 
     /** Unsupported, throws SourceException
@@ -93,12 +73,13 @@ class ConstructorElementImpl extends MemberElementImpl
     */
     public Identifier[] getExceptions () {
         if (exceptions == null) {
-            Class[] reflEx = null;
+            org.netbeans.modules.classfile.CPClassInfo[] reflEx = ((org.netbeans.modules.classfile.Method)data).getExceptionClasses();
             // obtain via reflection
-            if (data instanceof Method)
-                reflEx = ((Method)data).getExceptionTypes();
-            else
-                reflEx = ((Constructor)data).getExceptionTypes();
+            //if (data instanceof org.netbeans.modules.classfile.Method)
+            //reflEx = ((org.netbeans.modules.classfile.Method)data).getExceptionClasses();
+            //XXX
+            //else
+            //    reflEx = ((Constructor)data).getExceptionTypes();
             exceptions = new Identifier[reflEx.length];
             // build our exception types
             for (int i = 0; i < reflEx.length; i++) {

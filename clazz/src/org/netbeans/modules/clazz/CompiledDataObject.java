@@ -46,6 +46,7 @@ import org.openide.src.nodes.SourceChildren;
 import org.openide.src.nodes.SourceElementFilter;
 import org.openide.src.nodes.FilterFactory;
 import org.openide.src.nodes.ElementNodeFactory;
+import org.netbeans.modules.classfile.ClassFile;
 
 /* TODO:
   - check the showDeclaredOnly flag - it works different for
@@ -248,12 +249,12 @@ public class CompiledDataObject extends ClassDataObject {
     private static final class SourceSupport extends Object
         implements SourceCookie {
         /** The class which acts as a source element data */
-        private Class data;
+        private ClassFile data;
         /** Reference to outer class */
         private ClassDataObject cdo;
 
         /** Creates source support with asociated class object */
-        SourceSupport (Class data, ClassDataObject cdo) {
+        SourceSupport (ClassFile data, ClassDataObject cdo) {
             this.data = data;
             this.cdo = cdo;
         }
