@@ -23,7 +23,7 @@ import org.openide.util.NbBundle;
  */
 
 public class Util {
-
+    
     private static ResourceBundle bundle;
 
     public static String TypeCode2String (TypeCode tc) {
@@ -87,7 +87,10 @@ public class Util {
             case TCKind._tk_string :
                 return ( tc.length() == 0) ? "string" : "string <"+tc.length()+">";
             case TCKind._tk_sequence :
-                return "sequence <"+typeCode2TypeString(tc.content_type(), dimension)+","+tc.length()+"> ";
+                if (tc.length() != 0)
+                    return "sequence <"+typeCode2TypeString(tc.content_type(), dimension)+","+tc.length()+"> ";
+                else
+                    return "sequence <"+typeCode2TypeString(tc.content_type(), dimension)+"> ";
             case TCKind._tk_array :
                 if (dimension != null){
                     if (dimension.value == null)
@@ -112,6 +115,75 @@ public class Util {
 
     public static String typeCode2TypeString (TypeCode tc) {
         return typeCode2TypeString (tc, null);
+    }
+    
+    public static String generatePostTypePragmas (String name, String repositoryId, int indent) {
+        if (repositoryId.startsWith ("IDL:")) {
+            if (repositoryId.endsWith (":1.0")) {
+                /** Ok looks like: "IDL:xxxxxxx:1.0" */
+                return "";
+             }
+             else {
+                /** looks like: "IDL:xxxxxxxx:?.?" */
+                String fill = "";
+                for (int i=0; i< indent; i++)
+                    fill = fill + org.netbeans.modules.corba.browser.ir.nodes.IRAbstractNode.SPACE;
+                return fill + "#pragma version " + name +" "+ repositoryId.substring (repositoryId.lastIndexOf (':')+1)+"\n\n";
+             }
+         }
+         else {
+            /** looks like: "DCE:xxxxxxxx"  */
+            String fill = "";
+            for (int i=0; i< indent; i++)
+                fill = fill + org.netbeans.modules.corba.browser.ir.nodes.IRAbstractNode.SPACE;
+            return fill + "#pragma ID " + name + " \"" + repositoryId +"\"\n\n";
+        }
+    }
+    
+    
+    public static final String generatePreTypePragmas (String repositoryId, String absoluteName, org.omg.CORBA.StringHolder currentPrefix ,int indent) {
+        if (!repositoryId.startsWith ("IDL:"))
+            return "";  // Not CORBA IDL, probably DCE 
+        java.util.StringTokenizer tk = new java.util.StringTokenizer (repositoryId,":");
+        if (tk.countTokens() != 3)
+            return "";
+        tk.nextToken();  // Skeep it;
+        String id = tk.nextToken();
+        if (!absoluteName.startsWith("::"))
+            return ""; // Bad absolute name
+        absoluteName = absoluteName.substring (2);
+        StringBuffer sb = new StringBuffer (absoluteName);
+        for (int i=0; i<sb.length(); i++) {
+            if (sb.charAt(i) == ':') {
+                sb.setCharAt (i,'/');
+                sb.deleteCharAt (++i);
+            }
+        }
+        absoluteName = new String (sb);
+        String prefix = "";
+        int i,j;
+        for (i=id.length()-1, j=absoluteName.length()-1; i>=0 && j>=0; i--, j--) {
+            if (id.charAt(i) != absoluteName.charAt(j)) {
+                prefix = id.substring (0,i+1);
+                i=0;    // Found
+                break;
+            }
+         } 
+        if (i>0) { // Was found?
+            prefix = id.substring (0,i);
+        }
+        
+         if (prefix.equals (currentPrefix.value))
+            return "";
+         else {
+            currentPrefix.value = prefix;
+            String code = "";
+            for (i=0; i< indent; i++) {
+                code = code + org.netbeans.modules.corba.browser.ir.nodes.IRAbstractNode.SPACE;
+            }
+            code = code + "#pragma prefix \"" + prefix +"\"\n";
+            return code;
+         }
     }
 
     public static String getLocalizedString (String txt){

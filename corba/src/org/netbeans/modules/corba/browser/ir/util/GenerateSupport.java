@@ -13,8 +13,10 @@
 
 package org.netbeans.modules.corba.browser.ir.util;
 
+import org.omg.CORBA.StringHolder;
+
 public interface GenerateSupport {
-    String generateHead (int indent);
-    String generateSelf (int indent);
+    String generateHead (int indent, StringHolder currentPrefix);
+    String generateSelf (int indent, StringHolder currentPrefix);
     String generateTail (int indent);
 }
