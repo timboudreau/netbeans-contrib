@@ -156,5 +156,15 @@ Microsystems, Inc. All Rights Reserved.
      </folder>
    </folder>
 
-</filesystem>
+  <folder name="Windows2">
+      <folder name="Modes">
+          <folder name="output">
+              <file name="VCSCommandOutput.wstcref" url="CommandOutput.wstcref" />
+          </folder>
+      </folder>
+      <folder name="Components">
+          <file name="VCSCommandOutput.settings" url="CommandOutputTopComponent.settings" />
+      </folder>
+  </folder>
 
+</filesystem>

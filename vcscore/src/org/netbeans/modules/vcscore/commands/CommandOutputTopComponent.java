@@ -55,9 +55,8 @@ public class CommandOutputTopComponent extends TopComponent {
     protected Object eventSource;
     private JPopupMenu menu;
     private static CommandOutputTopComponent outputTopComponent;
-    private static Mode lastMode;
     
-    private static final long serialVersionUID = -8901733341334731237L;
+//    private static final long serialVersionUID = -8901733341334731237L;
     
     private CommandOutputTopComponent() {        
         setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));  //NOI18N        
@@ -66,21 +65,50 @@ public class CommandOutputTopComponent extends TopComponent {
         initPopupMenu();
         new CommandOutputTopComponent.OutputTabPopupListener();  
        
-   }
-    
-    public int getPersistenceType() {
-        return TopComponent.PERSISTENCE_NEVER;
     }
-    
-    public static CommandOutputTopComponent getInstance(){
-        if(outputTopComponent == null){
-            outputTopComponent = new CommandOutputTopComponent();             
-            lastMode = WindowManager.getDefault().findMode("output");  //NOI18N
-            if (lastMode != null) lastMode.dockInto(outputTopComponent);       
+
+    // -------- TopComponent singelton & persistence stuff ----------
+
+    /** Gets default instance. Don't use directly, it reserved for '.settings' file only,
+     * i.e. deserialization routines, otherwise you can get non-deserialized instance. */
+    public static synchronized CommandOutputTopComponent getDefault() {
+        if (outputTopComponent == null)
+            outputTopComponent = new CommandOutputTopComponent();
+        return outputTopComponent;
+    }
+
+    /** Finds default instance. Use in client code instead of {@link #getDefault()}. */
+    public static synchronized CommandOutputTopComponent getInstance() {
+        if (outputTopComponent == null) {
+            TopComponent tc = WindowManager.getDefault().findTopComponent("VCSCommandOutput"); // NOI18N
+            if (outputTopComponent == null) {
+                org.openide.ErrorManager.getDefault().notify(
+                    org.openide.ErrorManager.INFORMATIONAL,
+                    new IllegalStateException("Can not find CommandOutputTopComponent component for its ID. Returned " + tc)); // NOI18N
+                outputTopComponent = new CommandOutputTopComponent();
+            }
         }
         return outputTopComponent;
     }
-    
+
+    /** Overriden to explicitely set persistence type to PERSISTENCE_ALWAYS */
+    public int getPersistenceType() {
+        return TopComponent.PERSISTENCE_ALWAYS;
+    }
+
+    /** Replaces this in object stream. */
+    public Object writeReplace() {
+        return new ResolvableHelper();
+    }
+
+    final public static class ResolvableHelper implements java.io.Serializable {
+        static final long serialVersionUID = -8901733341334731237L;
+        public Object readResolve() {
+            return CommandOutputTopComponent.getDefault();
+        }
+    }
+
+    // ------ End of TopComponent singelton & persistence stuff ----------
     
     private void initComponents() {
         tabPane = new JTabbedPane();  
@@ -154,15 +182,10 @@ public class CommandOutputTopComponent extends TopComponent {
      * Open the component on the given workspace.
      */
     public void open() {       
-        if((lastMode == null)||(lastMode.getName().startsWith("anonymous"))){     //NOI18N       
-            Mode mode = WindowManager.getDefault().findMode("output");            //NOI18N
-            if (mode != null) mode.dockInto(outputTopComponent);
-        }else if(!isOpened())
-            lastMode.dockInto(outputTopComponent);
         super.open();
         requestVisible();
     }
-    
+
     public void addVisualizer(String name, JComponent component, boolean selected){
         tabPane.addTab(name,component);
         if(selected)
@@ -187,16 +210,6 @@ public class CommandOutputTopComponent extends TopComponent {
   //      outputPanel.componentDeactivated();
     }
     
-    /**
-     * Disable serialization.
-     * @return null
-     */
-    protected Object writeReplace () throws java.io.ObjectStreamException {
-        close();
-        return null;
-    }
- 
-
     public void addCloseListener(TopComponentCloseListener l) {
         synchronized (closeListeners) {
             closeListeners.add(l);
@@ -219,7 +232,6 @@ public class CommandOutputTopComponent extends TopComponent {
      * Called when the TopComponent is being to close.
      */
     private void closing() {
-       lastMode = WindowManager.getDefault().findMode(outputTopComponent);         
      //   outputPanel.removeKillActionListener(killListener);
         //synchronized (this) {
         //    pool = null;
