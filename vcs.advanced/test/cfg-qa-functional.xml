@@ -19,6 +19,8 @@ Microsystems, Inc. All Rights Reserved.
             <patternset>
     		<include name="complete/common/Availability.class"/>
     		<include name="complete/common/FilesystemSettings.class"/>
+    		<include name="complete/common/Variables.class"/>
+    		<include name="complete/common/Commands.class"/>
                 <include name="complete/cvs_profile/JellyOverall.class"/>
     		<include name="complete/pvcs_profile/MountPVCSFilesystem.class"/>
     		<include name="complete/vss_profile/MountVSSFilesystem.class"/>
@@ -80,6 +82,8 @@ Microsystems, Inc. All Rights Reserved.
     		<include name="complete/common/Availability.class"/>
     		<include name="complete/common/FilesystemSettings.class"/>
     		<include name="complete/common/MountingWizard.class"/>
+    		<include name="complete/common/Variables.class"/>
+    		<include name="complete/common/Commands.class"/>
             </patternset>
         </testset>
     </testbag>
