@@ -1,0 +1,490 @@
+? core/swing/scrollbars/build
+? core/swing/scrollbars/src/org/netbeans/swing/scrollbars/demo/MarkTestImpl.java
+? core/swing/scrollbars/src/org/netbeans/swing/scrollbars/demo/Test.java
+Index: editor/build.xml
+===================================================================
+RCS file: /cvs/editor/build.xml,v
+retrieving revision 1.48
+diff -u -u -r1.48 build.xml
+--- editor/build.xml	7 Apr 2004 19:27:07 -0000	1.48
++++ editor/build.xml	9 May 2004 22:52:00 -0000
+@@ -28,12 +28,16 @@
+       <pathelement location="${core.dir}/${nb.lib.dir}/core.jar"/>
+       <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+       <pathelement location="${java/srcmodel.dir}/${nb.modules.dir}/org-openide-src.jar"/>
++
+ <!--      <pathelement location="${debuggercore/oldapi.dir}/${nb.modules.dir}/org-openide-debugger.jar"/> -->
+       <pathelement location="${java/api.dir}/${nb.modules.dir}/org-netbeans-api-java.jar"/>
+       <pathelement location="libsrc"/>
++      <pathelement location="${core/swing/scrollbars.dir}/${nb.modules.dir}/org-netbeans-swing-scrollbars.jar"/>
+     </path>
++
+     <path id="libcp">
+       <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
++      <pathelement location="${core/swing/scrollbars.dir}/${nb.modules.dir}/org-netbeans-swing-scrollbars.jar"/>
+     </path>
+   </target>
+ 
+Index: editor/manifest.mf
+===================================================================
+RCS file: /cvs/editor/manifest.mf,v
+retrieving revision 1.55
+diff -u -u -r1.55 manifest.mf
+--- editor/manifest.mf	26 Mar 2004 16:41:53 -0000	1.55
++++ editor/manifest.mf	9 May 2004 22:52:00 -0000
+@@ -10,6 +10,7 @@
+   org.netbeans.api.java/1,
+   org.netbeans.core/1 > 1.0, 
+   org.openide.src > 1.0, 
+-  org.openide.loaders > 4.11
++  org.openide.loaders > 4.11,
++  org.netbeans.swing.scrollbars
+ Class-Path: ext/nb-editor.jar
+ 
+Index: editor/libsrc/org/netbeans/editor/Annotations.java
+===================================================================
+RCS file: /cvs/editor/libsrc/org/netbeans/editor/Annotations.java,v
+retrieving revision 1.20
+diff -u -u -r1.20 Annotations.java
+--- editor/libsrc/org/netbeans/editor/Annotations.java	12 Mar 2004 13:39:32 -0000	1.20
++++ editor/libsrc/org/netbeans/editor/Annotations.java	9 May 2004 22:52:01 -0000
+@@ -67,7 +67,7 @@
+     private DrawLayerFactory.AnnotationLayer drawLayer;
+ 
+     /** Reference to document */
+-    private BaseDocument doc;
++    BaseDocument doc;
+ 
+     /** List of listeners on AnnotationsListener*/
+     private EventListenerList listenerList;
+Index: editor/libsrc/org/netbeans/editor/EditorUI.java
+===================================================================
+RCS file: /cvs/editor/libsrc/org/netbeans/editor/EditorUI.java,v
+retrieving revision 1.62
+diff -u -u -r1.62 EditorUI.java
+--- editor/libsrc/org/netbeans/editor/EditorUI.java	3 Mar 2004 09:22:19 -0000	1.62
++++ editor/libsrc/org/netbeans/editor/EditorUI.java	9 May 2004 22:52:03 -0000
+@@ -23,12 +23,7 @@
+ import java.beans.PropertyChangeListener;
+ import java.beans.PropertyChangeEvent;
+ import java.beans.PropertyChangeSupport;
+-import javax.swing.Action;
+-import javax.swing.JComponent;
+-import javax.swing.JViewport;
+-import javax.swing.JPanel;
+-import javax.swing.JScrollPane;
+-import javax.swing.SwingUtilities;
++import javax.swing.*;
+ import javax.swing.event.ChangeListener;
+ import javax.swing.event.ChangeEvent;
+ import javax.swing.text.JTextComponent;
+@@ -38,6 +33,7 @@
+ import org.netbeans.editor.GlyphGutter;
+ import javax.swing.plaf.TextUI;
+ import org.netbeans.editor.FontMetricsCache;
++import org.netbeans.swing.scrollbars.api.ScrollbarFactory;
+ 
+ /**
+ * Editor UI for the component. All the additional UI features
+@@ -968,11 +964,18 @@
+ 
+         // Add the scroll-pane with the component to the center
+         JScrollPane scroller = new JScrollPane(component);
++
+         scroller.getViewport().setMinimumSize(new Dimension(4,4));
+-        
+-        // remove default scroll-pane border, winsys will handle borders itself           
+-        scroller.setBorder(null);
+-        
++
++        JScrollBar bar = ScrollbarFactory.createScrollbar(
++            new ScrollbarAnnotationAdapter(getDocument().getAnnotations()));
++
++        scroller.setVerticalScrollBar(bar);
++
++        // remove default scroll-pane border, winsys will handle borders itself
++        scroller.setBorder(BorderFactory.createEmptyBorder());
++        scroller.setViewportBorder (BorderFactory.createEmptyBorder());
++
+         setGlyphGutter(new GlyphGutter(this));
+         scroller.setRowHeaderView(glyphGutter);
+ 
+Index: editor/libsrc/org/netbeans/editor/ScrollbarAnnotationAdapter.java
+===================================================================
+RCS file: editor/libsrc/org/netbeans/editor/ScrollbarAnnotationAdapter.java
+diff -N editor/libsrc/org/netbeans/editor/ScrollbarAnnotationAdapter.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ editor/libsrc/org/netbeans/editor/ScrollbarAnnotationAdapter.java	9 May 2004 22:52:04 -0000
+@@ -0,0 +1,193 @@
++/*
++ *                 Sun Public License Notice
++ *
++ * The contents of this file are subject to the Sun Public License
++ * Version 1.0 (the "License"). You may not use this file except in
++ * compliance with the License. A copy of the License is available at
++ * http://www.sun.com/
++ *
++ * The Original Code is NetBeans. The Initial Developer of the Original
++ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
++ * Microsystems, Inc. All Rights Reserved.
++ */
++
++/*
++ * ScrollbarAnnotationAdapter.java
++ *
++ * Created on December 27, 2003, 12:04 AM
++ */
++
++package org.netbeans.editor;
++
++import java.awt.Color;
++import java.util.ArrayList;
++import java.util.Collections;
++import javax.swing.event.ChangeEvent;
++import javax.swing.event.ChangeListener;
++import javax.swing.text.BadLocationException;
++import org.netbeans.swing.scrollbars.spi.*;
++
++/** Adapter class which converts editor annotations to the API used by 
++ * marking. 
++ *
++ * @author  Tim Boudreau
++ */
++public class ScrollbarAnnotationAdapter implements MarkingModel, Annotations.AnnotationsListener {
++    private ChangeListener listener = null;
++    private Annotations anns;
++    private ArrayList marksList=new ArrayList(20);
++    /** Creates a new instance of ScrollbarAnnotationAdapter */
++    public ScrollbarAnnotationAdapter(Annotations anns) {
++        this.anns = anns;
++        anns.addAnnotationsListener(this);
++    }
++    
++    public int size () {
++	    if (changed) {
++            change();
++        }
++        return marksList.size();
++    }
++    
++    public org.netbeans.swing.scrollbars.spi.Mark getMark(int i) {
++        if (changed) {
++            change();
++        }
++        return (org.netbeans.swing.scrollbars.spi.Mark) marksList.get(i);
++    }
++    
++    public java.util.Enumeration getMarks() {
++        if (changed) {
++            change();
++        }
++        return Collections.enumeration(marksList);
++    }
++    
++    public int getMaxMarkLocation() {
++        if (changed) {
++            change();
++        }
++        int result = getLineCount();
++        return result;
++    }
++    
++    protected int getLineCount() {
++        int lineCnt;
++        try {
++            lineCnt = Utilities.getLineOffset(anns.doc, anns.doc.getLength()) + 1;
++        } catch (BadLocationException e) {
++            lineCnt = 1;
++        }
++        return lineCnt;
++    }
++    
++    
++    private void reset() {
++        marksList.clear();
++    }
++    
++    private boolean changed = true;
++    private void change() {
++        reset();
++        int line = anns.getNextLineWithAnnotation(0);
++        while (line != -1) {
++            //create a mark
++            AnnotationDesc[] annds = anns.getPasiveAnnotations(line); //[sic]
++            if (annds == null) {
++                annds = new AnnotationDesc[] { anns.getActiveAnnotation(line) };
++            }
++            annds = ScrollbarAnnotationFilter.getDefault().match(annds);
++            if (annds != null) {
++                marksList.add(new MarkAdapter (line, annds));
++            }
++            line = anns.getNextLineWithAnnotation(line+1);
++        }
++        setChanged(false);
++    }
++    
++    private void setChanged(boolean val) {
++        if (changed != val) {
++            changed = val;
++            if (changed) {
++               fireChange();
++            }
++        }
++    }
++    
++    private void fireChange() {
++        if (listener != null) {
++            listener.stateChanged(new ChangeEvent(this));
++        }
++    }
++    
++    public void addChangeListener(javax.swing.event.ChangeListener ch) {
++        listener = ch;
++    }
++    
++    public void removeChangeListener(javax.swing.event.ChangeListener ch) {
++        if (listener == ch) {
++            listener = null;
++        }
++    }
++    
++    public void changedAll() {
++        setChanged(true);
++    }
++    
++    public void changedLine(int line) {
++        setChanged(true);
++    }
++    
++    private class MarkAdapter implements org.netbeans.swing.scrollbars.spi.Mark {
++        private int line;
++        private AnnotationDesc[] anns;
++        public MarkAdapter(int line, AnnotationDesc[] anns) {
++            this.line = line;
++            this.anns = anns;
++        }
++        
++        public Object get(String key) {
++            if ("color".equals(key)) {
++                Color result = null;
++                if (anns != null) {
++                    for (int i=0; i < anns.length; i++) {
++                        result = anns[i].getColoring().getBackColor();
++                        if (result != null) {
++                            return result;
++                        }
++                    }
++                }
++                return Color.BLUE;
++            } else {
++                return null;
++            }
++        }
++        
++        public int getLength() {
++            return 1;
++        }
++        
++        public int getStart() {
++            return line;
++        }
++        
++        public String getText() {
++            if (anns != null) {
++                StringBuffer sb = new StringBuffer();
++                for (int i=0; i < anns.length; i++) {
++                    sb.append (anns[i].getShortDescription());
++                    if (i != anns.length-1) {
++                        sb.append("\n");
++                    }
++                }
++                return sb.toString();
++            } else {
++                return null;
++            }
++        }
++
++        public void select() {
++            //XXX Maybe move the caret to the line here?
++        }
++    }
++}
+Index: editor/libsrc/org/netbeans/editor/ScrollbarAnnotationFilter.java
+===================================================================
+RCS file: editor/libsrc/org/netbeans/editor/ScrollbarAnnotationFilter.java
+diff -N editor/libsrc/org/netbeans/editor/ScrollbarAnnotationFilter.java
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ editor/libsrc/org/netbeans/editor/ScrollbarAnnotationFilter.java	9 May 2004 22:52:04 -0000
+@@ -0,0 +1,78 @@
++/*
++ *                 Sun Public License Notice
++ *
++ * The contents of this file are subject to the Sun Public License
++ * Version 1.0 (the "License"). You may not use this file except in
++ * compliance with the License. A copy of the License is available at
++ * http://www.sun.com/
++ *
++ * The Original Code is NetBeans. The Initial Developer of the Original
++ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
++ * Microsystems, Inc. All Rights Reserved.
++ */
++
++/*
++ * ScrollbarAnnotationFilter.java
++ *
++ * Created on January 6, 2004, 8:22 PM
++ */
++
++package org.netbeans.editor;
++
++import java.util.ArrayList;
++
++/** Filters annotations, so that scrollbar marks will only be shown for those
++ * that match.  Probably this doesn't belong in the editor, package; there should
++ * be a default instance available in lookup that probably proxies individual
++ * filters installed by various modules.
++ * <p>
++ * Basically this exists to filter out things like the new "Implements" 
++ * annotations, which just create clutter in the margin otherwise.
++ *
++ * @author  Tim Boudreau  */
++public abstract class ScrollbarAnnotationFilter {
++    
++    /** Creates a new instance of ScrollbarAnnotationFilter */
++    protected ScrollbarAnnotationFilter() {
++    }
++    
++    /** Iterates the passed AnnotationDesc[] instances and returns an
++     * array of any that match the filter, filtering out those that don't.
++     * Should return null if there are no matches.  */
++    public abstract AnnotationDesc[] match (AnnotationDesc[] anns);
++    
++    private static ScrollbarAnnotationFilter defaultInstance = null;
++    public static final ScrollbarAnnotationFilter getDefault() {
++        //XXX for a real implementation, use Lookup and let modules
++        //register subfilters, or something.
++        if (defaultInstance == null) {
++            defaultInstance = new Trivial();
++        }
++        return defaultInstance;
++    }
++
++    /** A demonstration class which just filters out the new annotations
++     * of implemented and overriddens methods annotations, which don't 
++     * really belong in the scrollbar.  Not localized or anything, just
++     * a demo (which also makes scrollbar marking not contain annoying
++     * numbers of marks that just indicate overrides or implementations
++     * of inherited stuff)  */
++    private static class Trivial extends ScrollbarAnnotationFilter {
++        public AnnotationDesc[] match (AnnotationDesc[] anns) {
++            ArrayList result = new ArrayList();
++            for (int i=0; i < anns.length; i++) {
++                if (!anns[i].getShortDescription().startsWith("Implements") &&
++                    !anns[i].getShortDescription().startsWith("Overrides")) {
++                    result.add (anns[i]);
++                }
++            }
++            if (result.isEmpty()) {
++                return null;
++            } else {
++                AnnotationDesc[] results = new AnnotationDesc[result.size()];
++                results = (AnnotationDesc[]) result.toArray(results);
++                return results;
++            }
++        }
++    }
++}
+Index: editor/src/org/netbeans/modules/editor/NbEditorUI.java
+===================================================================
+RCS file: /cvs/editor/src/org/netbeans/modules/editor/NbEditorUI.java,v
+retrieving revision 1.24
+diff -u -u -r1.24 NbEditorUI.java
+--- editor/src/org/netbeans/modules/editor/NbEditorUI.java	22 Apr 2004 13:10:21 -0000	1.24
++++ editor/src/org/netbeans/modules/editor/NbEditorUI.java	9 May 2004 22:52:06 -0000
+@@ -26,9 +26,7 @@
+ import javax.swing.BorderFactory;
+ import javax.swing.text.Document;
+ import javax.swing.text.JTextComponent;
+-import org.netbeans.editor.BaseKit;
+-import org.netbeans.editor.EditorUI;
+-import org.netbeans.editor.Utilities;
++
+ import org.netbeans.editor.ext.ExtEditorUI;
+ import org.netbeans.editor.ext.ExtKit;
+ import org.openide.filesystems.FileObject;
+@@ -39,15 +37,15 @@
+ import org.openide.windows.TopComponent;
+ import org.openide.text.CloneableEditor;
+ import javax.swing.event.ChangeEvent;
+-import org.netbeans.editor.GuardedDocument;
+ import javax.swing.SwingUtilities;
+-import org.netbeans.editor.BaseDocument;
+ import javax.swing.text.Caret;
+ import javax.swing.JEditorPane;
+ import javax.swing.JComponent;
+ import javax.swing.JPanel;
+ import javax.swing.JScrollPane;
+-import org.netbeans.editor.GlyphGutter;
++
++import org.netbeans.editor.*;
++import org.netbeans.swing.scrollbars.api.ScrollbarFactory;
+ 
+ /**
+ * Editor UI
+@@ -128,7 +126,11 @@
+         // remove default scroll-pane border, winsys will handle borders itself           
+         scroller.setBorder(BorderFactory.createEmptyBorder());
+         scroller.setViewportBorder(BorderFactory.createEmptyBorder());
++
++        scroller.setVerticalScrollBar(ScrollbarFactory.createScrollbar(
++            new ScrollbarAnnotationAdapter(getDocument().getAnnotations())));
+         
++
+         CustomizableSideBar bar = new CustomizableSideBar(component);
+ 
+         scroller.setRowHeaderView(bar);
+Index: nbbuild/build.xml
+===================================================================
+RCS file: /cvs/nbbuild/build.xml,v
+retrieving revision 1.472
+diff -u -u -r1.472 build.xml
+--- nbbuild/build.xml	9 May 2004 05:15:22 -0000	1.472
++++ nbbuild/build.xml	9 May 2004 22:52:28 -0000
+@@ -181,6 +181,10 @@
+     <echo message="Building module core/windows..."/>
+     <ant dir="../core/windows" target="netbeans"/>
+   </target>
++  <target name="all-core/swing/scrollbars">
++    <echo message="Building marked scrollbar component library..."/>
++    <ant dir="../core/swing/scrollbars"/>
++  </target>
+   <target name="all-core/multiview" depends="all-openide,all-openide/loaders">
+     <echo message="Building module core/multiview..."/>
+     <ant dir="../core/multiview" target="netbeans"/>
+@@ -361,7 +365,7 @@
+     <echo message="Building module debuggerjpda/ant..."/>
+     <ant dir="../debuggerjpda/ant" target="netbeans"/>
+   </target>
+-  <target name="all-editor" depends="build-platform,all-java/srcmodel,all-debuggercore/oldapi,all-java/api,all-projects/queries">
++  <target name="all-editor" depends="build-platform,all-java/srcmodel,all-debuggercore/oldapi,all-java/api,all-projects/queries,all-core/swing/scrollbars">
+     <echo message="Building module editor..."/>
+     <ant dir="../editor" target="netbeans"/>
+   </target>
+Index: nbbuild/templates/modules.xml
+===================================================================
+RCS file: /cvs/nbbuild/templates/modules.xml,v
+retrieving revision 1.19
+diff -u -u -r1.19 modules.xml
+--- nbbuild/templates/modules.xml	7 May 2004 22:12:39 -0000	1.19
++++ nbbuild/templates/modules.xml	9 May 2004 22:52:29 -0000
+@@ -117,6 +117,10 @@
+         <cnb>org.netbeans.swing.tabcontrol</cnb>
+     </module>
+     <module>
++        <path>core/swing/scrollbars</path>
++        <cnb>org.netbeans.swing.scrollbars</cnb>
++    </module>
++    <module>
+         <path>core/term</path>
+         <cnb>org.netbeans.lib.terminalemulator</cnb>
+     </module>
