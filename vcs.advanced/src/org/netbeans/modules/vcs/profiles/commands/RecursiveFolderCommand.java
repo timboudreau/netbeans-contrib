@@ -257,9 +257,22 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
         Table files = new Table();
         fillDirFilesWithTurbo(files, dir, info, !localOnly);
         File root = fileSystem.getFile("");
+        int dirPathLength = dir.getPath().length();
         for (Iterator it = files.keySet().iterator(); it.hasNext(); ) {
             String fsPath = (String) it.next();
-            String filePath = new File(root, fsPath).getAbsolutePath();
+            String filePath;
+            if (filesToProcessSubstractPath.equals(PRINT_FILE_PATH_A)) {
+                filePath = new File(root, fsPath).getAbsolutePath();
+            } else if (filesToProcessSubstractPath.equals(PRINT_FILE_PATH_R) ||
+                       filesToProcessSubstractPath.equals(PRINT_FILE_PATH_W)) {
+                filePath = fsPath;
+            } else { // relative with respect to current dir
+                if (fsPath.length() > dirPathLength) {
+                    filePath = fsPath.substring(dirPathLength + 1);
+                } else {
+                    filePath = ""; // NOI18N
+                }
+            }
             stdoutListener.outputData(new String[] { filePath});
         }
         return true;
@@ -305,7 +318,6 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                 " where 'x' is one of: 'a', 'r', 'w', 'c'. Specify absolute path,"+
                 " relative with respect to FS root, relative with respect to the"+
                 " working directory and relative with respect to the current directory.\n"+
-                " Currently only -fa is implemented!\n"+ // TODO if needed
                 "-d to print debug messages to data output (should not be used with -f[x])."); // NOI18N
             return true;
         }
