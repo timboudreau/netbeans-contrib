@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Layer: org/netbeans/modules/latex/gui/nb/mf-layer.xml
+OpenIDE-Module-Name: Automata editor for Vaucanson
+OpenIDE-Module-Short-Description: Supports editing finite automata for Vaucanson.
+OpenIDE-Module-Display-Category: Editing
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.latex.auted/1

@@ -1,0 +1,3 @@
+This is support for BiBTeX for NetBeans and the LaTeX support. Currently it is very preliminary and used only for testing.
+I do not recommend to use it for anybody. In case you'll try to use it (for curiosity), use it only on copies of BiBTeX databases,
+otherwise you'll probably loose them.

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE file PUBLIC "-//NetBeans//LaTeX Commands Description 1.0//EN" "command_description.dtd"
+[
+<!ENTITY genericCommands
+         SYSTEM "generic_commands.xml" >
+<!ENTITY genericEnvironments
+         SYSTEM "generic_environments.xml" >
+<!ENTITY genericOptions
+         SYSTEM "generic_options.xml" >
+<!ENTITY genericSymbols
+         SYSTEM "symbols_generic.xml" >
+]>
+
+<file name="book" type="docclass">
+  <options>
+    &genericOptions;
+  </options>
+
+  <environments>
+    &genericEnvironments;
+  </environments>
+
+  <commands>
+    &genericCommands;
+    &genericSymbols;
+    
+    <command name="\chapter">
+        <attribute name="#caption-command" value="true" />
+        <attribute name="#section-command" value="true" />
+        <argument type="mandatory">
+            <attribute name="#text" value="true"/>
+            <attribute name="#caption" value="true"/>
+        </argument>
+    </command>
+
+    <command name="\chapter*">
+        <attribute name="#caption-command" value="true" />
+        <attribute name="#section-command" value="true" />
+        <argument type="mandatory">
+            <attribute name="#text" value="true"/>
+            <attribute name="#caption" value="true"/>
+        </argument>
+    </command>
+
+    <command name="\part">
+        <attribute name="#caption-command" value="true" />
+        <attribute name="#section-command" value="true" />
+        <argument type="mandatory">
+            <attribute name="#text" value="true"/>
+            <attribute name="#caption" value="true"/>
+        </argument>
+    </command>
+
+    <command name="\part*">
+        <attribute name="#caption-command" value="true" />
+        <attribute name="#section-command" value="true" />
+        <argument type="mandatory">
+            <attribute name="#text" value="true"/>
+            <attribute name="#caption" value="true"/>
+        </argument>
+    </command>
+
+  </commands>
+</file>

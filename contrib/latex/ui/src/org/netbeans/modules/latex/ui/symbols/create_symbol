@@ -1,0 +1,67 @@
+#!/bin/bash
+#This script is part of NB LaTeX support. It creates icons for LaTeX symbols according to content of
+#symbols.txt file.
+
+create_ps() {
+export SYMBOL=$1
+
+cat >temp.tex <<EOF
+\documentclass{article}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{latexsym}
+\pagestyle{empty}
+\begin{document}
+\$$SYMBOL\$
+\end{document}
+EOF
+
+latex temp.tex >/dev/null 2>&1
+dvips -f -E temp.dvi >temp.eps 2>/dev/null
+}
+
+create_png() {
+create_ps $1
+/tmp/gs.new/bin/gs -sDEVICE=pngalpha -dBATCH -dNOPAUSE -dEPSFitPage -g$3 -sOutputFile=$2.png temp.eps >/dev/null 2>&1
+}
+
+create_symbol() {
+create_png $1 $1 24x24
+}
+
+create_icon() {
+create_png $1 $2 16x16
+}
+
+MAINLIST=symbols_mainlist.txt
+
+rm -f symbols_*.properties
+rm -f $MAINLIST
+touch $MAINLIST
+
+for line in `cat $1`; do
+   echo "Preparing: `echo $line | cut -d ':' -f 1`";
+   for attr in `echo $line | cut -d ":" -f 2 | tr "," " "`; do
+      if echo $attr | grep "symbols_" >/dev/null; then
+          touch "$attr.properties"
+          SYMBOL_IN=`echo $line | cut -d ":" -f 1`;
+          create_symbol $SYMBOL_IN;
+	  echo "$SYMBOL_IN=$SYMBOL_IN.png" >>"$attr.properties";
+	  if echo $line | grep "advice_not" >/dev/null; then
+	      create_symbol "\not$SYMBOL_IN"
+	      echo "\not$SYMBOL_IN=\not$SYMBOL_IN.png" >>"$attr.properties";
+	  fi;
+	  
+	  name=`echo $attr | cut -d "_" -f 2`;
+	  if grep <$MAINLIST "$name" >/dev/null; then
+	     echo >/dev/null;
+	  else
+	      echo $name >>$MAINLIST;
+	  fi;
+      fi;
+      if echo $attr | grep "icon_" >/dev/null; then
+          create_icon $SYMBOL_IN $attr
+      fi;
+   done ;
+done;
+

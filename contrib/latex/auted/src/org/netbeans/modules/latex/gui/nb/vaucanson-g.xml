@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE file PUBLIC "-//NetBeans//LaTeX Commands Description 1.0//EN" "http://contrib.netbeans.org/latex/command_description.dtd"
+[
+<!ENTITY vaucansonGeneric
+         SYSTEM "vaucanson-generic.xml" >
+]>
+
+<file name="vaucanson-g" type="package">
+    &vaucansonGeneric;
+</file>

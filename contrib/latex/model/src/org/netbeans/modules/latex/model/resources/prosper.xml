@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE file PUBLIC "-//NetBeans//LaTeX Commands Description 1.0//EN" "command_description.dtd"
+[
+<!ENTITY genericCommands
+         SYSTEM "generic_commands.xml" >
+<!ENTITY genericEnvironments
+         SYSTEM "generic_environments.xml" >
+<!ENTITY genericSymbols
+         SYSTEM "symbols_generic.xml" >
+]>
+
+<file name="prosper" type="docclass">
+  <includes>
+    <include name="graphicx" />
+  </includes>
+  
+  <options>
+    <option name="draft">
+    <attribute name="class" value="final" />
+  </option>
+
+  <option name="final">
+    <attribute name="class" value="final" />
+
+    <attribute name="class-default" value="true" />
+  </option>
+
+  <option name="pdf">
+    <attribute name="class" value="ps" />
+  </option>
+
+  <option name="ps">
+    <attribute name="class" value="ps" />
+
+    <attribute name="class-default" value="true" />
+  </option>
+
+  <option name="slideColor">
+    <attribute name="class" value="slideBW" />
+  </option>
+
+  <option name="slideBW">
+    <attribute name="class" value="slideBW" />
+
+    <attribute name="class-default" value="true" />
+  </option>
+
+  <option name="total">
+    <attribute name="class" value="total" />
+
+    <attribute name="class-default" value="true" />
+  </option>
+
+  <option name="nototal">
+    <attribute name="class" value="total" />
+  </option>
+
+  <option name="nocolorBG">
+    <attribute name="class" value="nocolorBG" />
+
+    <attribute name="class-default" value="true" />
+  </option>
+
+  <option name="colorBG">
+    <attribute name="class" value="nocolorBG" />
+  </option>
+
+  <option name="accumulate">
+    <attribute name="class" value="noaccumulate" />
+  </option>
+
+  <option name="noaccumulate">
+    <attribute name="class" value="noaccumulate" />
+
+    <attribute name="class-default" value="true" />
+  </option>
+
+  <option name="distiler">
+  </option>
+
+  <option name="blends">
+    <attribute name="class" value="default" />
+  </option>
+
+  <option name="default">
+    <attribute name="class" value="default" />
+
+    <attribute name="class-default" value="true" />
+  </option>
+  </options>
+
+  <environments>
+    &genericEnvironments;
+    <environment name="slide"></environment>
+  </environments>
+
+  <commands>
+    &genericCommands;
+    &genericSymbols;
+    <command name="\fromSlide*">
+    <argument type="mandatory">
+    <attribute name="#code" value="true"/>
+    </argument>
+    <argument type="mandatory">
+    <attribute name="#text" value="true"/>
+    </argument>
+    </command>
+    <command name="\fromSlide">
+    <argument type="mandatory">
+    <attribute name="#code" value="true"/>
+    </argument>
+    <argument type="mandatory">
+    <attribute name="#text" value="true"/>
+    </argument>
+    </command>
+    <command name="\onlySlide*">
+    <argument type="mandatory">
+    <attribute name="#code" value="true"/>
+    </argument>
+    <argument type="mandatory">
+    <attribute name="#text" value="true"/>
+    </argument>
+    </command>
+    <command name="\onlySlide">
+    <argument type="mandatory">
+    <attribute name="#code" value="true"/>
+    </argument>
+    <argument type="mandatory">
+    <attribute name="#text" value="true"/>
+    </argument>
+    </command>
+    <command name="\untilSlide*">
+    <argument type="mandatory">
+    <attribute name="#code" value="true"/>
+    </argument>
+    <argument type="mandatory">
+    <attribute name="#text" value="true"/>
+    </argument>
+    </command>
+    <command name="\untilSlide">
+    <argument type="mandatory">
+    <attribute name="#code" value="true"/>
+    </argument>
+    <argument type="mandatory">
+    <attribute name="#text" value="true"/>
+    </argument>
+    </command>
+    <command name="\overlays">
+    <argument type="mandatory">
+    <attribute name="#code" value="true"/>
+    </argument>
+    <argument type="mandatory">
+    <attribute name="#code" value="true"/>
+    </argument>
+    </command>
+    <command name="\part">
+    </command>
+    <command name="\fontTitle">
+    <argument type="mandatory">
+    <attribute name="#text" value="true"/>
+    </argument>
+    </command>
+    <command name="\Logo">
+    <argument type="mandatory">
+    <attribute name="#code" value="true"/>
+    </argument>
+    </command>
+    <command name="\email">
+    <argument type="mandatory">
+    <attribute name="#code" value="true"/>
+    </argument>
+    </command>
+  </commands>
+</file>

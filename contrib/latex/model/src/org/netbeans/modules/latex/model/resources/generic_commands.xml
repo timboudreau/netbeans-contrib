@@ -1,0 +1,618 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<command name="\{">
+</command>
+
+<command name="\}">
+</command>
+
+<command name="\index">
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\include">
+  <attribute name="input" value="true" />
+  <argument type="mandatory">
+    <attribute name="#include" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\item">
+  <attribute name="par" value="true" />
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="free">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\indent">
+</command>
+
+<command name="\hline">
+</command>
+
+<command name="\subsection*">
+  <attribute name="#section-command" value="true" />
+  <attribute name="#caption-command" value="true" />
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+
+    <attribute name="#caption" value="true" />
+  </argument>
+</command>
+
+<command name="\newenvironment">
+  <attribute name="#enviroment-defining-command" value="true" />
+  
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+    <attribute name="#envname" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+    <attribute name="#argcountargument" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+    <attribute name="#nonmandargvalueargument" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#no-parse" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#no-parse" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\parbox">
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#test" value="true" />
+  </argument>
+</command>
+
+<command name="\subsubsection">
+  <attribute name="#section-command" value="true" />
+  <attribute name="#caption-command" value="true" />
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+
+    <attribute name="#caption" value="true" />
+  </argument>
+</command>
+
+<command name="\input">
+  <attribute name="input" value="true" />
+  <argument type="free">
+    <attribute name="#include" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\textit">
+  <argument type="free">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\noindent">
+</command>
+
+<command name="\Large">
+  <argument type="free">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\subparagraph*">
+  <attribute name="#section-command" value="true" />
+  <attribute name="#caption-command" value="true" />
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+
+    <attribute name="#caption" value="true" />
+  </argument>
+</command>
+
+<command name="\multicolumn">
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\ref">
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+
+    <attribute name="#ref" value="true" />
+  </argument>
+</command>
+
+<command name="\authors">
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\pageref">
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+
+    <attribute name="#ref" value="true" />
+  </argument>
+</command>
+
+<command name="\section*">
+  <attribute name="#section-command" value="true" />
+  <attribute name="#caption-command" value="true" />
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+
+    <attribute name="#caption" value="true" />
+  </argument>
+</command>
+
+<command name="\footnotetext">
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\scriptsize">
+  <argument type="free">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\TeX">
+</command>
+
+<command name="\textrm">
+  <argument type="free">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\cite">
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+
+    <attribute name="#cite" value="true" />
+  </argument>
+</command>
+
+<command name="\emph">
+  <argument type="free">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\author">
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\huge">
+  <argument type="free">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\subparagraph">
+  <attribute name="#section-command" value="true" />
+  <attribute name="#caption-command" value="true" />
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+
+    <attribute name="#caption" value="true" />
+  </argument>
+</command>
+
+<command name="\LARGE">
+  <argument type="free">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\title">
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\maketitle">
+</command>
+
+<command name="\vspace">
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\addtocounter">
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\subsection">
+  <attribute name="#section-command" value="true" />
+  <attribute name="#caption-command" value="true" />
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+
+    <attribute name="#caption" value="true" />
+  </argument>
+</command>
+
+<command name="\paragraph">
+  <attribute name="#section-command" value="true" />
+  <attribute name="#caption-command" value="true" />
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+
+    <attribute name="#caption" value="true" />
+  </argument>
+</command>
+
+<command name="\bibliography">
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\newenvironment">
+  <attribute name="#enviroment-defining-command" value="true" />
+  
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+    <attribute name="#envname" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+    <attribute name="#argcountargument" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+    <attribute name="#nonmandargvalueargument" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#no-parse" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#no-parse" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\bibliographystyle">
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\footnotesize">
+  <argument type="free">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\section">
+  <attribute name="#section-command" value="true" />
+  <attribute name="#caption-command" value="true" />
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+
+    <attribute name="#caption" value="true" />
+  </argument>
+</command>
+
+<command name="\paragraph*">
+  <attribute name="#section-command" value="true" />
+  <attribute name="#caption-command" value="true" />
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+
+    <attribute name="#caption" value="true" />
+  </argument>
+</command>
+
+<command name="\subsubsection*">
+  <attribute name="#section-command" value="true" />
+  <attribute name="#caption-command" value="true" />
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+
+    <attribute name="#caption" value="true" />
+  </argument>
+</command>
+
+<command name="\usepackage">
+  <argument type="nonmandatory">
+    <attribute name="#packageoptions" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#package" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\linespread">
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\small">
+  <argument type="free">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\large">
+  <argument type="free">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\label">
+  <attribute name="label" value="true" />
+  <argument type="mandatory">
+    <attribute name="#label" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\tiny">
+  <argument type="free">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\Huge">
+  <argument type="free">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\LaTeX">
+</command>
+
+<command name="\footnotemark">
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\renewcommand">
+  <argument type="mandatory">
+    <attribute name="#no-parse" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\textbf">
+  <argument type="free">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\underline">
+  <argument type="free">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\newcommand">
+  <argument type="mandatory">
+    <attribute name="#no-parse" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\thanks">
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\footnote">
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+</command>
+
+<command name="\normalsize">
+  <argument type="free">
+    <attribute name="#code" value="true" />
+  </argument>
+</command>
+
+<command name="\documentclass">
+  <attribute name="preamble" value="true" />
+  <argument type="nonmandatory">
+    <attribute name="#documentclassoptions" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+
+    <attribute name="#documentclass" value="true" />
+  </argument>
+</command>
+
+<command name="\backslash">
+  <attribute name="math" value="true" />
+</command>
+
+<command name="\begin">
+  <attribute name="begin" value="true" />
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+
+    <attribute name="#environmentname" value="true" />
+  </argument>
+</command>
+<command name="\end">
+  <attribute name="par" value="true" />
+  <attribute name="end" value="true" />
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+
+    <attribute name="#environmentname" value="true" />
+  </argument>
+</command>
+
+<command name="\clearpage">
+  <attribute name="par" value="true" />
+</command>
+
+<command name="\verb">
+  <argument type="special">
+      <attribute name="#no-parse" value="true" />
+      <attribute name="#code" value="true" />
+      <attribute name="type" value="verb" />
+  </argument>
+</command>
+
+<command name="\newtheorem">
+  <attribute name="#enviroment-defining-command" value="true" />
+  
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+    <attribute name="#envname" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="mandatory">
+    <attribute name="#no-parse" value="true" />
+
+    <attribute name="#code" value="true" />
+  </argument>
+
+  <argument type="nonmandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+</command>
+
+<command name="\ensuremath">
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+</command>
+
+<command name="\theoremstyle">
+
+  <argument type="mandatory">
+    <attribute name="#code" value="true" />
+  </argument>
+
+</command>

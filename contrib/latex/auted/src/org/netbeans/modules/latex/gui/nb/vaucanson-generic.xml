@@ -1,0 +1,705 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<includes>
+  <include name="ifthen" />
+  <include name="pstcol" />
+  <include name="pst-node" />
+  <include name="pst-plot" />
+  <include name="pst-coil" />
+  <include name="multido" />
+  <include name="pst-3d" />
+  <include name="color" />
+  <include name="calc" />
+</includes>
+
+<options>
+    <option name="slides" />
+</options>
+
+<environments>
+  <environment name="VCPicture">
+  </environment>
+</environments>
+
+<commands>
+  <command name="\SmallState">
+  </command>
+
+  <command name="\LArcR">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\VCurveL">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\CLoopE">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\LoopE">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\Final">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\ChgStateLineStyle">
+    <argument type="mandatory">
+      <value value="dotted" />
+
+      <value value="none" />
+
+      <value value="solid" />
+
+      <value value="dashed" />
+    </argument>
+  </command>
+
+  <command name="\SetEdgeLineStyle">
+    <argument type="mandatory">
+      <value value="dotted" />
+
+      <value value="none" />
+
+      <value value="solid" />
+
+      <value value="dashed" />
+    </argument>
+  </command>
+
+  <command name="\LoopL">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\RstEdge">
+  </command>
+
+  <command name="\EdgeL">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\HideState">
+  </command>
+
+  <command name="\VCurveR">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\MediumState">
+  </command>
+
+  <command name="\LoopW">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\SetStateLineStyle">
+    <argument type="mandatory">
+      <value value="dotted" />
+
+      <value value="none" />
+
+      <value value="solid" />
+
+      <value value="dashed" />
+    </argument>
+  </command>
+
+  <command name="\SmallPicture">
+  </command>
+
+  <command name="\RstState">
+  </command>
+
+  <command name="\DimState">
+  </command>
+
+  <command name="\CLoopL">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\LoopS">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\VArcR">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\ArcL">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\LargePicture">
+  </command>
+
+  <command name="\FinalState">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\LoopN">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\TinyPicture">
+  </command>
+
+  <command name="\ChgEdgeLineStyle">
+    <argument type="mandatory">
+      <value value="dotted" />
+
+      <value value="none" />
+
+      <value value="solid" />
+
+      <value value="dashed" />
+    </argument>
+  </command>
+
+  <command name="\ArcR">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\VArcL">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\RstEdgeLineWidth">
+  </command>
+
+  <command name="\SetEdgeLineWidth">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\ChgEdgeLineWidth">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\RstEdgeLineColor">
+  </command>
+
+  <command name="\SetEdgeLineColor">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\ChgEdgeLineColor">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\RstEdgeLineStyle">
+  </command>
+
+  <command name="\SetEdgeLineStyle">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\ChgEdgeLineStyle">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\RstStateLineWidth">
+  </command>
+
+  <command name="\SetStateLineWidth">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\ChgStateLineWidth">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\SetStateFillColor">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\RstStateFillColor">
+  </command>
+
+  <command name="\ChgStateFillColor">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\SetStateLabelColor">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\RstStateLabelColor">
+  </command>
+
+  <command name="\ChgStateLabelColor">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\SetStateLineColor">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\RstStateLineColor">
+  </command>
+
+  <command name="\ChgStateLineColor">
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\EdgeR">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\CLoopN">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\CLoopW">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\MediumPicture">
+  </command>
+
+  <command name="\StateVar">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\LargeState">
+  </command>
+
+  <command name="\LArcL">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\EdgeBorder">
+  </command>
+
+  <command name="\RstStateLineStyle">
+  </command>
+
+  <command name="\LoopR">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\EdgeBorderOff">
+  </command>
+
+  <command name="\VSState">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\CLoopR">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\VCDraw">
+    <attribute name="#vcdraw-command" value="true" />
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\CLoopS">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\DimEdge">
+  </command>
+
+  <command name="\Initial">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\ShowState">
+  </command>
+
+  <command name="\State">
+    <argument type="nonmandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+
+    <argument type="mandatory">
+      <attribute name="#code" value="true" />
+    </argument>
+  </command>
+
+  <command name="\slideCaption">
+    <argument type="mandatory">
+      <attribute name="#text" value="true" />
+    </argument>
+  </command>
+</commands>
+

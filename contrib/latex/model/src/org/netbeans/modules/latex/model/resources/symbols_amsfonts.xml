@@ -1,0 +1,320 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<command name="\ulcorner">
+<attribute name="symbols_brace" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\urcorner">
+<attribute name="symbols_brace" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\llcorner">
+<attribute name="symbols_brace" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\lrcorner">
+<attribute name="symbols_brace" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\digamma">
+<attribute name="symbols_greek" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\varkappa">
+<attribute name="symbols_greek" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\beth">
+<attribute name="symbols_greek" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\daleth">
+<attribute name="symbols_greek" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\gimel">
+<attribute name="symbols_greek" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\lessdot">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\gtrdot">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\doteqdot">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\Doteq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\leqslant">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\geqslant">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\risingdotseq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\eqslantless">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\eqslantgtr">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\fallingdotseq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\leqq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\lll">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\llless">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\ggg">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\gggtr">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\eqcirc">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\circeq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\lesssim">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\lessapprox">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\lessgtr">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\lesseqgtr">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\lesseqqgtr">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\gtrsim">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\gtrapprox">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\gtrless">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\gtreqless">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\gtreqqless">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\triangleq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\bumpeq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\Bumpeq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\thicksim">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\thickapprox">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\preccurlyeq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\succcurlyeq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\approxeq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\curlyeqprec">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\curlyeqsucc">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\backsim">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\backsimeq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\precsim">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\succsim">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\precapprox">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\succapprox">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\vDash">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\Vdash">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\Vvdash">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\subseteqq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\supseteqq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\Subset">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\Supset">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\sqsubset">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\sqsupset">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\backepsilon">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\therefore">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\because">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\varpropto">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\shortmid">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\shortparallel">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\between">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\smallsmile">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\smallfrown">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\pitchfork">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\vartriangleleft">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\vartriangleright">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\blacktriangleleft">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\blacktriangleright">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\trianglelefteq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>
+<command name="\trianglerighteq">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_amsfonts" value="true" />
+</command>

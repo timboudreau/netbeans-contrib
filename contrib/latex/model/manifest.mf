@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.latex.model/1
+OpenIDE-Module-Layer: org/netbeans/modules/latex/model/resources/mf-layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/latex/model/Bundle.properties
+OpenIDE-Module-Java-Dependencies: Java > 1.4.0

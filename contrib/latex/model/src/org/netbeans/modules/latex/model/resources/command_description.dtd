@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!--
+    TODO define vocabulary indentification
+    PUBLIC ID: -//NetBeans//LaTeX Commands Description 1.0//EN
+    SYSTEM ID: http://server/path/command_description.dtd
+
+--><!--
+    An example how to use this DTD from your XML document:
+
+    <?xml version="1.0"?>
+
+    <!DOCTYPE file SYSTEM "command_description.dtd">
+
+    <file>
+    ...
+    </file>
+-->
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT command (description?,attribute*,argument*)>
+<!ATTLIST command
+    name CDATA #REQUIRED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT commands (command)*>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT argument (description?,attribute*,value*)>
+<!ATTLIST argument
+    type (free|mandatory|nonmandatory|special) #REQUIRED
+  >
+  
+<!ELEMENT value (description?)>
+<!ATTLIST value
+    value CDATA #REQUIRED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT environment (description?,attribute*,argument*,commands?)>
+<!ATTLIST environment
+    name CDATA #IMPLIED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT environments (environment)*>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT attribute (description?)>
+<!ATTLIST attribute
+    value CDATA #REQUIRED
+    name CDATA #REQUIRED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT description (#PCDATA)>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT option (description?, attribute*)>
+<!ATTLIST option
+    name CDATA #REQUIRED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT options (option)*>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT include EMPTY>
+<!ATTLIST include
+    name CDATA #REQUIRED
+  >
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT includes (include)*>
+
+<!--- Put your DTDDoc comment here. -->
+<!ELEMENT file (description?,includes?,attribute*,options,environments,commands)*>
+<!ATTLIST file
+    name CDATA #REQUIRED
+    type (package|docclass) #REQUIRED
+  >

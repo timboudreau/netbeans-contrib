@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module.
+The Initial Developer of the Original Code is Jan Lahoda.
+Portions created by Jan Lahoda are Copyright 2002-2003.
+All Rights Reserved.
+
+Contributor(s): Jan Lahoda
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+<filesystem>
+
+    <folder name="Services">
+        <folder name="Hidden">
+            <file name="LaTeXModel.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.model.structural.parser.ModelImpl"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.structural.Model"/>
+            </file>
+
+<!--            <file name="BasicNodeFactory.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.model.structural.ui.nodes.NodeFactoryImpl"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.structural.ui.NodeFactory"/>
+            </file>-->
+
+            <file name="LaTeXUtilities.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.model.impl.NBUtilities"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.Utilities"/>
+            </file>
+
+            <file name="FileObjectLaTeXSourceFactory.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.model.command.impl.LaTeXSourceFactoryImpl"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.latex.model.command.LaTeXSourceFactory"/>
+            </file>
+
+        </folder>
+
+    </folder>
+    
+    <folder name="latex">
+        <file name="latex-stub-file.tex"/>
+        
+        <folder name="structural">
+            <folder name="nodes">
+                <file name="org-netbeans-modules-latex-model-structural-section-SectionNodeProvider.instance" />
+                <file name="org-netbeans-modules-latex-model-structural-figtable-FigtableNodeProvider.instance" />
+                <file name="org-netbeans-modules-latex-model-structural-label-LabelNodeProvider.instance" />
+                <file name="org-netbeans-modules-latex-model-structural-parser-MainStructuralElementNodeProvider.instance" />
+            </folder>
+            <folder name="parsers">
+                <file name="org-netbeans-modules-latex-model-structural-section-SectionDelegatedParser.instance" />
+                <file name="org-netbeans-modules-latex-model-structural-figtable-FigtableDelegatedParser.instance" />
+                <file name="org-netbeans-modules-latex-model-structural-label-LabelDelegatedParser.instance" />
+            </folder>
+        </folder>
+    </folder>
+    
+    <folder name="Editors">
+        <folder name="AnnotationTypes">
+            <file name="org-netbeans-latex-command-parser-error.xml" url="error-annotation.xml" />
+        </folder>
+    </folder>
+    
+</filesystem>

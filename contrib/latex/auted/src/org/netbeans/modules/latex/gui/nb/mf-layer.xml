@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+
+<filesystem>
+
+   <folder name="latex">
+      <folder name="commands2">
+        <file name="vaucanson.xml" url="vaucanson.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="vaucanson-g.xml" url="vaucanson-g.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="vaucansonx.xml" url="vaucansonx.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="vaucanson-generic.xml" url="vaucanson-generic.xml" />
+      </folder>
+      
+      <folder name="structural">
+        <folder name="nodes">
+            <file name="org-netbeans-modules-latex-gui-nb-VauNodeProvider.instance" />
+        </folder>
+        <folder name="parsers">
+            <file name="org-netbeans-modules-latex-gui-nb-VauParser.instance" />
+        </folder>
+      </folder>
+   </folder>
+
+   <folder name="Services">
+        <file name="GUIEditorOptions.settings" url="GUIEditorOptions.xml" />
+   </folder>
+      
+   <folder name="UI">
+        <folder name="Services">
+            <folder name="Editing">
+                <file name="GUIEditorOptions.shadow" url="GUIEditorOptions.shadow"/>
+            </folder>
+        </folder>
+    </folder>
+
+</filesystem>

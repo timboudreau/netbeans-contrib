@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  -                          Sun Public License Notice
+  -
+  - The contents of this file are subject to the Sun Public License Version
+  - 1.0 (the "License"). You may not use this file except in compliance with
+  - the License. A copy of the License is available at http://www.sun.com/
+  -
+  - The Original Code is the LaTeX module.
+  - The Initial Developer of the Original Code is Jan Lahoda.
+  - Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+  - All Rights Reserved.
+  -
+  - Contributor(s): Jan Lahoda.
+  -->
+
+<!DOCTYPE types SYSTEM "fielddatabase.dtd">
+
+<!--
+    Document   : fielddatabase.xml
+    Created on : May 17, 2004, 8:17 PM
+    Author     : lahvac
+    Description:
+        Purpose of the document follows.
+-->
+
+<types>
+    <type name="INPROCEEDINGS">
+        <required-attributes>
+            <attribute>author</attribute>
+            <attribute>title</attribute>
+            <attribute>booktitle</attribute>
+            <attribute>year</attribute>
+        </required-attributes>
+        <optional-attributes>
+            <attribute>editor</attribute>
+            <attribute>volume</attribute>
+            <attribute>number</attribute>
+            <attribute>series</attribute>
+            <attribute>pages</attribute>
+            <attribute>address</attribute>
+            <attribute>month</attribute>
+            <attribute>organization</attribute>
+            <attribute>publisher</attribute>
+            <attribute>note</attribute>
+        </optional-attributes>
+    </type>
+    
+    <type name="ARTICLE">
+        <required-attributes>
+            <attribute>author</attribute>
+            <attribute>title</attribute>
+            <attribute>journal</attribute>
+            <attribute>year</attribute>
+        </required-attributes>
+        <optional-attributes>
+            <attribute>volume</attribute>
+            <attribute>number</attribute>
+            <attribute>pages</attribute>
+            <attribute>month</attribute>
+            <attribute>note</attribute>
+        </optional-attributes>
+    </type>
+    
+    <type name="BOOK">
+        <required-attributes>
+            <attribute>author</attribute>
+            <attribute>title</attribute>
+            <attribute>editor</attribute>
+            <attribute>publisher</attribute>
+            <attribute>year</attribute>
+        </required-attributes>
+        <optional-attributes>
+            <attribute>volume</attribute>
+            <attribute>number</attribute>
+            <attribute>series</attribute>
+            <attribute>address</attribute>
+            <attribute>edition</attribute>
+            <attribute>month</attribute>
+            <attribute>note</attribute>
+        </optional-attributes>
+    </type>
+    
+</types>

@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+
+<filesystem>
+
+   <folder name="latex">
+      <folder name="commands2">
+        <file name="article.xml" url="article.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="book.xml" url="book.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="color.xml" url="color.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="default-docclass.xml" url="default-docclass.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="graphicx.xml" url="graphicx.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="amsfonts.xml" url="amsfonts.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="latexsym.xml" url="latexsym.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="inputenc.xml" url="inputenc.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="prosper.xml" url="prosper.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="report.xml" url="report.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="test.xml" url="test.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="xspace.xml" url="xspace.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="algorithmicx.xml" url="algorithmicx.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="algorithm.xml" url="algorithm.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="algpseudocode.xml" url="algpseudocode.xml">
+            <attr name="command-package" stringvalue="true" />
+        </file>
+        <file name="command_description.dtd" url="command_description.dtd" />
+        <file name="generic_commands.xml" url="generic_commands.xml" />
+        <file name="generic_environments.xml" url="generic_environments.xml" />
+        <file name="generic_options.xml" url="generic_options.xml" />
+        <file name="symbols_generic.xml" url="symbols_generic.xml" />
+        <file name="symbols_latexsym.xml" url="symbols_latexsym.xml" />
+        <file name="symbols_amsfonts.xml" url="symbols_amsfonts.xml" />
+      </folder>
+   </folder>
+   
+   <folder name="xml">
+       <folder name="entities">
+           <folder name="NetBeans">
+               <file name="LaTeX_Commands_Description_1_0" url="command_description.dtd">
+                   <attr name="hint.originalPublicID" stringvalue="-//NetBeans//LaTeX Commands Description 1.0//EN" />
+               </file>
+           </folder>
+       </folder>
+   </folder>
+</filesystem>

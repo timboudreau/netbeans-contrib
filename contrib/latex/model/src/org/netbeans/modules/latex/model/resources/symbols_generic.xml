@@ -1,0 +1,591 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<command name="\alpha">
+<attribute name="symbols_greek" value="true" />
+<attribute name="icon_greek" value="true" />
+</command>
+<command name="\beta">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\gamma">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\delta">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\epsilon">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\varepsilon">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\zeta">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\eta">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\theta">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\vartheta">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\iota">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\kappa">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\lambda">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\mu">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\nu">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\xi">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\pi">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\varpi">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\rho">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\varrho">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\sigma">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\varsigma">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\tau">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\upsilon">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\phi">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\varphi">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\chi">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\psi">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\omega">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\Gamma">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\Delta">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\Theta">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\Lambda">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\Xi">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\Pi">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\Sigma">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\Upsilon">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\Phi">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\Psi">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\Omega">
+<attribute name="symbols_greek" value="true" />
+</command>
+<command name="\pm">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\mp">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\triangleleft">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\triangleright">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\cdot">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\div">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\times">
+<attribute name="symbols_binop" value="true" />
+<attribute name="icon_binop" value="true" />
+</command>
+<command name="\setminus">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\star">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\cup">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\cap">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\ast">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\sqcup">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\sqcap">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\circ">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\vee">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\lor">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\wedge">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\land">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\bullet">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\oplus">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\ominus">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\diamond">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\odot">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\oslash">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\uplus">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\otimes">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\bigcirc">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\amalg">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\bigtriangleup">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\bigtriangledown">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\dagger">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\ddagger">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\wr">
+<attribute name="symbols_binop" value="true" />
+</command>
+<command name="\sum">
+<attribute name="symbols_bigop" value="true" />
+<attribute name="icon_bigop" value="true" />
+</command>
+<command name="\bigcup">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\bigcap">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\bigvee">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\bigoplus">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\prod">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\bigwedge">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\bigotimes">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\coprod">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\bigsqcup">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\bigodot">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\int">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\oint">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\biguplus">
+<attribute name="symbols_bigop" value="true" />
+</command>
+<command name="\leftarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\gets">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\longleftarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\uparrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\rightarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\to">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\longrightarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\downarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\leftrightarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\longleftrightarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\updownarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\Leftarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\Longleftarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\Uparrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\Rightarrow">
+<attribute name="symbols_arrows" value="true" />
+<attribute name="icon_arrows" value="true" />
+</command>
+<command name="\Longrightarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\Downarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\Leftrightarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\Longleftrightarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\Updownarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\mapsto">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\longmapsto">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\nearrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\searrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\swarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\nwarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\hookleftarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\hookrightarrow">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\leftharpoonup">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\rightharpoonup">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\leftharpoondown">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\rightharpoondown">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\rightleftharpoons">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\iff">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\leadsto">
+<attribute name="symbols_arrows" value="true" />
+</command>
+<command name="\uparrow">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\Uparrow">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\downarrow">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\Downarrow">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\lbrack">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\rbrack">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\lbrace">
+<attribute name="symbols_brace" value="true" />
+<attribute name="icon_brace" value="true" />
+</command>
+<command name="\rbrace">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\updownarrow">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\Updownarrow">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\vert">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\|">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\Vert">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\lfloor">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\rfloor">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\lceil">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\rceil">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\backslash">
+<attribute name="symbols_brace" value="true" />
+</command>
+<command name="\lgroup">
+<attribute name="symbols_bigbrace" value="true" />
+</command>
+<command name="\rgroup">
+<attribute name="symbols_bigbrace" value="true" />
+</command>
+<command name="\lmoustache">
+<attribute name="symbols_bigbrace" value="true" />
+</command>
+<command name="\rmoustache">
+<attribute name="symbols_bigbrace" value="true" />
+</command>
+<command name="\arrowvert">
+<attribute name="symbols_bigbrace" value="true" />
+</command>
+<command name="\Arrowvert">
+<attribute name="symbols_bigbrace" value="true" />
+<attribute name="icon_bigbrace" value="true" />
+</command>
+<command name="\bracevert">
+<attribute name="symbols_bigbrace" value="true" />
+</command>
+<command name="\dots">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\cdots">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\vdots">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\ddots">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\hbar">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\imath">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\jmath">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\ell">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\Re">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\Im">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\aleph">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\wp">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\forall">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\exists">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\mho">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\partial">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\prime">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\emptyset">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\infty">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\nabla">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\triangle">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\bot">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\top">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\angle">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\surd">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\diamondsuit">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\heartsuit">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\clubsuit">
+<attribute name="symbols_symbols" value="true" />
+<attribute name="icon_symbols" value="true" />
+</command>
+<command name="\spadesuit">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\neg">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\lnot">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\flat">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\natural">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\sharp">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\dag">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\ddag">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\S">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\P">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\copyright">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\pounds">
+<attribute name="symbols_symbols" value="true" />
+</command>
+<command name="\leq">
+<attribute name="symbols_binrel" value="true" />
+<attribute name="advice_not" value="true" />
+</command>
+<command name="\le">
+<attribute name="symbols_binrel" value="true" />
+<attribute name="advice_not" value="true" />
+</command>

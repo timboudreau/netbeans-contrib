@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="latex" default="netbeans" basedir=".">
+
+  <property name="script" value="create_symbol" />
+  <property name="bash" value="bash" />
+  <property name="symbol.list" value="symbols.txt" />
+
+  <target name="init">
+     <condition property="isUnix">
+        <os family="unix"/>
+     </condition>
+     <property environment="ENV." />
+     <condition property="hasLaTeX">
+        <available file="latex" filepath="${ENV.PATH}" />
+     </condition>
+     <condition property="runLaTeX">
+        <and>
+	   <isset property="isUnix" />
+	   <isset property="hasLaTeX" />
+	</and>
+     </condition>
+  </target>
+  
+  <target name="create_symbols" depends="init" if="runLaTeX">
+     <exec executable="${bash}">
+        <arg value="-c" />
+	<arg value="${script} ${symbol.list}" />
+     </exec>
+     <delete>
+       <fileset dir=".">
+ 	 <include name="temp.*" />
+       </fileset>
+     </delete>
+  </target>
+  
+  <target name="no_create_symbols_os" depends="init" unless="isUnix">
+     <echo message="The OS is not a UNIX, cannot generate the symbols." />
+  </target>
+
+  <target name="no_create_symbols_latex" depends="init" unless="hasLaTeX">
+     <echo message="The LaTeX cannot be found, skipping symbols generation." />
+  </target>
+  
+  <target name="netbeans" depends="init,create_symbols,no_create_symbols_os,no_create_symbols_latex"/>
+  
+  <target name="clean">
+    <delete>
+      <fileset dir=".">
+        <include name="*.png" />
+        <include name="symbols_*.properties" />
+	<include name="symbols_mainlist.txt" />
+	<include name="temp.*" />
+      </fileset>
+    </delete>
+  </target>
+
+</project>

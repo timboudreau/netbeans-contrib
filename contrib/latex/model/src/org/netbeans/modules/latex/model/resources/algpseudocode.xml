@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE file PUBLIC "-//NetBeans//LaTeX Commands Description 1.0//EN" "command_description.dtd">
+
+<file name="algpseudocode" type="package">
+  <includes>
+    <include name="algorithmicx" />
+  </includes>
+  
+  <options>
+  </options>
+
+  <environments>
+    <environment name="algorithmic">
+        <commands>
+            <command name="\State"/>
+
+            <command name="\For">
+              <argument type="mandatory">
+                <attribute name="#code" value="true" />
+              </argument>
+            </command>
+
+            <command name="\ForAll">
+              <argument type="mandatory">
+                <attribute name="#code" value="true" />
+              </argument>
+            </command>
+
+            <command name="\EndFor"/>
+
+            <command name="\While">
+              <argument type="mandatory">
+                <attribute name="#code" value="true" />
+              </argument>
+            </command>
+
+            <command name="\EndWhile"/>
+
+            <command name="\Until">
+              <argument type="mandatory">
+                <attribute name="#code" value="true" />
+              </argument>
+            </command>
+
+            <command name="\Repeat"/>
+
+            <command name="\If">
+              <argument type="mandatory">
+                <attribute name="#code" value="true" />
+              </argument>
+            </command>
+            <command name="\ElsIf">
+              <argument type="mandatory">
+                <attribute name="#code" value="true" />
+              </argument>
+            </command>
+
+            <command name="\EndIf"/>
+            <command name="\Else"/>
+
+            <command name="\Procedure">
+              <argument type="mandatory">
+                <attribute name="#code" value="true" />
+              </argument>
+              <argument type="mandatory">
+                <attribute name="#code" value="true" />
+              </argument>
+            </command>
+
+            <command name="\EndProcedure" />
+
+            <command name="\Function">
+              <argument type="mandatory">
+                <attribute name="#code" value="true" />
+              </argument>
+              <argument type="mandatory">
+                <attribute name="#code" value="true" />
+              </argument>
+            </command>
+
+            <command name="\EndFunction" />
+
+            <command name="\Loop" />
+            <command name="\EndLoop" />
+            <command name="\Require" />
+            <command name="\Ensure" />
+
+            <command name="\Comment">
+              <argument type="mandatory">
+                <attribute name="#text" value="true" />
+              </argument>
+            </command>
+
+        </commands>
+    </environment>
+  </environments>
+
+  <commands>
+  </commands>
+</file>

@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="latex/manual" default="netbeans" basedir=".">
+
+  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
+  
+  <property name="nball.root" value="../.." />
+
+  <!--Current, real version of module. This property is set to different number during development to keep
+      autoupdate happy.
+    -->
+  <property name="module-version" value="1.0" /> 
+  
+  <!--For local autoupdate, some other location is provided:
+    -->
+  <property name="nbm.distribution" value="http://${dist.base}/latex.nbm" />
+
+  <property name="homepage.base" value="netbeans.org"/>
+  <property name="license.file" value="${nball.root}/nbbuild/standard-nbm-license.txt"/>
+
+  <property name="build.compiler.debug" value="true" />
+  
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nball.root}/nbbuild/nbantext.jar"/>
+  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nball.root}/nbbuild/nbantext.jar"/>
+
+  <target name="init">
+    <property environment="ENV." />
+    <condition property="hasLaTeX2HTML">
+       <available file="latex2html" filepath="${ENV.PATH}" />
+    </condition>
+  </target>
+
+  <target name="compile-help" depends="init" if="hasLaTeX2HTML">
+    <exec executable="latex2html">
+	<arg value="-antialias" />
+	<arg value="-antialias_text" />
+        <arg value="-dir" />
+        <arg value="src/org/netbeans/modules/latex/help" />
+        <arg value="LaTeXManual.tex" />
+    </exec>
+    
+     <javac srcdir="src" destdir="src"
+            deprecation="${build.compiler.deprecation}"
+            debug="${build.compiler.debug}"
+     >
+     </javac>
+     
+     <java classname="org.netbeans.modules.latex.help.CreateMap"
+           classpath="src"/>
+  </target>
+
+  <target name="compile" depends="compile-help" />
+
+  <target name="jar-help" depends="compile-help,init" if="hasLaTeX2HTML">
+    <mkdir dir="netbeans/modules"/>
+    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+    <jar jarfile="netbeans/modules/latex-help.jar"
+         manifest="manifest-subst.mf"
+         basedir="src"
+	 excludesfile="${nball.root}/nbbuild/standard-jar-excludes.txt"
+	 compress="false"/>
+  </target>
+
+  <target name="jars" depends="jar-help" />
+
+<!--
+  <target name="javahelp">
+    <copydir src="javahelp" dest="netbeans/docs"/>
+  </target>-->
+  
+  <target name="netbeans" depends="jars">
+    <genlist targetname="nbm" outputfiledir="${nball.root}/nbbuild/netbeans"/>
+  </target>
+  
+  <target name="nbm" depends="netbeans">
+    <makenbm file="latex-help.nbm"
+             topdir="."
+	     module="netbeans/modules/latex-help.jar"
+	     homepage="http://lahoda.czweb.org/latex/"
+	     distribution="${nbm.distribution}"
+	     needsrestart="false">
+      <license file="${license.file}"/>
+      <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
+    </makenbm>
+  </target>
+<!--	     manifest="manifest-subst.mf"-->
+
+  <target name="clean">
+    <delete>
+      <fileset dir="src">
+        <include name="**/*.class"/>
+        <include name="**/*.jar"/>
+        <include name="**/node*.html" />
+        <include name="**/footnode.html" />
+        <include name="**/images*" />
+        <include name="**/index.html" />
+        <include name="**/LaTeXManual.html" />
+        <include name="**/LaTeXMap.xml" />
+        <include name="**/LaTeXTOC.xml" />
+        <include name="**/LaTeXManual.css" />
+        <include name="**/*.pl" />
+        <include name="**/*.gif" />
+      </fileset>
+    </delete>
+    <delete file="manifest-subst.mf"/>
+    <delete dir="netbeans"/>
+    <delete dir="Info"/>
+  </target>
+
+</project>

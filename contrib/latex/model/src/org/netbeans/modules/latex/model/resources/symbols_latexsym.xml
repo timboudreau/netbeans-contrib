@@ -1,0 +1,36 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<command name="\lhd">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_latexsym" value="true" />
+</command>
+<command name="\rhd">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_latexsym" value="true" />
+</command>
+<command name="\unlhd">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_latexsym" value="true" />
+</command>
+<command name="\unrhd">
+<attribute name="symbols_binop" value="true" />
+<attribute name="package_latexsym" value="true" />
+</command>
+<command name="\Box">
+<attribute name="symbols_symbols" value="true" />
+<attribute name="package_latexsym" value="true" />
+</command>
+<command name="\Diamond">
+<attribute name="symbols_symbols" value="true" />
+<attribute name="package_latexsym" value="true" />
+</command>

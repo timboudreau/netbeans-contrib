@@ -1,0 +1,171 @@
+%                Sun Public License Notice
+%
+%The contents of this file are subject to the Sun Public License
+%Version 1.0 (the "License"). You may not use this file except in
+%compliance with the License. A copy of the License is available at
+%http://www.sun.com/
+%
+%The Original Code is the LaTeX module.
+%The Initial Developer of the Original Code is Jan Lahoda.
+%Portions created by Jan Lahoda are Copyright 2002-2003.
+%All Rights Reserved.
+%
+%Contributor(s): Jan Lahoda
+
+\documentclass{report}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{html}
+\usepackage{xspace}
+
+\newcommand{\lenv}{\LaTeX{} authoring environment\xspace}
+\newcommand{\done}{\textcolor[rgb]{0.0,1.0,0.0}{DONE}}
+
+\title{\lenv}
+
+\author{Jan Lahoda}
+
+\begin{document}
+
+\maketitle
+
+\chapter{Programmer's Guide}
+
+\section{Problems, Bugs and Future Improvements}
+
+In this section ``TODOs'' are listed.
+
+\begin{description}
+\item[BUG]{\done{} Parser error recovery. Currently missing, causing parser to fail in case of
+unfinished arguments.}
+\item[BUG]{\done{} Code completion for environment arguments does not work (works like word completion).}
+\item[BUG]{\done{} ``free'' text arguments are not supported}
+\item[BUG]{\done{} fix the new \LaTeX{} file wizard (it does not generate the beginning \verb+\+).}
+\item[BUG]{in the automata editor, if a command is used in the label, it is deleted.}
+\item[FEATURE]{\verb+\include+ and \verb+\input+ code completion should provide
+all files in the appropriate directory.}
+\item[FEATURE]{more wizards, for example:
+\begin{itemize}
+\item{table/tabular (may also present a front-end to the borders --- nearly any combination
+of borders is available but they are usually hard to imagine and code).}
+\item{figure}
+\end{itemize}
+}
+\end{description}
+
+\subsection{Parser Error Recovery}
+
+Currently, the parser provides basic parser recovery.
+
+\begin{tabular}{| c | c | c |}
+\hline
+summary & description & status \\
+\hline
+\hline
+closing argument at the end of the paragraph &
+this is how \TeX{} does it, for all, except a few, commands when a \verb+\par+
+(\verb+\n\n+) is found inside an argument, it simply inserts \} (or ]).
+The commands which arguments may contain \verb+\par+ have to be marked. Proposed
+tag is \verb+acceptspar+. &
+PLANNED \\
+\hline
+\end{tabular}
+
+\section{Command Hierarchy}
+
+\section{Syntax Coloring}
+
+\section{Command Attributes}
+
+\begin{tabular}{| l | c | p{5cm} |}
+\hline
+attribute & used where & description \\
+\hline
+\hline
+\verb+#argcountargument+ & & \\\hline
+\verb+#caption+ & & \\\hline
+\verb+#caption-command+ & & \\\hline
+\verb+#captionable+ & & \\\hline
+\verb+#cite+ & & \\\hline
+\verb+#code+ & argument & the argument is code somehow, it should not be spell checked, etc.\\\hline
+\verb+#documentclass+ & argument & the argument is the document class name\\\hline
+\verb+#documentclassoptions+ & argument & the argument are the options for the given document class\\\hline
+\verb+#enviroment-defining-command+ & & \\\hline
+\verb+#environmentname+ & & \\\hline
+\verb+#envname+ & & \\\hline
+\verb+#figure-environment+ & & \\\hline
+\verb+#include+ & & \\\hline
+\verb+#label+ & & \\\hline
+\verb+#no-parse+ & & \\\hline
+\verb+#nonmandargvalueargument+ & & \\\hline
+\verb+#package+ & argument & the argument is the package name\\\hline
+\verb+#packageoptions+ & argument & the argument are the options for the given document class \\\hline
+\verb+#ref+ & argument & the argument is the ref command argument\\\hline
+\verb+#section-command+ & & \\\hline
+\verb+#table-environment+ & & \\\hline
+\verb+#test+ & & \\\hline
+\verb+#text+ & & \\\hline
+\verb+begin+ & command & the command is a begin like command\\\hline
+\verb+end+ & command & the command is an end like command\\\hline
+%advice_not
+%class
+%class-default
+%default-encoding
+%default-fontsize
+%default-papersize
+%fontsize
+%icon_arrows
+%icon_bigbrace
+%icon_bigop
+%icon_binop
+%icon_brace
+%icon_greek
+%icon_symbols
+%input
+%label
+%math
+%package_amsfonts
+%package_latexsym
+%papersize
+%par
+%preamble
+%symbols_arrows
+%symbols_bigbrace
+%symbols_bigop
+%symbols_binop
+%symbols_binrel
+%symbols_brace
+%symbols_greek
+%symbols_symbols
+%type
+\end{tabular}
+
+\chapter{Licenses}
+
+The parts of the \lenv altogether with appropriate licence names are listed below:
+
+\begin{table}
+\begin{tabular}{| c | c |}
+\hline
+component & licence \\
+\hline
+NetBeans base & SPL \\
+\hline
+NetBeans external binaries & JavaHelp 2.0, ant, xerces \\
+\hline
+\LaTeX{} main modules & SPL \\
+\hline
+Viewer module & SPL\\
+\hline
+Multivalent & BSD? \\
+\hline
+dictionary (the ispell one) & BSD? \\
+\hline
+\LaTeX{} Help & ver.1.4 ??, ver. 1.6 GFDL \\
+\hline
+\LaTeX{} symbols & ???\\
+\hline
+\end{tabular}
+\end{table}
+
+\end{document}

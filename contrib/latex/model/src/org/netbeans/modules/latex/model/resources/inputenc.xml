@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE file PUBLIC "-//NetBeans//LaTeX Commands Description 1.0//EN" "command_description.dtd">
+
+<file name="inputenc" type="package">
+  <options>
+    <option name="latin1">
+        <attribute name="default-encoding" value="true" />
+    </option>
+    <option name="latin2">
+    </option>
+    <option name="latin3">
+    </option>
+  </options>
+
+  <environments/>
+
+  <commands/>
+</file>

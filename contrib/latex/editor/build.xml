@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="latex/editor" default="netbeans" basedir=".">
+
+  <import file="../../nbbuild/templates/projectized.xml"/>
+
+  <target name="basic-init" depends="projectized.basic-init,compile-language">
+  </target>
+      
+  <target name="compile-language">
+    <property name="grammar.name" value="Tex" />
+    <property name="grammar.pkg" value="org.netbeans.modules.latex.editor" />
+    <property name="grammar.root" value="." />
+    <property name="lexer.module.root" value="../../../../../../../../lexer" />
+    <property name="lang.description.xml.ignore" value="false" />
+    
+    <ant dir="../../lexer/gen" /><!--inheritAll="false"/>-->
+    <ant dir="src/org/netbeans/modules/latex/editor" antfile="${lexer.module.root}/gen/src/org/netbeans/modules/lexer/gen/handcoded/handcodedLangBuild.xml" target="compile" />
+  </target>
+  
+  <target name="do-editor-release">
+    <copy file="../client/src/client" tofile="${netbeans.dest.dir}/${cluster.dir}/modules/bin/lide-editor-client" />
+    <chmod file="${netbeans.dest.dir}/${cluster.dir}/modules/bin/lide-editor-client" perm="uog+x" />
+  </target>
+  
+  <target name="netbeans-extra" depends="do-editor-release"/>
+
+</project>

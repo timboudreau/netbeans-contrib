@@ -1,0 +1,63 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the LaTeX module. The Initial Developer of the Original
+Code is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<environment name="table">
+    <attribute name="#table-environment" value="true" />
+    <attribute name="#captionable" value="true" />
+    <commands>
+        <command name="\caption">
+          <attribute name="#caption-command" value="true" />
+          <argument type="mandatory">
+            <attribute name="#text" value="true" />
+
+            <attribute name="#caption" value="true" />
+          </argument>
+        </command>
+    </commands>
+</environment>
+
+<environment name="itemize"></environment>
+
+<environment name="figure">
+    <attribute name="#figure-environment" value="true" />
+    <attribute name="#captionable" value="true" />
+    <commands>
+        <command name="\caption">
+          <attribute name="#caption-command" value="true" />
+          <argument type="mandatory">
+            <attribute name="#text" value="true" />
+
+            <attribute name="#caption" value="true" />
+          </argument>
+        </command>
+    </commands>
+</environment>
+
+<environment name="abstract"></environment>
+
+<environment name="description"></environment>
+
+<environment name="document"></environment>
+
+<environment name="center"></environment>
+
+<environment name="flushleft"></environment>
+
+<environment name="flushright"></environment>
+
+<environment name="proof"></environment>
+
+<environment name="tabular"></environment>
+
+<environment name="enumerate"></environment>
+
+<environment name="minipage"></environment>

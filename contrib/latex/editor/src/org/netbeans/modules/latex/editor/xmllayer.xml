@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is the DocSup module.
+The Initial Developer of the Original Code is Jan Lahoda.
+Portions created by Jan Lahoda are Copyright 2002-2003.
+All Rights Reserved.
+
+Contributor(s): Jan Lahoda
+-->
+
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+   <folder name="Editors">
+      <folder name="text">
+         <folder name="x-tex">
+            <file name="Settings.settings" url="TexOptions.settings"/>
+            <file name="EditorKit.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.editor.TexKit"/>
+            </file>
+            
+            <folder name="Popup">
+                <file name="build-approximate-word-list" />
+
+                <attr name="build-approximate-word-list/Separatorb-tc.instance" boolvalue="true"/>
+                
+                <file name="Separatorb-tc.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                </file>
+                
+                <attr name="Separatorb-tc.instance/org-openide-windows-TopComponent" boolvalue="true"/>
+<!--                <file name="Separator1a.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                </file>
+                
+                <attr name="org-openide-windows-TopComponent/Separator1a.instance/" boolvalue="true"/>
+                <file name="org-openide-windows-TopComponent"/>-->
+            </folder>
+            
+<!--            <folder name="SideBar">
+                <file name="org-netbeans-modules-latex-editor-LaTeXFoldMaintainer$NbLaTexCodeFoldingSideBarFactory.instance"/>
+                <attr name="org-netbeans-editor-GlyphGutter.instance/org-netbeans-modules-latex-editor-LaTeXFoldMaintainer$NbLaTexCodeFoldingSideBarFactory.instance" boolvalue="true"/>
+            </folder>
+
+            <folder name="FoldMaintainer">
+                <file name="org-netbeans-modules-latex-editor-LaTeXFoldMaintainer$NbLaTeXFoldMaintainerFactory.instance"/>
+            </folder>-->
+          </folder>
+      </folder>
+   </folder>
+</filesystem>
