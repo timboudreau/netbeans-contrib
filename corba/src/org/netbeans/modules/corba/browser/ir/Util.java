@@ -205,7 +205,7 @@ public class Util {
         return bundle.getString(txt);
     }
     
-    public static void assert (boolean condition, String message) throws AssertException {
+    public static void myAssert (boolean condition, String message) throws AssertException {
         if (! condition)
             throw new AssertException ("Assertion Failed: "+message);  // No I18N
     }

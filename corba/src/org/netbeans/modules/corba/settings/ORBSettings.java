@@ -1510,7 +1510,7 @@ public class ORBSettings implements java.io.Serializable {
     public void addJavaTemplateCodePatchPair (String __key, String __value) {
 	if (_M_java_patch_table == null)
 	    this.setJavaTemplateCodePatchTable (new HashMap ());
-	Assertion.assert (__key != null && __value != null);
+	Assertion.myAssert (__key != null && __value != null);
 	//System.out.println (__key + " -> " + __value);
 	_M_java_patch_table.put (__key, __value);
 	//this.setJavaTemplateTable ();
@@ -1537,7 +1537,7 @@ public class ORBSettings implements java.io.Serializable {
 	if (DEBUG)
 	    Thread.dumpStack ();
 	//System.out.println (this.getName () + ": setJavaTemplateCodePatchTable: " + __map);
-	Assertion.assert (__map != null);
+	Assertion.myAssert (__map != null);
 	_M_java_patch_table = __map;
 
 	String __poa_block_begin = "//GEN-BEGIN:poa_section";

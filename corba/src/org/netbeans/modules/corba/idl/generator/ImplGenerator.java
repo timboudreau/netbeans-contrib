@@ -754,7 +754,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
     private static String list2absolute_scope_name (List __name) {
-	Assertion.assert (__name != null);
+	Assertion.myAssert (__name != null);
 	StringBuffer __buf = new StringBuffer ();
 	// the name is in form [A, B, xxx] where A is module with module B which is module
 	// with interface xxx
@@ -780,7 +780,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
     private static IDLElement find_element_by_name (String __name, IDLElement __from) {
-	Assertion.assert (__name != null && __from != null);
+	Assertion.myAssert (__name != null && __from != null);
 	//boolean DEBUG=true;
 	if (DEBUG) {
 	    System.out.println ("find_element_by_name (" + __name + ", " + __from + ");");
@@ -1553,7 +1553,7 @@ public class ImplGenerator implements PropertyChangeListener {
 				       boolean __recursive)
 	throws SymbolNotFoundException, CannotInheritFromException {
 	//boolean DEBUG=true;
-	Assertion.assert (__element != null && __filter.length == __executor.length);
+	Assertion.myAssert (__element != null && __filter.length == __executor.length);
 	if (DEBUG)
 	    System.out.println ("generic_parents for: " + __element);
 	ArrayList __result = new ArrayList ();
@@ -1947,7 +1947,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
     private void add_attribute (ClassElement __clazz, MemberElement[] __members) throws OperationAlreadyDefinedException {
         //Preconditions check
-        Assertion.assert (__members.length>0 && __members.length <=2);
+        Assertion.myAssert (__members.length>0 && __members.length <=2);
         if (__members[0] instanceof MethodElement) {
             MethodElement __method = (MethodElement) __members[0];
             MethodElement[] methods = __clazz.getMethods();
@@ -2002,12 +2002,12 @@ public class ImplGenerator implements PropertyChangeListener {
 		__clazz.addConstructor (__constr);
 		Thread.dumpStack ();
 	    } else {
-		Assertion.assert (false);
+		Assertion.myAssert (false);
 	    }
 	} catch (SourceException __ex) {
 	    __ex.printStackTrace ();
 	    //throw new AssertionException ();
-	    Assertion.assert (false);
+	    Assertion.myAssert (false);
 	}
     }
 
@@ -2076,7 +2076,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	//System.out.println (__element);
 	if (DEBUG)
 	    System.out.println ("element: " + __element);
-	Assertion.assert (false);
+	Assertion.myAssert (false);
 	return null;
     }
 
@@ -2086,21 +2086,21 @@ public class ImplGenerator implements PropertyChangeListener {
 	try {
 	    if (DEBUG)
 		System.out.println ("name of guarded block: " + __name_of_block);
-	    Assertion.assert (__guarded_element != null);
-	    Assertion.assert (__guarded_element.getDeclaringClass () != null);
+	    Assertion.myAssert (__guarded_element != null);
+	    Assertion.myAssert (__guarded_element.getDeclaringClass () != null);
 	    if (DEBUG) {
 		System.out.println ("__guarded_element: " + __guarded_element);
 		System.out.println ("class: " + __guarded_element.getDeclaringClass ());
 	    }
-	    Assertion.assert (__editor != null);
-	    //Assertion.assert (__editor.sourceToText 
+	    Assertion.myAssert (__editor != null);
+	    //Assertion.myAssert (__editor.sourceToText 
 	    //(__guarded_element.getDeclaringClass ()) != null);
             SourceCookie.Editor __src_editor = (SourceCookie.Editor)
                         __guarded_element.getDeclaringClass ().getCookie (SourceCookie.Editor.class);
-                    Assertion.assert (__src_editor != null);
+                    Assertion.myAssert (__src_editor != null);
             final javax.swing.text.StyledDocument __root_document = (javax.swing.text.StyledDocument) __src_editor.sourceToText
 		(__guarded_element.getDeclaringClass ()).getDocument ();
-	    Assertion.assert (__root_document != null);
+	    Assertion.myAssert (__root_document != null);
             synchronized (this) {
                 _M_guarding_status = GUARDING_RUNNING;
             }
@@ -2117,7 +2117,7 @@ public class ImplGenerator implements PropertyChangeListener {
                         (SourceCookie.Editor.class);
                     javax.swing.text.Element __element = __src_editor2.sourceToText
                         (__guarded_element);
-                    Assertion.assert (__element != null);
+                    Assertion.myAssert (__element != null);
                     List __l_bounds = new ArrayList ();
                     if ((__guarded_element instanceof MethodElement)
                         || (__guarded_element instanceof FieldElement)) {
@@ -2136,7 +2136,7 @@ public class ImplGenerator implements PropertyChangeListener {
 			
                         int __tmp_end_offset = __element.getEndOffset();
                         int __end_offset = __root_text.indexOf ('\n', __tmp_end_offset) + 1;
-                        Assertion.assert (__element.getDocument () != null);
+                        Assertion.myAssert (__element.getDocument () != null);
                         PositionRef __start_pos_ref = __editor.createPositionRef 
                             (__start_offset, null);
                         PositionRef __end_pos_ref = __editor.createPositionRef
@@ -2188,7 +2188,7 @@ public class ImplGenerator implements PropertyChangeListener {
                                 break;
                             };
                         }
-                        Assertion.assert (__element.getDocument () != null);
+                        Assertion.myAssert (__element.getDocument () != null);
                         PositionRef __start_pos_ref = __editor.createPositionRef 
                             (__start_offset, null);
                         PositionRef __end_pos_ref = __editor.createPositionRef
@@ -2239,7 +2239,7 @@ public class ImplGenerator implements PropertyChangeListener {
                         if (__guarded != null) {
                             if (__action == ImplGenerator.REMOVE_SECTION) {
                                 if (!__guarded.removeSection ())
-                                    Assertion.assert (false);
+                                    Assertion.myAssert (false);
                             }
                         }
                         else {
@@ -2271,14 +2271,14 @@ public class ImplGenerator implements PropertyChangeListener {
                 if (__editor.isModified())
                     __editor.saveDocument();
                 if (this._M_guarding_status == GUARDING_FAILED)
-                    Assertion.assert (false);
+                    Assertion.myAssert (false);
             }
 	} catch (AssertionException __ex) {
 	    throw __ex;
 	} catch (Exception __ex) {
 	    __ex.printStackTrace ();
 	    //throw new AssertionException ();
-	    Assertion.assert (false);
+	    Assertion.myAssert (false);
 	}
     }
 
@@ -2288,7 +2288,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	String __name = "";
 	if (__element instanceof FieldElement) {
 	    FieldElement __field  = __clazz.getField (__element.getName ());
-	    Assertion.assert (__field != null);
+	    Assertion.myAssert (__field != null);
 	    //if (__field == null)
 	    //System.out.println ("can't find: " + __element.getName () + " in: " + __clazz);
 	    __name = this.create_block_name_from_element (__field);
@@ -2299,7 +2299,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    MethodElement __tmp = (MethodElement)__element;
 	    MethodElement __method = __clazz.getMethod 
 		(__tmp.getName (), this.method_parameters2types (__tmp.getParameters ()));
-	    Assertion.assert (__method != null);
+	    Assertion.myAssert (__method != null);
 	    //if (__method == null) {
 	    //System.out.println ("can't find __tmp: " + __tmp);
 	    //System.out.println ("in __clazz: " + __clazz);
@@ -2312,13 +2312,13 @@ public class ImplGenerator implements PropertyChangeListener {
 	    ConstructorElement __tmp = (ConstructorElement)__element;
 	    ConstructorElement __constr = __clazz.getConstructor 
 		(this.method_parameters2types (__tmp.getParameters ()));
-	    Assertion.assert (__constr != null);
+	    Assertion.myAssert (__constr != null);
 	    __name = this.create_block_name_from_element (__constr);
 	    this.work_with_guarded (__action, __constr, __name, __editor);
 	    return;
 	}
 	//throw new AssertionException ();
-	Assertion.assert (false);
+	Assertion.myAssert (false);
     }
 
 
@@ -2556,7 +2556,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
     private void remove_guarded_block (MemberElement __element) {
-	Assertion.assert (__element instanceof ConstructorElement
+	Assertion.myAssert (__element instanceof ConstructorElement
 			  || __element instanceof FieldElement);
 	//System.out.println ("remove_garded_block from: " + __element);
 	ClassElement __class = __element.getDeclaringClass ();
@@ -2568,8 +2568,8 @@ public class ImplGenerator implements PropertyChangeListener {
 
     private void synchronize_init_methods (ClassElement __source, ClassElement __target)
 	throws SourceException {
-	Assertion.assert (__source != null);
-	Assertion.assert (__target != null);
+	Assertion.myAssert (__source != null);
+	Assertion.myAssert (__target != null);
 	Type[] __empty_paramset = new Type [0];
 	MethodElement __source_init = __source.getMethod
 	    (org.openide.src.Identifier.create (ImplGenerator.INITIALIZE_INHERITANCE_TREE),
@@ -2637,8 +2637,8 @@ public class ImplGenerator implements PropertyChangeListener {
 	throws SourceException {
 	if (DEBUG)
 	    System.out.println ("synchronize_delegation_fields");
-	Assertion.assert (__source != null);
-	Assertion.assert (__target != null);
+	Assertion.myAssert (__source != null);
+	Assertion.myAssert (__target != null);
 	FieldElement[] __source_fields = __source.getFields ();
 	FieldElement[] __target_fields = __target.getFields ();
 	for (int __i=0; __i<__source_fields.length; __i++) {
@@ -2698,8 +2698,8 @@ public class ImplGenerator implements PropertyChangeListener {
     private void synchronize_constructors (ClassElement __source,
 					   ClassElement __target)
 	throws SourceException {
-	Assertion.assert (__source != null);
-	Assertion.assert (__target != null);
+	Assertion.myAssert (__source != null);
+	Assertion.myAssert (__target != null);
 	ConstructorElement[] __source_constructors = __source.getConstructors ();
 	for (int __i=0; __i<__source_constructors.length; __i++) {
 	    ConstructorElement __tmp_constructor = __source_constructors[__i];
@@ -2812,8 +2812,8 @@ public class ImplGenerator implements PropertyChangeListener {
 	//boolean DEBUG=true;
 	if (DEBUG)
 	    System.out.println ("synchronize_delegation_methods");
-	Assertion.assert (__source != null);
-	Assertion.assert (__target != null);
+	Assertion.myAssert (__source != null);
+	Assertion.myAssert (__target != null);
 	MethodElement[] __t_methods = __target.getMethods ();
 	MethodElement[] __s_methods = __source.getMethods ();
 	//MethodElement[] __s_methods = __source.getMethods ();
@@ -2988,8 +2988,8 @@ public class ImplGenerator implements PropertyChangeListener {
 	throws SourceException {
 	if (DEBUG)
 	    System.out.println ("synchronize_set_parent_methods");
-	Assertion.assert (__source != null);
-	Assertion.assert (__target != null);
+	Assertion.myAssert (__source != null);
+	Assertion.myAssert (__target != null);
 	MethodElement[] __t_methods = __target.getMethods ();
 	MethodElement[] __s_methods = __source.getMethods ();
 	List __t_sp_methods = new ArrayList ();
@@ -3055,7 +3055,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	} catch (Exception __ex) {
 	    __ex.printStackTrace ();
 	}
-	Assertion.assert (__editor != null && __editor.getDocument () != null);
+	Assertion.myAssert (__editor != null && __editor.getDocument () != null);
 	if (DEBUG) {
 	    System.out.println ("__dest: " + __dest);
 	    System.out.println ("__editor: " + __editor);
@@ -3065,7 +3065,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    JavaEditor.SimpleSection __section 
 		= (JavaEditor.SimpleSection)__iterator.next ();
 	    if (!__section.removeSection ())
-		Assertion.assert (false);
+		Assertion.myAssert (false);
 	}
     }
 
@@ -3233,7 +3233,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    } catch (Exception __ex) {
 		__ex.printStackTrace ();
 	    }
-	    Assertion.assert (__editor != null && 
+	    Assertion.myAssert (__editor != null && 
 			      __editor.getDocument () != null &&
 			      _M_elements_for_guard_blocks != null);
 	    if (DEBUG) {
@@ -3244,7 +3244,7 @@ public class ImplGenerator implements PropertyChangeListener {
 		Iterator __iterator = _M_elements_for_guard_blocks.iterator ();
 		while (__iterator.hasNext ()) {
 		    MemberElement __guarded_element = (MemberElement)__iterator.next ();
-		    Assertion.assert (__guarded_element != null);		
+		    Assertion.myAssert (__guarded_element != null);		
 		    this.work_with_guarded (__action, __dest, __guarded_element, __editor);
 		}
 	    }
@@ -3254,7 +3254,7 @@ public class ImplGenerator implements PropertyChangeListener {
 		    JavaEditor.SimpleSection __section 
 			= (JavaEditor.SimpleSection)__iterator.next ();
 		    if (!__section.removeSection ())
-			Assertion.assert (false);
+			Assertion.myAssert (false);
 		}
 	    }
 	}
@@ -3581,7 +3581,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
     
     private static List element2list_name (IDLElement __element) {
-	Assertion.assert (__element != null);
+	Assertion.myAssert (__element != null);
 	ArrayList __name = new ArrayList ();
 	__name.add (__element.getName ());
 	IDLElement __tmp = __element;
@@ -4233,7 +4233,7 @@ public class ImplGenerator implements PropertyChangeListener {
 		    System.out.println ("can't generate for:" + __tmp);
 		    System.out.println ("__tmp class: " + __tmp.getClass ().getName ());
 		}
-		//Assertion.assert (false);
+		//Assertion.myAssert (false);
 	    }
 	}
     }

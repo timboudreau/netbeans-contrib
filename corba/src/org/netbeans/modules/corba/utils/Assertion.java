@@ -33,12 +33,12 @@ public class Assertion {
 	    throw new AssertionException (__msg);
     }
 
-    public static void assert (boolean __test) {
+    public static void myAssert (boolean __test) {
 	if (!__test)
 	    throw new AssertionException ();
     }
 
-    public static void assert (boolean __test, String __msg) {
+    public static void myAssert (boolean __test, String __msg) {
 	if (!__test)
 	    throw new AssertionException (__msg);
     }

@@ -27,7 +27,7 @@ import org.netbeans.modules.corba.idl.src.IDLElement;
 public class LexicalComparator extends Object implements Comparator {
 
     public int compare (Object __first, Object __second) {
-	Assertion.assert (__first != null && __second != null
+	Assertion.myAssert (__first != null && __second != null
 			  && __first instanceof IDLElement
 			  && __second instanceof IDLElement);
 	IDLElement __t_first = (IDLElement)__first;

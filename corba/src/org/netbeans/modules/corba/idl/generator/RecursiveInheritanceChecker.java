@@ -106,7 +106,7 @@ public class RecursiveInheritanceChecker extends java.lang.Object {
 	}
 	else {
 	    // error
-	    Assertion.assert (false);
+	    Assertion.myAssert (false);
 	}
     }
 		       

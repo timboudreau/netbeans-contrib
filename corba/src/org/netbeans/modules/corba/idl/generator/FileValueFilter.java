@@ -27,7 +27,7 @@ public class FileValueFilter implements ObjectFilter {
     private String _M_file_name;
 
     public FileValueFilter (String __file_name) {
-	Assertion.assert (__file_name != null);
+	Assertion.myAssert (__file_name != null);
 	_M_file_name = __file_name;
     }
 

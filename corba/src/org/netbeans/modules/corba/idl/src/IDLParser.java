@@ -1360,8 +1360,8 @@ String scoped_name() :
       exp = const_exp();
     jjtree.closeNodeScope(jjtn000, true);
     jjtc000 = false;
-    Assertion.assert (type != null);
-    Assertion.assert (id != null);
+    Assertion.myAssert (type != null);
+    Assertion.myAssert (id != null);
     jjtn000.setType (type.name);
     jjtn000.setName (id.getName ());
     jjtn000.setLine (id.getLine ());
