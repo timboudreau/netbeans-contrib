@@ -50,11 +50,6 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
             dir = commonParent + Variables.expand(vars, "${PS}", false) + dir;
         }
         this.path = dir.replace (java.io.File.separatorChar, '/');
-        //dir = new VcsDir();
-        //dir = new VcsCacheDir(fileSystem.getCacheIdStr(), fileSystem.getFile(path));
-        //dir.setPath (path);
-        //dir.setName(VcsUtilities.getFileNamePart(path));
-        //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
     }
 
     /**
@@ -64,28 +59,6 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
     public VcsCommandVisualizer getVisualizer() {
         return null;
     }
-    
-    /**
-     * Get the set of files being processed by the command.
-     * @return the set of files of type <code>String</code> relative
-     * to the file system root.
-     *
-    public Collection getFiles() {
-        String path = (String) vars.get("DIR"); // NOI18N
-        String file = (String) vars.get("FILE"); // NOI18N
-        String fullPath = ((path.length() > 0) ? path.replace(java.io.File.separatorChar, '/') : "") + ((file == null) ? "" : "/" + file); // NOI18N
-        return Collections.singleton(fullPath);
-    }
-     */
-    
-    /*
-     * Get the path of the processed files.
-     * The path is relative to file system root.
-     *
-    public String getPath() {
-        return (String) vars.get("DIR");
-    }
-     */
     
     /**
      * The runCommand() method not supported. This method cause the command to always fail.
