@@ -36,7 +36,7 @@ public class CommonDDAccess {
     public static final String SERVLET_2_3 = "2_3"; //NOI18N
     public static final String SERVLET_2_4 = "2_4"; //NOI18N
 
-    public static final String PACKAGE_PREFIX = "org.netbeans.modules.web.dd.model_"; //NOI18N
+    public static final String PACKAGE_PREFIX = "org.netbeans.modules.web.dd.impl.model_"; //NOI18N
     public static final String DOT = "."; //NOI18N
 
     /**
