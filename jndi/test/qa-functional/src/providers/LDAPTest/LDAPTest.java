@@ -33,7 +33,6 @@ import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import junit.framework.AssertionFailedError;
-import org.netbeans.core.windows.StatusLine;
 import org.netbeans.jellytools.ExplorerOperator;
 import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.MainWindowOperator;

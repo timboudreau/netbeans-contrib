@@ -13,7 +13,7 @@
 
 package util;
 
-import org.netbeans.jellytools.NbFrameOperator;
+import org.netbeans.jellytools.TopComponentOperator;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
 import org.netbeans.jemmy.EventTool;
 
@@ -21,10 +21,10 @@ public class JHelper {
     
     public static void closeAllProperties () {
         for (;;) {
-            NbFrameOperator fr = NbFrameOperator.find ("Propert", 0);
-            if (fr == null)
+            javax.swing.JComponent co = TopComponentOperator.findTopComponent ("Propert", 0);
+            if (co == null)
                 break;
-            fr.close ();
+            new TopComponentOperator (co).close ();
             Helper.sleep (1000);
         }
     }

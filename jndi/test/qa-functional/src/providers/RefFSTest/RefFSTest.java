@@ -48,8 +48,13 @@ public class RefFSTest extends org.netbeans.junit.NbTestCase {
     }
     
     public static void performAction(Node node, Class action) {
-        SystemAction act = SystemAction.get(action);
-        act.actionPerformed(new java.awt.event.ActionEvent(node, 0, ""));
+        final SystemAction act = SystemAction.get (action);
+        final Node fnode = node;
+        javax.swing.SwingUtilities.invokeLater (new Runnable () {
+            public void run () {
+                act.actionPerformed (new java.awt.event.ActionEvent (fnode, 0, ""));
+            }
+        });
     }
     
     public static String getStringFromClipboard() throws IOException, UnsupportedFlavorException {

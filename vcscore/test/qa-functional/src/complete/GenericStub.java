@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
+import javax.swing.JComponent;
 import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.StyleConstants.ColorConstants;
@@ -318,28 +319,29 @@ public abstract class GenericStub extends JellyTestCase {
     public void closeAllWindows (String titlepart) {
         ArrayList al = new ArrayList ();
         for (int a = 0;; a ++) {
-            NbFrameOperator fr = NbFrameOperator.find(titlepart, a);
-            if (fr == null)
+            JComponent co = TopComponentOperator.findTopComponent(titlepart, a);
+            if (co == null)
                 break;
-            getLog ().println ("Found frame: " + fr.getTitle ());
-            al.add (fr);
+            TopComponentOperator tco = new TopComponentOperator (co);
+            getLog ().println ("Found topcomponent: " + tco.getName ());
+            al.add (tco);
         }
         for (int a = 0; a < al.size (); a ++) {
-            NbFrameOperator fr = (NbFrameOperator) al.get (a);
-            getLog ().println ("Closing frame: " + fr.getTitle ());
-            if (fr.isShowing ()) try {
-                fr.close();
+            TopComponentOperator tco = (TopComponentOperator) al.get (a);
+            getLog ().println ("Closing topcomponent: " + tco.getName ());
+            if (tco.isShowing ()) try {
+                tco.close();
             } catch (JemmyException e) {
-                getLog ().println ("Exception while closing frame: " + fr.getTitle ());
+                getLog ().println ("Exception while closing topcomponent: " + tco.getName ());
                 e.printStackTrace(getLog ());
             }
             int b = 60;
-            while (b > 0  &&  fr.isShowing()) {
+            while (b > 0  &&  tco.isShowing()) {
                 sleep (1000);
                 b --;
             }
             if (b <= 0)
-                getLog ().println ("Timeout while closing frame: " + fr.getTitle ());
+                getLog ().println ("Timeout while closing topcomponent: " + tco.getName ());
         }
     }
     

@@ -25,7 +25,7 @@ import java.util.Date;
 import org.netbeans.jellytools.ExplorerOperator;
 import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.NbDialogOperator;
-import org.netbeans.jellytools.NbFrameOperator;
+import org.netbeans.jellytools.TopComponentOperator;
 import org.netbeans.jellytools.modules.jndi.AddPropertyDialog;
 import org.netbeans.jellytools.modules.jndi.ChangePropertyDialog;
 import org.netbeans.jellytools.modules.jndi.ConfirmObjectDeletionDialog;
@@ -129,10 +129,10 @@ public class RefFSTest extends JellyTestCase {
     
     public static void closeAllProperties () {
         for (;;) {
-            NbFrameOperator fr = NbFrameOperator.find ("Propert", 0);
-            if (fr == null)
+            javax.swing.JComponent co = TopComponentOperator.findTopComponent ("Propert", 0);
+            if (co == null)
                 break;
-            fr.close ();
+            new TopComponentOperator(co).close ();
             sleep (1000);
         }
     }
