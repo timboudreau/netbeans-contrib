@@ -58,14 +58,19 @@ public class VersioningExplorer {
      */
     public static VersioningExplorer.Panel getRevisionExplorer(final Node node) {
         Workspace curr = TopManager.getDefault().getWindowManager().getCurrentWorkspace();
-        Mode reMode = curr.findMode(MODE_NAME);
-        if (reMode != null) {
+//        Mode reMode = curr.findMode(MODE_NAME);
+        Iterator it = curr.getModes().iterator();
+//        if (reMode != null) {
+        while (it.hasNext()) {
+            Mode reMode = (Mode)it.next();
             TopComponent[] tcs = reMode.getTopComponents();
             //System.out.println("No. of components in Explorer Mode = "+tcs.length);
             for(int i = 0; i < tcs.length; i++) {
-                VersioningExplorer.Panel explorer = (VersioningExplorer.Panel) tcs[i];
-                Node root = explorer.getExplorerManager().getRootContext();
-                if (root.equals(node)) return explorer;
+                if (tcs[i] instanceof VersioningExplorer.Panel) {
+                    VersioningExplorer.Panel explorer = (VersioningExplorer.Panel) tcs[i];
+                    Node root = explorer.getExplorerManager().getRootContext();
+                    if (root.equals(node)) return explorer;
+                }
                 /*
                 DataObject dobjRoot = null;
                 if (root instanceof DataNode) dobjRoot = ((DataNode) root).getDataObject();
