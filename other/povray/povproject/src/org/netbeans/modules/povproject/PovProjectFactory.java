@@ -48,7 +48,7 @@ import org.openide.util.Mutex;
 /**
  * Factory registered into the default Lookup via META-INF/services file entry
  * Responsible for recognizing and loading povray projects.  A povray project
- * is identified as being a directory with a subdirectory "povproject".
+ * is identified as being a directory with a subdirectory "pvproject".
  *
  * @see org.openide.util.Lookup
  * @author Timothy Boudreau
@@ -100,26 +100,20 @@ public class PovProjectFactory implements ProjectFactory {
         }
         
         //Get the scenes directory, recreate it if deleted
-        FileObject scenesDir = dir.getFileObject (SCENES_DIR);
-        if (scenesDir == null) {
-            FileObject scenes = dir.createFolder (SCENES_DIR);
-        }
+        FileObject scenesDir = ((PovProject) project).getScenesFolder(true);
+        
+        String propsPath = PROJECT_DIR + "/" + PROJECT_PROPFILE;
         
         //Make sure pvproject/project.properties exists
-        FileObject propertiesFile = dir.getFileObject(PROJECT_DIR + "/" + 
-                PROJECT_PROPFILE);
-        
+        FileObject propertiesFile = dir.getFileObject(propsPath);
         if (propertiesFile == null) {
             //Recreate the properties file if needed
-            propertiesFile = dir.createData(PROJECT_DIR + "/" + 
-                    PROJECT_PROPFILE);
+            propertiesFile = dir.createData(propsPath);
         }
-        
         Properties properties = 
                 (Properties) project.getLookup().lookup (Properties.class);
         //Make sure the project.properties contains the version key/value pair
         if (!properties.containsKey(PovProject.KEY_VERSION)) {
-            
             properties.setProperty(PovProject.KEY_VERSION, 
                 Integer.toString(PovProject.VALUE_VERSION));
         }
