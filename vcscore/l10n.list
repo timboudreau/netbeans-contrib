@@ -1,11 +1,14 @@
 vcscore/src/org/netbeans/modules/vcscore/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/caching/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/cmdline/Bundle.properties
+vcscore/src/org/netbeans/modules/vcscore/cmdline/exec/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/diff/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/search/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/util/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/commands/Bundle.properties
+vcscore/src/org/netbeans/modules/vcscore/wizard/mountcvs/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/settings/Bundle.properties
+vcscore/src/org/netbeans/modules/vcscore/actions/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/runtime/Bundle.properties
 vcscore/src/org/netbeans/modules/vcscore/revision/Bundle.properties
 
