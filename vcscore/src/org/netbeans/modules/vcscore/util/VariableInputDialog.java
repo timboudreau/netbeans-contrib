@@ -2124,19 +2124,35 @@ public class VariableInputDialog extends javax.swing.JPanel {
         public void propertyChange(PropertyChangeEvent evt) {
             //System.out.println("TEXT UPDATE LISTENER: evt = "+evt);
             //System.out.println("  name = '"+evt.getPropertyName()+"', value = '"+evt.getNewValue()+"'");
-            if (vars != null && (/*evt.getPropertyName() == PROP_VARS_UPDATED ||*/
-                                 evt.getPropertyName().startsWith(PROP_VAR_CHANGED))) {
-
-                String varName = evt.getPropertyName().substring(PROP_VAR_CHANGED.length());
-                String varValue = (String) evt.getNewValue();
-                if (varValue == null) return ;
-                vars.put(varName, varValue);
-                String textExpanded = Variables.expand(vars, text, false);
-                try {
-                    setTextMethod.invoke(textComponent, new Object[] { textExpanded });
-                } catch (Exception ex) {
-                    ErrorManager.getDefault().notify(ex);
+            String propName = evt.getPropertyName();
+            boolean multievent = false;
+            if (vars != null && (propName.startsWith(PROP_VAR_CHANGED) || (multievent = propName.equals(PROP_VARIABLES_CHANGED)))) {
+                
+                if (multievent) {
+                    Collection changedProps = (Collection) evt.getNewValue();
+                    for (Iterator it = changedProps.iterator(); it.hasNext(); ) {
+                        PropertyChangeEvent evt2 = (PropertyChangeEvent) it.next();
+                        String varName = evt2.getPropertyName().substring(PROP_VAR_CHANGED.length());
+                        String varValue = (String) evt2.getNewValue();
+                        if (varValue == null) return ;
+                        varChanged(varName, varValue);
+                    }
+                } else {
+                    String varName = propName.substring(PROP_VAR_CHANGED.length());
+                    String varValue = (String) evt.getNewValue();
+                    if (varValue == null) return ;
+                    varChanged(varName, varValue);
                 }
+            }
+        }
+        
+        private void varChanged(String varName, String varValue) {
+            vars.put(varName, varValue);
+            String textExpanded = Variables.expand(vars, text, false);
+            try {
+                setTextMethod.invoke(textComponent, new Object[] { textExpanded });
+            } catch (Exception ex) {
+                ErrorManager.getDefault().notify(ex);
             }
         }
         
