@@ -81,15 +81,17 @@ public class GenerateImplAction extends CookieAction {
     protected boolean enable (Node[] activatedNodes) {
         //name = "Update Implementations";
         try {
-            IDLDataObject ido = (IDLDataObject)activatedNodes[0].getCookie (IDLDataObject.class);
-            if (ido.hasGeneratedImplementation () == 0)
+            IDLDataObject __ido = (IDLDataObject)activatedNodes[0].getCookie 
+		(IDLDataObject.class);
+	    int __value = __ido.hasGeneratedImplementation ();
+            if (__value == 0)
                 name = generate;
-            if (ido.hasGeneratedImplementation () == 1)
+            if (__value == 1)
                 name = update_and_generate;
-            if (ido.hasGeneratedImplementation () == 2)
+            if (__value == 2)
                 name = update;
-        } catch (Exception ex) {
-            //ex.printStackTrace ();
+        } catch (Exception __ex) {
+            //__ex.printStackTrace ();
             return false;
         }
         return true;

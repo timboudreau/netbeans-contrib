@@ -95,7 +95,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 
     protected Process createProcess (NbProcessDescriptor desc, String[] files)
     throws IOException {
-        Thread.dumpStack ();
+        //Thread.dumpStack ();
         FileObject fo = null;
         if (DEBUG) {
             System.out.println ("IDLExternalCompilerGroup::createProcess (" + desc + ", "

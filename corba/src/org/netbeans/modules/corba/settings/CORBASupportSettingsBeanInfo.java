@@ -98,7 +98,8 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
                                                "getImplIntPostfix", "setImplIntPostfix"),
 		       */
 		       new PropertyDescriptor ("namingChildren", CORBASupportSettings.class,
-                                               "getNamingServiceChildren", "setNamingServiceChildren"),
+                                               "getNamingServiceChildren", 
+					       "setNamingServiceChildren"),
 		       /*
                        new PropertyDescriptor ("_hide_generated_files", CORBASupportSettings.class,
                                                "hideGeneratedFiles", "setHideGeneratedFiles"),
@@ -200,7 +201,8 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 	    */
 	} catch (IntrospectionException ex) {
             //throw new InternalError ();
-            ex.printStackTrace ();
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		ex.printStackTrace ();
         }
     }
 

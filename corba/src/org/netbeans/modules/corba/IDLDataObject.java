@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.openide.TopManager;
 
@@ -217,7 +218,8 @@ public class IDLDataObject extends MultiDataObject {
                 idlNode.setIconBase (IDLNode.IDL_ERROR_ICON);
             }
         } catch (Exception e) {
-            e.printStackTrace ();
+            if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		e.printStackTrace ();
         }
         return idlNode;
     }
@@ -324,7 +326,8 @@ public class IDLDataObject extends MultiDataObject {
         try {
             __fs = getPrimaryFile ().getFileSystem ();
         } catch (FileStateInvalidException __ex) {
-            __ex.printStackTrace ();
+            if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		__ex.printStackTrace ();
         }
 
         String __package_name = "";
@@ -758,7 +761,9 @@ public class IDLDataObject extends MultiDataObject {
     }
 
     public void parse () {
+	InputStream __stream = null;
         try {
+	    __stream = this.getPrimaryFile ().getInputStream ();
             parser = new IDLParser (getPrimaryFile ().getInputStream ());
             if (DEBUG)
                 System.out.println ("parsing of " + getPrimaryFile ().getName ());
@@ -801,9 +806,16 @@ public class IDLDataObject extends MultiDataObject {
         } catch (java.io.FileNotFoundException e) {
             // e.printStackTrace ();
         } catch (Exception ex) {
-            System.out.println ("IDLParser exception in " + this.getPrimaryFile ());
-            ex.printStackTrace ();
-        }
+            TopManager.getDefault ().notifyException (ex);
+	    //System.out.println ("IDLParser exception in " + this.getPrimaryFile ());
+            if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		ex.printStackTrace ();
+        } finally {
+	    try {
+		__stream.close ();
+	    } catch (IOException __ex) {
+	    }
+	}
     }
 
     public IDLElement getSources () {

@@ -75,7 +75,8 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
 	    _M_choices = __choices;
 	    return _M_choices;
 	} catch (Exception e) {
-	    e.printStackTrace ();
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		e.printStackTrace ();
 	}
 	return new String[] {""};
     } 
@@ -139,7 +140,8 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
 	    }
 	    return ((ORBSettingsWrapper)getValue ()).getValue ();
 	} catch (Exception __e) {
-	    __e.printStackTrace ();
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		__e.printStackTrace ();
 	}
 	return "";
     }

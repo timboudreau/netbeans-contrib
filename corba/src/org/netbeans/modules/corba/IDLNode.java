@@ -16,6 +16,8 @@ package org.netbeans.modules.corba;
 import java.util.Vector;
 import java.beans.PropertyEditor;
 
+import org.openide.TopManager;
+
 import org.openide.loaders.*;
 import org.openide.actions.*;
 import org.openide.util.actions.*;
@@ -113,10 +115,10 @@ public class IDLNode extends DataNode {
 	//ps.setShortDescription(Util.getString("HINT_executionSetName"));
 	ps.setShortDescription (CORBASupport.IDL_COMPILATION_HINT);
 	ps.put (new PropertySupport.ReadWrite (
-					       "ha",
+					       "compilation",
 					       String.class,
-					       "PROP_synchMode",
-					       "HINT_synchMode"
+					       CORBASupport.ORB_FOR_COMPILATION,
+					       CORBASupport.ORB_FOR_COMPILATION_HINT
 					       ) {
 		public Object getValue() {
 		    String __setuped = getIDLDataObject().getOrbForCompilation ();
@@ -136,11 +138,13 @@ public class IDLNode extends DataNode {
 			    getIDLDataObject().setOrbForCompilation ((String)__value);
 			    return;
 			}
-			catch(java.io.IOException __ex) {
-			    __ex.printStackTrace ();
+			catch (java.io.IOException __ex) {
+			    TopManager.getDefault ().notifyException (__ex);
+			    //__ex.printStackTrace ();
 			}
-			catch(IllegalArgumentException __ex) {
-			    __ex.printStackTrace ();
+			catch (IllegalArgumentException __ex) {
+			    TopManager.getDefault ().notifyException (__ex);
+			    //__ex.printStackTrace ();
 			}
 		    }
 		}

@@ -35,6 +35,8 @@ import java.beans.beancontext.BeanContextSupport;
 import java.beans.beancontext.BeanContextProxy;
 
 import org.openide.TopManager;
+import org.openide.NotifyDescriptor;
+
 import org.openide.filesystems.FileObject;
 import org.netbeans.modules.corba.*;
 
@@ -225,10 +227,10 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	_M_in_init = true;
 	//deserealization = true;
 	super.readExternal (__in);
-	IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
-	    (IDLDataLoader.class, true);
+	//IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
+	//    (IDLDataLoader.class, true);
 	//System.out.println ("CORBASupportSettings (IDLDataLoader)__in.readObject ()");
-	__loader = (IDLDataLoader)__in.readObject ();
+	//__loader = (IDLDataLoader)__in.readObject ();
 	//System.out.println ("CORBASupportSettings done");
 	_M_in_init = false;
 	//deserealization = false;
@@ -242,9 +244,9 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	//_M_implementations.writeExternal (__out);
 	//((BeanContextSupport)_M_implementations).writeObject (__out);
 	super.writeExternal (__out);
-	IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
-	    (IDLDataLoader.class, true);
-	__out.writeObject (__loader);
+	//IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
+	//    (IDLDataLoader.class, true);
+	//__out.writeObject (__loader);
       }
     
     /*
@@ -1079,7 +1081,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
             ("EXT_CLASS_POSTFIX"));
             */
         } catch (Exception e) {
-            e.printStackTrace ();
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		e.printStackTrace ();
         }
 	
 
@@ -1097,7 +1100,25 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
     }
 
-
+    
+    public static FileObject findImplFolder () {
+	TopManager __tm = TopManager.getDefault ();
+	
+	Enumeration __folders 
+	    = __tm.getRepository ().getDefaultFileSystem ().getRoot ().getFolders (false);
+	//CORBASupportSettings settings = (CORBASupportSettings)CORBASupportSettings.findObject
+	//(CORBASupportSettings.class, true);
+	while (__folders.hasMoreElements ()) {
+	    FileObject __fo = (FileObject)__folders.nextElement ();
+	    if (DEBUG)
+		System.out.println (__fo.getName ());
+	    if (__fo.toString ().equals ("CORBA")) {
+		return __fo;
+	    }
+	}
+	return null;
+    }
+    
     //public synchronized void loadImpl () {
     public void loadImpl () {
 	if (DEBUG)
@@ -1109,81 +1130,47 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	_M_loaded = true;
 	if (_M_orb_names == null)
 	    _M_orb_names = new Vector (5);
+	/*
+	  TopManager tm = TopManager.getDefault ();
+	  
+	  try {
+	  Enumeration folders 
+	  = tm.getRepository ().getDefaultFileSystem ().getRoot ().getFolders (false);
+	  CORBASupportSettings settings = (CORBASupportSettings)CORBASupportSettings.findObject
+	  (CORBASupportSettings.class, true);
+	  while (folders.hasMoreElements ()) {
+	  FileObject fo = (FileObject)folders.nextElement ();
+	  if (DEBUG)
+	  System.out.println (fo.getName ());
+	  if (fo.toString ().equals ("CORBA")) {
+	*/
+	FileObject __parent = CORBASupportSettings.findImplFolder ();
+	if (__parent != null) {
+	    FileObject[] files = __parent.getChildren ();
+	    for (int __i = 0; __i<files.length ; __i++) {
+		if (DEBUG)
+		    System.out.println ("file: " + files[__i].toString ());
 
-        TopManager tm = TopManager.getDefault ();
-
-        try {
-            Enumeration folders 
-		= tm.getRepository ().getDefaultFileSystem ().getRoot ().getFolders (false);
-            CORBASupportSettings settings = (CORBASupportSettings)CORBASupportSettings.findObject
-		(CORBASupportSettings.class, true);
-            while (folders.hasMoreElements ()) {
-                FileObject fo = (FileObject)folders.nextElement ();
-                if (DEBUG)
-                    System.out.println (fo.getName ());
-                if (fo.toString ().equals ("CORBA")) {
-                    FileObject[] files = fo.getChildren ();
-                    for (int __i = 0; __i<files.length ; __i++) {
-                        if (DEBUG)
-                            System.out.println ("file: " + files[__i].toString ());
-
-			ORBSettings __orb_settings = new ORBSettings ();
-			__orb_settings.loadImpl (files[__i]);
+		ORBSettings __orb_settings = new ORBSettings ();
+		try {
+		    __orb_settings.loadImpl (files[__i]);
+		    if (__orb_settings.getProperties () != null) {
+			//we found impl file for this setting
 			_M_implementations.add (__orb_settings);
 			_M_orb_names.add (__orb_settings.getOrbName ());
-			/*
-			  Properties p = new Properties ();
-			  p.load (files[i].getInputStream ());
-			  
-			  // checking of important properties fields
-			  
-			  boolean error = false;
-			  for (int j=0; j<checkSections.length; j++)
-			  if (p.getProperty (checkSections[j]) == null) {
-			  System.out.println ("error in " + files[i].toString () 
-			  + " missing " + checkSections[j] 
-			  + " variable.");
-			  error = true;
-			  }
-			  if (error)
-			  continue;
-			  if (DEBUG)
-			  System.out.println ("impl: " + p.getProperty ("CTL_NAME"));
-			  getNames ().add (__properties.getProperty ("CTL_NAME"));
-			*/
-			
-                        //props.add (p);
-
-                        // make client and server bindings
-			/*
-			  Vector tmp_clientBindings = new Vector (5);
-			  for (int j=0; j<cbindings.length; j++)
-			  if (p.getProperty ("CLIENT_" + cbindings[j]) != null) {
-			  if (DEBUG)
-			  System.out.println ("add cb: " + "CTL_CLIENT_" + cbindings[j]);
-			  tmp_clientBindings.add (CORBASupport.bundle.getString
-			  ("CTL_CLIENT_" + cbindings[j]));
-			  }
-			  clientBindings.add (tmp_clientBindings);
-
-			  Vector tmp_serverBindings = new Vector (5);
-			  for (int j=0; j<sbindings.length; j++)
-			  if (p.getProperty ("SERVER_" + sbindings[j]) != null) {
-			  if (DEBUG)
-			  System.out.println ("add sb: " + "CTL_SERVER_" + sbindings[j]);
-			  tmp_serverBindings.add (CORBASupport.bundle.getString
-			  ("CTL_SERVER_" + sbindings[j]));
-			  }
-			  serverBindings.add (tmp_serverBindings);
-                        //System.out.println ("props: ");
-                        //props.list (System.out);
-			*/
 		    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace ();
-        }
+		} catch (PropertyNotFoundException __ex) {
+		} catch (IOException __ex) {
+		    TopManager.getDefault ().notifyException (__ex);
+		    //__ex.printStackTrace ();
+		}
+	    }
+	}
+	else {	    
+	    TopManager.getDefault ().notify 
+		(new NotifyDescriptor.Message (CORBASupport.CANT_FIND_IMPLS));
+	    //System.out.println ("can't find system/CORBA directory");
+	}
 	if (DEBUG) {
 	    System.out.println ("----!!!!");
 	    java.lang.Object[] __beans = this.getBeans ();
@@ -1277,7 +1264,14 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	_M_implementations = new BeanContextSupport ();
 
 	for(int i = 0; i < beans.length; i++) {
-	    _M_implementations.add (beans[i]);
+	    ORBSettings __setting = (ORBSettings)beans[i];
+	    if (__setting.getProperties () == null) {
+		__setting.loadProperties ();
+	    }
+	    // we have to check if we find impl file (load properties) for this setting
+	    if (__setting.getProperties () != null) {
+		_M_implementations.add (beans[i]);
+	    }
 	}
     }
 

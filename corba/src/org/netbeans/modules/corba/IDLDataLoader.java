@@ -53,7 +53,7 @@ import org.netbeans.modules.corba.settings.*;
 
 public class IDLDataLoader extends MultiFileLoader implements FileChangeListener {
     //public class IDLDataLoader extends UniFileLoader {
-
+    
     static final long serialVersionUID =-1462379765695052830L;
     
     //private static final boolean DEBUG = true;
@@ -121,9 +121,9 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     }
 
     public void setHide (boolean __value) {
-        System.err.println("IDLDataLoader::setHide=" + __value);
 	if (DEBUG)
 	    System.out.println ("IDLDataLoader::setHide (" + __value + ");");
+	//Thread.dumpStack ();
 	boolean __old = _M_hide_generated_files;
 	_M_hide_generated_files = __value;
 	this.firePropertyChange ("_M_hide_generated_files", null, null);
@@ -257,7 +257,8 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 		__tmp_do = DataObject.find (__fo);
 	    } catch (DataObjectNotFoundException __ex) {
 		__tmp_do = null;
-		__ex.printStackTrace ();
+		if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		    __ex.printStackTrace ();
 	    }
 	    if (__tmp_do != null) {
 		__idos.add (__tmp_do);

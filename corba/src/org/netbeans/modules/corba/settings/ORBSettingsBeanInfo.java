@@ -182,7 +182,8 @@ public class ORBSettingsBeanInfo extends SimpleBeanInfo {
             desc[25].setPropertyEditorClass (SynchronizationPropertyEditor.class);
         } catch (IntrospectionException ex) {
             //throw new InternalError ();
-            ex.printStackTrace ();
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		ex.printStackTrace ();
         }
     }
 

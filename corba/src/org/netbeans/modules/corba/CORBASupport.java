@@ -101,6 +101,9 @@ public class CORBASupport {
     public static final String ORB_FOR_COMPILATION_HINT = CORBASupport.bundle.getString
 	("HINT_ORB_FOR_COMPILATION");
 
+    public static final String CANT_FIND_IMPLS = CORBASupport.bundle.getString 
+	("CTL_CANT_FIND_IMPLS");
+
     /** constant for idl extension */
     public static final String IDL_EXT = "idl";
 

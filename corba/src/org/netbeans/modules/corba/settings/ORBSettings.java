@@ -14,6 +14,9 @@
 package org.netbeans.modules.corba.settings;
 
 import java.io.*;
+
+import java.util.Hashtable;
+
 import org.omg.CORBA.*;
 
 import org.openide.options.SystemOption;
@@ -33,6 +36,8 @@ import java.beans.PropertyChangeSupport;
 
 
 import org.openide.TopManager;
+import org.openide.NotifyDescriptor;
+
 import org.openide.filesystems.FileObject;
 import org.netbeans.modules.corba.*;
 
@@ -71,7 +76,7 @@ public class ORBSettings implements java.io.Serializable {
 
     public Vector _M_server_bindings;
 
-    public Properties _M_properties;
+    public transient Properties _M_properties;
 
     public String _M_skeletons = CORBASupport.INHER;
 
@@ -119,6 +124,8 @@ public class ORBSettings implements java.io.Serializable {
     private String _M_orb_name;
 
     private transient PropertyChangeSupport _M_property_change_support;
+
+    private static Hashtable _M_all_properties;
 
     /** @return human presentable name */
     public String displayName() {
@@ -420,8 +427,9 @@ public class ORBSettings implements java.io.Serializable {
     public void setServerBindingFromString (String __value) {
 	if (DEBUG) {
 	    System.out.println ("ORBSettings::setServerBindingFromString (" + __value + ")");
-	    if (__value == null)
-		Thread.dumpStack ();
+	    if (__value == null) {
+		//Thread.dumpStack ();
+	    }
 	}
 	this.setServerBinding (new ORBSettingsWrapper (this, __value));
     }
@@ -1105,7 +1113,8 @@ public class ORBSettings implements java.io.Serializable {
             */
 
         } catch (Exception e) {
-            e.printStackTrace ();
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		e.printStackTrace ();
         }
 
 
@@ -1124,7 +1133,8 @@ public class ORBSettings implements java.io.Serializable {
     }
 
 
-    public void loadImpl (FileObject __fo) {
+    public void loadImpl (FileObject __fo) throws FileNotFoundException, IOException, 
+    PropertyNotFoundException {
 
         _M_properties = new Properties ();
         _M_client_bindings = new Vector (5);
@@ -1136,7 +1146,7 @@ public class ORBSettings implements java.io.Serializable {
 
         TopManager tm = TopManager.getDefault ();
 
-        try {
+        //try {
 	    Properties __properties = new Properties ();
 	    __properties.load (__fo.getInputStream ());
 
@@ -1229,9 +1239,9 @@ public class ORBSettings implements java.io.Serializable {
         setImplIntPrefix (_M_properties.getProperty ("IMPL_INT_PREFIX"));
         setImplIntPostfix (_M_properties.getProperty ("IMPL_INT_POSTFIX"));
    
-	} catch (Exception e) {
-	    e.printStackTrace ();
-	}
+	//} catch (Exception e) {
+	//    e.printStackTrace ();
+	//}
     }
 
     /*
@@ -1376,6 +1386,77 @@ public class ORBSettings implements java.io.Serializable {
 	CORBASupportSettings __css = (CORBASupportSettings)
 	    CORBASupportSettings.findObject (CORBASupportSettings.class, true);
 	__css.cacheThrow ();
+    }
+
+    public Properties getProperties () {
+	return _M_properties;
+    }
+
+    public void loadAllProperties () {
+	if (DEBUG) {
+	    System.out.println ("ORBSettings::loadAllProperties ();");
+	}
+	_M_all_properties = new Hashtable ();
+	FileObject __parent = CORBASupportSettings.findImplFolder ();
+	if (__parent != null) {
+	    FileObject[] __files = __parent.getChildren ();
+	    for (int __i=0; __i<__files.length; __i++) {
+		ORBSettings __tmp = new ORBSettings ();
+		try {
+		    __tmp.loadImpl (__files[__i]);
+		    if (DEBUG)
+			System.out.println ("load props from: " + __files[__i]);
+		    _M_all_properties.put (__tmp.getName (), __tmp.getProperties ());
+		} catch (PropertyNotFoundException __ex) {
+		} catch (IOException __ex) {
+		    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+			__ex.printStackTrace ();
+		}
+		
+	    }
+	}
+	else {
+	    TopManager.getDefault ().notify 
+		(new NotifyDescriptor.Message (CORBASupport.CANT_FIND_IMPLS));
+	    //_M_properties = new Properties ();	    
+	}
+	
+    }
+
+
+    public void loadProperties () {
+	if (DEBUG) {
+	    System.out.println ("ORBSettings::loadProperties ();");
+	    System.out.println ("for " + this.getName ());
+	}
+	if (_M_all_properties == null) {
+	    this.loadAllProperties ();
+	}
+	/*
+	  FileObject __parent = CORBASupportSettings.findImplFolder ();
+	  if (__parent != null) {
+	  FileObject[] __files = __parent.getChildren ();
+	  for (int __i=0; __i<__files.length; __i++) {
+	  ORBSettings __tmp = new ORBSettings ();
+	  try {
+	  __tmp.loadImpl (__files[__i]);
+	  if (this.getName ().equals (__tmp.getName ())) {
+	  System.out.println ("load props from: " + __files[__i]);
+	*/
+	// we will find impl file for this ORBSettings
+	// if we don't find impl file for this serialized setting - we left variable
+	// _M_properties uninicialized
+	_M_properties = (Properties)_M_all_properties.get (this.getName ());
+	/*
+	  _M_properties = __tmp.getProperties ();
+	  }
+	  } catch (PropertyNotFoundException __ex) {
+	  } catch (IOException __ex) {
+	  __ex.printStackTrace ();
+	  }
+	  
+	  }
+	*/
     }
 
 }

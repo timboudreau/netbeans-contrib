@@ -48,7 +48,8 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 	    //System.out.println ("// initialization of the array of descriptors");
 	} catch (IntrospectionException ex) {
             //throw new InternalError ();
-            ex.printStackTrace ();
+            if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		ex.printStackTrace ();
         }
     }
 
@@ -94,7 +95,8 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
             descriptors[0].setDisplayName(bundle.getString("PROP_Name"));
             descriptors[0].setShortDescription(bundle.getString("HINT_Name"));
         } catch (IntrospectionException e) {
-            e.printStackTrace ();
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		e.printStackTrace ();
         }
     }
     

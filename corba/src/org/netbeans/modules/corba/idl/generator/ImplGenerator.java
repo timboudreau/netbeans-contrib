@@ -1505,7 +1505,8 @@ public class ImplGenerator {
                 try {
                     return JavaTypeToHolder (type);
                 } catch (UnknownTypeException e) {
-                    e.printStackTrace ();
+                    TopManager.getDefault ().notifyException (e);
+		    //e.printStackTrace ();
                 }
                 //else
                 //return JavaTypeToHolder (Type.createClass (org.openide.src.Identifier.create (idl_type.getName ())));

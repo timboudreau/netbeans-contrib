@@ -73,7 +73,8 @@ public class ORBSettingsWrapper implements java.io.Serializable {
 		if (this.getValue ().equals (__tmp.getValue ()))
 		    __return = true;
 	} catch (Exception __e) {
-	    __e.printStackTrace ();
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		__e.printStackTrace ();
 	}
 	if (DEBUG)
 	    System.out.println (__return);
