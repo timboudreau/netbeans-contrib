@@ -97,6 +97,13 @@ public class CreateIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
     public void storeIDLSettings (TemplateWizard data) {
         this.data.setIdlSource (this.root.generate());
     }
+    
+    public void cleanUp () {
+        if (this.root != null) {
+            Node[] nodes = this.root.getChildren().getNodes();
+            this.root.getChildren().remove (nodes);
+        }
+    }
 
     public boolean isValid () {
         return true;

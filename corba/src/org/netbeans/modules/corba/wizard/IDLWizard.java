@@ -43,7 +43,7 @@ public class IDLWizard extends Object implements TemplateWizard.Iterator {
     private IDLWizardData data;
     private WizardDescriptor.Panel selectWayPanel;
     private WizardDescriptor.Panel importIDLPanel;
-    private WizardDescriptor.Panel createIDLPanel;
+    private CreateIDLPanel         createIDLPanel;
     private WizardDescriptor.Panel finishPanel;
     private WizardDescriptor.Panel destinationChooserPanel;
     private DataObject idl;
@@ -106,6 +106,9 @@ public class IDLWizard extends Object implements TemplateWizard.Iterator {
     }
     
     public void uninitialize (TemplateWizard wizard) {
+        if (this.createIDLPanel != null) {
+            this.createIDLPanel.cleanUp ();
+        }
     }
     
     public void initialize(TemplateWizard wizard) {
