@@ -1030,7 +1030,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if(dd.getValue ().equals (DialogDescriptor.OK_OPTION)) {
             fileSystem.setVariables ((Vector) variablePanel.getPropertyValue());
         }
-        initAdditionalComponents ();
+        initAdditionalComponents (true);
     }//GEN-LAST:event_varButtonActionPerformed
 
     private void offLineCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_offLineCheckBoxActionPerformed
@@ -1558,7 +1558,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 autoFillVars.clear();
             }
         }
-        initAdditionalComponents ();
+        initAdditionalComponents (true);
     }
 
     //-------------------------------------------
@@ -1588,6 +1588,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         VcsUtilities.removeEnterFromKeymap(rootDirTextField);
     }
 
+    /*
     //-------------------------------------------
     private void advancedConfiguration () {
         JPanel panel = new JPanel ();
@@ -1629,8 +1630,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
         initAdditionalComponents ();
     }
+     */
 
-    private void initAdditionalComponents () {
+    private void initAdditionalComponents (boolean doAutoFillVars) {
         varVariables = new Vector ();
         while(varLabels.size ()>0) {
             propsPanel.remove ((JComponent) varLabels.get (0));
@@ -1825,9 +1827,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if (configInputPanel != null) {
             configInputPanel.updateVariableValues(fsVars);
         }
-        for (Iterator it = autoFillVars.values().iterator(); it.hasNext(); ) {
-            String cmd = (String) it.next();
-            autoFillVariables(cmd);
+        if (doAutoFillVars) {
+            for (Iterator it = autoFillVars.values().iterator(); it.hasNext(); ) {
+                String cmd = (String) it.next();
+                autoFillVariables(cmd);
+            }
         }
         updateAdvancedConfig();
     }
@@ -2177,7 +2181,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         oldSelectedLabel = fileSystem.getConfig();
         updateConfigurations();
         updateAdvancedConfig();
-        initAdditionalComponents ();
+        initAdditionalComponents (false);
         currentOSLabel.setText(org.openide.util.NbBundle.getMessage(VcsCustomizer.class, "VcsCustomizer.currentOSLabel.txt", System.getProperty("os.name")));
         /*
             // find if this fs is in the repository
