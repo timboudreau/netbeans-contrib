@@ -552,19 +552,21 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             ((UserCommand) cmdCommit).copyFrom(cmdCommit1);
             cmdCommit.setDisplayName(NbBundle.getMessage(CvsCommit.class, "CvsCommit.commitCommandName"));
             buff.delete(0, buff.length());
-            VcsCommandExecutor template = fileSystem.getVcsFactory().getCommandExecutor(cmdTemplate, vars);
-            template.addDataOutputListener(new CommandDataOutputListener() {
-                public void outputData(String[] elements) {
-                    buff.append(((elements[0] != null) ? elements[0] : "") + "\n");
+            if (cmdTemplate != null) {
+                VcsCommandExecutor template = fileSystem.getVcsFactory().getCommandExecutor(cmdTemplate, vars);
+                template.addDataOutputListener(new CommandDataOutputListener() {
+                    public void outputData(String[] elements) {
+                        buff.append(((elements[0] != null) ? elements[0] : "") + "\n");
+                    }
+                });
+                cpool.preprocessCommand(template, vars, fileSystem);
+                cpool.startExecutor(template);
+                try {
+                    cpool.waitToFinish(template);
+                } catch (InterruptedException iexc) {
+                    cpool.kill(template);
+                    break;
                 }
-            });
-            cpool.preprocessCommand(template, vars, fileSystem);
-            cpool.startExecutor(template);
-            try {
-                cpool.waitToFinish(template);
-            } catch (InterruptedException iexc) {
-                cpool.kill(template);
-                break;
             }
             String buffered = buff.toString();
             ArrayList filesCommited = getCommitedFiles(fsRoot, relativePath, buffered, ps);

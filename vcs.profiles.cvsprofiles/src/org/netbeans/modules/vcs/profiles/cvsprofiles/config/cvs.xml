@@ -40,6 +40,11 @@ Microsystems, Inc. All Rights Reserved.
     </not>
   </condition>
   
+  <condition var="IS_BUILT-IN_AND_WIN9X">
+    <var name="IS_WIN9X" value="true"/>
+    <var name="BUILT-IN" value="true"/>
+  </condition>
+  
   <variables>
     <variable name="FS_DISPLAY_NAME" basic="false">
       <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(CVS_FS_DISPLAY_NAME)</value>
@@ -673,7 +678,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>10</value> <!-- EXEC_SERIAL_ON_PACKAGE + EXEC_SERIAL_OF_COMMAND -->
         </property>
       </command>
-      <command name="COMMIT_TEMPLATE_GETTER">
+      <command name="COMMIT_TEMPLATE_GETTER" unless="IS_BUILT-IN_AND_WIN9X">
 	<property name="exec">
           <value>$[? MULTIPLE_FILES] [${RUNCDM} echo a | ${CVS_DEF_EXE} -f -e cat commit $[? PATHS] [${QPATHS}] [] ${NUR}] [$[? FILE_IS_FOLDER] [${RUNCDM} ${CD} ${QPATH}; echo a | ${CVS_DEF_EXE} -f -e cat commit ${NUR}] [${RUNCDM} echo a | ${CVS_DEF_EXE} -f -e cat commit $[? PATHS] [${QPATHS}] [] ${NUR}]]</value>
           <value if="IS_WINNT">$[? MULTIPLE_FILES] [${RUNCDM} echo a | ${CVS_DEF_EXE} -f -e ${QUOTE}${WINCAT}${QUOTE} commit $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}] [$[? FILE_IS_FOLDER] [${RUNCDM} ${CD} ${QPATH}&amp;&amp; echo a | ${CVS_DEF_EXE} -f -e ${QUOTE}${WINCAT}${QUOTE} commit ${NUR}] [${RUNCDM} echo a | ${CVS_DEF_EXE} -f -e ${QUOTE}${WINCAT}${QUOTE} commit $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}]]</value>
