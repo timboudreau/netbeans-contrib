@@ -37,7 +37,6 @@ public class BrowseHistory {
      * Pushes the back stack and erases all forward history.
      */
     public void pushBackStack(BrowseHistoryToken token) {
-        System.err.println("pushBackStack(" + token + ")");
         backStack.push(token);
         forwardStack.clear();
     }
@@ -59,7 +58,6 @@ public class BrowseHistory {
             result = (BrowseHistoryToken)backStack.pop();
             forwardStack.push(currentToken);
         }
-        System.err.println("back(" + currentToken + "): " + result);
         return result;
     }
 
@@ -72,7 +70,6 @@ public class BrowseHistory {
             result = (BrowseHistoryToken)forwardStack.pop();
             backStack.push(currentToken);
         }
-        System.err.println("forward(" + currentToken + "): " + result);
         return result;
     }
 }
