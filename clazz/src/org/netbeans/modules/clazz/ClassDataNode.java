@@ -95,7 +95,14 @@ class ClassDataNode extends DataNode implements Runnable {
 
   private void initialize () {
     setIconBase(initialIconBase());
-    RequestProcessor.postRequest(this);
+    // set right source element to our children
+    SourceCookie sc =
+      (SourceCookie)getDataObject().getCookie(SourceCookie.class);
+    if (sc != null) {
+      ((SourceChildren)getChildren()).setElement(sc.getSource());
+    }
+    // icons...
+    RequestProcessor.postRequest(this, 200);
   }
 
   public void setParams (final String params) throws IOException {
@@ -260,12 +267,6 @@ class ClassDataNode extends DataNode implements Runnable {
   */
   public void run () {
     resolveIcons();
-    // set right source element to our children
-    SourceCookie sc =
-      (SourceCookie)getDataObject().getCookie(SourceCookie.class);
-    if (sc != null) {
-      ((SourceChildren)getChildren()).setElement(sc.getSource());
-    }
   }
 
 // --------------------------------------------------------------------
@@ -309,6 +310,8 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  8    Gandalf   1.7         2/9/99   David Simonek   little fixes - init in 
+ *       separate thread
  *  7    Gandalf   1.6         2/3/99   David Simonek   
  *  6    Gandalf   1.5         2/1/99   David Simonek   
  *  5    Gandalf   1.4         1/20/99  David Simonek   rework of class DO
