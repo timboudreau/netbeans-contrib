@@ -66,7 +66,8 @@ import org.openide.windows.TopComponent;
 import org.openide.util.actions.CallbackSystemAction;
 
 
-/** View showing the task list items
+/** 
+ * View showing the task list items
  * @author Tor Norbye, Tim Lebedkov, Trond Norbye
  * @todo Figure out why the window system sometimes creates multiple objects
  *       from this class
@@ -1253,7 +1254,8 @@ for (int i = 0; i < columns.length; i++) {
         }
     }
 
-    /** Set the filter to be used in this view.
+    /**
+    * Set the filter to be used in this view.
      * @param filter The filter to be set, or null, to remove filtering.
      * @param showStatusBar When true, show a status bar with a remove button etc.
      */
