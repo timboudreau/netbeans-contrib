@@ -58,6 +58,7 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
+import org.netbeans.modules.tasklist.core.filter.FiltersPanel;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.SourceGroup;
@@ -867,7 +868,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 // 		 popup.show(filterButton, 0, filterButton.getHeight() - 2);
 		 
 	    } else if (obj == getFilterIconButton()) {
-	      SystemAction.get(FilterSourceTasksAction.class).actionPerformed(e);
+	        FilterSourceTasksAction action = (FilterSourceTasksAction) SystemAction.get(FilterSourceTasksAction.class);
+            putClientProperty(FiltersPanel.SELECTED_FILTER, getFilterCombo().getSelectedItem());
+            action.actionPerformed(e);
 	      // updateMiniStatus();
 	    }
             
@@ -1647,7 +1650,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         private FilterRepository rep = null;
     }
     
-    private JComponent getFilterCombo() {
+    private JComboBox getFilterCombo() {
         if (filterCombo == null) {
             filterCombo = new JComboBox(new FiltersComboModel(getFilters()));
             filterCombo.addActionListener(dispatcher);
