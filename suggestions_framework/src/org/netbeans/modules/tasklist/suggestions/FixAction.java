@@ -32,6 +32,10 @@ import org.netbeans.modules.tasklist.core.*;
 /**
  * Automatically fix a task for which a fix-method has been registered
  *
+ * @todo Performance enhancement: when fixing many suggestions, reuse
+ *   the DialogDescriptor and button objects; just replace the main pane
+ *   contents.
+ *
  * @author Tor Norbye
  */
 
@@ -50,19 +54,27 @@ public class FixAction extends NodeAction {
         }
         return enabled;
     }
-    
+
     protected void performAction(Node[] node) {
         SuggestionManagerImpl manager = 
              (SuggestionManagerImpl)SuggestionManager.getDefault();
         boolean fixingStarted = false;
         try {
         boolean skipConfirm = false;
+        TaskListView tlv = TaskListView.getCurrent();
         for (int i = 0; i < node.length; i++) {
             Task item = TaskNode.getTask(node[i]); //safe - see enable check
+
             SuggestionPerformer performer = item.getAction();
             Object confirmation = performer.getConfirmation(item);
             boolean doConfirm = manager.isConfirm(((SuggestionImpl)item).getSType());
             if (doConfirm && !skipConfirm && (confirmation != null)) {
+                // Show in source editor as well, if possible
+                if (tlv != null) {
+                    tlv.show(item);
+                    tlv.select(item);
+                }
+
                 JButton fixButton = new JButton();
                 Actions.setMenuText(fixButton,
                    NbBundle.getMessage(FixAction.class, "FixIt"), true); // NOI18N
@@ -70,6 +82,10 @@ public class FixAction extends NodeAction {
                 JButton fixAllButton = new JButton();
                 Actions.setMenuText(fixAllButton,
                    NbBundle.getMessage(FixAction.class, "FixAll"), true); // NOI18N
+                
+                JButton skipButton = new JButton();
+                Actions.setMenuText(skipButton,
+                   NbBundle.getMessage(FixAction.class, "Skip"), true); // NOI18N
                 
                 JButton cancelButton = new JButton();
                 Actions.setMenuText(cancelButton,
@@ -87,6 +103,7 @@ public class FixAction extends NodeAction {
                        (node.length > 1) ?
                        new JButton [] {
                           fixButton,
+                          skipButton,
                           fixAllButton,
                           cancelButton
                        }
@@ -113,6 +130,11 @@ public class FixAction extends NodeAction {
                     return; // CANCELLED
                 } else if (pressedButton == fixAllButton) {
                     skipConfirm = true;
+                } else if (pressedButton == skipButton) {
+                    // [PENDING] Remove the item, but don't actually perform it
+                    //manager.remove(item);
+                    
+                    continue;
                 } // else: fixButton - go ahead and fix
                 
                 if (noConfirmButton.isSelected()) {
