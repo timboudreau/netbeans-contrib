@@ -90,9 +90,12 @@ public class GroupNode extends DataNode implements PropertyChangeListener {
     }
 
     /**
+     * Returns a group this node represents.
+     *
+     * @return  <code>GroupShadow</code> represented by this node
      */
     private GroupShadow getGroup() {
-        return (GroupShadow) GroupNode.this.getCookie(DataObject.class);
+        return (GroupShadow) getCookie(DataObject.class);
     }
 
     /**

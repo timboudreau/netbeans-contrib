@@ -26,11 +26,14 @@ Microsystems, Inc. All Rights Reserved.
     <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbroot}/nbbuild/nbantext.jar"/>
 
     <target name="compile">
-        <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+        <javac srcdir="src"
+               destdir="src"
+               deprecation="${build.compiler.deprecation}"
+               debug="${build.compiler.debug}"
+               source="1.4">
             <classpath>
                 <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
                 <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-                <pathelement location="${nbroot}/openide/compiler/netbeans/modules/autoload/openide-compiler.jar"/>
             </classpath>
         </javac>
     </target>

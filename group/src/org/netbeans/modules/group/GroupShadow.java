@@ -14,6 +14,7 @@
 
 package org.netbeans.modules.group;
 
+import java.beans.PropertyChangeEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -29,6 +30,8 @@ import org.openide.ErrorManager;
 import org.openide.actions.DeleteAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.actions.ToolsAction;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -82,7 +85,8 @@ import org.openide.util.NbBundle;
  * @author Marian Petras
  * @see org.openide.loaders.DataObject
  */
-public class GroupShadow extends DataObject {
+public class GroupShadow extends DataObject
+                         implements DataObject.Container {
 
     /** Generated serial version UID. */
     static final long serialVersionUID =-5086491126656157958L;
@@ -132,6 +136,12 @@ public class GroupShadow extends DataObject {
                    IllegalArgumentException,
                    IOException {
         super(fo, dl);
+        fo.addFileChangeListener(
+                new FileChangeAdapter() {
+                    public void fileChanged(FileEvent e) { //group file changed
+                        GroupShadow.this.primaryFileChanged();
+                   }
+                });
     }
 
     
@@ -255,17 +265,25 @@ public class GroupShadow extends DataObject {
     }
 
 
-    /**
+    /*
      */
     public HelpCtx getHelpCtx() {
         return new HelpCtx (GroupShadow.class);
     }
 
-    /** Adds a {@link CompilerCookie compilation cookie}. */
+    /**
+     * Returns a given type of cookie from this object.
+     *
+     * @param  cookie  type of cookie to be returned
+     * @return  if the requested cookie type is
+     *          <code>TemplateWizard.Iterator</code>, returns
+     *          this group's template wizard iterator;
+     *          otherwise it delegates to <code>DataObject</code>'s
+     *          <code>getCookie(Class)</code>
+     * @see  DataObject#getCookie(Class)
+     */
     public Cookie getCookie(Class cookie) {
-        if (cookie.isAssignableFrom(GroupShadowCompiler.class)) {
-            return new GroupShadowCompiler (this, cookie);
-        } else if (cookie == TemplateWizard.Iterator.class) {
+        if (cookie == TemplateWizard.Iterator.class) {
             return getGroupTemplateIterator();
         } else {
             return super.getCookie (cookie);
@@ -380,7 +398,8 @@ public class GroupShadow extends DataObject {
      *                   pertains to
      * @return  the found <code>DataObject</code>, or <code>null</code>
      *          if a file having the specified name was not found
-     * @exception  if a file having the specified name was found but
+     * @exception  org.openide.loaders.DataObjectNotFoundException
+     *             if a file having the specified name was found but
      *             there is no <code>DataObject</code> created for it
      */
     static DataObject getDataObjectByName(String filename)
@@ -389,6 +408,52 @@ public class GroupShadow extends DataObject {
         return (file != null) ? DataObject.find(file) : null;
     }
 
+    /* interface DataObject.Container */
+    /**
+     * Returns <code>DataObject</code>s contained in this group.
+     * Broken links of the group are ignored.
+     *
+     * @return  array of <code>DataObject</code>s contained in this group
+     */
+    public DataObject[] getChildren() {
+        Object[] links = getLinks();
+        
+        if (links.length == 0) {
+            return new DataObject[0];
+        }
+        
+        int childrenCount = 0;
+        DataObject[] children = new DataObject[links.length];
+        for (int i = 0; i < links.length; i++) {
+            Object link = links[i];
+            if (link.getClass() == String.class) {                 //broken link
+                continue;
+            }
+            children[childrenCount++] = (DataObject) link;
+        }
+        
+        /* If there was at least one broken link, shrink the resulting array: */
+        if (childrenCount != links.length) {
+            DataObject[] oldChildren = children;
+            children = new DataObject[childrenCount];
+            System.arraycopy(oldChildren, 0, children, 0, childrenCount);
+        }
+        
+        return children;
+    }
+    
+    /**
+     * Called when a change of this group's primary file is detected.
+     *
+     * Notifies all registered listeners about a change of property
+     * {@link DataObject.Container#PROP_CHILDREN}.
+     */
+    void primaryFileChanged() {
+        
+        /* Implementation of interface DataObject.Container: */
+        firePropertyChange(DataObject.Container.PROP_CHILDREN, null, null);
+    }
+    
     /**
      * Returns <code>DataObject</code>s contained in this group.
      * Reads contents of this group's primary file (names of nested
