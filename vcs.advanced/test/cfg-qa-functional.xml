@@ -55,6 +55,7 @@ Microsystems, Inc. All Rights Reserved.
         <testset dir="qa-functional/src">
             <patternset>
     		<include name="complete/vss_profile/MountVSSFilesystem.class"/>
+    		<include name="complete/vss_profile/AllTogether.class"/>
             </patternset>
         </testset>
     </testbag>
