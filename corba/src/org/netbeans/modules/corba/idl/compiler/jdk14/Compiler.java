@@ -47,13 +47,12 @@ import com.sun.tools.corba.se.idl.toJavaPortable.Util;
 //import com.sun.tools.corba.se.idl.toJavaPortable.Util;
 //import com.sun.tools.corba.se.idl.toJavaPortable.Util;
 
-public class Compiler extends com.sun.tools.corba.se.idl.Compile {
+public class Compiler extends com.sun.tools.corba.se.idl.toJavaPortable.Compile {
 
     //public static final boolean DEBUG = true;
     public static final boolean DEBUG = false;
   
     public static void main (String[] args) {
-	Compiler comp = new Compiler ();
 	/*
 	 *
 	 * options --directory  <dir> --package <package> --tie
@@ -87,13 +86,16 @@ public class Compiler extends com.sun.tools.corba.se.idl.Compile {
 	} 
 	String file_name = args[args.length - 1];
 	if (DEBUG)
-	    System.out.println ("idl name: " + file_name); // NOI18N
+	    System.err.println ("idl name: " + file_name); // NOI18N
 	String[] parser_args = new String[__parser_args.size ()];
 	parser_args = (String[])__parser_args.toArray (parser_args);
 	Vector names = new Vector ();
 	try {
-	    comp.init (parser_args);
-	    java.util.Enumeration en = comp.parse ();
+            compiler = new Compiler ();
+            Util.registerMessageFile("com/sun/tools/corba/se/idl/toJavaPortable/toJavaPortable.prp");
+            ((Compiler)compiler).init (parser_args);
+            ((Compiler)compiler).preParse();
+	    java.util.Enumeration en = ((Compiler)compiler).parse ();
 	    if (en == null)
 		return;
 	    while (en.hasMoreElements ()) {
@@ -102,12 +104,12 @@ public class Compiler extends com.sun.tools.corba.se.idl.Compile {
                     continue;
 		String name = _se.fullName ();
 		if (DEBUG)
-		    System.out.println ("element: " + name); // NOI18N
+		    System.err.println ("element: " + name); // NOI18N
 		if (name.indexOf ('/') == -1) {
 		    // top level element
 		    names.addElement (name);
 		    if (DEBUG)
-			System.out.println ("top level element: " + name); // NOI18N
+			System.err.println ("top level element: " + name); // NOI18N
 		}
 	    }	
 	} catch (Exception e) {
@@ -144,13 +146,13 @@ public class Compiler extends com.sun.tools.corba.se.idl.Compile {
 	new_args.addElement (file_name);
 	String[] args2 = (String[])new_args.toArray (new String[] {});
 	if (DEBUG) {
-	    System.out.println ("---");
+	    System.err.println ("---");
 	    for (int i=0; i<args2.length; i++) {
-		System.out.println ("new param: " + args2[i]); // NOI18N
+		System.err.println ("new param: " + args2[i]); // NOI18N
 	    }
 	}
 	if (DEBUG)
-	    System.out.println ("Compile.main (" + args2 + ");");
+	    System.err.println ("Compile.main (" + args2 + ");");
 	Compile.main (args2);
     
     }
