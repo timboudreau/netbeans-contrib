@@ -3098,10 +3098,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     protected String getBackupExtension() {
-        return "~";
+        return "~"; // NOI18N
+    }
+    
+    private boolean isIDESettingsFile(String name) {
+        name = name.replace(java.io.File.separatorChar, '/');
+        return name.equals(".nbattrs") ||               // NOI18N
+               name.endsWith("/.nbattrs") ||            // NOI18N
+               name.equals("filesystem.attributes") ||  // NOI18N
+               name.endsWith("/filesystem.attributes"); // NOI18N
     }
     
     protected void createBackupFile(String name) throws java.io.IOException {
+        if (isIDESettingsFile(name)) return ;
         if (!isImportant(name) || name.endsWith(getBackupExtension())) return ;
         if (!getFile(name).exists()) return ;
         InputStream in = inputStream(name);
