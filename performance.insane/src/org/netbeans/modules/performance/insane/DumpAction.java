@@ -63,8 +63,8 @@ public final class DumpAction extends javax.swing.AbstractAction {
 
         Set ordered = new TreeSet(new Comparator() {
             public int compare(Object c1, Object c2) {
-                int diff = counter.getCountForClass((Class)c2) - 
-                           counter.getCountForClass((Class)c1);
+                int diff = counter.getSizeForClass((Class)c2) - 
+                           counter.getSizeForClass((Class)c1);
 
                 if (diff != 0 || c1 == c2) return diff;
                 return ((Class)c1).getName().compareTo(((Class)c2).getName());
