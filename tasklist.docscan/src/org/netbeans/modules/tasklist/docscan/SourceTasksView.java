@@ -183,9 +183,20 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         inputMap.put(refresh, refresh);
         getActionMap().put(refresh, new DelegateAction(getRefresh()));
 
-        KeyStroke filter = KeyStroke.getKeyStroke(KeyEvent.VK_F, 0);
-        inputMap.put(filter, filter);
-        getActionMap().put(filter, new DelegateAction(getFilterButton()));
+        KeyStroke editfilter = KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.SHIFT_MASK);
+        inputMap.put(editfilter, editfilter);
+        getActionMap().put(editfilter, new DelegateAction(getFilterIconButton()));
+
+        KeyStroke filtercombo = KeyStroke.getKeyStroke(KeyEvent.VK_F, 0);
+        inputMap.put(filtercombo, "filtercombo");
+	AbstractAction a = new AbstractAction("filtercombo") {
+	    public void actionPerformed(ActionEvent e) {
+	      filterCombo.showPopup();
+	      filterCombo.requestFocus();
+	    }
+	  };
+	a.setEnabled(true);
+        getActionMap().put("filtercombo", a);
 
         KeyStroke editor = KeyStroke.getKeyStroke(KeyEvent.VK_E, 0);
         inputMap.put(editor, editor);
@@ -738,23 +749,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return gotoPresenter;
     }
 
-    private JButton filterButton;
-
-    private AbstractButton getFilterButton() {
-        
-        if (filterButton == null) {
-
-            filterButton = new JButton((isFiltered())?(getFilter().getName()):"No filter");
-            filterButton.setToolTipText(Util.getString("filter_hint") + " (f)");  // NOI18N
-            adjustHeight(filterButton);
-            filterButton.addActionListener(dispatcher);
-	    Dimension dim = filterButton.getPreferredSize();
-	    dim.width = 300;
-	    filterButton.setPreferredSize(dim);
-        }
-        return filterButton;
-    }
-
     /** Eliminates action listener inner classes. */
     private class Dispatcher implements ActionListener {
         public void actionPerformed(ActionEvent e) {
@@ -787,10 +781,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             } else if (obj == getNext()) {
                 handleNext();
             } else if (obj == getFilterCombo()) {
-	      if (((JComboBox)obj).getSelectedItem() != null) {
-		setFilter(((Filter.ListModelElement)((JComboBox)obj).getSelectedItem()).filter);
+	      if (filterCombo.getSelectedItem() != null) {
+		setFilter(((Filter.ListModelElement)(filterCombo.getSelectedItem())).filter);
 	      }
-//                  JPopupMenu popup = new JPopupMenu();
+
+	      //                  JPopupMenu popup = new JPopupMenu();
 
 
 // 		 Iterator it = getFilters().iterator();
@@ -814,6 +809,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             
         }
     }
+
+
 
     private final ActionListener dispatcher = new Dispatcher();
 
@@ -1538,18 +1535,18 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     protected void setFiltered() {
       super.setFiltered();
-      filterButton.setText(getFilter() == null ? ("No Filter") : (getFilter().getName()));
     }
 
   
     private JButton filterIconButton = null;
+
     private AbstractButton getFilterIconButton() {
       if (filterIconButton == null) {
             Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filter.gif")); // NOI18N
 	    filterIconButton = new JButton(icon);
 	    adjustHeight(filterIconButton);
+            filterIconButton.setToolTipText(Util.getString("filter_hint") + " (shift+f)");  // NOI18N
 	    filterIconButton.addActionListener(dispatcher);
-	    filterIconButton.setMnemonic(Util.getChar("edit_mne"));
       }
 
       return filterIconButton;
