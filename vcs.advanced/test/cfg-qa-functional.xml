@@ -19,6 +19,7 @@ Microsystems, Inc. All Rights Reserved.
             <patternset>
                 <include name="complete/cvs_profile/JellyBranch.class"/>
                 <include name="complete/cvs_profile/JellyOverall.class"/>
+                <include name="complete/cvs_profile/JellyGroup.class"/>
             </patternset>
         </testset>
     </testbag>
