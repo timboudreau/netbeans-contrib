@@ -72,7 +72,7 @@ public class AssistantView extends javax.swing.JPanel implements TreeSelectionLi
 
         
     }
-    private DefaultMutableTreeNode loadData(){ 
+    private synchronized DefaultMutableTreeNode loadData(){ 
         debug("load data");
         if (rootNode == null)
             return rootNode;
@@ -151,7 +151,11 @@ public class AssistantView extends javax.swing.JPanel implements TreeSelectionLi
      *
      */
     public void idChanged(AssistantModelEvent e) {
-        loadData();
+        SwingUtilities.invokeLater(new Runnable(){
+            public void run(){
+                loadData();
+            }
+        });
     }
     
     /** Tells the listener that the current URL has changed.
