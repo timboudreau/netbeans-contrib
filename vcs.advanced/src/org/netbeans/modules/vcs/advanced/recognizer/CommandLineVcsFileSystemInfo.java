@@ -213,7 +213,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
         if (settingName != null) {
             fs = readFSFromSetting(settingName);
             if (fs == null) { // When the settings are gone
-                fs = createNewFS();
+                return null; // No FS without settings!
             }
         } else {
             fs = createNewFS();
