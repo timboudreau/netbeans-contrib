@@ -149,7 +149,7 @@ public class VcsAttributes extends DefaultAttributes {
      */
     public static String VCS_STATUS_UNKNOWN = "VCS_STATUS_UNKNOWN"; //NOI18N
     
-    private VcsActionSupporter supporter;
+    private transient VcsActionSupporter supporter;
     private transient RuntimeCommandsProvider runtimeProvider;
         
     private VcsFileSystem fileSystem;

@@ -68,9 +68,9 @@ public class GeneralCommandAction extends NodeAction {
     public static final String GROUP_NAME_PROP = "GROUP_NAME"; //NOI18N
     
     
-    private javax.swing.JMenuItem menuPresent;
-    private javax.swing.JMenuItem popupPresent;
-    private java.awt.Component toolBarPresent;
+    private transient javax.swing.JMenuItem menuPresent;
+    private transient javax.swing.JMenuItem popupPresent;
+    private transient java.awt.Component toolBarPresent;
     
     private Set menuNamesSet;
     private Set toolBarNamesSet;
