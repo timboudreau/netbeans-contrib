@@ -143,7 +143,7 @@ final class Cache {
 
     private static File getCacheFile(boolean create) throws IOException {
         String loc = System.getProperty("netbeans.user") + // NOI18N
-            File.separatorChar + "cache" + File.separatorChar + "all-todos.ser";
+            File.separatorChar + "var" + File.separatorChar + "cache" + File.separatorChar + "all-todos.ser";
         File file = new File(loc);
         if (create) {
             if (!file.exists()) {
