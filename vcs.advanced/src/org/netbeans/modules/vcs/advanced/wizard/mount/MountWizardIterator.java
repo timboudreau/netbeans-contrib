@@ -48,9 +48,9 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     private static MountWizardIterator instance;
     
     //private WizardDescriptor.Panel[] panels;
-    private MyArrayList panels;
+    private RangeArrayList panels;
    // String[] names;
-    MyArrayList names;
+    RangeArrayList names;
     private javax.swing.event.EventListenerList listenerList;
     private int currentIndex;    
     private MountWizardData data;    
@@ -147,8 +147,8 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     
     private void setupPanels(TemplateWizard templateWizard) { 
         this.templateWizard = templateWizard;
-        this.panels = new MyArrayList();
-        this.names = new MyArrayList();
+        this.panels = new RangeArrayList();
+        this.names = new RangeArrayList();
         this.panels.add(new ProfilePanel(0));
         java.awt.Component panel = templateWizard.templateChooser().getComponent();
         this.names.add(panel.getName());
@@ -162,8 +162,8 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     public void propertyChange(java.beans.PropertyChangeEvent evt) {        
         VcsCustomizer customizer = data.getCustomizer();
         if(panels.size() > 1){            
-            panels.myRemoveRange(1, panels.size());
-            names.myRemoveRange(2, names.size());            
+            panels.removeRange(1, panels.size());
+            names.removeRange(2, names.size());            
         }
         int num = customizer.getNumConfigPanels();        
         for(int i = 1; i < num; i++){
@@ -183,11 +183,11 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
         //panel.putClientProperty (data.CONTENT_DATA, names);        
     }
     
-    public class MyArrayList extends ArrayList{
-        MyArrayList(){
+    public class RangeArrayList extends ArrayList{
+        RangeArrayList(){
             super();
         }
-        void myRemoveRange(int fromIndex,int toIndex){
+        public void removeRange(int fromIndex,int toIndex){
             super.removeRange(fromIndex,toIndex);
         }
     }
