@@ -28,7 +28,9 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.openide.ErrorManager;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.Repository;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListener;
 
@@ -39,6 +41,11 @@ import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 import org.netbeans.modules.vcs.advanced.Profile;
 import org.netbeans.modules.vcs.advanced.ProfilesFactory;
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.openide.cookies.InstanceCookie;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.loaders.InstanceDataObject;
 
 /**
  *
@@ -47,13 +54,16 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, PropertyChangeListener {
     
     private static String DEFAULT_DISPLAY_TYPE = "VCS"; // NOI18N
+    private static String FS_SETTINGS_FOLDER = "VCSMount"; // NOI18N
     
     private File root;
     private String profileName;
     private Map additionalVars;
     private boolean control = true;
+    private String settingName = null;
     private transient Reference fileSystemRef = new WeakReference(null);
     private transient PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+    private transient DataFolder settingsFolder;
     
     static final long serialVersionUID = 8679717370363337670L;
     /**
@@ -66,6 +76,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
         this.root = root;
         this.profileName = profileName;
         this.additionalVars = additionalVars;
+        initSettingsFolder();
     }
     
     /**
@@ -76,6 +87,23 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
         this.root = fileSystem.getWorkingDirectory();
         this.profileName = fileSystem.getProfile().getName();
         fileSystemRef = new WeakReference(fileSystem);
+        initSettingsFolder();
+        storeFSSettings(fileSystem);
+    }
+    
+    private void initSettingsFolder() {
+        synchronized (CommandLineVcsFileSystemInfo.class) {
+            FileObject sfo = Repository.getDefault().getDefaultFileSystem().findResource (FS_SETTINGS_FOLDER);
+            if (sfo == null) {
+                try {
+                    Repository.getDefault().getDefaultFileSystem().getRoot().createFolder(FS_SETTINGS_FOLDER);
+                } catch (IOException ioex) {
+                    org.openide.ErrorManager.getDefault().notify(ioex); // Should not happen
+                }
+                sfo = Repository.getDefault().getDefaultFileSystem().findResource (FS_SETTINGS_FOLDER);
+            }
+            settingsFolder = DataFolder.findFolder(sfo);
+        }
     }
     
     /*
@@ -123,6 +151,23 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
     }
     
     private FileSystem createFileSystem() {
+        CommandLineVcsFileSystem fs;
+        if (settingName != null) {
+            fs = readFSFromSetting(settingName);
+            if (fs == null) { // When the settings are gone
+                fs = createNewFS();
+            }
+        } else {
+            fs = createNewFS();
+        }
+        if (settingName == null) {
+            settingName = storeFSSettings(fs);
+        }
+        fs.addPropertyChangeListener(WeakListener.propertyChange(this, fs));
+        return fs;
+    }
+    
+    private CommandLineVcsFileSystem createNewFS() {
         CommandLineVcsFileSystem fs = new CommandLineVcsFileSystem();
         if (profileName == null) {
             root = fs.getRootDirectory();
@@ -161,8 +206,56 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
                 fs.setVariables(vars);
             }
         }
-        fs.addPropertyChangeListener(WeakListener.propertyChange(this, fs));
         return fs;
+    }
+    
+    private CommandLineVcsFileSystem readFSFromSetting(String settingName) {
+        try {
+            FileObject sfo = settingsFolder.getPrimaryFile().getFileObject(settingName);
+            if (sfo == null) {
+                //System.out.println("THE SETTING WAS DELETED!");
+                return null;
+            }
+            DataObject dobj = DataObject.find(sfo);
+            InstanceCookie ic = (InstanceCookie) dobj.getCookie (InstanceCookie.class);
+            if (ic != null) {
+                try {
+                    Object o = ic.instanceCreate();
+                    if (o instanceof CommandLineVcsFileSystem) {
+                        return (CommandLineVcsFileSystem) o;
+                    }
+                } catch (IOException ioex) {
+                    org.openide.ErrorManager.getDefault().notify(ioex);
+                } catch (ClassNotFoundException cnfex) {
+                    org.openide.ErrorManager.getDefault().notify(cnfex);
+                }
+            }
+            return null;
+        } catch (DataObjectNotFoundException donfex) {
+            return null;
+        }
+    }
+    
+    private String storeFSSettings(CommandLineVcsFileSystem fs) {
+        try {
+            DataObject dobj = fs.createInstanceDataObject(settingsFolder);
+            settingName = dobj.getPrimaryFile().getNameExt();
+        } catch (IOException ioex) {
+            org.openide.ErrorManager.getDefault().notify(ioex);
+            return null;
+        }
+        return settingName;
+    }
+    
+    public void destroy() {
+        if (settingName != null) {
+            try {
+                settingsFolder.getPrimaryFile().getFileObject(settingName).delete();
+            } catch (IOException ioex) {
+                org.openide.ErrorManager.getDefault().notify(ioex);
+            }
+        }
+        fileSystemRef = new WeakReference(null);
     }
     
     /** This method gets called when a FS property is changed.
@@ -216,5 +309,6 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
         in.defaultReadObject();
         fileSystemRef = new WeakReference(null);
         changeSupport = new PropertyChangeSupport(this);
+        initSettingsFolder();
     }
 }
