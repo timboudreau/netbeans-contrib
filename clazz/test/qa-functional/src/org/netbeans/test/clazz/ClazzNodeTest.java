@@ -1,6 +1,8 @@
 package org.netbeans.test.clazz;
 
+import java.io.IOException;
 import junit.textui.TestRunner;
+import org.netbeans.jellytools.Bundle;
 import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.NbDialogOperator;
 import org.netbeans.jellytools.nodes.FolderNode;
@@ -15,9 +17,9 @@ import org.openide.loaders.DataObject;
  
 public class ClazzNodeTest extends JellyTestCase {
     
-    private static final String NAME_TEST_FILE = "ClazzTest";
-    private static final String SRC_PACKAGE = "org.netbeans.test";
-    private static final String DST_PACKAGE = "org.netbeans.test.clazz";
+    private static final String NAME_TEST_FILE = "ClazzTest"; //NOI18N
+    private static final String SRC_PACKAGE = "org.netbeans.test"; //NOI18N
+    private static final String DST_PACKAGE = "org.netbeans.test.clazz"; //NOI18N
     
     private DataObject srcFile;
     private DataFolder srcFolder;
@@ -41,11 +43,11 @@ public class ClazzNodeTest extends JellyTestCase {
     
     public static NbTestSuite suite() {
         NbTestSuite suite = new NbTestSuite();
-        suite.addTest(new ClazzNodeTest("testCopyPasteCopy"));
-        suite.addTest(new ClazzNodeTest("testCopyPasteCreateLink"));
-        suite.addTest(new ClazzNodeTest("testCopyPasteSerialize"));
-        suite.addTest(new ClazzNodeTest("testCopyPasteDefaultInstance"));
-        suite.addTest(new ClazzNodeTest("testCutPasteCopy"));
+        suite.addTest(new ClazzNodeTest("testCopyPasteCopy")); //NOI18N
+        suite.addTest(new ClazzNodeTest("testCopyPasteCreateLink")); //NOI18N
+        suite.addTest(new ClazzNodeTest("testCopyPasteSerialize")); //NOI18N
+        suite.addTest(new ClazzNodeTest("testCopyPasteDefaultInstance")); //NOI18N
+        suite.addTest(new ClazzNodeTest("testCutPasteCopy")); //NOI18N
         return suite;
     }
     
@@ -59,7 +61,7 @@ public class ClazzNodeTest extends JellyTestCase {
     
     /** setUp method  */
     public void setUp() {
-        System.out.println("########  "+getName()+"  #######");
+        System.out.println("########  "+getName()+"  #######"); //NOI18N
     }
     
     /** tearDown method */
@@ -67,67 +69,67 @@ public class ClazzNodeTest extends JellyTestCase {
     }
     
     public void testCopyPasteCopy() {
-        JavaNode srcNode = new JavaNode(testFSName + "|" + SRC_PACKAGE.replace('.', '|') + "|" + NAME_TEST_FILE);
+        JavaNode srcNode = new JavaNode(testFSName + '|' + SRC_PACKAGE.replace('.', '|') + '|' + NAME_TEST_FILE);
         srcNode.copy();
         
-        FolderNode dstNode = new FolderNode(testFSName + "|" + DST_PACKAGE.replace('.', '|'));
+        FolderNode dstNode = new FolderNode(testFSName + '|' + DST_PACKAGE.replace('.', '|'));
         dstNode.pasteCopy();
         new EventTool().waitNoEvent(1000);
-        assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + "/" + NAME_TEST_FILE + ".class"));
+        assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".class")); //NOI18N 
         
-        delete(DST_PACKAGE.replace('.', '/') + "/" + NAME_TEST_FILE + ".class");
+        delete(DST_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".class"); //NOI18N
     }
     
     public void testCopyPasteCreateLink() {
-        JavaNode srcNode = new JavaNode(testFSName + "|" + SRC_PACKAGE.replace('.', '|') + "|" + NAME_TEST_FILE);
+        JavaNode srcNode = new JavaNode(testFSName + '|' + SRC_PACKAGE.replace('.', '|') + '|' + NAME_TEST_FILE);
         srcNode.copy();
         
         FolderNode dstNode = new FolderNode(testFSName + "|" + DST_PACKAGE.replace('.', '|'));
         dstNode.pasteLink();
         new EventTool().waitNoEvent(1000);
-        assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + "/" + NAME_TEST_FILE + ".shadow"));
+        assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".shadow")); //NOI18N
         
-        delete(DST_PACKAGE.replace('.', '/') + "/" + NAME_TEST_FILE + ".shadow");
+        delete(DST_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".shadow"); //NOI18N
     }
     
     public void testCopyPasteSerialize() {
-        JavaNode srcNode = new JavaNode(testFSName + "|" + SRC_PACKAGE.replace('.', '|') + "|" + NAME_TEST_FILE);
+        JavaNode srcNode = new JavaNode(testFSName + '|' + SRC_PACKAGE.replace('.', '|') + '|' + NAME_TEST_FILE);
         srcNode.copy();
         
-        FolderNode dstNode = new FolderNode(testFSName + "|" + DST_PACKAGE.replace('.', '|'));
-        dstNode.performPopupActionNoBlock("Paste|Serialize");
-        new NbDialogOperator("Instance Serialization").ok();
+        FolderNode dstNode = new FolderNode(testFSName + '|' + DST_PACKAGE.replace('.', '|'));
+        dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste") + '|' + Bundle.getString("org.openide.actions.Bundle", "CTL_Serialize"));
+        new NbDialogOperator(Bundle.getString("org.openide.loaders.Bundle", "SerializeBean_Title")).ok();
         
         new EventTool().waitNoEvent(1000);
-        assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + "/" + NAME_TEST_FILE + ".ser"));
+        assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".ser")); //NOI18N
         
-        delete(DST_PACKAGE.replace('.', '/') + "/" + NAME_TEST_FILE + ".ser");
+        delete(DST_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".ser"); //NOI18N
     }
     
     public void testCopyPasteDefaultInstance() {
-        JavaNode srcNode = new JavaNode(testFSName + "|" + SRC_PACKAGE.replace('.', '|') + "|" + NAME_TEST_FILE);
+        JavaNode srcNode = new JavaNode(testFSName + '|' + SRC_PACKAGE.replace('.', '|') + '|' + NAME_TEST_FILE);
         srcNode.copy();
         
-        FolderNode dstNode = new FolderNode(testFSName + "|" + DST_PACKAGE.replace('.', '|'));
-        dstNode.performPopupActionNoBlock("Paste|Default instance");
+        FolderNode dstNode = new FolderNode(testFSName + '|' + DST_PACKAGE.replace('.', '|'));
+        dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste") + '|' + Bundle.getString("org.openide.loaders.Bundle", "PT_instance"));
         
         new EventTool().waitNoEvent(1000);
-        assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + "/" + SRC_PACKAGE.replace('.', '-') + "-" + NAME_TEST_FILE + ".instance"));
+        assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + '/' + SRC_PACKAGE.replace('.', '-') + '-' + NAME_TEST_FILE + ".instance")); //NOI18N
         
-        delete(DST_PACKAGE.replace('.', '/') + "/" + SRC_PACKAGE.replace('.', '-') + "-" + NAME_TEST_FILE + ".instance");
+        delete(DST_PACKAGE.replace('.', '/') + '/' + SRC_PACKAGE.replace('.', '-') + '-' + NAME_TEST_FILE + ".instance"); //NOI18N
     }
     
     public void testCutPasteCopy() {
-        JavaNode srcNode = new JavaNode(testFSName + "|" + SRC_PACKAGE.replace('.', '|') + "|" + NAME_TEST_FILE);
+        JavaNode srcNode = new JavaNode(testFSName + '|' + SRC_PACKAGE.replace('.', '|') + '|' + NAME_TEST_FILE);
         srcNode.cut();
         
         FolderNode dstNode = new FolderNode(testFSName + "|" + DST_PACKAGE.replace('.', '|'));
-        dstNode.performPopupActionNoBlock("Paste");
+        dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste"));
         new EventTool().waitNoEvent(1000);
-        assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + "/" + NAME_TEST_FILE + ".class"));
-        assertNull(Repository.getDefault().findResource(SRC_PACKAGE.replace('.', '/') + "/" + NAME_TEST_FILE + ".class"));
+        assertNotNull(Repository.getDefault().findResource(DST_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".class")); //NOI18N
+        assertNull(Repository.getDefault().findResource(SRC_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".class")); //NOI18N
         
-        delete(DST_PACKAGE.replace('.', '/') + "/" + NAME_TEST_FILE + ".class");
+        delete(DST_PACKAGE.replace('.', '/') + '/' + NAME_TEST_FILE + ".class"); //NOI18N
     }
 
     public static void delete(String file) {
@@ -135,7 +137,7 @@ public class ClazzNodeTest extends JellyTestCase {
         if (fileObject==null) return;
         try {
             DataObject.find(fileObject).delete();
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
         }
     }
 }
