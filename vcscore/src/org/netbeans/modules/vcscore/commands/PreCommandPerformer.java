@@ -294,14 +294,77 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
         } while (index >= 0);
         return exec;
     }
+    
+    private static final String NL_TRUE = "true"; // NOI18N
+    private static final String NL_FALSE = "false"; // NOI18N
 
     private String insertOutput(String exec, int begin, int end, String whichElement, int whichOutput, Vector[] preCommandOutput) {
         StringBuffer insertion = new StringBuffer(exec.substring(0, begin));
+        boolean insertNewLine = false;
+        int maxFirstLines = -1;
+        int maxLastLines = -1;
+        int tindex = whichElement.indexOf(NL_TRUE);
+        if (tindex > 0) {
+            insertNewLine = true;
+        } else {
+            tindex = whichElement.indexOf(NL_FALSE);
+            if (tindex > 0) {
+                insertNewLine = false;
+            }
+        }
+        if (tindex > 0) {
+            int tend = tindex + NL_TRUE.length(); // "true".length() < "false".length(), so I can use "true".length() for both cases
+            // I want to get rid of the following comma:
+            while (tend < whichElement.length() && whichElement.charAt(tend) != ',') end++;
+            tend++;
+            whichElement = whichElement.substring(0, tindex) + ((tend < whichElement.length()) ? whichElement.substring(tend) : ""); // NOI18N
+        }
+        String nl = (insertNewLine) ? "\n" : "".intern(); // NOI18N
+        int commaIndex = whichElement.indexOf(',');
+        if (commaIndex > 0) {
+            try {
+                int commaIndex2 = whichElement.indexOf(',', commaIndex + 1);
+                if (commaIndex2 < 0) commaIndex2 = whichElement.length();
+                maxFirstLines = Integer.parseInt(whichElement.substring(commaIndex + 1, commaIndex2).trim());
+                if (commaIndex2 < whichElement.length()) {
+                    maxLastLines = Integer.parseInt(whichElement.substring(commaIndex2 + 1).trim());
+                }
+                whichElement = whichElement.substring(0, commaIndex).trim();
+            } catch (NumberFormatException exc) {
+                // Ignored
+            }
+        }
         try {
             int index = Integer.parseInt(whichElement);
-            for (Enumeration enum = preCommandOutput[whichOutput].elements(); enum.hasMoreElements(); ) {
+            int line = 0;
+            ArrayList lastLines = null;
+            if (maxLastLines > 0) lastLines = new ArrayList();
+            boolean linesCut = false;
+            for (Enumeration enum = preCommandOutput[whichOutput].elements(); enum.hasMoreElements(); line++) {
                 String[] elements = (String[]) enum.nextElement();
-                if (elements.length > index && elements[index] != null) insertion.append(elements[index]);
+                if (elements.length > index && elements[index] != null) {
+                    if (maxFirstLines > 0) {
+                        if (line < maxFirstLines) {
+                            insertion.append(elements[index] + nl);
+                        } else {
+                            linesCut = true;
+                            if (maxLastLines > 0) {
+                                lastLines.add(elements[index]);
+                                if (lastLines.size() > maxLastLines) lastLines.remove(0);
+                            }
+                        }
+                    } else {
+                        insertion.append(elements[index] + nl);
+                    }
+                }
+            }
+            if (linesCut) {
+                insertion.append("..." + nl);
+                if (lastLines != null) {
+                    for (int i = 0; i < lastLines.size(); i++) {
+                        insertion.append(lastLines.get(i) + nl);
+                    }
+                }
             }
         } catch (NumberFormatException exc) {
             // Ignored
