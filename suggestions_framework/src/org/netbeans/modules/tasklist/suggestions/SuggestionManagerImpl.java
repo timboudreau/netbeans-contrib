@@ -1238,7 +1238,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 category = tasklist.getCategoryTask(type, true);
                 synchronized(this) {
                     if (removeList != null) {
-                        tasklist.addRemove(null, removeList, false, null);
+                        tasklist.addRemove(null, removeList, true, null);
                     }
                     tasklist.addRemove(adds, null, false, category);
                 }
@@ -1259,7 +1259,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             if (category == null) {
                 // Didn't have category nodes before and don't need to
                 // now either...
-                tasklist.addRemove(adds, removeList, false, null);
+                tasklist.addRemove(adds, removeList, true, null);
             } else {
                 // Had category nodes before but don't need them anymore...
                 // remove the tasks from the top list
@@ -1268,7 +1268,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                         tasklist.addRemove(null, removeList, false, category);
                     }
                     if (adds != null) {
-                        tasklist.addRemove(adds, null, false, null);
+                        tasklist.addRemove(adds, null, true, null);
                     }
                 }
                 tasklist.removeCategory(category, true);
@@ -1469,7 +1469,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * @param docEvent Document edit event. May be null. */
     private void scheduleRescan(final DocumentEvent docEvent, boolean delay) {
         if (wait) {
-            waitEvent = docEvent;
+            if (docEvent != null) {
+                // Caret updates shouldn't clear my docEvent
+                waitEvent = docEvent;
+            }
             return;
         }
         
