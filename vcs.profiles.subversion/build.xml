@@ -57,13 +57,11 @@ Microsystems, Inc. All Rights Reserved.
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/subversion/layer-includes-configRB.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/subversion/config/Bundle.properties"/>
     </makelayer>
-    <!--
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/subversion/layer-includes-list.xml" absolutepath="true">
        <include name="org/netbeans/modules/vcs/profiles/subversion/list/*.class"/>
        <include name="org/netbeans/modules/vcs/profiles/subversion/list/*.java"/>
        <include name="org/netbeans/modules/vcs/profiles/subversion/list/*.properties"/>
     </makelayer>
-    -->
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>

@@ -759,12 +759,20 @@ PROMPT_FOR(PROPNAME, Property Name, "",ACCESSIBILITY(DESCRIPTION_Text field for 
         </property>
       </command>
       <separator />
+      <command name="LIST_CMD">
+        <property name="exec">
+          <value xml:space="preserve">${PREFIX_WORKDIR_FOR_LIST}${SVN_CMD} status -v  -N --no-ignore${POSTFIX}</value>
+        </property>
+        <property name="data.regex">
+          <value xml:space="preserve">^([ ADMCI!~])([ MC])([ L])([ \+])([ S])  ([ \*]) *( |[0-9]+) *( |\?|[0-9]+) *( |\?|[^ ]+) *(\.[^ ].*|[^\. ].*[^\.]|[^\. ].*[^ ]\.)$</value>
+        </property>
+      </command>
       <command name="LIST" displayName="Refresh">
         <property name="display">
           <value xml:space="preserve">true</value>
         </property>
         <property name="exec">
-          <value xml:space="preserve">${PREFIX_WORKDIR_FOR_LIST}${SVN_CMD} status -v  -N --no-ignore${POSTFIX}</value>
+          <value xml:space="preserve">org.netbeans.modules.vcs.profiles.subversion.list.SubversionListCommand.class LIST_CMD</value>
         </property>
         <property name="refreshCurrentFolder">
           <value xml:space="preserve">false</value>
