@@ -16,7 +16,7 @@ Microsystems, Inc. All Rights Reserved.
 <project name="vcsgeneric" default="netbeans" basedir=".">
 
   <property name="nbroot" value=".."/>
-  <property name="binroot" location=".."/>
+  <property name="binroot" location="../../nbextra"/>
   <property name="nbext" value="${nbroot}/nbbuild"/>
 
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
