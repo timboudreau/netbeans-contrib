@@ -1,5 +1,6 @@
 OpenIDE-Module: org.netbeans.modules.vcscore/1
 OpenIDE-Module-Name: VCS Core API Module
+OpenIDE-Module-Display-Category: Version Control
 OpenIDE-Module-Specification-Version: 1.3
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Module-Dependencies: org.openidex.util/1, org.netbeans.modules.utilities/1
