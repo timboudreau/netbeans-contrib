@@ -214,7 +214,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
             getCreatedColumn(false, 150),
             getEditedColumn(false, 150),
             getDueColumn(false, 150),
-            getDoneColumn(true, 100),
+            getDoneColumn(true, 40),
             getPercentColumn(false, 100)
             
             // When adding more columns here, also remember to go to the 
