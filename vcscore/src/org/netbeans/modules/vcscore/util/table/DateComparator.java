@@ -24,23 +24,32 @@ import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParsePosition;
-
+import java.text.DateFormatSymbols;
 
 public class DateComparator implements TableInfoComparator {
 
+    DateFormatSymbols symbols;
+    DateFormat format;
     /** Creates new RevisionComparator */
     public DateComparator() {
+        symbols = new DateFormatSymbols();
+        String[] shorts = new String[] {"Jan", "Feb", "Mar", "Apr", "May", "Jun", //NOI18N
+                                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}; //NOI18N
+        symbols.setShortMonths(shorts);
+        format = new SimpleDateFormat("dd-MMM-yy", symbols); //NOI18N
     }
     
     public int compare(java.lang.Object obj, java.lang.Object obj1) {
-        String str1 = obj.toString();
-        String str2 = obj1.toString();
-        DateFormat format = new SimpleDateFormat("dd-MMM-yy");
+        String str1 = obj.toString().trim();
+        String str2 = obj1.toString().trim();
         ParsePosition pos1 = new ParsePosition(0);
         Date date1 = format.parse(str1, pos1);
         ParsePosition pos2 = new ParsePosition(0);
         Date date2 = format.parse(str2, pos2);
-        return date1.compareTo(date2);
+        if (date1 != null && date2 != null) {
+            return date1.compareTo(date2);
+        } 
+        return 0;
     }
     
     public String getDisplayValue(Object obj, Object rowObject) {
