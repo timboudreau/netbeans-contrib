@@ -48,7 +48,7 @@ public class RuntimeMainChildren extends Children.Keys  {
             boolean is = checkFileSystem(fs, bd);
             if (is) {
                 fsList.add(fs);
-//                initFsInRuntime(fs, bd);
+//                initFsInRuntime(fs);
             }
         }
         repos.addRepositoryListener(new RuntimeRepositoryListener());
@@ -60,12 +60,13 @@ public class RuntimeMainChildren extends Children.Keys  {
      */
     protected void addNotify() {
         setKeys (getFileSystems());
-//        getDefaultGroupNode(); //hack here to create the default group by default..
+        RuntimeSupport.getInstance().setMainChildren(this);
     }
 
     /** Called when all children are garbage collected */
     protected void removeNotify() {
         setKeys(java.util.Collections.EMPTY_SET);
+        RuntimeSupport.getInstance().setMainChildren(null);
     }
 
     
@@ -84,11 +85,26 @@ public class RuntimeMainChildren extends Children.Keys  {
     protected Node[] createNodes( final Object key ) {
         FileSystem fs = (FileSystem)key;
         if (fsList.contains(fs)) {
-            RuntimeFolderNode fsRuntime = RuntimeSupport.createFolderNode(fs);
+            RuntimeFolderNode fsRuntime = createFolderNode(fs);
             return new Node[] { fsRuntime };
         } 
         return new Node[0];
     }
+    
+    private RuntimeFolderNode createFolderNode(org.openide.filesystems.FileSystem fs) {
+        Children fsCh = new Index.ArrayChildren();
+        RuntimeFolderNode fsRuntime = new RuntimeFolderNode(fsCh);
+        fsRuntime.setName(fs.getSystemName());
+        fsRuntime.setDisplayName(fs.getDisplayName());
+        java.beans.BeanDescriptor bd = RuntimeMainChildren.getFsBeanDescriptor(fs);
+        if (bd != null) {
+            String str = (String)bd.getValue(org.netbeans.modules.vcscore.VcsFileSystem.VCS_FILESYSTEM_ICON_BASE);
+            if (str != null) {
+                fsRuntime.setIconBase(str);
+            }
+        }
+        return fsRuntime;
+    }    
     
     private boolean checkFileSystem(FileSystem fs, BeanDescriptor bd) {
         if (bd == null) return false;
@@ -120,14 +136,6 @@ public class RuntimeMainChildren extends Children.Keys  {
         return null;
     }
     
-    
-    private void initFsInRuntime(FileSystem fs) {
-        if (fs instanceof VcsFileSystem) {
-            VcsFileSystem vcsfs = (VcsFileSystem)fs;
-            vcsfs.getCommandsPool().setupRuntime();
-        }
-    }    
-    
     public class RuntimeRepositoryListener extends  RepositoryAdapter {
         
         public void fileSystemAdded(RepositoryEvent ev) {
@@ -136,8 +144,10 @@ public class RuntimeMainChildren extends Children.Keys  {
             boolean is = checkFileSystem(fs, bd);
             if (is) {
                 fsList.add(fs);
+                RuntimeMainChildren.this.setKeys(fsList);
+//                RuntimeMainChildren.this.add(new Node[] {RuntimeSupport.createFolderNode(fs)});
                 RuntimeMainChildren.this.refreshKey(fs);
-                initFsInRuntime(fs);
+//                initFsInRuntime(fs);
             }
         }
         
@@ -151,6 +161,7 @@ public class RuntimeMainChildren extends Children.Keys  {
             boolean is = checkFileSystem(ev.getFileSystem(), bd);
             if (is) {
                 fsList.remove(fs);
+                RuntimeMainChildren.this.setKeys(fsList);
                 RuntimeMainChildren.this.refreshKey(fs);
             }
             

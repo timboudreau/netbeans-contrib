@@ -32,11 +32,12 @@ public class VcsRuntimeCommand extends RuntimeCommand {
     
     private VcsCommandExecutor executor;
     private CommandsPool pool;
+    private int state;
     
     public VcsRuntimeCommand(VcsCommandExecutor executor, CommandsPool pool) {
         this.executor = executor;
         this.pool = pool;
-        
+        state = RuntimeCommand.STATE_WAITING;
     }
 
     public String getName() {
@@ -118,4 +119,12 @@ public class VcsRuntimeCommand extends RuntimeCommand {
         pool.kill(executor);
     }
     
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
+
 }

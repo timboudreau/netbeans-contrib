@@ -50,6 +50,15 @@ public abstract class RuntimeCommand {
     
     public static final int INTERRUPTED = VcsCommandExecutor.INTERRUPTED;
     
+    public static final int STATE_WAITING = RuntimeCommandNode.STATE_WAITING;
+
+    public static final int STATE_RUNNING = RuntimeCommandNode.STATE_RUNNING;
+    
+    public static final int STATE_DONE = RuntimeCommandNode.STATE_DONE;
+    
+    public static final int STATE_CANCELLED = RuntimeCommandNode.STATE_CANCELLED;
+    
+    
     /** Creates new RuntimeCommand */
     public RuntimeCommand() {
     }
@@ -101,5 +110,8 @@ public abstract class RuntimeCommand {
      */
     public abstract void killCommand();
     
+    public abstract int getState();
+    
+    public abstract void setState(int state);
 
 }

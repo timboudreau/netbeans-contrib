@@ -82,6 +82,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private ArrayList commandsWaitQueue;
     /** Contains pairs of instances of VcsCommandExecutor and threads in which are running. */
     private Table commands;
+    /** contains pairs of instances of VcsCommandExecutor and the RuntimeCommand that belongs to it */
+    private Table runtimeCommands;
     /** The containers of output of commands. Contains pairs of instances of VcsCommandExecutor
      * and instances of CommandOutputCollector */
     private Hashtable outputContainers;
@@ -105,7 +107,6 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     private WeakReference fileSystem;
     
-    private RuntimeFolderNode runtimeNode;
     private PropertyChangeListener runtimeNodePropertyChange;
     private FSDisplayPropertyChangeListener fsDisplayPropertyChange;
 
@@ -121,6 +122,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     public CommandsPool(final VcsFileSystem fileSystem, boolean createRuntimeCommands) {
         commandsToRun = new ArrayList();
         commands = new Table();
+        runtimeCommands = new Table();
         commandsFinished = new ArrayList();
         commandsWaitQueue = new ArrayList();
         outputContainers = new Hashtable();
@@ -140,9 +142,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
             runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
             runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
         } else {
- */
             runtimeNode = null;
-//        }
+ 
+        }
+ */
         fsDisplayPropertyChange = new FSDisplayPropertyChangeListener();
         fileSystem.addPropertyChangeListener(WeakListener.propertyChange(fsDisplayPropertyChange, fileSystem));
         /*
@@ -169,7 +172,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * You will not be able to execute any command by CommandsPool after this method finishes !
      */
     public void cleanup() {
-        if (runtimeNode != null) {
+/*  now happens in the RuntimeChildren instance..
+ if (runtimeNode != null) {
             runtimeNode.removePropertyChangeListener(runtimeNodePropertyChange);
             try {
                 runtimeNode.destroy();
@@ -178,6 +182,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 TopManager.getDefault().notifyException(exc);
             }
         }
+ */
         synchronized (this) {
             //* The FS may still exist i.e. inside a MultiFileSystem => do not interrupt the loop now
             execStarterLoopRunning = false;
@@ -186,16 +191,15 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
     }
     
-    public void setupRuntime() {
-        if (runtimeNode == null) {
-            VcsFileSystem fileSystem = getVcsFileSystem();
-            if (fileSystem == null) return ;
-            runtimeNode = RuntimeSupport.initRuntime(fileSystem);
+    public void setupRuntime(RuntimeFolderNode runNode) {
+/*        if (runtimeNode != null) {
+            runtimeNode = runNode;
             runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
             runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
             execStarterLoopStarted = false;
             execStarterLoopRunning = true;
         }
+ */
     }
     
     /**
@@ -203,9 +207,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
      */
     public void setCollectFinishedCmdsNum(int collectFinishedCmdsNum) {
         this.collectFinishedCmdsNum = collectFinishedCmdsNum;
-        if (runtimeNode != null) {
+/*TODO        if (runtimeNode != null) {
             runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
         }
+ */
     }
     
     /**
@@ -282,17 +287,22 @@ public class CommandsPool extends Object /*implements CommandListener */{
         String exec = vce.getExec();
         fileSystem.debug(g("MSG_Command_preprocessing", name, exec));
         RuntimeCommand rCom = new VcsRuntimeCommand(vce, this);
-        RuntimeSupport.addWaiting(runtimeNode, rCom);
+        synchronized (runtimeCommands) {
+            runtimeCommands.put(vce, rCom);
+        }
+        rCom.setState(RuntimeCommand.STATE_WAITING);
+        RuntimeSupport.getInstance().updateCommand(fileSystem.getSystemName(), rCom);
         int preprocessStatus = CommandExecutorSupport.preprocessCommand(fileSystem, vce, vars, askForEachFile);
         if (PREPROCESS_CANCELLED == preprocessStatus) {
             synchronized (this) {
                 commandsToRun.remove(vce);
+                runtimeCommands.remove(vce);
                 //commandsFinished.add(vce);
                 notifyAll();
             }
             fileSystem.debug(g("MSG_Command_cancelled", name));
             //RuntimeSupport.addCancelled(runtimeNode, vce, this);
-            RuntimeSupport.removeDone(rCom);
+            RuntimeSupport.getInstance().removeDone(rCom);
         }
         return preprocessStatus;
     }
@@ -306,8 +316,13 @@ public class CommandsPool extends Object /*implements CommandListener */{
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
         final String finalName = name;
-        RuntimeCommand rCom = new VcsRuntimeCommand(vce, CommandsPool.this);
-        RuntimeSupport.addRunning(runtimeNode, rCom);
+        RuntimeCommand rCom = (RuntimeCommand)runtimeCommands.get(vce);
+        if (rCom == null) {
+            rCom = new VcsRuntimeCommand(vce, CommandsPool.this);
+            runtimeCommands.put(vce, rCom);
+        }
+        rCom.setState(RuntimeCommand.STATE_RUNNING);
+        RuntimeSupport.getInstance().updateCommand(fileSystem.getSystemName(), rCom);
         RequestProcessor.postRequest(new Runnable() {
             public void run() {
                 TopManager.getDefault().setStatusText(g("MSG_Command_name_running", finalName));
@@ -351,15 +366,20 @@ public class CommandsPool extends Object /*implements CommandListener */{
             commandsFinished.add(vce);
             notifyAll();
         }
-        RuntimeCommand rCom = new VcsRuntimeCommand(vce, this);
-        RuntimeSupport.addDone(runtimeNode, rCom);
+        RuntimeCommand rCom = (RuntimeCommand)runtimeCommands.get(vce);
+        if (rCom == null) {
+            rCom = new VcsRuntimeCommand(vce, this);
+            runtimeCommands.put(vce, rCom);
+        }
+        rCom.setState(RuntimeCommand.STATE_DONE);
+        RuntimeSupport.getInstance().updateCommand(fileSystem.getSystemName(), rCom);
         synchronized (commandsFinished) {
             //commandsFinished.removeRange(0, commandsFinished.size() - collectFinishedCmdsNum);
             while (commandsFinished.size() > collectFinishedCmdsNum) {
                 VcsCommandExecutor removedExecutor = (VcsCommandExecutor) commandsFinished.remove(0);
                 outputContainers.remove(removedExecutor);
-                RuntimeCommand removedRCom = new VcsRuntimeCommand(removedExecutor, this);
-                RuntimeSupport.removeDone(removedRCom);
+                RuntimeCommand runCom = (RuntimeCommand)runtimeCommands.remove(removedExecutor);
+                RuntimeSupport.getInstance().removeDone(runCom);
             }
         }
         if (!isCollectOutput()) {
@@ -971,10 +991,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
 
     private class FSDisplayPropertyChangeListener implements java.beans.PropertyChangeListener {
         public void propertyChange(java.beans.PropertyChangeEvent evt) {
-            if (runtimeNode != null && VcsFileSystem.PROP_ROOT.equals(evt.getPropertyName())) {
+            if (VcsFileSystem.PROP_ROOT.equals(evt.getPropertyName())) {
                 VcsFileSystem fileSystem = getVcsFileSystem();
                 if (fileSystem == null) return ;
-                RuntimeSupport.updateRuntime(runtimeNode, fileSystem);
+                RuntimeSupport.getInstance().updateRuntime(fileSystem);
             }
         }
     }
