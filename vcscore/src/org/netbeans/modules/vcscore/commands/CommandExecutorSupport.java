@@ -434,10 +434,10 @@ public class CommandExecutorSupport extends Object {
         VariableInputDescriptor inputDescriptor = null;
         if (inputDescriptorStr != null) {
             // Perform the variable expansion to be able to use variables there
-            System.out.println("promptForVariables(): inputDescriptorStr = "+inputDescriptorStr);
+            //System.out.println("promptForVariables(): inputDescriptorStr = "+inputDescriptorStr);
             inputDescriptorStr = Variables.expand(vars, inputDescriptorStr, true);
-            System.out.println("FILES_IS_FOLDER = '"+vars.get("FILES_IS_FOLDER")+"'");
-            System.out.println("promptForVariables(): after expand: inputDescriptorStr = "+inputDescriptorStr);
+            //System.out.println("FILES_IS_FOLDER = '"+vars.get("FILES_IS_FOLDER")+"'");
+            //System.out.println("promptForVariables(): after expand: inputDescriptorStr = "+inputDescriptorStr);
             PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
             inputDescriptorStr = cmdPerf.process(inputDescriptorStr);
             try {
