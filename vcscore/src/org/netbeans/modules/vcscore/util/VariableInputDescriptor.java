@@ -30,6 +30,7 @@ public class VariableInputDescriptor extends Object {
     public static final int INPUT_RADIO_BTN = 5;
     public static final int INPUT_SELECT_COMBO = 6;
     public static final int INPUT_COMBO_ITEM = 7;
+    public static final int INPUT_GLOBAL = 8;
     
     public static final String INPUT_STR_LABEL = "LABEL";
     public static final String INPUT_STR_PROMPT_FIELD = "PROMPT_FOR";
@@ -37,6 +38,8 @@ public class VariableInputDescriptor extends Object {
     public static final String INPUT_STR_ASK = "ASK_FOR";
     public static final String INPUT_STR_SELECT_RADIO = "SELECT_RADIO";
     public static final String INPUT_STR_SELECT_COMBO = "SELECT_COMBO";
+    public static final String INPUT_STR_GLOBAL_PARAMS = "GLOBAL_PARAMS";
+    public static final String INPUT_STR_GLOBAL_ALL_VARS = "ALL_VARIABLES";
     public static final String INPUT_IS_EXPERT = "_EXPERT";
     
     public static final String INPUT_STR_ENABLE = "ENABLE";
@@ -71,9 +74,22 @@ public class VariableInputDescriptor extends Object {
                     inputMap.put(INPUT_STR_ASK, new Integer(INPUT_ASK));
                     inputMap.put(INPUT_STR_SELECT_RADIO, new Integer(INPUT_SELECT_RADIO));
                     inputMap.put(INPUT_STR_SELECT_COMBO, new Integer(INPUT_SELECT_COMBO));
+                    inputMap.put(INPUT_STR_GLOBAL_PARAMS, new Integer(INPUT_GLOBAL));
                 }
             }
         }
+    }
+    
+    /**
+     * Create a new VariableInputDescriptor.
+     * @param label the label of that descriptor
+     * @param components the components which this descriptor consists of
+     */
+    public static VariableInputDescriptor create(String label, VariableInputComponent[] components) {
+        VariableInputDescriptor descriptor = new VariableInputDescriptor();
+        descriptor.label = label;
+        descriptor.components.addAll(Arrays.asList(components));
+        return descriptor;
     }
     
     /**
@@ -117,10 +133,10 @@ public class VariableInputDescriptor extends Object {
         if (index < inputItems.length()) {
             if (end >= 0) {
                 throw new VariableInputFormatException(
-                          "Unrecognized item at pos "+index+".");
+                          g("EXC_UnrecognizedItem", new Integer(index)));
             } else {
                 throw new VariableInputFormatException(
-                          "Missing closing paranthesis of paranthesis at pos "+begin+".");
+                          g("EXC_MissingClosingPar", new Integer(begin)));
             }
         }
         return descriptor;
@@ -163,7 +179,7 @@ public class VariableInputDescriptor extends Object {
         Integer id = (Integer) inputMap.get(inputStr);
         if (id == null) {
             throw new VariableInputFormatException(
-                      "Unrecognized input component '"+inputStr+"'.");
+                      g("EXC_UnrecognizedComponent", inputStr));
         }
         return id.intValue();
     }
@@ -176,10 +192,10 @@ public class VariableInputDescriptor extends Object {
      * @throws VariableInputFormatException when the parsed string contains some errors
      */
     private static VariableInputComponent parseComponent(int id, String[] inputArgs, String inputArg) throws VariableInputFormatException {
+        //System.out.println("parseComponent("+id+", "+VcsUtilities.arrayToString(inputArgs)+", "+inputArg+")");
         int len = inputArgs.length;
         if (len < 2) {
-            throw new VariableInputFormatException(
-                      "Insufficient number of arguments.");
+            throw new VariableInputFormatException(g("EXC_InsufficientArgs"));
         }
         VariableInputComponent component = new VariableInputComponent(id, inputArgs[0], VcsUtilities.getBundleString(inputArgs[1]));
         if (len >= 3) {
@@ -233,6 +249,40 @@ public class VariableInputDescriptor extends Object {
         }
         if (len > argNum && inputArgs[argNum].indexOf(INPUT_STR_DISABLE) == 0) {
             argNum = addDisable(inputArgs, argNum, component);
+        }
+        // Radio buttons may have sub components.
+        if (INPUT_RADIO_BTN == id) {
+            if (len > argNum) {
+                int index = inputArg.indexOf(inputArgs[argNum]);
+                if (index > 0) {
+                    String subInputArg = inputArg.substring(index);
+                    VariableInputDescriptor subDescriptor = VariableInputDescriptor.parseItems(subInputArg);
+                    VariableInputComponent[] subComponents = subDescriptor.components();
+                    for (int i = 0; i < subComponents.length; i++) {
+                        component.addSubComponent(subComponents[i]);
+                    }
+                }
+                /*
+                int begin = inputArgs[argNum].indexOf(INPUT_STR_ARG_OPEN);
+                String inputStr = inputArgs[argNum].substring(0, begin).trim();
+                boolean expert = inputStr.endsWith(INPUT_IS_EXPERT);
+                if (expert) inputStr = inputStr.substring(0, inputStr.length() - INPUT_IS_EXPERT.length());
+                int inputId = getInputId(inputStr);
+                int i = argNum + 1;
+                for (int open = 1; open != 0 && len > i; i++) {
+                    open += VcsUtilities.charCount(inputArgs[i], INPUT_STR_ARG_OPEN);
+                    open -= VcsUtilities.charCount(inputArgs[i], INPUT_STR_ARG_CLOSE);
+                }
+                System.out.println("inputArgs = "+VcsUtilities.arrayToString(inputArgs));
+                System.out.println("argNum = "+argNum+", i = "+i+", subArgs.length = "+(i - argNum - 1));
+                String[] subArgs = new String[i - argNum - 1];
+                System.arraycopy(inputArgs, argNum + 1, subArgs, 0, i - argNum - 1);
+                VariableInputComponent subComponent = parseComponent(inputId, subArgs, null);
+                subComponent.setExpert(expert);
+                component.addSubComponent(subComponent);
+                argNum = i;
+                 */
+            }
         }
         return component;
     }
@@ -307,4 +357,12 @@ public class VariableInputDescriptor extends Object {
         return (String[]) selectArgsList.toArray(new String[0]);
     }
 
+    private static String g(String s) {
+        return org.openide.util.NbBundle.getBundle(VariableInputDescriptor.class).getString(s);
+    }
+    
+    private static String g(String s, Object obj) {
+        return java.text.MessageFormat.format(g(s), new Object[] { obj });
+    }
+    
 }
