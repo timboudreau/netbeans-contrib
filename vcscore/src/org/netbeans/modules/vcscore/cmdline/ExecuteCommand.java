@@ -878,7 +878,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                         NbBundle.getMessage(ExecuteCommand.class, "ERR_EXC_IN_CLASS", className)));
             }
         }
-        if (Thread.currentThread().interrupted()) {
+        if (Thread.interrupted()) {
             exitStatus = VcsCommandExecutor.INTERRUPTED;
             commandFinished(exec, false);
             if (fileSystem != null) fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
