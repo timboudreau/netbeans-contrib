@@ -1282,15 +1282,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         
         VcsConfigVariable mod = (VcsConfigVariable) variablesByName.get("MODULE");
         HashMap newVarsByName = new HashMap();
-        boolean modDef = false;
         for (int i = 0, n = variables.size (); i < n; i++) {
             var = (VcsConfigVariable) variables.get (i);
             newVarsByName.put (var.getName (), var);
-            if (var.getName().equals("MODULE")) {
-                modDef = true;
-            }
         }
-        if (!modDef && mod != null) { // The module was previosly defined, it has to be copied to new variables.
+        if (!newVarsByName.containsKey("MODULE") && mod != null) { // The module was previosly defined, it has to be copied to new variables.
             this.variables.add(mod);
             newVarsByName.put (mod.getName (), mod);
         }
@@ -1301,7 +1297,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         varValueAdjustment.setAdjust(getVariablesAsHashtable());
 
         firePropertyChange(PROP_VARIABLES, old, variables);
-        firePropertyChange(PROP_ROOT, null, refreshRoot ());
+        try {
+            setSystemName(computeSystemName(rootFile));
+        } catch (PropertyVetoException exc) {}
     }
 
     public static String substractRootDir(String rDir, String module) {
@@ -1751,7 +1749,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Get a human presentable name of the file system
      */
     public String getDisplayName() {
-        //System.out.println("VcsFileSystem.getDisplayName(): commandsRoot = "+commandsRoot);
+        //System.out.print("VcsFileSystem.getDisplayName(): commandsRoot = "+commandsRoot);
         Hashtable vars = getVariablesAsHashtable();
         String displayNameAnnotation = (String) vars.get(VAR_FS_DISPLAY_NAME_ANNOTATION);
         if (displayNameAnnotation != null) {
@@ -1760,18 +1758,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             } else {
                 displayNameAnnotation = Variables.expand(vars, displayNameAnnotation, false);
             }
+            //System.out.println(displayNameAnnotation);
             return displayNameAnnotation;
         }
         VcsConfigVariable preDisplayNameVar = (VcsConfigVariable) variablesByName.get(VAR_FS_DISPLAY_NAME);
         if (preDisplayNameVar != null) {
+            //System.out.println(preDisplayNameVar.getValue() + " " + rootFile.toString());
             return preDisplayNameVar.getValue() + " " + rootFile.toString();
         } else if (commandsRoot != null) {
             String VCSName = commandsRoot.getDisplayName();
             //System.out.println("VCSName = '"+VCSName+"'");
             if (VCSName != null && VCSName.length() > 0) {
+                //System.out.println(VCSName + " " + rootFile.toString());
                 return VCSName + " " + rootFile.toString();
             }
         }
+        //System.out.println(g("LAB_FileSystemValid", rootFile.toString ()));
         return g("LAB_FileSystemValid", rootFile.toString ()); // NOI18N
     }
 
@@ -1895,7 +1897,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return system name for the filesystem
      */
     protected String computeSystemName (File rootFile) {
-        D.deb("computeSystemName() ->"+rootFile.toString ().replace(File.separatorChar, '/') ); // NOI18N
+        //System.out.println("computeSystemName()");
+        //D.deb("computeSystemName() ->"+rootFile.toString ().replace(File.separatorChar, '/') ); // NOI18N
         Hashtable vars = getVariablesAsHashtable();
         String systemNameAnnotation = (String) vars.get(VAR_FS_SYSTEM_NAME_ANNOTATION);
         if (systemNameAnnotation != null) {
@@ -2588,6 +2591,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @param root the tree of {@link VcsCommandNode} objects.
      */
     public void setCommands(Node root) {
+        //System.out.println("setCommands()");
         Object old = commandsRoot;
         if (root == null) {
             if (advanced != null) {
