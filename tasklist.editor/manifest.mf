@@ -1,13 +1,14 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 1.6
+OpenIDE-Module-Specification-Version: @tl.editor.spec@
 OpenIDE-Module: org.netbeans.modules.tasklist.editor/2
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/editor/Bundle.properties
-OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
+OpenIDE-Module-Implementation-Version: @tl.editor.impl@
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.4
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/editor/mf-layer.xml
 OpenIDE-Module-Install: org/netbeans/modules/tasklist/editor/TaskModule.class
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.editor/1 > 1.9.1,
-  org.netbeans.modules.tasklist.usertasks/2 = @BUILD_NUMBER_SUBST@,
-  org.netbeans.tasklistapi/1 = tasklist-barracuda,
-  org.netbeans.modules.tasklist.core/2 = @BUILD_NUMBER_SUBST@
+  org.netbeans.modules.tasklist.usertasks/2 = @tl.usertasks.impl@,
+  org.netbeans.tasklistapi/1 = @tl.api.impl@,
+  org.netbeans.modules.tasklist.core/2 = @tl.core.impl@
 OpenIDE-Module-Public-Packages: -
+

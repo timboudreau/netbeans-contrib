@@ -1,13 +1,14 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 1.11
+OpenIDE-Module-Specification-Version: @tl.usertasks.spec@
 OpenIDE-Module: org.netbeans.modules.tasklist.usertasks/2
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/usertasks/Bundle.properties
-OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
+OpenIDE-Module-Implementation-Version: @tl.usertasks.impl@
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.4
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/2 = @BUILD_NUMBER_SUBST@,
-  org.netbeans.tasklistapi/1 = tasklist-barracuda
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/2 = @tl.core.impl@,
+  org.netbeans.tasklistapi/1 = @tl.api.impl@
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/usertasks/mf-layer.xml
 OpenIDE-Module-Public-Packages: -
 
 Name: org/netbeans/modules/tasklist/usertasks/TaskListLoader.class
 OpenIDE-Module-Class: Loader
+

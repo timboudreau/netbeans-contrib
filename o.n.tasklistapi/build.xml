@@ -24,7 +24,8 @@ Microsystems, Inc. All Rights Reserved.
     <property name="homepage.base" value="netbeans.org"/>
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
-    
+    <property file="../version.properties"/>
+
     <path id="cp">
         <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
         <fileset dir="${nb_all}/openide/netbeans/lib">
@@ -43,6 +44,8 @@ Microsystems, Inc. All Rights Reserved.
     <target name="jars" depends="compile">
         <mkdir dir="netbeans/modules/autoload"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+        <filter filtersfile="../version.properties"/>
+        <filter token="tl.api.spec" value="${tl.api.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
         <locjar jarfile="netbeans/modules/autoload/tasklist-api.jar"
                 manifest="manifest-subst.mf"

@@ -25,6 +25,7 @@ Microsystems, Inc. All Rights Reserved.
     <property name="homepage.base" value="netbeans.org"/>
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
+    <property file="../version.properties"/>
 
 
     <!-- TODO Remove this when the module is part of the full tasklist build -->
@@ -62,6 +63,8 @@ Microsystems, Inc. All Rights Reserved.
     <target name="jars" depends="compile">
         <mkdir dir="netbeans/modules"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+        <filter filtersfile="../version.properties"/>
+        <filter token="tl.pmd.spec" value="${tl.pmd.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
         <locjar jarfile="netbeans/modules/eager/tasklist-pmd.jar"
                 manifest="manifest-subst.mf"
@@ -88,7 +91,10 @@ Microsystems, Inc. All Rights Reserved.
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
     </target>
-  
+ 
+    <target name="release"/>
+    <target name="javahelp"/>
+ 
     <target name="clean">
         <delete>
             <fileset dir="src">
