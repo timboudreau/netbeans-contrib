@@ -14,7 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks.dependencies;
 
 import javax.swing.tree.TreeModel;
-import org.netbeans.modules.tasklist.usertasks.ObjectList;
+import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskList;
 
 /**

@@ -28,7 +28,6 @@ import java.io.IOException;
  * @author Petr Kuzel
  * @deprecated Experimental SPI
  * @since 1.3
- *
  */
 public final class SuggestionContext {
 

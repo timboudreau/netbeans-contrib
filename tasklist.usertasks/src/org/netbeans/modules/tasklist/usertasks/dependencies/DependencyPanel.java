@@ -196,18 +196,18 @@ public class DependencyPanel extends javax.swing.JPanel {
         
         TreePath tp = jTree.getSelectionPath();
         if (tp == null || !(tp.getLastPathComponent() instanceof UserTask)) {
-            err = "Nothing selected.";
+            err =  org.openide.util.NbBundle.getBundle(DependencyPanel.class).getString("NothingSelected"); // NOI18N
         } else {
             UserTask task = (UserTask) tp.getLastPathComponent();
 
             if (task == ut)
-                err = "A task cannot depend on itself.";
+                err =  org.openide.util.NbBundle.getBundle(DependencyPanel.class).getString("TaskCannotDependOnItself."); // NOI18N
             else if (task == ut.getParent())
-                err = "A task cannot depend on it's parent.";
+                err =  org.openide.util.NbBundle.getBundle(DependencyPanel.class).getString("TaskCannotDependOnParent"); // NOI18N
             else if (task.isAncestorOf(ut))
-                err = "A task cannot depend on one of it's parent nodes.";
+                err =  org.openide.util.NbBundle.getBundle(DependencyPanel.class).getString("TaskCannotDependOnAncestor"); // NOI18N
             else if (ut.isAncestorOf(task))
-                err = "A task cannot depend on one of it's subtasks.";
+                err =  org.openide.util.NbBundle.getBundle(DependencyPanel.class).getString("TaskCannotDependOnChild"); // NOI18N
         }        
         
         jLabelError.setText(err == null ? "" : err); // NOI18N

@@ -13,10 +13,14 @@
 
 package org.netbeans.modules.tasklist.providers;
 
+import java.lang.reflect.InvocationTargetException;
 import org.openide.filesystems.FileObject;
 import org.openide.ErrorManager;
+import java.lang.reflect.Method;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.Lookup;
 
-import java.io.IOException;
 
 /**
  * Dedicated java source context that is faster than generic one.
@@ -24,16 +28,68 @@ import java.io.IOException;
  * @author Petr Kuzel
  */
 final class JavaSuggestionContext {
-
-    static  String getContent(FileObject fo) {
-        String encoding = org.netbeans.modules.java.Util.getFileEncoding(fo);
-        char[] source = null;
-        try {
-            source = org.netbeans.modules.java.Util.getContent(fo, false, true, encoding);
-            return new String(source);
-        } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
+    private static boolean lookupAttempted = false;
+    private static Method org_netbeans_modules_java_Util_getFileEncoding;
+    private static Method org_netbeans_modules_java_Util_getContent;
+    
+    /**
+     * Search methods from o.n.m.java.Util
+     *
+     * @return true = methods found
+     */
+    private static boolean findMethods() {
+        if (!lookupAttempted) {
+            lookupAttempted = true;
+            ClassLoader systemClassLoader = 
+                (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
+            try {
+                Class c = systemClassLoader.
+                        loadClass("org.netbeans.modules.java.Util"); // NOI18N
+                org_netbeans_modules_java_Util_getFileEncoding = 
+                    c.getMethod("getFileEncoding", new Class[] {FileObject.class});
+                org_netbeans_modules_java_Util_getContent = 
+                    c.getMethod("getContent", new Class[] {FileObject.class, // NOI18N
+                        Boolean.TYPE, Boolean.TYPE, String.class});
+            } catch (Exception e) {
+                System.out.println("org.netbeans.modules.tasklist.providers" + // NOI18N
+                        ".JavaSuggestionContext: Methods not found"); // NOI18N
+                // ignore
+            }
         }
-        return null;
+        
+        return org_netbeans_modules_java_Util_getFileEncoding != null &&
+            org_netbeans_modules_java_Util_getContent != null;
+    }
+    
+    /**
+     * @return null if the content cannot be found
+     */ 
+    static String getContent(FileObject fo) {
+        String result = null; // NOI18N
+        if (!findMethods()) {
+            try {
+                DataObject do_ = DataObject.find(fo);
+                result = new SuggestionContext(do_).getCharSequence().toString();
+            } catch (DataObjectNotFoundException e) {
+                ErrorManager.getDefault().notify(e);
+            }
+        } else {
+            try {
+                String encoding = (String) org_netbeans_modules_java_Util_getFileEncoding.
+                    invoke(null, new Object[] {fo});
+
+                char[] source = (char[]) org_netbeans_modules_java_Util_getContent.invoke(
+                    null, 
+                    new Object[] {fo, Boolean.FALSE, Boolean.TRUE, encoding});
+                result = new String(source);
+            } catch (InvocationTargetException e) {
+                ErrorManager.getDefault().notify(e);
+            } catch (IllegalArgumentException e) {
+                ErrorManager.getDefault().notify(e);
+            } catch (IllegalAccessException e) {
+                ErrorManager.getDefault().notify(e);
+            }
+        }
+        return result;
     }
 }

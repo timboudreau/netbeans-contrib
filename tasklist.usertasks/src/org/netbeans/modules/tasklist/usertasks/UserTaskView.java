@@ -22,6 +22,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,7 +30,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 import javax.swing.ActionMap;
 import javax.swing.JPanel;
@@ -386,6 +386,11 @@ ExplorerManager.Provider, ExportImportProvider {
                 scrollPane.getVerticalScrollBar().setValue(p.y);
                 scrollPane.getHorizontalScrollBar().setValue(p.x);
             }
+            
+            TreeTable.ColumnsConfig cc = (TreeTable.ColumnsConfig) m.get("columns"); // NOI18N
+            if (cc != null) {
+                tt.setColumnsConfig(cc);
+            }
         }
     }
 
@@ -466,6 +471,10 @@ ExplorerManager.Provider, ExportImportProvider {
             scrollPane.getHorizontalScrollBar().getValue(), 
             scrollPane.getVerticalScrollBar().getValue());
         m.put("scrollPosition", p); // NOI18N
+        
+        Serializable cc = tt.getColumnsConfig();
+        m.put("columns", cc); // NOI18N
+        
         objectOutput.writeObject(m);
     }
 
@@ -812,14 +821,7 @@ ExplorerManager.Provider, ExportImportProvider {
     }
     
     /* check isSliding
-    public void showTask(UserTask item, Annotation annotation) {
-        // #35917 do not move focus if in sliding mode
-        if (view.getClientProperty("isSliding") == Boolean.TRUE) {  // NOi18N
-            l.show(Line.SHOW_SHOW);
-        } else {
-            l.show(Line.SHOW_GOTO);
-        }
-    }
+        if (view.getClientProperty("isSliding") == Boolean.TRUE)
      **/
     
     /** 

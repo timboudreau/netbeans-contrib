@@ -133,11 +133,11 @@ public class TestTable extends JellyTestCase {
         
         Action ea = new Action(null, "Expand All");
         ea.performPopup(t);
-        t.selectCell(3, 2);
-        t.editCellAt(3, 2);
+        t.selectCell(3, 3);
+        t.editCellAt(3, 3);
         TableCellEditor ed = t.getCellEditor();
         JComboBox cb = ((JComboBox) ((DefaultCellEditor) ed).getComponent());
-        assertEquals(cb.getItemCount(), 2);
+        assertEquals(2, cb.getItemCount());
         assertEquals(cb.getItemAt(0), "CatA");
         assertEquals(cb.getItemAt(1), "CatB");
     }

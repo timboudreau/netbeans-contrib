@@ -38,7 +38,6 @@ import org.openide.loaders.DataObject;
  * in this request-responce mode. I'd revert it beause being able to push
  * suggestions is more advanced provider side feature tnan simply responding.
  */
-
 abstract public class DocumentSuggestionProvider extends SuggestionProvider {
 
     /**
@@ -80,5 +79,4 @@ abstract public class DocumentSuggestionProvider extends SuggestionProvider {
      *
      */
     abstract public List scan(SuggestionContext env);
-
 }

@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
 import java.awt.Component;
+import java.awt.Insets;
 import java.awt.Rectangle;
 
 import javax.swing.JCheckBox;
@@ -59,7 +60,7 @@ implements TableCellRenderer {
         }
 
 	if (hasFocus) {
-	    setBorder( UIManager.getBorder("Table.focusCellHighlightBorder") ); // NOI18N
+	    setBorder(UIManager.getBorder("Table.focusCellHighlightBorder") ); // NOI18N
 	} else {
 	    setBorder(noFocusBorder);
 	}
@@ -71,10 +72,14 @@ implements TableCellRenderer {
     // workaround for a Swing bug (?)
     protected void paintComponent(java.awt.Graphics g) {
         Rectangle oldClip = g.getClipBounds();
-        g.setClip(oldClip.x, oldClip.y, 
-            oldClip.width - 1, 
-            oldClip.height - 1);
+        Rectangle r = getBounds();
+        r.width--;
+        r.height--;
+        r.x = 0;
+        r.y = 0;
+        Rectangle.intersect(oldClip, r, r);
+        g.setClip(r);
         super.paintComponent(g);
         g.setClip(oldClip);
-    }    
+    }   
 }

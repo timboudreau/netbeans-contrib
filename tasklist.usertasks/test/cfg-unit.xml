@@ -13,38 +13,8 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<!-- 
-  These classes are excluded by default (defined in build.xml):
-    "**/*Suite.class"
-    "**/*$$*.class"
-    "**/data/**"
-    "**/hidden/**"
-    "**/*Hidden.*"
-    "**/*Hid.*"
--->
-
-<!-- =========================================================================
-      This file contains testbag declarations used by xtest harness runtime.
-     ========================================================================= -->
-
 <mconfig name="tasklist/usertasks/test">
-    <!-- Tests which should be run before commit to validate IDE, needs IDE mode for ValidateLayer suites -->
-    <testbag testattribs="x-commit" executor="ide" name="Before Commit Validation in IDE">
-        <testset dir="unit/src">
-            <patternset>
-            </patternset>
-        </testset>
-    </testbag>
-  
-    <testbag testattribs="x-stable" executor="ide" name="Unit tests running in the IDE">
-        <testset dir="unit/src">
-            <patternset>
-                <include name="org/netbeans/modules/tasklist/usertasks/UserTaskViewTest.class"/>
-           </patternset>
-        </testset>
-    </testbag>
-
-   <testbag testattribs="stable" executor="code" name="Unit tests">
+   <testbag testattribs="stable" executor="unit-executor" name="Unit tests">
         <testset dir="unit/src">
             <patternset>
                 <exclude name="org/netbeans/modules/tasklist/usertasks/UserTaskViewTest.class"/>
@@ -54,17 +24,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="x-failing" executor="code" name="testbag_4">
-        <testset dir="unit/src">
-            <patternset>
-            </patternset>
-        </testset>
-    </testbag>
-
-    <!-- Xtest runtime configuration -->
- 
-    <executor name="code" antfile="build-unit.xml" target="runcodetest"/>    
-    <executor name="ide" antfile="build-unit.xml" target="runidetest"/>
-    <compiler name="unit-compiler" antfile="build-unit.xml" target="unit-compiler" default="true"/>
+    <compiler name="default-compiler" antfile="build-unit.xml" target="default-compiler" default="true"/>
+    <executor name="unit-executor" antfile="build-unit.xml" target="run-unit-test"/>
 </mconfig>
 

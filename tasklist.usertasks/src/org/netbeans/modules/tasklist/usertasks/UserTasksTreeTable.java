@@ -22,11 +22,8 @@ import javax.swing.ImageIcon;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
-
-import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ImportAction;
 import org.netbeans.modules.tasklist.core.filter.Filter;
@@ -52,6 +49,7 @@ import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTable
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.NodesTreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.SortingHeaderRenderer;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
@@ -119,8 +117,34 @@ public class UserTasksTreeTable extends NodesTreeTable {
                 }
             }
         );
+        
+        setColumnsConfig(createDefaultColumnsConfig());
     }
 
+    /**
+     * Creates default columns configuration
+     *
+     * @return default columns
+     */
+    private TreeTable.ColumnsConfig createDefaultColumnsConfig() {
+        TreeTable.ColumnsConfig ret = new TreeTable.ColumnsConfig();
+        ret.ascending = false;
+        ret.columnWidths = new int[] {18, 400, 60, 60, 60, 60, 80, 80, 80};
+        ret.sortedColumn = UserTaskTreeTableNode.PRIORITY;
+        ret.columns = new int[] {
+            UserTaskTreeTableNode.DONE,
+            UserTaskTreeTableNode.SUMMARY,
+            UserTaskTreeTableNode.PRIORITY,
+            UserTaskTreeTableNode.CATEGORY,
+            UserTaskTreeTableNode.OWNER,
+            UserTaskTreeTableNode.PERCENT_COMPLETE,
+            UserTaskTreeTableNode.EFFORT,
+            UserTaskTreeTableNode.REMAINING_EFFORT,
+            UserTaskTreeTableNode.SPENT_TIME
+        };
+        return ret;
+    }
+    
     public Node createNode(Object obj) {
         if (obj instanceof UserTaskListTreeTableNode) {
             UserTaskListTreeTableNode n = (UserTaskListTreeTableNode) obj;

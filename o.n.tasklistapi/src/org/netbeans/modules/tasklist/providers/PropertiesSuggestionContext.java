@@ -28,7 +28,7 @@ import java.io.BufferedInputStream;
  */
 final class PropertiesSuggestionContext {
 
-    static  String getContent(FileObject fo) {
+    static String getContent(FileObject fo) {
         try {
             char[] buf = new char[1024*64];
             StringBuffer sb = new StringBuffer();

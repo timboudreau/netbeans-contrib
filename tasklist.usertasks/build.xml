@@ -45,7 +45,7 @@ Microsystems, Inc. All Rights Reserved.
             rulesetfiles="rulesets/imports.xml,
                 rulesets/unusedcode.xml,
                 rulesets/basic.xml">
-            <formatter type="text" tofile="pmd_report.txt"/>
+            <formatter linkprefix="src/" type="html" tofile="pmd-report.html"/>
             <fileset dir="src">
                 <include name="**/*.java"/>
             </fileset>

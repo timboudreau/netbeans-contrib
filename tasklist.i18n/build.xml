@@ -23,7 +23,7 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="changelog">
-        <style in="module-updates.xml" out="../www/updates/tasklist-usertasks.html" 
+        <style in="module-updates.xml" out="../www/updates/tasklist-i18n.html" 
             style="../www/updates/updates.xsl"/>
     </target>
     

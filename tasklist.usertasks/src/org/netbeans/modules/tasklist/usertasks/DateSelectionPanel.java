@@ -229,7 +229,6 @@ public class DateSelectionPanel extends javax.swing.JPanel
 
         calendarTable.setModel(new DateSelectionTableModel());
         calendarTable.setCellSelectionEnabled(true);
-        calendarTable.setPreferredScrollableViewportSize(new java.awt.Dimension(450, 150));
         calendarTable.setShowHorizontalLines(false);
         calendarTable.setShowVerticalLines(false);
         jScrollPane1.setViewportView(calendarTable);

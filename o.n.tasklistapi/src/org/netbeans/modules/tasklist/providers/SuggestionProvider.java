@@ -33,8 +33,6 @@ package org.netbeans.modules.tasklist.providers;
  *
  * @author Tor Norbye
  */
-
-
 abstract public class SuggestionProvider {
 
     /**

@@ -17,6 +17,7 @@
  */
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
+import com.sun.rsasign.w;
 import javax.swing.JTextField;
 
 import javax.swing.DefaultCellEditor;
@@ -65,7 +66,7 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.UTUtils;
-import org.netbeans.modules.tasklist.usertasks.UserTasksTreeTableModel;
+
 
 
 /**
@@ -82,7 +83,7 @@ public class TreeTable extends JTable {
     /**
      * Columns configuration
      */
-    private static final class ColumnsConfig implements Serializable {
+    public static final class ColumnsConfig implements Serializable {
         /** 
          * Model indexes for visible columns
          */
@@ -562,13 +563,14 @@ public class TreeTable extends JTable {
      *
      * @return columns configuration (visible columns, sorting etc.)
      */
-    public Serializable getColumnsConfig() {
+    public ColumnsConfig getColumnsConfig() {
         ColumnsConfig cc = new ColumnsConfig();
         
         TableColumnModel ctm = getColumnModel();
         assert ctm != null : "ctm == null"; // NOI18N
         
         cc.columns = new int[ctm.getColumnCount()];
+        cc.columnWidths = new int[ctm.getColumnCount()];
         for (int i = 0; i < ctm.getColumnCount(); i++) {
             TableColumn c = ctm.getColumn(i);
             cc.columns[i] = c.getModelIndex();
@@ -584,14 +586,14 @@ public class TreeTable extends JTable {
     /**
      * Sets columns configuration read from a stream.
      *
-     * @param c columns configuration
+     * @param config columns configuration
      */
-    public void setColumnsConfig(Serializable c) {
-    /*    assert c != null : "c == null"; // NOI18N
+    public void setColumnsConfig(ColumnsConfig config) {
+        assert config != null : "config == null"; // NOI18N
         
         this.createDefaultColumnsFromModel();
 
-        ColumnsConfig cc = (ColumnsConfig) c;
+        ColumnsConfig cc = (ColumnsConfig) config;
         
         ArrayList newc = new ArrayList();
         TableColumnModel tcm = getColumnModel();
@@ -600,10 +602,10 @@ public class TreeTable extends JTable {
         for (int i = 0; i < cc.columns.length; i++) {
             for (int j = 0; j < tcm.getColumnCount(); j++) {
                 TableColumn c = tcm.getColumn(j);
-                if (cc.columns[i] == tcm.getcolu) {
+                if (cc.columns[i] == c.getModelIndex()) {
                     newc.add(c);
                     tcm.removeColumn(c);
-                    c.setPreferredWidth(w[i]);
+                    c.setPreferredWidth(cc.columnWidths[i]);
                     break;
                 }
             }
@@ -614,7 +616,7 @@ public class TreeTable extends JTable {
         for (int i = 0; i < newc.size(); i ++) {
             TableColumn c = (TableColumn) newc.get(i);
             tcm.addColumn(c);
-        }*/
+        }
     }
 
     /**
