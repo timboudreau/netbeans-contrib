@@ -1074,6 +1074,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             VcsConfigVariable var = (VcsConfigVariable) it.next();
             if (var.isBasic()) {
                 custVars.add(var);
+            } else {
+                String name = var.getName();
+                if (name.startsWith(VcsFileSystem.VAR_ENVIRONMENT_PREFIX) ||
+                    name.startsWith(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX)) {
+                    
+                    custVars.add(var);
+                }
             }
         }
         return custVars;
