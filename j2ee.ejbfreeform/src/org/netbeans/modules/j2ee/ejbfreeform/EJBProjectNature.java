@@ -26,6 +26,7 @@ import org.netbeans.modules.ant.freeform.spi.ProjectNature;
 import org.netbeans.modules.ant.freeform.spi.ProjectPropertiesPanel;
 import org.netbeans.modules.ant.freeform.spi.TargetDescriptor;
 import org.netbeans.modules.j2ee.ejbfreeform.ui.EJBLocationsPanel;
+import org.netbeans.modules.j2ee.ejbjarproject.EnterpriseReferenceContainerImpl;
 import org.netbeans.modules.j2ee.ejbjarproject.ui.logicalview.LogicalViewChildren;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarImplementation;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
@@ -135,6 +136,7 @@ public class EJBProjectNature implements ProjectNature {
             new ProxyEjbJarImplementation(project, projectHelper, projectEvaluator),
             new EJBModules(project, projectHelper, projectEvaluator), // EJBModuleProvider, ClassPathProvider
             new PrivilegedTemplatesImpl(), // List of templates in New action popup
+            new EnterpriseReferenceContainerImpl(project, projectHelper)
         });
     }
     
