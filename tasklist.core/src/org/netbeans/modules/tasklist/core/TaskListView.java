@@ -74,8 +74,7 @@ import org.openide.util.actions.CallbackSystemAction;
  * @author Tor Norbye, Trond Norbye
  */
 public abstract class TaskListView extends TopComponent
-    implements TaskListener, ExplorerManager.Provider, 
-    Lookup.Provider, TaskSelector {
+    implements TaskListener, ExplorerManager.Provider, TaskSelector {
 
     private static final long serialVersionUID = 1;
 
@@ -214,16 +213,18 @@ public abstract class TaskListView extends TopComponent
             // replacement for subclassing ExplorerPanel
             manager = new ExplorerManager();
             ActionMap map = getActionMap();
-            map.put(javax.swing.text.DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
-            map.put(javax.swing.text.DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
-            map.put(javax.swing.text.DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
+            map.put(javax.swing.text.DefaultEditorKit.copyAction, 
+                ExplorerUtils.actionCopy(manager));
+            map.put(javax.swing.text.DefaultEditorKit.cutAction, 
+                ExplorerUtils.actionCut(manager));
+            map.put(javax.swing.text.DefaultEditorKit.pasteAction, 
+                ExplorerUtils.actionPaste(manager));
             map.put("delete", ExplorerUtils.actionDelete(manager, true));  // NOI18N
+            
+            // following line tells the top component which lookup should be associated with it
+            associateLookup(ExplorerUtils.createLookup(manager, map));
         }
         return manager;
-    }
-
-    public Lookup getLookup() {
-        return ExplorerUtils.createLookup(getExplorerManager(), getActionMap());
     }
 
     /**
@@ -605,7 +606,7 @@ public abstract class TaskListView extends TopComponent
     protected void componentDeactivated() {
         super.componentDeactivated();
         assert initialized : "#37438 dangling componentDeactivated event, no componentOpened() called at " + this;
-        ExplorerUtils.activateActions(manager, true);
+        ExplorerUtils.activateActions(manager, false);
         storeColumnsConfiguration();
     }
 
