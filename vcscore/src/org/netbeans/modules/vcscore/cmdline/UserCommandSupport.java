@@ -107,7 +107,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     //private Hashtable variableMap;
     private String displayName;
     private boolean displayNameDefined;
-    private Class implementedCommandClass = null;
+    private Class[] implementedCommandClasses = null;
     
     /** A flag of whether the command associated with this clon of
      * UserCommandSupport was already customized or not, so that we know whether
@@ -130,7 +130,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         } else {
             this.displayNameDefined = false; // must be dynamically resolved
         }
-        this.implementedCommandClass = findImplementedCommandClass(cmd);
+        this.implementedCommandClasses = findImplementedCommandClasses(cmd);
     }
     
     private static Class[] getClassesForCommand(UserCommand cmd) {
@@ -138,27 +138,45 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         classes.add(VcsDescribedCommand.class);
         classes.add(CustomizationStatus.class);
         classes.add(RecursionAwareCommand.class);
-        Class cmdClass = findImplementedCommandClass(cmd);
-        if (cmdClass != null) {
-            classes.add(cmdClass);
+        Class[] cmdClasses = findImplementedCommandClasses(cmd);
+        for (int i = 0; i < cmdClasses.length; i++) {
+            classes.add(cmdClasses[i]);
         }
         return (Class[]) classes.toArray(new Class[classes.size()]);
     }
     
-    private static Class findImplementedCommandClass(UserCommand cmd) {
-        String cmdClassName = (String) cmd.getProperty(VcsCommand.PROPERTY_ASSOCIATED_COMMAND_INTERFACE_NAME);
-        //System.out.println("getClassesForCommand("+cmd+"), cmdClassName = "+cmdClassName);
-        Class cmdClass = null;
-        if (cmdClassName != null) {
+    private static Class[] findImplementedCommandClasses(UserCommand cmd) {
+        String cmdClassNames = (String) cmd.getProperty(VcsCommand.PROPERTY_ASSOCIATED_COMMAND_INTERFACE_NAME);
+        //System.out.println("getClassesForCommand("+cmd+"), cmdClassNames = "+cmdClassNames);
+        if (cmdClassNames == null) return new Class[0];
+        cmdClassNames = cmdClassNames.trim();
+        List classesList = new ArrayList();
+        int l = cmdClassNames.length();
+        int spaceIndex = cmdClassNames.indexOf(' ');
+        if (spaceIndex < 0) spaceIndex = l;
+        int lastIndex = 0;
+        while (spaceIndex > 0) {
+            String className = cmdClassNames.substring(lastIndex, spaceIndex).trim();
             try {
                 ClassLoader systemClassLoader = (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
-                cmdClass = Class.forName(cmdClassName, false, systemClassLoader);
+                Class cmdClass = Class.forName(className, false, systemClassLoader);
                 //System.out.println("Got class "+cmdClass+" for command "+cmd.getName());
+                classesList.add(cmdClass);
             } catch (ClassNotFoundException cnfex) {
                 org.openide.ErrorManager.getDefault().notify(cnfex);
             }
+            lastIndex = spaceIndex;
+            while (lastIndex < l && Character.isWhitespace(cmdClassNames.charAt(lastIndex))) {
+                lastIndex++;
+            }
+            if (lastIndex < l) {
+                spaceIndex = cmdClassNames.indexOf(' ', lastIndex);
+                if (spaceIndex < 0) spaceIndex = l;
+            } else {
+                spaceIndex = -1; // The END.
+            }
         }
-        return cmdClass;
+        return (Class[]) classesList.toArray(new Class[0]);
     }
     
     private String getDisplayName(UserCommand cmd) {
@@ -219,8 +237,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         }
     }
     
-    public Class getImplementedCommandClass() {
-        return implementedCommandClass;
+    public Class[] getImplementedCommandClasses() {
+        return implementedCommandClasses;
     }
     
     /*

@@ -134,8 +134,10 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
             if (support != null) {
                 commandSupportsByNames.put(support.getName(), support);
                 if (support instanceof UserCommandSupport) {
-                    Class commandClass = ((UserCommandSupport) support).getImplementedCommandClass();
-                    commandSupportsByClasses.put(commandClass, support);
+                    Class[] commandClasses = ((UserCommandSupport) support).getImplementedCommandClasses();
+                    for (int k = 0; k < commandClasses.length; k++) {
+                        commandSupportsByClasses.put(commandClasses[k], support);
+                    }
                 }
             }
             if (subCommands[i].hasChildren()) fillCommands(subCommands[i],
