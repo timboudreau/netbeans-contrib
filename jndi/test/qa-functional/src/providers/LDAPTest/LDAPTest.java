@@ -164,6 +164,7 @@ public class LDAPTest extends JellyTestCase {
         if (testNode == null)
             throw new AssertionFailedError ("Cannot find context: " + name);
 
+        JtestNode.select ();
         new RefreshAction ().perform (JtestNode);
 /*        performAction (testNode, RefreshAction.class);
         if (!waitNoPleaseWait(testNode))
