@@ -95,7 +95,7 @@ public abstract class CVSStub extends GenericStub {
     protected void prepareClient () {
         // init
         root.cvsNode ().cVSInit ();
-        root.waitHistory("Init");
+        history.getWaitCommand("Init", root.node ());
 
         // checkout
         root.cvsNode ().cVSCheckOut();
