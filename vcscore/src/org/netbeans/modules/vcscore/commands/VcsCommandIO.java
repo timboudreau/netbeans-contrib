@@ -15,7 +15,6 @@ package org.netbeans.modules.vcscore.commands;
 
 import java.util.*;
 import java.beans.*;
-import java.lang.reflect.*;
 
 import org.openide.NotifyDescriptor;
 
