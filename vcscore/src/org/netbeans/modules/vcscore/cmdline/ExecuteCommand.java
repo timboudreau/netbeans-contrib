@@ -619,7 +619,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec == null) return ; // Silently ignore null exec
         String execOrig = exec;
-        exec = Variables.expand(vars, exec, true);
+        exec = Variables.expand(vars, exec, false);
         exec = exec.trim();
         if (exec.trim().length() == 0) {
             preferredExec = "";
@@ -688,7 +688,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 }
             }
             if (i == startFileIndex || execTemp == null) { // The execution string is too long even with one file
-                return new String[] { Variables.expand(vars, exec, true) }; // Therefore I simply return the original exec
+                return new String[] { Variables.expand(vars, exec, false) }; // Therefore I simply return the original exec
             }
             execs.add(execTemp);
             startFileIndex = i;
@@ -714,7 +714,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
             vars.put(varNames[i], varTempValue);
         }
-        String execTemp = Variables.expand(vars, exec, true);
+        String execTemp = Variables.expand(vars, exec, false);
         execTemp = execTemp.trim();
         return execTemp;
     }

@@ -381,7 +381,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
 
     public void run() {
         String exec = (String) listSub.getProperty(VcsCommand.PROPERTY_EXEC);
-        exec = Variables.expand(vars, exec, true).trim();
+        exec = Variables.expand(vars, exec, false).trim();
         //fileSystem.debug("LIST_SUB: "+exec); // NOI18N
 
         //ErrorCommandDialog errDlg = fileSystem.getErrorDialog(); //new ErrorCommandDialog(list, new JFrame(), false);

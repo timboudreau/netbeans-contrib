@@ -670,7 +670,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             value = component.getDefaultValue();
         }
         if (value != null) {
-            value = Variables.expand(vars, value, true);
+            value = Variables.expand(vars, value, false);
             field.setText(value);
         }
         component.setValue(value);
@@ -880,7 +880,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             component.setValue(askDefault);
         }
         if (askDefault != null) {
-            askDefault = Variables.expand(vars, askDefault, true);
+            askDefault = Variables.expand(vars, askDefault, false);
             component.setValue(askDefault);
             String valueSelected = component.getValueSelected();
             if (valueSelected != null) {
@@ -1013,7 +1013,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 TopManager.getDefault().notifyException(exc);
             }
         } else {
-            fileName = Variables.expand(vars, fileName, true);
+            fileName = Variables.expand(vars, fileName, false);
         }
         //System.out.println("setting file name value = "+fileName);
         component.setValue(fileName);

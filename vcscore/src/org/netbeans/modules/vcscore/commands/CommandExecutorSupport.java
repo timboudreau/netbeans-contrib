@@ -125,7 +125,7 @@ public class CommandExecutorSupport extends Object {
     }
     
     private static String processConfirmation(String confirmation, Hashtable vars, VcsFileSystem fileSystem) throws UserCancelException {
-        confirmation = Variables.expand(vars, confirmation, true);
+        confirmation = Variables.expand(vars, confirmation, false);
         PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
         ArrayList confCommandsOutput = new ArrayList();
         confirmation = cmdPerf.process(confirmation, confCommandsOutput);
