@@ -467,7 +467,9 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
             listener.readDirFinished( dir, rawData, !shouldFail);
         }
          */
-        listener.readDirFinished(path, rawData, !shouldFail);
+        String dir = (String) vars.get("DIR"); // NOI18N
+        dir = dir.replace (java.io.File.separatorChar, '/');
+        listener.readDirFinished(dir, rawData, !shouldFail);
         // After refresh I should ensure, that the next automatic refresh will work if something happens in numbering
         fileSystem.removeNumDoAutoRefresh((String)vars.get("DIR")); // NOI18N
         //D.deb("run(LIST) '"+dir.name+"' finished"); // NOI18N
@@ -483,6 +485,14 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
      */
     public int getExitStatus() {
         return exitStatus;
+    }
+
+    /**
+     * Add a file reader listener, that gets the updated attributes of the
+     * processed file(s). This method is empty since this command
+     * reads the content of the whole directory.
+     */
+    public void addFileReaderListener(FileReaderListener l) {
     }
 
     
