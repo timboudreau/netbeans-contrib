@@ -400,6 +400,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             java.lang.reflect.Method getDisplayNameMethod = null;
             java.lang.reflect.Method getHelpIDMethod = null;
             java.lang.reflect.Method getInitialFocusedComponentMethod = null;
+            java.lang.reflect.Method doPostCustomizationWorkMethod = null;
             if (cust instanceof ActionListener) actionL = (ActionListener) cust;
             try {
                 addActionListenerMethod = cust.getClass().getMethod("addActionListener", new Class[] { ActionListener.class });
@@ -412,6 +413,9 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             } catch (Exception ex) {}
             try {
                 getInitialFocusedComponentMethod = cust.getClass().getMethod("getInitialFocusedComponent", null);
+            } catch (Exception ex) {}
+            try {
+                doPostCustomizationWorkMethod = cust.getClass().getMethod("doPostCustomizationWork", null);
             } catch (Exception ex) {}
             String displayName = null;
             if (getDisplayNameMethod != null) {
@@ -481,6 +485,13 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
             dialog.setVisible(true);
             status = statusContainer[0];
+            if (status && doPostCustomizationWorkMethod != null) {
+                try {
+                    doPostCustomizationWorkMethod.invoke(cust, null);
+                } catch (Exception ex) {
+                    ErrorManager.getDefault().notify(ex);
+                }
+            }
         } else {
             //PropertyPanel panel = new PropertyPanel(
             //beanNode.getPropertySets();

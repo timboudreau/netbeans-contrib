@@ -474,6 +474,9 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         Object obj = doCustomization(doCreateCustomizer, null, cmd, files, cacheProvider,
                                      valueAdjustment, cmdCanRunOnMultipleFiles,
                                      cmdCanRunOnMultipleFilesInFolder);
+        if (obj == null) {
+            commandCustomizedAndWillRun(cmd, executionContext);
+        }
         //System.out.println("AFTER doCustomization("+doCreateCustomizer+", "+cmd.getVcsCommand()+"), files = "+files+", MODULE = "+cmd.getAdditionalVariables().get("MODULE")+", DIR = "+cmd.getAdditionalVariables().get("DIR"));
         return obj;
     }
@@ -527,19 +530,6 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         String commandExec = (String) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC);
         StructuredExec structuredExec = (StructuredExec) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC_STRUCTURED);
         boolean success = CommandCustomizationSupport.preCustomize(executionContext, vcsCmd, vars);
-        if (success) {
-            if (structuredExec != null) {
-                structuredExec = CommandCustomizationSupport.preCustomizeStructuredExec(executionContext, vcsCmd, vars);
-                success = structuredExec != null;
-                if (success) cmd.setPreferredStructuredExec(structuredExec);
-            } else if (commandExec != null) {
-                commandExec = CommandCustomizationSupport.preCustomizeExec(executionContext, vcsCmd, vars);
-                success = commandExec != null;
-                if (success) cmd.setPreferredExec(commandExec);
-            }
-        }
-        //String newExec = CommandCustomizationSupport.preCustomize(executionContext, vcsCmd, vars);
-        //if (commandExec != null && newExec == null) return new UserCancelException();
         if (!success) return new UserCancelException();
         Object finalCustomizer = null;
         if (commandExec != null || structuredExec != null) {
@@ -632,17 +622,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             String commandExec = (String) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC);
             StructuredExec structuredExec = (StructuredExec) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC_STRUCTURED);
             boolean success = CommandCustomizationSupport.preCustomize(executionContext, vcsCmd, vars);
-            if (success) {
-                if (structuredExec != null) {
-                    structuredExec = CommandCustomizationSupport.preCustomizeStructuredExec(executionContext, vcsCmd, vars);
-                    success = structuredExec != null;
-                    if (success) nextCmd.setPreferredStructuredExec(structuredExec);
-                } else if (commandExec != null) {
-                    commandExec = CommandCustomizationSupport.preCustomizeExec(executionContext, vcsCmd, vars);
-                    success = commandExec != null;
-                    if (success) nextCmd.setPreferredExec(commandExec);
-                }
-            } else return null;
+            if (!success) return null;
             nextCmd.setAdditionalVariables(newVars);
             return nextCustomizedCommand;
         }
@@ -780,7 +760,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         }
         //System.out.println("\ncreateCustomizer("+customizer+", "+files+", "+forEachFile+"), dlg = "+dlg);
         if (dlg == null) return null;
-        if (customizer == null) customizer = new UserCommandCustomizer();
+        if (customizer == null) customizer = new UserCommandCustomizer(executionContext);
         final UserCommandCustomizer finalCustomizer = customizer;
         customizer.setCommand(command, dlg, title.toString());
         dlg.addCloseListener(new ActionListener() {
@@ -828,11 +808,42 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                                         valueAdjustment, new Hashtable(vars), forEachFile,
                                         cmdCanRunOnMultipleFiles, cmdCanRunOnMultipleFilesInFolder);
                     }
+                    //commandCustomizedAndWillRun(finalCustomizer.getOriginalCommand());
                 }
             }
         });
         //System.out.println("createCustomizer() = "+customizer);
         return customizer;
+    }
+    
+    /**
+     * Called <b>after</b> the customizer is finished and the command is going
+     * to be scheduled for execution.
+     */
+    static boolean commandCustomizedAndWillRun(VcsDescribedCommand cmd, CommandExecutionContext executionContext) {
+        boolean successfull = true;
+        do {
+            //System.out.println("commandCustomizedAndWillRun("+cmd.getName()+")");
+            VcsCommand vcsCmd = cmd.getVcsCommand();
+            String commandExec = (String) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC);
+            StructuredExec structuredExec = (StructuredExec) vcsCmd.getProperty(VcsCommand.PROPERTY_EXEC_STRUCTURED);
+            boolean success = true;
+            if (structuredExec != null) {
+                Hashtable vars = new Hashtable(cmd.getAdditionalVariables());
+                structuredExec = CommandCustomizationSupport.preCustomizeStructuredExec(executionContext, vcsCmd, vars);
+                success = structuredExec != null;
+                if (success) cmd.setPreferredStructuredExec(structuredExec);
+            } else if (commandExec != null) {
+                Hashtable vars = new Hashtable(cmd.getAdditionalVariables());
+                commandExec = CommandCustomizationSupport.preCustomizeExec(executionContext, vcsCmd, vars);
+                success = commandExec != null;
+                if (success) cmd.setPreferredExec(commandExec);
+            }
+            //String newExec = CommandCustomizationSupport.preCustomize(executionContext, vcsCmd, vars);
+            //if (commandExec != null && newExec == null) return new UserCancelException();
+            if (!success) successfull = false;
+        } while((cmd = (VcsDescribedCommand) cmd.getNextCommand()) != null);
+        return successfull;
     }
     
     /**

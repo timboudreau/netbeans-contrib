@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 
 import org.openide.NotifyDescriptor;
 
+import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
 import org.netbeans.modules.vcscore.util.VariableInputDialog;
@@ -36,6 +37,8 @@ import org.netbeans.modules.vcscore.util.VariableInputDialog;
  */
 public class UserCommandCustomizer extends JPanel implements ActionListener, Runnable {
     
+    private CommandExecutionContext executionContext;
+    private VcsDescribedCommand cmdOriginal;
     private VcsDescribedCommand cmd;
     private List actionListeners = new ArrayList();
     private VariableInputDialog dlg;
@@ -43,7 +46,8 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
     private String title;
     
     /** Creates a new instance of UserCommandCustomizer */
-    public UserCommandCustomizer() {
+    public UserCommandCustomizer(CommandExecutionContext executionContext) {
+        this.executionContext = executionContext;
         setLayout(new java.awt.GridBagLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -55,6 +59,7 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
                            String title) {
         //System.out.println("\nUserCommandCustomizer.setCommand("+cmd+", "+dlg+")");
         this.cmd = cmd;
+        if (this.cmdOriginal == null) this.cmdOriginal = cmd;
         this.title = title;
         this.dlg = dlg;
         if (!isVisible()) {
@@ -77,6 +82,9 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
                     }
                     for (Iterator it = listenersToNotify.iterator(); it.hasNext(); ) {
                         ((ActionListener) it.next()).actionPerformed(ev);
+                    }
+                    if (NotifyDescriptor.OK_OPTION.equals(ev.getSource())) {
+                        
                     }
                 }
             }
@@ -129,6 +137,14 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
     }
 
     /**
+     * After the customizer is successfully finished and closed, this method is
+     * called to do some post-customization work.
+     */
+    public void doPostCustomizationWork() {
+        UserCommandSupport.commandCustomizedAndWillRun(cmdOriginal, executionContext);
+    }
+    
+    /**
      * To update the dialog's content.
      */
     public void run() {
@@ -148,43 +164,5 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
             }
         }
     }
-    
-    /*
-    private void setCommandVariables() {
-        dlg.processActions();
-        // put the dialog's variables back with all necessary modifications done.
-        //vars.clear();
-        //vars.putAll(dlgVars);
-        Map vars = cmd.getAdditionalVariables();
-        VariableInputDescriptor inputDescriptor = dlg.getInputDescriptor();
-        VariableInputDescriptor globalInputDescriptor = dlg.getGlobalInputDescriptor();
-        if (inputDescriptor != null) {
-            inputDescriptor.addValuesToHistory();
-        }
-        if (globalInputDescriptor != null) {
-            globalInputDescriptor.addValuesToHistory();
-        }
-        Hashtable valuesTable = dlg.getUserParamsValuesTable();
-        for (Enumeration enum = userParamsVarNames.keys(); enum.hasMoreElements(); ) {
-            String varName = (String) enum.nextElement();
-            //System.out.println("varName = "+varName+", label = "+userParamsVarNames.get(varName));
-            String value = (String) valuesTable.get(userParamsVarNames.get(varName));
-            vars.put(varName, value);
-            int index = ((Integer) userParamsIndexes.get(varName)).intValue();
-            if (index >= 0) userParams[index] = value;
-            else {
-                String[] cmdUserParams = (String[]) cmd.getProperty(VcsCommand.PROPERTY_USER_PARAMS);
-                cmdUserParams[-index - 1] = value;
-                cmd.setProperty(VcsCommand.PROPERTY_USER_PARAMS, cmdUserParams);
-            }
-            //D.deb("put("+varName+", "+valuesTable.get(userParamsVarNames.get(varName))+")");
-        }
-        fileSystem.setUserParams(userParams);
-        if (forEachFile != null) {
-            forEachFile[0] = dlg.getPromptForEachFile();
-            fileSystem.setPromptForVarsForEachFile(forEachFile[0]);
-        }
-    }
-     */
     
 }
