@@ -73,7 +73,7 @@ public final class SuggestionsScanner implements Cancellable {
     /** Target suggestion list. */
     private SuggestionList list;
 
-    private String typeFilter;
+    private ProviderAcceptor typeFilter;
 
     // target manager impl
     private final SuggestionManagerImpl manager;
@@ -125,7 +125,7 @@ public final class SuggestionsScanner implements Cancellable {
      * @param monitor
      */
     public final synchronized void scan(DataObject.Container[] folders, SuggestionList list, ScanProgress monitor) {
-        scan(folders, list, monitor, null);
+        scan(folders, list, monitor, ProviderAcceptor.ALL);
     }
 
     /**
@@ -133,9 +133,9 @@ public final class SuggestionsScanner implements Cancellable {
      * @param folders containers to be scanned. It must be DataObject subclasses!
      * @param list
      * @param monitor
-     * @param filter suggestion type filter or <code>null</code> if scan all types
+     * @param filter suggestion provider filter
      */
-    public final synchronized void scan(DataObject.Container[] folders, SuggestionList list, ScanProgress monitor, String filter) {
+    public final synchronized void scan(DataObject.Container[] folders, SuggestionList list, ScanProgress monitor, ProviderAcceptor filter) {
         try {
             typeFilter = filter;
             progressMonitor = monitor;
@@ -273,7 +273,7 @@ public final class SuggestionsScanner implements Cancellable {
         for (int i=0; i<roots.length; i++) {
             FileObject root = roots[i].getPrimaryFile();
             if (root.equals(fo) || (recursive ? FileUtil.isParentOf(root,fo) : fo.getParent().equals(root))) {
-                scanLeaf(dobj, ProviderAcceptor.ALL);
+                scanLeaf(dobj);
                 scanned.add(dobj);
                 break; // certainly it could be under more roots
                        // but it would create duplicates and slow down the test
@@ -315,7 +315,7 @@ public final class SuggestionsScanner implements Cancellable {
                 }
 
             } else {
-                scanLeaf(f, ProviderAcceptor.ALL);
+                scanLeaf(f);
             }
         }
     }
@@ -339,6 +339,7 @@ public final class SuggestionsScanner implements Cancellable {
             workaround38476 = topComponent.isOpened();
             suggestionsCounter = 0;
             interrupted = false;
+            typeFilter = acceptor;
 
             // perform
 
@@ -347,12 +348,13 @@ public final class SuggestionsScanner implements Cancellable {
             for (int n = 0; n<nodes.length; n++) {
                 DataObject dobj = (DataObject) nodes[n].getCookie(DataObject.class);
                 if (dobj == null) return ret;
-                scanLeaf(dobj, acceptor);
+                scanLeaf(dobj);
                 break;  // one node is enough
             }
             ret = cummulateInList;
         } finally {
             cummulateInList = null;
+            typeFilter = null;
         }
         return ret;
     }
@@ -360,7 +362,7 @@ public final class SuggestionsScanner implements Cancellable {
     /**
      * Scans given data object. Converts it to scanning context.
      */
-    private void scanLeaf(DataObject dobj, ProviderAcceptor acceptor) {
+    private void scanLeaf(DataObject dobj) {
         // Get document, and I do mean now!
 
         if (!dobj.isValid()) return;
@@ -377,7 +379,7 @@ public final class SuggestionsScanner implements Cancellable {
 
         SuggestionContext env = SPIHole.createSuggestionContext(dobj);
 
-        scanLeaf(env, acceptor);
+        scanLeaf(env);
 
         if (false) {
             try {
@@ -404,7 +406,7 @@ public final class SuggestionsScanner implements Cancellable {
 
     }
 
-    private void scanLeaf(SuggestionContext env, ProviderAcceptor acceptor) {
+    private void scanLeaf(SuggestionContext env) {
         List providers = registry.getProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
@@ -412,7 +414,8 @@ public final class SuggestionsScanner implements Cancellable {
             interrupted = Thread.interrupted();
             SuggestionProvider provider = (SuggestionProvider) it.next();
 
-            if (acceptor.accept(provider) == false) continue;
+            assert typeFilter != null;
+            if (typeFilter.accept(provider) == false) continue;
 
             // FIXME no initialization events possibly fired
             // I guess that reponsibility for recovering from missing
@@ -422,9 +425,7 @@ public final class SuggestionsScanner implements Cancellable {
                 String type = null;
                 try {
                     type = provider.getTypes()[0];
-                    if (typeFilter == null || typeFilter.equals(type)) {
-                        l = ((DocumentSuggestionProvider) provider).scan(env);
-                    }
+                    l = ((DocumentSuggestionProvider) provider).scan(env);
                 } catch (RuntimeException e) {
                     ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
