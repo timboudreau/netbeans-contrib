@@ -4228,15 +4228,32 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (folderRef != null) {
             FileObject folder = (FileObject) folderRef.get();
             if (folder != null) {
-                Enumeration existingFOs = existingFileObjects(folder);
-                Set subfiles = new HashSet();
-                while(existingFOs.hasMoreElements()) {
-                    FileObject fo = (FileObject) existingFOs.nextElement();
-                    if (fo == folder) continue;
-                    if (fo.getParent() == folder) {
-                        subfiles.add(fo);
-                    } else {
-                        break;
+                // need to get efficiently the existing subfiles
+                // The best is to use package-protected method AbstractFolder.subfiles()
+                Collection subfiles;
+                try {
+                    java.lang.reflect.Method subfilesMethod = folder.getClass().getSuperclass().getDeclaredMethod("subfiles", new Class[] { });
+                    subfilesMethod.setAccessible(true);
+                    Object[] ret = (Object[]) subfilesMethod.invoke(folder, new Object[0]);
+                    subfiles = Arrays.asList(ret);
+                } catch (Exception ex) {
+                    // Should not happen unless something is changed
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+                    subfiles = null;
+                }
+                // If the reflection was not successful, use the API.
+                // However, this may cause deadlock (issue #50171).
+                if (subfiles == null) {
+                    subfiles = new HashSet();
+                    Enumeration existingFOs = existingFileObjects(folder);
+                    while(existingFOs.hasMoreElements()) {
+                        FileObject fo = (FileObject) existingFOs.nextElement();
+                        if (fo == folder) continue;
+                        if (fo.getParent() == folder) {
+                            subfiles.add(fo);
+                        } else {
+                            break;
+                        }
                     }
                 }
                 checkVirtualFiles(subfiles);
@@ -4264,7 +4281,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * DataObject if the setVirtualDataLoader() returns true).
      * @param foSet set of FileObjects whose status was changed
      */
-    protected void checkVirtualFiles(Set foSet) {
+    protected void checkVirtualFiles(Collection foSet) {
         Iterator it = foSet.iterator();
         while (it.hasNext()) {
             FileObject o = (FileObject) it.next();
