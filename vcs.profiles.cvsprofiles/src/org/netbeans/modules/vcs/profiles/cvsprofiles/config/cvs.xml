@@ -926,7 +926,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add $[? PROCESSING_BINARY_FILES] [-kb] [${RCS_KFLAG}] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [] ${QFILES} ${NUR}</value>
+	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add $[? PROCESSING_BINARY_FILES] [-kb] [${RCS_KFLAG}] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [$[? message] [-m ${QUOTE}${message}${QUOTE}] []] ${QFILES} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>
