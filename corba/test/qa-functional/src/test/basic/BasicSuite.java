@@ -23,6 +23,7 @@ public class BasicSuite {
         suite.addTest (test.ioranalyzer.Main.suite ());
         suite.addTest (test.nsbrowser.Main.suite ());
         suite.addTest (test.idlwizard.Main.suite ());
+        suite.addTest (test.poasupport.Main.suite ());
         return suite;
     }
     
