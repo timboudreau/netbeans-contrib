@@ -430,7 +430,15 @@ public class JellyBranch extends JellyTestCase {
         new CVSVersioningFileNode (vfo.treeVersioningTreeView (), nFile).refreshRevisions();
         assertTrue ("Refresh revisions command failed", history.waitCommand("REVISION_LIST", hFile));
         new CVSVersioningFileNode (vfo.treeVersioningTreeView (), nFile + " [Up-to-date; 1.1]");
-        new CVSVersioningVersionNode (vfo.treeVersioningTreeView (), nFile + " [Up-to-date; 1.1]|1.1  Initial commit");
+        Node nn = new CVSVersioningVersionNode (vfo.treeVersioningTreeView (), nFile + " [Up-to-date; 1.1]|1.1  Initial commit");
+        String[] strs = nn.getChildren();
+        if (strs != null) {
+            info.println ("--- Children Count: " + strs.length + " ---");
+            for (int a = 0; a < strs.length; a ++)
+                info.println (strs[a]);
+        } else
+            info.println ("--- No Children ---");
+        new CVSVersioningVersionNode (vfo.treeVersioningTreeView (), nFile + " [Up-to-date; 1.1]|1.1  Initial commit").expand ();
         new CVSVersioningBranchNode (vfo.treeVersioningTreeView (), nFile + " [Up-to-date; 1.1]|1.1  Initial commit|1.1.2 (Tag2)");
     }
     
