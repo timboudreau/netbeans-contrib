@@ -531,17 +531,21 @@ public class VariableInputDescriptor extends Object {
             argNum++;
         }
         if (INPUT_ASK == id) {
-            String selected = component.getValueSelected();
-            if (selected != null) {
-                if (Boolean.TRUE.toString().equalsIgnoreCase(component.getValue())) {
-                    component.setValue(component.getValueSelected());
+            component.setDefaultValue(component.getValue());
+            if (!component.isExpandableDefaultValue()) {
+                String selected = component.getValueSelected();
+                if (selected != null) {
+                    if (Boolean.TRUE.toString().equalsIgnoreCase(component.getValue())) {
+                        component.setValue(component.getValueSelected());
+                    } else {
+                        component.setValue(component.getValueUnselected());
+                    }
                 } else {
-                    component.setValue(component.getValueUnselected());
+                    if (!Boolean.TRUE.toString().equalsIgnoreCase(component.getValue())) {
+                        component.setValue(""); // NOI18N
+                    }
                 }
-            } else {
-                if (!Boolean.TRUE.toString().equalsIgnoreCase(component.getValue())) {
-                    component.setValue(""); // NOI18N
-                }
+                component.setDefaultValue(component.getValue()); // Correct with the changed value
             }
         }
         if (len > argNum && inputArgs[argNum].indexOf(INPUT_STR_ENABLE) == 0) {
