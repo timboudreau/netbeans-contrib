@@ -103,9 +103,9 @@ public class EJBProjectNature implements ProjectNature {
     
     public Node createSourceFolderView(Project project, FileObject folder, String style, String name, String displayName) throws IllegalArgumentException {
         if (style.equals(STYLE_CONFIG_FILES)) {
-            return new LogicalViewChildren(project).createNodes(LogicalViewChildren.KEY_DOC_BASE)[0];
+            return new LogicalViewChildren(project, null, null, null).createNodes(LogicalViewChildren.KEY_DOC_BASE)[0];
         } else if (style.equals(STYLE_EJBS)) {
-            return new LogicalViewChildren(project).createNodes(LogicalViewChildren.KEY_EJBS)[0];
+            return new LogicalViewChildren(project, null, null, null).createNodes(LogicalViewChildren.KEY_EJBS)[0];
         } else {
             throw new IllegalArgumentException();
         }
