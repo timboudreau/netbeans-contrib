@@ -33,9 +33,8 @@ public class Settings extends SystemOption {
 	PROP_SCAN_SOURCES	= "scanSources",	//NOI18N
 	PROP_SCAN_SKIP  	= "skipComments",	//NOI18N
 	PROP_SCAN_DELAY		= "scanDelay",		//NOI18N
-	PROP_SCAN_TAGS		= "taskTags",		//NOI18N
-	PROP_SCAN_COPYRIGHT    	= "scanCopyright";	//NOI18N
-    
+	PROP_SCAN_TAGS		= "taskTags";		//NOI18N
+
     /** Return the signleton cppSettings */
     public static Settings getDefault() {
 	return (Settings) findObject(Settings.class, true);
@@ -156,7 +155,7 @@ public class Settings extends SystemOption {
                     new TaskTag("FIXME", SuggestionPriority.MEDIUM),
                     new TaskTag("XXX", SuggestionPriority.MEDIUM),
                     new TaskTag("PENDING", SuggestionPriority.MEDIUM),
-                    // CVS merge conflict:
+                    // XXX CVS merge conflict: overlaps with skipNonComments settings
                     new TaskTag("<<<<<<<", SuggestionPriority.HIGH),
 
                     // Additional candidates: HACK, WORKAROUND, REMOVE, OLD
@@ -177,23 +176,6 @@ public class Settings extends SystemOption {
 	//firePropertyChange(PROP_SCAN_TAGS, null, b);	
     }
 
-    /**
-     * @return The copyright to insert when fixing missing
-     * copyright problems.
-     */
-    public String getScanCopyright() {
-        String c = (String)getProperty(PROP_SCAN_COPYRIGHT);
-	return c;
-    }
-
-    /** Sets the scanCopyright type
-     * @param copyright The copyright to insert when fixing missing
-     * copyright problems.
-     */
-    public void setScanCopyright(String copyright) {
-	putProperty(PROP_SCAN_COPYRIGHT, copyright, true);
-	//Done above: firePropertyChange(PROP_SCAN_COPYRIGHT, null, copyright);
-    }
 
 
 }

@@ -56,8 +56,6 @@ public class SettingsBeanInfo extends SimpleBeanInfo {
 		new PropertyDescriptor(Settings.PROP_SCAN_SKIP,
 				       Settings.class),
 		new PropertyDescriptor(Settings.PROP_SCAN_TAGS,
-				       Settings.class),
-		new PropertyDescriptor(Settings.PROP_SCAN_COPYRIGHT,
 				       Settings.class)
 	    };
 
@@ -85,12 +83,6 @@ public class SettingsBeanInfo extends SimpleBeanInfo {
 					      SettingsBeanInfo.class,
 			    "HINT_SCAN_TAGS"));	    //NOI18N
 
-	    desc[i].setDisplayName(NbBundle.getMessage(
-					       SettingsBeanInfo.class,
-			    "PROP_SCAN_COPYRIGHT")); //NOI18N
-	    desc[i++].setShortDescription(NbBundle.getMessage(
-					      SettingsBeanInfo.class,
-			    "HINT_SCAN_COPYRIGHT")); //NOI18N
 	} catch (IntrospectionException ex) {
             ex.printStackTrace();
 	    throw new InternalError();
@@ -101,6 +93,6 @@ public class SettingsBeanInfo extends SimpleBeanInfo {
     /** (Placeholder) icon in options window */
     public Image getIcon(int type) {
 	// XXX this icon is wrong
-	return Utilities.loadImage("org/netbeans/modules/tasklist/core/task.gif"); //NOI18N
+	return Utilities.loadImage("org/netbeans/modules/tasklist/docscan/settings.gif"); //NOI18N
     }
 }
