@@ -27,25 +27,6 @@ Microsystems, Inc. All Rights Reserved.
     <compatible>"Windows"</compatible>
   </os>
    
-  <condition var="IS_WINDOWS">
-    <var name="os.name" valueContainsIgnoreCase="WINDOWS"/>
-  </condition>
-  
-  <condition var="IS_WIN9X">
-    <or>
-      <var name="os.name" value="Windows 95"/>
-      <var name="os.name" value="Windows 98"/>
-      <var name="os.name" value="Windows Me"/>
-    </or>
-  </condition>
-  
-  <condition var="IS_WINNT">
-    <var name="IS_WINDOWS" value="true"/>
-    <not>
-      <var name="IS_WIN9X" value="true"/>
-    </not>
-  </condition>
-  
   <variables>
     <variable name="FS_DISPLAY_NAME" basic="false">
       <value>VSS</value>
@@ -66,60 +47,49 @@ Microsystems, Inc. All Rights Reserved.
       <value>-I- ${IDENT}</value>
     </variable>
     <variable name="NUR" basic="false">
-      <value>"</value>
+      <value></value>
     </variable>
     <variable name="SHOWLOCALFILES" basic="false">
       <value>true</value>
     </variable>
     <variable name="PS" basic="false">
       <value>${path.separator}</value>
-      <value if="IS_WIN9X">/</value>
     </variable>
     <variable name="USER_LOCAL_PARAM_LABELS" basic="false">
       <value>"VSS command options"</value>
     </variable>
     <variable name="RUN_REFRESH" basic="false">
-      <value>cmd /X /C "cd /D $[? EMPTY_REFRESH_FOLDER] [${EMPTY_REFRESH_FOLDER}] [\"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\"] >nul &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\" >nul &amp;&amp;</value>
-      <value if="IS_WIN9X">${SHELL} -c "cd $[? EMPTY_REFRESH_FOLDER] [${EMPTY_REFRESH_FOLDER_\/}] [${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE}] &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} >/dev/null &amp;&amp;</value>
+      <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class "dir=$[? EMPTY_REFRESH_FOLDER] [${EMPTY_REFRESH_FOLDER}] [${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []]" -silent cd ${OPTIONS} "${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []" &amp;&amp;</value>
     </variable>
     <variable name="RUN" basic="false">
-      <value>cmd /X /C "(mkdir \"${ROOTDIR}${PS}${MODULE}${PS}${DIR}${PS}.\" 2>nul || echo.) &amp;&amp; cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\" &amp;&amp;</value>
-      <value if="IS_WIN9X">${SHELL} -c "mkdir -p ${QUOTE}${ROOTDIR_\/}${PS}${MODULE_\/}${PS}${DIR_\/}${PS}.${QUOTE}; cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} &amp;&amp;</value>
+      <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class "dir=${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []" -mkdir cd ${OPTIONS} "${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []" &amp;&amp;</value>
     </variable>
     <variable name="RUN_SILENT" basic="false">
-      <value>cmd /X /C "(mkdir \"${ROOTDIR}${PS}${MODULE}${PS}${DIR}${PS}.\" 2>nul || echo. >nul) &amp;&amp; cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\" >nul &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\" >nul &amp;&amp;</value>
-      <value if="IS_WIN9X">${SHELL} -c "mkdir -p ${QUOTE}${ROOTDIR_\/}${PS}${MODULE_\/}${PS}${DIR_\/}${PS}.${QUOTE}; cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} >/dev/null &amp;&amp;</value>
+      <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class "dir=${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []" -mkdir -silent cd ${OPTIONS} "${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []" &amp;&amp;</value>
     </variable>
     <variable name="RUN_NMK" basic="false">
-      <value>cmd /X /C "cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\" &amp;&amp;</value>
-      <value if="IS_WIN9X">${SHELL} -c "cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} &amp;&amp;</value>
+      <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class "dir=${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []" cd ${OPTIONS} "${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []" &amp;&amp;</value>
     </variable>
     <variable name="RUNCDF_NMK" basic="false">
-      <value>cmd /X /C "cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []\" &amp;&amp;</value>
-      <value if="IS_WIN9X">${SHELL} -c "cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []$[? FILE] [${PS}${FILE}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []$[? FILE] [${PS}${FILE}] []${QUOTE} &amp;&amp;</value>
+      <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class "dir=${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []" cd ${OPTIONS} "${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []" &amp;&amp;</value>
     </variable>
     <variable name="RUNCDM" basic="false">
-      <value>cmd /X /C "(mkdir \"${ROOTDIR}${PS}${MODULE}${PS}.\" 2>nul || echo.) &amp;&amp; cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []\" &amp;&amp;</value>
-      <value if="IS_WIN9X">${SHELL} -c "mkdir -p ${QUOTE}${ROOTDIR_\/}${PS}${MODULE_\/}${PS}.${QUOTE}; cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []${QUOTE} &amp;&amp;</value>
+      <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class "dir=${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []" -mkdir cd ${OPTIONS} "${PROJECT}$[? MODULE] [${PS}${MODULE}] []" &amp;&amp;</value>
     </variable>
     <variable name="RUNCDM_SILENT" basic="false">
-      <value>cmd /X /C "(mkdir \"${ROOTDIR}${PS}${MODULE}${PS}.\" 2>nul || echo. >nul) &amp;&amp; cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []\" >nul &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []\" >nul &amp;&amp;</value>
-      <value if="IS_WIN9X">${SHELL} -c "mkdir -p ${QUOTE}${ROOTDIR_\/}${PS}${MODULE_\/}${PS}.${QUOTE} >/dev/null; cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []${QUOTE} >/dev/null &amp;&amp;</value>
+      <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class "dir=${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []" -mkdir -silent cd ${OPTIONS} "${PROJECT}$[? MODULE] [${PS}${MODULE}] []" &amp;&amp;</value>
     </variable>
     <variable name="RUN_GLOBAL" basic="false">
-      <value>cmd /X /C "cd /D \"${ROOTDIR}\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}\" &amp;&amp;</value>
-      <value if="IS_WIN9X">${SHELL} -c "cd ${QUOTE}${ROOTDIR_\/}${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}${QUOTE} &amp;&amp;</value>
+      <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class "dir=${ROOTDIR}" cd ${OPTIONS} "${PROJECT}" &amp;&amp;</value>
     </variable>
     <variable name="QUOTE" basic="false">
-      <value>\"</value>
-      <value if="IS_WIN9X">\"\"</value>
+      <value>"</value>
     </variable>
     <variable name="IDENT" basic="false">
       <value>-Y${USER_NAME},${PASSWORD}</value>
     </variable>
     <variable name="WORKPROJ" basic="false">
       <value>${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []</value>
-      <value if="IS_WIN9X">${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? PATH] [${PS}${PATH_\/}] []</value>
     </variable>
     <variable name="POSSIBLE_FILE_STATUSES" basic="false">
       <value>"Current", "Missing", "Locally Modified"</value>
@@ -134,8 +104,7 @@ Microsystems, Inc. All Rights Reserved.
       <value>"org/netbeans/modules/vcs/profiles/resources/badgeUpToDate.gif", "org/netbeans/modules/vcs/profiles/resources/badgeNeedsCheckout.gif"</value>
     </variable>
     <variable name="RUNSIMPLE" basic="false">
-      <value>cmd /X /C "cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []\" &amp;&amp;</value>
-      <value if="IS_WIN9X">${SHELL} -c "cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} &amp;&amp;</value>
+      <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class "dir=${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []" </value>
     </variable>
     <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED" basic="false">
       <value>"ResourceMsg(VSS_FileStatus_Current)", "ResourceMsg(VSS_FileStatus_Missing)", "ResourceMsg(VSS_FileStatus_LM)"</value>
@@ -150,12 +119,10 @@ Microsystems, Inc. All Rights Reserved.
         <value>"Locally Modified"</value>
     </variable>
     <variable name="RUNPATH" basic="false">
-      <value>cmd /X /C "(mkdir \"${ROOTDIR}${PS}${MODULE}${PS}${PATH}${PS}.\" 2>nul || echo.) &amp;&amp; cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp;</value>
-      <value if="IS_WIN9X">${SHELL} -c "mkdir -p ${QUOTE}${ROOTDIR_\/}${PS}${MODULE_\/}${PS}${PATH_\/}${PS}.${QUOTE}; cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? PATH] [${PS}${PATH_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? PATH] [${PS}${PATH_\/}] []${QUOTE} &amp;&amp;</value>
+      <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class "dir=${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []" -mkdir cd ${OPTIONS} "${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []" &amp;&amp;</value>
     </variable>
     <variable name="RUNPATH_NMK" basic="false">
-      <value>cmd /X /C "cd /D \"${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp; \"${VSSCMD}\" cd ${OPTIONS} \"${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []\" &amp;&amp;</value>
-      <value if="IS_WIN9X">${SHELL} -c "cd ${QUOTE}${ROOTDIR_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? PATH] [${PS}${PATH_\/}] []${QUOTE} &amp;&amp; ${QUOTE}${VSSCMD_\/}${QUOTE} cd ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? PATH] [${PS}${PATH_\/}] []${QUOTE} &amp;&amp;</value>
+      <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class "dir=${ROOTDIR}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []" cd ${OPTIONS} "${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? PATH] [${PS}${PATH}] []" &amp;&amp;</value>
     </variable>
     <variable name="USER_NAME" basic="true" label="ResourceMsg(VSS_UserName)" labelMnemonic="ResourceMsg(VSS_UserName_Mnemonic)" localFile="false" localDir="false" executable="false" order="1">
       <value></value>
@@ -166,15 +133,8 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="PROJECT" basic="true" label="ResourceMsg(VSS_Project)" labelMnemonic="ResourceMsg(VSS_Project_Mnemonic)" localFile="false" localDir="false" executable="false" order="3">
       <value>$/</value>
     </variable>
-    <variable name="SHELL" basic="true" label="ResourceMsg(Unix_Shell)" labelMnemonic="ResourceMsg(Unix_Shell_Mnemonic)" localFile="true" localDir="false" executable="true" order="4" if="IS_WIN9X">
-      <value>sh.exe</value>
-    </variable>
-    <variable name="CD" basic="false">
-      <value>cd</value>
-    </variable>
     <variable name="VSSCMD" basic="false">
-      <value if="IS_WINNT">${VSSCMD_EXE}</value>
-      <value if="IS_WIN9X">${VSSCMD_EXE_\/}</value>
+      <value>${VSSCMD_EXE}</value>
     </variable>
     <variable name="ENVIRONMENT_VAR_SSDIR" basic="true" label="ResourceMsg(VSS_SSDIR)" labelMnemonic="ResourceMsg(VSS_SSDIR_Mnemonic)" localDir="true" order="5">
       <value>C:\Program Files\Microsoft Visual Studio\VSS</value>
@@ -229,6 +189,9 @@ Microsystems, Inc. All Rights Reserved.
     </variable>
     <variable name="AUTO_EXEC"> <!-- executed after filesystem instantiation if defined -->
       <value>$[? DO_VSS_CHECKOUT][GETR][]</value>
+    </variable>
+    <variable name="PASSWORD"> <!-- Suppose an empty password. The command will ask if the password is wrong. -->
+      <value></value>
     </variable>
   </variables>
   <commands>
@@ -375,7 +338,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_CHECKIN_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkin ${CHECKIN_OPTIONS} $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${OPTIONS} ${QFILE} ${NUR}</value>
+	  <value>${RUN} checkin ${CHECKIN_OPTIONS} $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${OPTIONS} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -422,8 +385,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKIN_TEMPLATE_GETTER">
 	<property name="exec">
-	  <value>$[? message] [${RUN_SILENT} echo ${message} ${NUR}] []</value>
-	  <value if="IS_WIN9X">$[? message] [echo "${message}"] []</value>
+	  <value>$[? message] [org.netbeans.modules.vcs.profiles.commands.Echo.class ${message}] []</value>
 	</property>
         <property name="concurrentExec">
           <value>-1</value>
@@ -434,7 +396,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_CHECKIN_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUNPATH} ${QUOTE}${VSSCMD}${QUOTE} checkin ${RECURSIVE} ${CHECKIN_OPTIONS} $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${OPTIONS} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
+	  <value>${RUNPATH} checkin ${RECURSIVE} ${CHECKIN_OPTIONS} $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${OPTIONS} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -488,7 +450,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_CONFIRM">
         <property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-N ${IDENT} ${QFILE} ${NUR}</value>
+          <value>${RUN} checkout ${CHECKOUT_OPTIONS} -I-N ${IDENT} ${QFILE} ${NUR}</value>
         </property>
 	<property name="error.regex.global">
 	  <value>(^.*)\(Y/N\)N$</value>
@@ -510,7 +472,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
       <command name="CHECKOUT_CONFIRMED">
         <property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}</value>
+          <value>${RUN} checkout ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}</value>
         </property>
 	<property name="error.regex.global">
 	  <value>(^.*)\(Y/N\)N$</value>
@@ -564,7 +526,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUTR_CONFIRM">
         <property name="exec">
-          <value>${RUNPATH} ${QUOTE}${VSSCMD}${QUOTE} checkout ${RECURSIVE} ${CHECKOUT_OPTIONS} -I-N ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
+          <value>${RUNPATH} checkout ${RECURSIVE} ${CHECKOUT_OPTIONS} -I-N ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
         </property>
 	<property name="error.regex">
 	  <value>(^.*)$</value>
@@ -578,7 +540,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_FILES_CONFIRMED">
         <property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QFILES} ${NUR}</value>
+          <value>${RUN} checkout ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QFILES} ${NUR}</value>
         </property>
         <property name="runOnMultipleFilesInFolder">
           <value>true</value>
@@ -642,7 +604,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="UNCHECKOUT_CONFIRM">
         <property name="exec">
-          <value>${RUN_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} -I-N ${IDENT} ${QFILE} ${NUR}</value>
+          <value>${RUN_NMK} uncheckout ${CMD_OPTIONS} -I-N ${IDENT} ${QFILE} ${NUR}</value>
         </property>
 	<property name="error.regex.global">
 	  <value>(^.*)\(Y/N\)N$</value>
@@ -656,7 +618,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="UNCHECKOUT_CONFIRMED">
         <property name="exec">
-          <value>${RUN_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}</value>
+          <value>${RUN_NMK} uncheckout ${CMD_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}</value>
         </property>
 	<property name="error.regex.global">
 	  <value>(^.*)\(Y/N\)N$</value>
@@ -701,7 +663,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="UNCHECKOUTR_CONFIRM">
         <property name="exec">
-          <value>${RUNPATH_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${RECURSIVELY} ${CMD_OPTIONS} -I-N ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
+          <value>${RUNPATH_NMK} uncheckout ${RECURSIVELY} ${CMD_OPTIONS} -I-N ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
         </property>
 	<property name="error.regex">
 	  <value>(^.*)$</value>
@@ -715,7 +677,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="UNCHECKOUT_FILES_CONFIRMED">
         <property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} -I-Y ${IDENT} ${QFILES} ${NUR}</value>
+          <value>${RUN} uncheckout ${CMD_OPTIONS} -I-Y ${IDENT} ${QFILES} ${NUR}</value>
         </property>
         <property name="runOnMultipleFilesInFolder">
           <value>true</value>
@@ -770,7 +732,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="EDIT">
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${OPTIONS} ${QFILE} ${NUR}</value>
+	  <value>${RUN} checkout ${OPTIONS} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="data.regex">
 	  <value>(.*$)</value>
@@ -790,7 +752,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="GET_CONFIRM">
         <property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} get ${RW_MODE} ${GET_OPTIONS} -I-N ${IDENT} ${QFILE} ${NUR}</value>
+          <value>${RUN} get ${RW_MODE} ${GET_OPTIONS} -I-N ${IDENT} ${QFILE} ${NUR}</value>
         </property>
 	<property name="error.regex.global">
 	  <value>(^.*)\(Y/N\)N$</value>
@@ -804,7 +766,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="GET_CONFIRMED">
         <property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} get ${RW_MODE} ${GET_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}</value>
+          <value>${RUN} get ${RW_MODE} ${GET_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}</value>
         </property>
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
@@ -853,7 +815,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="GETR_CONFIRM">
         <property name="exec">
-          <value>${RUNPATH} ${QUOTE}${VSSCMD}${QUOTE} get ${RECURSIVE} ${RW_MODE} ${GET_OPTIONS} -I-N ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
+          <value>${RUNPATH} get ${RECURSIVE} ${RW_MODE} ${GET_OPTIONS} -I-N ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
         </property>
 	<property name="error.regex">
 	  <value>(^.*)$</value>
@@ -867,7 +829,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="GET_FILES_CONFIRMED">
         <property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} get ${RW_MODE} ${GET_OPTIONS} -I-Y ${IDENT} ${QFILES} ${NUR}</value>
+          <value>${RUN} get ${RW_MODE} ${GET_OPTIONS} -I-Y ${IDENT} ${QFILES} ${NUR}</value>
         </property>
         <property name="runOnMultipleFilesInFolder">
           <value>true</value>
@@ -936,7 +898,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_ADD_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} add $[? PROCESSING_BINARY_FILES] [-B] [] $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} ${QFILES} ${NUR}</value>
+	  <value>${RUN} add $[? PROCESSING_BINARY_FILES] [-B] [] $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} ${QFILES} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -992,7 +954,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="ADD_ALL_CMD">
 	<property name="exec">
-	  <value>$[? FILES_IS_FOLDER] [${RUNCDF_NMK}] [${RUN}] ${QUOTE}${VSSCMD}${QUOTE} add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} $[? FILES_IS_FOLDER] [$[? IS_RECURSIVE] [-R] [-R-] * {INSERT_OUTPUT_OF_DIR_FOLDERS(0)}] [${QFILES}] ${NUR}</value>
+	  <value>$[? FILES_IS_FOLDER] [${RUNCDF_NMK}] [${RUN}] add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} $[? FILES_IS_FOLDER] [$[? IS_RECURSIVE] [-R] [-R-] * {INSERT_OUTPUT_OF_DIR_FOLDERS(0)}] [${QFILES}] ${NUR}</value>
 	</property>
         <property name="preCommands">
           <value>$[? FILES_IS_FOLDER] [$[? CACHED_ISLOCAL] [CREATE_CMD] []] []</value>
@@ -1111,7 +1073,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CREATE_CMD">
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} create $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${CREATE_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
+	  <value>${RUN} create $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${CREATE_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="onFile">
 	  <value>false</value>
@@ -1143,7 +1105,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_CREATE_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} create $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${CREATE_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
+	  <value>${RUN} create $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${CREATE_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -1217,8 +1179,7 @@ Microsystems, Inc. All Rights Reserved.
       
       <command name="REMOVE_CONFIRM">
 	<property name="exec">
-	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} -I-N ${IDENT} ${QPATHS} ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} -I-N ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
+	  <value>${RUNCDM} remove ${CMD_OPTIONS} -I-N ${IDENT} ${QPATHS} ${NUR}</value>
 	</property>
 	<property name="error.regex.global">
 	  <value>(^.*)\(Y/N\)N$</value>
@@ -1232,8 +1193,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="REMOVE_DO">
 	<property name="exec">
-	  <value>${RUNCDM} ${QUOTE}${VSSCMD}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QPATHS} ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDM} ${QUOTE}${VSSCMD_\/}${QUOTE} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
+	  <value>${RUNCDM} remove ${CMD_OPTIONS} -I-Y ${IDENT} ${QPATHS} ${NUR}</value>
 	</property>
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
@@ -1266,7 +1226,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshParentFolder">
           <value>true</value>
         </property>
-        <property name="runOnMultipleFiles" unless="IS_WIN9X">
+        <property name="runOnMultipleFiles">
           <value>true</value>
         </property>
         <property name="notificationSuccessMsg">
@@ -1296,7 +1256,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_RECOVER_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} recover ${RECOVER_OPTIONS} ${OPTIONS} ${QFILES} ${NUR}</value>
+	  <value>${RUN} recover ${RECOVER_OPTIONS} ${OPTIONS} ${QFILES} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -1352,8 +1312,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_HISTORY_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} history ${HISTORY_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QPATHS} ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} history ${HISTORY_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
+	  <value>${RUNCDM_SILENT} history ${HISTORY_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QPATHS} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -1379,7 +1338,7 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
-        <property name="runOnMultipleFiles" unless="IS_WIN9X">
+        <property name="runOnMultipleFiles">
           <value>true</value>
         </property>
         <property name="concurrentExec">
@@ -1400,8 +1359,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_PROPERTIES_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} properties ${PROPERTIES_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QPATHS} ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDM_SILENT} ${QUOTE}${VSSCMD}${QUOTE} properties ${PROPERTIES_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QUOTE}${PATH_\/}${QUOTE} ${NUR}</value>
+	  <value>${RUNCDM_SILENT} properties ${PROPERTIES_OPTIONS} ${RECURSIVE} ${OPTIONS} ${QPATHS} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -1427,7 +1385,7 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
-        <property name="runOnMultipleFiles" unless="IS_WIN9X">
+        <property name="runOnMultipleFiles">
           <value>true</value>
         </property>
         <property name="concurrentExec">
@@ -1480,7 +1438,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="LIST_FILE_DIFF">
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} diff -B ${QUOTE}${FILE}${QUOTE} ${OPTIONS} ${NUR}</value>
+	  <value>${RUN} diff -B ${QUOTE}${FILE}${QUOTE} ${OPTIONS} ${NUR}</value>
         </property>
 	<property name="data.regex">
 	  <value>(^The files are different.$)</value>
@@ -1494,8 +1452,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="LIST_DIR_READER">
 	<property name="exec">
-	  <value>${RUN_REFRESH} ${QUOTE}${VSSCMD}${QUOTE} dir -R- -F- ${QUOTE}${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []${QUOTE} ${OPTIONS} &amp;&amp; ${QUOTE}${VSSCMD}${QUOTE} diff -R- ${OPTIONS}</value>
-	  <value if="IS_WIN9X">${RUN_REFRESH} ${QUOTE}${VSSCMD}${QUOTE} dir -R- -F- ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} ${OPTIONS} &amp;&amp; ${QUOTE}${VSSCMD}${QUOTE} diff -R- ${OPTIONS}"</value>
+	  <value>${RUN_REFRESH} dir -R- -F- ${QUOTE}${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []${QUOTE} ${OPTIONS} &amp;&amp; diff -R- ${OPTIONS}</value>
         </property>
 	<property name="ignoreFail">
 	  <value>true</value>
@@ -1506,8 +1463,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="LIST_STATUS_READER">
 	<property name="exec">
-	  <value>${QUOTE}${VSSCMD}${QUOTE} status -R- ${QUOTE}${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []${QUOTE} ${OPTIONS}</value>
-	  <value if="IS_WIN9X">${SHELL} -c "echo >nul &amp;&amp; ${QUOTE}${VSSCMD}${QUOTE} status -R- ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []$[? FILE] [${PS}${FILE}] []${QUOTE} ${OPTIONS}"</value>
+	  <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class status -R- ${QUOTE}${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []$[? FILE] [${PS}${FILE}] []${QUOTE} ${OPTIONS}</value>
         </property>
 	<property name="ignoreFail">
 	  <value>true</value>
@@ -1518,8 +1474,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="LIST_STATUS_FOLDER_READER">
 	<property name="exec">
-	  <value>${QUOTE}${VSSCMD}${QUOTE} status -R- ${QUOTE}${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []${QUOTE} ${OPTIONS}</value>
-	  <value if="IS_WIN9X">${SHELL} -c "echo >nul &amp;&amp; ${QUOTE}${VSSCMD}${QUOTE} status -R-  ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} ${OPTIONS}"</value>
+	  <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class status -R- ${QUOTE}${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []${QUOTE} ${OPTIONS}</value>
         </property>
 	<property name="ignoreFail">
 	  <value>true</value>
@@ -1530,8 +1485,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="LIST_DIR_READER_REC">
 	<property name="exec">
-	  <value>${RUN_REFRESH} ${QUOTE}${VSSCMD}${QUOTE} dir -R -F- ${QUOTE}${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []${QUOTE} ${OPTIONS} &amp;&amp; ${QUOTE}${VSSCMD}${QUOTE} diff -R ${OPTIONS}</value>
-	  <value if="IS_WIN9X">${RUN_REFRESH} ${QUOTE}${VSSCMD}${QUOTE} dir -R -F- ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} ${OPTIONS} &amp;&amp; ${QUOTE}${VSSCMD}${QUOTE} diff -R ${OPTIONS}"</value>
+	  <value>${RUN_REFRESH} dir -R -F- ${QUOTE}${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []${QUOTE} ${OPTIONS} &amp;&amp; diff -R ${OPTIONS}</value>
         </property>
 	<property name="ignoreFail">
 	  <value>true</value>
@@ -1542,8 +1496,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="LIST_STATUS_FOLDER_READER_REC">
 	<property name="exec">
-	  <value>${QUOTE}${VSSCMD}${QUOTE} status -R ${QUOTE}${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []${QUOTE} ${OPTIONS}</value>
-	  <value if="IS_WIN9X">${SHELL} -c "echo >nul &amp;&amp; ${QUOTE}${VSSCMD}${QUOTE} status -R  ${QUOTE}${PROJECT_\/}$[? MODULE] [${PS}${MODULE_\/}] []$[? DIR] [${PS}${DIR_\/}] []${QUOTE} ${OPTIONS}"</value>
+	  <value>org.netbeans.modules.vcs.profiles.vss.commands.SSCommand.class status -R ${QUOTE}${PROJECT}$[? MODULE] [${PS}${MODULE}] []$[? DIR] [${PS}${DIR}] []${QUOTE} ${OPTIONS}</value>
         </property>
 	<property name="ignoreFail">
 	  <value>true</value>
@@ -1554,8 +1507,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_CMD">
 	<property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} view $[? REVISION] [-V${REVISION}] [] ${OPTIONS} ${QUOTE}${FILE}${QUOTE} -O${QUOTE}${TEMPDIR}${PS}${FILE}${QUOTE} ${NUR}</value>
-          <value if="IS_WIN9X">${RUN} ${QUOTE}${VSSCMD}${QUOTE} view $[? REVISION] [-V${REVISION}] [] ${OPTIONS} ${QUOTE}${FILE}${QUOTE} -O${QUOTE}${TEMPDIR_\/}${PS}${FILE}${QUOTE} ${NUR}</value>
+          <value>${RUN} view $[? REVISION] [-V${REVISION}] [] ${OPTIONS} ${QUOTE}${FILE}${QUOTE} -O${QUOTE}${TEMPDIR}${PS}${FILE}${QUOTE} ${NUR}</value>
         </property>
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
@@ -1563,7 +1515,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="DIFF_USR_CMD">
 	<property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} diff -DU ${CMD_DIFF_OPTIONS} ${OPTIONS} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
+          <value>${RUN} diff -DU ${CMD_DIFF_OPTIONS} ${OPTIONS} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
         </property>
 	<property name="data.regex">
 	  <value>(.*$)</value>
@@ -1580,7 +1532,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="DIFF_REVISIONS_CMD">
 	<property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} diff -DU -V${REVISION1}$[? REVISION2] [~${REVISION2}] [] ${OPTIONS} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
+          <value>${RUN} diff -DU -V${REVISION1}$[? REVISION2] [~${REVISION2}] [] ${OPTIONS} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
         </property>
 	<property name="data.regex">
 	  <value>(.*$)</value>
@@ -1627,7 +1579,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     <command name="REVISION_GETTER">
       <property name="exec">
-        <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} history ${OPTIONS} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
+        <value>${RUN} history ${OPTIONS} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
       </property>
       <property name="concurrentExec">
         <value>16</value> <!-- EXEC_SERIAL_ALL -->
@@ -1635,8 +1587,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     <command name="REVISION_OPEN">
       <property name="exec">
-        <value>${RUN_SILENT} ${QUOTE}${VSSCMD}${QUOTE} view $[? REVISION] [-V${REVISION}] [] ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [/${MODULE_\/}] []$[? DIR] [/${DIR_\/}] []/${FILE}${QUOTE} -O${TEMPORARY_FILE} &amp;&amp; type ${TEMPORARY_FILE} ${NUR}</value>
-        <value if="IS_WIN9X">${RUN_SILENT} ${QUOTE}${VSSCMD}${QUOTE} view $[? REVISION] [-V${REVISION}] [] ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [/${MODULE_\/}] []$[? DIR] [/${DIR_\/}] []/${FILE}${QUOTE} -O${TEMPORARY_FILE_\/} &amp;&amp; cat ${TEMPORARY_FILE_\/} ${NUR}</value>
+        <value>${RUN_SILENT} view $[? REVISION] [-V${REVISION}] [] ${OPTIONS} ${QUOTE}${PROJECT_\/}$[? MODULE] [/${MODULE_\/}] []$[? DIR] [/${DIR_\/}] []/${FILE}${QUOTE} -O${TEMPORARY_FILE} &amp;&amp; -os cmd /X /C "type ${TEMPORARY_FILE}" ${NUR}</value>
       </property>
       <property name="numRevisions">
 	<value>1</value>
@@ -1700,7 +1651,7 @@ Microsystems, Inc. All Rights Reserved.
       </property>
       <command name="GET_CONFIRM">
         <property name="exec">
-          <value>${RUNPATH_NMK} ${QUOTE}${VSSCMD}${QUOTE} get ${RECURSIVE} ${RW_MODE} ${GET_OPTIONS} -I-N ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
+          <value>${RUNPATH_NMK} get ${RECURSIVE} ${RW_MODE} ${GET_OPTIONS} -I-N ${IDENT} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
         </property>
 	<property name="error.regex">
 	  <value>(^.*)$</value>
@@ -1714,7 +1665,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="GET_FILES_CONFIRMED">
         <property name="exec">
-          <value>${RUN_GLOBAL} ${QUOTE}${VSSCMD}${QUOTE} get ${RW_MODE} ${GET_OPTIONS} -I-Y ${IDENT} ${QFILES} ${NUR}</value>
+          <value>${RUN_GLOBAL} get ${RW_MODE} ${GET_OPTIONS} -I-Y ${IDENT} ${QFILES} ${NUR}</value>
         </property>
         <property name="runOnMultipleFilesInFolder">
           <value>true</value>
