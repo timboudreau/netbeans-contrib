@@ -281,11 +281,21 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     }
     
     private void folderTreeNodes(final MyTreeNode parent) {
-        boolean hasChild = false;
+        //boolean hasChild = false;
+        final ArrayList children = new ArrayList();
         synchronized (trRelMount) {
-            parent.removeAllChildren();
-            File parentFile = (File) parent.getUserObject();
-            MyTreeNode child;
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        parent.removeAllChildren();
+                    }
+                });
+            } catch (InterruptedException intrexc) {
+                // Ignored
+            } catch (java.lang.reflect.InvocationTargetException itexc) {
+                // Ignored
+            }
+            File parentFile = (File) parent.getUserObject(); 
             File childFile;
             File[] list = parentFile.listFiles();
             Arrays.sort(list);
@@ -293,27 +303,36 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                 if (list[index].isDirectory() && list[index].exists()) {
                     childFile = list[index];
                     if (!childFile.getName().equals("CVS")) { //CVS dirs go out..
-                        hasChild = true;
-                        child = new MyTreeNode(new File(childFile.getAbsolutePath()));
+                        //hasChild = true;
+                        MyTreeNode child = new MyTreeNode(new File(childFile.getAbsolutePath()));
                         child.setAllowsChildren(true);
-                        parent.add(child);
+                        children.add(child);
+                        //parent.add(child);
                     }
                 }
             }
-            if (!hasChild) {
-                parent.setAllowsChildren(false);
-                trRelMount.collapsePath(new TreePath(parent.getPath()));
-            }
-        }
-        ((DefaultTreeModel) trRelMount.getModel()).nodeStructureChanged(parent);
-        if (hasChild) {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    trRelMount.scrollPathToVisible(new TreePath(((MyTreeNode) parent.getLastChild()).getPath()));
-                    trRelMount.scrollPathToVisible(new TreePath(((MyTreeNode) parent.getFirstChild()).getPath()));
+                    if (children.size() == 0) {
+                        parent.setAllowsChildren(false);
+                        trRelMount.collapsePath(new TreePath(parent.getPath()));
+                    } else {
+                        for (Iterator it = children.iterator(); it.hasNext(); ) {
+                            parent.add((MyTreeNode) it.next());
+                        }
+                    }
                 }
             });
         }
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ((DefaultTreeModel) trRelMount.getModel()).nodeStructureChanged(parent);
+                if (children.size() > 0) {
+                    trRelMount.scrollPathToVisible(new TreePath(((MyTreeNode) parent.getLastChild()).getPath()));
+                    trRelMount.scrollPathToVisible(new TreePath(((MyTreeNode) parent.getFirstChild()).getPath()));
+                }
+            }
+        });
     }
     
     /*
