@@ -229,9 +229,11 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
     private void printOutputData(VcsDirContainer filesByNameCont) {
         stdoutListener.outputData(new String[] { "Path:", filesByNameCont.getPath() });
         Hashtable filesByName = (Hashtable) filesByNameCont.getElement();
-        for (Iterator it = filesByName.values().iterator(); it.hasNext(); ) {
-            String[] statuses = (String[]) it.next();
-            stdoutListener.outputData(statuses);
+        if (filesByName != null) {
+            for (Iterator it = filesByName.values().iterator(); it.hasNext(); ) {
+                String[] statuses = (String[]) it.next();
+                stdoutListener.outputData(statuses);
+            }
         }
         VcsDirContainer[] subCont = filesByNameCont.getSubdirContainers();
         for (int i = 0; i < subCont.length; i++) {
