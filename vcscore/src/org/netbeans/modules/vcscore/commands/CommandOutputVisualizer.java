@@ -190,7 +190,6 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
      * @return null
      */
     protected Object writeReplace () throws java.io.ObjectStreamException {
-        close();
         return null;
     }
     
