@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -19,28 +19,22 @@ Microsystems, Inc. All Rights Reserved.
     <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
     <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
     <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-  <taskdef name="checklinks" classname="org.netbeans.nbbuild.CheckLinks">
-    <classpath>
-      <pathelement location="../../nbbuild/nbantext.jar"/>
-      <fileset dir="../../core/external">
-        <include name="regexp*.jar"/>
-      </fileset>
-    </classpath>
-  </taskdef>
 
     <property name="nbm_alias" value="nb_ide"/>
     <property name="homepage.base" value="netbeans.org"/>
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
+    
+    <path id="cp">
+        <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+        <fileset dir="${nb_all}/openide/netbeans/lib">
+            <include name="openide*.jar" />
+        </fileset>
+    </path>
   
     <target name="compile">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
-            <classpath>
-                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
-                <fileset dir="${nb_all}/openide/netbeans/lib">
-                    <include name="openide*.jar" />
-                </fileset>
-            </classpath>
+            <classpath refid="cp"/>
         </javac>
     </target>
 
@@ -82,120 +76,21 @@ Microsystems, Inc. All Rights Reserved.
         <delete dir="netbeans"/>
         <delete dir="Info"/>
         <delete dir="javadoc"/>
-        <delete dir="TasklistAPI"/>
-        <delete file="TasklistAPI.zip"/>
     </target>
 
-
- <target name="javadoc" depends="tasklist-apis">
-    <copy todir="javadoc">
-      <fileset dir=".">
-        <include name="TasklistAPI/**"/>
-        <include name="TasklistAPI.zip"/>
-      </fileset>
-    </copy>
-  </target>
-
-  <target name="tasklist-apis" description="Create Tasklist API documentation.">
-   <delete dir="TasklistAPI"/>
-   <mkdir dir="TasklistAPI"/>
-   <property name="jdk-docs-location" value="http://java.sun.com/j2se/1.4/docs/api"/>
-
-    <tstamp/>
-    <property name="tasklist-apis-header"
-              value="&lt;font color=red&gt;This is a preliminary version of APIs.&lt;br&gt;Listed APIs are subject to change.&lt;/font&gt;"/>
-    <property name="tasklist-apis-footer"
-              value="&lt;font size=-2 color=gray&gt;Built on ${TODAY}.&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;Portions Copyright 1997-2003 Sun Microsystems, Inc. All rights reserved.&lt;/font&gt;"/>
-
-    <echo message="Build Tasklist API documentation..."/>
-
-    <mkdir dir="javadoc"/>
-
-    <javadoc destdir="TasklistAPI"
-             packagenames="org.netbeans.api.tasklist.*,org.netbeans.spi.tasklist.*"
-             doctitle="NetBeans Tasklist APIs"
-             windowtitle="Tasklist APIs"
-             overview="doc/overview.html"
-             header="@@HEADER@"
-             bottom="${tasklist-apis-footer}"
-             use="true"
-             splitindex="true"
-             author="false"
-             version="false"
-             maxmemory="64m"
-             stylesheetfile="../../openide/api/doc/javadoc.css"
-    >
-      <sourcepath>
-        <pathelement location="doc"/>
-        <pathelement location="src"/>
-      </sourcepath>
-
-      <classpath>
-	<pathelement location="../../openide/openide-13javac-workaround.jar"/>
-        <fileset dir="../../openide/netbeans/lib">
-          <include name="openide*.jar" />
-        </fileset>
-        <pathelement location="../../core/netbeans/lib/core.jar"/>
-        <fileset dir="../../core/external">
-          <include name="xml-apis*.jar" />
-        </fileset>
-      </classpath>
-
-      <link href="${jdk-docs-location}"
-            offline="true"
-            packagelistLoc="../../openide/api/doc"
-      />
-      <link href="../../OpenAPIs"
-	    offline="true"
-	    packagelistLoc="../../openide/OpenAPIs"
-      />
-    </javadoc>
-
-    <!-- copy stylesheet -->
-    <copy file="../../openide/api/doc/open-apis.css" tofile="TasklistAPI/open-apis.css"/>
-    <copy file="../../openide/api/doc/nb-docs.css" tofile="TasklistAPI/nb-docs.css"/>
-
-    <!-- replace tokens -->
-    <replace dir="TasklistAPI" token="@JDK@" value="${jdk-docs-location}">
-      <include name="**/doc-files/*.html"/>
-      <include name="**/package-summary.html"/>
-    </replace>
-    <replace dir="TasklistAPI" token="@HEADER@" value="${tasklist-apis-header}">
-      <include name="**/*.html"/>
-      <exclude name="overview-frame.html"/>
-    </replace>
-    <replace dir="TasklistAPI" token="@HEADER@" value="">
-      <include name="overview-frame.html"/>
-    </replace>
-    <replace dir="TasklistAPI" token="@FOOTER@" value="${tasklist-apis-footer}">
-      <include name="**/doc-files/*.html"/>
-    </replace>
-    <replace file="TasklistAPI/overview-summary.html" token="@DATE@" value="${TODAY}"/>
-
-    <!-- reference to local copy of OpenAPIs javadoc (should work also on website) -->
-<!--
-    <replace dir="TasklistAPI" token="@OPENAPI@" value="../../OpenAPIs">
-      <include name="**/*.html"/>
-    </replace>
--->
-
-    <!-- [PENDING] fuller check mode too, checking on-line links and more HTML files? -->
-
-    <checklinks basedir="TasklistAPI" checkexternal="false">
-      <include name="overview-summary.html"/>
-      <include name="**/package-summary.html"/>
-      <include name="**/doc-files/**/*.html"/>
-      <include name="**/package.html"/>
-    </checklinks>
-
-    <zip zipfile="TasklistAPI.zip" basedir="TasklistAPI"/>
-  </target>
-
-    <target name="release">
+    <target name="javadoc" description="Build Javadoc.">
+        <!-- Ant 1.4 bug workaround: <property refid="..."/> does not work inside <ant> -->
+        <property name="_cp" refid="cp"/>
+        <ant dir="${nb_all}/nbbuild/javadoctools" antfile="template.xml" target="javadoc">
+            <property name="javadoc.base" location="."/>
+            <property name="javadoc.name" value="TasklistAPI"/>
+            <property name="javadoc.title" value="Tasklist API"/>
+            <property name="javadoc.packages" value="org.netbeans.api.tasklist,org.netbeans.spi.tasklist"/>
+            <property name="javadoc.classpath" value="${_cp}"/>
+            <property name="javadoc.overview" value="doc/overview.html"/>
+            <property name="javadoc.docfiles" location="doc"/>
+            <property name="javadoc.header" value='&lt;font color="red"&gt;This is a preliminary version of APIs.&lt;br&gt;Listed APIs are subject to change.&lt;/font&gt;'/>
+        </ant>
     </target>
 
-    <target name="javahelp">
-    </target>
-
-  
 </project>
