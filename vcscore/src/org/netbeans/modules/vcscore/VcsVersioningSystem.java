@@ -419,7 +419,8 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             else files = fileSystem.addLocalFiles(name, vcsFiles, removedFilesScheduledForRemove);
             if (cache != null) {
                 VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
-                if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal()))) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
+                if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) ||
+                    (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) && fileSystem.areOnlyHiddenFiles(files)) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
             }
             //FileStatusProvider status = fileSystem.getStatusProvider();
             for (int i = 0; i < files.length; i++) {
