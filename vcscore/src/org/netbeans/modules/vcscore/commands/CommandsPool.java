@@ -13,9 +13,10 @@
 
 package org.netbeans.modules.vcscore.commands;
 
-import java.util.*;
+import java.lang.ref.WeakReference;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.util.*;
 
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
@@ -24,6 +25,7 @@ import org.openide.filesystems.RepositoryListener;
 import org.openide.filesystems.RepositoryEvent;
 import org.openide.filesystems.RepositoryReorderedEvent;
 import org.openide.util.RequestProcessor;
+import org.openide.util.WeakListener;
 //import org.openide.nodes.AbstractNode;
 //import org.openide.nodes.Children;
 
@@ -95,7 +97,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     private ArrayList commandListeners = new ArrayList();
     
-    private VcsFileSystem fileSystem;
+    private WeakReference fileSystem;
     
     private RuntimeFolderNode runtimeNode;
     private PropertyChangeListener runtimeNodePropertyChange;
@@ -112,7 +114,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         outputContainers = new Hashtable();
         outputVisualizers = new Hashtable();
         group = new ThreadGroup("VCS Commands Group");
-        this.fileSystem = fileSystem;
+        this.fileSystem = new WeakReference(fileSystem);
         runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
         runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
         runtimeNodePropertyChange = new PropertyChangeListener() {
@@ -123,13 +125,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
             }
         };
         runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
-        fileSystem.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                if (runtimeNode != null) {
-                    RuntimeSupport.updateRuntime(runtimeNode, fileSystem.getDisplayName());
-                }
-            }
-        });
+        FSDisplayPropertyChangeListener fsDisplayPropertyChange = new FSDisplayPropertyChangeListener();
+        fileSystem.addPropertyChangeListener(WeakListener.propertyChange(fsDisplayPropertyChange, fileSystem));
         /*
         org.openide.filesystems.Repository repo = TopManager.getDefault().getRepository();
         repo.addRepositoryListener(
@@ -138,51 +135,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
         //executorStarterLoop();
     }
     
-    /*
-    public void fileSystemAdded(RepositoryEvent ev) {
-        FileSystem fs = ev.getFileSystem();
-        System.out.println("fs added : "+fs);
-        boolean added = false;
-                    /*
-                    if (fs instanceof MultiFileSystem) {
-                        MultiFileSystem mfs = (MultiFileSystem) fs;
-                        FileSystem[] delegates = mfs.getDelegates();
-                        if (Arrays.asList(delegates).contains(fileSystem)) {
-                            added = true;
-                        }
-                    }
-                     *
-        if (runtimeNode == null && fs.equals(fileSystem) || added) {
-            runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
-            runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
-            runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
-            execStarterLoopStarted = false;
-            execStarterLoopRunning = true;
-        }
+    private VcsFileSystem getVcsFileSystem() {
+        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
+        if (fileSystem == null) cleanup();
+        return fileSystem;
     }
-
-    public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {}
-
-    public void fileSystemRemoved(RepositoryEvent ev) {
-        FileSystem fs = ev.getFileSystem();
-        System.out.println("fs removed : "+fs);
-        boolean removed = false;
-                    /*
-                    if (fs instanceof MultiFileSystem) {
-                        MultiFileSystem mfs = (MultiFileSystem) fs;
-                        FileSystem[] delegates = mfs.getDelegates();
-                        if (Arrays.asList(delegates).contains(fileSystem)) {
-                            removed = true;
-                        }
-                    }
-                     *
-        if (fs.equals(fileSystem) || removed) {
-            cleanup();// - The FS may still exist i.e. inside a MultiFileSystem => do not make the cleanup now
-            //ev.getRepository().removeRepositoryListener(this);
-        }
-    }
-     */
-
+    
     protected void finalize () {
         cleanup();
     }
@@ -210,6 +168,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     public void setupRuntime() {
         if (runtimeNode == null) {
+            VcsFileSystem fileSystem = getVcsFileSystem();
+            if (fileSystem == null) return ;
             runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
             runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
             runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
@@ -268,6 +228,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * @return the preprocessing status, one of CommandExecutorSupport.PROPEROCESS_* constants
      */
     public int preprocessCommand(VcsCommandExecutor vce, Hashtable vars, boolean[] askForEachFile) {
+        VcsFileSystem fileSystem = getVcsFileSystem();
+        if (fileSystem == null) return PREPROCESS_CANCELLED;
         synchronized (commandsToRun) {
             commandsToRun.add(vce);
         }
@@ -292,6 +254,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
     
     private void commandStarted(VcsCommandExecutor vce) {
+        VcsFileSystem fileSystem = getVcsFileSystem();
+        if (fileSystem == null) return ;
         VcsCommand cmd = vce.getCommand();
         //waitToRun(cmd, vce.getFiles());
         String name = cmd.getDisplayName();
@@ -326,6 +290,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     private void commandDone(VcsCommandExecutor vce) {
         //System.out.println("command "+vce.getCommand()+" DONE.");
+        VcsFileSystem fileSystem = getVcsFileSystem();
+        if (fileSystem == null) return ;
         VcsCommand cmd = vce.getCommand();
         String name = cmd.getDisplayName();
         if (name == null || name.length() == 0) name = cmd.getName();
@@ -397,6 +363,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
     
     private void printErrorOutput(VcsCommandExecutor vce) {
+        final VcsFileSystem fileSystem = getVcsFileSystem();
+        if (fileSystem == null) return ;
         fileSystem.debugErr(g("MSG_Check_whole_output"));
         CommandsPool.CommandOutputCollector collector = (CommandsPool.CommandOutputCollector) outputContainers.get(vce);
         //boolean isErrorOutput = false;
@@ -1093,11 +1061,19 @@ public class CommandsPool extends Object /*implements CommandListener */{
                     errDataOutputListeners.add(l);
                 }
             }
-        }
-        
-        
-        
+        }        
     }
+    
+    private class FSDisplayPropertyChangeListener implements java.beans.PropertyChangeListener {
+        public void propertyChange(java.beans.PropertyChangeEvent evt) {
+            if (runtimeNode != null && VcsFileSystem.PROP_ROOT.equals(evt.getPropertyName())) {
+                VcsFileSystem fileSystem = getVcsFileSystem();
+                if (fileSystem == null) return ;
+                RuntimeSupport.updateRuntime(runtimeNode, fileSystem.getDisplayName());
+            }
+        }
+    }
+
     
     private String g(String s) {
         return org.openide.util.NbBundle.getBundle(CommandsPool.class).getString(s);
