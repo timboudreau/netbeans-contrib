@@ -1577,6 +1577,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             //Table files = new Table();
             for (Iterator it = filesPaths.iterator(); it.hasNext(); ) {
                 String file = (String) it.next();
+                if (".".equals(file)) file = ""; // NOI18N
                 FileObject fo = fileSystem.findFileObject(file);
                 if (fo != null) {
                     foFiles.add(fo);
