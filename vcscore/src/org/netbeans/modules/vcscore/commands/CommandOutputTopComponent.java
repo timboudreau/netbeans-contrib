@@ -13,12 +13,17 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Iterator;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 
 
 import org.openide.windows.Workspace;
@@ -28,6 +33,8 @@ import org.openide.util.NbBundle;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import org.openide.util.Mutex;
+import org.openide.util.Utilities;
 
 /**
  * TopComponent for vcs command output
@@ -53,6 +60,7 @@ public class CommandOutputTopComponent extends TopComponent {
         initComponents();
         setName(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.topName"));
         initPopupMenu();
+        OutputTabPopupListener.install();
         
    }
     
@@ -99,22 +107,42 @@ public class CommandOutputTopComponent extends TopComponent {
         this.menu.add(discardTab);
         this.menu.add(discardAll);
        
-        PopupListener popupListener = new PopupListener(); 
-        this.addMouseListener(popupListener);
-        tabPane.addMouseListener(popupListener);
-        
+    }    
+       
+    Component getSelectedComponent() {
+        return tabPane.getSelectedComponent();
     }
     
-    
-    class PopupListener extends java.awt.event.MouseAdapter {
-        public void mousePressed(java.awt.event.MouseEvent event) {
-            if ((event.getModifiers() & java.awt.event.MouseEvent.BUTTON3_MASK) == java.awt.event.MouseEvent.BUTTON3_MASK) {
-                CommandOutputTopComponent.this.eventSource = event.getSource();
-                CommandOutputTopComponent.this.menu.show((java.awt.Component)event.getSource(),event.getX(),event.getY());
+    void requestVisible(final Component c) {
+        Mutex.EVENT.readAccess(new Runnable() {
+            public void run() {
+                if (!c.equals(tabPane.getSelectedComponent())) {
+                    tabPane.setSelectedComponent(c);
+                }
             }
+        });
+    }                
+      
+    /** 
+     * Shows given popup on given coordinations and takes care about the
+     * situation when menu can exceed screen limits 
+     */
+    protected void showPopupMenu (Point p, Component comp) {
+        SwingUtilities.convertPointToScreen (p, comp);
+        Dimension popupSize = menu.getPreferredSize ();
+        Rectangle screenBounds = Utilities.getUsableScreenBounds(getGraphicsConfiguration());
+        
+        if (p.x + popupSize.width > screenBounds.x + screenBounds.width) {
+            p.x = screenBounds.x + screenBounds.width - popupSize.width;
         }
+        if (p.y + popupSize.height > screenBounds.y + screenBounds.height) {
+            p.y = screenBounds.y + screenBounds.height - popupSize.height;
+        }
+        
+        SwingUtilities.convertPointFromScreen (p, comp);
+        menu.show(comp, p.x, p.y);
     }
-
+  
     /**
      * Open the component on the given workspace.
      */
