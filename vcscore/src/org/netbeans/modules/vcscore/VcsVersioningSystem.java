@@ -113,7 +113,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         this.list = new VersioningList();//fileSystem.getVcsList();
         this.info = fileSystem.getVcsInfo();
         this.change = new VersioningFSChange();
-        this.attr = new VersioningAttrs();
+        this.attr = new VcsVersioningAttrs();
         this.versions = new VersioningVersions();
         revisionListsByName = new Hashtable();
         initListeners();
@@ -440,6 +440,19 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     }
 
 
+    private class VcsVersioningAttrs extends VersioningAttrs {
+        
+        public Object readAttribute(String name, String attrName) {
+            Object value = super.readAttribute(name, attrName);
+            if (value == null) {
+                FileObject fo = fileSystem.findResource(name);
+                if (fo != null) {
+                    value = fo.getAttribute(attrName);
+                }
+            }
+            return value;
+        }
+    }
     
     private class VersioningVersions extends Object implements VersioningFileSystem.Versions {
         
