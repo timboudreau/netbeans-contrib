@@ -41,13 +41,14 @@ public class RendererTest extends javax.swing.JFrame {
         }catch(Exception e){
             System.err.println("error: "+e);
         }
-        sections[0].add(new javax.swing.tree.DefaultMutableTreeNode(new AssistantItem("test1","TestOne",url)));
-        sections[0].add(new javax.swing.tree.DefaultMutableTreeNode(new AssistantItem("test2","TestTwo",url1)));
-        sections[1].add(new javax.swing.tree.DefaultMutableTreeNode(new AssistantItem("test3","TestThree",url2)));
-        AssistantItem item = new AssistantItem("desc", "text of description", descURL,AssistantItem.DESCRIPTION);
+        sections[0].add(new javax.swing.tree.DefaultMutableTreeNode(new AssistantItem("TestOne",url)));
+        sections[0].add(new javax.swing.tree.DefaultMutableTreeNode(new AssistantItem("TestTwo",url1)));
+        sections[1].add(new javax.swing.tree.DefaultMutableTreeNode(new AssistantItem("TestThree",url2)));
+        AssistantItem item = new AssistantItem("text of description", descURL,AssistantItem.TEXT);
         sections[2].add(new javax.swing.tree.DefaultMutableTreeNode(item));
-        
-        model = new DefaultAssistantModel(sections);
+        AssistantID id = new AssistantID("name");
+        id.addSection(sections);
+        AssistantContext ctx = new AssistantContext(id);        
         return model;
     }    
         

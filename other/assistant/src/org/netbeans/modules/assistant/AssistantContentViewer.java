@@ -33,6 +33,7 @@ public class AssistantContentViewer extends TopComponent implements AssistantMod
     static final long serialVersionUID=6281472310168514674L;  
     private static AssistantContentViewer component = null;
     private JEditorPane editor = null;
+    private AssistantModel model;
     
     private AssistantContentViewer(){
         putClientProperty("PersistenceType", "OnlyOpened");
@@ -43,7 +44,7 @@ public class AssistantContentViewer extends TopComponent implements AssistantMod
         JScrollPane scroll = new JScrollPane(editor);
         setCloseOperation(TopComponent.CLOSE_EACH);
         add(scroll);
-        initAccessibility();
+        initAccessibility();        
     }
     
     public static AssistantContentViewer createComp(){
@@ -88,7 +89,13 @@ public class AssistantContentViewer extends TopComponent implements AssistantMod
      */
     public void urlChanged(AssistantModelEvent e) {
         debug("set page:"+e.getURL());
+        open();
+        requestFocus();        
         setPage(e.getURL());
+    }
+    
+    public HelpCtx getHelpCtx(){
+        return new HelpCtx("assistant");
     }
     
     private boolean debug = false;

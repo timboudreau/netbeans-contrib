@@ -15,6 +15,8 @@ package org.netbeans.modules.assistant;
 
 import java.util.*;
 import javax.swing.tree.*;
+import javax.swing.*;
+import java.net.*;
 
 /*
  * AssistantSection.java
@@ -25,11 +27,18 @@ import javax.swing.tree.*;
  */
 public class AssistantSection extends DefaultMutableTreeNode{
     private String name;
-        
-    public AssistantSection(String name){
-        this.name = name;        
+    private ImageIcon icon;   
+    
+    public AssistantSection(String name,URL iconURL){
+        this.name = name;       
+        if(iconURL != null)
+            setIcon(iconURL);
     }
     
+    public AssistantSection(String name){
+        this(name, null);
+    }
+        
     public String getName(){
         return name;
     }
@@ -37,6 +46,14 @@ public class AssistantSection extends DefaultMutableTreeNode{
     public void setName(String name){
         this.name = name;
     }    
+    
+    public void setIcon (URL iconURL){
+        icon = new ImageIcon(iconURL);
+    }
+    
+    public ImageIcon getIcon(){
+        return this.icon;
+    }
     
     public String toString(){
         return "<HTML><B>"+name+"</B></HTML>";

@@ -36,9 +36,17 @@ public interface AssistantModel {
     public void setCurrentID(AssistantID id);
     
     /**
+     * Sets the current ID
+     * AssistantModelListeners are notified
+     *
+     * @param id the ID name used to set
+     */
+    public boolean setCurrentID(String idName);
+    
+    /**
      * Gets the current ID
      */
-    public AssistantID getCurrentID();    
+    public AssistantID getCurrentID();
     
     /**
      * Sets the current URL
@@ -51,18 +59,18 @@ public interface AssistantModel {
     /**
      * Gets the current URL
      */
-    public URL getCurrentURL();     
-
+    public URL getCurrentURL();
+    
     
     /**
      * Adds a listener for the AssistantModelEvent posted after the model has
      * changed.
-     * 
+     *
      * @param l The listener to add.
      * @see org.netbeans.modules.AssistantModel#removeAssistantModelListener
      */
     public void addAssistantModelListener(AssistantModelListener l);
-
+    
     /**
      * Removes a listener previously added with <tt>addAssistantModelListener</tt>
      *
@@ -70,14 +78,14 @@ public interface AssistantModel {
      * @see org.netbeans.modules.AssistantModel#addAssistantModelListener
      */
     public void removeAssistantModelListener(AssistantModelListener l);
-
+    
     /**
      * Adds a listener to monitor changes to the properties in this model
      *
      * @param l  The listener to add.
      */
     public void addPropertyChangeListener(PropertyChangeListener l);
-
+    
     /**
      * Removes a listener monitoring changes to the properties in this model
      *

@@ -21,6 +21,7 @@ import org.openide.windows.*;
 
 import java.io.*;
 import java.awt.*;
+import java.net.*;
 import javax.swing.*;
 import javax.accessibility.*;
 
@@ -57,7 +58,11 @@ public class AssistantComponent extends TopComponent{
     }
     
     private AssistantModel getModel(){
-       return new TestModel().getModel();         
+        URL url = getClass().getResource("tests/assistant.xml");
+        AssistantContext ctx = new AssistantContext(url);
+        model = new DefaultAssistantModel(ctx);
+        model.setCurrentID("default_id");
+        return model;
         
     }
     

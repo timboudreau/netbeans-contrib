@@ -79,22 +79,24 @@ public class DefaultAssistantModel implements AssistantModel, PropertyChangeList
      * AssistantModelListeners are notified. This should cause change of assistant content.
      *
      * @param id the ID used to set
+     * @return True if ID exists
      */
-    public void setCurrentID(String idName){
+    public synchronized boolean setCurrentID(String idName){        
         if(idName.equals("assistant"))
-            return;
+            return false;
         for(Iterator it = registry.iterator();it.hasNext();){
             AssistantContext ctx = (AssistantContext)it.next();
             for(Enumeration en = ctx.getIDs();en.hasMoreElements();){
                 AssistantID id = (AssistantID)en.nextElement();
                 if(id.getName().equals(idName)){
-                    setCurrentID(id);
-                    return;
+                    setCurrentID(id);                    
+                    return true;
                 }
             }
         }
-    }
-        
+        return false;
+    }     
+    
     /**
      * Gets the current ID
      */
@@ -110,7 +112,7 @@ public class DefaultAssistantModel implements AssistantModel, PropertyChangeList
      */
     public void setCurrentURL(URL url){
         debug("set url: "+url);
-        fireURLChanged(this, url);   
+        //fireURLChanged(this, url); //need rethink whether to use events or not   
         contentViewer.open();
         contentViewer.requestFocus();
         contentViewer.setPage(url);
@@ -204,8 +206,13 @@ public class DefaultAssistantModel implements AssistantModel, PropertyChangeList
         TopComponent.Registry registry = (TopComponent.Registry)evt.getSource();
         TopComponent comp = registry.getActivated();
         if(comp != null){
+            String helpID = comp.getHelpCtx().getHelpID();
+            if (setCurrentID(comp.getHelpCtx().getHelpID()+"_"+comp.getName()));
+            else setCurrentID(helpID);        
+            
             debug("id: "+comp.getHelpCtx().getHelpID());
-            setCurrentID(comp.getHelpCtx().getHelpID());
+            debug("name: "+comp.getName());
+            //setCurrentID(comp.getHelpCtx().getHelpID());
         }
     }
 

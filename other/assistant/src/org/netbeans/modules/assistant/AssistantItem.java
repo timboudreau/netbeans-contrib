@@ -14,6 +14,7 @@
 package org.netbeans.modules.assistant;
 
 import java.net.*;
+import java.io.*;
 import javax.swing.tree.*;
 /*
  * AssistantItem.java
@@ -24,23 +25,21 @@ import javax.swing.tree.*;
  */
 public class AssistantItem extends Object{
     private String name;
-    private String displayName;      
-    private URL url;
-    private int type;
-    
+    private URL url;    
+    /* Types of item */   
     public static final int LINK=0;
-    public static final int DESCRIPTION = 1;
-    public static final int SEARCH = 2;
-    
-    public AssistantItem(String name, String displayName, URL url, int type){
-        this.name = name;
-        this.displayName = displayName;
+    public static final int TEXT = 1;
+    /*Default type is LINK */
+    private int type = this.LINK;
+   
+    public AssistantItem(String name, URL url, int type){
+        this.name = name; 
         this.url = url;
         this.type = type;
     }
     
-    public AssistantItem(String name, String displayName, URL url){
-        this(name,displayName, url,AssistantItem.LINK);              
+    public AssistantItem(String name, URL url){
+        this(name,url,LINK);              
     }
     
     public String getName(){
@@ -51,20 +50,33 @@ public class AssistantItem extends Object{
         return url;
     }
     
-    public String getDisplayName(){
-        return displayName;
-    }
-    
     public int getType(){
         return type;
     }
     
     public String toString(){
         String text = "";
-        if(getType() == AssistantItem.LINK){
-            text = "<HTML><A HREF=test.html>"+displayName+"</A></HTML>";
-        }else if(getType() == AssistantItem.DESCRIPTION){            
-            text = "<HTML>This is description used </BR>for demonstration purposes only.</BR> Welcome in NetBeans</HTML>";
+        if(getType() == LINK){
+            text = "<HTML><A HREF=test.html>"+name+"</A></HTML>";
+        }else if(getType() == TEXT){            
+         /*   StringBuffer buf = new StringBuffer();
+            String inputLine;
+            BufferedReader in = null;
+            try{
+                in = new BufferedReader(new InputStreamReader(url.openStream()));
+                while ((inputLine = in.readLine()) != null)
+                    buf.append(inputLine);
+            }catch(IOException ioe){
+                //ioe
+            }finally{
+                try{
+                    in.close();
+                }catch(Exception e){
+                    //ignore
+                }
+            }
+            text = "<HTML>"+buf.toString()+"</HTML>"; */
+            text = "<HTML>"+name+"</HTML>";
         }
         return text;
     }

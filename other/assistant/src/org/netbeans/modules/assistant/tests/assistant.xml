@@ -8,32 +8,90 @@
         Demo xml for assistant
 -->
 
-<!DOCTYPE assistant >
+<!DOCTYPE assistant 
+    PUBLIC "-//Sun Microsystems Inc.//DTD Assistant Version 1.0//EN" "assistant-1_0.dtd">
 <assistant version="1.0">
-    <id name="comp1">
+    <id name="default_id">
         <section name="IDE Navigator">
-            <item url="org/netbeans/modules/assistant/pages/Comp1_Nav1.html">Comp1_Nav1</item>
-            <item url="org/netbeans/modules/assistant/pages/Comp1_Nav2.html">Comp1_Nav2</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">TestOne</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">TestTwo</item>            
         </section>
         <section name="Dynamic Helper">
-            <item url="org/netbeans/modules/assistant/pages/Comp1_Help1.html">Comp1_Help1</item>
-            <item url="org/netbeans/modules/assistant/pages/Comp1_Help2.html">Comp1_Help2</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">Dynamic Help1</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Dynamic_Help2</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent3.html">Dynamic_Help3</item>
         </section>
         <section name="Description">
-            <item url="org/netbeans/modules/assistant/pages/Comp1_Desc.html">Comp1_Desc</item> 
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html" type="text">This is short Description</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html" type="text">of focused component</item> 
         </section>
     </id>
-    <id name="comp2">
+    <id name="org.openide.windows.TopComponent">
         <section name="IDE Navigator">
-            <item url="org/netbeans/modules/assistant/pages/Comp2_Nav1.html">Comp2_Nav1</item>
-            <item url="org/netbeans/modules/assistant/pages/Comp2_Nav2.html">Comp2_Nav2</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">TopComponent Javadoc</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">New TopComponent...</item>                        
         </section>
         <section name="Dynamic Helper">
-            <item url="org/netbeans/modules/assistant/pages/Comp1_Help1.html">Comp2_Help2</item>
-            <item url="org/netbeans/modules/assistant/pages/Comp2_Help2.html">Comp2_Help2</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is TopComponent</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to TopComponent</item>            
+        </section>        
+    </id>    
+    <id name="org.openide.loaders.DataFolder_Filesystems">
+        <section name="IDE Navigator">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">New File...</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">New Filesystem...</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Remove Filesystem...</item>                        
         </section>
-        <section name="Description">
-            <item url="org/netbeans/modules/assistant/pages/Comp2_Desc.html">Comp2_Desc</item> 
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is Filesystem</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to work with Filesystem</item>            
+        </section>        
+    </id>
+    <id name="org.openide.explorer.ExplorerPanel_Project Default">
+        <section name="IDE Navigator">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">New Project...</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Switch to Project..</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Deafult Project...</item>                        
         </section>
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is Deafult Project</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to work with Projects</item>            
+        </section>        
+    </id>
+    <id name="org.openide.explorer.ExplorerPanel_Runtime">        
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is Runtime Tab</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to work with Runtime</item>            
+        </section>        
+    </id>
+    <id name="editing.editorwindow">
+        <section name="IDE Navigator">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">Editor Support Javadoc</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to edit...</item>                        
+        </section>
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is Editor for?</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to Edit Sources</item>            
+        </section>        
+    </id>
+    <id name="org.netbeans.modules.projects.ProjectDataObject">
+        <section name="IDE Navigator">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">New Project...</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">New File in Project...</item>                        
+        </section>
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is Project?</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to work with project</item>            
+        </section>        
+    </id>
+    <id name="toolbox">
+        <section name="IDE Navigator">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent.html">New Tool...</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">Remove Toolbox...</item>                        
+        </section>
+        <section name="Dynamic Helper">
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent2.html">What is Toolbox for?</item>
+            <item url="/org/netbeans/modules/assistant/pages/DefaultContent1.html">How to work with tools</item>            
+        </section>        
     </id>
 </assistant>
