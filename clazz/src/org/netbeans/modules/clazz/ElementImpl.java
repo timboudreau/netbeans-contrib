@@ -17,6 +17,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.IOException;
 import java.io.Externalizable;
+import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 
 import org.openide.TopManager;
@@ -35,7 +36,10 @@ public abstract class ElementImpl extends Object implements Element.Impl, Extern
     * to that element */
     protected Element element;
     
+    private PropertyChangeSupport support;
+    
     static final long serialVersionUID =6363778502021582852L;
+
     /** Default constructor
     */
     public ElementImpl () {
@@ -51,10 +55,23 @@ public abstract class ElementImpl extends Object implements Element.Impl, Extern
 
     /** We don't support property changes - does nothing */
     public void addPropertyChangeListener (PropertyChangeListener l) {
+        if (support == null) 
+            synchronized (this) {
+                if (support == null)
+                    support = new PropertyChangeSupport(this);
+            }
+        support.addPropertyChangeListener(l);
     }
 
     /** We don't support property changes - does nothing */
     public void removePropertyChangeListener (PropertyChangeListener l) {
+        if (support != null)
+            support.addPropertyChangeListener(l);
+    }
+    
+    protected void firePropertyChange(String propName, Object old, Object n) {
+        if (support != null)
+            support.firePropertyChange(propName, old, n);
     }
 
     /** No cookie supported.

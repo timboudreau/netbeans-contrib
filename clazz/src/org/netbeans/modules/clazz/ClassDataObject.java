@@ -12,14 +12,21 @@
  */
 package org.netbeans.modules.clazz;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 import java.lang.reflect.Modifier;
+import java.lang.ref.*;
 import java.io.*;
 import java.util.*;
 
 import org.openide.cookies.ElementCookie;
 import org.openide.cookies.SourceCookie;
+import org.openide.cookies.InstanceCookie;
 
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileEvent;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.FileEntry;
 import org.openide.loaders.InstanceSupport;
@@ -37,6 +44,7 @@ import org.openide.src.nodes.SourceChildren;
 import org.openide.src.nodes.SourceElementFilter;
 
 import org.openide.util.HelpCtx;
+import org.openide.util.WeakListener;
 
 
 /** This DataObject loads sourceless classes and provides a common framework
@@ -50,7 +58,13 @@ import org.openide.util.HelpCtx;
  * @author sdedic
  * @version 1.0
  */
-public class ClassDataObject extends org.openide.loaders.MultiDataObject implements ElementCookie {
+public class ClassDataObject extends org.openide.loaders.MultiDataObject 
+    implements ElementCookie, CookieSet.Factory, SourceCookie {
+    public static final String PROP_CLASS_LOADING_ERROR = "classLoadingError";
+    /**
+     * Holds an exception that occured during an attempt to create the class.
+     */
+    private Throwable classLoadingError;
 
     /** The generic type */
     protected static final int UNDECIDED = 0;
@@ -63,57 +77,155 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject impleme
 
     /** CHANGE!!! */
     static final long serialVersionUID = -1;
-    
-    /** The flag for recognizing if cookies are initialized or not */
-    transient private boolean cookiesInitialized = false;
 
     /** Support for working with class */
-    transient protected InstanceSupport instanceSupport;
+    transient private InstanceSupport.Origin instanceSupport;
 
+    transient private boolean sourceCreated;
+    /**
+     * Quick check whether the class was already loaded.
+     */
+    transient boolean classLoaded;
+    
+    transient PropL propL;
+    
+    transient Reference srcEl = new WeakReference(null);
+    
     /** Creates a new sourceless DataObject.
      */
     public ClassDataObject(final FileObject fo,final MultiFileLoader loader) 
         throws org.openide.loaders.DataObjectExistsException {
         super(fo, loader);
-        instanceSupport = new InstanceSupport.Origin(getPrimaryEntry());
     }
-
-    /** Initializes the DataObject and sets up relevant cookies.
-     * Overriden by SerDataObject and ClassDataObject.
-     */
+    
+    private class PropL extends FileChangeAdapter implements PropertyChangeListener, Runnable {
+        public void propertyChange(PropertyChangeEvent ev) {
+            String prop = ev.getPropertyName();
+            if (PROP_PRIMARY_FILE.equals(prop)) {
+                FileObject p = getPrimaryFile();
+                p.addFileChangeListener(WeakListener.fileChange(this, getPrimaryFile()));
+                postReload();
+            }
+        }
+        
+        public void fileChanged(FileEvent ev) {
+            postReload();
+        }
+        
+        public void run() {
+            forceReload();
+        }
+        
+        private void postReload() {
+            org.openide.util.RequestProcessor.postRequest(this, 100);
+        }
+    }
+    
     protected void initCookies() {
-        Class ourClass = null;
-        try {
-            ourClass = instanceSupport.instanceClass();
-        } catch (IOException ex) {
-            return;
-        } catch (ClassNotFoundException ex) {
-            return;
-        }
-        CookieSet cs = getCookieSet();
-        cs.add(new SourceSupport(ourClass, this));
+        getCookieSet().add(SourceCookie.class, this);
     }
 
-    /** Overrides superclass getCookie.<P>
-    * Lazily initialize cookies. (When they are requested for the first time)
-    */
-    public Node.Cookie getCookie (Class type) {
-        if (!cookiesInitialized) {
-            cookiesInitialized = true;
-            initCookies();
-        }
-        return super.getCookie(type);
-    }
-
-    /** Invalidates cookies in the cookies set. Next time getCookie is invoked,
-     * cookies relevant to this object are added to the cookie set.
+    /**
+     * Creates InstanceSupport for the primary .class file.
      */
-    private void readObject (java.io.ObjectInputStream is)
-    throws java.io.IOException, ClassNotFoundException {
-        is.defaultReadObject();
-        cookiesInitialized = false;
+    protected InstanceSupport.Origin createInstanceSupport() {
+        if (instanceSupport != null)
+            return instanceSupport;
+        synchronized (this) {
+            if (instanceSupport == null) {
+                instanceSupport = new ClazzInstanceSupport(getPrimaryEntry());
+                if (propL == null) {
+                    propL = new PropL();
+                    FileObject p = getPrimaryFile();
+                    p.addFileChangeListener(WeakListener.fileChange(propL, p));
+                }
+            }
+        }
+        return instanceSupport;
     }
+    
+    public SourceElement getSource() {
+        SourceElement s;
 
+        s = (SourceElement)srcEl.get();
+        if (s != null)
+            return s;
+        synchronized (this) {
+            s = (SourceElement)srcEl.get();
+            if (s != null)
+                return s;
+            sourceCreated = true;
+            s = new SourceElement(new SourceElementImpl(getMainClass(), this));
+            srcEl = new WeakReference(s);
+        }
+        return s;
+    }
+    
+    public Node.Cookie createCookie(Class desired) {
+        if (desired == InstanceCookie.class || desired == InstanceCookie.Origin.class) {
+            return createInstanceSupport();
+        }
+        return null;
+    }
+    
+    protected Throwable getClassLoadingError() {
+        if (!classLoaded)
+            getMainClass();
+        return this.classLoadingError;
+    }
+    
+    /**
+     * Forces reload of the class and the whole instance support.
+     */
+    protected void forceReload() {
+        CookieSet s = getCookieSet();
+        InstanceCookie prevCookie;
+    
+        prevCookie = (InstanceCookie)getCookie(InstanceCookie.class);
+        synchronized (this) {
+            instanceSupport = null;
+            classLoaded = false;
+        }
+        // if the previous support was != null, it recreates the cookie
+        // (and fires PROP_COOKIE change).
+        if (prevCookie != null) {
+            s.remove(prevCookie);
+            s.add(new Class[] {
+                InstanceCookie.Origin.class
+            }, this);
+        }
+
+        if (sourceCreated) {
+            SourceCookie sc = (SourceCookie)getCookie(SourceCookie.class);
+            SourceElementImpl impl = (SourceElementImpl)sc.getSource().getCookie(SourceElement.Impl.class);
+            if (impl != null)
+                impl.setClassObject(getMainClass());
+        }
+    }
+    
+    /**
+     * Returns the "main" class for this DataObject, or null if the class
+     * cannot be loaded. In such case, it records the error trace into
+     * {@link #classLoadingError} variable.
+     */
+    protected Class getMainClass() {
+        Class mainClass = null;
+        Throwable t = this.classLoadingError;
+        try {
+            // try to load the class.
+            mainClass = createInstanceSupport().instanceClass();
+            classLoadingError = null;
+        } catch (RuntimeException ex) {
+            classLoadingError = ex;
+        } catch (IOException ex) {
+            classLoadingError = ex;
+        } catch (ClassNotFoundException ex) {
+            classLoadingError = ex;
+        }
+        firePropertyChange(PROP_CLASS_LOADING_ERROR, t, classLoadingError);
+        return mainClass;
+    }
+    
     /** Help context for this object.
     * @return help context
     */
@@ -134,14 +246,13 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject impleme
         SourceElementFilter sourceElementFilter = new SourceElementFilter();
         sourceElementFilter.setAllClasses (true);
         sourceChildren.setFilter (sourceElementFilter);
-        try {
-            Class ourClass = instanceSupport.instanceClass();
-            sourceChildren.setElement (
-                new SourceElement(new SourceElementImpl(ourClass, this))
-            );
-        } catch (IOException ex) {
-        } catch (ClassNotFoundException ex) {
-        }
+
+        Class ourClass = getMainClass();
+        if (ourClass == null)
+            return null;
+        sourceChildren.setElement (
+            new SourceElement(new SourceElementImpl(ourClass, this))
+        );
 
         AbstractNode alteranteParent = new AbstractNode (sourceChildren);
         CookieSet cs = alteranteParent.getCookieSet();
@@ -155,23 +266,23 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject impleme
     // put them at the file level. At least JavaBean and Applet are properties
     // of a class, not a file or serialized object.
     public boolean isJavaBean () {
-        return instanceSupport.isJavaBean();
+        return createInstanceSupport().isJavaBean();
     }
 
     public boolean isApplet () {
-        return instanceSupport.isApplet ();
+        return createInstanceSupport().isApplet ();
     }
 
     public boolean isInterface () {
-        return instanceSupport.isInterface ();
+        return createInstanceSupport().isInterface ();
     }
 
     public Class getSuperclass () throws IOException, ClassNotFoundException {
-        return instanceSupport.instanceClass ().getSuperclass ();
+        return createInstanceSupport().instanceClass ().getSuperclass ();
     }
 
     public String getModifiers () throws IOException, ClassNotFoundException {
-        return Modifier.toString (instanceSupport.instanceClass().getModifiers());
+        return Modifier.toString (createInstanceSupport().instanceClass().getModifiers());
     }
 
     public String getClassName () {
@@ -185,7 +296,7 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject impleme
     }
 
     public Class getBeanClass () throws IOException, ClassNotFoundException {
-        return instanceSupport.instanceClass ();
+        return createInstanceSupport().instanceClass ();
     }
 
     // =============== The mechanism for regeisteing node factories ==============
@@ -253,31 +364,39 @@ public class ClassDataObject extends org.openide.loaders.MultiDataObject impleme
             factories.remove( index );
         }
     }
-
-    /** The implementation of the source cookie.
-     * Class data object cannot implement source cookie directly,
-     * because it's optional (if there's no instance cookie, then also
-     * no source cookie is supported)
-     */
-    protected static final class SourceSupport extends Object implements SourceCookie {
-        /** The class which acts as a source element data  */
-        private Class data;
-        
-        /** Reference to outer class  */
-        private ClassDataObject cdo;
-        
-        /** Creates source support with asociated class object  */
-        SourceSupport(Class data,ClassDataObject cdo) {
-            this.data = data;
-            this.cdo = cdo;
-        }
-        
-        /** @return The source element for this class data object  */
-        public SourceElement getSource() {
-            return new SourceElement(new SourceElementImpl(data, cdo));
-        }
-        
-        
-}
     
+    protected final class ClazzInstanceSupport extends org.openide.loaders.InstanceSupport.Origin {
+        ClazzInstanceSupport(MultiDataObject.Entry entry) {
+            super(entry);
+        }
+        
+        public Class instanceClass() throws IOException, ClassNotFoundException {
+            try {
+                Class c = super.instanceClass();
+                return c;
+            } catch (RuntimeException ex) {
+                // convert RuntimeExceptions -> CNFE
+                ClassDataObject.this.classLoadingError = ex;
+                throw new ClassNotFoundException(ex.getMessage());
+            }
+        }
+        
+        /** 
+         * Creates class loader that permits <<ALL FILES>> and all properties to be read,
+         * and is based on currentClassLoader().
+         */
+        protected ClassLoader createClassLoader() {
+            java.security.Permissions perms = new java.security.Permissions();
+            perms.add(new java.io.FilePermission("<<ALL FILES>>", "read")); // NOI18N
+            perms.add(new java.util.PropertyPermission("*", "read")); // NOI18N
+            perms.setReadOnly();
+
+            org.openide.execution.NbClassLoader loader = 
+                new org.openide.execution.NbClassLoader(
+                    new org.openide.filesystems.FileSystem[] {},
+                    org.openide.TopManager.getDefault().currentClassLoader());
+            loader.setDefaultPermissions(perms);
+            return loader;
+        }
+    }
 }

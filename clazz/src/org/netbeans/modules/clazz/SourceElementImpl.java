@@ -31,10 +31,12 @@ import org.openide.src.*;
 * @author Dafe Simonek, Jan Jancura
 */
 public final class SourceElementImpl extends MemberElementImpl
-    implements SourceElement.Impl {
+    implements SourceElement.Impl, ElementProperties, Node.Cookie {
 
     /** Empty array of imports - constant to return fro getImports() */
     static final Import[] EMPTY_IMPORTS = new Import[0];
+    static final ClassElement[] NO_CLASSES = new ClassElement[0];
+    
     /* Soft reference to the class element */
     private SoftReference topClass;
     /** Soft ref to the map holding all inners */
@@ -58,6 +60,25 @@ public final class SourceElementImpl extends MemberElementImpl
         super(data);
         this.cdo = cdo;
     }
+    
+    public void setClassObject(Class data) {
+        Class oldData = (Class)this.data;
+        int oldStatus;
+        int newStatus;
+
+        synchronized (this) {
+            oldStatus = getStatus();
+            this.data = data;
+            topClass = null;
+            allClasses = null;
+            newStatus = getStatus();
+        }
+        if (oldData != null || data != null) {
+            firePropertyChange(PROP_CLASSES, null, null);
+            firePropertyChange(PROP_ALL_CLASSES, null, null);
+        }
+        firePropertyChange(PROP_STATUS, new Integer(oldStatus), new Integer(newStatus));
+    }
 
     /** Not supported. Throws SourceException.
     */
@@ -68,6 +89,9 @@ public final class SourceElementImpl extends MemberElementImpl
     /** @return The package of class which we are representing.
     */
     public Identifier getPackage () {
+        if (data == null)
+            return null;
+        
         if (packg == null) {
             Package pac = ((Class)data).getPackage();
             if (pac != null) {
@@ -99,6 +123,8 @@ public final class SourceElementImpl extends MemberElementImpl
     * class data we were given in constructor.
     */
     public ClassElement[] getClasses () {
+        if (data == null)
+            return NO_CLASSES;
         return new ClassElement[] { getClassElement() };
     }
 
@@ -120,7 +146,7 @@ public final class SourceElementImpl extends MemberElementImpl
     /** @return Always returns STATUS_OK, 'cause we always have the class...
     */
     public int getStatus () {
-        return SourceElement.STATUS_OK;
+        return data == null ? SourceElement.STATUS_ERROR : SourceElement.STATUS_OK;
     }
 
     /** Returns empty task, because we don't need any preparation.
@@ -144,6 +170,8 @@ public final class SourceElementImpl extends MemberElementImpl
         ClassElement result =
             (topClass == null) ? null : (ClassElement)topClass.get();
         if (result == null) {
+            if (data == null)
+                return null;
             result = new ClassElement(
                          new ClassElementImpl((Class)data), (SourceElement)element);
             topClass = new SoftReference(result);
@@ -156,7 +184,7 @@ public final class SourceElementImpl extends MemberElementImpl
     */
     private Map getAllClassesMap () {
         Map allClassesMap = (allClasses == null) ? null : (Map)allClasses.get();
-        if (allClassesMap == null) {
+        if (allClassesMap == null && data != null) {
             // soft ref null, we must recreate
             allClassesMap = createClassesMap();
             // remember it, please ...
@@ -221,6 +249,8 @@ public final class SourceElementImpl extends MemberElementImpl
         if (type.equals(DataObject.class) || type.equals(MultiDataObject.class) ||
                 ClassDataObject.class.isAssignableFrom(type)) {
             return cdo;
+        } else if (type == SourceElement.Impl.class) {
+            return this;
         }
         return null;
     }

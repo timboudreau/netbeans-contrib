@@ -15,6 +15,8 @@ package org.netbeans.modules.clazz;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.*;
 import java.util.Vector;
 import java.util.ResourceBundle;
@@ -30,6 +32,7 @@ import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.WeakListener;
 import org.openide.src.*;
 import org.openide.src.nodes.SourceChildren;
 import org.openide.src.nodes.DefaultFactory;
@@ -41,7 +44,7 @@ import org.openide.ErrorManager;
 * and SerDataNode (.ser and other serialized extensions)
 * @author Ales Novak, Ian Formanek, Jan Jancura, Dafe Simonek
 */
-abstract class ClassDataNode extends DataNode implements Runnable {
+abstract class ClassDataNode extends DataNode implements Runnable, PropertyChangeListener {
     /** generated Serialized Version UID */
     static final long serialVersionUID = -1543899241509520203L;
 
@@ -54,13 +57,17 @@ abstract class ClassDataNode extends DataNode implements Runnable {
     * by this class, or all items (incl. inherited)
     */
     private boolean showDeclaredOnly = true;  // [PENDING - get default value from somewhere ?]
+
     /** ClassDataObject that is represented */
     protected ClassDataObject obj;
 
     /** The flag indicating whether right icon has been already found */
     transient boolean iconResolved = false;
+
     /** Holds error message shown in node tooltip */
     transient String errorMsg;
+    
+    transient boolean initialized;
 
     // -----------------------------------------------------------------------
     // constructor
@@ -183,9 +190,17 @@ abstract class ClassDataNode extends DataNode implements Runnable {
             (SourceCookie)getDataObject().getCookie(SourceCookie.class);
         if (sc != null) {
             ((SourceChildren)getChildren()).setElement(sc.getSource());
+            if (!initialized)
+                sc.getSource().addPropertyChangeListener(
+                    WeakListener.propertyChange(this, sc.getSource()));
+            initialized = true;
         }
-
         resolveIcons();
+    }
+    
+    public void propertyChange(PropertyChangeEvent ev) {
+        if (ElementProperties.PROP_STATUS.equals(ev.getPropertyName()))
+            RequestProcessor.postRequest(this, 200);
     }
 
     // --------------------------------------------------------------------
@@ -196,58 +211,36 @@ abstract class ClassDataNode extends DataNode implements Runnable {
     * @param exc Exception which describes the failure.
     */
     protected void setErrorToolTip (Exception exc) {
-        // avoid multiple performing
-        if (errorMsg == null) {
-            errorMsg = MessageFormat.format(
-                NbBundle.getBundle(ClassDataNode.class).getString("FMT_ErrorHint"),
-                new Object[] { Utilities.getShortClassName(exc.getClass()) }
-            );
-            setShortDescription(errorMsg);
-        }
+        String errMsg = findErrorMessage(exc);
+        errorMsg = MessageFormat.format(
+            NbBundle.getBundle(ClassDataNode.class).getString("FMT_ErrorHint"),
+            new Object[] { errMsg }
+        );
+        setShortDescription(errorMsg);
     }
 
+    private String findErrorMessage(Throwable t) {
+        if (t == null) {
+            return null;
+        }
+        
+        ErrorManager.Annotation[] ann = TopManager.getDefault().getErrorManager().findAnnotations(t);
+        if (ann == null)
+            return t.getLocalizedMessage();
+        for (int i = 0; i < ann.length; i++) {
+            String normal = ann[i].getMessage();
+            String localized = ann[i].getLocalizedMessage();
+            if (localized != null)
+                return localized;
+            Throwable t2 = ann[i].getStackTrace();
+            if (t2 == null)
+                continue;
+            localized = t2.getLocalizedMessage();
+            if (localized != null) {
+                if (!localized.equals(normal))
+                    return localized;
+            }
+        }
+        return t.getLocalizedMessage();
+    }
 }
-
-/*
- * Log
- *  28   Gandalf   1.27        1/18/00  David Simonek   Execution now correctly 
- *       disabled for ser data nodes
- *  27   Gandalf   1.26        1/13/00  David Simonek   i18n
- *  26   Gandalf   1.25        1/5/00   David Simonek   
- *  25   Gandalf   1.24        10/29/99 Jesse Glick     Using undeprecated 
- *       variant of *Support.addProperties.
- *  24   Gandalf   1.23        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  23   Gandalf   1.22        8/9/99   Jaroslav Tulach Delays initialization of
- *       children => solves one deadlock.
- *  22   Gandalf   1.21        6/28/99  Petr Hrebejk    Multiple node factories 
- *       added
- *  21   Gandalf   1.20        6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  20   Gandalf   1.19        5/10/99  Jaroslav Tulach DataNode.canRename
- *  19   Gandalf   1.18        4/22/99  Ales Novak      new model of execution
- *  18   Gandalf   1.17        4/4/99   Ian Formanek    
- *  17   Gandalf   1.16        3/26/99  David Simonek   
- *  16   Gandalf   1.15        3/26/99  Ian Formanek    Fixed use of obsoleted 
- *       NbBundle.getBundle (this)
- *  15   Gandalf   1.14        3/22/99  Ian Formanek    Icons location fixed
- *  14   Gandalf   1.13        3/22/99  Ian Formanek    Icons moved from 
- *       modules/resources to this package
- *  13   Gandalf   1.12        3/16/99  Petr Hamernik   renaming static fields
- *  12   Gandalf   1.11        3/15/99  Petr Hamernik   
- *  11   Gandalf   1.10        2/25/99  Jaroslav Tulach Change of clipboard 
- *       management  
- *  10   Gandalf   1.9         2/15/99  David Simonek   
- *  9    Gandalf   1.8         2/9/99   David Simonek   
- *  8    Gandalf   1.7         2/9/99   David Simonek   little fixes - init in 
- *       separate thread
- *  7    Gandalf   1.6         2/3/99   David Simonek   
- *  6    Gandalf   1.5         2/1/99   David Simonek   
- *  5    Gandalf   1.4         1/20/99  David Simonek   rework of class DO
- *  4    Gandalf   1.3         1/19/99  David Simonek   
- *  3    Gandalf   1.2         1/13/99  David Simonek   
- *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
- *       datasystem package
- *  1    Gandalf   1.0         1/5/99   Ian Formanek    
- * $
- */

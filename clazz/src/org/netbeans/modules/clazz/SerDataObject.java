@@ -15,6 +15,7 @@ package org.netbeans.modules.clazz;
 
 import java.io.IOException;
 
+import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.*;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.InstanceSupport;
@@ -42,6 +43,15 @@ public final class SerDataObject extends ClassDataObject {
     /** Constructs a new BeanDataObject */
     public SerDataObject(FileObject fo, ClassDataLoader loader) throws DataObjectExistsException {
         super (fo, loader);
+        initCookies();
+    }
+    
+    /** Performs cookie initialization. */
+    protected void initCookies () {
+        super.initCookies();
+
+        CookieSet cs = getCookieSet();
+        cs.add(InstanceCookie.Origin.class, this);
     }
     
     /**
@@ -92,21 +102,12 @@ public final class SerDataObject extends ClassDataObject {
      * @returns appropriate HelpCtx
      */
     public HelpCtx getHelpCtx () {
-        HelpCtx test = InstanceSupport.findHelp (instanceSupport);
+        HelpCtx test = InstanceSupport.findHelp (createInstanceSupport());
         if (test != null)
             return test;
         else
             return new HelpCtx (SerDataObject.class);
     }
-
-    protected void initCookies() {
-        super.initCookies();
-        CookieSet cs = getCookieSet();
-        // since all serializable object can be treated as JavaBeans, 
-        // always add an InstanceCookie.
-        cs.add(instanceSupport);
-    }
-
 
     protected FileObject handleRename (String name) throws IOException {
         if (name.indexOf(".")!=-1) {

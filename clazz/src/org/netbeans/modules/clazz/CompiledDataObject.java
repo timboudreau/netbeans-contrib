@@ -75,10 +75,9 @@ public class CompiledDataObject extends ClassDataObject {
     /** Constructs a new ClassDataObject */
     public CompiledDataObject(final FileObject fo,final ClassDataLoader loader) throws org.openide.loaders.DataObjectExistsException {
         super (fo, loader);
-        MultiDataObject.Entry pe = getPrimaryEntry();
-        execSupport = new ExecSupport(pe);
+        initCookies();
     }
-
+    
     /** Performs cookie initialization. */
     protected void initCookies () {
         super.initCookies();
@@ -86,9 +85,27 @@ public class CompiledDataObject extends ClassDataObject {
         CookieSet cs = getCookieSet();
         // only JavaBeans should offer `Customize Bean' action
         if (isJavaBean()) {
-            cs.add(instanceSupport);
+            cs.add(InstanceCookie.Origin.class, this);
+            cs.add(createInstanceSupport());
         }
-        cs.add(execSupport);
+        cs.add(ExecCookie.class, this);
+    }
+    
+    protected ExecSupport createExecSupport() {
+        if (execSupport != null)
+            return execSupport;
+        synchronized (this) {
+            if (execSupport == null)
+                execSupport = new ExecSupport(getPrimaryEntry());
+        }
+        return execSupport;
+    }
+    
+    public Node.Cookie createCookie(Class c) {
+        if (c == ExecCookie.class) {
+            return createExecSupport();
+        }
+        return super.createCookie(c);
     }
 
     // DataObject implementation .............................................
@@ -99,7 +116,7 @@ public class CompiledDataObject extends ClassDataObject {
     public boolean isCopyAllowed () {
         boolean isSerializable = false;
         try {
-            isSerializable = Serializable.class.isAssignableFrom(instanceSupport.instanceClass());
+            isSerializable = Serializable.class.isAssignableFrom(createInstanceSupport().instanceClass());
         } catch (Exception exc) {
             // don't allow copying if some error appeared
             // during serializability test
@@ -132,7 +149,7 @@ public class CompiledDataObject extends ClassDataObject {
         String newName = existInFolder (f);
         Object bean;
         try {
-            bean = instanceSupport.instanceCreate();
+            bean = createInstanceSupport().instanceCreate();
         } catch (ClassNotFoundException ex) {
             throw new IOException (ex.toString ());
         }
@@ -164,7 +181,7 @@ public class CompiledDataObject extends ClassDataObject {
     // Properties implementation .....................................................................
 
     boolean isExecutable () {
-        return instanceSupport == null ? false : instanceSupport.isExecutable ();
+        return createInstanceSupport().isExecutable ();
     }
 
     // other methods ..............................................................................
@@ -238,111 +255,5 @@ public class CompiledDataObject extends ClassDataObject {
         }
 
     } // the end of SourceSupport inner class
-
-    /* PENDING - not reimpl yet
-    static class BeanTransferableOwner extends TransferableOwner.Filter {
-
-      String beanName;
-
-      BeanTransferableOwner (
-        TransferableOwner transferable,
-        String beanName,
-        Class beanClass
-      ) {
-        super (
-          transferable,
-          new DataFlavor[] {new TransferFlavors.BeanFlavor (beanClass)}
-        );
-        this.beanName = beanName;
-      } */
-
-    /** Creates transferable data for this flavor.
-    */
-    /*
-    public Object getTransferData (DataFlavor flavor)
-    throws UnsupportedFlavorException, IOException {
-      if (isDataFlavorSupported(flavor)) {
-        if (flavor instanceof TransferFlavors.BeanFlavor) return beanName;
-        return super.getTransferData (flavor);
-      }
-      else {
-        // not supported flavor
-        throw new UnsupportedFlavorException (flavor);
-      }
-}
-} */
-
 }
 
-/*
- * Log
- *  29   Gandalf   1.28        1/20/00  David Simonek   #2119 bugfix
- *  28   Gandalf   1.27        1/18/00  David Simonek   Execution now correctly 
- *       disabled for ser data nodes
- *  27   Gandalf   1.26        1/13/00  David Simonek   i18n
- *  26   Gandalf   1.25        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  25   Gandalf   1.24        8/18/99  Jaroslav Tulach #2641
- *  24   Gandalf   1.23        7/25/99  Ian Formanek    Fixed bug #2745 - 
- *       Property "Class Name" of serialized prototypes displays the file name 
- *       rather than the name of the class that is serialized in it.
- *  23   Gandalf   1.22        7/16/99  Petr Jiricka    Fixed bug that classes 
- *       without main couldn't be executed
- *  22   Gandalf   1.21        7/9/99   Petr Hrebejk    Add/emove mehods made 
- *       synchronized
- *  21   Gandalf   1.20        6/28/99  Petr Hrebejk    Multiple node factories 
- *       added
- *  20   Gandalf   1.19        6/24/99  Jesse Glick     Gosh-honest HelpID's.
- *  19   Gandalf   1.18        6/22/99  Ian Formanek    employed DEFAULT_HELP
- *  18   Gandalf   1.17        6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  17   Gandalf   1.16        4/8/99   David Simonek   obscure dialog bugfix 
- *       (#1411)
- *  16   Gandalf   1.15        4/2/99   Jan Jancura     ObjectBrowser support 
- *       II.
- *  15   Gandalf   1.14        4/1/99   Ian Formanek    Rollback to make it 
- *       compilable
- *  14   Gandalf   1.13        4/1/99   Jan Jancura     Object browser support
- *  13   Gandalf   1.12        3/26/99  Ian Formanek    
- *  12   Gandalf   1.11        3/26/99  Ian Formanek    Fixed use of obsoleted 
- *       NbBundle.getBundle (this)
- *  11   Gandalf   1.10        3/3/99   Jaroslav Tulach Uses ExecSupport to 
- *       provide DebuggerCookie
- *  10   Gandalf   1.9         2/5/99   David Simonek   
- *  9    Gandalf   1.8         2/3/99   David Simonek   
- *  8    Gandalf   1.7         2/1/99   David Simonek   
- *  7    Gandalf   1.6         1/26/99  David Simonek   util.Task used for 
- *       synchronization
- *  6    Gandalf   1.5         1/22/99  David Simonek   synchronization problems
- *       concerning getCookie repaired
- *  5    Gandalf   1.4         1/20/99  David Simonek   rework of class DO
- *  4    Gandalf   1.3         1/19/99  David Simonek   
- *  3    Gandalf   1.2         1/13/99  David Simonek   
- *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
- *       datasystem package
- *  1    Gandalf   1.0         1/5/99   Ian Formanek    
- * $
- * Beta Change History:
- *  0    Tuborg    0.20        --/--/98 Jan Formanek    SWITCHED TO NODES
- *  0    Tuborg    0.21        --/--/98 Jan Formanek    bugfix
- *  0    Tuborg    0.22        --/--/98 Jan Formanek    added property showDeclaredOnly
- *  0    Tuborg    0.23        --/--/98 Jan Formanek    employed PropertySupport.ReadOnly, ...
- *  0    Tuborg    0.24        --/--/98 Petr Hamernik   initializing of subnodes improvements
- *  0    Tuborg    0.25        --/--/98 Jan Formanek    icon change
- *  0    Tuborg    0.26        --/--/98 Jan Formanek    checks if the class has the right main method in
- *  0    Tuborg    0.26        --/--/98 Jan Formanek    isExecutionAllowed
- *  0    Tuborg    0.27        --/--/98 Jan Formanek    different icon for classes with main() method
- *  0    Tuborg    0.28        --/--/98 Jan Formanek    NotSerializable bug fixed (BUG ID: 03210062)
- *  0    Tuborg    0.29        --/--/98 Jan Formanek    default is showDeclaredOnly
- *  0    Tuborg    0.31        --/--/98 Jan Jancura     default is showDeclaredOnly
- *  0    Tuborg    0.32        --/--/98 Jan Jancura     moved to propertySet
- *  0    Tuborg    0.34        --/--/98 Ales Novak      handler joined
- *  0    Tuborg    0.36        --/--/98 Jan Formanek    isExecAllowed from ExecCookie added, isExecutionAllowed removed
- *  0    Tuborg    0.36        --/--/98 Jan Formanek    CustomizeBeanCookie implementation
- *  0    Tuborg    0.37        --/--/98 Jan Jancura     exception in containsMain...
- *  0    Tuborg    0.38        --/--/98 Jaroslav Tulach defaultClipboardCut moved to ClassDataNode
- *  0    Tuborg    0.41        --/--/98 Jan Jancura     bugfix
- *  0    Tuborg    0.44        --/--/98 Ales Novak      applets support
- *  0    Tuborg    0.45        --/--/98 Jan Formanek    bugfix in isApplet () (thrown ClassFormatError if the class was in
- *  0    Tuborg    0.45        --/--/98 Jan Formanek    a wrong package)
- */

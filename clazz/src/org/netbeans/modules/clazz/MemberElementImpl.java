@@ -93,6 +93,11 @@ public abstract class MemberElementImpl extends ElementImpl
     * if it's possible.
     */
     public Node.Cookie getCookie (Class type) {
+        // disable ElementCookie on all elements except the source (which
+        // has getCookie() redefined once again).
+        if (type == org.openide.cookies.ElementCookie.class)
+            return null;
+
         ClassElement ce = ((MemberElement)element).getDeclaringClass();
         if ((ce == null) && (element instanceof ClassElement)) {
             ce = (ClassElement)element;
