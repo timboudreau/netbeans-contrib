@@ -1317,7 +1317,12 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     /** Logical view over opened projects */
     private Node projectView() {
 
-        Children kids = new Children.Array();
+        Children.SortedArray kids = new Children.SortedArray();
+        kids.setComparator(new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    return ((FolderNode) o1).getDisplayName().compareToIgnoreCase(((FolderNode) o2).getDisplayName());
+                }
+            });
         Set projects = new HashSet();
 
         // XXX there is planned bettre api to get all opened projects
@@ -1333,21 +1338,26 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             projects.add(project);
 
             Sources sources = ProjectUtils.getSources(project);
-                SourceGroup[] group =sources.getSourceGroups(Sources.TYPE_GENERIC);
-                for (int i=0; i<group.length; i++) {
-                    FileObject folder = group[i].getRootFolder();
-                    if (folder.isFolder() == false) continue;
-                    kids.add(new Node[] {new FolderNode(folder)});
-                    // XXX use SourceGroup getter methods
-                    if (icons == null) {
-                        try {
-                            DataObject dobj = DataObject.find(folder);
-                            icons = dobj.getNodeDelegate();
-                        } catch (DataObjectNotFoundException e) {
-                            // ignore
-                        }
+            SourceGroup[] group =sources.getSourceGroups(Sources.TYPE_GENERIC);
+            Arrays.sort(group, new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    return ((SourceGroup) o1).getDisplayName().compareToIgnoreCase(((SourceGroup) o2).getDisplayName());
+                }
+            });
+
+            for (int i=0; i<group.length; i++) {
+                FileObject folder = group[i].getRootFolder();
+                if (folder.isFolder() == false) continue;
+                kids.add(new Node[] {new FolderNode(folder, group[i])});
+                if (icons == null) {
+                    try {
+                        DataObject dobj = DataObject.find(folder);
+                        icons = dobj.getNodeDelegate();
+                    } catch (DataObjectNotFoundException e) {
+                        // ignore
                     }
                 }
+            }
         }
         final Node content = new AbstractNode(kids) {
             public void setName(String name) {
@@ -1364,6 +1374,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private static class FolderNode extends AbstractNode {
 
         private final FileObject fileObject;
+        private SourceGroup group;
+
+        public FolderNode(FileObject fileObject, SourceGroup root) {
+            super(new FolderContent(fileObject), Lookups.singleton(fileObject));
+            this.fileObject = fileObject;
+            group = root;
+        }
 
         public FolderNode(FileObject fileObject) {
             super(new FolderContent(fileObject), Lookups.singleton(fileObject));
@@ -1371,10 +1388,23 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
 
         public String getDisplayName() {
-            return fileObject.getName();
+            if (group != null) {
+                return group.getDisplayName();
+            } else {
+                return fileObject.getName();
+            }
         }
 
         public Image getIcon(int type) {
+
+            // XXX how to convert icon to image?
+//            if (group != null) {
+//                Icon icon  = group.getIcon(false);
+//                if (icon != null) {
+//                    return icon.
+//                }
+//            }
+
             // XXX how to dynamically get icon (that is subject to L&F)
             if (icons != null) {
                 return icons.getIcon(type);
@@ -1402,6 +1432,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
             protected void addNotify() {
                 FileObject[] fo = fileObject.getChildren();
+                Arrays.sort(fo, new Comparator() {
+                    public int compare(Object o1, Object o2) {
+                        return ((FileObject) o1).getNameExt().compareToIgnoreCase(((FileObject) o2).getNameExt());
+                    }
+                });
                 setKeys(Arrays.asList(fo));
             }
 
