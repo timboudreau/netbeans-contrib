@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="scratch-impl" default="init" basedir="." xmlns:mount="antlib:org.netbeans.modules.mount">
+    <!-- *************************** DO NOT EDIT ME *************************** -->
+    <!-- Make any desired changes in build.properties and/or build.xml instead. -->
+    <target name="init">
+        <mount:loadmountlist mountlist="mount-list" sourcepathproperty="nb.source.path" classpathproperty="nb.class.path"/>
+        <property file="${netbeans.user}/build.properties"/>
+        <property file="build.properties"/>
+    </target>
+    <target name="compile-single" depends="init">
+        <fail unless="javac.root">Must set javac.root</fail>
+        <fail unless="javac.includes">Must set javac.includes</fail>
+        <fail unless="javac.source.level">Must set javac.source.level</fail>
+        <javac srcdir="${javac.root}" destdir="${javac.root}"
+               sourcepath="${nb.source.path}" classpath="${nb.class.path}"
+               includes="${javac.includes}" source="${javac.source.level}"/>
+    </target>
+</project>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="scratch" default="init" basedir=".">
+    <description>
+        Builds files in "scratch" mode with the "mount" compatibility module.
+        You can override or call targets from build-impl.xml here.
+    </description>
+    <import file="build-impl.xml"/>
+</project>
