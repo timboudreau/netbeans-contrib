@@ -24,7 +24,7 @@ import javax.naming.NameClassPair;
 abstract class JndiIcons extends Object {
 
     /** The directory with Jndi icons*/
-    public final static String ICON_BASE = "/org/netbeans/modules/jndi/resources/";
+    public final static String ICON_BASE = "org/netbeans/modules/jndi/resources/";
     /** The array of pairs (Class,IconName)*/
     private final static String[] defaultIcons = {"*","interface",
             JndiRootNode.NB_ROOT,"jndi",
