@@ -19,8 +19,8 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
+import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem;
-import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
@@ -146,9 +146,9 @@ public class CvsRevisionListGetter extends java.lang.Object implements VcsAdditi
         }
         if (false == status) return status;
         //ArrayList revisionItems = createRevisionItems();
-        final NumDotRevisionList list = new NumDotRevisionList();
-        final NumDotRevisionItem rootItem = new NumDotRevisionItem(null);
-        rootItem.addProperty(org.openide.util.NbBundle.getBundle(CvsRevisionListGetter.class).getString("CTL_Description"), description);
+        final RevisionList list = new RevisionList();
+        //final NumDotRevisionItem rootItem = new NumDotRevisionItem(null);
+        //rootItem.addProperty(org.openide.util.NbBundle.getBundle(CvsRevisionListGetter.class).getString("CTL_Description"), description);
         Object[] revisionItemsSorted = revisionItems.toArray(new RevisionItem[0]);
         Arrays.sort(revisionItemsSorted);
         revisionItems = new ArrayList(Arrays.asList(revisionItemsSorted));
@@ -163,7 +163,7 @@ public class CvsRevisionListGetter extends java.lang.Object implements VcsAdditi
         return true;
     }
     
-    private void returnEncodedList(NumDotRevisionList list, CommandDataOutputListener dataListener) {
+    private void returnEncodedList(RevisionList list, CommandDataOutputListener dataListener) {
         String encodedList;
         try {
             encodedList = VcsUtilities.encodeValue(list);

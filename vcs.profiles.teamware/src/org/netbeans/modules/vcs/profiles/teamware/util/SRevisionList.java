@@ -21,10 +21,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
+import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem;
-import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList;
 
-public class SRevisionList extends NumDotRevisionList {
+public class SRevisionList extends RevisionList {
 
     private SRevisionItem activeRevision = null;
     

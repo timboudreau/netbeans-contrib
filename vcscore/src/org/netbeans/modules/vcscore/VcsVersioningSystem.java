@@ -343,7 +343,7 @@ class VcsVersioningSystem extends VersioningFileSystem {
                 FileObject[] files = new FileObject[] { fo };
                 files = cmd.getApplicableFiles(files);
                 if (files == null) {
-                    RevisionList list = new org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList();
+                    RevisionList list = new RevisionList();
                     list.setFileObject(fo);
                     return list; // Return an empty list when the command can not be executed!
                 }

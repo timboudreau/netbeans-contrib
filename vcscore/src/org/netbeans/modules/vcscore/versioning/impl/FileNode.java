@@ -41,7 +41,7 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
     private PropertyListenerImpl propListener;
 
     public FileNode(FileObject file) {
-        super(new NumDotRevisionChildren(null), file);
+        super(new RevisionChildren(null), file);
         //this.file = file;
         RevisionChildren children = (RevisionChildren) getChildren();
         RevisionChildren.NotificationListener childrenNotificationListener = new ChildrenNotificationListener();
@@ -98,7 +98,6 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
 
     private final Object childrenRefreshingLock = new Object();
 
-    // XXX it should be RevisionChildren responsibility
     public void refreshRevisions() {
         RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
@@ -107,8 +106,8 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
                     RevisionList rList = null;
                     try {
                         children.setList(null); // To have "Please Wait..." child
-                        rList = getRevisionList(true);//vsystem.getVersions().getRevisions(AbstractVcsFile.this.toString());
-                        if (rList == null) rList = new NumDotRevisionList();
+                        rList = getRevisionList(true);
+                        if (rList == null) rList = new RevisionList();
                         rList.setFileObject(getFile());
                         String revision = getRevision();
                         if (revision != null) {
@@ -118,7 +117,12 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
                             }
                         }
                     } finally {
-                        if (rList == null) rList = new NumDotRevisionList();
+                        if (rList == null) rList = new RevisionList();
+                        RevisionChildren newChildren = rList.getChildrenFor(null);
+                        if (!newChildren.equals(children)) {
+                            setChildren(newChildren);
+                            children = newChildren;
+                        }
                         children.setList(rList);
                     }
                 }

@@ -24,8 +24,8 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.versioning.RevisionItem;
+import org.netbeans.modules.vcscore.versioning.RevisionList;
 import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionItem;
-import org.netbeans.modules.vcscore.versioning.impl.NumDotRevisionList;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
@@ -117,8 +117,7 @@ public class VssRevisionListGetterLocalized extends Object implements VcsAdditio
             return false;
         }
         if (false == status) return status;
-        final NumDotRevisionList list = new NumDotRevisionList();
-        NumDotRevisionItem rootItem = new NumDotRevisionItem(null);
+        final RevisionList list = new RevisionList();
         Object[] revisionItemsSorted = revisionItems.toArray(new RevisionItem[0]);
         Arrays.sort(revisionItemsSorted);
         revisionItems = new ArrayList(Arrays.asList(revisionItemsSorted));
@@ -132,7 +131,7 @@ public class VssRevisionListGetterLocalized extends Object implements VcsAdditio
         return true;
     }
     
-    private void returnEncodedList(NumDotRevisionList list, CommandDataOutputListener dataListener) {
+    private void returnEncodedList(RevisionList list, CommandDataOutputListener dataListener) {
         String encodedList;
         try {
             encodedList = VcsUtilities.encodeValue(list);

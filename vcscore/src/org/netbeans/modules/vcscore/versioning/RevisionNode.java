@@ -239,9 +239,9 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
                                 return tag.substring(1, tag.length() - 1);
                             }
                     });
-        Hashtable additional = item.getAdditionalProperties();
-        for(Enumeration enum = additional.keys(); enum.hasMoreElements(); ) {
-            final String name = (String) enum.nextElement();
+        Map additional = item.getAdditionalProperties();
+        for(Iterator it = additional.keySet().iterator(); it.hasNext(); ) {
+            final String name = (String) it.next();
             final String value = (String) additional.get(name);
             set.put(new PropertySupport.ReadOnly(
                         "additional_"+name, String.class, name, ""

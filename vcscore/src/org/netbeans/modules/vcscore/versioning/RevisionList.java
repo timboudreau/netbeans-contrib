@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -21,15 +21,21 @@ import org.openide.nodes.Node;
 
 /**
  * RevisionList is a sorted set of RevisionItem objects.
+ * <p>
+ * Can be overriden to provide different Node delegates
+ * {@link #createNodeDelegate}, or different children impl.
+ * {@link #getChildrenFor}, or both.
  *
  * @author  Martin Entlicher
  */
-public abstract class RevisionList extends TreeSet implements Node.Cookie {
+public class RevisionList extends TreeSet implements Node.Cookie {
 
     private transient FileObject fo = null; // The current File Object
     private transient Vector listeners;
     private transient WeakHashMap nodeDelegatesWithoutChildren;
     private transient WeakHashMap nodeDelegatesWithChildren;
+    private transient WeakHashMap existingChildren;
+    private transient RevisionChildren rootChildren;
 
     static final long serialVersionUID = -8578787400541124223L;
     
@@ -38,13 +44,14 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
         listeners = new Vector();
         nodeDelegatesWithoutChildren = new WeakHashMap();
         nodeDelegatesWithChildren = new WeakHashMap();
+        existingChildren = new WeakHashMap();
     }
     
-    public void setFileObject(FileObject fo) {
+    public final void setFileObject(FileObject fo) {
         this.fo = fo;
     }
     
-    public FileObject getFileObject() {
+    public final FileObject getFileObject() {
         return fo;
     }
     
@@ -85,7 +92,7 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
         return status;
     }
     
-    public boolean removeRevision(String revision) {
+    public final boolean removeRevision(String revision) {
         Iterator it = this.iterator();
         while(it.hasNext()) {
             RevisionItem rev = (RevisionItem) it.next();
@@ -98,7 +105,10 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
         return false;
     }
     
-    public void fireChanged() {
+    /**
+     * Called when the content of this list changes.
+     */
+    private final void fireChanged() {
         //System.out.println("RevisionList.fireChange()");
         for(Enumeration enum = listeners.elements(); enum.hasMoreElements(); ) {
             ChangeListener listener = (ChangeListener) enum.nextElement();
@@ -106,17 +116,77 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
         }
     }
     
-    public abstract boolean containsSubRevisions(String revision);
-
-    public void addChangeListener(ChangeListener listener) {
+    /**
+     * Add a change listener to listen on changes of the content of this list.
+     */
+    public final void addChangeListener(ChangeListener listener) {
         listeners.add(listener);
     }
     
-    public boolean removeChangeListener(ChangeListener listener) {
+    public final  boolean removeChangeListener(ChangeListener listener) {
         return listeners.remove(listener);
     }
     
-    public Node getNodeDelegate(RevisionItem item, RevisionChildren children) {
+    /**
+     * Test whether this list contains any sub-revisions to the given revision.
+     * This method is called to decide whether the given revision have any children
+     * or not. Uses {@link RevisionItem#isDirectSubItemOf} method to decide whether
+     * there is some sub-revision or not.
+     */
+    public final boolean containsSubRevisions(RevisionItem revision) {
+        Iterator it = this.iterator();
+        while(it.hasNext()) {
+            RevisionItem testItem = (RevisionItem) it.next();
+            if (testItem.isDirectSubItemOf(revision)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get the children implementation for the given revision item.
+     * {@link #createChildrenFor} method is called to create the children
+     * if necessary.
+     * @param item The revision item to get the children for or
+     *             <code>null</code> when the root children are requested.
+     */
+    public final RevisionChildren getChildrenFor(RevisionItem item) {
+        if (item == null) {
+            if (rootChildren == null) {
+                rootChildren = createChildrenFor(null);
+            }
+            return rootChildren;
+        } else {
+            RevisionChildren children = (RevisionChildren) existingChildren.get(item);
+            if (children == null) {
+                children = createChildrenFor(item);
+                existingChildren.put(item, children);
+            }
+            return children;
+        }
+    }
+    
+    /**
+     * Create the children implementation for the given revision item.
+     * This method is called for revision items that are not branches
+     * and {@link #containsSubRevisions} returns true.
+     * The initial children should be returned when <code>null</code>
+     * argument is provided.
+     * @param item The revision item to get the children for or
+     *             <code>null</code> when the root children are requested.
+     */
+    protected RevisionChildren createChildrenFor(RevisionItem item) {
+        return new RevisionChildren(this, item);
+    }
+    
+    /**
+     * Get the node delegate of the given revision item with given children.
+     * The children are obtained by {@link #getChildrenFor} method.
+     * Uses {@link #createNodeDelegate} method to create the node when it
+     * does not exist.
+     */
+    public final Node getNodeDelegate(RevisionItem item, RevisionChildren children) {
         Node node;
         if (children == null) {
             node = (Node) nodeDelegatesWithoutChildren.get(item);
@@ -134,6 +204,11 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
         return node;
     }
     
+    /**
+     * Get the node delegate for RevisionItem. Override to provide custom Node implementation.
+     * @param item The revision item
+     * @param children The children obtained from {@getChildrenFor} method.
+     */
     protected Node createNodeDelegate(RevisionItem item, RevisionChildren children) {
         RevisionNode node;
         if (children == null || org.openide.nodes.Children.LEAF.equals(children)) {
@@ -142,7 +217,6 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
             node = new RevisionNode(children);
             node.setItem(item);
         }
-        node.setDisplayName(item.getDisplayName());
         return node;
     }
     
@@ -151,6 +225,7 @@ public abstract class RevisionList extends TreeSet implements Node.Cookie {
         listeners = new Vector();
         nodeDelegatesWithoutChildren = new WeakHashMap();
         nodeDelegatesWithChildren = new WeakHashMap();
+        existingChildren = new WeakHashMap();
     }
     
 }

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -22,12 +22,14 @@ import javax.swing.event.EventListenerList;
 import org.openide.nodes.Node.Cookie;
 
 /**
+ * The representation of a revision item.
  *
  * @author  Martin Entlicher
  */
 public abstract class RevisionItem extends Object implements Cookie, Comparable, java.io.Serializable {
 
     static final long serialVersionUID=6021472313331712674L;
+    
     public static final String PROP_REVISION = "revision";
     public static final String PROP_CURRENT_REVISION = "currentRevision";
     public static final String PROP_DISPLAY_NAME = "displayName";
@@ -73,7 +75,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
 
     /** Get the revision of that item.
      */
-    public String getRevision() {
+    public final String getRevision() {
         return this.revision;
     }
     
@@ -81,11 +83,11 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
      * That may differ from getRevision(), due to the fact, that odd-dotted denote
      * revisions and even-dotted denote branches.
      */
-    public String getRevisionVCS() {
+    public final String getRevisionVCS() {
         return this.revisionVCS;
     }
     
-    public void setRevisionVCS(String revisionVCS) {
+    public final void setRevisionVCS(String revisionVCS) {
         this.revisionVCS = revisionVCS;
     }
 
@@ -93,9 +95,21 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         return (branches == null);
     }
 
+    /**
+     * Find whether the current item represents a branch.
+     * @return <code>true</code> when the current item represents a branch,
+     *         <code>false</code> otherwise.
+     */
     public abstract boolean isBranch();
     
-    public void setDisplayName(String displayName) {
+    /**
+     * Test whether the current item is a direct sub-item of the given item.
+     * This method is used to constuct the revision children.
+     * @param item The item to test or <code>null</code>.
+     */
+    public abstract boolean isDirectSubItemOf(RevisionItem item);
+    
+    public final void setDisplayName(String displayName) {
         if (!displayName.equals(this.displayName)) {
             String oldDisplayName = this.displayName;
             this.displayName = displayName;
@@ -103,11 +117,11 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         }
     }
     
-    public String getDisplayName() {
+    public final String getDisplayName() {
         return this.displayName;
     }
     
-    public void setMessage(String message) {
+    public final void setMessage(String message) {
         if (!message.equals(this.message)) {
             String oldMessage = this.message;
             this.message = message;
@@ -115,11 +129,11 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         }
     }
     
-    public String getMessage() {
+    public final String getMessage() {
         return this.message;
     }
     
-    public void setDate(String date) {
+    public final void setDate(String date) {
         if (!date.equals(this.date)) {
             String oldDate = this.date;
             this.date = date;
@@ -127,11 +141,11 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         }
     }
     
-    public String getDate() {
+    public final String getDate() {
         return this.date;
     }
     
-    public void setAuthor(String author) {
+    public final void setAuthor(String author) {
         if (!author.equals(this.author)) {
             String oldAuthor = this.author;
             this.author = author;
@@ -139,11 +153,11 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         }
     }
     
-    public String getAuthor() {
+    public final String getAuthor() {
         return this.author;
     }
 
-    public void setLocker(String locker) {
+    public final void setLocker(String locker) {
         if (!locker.equals(this.locker)) {
             String oldLocker = this.locker;
             this.locker = locker;
@@ -151,32 +165,32 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         }
     }
 
-    public String getLocker() {
+    public final String getLocker() {
         return this.locker;
     }
 
-    public void addTagName(String tagName) {
+    public final void addTagName(String tagName) {
         tagNames.add(tagName);
         if (isBranch()) setDisplayName(revision+" ("+tagName+")");
         firePropertyChange(PROP_TAGS, null, null);
     }
 
-    public boolean removeTagName(String tagName) {
+    public final boolean removeTagName(String tagName) {
         boolean removed = tagNames.remove(tagName);
         if (removed) firePropertyChange(PROP_TAGS, null, null);
         return removed;
     }
 
-    public void setTagNames(String[] tagNames) {
+    public final void setTagNames(String[] tagNames) {
         this.tagNames = new Vector(Arrays.asList(tagNames));
         firePropertyChange(PROP_TAGS, null, null);
     }
 
-    public String[] getTagNames() {
+    public final String[] getTagNames() {
         return (String[]) tagNames.toArray(new String[0]);
     }
     
-    public void setCurrent(boolean current) {
+    public final void setCurrent(boolean current) {
         //System.out.println("RevisionItem("+revision+"): current = "+this.current+", setCurrent("+current+")");
         if (current != this.current) {
             this.current = current;
@@ -184,25 +198,25 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         }
     }
     
-    public boolean isCurrent() {
+    public final boolean isCurrent() {
         return current;
     }
 
-    public void addProperty(String name, String value) {
+    public final void addProperty(String name, String value) {
         additionalProperties.put(name, value);
         firePropertyChange(PROP_ADDITIONAL_PROPERTIES, null, null);
     }
     
-    public Hashtable getAdditionalProperties() {
+    public final Map getAdditionalProperties() {
         return additionalProperties;
     }
     
-    public void addAdditionalPropertiesSet(String name, Map properties) {
+    public final void addAdditionalPropertiesSet(String name, Map properties) {
         additionalPropertiesSets.add(name);
         additionalPropertiesSets.add(properties);
     }
     
-    public String[] getAdditionalPropertiesSetNames() {
+    public final String[] getAdditionalPropertiesSetNames() {
         ArrayList names = new ArrayList();
         for (int i = 0; i < additionalPropertiesSets.size(); i += 2) {
             names.add(additionalPropertiesSets.get(i));
@@ -210,7 +224,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         return (String[]) names.toArray(new String[0]);
     }
     
-    public Map[] getAdditionalPropertiesSets() {
+    public final Map[] getAdditionalPropertiesSets() {
         ArrayList sets = new ArrayList();
         for (int i = 1; i < additionalPropertiesSets.size(); i += 2) {
             sets.add(additionalPropertiesSets.get(i));
@@ -218,25 +232,12 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         return (Map[]) sets.toArray(new Map[0]);
     }
     
-    protected abstract RevisionItem getNextItem();
-
-    protected abstract int cmpRev(String revision);
-
-    public abstract RevisionItem addRevision(String revision);
-
-    public abstract RevisionItem addBranch(String branch);
+    /**
+     * Compare to another revision item. See {@link Comparable#compareTo}
+     * for the contract definition.
+     */
+    protected abstract int compareTo(RevisionItem item);
     
-    public void putToList(Collection list) {
-        if (!list.contains(this)) list.add(this);
-        RevisionItem next = getNextItem();
-        if (next != null) next.putToList(list);
-        if (branches != null) {
-            for(Enumeration enum = branches.elements(); enum.hasMoreElements(); ) {
-                ((RevisionItem) enum.nextElement()).putToList(list);
-            }
-        }
-    }
-
     public int hashCode() {
         return revision.hashCode();
     }
@@ -252,14 +253,14 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     
     public int compareTo(final java.lang.Object p1) {
         //System.out.println(getRevision()+".compareTo("+((RevisionItem) p1).getRevision()+") = "+this.cmpRev(((RevisionItem) p1).getRevision()));
-        return -this.cmpRev(((RevisionItem) p1).getRevision());
+        return this.compareTo((RevisionItem) p1);
     }
     
-    public void addPropertyChangeListener(PropertyChangeListener l) {
+    public final void addPropertyChangeListener(PropertyChangeListener l) {
         changeSupport.addPropertyChangeListener(l);
     }
 
-    public void removePropertyChangeListener(PropertyChangeListener l) {
+    public final void removePropertyChangeListener(PropertyChangeListener l) {
         changeSupport.removePropertyChangeListener(l);
     }
     

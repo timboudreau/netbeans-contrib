@@ -23,25 +23,32 @@ import org.openide.util.*;
  *
  * @author  Martin Entlicher
  */
-public abstract class RevisionChildren extends Children.Keys implements ChangeListener, java.io.Serializable {
+public class RevisionChildren extends Children.Keys implements ChangeListener, java.io.Serializable {
 
     protected static final Object WAIT_KEY = new Object();
     
-    private String acceptField = "";
-    private int numAcceptDots = 1;
     private RevisionList list = null;
+    private RevisionItem item = null;
     private ChangeListener changeListenerToList;
     private ArrayList notificationListeners = new ArrayList(2);
-    private Runnable initProcess = null;
     private boolean added; // true after addNotify() is called.
     
-    /** Creates new RevisionChildren 
-     * @param list the RevisionList, can be null
+    /** Creates new RevisionChildren
+     * @param list The RevisionList, can be null
      */
     public RevisionChildren(RevisionList list) {
+        this(list, null);
+    }
+    
+    /** Creates new RevisionChildren
+     * @param list The RevisionList, can be null
+     * @param item The RevisionItem where this children are rooted.
+     */
+    public RevisionChildren(RevisionList list, RevisionItem item) {
         changeListenerToList = WeakListeners.change (this, this);
         if (list != null) list.addChangeListener(changeListenerToList);
         this.list = list;
+        this.item = item;
         stateChanged (null);
     }
     
@@ -50,7 +57,7 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
     }
     
     /**
-     * Set a new revision list.
+     * Set a new revision list. Can be called only for the root children.
      */
     public void setList(RevisionList newList) {
         if (list != null) list.removeChangeListener(changeListenerToList);
@@ -71,15 +78,7 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
         }
     }
     
-    public void setInitProcess(Runnable initProcess) {
-        this.initProcess = initProcess;
-    }
-    
     protected void addNotify() {
-        if (list == null && initProcess != null) {
-            org.openide.util.RequestProcessor.getDefault().post(initProcess);
-            initProcess = null;
-        }
         org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 ArrayList notifList;
@@ -112,17 +111,11 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
         super.removeNotify();
     }
     
-    private void setAcceptField(String acceptField) {
-        this.acceptField = acceptField;
+    protected boolean accept(RevisionItem item) {
+        return item.isDirectSubItemOf(this.item);
     }
     
-    private void setNumAcceptDots(int dots) {
-        numAcceptDots = dots;
-    }
-    
-    protected abstract boolean accept(RevisionItem item);
-    
-    protected abstract RevisionChildren getChildrenFor(RevisionItem item);
+    //protected abstract RevisionChildren getChildrenFor(RevisionItem item);
     
     protected Node createWaitingNode() {
         AbstractNode n = new AbstractNode(Children.LEAF);
@@ -148,10 +141,10 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
             //System.out.println("isRevision = "+(item.isRevision() && !item.isBranch()));
             //if (item.isRevision() && !item.isBranch()) {
             Node newNode;
-            if (!list.containsSubRevisions(item.getRevision()) && !item.isBranch()) {
+            if (!list.containsSubRevisions(item) && !item.isBranch()) {
                 newNode = list.getNodeDelegate(item, null);
             } else {
-                RevisionChildren children = getChildrenFor(item);
+                RevisionChildren children = list.getChildrenFor(item);
                 newNode = list.getNodeDelegate(item, children);
             }
             nodes = new Node[] { newNode };
