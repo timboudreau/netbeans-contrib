@@ -39,6 +39,8 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
       
       protected LinkedList list;
       
+      private static final long serialVersionUID = -794293494044050639L;
+      
       public TableInfoModel() {
           list = new LinkedList();
           columnLabels = new HashMap();
