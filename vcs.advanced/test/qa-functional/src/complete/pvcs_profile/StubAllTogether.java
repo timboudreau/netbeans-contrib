@@ -52,7 +52,7 @@ public class StubAllTogether extends PVCSStub {
     public static Test suite() {
 //        complete.GenericStub.DEBUG = true;
         TestSuite suite = new NbTestSuite();
-        try { if (Runtime.getRuntime().exec(Utilities.isUnix() ? "sh -c \"vlog\"" : "cmd /x /c \"vlog\"").waitFor() != 0) return suite; } catch (Exception e) {}
+        try { if (Runtime.getRuntime().exec(Utilities.isUnix() ? "sh -c \"vlog\"" : "cmd /x /c \"vlog\"").waitFor() != 0) return suite; } catch (Exception e) { e.printStackTrace (); return suite; }
         suite.addTest(new StubAllTogether("configure"));
         suite.addTest(new StubAllTogether("testCreateProject"));
         suite.addTest(new StubAllTogether("testAddSingleFile"));
