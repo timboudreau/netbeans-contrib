@@ -904,7 +904,7 @@ public abstract class TaskListView extends ExplorerPanel
 
     public static TaskListView getTaskListView(String category) {
 	if (category == null) {
-	    TaskList.err.log("Internal error: category was null in getTaskListView!");
+	    ErrorManager.getDefault().log("Internal error: category was null in getTaskListView!");
 	}
 
         if (views == null) {

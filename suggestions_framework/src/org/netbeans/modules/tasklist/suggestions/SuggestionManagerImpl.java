@@ -26,6 +26,7 @@ import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskList;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.io.ByteArrayInputStream;
 import java.io.Writer;
 import java.io.FileWriter;
@@ -320,13 +321,35 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 new Lookup.Template(SuggestionProvider.class);
             Iterator it = Lookup.getDefault().lookup(template).
                 allInstances().iterator();
+            // Two stage process so we can sort by priority
+
+            ArrayList provList = new ArrayList(20);
             while (it.hasNext()) {
                 SuggestionProvider sp = (SuggestionProvider)it.next();
-                if (sp != null) {
-                    providers.add(sp);
-                    if (sp instanceof DocumentSuggestionProvider) {
-                        docProviders.add(sp);
+                provList.add(sp);
+            }
+            SuggestionProvider[] provA =
+                (SuggestionProvider[])provList.toArray(
+                                  new SuggestionProvider[provList.size()]);
+            final SuggestionTypes types = SuggestionTypes.getTypes();
+            Arrays.sort(provA, new Comparator() {
+                    public int compare(Object o1, Object o2) {
+                        SuggestionProvider a = (SuggestionProvider)o1;
+                        SuggestionProvider b = (SuggestionProvider)o2;
+                        try {
+                            SuggestionType at = types.getType(a.getTypes()[0]);
+                            SuggestionType bt = types.getType(b.getTypes()[0]);
+                            return at.getPosition() - bt.getPosition();
+                        } catch (Exception e) {
+                            return -1;
+                        }
                     }
+                });
+            for (int i = 0; i < provA.length; i++) {
+                SuggestionProvider sp = provA[i];
+                providers.add(sp);
+                if (sp instanceof DocumentSuggestionProvider) {
+                    docProviders.add(sp);
                 }
             }
 
@@ -1081,18 +1104,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
     
     private void scan(DataFolder folder, boolean recursive, SuggestionList list) {
-        if (TaskList.err.isLoggable(ErrorManager.INFORMATIONAL)) {
-            TaskList.err.log("Scanning folder " + folder.getPrimaryFile().
-                             getNameExt());
-        }
-        
         DataObject[] children = folder.getChildren();
         for (int i = 0; i < children.length; i++) {
             DataObject f = children[i];
-            if (TaskList.err.isLoggable(ErrorManager.INFORMATIONAL)) {
-                TaskList.err.log(" Checking " + f.getPrimaryFile().getNameExt());
-            }
-        
             if (f instanceof DataFolder) {
 		if (!recursive) {
 		    continue;
@@ -1138,11 +1152,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
                                        "ScanningFile", // NOI18N
                                        f.getPrimaryFile().getNameExt()));
 
-                if (TaskList.err.isLoggable(ErrorManager.INFORMATIONAL)) {
-                    TaskList.err.log("   About to scan: " + // NOI18N
-                                     f.getPrimaryFile().getNameExt());
-                }
-                
                 scan(doc, list, f);
             }
         }

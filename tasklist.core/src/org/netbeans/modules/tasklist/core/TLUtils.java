@@ -192,10 +192,12 @@ public final class TLUtils {
         shown properly in HTML.
     */
     public static void appendHTMLChar(StringBuffer sb, char c) {
+        // See also HTMLSupport.toHTML if you modify this
         switch (c) {
         case '<': sb.append("&lt;"); break; // NOI18N
         case '>': sb.append("&gt;"); break; // NOI18N
         case '&': sb.append("&amp;"); break; // NOI18N
+        case '"': sb.append("&quot;"); break; // NOI18N
         case ' ': sb.append("&nbsp;"); break; // NOI18N
         case '\n': sb.append("<br>"); break; // NOI18N
         default: sb.append(c);

@@ -32,10 +32,6 @@ public class TaskList { // XXX remove the publicness
     // List category
     public final static String USER_CATEGORY = "usertasks"; // NOI18N
 
-
-    public static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.modules.tasklist"); // NOI18N
-    
-    
     /** Creates a new instance of TaskList */
     public TaskList() {
     }

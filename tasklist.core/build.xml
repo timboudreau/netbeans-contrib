@@ -125,4 +125,7 @@ Microsystems, Inc. All Rights Reserved.
       </zip>
     </target>
   
+   <target name="release">
+    </target> 
+
 </project>

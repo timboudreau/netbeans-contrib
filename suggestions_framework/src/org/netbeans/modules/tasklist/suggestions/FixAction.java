@@ -16,12 +16,19 @@ package org.netbeans.modules.tasklist.suggestions;
 import java.awt.Dialog;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
+import java.util.Iterator;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JEditorPane;
 import org.netbeans.api.tasklist.SuggestionPerformer;
 import org.netbeans.api.tasklist.SuggestionManager;
+import org.openide.cookies.EditorCookie;
+import org.openide.ErrorManager;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.loaders.DataObject;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.Actions;
 import org.openide.nodes.Node;
@@ -59,14 +66,18 @@ public class FixAction extends NodeAction {
     protected void performAction(Node[] node) {
         SuggestionManagerImpl manager = 
              (SuggestionManagerImpl)SuggestionManager.getDefault();
-        boolean fixingStarted = false;
-        try {
+
         boolean skipConfirm = false;
         SuggestionsView tlv = SuggestionsView.getCurrentView();
         if (tlv == null) {
             // INTERNAL ERROR
             return;
         }
+
+        Collection originalModified =
+            new ArrayList(DataObject.getRegistry().getModifiedSet());
+        boolean fixingStarted = false;
+        try {
 
         for (int i = 0; i < node.length; i++) {
             SuggestionImpl item = (SuggestionImpl)TaskNode.getTask(node[i]);
@@ -78,9 +89,13 @@ public class FixAction extends NodeAction {
             if (performer == null) {
                 continue;
             }
-            Object confirmation = performer.getConfirmation(item);
+            
             boolean doConfirm = manager.isConfirm(item.getSType());
-            if (doConfirm && !skipConfirm && (confirmation != null)) {
+            Object confirmation = null;
+            if (doConfirm && !skipConfirm) {
+                confirmation = performer.getConfirmation(item);
+            }
+            if (confirmation != null) {
                 // Show in source editor as well, if possible
                 if (tlv != null) {
                     tlv.show(item, new SuggestionAnno(item));
@@ -102,10 +117,6 @@ public class FixAction extends NodeAction {
                 JButton cancelButton = new JButton();
                 Actions.setMenuText(cancelButton,
                    NbBundle.getMessage(FixAction.class, "Cancel"), true); // NOI18N
-                
-                JCheckBox noConfirmButton = new JCheckBox();
-                Actions.setMenuText(noConfirmButton,
-                   NbBundle.getMessage(FixAction.class, "NoConfirm"), true); // NOI18N
                 
                 String title = NbBundle.getMessage(FixAction.class, "TITLE_fixconfirm");
                 DialogDescriptor dlg = new DialogDescriptor(
@@ -130,9 +141,26 @@ public class FixAction extends NodeAction {
                        null,
                        null);
                 dlg.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
+                /* Don't include a confirmation-suppression toggle on
+                   the dialog itself - users may think they have fine
+                   control over confirmations (e.g. that they can skip
+                   confirmations for only the unused-imports removal
+                   in PMD).
+
+                   Instead, they can turn off confirmations in the
+                   Edit Types... dialog - and once they know how to do
+                   that, they also know how to get it back - and they
+                   will also see the granularity of the types they
+                   are manipulating.
+                JCheckBox noConfirmButton = new JCheckBox();
+                Actions.setMenuText(noConfirmButton,
+                   NbBundle.getMessage(FixAction.class, "NoConfirm"), true); // NOI18N
+                
 		dlg.setAdditionalOptions(new Object[] {
                                            noConfirmButton
                                          });
+                */
+
                 dlg.setModal(true);
                 final Dialog dialog = DialogDisplayer.getDefault().createDialog(dlg);
                 dialog.pack();
@@ -144,7 +172,7 @@ public class FixAction extends NodeAction {
                 }
                 
                 if (pressedButton == cancelButton) {
-                    return; // CANCELLED
+                    break; // CANCELLED
                 } else if (pressedButton == fixAllButton) {
                     skipConfirm = true;
                 } else if (pressedButton == skipButton) {
@@ -154,9 +182,11 @@ public class FixAction extends NodeAction {
                     continue;
                 } // else: fixButton - go ahead and fix
                 
+                /* Removed - see comment above declaration
                 if (noConfirmButton.isSelected()) {
                     manager.setConfirm(((SuggestionImpl)item).getSType(), false, true);
                 }
+                */
             }
             if (!fixingStarted) {
                 fixingStarted = true;
@@ -175,6 +205,120 @@ public class FixAction extends NodeAction {
             if (fixingStarted) {
                 manager.setFixing(false);
             }
+        }
+        
+        // Handle files that have been modified by the fix operation.
+        // It's not as simple as looking at the Line objects for the
+        // tasks that we've fixed but not done a line.show() on since
+        // actions are allowed to modify ANY files. For example, the
+        // javaparser module can create a new method in a different
+        // class. So instead we diff the modified files list before
+        // and after fix, and for the newly modified files, check if
+        // they are open. (Hm, how the heck do we do that? They have
+        // open documents.... how can I check if they have an actual
+        // editor? Will the EditorCookie help?)
+
+        // See if the set of modified files have changed
+        Set modifiedRO = DataObject.getRegistry().getModifiedSet();
+        Set modified = new java.util.HashSet(modifiedRO);
+        modified.removeAll(originalModified);
+        
+        boolean haveModified = false;
+        Iterator it = modified.iterator();
+        while (it.hasNext()) {
+            DataObject dao = (DataObject)it.next();
+            EditorCookie cookie = 
+                (EditorCookie)dao.getCookie(EditorCookie.class);
+            if (cookie != null) {
+                JEditorPane[] panes = cookie.getOpenedPanes();
+                if ((panes == null) || (panes.length == 0)) {
+                    haveModified = true;
+                }
+            }
+        }
+        if (haveModified) {
+                JButton openFiles = new JButton();
+                Actions.setMenuText(openFiles,
+                   NbBundle.getMessage(FixAction.class, 
+                                       "ShowFiles"), true); // NOI18N
+                
+                JButton selectFiles = new JButton();
+                Actions.setMenuText(selectFiles,
+                   NbBundle.getMessage(FixAction.class, 
+                                       "SelectFiles"), true); // NOI18N
+                
+                JButton saveFiles = new JButton();
+                Actions.setMenuText(saveFiles,
+                   NbBundle.getMessage(FixAction.class, 
+                                       "SaveAllFiles"), true); // NOI18N
+                
+                JButton cancelButton = new JButton();
+                Actions.setMenuText(cancelButton,
+                   NbBundle.getMessage(FixAction.class, 
+                                       "Cancel"), true); // NOI18N
+                
+                String title = NbBundle.getMessage(FixAction.class, 
+                                                   "FixSavesTitle");
+                DialogDescriptor dlg = new DialogDescriptor(
+                       NbBundle.getMessage(FixAction.class, 
+                                           "FixFileSaves"), // NOI18N
+                       title,
+                       true,
+                       (node.length > 1) ?
+                       new JButton [] {
+                          openFiles,
+                          // NOT YET IMPLEMENTED: selectFiles,
+                          saveFiles,
+                          cancelButton
+                       }
+                       :
+                       new JButton [] {
+                          openFiles,
+                          // NOT YET IMPLEMENTED: selectFiles,
+                          saveFiles,
+                          cancelButton
+                       },
+                    
+                       openFiles,
+                       DialogDescriptor.DEFAULT_ALIGN,
+                       null,
+                       null);
+                dlg.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
+                dlg.setModal(true);
+                final Dialog dialog = 
+                    DialogDisplayer.getDefault().createDialog(dlg);
+                dialog.pack();
+                dialog.show();
+                Object pressedButton = dlg.getValue();
+
+                if (pressedButton == openFiles) {
+                    it = modified.iterator();
+                    while (it.hasNext()) {
+                        DataObject dao = (DataObject)it.next();
+                        EditorCookie cookie = 
+                            (EditorCookie)dao.getCookie(EditorCookie.class);
+                        if (cookie != null) {
+                            cookie.open();
+                        }
+                    }
+                } else if (pressedButton == saveFiles) {
+                    it = modified.iterator();
+                    while (it.hasNext()) {
+                        DataObject dao = (DataObject)it.next();
+                        EditorCookie cookie = 
+                            (EditorCookie)dao.getCookie(EditorCookie.class);
+                        if (cookie != null) {
+                            try {
+                                cookie.saveDocument();
+                            } catch (Exception e) {
+                                ErrorManager.getDefault().notify(
+                                               ErrorManager.WARNING, e);
+                            }
+                        }
+                    }
+                } else if (pressedButton == selectFiles) {
+                    //XXX TODO!
+                }
         }
     }
     
