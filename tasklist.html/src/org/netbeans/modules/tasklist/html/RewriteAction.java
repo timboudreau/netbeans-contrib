@@ -28,6 +28,9 @@ import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
+import org.openide.cookies.EditorCookie;
+import org.openide.cookies.OpenCookie;
+import org.openide.cookies.EditCookie;
 
 import org.netbeans.modules.html.*;
 import org.netbeans.api.diff.*;
@@ -42,10 +45,6 @@ import org.w3c.tidy.*;
  * <p>
  * @todo Use a single button OK panel, not an OK/Cancel
  *    dialog for the preview dialog
- * @todo Allow the action to operate on unopened files.
- *    Probably as simple as enablin the action even when
- *    getDocument() returns null, and in performAction
- *    call openDocument() instead of getDocument().
  *
  * @author Tor Norbye
  */
@@ -66,10 +65,12 @@ public class RewriteAction extends NodeAction
         if (dobj == null) {
             return false;
         }
-        Document doc = TLUtils.getDocument(dobj);
-        if (doc == null) { // Not open
+        EditorCookie edit = (EditorCookie)dobj.getCookie(
+                                                     EditorCookie.class);
+        if (edit == null) {
             return false;
         }
+
         if (TidySuggester.isHTML(dobj)) {
             return true;
         }
@@ -105,7 +106,30 @@ public class RewriteAction extends NodeAction
         }
         Document doc = TLUtils.getDocument(dobj);
         if (doc == null) {
-            return; // XXX signal error?
+            EditorCookie edit = (EditorCookie)dobj.getCookie(
+                                                     EditorCookie.class);
+            if (edit == null) {
+                return; // Signal error?
+                //ErrorManager.getDefault().log(ErrorManager.USER, 
+                //   "no editor cookie!");
+            }
+	    EditCookie ec = (EditCookie)dobj.getCookie(EditCookie.class);
+	    if (ec != null) { 
+	    	OpenCookie oc = (OpenCookie)dobj.getCookie(OpenCookie.class);
+		oc.open();
+	    } else {
+		ec.edit();
+	    }
+            doc = TLUtils.getDocument(dobj);
+	    if (doc == null) {
+		    // HMMMMMM....
+                try {
+                    doc = edit.openDocument();
+                } catch (java.io.IOException e) {
+                    ErrorManager.getDefault().notify(e);
+                    return;
+                }
+	    }
         }
 
         boolean isHTML = TidySuggester.isHTML(dobj);

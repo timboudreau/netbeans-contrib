@@ -24,6 +24,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskList;
+import org.netbeans.modules.tasklist.core.TLUtils;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -90,7 +91,12 @@ import org.openide.windows.Workspace;
 /**
  * Actual suggestion manager provided to clients when the Suggestions
  * module is running.
- *
+ *<p>
+ * @todo In propertyChange(), when notified by the TopComponent.Registry
+ *   that the set of visible top components have changed, I should figure
+ *   out which document(s) have been closed (if any) and clear them out
+ *   of the suggestion cache.
+ * <p>
  * @author Tor Norbye
  */
 
@@ -99,9 +105,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
     implements DocumentListener, CaretListener, ComponentListener,
                PropertyChangeListener {
 
-    public static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.modules.tasklist"); // NOI18N
+    private final boolean stats = System.getProperty("netbeans.tasklist.stats") != null;
 
-   private final boolean stats = System.getProperty("netbeans.tasklist.stats") != null;
+    /** Cache tracking suggestions in recently visited files */
+    private SuggestionCache cache = null;
 
     /** Construct a new SuggestionManager instance. */
     public SuggestionManagerImpl() {
@@ -286,6 +293,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
             docStop();
             running = false;
+            
+            // Get rid of suggestion cache
+            if (cache != null) {
+                cache.flush();
+            }
         }
     }
 
@@ -1276,7 +1288,15 @@ final public class SuggestionManagerImpl extends SuggestionManager
     public void register(String type, List add, List remove) {
         //System.out.println("register(" + type + ", " + add +
         //  ", " + remove + ")");
-        register(type, add, remove, getList(), !switchingFiles);
+        if ((type == null) && (add != null) && (remove != null)) {
+            // Gotta break up the calls since we cannot handle
+            // both adds and removes with mixed types. Do removes,
+            // then adds.
+            register(type, null, remove, getList(), !switchingFiles);
+            register(type, add, null, getList(), !switchingFiles);
+        } else {
+            register(type, add, remove, getList(), !switchingFiles);
+        }
     }
 
     /* XXX
@@ -1299,55 +1319,98 @@ final public class SuggestionManagerImpl extends SuggestionManager
         // This works because all elements in the list must have the same
         // (meta?) type.
         SuggestionType type = null;
-        type = SuggestionTypes.getTypes().getType(typeName);
-        if (type == null) {
-            throw new IllegalArgumentException("No such SuggestionType: " + typeName);
+        if (typeName != null) {
+            type = SuggestionTypes.getTypes().getType(typeName);
+            if (type == null) {
+                throw new IllegalArgumentException("No such SuggestionType: " + typeName);
+            }
         }
 
-        List adds = addList;
-        /* Group nodes with identical descriptions together.
-           Not very useful. Need full subtypes instead.
-           Commented it out for now.
+        /* Not yet necessary - I'm always stuffing the cache on docHidden()
+        // Clear SuggestionCache entry, if necessary
+        Suggestion first = null;
+        SuggestionProvider provider = null;
         if ((addList != null) && (addList.size() > 0)) {
-            adds = new ArrayList(addList.size());
-            ListIterator it = addList.listIterator();
-            SuggestionImpl prev = (SuggestionImpl)it.next();
-            while (it.hasNext()) {
-                SuggestionImpl curr = (SuggestionImpl)it.next();
-                if (curr.getSummary().equals(prev.getSummary())) {
-                    LinkedList subtasks = new LinkedList();
-                    SuggestionImpl clone = new SuggestionImpl();
-                    clone.copyFrom(prev);
-                    clone.setAction(null);
-                    prev.setLine(null); // "category" node shouldn't have
-                       //  a line position
-                    subtasks.add(clone); // Include self in list of children
-                    subtasks.add(curr);
-                    String summary = prev.getSummary();
-                    
-                    // Stupid stupid stupid
-                    while (it.hasNext()) {
-                        curr = (SuggestionImpl)it.next();
-                        if (summary.equals(curr.getSummary())) {
-                            // Yup, one more
-                            subtasks.add(curr);
-                        } else {
-                            if (!it.hasNext()) {
-                                curr = null;
-                            }
-                            break;
-                        }
+            first = (Suggestion)addList.get(0);
+        } else if ((removeList != null) && (removeList.size() > 0)) {
+            first = (Suggestion)removeList.get(0);
+        } 
+        if ((cache != null) && (first != null)) {
+            provider = first.getProvider();
+            if ((provider != null) && 
+                (provider instanceof DocumentSuggestionProvider)) {
+                Line l = first.getLine();
+                if (l != null) {
+                    Document doc = TLUtils.getDocument(l);
+                    if (doc != null) {
+                        cache.remove(doc);
                     }
-                    prev.setSubtasks(subtasks);
                 }
-                adds.add(prev);
-                prev = curr;
-            }
-            if (prev != null) {
-                adds.add(prev);
             }
         }
         */
+        
+
+        // Must iterate over the list repeatedly, if it contains
+        // multiple types
+        boolean split = (type == null);
+        ListIterator ita = null; 
+        ListIterator itr = null; 
+        if (split) {
+            List allAdds = addList;
+            List allRems = removeList;
+            if (allAdds != null) {
+                ita = allAdds.listIterator();
+                addList = new ArrayList(allAdds.size());
+            }
+            if (allRems != null) {
+                itr = allRems.listIterator();
+                removeList = new ArrayList(allRems.size());
+            }
+        }
+        while (true) {
+
+        // Populate the list with the next homogeneous subset of the
+        // same type
+        if (split) {
+            if ((ita != null) && (ita.hasNext())) {
+                addList.clear(); // setSize(0); ?
+                type = null;
+                while (ita.hasNext()) {
+                    SuggestionImpl s = (SuggestionImpl)ita.next();
+                    if (type == null) {
+                        type = s.getSType();
+                    } else if (s.getSType() != type) {
+                        ita.previous(); // undo advance
+                        break;
+                    }
+                    addList.add(s);
+                }
+            } else {
+                addList = null;
+            }
+
+            if ((itr != null) && (itr.hasNext())) {
+                removeList.clear();
+                type = null;
+                while (itr.hasNext()) {
+                    SuggestionImpl s = (SuggestionImpl)itr.next();
+                    if (type == null) {
+                        type = s.getSType();
+                    } else if (s.getSType() != type) {
+                        itr.previous(); // undo advance
+                        break;
+                    }
+                    removeList.add(s);
+                }
+            } else {
+                removeList = null;
+            }
+
+            if ((addList == null) && (removeList == null)) {
+                break;
+            }
+        }
 
         SuggestionImpl category = tasklist.getCategoryTask(type, false);
 
@@ -1371,7 +1434,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 }
             }
         }
-        int addnum = (adds != null) ? adds.size() : 0;
+        int addnum = (addList != null) ? addList.size() : 0;
         int remnum = (removeList != null) ? removeList.size() : 0;
         // Assume no stupidity like overlaps in tasks between the lists
         int newSize = currnum + addnum - remnum;
@@ -1403,11 +1466,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
                         tasklist.addRemove(null, leftover, false, null, null);
                         tasklist.addRemove(leftover, null, true, category, null);
                     }
-                    tasklist.addRemove(adds, null, true, category, null);
+                    tasklist.addRemove(addList, null, true, category, null);
                 }
             } else {
                 // Updating tasks within the category node
-                tasklist.addRemove(adds, removeList, false, category, null);
+                tasklist.addRemove(addList, removeList, false, category, null);
             }
 
             // Leave category task around? Or simply make it invisible?
@@ -1422,7 +1485,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 // Didn't have category nodes before and don't need to
                 // now either...
                 boolean append = (after != null);
-                tasklist.addRemove(adds, removeList, append, null, after);
+                tasklist.addRemove(addList, removeList, append, null, after);
             } else {
                 // Had category nodes before but don't need them anymore...
                 // remove the tasks from the top list
@@ -1432,8 +1495,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
                                            null);
                     }
                     List leftover = category.getSubtasks();
-                    if (adds != null) {
-                        tasklist.addRemove(adds, null, true, null, after);
+                    if (addList != null) {
+                        tasklist.addRemove(addList, null, true, null, after);
                     }
                     if ((leftover != null) && (leftover.size() > 0)) {
                         tasklist.addRemove(leftover, null, true, null, after);
@@ -1441,6 +1504,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 }
                 tasklist.removeCategory(category, true);
             }
+        }
+        if (!split) {
+            break;
+        }
+
         }
     } 
     
@@ -1600,6 +1668,16 @@ final public class SuggestionManagerImpl extends SuggestionManager
      */
     public void rescan(final Document document,
                        final DataObject dataobject) {
+        if (cache != null) {
+            List suggestions = cache.lookup(document);
+            if (suggestions != null) {
+                // Get rid of tasks from list
+                if (suggestions.size() > 0) {
+                    register(null, null, suggestions, getList(), true);
+                    cache.remove(document);
+                }
+            }
+        }
 
 /*
     XXX What happens if right after scheduling the request
@@ -1660,7 +1738,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
         }
         haveShown = true;
-        rescan(document, dataobject);
     }
 
     /**
@@ -1674,6 +1751,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * called directly by programs.
      */
     public void docHidden(Document document, DataObject dataobject) {
+        if (runTimer == null) {
+            stuffCache(document, dataobject);
+        } else {
+            if (cache != null) {
+                cache.remove(document);
+            }
+        }
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
@@ -1682,6 +1766,47 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 provider.clear(document, dataobject);
                 provider.docHidden(document, dataobject);
             }
+        }
+    }
+
+    /** 
+     * Grab all the suggestions associated with this document/dataobject
+     * and push it into the suggestion cache.
+     */
+    private void stuffCache(Document document, DataObject dataobject) {
+        SuggestionList tasklist = getList();
+        if (tasklist.getTasks() == null) {
+            return;
+        }
+        Iterator it = tasklist.getTasks().iterator();
+        List sgs = new ArrayList(tasklist.getTasks().size());
+        while (it.hasNext()) {
+            SuggestionImpl s = (SuggestionImpl)it.next();
+            SuggestionProvider p = s.getProvider();
+            // Make sure we don't pick up category nodes here!!!
+            if (p instanceof DocumentSuggestionProvider) {
+                sgs.add(s);
+            }
+
+            if (s.hasSubtasks()) {
+                Iterator sit = s.getSubtasks().iterator();
+                while (sit.hasNext()) {
+                    s = (SuggestionImpl)sit.next();
+                    p = s.getProvider();
+                    if (p instanceof DocumentSuggestionProvider) {
+                        sgs.add(s);
+                    }
+                }
+            }
+        }
+        if (cache == null) {
+            cache = new SuggestionCache();
+        }
+        cache.add(document, dataobject, sgs);
+
+        // Get rid of tasks from list
+        if (sgs.size() > 0) {
+            register(null, null, sgs, getList(), true);
         }
     }
 
@@ -2000,23 +2125,26 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	Node[] nodes = current.getActivatedNodes();
 	
 	if ((nodes == null) || (nodes.length != 1)) {
+            /*
             if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
                 err.log(
                   "Unexpected editor component activated nodes " + // NOI18N
                   " contents: " + nodes); // NOI18N
             }
+            */
+            return;
 	}
 
 	Node node = nodes[0];
 
 	final DataObject dao = (DataObject)node.getCookie(DataObject.class);
-	err.log("Considering data object " + dao);
+	//err.log("Considering data object " + dao);
 	if (dao == null) {
 	    return;
 	}
 
 	if (!dao.isValid()) {
-	    err.log("The data object is not valid!");
+	    //err.log("The data object is not valid!");
 	    return;
 	}
 
@@ -2038,7 +2166,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         
 	final EditorCookie edit = (EditorCookie)dao.getCookie(EditorCookie.class);
 	if (edit == null) {
-	    err.log("No editor cookie - not doing anything");
+	    //err.log("No editor cookie - not doing anything");
 	    return;
 	}
 	
@@ -2081,7 +2209,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	// discover the document
 	*/
 	if (doc == null) {
-	    err.log("No document handle...");
+	    //err.log("No document handle...");
 	    return;
 	}
 
@@ -2095,20 +2223,45 @@ final public class SuggestionManagerImpl extends SuggestionManager
         
         dataobject = dao;
 
+        docShown(doc, dataobject);
+        addCaretListeners();
+
         // XXX Use scheduleRescan instead? (but then I have to call docShown instead of rescan;
         //haveShown = true;
         //scheduleRescan(null, false, showScanDelay);
+
+        if (cache != null) {
+            // TODO check scanOnShow too! (when we have scanOnOpen
+            // as default instead of scanOnShow as is the case now.
+            // The semantics of the flag need to change before we
+            // check it here; it's always true. Make it user selectable.)
+            List suggestions = cache.lookup(document);
+            if (suggestions != null) {
+                register(null, suggestions, null, getList(), true);
+                // TODO Consider putting the above on a runtimer - but
+                // a much shorter runtimer (0.1 seconds or something like
+                // that) such that the editor gets a chance to draw itself
+                // etc.
+
+                // Also wipe out the cache items since we will replace them
+                // when docHidden is called, or when docEdited is called,
+                // etc.
+                cache.remove(document);
+                return;
+            }
+        }
 
 	if (delayed) {
 	    runTimer = new Timer(showScanDelay,
 		     new ActionListener() {
 			 public void actionPerformed(ActionEvent evt) {
                              runTimer = null;
+                             /*
                              if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
                                  err.log("Timer expired - time to scan " + dao);
                              }
-                             docShown(doc, dataobject);
-                             addCaretListeners();
+                             */
+                             rescan(doc, dataobject);
 			 }
 		     });
 	    runTimer.setRepeats(false);
@@ -2116,8 +2269,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	    runTimer.start();
 	} else {
 	    // Do it right away
-            docShown(doc, dataobject);
-            addCaretListeners();
+            rescan(doc, dataobject);
 	}
     }
 
@@ -2303,6 +2455,15 @@ final public class SuggestionManagerImpl extends SuggestionManager
         String prop = ev.getPropertyName();
         if(prop.equals(TopComponent.Registry.PROP_OPENED)) {
             componentsChanged();
+
+            /* Clear cache documents that are closed
+            if (cache != null) {
+                // A document may have been closed - we've gotta
+                // go clear the item
+                document = ?
+                cache.remove(document);
+            }
+            */
         }
     }    
     //public void propertyChange(PropertyChangeEvent ev) {

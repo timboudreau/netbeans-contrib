@@ -59,6 +59,8 @@ final public class SuggestionList extends TaskList {
             category.setType(type.getName());
             category.setSType(type);
             category.setIcon(type.getIconImage());
+            // Don't duplicate the provider field! We don't want
+            // SMI.stuffCache to keep category task nodes stashed...
             SuggestionManagerImpl manager =
                 (SuggestionManagerImpl)SuggestionManager.getDefault();
             if (manager.isExpandedType(type)) {
