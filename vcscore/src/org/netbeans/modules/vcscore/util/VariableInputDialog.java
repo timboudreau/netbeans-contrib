@@ -463,6 +463,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
     public final boolean hasDefaults() {
         VcsCommandsProvider provider = executionContext.getCommandsProvider();
         String type = provider.getType();
+        if (inputDescriptor == null) {
+            return false;
+        }
         if (inputDescriptor.hasDefaults(command.getName(), type, expert)) {
             return true;
         }
