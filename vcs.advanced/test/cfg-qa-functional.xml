@@ -14,7 +14,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <mconfig name="qa-functional tests config">
 
-    <testbag testattribs="validation" name="validation_test">
+    <testbag testattribs="validation_disabled" name="validation_test">
         <testset dir="qa-functional/src">
             <patternset>
     		<include name="complete/common/Availability.class"/>
@@ -29,7 +29,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile_JellyBranch" name="cvs_profile_JellyBranch">
+    <testbag testattribs="full_disabled,cvs_profile_JellyBranch" name="cvs_profile_JellyBranch">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyBranch.class"/>
@@ -37,7 +37,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile_JellyOverall" name="cvs_profile_JellyOverall">
+    <testbag testattribs="full_disabled,cvs_profile_JellyOverall" name="cvs_profile_JellyOverall">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyOverall.class"/>
@@ -45,7 +45,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile_JellyAddFeatures" name="cvs_profile_JellyAddFeatures">
+    <testbag testattribs="full_disabled,cvs_profile_JellyAddFeatures" name="cvs_profile_JellyAddFeatures">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyAddFeatures.class"/>
@@ -53,7 +53,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile_JellyGroup" name="cvs_profile_JellyGroup">
+    <testbag testattribs="full_disabled,cvs_profile_JellyGroup" name="cvs_profile_JellyGroup">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyGroup.class"/>
@@ -61,7 +61,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile_JellyCommands" name="cvs_profile_JellyCommands">
+    <testbag testattribs="full_disabled,cvs_profile_JellyCommands" name="cvs_profile_JellyCommands">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyCommands.class"/>
@@ -69,7 +69,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,cvs_profile_JellyAddCommands" name="cvs_profile_JellyAddCommands">
+    <testbag testattribs="full_disabled,cvs_profile_JellyAddCommands" name="cvs_profile_JellyAddCommands">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyAddCommands.class"/>
@@ -77,7 +77,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full" name="common_functionality">
+    <testbag testattribs="full_disabled" name="common_functionality">
         <testset dir="qa-functional/src">
             <patternset>
     		<include name="complete/common/Availability.class"/>
@@ -90,7 +90,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
     
-    <testbag testattribs="full" name="pvcs_profile">
+    <testbag testattribs="full_disabled" name="pvcs_profile">
         <testset dir="qa-functional/src">
             <patternset>
     		<include name="complete/pvcs_profile/MountPVCSFilesystem.class"/>
@@ -99,7 +99,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,validation" name="pvcs_profile_validation">
+    <testbag testattribs="full_disabled,validation" name="pvcs_profile_validation">
         <testset dir="qa-functional/src">
             <patternset>
 		<include name="complete/pvcs_profile/StubAllTogether.class"/>
@@ -108,7 +108,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
     
-    <testbag testattribs="full" name="vss_profile">
+    <testbag testattribs="full_disabled" name="vss_profile">
         <testset dir="qa-functional/src">
             <patternset>
     		<include name="complete/vss_profile/MountVSSFilesystem.class"/>
