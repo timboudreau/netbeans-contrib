@@ -146,7 +146,9 @@ public class GeneralVcsSettingsNode extends AbstractNode {
                 try {
                     GeneralVcsSettings settings = (GeneralVcsSettings)cook.instanceCreate();
                     BeanInfo info = java.beans.Introspector.getBeanInfo(settings.getClass());
-                    PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
+                    BeanNode.Descriptor desc = BeanNode.computeProperties(settings, info);
+                    props.put(desc.property);
+/*                    PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
                     for (int i=0; i < descriptors.length; i++) {
                         if (descriptors[i].isHidden()) continue;
                         PropertySupport.Reflection refl = new PropertySupport.Reflection(settings, descriptors[i].getPropertyType(),
@@ -157,6 +159,7 @@ public class GeneralVcsSettingsNode extends AbstractNode {
                         refl.setPropertyEditorClass(descriptors[i].getPropertyEditorClass());
                         Node.Property removed = props.put(refl);
                     }
+ */
                 } catch (Exception exc) {
                 }
             }
