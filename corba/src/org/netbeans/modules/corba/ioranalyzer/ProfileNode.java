@@ -78,6 +78,8 @@ public class ProfileNode extends AbstractNode {
                 for (int i=0; i< objectKey.length; i++) {
                     if (objectKey[i]<0x20) 
                         buffer.append ("\\"+toHexStr(objectKey[i]));
+                    else if (objectKey[i]=='\\')
+                        buffer.append ("\\\\");
                     else
                         buffer.append((char)objectKey[i]);
                 }
