@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.apicheck
+OpenIDE-Module-Specification-Version: 1.1
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/apicheck/Bundle.properties
+OpenIDE-Module-Layer: org/netbeans/modules/apicheck/layer.xml
+
+
