@@ -213,9 +213,7 @@ class ClassDataNode extends DataNode implements Runnable {
     exps.setName(EXECUTION_SET_NAME);
     exps.setDisplayName(bundle.getString ("PROP_executionSetName"));
     exps.setShortDescription(bundle.getString ("HINT_executionSetName"));
-    org.openide.loaders.ExecSupport.addProperties(exps,
-                                                       ((org.openide.loaders.MultiDataObject)getDataObject()).getPrimaryEntry()
-                                                      );
+    ((org.openide.loaders.ExecSupport) getCookie (org.openide.loaders.ExecSupport.class)).addProperties (exps);
     s.put(exps);
 
     return s;
@@ -264,6 +262,8 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  25   Gandalf   1.24        10/29/99 Jesse Glick     Using undeprecated 
+ *       variant of *Support.addProperties.
  *  24   Gandalf   1.23        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  23   Gandalf   1.22        8/9/99   Jaroslav Tulach Delays initialization of
