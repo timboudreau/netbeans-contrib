@@ -18,7 +18,6 @@ import java.beans.*;
 import java.util.ResourceBundle;
 
 import org.openide.util.NbBundle;
-import org.netbeans.beaninfo.editors.NbProcessDescriptorEditor;
 
 
 /** BeanInfo for CORBASupportSettings - defines property editor

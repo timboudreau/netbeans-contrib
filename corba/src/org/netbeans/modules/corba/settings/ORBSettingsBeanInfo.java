@@ -18,8 +18,6 @@ import java.beans.*;
 import java.util.ResourceBundle;
 
 import org.openide.util.NbBundle;
-//import org.netbeans.beaninfo.editors.FileOnlyEditor;
-import org.netbeans.beaninfo.editors.NbProcessDescriptorEditor;
 
 
 /** BeanInfo for ORBSettings - defines property editor
@@ -242,7 +240,6 @@ public class ORBSettingsBeanInfo extends SimpleBeanInfo {
             desc[11].setExpert (true);
             desc[12].setDisplayName (ORBSettingsBundle.PROP_IDL);
             desc[12].setShortDescription (ORBSettingsBundle.HINT_IDL);
-            desc[12].setPropertyEditorClass (NbProcessDescriptorEditor.class);
             desc[12].setExpert (true);
             //desc[13].setDisplayName ("Template table"); // NOI18N
             desc[13].setDisplayName (ORBSettingsBundle.PROP_TEMPLATE_TABLE);
@@ -376,29 +373,3 @@ public class ORBSettingsBeanInfo extends SimpleBeanInfo {
         return desc;
     }
 }
-
-/*
- * <<Log>>
- *  14   Gandalf   1.13        11/4/99  Karel Gardas    - update from CVS
- *  13   Gandalf   1.12        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  12   Gandalf   1.11        10/1/99  Karel Gardas    updates from CVS
- *  11   Gandalf   1.10        8/7/99   Karel Gardas    added option for hidding
- *       generated files
- *  10   Gandalf   1.9         8/3/99   Karel Gardas    
- *  9    Gandalf   1.8         7/10/99  Karel Gardas    
- *  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  7    Gandalf   1.6         5/28/99  Karel Gardas    
- *  6    Gandalf   1.5         5/28/99  Karel Gardas    
- *  5    Gandalf   1.4         5/22/99  Karel Gardas    
- *  4    Gandalf   1.3         5/15/99  Karel Gardas    
- *  3    Gandalf   1.2         5/8/99   Karel Gardas    
- *  2    Gandalf   1.1         4/24/99  Karel Gardas    
- *  1    Gandalf   1.0         4/23/99  Karel Gardas    
- * $
- */
-
-
-
-

@@ -39,10 +39,6 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="compiletime/ibm-tools.jar"/>
 	<pathelement location="${binroot}/corba/release/lib/ext/openorb-1.0.2.jar"/>
 	<pathelement location="release/lib/ext/idlcompilers.jar"/>
-        <!-- XXX illegal dependency on core: -->
-	<pathelement location="../core/netbeans/lib/core.jar"/>
-        <!-- XXX illegal dependency on projects: -->
-	<pathelement location="../projects/netbeans/modules/projects.jar"/>
 	<!-- Hopefully set up by nbbuild/build.xml: -->
 	<pathelement location="${jdkhome}/lib/tools.jar"/>
 	<pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
@@ -160,8 +156,8 @@ Microsystems, Inc. All Rights Reserved.
     <delete file="corba.nbm"/>
     <delete dir="netbeans"/>    
     <delete dir="Info"/>
-    <delete dir="javahelp/org/netbeans/modules/corba/docs/ja/JavaHelpSearch"/>
-    <delete dir="javahelp/org/netbeans/modules/corba/docs/JavaHelpSearch"/>
+    <delete dir="javahelp/org/netbeans/modules/corba/docs/ja/JavaHelpSearch2"/>
+    <delete dir="javahelp/org/netbeans/modules/corba/docs/JavaHelpSearch2"/>
   </target>
 
 </project>
