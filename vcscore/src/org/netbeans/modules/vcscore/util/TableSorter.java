@@ -297,6 +297,28 @@ public class TableSorter extends TableMap {
         checkModel();
         model.setValueAt(aValue, indexes[aRow], aColumn);
     }
+    
+    /**
+     * Get the row of underlying model.
+     * @param row The row of this sorter model
+     * @return The row of underlying model
+     */
+    public int getModelRow(int row) {
+        checkModel();
+        return indexes[row];
+    }
+    
+    /**
+     * Get the row of this sorter from underlying model row number.
+     * @param modelRow The row of underlying model
+     * @return The row of this sorter model
+     */
+    public int getSorterRow(int modelRow) {
+        for (int i = 0; i < indexes.length; i++) {
+            if (indexes[i] == modelRow) return i;
+        }
+        return -1;
+    }
 
     public void sortByColumn(int column) {
         sortByColumn(column, true);
