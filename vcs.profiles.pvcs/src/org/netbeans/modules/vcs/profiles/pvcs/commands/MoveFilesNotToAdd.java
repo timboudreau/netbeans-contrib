@@ -36,6 +36,7 @@ import org.openide.util.NbBundle;
 public class MoveFilesNotToAdd implements VcsAdditionalCommand {
     
     private CommandOutputListener stderrNRListener;
+    private CommandDataOutputListener stdoutListener;
     
     /** Creates a new instance of MoveFilesNotToAdd */
     public MoveFilesNotToAdd() {
@@ -56,6 +57,7 @@ public class MoveFilesNotToAdd implements VcsAdditionalCommand {
             return false;
         }
         this.stderrNRListener = stderrNRListener;
+        this.stdoutListener = stdoutListener;
         File folder = new File(args[0]);
         File moved = new File(folder.getParentFile(), folder.getName()+"_FilesNotAdded13579");
         boolean status;
@@ -136,6 +138,7 @@ public class MoveFilesNotToAdd implements VcsAdditionalCommand {
                     }
                 }
                 success = fileToMove.renameTo(new File(f2, fileName));
+                stdoutListener.outputData(new String[] { "Move", fileToMove.getAbsolutePath(), new File(f2, fileName).getAbsolutePath(), Boolean.toString(success) });
                 if (!success) {
                     stderrNRListener.outputLine("Move of "+fileToMove.getAbsolutePath()+
                                                 " to "+new File(f2, fileName).getAbsolutePath()+
@@ -150,6 +153,7 @@ public class MoveFilesNotToAdd implements VcsAdditionalCommand {
             String[] newList = f1.list();
             if (newList == null || newList.length == 0) {
                 f1.delete();
+                stdoutListener.outputData(new String[] { "Delete", f1.getAbsolutePath() });
             }
         }
         return true;
@@ -172,6 +176,7 @@ public class MoveFilesNotToAdd implements VcsAdditionalCommand {
                     }
                 }
                 success = files[i].renameTo(new File(f2, files[i].getName()));
+                stdoutListener.outputData(new String[] { "Move", files[i].getAbsolutePath(), new File(f2, files[i].getName()).getAbsolutePath(), Boolean.toString(success) });
                 if (!success) {
                     stderrNRListener.outputLine("Move of "+files[i].getAbsolutePath()+
                                                 " to "+new File(f2, files[i].getName()).getAbsolutePath()+
@@ -196,6 +201,7 @@ public class MoveFilesNotToAdd implements VcsAdditionalCommand {
             }
         }
         boolean success = folder.delete();
+        stdoutListener.outputData(new String[] { "Delete", folder.getAbsolutePath() });
         if (!success) {
             stderrNRListener.outputLine("Can not delete file "+folder);
         }

@@ -268,7 +268,9 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                 filePath = fsPath;
             } else { // relative with respect to current dir
                 if (fsPath.length() > dirPathLength) {
-                    filePath = fsPath.substring(dirPathLength + 1);
+                    int pathIndex = dirPathLength;
+                    if (dirPathLength > 0) pathIndex++; // To skip the path separator
+                    filePath = fsPath.substring(pathIndex);
                 } else {
                     filePath = ""; // NOI18N
                 }

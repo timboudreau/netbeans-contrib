@@ -660,7 +660,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
         <run>
           <executable value="${PCLI_CMD}"/>
-          <arg value="AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? RECURSIVE] [] [$[? FILE] [/${FILE}] []]${QUOTE} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${RECURSIVE} $[? RECURSIVE] [${QUOTE}${WORKDIR}$[? FILE] [${PS}${FILE}] []${QUOTE}] [@{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD(0)}]"/>
+          <arg value="AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? RECURSIVE] [] [$[? FILE] [/${FILE}] []]${QUOTE} $[? DESCRIPTION_FILE] [-m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE}] [-m${QUOTE}${message}${QUOTE} -t${QUOTE}${message}${QUOTE}] ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${RECURSIVE} $[? RECURSIVE] [${QUOTE}${WORKDIR}$[? FILE] [${PS}${FILE}] [${PS}*]${QUOTE}] [@{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD(0)}]"/>
         </run>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_PVCS_ADD)))
