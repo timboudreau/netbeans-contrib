@@ -23,9 +23,14 @@ Microsystems, Inc. All Rights Reserved.
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
+  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbext}/nbantext.jar"/>
 
   <target name="compile">
-    <javac srcdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
+    <javac srcdir="src" 
+        deprecation="${build.compiler.deprecation}" 
+        debug="${build.compiler.debug}"
+        destdir="src"
+        excludes="org/netbeans/modules/vcs/advanced/config">
       <classpath>        
 	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <!--<pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>-->
@@ -36,22 +41,57 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/vcscore.jar"/>
       </classpath>
     </javac>
+    <javac srcdir="src/org/netbeans/modules/vcs/advanced/config"
+        destdir="src/org/netbeans/modules/vcs/advanced/config">
+      <classpath>        
+	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
+        <!--<pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>-->
+        <fileset dir="${nbroot}/openide/netbeans/lib">
+          <include name="openide*.jar" />
+        </fileset>
+	<pathelement location="${nbroot}/openidex/netbeans/lib/ext/openidex.jar"/>
+	<pathelement location="${nbroot}/vcscore/netbeans/modules/vcscore.jar"/>
+        <pathelement location="${f4jroot}/core/release/lib/ext/regexp.jar"/>
+        <pathelement location="src"/>
+      </classpath>
+     </javac>
   </target>
 
+  <!--
   <target name="tojar">
     <tojar srcdir="src" unpackeddir="tojar"/>
   </target>
+  -->
 
-  <target name="jars" depends="tojar,compile">
+  <target name="jars" depends="compile">
+    <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-commands.xml">
+       <include name="vcs/commands/*.class"/>
+       <include name="vcs/commands/*.java"/>
+       <include name="vcs/commands/*.form"/>
+    </makelayer>
+    <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config.xml">
+       <include name="vcs/config/*.*"/>
+    </makelayer>
+    <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-list.xml">
+       <include name="vcs/list/*.class"/>
+       <include name="vcs/list/*.java"/>
+    </makelayer>
     <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     <locjar jarfile="netbeans/modules/vcsgen.jar"
          manifest="manifest-subst.mf"
          basedir="src"
-	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
+         excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
 	 compress="false">
       <locale name="ja"/>
+      <fileset dir="src/">
+        <include name="org/netbeans/modules/vcs/advanced/config/**/*.java"/>
+        <include name="org/netbeans/modules/vcs/advanced/config/**/*.form"/>
+       <!-- <include name="**/*.class"/>
+        <include name="**/*.xml"/>
+        <exclude name="org/netbeans/modules/vcs/advanced/*.java"/> -->
+      </fileset>
       <branding name="f4j"/>
       <branding name="f4j_ce"/>
       <branding name="f4j_ie"/>
