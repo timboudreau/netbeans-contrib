@@ -42,8 +42,6 @@ import org.openide.util.Lookup;
  */
 //-------------------------------------------
 public class VcsUtilities {
-    private Debug E=new Debug("VcsUtilities", false); // NOI18N
-    private Debug D=E;
     
     private static final String GET_BUNDLE = "getBundle(";
 
@@ -85,8 +83,9 @@ public class VcsUtilities {
         int cp = 1;
         int i = from;
         for(; i < len; i++) {
-            if (str.charAt(i) == p1) cp++;
-            if (str.charAt(i) == p2) cp--;
+            char c = str.charAt(i);
+            if (c == p1) cp++;
+            else if (c == p2) cp--;
             if (cp == 0) break;
         }
         if (i < len) return i;
@@ -279,20 +278,26 @@ public class VcsUtilities {
      * @return the string inside of quotation marks or null when no string found.
      */
     private static String getQuotedString(String str, int[] pos) {
-        while(pos[0] < str.length() && Character.isWhitespace(str.charAt(pos[0]))) pos[0]++;
-        if (pos[0] >= str.length()) return null;
+        int len = str.length();
+        while(pos[0] < len && Character.isWhitespace(str.charAt(pos[0]))) pos[0]++;
+        if (pos[0] >= len) return null;
         StringBuffer result = new StringBuffer();
-        if (str.charAt(pos[0]) == '"') { // getting quoted string
+        char c = str.charAt(pos[0]);
+        if (c == '"') { // getting quoted string
             pos[0]++;
-            while(pos[0] < str.length()) {
-                if (str.charAt(pos[0]) != '"') result.append(str.charAt(pos[0]));
+            while (pos[0] < len) {
+                c = str.charAt(pos[0]);
+                if (c != '"') result.append(c);
                 else if (str.charAt(pos[0] - 1) == '\\') result.setCharAt(result.length() - 1, '"'); // replace '\\' with '"' => \" becomes "
                 else break;
                 pos[0]++;
             }
         } else { // getting not-quoted string
-            while(pos[0] < str.length() && str.charAt(pos[0]) != ',') {
-                result.append(str.charAt(pos[0]));
+            while (pos[0] < len) {
+                c = str.charAt(pos[0]);
+                if (c == ',')
+                    break;
+                result.append(c);
                 pos[0]++;
             }
         }
@@ -309,7 +314,8 @@ public class VcsUtilities {
         String element = VcsUtilities.getQuotedString(str, index);
         while(element != null) {
             list.add(element);
-            while(index[0] < str.length() && str.charAt(index[0]) != ',') index[0]++;
+            int len = str.length();
+            while(index[0] < len && str.charAt(index[0]) != ',') index[0]++;
             index[0]++;
             element = VcsUtilities.getQuotedString(str, index);
         }
@@ -717,8 +723,8 @@ public class VcsUtilities {
         // We can not listen on properties changes, therefore we must obtain
         // the fresh set again and again.
                     HashMap systemEnvVariables = new HashMap();
-                    for (Enumeration enum = System.getProperties().propertyNames(); enum.hasMoreElements(); ) {
-                        String key = (String) enum.nextElement();
+                    for (Enumeration en = System.getProperties().propertyNames(); en.hasMoreElements(); ) {
+                        String key = (String) en.nextElement();
                         if (key.startsWith(SYSTEM_ENV_PREFIX)) {
                             String value = (String) System.getProperty(key);
                             if (value != null) {
@@ -745,8 +751,8 @@ public class VcsUtilities {
      * @return the map of all environment variables
      */
     public static Map addEnvVars(Map envVars, Hashtable vars, String varEnvPrefix) {
-        for (Enumeration enum = vars.keys(); enum.hasMoreElements(); ) {
-            String key = (String) enum.nextElement();
+        for (Enumeration en = vars.keys(); en.hasMoreElements(); ) {
+            String key = (String) en.nextElement();
             if (key.startsWith(varEnvPrefix)) {
                 String value = (String) vars.get(key);
                 if (value != null) {
@@ -772,14 +778,14 @@ public class VcsUtilities {
      */
     public static Map addEnvVars(Map envVars, Hashtable vars, String varEnvPrefix,
                                  String varEnvRemovePrefix) {
-        for (Enumeration enum = vars.keys(); enum.hasMoreElements(); ) {
-            String key = (String) enum.nextElement();
+        for (Enumeration en = vars.keys(); en.hasMoreElements(); ) {
+            String key = (String) en.nextElement();
             if (key.startsWith(varEnvRemovePrefix)) {
                 envVars.remove(key.substring(varEnvRemovePrefix.length()));
             }
         }
-        for (Enumeration enum = vars.keys(); enum.hasMoreElements(); ) {
-            String key = (String) enum.nextElement();
+        for (Enumeration en = vars.keys(); en.hasMoreElements(); ) {
+            String key = (String) en.nextElement();
             if (key.startsWith(varEnvPrefix)) {
                 String value = (String) vars.get(key);
                 if (value != null) {
