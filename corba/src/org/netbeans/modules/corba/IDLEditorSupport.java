@@ -15,10 +15,15 @@ package org.netbeans.modules.corba;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+
 import java.io.*;
+
 import java.lang.reflect.*;
+
 import java.util.Iterator;
+
 import java.text.MessageFormat;
+
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.ChangeListener;
@@ -35,18 +40,28 @@ import org.openide.util.NbBundle;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
 import org.openide.util.RequestProcessor;
+import org.openide.util.actions.SystemAction;
+
 import org.openide.text.EditorSupport;
 import org.openide.text.PositionRef;
+
 import org.openide.cookies.EditCookie;
 import org.openide.cookies.SaveCookie;
 import org.openide.cookies.OpenCookie;
+
+import org.openide.actions.CompileAction;
+
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.DataObject;
+
 import org.openide.filesystems.FileObject;
+
 import org.openide.windows.CloneableTopComponent;
 import org.openide.windows.TopComponent;
+
 import org.openide.nodes.NodeAdapter;
 import org.openide.nodes.Node;
+
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 
@@ -582,6 +597,15 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
         }
             */
         }
+
+	public SystemAction[] getSystemActions() {
+	    SystemAction[] __sa = super.getSystemActions ();
+	    SystemAction[] __idl_actions = new SystemAction[] {
+		SystemAction.get (CompileAction.class),
+		SystemAction.get (GenerateImplAction.class)
+	    };
+	    return SystemAction.linkActions (__sa, __idl_actions);
+	}	
 
         /** When closing last view, also close the document.
          * @return <code>true</code> if close succeeded
