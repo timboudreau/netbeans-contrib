@@ -459,30 +459,22 @@ public class VcsAction extends NodeAction implements ActionListener {
         if (stdoutDataListener != null) vce.addDataOutputListener(stdoutDataListener);
         if (stderrDataListener != null) vce.addDataErrorOutputListener(stderrDataListener);
         pool.startExecutor(vce);
+        synchronized (vars) {
+            if (askForEachFile != null && askForEachFile[0] == true) {
+                vars = new Hashtable(fileSystem.getVariablesAsHashtable());
+                if (additionalVars != null) vars.putAll(additionalVars);
+            } else {
+                vars = new Hashtable(vars);
+            }
+        }
         if (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus) {
             files.remove(files.keys().nextElement()); // remove the processed file
-            synchronized (vars) {
-                if (askForEachFile != null && askForEachFile[0] == true) {
-                    vars = new Hashtable(fileSystem.getVariablesAsHashtable());
-                    if (additionalVars != null) vars.putAll(additionalVars);
-                } else {
-                    vars = new Hashtable(vars);
-                }
-            }
             if (files.size() == 1 && askForEachFile != null && askForEachFile[0] == true) {
                 askForEachFile = null; // Do not show the check box for the last file.
             }
         } else if (cmdCanRunOnMultipleFilesInFolder) {
             for (Enumeration keys = singleFolderTable.keys(); keys.hasMoreElements(); ) {
                 files.remove(keys.nextElement());
-            }
-            synchronized (vars) {
-                if (askForEachFile != null && askForEachFile[0] == true) {
-                    vars = new Hashtable(fileSystem.getVariablesAsHashtable());
-                    if (additionalVars != null) vars.putAll(additionalVars);
-                } else {
-                    vars = new Hashtable(vars);
-                }
             }
             if (files.size() == 1 && askForEachFile != null && askForEachFile[0] == true) {
                 askForEachFile = null; // Do not show the check box for the last file.
