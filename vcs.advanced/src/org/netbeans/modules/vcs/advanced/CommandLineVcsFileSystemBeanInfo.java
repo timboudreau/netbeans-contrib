@@ -53,7 +53,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
         try {
             rootDirectory=new PropertyDescriptor
-                          (VcsFileSystem.PROP_ROOT, CommandLineVcsFileSystem.class, "getRootDirectory", "setRootDirectory"); // NOI18N
+                          (VcsFileSystem.PROP_ROOT, CommandLineVcsFileSystem.class, "getRootDirectory", null); // NOI18N
             debug=new PropertyDescriptor
                   (VcsFileSystem.PROP_DEBUG,CommandLineVcsFileSystem.class, "getDebug", "setDebug"); // NOI18N
 
