@@ -105,7 +105,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     static final long serialVersionUID = -8801742771957370172L;
     /** Creates new form VcsCustomizer */
     public VcsCustomizer () {
-        changeSupport = new PropertyChangeSupport (this);
         initComponents ();
         postInitComponents();
         initAccessibility();
@@ -1373,7 +1372,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private Object configInputPanelsLock = new Object();
     private JPanel[] additionalConfigPanels = null;
     private CommandLineVcsFileSystem fileSystem = null;
-    private PropertyChangeSupport changeSupport = null;
+    private volatile PropertyChangeSupport changeSupport = null;
     private Vector configLabels;
     private String oldSelectedLabel = null;
     private boolean promptForConfigComboChange = true;
@@ -1620,6 +1619,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     //-------------------------------------------
     public void addPropertyChangeListener(PropertyChangeListener l) {
         //D.deb("addPropertyChangeListener()"); // NOI18N
+        // We must handle the case when someone tries to add a listener
+        // to uninitialized instance of this. See #41676.
+        if (changeSupport == null) {
+            changeSupport = new PropertyChangeSupport (this);
+        }
         changeSupport.addPropertyChangeListener(l);
     }
 
@@ -1627,6 +1631,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     //-------------------------------------------
     public void removePropertyChangeListener(PropertyChangeListener l) {
         //D.deb("removePropertyChangeListener()"); // NOI18N
+        if (changeSupport == null) {
+            changeSupport = new PropertyChangeSupport (this);
+        }
         changeSupport.removePropertyChangeListener(l);
     }
 
