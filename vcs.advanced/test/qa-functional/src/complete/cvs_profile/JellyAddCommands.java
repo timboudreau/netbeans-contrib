@@ -18,9 +18,9 @@ import java.util.StringTokenizer;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.netbeans.jellytools.EditorWindowOperator;
 import org.netbeans.jellytools.TopComponentOperator;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
+import org.netbeans.jellytools.modules.vcscore.VCSCommandsInOutputOperator;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.junit.NbTestSuite;
@@ -107,7 +107,7 @@ public class JellyAddCommands extends CVSStub {
         ed.oK();
         ed.waitClosed ();
         editdir.waitHistory ("Editors");
-        VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("Editors");
+        VCSCommandsInOutputOperator coo = new VCSCommandsInOutputOperator ("Editors");
         waitNoEmpty (coo.txtStandardOutput ());
         String str = coo.txtStandardOutput().getText ();
         info.println (str);
@@ -158,7 +158,7 @@ public class JellyAddCommands extends CVSStub {
         closeAllVCSOutputs ();
         watchfile.cvsNode ().cVSWatchesWatchers();
         watchfile.waitHistory ("Watchers");
-        VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("Watchers");
+        VCSCommandsInOutputOperator coo = new VCSCommandsInOutputOperator ("Watchers");
         waitNoEmpty (coo.txtStandardOutput ());
         String str = coo.txtStandardOutput().getText ();
         info.println (str);
@@ -192,8 +192,10 @@ public class JellyAddCommands extends CVSStub {
         wars.oK ();
         wars.waitClosed();
         watchdir.waitHistory ("Watchers");
-        coo = new VCSCommandsOutputOperator ("Watchers");
-        assertTrue ("Some watchers exist", !coo.tabbedPane().isEnabledAt(0));
+        coo = new VCSCommandsInOutputOperator ("Watchers");
+        try {
+            coo.btStandardOutput().waitComponentEnabled();
+        } catch (InterruptedException e) {}
     }
 /*    cannot create test due to using of local cvs filesystem
     public void testLock () {
@@ -259,8 +261,7 @@ public class JellyAddCommands extends CVSStub {
         gr.waitClosed ();
         difffile.waitHistory("Diff Graphical");
         
-        EditorWindowOperator ewo = new EditorWindowOperator ();
-        TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
+        TopComponentOperator tco = new TopComponentOperator ("Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.1 and 1.2 ==== !!!!");
             dumpDiffGraphicalGraphical (tco);
@@ -277,8 +278,7 @@ public class JellyAddCommands extends CVSStub {
         gr.waitClosed ();
         difffile.waitHistory("Diff Graphical");
         
-        ewo = new EditorWindowOperator ();
-        tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
+        tco = new TopComponentOperator ("Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.2 and 1.3 ==== !!!!");
             dumpDiffGraphicalGraphical (tco);
@@ -299,8 +299,7 @@ public class JellyAddCommands extends CVSStub {
         gr.waitClosed ();
         difffile.waitHistory("Diff Graphical");
         
-        EditorWindowOperator ewo = new EditorWindowOperator ();
-        TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
+        TopComponentOperator tco = new TopComponentOperator ("Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.1 and 1.2 ==== !!!!");
             dumpDiffGraphicalTextual (tco);
@@ -317,8 +316,7 @@ public class JellyAddCommands extends CVSStub {
         gr.waitClosed ();
         difffile.waitHistory("Diff Graphical");
         
-        ewo = new EditorWindowOperator ();
-        tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
+        tco = new TopComponentOperator ("Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.2 and 1.3 ==== !!!!");
             dumpDiffGraphicalTextual (tco);
@@ -331,7 +329,7 @@ public class JellyAddCommands extends CVSStub {
     }
     
     public void testDefaultDiffTextual () {
-        VCSCommandsOutputOperator coo;
+        VCSCommandsInOutputOperator coo;
         String str;
         Filter filt = new Filter ();
         filt.addFilterAfter("RCS file: ");
@@ -352,7 +350,7 @@ public class JellyAddCommands extends CVSStub {
         diff.oK();
         diff.waitClosed ();
         difffile.waitHistoryFailed("Diff Textual");
-        coo = new VCSCommandsOutputOperator ("Diff Textual");
+        coo = new VCSCommandsInOutputOperator ("Diff Textual");
         waitNoEmpty(coo.txtStandardOutput());
         str = coo.txtStandardOutput ().getText ();
         info.println (str);
@@ -367,7 +365,7 @@ public class JellyAddCommands extends CVSStub {
         diff.oK();
         diff.waitClosed ();
         difffile.waitHistoryFailed ("Diff Textual");
-        coo = new VCSCommandsOutputOperator ("Diff Textual");
+        coo = new VCSCommandsInOutputOperator ("Diff Textual");
         waitNoEmpty(coo.txtStandardOutput());
         str = coo.txtStandardOutput ().getText ();
         info.println (str);
@@ -388,7 +386,7 @@ public class JellyAddCommands extends CVSStub {
         diff.oK();
         diff.waitClosed ();
         difffile.waitHistory ("Patch");
-        VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("Patch");
+        VCSCommandsInOutputOperator coo = new VCSCommandsInOutputOperator ("Patch");
         waitNoEmpty(coo.txtStandardOutput());
         String str = coo.txtStandardOutput ().getText ();
         info.println (str);
