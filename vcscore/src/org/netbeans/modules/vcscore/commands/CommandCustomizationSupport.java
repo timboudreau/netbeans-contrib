@@ -194,7 +194,6 @@ public class CommandCustomizationSupport extends Object {
     
     public static FileObject[] getApplicableFiles(VcsFileSystem fileSystem, VcsCommand cmd, FileObject[] files) {
         boolean processAll = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_PROCESS_ALL_FILES) || fileSystem.isProcessUnimportantFiles();
-        Table filesTable = new Table();
         Collection fileObjects = new ArrayList();
         boolean isOnFiles = false;
         boolean isOnDirs = false;
@@ -232,7 +231,8 @@ public class CommandCustomizationSupport extends Object {
         }
         if (fileObjects.size() == 0) return null;
         //boolean refreshDone = false;
-        addImportantFiles(fileObjects, filesTable, processAll, fileSystem, true);
+        Table filesTable = new Table();
+        addImportantFiles(fileObjects, filesTable, processAll, fileSystem, false);
         filesTable = removeDisabled(fileSystem.getStatusProvider(), filesTable, cmd);
         if (filesTable.size() == 0) return null;
         FileObject[] applFiles = new FileObject[filesTable.size()];

@@ -14,6 +14,13 @@
 package org.netbeans.modules.vcscore;
 
 import java.awt.event.ActionListener;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -44,7 +51,8 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 import org.netbeans.modules.vcscore.actions.CommandMenu;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
-import org.netbeans.modules.vcscore.grouping.VcsGroupNode;
+import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
+import org.netbeans.modules.vcscore.grouping.GroupCookie;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.WeakList;
 
@@ -56,7 +64,7 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
     
     protected Collection selectedFileObjects = null;
     //protected CommandsTree actionCommandsTree = null;
-    // The latest map of providers and associated array of files
+    // The latest map of providers and associated map of files with the message
     private Map filesByCommandProviders;
 
     private static final String advancedOptionsSign = org.openide.util.NbBundle.getMessage(VcsFSCommandsAction.class, "CTL_AdvancedOptionsSign");
@@ -70,21 +78,16 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
     public VcsFSCommandsAction() {
     }
     
-    public void setSelectedFileObjects(Collection fos) {
-        //variablesForSelectedFiles = null;
-        if (fos == null) {
-            this.selectedFileObjects = getSelectedFileObjectsFromActiveNodes();
-            return ;
-        }
-        this.selectedFileObjects = new WeakList(fos);
-    }
-
-    private Collection getSelectedFileObjectsFromActiveNodes() {
+    /**
+     * @return a map of array of FileObjects and their messages if any.
+     */
+    private Map getSelectedFileObjectsFromActiveNodes() {
+        Map filesWithMessages = new Table();
         ArrayList files = new ArrayList();
         Node[] nodes = getActivatedNodes();
         for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] instanceof VcsGroupNode) {
-                VcsGroupNode grNode = (VcsGroupNode) nodes[i];
+            GroupCookie gc = (GroupCookie) nodes[i].getCookie(GroupCookie.class);
+            if (gc != null) {
                 /*
                 if (variablesForSelectedFiles == null) variablesForSelectedFiles = new HashMap();
                 Hashtable additionalVars = new Hashtable();
@@ -94,26 +97,27 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
                     additionalVars.put(Variables.GROUP_DESCRIPTION, description);
                 }
                  */
-                WeakList varFiles = new WeakList();
+                String message = gc.getDescription();
+                List messageFiles = new ArrayList();
                 Enumeration children = nodes[i].getChildren().nodes();
                 while (children.hasMoreElements()) {
                     Node nd = (Node) children.nextElement();
                     DataObject dd = (DataObject) nd.getCookie(DataObject.class);
                     if (dd == null) continue;
-                    FileObject primary = dd.getPrimaryFile();
-                    files.addAll(dd.files());
-                    varFiles.addAll(dd.files());
+                    messageFiles.addAll(dd.files());
                     /*
                     variablesForSelectedFiles.put(additionalVars, varFiles);
                      */
                 }
+                filesWithMessages.put(messageFiles.toArray(new FileObject[0]), message);
             } else {
                 DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
                 if (dd == null) continue;
                 files.addAll(dd.files());
             }
         }
-        return new WeakList(files);
+        if (files.size() > 0) filesWithMessages.put(files.toArray(new FileObject[0]), null);
+        return filesWithMessages;
     }
     
     /*
@@ -137,7 +141,7 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
     protected boolean enable(Node[] nodes) {
         //System.out.println("VcsFSCommandsAction.enable("+nodes.length+")");
         for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] instanceof VcsGroupNode) {
+            if (nodes[i].getCookie(GroupCookie.class) != null) {
                 continue;
             } else {
                 DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
@@ -166,15 +170,12 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
     }
     
     private JMenuItem getPresenter(boolean inMenu) {
-        Collection fileObjects = selectedFileObjects;
-        if (fileObjects == null) {
-            fileObjects = getSelectedFileObjectsFromActiveNodes();
-        }
-        //System.out.println("VcsFSCommandsAction.getPresenter(): selected FileObjects: "+fileObjects);
+        Map filesWithMessages = getSelectedFileObjectsFromActiveNodes();
+        //System.out.println("VcsFSCommandsAction.getPresenter(): selected filesWithMessages: "+filesWithMessages);
         switchableList = new ArrayList();
         ArrayList menuItems = new ArrayList();
         //CommandsTree[] commands = actionCommandsTree.children();
-        filesByCommandProviders = findCommandProvidersForFiles(fileObjects);
+        filesByCommandProviders = findCommandProvidersForFiles(filesWithMessages);
 	//System.out.println("filesByCommandProviders.size() = "+filesByCommandProviders.size());
         if (filesByCommandProviders.size() == 0) return new JInlineMenu(); // return empty JInlineMenu
         CommandsTree commands;
@@ -188,26 +189,25 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
                 commands = createDefaultCommandsTree(provider);
             }
         } else {
-            // it's necessary to get commands of known classes from all
-            // providers or somehow merge together the common commands.
             commands = mergeProvidedCommands(filesByCommandProviders);
+            // TODO it's necessary to get commands of known classes from all
+            //      providers or somehow merge together the common commands.
         }
         JInlineMenu menu = new JInlineMenu();
         if (commands == null) return menu;
-        FileObject[] files = (FileObject[]) fileObjects.toArray(new FileObject[fileObjects.size()]);
-        menu.setMenuItems(createMenuItems(commands, files, inMenu));
+        menu.setMenuItems(createMenuItems(commands, filesWithMessages, inMenu));
         if (inMenu && menu != null) {
             menu.setIcon(getIcon());
         }
         return menu;
     }
     
-    private JMenuItem[] createMenuItems(CommandsTree commands, FileObject[] files, boolean inMenu) {
+    private JMenuItem[] createMenuItems(CommandsTree commands, Map filesWithMessages, boolean inMenu) {
         ArrayList menuItems = new ArrayList();
         CommandsTree[] subCommands = commands.children();
         for (int i = 0; i < subCommands.length; i++) {
             //System.out.println("GlobAction.getPresenter() subCommands["+i+"] = "+subCommands[i]);
-            JMenuItem menuItem = getPopupPresenter(subCommands[i], files, inMenu);
+            JMenuItem menuItem = getPopupPresenter(subCommands[i], filesWithMessages, inMenu);
             //System.out.println("  menu item = "+menuItem);
             if (menuItem != null) menuItems.add(menuItem);
         }
@@ -217,21 +217,33 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
     /**
      * Get a menu item that can present this action in a <code>JPopupMenu</code>.
      */
-    private JMenuItem getPopupPresenter(CommandsTree commands, FileObject[] files, boolean inMenu) {
+    private JMenuItem getPopupPresenter(CommandsTree commands, Map filesWithMessages,
+                                        boolean inMenu) {
         JMenuItem menu;
         //System.out.println("  has Children = "+commands.hasChildren());
         if (commands.hasChildren()) {
-            menu = new CommandMenu(commands, files, true, inMenu);
+            menu = new CommandMenu(commands, filesWithMessages, true, inMenu);
         } else {
             CommandSupport cmd = commands.getCommandSupport();
             if (cmd == null) return null;
             // TODO expert mode. (Can be a global property ?!?)
             if (cmd.getDisplayName() == null) return null;
-            if (cmd.getApplicableFiles(files) == null) {
+            FileObject[] allFiles;
+            if (filesWithMessages.size() == 1) {
+                allFiles = (FileObject[]) filesWithMessages.keySet().iterator().next();
+            } else {
+                List files = new ArrayList();
+                for (Iterator it = filesWithMessages.keySet().iterator(); it.hasNext(); ) {
+                    files.addAll(Arrays.asList((FileObject[]) it.next()));
+                }
+                allFiles = (FileObject[]) files.toArray(new FileObject[files.size()]);
+            }
+            if (cmd.getApplicableFiles(allFiles) == null) {
                 return null;
                 //menu.setEnabled(false);
             }
-            menu = CommandMenu.createItem(cmd, false, CommandMenu.DEFAULT_ADVANCED_OPTIONS_SIGN, inMenu, files);
+            menu = CommandMenu.createItem(cmd, false, CommandMenu.DEFAULT_ADVANCED_OPTIONS_SIGN,
+                                          inMenu, filesWithMessages);
         }
         if (inMenu && menu != null) {
             menu.setIcon(getIcon());
@@ -286,32 +298,59 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
     }
     
     /**
-     * Returns a map of providers and the list of associated files.
+     * Returns a map of providers and the associated files. The associated
+     * files are a map of files and appropriate messages (if any).
      */
-    private static Map findCommandProvidersForFiles(Collection fileObjects) {
-	//System.out.println("findCommandProvidersForFiles("+fileObjects+")");
-        Map providers = new Table();//HashMap();
-        for (Iterator it = fileObjects.iterator(); it.hasNext(); ) {
-            FileObject fo = (FileObject) it.next();
-            VcsCommandsProvider provider = VcsCommandsProvider.findProvider(fo);
-	    //System.out.println("  fo = "+fo+" provider = "+provider);
-            if (provider != null) {
-                if (providers.containsKey(provider)) {
-                    List files = (List) providers.get(provider);
-                    files.add(fo);
-                } else {
-                    List files = new ArrayList();
-                    files.add(fo);
-		    //System.out.println("  put("+provider+", "+files+")");
-                    providers.put(provider, files);
+    private static Map findCommandProvidersForFiles(Map filesWithMessages) {
+        //System.out.println("findCommandProvidersForFiles("+filesWithMessages+")");
+        Map providers = new HashMap();
+        for (Iterator fileLists = filesWithMessages.keySet().iterator(); fileLists.hasNext(); ) {
+            //for (Iterator it = fileObjects.iterator(); it.hasNext(); ) {
+            FileObject[] files = (FileObject[]) fileLists.next();
+            String message = (String) filesWithMessages.get(files);
+            for (int i = 0; i < files.length; i++) {
+                FileObject fo = files[i];
+                VcsCommandsProvider provider = VcsCommandsProvider.findProvider(fo);
+                //System.out.println("  fo = "+fo+" provider = "+provider);
+                if (provider != null) {
+                    if (providers.containsKey(provider)) {
+                        Map msgFiles = (Map) providers.get(provider);
+                        List fileList = null;
+                        if (msgFiles.values().contains(message)) {
+                            for (Iterator it = msgFiles.keySet().iterator(); it.hasNext(); ) {
+                                fileList = (List) it.next();
+                                if (message == null && msgFiles.get(fileList) == null ||
+                                    message != null && message.equals(msgFiles.get(fileList))) break;
+                            }
+                        } else {
+                            fileList = new ArrayList();
+                            msgFiles.put(fileList, message);
+                        }
+                        fileList.add(fo);
+                    } else {
+                        Map msgFiles = new Table();
+                        providers.put(provider, msgFiles);
+                        List fileList = new ArrayList();
+                        fileList.add(fo);
+                        msgFiles.put(fileList, message);
+                        //System.out.println("  put("+provider+", "+fileList+")");
+                    }
                 }
             }
         }
         for (Iterator it = providers.keySet().iterator(); it.hasNext(); ) {
             VcsCommandsProvider provider = (VcsCommandsProvider) it.next();
-            FileObject[] files = (FileObject[]) ((List) providers.get(provider)).toArray(new FileObject[0]);
-            //System.out.println("  RE put("+provider+", "+files+")");
-            providers.put(provider, files);
+            Map msgFilesList = (Map) providers.get(provider);
+            Map msgFilesArray = new Table();
+            for (Iterator it2 = msgFilesList.keySet().iterator(); it2.hasNext(); ) {
+                List fileList = (List) it2.next();
+                FileObject[] files = (FileObject[]) fileList.toArray(new FileObject[fileList.size()]);
+                String message = (String) msgFilesList.get(fileList);
+                msgFilesArray.put(files, message);
+                //System.out.println("  For provider "+provider+": have files = "+fileList+", with message '"+message+"'");
+            }
+            msgFilesList.clear();
+            msgFilesList.putAll(msgFilesArray);
         }
         return providers;
     }
@@ -342,9 +381,50 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
         private CommandSupport cmdSupport2;
         
         public MergedCommandSupport(CommandSupport cmdSupport1, CommandSupport cmdSupport2) {
-            super(Command.class);
+            super(getCommonImplInterfaces(cmdSupport1, cmdSupport2));//Command.class);
             this.cmdSupport1 = cmdSupport1;
             this.cmdSupport2 = cmdSupport2;
+        }
+        
+        private static Class[] getCommonImplInterfaces(CommandSupport cmdSupport1, CommandSupport cmdSupport2) {
+            Class[] intrf1 = cmdSupport1.createCommand().getClass().getInterfaces();
+            Class[] intrf2 = cmdSupport2.createCommand().getClass().getInterfaces();
+            List il1 = new ArrayList(Arrays.asList(intrf1));
+            List il2 = Arrays.asList(intrf2);
+            il1.retainAll(il2);
+            return (Class[]) il1.toArray(new Class[il1.size()]);
+        }
+        
+        /** Transferes the values of getters of this command to setters of the sub-command */
+        private static void transferPropertyValues(Command cmd, Command subCommand) {
+            Class[] interfaces = cmd.getClass().getInterfaces();
+            transferPropertyValues(cmd, interfaces, subCommand);
+        }
+        
+        private static void transferPropertyValues(Command cmd, Class[] interfaces,
+                                                   Command subCommand) {
+            for (int i = 0; i < interfaces.length; i++) {
+                if (Command.class.equals(interfaces[i]) ||
+                    VcsDescribedCommand.class.equals(interfaces[i])) continue;
+                try {
+                    BeanInfo beanInfo = Introspector.getBeanInfo(interfaces[i]);
+                    PropertyDescriptor[] propDescrs = beanInfo.getPropertyDescriptors();
+                    for (int j = 0; j < propDescrs.length; j++) {
+                        String name = propDescrs[j].getName();
+                        Object value = propDescrs[j].getReadMethod().invoke(cmd, new Object[0]);
+                        Method writeMethod = propDescrs[j].getWriteMethod();
+                        Method subWriteMethod = subCommand.getClass().getMethod(writeMethod.getName(), writeMethod.getParameterTypes());
+                        subWriteMethod.invoke(subCommand, new Object[] { value });
+                    }
+                } catch (IntrospectionException iex) {
+                } catch (IllegalAccessException iaex) {
+                } catch (IllegalArgumentException iarex) {
+                } catch (InvocationTargetException itex) {
+                } catch (NoSuchMethodException nsmex) {
+                }
+                Class[] subinterfaces = interfaces[i].getInterfaces();
+                transferPropertyValues(cmd, subinterfaces, subCommand);
+            }
         }
         
         /** Perform the actual execution of the command from the provided info.
@@ -354,21 +434,29 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
          */
         protected int execute(CommandTask task) {
             Command cmd = getCommand(task);
-            FileObject[] files1 = cmdSupport1.getApplicableFiles(cmd.getFiles());
-            FileObject[] files2 = cmdSupport2.getApplicableFiles(cmd.getFiles());
+            FileObject[] files = cmd.getFiles();
+            //System.out.println("MergedCommandSupport.execute("+task+"): cmd = "+cmd+", files = "+files);
+            if (files == null) return CommandTask.STATUS_SUCCEEDED;
+            FileObject[] files1 = cmdSupport1.getApplicableFiles(files);
+            FileObject[] files2 = cmdSupport2.getApplicableFiles(files);
             CommandTask task1 = null;
             CommandTask task2 = null;
+            //System.out.println("  files1 = "+files1+", files2 = "+files2);
             if (files1 != null) {
                 Command cmd1 = cmdSupport1.createCommand();
+                transferPropertyValues(cmd, cmd1);
                 cmd1.setGUIMode(cmd.isGUIMode());
                 cmd1.setExpertMode(cmd.isExpertMode());
+                cmd1.setFiles(files1);
                 boolean customized = VcsManager.getDefault().showCustomizer(cmd1);
                 if (customized) task1 = cmd1.execute();
             }
             if (files2 != null) {
                 Command cmd2 = cmdSupport2.createCommand();
+                transferPropertyValues(cmd, cmd2);
                 cmd2.setGUIMode(cmd.isGUIMode());
                 cmd2.setExpertMode(cmd.isExpertMode());
+                cmd2.setFiles(files2);
                 boolean customized = VcsManager.getDefault().showCustomizer(cmd2);
                 if (customized) task2 = cmd2.execute();
             }
@@ -395,9 +483,14 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
             FileObject[] fo2 = cmdSupport2.getApplicableFiles(files);
             if (fo1 == null) return fo2;
             if (fo2 == null) return fo1;
-            FileObject[] fo3 = new FileObject[fo1.length + fo2.length];
-            System.arraycopy(fo1, 0, fo3, 0, fo1.length);
-            System.arraycopy(fo2, 0, fo3, fo1.length, fo2.length);
+            //FileObject[] fo3 = new FileObject[fo1.length + fo2.length];
+            //System.arraycopy(fo1, 0, fo3, 0, fo1.length);
+            //System.arraycopy(fo2, 0, fo3, fo1.length, fo2.length);
+            List fos1 = Arrays.asList(fo1);
+            List fos2 = new ArrayList(Arrays.asList(fo2));
+            fos2.removeAll(fos1);
+            fos2.addAll(0, fos1);
+            FileObject[] fo3 = (FileObject[]) fos2.toArray(new FileObject[fos2.size()]);
             return fo3;
         }
         

@@ -108,19 +108,6 @@ public class Variables {
      */
     public static final String MSG_PROMPT_FOR_AUTO_LOCK = "MSG_PROMPT_FOR_AUTO_LOCK";
     
-    /** 
-     * Variable, that contains the description of a group (if any). Defined only
-     * if the command is run on a group. Can be used by check in commands for
-     * check in messages.
-     */
-    public static final String GROUP_DESCRIPTION = "GROUP_DESCRIPTION"; //NOI18N
-    /** 
-     * Variable, that contains the name of a group (if any). Defined only
-     * if the command is run on a group. Can be used by check in commands for
-     * check in messages.
-     */
-    public static final String GROUP_NAME = "GROUP_NAME"; //NOI18N
-    
     /**
      * If this variable is defined, than it's value (should be integer) is supposed
      * to be the maximum length of a command in the system.

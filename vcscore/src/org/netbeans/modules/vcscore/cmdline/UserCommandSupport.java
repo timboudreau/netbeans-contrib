@@ -15,6 +15,11 @@ package org.netbeans.modules.vcscore.cmdline;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,10 +33,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
+import org.openide.util.Lookup;
 import org.openide.util.UserCancelException;
 
 import org.netbeans.api.vcs.commands.CommandTask;
@@ -71,7 +78,6 @@ import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.VariableInputDialog;
 import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
-import org.openide.ErrorManager;
 
 /**
  * The adapter from UserCommand to CommandSupport. This class is used to
@@ -106,18 +112,17 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         List classes = new ArrayList();
         classes.add(VcsDescribedCommand.class);
         classes.add(CustomizationStatus.class);
-        if (cmd.NAME_GENERIC_ADD.equals(cmd.getName())) {
-            classes.add(AddCommand.class);
-        } else if (cmd.NAME_GENERIC_CHECKIN.equals(cmd.getName())) {
-            classes.add(CheckInCommand.class);
-        } else if (cmd.NAME_GENERIC_CHECKOUT.equals(cmd.getName())) {
-            classes.add(CheckOutCommand.class);
-        //} else if (cmd.NAME_GENERIC_DIFF.equals(cmd.getName())) {
-        //    classes.add(DiffCommand.class);
-        //} else if (cmd.NAME_GENERIC_HISTORY.equals(cmd.getName())) {
-        //    classes.add(HistoryCommand.class);
-        } else if (cmd.NAME_GENERIC_REMOVE.equals(cmd.getName())) {
-            classes.add(RemoveCommand.class);
+        String cmdClassName = (String) cmd.getProperty(VcsCommand.PROPERTY_ASSOCIATED_COMMAND_INTERFACE_NAME);
+        //System.out.println("getClassesForCommand("+cmd+"), cmdClassName = "+cmdClassName);
+        if (cmdClassName != null) {
+            try {
+                ClassLoader systemClassLoader = (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
+                Class cmdClass = Class.forName(cmdClassName, false, systemClassLoader);
+                classes.add(cmdClass);
+                //System.out.println("Got class "+cmdClass+" for command "+cmd.getName());
+            } catch (ClassNotFoundException cnfex) {
+                org.openide.ErrorManager.getDefault().notify(cnfex);
+            }
         }
         return (Class[]) classes.toArray(new Class[classes.size()]);
     }
@@ -428,6 +433,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         Hashtable vars = fileSystem.getVariablesAsHashtable();
         Map additionalVars = cmd.getAdditionalVariables();
         if (additionalVars != null) vars.putAll(additionalVars);
+        setVariablesFromCommandInterfaces(cmd, vars);
         if (cmd.isExpertMode() && !fileSystem.isExpertMode()) {
             vars.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE);
         }
@@ -1155,6 +1161,36 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             }
         }
         return greatestParent;
+    }
+    
+    private static void setVariablesFromCommandInterfaces(Command cmd, Hashtable vars) {
+        Class[] interfaces = cmd.getClass().getInterfaces();
+        setVariablesFromCommandInterfaces(cmd, interfaces, vars);
+    }
+    
+    private static void setVariablesFromCommandInterfaces(Command cmd, Class[] interfaces, Hashtable vars) {
+        for (int i = 0; i < interfaces.length; i++) {
+            if (Command.class.equals(interfaces[i]) ||
+                VcsDescribedCommand.class.equals(interfaces[i]) ||
+                CustomizationStatus.class.equals(interfaces[i])) continue;
+            try {
+                BeanInfo beanInfo = Introspector.getBeanInfo(interfaces[i]);
+                PropertyDescriptor[] propDescrs = beanInfo.getPropertyDescriptors();
+                for (int j = 0; j < propDescrs.length; j++) {
+                    String name = propDescrs[j].getName();
+                    Object value = propDescrs[j].getReadMethod().invoke(cmd, new Object[0]);
+                    if (value != null) {
+                        vars.put(name, value.toString());
+                    }
+                }
+            } catch (IntrospectionException iex) {
+            } catch (IllegalAccessException iaex) {
+            } catch (IllegalArgumentException iarex) {
+            } catch (InvocationTargetException itex) {
+            }
+            Class[] subinterfaces = interfaces[i].getInterfaces();
+            setVariablesFromCommandInterfaces(cmd, subinterfaces, vars);
+        }
     }
     
     /**

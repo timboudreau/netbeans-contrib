@@ -79,18 +79,6 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public static final String NAME_SCHEDULE_REMOVE = "SCHEDULE_REMOVE";
     
-    public static final String NAME_GENERIC_ADD = "GENERIC_ADD";
-    
-    public static final String NAME_GENERIC_REMOVE = "GENERIC_REMOVE";
-    
-    public static final String NAME_GENERIC_CHECKIN = "GENERIC_CHECKIN";
-    
-    public static final String NAME_GENERIC_CHECKOUT = "GENERIC_CHECKOUT";
-    
-    public static final String NAME_GENERIC_HISTORY = "GENERIC_HISTORY";
-    
-    public static final String NAME_GENERIC_DIFF = "GENERIC_DIFF";
-    
     /**
      * If the command label is not null, this property is used as a mnemonic
      * for the command lanel.
@@ -345,6 +333,16 @@ public interface VcsCommand extends VcsCommandCookie {
      * toolbar or action's menu item name.
      */
     public static final String PROPERTY_GENERAL_COMMAND_ACTION_DISPLAY_NAME = "generalCommandActionDisplayName";
+    
+    /**
+     * The String property, that contain the name of an interface, that represents
+     * this command. The interface must extend the org.netbeans.api.vcs.commands.Command
+     * interface.
+     * The values, that are set through String setters of this interface will
+     * be transferred to variables, that are passed at the time of execution
+     * of this command.
+     */
+    public static final String PROPERTY_ASSOCIATED_COMMAND_INTERFACE_NAME = "associatedCommandInterfaceName";
     
     /**
      * Properties wich contains this string in their names can be added to the command

@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,6 +32,7 @@ import org.openide.util.RequestProcessor;
 
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.MessagingCommand;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
@@ -47,7 +49,7 @@ public class CommandMenu extends JMenuPlus {
         org.openide.util.NbBundle.getMessage(CommandMenu.class, "CTL_AdvancedOptionsSign");
     
     private CommandsTree commandRoot;
-    private FileObject[] files;
+    private Map filesWithMessages;
     private List switchableList;
     private String advancedOptionsSign;
     private boolean removeDisabled;
@@ -57,28 +59,35 @@ public class CommandMenu extends JMenuPlus {
     private boolean popupCreated = false;
     private boolean[] CTRL_Down = { false };
 
-    /** Creates a new instance of CommandMenu */
-    public CommandMenu(CommandsTree commandRoot, FileObject[] files,
+    /**
+     * Creates a new instance of CommandMenu.
+     * @param commandRoot The root of the tree structure of commands.
+     * @param filesWithMessages The map of array of FileObjects and the messages,
+     *        that are usedin MessagingCommands
+     * @param removeDisabled Remove the disabled commands from the popup menu
+     * @param inMenu Whether a menu or a popup-menu should be created.
+     */
+    public CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
                        boolean removeDisabled, boolean inMenu) {
-        this(commandRoot, files, DEFAULT_ADVANCED_OPTIONS_SIGN, removeDisabled,
-             inMenu, null, new HashMap());
+        this(commandRoot, filesWithMessages, DEFAULT_ADVANCED_OPTIONS_SIGN,
+             removeDisabled, inMenu, null, new HashMap());
     }
     
-    public CommandMenu(CommandsTree commandRoot, FileObject[] files,
+    public CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
                        String advancedOptionsSign,
                        boolean removeDisabled, boolean inMenu,
                        ActionListener listener, Map actionCommandMap) {
-        this(commandRoot, files, new ArrayList(), advancedOptionsSign,
+        this(commandRoot, filesWithMessages, new ArrayList(), advancedOptionsSign,
              removeDisabled, inMenu, listener, actionCommandMap);
     }
     
-    private CommandMenu(CommandsTree commandRoot, FileObject[] files,
+    private CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
                         List switchableList, String advancedOptionsSign,
                         boolean removeDisabled, boolean inMenu,
                         ActionListener listener, Map actionCommandMap) {
         super();
         this.commandRoot = commandRoot;
-        this.files = files;
+        this.filesWithMessages = filesWithMessages;
         this.switchableList = switchableList;
         this.advancedOptionsSign = advancedOptionsSign;
         this.removeDisabled = removeDisabled;
@@ -86,7 +95,7 @@ public class CommandMenu extends JMenuPlus {
         this.listener = (listener != null) ?
                          listener :
                          new CommandMenu.CommandActionListener(CTRL_Down, actionCommandMap,
-                                                               files);
+                                                               filesWithMessages);
         this.actionCommandMap = actionCommandMap;
         CommandSupport cmd = (CommandSupport) commandRoot.getCommandSupport();
         if (cmd != null) {
@@ -110,6 +119,16 @@ public class CommandMenu extends JMenuPlus {
         boolean wasNullCommand = false;
         //Hashtable variables = fileSystem.getVariablesAsHashtable();
         CommandsTree[] children = commandRoot.children();
+        FileObject[] allFiles;
+        if (filesWithMessages.size() == 1) {
+            allFiles = (FileObject[]) filesWithMessages.keySet().iterator().next();
+        } else {
+            List files = new ArrayList();
+            for (Iterator it = filesWithMessages.keySet().iterator(); it.hasNext(); ) {
+                files.addAll(Arrays.asList((FileObject[]) it.next()));
+            }
+            allFiles = (FileObject[]) files.toArray(new FileObject[files.size()]);
+        }
         for (int i = 0; i < children.length; i++) {
             CommandSupport cmd = (CommandSupport) children[i].getCommandSupport();
             if (cmd == null) {
@@ -124,7 +143,7 @@ public class CommandMenu extends JMenuPlus {
             wasNullCommand = false;
             //System.out.println("VcsAction.addMenu(): cmd = "+cmd.getName());
             if (cmd.getDisplayName() == null) continue;
-            if (removeDisabled && cmd.getApplicableFiles(files) == null) {
+            if (removeDisabled && cmd.getApplicableFiles(allFiles) == null) {
                 continue;
             }
             JMenuItem cmdMenu = createItem(cmd, false, switchableList,
@@ -135,7 +154,7 @@ public class CommandMenu extends JMenuPlus {
             JMenuItem item;
             if (children[i].hasChildren()) {
                 JMenu submenu;
-                submenu = new CommandMenu(children[i], files,
+                submenu = new CommandMenu(children[i], filesWithMessages,
                                           switchableList, advancedOptionsSign,
                                           removeDisabled, inMenu, listener,
                                           actionCommandMap);
@@ -146,7 +165,7 @@ public class CommandMenu extends JMenuPlus {
                 //                item.addMenuKeyListener(ctrlListener);
                 add(item);
             }
-            if (!removeDisabled && cmd.getApplicableFiles(files) == null) {
+            if (!removeDisabled && cmd.getApplicableFiles(allFiles) == null) {
                 item.setEnabled(false);
             }
         }
@@ -193,7 +212,7 @@ public class CommandMenu extends JMenuPlus {
      */
     public static JMenuItem createItem(CommandSupport cmd, boolean expertMode,
                                        String advancedOptionsSign,
-                                       boolean inMenu, FileObject[] files) {
+                                       boolean inMenu, Map filesWithMessages) {
         String label = cmd.getDisplayName();
         //System.out.println("VcsAction.createItem("+name+"): menu '"+label+"' created.");
         if (label == null) return null;
@@ -206,7 +225,7 @@ public class CommandMenu extends JMenuPlus {
         List switchableList = new ArrayList();
         ActionListener listener = new CommandMenu.CommandActionListener(CTRL_Down,
                                                                         actionCommandMap,
-                                                                        files);
+                                                                        filesWithMessages);
         JMenuItem item = new JMenuItem();
         Actions.setMenuText(item, label, inMenu);
         String commandStr = cmd.getName();
@@ -227,13 +246,13 @@ public class CommandMenu extends JMenuPlus {
         
         private boolean[] CTRL_Down;
         private Map actionCommandMap;
-        private FileObject[] files;
+        private Map filesWithMessages;
         
         public CommandActionListener(boolean[] CTRL_Down, Map actionCommandMap,
-                                     FileObject[] files) {
+                                     Map filesWithMessages) {
             this.CTRL_Down = CTRL_Down;
             this.actionCommandMap = actionCommandMap;
-            this.files = files;
+            this.filesWithMessages = filesWithMessages;
         }
         
         /** Invoked when an action occurs.
@@ -248,20 +267,27 @@ public class CommandMenu extends JMenuPlus {
             }
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
-                    Command cmd = null;
-                    if (cmdSupport != null) {
-                        cmd = cmdSupport.createCommand();
-                        cmd.setFiles(files);
-                    } else {
-                        try {
-                            cmd = VcsManager.getDefault().createCommand(cmdName, files);
-                        } catch (IllegalArgumentException iaex) {}
-                    }
-                    if (cmd != null) {
-                        cmd.setGUIMode(true);
-                        if (CTRL_Down[0]) cmd.setExpertMode(CTRL_Down[0]);
-                        boolean customized = VcsManager.getDefault().showCustomizer(cmd);
-                        if (customized) cmd.execute();
+                    for (Iterator it = filesWithMessages.keySet().iterator(); it.hasNext(); ) {
+                        FileObject[] files = (FileObject[]) it.next();
+                        String message = (String) filesWithMessages.get(files);
+                        Command cmd = null;
+                        if (cmdSupport != null) {
+                            cmd = cmdSupport.createCommand();
+                            cmd.setFiles(files);
+                        } else {
+                            try {
+                                cmd = VcsManager.getDefault().createCommand(cmdName, files);
+                            } catch (IllegalArgumentException iaex) {}
+                        }
+                        if (cmd != null) {
+                            if (message != null && cmd instanceof MessagingCommand) {
+                                ((MessagingCommand) cmd).setMessage(message);
+                            }
+                            cmd.setGUIMode(true);
+                            if (CTRL_Down[0]) cmd.setExpertMode(CTRL_Down[0]);
+                            boolean customized = VcsManager.getDefault().showCustomizer(cmd);
+                            if (customized) cmd.execute();
+                        }
                     }
                 }
             });
