@@ -1967,6 +1967,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @exception IOException if the root does not exists or some other error occured
      */
     public synchronized void setRootDirectory (File r) throws PropertyVetoException, IOException {
+        setRootDirectory(r, false);
+    }
+
+    /** Set the root directory of the file system. It adds the module name to the parameter.
+     * @param r file to set root to plus module name
+     * @exception PropertyVetoException if the value if vetoed by someone else (usually
+     *    by the {@link org.openide.filesystems.Repository Repository})
+     * @exception IOException if the root does not exists or some other error occured
+     */
+    protected final synchronized void setRootDirectory (File r, boolean forceToSet) throws PropertyVetoException, IOException {
         //D.deb("setRootDirectory("+r+")"); // NOI18N
         if (/*!r.exists() ||*/ r.isFile ()) {
             throw new IOException(g("EXC_RootNotExist", r.toString ())); // NOI18N
@@ -1976,7 +1986,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         String module = (String) vars.get("MODULE"); // NOI18N
         if (module == null) module = ""; // NOI18N
         File root = new File(r, module);
-        if (rootFile.equals(root)) return ;
+        if (!forceToSet && rootFile.equals(root)) return ;
         String name = computeSystemName (root);
         /* Ignoring other filesystems' names => it is possible to mount VCS filesystem with the same name.
         Enumeration en = TopManager.getDefault ().getRepository ().fileSystems ();
@@ -2072,7 +2082,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
             return systemNameAnnotation;
         }
-        return rootFile.toString ().replace(File.separatorChar, '/');
+        return this.getClass().getName()+" "+rootFile.toString ().replace(File.separatorChar, '/');
     }
 
     /** Get file representation for given string name.
