@@ -42,6 +42,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
     private Hashtable vars = null;
     //private VcsCacheDir dir = null;
     private String path = null;
+    private String exec;
 
     private ArrayList commandOutputListener = new ArrayList(); 
     private ArrayList commandErrorOutputListener = new ArrayList(); 
@@ -73,6 +74,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
         //dir.setName(VcsUtilities.getFileNamePart(path));
         //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
         D.deb("DIR="+(String)vars.get("DIR")); // NOI18N
+        this.exec = (String) listSub.getProperty(VcsCommand.PROPERTY_EXEC);
     }
 
     /**
@@ -141,7 +143,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
      * Get the updated execution string. It may contain user input now.
      */
     public String getExec() {
-        return (String) listSub.getProperty(VcsCommand.PROPERTY_EXEC);
+        return exec;
     }
     
     /**
@@ -380,7 +382,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
      */
 
     public void run() {
-        String exec = (String) listSub.getProperty(VcsCommand.PROPERTY_EXEC);
+        //String exec = (String) listSub.getProperty(VcsCommand.PROPERTY_EXEC);
         exec = Variables.expand(vars, exec, false).trim();
         //fileSystem.debug("LIST_SUB: "+exec); // NOI18N
 

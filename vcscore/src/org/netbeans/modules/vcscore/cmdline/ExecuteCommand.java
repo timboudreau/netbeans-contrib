@@ -509,6 +509,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         E.deb("runClass: "+className); // NOI18N
         boolean success = true;
         Class execClass = null;
+        preferredExec = exec;
         try {
             execClass =  Class.forName(className, true,
                                        org.openide.TopManager.getDefault().currentClassLoader());

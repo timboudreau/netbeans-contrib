@@ -48,6 +48,7 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
     private Hashtable vars = null ;
     //private VcsCacheDir dir=null ;
     private String path;
+    private String exec;
 
     private ArrayList commandOutputListener = new ArrayList(); 
     private ArrayList commandErrorOutputListener = new ArrayList(); 
@@ -90,6 +91,7 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         //dir.setName (VcsUtilities.getFileNamePart (path));
         //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
         D.deb ("DIR="+(String)vars.get("DIR")); // NOI18N
+        this.exec = (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
     }
 
 
@@ -166,7 +168,7 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
      * Get the updated execution string. It may contain user input now.
      */
     public String getExec() {
-        return (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
+        return exec;
     }
     
     /**
@@ -445,7 +447,7 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
 
     //-------------------------------------------
     public void run() {
-        String exec = (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
+        //String exec = (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
         exec = Variables.expand(vars, exec, false).trim();
         //fileSystem.debug("LIST: "+exec); // NOI18N
 
