@@ -724,8 +724,9 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      * <p>
      * @param document The document being edited
      * @param dataobject The Data Object for the file being opened
+     * @param acceptor narrows set of providers to be quaried
      */
-    void dispatchRescan(Document document, DataObject dataobject, final Object request) {
+    void dispatchRescan(Document document, DataObject dataobject, final Object request, ProviderAcceptor acceptor) {
 
         assert request != null : "Precondition for SuggestionsBroker.getCurrRequest()";  // NOI18N
 
@@ -740,7 +741,8 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
             if (SuggestionsBroker.getDefault().getCurrRequest() != request) return;
 
             DocumentSuggestionProvider provider = (DocumentSuggestionProvider) it.next();
-            if ((unfiltered == null) || (provider == unfiltered)) {
+            if (acceptor.accept(provider) == false) continue;
+            if ((unfiltered == null) || (provider == unfiltered)) { // TODO remove unfiltered and replace by acceptors
                 if (stats) {
                     start = System.currentTimeMillis();
                 }

@@ -45,8 +45,8 @@ public class SuggestionsBrokerTest extends TestCase {
         SuggestionsBroker broker = SuggestionsBroker.getDefault();
         TestEnv env = new TestEnv();
         broker.env = env;
-        SuggestionsBroker.Job job = broker.startBroker();
-        SuggestionsBroker.Job job2 = broker.startBroker();
+        SuggestionsBroker.Job job = broker.startBroker(ProviderAcceptor.ALL);
+        SuggestionsBroker.Job job2 = broker.startBroker(ProviderAcceptor.ALL);
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {

@@ -28,6 +28,7 @@ import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
+import org.netbeans.modules.tasklist.providers.SuggestionProvider;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -83,6 +84,19 @@ public final class SuggestionsBroker {
 
     private static final Logger LOGGER = TLUtils.getLogger(SuggestionsBroker.class);
 
+    private List acceptors = new ArrayList(5);
+
+    private final ProviderAcceptor compound = new ProviderAcceptor() {
+        public boolean accept(SuggestionProvider provider) {
+            Iterator it = acceptors.iterator();
+            while (it.hasNext()) {
+                ProviderAcceptor acceptor = (ProviderAcceptor) it.next();
+                if (acceptor.accept(provider)) return true;
+            }
+            return false;
+        }
+    };
+
     private SuggestionsBroker() {
     }
 
@@ -94,23 +108,30 @@ public final class SuggestionsBroker {
     }
 
 
-    public Job startBroker() {
+    public Job startBroker(ProviderAcceptor acceptor) {
         clientCount++;
         if (clientCount == 1) {
             manager.dispatchRun();
             startActiveSuggestionFetching();
         }
-        return new Job();
+        return new Job(acceptor);
     }
 
     /** Handle for suggestions foe active document. */
     public class Job {
 
         private boolean stopped = false;
+        private final ProviderAcceptor acceptor;
+
+        private Job(ProviderAcceptor acceptor) {
+            this.acceptor = acceptor;
+            acceptors.add(acceptor);
+        }
 
         public void stopBroker() {
             if (stopped) return;
             stopped = true;
+            acceptors.remove(acceptor);
 
             clientCount--;
             if (clientCount == 0) {
@@ -142,11 +163,11 @@ public final class SuggestionsBroker {
     }
 
     /** Starts monitoring all opened files */
-    public AllOpenedJob startAllOpenedBroker() {
+    public AllOpenedJob startAllOpenedBroker(ProviderAcceptor acceptor) {
         allOpenedClientsCount++;
         if (allOpenedClientsCount == 1) {
             openedFilesSuggestionsMap = new HashMap();
-            allOpenedJob = startBroker();
+            allOpenedJob = startBroker(acceptor);
 
             TopComponent[] documents = SuggestionsScanner.openedTopComponents();
             SuggestionsScanner scanner = SuggestionsScanner.getDefault();
@@ -155,19 +176,25 @@ public final class SuggestionsBroker {
                 DataObject dobj = extractDataObject(documents[i]);
                 if (dobj == null) continue;
                 FileObject fileObject = dobj.getPrimaryFile();
-                List suggestions = scanner.scanTopComponent(documents[i]);
+                List suggestions = scanner.scanTopComponent(documents[i], compound);
                 openedFilesSuggestionsMap.put(fileObject, suggestions);
                 allSuggestions.addAll(suggestions);
             }
             getAllOpenedSuggestionList().addRemove(allSuggestions, null, true, null, null);
         }
-        return new AllOpenedJob();
+        return new AllOpenedJob(acceptor);
     }
 
     /** Handle to suggestions for all opened files request. */
     public class AllOpenedJob {
 
         private boolean stopped = false;
+        private final ProviderAcceptor acceptor;
+
+        private AllOpenedJob(ProviderAcceptor acceptor) {
+            this.acceptor = acceptor;
+            acceptors.add(acceptor);
+        }
 
         public SuggestionList getSuggestionList() {
             return getAllOpenedSuggestionList();
@@ -177,6 +204,7 @@ public final class SuggestionsBroker {
 
             if (stopped) return;
             stopped = true;
+            acceptors.remove(acceptor);
 
             allOpenedClientsCount--;
             if (allOpenedClientsCount == 0) {
@@ -618,7 +646,7 @@ err.log("Couldn't find current nodes...");
                     docSuggestions = null;
                 }
 
-                manager.dispatchRescan(document, dataobject, origRequest);
+                manager.dispatchRescan(document, dataobject, origRequest, compound);
 
                 // update "allOpened" suggestion list
 

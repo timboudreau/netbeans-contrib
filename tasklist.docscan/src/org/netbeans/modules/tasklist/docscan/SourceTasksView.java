@@ -437,7 +437,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     //            getExplorerManager().setRootContext(new AbstractNode(tasks));
     //        } else {
                 // XXX defer to isShowing
-                job = SuggestionsBroker.getDefault().startBroker();
+                job = SuggestionsBroker.getDefault().startBroker(new SourceTasksProviderAcceptor());
                 this.category = CATEGORY;
                 registerTaskListView(this);
                 setModel(createFilteredList(job.getSuggestionsList()));
@@ -1083,7 +1083,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         // enter new mode
 
-        allJob = SuggestionsBroker.getDefault().startAllOpenedBroker();
+        allJob = SuggestionsBroker.getDefault().startAllOpenedBroker(new SourceTasksProviderAcceptor());
 
         treeTable.setProperties(createColumns());
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
@@ -1268,7 +1268,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         // enter new mode
 
         try {
-            job = SuggestionsBroker.getDefault().startBroker();
+            job = SuggestionsBroker.getDefault().startBroker(new SourceTasksProviderAcceptor());
             treeTable.setProperties(createColumns());
             treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
             setModel(createFilteredList(job.getSuggestionsList()));

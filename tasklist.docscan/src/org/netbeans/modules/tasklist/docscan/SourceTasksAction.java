@@ -59,7 +59,7 @@ public final class SourceTasksAction extends CallableSystemAction {
                 Background back = SourceTasksScanner.scanTasksAsync(view);  // delayed class loading
                 view.setBackground(back);
             } else {
-                TaskListView tlv = new SourceTasksView(SuggestionsBroker.getDefault().startBroker());
+                TaskListView tlv = new SourceTasksView(SuggestionsBroker.getDefault().startBroker(new SourceTasksProviderAcceptor()));
                 tlv.showInMode();
             }
         }

@@ -273,7 +273,7 @@ public final class SuggestionsScanner implements Cancellable {
         for (int i=0; i<roots.length; i++) {
             FileObject root = roots[i].getPrimaryFile();
             if (root.equals(fo) || (recursive ? FileUtil.isParentOf(root,fo) : fo.getParent().equals(root))) {
-                scanLeaf(dobj);
+                scanLeaf(dobj, ProviderAcceptor.ALL);
                 scanned.add(dobj);
                 break; // certainly it could be under more roots
                        // but it would create duplicates and slow down the test
@@ -315,7 +315,7 @@ public final class SuggestionsScanner implements Cancellable {
                 }
 
             } else {
-                scanLeaf(f);
+                scanLeaf(f, ProviderAcceptor.ALL);
             }
         }
     }
@@ -327,7 +327,7 @@ public final class SuggestionsScanner implements Cancellable {
      *
      * @return list (possibly empty)
      */
-    final synchronized List scanTopComponent(TopComponent topComponent) {
+    final synchronized List scanTopComponent(TopComponent topComponent, ProviderAcceptor acceptor) {
         List ret = Collections.EMPTY_LIST;
         try {
 
@@ -347,7 +347,7 @@ public final class SuggestionsScanner implements Cancellable {
             for (int n = 0; n<nodes.length; n++) {
                 DataObject dobj = (DataObject) nodes[n].getCookie(DataObject.class);
                 if (dobj == null) return ret;
-                scanLeaf(dobj);
+                scanLeaf(dobj, acceptor);
                 break;  // one node is enough
             }
             ret = cummulateInList;
@@ -360,7 +360,7 @@ public final class SuggestionsScanner implements Cancellable {
     /**
      * Scans given data object. Converts it to scanning context.
      */
-    private void scanLeaf(DataObject dobj) {
+    private void scanLeaf(DataObject dobj, ProviderAcceptor acceptor) {
         // Get document, and I do mean now!
 
         if (!dobj.isValid()) return;
@@ -377,7 +377,7 @@ public final class SuggestionsScanner implements Cancellable {
 
         SuggestionContext env = SPIHole.createSuggestionContext(dobj);
 
-        scanLeaf(env);
+        scanLeaf(env, acceptor);
 
         if (false) {
             try {
@@ -404,13 +404,16 @@ public final class SuggestionsScanner implements Cancellable {
 
     }
 
-    private void scanLeaf(SuggestionContext env) {
+    private void scanLeaf(SuggestionContext env, ProviderAcceptor acceptor) {
         List providers = registry.getProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
             if (interrupted) return;
             interrupted = Thread.interrupted();
             SuggestionProvider provider = (SuggestionProvider) it.next();
+
+            if (acceptor.accept(provider) == false) continue;
+
             // FIXME no initialization events possibly fired
             // I guess that reponsibility for recovering from missing
             // lifecycle events should be moved to providers
