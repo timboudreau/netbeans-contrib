@@ -59,18 +59,6 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public static final String NAME_REVISION_OPEN = "REVISION_OPEN";
     
-    /*
-     * Label of the command which will not appear in the popup menu.
-     *
-    public static final String DISPLAY_NAME_NOT_SHOW = "NO_LABEL";
-     */
-    
-    /*
-     * The object denoting a separator in the list of children commands.
-     *
-    public static final Object COMMAND_SEPARATOR = new String("SEPARATOR");
-     */
-
     /**
      * Command may set this property which will be visible on the VariableInputDialog.
      * Can be used to tell the user about the specific command appearance.
@@ -100,16 +88,7 @@ public interface VcsCommand extends VcsCommandCookie {
      * if false, the command can act everywhere but on the root.
      */
     public static final String PROPERTY_ON_ROOT = "onRoot";
-    /*
-     * A boolean property, if true, the command can act everywhere but on the root.
-     *
-    public static final String PROPERTY_NOT_ON_ROOT = "notOnRoot";
-     */
-    /*
-     * Display the textual output of the command.
-     *
-    public static final String PROPERTY_DISPLAY = "display";
-     */
+
     /**
      * When this property is true, refresh of the current folder is performed after successfull execution of this command.
      */
@@ -275,17 +254,9 @@ public interface VcsCommand extends VcsCommandCookie {
     /**
      * Set the additional property to the command.
      * @param propertyName the name of the property
-     * @param value the value of the property
+     * @param value the value of the property. The <code>null</code> value should unset the property
      */
     public void setProperty(String propertyName, Object value);
-    
-    /*
-     * This method is called after read of all commands from an external source.
-     * Allows some more settings to be done. This method should be static.
-     * @param cmds the <code>Vector</code> containing all read commands. 
-     *
-    public void readFinished(java.util.Vector cmds);
-     */
-    
+        
 }
 
