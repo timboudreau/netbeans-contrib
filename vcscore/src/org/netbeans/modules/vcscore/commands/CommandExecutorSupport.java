@@ -284,6 +284,31 @@ public class CommandExecutorSupport extends Object {
                 doRefresh(fileSystem, vce, true);
             }
         }
+        issuePostCommands(cmd, vce.getVariables(),
+                          VcsCommandExecutor.SUCCEEDED == exit, fileSystem);
+    }
+    
+    private static void issuePostCommands(VcsCommand cmd, Hashtable vars,
+                                          boolean success, VcsFileSystem fileSystem) {
+        String commands;
+        if (success) {
+            commands = (String) cmd.getProperty(VcsCommand.PROPERTY_COMMANDS_AFTER_SUCCESS);
+        } else {
+            commands = (String) cmd.getProperty(VcsCommand.PROPERTY_COMMANDS_AFTER_FAIL);
+        }
+        if (commands == null) return ;
+        commands = Variables.expand(vars, commands, false).trim();
+        if (commands.length() == 0) return ;
+        String[] cmdNames = VcsUtilities.getQuotedStrings(commands);
+        for (int i = 0; i < cmdNames.length; i++) {
+            VcsCommand c = fileSystem.getCommand(cmdNames[i]);
+            if (c != null) {
+                Hashtable cVars = new Hashtable(vars);
+                VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(c, cVars);
+                fileSystem.getCommandsPool().preprocessCommand(vce, cVars);
+                fileSystem.getCommandsPool().startExecutor(vce);
+            }
+        }
     }
     
     private static void checkForModifications(VcsFileSystem fileSystem, VcsCommandExecutor vce) {

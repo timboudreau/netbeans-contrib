@@ -177,6 +177,21 @@ public interface VcsCommand extends VcsCommandCookie {
     public static final String PROPERTY_NOTIFICATION_FAIL_MSG = "notificationFailMsg";
     
     /**
+     * List of comma separated quoted commands, that will be executed after this
+     * command succeeds. The value of this property will be expanded with the
+     * command's variables, so that it can be decided by the command (or set
+     * in it's variable input descriptor) which command names will be used.
+     */
+    public static final String PROPERTY_COMMANDS_AFTER_SUCCESS = "commandsAfterSuccess";
+    /**
+     * List of comma separated quoted commands, that will be executed after this
+     * command fails. The value of this property will be expanded with the
+     * command's variables, so that it can be decided by the command (or set
+     * in it's variable input descriptor) which command names will be used.
+     */
+    public static final String PROPERTY_COMMANDS_AFTER_FAIL = "commandsAfterFail";
+    
+    /**
      * Value of this property should be an array of Strings.
      * It is set and filled from user input in the filesystem.
      */
