@@ -18,6 +18,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
 import org.openide.TopManager;
+import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
 import org.openide.filesystems.RepositoryListener;
 import org.openide.filesystems.RepositoryEvent;
@@ -27,6 +28,7 @@ import org.openide.util.RequestProcessor;
 //import org.openide.nodes.Children;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.FileReaderListener;
 import org.netbeans.modules.vcscore.runtime.*;
 import org.netbeans.modules.vcscore.cache.FileSystemCache;
@@ -295,11 +297,18 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 break;
         }
         TopManager.getDefault().setStatusText(message);
+        String notification = null;
         if (exit != VcsCommandExecutor.SUCCEEDED && !VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
             fileSystem.debugErr(message);
             printErrorOutput(vce);
+            notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG);
         } else {
             fileSystem.debug(message);
+            notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG);
+        }
+        if (notification != null) {
+            notification = Variables.expand(vce.getVariables(), notification, false);
+            TopManager.getDefault().notify(new NotifyDescriptor.Message(notification));
         }
         VcsCommandVisualizer visualizer = vce.getVisualizer();
         if (visualizer != null) {
@@ -342,37 +351,6 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (!execStarterLoopStarted) {
             runExecutorStarterLoop();
         }
-        /*
-        RequestProcessor.Task task = RequestProcessor.postRequest(new Runnable() {
-            public void run() {
-                final Thread t = new Thread(group, vce, "VCS Command Execution Thread");
-                //System.out.println("startExecutor("+vce.getCommand()+")");
-                synchronized (CommandsPool.this) {
-                    waitToRun(vce.getCommand(), vce.getFiles());
-                    commandsToRun.remove(vce);
-                    commands.put(vce, t);
-                }
-                commandStarted(vce);
-                t.start();
-                //System.out.println("startExecutor, thread started.");
-                new Thread(group, "VCS Command Execution Waiter") {
-                    public void run() {
-                        //System.out.println("startExecutor.Waiter: thread checking ...");
-                        while (t.isAlive()) {
-                            //System.out.println("startExecutor.Waiter: thread is Alive");
-                            try {
-                                t.join();
-                            } catch (InterruptedException exc) {
-                                // Ignore
-                            }
-                        }
-                        commandDone(vce);
-                    }
-                }.start();
-            }
-        });
-        //System.out.println("startExecutor, waiter started.");
-         */
     }
     
     private synchronized void executorStarter(final VcsCommandExecutor vce) {
