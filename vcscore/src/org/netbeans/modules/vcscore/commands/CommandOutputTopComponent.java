@@ -13,10 +13,14 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import javax.swing.JComponent;
@@ -24,6 +28,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.plaf.TabbedPaneUI;
 
 
 import org.openide.windows.Workspace;
@@ -60,7 +65,7 @@ public class CommandOutputTopComponent extends TopComponent {
         initComponents();
         setName(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.topName"));
         initPopupMenu();
-        OutputTabPopupListener.install();
+        new CommandOutputTopComponent.OutputTabPopupListener();
         
    }
     
@@ -221,4 +226,65 @@ public class CommandOutputTopComponent extends TopComponent {
     }
     
 
+    /**
+     * Popup Listener
+     * taken from org.netbeans.core.output and modified
+     */
+    class OutputTabPopupListener implements AWTEventListener {        
+        
+        private OutputTabPopupListener() {              
+            Toolkit.getDefaultToolkit().addAWTEventListener(
+            this, AWTEvent.MOUSE_EVENT_MASK);
+        }
+        
+        public void eventDispatched(AWTEvent ev) {
+            MouseEvent e = (MouseEvent) ev;
+            
+            if (e.getID() != MouseEvent.MOUSE_PRESSED
+            || ! org.openide.awt.MouseUtils.isRightMouseButton(e)
+            ) {
+                return;
+            }
+            
+            Component c = (Component) e.getSource();
+            while (c != null && !(c instanceof JTabbedPane))
+                c = c.getParent();
+            if (c == null)
+                return;
+            final JTabbedPane tab = (JTabbedPane) c;
+            
+            while ((c != null) && !(c instanceof CommandOutputTopComponent)) {
+                c = c.getParent();
+            }
+            if (c == null)
+                return;
+            final CommandOutputTopComponent container = (CommandOutputTopComponent) c;
+            final Component prevSelected = container.getSelectedComponent();
+            
+            final Point p = SwingUtilities.convertPoint((Component) e.getSource(), e.getPoint(), tab);
+            
+            final TabbedPaneUI ui = tab.getUI();
+            final int clickTab = ui.tabForCoordinate(tab, p.x, p.y);
+            if (clickTab < 0)
+                return;
+            
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    //Component in selected tab in given JTabbedPane
+                    Component selectedInTab = tab.getComponentAt(clickTab);
+                    //Check if component in clicked tab is selected in container if not
+                    //select it.
+                    if (prevSelected != selectedInTab) {
+                        container.requestVisible(selectedInTab);
+                    }
+                    
+                    Component selected = tab.getSelectedComponent();
+                    
+                    container.showPopupMenu(p, tab);
+                }
+            });
+            
+        }
+        
+    }
 }
