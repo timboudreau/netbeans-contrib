@@ -1,0 +1,40 @@
+Scattered notes from Mark Roth on what remains to be done in this module.
+
+feature freeze: dec 8, 2004
+another feature freeze for 4.1 in 3rd week of jan
+branch for ea 2 won't be done before jan 5
+
+[ ] Refactor:
+    [ ] Each tab should be its own class, that provides
+        getScrollPosition() and setScrollPosition() instead of the if/else
+[ ] Script for our workspace
+    [x] Clicking links leads to crashes - remove <a> links
+    [x] Fix spacing problems in HTML
+    [ ] ws-context directory
+    [ ] Cases where WAR name does not equal directory name, like 
+        clientside-validators
+    [ ] Check that it works with non-webapps
+        [ ] add code for JMS resource, EJB resource, etc.
+    [ ] Handle solutions that contain no examples, e.g. standalone-client
+    [ ] Shorter names in "New Project" dialog
+    [ ] Script to check that there's src/java and give a warning if there isn't.
+        [ ] File bug on NetBeans that src/java must exist.
+
+[x] Implement back and forward buttons
+[ ] Printable page - Use print cookie that enables print action in NBs? This 
+    is the NB way.
+[ ] Sort articles alphabetically
+
+[ ] deploy and test all included apps on 4.1
+[ ] want at least one example with an EJB
+[ ] Install Example button is a bit misleading.  Rename to something like
+    "New Project From This Template".
+
+Later:
+[ ] Bookmarks
+[ ] I18N "bpsample-" prefix
+[ ] Discussion/Q&A: add a button to button panel to discuss this example. 
+    Can we make this discussion button Should we have this discussion in NB 
+    community or on java.net?
+[ ] If each time user clicks on an entry they get this dialog box, it could 
+    be frustrating.  Can we jump to the already open project?
