@@ -594,7 +594,7 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>false</value>
 	</property>
-        <property name="runOnMultipleFiles">
+        <property name="runOnMultipleFilesInFolder">
           <value>true</value>
         </property>
       </command>
