@@ -20,6 +20,7 @@ import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.text.*;
 import org.openide.text.NbDocument;
 import org.openide.cookies.SourceCookie;
 import org.openide.explorer.view.*;
