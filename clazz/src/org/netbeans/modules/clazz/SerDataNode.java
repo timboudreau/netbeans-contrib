@@ -39,7 +39,7 @@ final class SerDataNode extends ClassDataNode {
 
   /** Constructs bean data node with asociated data object.
   */
-  public SerDataNode(final BeanDataObject obj) {
+  public SerDataNode(final SerDataObject obj) {
     super(obj);
   }
 
@@ -52,25 +52,7 @@ final class SerDataNode extends ClassDataNode {
     return SER_BASE;
   }
 
-  /** Called when an object is to be copied to clipboard.
-  * @return the transferable object dedicated to represent the
-  *    content of clipboard
-  * @exception NodeAccessException is thrown when the
-  *    operation cannot be performed
-  */
-  public TransferableOwner clipboardCopy () throws NodeAccessException {
-    try {
-      return obj.new BeanTransferableOwner (
-        super.clipboardCopy (),
-        obj.getPrimaryFile ().getPackageName ('.'),
-        obj.getBeanClass ()
-      );
-    } catch (Exception e) {
-      throw new NodeAccessException ();
-    }
-  }
-
-  void resolveIcons () {
+  protected void resolveIcons () {
     try {
       ClassDataObject dataObj = (ClassDataObject)getDataObject();
       dataObj.getBeanClass(); // check exception
@@ -79,9 +61,9 @@ final class SerDataNode extends ClassDataNode {
       } else {
         setIconBase(SER_BASE);
       }
-    } catch (IOException ex) {
-      setIconBase(SER_ERROR_BASE);
-    } catch (ClassNotFoundException ex) {
+    } catch (ThreadDeath td) {
+      throw td;
+    } catch (Throwable t) {
       setIconBase(SER_ERROR_BASE);
     }
     iconResolved = true;
@@ -91,6 +73,7 @@ final class SerDataNode extends ClassDataNode {
 
 /*
  * Log
+ *  2    src-jtulach1.1         1/19/99  David Simonek   
  *  1    src-jtulach1.0         1/15/99  David Simonek   
  * $
  */

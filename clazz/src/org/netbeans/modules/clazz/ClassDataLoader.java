@@ -13,74 +13,113 @@
 
 package com.netbeans.developer.modules.loaders.clazz;
 
-import com.netbeans.ide.*;
+import java.io.IOException;
+
 import com.netbeans.ide.filesystems.FileObject;
-import com.netbeans.developer.impl.actions.*;
+import com.netbeans.ide.loaders.FileEntry;
+import com.netbeans.ide.loaders.MultiFileLoader;
+import com.netbeans.ide.loaders.DataObject;
+import com.netbeans.ide.loaders.DataObjectExistsException;
+import com.netbeans.ide.loaders.MultiDataObject;
 import com.netbeans.ide.util.actions.SystemAction;
+import com.netbeans.ide.actions.*;
 
 /** The DataLoader for ClassDataObjects.
+* This class is final only for performance reasons,
+* can be happily unfinaled if desired.
 *
-* @author Jan Jancura, Ian Formanek
-* @version 0.26, Apr 15, 1998
+* @author Jan Jancura, Ian Formanek, Dafe Simonek
 */
-public class ClassDataLoader extends DataLoader {
+public final class ClassDataLoader extends MultiFileLoader {
+
+  /** Extension constants */
+  private static final String SER_EXT = "ser";
+  private static final String CLASS_EXT = "class";
+
+  private static final char INNER_CLASS_DIVIDER = '$';
 
   /** Creates a new ClassDataLoader */
   public ClassDataLoader () {
     super (ClassDataObject.class);
-    setActions (new SystemAction [] {
-        new CustomizeBeanAction (),
-        null,
-        new ExecuteAction (),
-        null,
-        new CutAction (),
-        new CopyAction (),
-        new PasteAction (),
-        null,
-        new DeleteAction (),
-        null,
-        new SaveAsTemplateAction(),
-        null,
-        new PropertiesAction (),
-      }
-    );
+    initialize();
   }
 
-  /** This method is used when you need to find a java DataObject for file object.
-  *
-  * @param fo file object to recognize
-  * @param recognized recognized files buffer.
-  *
-  * @return suitable data object or <CODE>null</CODE> if the handler cannot
-  *   recognize this object
-  */
-  public DataObject handleFindDataObject (FileObject fo, DataLoaderRecognized recognized)
-  throws com.netbeans.ide.loaders.DataObjectExistsException {
-    if (fo == null) return null;
-    String ext;
-    ClassDataObject ret = null;
-    if ((ext = fo.getExt ()).equals ("ser")) {
-      if (recognized != null) {
-        recognized.markRecognized (fo);
-//        FileObject classFile;
-//        if ((classFile = findFile (fo, "class")) != null)
-//          recognized.markRecognized (fo);
-        ret = new BeanDataObject (fo);
-      }
-    } else if (ext.equals ("class")) {
-      if (recognized != null) {
-        recognized.markRecognized (fo);
-//        FileObject serFile;
-//        if ((serFile = findFile (fo, "ser")) != null) {
-//          recognized.markRecognized (serFile);
-//          ret = new BeanDataObject (serFile);
-//        } else {
-          ret = new ClassDataObject (fo);
-//        }
-      }
-    } else return null;
+  private void initialize () {
+    setActions (new SystemAction [] {
+      SystemAction.get(CustomizeBeanAction.class),
+      null,
+      SystemAction.get(ExecuteAction.class),
+      null,
+      SystemAction.get(CutAction.class),
+      SystemAction.get(CopyAction.class),
+      SystemAction.get(PasteAction.class),
+      null,
+      SystemAction.get(DeleteAction.class),
+      null,
+      SystemAction.get(SaveAsTemplateAction.class),
+      null,
+      SystemAction.get(PropertiesAction.class),
+    });
+  }
 
-    return ret;
+  /** For a given file finds a primary file.
+  * @param fo the file to find primary file for
+  *
+  * @return the primary file for the file or null if the file is not
+  *   recognized by this loader
+  */
+  protected FileObject findPrimaryFile (FileObject fo) {
+    if (SER_EXT.equals(fo.getExt())) {
+      // serialized file, return itself
+      return fo;
+    }
+    if (CLASS_EXT.equals(fo.getExt())) {
+      // class file
+      return findPrimaryForClass(fo);
+    }
+    // not recognized
+    return null;
+  }
+
+  /** Creates the right data object for given primary file.
+  * It is guaranteed that the provided file is realy primary file
+  * returned from the method findPrimaryFile.
+  *
+  * @param primaryFile the primary file
+  * @return the data object for this file
+  * @exception DataObjectExistsException if the primary file already has data object
+  */
+  protected MultiDataObject createMultiObject (FileObject primaryFile)
+  throws DataObjectExistsException, IOException {
+    if (SER_EXT.equals(primaryFile.getExt())) {
+      // serialized file, return bean data object
+        return new SerDataObject (primaryFile, this);
+    }
+    if (CLASS_EXT.equals(primaryFile.getExt())) {
+      // class file, return class data object
+      return new ClassDataObject (primaryFile, this);
+    }
+    // otherwise
+    return null;
+  }
+
+  /** Creates the right primary entry for given primary file.
+  *
+  * @param primaryFile primary file recognized by this loader
+  * @return primary entry for that file
+  */
+  protected MultiDataObject.Entry createPrimaryEntry (FileObject primaryFile) {
+    return new FileEntry(primaryFile);
+  }
+
+  /** Creates right secondary entry for given file. The file is said to
+  * belong to an object created by this loader.
+  *
+  * @param secondaryFile secondary file for which we want to create entry
+  * @return the entry
+  */
+  protected MultiDataObject.Entry createSecondaryEntry (FileObject secondaryFile) {
+    return new FileEntry.Numb(secondaryFile);
   }
 
   /** finds file with the same name and specified extension in the same folder as param javaFile */
@@ -88,10 +127,26 @@ public class ClassDataLoader extends DataLoader {
     if (javaFile == null) return null;
     return javaFile.getParent().getFileObject (javaFile.getName(), ext);
   }
+
+  /** Utility method, finds primary class file for given class file.
+  * (input class file can be innerclass class file) */
+  private FileObject findPrimaryForClass (final FileObject fo) {
+    final String name = fo.getName();
+    final int index = name.indexOf(INNER_CLASS_DIVIDER);
+    if (index > 0) {
+      // could be innerclass class file - try to find outer class file
+      FileObject outer =
+        fo.getParent().getFileObject(name.substring(0, index), CLASS_EXT);
+      if (outer != null) return outer;
+    }
+    return fo;
+  }
+
 }
 
 /*
  * Log
+ *  3    Gandalf   1.2         1/19/99  David Simonek   
  *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
  *       datasystem package
  *  1    Gandalf   1.0         1/5/99   Ian Formanek    

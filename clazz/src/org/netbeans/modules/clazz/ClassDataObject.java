@@ -23,21 +23,28 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.ResourceBundle;
+import java.text.MessageFormat;
 import javax.swing.JApplet;
+import javax.swing.JButton;
 
 import com.netbeans.ide.util.datatransfer.TransferFlavors;
 import com.netbeans.ide.util.datatransfer.TransferableOwner;
 import com.netbeans.ide.*;
 import com.netbeans.ide.classloader.NbClassLoader;
-import com.netbeans.ide.classloader.NbClass;
 import com.netbeans.ide.cookies.*;
 import com.netbeans.ide.debugger.DebuggerInfo;
 import com.netbeans.ide.execution.ExecInfo;
 import com.netbeans.ide.filesystems.*;
-import com.netbeans.ide.loaders.UniFileDataObject;
+import com.netbeans.ide.loaders.*;
 import com.netbeans.ide.explorer.propertysheet.PropertySheet;
 import com.netbeans.ide.util.*;
 import com.netbeans.ide.nodes.*;
+
+import com.netbeans.developer.modules.applet.AppletDebuggerInfo;
+import com.netbeans.developer.modules.applet.AppletExecInfo;
+import com.netbeans.developer.modules.loaders.java.JavaDataObject;
+
 
 /* TODO:
   - check the showDeclaredOnly flag - it works different for
@@ -48,11 +55,10 @@ import com.netbeans.ide.nodes.*;
 /**
 * DataObject which represents .class files.
 *
-* @author Jan Jancura, Ian Formanek, Petr Hamernik
-* @version 0.45, May 17, 1998
+* @author Jan Jancura, Ian Formanek, Petr Hamernik, Dafe Simonek
 */
-public class ClassDataObject extends UniFileDataObject
-implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
+public class ClassDataObject extends MultiDataObject
+implements DebuggerCookie {
   /** generated Serialized Version UID */
   static final long serialVersionUID = -7355104884002106137L;
 
@@ -71,31 +77,64 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
   private final static String  PROP_EXECUTION = "Execution";
 
   /** bundle to obtain text information from */
-  private static java.util.ResourceBundle bundle =
-    com.netbeans.ide.util.NbBundle.getBundle ("com.netbeans.developer.modules.locales.LoadersClazzBundle");
+  //private static java.util.ResourceBundle bundle =
+  //  NbBundle.getBundle ("com.netbeans.developer.modules.locales.LoadersClazzBundle");
 
 
   // variables ...................................................................................
 
-  transient protected NbClass beanClass = null;
+  transient protected InstanceSupport instanceSupport;
 
+  transient protected ExecSupport execSupport;
 
   // constructors ...................................................................................
 
   /** Constructs a new ClassDataObject */
-  public ClassDataObject (FileObject fo)
+  public ClassDataObject (final FileObject fo, final ClassDataLoader loader)
   throws com.netbeans.ide.loaders.DataObjectExistsException {
-    super (fo);
-    beanClass = new NbClass (fo);
+    super (fo, loader);
+    initCookies();
+  }
+
+  private void initCookies () {
+    MultiDataObject.Entry pe = getPrimaryEntry();
+    instanceSupport = new InstanceSupport.Origin(pe);
+    execSupport = new ExecSupport(pe);
+    // asociate cookies (can be slow, do it in non AWT thread)
+    RequestProcessor.postRequest(
+      new Runnable () {
+        public void run () {
+          doInitCookies();
+        }
+      }
+    );
+  }
+
+  /** Actually performs the work of assigning cookies */
+  private void doInitCookies () {
+    boolean isExecutable = false;
+    try {
+      instanceSupport.instanceClass();
+      isExecutable = instanceSupport.isExecutable();
+    } catch (ThreadDeath td) {
+      throw td;
+    } catch (Throwable t) {
+      System.out.println ("Chytam vsechny excs.....");
+      return;
+    }
+    CookieSet cs = getCookieSet();
+    cs.add(instanceSupport);
+    if (isExecutable)
+      cs.add(execSupport);
   }
 
   private void readObject (java.io.ObjectInputStream is)
   throws java.io.IOException, ClassNotFoundException {
     is.defaultReadObject();
-    beanClass = new NbClass (getPrimaryFile ());
+    initCookies();
   }
 
-  // DataObject implementation .....................................................................
+  // DataObject implementation .............................................
 
   /** Help context for this object.
   * @return help context
@@ -104,33 +143,28 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
     return new HelpCtx ("com.netbeans.developer.docs.Users_Guide.usergd-using-div-12", "USERGD-USING-TABLE-2");
   }
 
-  /** Getter for delete action.
-  * @return true if the object can be deleted
-  */
-  public boolean isDeleteAllowed () {
-    return !getPrimaryFile ().isReadOnly ();
-  }
-
   /** Getter for copy action.
   * @return true if the object can be copied
   */
   public boolean isCopyAllowed () {
     try {
       return isJavaBean ();
-    } catch (NbClass.NbClassException e) {
-      return false;
+    } catch (ThreadDeath td) {
+    } catch (Throwable t) {
+      // ignore and return false if some error
     }
+    return false;
   }
 
-  /** Getter for move action.
-  * @return true if the object can be moved
+  /** Class DO cannot be moved.
+  * @return false
   */
   public boolean isMoveAllowed () {
     return false;
   }
 
-  /** Getter for rename action.
-  * @return true if the object can be renamed
+  /** Class DO cannot be renamed.
+  * @return false
   */
   public boolean isRenameAllowed () {
     return false;
@@ -148,9 +182,9 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
     if (newName == null) throw new IOException ();
     Object bean;
     try {
-      bean = beanClass.getInstance ();
-    } catch (NbClass.NbClassException e) {
-      throw new IOException (e.toString ());
+      bean = instanceSupport.instanceCreate();
+    } catch (ClassNotFoundException ex) {
+      throw new IOException (ex.toString ());
     }
     if (bean == null) throw new IOException ();
     FileObject serFile = f.getPrimaryFile ().createData (newName, "ser");
@@ -170,15 +204,8 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
     return DataObject.find (serFile);
   }
 
-  /** Provides node that should represent this data object. When a node for representation
-  * in a parent is requested by a call to getNode (parent) it is the exact copy of this node
-  * with only parent changed. This implementation creates instance
-  * <CODE>DataNode</CODE>.
-  * <P>
-  * This method is called only once.
-  *
-  * @return the node representation for this data object
-  * @see DataNode
+  /**
+  * @return class data node
   */
   protected Node createNodeDelegate () {
     return new ClassDataNode (this);
@@ -190,39 +217,27 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
   /**
   * @return ExecInfo object for execution.
   */
-  public ExecInfo getExecInfo () {
+  /*public ExecInfo getExecInfo () {
     try {
-      if (isApplet()) return new com.netbeans.developer.modules.applet.AppletExecInfo(getPrimaryFile());
+      if (isApplet()) return new AppletExecInfo(getPrimaryFile());
     } catch (NbClass.NbClassException e) {
     }
-    String[] args = com.netbeans.developer.modules.loaders.java.JavaDataObject.parseParameters(getArgv());
+    // build exec info
+    String[] args = JavaDataObject.parseParameters(getArgv());
     String className = getPrimaryFile().getPackageName('.');
     return new ExecInfo (className, args) {
       public boolean needsInternalExecution () {
         return getExecution ();
       }
     };
-  }
-
-  /**
-  * @return true, if the object is in a right state to be
-  *    executed, false if the execution cannot be performed at this moment
-  */
-  public boolean isExecAllowed () {
-    try {
-      return beanClass.isExecutable () || beanClass.isApplet ();
-    } catch (NbClass.NbClassException e) {
-      return false;
-    }
-  }
-
+  }*/
 
   // implementation of ArgumentsCookie ...................................
 
   /** @return the String arguments to be passed to executed application
   * @deprecated
   */
-  public String[] getArguments () {
+  /*public String[] getArguments () {
     String[] args;
     StringTokenizer st = new StringTokenizer (getArgv ());
     args = new String[st.countTokens ()];
@@ -231,10 +246,10 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
       args[i++] = st.nextToken ();
     }
     return args;
-  }
+  }*/
 
   /** @param args the String arguments to be passed to executed application */
-  public void setArguments (String[] args) {
+  /*public void setArguments (String[] args) {
     StringBuffer sb = new StringBuffer ();
     for (int i = 0; i < args.length; i++) {
       sb.append (args[i]);
@@ -246,29 +261,34 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
       // arguments vetoed -> cannot do anything, ignore it
     }
     firePropertyChange ("arguments", null, null);
-  }
+  }*/
 
   /** @return true if the object can get parameters, false otherwise */
-  public boolean getArgumentsSupported () {
+  /*public boolean getArgumentsSupported () {
     return true;
-  }
+  }*/
 
-  // implementation of DebugCookie ..........................................
+  // implementation of DebuggerCookie ...................................
 
   /** @return The informations needed for debugging. */
   public DebuggerInfo getDebuggerInfo () {
     try {
-      if (isApplet ()) return new com.netbeans.developer.modules.applet.AppletDebuggerInfo(getPrimaryFile());
-    } catch (NbClass.NbClassException e) {
+      if (isApplet ()) return new AppletDebuggerInfo(getPrimaryFile());
+    } catch (IOException ex) {
+    } catch (ClassNotFoundException ex) {
+      // ignore and return "normal" debugger info at least
     }
-    ExecInfo ei = getExecInfo();
-    return new DebuggerInfo (ei.getClassName(), ei.getArguments());
+    // build debugger info
+    String[] args = execSupport.getArguments();
+    String className = getPrimaryFile().getPackageName('.');
+    return new DebuggerInfo (className, args);
   }
 
-  /** @return The same value as isExecAllowed ().
+  /** @return true if debugging is allowed
+  * (exec cookie is present)
   */
   public boolean isDebugAllowed() {
-    return isExecAllowed ();
+    return getCookie(ExecCookie.class) != null;
   }
 
   /**
@@ -277,214 +297,56 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
   public void resolveMethodLine (DebuggerCookie.LineResolver rl) {
   }
 
-
-  // implementation of CustomizeBeanCookie ..................................
-
-  /**
-  * @return Retuns the bean to customize.
-  */
-  public Object getJavaBean () {
-    Object bean = null;
-    try {
-      bean = beanClass.getInstance ();
-    } catch (Exception e) {
-      TopManager.getDefault().notify(
-        new NotifyDescriptor.Exception(e,
-                                       bundle.getString("EXC_Introspection"))
-        );
-    }
-
-    return bean;
-  }
-
-  /**
-  * Serialize JavaBean.
-  * @param javaBean Bean to serialize.
-  * @param toAnotherPlace If true => create new ser file.
-  * @return true after succesfull serialization.
-  */
-  public boolean serializeJavaBean (Object javaBean, boolean toAnotherPlace) {
-
-    FileObject parent, serFile = null;
-    String name;
-
-    if (toAnotherPlace) {
-      // Create component for for file name input
-      DataObject.InputPanel p = new DataObject.InputPanel ();
-
-      DataSystem ds = new DataSystem (new DataFilter () {
-        /** Does the data object should be displayed or not?
-        * @param obj the data object
-        * @return <CODE>true</CODE> if the object should be displayed,
-        *    <CODE>false</CODE> otherwise
-        */
-        public boolean acceptDataObject (DataObject obj) {
-          // accept only data folders but ignore read only roots of file systems
-          return (
-            obj instanceof DataFolder &&
-            (
-              !obj.getPrimaryFile ().isReadOnly () ||
-              obj.getPrimaryFile ().getParent () != null
-            )
-          );
-        }
-      });
-
-      try {
-        // selects one folder from data systems
-        DataFolder df;
-        Node.Cookie scookie = TopManager.getDefault ().getNodeOperation ().select (
-          bundle.getString ("CTL_SerializeAs"),
-          bundle.getString ("CTL_SaveIn"),
-          ds, new NodeAcceptor () {
-            public boolean acceptNodes (Node[] nodes) {
-              if ((nodes == null) || (nodes.length == 0))
-                return false;
-              Node.Cookie cookie = nodes[0].getCookie ();
-              return
-                nodes.length == 1 &&
-                Cookies.isInstanceOf (cookie, DataFolder.class) &&
-                !((DataFolder)(Cookies.getInstanceOf (cookie, DataFolder.class))).getPrimaryFile ().isReadOnly ();
-            }
-          }, p
-        )[0].getCookie();
-        // can't direct cast  - see compound cookie
-        df = (DataFolder) Cookies.getInstanceOf(scookie, DataFolder.class);
-        parent = df.getPrimaryFile ();
-        name = p.getText ();
-      } catch (com.netbeans.ide.util.UserCancelException ex) {
-        return false;
-      }
-    } else {
-      parent = getPrimaryFile ().getParent ();
-      name = getPrimaryFile ().getName ();
-    }
-
-    ByteArrayOutputStream baos = null;
-    ObjectOutputStream oos = null;
-    OutputStream os = null;
-    FileLock lock = null;
-    try {
-      oos = new java.io.ObjectOutputStream (baos = new ByteArrayOutputStream ());
-      oos.writeObject (javaBean);
-      if ((serFile = parent.getFileObject (name, "ser")) == null)
-        serFile = parent.createData (name, "ser");
-      if (serFile == null) return false;
-      lock = serFile.lock ();
-      oos.close ();
-      baos.writeTo (os = serFile.getOutputStream (lock));
-    } catch (Exception e) {
-      TopManager.getDefault ().notify (
-        new NotifyDescriptor.Exception (e, bundle.getString ("EXC_Serialization") + " " + 
-          parent.getPackageName ('.') + '.' + name)
-      );
-      return false;
-    }
-    finally {
-      if (lock != null)
-        lock.releaseLock ();
-      try {
-        if (os != null)
-          os.close ();
-      } catch (Exception e) {
-        TopManager.getDefault ().notify (
-          new NotifyDescriptor.Exception (e, bundle.getString("EXC_Serialization") + " " + 
-            serFile.getPackageName ('.'))
-        );
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-  * @return true if the customization is currently allowed.
-  */
-  public boolean isCustomizationAllowed () {
-    try {
-      return beanClass.isJavaBean ();
-    } catch (NbClass.NbClassException e) {
-      return false;
-    }
-  }
-
-
   // Properties implementation .....................................................................
 
-  public void setParams (String params) throws java.beans.PropertyVetoException {
-    setArgv(params);
+  public boolean isInterface () throws IOException, ClassNotFoundException {
+    return instanceSupport.isInterface ();
   }
 
-  public String getParams () {
-    return getArgv();
+  public Class getSuperclass () throws IOException, ClassNotFoundException {
+    return instanceSupport.instanceClass ().getSuperclass ();
   }
 
-  public boolean isInterface () throws NbClass.NbClassException  {
-    return beanClass.isInterface ();
+  public String getModifiers () throws IOException, ClassNotFoundException {
+    return Modifier.toString (instanceSupport.instanceClass().getModifiers());
   }
 
-  public Class getSuperclass () throws NbClass.NbClassException  {
-    return beanClass.getClazz ().getSuperclass ();
+  public String getClassName () throws IOException, ClassNotFoundException {
+    return instanceSupport.instanceName ();
   }
 
-  public String getModifiers () throws NbClass.NbClassException  {
-    return Modifier.toString (beanClass.getClazz ().getModifiers());
+  public Class getBeanClass () throws IOException, ClassNotFoundException {
+    return instanceSupport.instanceClass ();
   }
 
-  public String getClassName () throws NbClass.NbClassException  {
-    return beanClass.getClazz ().getName ();
+  public boolean getHasMainMethod () throws IOException, ClassNotFoundException {
+    return instanceSupport.isExecutable ();
   }
 
-  public Class getBeanClass () throws NbClass.NbClassException {
-    return beanClass.getClazz ();
+  public boolean isJavaBean () throws IOException, ClassNotFoundException {
+    return instanceSupport.isJavaBean();
   }
 
-  public boolean getHasMainMethod () throws NbClass.NbClassException  {
-    return beanClass.isExecutable ();
+  public boolean isApplet () throws IOException, ClassNotFoundException {
+    return instanceSupport.isApplet ();
   }
 
-  public boolean isJavaBean () throws NbClass.NbClassException  {
-    return beanClass.isJavaBean();
-  }
-
-  /** @return true if the class is a descendant of the Applet or JApplet
+  /** Sets parameters of the class
   */
-  public boolean isApplet () throws NbClass.NbClassException {
-    return beanClass.isApplet ();
+  void setParams (final String params) throws IOException {
+    execSupport.setArguments(Utilities.parseParameters(params));
   }
 
-  /**
-  * Sets arguments for the class object.
-  * It uses template attribute of primary file.
-  *
-  * @param argv arguments of class object
-  * @exception PropertyVetoException if it is not possible to set the attribute.
+  /** Returns parameters of the class
   */
-  public void setArgv(String argv) throws PropertyVetoException {
-    try {
-      FileObject fo = getPrimaryFile();
-      FileLock lock = fo.lock();
-      if (lock == null) throw new IOException ();
-      getPrimaryFile().setAttribute(lock, PROP_ARGV, argv);
-      lock.releaseLock();
+  String getParams () {
+    String[] parArray = execSupport.getArguments();
+    StringBuffer buf = new StringBuffer();
+    for (int i = 0; i < parArray.length; i++) {
+      buf.append(parArray[i]);
+      if ((i + 1) != parArray.length) buf.append(" ");
     }
-    catch (IOException e) {
-      throw new PropertyVetoException(e.getMessage(),
-        new PropertyChangeEvent(this, PROP_ARGV, "", argv));
-    }
-  }
-
-  /**
-  * Getter for argument option. Default value is ""
-  *
-  * @return arguments of class object
-  */
-  public String getArgv() {
-    Object o = getPrimaryFile().getAttribute(PROP_ARGV);
-    if (o instanceof String)
-      return (String) o;
-    else
-      return "";
+    return buf.toString();
   }
 
   /**
@@ -523,24 +385,33 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
     String name = fo.getName();
     String ext = "ser";
     String destName = fo.getName();
-
     if (f.getPrimaryFile().getFileObject(name, ext) != null) {
-      int ret = TopManager.getDefault().getConfirmation().confirmRewriteObject(
-        f.getName(), name);
-      switch (ret) {
-        case 0: destName = findFreeFileName (f, destName, ext);
-                break;
-        case 1: try {
-                  FileObject dest = f.getPrimaryFile().getFileObject(name, ext);
-                  FileLock lock = dest.lock();
-                  dest.delete(lock);
-                  lock.releaseLock();
-                }
-                catch (IOException e) {
-                  return null;
-                }
-                break;
-        case 2: return null;
+      // file with the same name exists - ask user what to do
+      ResourceBundle bundle = NbBundle.getBundle(this);
+      final String rewriteStr = bundle.getString("CTL_Rewrite");
+      final String renameStr = bundle.getString("CTL_Rename");
+      NotifyDescriptor nd = new NotifyDescriptor.Confirmation(
+        new MessageFormat(bundle.getString("MSG_SerExists")).
+          format(new Object[] { name, f.getName() }));
+      nd.setOptions(new Object[] { rewriteStr, renameStr,
+                    NotifyDescriptor.CANCEL_OPTION });
+      Object ret = TopManager.getDefault().notify(nd);
+
+      if (NotifyDescriptor.CANCEL_OPTION.equals(ret)) return null;
+      String retStr = ((JButton)ret).getText();
+      if (rewriteStr.equals(retStr))
+        destName = FileUtil.findFreeFileName (
+                    f.getPrimaryFile(), destName, ext);
+      if (renameStr.equals(retStr)) {
+        try {
+          FileObject dest = f.getPrimaryFile().getFileObject(name, ext);
+          FileLock lock = dest.lock();
+          dest.delete(lock);
+          lock.releaseLock();
+        }
+        catch (IOException e) {
+          return null;
+        }
       }
     }
     return destName;
@@ -549,6 +420,7 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
 
   // innerclasses ................................................................................
 
+  /* PENDING - not reimpl yet
   static class BeanTransferableOwner extends TransferableOwner.Filter {
 
     String beanName;
@@ -563,10 +435,11 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
         new DataFlavor[] {new TransferFlavors.BeanFlavor (beanClass)}
       );
       this.beanName = beanName;
-    }
+    } */
 
     /** Creates transferable data for this flavor.
     */
+    /*
     public Object getTransferData (DataFlavor flavor)
     throws UnsupportedFlavorException, IOException {
       if (isDataFlavorSupported(flavor)) {
@@ -578,11 +451,13 @@ implements ExecCookie, CustomizeBeanCookie, DebuggerCookie, ArgumentsCookie {
         throw new UnsupportedFlavorException (flavor);
       }
     }
-  }
+  } */
+
 }
 
 /*
  * Log
+ *  4    Gandalf   1.3         1/19/99  David Simonek   
  *  3    Gandalf   1.2         1/13/99  David Simonek   
  *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
  *       datasystem package

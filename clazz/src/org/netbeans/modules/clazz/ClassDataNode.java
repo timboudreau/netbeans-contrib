@@ -17,34 +17,24 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.lang.reflect.*;
 import java.util.Vector;
+import java.util.ResourceBundle;
 import java.io.*;
+import javax.swing.SwingUtilities;
 
-import com.netbeans.ide.util.datatransfer.TransferableOwner;
-import com.netbeans.ide.loaders.DataNode;
-import com.netbeans.ide.classloader.NbClass;
 import com.netbeans.ide.nodes.*;
+import com.netbeans.ide.TopManager;
+import com.netbeans.ide.loaders.DataNode;
+import com.netbeans.ide.util.datatransfer.TransferableOwner;
 import com.netbeans.ide.util.RequestProcessor;
+import com.netbeans.ide.util.NbBundle;
 
 /** Represents ClassDataObject
-* This class is final only for performance reasons,
-* can be unfinaled if desired.
 *
 * @author Ales Novak, Ian Formanek, Jan Jancura, Dafe Simonek
 */
-final class ClassDataNode extends DataNode {
+class ClassDataNode extends DataNode {
   /** generated Serialized Version UID */
   static final long serialVersionUID = -1543899241509520203L;
-
-  private static java.awt.Image icon;
-  private static java.awt.Image icon32;
-  private static java.awt.Image iconMain;
-  private static java.awt.Image iconMain32;
-  private static java.awt.Image iconError;
-  private static java.awt.Image iconError32;
-  private static java.awt.Image iconBean;
-  private static java.awt.Image iconBean32;
-  private static java.awt.Image iconBeanMain;
-  private static java.awt.Image iconBeanMain32;
 
   /** Properties */
   private final static String PROP_ISINTERFACE      = "isInterface";
@@ -57,101 +47,68 @@ final class ClassDataNode extends DataNode {
   private final static String PROP_FILE_PARAMS      = "fileParams";
   private final static String PROP_EXECUTION        = "execution";
 
-  /** Bundle to obtain text information. */
-  static java.util.ResourceBundle  bundle = com.netbeans.ide.util.NbBundle.getBundle (
-                                                "com.netbeans.developer.modules.locales.LoadersClazzBundle");
+  /** Icon bases for icon manager */
+  private final static String CLASS_BASE =
+    "com/netbeans/developer/modules/resources/class/class";
+  private final static String CLASS_MAIN_BASE =
+    "com/netbeans/developer/modules/resources/class/classMain";
+  private final static String ERROR_BASE =
+    "com/netbeans/developer/modules/resources/class/classError";
+  private final static String BEAN_BASE =
+    "com/netbeans/developer/modules/resources/class/bean";
+  private final static String BEAN_MAIN_BASE =
+    "com/netbeans/developer/modules/resources/class/beanMain";
 
-  /** initializers */
-  static {
-    icon = java.awt.Toolkit.getDefaultToolkit ().getImage (
-        Object.class.getResource ("/com.netbeans.developer.modules/resources/class/class.gif"));
-    icon32 = java.awt.Toolkit.getDefaultToolkit ().getImage (
-        Object.class.getResource ("/com.netbeans.developer.modules/resources/class/class32.gif"));
-    iconMain = java.awt.Toolkit.getDefaultToolkit ().getImage (
-        Object.class.getResource ("/com.netbeans.developer.modules/resources/class/classMain.gif"));
-    iconMain32 = java.awt.Toolkit.getDefaultToolkit ().getImage (
-        Object.class.getResource ("/com.netbeans.developer.modules/resources/class/classMain32.gif"));
-    iconError = java.awt.Toolkit.getDefaultToolkit ().getImage (
-        Object.class.getResource ("/com.netbeans.developer.modules/resources/class/classError.gif"));
-    iconError32 = java.awt.Toolkit.getDefaultToolkit ().getImage (
-        Object.class.getResource ("/com.netbeans.developer.modules/resources/class/classError32.gif"));
+  /** a flag whether the children of this object are only items declared
+  * by this class, or all items (incl. inherited)
+  */
+  private boolean showDeclaredOnly = true;  // [PENDING - get default value from somewhere ?]
 
-    iconBean = java.awt.Toolkit.getDefaultToolkit ().getImage (
-        Object.class.getResource ("/com.netbeans.developer.modules/resources/class/bean.gif"));
-    iconBean32 = java.awt.Toolkit.getDefaultToolkit ().getImage (
-        Object.class.getResource ("/com.netbeans.developer.modules/resources/class/bean32.gif"));
-    iconBeanMain = java.awt.Toolkit.getDefaultToolkit ().getImage (
-        Object.class.getResource ("/com.netbeans.developer.modules/resources/class/beanMain.gif"));
-    iconBeanMain32 = java.awt.Toolkit.getDefaultToolkit ().getImage (
-        Object.class.getResource ("/com.netbeans.developer.modules/resources/class/beanMain32.gif"));
-  }
+  /** ClassDataObject that is represented */
+  protected ClassDataObject obj;
+
+  /** The flag indicating whether right icon has been already found */
+  transient boolean iconResolved = false;
 
 // ----------------------------------------------------------------------------------
 // constructor
 
-  /**
-  * @param obj is a ClassDataObject that is to be represented
+  /** @param obj is a ClassDataObject that is to be represented
   */
-  ClassDataNode(ClassDataObject obj) {
-    super(obj);
+  ClassDataNode(final ClassDataObject obj) {
+    super(obj, new ClassDataNodeChildren());
     this.obj = obj;
+    initialize();
   }
 
   private void readObject(ObjectInputStream is) throws IOException, ClassNotFoundException {
     is.defaultReadObject();
-    currentIcon = icon;
-    currentIcon32 = icon32;
+    initialize();
   }
 
 // ----------------------------------------------------------------------------------
 // methods
 
-  /** Finds an icon for this node - the icon is different for classObject
-  * that have method main (i.e. they are executable).
-  * @param type constants from <CODE>java.bean.BeanInfo</CODE>
-  * @return icon to use to represent the bean
-  * @see java.bean.BeanInfo
+  /** Returns icon base string which should be used for
+  * icon inicialization. Subclasses can ovveride this method
+  * to provide their own icon base string.
   */
-  public Image getIcon (int type) {
-    if (!iconResolved) {
-      iconResolved = true;
-      requestResolveIcons ();
-    }
-
-    if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16))
-      return currentIcon;
-    else
-      return currentIcon32;
+  protected String initialIconBase () {
+    return CLASS_BASE;
   }
 
-  /** Finds an icon for this node. This icon should represent the node
-  * when it is opened (when it can have children).
-  *
-  * @see java.bean.BeanInfo
-  * @param type constants from <CODE>java.bean.BeanInfo</CODE>
-  * @return icon to use to represent the bean when opened
-  */
-  public Image getOpenedIcon (int type) {
-    return getIcon (type);
+  private void initialize () {
+    setIconBase(initialIconBase());
+    // try to find oout which icon should be used
+    requestResolveIcons();
   }
 
-  /** @return initial sub nodes */
-  public Node[] createInitNodes() {
-    try {
-      return parseClass();
-    } catch (Throwable t) {
-      if (t instanceof ThreadDeath) throw (ThreadDeath)t;
-      com.netbeans.ide.TopManager.getDefault().notifyException (t);
-      return new Node [0];
-    };
-  }
-
-  public void setParams (String params) throws java.beans.PropertyVetoException {
-    ((ClassDataObject) getDataObject()).setArgv (params);
+  public void setParams (final String params) throws IOException {
+    ((ClassDataObject) getDataObject()).setParams(params);
   }
 
   public String getParams () {
-    return ((ClassDataObject) getDataObject()).getArgv ();
+    return ((ClassDataObject) getDataObject()).getParams();
   }
 
   void setExecution (boolean i) throws IOException {
@@ -162,177 +119,212 @@ final class ClassDataNode extends DataNode {
     return ((ClassDataObject) getDataObject()).getExecution ();
   }
 
-
   /** Creates property set for this data object */
-  protected PropertySetArraySupport createProperties () {
-    return super.createProperties().
-      addProperties (
-        PROPERTY_SET_NAME,
-        null,
-        null,
-        new Node.Property[] {
-          new PropertySupport.ReadWrite (
-            PROP_SHOWDECLAREDONLY,
-            Boolean.TYPE,
-            bundle.getString ("PROP_showDeclaredOnly"),
-            bundle.getString ("HINT_showDeclaredOnly")
-          ) {
-            public Object getValue () {
-              return new Boolean (showDeclaredOnly);
-            }
+  protected Sheet createSheet () {
+    Sheet s = super.createSheet();
+    ResourceBundle bundle = NbBundle.getBundle(this);
+    Sheet.Set ps = s.get(Sheet.PROPERTIES);
+    ps.put(new PropertySupport.ReadWrite (
+             PROP_SHOWDECLAREDONLY,
+             Boolean.TYPE,
+             bundle.getString ("PROP_showDeclaredOnly"),
+             bundle.getString ("HINT_showDeclaredOnly")
+           ) {
+             public Object getValue () {
+               return new Boolean (showDeclaredOnly);
+             }
 
-            public void setValue (Object val) throws IllegalArgumentException {
-              if (!(val instanceof Boolean))
-                throw new IllegalArgumentException();
-              showDeclaredOnly = ((Boolean) val).booleanValue();
-              resetChildren();
-            }
-          },
-          new PropertySupport.ReadOnly (
-            PROP_MODIFIERS,
-            String.class,
-            bundle.getString("PROP_className"),
-            bundle.getString("HINT_className")
-          ) {
-            public Object getValue () throws InvocationTargetException {
-              return obj.getClassName();
-            }
-          },
-          new PropertySupport.ReadOnly (
-            PROP_MODIFIERS,
-            String.class,
-            bundle.getString ("PROP_modifiers"),
-            bundle.getString ("HINT_modifiers")
-          ) {
-            public Object getValue () throws InvocationTargetException {
-              return obj.getModifiers ();
-            }
-          },
-          new PropertySupport.ReadOnly (
-            PROP_SUPERCLASS,
-            Class.class,
-            bundle.getString ("PROP_superclass"),
-            bundle.getString ("HINT_superclass")
-          ) {
-            public Object getValue () throws InvocationTargetException {
-              return obj.getSuperclass();
-            }
-          },
-          new PropertySupport.ReadOnly (
-            PROP_SUPERCLASS,
-            Boolean.TYPE,
-            bundle.getString ("PROP_hasMainMethod"),
-            bundle.getString ("HINT_hasMainMethod")
-          ) {
-            public Object getValue () throws InvocationTargetException {
-              return new Boolean (obj.getHasMainMethod ());
-            }
-          },
-          new PropertySupport.ReadOnly (
-            PROP_ISINTERFACE,
-            Boolean.TYPE,
-            bundle.getString ("PROP_isInterface"),
-            bundle.getString ("HINT_isInterface")
-          ) {
-            public Object getValue () throws InvocationTargetException {
-              return new Boolean (obj.isInterface ());
-            }
-          },
-          new PropertySupport.ReadOnly (
-            PROP_SUPERCLASS,
-            Boolean.TYPE,
-            bundle.getString ("PROP_isApplet"),
-            bundle.getString ("HINT_isApplet")
-          ) {
-            public Object getValue () throws InvocationTargetException {
-              return new Boolean (obj.isApplet ());
-            }
-          },
-          new PropertySupport.ReadOnly (
-            PROP_SUPERCLASS,
-            Boolean.TYPE,
-            bundle.getString ("PROP_isJavaBean"),
-            bundle.getString ("HINT_isJavaBean")
-          ) {
-            public Object getValue () throws InvocationTargetException {
-              return new Boolean (obj.isJavaBean ());
-            }
-          }
-        }
-      ).addProperties (
-        EXECUTION_SET_NAME,
-        bundle.getString ("PROP_executionSetName"),
-        bundle.getString ("HINT_executionSetName"),
-        new Node.Property[] {
-          new PropertySupport.ReadWrite (
-            PROP_FILE_PARAMS,
-            String.class,
-            bundle.getString("PROP_fileParams"),
-            bundle.getString("HINT_fileParams")
-          ) {
-            public Object getValue() {
-              return getParams ();
-            }
-            public void setValue (Object val) throws InvocationTargetException {
-              if (val instanceof String) {
-                try {
-                  setParams((String)val);
-                }
-                catch(java.beans.PropertyVetoException e) {
-                  throw new InvocationTargetException (e);
-                }
-              }
-              else {
-                throw new IllegalArgumentException();
-              }
-            }
-          },
-          new PropertySupport.ReadWrite (
-            PROP_EXECUTION,
-            Boolean.TYPE,
-            bundle.getString("PROP_execution"),
-            bundle.getString("HINT_execution")
-          ) {
-            public Object getValue() {
-              return new Boolean (getExecution ());
-            }
-            public void setValue (Object val) throws InvocationTargetException {
-              try {
-                setExecution(((Boolean)val).booleanValue ());
-              } catch (IOException ex) {
-                throw new InvocationTargetException (ex);
-              }
-            }
-          }
-        }
-      );
+             public void setValue (Object val) throws IllegalArgumentException {
+               if (!(val instanceof Boolean))
+                 throw new IllegalArgumentException();
+               showDeclaredOnly = ((Boolean) val).booleanValue();
+               resetChildren();
+             }
+           });
+    ps.put(new PropertySupport.ReadOnly (
+             PROP_MODIFIERS,
+             String.class,
+             bundle.getString("PROP_className"),
+             bundle.getString("HINT_className")
+           ) {
+             public Object getValue () throws InvocationTargetException {
+               Object result = null;
+               try {
+                 result = obj.getClassName();
+               } catch (IOException ex) {
+               } catch (ClassNotFoundException ex) {
+               }
+               return result;
+             }
+           });
+    ps.put(new PropertySupport.ReadOnly (
+             PROP_MODIFIERS,
+             String.class,
+             bundle.getString ("PROP_modifiers"),
+             bundle.getString ("HINT_modifiers")
+           ) {
+             public Object getValue () throws InvocationTargetException {
+               Object result = null;
+               try {
+                 result = obj.getModifiers();
+               } catch (ThreadDeath td) {
+                 throw td;
+               } catch (Throwable t) {
+                 // ignore - return null
+               }
+               return result;
+             }
+           });
+    ps.put(new PropertySupport.ReadOnly (
+             PROP_SUPERCLASS,
+             Class.class,
+             bundle.getString ("PROP_superclass"),
+             bundle.getString ("HINT_superclass")
+           ) {
+             public Object getValue () throws InvocationTargetException {
+               Object result = null;
+               try {
+                 result = obj.getSuperclass();
+               } catch (ThreadDeath td) {
+                 throw td;
+               } catch (Throwable t) {
+                 // ignore - return null
+               }
+               return result;
+             }
+           });
+    ps.put(new PropertySupport.ReadOnly (
+             PROP_SUPERCLASS,
+             Boolean.TYPE,
+             bundle.getString ("PROP_hasMainMethod"),
+             bundle.getString ("HINT_hasMainMethod")
+           ) {
+             public Object getValue () throws InvocationTargetException {
+               boolean result = false;
+               try {
+                 obj.getHasMainMethod();
+               } catch (ThreadDeath td) {
+                 throw td;
+               } catch (Throwable t) {
+                 // ignore - return null
+               }
+               return new Boolean (result);
+             }
+           });
+    ps.put(new PropertySupport.ReadOnly (
+             PROP_ISINTERFACE,
+             Boolean.TYPE,
+             bundle.getString ("PROP_isInterface"),
+             bundle.getString ("HINT_isInterface")
+           ) {
+             public Object getValue () throws InvocationTargetException {
+               boolean result = false;
+               try {
+                 obj.isInterface();
+               } catch (ThreadDeath td) {
+                 throw td;
+               } catch (Throwable t) {
+                 // ignore - return null
+               }
+               return new Boolean (result);
+             }
+           });
+    ps.put(new PropertySupport.ReadOnly (
+             PROP_SUPERCLASS,
+             Boolean.TYPE,
+             bundle.getString ("PROP_isApplet"),
+             bundle.getString ("HINT_isApplet")
+           ) {
+             public Object getValue () throws InvocationTargetException {
+               boolean result = false;
+               try {
+                 obj.isApplet();
+               } catch (ThreadDeath td) {
+                 throw td;
+               } catch (Throwable t) {
+                 // ignore - return null
+               }
+               return new Boolean (result);
+             }
+           });
+    ps.put(new PropertySupport.ReadOnly (
+             PROP_SUPERCLASS,
+             Boolean.TYPE,
+             bundle.getString ("PROP_isJavaBean"),
+             bundle.getString ("HINT_isJavaBean")
+           ) {
+             public Object getValue () throws InvocationTargetException {
+               boolean result = false;
+               try {
+                 obj.isJavaBean();
+               } catch (ThreadDeath td) {
+                 throw td;
+               } catch (Throwable t) {
+                 // ignore - return null
+               }
+               return new Boolean (result);
+             }
+           });
+    // execution property set
+    Sheet.Set exps = new Sheet.Set();
+    exps.setName(EXECUTION_SET_NAME);
+    exps.setDisplayName(bundle.getString ("PROP_executionSetName"));
+    exps.setShortDescription(bundle.getString ("HINT_executionSetName"));
+    s.put(exps);
+    // fill it!
+    exps.put(new PropertySupport.ReadWrite (
+               PROP_FILE_PARAMS,
+               String.class,
+               bundle.getString("PROP_fileParams"),
+               bundle.getString("HINT_fileParams")
+             ) {
+               public Object getValue() {
+                 return getParams ();
+               }
+               public void setValue (Object val) throws InvocationTargetException {
+                 if (val instanceof String) {
+                   try {
+                     setParams((String)val);
+                   }
+                   catch(IOException e) {
+                     throw new InvocationTargetException (e);
+                   }
+                 }
+                 else {
+                   throw new IllegalArgumentException();
+                 }
+               }
+             });
+    exps.put(new PropertySupport.ReadWrite (
+               PROP_EXECUTION,
+               Boolean.TYPE,
+               bundle.getString("PROP_execution"),
+               bundle.getString("HINT_execution")
+             ) {
+               public Object getValue() {
+                 return new Boolean (getExecution ());
+               }
+               public void setValue (Object val) throws InvocationTargetException {
+                 try {
+                   setExecution(((Boolean)val).booleanValue ());
+                 } catch (IOException ex) {
+                   throw new InvocationTargetException (ex);
+                 }
+               }
+             });
+    return s;
   }
-
-  /** Called when an object is to be copied to clipboard.
-  * @return the transferable object dedicated to represent the
-  *    content of clipboard
-  * @exception NodeAccessException is thrown when the
-  *    operation cannot be performed
-  */
-  public TransferableOwner clipboardCopy () throws NodeAccessException {
-    try {
-      Class c = obj.getBeanClass ();
-      return obj.new BeanTransferableOwner (
-        super.clipboardCopy (),
-        c.getName (),
-        c
-      );
-    } catch (Exception e) {
-      throw new NodeAccessException ();
-    }
-  }
-
 
 // ----------------------------------------------------------------------------------
 // private methods
 
-  Node[] parseClass () {
-    Class clazz;
+  /** Inspects the class and return an array of elements,
+  * which will be udes as keys in children */
+  Object[] inspectClass () {
+    // PENDING - will be implemented when Element hierarchy
+    // will be changed
+    return new Object[0];
+   /* Class clazz;
     try {
       clazz = obj.getBeanClass ();
     } catch (Exception e) {
@@ -375,19 +367,22 @@ final class ClassDataNode extends DataNode {
     Node[] children = new Node[nodes.size()];
     nodes.copyInto(children);
     return children;
+   */
   }
 
   /** Removes all children and creates a new ones
   * (used after switching showDeclaredOnly).
   */
-  private void resetChildren() {
-    Node[] children = getSubNodes();
-    for (int i=0; i< children.length; i++)
-        remove(children[i]);
-    Node[] newChildren = parseClass();
-    for (int i=0; i< newChildren.length; i++) {
-      add(newChildren[i]);
-    }
+  private void resetChildren () {
+    Object[] newKeys;
+    try {
+      newKeys = inspectClass();
+    } catch (Throwable t) {
+      if (t instanceof ThreadDeath) throw (ThreadDeath)t;
+      TopManager.getDefault().notifyException (t);
+      return;
+    };
+    ((ClassDataNodeChildren)getChildren()).setMyKeys(newKeys);
   }
 
   private void requestResolveIcons () {
@@ -400,54 +395,78 @@ final class ClassDataNode extends DataNode {
     );
   }
 
-  void resolveIcons () {
+  /** Find right icon for this node. */
+  protected void resolveIcons () {
+    ClassDataObject dataObj = (ClassDataObject)getDataObject();
     try {
-      ((ClassDataObject) getDataObject()).getBeanClass (); // check exception
-      if (((ClassDataObject) getDataObject()).isJavaBean ()) {
-        if (((ClassDataObject) getDataObject()).getHasMainMethod ()) {
-          currentIcon = iconBeanMain;
-          currentIcon32 = iconBeanMain32;
-        } else {
-          currentIcon = iconBean;
-          currentIcon32 = iconBean32;
-        }
+      dataObj.getBeanClass (); // check exception
+      if (dataObj.isJavaBean ()) {
+        if (dataObj.getHasMainMethod ())
+          setIconBase(BEAN_MAIN_BASE);
+        else
+          setIconBase(BEAN_BASE);
       } else
-      if (((ClassDataObject) getDataObject()).getHasMainMethod ()) {
-        currentIcon = iconMain;
-        currentIcon32 = iconMain32;
-      } else
-        return;
-    } catch (NbClass.NbClassException ex) {
-      currentIcon = iconError;
-      currentIcon32 = iconError32;
+      if (dataObj.getHasMainMethod ())
+        setIconBase(CLASS_MAIN_BASE);
+      else
+        setIconBase(CLASS_BASE);
+    } catch (ThreadDeath td) {
+      throw td;
+    } catch (Throwable t) {
+      setIconBase(ERROR_BASE);
     }
     iconResolved = true;
-    fireIconChange (null, currentIcon);
   }
 
+  /** Special subnodes (children) for ClassDataNode */
+  private static final class ClassDataNodeChildren extends Children.Keys {
 
-// ----------------------------------------------------------------------------------
-// variables
+    private static final Object NUMB_KEY = new Object();
 
-  transient java.awt.Window window = null;
+    ClassDataNodeChildren () {
+      super();
+      // set key for numb node showing "now parsing" message
+      setKeys(new Object[] { NUMB_KEY });
+    }
 
-  /** a flag whether the children of this object are only items declared
-  * by this class, or all items (incl. inherited)
-  */
-  private boolean showDeclaredOnly = true;  // [PENDING - get default value from somewhere ?]
+    /** Overrides initNodes to resetChidren in separate thread too. */
+    protected Node[] initNodes () {
+      Node[] result = super.initNodes();
+      SwingUtilities.invokeLater(new Runnable () {
+        public void run () {
+          ((ClassDataNode)ClassDataNodeChildren.this.getNode()).resetChildren();
+        }
+      });
+      return result;
+    }
 
-  /** ClassDataObject that is represented */
-  protected ClassDataObject obj;
+    /** Creates nodes for given key.
+    * @param key the key that is used
+    * @return array of nodes representing the key
+    */
+    protected Node[] createNodes (final Object key) {
+      // PENDING - return the node according to the type
+      // of input key (constructor, method, variable etc...
+      if (NUMB_KEY.equals(key)) {
+        // PENDING return node showing "now parsing" message
+        return new Node[0];
+      }
+      return new Node[0];
+    }
 
-  transient boolean iconResolved = false;
+    /** Accessor for ClassDataNode outer class */
+    private void setMyKeys (final Object[] keys) {
+      setKeys(keys);
+    }
 
-  /** Icons for class data objects. */
-  protected transient java.awt.Image currentIcon = icon;
-  protected transient java.awt.Image currentIcon32 = icon32;
+  } // end of CallStackChildren inner class
+
+
 }
 
 /*
  * Log
+ *  4    Gandalf   1.3         1/19/99  David Simonek   
  *  3    Gandalf   1.2         1/13/99  David Simonek   
  *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
  *       datasystem package
