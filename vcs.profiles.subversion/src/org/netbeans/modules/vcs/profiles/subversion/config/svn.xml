@@ -49,7 +49,7 @@ Contributor(s): Steve Benigan.
             <value xml:space="preserve"></value>
         </variable>
         <variable basic="true" executable="false" label="getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(INPUT_NON_Interactive)" localDir="false" localFile="false" name="NONINTERACTIVE_G" order="10">
-            <value xml:space="preserve"></value>
+            <value xml:space="preserve">true</value>
         </variable>
         <variable basic="true" executable="false" label="getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(INPUT_Password)" localDir="false" localFile="false" name="PWORD_G" order="2">
             <value xml:space="preserve"></value>
@@ -71,6 +71,15 @@ Contributor(s): Steve Benigan.
         </variable>
         <variable basic="false" name="CONFIGDIR">
             <value xml:space="preserve">$[? CONFIGDIR_U][--config-dir ${QUOTE}${CONFIGDIR_U}${QUOTE} ][$[? CONFIGDIR_G][--config-dir ${QUOTE}${CONFIGDIR_G}${QUOTE} ][]]</value>
+        </variable>
+        <variable basic="false" name="CONFIG_INPUT_DESCRIPTOR">
+            <value xml:space="preserve">PROMPT_FOR(ROOTDIR, Working Directory:, "", ACCESSIBILITY(MNEMONIC_W), SELECTOR_DIR)
+PROMPT_FOR(REPOSITORY_URL,"Repository URL:", "", ACCESSIBILITY(DESCRIPTION_The Repository URL;;MNEMONIC_U))
+PROMPT_FOR(USER_G,"Username:", "", ACCESSIBILITY(DESCRIPTION_The default user name used to authenticate;;MNEMONIC_S))
+PROMPT_FOR_PASSWORD(PWORD_G,"Password:", "", ACCESSIBILITY(DESCRIPTION_The default password name used to authenticate;;MNEMONIC_P))
+ASK_FOR(QUIET_G,"Quiet", "${QUIET_G}", ACCESSIBILITY(DESCRIPTION_Forces quiet to be used on all applicable commands;;MNEMONIC_Q),"true", "")
+ASK_FOR(NOAUTHCACHE_G,"No Auth Cache", "${NOAUTHCACHE_G}", ACCESSIBILITY(DESCRIPTION_Forces no auth cache to be used on all applicable commands;;MNEMONIC_A),"true", "")
+PROMPT_FOR(ENCODING_G,"Encoding:", "", ACCESSIBILITY(DESCRIPTION_The default encoding.  If left blank, svn's default encoding will be used;;MNEMONIC_G))</value>
         </variable>
         <variable basic="false" name="EDITOR">
             <value xml:space="preserve">$[? EDITOR_U][--editor-cmd ${EDITOR_U} ][$[? EDITOR_G][--editor-cmd ${EDITOR_G} ][]]</value>
@@ -133,7 +142,7 @@ Contributor(s): Steve Benigan.
             <value xml:space="preserve">cmd /X /C "${CD} ${QUOTE}${ROOTDIR}$[? MODULE][${PS}${MODULE}][]$[? PATH][${PS}${PATH}][]${QUOTE}&amp;&amp;</value>
         </variable>
         <variable basic="false" name="PWORD">
-            <value xml:space="preserve">$[? PWORD_U][${PWORD_U}][$[? PWORD_G][${PWORD_G}][]]</value>
+            <value xml:space="preserve">$[? PWORD_U][${PWORD_U}]][[? PWORD_G][${PWORD_G}][]]</value>
         </variable>
         <variable basic="false" name="QDIFF3CMD">
             <value xml:space="preserve">$[? DIFF3CMD_U][--diff3-cmd ${QUOTE}${DIFF3CMD_U}${QUOTE} ][$[? DIFF3CMD_G][--diff3-cmd ${QUOTE}${DIFF3CMD_G}${QUOTE} ][]]</value>
@@ -256,10 +265,10 @@ PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTIO
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 ASK_FOR_EXPERT(NONRECURSIVE, Non-Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_N),"-N ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
-ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G",ACCESSIBILITY(DESCRIPTION_Check box for no auth-cache argument;;MNEMONIC_A),"true", "")
-ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")    
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no auth-cache argument;;MNEMONIC_A),"true", "")
+ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "true",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")    
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="labelMnemonic">
@@ -295,11 +304,11 @@ PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTIO
 ASK_FOR_EXPERT(QUIET, Quiet, "false",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"-q ", "")
 ASK_FOR_EXPERT(NONRECURSIVE, Non-Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_N),"-N ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE, No Auth cache, "false",ACCESSIBILITY(DESCRIPTION_Check box for no auth-cache argument;;MNEMONIC_A),"--no-auth-cache ", "")
 ASK_FOR_EXPERT(NONINTERACTIVE, Non-Interactive, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"--non-interactive ", "")
-PROMPT_FOR_EXPERT(DIFF3CMD_U, diff3-cmd, "${DIFF3CMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for diff3-cmd argument;;MNEMONIC_D),,)
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(DIFF3CMD_U, diff3-cmd, "${DIFF3CMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for diff3-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="labelMnemonic">
@@ -347,13 +356,13 @@ IF_VAR_EMPTY"EDITORCMD"_PROMPT_FOR_FILE(TEMPLATE_FILE, "Message:", {FILE_OUTPUT_
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 ASK_FOR_EXPERT(NONRECURSIVE_U, Non-Recursive, "${NONRECURSIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_N),"true", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
-PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_Text field for targets argument;;MNEMONIC_T),,SELECTOR_FILE)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_Text field for targets argument;;MNEMONIC_T),SELECTOR_FILE)
 ASK_FOR_EXPERT(FORCELOG, Force-log, "false",ACCESSIBILITY(DESCRIPTION_Check box for false argument;;MNEMONIC_F),"--force-log ", "")
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
 PROMPT_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Text field for encoding argument;;MNEMONIC_E),,)
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="labelMnemonic">
@@ -393,7 +402,7 @@ PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_Text field fo
 ASK_FOR_EXPERT(NONRECURSIVE, Non-Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_N),"-N ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
 ASK_FOR_EXPERT(AUTOPROPS, AutoProps, "false",ACCESSIBILITY(DESCRIPTION_Check box for auto-props argument;;MNEMONIC_A),"--auto-props ", "")
 ASK_FOR_EXPERT(NOAUTOPROPS, No AutoProps, "false",ACCESSIBILITY(DESCRIPTION_Check box for no-auto-props argument;;MNEMONIC_U),"--no-auto-props ", "")
                     </value>
@@ -429,17 +438,17 @@ ASK_FOR_EXPERT(NOAUTOPROPS, No AutoProps, "false",ACCESSIBILITY(DESCRIPTION_Chec
 PROMPT_FOR_EXPERT(PATHARG_U, Source, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text field for message argument;;MNEMONIC_P),,)
 PROMPT_FOR(DST, Destination, "",ACCESSIBILITY(DESCRIPTION_Text field for destination argument;;MNEMONIC_S),,)
 PROMPT_FOR_EXPERT(MESSAGE_U, Message, "${MESSAGE_G}",ACCESSIBILITY(DESCRIPTION_Text field for message argument;;MNEMONIC_M),,)
-PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),,SELECTOR_FILE)
+PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive;;MNEMONIC_I),"true", "")
 ASK_FOR_EXPERT(FORCELOG, Force-log, "false",ACCESSIBILITY(DESCRIPTION_Check box for force-log argument;;MNEMONIC_I),"--force-log ", "")
 PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),,)
 PROMPT_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Text field for encoding argument;;MNEMONIC_E),,)
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="labelMnemonic">
@@ -464,15 +473,15 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
 PROMPT_FOR_EXPERT(PATHARG_U, SRC, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text field for PATH argument;;MNEMONIC_P),,)
 PROMPT_FOR(DST, DST, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text field for destination argument;;MNEMONIC_S),,)
 PROMPT_FOR_EXPERT(MESSAGE_U, Message, "${MESSAGE_G}",ACCESSIBILITY(DESCRIPTION_Text field for message argument;;MNEMONIC_M),,)
-PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),,SELECTOR_FILE)
+PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 ASK_FOR_EXPERT(FORCE, Force, "",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_F),"--force ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),,)
+PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Text field for encoding argument;;MNEMONIC_E),,)
 ASK_FOR_EXPERT(FORCELOG, Force-log, "",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_L),"--force-log ", "")
                     </value>
@@ -494,16 +503,16 @@ PROMPT_FOR_EXPERT(PATHARG_U, PATH, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text
 ASK_FOR_EXPERT(FORCE, Force, "false",ACCESSIBILITY(DESCRIPTION_Check box for force argument;;MNEMONIC_F),"--force ", "")
 ASK_FOR_EXPERT(FORCELOG, Force-log, "false",ACCESSIBILITY(DESCRIPTION_Check box for force-log argument;;MNEMONIC_L),"--force-log ", "")
 PROMPT_FOR_EXPERT(MESSAGE_U, Message, "${MESSAGE_G}",ACCESSIBILITY(DESCRIPTION_Text field for message argument;;MNEMONIC_M),,)
-PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),,SELECTOR_FILE)
+PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),SELECTOR_FILE)
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_Text field for targets argument;;MNEMONIC_T),,)
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),,)
+PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Text field for encoding argument;;MNEMONIC_E),,)
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="labelMnemonic">
@@ -533,16 +542,16 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">LABEL(SVN Mkdir,ACCESSIBILITY(DESCRIPTION_Dialog for svn mkdir command))
 PROMPT_FOR(PATHARG_U, PATH, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text field for PATH;;MNEMONIC_T),,)
 PROMPT_FOR_EXPERT(MESSAGE_U, Message, "${MESSAGE_G}",ACCESSIBILITY(DESCRIPTION_Text field for message argument;;MNEMONIC_M),,)
-PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),,SELECTOR_FILE)
+PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),SELECTOR_FILE)
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"--no-auth-cache ", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"--non-interactive ", "")
-PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),,)
+PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Text field for encoding argument;;MNEMONIC_E),,)
 ASK_FOR_EXPERT(FORCELOG, Force-log, "false",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"--force-log ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="onDir">
@@ -578,14 +587,14 @@ PROMPT_FOR_EXPERT(OLDTARGET, Old Target,,ACCESSIBILITY(DESCRIPTION_Text field fo
 PROMPT_FOR_EXPERT(NEWTARGET, New Target,,ACCESSIBILITY(DESCRIPTION_Text field for new path argument;;MNEMONIC_P),,)
 PROMPT_FOR_EXPERT(EXTENSIONS, Extensions, "",ACCESSIBILITY(DESCRIPTION_Text field for extensions argument;;MNEMONIC_X),,)
 ASK_FOR_EXPERT(NONRECURSIVE, Non recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_N),"-N ", "")
-PROMPT_FOR_EXPERT(DIFFCMD_U, Diff Command, ${DIFFCMD_G},ACCESSIBILITY(DESCRIPTION_Text field for diff-cmd argument;;MNEMONIC_D),,)
+PROMPT_FOR_EXPERT(DIFFCMD_U, Diff Command, ${DIFFCMD_G},ACCESSIBILITY(DESCRIPTION_Text field for diff-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 ASK_FOR_EXPERT(NODIFFDELETED, No Diff Deleted, "false",ACCESSIBILITY(DESCRIPTION_Check box for extensions argument;;MNEMONIC_E),"--no-diff-deleted ", "")
 ASK_FOR_EXPERT(NOTICEANCESTRY, Notice Ancestry, "false",ACCESSIBILITY(DESCRIPTION_Check box for extensions argument;;MNEMONIC_G),"--notice-ancestry ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"--no-auth-cache ", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"--non-interactive ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)</value>
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)</value>
                 </property>
                 <property name="runOnMultipleFiles">
                     <value xml:space="preserve">true</value>
@@ -614,13 +623,13 @@ ASK_FOR_EXPERT(NONRECURSIVE_U, Non recursive, "${NONRECURSIVE}",ACCESSIBILITY(DE
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_Q),"true", "")
 ASK_FOR_EXPERT(FORCE, Force, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_F),"--force ", "")
 ASK_FOR_EXPERT(DRYRUN, Dry Run, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_D),"--dry-run ", "")
-PROMPT_FOR_EXPERT(DIFF3CMD_U, Diff 3 Cmd,"${DIFFCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for diif3cmd argument;;MNEMONIC_I),,)
+PROMPT_FOR_EXPERT(DIFF3CMD_U, Diff 3 Cmd,"${DIFFCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for diif3cmd argument;;MNEMONIC_I),SELECTOR_FILE)
 ASK_FOR_EXPERT(IGNOREANCESTRY, Ignore Ancestry, "false",ACCESSIBILITY(DESCRIPTION_Check box for ignore-ancestry argument;;MNEMONIC_F),"--ignore-ancestry ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)</value>
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)</value>
                 </property>
                 <property name="runOnMultipleFiles">
                     <value xml:space="preserve">true</value>
@@ -639,10 +648,10 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Resolve,ACCESSIBILITY(DESCRIPTION_Dialog for svn resolve command))
 PROMPT_FOR_EXPERT(PATHARG_U, PATH, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text field for PATH argument;;MNEMONIC_P),,)
-PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_Text field for targets argument;;MNEMONIC_T),,SELECTOR_FILE)
+PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_Text field for targets argument;;MNEMONIC_T),SELECTOR_FILE)
 ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for recursive argument;;MNEMONIC_R),"-R ", "")
 ASK_FOR_EXPERT(QUIET, Quiet, "false",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"-q ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
 </value>
                 </property>
                 <property name="runOnMultipleFiles">
@@ -659,10 +668,10 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Revert,ACCESSIBILITY(DESCRIPTION_Dialog for svn revert command))
 PROMPT_FOR_EXPERT(PATHARG_U, PATH, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text field for PATH argument;;MNEMONIC_P),,)
-PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_Text field for targets argument;;MNEMONIC_T),,SELECTOR_FILE)
+PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_Text field for targets argument;;MNEMONIC_T),SELECTOR_FILE)
 ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for recursive argument;;MNEMONIC_R),"-R ", "")
 ASK_FOR_EXPERT(QUIET, Quiet, "false",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"-q ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
 </value>
                 </property>
                 <property name="runOnMultipleFiles">
@@ -682,8 +691,8 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Cleanup,ACCESSIBILITY(DESCRIPTION_Dialog for cleanup command))
 PROMPT_FOR_EXPERT(PATHARG_U, PATH, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text field for PATH argument;;MNEMONIC_P),,)
-PROMPT_FOR_EXPERT(DIFF3CMD_U, Diff3cmd, "${DIFF3CMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for diff3cmd argument;;MNEMONIC_D),,)
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)</value>
+PROMPT_FOR_EXPERT(DIFF3CMD_U, Diff3cmd, "${DIFF3CMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for diff3cmd argument;;MNEMONIC_D),SELECTOR_FILE)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)</value>
                 </property>
                 <property name="onFile">
                     <value xml:space="preserve">false</value>
@@ -707,10 +716,10 @@ PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTIO
 ASK_FOR_EXPERT(VERBOSE, Verbose, "false",ACCESSIBILITY(DESCRIPTION_Check box for verbose argument;;MNEMONIC_V),"-v ",)
 ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for recursive argument;;MNEMONIC_E),"-R ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no auth cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
             </command>
@@ -742,10 +751,10 @@ ASK_FOR_EXPERT(NONRECURSIVE, Non Recursive, "false",ACCESSIBILITY(DESCRIPTION_Ch
 ASK_FOR_EXPERT(QUIET, Quiet, "false",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"-q ", "")
 ASK_FOR_EXPERT(NOIGNORE, No Ignore, "false",ACCESSIBILITY(DESCRIPTION_Check box for no-ignore argument;;MNEMONIC_G),"--no-ignore ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE, No Auth Cache, "false",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_C),"--no-auth-cache ", "")
 ASK_FOR_EXPERT(NONINTERACTIVE, Non Interactive, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"--non-interactive ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
 </value>
                 </property>
                 <property name="refreshFileRelativePath">
@@ -776,7 +785,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
 PROMPT_FOR_EXPERT(PATHARG_U, PATH, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text field for PATH argument;;MNEMONIC_P),,)
 PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_File Selection for target argument;;MNEMONIC_T),SELECTOR_FILE)
 ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for recursive argument;;MNEMONIC_R),"-R ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,) 
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR) 
                     </value>
                 </property>
                 <property name="runOnMultipleFiles">
@@ -804,10 +813,10 @@ ASK_FOR_EXPERT(STOPONCOPY, Stop-on-copy, "false",ACCESSIBILITY(DESCRIPTION_Check
 ASK_FOR_EXPERT(INCREMENTAL, Incremental, "false",ACCESSIBILITY(DESCRIPTION_Check box for incremental argument;;MNEMONIC_N),"--incremental ", "")
 ASK_FOR_EXPERT(XML, XML, "false",ACCESSIBILITY(DESCRIPTION_Check box for xml argument;;MNEMONIC_X),"--xml ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,) </value>
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR) </value>
                 </property>
                 <property name="runOnMultipleFiles">
                     <value xml:space="preserve">true</value>
@@ -828,10 +837,10 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
 PROMPT_FOR_EXPERT(PATHARG_U, TARGET, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text field for TARGET argument;;MNEMONIC_R),,)
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="onDir">
@@ -858,10 +867,10 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">LABEL(SVN Blame,ACCESSIBILITY(DESCRIPTION_Dialog for svn blame command))
 PROMPT_FOR_EXPERT(PATHARG_U, TARGET, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text field for TARGET argument;;MNEMONIC_T),,) PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="supportsAdvancedMode">
@@ -880,7 +889,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
 ASK_FOR_EXPERT(VERSION, Version, "false",ACCESSIBILITY(DESCRIPTION_Check box for version argument;;MNEMONIC_V),"--version ", "")
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 PROMPT_FOR_EXPERT(SUBCOMMAND, Subcommand, "",ACCESSIBILITY(DESCRIPTION_Text field for subcommand argument;;MNEMONIC_T),,)
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)</value>
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)</value>
                 </property>
                 <property name="runOnMultipleFiles">
                     <value xml:space="preserve">true</value>
@@ -910,12 +919,12 @@ PROMPT_FOR_EXPERT(PATHARG_U, PATH, ".",ACCESSIBILITY(DESCRIPTION_Text field for 
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 ASK_FOR_EXPERT(NONRECURSIVE, Non-Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_N),"-N ", "")
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
-PROMPT_FOR_EXPERT(DIFF3CMD_U, Diff3-cmd, "${DIFF3CMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for diff3-cmd argument;;MNEMONIC_U),,)
+PROMPT_FOR_EXPERT(DIFF3CMD_U, Diff3-cmd, "${DIFF3CMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for diff3-cmd argument;;MNEMONIC_U),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G",ACCESSIBILITY(DESCRIPTION_Check box for no auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")    
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="notificationFailMsg">
@@ -951,10 +960,10 @@ ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)</value>
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)</value>
                 </property>
                 <property name="runOnMultipleFiles">
                     <value xml:space="preserve">true</value>
@@ -980,10 +989,10 @@ ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 ASK_FOR_EXPERT(STRICT, Strict, "false",ACCESSIBILITY(DESCRIPTION_Check box for strict argument;;MNEMONIC_S),"--strict ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_U}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="runOnMultipleFiles">
@@ -1014,12 +1023,12 @@ PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTIO
 PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_File Selection for target argument;;MNEMONIC_T),SELECTOR_FILE)
 ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for recursive argument;;MNEMONIC_E),"-R ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
 ASK_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Check box for encoding argument;;MNEMONIC_E),"true", "")
 ASK_FOR_EXPERT(FORCE, Force, "false",ACCESSIBILITY(DESCRIPTION_Check box for revprop argument;;MNEMONIC_V),"--force ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="labelMnemonic">
@@ -1053,13 +1062,13 @@ PROMPT_FOR_EXPERT(PATHARG_U, PATH, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text
 PROMPT_FOR_EXPERT(URL_U, URL, "${URL_G}",ACCESSIBILITY(DESCRIPTION_Text field for URL argument;;MNEMONIC_P),,)
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE}_G",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
 ASK_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Check box for encoding argument;;MNEMONIC_E),"true", "")
-PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Check box for editor-cmd argument;;MNEMONIC_D),, "")
+PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Check box for editor-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 ASK_FOR_EXPERT(FORCE, Force, "",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_F),"--force ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
 </value>
                 </property>
                 <property name="runOnMultipleFiles">
@@ -1086,10 +1095,10 @@ ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET}",ACCESSIBILITY(DESCRIPTION_Check box fo
 ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for recursive argument;;MNEMONIC_R),"-R ", "")
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_C),,)
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
             </command>
@@ -1167,10 +1176,10 @@ PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTIO
 ASK_FOR_EXPERT(VERBOSE, Verbose, "false",ACCESSIBILITY(DESCRIPTION_Check box for verbose argument;;MNEMONIC_V),"-v ",)
 ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for recursive argument;;MNEMONIC_E),"-R ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no auth cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="onFile">
@@ -1195,17 +1204,17 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
 PROMPT_FOR(SRC, Source, "${URL_G}",ACCESSIBILITY(DESCRIPTION_Text field for source argument;;MNEMONIC_S),,)
 PROMPT_FOR(DST, Destination, "",ACCESSIBILITY(DESCRIPTION_Text field for destination argument;;MNEMONIC_E),,)
 PROMPT_FOR_EXPERT(MESSAGE_U, Message, "${MESSAGE_G}",ACCESSIBILITY(DESCRIPTION_Text field for message argument;;MNEMONIC_M),,)
-PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),,SELECTOR_FILE)
+PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no auth cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
 ASK_FOR_EXPERT(FORCELOG, Force-log, "false",ACCESSIBILITY(DESCRIPTION_Check box for force-log argument;;MNEMONIC_I),"--force-log ", "")
-PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),,)
+PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Text field for encoding argument;;MNEMONIC_E),,)
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="labelMnemonic">
@@ -1226,18 +1235,18 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">LABEL(SVN Move,ACCESSIBILITY(DESCRIPTION_Dialog for svn move command))
 PROMPT_FOR(SRC, Source, "${URL_G}",ACCESSIBILITY(DESCRIPTION_Text field for source argument;;MNEMONIC_S),,)
 PROMPT_FOR(DST, Destination, "",ACCESSIBILITY(DESCRIPTION_Text field for destination argument;;MNEMONIC_E),,)
-PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),,SELECTOR_FILE)
+PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 ASK_FOR_EXPERT(FORCE, Force, "",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_F),"--force ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no auth cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),,)
+PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Text field for encoding argument;;MNEMONIC_E),,)
 ASK_FOR_EXPERT(FORCELOG, Force-log, "",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_F,"--force-log ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="supportsAdvancedMode">
@@ -1260,12 +1269,13 @@ PROMPT_FOR_EXPERT(MESSAGE_U, Message, "${MESSAGE_G}",ACCESSIBILITY(DESCRIPTION_T
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_Text field for targets argument;;MNEMONIC_T),,)
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
-PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),,SELECTOR_FILE)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),SELECTOR_FILE)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no auth cache argument;;MNEMONIC_A),"true", "")
-ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "") PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),,)
+ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
+PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Text field for encoding argument;;MNEMONIC_E),,)
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="labelMnemonic">
@@ -1292,16 +1302,16 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">LABEL(SVN Mkdir,ACCESSIBILITY(DESCRIPTION_Dialog for svn mkdir command))
 PROMPT_FOR(URL_U, URL, "${URL_G}",ACCESSIBILITY(DESCRIPTION_Text field for URL argument;;MNEMONIC_T),,)
 PROMPT_FOR_EXPERT(MESSAGE_U, Message, "${MESSAGE_G}",ACCESSIBILITY(DESCRIPTION_Text field for message argument;;MNEMONIC_M),,)
-PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),,SELECTOR_FILE)
+PROMPT_FOR_EXPERT(FILEMESSAGE, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_F),SELECTOR_FILE)
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"--no-auth-cache ", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"--non-interactive ", "")
-PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),,)
+PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Text field for encoding argument;;MNEMONIC_E),,)
 ASK_FOR_EXPERT(FORCELOG, Force-log, "false",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"--force-log ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="onDir">
@@ -1338,14 +1348,14 @@ PROMPT_FOR_EXPERT(NREV, Old Target Revision, "",ACCESSIBILITY(DESCRIPTION_Text f
 PROMPT_FOR_EXPERT(MREV, New Target Revision, "",ACCESSIBILITY(DESCRIPTION_Text field for new target revision argument;;MNEMONIC_N),,)
 PROMPT_FOR_EXPERT(EXTENSIONS, Extensions, "",ACCESSIBILITY(DESCRIPTION_Text field for extensions argument;;MNEMONIC_X),,)
 ASK_FOR_EXPERT(NONRECURSIVE, Non recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_N),"-N ", "")
-PROMPT_FOR_EXPERT(DIFFCMD_U, Diff Command, ${DIFFCMD_G},ACCESSIBILITY(DESCRIPTION_Text field for diff-cmd argument;;MNEMONIC_D),,)
+PROMPT_FOR_EXPERT(DIFFCMD_U, Diff Command, ${DIFFCMD_G},ACCESSIBILITY(DESCRIPTION_Text field for diff-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 ASK_FOR_EXPERT(NODIFFDELETED, No Diff Deleted, "false",ACCESSIBILITY(DESCRIPTION_Check box for extensions argument;;MNEMONIC_E),"--no-diff-deleted ", "")
 ASK_FOR_EXPERT(NOTICEANCESTRY, Notice Ancestry, "false",ACCESSIBILITY(DESCRIPTION_Check box for extensions argument;;MNEMONIC_G),"--notice-ancestry ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"--no-auth-cache ", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"--non-interactive ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="runOnMultipleFiles">
@@ -1375,13 +1385,13 @@ ASK_FOR_EXPERT(NONRECURSIVE_U, Non recursive, "${NONRECURSIVE}",ACCESSIBILITY(DE
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_Q),"true", "")
 ASK_FOR_EXPERT(FORCE, Force, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_F),"--force ", "")
 ASK_FOR_EXPERT(DRYRUN, Dry Run, "false",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_D),"--dry-run ", "")
-PROMPT_FOR_EXPERT(DIFF3CMD_U, Diff 3 Cmd,"${DIFFCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for diif3cmd argument;;MNEMONIC_I),,)
+PROMPT_FOR_EXPERT(DIFF3CMD_U, Diff 3 Cmd,"${DIFFCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for diif3cmd argument;;MNEMONIC_I),SELECTOR_FILE)
 ASK_FOR_EXPERT(IGNOREANCESTRY, Ignore Ancestry, "false",ACCESSIBILITY(DESCRIPTION_Check box for ignore-ancestry argument;;MNEMONIC_F),"--ignore-ancestry ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="runOnMultipleFiles">
@@ -1403,17 +1413,17 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
 PROMPT_FOR(IPATH, Path, "",ACCESSIBILITY(DESCRIPTION_Text field for wcpath argument;;MNEMONIC_S),,)
 PROMPT_FOR(URL_U, URL, "${URL_G}",ACCESSIBILITY(DESCRIPTION_Text field for url argument;;MNEMONIC_L),,)
 PROMPT_FOR_EXPERT(MESSAGE_U, Message, "${MESSAGE_G}",ACCESSIBILITY(DESCRIPTION_Text field for message argument;;MNEMONIC_O),,)
-PROMPT_FOR_EXPERT(FILEARG, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_O),,SELECTOR_FILE)
+PROMPT_FOR_EXPERT(FILEARG, File, "",ACCESSIBILITY(DESCRIPTION_Text field for file argument;;MNEMONIC_O),SELECTOR_FILE)
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_Q),"-q ", "")
 ASK_FOR_EXPERT(NONRECURSIVE_U, Non recursive, "${NONRECURSIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_N),"true", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
 ASK_FOR_EXPERT(FORCELOG, Force-log, "false",ACCESSIBILITY(DESCRIPTION_Check box for force-log argument;;MNEMONIC_L),"--force-log ", "")
-PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command,"${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_E),,)
+PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command,"${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Text field for editor-cmd argument;;MNEMONIC_E),SELECTOR_FILE)
 PROMPT_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Check box for encoding argument;;MNEMONIC_I),,)
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
 ASK_FOR_EXPERT(AUTOPROPS, Auto-props, "false",ACCESSIBILITY(DESCRIPTION_Check box for auto-props argument;;MNEMONIC_P),"--auto-props ", "")
 ASK_FOR_EXPERT(NOAUTOPROPS, No-auto-props, "false",ACCESSIBILITY(DESCRIPTION_Check box for no-auto-props argument;;MNEMONIC_A),"--no-auto-props ", "")</value>
                 </property>
@@ -1437,10 +1447,10 @@ PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTIO
 ASK_FOR_EXPERT(QUIET_U, Quiet, "QUIET_G",ACCESSIBILITY(DESCRIPTION_Check box for non-recursive argument;;MNEMONIC_Q),"true", "")
 ASK_FOR_EXPERT(FORCE, Force, "false",ACCESSIBILITY(DESCRIPTION_Check box for force argument of;;MNEMONIC_Q),"--force ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="supportsAdvancedMode">
@@ -1456,10 +1466,10 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
 PROMPT_FOR_EXPERT(TARGET, TARGET, "${URL}",ACCESSIBILITY(DESCRIPTION_Text field for TARGET argument;;MNEMONIC_T),,)
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G",ACCESSIBILITY(DESCRIPTION_Check box for no auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
             </command>
@@ -1481,10 +1491,10 @@ ASK_FOR_EXPERT(STOPONCOPY, Stop-on-copy, "false",ACCESSIBILITY(DESCRIPTION_Check
 ASK_FOR_EXPERT(INCREMENTAL, Incremental, "false",ACCESSIBILITY(DESCRIPTION_Check box for incremental argument;;MNEMONIC_N),"--incremental ", "")
 ASK_FOR_EXPERT(XML, XML, "false",ACCESSIBILITY(DESCRIPTION_Check box for xml argument;;MNEMONIC_X),"--xml ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)</value>
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)</value>
                 </property>
             </command>
             <command displayName="Cat" name="CATR">
@@ -1499,10 +1509,10 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
 PROMPT_FOR_EXPERT(URL_U, TARGET, "${URL_G}",ACCESSIBILITY(DESCRIPTION_Text field for target argument;;MNEMONIC_R),,)
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_A),"--no-auth-cache ", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"--non-interactive ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
             </command>
@@ -1523,10 +1533,10 @@ ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET_G}",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_Q),"true", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No Auth Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="supportsAdvancedMode">
@@ -1550,10 +1560,10 @@ ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 ASK_FOR_EXPERT(STRICT, Strict, "true",ACCESSIBILITY(DESCRIPTION_Check box for strict argument;;MNEMONIC_S),"--strict ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_U}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="supportsAdvancedMode">
@@ -1581,12 +1591,12 @@ PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTIO
 PROMPT_FOR_EXPERT(TARGETS_U, Targets, "",ACCESSIBILITY(DESCRIPTION_File Selection for target argument;;MNEMONIC_T),SELECTOR_FILE)
 ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for recursive argument;;MNEMONIC_E),"-R ", "")
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
 ASK_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Check box for encoding argument;;MNEMONIC_E),"true", "")
 ASK_FOR_EXPERT(FORCE, Force, "false",ACCESSIBILITY(DESCRIPTION_Check box for revprop argument;;MNEMONIC_V),"--force ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="labelMnemonic">
@@ -1617,13 +1627,13 @@ PROMPT_FOR_EXPERT(PATHARG_U, PATH, "${PATHARG_G}",ACCESSIBILITY(DESCRIPTION_Text
 PROMPT_FOR_EXPERT(URL_U, URL, "${URL_G}",ACCESSIBILITY(DESCRIPTION_Text field for URL argument;;MNEMONIC_P),,)
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_R),,)
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE}_G",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
 ASK_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Check box for encoding argument;;MNEMONIC_E),"true", "")
-PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Check box for editor-cmd argument;;MNEMONIC_D),, "")
+PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Check box for editor-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 ASK_FOR_EXPERT(FORCE, Force, "",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_F),"--force ", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="supportsAdvancedMode">
@@ -1647,10 +1657,10 @@ ASK_FOR_EXPERT(QUIET_U, Quiet, "${QUIET}",ACCESSIBILITY(DESCRIPTION_Check box fo
 ASK_FOR_EXPERT(RECURSIVE, Recursive, "false",ACCESSIBILITY(DESCRIPTION_Check box for recursive argument;;MNEMONIC_R),"-R ", "")
 PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTION_Text field for revision argument;;MNEMONIC_C),,)
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
-PROMPT_FOR_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
+PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
 ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_G}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
-PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),,)
+PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
                 <property name="supportsAdvancedMode">
