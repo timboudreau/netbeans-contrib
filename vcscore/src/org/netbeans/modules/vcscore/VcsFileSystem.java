@@ -142,9 +142,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public static final String PROP_PROMPT_FOR_VARS_FOR_EACH_FILE = "promptForVarsForEachFile"; // NOI18N
     public static final String PROP_VCS_REFRESH_TIME = "vcsRefreshTime"; // NOI18N
     public static final String PROP_FILE_FILTER = "fileFilter"; // NOI18N
+    public static final String PROP_IGNORED_GARBAGE_FILES = "ignoredGarbageFiles";  //NOI18N
     
     protected static final String PROP_USE_UNIX_SHELL = "useUnixShell"; // NOI18N
     protected static final String PROP_NOT_MODIFIABLE_STATUSES = "notModifiableStatuses"; // NOI18N
+    
 
     public static final String VAR_TRUE = "true"; // NOI18N
     public static final String VAR_FALSE = "false"; // NOI18N
@@ -418,8 +420,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient String displayName;
     
     private String preferredSystemName = null;
+    
+    /** regexp of ignorable children */
+    private String ignoredGarbageFiles = ""; // NOI18N
 
 
+    public void setIgnoredGarbageFiles(String ignoredGarbageFiles){
+        this.ignoredGarbageFiles = ignoredGarbageFiles;
+    }
+    
+    public String getIgnoredGarbageFiles(){
+        return ignoredGarbageFiles;        
+    }
+    
     public boolean isLockFilesOn () {
         return lockFilesOn && isEnabledLockFiles();
     }
