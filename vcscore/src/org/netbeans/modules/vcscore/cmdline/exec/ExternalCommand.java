@@ -27,6 +27,7 @@ import org.openide.util.Utilities;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
+import org.netbeans.modules.vcscore.commands.OutputProgressListener;
 import org.netbeans.modules.vcscore.commands.RegexOutputListener;
 import org.netbeans.modules.vcscore.commands.TextInput;
 import org.openide.ErrorManager;
@@ -71,6 +72,9 @@ public class ExternalCommand implements TextInput {
     private ArrayList stdImmediateErrListeners = new ArrayList();
     boolean isImmediateOut = false;
     boolean isImmediateErr = false;
+    
+    private Object outProgressLock = new Object();
+    private ArrayList outProgressListeners = null; // Not used that often
     
     // The environment variables
     private String[] envp = null;
@@ -613,6 +617,7 @@ public class ExternalCommand implements TextInput {
         
         public void run() {
             //System.out.println("OutputGrabbersProcessor started.");
+            boolean wasOutput = false;
             do {
                 try {
                     synchronized (outputGrabbers) {
@@ -633,6 +638,7 @@ public class ExternalCommand implements TextInput {
                             if (output.hasOutput()) {
                                 output.run();
                                 processed = true;
+                                wasOutput = true;
                             }
                         } else {
                             output.flush();
@@ -642,6 +648,10 @@ public class ExternalCommand implements TextInput {
                         }
                     }
                     if (!processed) {
+                        if (wasOutput) {
+                            notifyOutputFlushed();
+                            wasOutput = false;
+                        }
                         Thread.currentThread().sleep(200);
                     }
                 } catch (InterruptedException iexc) {
@@ -652,6 +662,16 @@ public class ExternalCommand implements TextInput {
                     org.openide.ErrorManager.getDefault().notify(t);
                 }
             } while(true);
+        }
+        
+        private void notifyOutputFlushed() {
+            synchronized (outProgressLock) {
+                if (outProgressListeners != null) {
+                    for (int i = 0; i < outProgressListeners.size(); i++) {
+                        ((OutputProgressListener) outProgressListeners.get(i)).outputFlushed();
+                    }
+                }
+            }
         }
         
     }
@@ -773,6 +793,19 @@ public class ExternalCommand implements TextInput {
         isImmediateErr = true;
         synchronized(stdErrLock) {
             this.stdImmediateErrListeners.add(l);
+        }
+    }
+    
+    /**
+     * Add an output progress listener that is notified about the progress of
+     * output that is available from the command.
+     */
+    public void addOutputProgressListener(OutputProgressListener l) {
+        synchronized (outProgressLock) {
+            if (outProgressListeners == null) {
+                outProgressListeners = new ArrayList();
+            }
+            this.outProgressListeners.add(l);
         }
     }
 
