@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.openide.nodes.*;
-import org.openide.util.actions.NodeAction;
 import org.openide.actions.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.NbBundle;
