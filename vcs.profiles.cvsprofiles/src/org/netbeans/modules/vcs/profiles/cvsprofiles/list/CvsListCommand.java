@@ -37,7 +37,7 @@ public class CvsListCommand extends AbstractListCommand {
     static final String CVS_DIRNAME = "CVS"; // NOI18N
     static final String[] CVS_DIRCONTENT = {"Entries", "Repository", "Root"}; // NOI18N
     static final String CVS_FILE_TAG = "Tag"; // NOI18N
-    static final String[] EXAMINING_STRS = {"status: Examining", "server: Examining"}; // NOI18N
+    static final String EXAMINING_STR = ": Examining"; // NOI18N
     static final String MATCH_FILE = "File:"; // NOI18N
     static final String MATCH_STATUS = "Status:"; // NOI18N
     static final String MATCH_REVISION = "Working revision:"; // NOI18N
@@ -110,7 +110,6 @@ public class CvsListCommand extends AbstractListCommand {
      */
     private void fillHashtableFromStatus(Hashtable filesByName) {
         String data=new String(dataBuffer);
-        String examiningStr = EXAMINING_STRS[0];
 
         int pos=0;
         /* I expect file listing in the form: File: <filename> Status: <status>
@@ -119,20 +118,14 @@ public class CvsListCommand extends AbstractListCommand {
          */
         int fileIndex;
         int examIndex = -1;
-        for (int i = 0; i < EXAMINING_STRS.length; i++) {
-            examIndex = data.indexOf(EXAMINING_STRS[i], pos);
-            if (examIndex >= 0) {
-                examiningStr = EXAMINING_STRS[i];
-                break;
-            }
-        }
+        examIndex = data.indexOf(EXAMINING_STR, pos);
         boolean examining = true;
         if (examIndex < 0) {
             //if (!shouldFail) E.err("Warning: No examining info from cvs status command !");
             examining = false;
         } else {
-            examining = furtherExamining(data, examIndex += examiningStr.length());
-            examIndex = data.indexOf(examiningStr, examIndex);
+            examining = furtherExamining(data, examIndex += EXAMINING_STR.length());
+            examIndex = data.indexOf(EXAMINING_STR, examIndex);
         }
         fileIndex = data.indexOf(MATCH_FILE, pos);
         while( examining && fileIndex >=0 ){
@@ -189,8 +182,8 @@ public class CvsListCommand extends AbstractListCommand {
             pos = endFileIndex;
             fileIndex = data.indexOf(MATCH_FILE, pos);
             if (examIndex > 0 && examIndex < fileIndex) {
-                examining = furtherExamining(data, examIndex += examiningStr.length());
-                examIndex = data.indexOf(examiningStr, examIndex);
+                examining = furtherExamining(data, examIndex += EXAMINING_STR.length());
+                examIndex = data.indexOf(EXAMINING_STR, examIndex);
             }
         }
     }

@@ -17,6 +17,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import org.openide.ErrorManager;
 
 import org.openide.util.RequestProcessor;
 
@@ -35,7 +36,7 @@ import org.netbeans.modules.vcscore.util.*;
  *
  * @author  Martin Entlicher
  */
-public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implements CommandDataOutputListener {
+public class CvsListRecursiveCommand extends VcsListRecursiveCommand implements CommandDataOutputListener {
 
     private static final String ATTIC = "Attic"; // NOI18N
     private static final String[] EMPTY_DIR = {""}; // NOI18N
@@ -54,8 +55,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
 
     private boolean shouldFail = false;
 
-    private StringBuffer statusDataBuffer=new StringBuffer(4096);
-    private StringBuffer logDataBuffer=new StringBuffer(4096);
     private CommandOutputListener stdoutNRListener = null;
     private CommandOutputListener stderrNRListener = null;
     private CommandDataOutputListener stdoutListener = null;
@@ -63,8 +62,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
 
     private String dataRegex = null;
     private String errorRegex = null;
-    //private String input = null;
-    private Vector examiningPaths = new Vector();
     private Hashtable workReposPaths = new Hashtable();
     private int fsRootPathLength = 0;
     private String lastPathConverted = null;
@@ -73,6 +70,8 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
     private HashMap unknownPathFiles = new HashMap();
     private VcsFileSystem fileSystem = null;
     private Pattern[] absoluteRepositoryRegexs;
+    /** The container of all files by their names */
+    private VcsDirContainer filesByNameCont;
     
     /** Creates new CvsListRecursiveCommand */
     public CvsListRecursiveCommand() {
@@ -87,23 +86,18 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         }
     }
 
-    private void initVars(Hashtable vars/*, String[] args*/) {
-        //this.cmd = VcsUtilities.array2string(args);
-
+    private void initVars(Hashtable vars) {
         this.rootDir = (String) vars.get("ROOTDIR"); // NOI18N
         if (this.rootDir == null) {
             this.rootDir = "."; // NOI18N
-            //vars.put("ROOTDIR","."); // NOI18N
         }
         this.cvsRepository = (String) vars.get("CVS_REPOSITORY");
         if (this.cvsRepository == null) {
             this.cvsRepository = "";
         }
-        //cvsRepository = cvsRepository.replace('\\', '/');
         this.dir = (String) vars.get("DIR"); // NOI18N
         if (this.dir == null) {
             this.dir = ""; // NOI18N
-            //vars.put("DIR","."); // NOI18N
         }
         String commonParent = (String) vars.get("COMMON_PARENT");
         if (commonParent != null && commonParent.length() > 0) {
@@ -154,8 +148,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         if (dataRegex != null) this.dataRegex = dataRegex;
         String errorRegex = (String) vars.get("ERRORREGEX"); // NOI18N
         if (errorRegex != null) this.errorRegex = errorRegex;
-        //this.input = (String) vars.get("INPUT"); // NOI18N
-        //if (this.input == null) this.input = "Cancel/n"; // NOI18N
     }
 
     public void setFileSystem(VcsFileSystem fileSystem) {
@@ -220,54 +212,12 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
     
     //-----------------------------------
     private VcsCommandExecutor runStatusCommand(Hashtable vars, String cmdName) {
-        //String prepared = Variables.expand(vars, cmd, true);
-
         VcsCommand cmd = fileSystem.getCommand(cmdName);
-        /*
-        UserCommand cmd = new UserCommand();
-        cmd.setName("LIST_SUB_CMD");
-        cmd.setProperty(VcsCommand.PROPERTY_EXEC, prepared);
-        cmd.setProperty(UserCommand.PROPERTY_DATA_REGEX, dataRegex);
-        cmd.setProperty(UserCommand.PROPERTY_ERROR_REGEX, errorRegex);
-        // The user should be warned by the wrapper class and not the command itself.
-        cmd.setProperty(VcsCommand.PROPERTY_IGNORE_FAIL, Boolean.TRUE);
-         */
         VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
-        ec.addDataOutputListener(new CommandDataOutputListener() {
-            public void outputData(String[] elements) {
-                statusDataBuffer.append(elements[0]+"\n"); // NOI18N
-            }
-        });
-        ec.addDataErrorOutputListener(new CommandDataOutputListener() {
-                                          public void outputData(String[] elements) {
-                                              if (elements[0] == null || elements[0].length() == 0) return;
-                                              int index = -1;
-                                              for(int i = 0; i < CvsListCommand.EXAMINING_STRS.length; i++) {
-                                                  index = elements[0].indexOf(CvsListCommand.EXAMINING_STRS[i]);
-                                                  if (index >= 0) {
-                                                      index += CvsListCommand.EXAMINING_STRS[i].length();
-                                                      break;
-                                                  }
-                                              }
-                                              if (index >= 0) {
-                                                  while (index < elements[0].length() && Character.isWhitespace(elements[0].charAt(index))) index++;
-                                                  String path = elements[0].substring(index);
-                                                  if (path.equals(".")) path = "";
-                                                  examiningPaths.add(path);
-                                              }
-                                          }
-        });
-        //ec.addOutputListener(stdoutNRListener);
+        ec.addDataOutputListener(this);
         ec.addErrorOutputListener(stderrNRListener);
         fileSystem.getCommandsPool().startExecutor(ec, fileSystem);
         return ec;
-        /*
-        fileSystem.getCommandsPool().waitToFinish(ec);
-        if (ec.getExitStatus() != VcsCommandExecutor.SUCCEEDED) {
-            //E.err("exec failed "+ec.getExitStatus());
-            shouldFail = true;
-        }
-         */
     }
 
     private VcsCommandExecutor runLogCommand(Hashtable vars, String cmdName) {
@@ -275,7 +225,8 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         ec.addDataOutputListener(new CommandDataOutputListener() {
             public void outputData(String[] elements) {
-                logDataBuffer.append(elements[0]+"\n"); // NOI18N
+                outputLogLine(elements[0]);
+                //logDataBuffer.append(elements[0]+"\n"); // NOI18N
             }
         });
         ec.addErrorOutputListener(stderrNRListener);
@@ -288,22 +239,15 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
      * @param data the output data
      * @param index the index to the file information
      */
-    private String[] getFilePaths(String data, int index, String fileName) {
-        int begin = index;
-        while(Character.isWhitespace(data.charAt(begin))) begin++; // skip the space
-        while(!Character.isWhitespace(data.charAt(begin))) begin++; // skip the revision number
-        while(Character.isWhitespace(data.charAt(begin))) begin++; // skip the space
-        int end = data.indexOf('\n', begin);
-        if (end < 0) return null;
-        String path = data.substring(begin, end);
-        int nameIndex = path.lastIndexOf('/');
+    private String[] getFilePaths(String repositoryPath, String fileName) {
+        int nameIndex = repositoryPath.lastIndexOf('/');
         if (nameIndex < 0) return null;
         if (nameIndex == 0) return (cvsRepository.length() > 0) ? null : EMPTY_DIR;
-        path = path.substring(0, nameIndex); //.replace('\\', '/'); // Because of Windoze unexpectable behavior
-        if (path.endsWith(ATTIC)) path = path.substring(0, path.length() - ATTIC.length() - 1);
-        index = path.indexOf(cvsRepository/*+relMount*/);
+        repositoryPath = repositoryPath.substring(0, nameIndex); //.replace('\\', '/'); // Because of Windoze unexpectable behavior
+        if (repositoryPath.endsWith(ATTIC)) repositoryPath = repositoryPath.substring(0, repositoryPath.length() - ATTIC.length() - 1);
+        int index = repositoryPath.indexOf(cvsRepository);
         if (index < 0) return null;
-        if (path.length() <= cvsRepository.length())
+        if (repositoryPath.length() <= cvsRepository.length())
             return EMPTY_DIR;
         else {
             //path = path.substring(index + cvsRepository.length() + 1);
@@ -312,7 +256,7 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
             while (keysIt.hasNext()) {
                 String workPath = (String) keysIt.next();
                 String repPath = (String) workReposPaths.get(workPath);
-                if (path.equals(repPath)) {
+                if (repositoryPath.equals(repPath)) {
                     myWorkings.add(workPath);
                 }
             }
@@ -320,230 +264,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         }
     }
 
-    
-    /**
-     * Get files and their statuses from the command output.
-     * @param filesByNameCont the container of files.
-     */
-    private void fillHashtableFromStatus(VcsDirContainer filesByNameCont) {
-        String data=new String(statusDataBuffer);
-        Hashtable filesByName = new Hashtable();
-        VcsDirContainer filesByNameContPath = filesByNameCont;
-        String last_filePath = filesByNameContPath.getPath();
-        int pos=0;
-        /* I expect file listing in the form: File: <filename> Status: <status>
-         * Followed by Repository Revision: <revision path>
-         * I suppose that revision path is the same as the working path.
-         * (Regex ^(File:.*Status:.*$)|(Repository Revision.*)) 
-         */
-        filesByNameCont.setPath(dirPath);
-        filesByNameCont.setElement(filesByName);
-        while(pos < data.length()) {
-            //int examIndex = getExaminingInfo(data, pos);
-            int fileIndex = data.indexOf(CvsListCommand.MATCH_FILE, pos);
-            int statusIndex = data.indexOf(CvsListCommand.MATCH_STATUS, pos);
-            if (fileIndex < 0 || statusIndex < 0) {
-                pos = data.length();
-                continue;
-            }
-            int endFileIndex = data.indexOf(CvsListCommand.FILE_SEPARATOR, statusIndex);
-            if (endFileIndex < 0) endFileIndex = data.length() - 1;
-            int nextIndex=data.indexOf("\n",statusIndex); // NOI18N
-            if (nextIndex < 0) {
-                nextIndex = data.length()-1;
-            }
-            fileIndex += CvsListCommand.MATCH_FILE.length();
-            String fileName=data.substring(fileIndex,statusIndex).trim();
-            int i=-1;
-            if( (i=fileName.indexOf("no file")) >=0  ){ // NOI18N
-                fileName=fileName.substring(i+7).trim();
-            }
-            int[] index = new int[] { statusIndex };
-            String fileStatus = CvsListCommand.getAttribute(data, CvsListCommand.MATCH_STATUS, index);
-            if (fileStatus == null) {
-                fileStatus = CvsListCommand.STATUS_UNKNOWN;
-            }
-            String fileRevision = CvsListCommand.getAttribute(data, CvsListCommand.MATCH_REVISION, index);
-            String fileDate = "";
-            String fileTime = "";
-            if (fileRevision == null) {
-                fileRevision = "";
-            } else {
-                String revInfo = fileRevision;
-                int endRevIndex = fileRevision.indexOf(" ");
-                int endRevIndex1 = fileRevision.indexOf("\t");
-                if (endRevIndex1 >= 0 && endRevIndex1 < endRevIndex) endRevIndex = endRevIndex1;
-                if (endRevIndex < 0) endRevIndex = revInfo.length();
-                fileRevision = revInfo.substring(0, endRevIndex);
-                revInfo = revInfo.substring(endRevIndex).trim();
-            }
-            String fileStickyTag = CvsListCommand.getAttribute(data, CvsListCommand.MATCH_STICKY_TAG, index);
-            if (fileStickyTag == null || index[0] > endFileIndex
-                || CvsListCommand.STICKY_NONE.equals(fileStickyTag)) fileStickyTag = "";
-            else {
-                int spaceIndex = fileStickyTag.indexOf(" ");
-                if (spaceIndex > 0) fileStickyTag = fileStickyTag.substring(0, spaceIndex);
-            }
-            String fileStickyDate = CvsListCommand.getAttribute(data, CvsListCommand.MATCH_STICKY_DATE, index);
-            if (fileStickyDate == null || index[0] > endFileIndex
-                || CvsListCommand.STICKY_NONE.equals(fileStickyDate)) fileStickyDate = "";
-            String fileSticky = (fileStickyTag + " " + fileStickyDate).trim();
-            int repositoryIndex = data.indexOf(MATCH_REPOSITORY_REVISION, statusIndex);
-            if (repositoryIndex < 0) {
-                pos = data.length();
-                continue;
-            }
-            repositoryIndex += MATCH_REPOSITORY_REVISION.length();
-            String[] filePaths = getFilePaths(data, repositoryIndex, fileName);
-            //System.out.println("fillHashtable(): have filePaths = "+VcsUtilities.arrayToString(filePaths));
-            if (filePaths != null && (filePaths.length > 1 || (filePaths.length == 1 && !filePaths[0].equals(last_filePath)))) {
-                int len = filePaths.length;
-                for(int j = 0; j < len; j++) {
-                    VcsDirContainer parent = filesByNameCont.getParent(filePaths[j]);
-                    if (parent != null) filesByNameContPath = parent.addSubdir(filePaths[j]);
-                    else filesByNameContPath = filesByNameCont.addSubdirRecursive(filePaths[j]);
-                    if (filesByNameContPath == null) continue;
-                    addDirName(filePaths[j], filesByNameCont);
-                    filesByName = (Hashtable) filesByNameContPath.getElement();
-                    if (filesByName == null) {
-                        filesByName = new Hashtable();
-                        filesByNameContPath.setElement(filesByName);
-                    }
-                    //System.out.println("created new Container with path: "+filePaths[j]);
-                    String[] fileStatuses = new String[7];
-                    fileStatuses[0] = fileName;
-                    fileStatuses[1] = fileStatus;
-                    fileStatuses[2] = fileRevision;
-                    fileStatuses[3] = fileTime;
-                    fileStatuses[4] = fileDate;
-                    fileStatuses[5] = fileSticky;
-                    fileStatuses[6] = ""; // the locker will be filled in fillHashtableFromLog()
-                    filesByName.put(fileName, fileStatuses);
-                    if (stdoutListener != null) stdoutListener.outputData(fileStatuses);
-                }
-                if (len == 1) last_filePath = filePaths[0];
-            } else if (filePaths != null) {
-                String[] fileStatuses = new String[7];
-                fileStatuses[0] = fileName;
-                fileStatuses[1] = fileStatus;
-                fileStatuses[2] = fileRevision;
-                fileStatuses[3] = fileTime;
-                fileStatuses[4] = fileDate;
-                fileStatuses[5] = fileSticky;
-                fileStatuses[6] = ""; // the locker will be filled in fillHashtableFromLog()
-                //System.out.println("put("+fileName+", "+fileStatus+")");
-                filesByName.put(fileName, fileStatuses);
-                if (stdoutListener != null) stdoutListener.outputData(fileStatuses);
-            } else { // the file path was not found (e.g. Locally Added)
-                String[] fileStatuses = new String[7];
-                fileStatuses[0] = fileName;
-                fileStatuses[1] = fileStatus;
-                fileStatuses[2] = fileRevision;
-                fileStatuses[3] = fileTime;
-                fileStatuses[4] = fileDate;
-                fileStatuses[5] = fileSticky;
-                fileStatuses[6] = ""; // the locker will be filled in fillHashtableFromLog()
-                HashSet unknownFiles = (HashSet) unknownPathFiles.get(fileName);
-                if (unknownFiles == null) {
-                    unknownFiles = new HashSet();
-                    unknownPathFiles.put(fileName, unknownFiles);
-                }
-                unknownFiles.add(fileStatuses);
-                //System.out.println("UnknownFile: "+VcsUtilities.arrayToQuotedStrings(fileStatuses));
-            }
-            pos = repositoryIndex;
-        }
-    }
-
-    /**
-     * Get files and their statuses from the log command output.
-     * @param filesByNameCont the container of files.
-     */
-    private void fillHashtableFromLog(VcsDirContainer filesByNameCont) {
-        String data = new String(logDataBuffer);
-        Hashtable filesByName = new Hashtable();
-        int pos=0;
-        String last_filePath = "";
-        VcsDirContainer filesByNameContPath = filesByNameCont;
-        while(pos < data.length()) {
-            //int examIndex = getExaminingInfo(data, pos);
-            int fileIndex = data.indexOf(CvsListCommand.LOG_WORKING_FILE, pos);
-            if (fileIndex < 0) {
-                pos = data.length();
-                continue;
-            }
-            fileIndex += CvsListCommand.LOG_WORKING_FILE.length();
-            int eolIndex = data.indexOf('\n', fileIndex);
-            if (eolIndex < 0) break;
-            String fileFullPath = data.substring(fileIndex, eolIndex).trim();
-            String filePath;
-            String fileName;
-            int index = fileFullPath.lastIndexOf('/');
-            if (index < 0) {
-                filePath = "";
-                fileName = fileFullPath;
-            } else {
-                filePath = fileFullPath.substring(0, index);
-                fileName = fileFullPath.substring(index + 1);
-            }
-            //StringTokenizer pathTokens = new StringTokenizer(fileName, "/");
-            //String[] filePaths = new String[pathTokens.countTokens() - 1];
-            //for (int i = 0; i < filePaths.length && pathTokens.hasMoreTokens(); i++) {
-            //    filePaths[i] = pathTokens.nextToken();
-            //}
-            //String fileName = pathTokens.nextToken();
-            if (!filePath.equals(last_filePath)) {//filePaths.length > 1 || (filePaths.length == 1 && !filePaths[0].equals(last_filePath))) {
-                //int len = filePaths.length;
-                //for(int j = 0; j < len; j++) {
-                VcsDirContainer parent = filesByNameCont.getParent(filePath);
-                if (parent != null) filesByNameContPath = parent.addSubdir(filePath);
-                else filesByNameContPath = filesByNameCont.addSubdirRecursive(filePath);
-                if (filesByNameContPath == null) continue;
-                addDirName(filePath, filesByNameCont);
-                filesByName = (Hashtable) filesByNameContPath.getElement();
-                if (filesByName == null) {
-                    filesByName = new Hashtable();
-                    filesByNameContPath.setElement(filesByName);
-                }
-            }
-            //System.out.println("created new Container with path: "+filePaths[j]);
-            String[] fileStatuses = (String[]) filesByName.get(fileName);
-            if (fileStatuses == null) {
-                fileStatuses = new String[7];
-                fileStatuses[0] = fileName;
-                fileStatuses[1] = Statuses.STATUS_DEAD;
-                filesByName.put(fileName, fileStatuses);
-            }
-            pos = eolIndex;
-            String revision = fileStatuses[2];
-            if (revision != null && revision.length() > 0) {
-                String lockers = "";
-                int lockIndex = data.indexOf(CvsListCommand.LOG_LOCKS, pos);
-                if (lockIndex > 0) {
-                    pos = lockIndex;
-                    int lockerIndex;
-                    eolIndex = data.indexOf('\n', lockIndex);
-                    while(eolIndex > 0 && (lockerIndex = data.indexOf('\t', eolIndex)) == eolIndex + 1) {
-                        eolIndex = data.indexOf('\n', lockerIndex);
-                        if (eolIndex < 0) break;
-                        String locker = data.substring(lockerIndex, eolIndex).trim();
-                        int lockedRevisionIndex = locker.indexOf(':');
-                        if (lockedRevisionIndex < 0) {
-                            lockers += ((lockers.length() > 0) ? ", " : "") + locker;
-                        } else {
-                            String lockedRevision = locker.substring(lockedRevisionIndex + 1).trim();
-                            if (revision.equals(lockedRevision)) {
-                                locker = locker.substring(0, lockedRevisionIndex).trim();
-                                lockers += ((lockers.length() > 0) ? ", " : "") + locker;
-                            }
-                        }
-                    }
-                }
-                fileStatuses[6] = lockers;
-            }
-            if (stdoutListener != null) stdoutListener.outputData(fileStatuses);
-        }
-    }
     
     /**
      * Add the directory name to the proper container. Process the directory path recursively if necessary.
@@ -677,74 +397,276 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         this.stderrListener = stderrListener;
         this.dataRegex = dataRegex;
         this.errorRegex = errorRegex;
+        this.filesByNameCont = filesByNameCont;
         if (args.length < 2) {
             stderrNRListener.outputLine("Expecting two commands as arguments!"); //NOI18N
             return false;
         }
         String statusCmd = args[0];
         String logCmd = args[1];
-        initVars(vars);//, args);
-        /*
-        this.filesByNameCont = filesByNameCont;
-        this.filesByNameContPath = filesByNameCont;
-        this.filesByName = new Hashtable();
-        */
-        //getModulesPaths(vars);
-        //Thread reposPathThread = new Thread("CVS_LIST_SUB_Repositories_Retrieval") { // NOI18N
+        initVars(vars);
 
-        // TODO My assumtion is that this method can be run concurently
-        // from multiple threads. Otherwise please assert it!
-        // FIXME Anyway this class is NOT properly synchronized
-        RequestProcessor.Task reposPathTask = RequestProcessor.getDefault().post(new Runnable() {
-            public void run() {
+        // Call getRepositoryPaths only on JDK 1.4 where we do not
+        // have the error stream merged in and therefore do not know the file paths.
+        // Also check which client is used, built-in can merge the streams everytime.
+        if (System.getProperty("java.version").startsWith("1.4")) { // NOI18N
+            String builtIn = (String) vars.get("BUILT-IN"); // NOI18N
+            if (builtIn == null || builtIn.length() == 0) {
                 getRepositoryPaths(new File(dir));
             }
-        });
-        //reposPathThread.start();
+        }
+        boolean interrupted = false;
         VcsCommandExecutor statusExecutor = runStatusCommand(vars, statusCmd);
+        try {
+            fileSystem.getCommandsPool().waitToFinish(statusExecutor);
+        } catch (InterruptedException iexc) {
+            fileSystem.getCommandsPool().kill(statusExecutor);
+            interrupted = true;
+            shouldFail = true;
+        }
+        flushLastFile();
+        if (statusExecutor.getExitStatus() != VcsCommandExecutor.SUCCEEDED) {
+            shouldFail = true;
+        }
         VcsCommandExecutor logExecutor = null;
         String showDeadFilesValue = (String) vars.get(Variables.SHOW_DEAD_FILES);
         boolean showDeadFiles = (showDeadFilesValue != null) && (showDeadFilesValue.length() > 0);
-        boolean interrupted = false;
-        if (showDeadFiles) {
+        if (!shouldFail && showDeadFiles) {
             logExecutor = runLogCommand(vars, logCmd);
             try {
                 fileSystem.getCommandsPool().waitToFinish(logExecutor);
             } catch (InterruptedException iexc) {
                 fileSystem.getCommandsPool().kill(logExecutor);
                 interrupted = true;
+                shouldFail = true;
             }
         }
-        try {
-            fileSystem.getCommandsPool().waitToFinish(statusExecutor);
-        } catch (InterruptedException iexc) {
-            fileSystem.getCommandsPool().kill(statusExecutor);
-            interrupted = true;
-        }
-        if (interrupted) {
-            shouldFail = true;
-        } else if (statusExecutor.getExitStatus() != VcsCommandExecutor.SUCCEEDED ||
-            (logExecutor != null && logExecutor.getExitStatus() != VcsCommandExecutor.SUCCEEDED)) {
-            //E.err("exec failed "+ec.getExitStatus());
+        if (logExecutor != null && logExecutor.getExitStatus() != VcsCommandExecutor.SUCCEEDED) {
             shouldFail = true;
         }
-
-        if (!interrupted) {
-            //try {
-                reposPathTask.waitFinished(); // THE PROCESS CAN NOT BE KILLED HERE!
-                //reposPathThread.join();
-            //} catch (InterruptedException intrexc) {
-                // Ignore, what can I do.
-            //}
-        } else {
-            reposPathTask.cancel();
-            //reposPathThread.interrupt();
-        }
-        /*if (!shouldFail)*/ fillHashtableFromStatus(filesByNameCont);
-        fillHashtableFromLog(filesByNameCont);
         addLocalFolders(filesByNameCont);
-        //addLocalFiles(dir, filesByNameCont);
         return !shouldFail;
     }
+    
+    /** The map of files by name in the directory currently being processed. */
+    private Hashtable lastFilesByName;
+    private String lastFileName;
+    private String lastStatus;
+    private String lastRevision;
+    private String lastSticky;
+    private boolean haveExaminingPaths = false;
+    
+    /**
+     * Output from status.
+     */
+    public void outputData(String[] elements) {
+        if (elements == null || elements.length == 0) return ;
+        String line = elements[0].trim();
+        int examiningIndex = line.indexOf(CvsListCommand.EXAMINING_STR);
+        if (examiningIndex >= 0) {
+            flushLastFile();
+            String path;
+            String relativeDirectory = line.substring(examiningIndex + CvsListCommand.EXAMINING_STR.length()).trim();
+            if (".".equals(relativeDirectory)) {
+                path = dirPath;
+            } else {
+                path = dirPath + "/" + relativeDirectory;
+            }
+            VcsDirContainer filesByNameContDir = filesByNameCont.getContainerWithPath(path);
+            if (filesByNameContDir == null) {
+                filesByNameContDir = filesByNameCont.addSubdirRecursive(path);
+            }
+            if (filesByNameContDir == null) {
+                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "CvsListRecursiveCommand: Bad path encountered: '"+path+"', line = "+line);
+                return ;
+            }
+            if (path != dirPath) addDirName(path, filesByNameCont);
+            Hashtable filesByName = (Hashtable) filesByNameContDir.getElement();
+            if (filesByName == null) {
+                filesByName = new Hashtable();
+                filesByNameContDir.setElement(filesByName);
+            }
+            lastFilesByName = filesByName;
+            haveExaminingPaths = true;
+            assert path.equals(filesByNameContDir.getPath()) : "Path = '"+path+"', filesByNameContDir.getPath() = '"+filesByNameContDir.getPath()+"'";
+        }
+        else if (line.startsWith(CvsListCommand.MATCH_FILE)) {
+            flushLastFile();
+            int statusIndex = line.indexOf(CvsListCommand.MATCH_STATUS);
+            if (statusIndex < 0) {
+                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "CvsListRecursiveCommand: A false File: & Status: line encountered: '"+line+"'");
+                return ;
+            }
+            String fileName = line.substring(CvsListCommand.MATCH_FILE.length(), statusIndex).trim();
+            String status = line.substring(statusIndex + CvsListCommand.MATCH_STATUS.length()).trim().intern();
+            int i;
+            if ((i = fileName.indexOf("no file")) >= 0) { // NOI18N
+                fileName = fileName.substring(i+7).trim();
+            }
+            lastFileName = fileName;
+            lastStatus = status;
+        }
+        else if (line.startsWith(CvsListCommand.MATCH_REVISION)) {
+            lastRevision = line.substring(CvsListCommand.MATCH_REVISION.length()).trim().intern();
+        }
+        else if (!haveExaminingPaths && line.startsWith(MATCH_REPOSITORY_REVISION)) {
+            int repositoryIndex = MATCH_REPOSITORY_REVISION.length();
+            while(Character.isWhitespace(line.charAt(repositoryIndex))) repositoryIndex++; // skip the space
+            while(!Character.isWhitespace(line.charAt(repositoryIndex))) repositoryIndex++; // skip the revision number
+            while(Character.isWhitespace(line.charAt(repositoryIndex))) repositoryIndex++; // skip the space
+            String repositoryPath = line.substring(repositoryIndex);
+            String[] filePaths = getFilePaths(repositoryPath, lastFileName);
+            lastFilesByName = guessRightLastContainer(filePaths);
+        }
+        else if (line.startsWith(CvsListCommand.MATCH_STICKY_TAG)) {
+            String stickyTag = line.substring(CvsListCommand.MATCH_STICKY_TAG.length()).trim();
+            if (CvsListCommand.STICKY_NONE.equals(stickyTag)) stickyTag = ""; // NOI18N
+            lastSticky = stickyTag.intern();
+        }
+        else if (line.startsWith(CvsListCommand.MATCH_STICKY_DATE)) {
+            String stickyDate = line.substring(CvsListCommand.MATCH_STICKY_DATE.length()).trim();
+            if (CvsListCommand.STICKY_NONE.equals(stickyDate)) stickyDate = ""; // NOI18N
+            if (lastSticky.length() != 0 && stickyDate.length() != 0) {
+                lastSticky = (lastSticky + " " + stickyDate).intern();
+            } else if (stickyDate.length() != 0) {
+                lastSticky = stickyDate.intern();
+            }
+        }
+    }
+    
+    private String last_filePath;
+    
+    /** Guess the appropriate container for one of the file paths.
+     * @return the element (filesByName) of the container guessed. */
+    private Hashtable guessRightLastContainer(String[] filePaths) {
+        Hashtable filesByName = null;
+        if (filePaths != null && filePaths.length == 1 && filePaths[0].equals(last_filePath)) {
+            return lastFilesByName;
+        }
+        if (filePaths != null) {
+            int len = filePaths.length;
+            for(int j = 0; j < len; j++) {
+                VcsDirContainer parent = filesByNameCont.getParent(filePaths[j]);
+                VcsDirContainer filesByNameContPath;
+                if (parent != null) filesByNameContPath = parent.addSubdir(filePaths[j]);
+                else filesByNameContPath = filesByNameCont.addSubdirRecursive(filePaths[j]);
+                if (filesByNameContPath == null) continue;
+                addDirName(filePaths[j], filesByNameCont);
+                filesByName = (Hashtable) filesByNameContPath.getElement();
+                if (filesByName == null) {
+                    filesByName = new Hashtable();
+                    filesByNameContPath.setElement(filesByName);
+                }
+            }
+            if (len == 1) last_filePath = filePaths[0];
+        } else { // the file path was not found (e.g. Locally Added)
+            String[] fileStatuses = new String[7];
+            fileStatuses[0] = lastFileName;
+            fileStatuses[1] = lastStatus;
+            fileStatuses[2] = lastRevision;
+            fileStatuses[3] = "";
+            fileStatuses[4] = "";
+            fileStatuses[5] = lastSticky;
+            fileStatuses[6] = ""; // the locker will be filled in fillHashtableFromLog()
+            HashSet unknownFiles = (HashSet) unknownPathFiles.get(lastFileName);
+            if (unknownFiles == null) {
+                unknownFiles = new HashSet();
+                unknownPathFiles.put(lastFileName, unknownFiles);
+            }
+            unknownFiles.add(fileStatuses);
+        }
+        return filesByName;
+    }
 
+    private void flushLastFile() {
+        if (lastFilesByName != null && lastFileName != null) {
+            String[] fileStatuses = new String[7];
+            fileStatuses[0] = lastFileName;
+            fileStatuses[1] = lastStatus;
+            fileStatuses[2] = lastRevision;
+            fileStatuses[3] = ""; // No Time
+            fileStatuses[4] = ""; // No Date
+            fileStatuses[5] = lastSticky;
+            fileStatuses[6] = ""; // the locker will be filled in fillHashtableFromLog()
+            lastFilesByName.put(lastFileName, fileStatuses);
+            if (stdoutListener != null) stdoutListener.outputData(fileStatuses);
+            lastFileName = null;
+            //System.out.println("  Flushing "+java.util.Arrays.asList(fileStatuses));
+        }
+    }
+    
+    private String[] lastLogFileStatuses;
+    private boolean logReadingLocks;
+    private StringBuffer lastLocks = new StringBuffer();
+    
+    /** The line from cvs log */
+    private void outputLogLine(String line) {
+        if (line.startsWith(CvsListCommand.LOG_WORKING_FILE)) {
+            String filePath = line.substring(CvsListCommand.LOG_WORKING_FILE.length()).trim();
+            int index = filePath.lastIndexOf('/');
+            if (index < 0) {
+                index = filePath.lastIndexOf('\\');
+            }
+            String path;
+            String fileName;
+            if (index > 0) {
+                path = filePath.substring(0, index);
+                fileName = filePath.substring(index + 1);
+            } else {
+                path = "";
+                fileName = filePath;
+            }
+            VcsDirContainer filesByNameContDir = filesByNameCont.getParent(path);
+            if (filesByNameContDir != null) {
+                Hashtable filesByName = (Hashtable) filesByNameContDir.getElement();
+                if (filesByName != null) {
+                    String[] fileStatuses = (String[]) filesByName.get(fileName);
+                    if (fileStatuses == null) {
+                        fileStatuses = new String[7];
+                        fileStatuses[0] = fileName;
+                        fileStatuses[1] = Statuses.STATUS_DEAD;
+                        filesByName.put(fileName, fileStatuses);
+                    }
+                    lastLogFileStatuses = fileStatuses;
+                }
+            }
+        } else if (line.startsWith(CvsListCommand.LOG_LOCKS)) {
+            logReadingLocks = true;
+        } else if (logReadingLocks) {
+            if (line.length() > 0 && Character.isWhitespace(line.charAt(0))) {
+                lastLocks.append(line.trim() + "\n");
+            } else {
+                if (lastLogFileStatuses != null && lastLocks.length() > 0) {
+                    lastLogFileStatuses[6] = getLockers(lastLocks.toString(), lastLogFileStatuses[2]);
+                    lastLocks.delete(0, lastLocks.length());
+                }
+                logReadingLocks = false;
+                lastLogFileStatuses = null;
+            }
+        }
+    }
+    
+    private String getLockers(String data, String revision) {
+        String lockers = "";
+        int pos = 0;
+        int lockerIndex;
+        int eolIndex = data.indexOf('\n');
+        while(eolIndex > 0 && (lockerIndex = data.indexOf('\t', eolIndex)) == eolIndex + 1) {
+            eolIndex = data.indexOf('\n', lockerIndex);
+            if (eolIndex < 0) break;
+            String locker = data.substring(lockerIndex, eolIndex).trim();
+            int lockedRevisionIndex = locker.indexOf(':');
+            if (lockedRevisionIndex < 0) {
+                lockers += ((lockers.length() > 0) ? ", " : "") + locker;
+            } else {
+                String lockedRevision = locker.substring(lockedRevisionIndex + 1).trim();
+                if (revision.equals(lockedRevision)) {
+                    locker = locker.substring(0, lockedRevisionIndex).trim();
+                    lockers += ((lockers.length() > 0) ? ", " : "") + locker;
+                }
+            }
+        }
+        return lockers;
+    }
+    
 }

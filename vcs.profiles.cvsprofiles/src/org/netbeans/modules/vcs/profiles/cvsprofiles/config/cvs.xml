@@ -719,10 +719,13 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="exec">
 	  <value>${CDW_EXECUTE} -f status -R ${NUR}</value>
 	</property>
+        <property name="mergeOutputStreams">
+          <value>true</value>
+        </property>
       </command>
       <command name="LIST_SUB_LOG_CMD">
 	<property name="exec">
-	  <value>${CDW_EXECUTE} -f log -h ${NUR}</value>
+	  <value>${CDW_EXECUTE} -f log -h -N ${NUR}</value>
 	</property>
       </command>
       <separator />
