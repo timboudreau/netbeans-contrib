@@ -1276,7 +1276,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private void updateAdvancedConfig() {
         advancedModeCheckBox.setSelected(fileSystem.isExpertMode());
-        debugCheckBox.setSelected(fileSystem.isDefault());
+        debugCheckBox.setSelected(fileSystem.getDebug());
         editCheckBox.setSelected(fileSystem.isCallEditFilesOn());
         promptEditCheckBox.setSelected(fileSystem.isPromptForEditOn());
         promptEditCheckBox.setEnabled(editCheckBox.isSelected());
