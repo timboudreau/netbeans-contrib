@@ -249,8 +249,8 @@ public final class ContentDiff extends Object {
         private String name;
         /** added, removed or changed */
         private Boolean added;
-        /** how much this page changed */
-        private float change = -1;
+        /** how much this page changed in % */
+        private int change = -1;
         
         Page (String name) {
             this.name = name;
@@ -311,22 +311,26 @@ public final class ContentDiff extends Object {
             r1.close ();
             r2.close ();
             
-            if (change < 0.0) {
-                change = ((float)diff) / ((float)len);
+            if (change == -1) {
+                if (len == 0) {
+                    change = 0;
+                } else {
+                    change = diff * 100 / len;
+                }
             }
         }
         
         /** Getter for the % of diffs in old and new version. It is wiser, 
          * but not necessary, to call {@link #writeDiff} first.
          *
-         * @return value from 0.0 to 1.0
+         * @return value from 0 to 100
          */
-        public float getChanged () {
+        public int getChanged () {
             if (added != null) {
-                return 1.0f;
+                return 100;
             }
             
-            if (change < 0.0) {
+            if (change == -1) {
                 // this method computes the change
                 try {
                     writeDiff (new StringWriter ());
@@ -334,7 +338,7 @@ public final class ContentDiff extends Object {
                     org.openide.ErrorManager.getDefault ().notify (ex);
                 }
             }
-            return change < 0.0 ? 0.0f : change;
+            return change == -1 ? 0 : change;
         }
         
     } // end of Page
