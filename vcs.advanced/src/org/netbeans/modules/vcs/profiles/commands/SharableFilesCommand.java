@@ -87,10 +87,10 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
             }
             int sharability = SharabilityQuery.getSharability(file);
             //System.out.println("  collectSharableSubfiles(): name '"+name+"' sharability = "+sharability);
-            if (sharability == SharabilityQuery.SHARABLE) {
+            if (sharability == SharabilityQuery.SHARABLE || file.isFile() && sharability == SharabilityQuery.UNKNOWN) {
                 sharableFileNames.add(name);
                 //System.out.println("\t\t\tSHARABLE");
-            } else if (sharability == SharabilityQuery.MIXED) {
+            } else if (sharability == SharabilityQuery.MIXED || file.isDirectory() && sharability == SharabilityQuery.UNKNOWN) {
                 //System.out.println("\t\t\tMIXED; fo = "+file);
                 if (intermediateFolders != null) {
                     intermediateFolders.add(name);
@@ -112,10 +112,11 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
         for (int i = 0; i < children.length; i++) {
             String chName = name + children[i].getName();
             int sharability = SharabilityQuery.getSharability(children[i]);
+            boolean isDirectory = children[i].isDirectory();
             //System.out.println("  addSharableSubfiles(): name '"+children[i]+"' sharability = "+sharability);
-            if (sharability == SharabilityQuery.SHARABLE) {
+            if (sharability == SharabilityQuery.SHARABLE || !isDirectory && sharability == SharabilityQuery.UNKNOWN) {
                 sharableFileNames.add(chName);
-            } else if (sharability == SharabilityQuery.MIXED && recursive) {
+            } else if ((sharability == SharabilityQuery.MIXED || isDirectory && sharability == SharabilityQuery.UNKNOWN) && recursive) {
                 if (intermediateFolders != null) {
                     intermediateFolders.add(chName);
                 }
