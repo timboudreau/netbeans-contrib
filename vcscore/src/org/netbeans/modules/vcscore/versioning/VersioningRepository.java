@@ -62,7 +62,7 @@ public final class VersioningRepository extends Object implements java.io.Serial
         names = new Hashtable();
     }
     
-    public static VersioningRepository getRepository() {
+    public static synchronized VersioningRepository getRepository() {
         if (repository == null) {
             initRepository();
         }
@@ -85,9 +85,9 @@ public final class VersioningRepository extends Object implements java.io.Serial
             if (!names.containsKey(systemName)) {
                 verSystems.add(vfs);
                 verSystemsCopy = new ArrayList(verSystems);
-                names.put(systemName, vfs);
                 // mark as a listener on changes in the file system
                 vfs.addPropertyChangeListener (propListener);
+                names.put(systemName, vfs);
                 fireIt = true;
                 vfs.addNotify();
             } else fireIt = false;
@@ -104,9 +104,9 @@ public final class VersioningRepository extends Object implements java.io.Serial
             if (names.containsKey(systemName)) {
                 verSystems.remove(vfs);
                 verSystemsCopy = new ArrayList(verSystems);
+                vfs.removePropertyChangeListener (propListener);
                 names.remove(systemName);
                 fireIt = true;
-                vfs.removePropertyChangeListener (propListener);
                 vfs.removeNotify();
             } else fireIt = false;
         }
@@ -153,7 +153,16 @@ public final class VersioningRepository extends Object implements java.io.Serial
         }
     }
     
-
-    
+    public String toString() {
+        StringBuffer str;
+        synchronized (this) {
+            str = new StringBuffer("VersioningRepository: names = "+names+", names.size() = "+names.size());
+            for (java.util.Iterator it = names.keySet().iterator(); it.hasNext(); ) {
+                String systemName = (String) it.next();
+                str.append("systemName = "+systemName+", filesystem = "+names.get(systemName));
+            }
+        }
+        return str.toString();
+    }
 
 }
