@@ -1559,7 +1559,7 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_ANNOTATE_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Label)))
-                 PROMPT_FOR_EXPERT(SPEC_REVISION, ResourceMsg1(COMMAND_ANNOTATE_Spec_Revision), "", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Spec_Revision);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ANNOTATE_Spec_Revision_mnc)))
+                 PROMPT_FOR_EXPERT(SPEC_REVISION, ResourceMsg1(COMMAND_ANNOTATE_Spec_Revision), "${CACHED_REVISION}", ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Spec_Revision);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ANNOTATE_Spec_Revision_mnc)))
                  PROMPT_FOR_EXPERT(SPEC_DATE, ResourceMsg1(COMMAND_ANNOTATE_Spec_Date), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Spec_Date);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ANNOTATE_Spec_Date_mnc)))
                  ASK_FOR_EXPERT(USE_HEAD, ResourceMsg1(COMMAND_ANNOTATE_Use_Head), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ANNOTATE_Use_Head);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ANNOTATE_Use_Head_mnc)) ,"-f", "")
           </value>
