@@ -26,6 +26,7 @@ import junit.textui.TestRunner;
 import org.netbeans.jellytools.EditorOperator;
 import org.netbeans.jellytools.EditorWindowOperator;
 import org.netbeans.jellytools.NbDialogOperator;
+import org.netbeans.jellytools.TopComponentOperator;
 import org.netbeans.jellytools.modules.vcscore.VCSCommandsOutputOperator;
 import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jemmy.operators.JComboBoxOperator;
@@ -303,10 +304,10 @@ public class JellyAddCommands extends JellyStub {
         }
     }
     
-    public void dumpDiffGraphical (EditorOperator eo) {
-        new JComboBoxOperator (eo).selectItem("Graphical Diff Viewer");
-        JEditorPaneOperator p1 = new JEditorPaneOperator (eo, 0);
-        JEditorPaneOperator p2 = new JEditorPaneOperator (eo, 1);
+    public void dumpDiffGraphical (TopComponentOperator tco) {
+        new JComboBoxOperator (tco).selectItem("Graphical Diff Viewer");
+        JEditorPaneOperator p1 = new JEditorPaneOperator (tco, 0);
+        JEditorPaneOperator p2 = new JEditorPaneOperator (tco, 1);
         out.println ("==== Text - Panel 1 ====");
         out.println (p1.getText ());
         out.println ("==== Text - Panel 2 ====");
@@ -319,17 +320,10 @@ public class JellyAddCommands extends JellyStub {
 //        dumpColors(sd2);
     }
     
-    public void dumpDiffGraphicalTextual (EditorOperator eo) {
-        new JComboBoxOperator (eo).selectItem("Textual Diff Viewer");
-        JEditorPaneOperator p = new JEditorPaneOperator (eo);
+    public void dumpDiffGraphicalTextual (TopComponentOperator tco) {
+        new JComboBoxOperator (tco).selectItem("Textual Diff Viewer");
+        JEditorPaneOperator p = new JEditorPaneOperator (tco);
         out.println (p.getText ());
-    }
-    
-    public void dumpEditors (EditorWindowOperator ewo) {
-        JTabbedPaneOperator tpo = ewo.tbpEditorTabbedPane();
-        info.println ("Editor Tabs: " + tpo.getTabCount());
-        for (int a = 0; a < tpo.getTabCount(); a ++)
-            info.println ("Tab: " + a + " Title: " + tpo.getTitleAt(a));
     }
     
     public void testDefaultDiffGraphical () {
@@ -349,13 +343,12 @@ public class JellyAddCommands extends JellyStub {
         assertTrue("Diff Graphical file command failed", history.waitCommand("Diff Graphical", difffile.history ()));
         
         EditorWindowOperator ewo = new EditorWindowOperator ();
-        dumpEditors (ewo);
-        EditorOperator eo = ewo.getEditor("Diff: " + difffile.name ());
+        TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.1 and 1.2 ==== !!!!");
-            dumpDiffGraphical (eo);
+            dumpDiffGraphical (tco);
         } finally {
-            eo.close();
+            tco.close();
         }
 
         difffile.cvsNode (exp).cVSDiffGraphical();
@@ -366,12 +359,12 @@ public class JellyAddCommands extends JellyStub {
         gr.waitClosed ();
         assertTrue("Diff Graphical file command failed", history.waitCommand("Diff Graphical", difffile.history ()));
         
-        eo = ewo.getEditor("Diff: " + difffile.name ());
+        tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.2 and 1.3 ==== !!!!");
-            dumpDiffGraphical (eo);
+            dumpDiffGraphical (tco);
         } finally {
-            eo.close();
+            tco.close();
         }
 
         compareReferenceFiles();
@@ -387,12 +380,12 @@ public class JellyAddCommands extends JellyStub {
         assertTrue("Diff Graphical file command failed", history.waitCommand("Diff Graphical", difffile.history ()));
         
         EditorWindowOperator ewo = new EditorWindowOperator ();
-        EditorOperator eo = ewo.getEditor("Diff: " + difffile.name ());
+        TopComponentOperator tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.1 and 1.2 ==== !!!!");
-            dumpDiffGraphicalTextual (eo);
+            dumpDiffGraphicalTextual (tco);
         } finally {
-            eo.close();
+            tco.close();
         }
 
         difffile.cvsNode (exp).cVSDiffGraphical();
@@ -403,12 +396,12 @@ public class JellyAddCommands extends JellyStub {
         gr.waitClosed ();
         assertTrue("Diff Graphical file command failed", history.waitCommand("Diff Graphical", difffile.history ()));
         
-        eo = ewo.getEditor("Diff: " + difffile.name ());
+        tco = new TopComponentOperator (ewo, "Diff: " + difffile.name ());
         try {
             out.println ("!!!! ==== Comparing revisions: 1.2 and 1.3 ==== !!!!");
-            dumpDiffGraphicalTextual (eo);
+            dumpDiffGraphicalTextual (tco);
         } finally {
-            eo.close();
+            tco.close();
         }
 
         compareReferenceFiles();
