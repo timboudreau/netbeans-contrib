@@ -14,6 +14,8 @@
 package org.netbeans.modules.tasklist.docscan;
 
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
+import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
+import org.netbeans.modules.tasklist.core.editors.PriorityTableCellRenderer;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.Mnemonics;
@@ -89,7 +91,9 @@ public final class TaskTagsPanel extends javax.swing.JPanel
         combo.addItem(SuggestionPriority.MEDIUM);
         combo.addItem(SuggestionPriority.MEDIUM_LOW);
         combo.addItem(SuggestionPriority.LOW);
+        combo.setRenderer(new PriorityListCellRenderer());
         sportColumn.setCellEditor(new DefaultCellEditor(combo));
+        sportColumn.setCellRenderer(new PriorityTableCellRenderer());
 
         addButton.addActionListener(this);
         changeButton.addActionListener(this);

@@ -30,7 +30,7 @@ public class PriorityListCellRenderer extends DefaultListCellRenderer {
     private static final long serialVersionUID = 1;
 
     private static final String[] TAGS = SuggestionPriority.getPriorityNames();
-    
+
     /**
      * Default colors for diferent priorities
      * [0] - high, [1] - medium-high, ...
@@ -42,17 +42,16 @@ public class PriorityListCellRenderer extends DefaultListCellRenderer {
         new Color(0, 187, 0),
         new Color(0, 128, 0)
     };
-    
+
     public Component getListCellRendererComponent(JList list, Object value,
-    int index, boolean isSelected, boolean cellHasFocus) {
-        super.getListCellRendererComponent(
-            list, value, index, isSelected, cellHasFocus);
-        if (index >= 0) {
-            setText(TAGS[index]);
-            if (!isSelected)
-                setForeground(COLORS[index]);
-        } else {
-            setText((String) value);
+                                                  int index, boolean isSelected, boolean cellHasFocus) {
+        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        if (value instanceof SuggestionPriority) {
+            SuggestionPriority prio = (SuggestionPriority) value;
+            setText(TAGS[prio.intValue() - 1]);
+            if (!isSelected) {
+                setForeground(COLORS[prio.intValue() - 1]);
+            }
         }
         return this;
     }

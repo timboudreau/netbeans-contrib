@@ -74,6 +74,7 @@ final public class SuggestionPriority implements Comparable {
      *  higher priority. Don't depend on the actual values; they may
      *  change without notice. 
      * @return Numeric value for the priority
+     * XXX clients often use as index to getPriorityNames
      */
     public int intValue() {
         return priority;
@@ -99,7 +100,7 @@ final public class SuggestionPriority implements Comparable {
     }
 
     /**
-     * Returns names for priorities
+     * Returns localized names for priorities
      *
      * @return [0] - high, [1] - medium-high, ...
      */
