@@ -1602,7 +1602,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         D.deb("setObject("+bean+")"); // NOI18N
         fileSystem=(CommandLineVcsFileSystem) bean;
 
-        String defaultRoot = VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), getModuleValue ());
+        String defaultRoot = VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), fileSystem.getRelativeMountPoint());
         browseRoot = null;
         try {
             fileSystem.setRootDirectory(new File(defaultRoot));
@@ -1621,7 +1621,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
         rootDirTextField.setText (defaultRoot);
         refreshTextField.setText (""+fileSystem.getCustomRefreshTime ()); // NOI18N
-        String module = getModuleValue();
+        String module = fileSystem.getRelativeMountPoint();
         if (module == null) module = "";
         try {
             fileSystem.setRelativeMountPoint(module);
@@ -1657,18 +1657,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
               configAdvancedByLabel.put (label, backupC);
             }
         */
-    }
-
-    /**
-     * Search for MODULE variable and return its value
-     */
-    private String getModuleValue() {
-        Vector variables = fileSystem.getVariables();
-        for(int i = 0; i < variables.size(); i++) {
-            VcsConfigVariable var = (VcsConfigVariable) variables.get(i);
-            if (var.getName().equals("MODULE")) return var.getValue(); // NOI18N
-        }
-        return null;
     }
 
     private void rootDirChanged () {
@@ -1720,7 +1708,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             });
             //fileSystem.debug(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.canNotChangeWD"));
             //E.err(veto,"setRootDirectory() failed"); // NOI18N
-            rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), getModuleValue ()));
+            rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), fileSystem.getRelativeMountPoint()));
         }
         catch (IOException e){
             //E.err(e,"setRootDirectory() failed");
@@ -1734,7 +1722,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                                                            }
                                                        }
                                                    });
-            rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), getModuleValue ()));
+            rootDirTextField.setText(VcsFileSystem.substractRootDir (fileSystem.getRootDirectory ().toString (), fileSystem.getRelativeMountPoint()));
         }
     }
 
