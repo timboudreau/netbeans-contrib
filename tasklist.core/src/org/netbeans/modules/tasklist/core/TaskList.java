@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import org.netbeans.modules.tasklist.core.translators.XMLTranslator;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 
@@ -361,7 +362,8 @@ public class TaskList { // XXX remove the publicness
      */
     public FormatTranslator[] getTranslators() {
         FormatTranslator[] translators = new FormatTranslator[] {
-            new HTMLSupport()
+            new HTMLSupport(),
+            new XMLTranslator()
         };
         return translators;
     }

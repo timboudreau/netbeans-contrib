@@ -415,4 +415,24 @@ public final class TLUtils {
         }
         return n;
     }
+    
+    /**
+     * Gets a property descriptor for the specified property name.
+     *
+     * @param n a node
+     * @param prop name of a property
+     * @return found property or null
+     */
+    public static Node.Property getProperty(Node n, String prop) {
+        Node.PropertySet[] propsets = n.getPropertySets();
+        for (int j = 0; j < propsets.length; ++j) {
+            Node.Property[] props = propsets[j].getProperties();
+            for (int k = 0; k < props.length; ++k) {
+                if (props[k].getName().equals(prop)) {
+                    return props[k];
+                }
+            }
+        }
+        return null;
+    }
 }

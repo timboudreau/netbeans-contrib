@@ -1454,6 +1454,27 @@ public abstract class TaskListView extends ExplorerPanel
         }
     }
 
+    /**
+     * Returns visible columns
+     *
+     * @return visible columns
+     */
+    public ColumnProperty[] getVisibleColumns() {
+        TableColumnModel tcm = getTable().getColumnModel();
+        ColumnProperty[] all = getColumns();
+        List ret = new ArrayList();
+        ret.add(all[0]);
+        for (int i = 0; i < tcm.getColumnCount(); i++) {
+            String title = tcm.getColumn(i).getHeaderValue().toString();
+            for (int j = 1; j < all.length; j++) {
+                if (title.equalsIgnoreCase(all[j].getDisplayName())) {
+                    ret.add(all[j]);
+                    break;
+                }
+            }
+        }
+        return (ColumnProperty[]) ret.toArray(new ColumnProperty[ret.size()]);
+    }
 
     ///* For debugging purposes:
     public void nodePrint() {
