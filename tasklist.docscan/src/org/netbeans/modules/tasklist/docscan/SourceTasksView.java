@@ -323,7 +323,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 // XXX defer to isShowing
                 job = SuggestionsBroker.getDefault().startBroker();
                 ObservableList filtered = new FilteredTasksList(job.getSuggestionsList());
-                initList(filtered);
+                this.category = CATEGORY;
+                registerTaskListView(this);
+                setModel(filtered);
             }
         }
 
@@ -668,14 +670,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             list = resultsSnapshot;
         }
         releaseWorkaround();
-        showList(list);
+        setModel(list);
         setFiltered(false);
         getRefresh().setEnabled(true);
         if (list != resultsSnapshot) {
             interrupt = false;
             SourceTasksScanner.scanTasksAsync(this);
         }
-
     }
 
     // XXX detects listener leaks
@@ -694,7 +695,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
         resultsSnapshot = getList();
         ObservableList filtered = new FilteredTasksList(job.getSuggestionsList());
-        showList(filtered);
+        setModel(filtered);
         getRefresh().setEnabled(false);
         setFiltered(false);
         getMiniStatus().setText("");
