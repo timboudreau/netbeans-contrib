@@ -709,9 +709,9 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    }
 	    ORBSettings __settings = this.getSettingByTag (this.getORBTag ());
 	    if (DEBUG)
-		System.out.println ("found name: " + __settings.getOrbName ());
+		System.out.println ("found name: " + __settings.getName ());
 	    //this.setORBTag (this.getORBTag ());
-	    this.setOrb (__settings.getOrbName ());
+	    this.setOrb (__settings.getName ());
 	    //this.setORBTag (this.getORBTag ());
 	}
 	else {

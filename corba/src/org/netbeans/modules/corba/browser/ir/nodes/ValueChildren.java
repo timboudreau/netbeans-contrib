@@ -40,6 +40,10 @@ public class ValueChildren extends Children implements Refreshable {
         this.value = value;
     }
     
+    public ValueDef getValueStub () {
+        return this.value;
+    }
+    
     public void addNotify () {
 	synchronized (this) {
 	    if (this.state == SYNCHRONOUS) {

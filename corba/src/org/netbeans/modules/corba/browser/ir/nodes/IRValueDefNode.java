@@ -176,7 +176,7 @@ public class IRValueDefNode extends IRContainerNode {
     /** Creates new IRValueDefNode */
     public IRValueDefNode (Contained contained) {
         super ( new ValueChildren(ValueDefHelper.narrow(contained)));
-        _value = ValueDefHelper.narrow (contained);
+        _value = ((ValueChildren)this.getChildren()).getValueStub();
         this.setIconBase (ICON_BASE);
         this.getCookieSet().add (this);
         this.getCookieSet().add (new ValueCodeGenerator());

@@ -28,11 +28,22 @@ public class StructChildren extends Children {
     //private static final boolean DEBUG = false;
     
     private StructDef struct;
+    private boolean container;
 
     /** Creates new StructChildren */
-    public StructChildren(StructDef struct) {
+    public StructChildren(Contained contained) {
         super();
-        this.struct = struct;
+        try {
+            this.container = (contained._is_a ("IDL:omg.org/CORBA/Container:1.0") || contained._is_a ("IDL:omg.org/CORBA/Container:2.3"));
+        }catch (org.omg.CORBA.SystemException se) {
+            this.container = false;
+        }
+        this.struct = StructDefHelper.narrow(contained);
+    }
+    
+    
+    public StructDef getStructStub () {
+        return this.struct;
     }
 
     public void addNotify(){
@@ -59,7 +70,8 @@ public class StructChildren extends Children {
             StructMember[] members = this.struct.members();
             Contained[] contained = null;
             
-            if (struct._is_a ("IDL:omg.org/CORBA/Container:1.0") || this.struct._is_a ("IDL:omg.org/CORBA/Container:2.3")) {
+            if (this.container) {
+                // The struct is CORBA 2.3 and implements CORBA::Container
                 contained = this.struct.contents (DefinitionKind.dk_all, false);
             }
             else {

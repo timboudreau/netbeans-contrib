@@ -71,7 +71,7 @@ public class IREnumDefNode extends IRContainerNode {
     /** Creates new IREnumDefNode */
     public IREnumDefNode(Contained value) {
         super(new EnumChildren(EnumDefHelper.narrow(value)));
-        _enum = EnumDefHelper.narrow(value);
+        _enum = ((EnumChildren)this.getChildren()).getEnumStub();
         setIconBase(ENUM_ICON_BASE);
         this.getCookieSet().add ( new EnumCodeGenerator ());
     }

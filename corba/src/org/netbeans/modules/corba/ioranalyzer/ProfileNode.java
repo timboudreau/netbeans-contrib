@@ -63,7 +63,10 @@ public class ProfileNode extends AbstractNode {
         });
         ss.put ( new PropertySupport.ReadOnly (NbBundle.getBundle(ProfileNode.class).getString("TXT_Port"), String.class, NbBundle.getBundle(ProfileNode.class).getString("TXT_Port"), NbBundle.getBundle(ProfileNode.class).getString("TIP_Port")){
             public Object getValue () {
-                return Short.toString (profile.getPort());
+                short port = profile.getPort();
+                //Convert to unsigned integer
+                int uport = (65535 & (int) port);
+                return Integer.toString (uport);
             }
         });
         ss.put ( new PropertySupport.ReadOnly (NbBundle.getBundle(ProfileNode.class).getString("TXT_IIOPVer"), String.class, NbBundle.getBundle(ProfileNode.class).getString("TXT_IIOPVer"), NbBundle.getBundle(ProfileNode.class).getString("TIP_IIOPVer")) {

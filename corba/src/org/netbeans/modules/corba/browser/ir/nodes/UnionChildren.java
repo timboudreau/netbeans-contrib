@@ -23,10 +23,20 @@ import org.netbeans.modules.corba.browser.ir.nodes.keys.IRContainedKey;
 public class UnionChildren extends Children implements Refreshable {
 
     UnionDef union;
+    boolean container;
 
     /** Creates new UnionChildren */
-    public UnionChildren(UnionDef union) {
-        this.union = union;
+    public UnionChildren(Contained contained) {
+    	try {
+    	    this.container = (contained._is_a ("IDL:omg.org/CORBA/Container:1.0") || contained._is_a("IDL:omg.org/CORBA/Container:2.3"));
+	}catch (Exception e) {
+	    this.container = false;	
+	}
+        this.union = UnionDefHelper.narrow(contained);
+    }
+    
+    public UnionDef getUnionStub () {
+       return this.union;
     }
 
 
@@ -49,7 +59,7 @@ public class UnionChildren extends Children implements Refreshable {
         try {
             UnionMember[] members = this.union.members();
             Contained[] contained  = null;
-            if (this.union._is_a ("IDL:omg.org/CORBA/Container:1.0") || this.union._is_a ("IDL:omg.org/CORBA/Container:2.3")) { 
+            if (this.container) {
                 contained = this.union.contents (DefinitionKind.dk_all, false);
             }
             else {

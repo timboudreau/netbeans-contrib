@@ -346,7 +346,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	_S_idl_mapping_names.put ("Operations", __object);
 	_S_idl_mapping_names.put ("POA", __object);
 	_S_idl_mapping_names.put ("POATie", __object);
-	//_S_idl_mapping_names.put ("Package", __object);
+	_S_idl_mapping_names.put ("Package", __object);
     }
 
 
@@ -362,14 +362,14 @@ public class ImplGenerator implements PropertyChangeListener {
 	Iterator __iterator = _S_idl_mapping_names.keySet ().iterator ();
 	while (__iterator.hasNext ()) {
 	    String __key = (String)__iterator.next ();
-	    if (__name.endsWith (__key))
+	    if (__name.endsWith (__key) && (__name.length () > __key.length ()))
 		return true;
 	}
 	return false;
     }
 
 
-    public static String idl_name2java_name (String __name) {
+    public static String idl_name2java_name (String __name, boolean __operation_name) {
 	//boolean DEBUG=true;
 	if (DEBUG)
 	    System.out.println ("idl_name2java_name () <- " + __name);
@@ -378,21 +378,35 @@ public class ImplGenerator implements PropertyChangeListener {
 	    __result = __name.substring (1, __name.length ());
 	    if (!ImplGenerator.is_java_keyword (__result)) {
 		if (DEBUG)
-		    System.out.println ("idl_name2java_name () -> " + __result);
+		    System.out.println ("1: idl_name2java_name () -> " + __result);
 		return __result;
 	    }
 	}
-	if (ImplGenerator.is_idl_mapping_name (__name)
-	    ||ImplGenerator.is_java_keyword (__name)) {
-	    __result = "_" + __name;
-	    if (DEBUG)
-		System.out.println ("idl_name2java_name () -> " + __result);
-	    return __result;
+	if (!__operation_name) {
+	    if (ImplGenerator.is_idl_mapping_name (__name)
+		||ImplGenerator.is_java_keyword (__name)) {
+		__result = "_" + __name;
+		if (DEBUG)
+		    System.out.println ("2: idl_name2java_name () -> " + __result);
+		return __result;
+	    }
+	    else {
+		__result = __name;
+		if (DEBUG)
+		    System.out.println ("3: idl_name2java_name () -> " + __result);
+		return __result;
+	    }
 	}
 	else {
-	    __result = __name;
+	    // operation name
+	    if (ImplGenerator.is_java_keyword (__name)) {
+		__result = "_" + __name;
+	    }
+	    else {
+		__result = __name;
+	    }
 	    if (DEBUG)
-		System.out.println ("idl_name2java_name () -> " + __result);
+		System.out.println ("4: idl_name2java_name () -> " + __result);
 	    return __result;
 	}
     }
@@ -607,7 +621,8 @@ public class ImplGenerator implements PropertyChangeListener {
             IDLElement __tmp = __element;
             while (__tmp.getParent () instanceof ModuleElement) {
                 __modules.addFirst 
-		    (ImplGenerator.idl_name2java_name (__tmp.getParent ().getName ()));
+		    (ImplGenerator.idl_name2java_name (__tmp.getParent ().getName (),
+						       false));
                 __tmp = __tmp.getParent ();
             }
         }
@@ -836,19 +851,21 @@ public class ImplGenerator implements PropertyChangeListener {
     
     public String ctype2package (IDLElement __type) {
         // checking modules
+	//boolean DEBUG=true;
         if (DEBUG)
             System.out.println ("ImplGenerator::ctype2package (" + __type + ");"); // NOI18N
         String __modules = ""; // NOI18N
         if (__type != null) {
             ArrayList __mods = new ArrayList ();
-            __mods.add (__type.getName ());
+            __mods.add (this.idl_name2java_name (__type.getName (), false));
             while (__type.getParent () != null) {
                 __type = __type.getParent ();
                 if (__type instanceof ModuleElement)
-                    __mods.add (__type.getName ());
+                    __mods.add (this.idl_name2java_name (__type.getName (), false));
                 if (__type instanceof InterfaceElement
 		    || __type instanceof ValueAbsElement)
-                    __mods.add (__type.getName () + "Package"); // NOI18N
+                    __mods.add (this.idl_name2java_name (__type.getName (), false)
+				+ "Package"); // NOI18N
 
             }
             // transform modules names from list to string in package format
@@ -856,7 +873,8 @@ public class ImplGenerator implements PropertyChangeListener {
             for (int __i = __mods.size () - 1; __i>=0; __i--) {
                 if (DEBUG)
                     System.out.println ("transfrom: " + (String)__mods.get (__i)); // NOI18N
-                __modules = __modules + this.idl_name2java_name ((String)__mods.get (__i))
+                //__modules = __modules + this.idl_name2java_name ((String)__mods.get (__i))
+                __modules = __modules + (String)__mods.get (__i)
 		    + "."; // NOI18N
             }
             // without last dot
@@ -2116,7 +2134,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    if (DEBUG)
 		System.out.println ("::id9 " + __attr.getName ()); // NOI18N
 	    __geter.setName (org.openide.src.Identifier.create 
-			     (this.idl_name2java_name (__attr.getName ())));
+			     (this.idl_name2java_name (__attr.getName (), true)));
 	    __geter.setModifiers (Modifier.PUBLIC);
 	    __geter.setReturn (__attr_type);
 	    //geter.setBody ("\n  return null;\n"); // NOI18N
@@ -2132,7 +2150,7 @@ public class ImplGenerator implements PropertyChangeListener {
 		if (DEBUG)
 		    System.out.println ("::id10 " + __attr.getName ()); // NOI18N
 		__seter.setName (org.openide.src.Identifier.create
-				 (this.idl_name2java_name (__attr.getName ())));
+				 (this.idl_name2java_name (__attr.getName (), true)));
 		__seter.setModifiers (Modifier.PUBLIC);
 		__seter.setReturn (Type.VOID);
 		//seter.setBody ("\n"); // NOI18N
@@ -2155,7 +2173,9 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
-    public MethodElement operation2java (OperationElement __operation) {
+    public MethodElement operation2java (OperationElement __operation)
+	throws DuplicateExceptionException {
+	//boolean DEBUG=true;
         if (DEBUG)
             System.out.println ("operation2java"); // NOI18N
         String __package = _M_ido.getPrimaryFile ().getParent ().getPackageName ('.');
@@ -2177,7 +2197,7 @@ public class ImplGenerator implements PropertyChangeListener {
             if (DEBUG)
                 System.out.println ("::id11 " + __operation.getName ()); // NOI18N
             __oper.setName (org.openide.src.Identifier.create
-			    (this.idl_name2java_name (__operation.getName ())));
+			    (this.idl_name2java_name (__operation.getName (), true)));
             __oper.setModifiers (Modifier.PUBLIC);
             __oper.setReturn (__rettype);
             // parameters and context!!!
@@ -2196,8 +2216,13 @@ public class ImplGenerator implements PropertyChangeListener {
 		*/
 		Type __ptype = this.type2java (__p.getType (), __p.getAttribute (), 
 					       __package, __operation);
+		if (DEBUG) {
+		    System.out.println ("param type: " + __ptype);
+		    System.out.println ("param name: " + this.idl_name2java_name
+					(__p.getName (), false));
+		}
                 __params[__i] = new MethodParameter
-		    (this.idl_name2java_name (__p.getName ()), __ptype, false);
+		    (this.idl_name2java_name (__p.getName (), false), __ptype, false);
             }
             if (__operation.getContexts ().size () != 0)
                 __params[__params.length - 1] = new MethodParameter
@@ -2206,6 +2231,8 @@ public class ImplGenerator implements PropertyChangeListener {
             __oper.setParameters (__params);
 
             // exceptions
+	    HashSet __exc_set = new HashSet ();
+	    int __exc_set_size = __exc_set.size ();
             org.openide.src.Identifier[] __excs
 		= new org.openide.src.Identifier[__operation.getExceptions ().size ()];
             for (int __i=0; __i<__operation.getExceptions ().size (); __i++) {
@@ -2213,6 +2240,10 @@ public class ImplGenerator implements PropertyChangeListener {
 		    (this.exception2java 
 		     ((String)__operation.getExceptions ().elementAt (__i),
 		      __package, __operation));
+		__exc_set_size = __exc_set.size ();
+		__exc_set.add (__excs[__i]);
+		if (__exc_set.size () == __exc_set_size)
+		    throw new DuplicateExceptionException (__excs[__i].getName ());
             }
             __oper.setExceptions (__excs);
 
@@ -2292,6 +2323,36 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
+    private IDLElement resolve_typedef (IDLElement __element)
+	throws SymbolNotFoundException {
+	//String __name_of_parent = (String)__tmp_parents.get (__j);
+	if (__element == null)
+	    return null;
+	String __name_of_parent = null;
+	IDLElement __parent = __element;
+	for (;;) {
+	    //__parent = this.find_element_by_name (__name_of_parent, __element);
+	    if (ImplGenerator.is_declarator (__parent)) {
+		// this is a typedef
+		if (DEBUG) {
+		    System.out.println ("typedefed parent");
+		    System.out.println ("found: " + __parent);
+		    System.out.println ("searching for: "
+					+ __parent.getParent ().getName ());
+		}
+		__element = __parent;
+		__name_of_parent = __parent.getParent ().getName ();
+		__parent = this.find_element_by_name (__name_of_parent, __element);
+		if (__parent == null)
+		    throw new SymbolNotFoundException (__name_of_parent);
+	    }
+	    else {
+		break;
+	    }
+	}
+	return __parent;
+    }
+
     private ArrayList generic_parents (IDLElement __element,
 				       ObjectFilter[] __filter,
 				       ParentsExecutor[] __executor,
@@ -2301,7 +2362,6 @@ public class ImplGenerator implements PropertyChangeListener {
 	Assertion.assert (__element != null && __filter.length == __executor.length);
 	if (DEBUG)
 	    System.out.println ("generic_parents for: " + __element);
-	//Vector __parents = __interface.getParents ();
 	ArrayList __result = new ArrayList ();
 	ArrayList __parents_for_recursion = new ArrayList ();
 	for (int __i=0; __i<__executor.length;__i++) {
@@ -2314,26 +2374,13 @@ public class ImplGenerator implements PropertyChangeListener {
 	    for (int __j=0; __j<__tmp_parents.size (); __j++) {
 		String __name_of_parent = (String)__tmp_parents.get (__j);
 		IDLElement __parent = null;
-		for (;;) {
-		    __parent = this.find_element_by_name (__name_of_parent, __element);
-		    if (ImplGenerator.is_declarator (__parent)) {
-			// this is a typedef
-			if (DEBUG) {
-			    System.out.println ("typedefed generic parent");
-			    System.out.println ("found: " + __parent);
-			    System.out.println ("searching for: "
-						+ __parent.getParent ().getName ());
-			}
-			__element = __parent;
-			__name_of_parent = __parent.getParent ().getName ();
-		    }
-		    else {
-			break;
-		    }
-		}
+		__parent = this.find_element_by_name (__name_of_parent, __element);
 		if (__parent == null) {
 		    throw new SymbolNotFoundException (__name_of_parent);
 		}
+		IDLElement __tmp = __parent;
+		__parent = this.resolve_typedef (__tmp);
+		__name_of_parent = __parent.getName ();
 		if (DEBUG)
 		    System.out.println ("parent: " + __parent);
 		if (__filter[__i].is (__parent)) {
@@ -2358,8 +2405,6 @@ public class ImplGenerator implements PropertyChangeListener {
 		    (__t_element, __filter, __executor, true);
 		if (DEBUG)
 		    System.out.println ("__t_result: " + __t_result);
-		//Iterator __t_iter = __t_result.iterator ();
-		//while
 		__set.addAll (__t_result);
 	    }
 	    __final_result.addAll (__set);
@@ -2437,13 +2482,13 @@ public class ImplGenerator implements PropertyChangeListener {
     
     private ArrayList all_implemented_interfaces (InterfaceElement __interface)
 	throws SymbolNotFoundException {
-	ArrayList __abstract_parents = this.abstract_parents (__interface);
+	ArrayList __abstract_parents = this.all_abstract_parents (__interface);
 	ArrayList __concrete_parents = this.all_concrete_parents (__interface);
 	ArrayList __result = new ArrayList ();
 	Iterator __iterator = __concrete_parents.iterator ();
 	while (__iterator.hasNext ()) {
 	    InterfaceElement __parent = (InterfaceElement)__iterator.next ();
-	    ArrayList __tmp_abstract_parents = this.abstract_parents (__parent);
+	    ArrayList __tmp_abstract_parents = this.all_abstract_parents (__parent);
 	    Iterator __ap_iterator = __tmp_abstract_parents.iterator ();
 	    while (__ap_iterator.hasNext ()) {
 		Object __object = __ap_iterator.next ();
@@ -2532,7 +2577,8 @@ public class ImplGenerator implements PropertyChangeListener {
 	String __package = ImplGenerator.modules2package (__element);
 	String __name = "";
 	//String __interface_name = this.element2repo_id (__interface, "", "_", "");
-	String __element_name = ImplGenerator.idl_name2java_name (__element.getName ());
+	String __element_name = ImplGenerator.idl_name2java_name
+	    (__element.getName (), false);
 	if (__package.equals ("")) {
 	    return __default_package + __prefix + __element_name + __posfix;
 	}
@@ -3009,7 +3055,8 @@ public class ImplGenerator implements PropertyChangeListener {
 					      InterfaceElement __interface,
 					      List __operations, List __methods_map,
 					      List __all_methods_map,
-					      boolean __virtual_delegation) {
+					      boolean __virtual_delegation) 
+	throws DuplicateExceptionException {
 	String __direct_parent_variable_name;
 	MethodElement __method;
 	MethodElement[] __methods;
@@ -3119,7 +3166,8 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
-    private void generate_methods (ClassElement __clazz, List __operations) {
+    private void generate_methods (ClassElement __clazz, List __operations)
+	throws DuplicateExceptionException {
 	
 	if (DEBUG)
 	    System.out.println ("ImplGenerator::generate_methods () : " + __operations);
@@ -3147,7 +3195,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
 
     public void interface2java (ClassElement __clazz, InterfaceElement __interface)
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, DuplicateExceptionException {
 	//boolean DEBUG=true;
         if (DEBUG)
 	    System.out.println ("ImplGenerator::interface2java (__clazz, " 
@@ -3919,7 +3967,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
     private void interface2java (InterfaceElement __element)
-	throws SymbolNotFoundException, RecursiveInheritanceException, java.io.IOException {
+	throws SymbolNotFoundException, DuplicateExceptionException, java.io.IOException {
         if (DEBUG) {
             System.out.println ("interface2java: " + __element.getName ()); // NOI18N
             System.out.println ("name: " + _M_ido.getPrimaryFile ().getName ()); // NOI18N
@@ -4013,7 +4061,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
 
     public void value2java (ClassElement __clazz, ValueElement __value)
-        throws SymbolNotFoundException, SourceException {
+        throws SymbolNotFoundException, DuplicateExceptionException, SourceException {
 
         if (DEBUG)
 	    System.out.println ("ImplGenerator::value2java (__clazz, " 
@@ -4061,7 +4109,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
 
     private void value2java (ValueElement __element)
-	throws SymbolNotFoundException, RecursiveInheritanceException, java.io.IOException {
+	throws SymbolNotFoundException, DuplicateExceptionException, java.io.IOException {
         if (DEBUG) {
             System.out.println ("value2java: " + __element.getName ()); // NOI18N
             System.out.println ("name: " + _M_ido.getPrimaryFile ().getName ()); // NOI18N
@@ -4077,9 +4125,9 @@ public class ImplGenerator implements PropertyChangeListener {
 	//_M_elements_for_guard_blocks = new LinkedList ();
 
         String __impl_name = this.VALUE_IMPL_PREFIX 
-	    + this.idl_name2java_name (__element.getName ())
+	    + this.idl_name2java_name (__element.getName (), false)
 	    + this.VALUE_IMPL_POSTFIX;
-        String __super_name = this.idl_name2java_name (__element.getName ());
+        String __super_name = this.idl_name2java_name (__element.getName (), false);
         String __modules = this.modules2package (__element);
 	List __folders = this.modules2list (__element);
 	if (DEBUG)
@@ -4158,7 +4206,7 @@ public class ImplGenerator implements PropertyChangeListener {
             if (DEBUG)
                 System.out.println ("::id11 " + __factory.getName ()); // NOI18N
             __method.setName (org.openide.src.Identifier.create
-			      (this.idl_name2java_name (__factory.getName ())));
+			      (this.idl_name2java_name (__factory.getName (), false)));
             __method.setModifiers (Modifier.PUBLIC);
             __method.setReturn (__rettype);
             // parameters and context!!!
@@ -4176,7 +4224,7 @@ public class ImplGenerator implements PropertyChangeListener {
 		Type __ptype = this.type2java (__param.getType (), Parameter.IN, 
 					       __package, __factory);
                 __params[__i] = new MethodParameter
-		    (this.idl_name2java_name (__param.getName ()), __ptype, false);
+		    (this.idl_name2java_name (__param.getName (), false), __ptype, false);
             }
             __method.setParameters (__params);
 	    
@@ -4223,7 +4271,7 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
     private void value_factory2java (List __factories)
-	throws SymbolNotFoundException, RecursiveInheritanceException, java.io.IOException {
+	throws SymbolNotFoundException, java.io.IOException {
 	//boolean DEBUG=true;
 	if (__factories.size () == 0)
 	    return;
@@ -4364,9 +4412,9 @@ public class ImplGenerator implements PropertyChangeListener {
     private ClassElement prepare_value_class (ValueElement __element)
 	throws  java.io.IOException {
 	String __impl_name = this.VALUE_IMPL_PREFIX 
-	    + this.idl_name2java_name (__element.getName ())
+	    + this.idl_name2java_name (__element.getName (), false)
 	    + this.VALUE_IMPL_POSTFIX;
-        String __super_name = this.idl_name2java_name (__element.getName ());
+        String __super_name = this.idl_name2java_name (__element.getName (), false);
 	return this.prepare_implementation_class
 	    (__element, __impl_name, __super_name, this.TIE);
     }
@@ -4376,7 +4424,7 @@ public class ImplGenerator implements PropertyChangeListener {
 						   String __impl_name,
 						   String __full_impl_name,
 						   boolean __create_blocks)
-	throws SymbolNotFoundException, RecursiveInheritanceException, java.io.IOException {
+	throws SymbolNotFoundException, java.io.IOException {
 	/*
 	  String __impl_name = this.interface2partial_java_impl_name (__element);
 	  String __super_name = this.interface2java_impl_super_name (__element);
@@ -4465,7 +4513,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
     private void synchronise_interface_class (ClassElement __class,
 					      InterfaceElement __element)
-	throws Exception {
+	throws SymbolNotFoundException, DuplicateExceptionException, java.io.IOException {
 	String __impl_name = this.interface2partial_java_impl_name (__element);
 	String __full_impl_name = this.interface2java_impl_name (__element);
 	this.synchronise_implementation_class
@@ -4473,9 +4521,9 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
     private void synchronise_value_class (ClassElement __class, ValueElement __element)
-	throws Exception {
+	throws SymbolNotFoundException, DuplicateExceptionException, java.io.IOException {
 	String __impl_name = this.VALUE_IMPL_PREFIX 
-	    + this.idl_name2java_name (__element.getName ())
+	    + this.idl_name2java_name (__element.getName (), false)
 	    + this.VALUE_IMPL_POSTFIX;
 	String __full_impl_name = this.value2java_impl_name (__element);
 	this.synchronise_implementation_class
@@ -4505,32 +4553,59 @@ public class ImplGenerator implements PropertyChangeListener {
     */
 
     private void check_interface_parents (InterfaceElement __element)
-	throws SymbolNotFoundException, UndefinedInterfaceException {
+	throws SymbolNotFoundException, UndefinedInterfaceException,
+	       CannotInheritFromException {
+	//System.out.println ("check_interface_parents: " + __element.getName ());
 	Vector __parents = __element.getParents ();
+	//ArrayList __parents = this.generic_parents
+	//(__element, new InterfaceFilter (), new InterfaceParentsExecutor (), false);
+	//System.out.println ("__parents: " + __parents);
 	for (int __i=0; __i<__parents.size (); __i++) {
 	    String __name = (String)__parents.get (__i);
 	    IDLElement __tmp = null;
-	    if ((__tmp = ImplGenerator.find_element_by_name (__name, __element)) == null) {
+	    //__tmp = (IDLElement)__parents.get (__i);
+	    //System.out.println ("__tmp: " + __tmp);
+	    //String __name = __tmp.getName ();
+	    __tmp = ImplGenerator.find_element_by_name (__name, __element);
+	    if (__tmp == null) {
 		throw new SymbolNotFoundException (__name);
 	    }
-	    else if (__tmp instanceof InterfaceForwardElement) {
-		throw new UndefinedInterfaceException (__name);
+	    IDLElement __tmp_parent = __tmp;
+	    __tmp = this.resolve_typedef (__tmp_parent);
+	    __name = __tmp.getName ();
+	    if (!(__tmp instanceof InterfaceElement)) {
+		if (__tmp instanceof InterfaceForwardElement) {
+		    throw new UndefinedInterfaceException (__name);
+		}
+		else {
+		    throw new CannotInheritFromException (__name);
+		}
 	    }
 	}
     }
 
     private void check_value_parents (ValueAbsElement __element)
 	throws SymbolNotFoundException, UndefinedValueException,
-	       UndefinedInterfaceException {
+	       UndefinedInterfaceException, CannotInheritFromException,
+	       CannotSupportException {
 	Vector __parents = __element.getParents ();
 	for (int __i=0; __i<__parents.size (); __i++) {
 	    String __name = (String)__parents.get (__i);
 	    IDLElement __tmp = null;
-	    if ((__tmp = ImplGenerator.find_element_by_name (__name, __element)) == null) {
+	    __tmp = ImplGenerator.find_element_by_name (__name, __element);
+	    if (__tmp == null) {
 		throw new SymbolNotFoundException (__name);
 	    }
-	    else if (__tmp instanceof ValueForwardElement) {
-		throw new UndefinedValueException (__name);
+	    IDLElement __tmp_parent = __tmp;
+	    __tmp = this.resolve_typedef (__tmp_parent);
+	    __name = __tmp.getName ();
+	    if (!(__tmp instanceof ValueAbsElement)) {
+		if (__tmp instanceof ValueForwardElement) {
+		    throw new UndefinedValueException (__name);
+		}
+		else {
+		    throw new CannotInheritFromException (__name);
+		}
 	    }
 	}
 	if (__element instanceof ValueElement) {
@@ -4539,15 +4614,25 @@ public class ImplGenerator implements PropertyChangeListener {
 	    for (int __i=0; __i<__supported.size (); __i++) {
 		String __name = (String)__supported.get (__i);
 		IDLElement __tmp = null;
-		if ((__tmp = ImplGenerator.find_element_by_name (__name, __element))
-		    == null) {
+		__tmp = ImplGenerator.find_element_by_name (__name, __element);
+		if (__tmp == null) {
 		    throw new SymbolNotFoundException (__name);
 		}
-		else if (__tmp instanceof ValueForwardElement) {
-		    throw new UndefinedValueException (__name);
-		}
-		else if (__tmp instanceof InterfaceForwardElement) {
-		    throw new UndefinedInterfaceException (__name);
+		IDLElement __tmp_parent = __tmp;
+		__tmp = this.resolve_typedef (__tmp_parent);
+		__name = __tmp.getName ();
+		if (!(__tmp instanceof ValueAbsElement
+		      || __tmp instanceof InterfaceElement)) {
+		    if (__tmp instanceof ValueForwardElement) {
+			//System.out.println ("class: " + __tmp.getClass ().getName ());
+			throw new UndefinedValueException (__name);
+		    }
+		    else if (__tmp instanceof InterfaceForwardElement) {
+			throw new UndefinedInterfaceException (__name);
+		    }
+		    else {
+			throw new CannotSupportException (__name);
+		    }
 		}
 	    }
 	}
@@ -4798,6 +4883,9 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
     private void generate_concrete_value (IDLElement __element) throws Exception {
+	//boolean DEBUG=true;
+	if (DEBUG)
+	    System.out.println ("generate_concrete_value: " + __element.getName ());
 	List __name = this.element2list_name (__element);
 	Collections.reverse (__name);
 	ValueElement __value = (ValueElement)__element;
@@ -4823,8 +4911,9 @@ public class ImplGenerator implements PropertyChangeListener {
 
 	List __all_parents_and_supported_interfaces
 	    = this.all_parents_and_supported_interfaces (__value);
-	//System.out.println ("all inherited values and supported interfaces: " 
-	//+ __all_parents_and_supported_interfaces);
+	if (DEBUG)
+	    System.out.println ("all inherited values and supported interfaces: " 
+				+ __all_parents_and_supported_interfaces);
 	List __operations = new ArrayList ();
 	Iterator __iterator = __all_parents_and_supported_interfaces.iterator ();
 	while (__iterator.hasNext ()) {
@@ -4833,7 +4922,8 @@ public class ImplGenerator implements PropertyChangeListener {
 								 new OperationFilter (),
 								 false));
 	}
-	//System.out.println ("all implemented operations: " + __operations);
+	if (DEBUG)
+	    System.out.println ("all implemented operations: " + __operations);
 	//List __operations = this.get_elements_from_element 
 	//(__value, new OperationFilter (), false);
 	this.generate_methods (_M_working_class, __operations);
@@ -5088,6 +5178,45 @@ public class ImplGenerator implements PropertyChangeListener {
 		__ex.printStackTrace ();
 		throw new RuntimeException (); 
 	    }
+	} catch (DuplicateExceptionException __ex) {
+	    if (!_M_run_testsuite) {
+		java.lang.Object[] __arr = new Object[] {__ex.getSymbolName ()};
+		TopManager.getDefault ().notify 
+		    (new NotifyDescriptor.Exception 
+			(__ex, MessageFormat.format (CORBASupport.DUPLICATE_EXCEPTION, 
+						     __arr)));
+		_M_exception_occured = true;
+	    }
+	    else {
+		__ex.printStackTrace ();
+		throw new RuntimeException (); 
+	    }
+	} catch (CannotInheritFromException __ex) {
+	    if (!_M_run_testsuite) {
+		java.lang.Object[] __arr = new Object[] {__ex.getSymbolName ()};
+		TopManager.getDefault ().notify 
+		    (new NotifyDescriptor.Exception 
+			(__ex, MessageFormat.format (CORBASupport.CANNOT_INHERIT_FROM,
+						     __arr)));
+		_M_exception_occured = true;
+	    }
+	    else {
+		__ex.printStackTrace ();
+		throw new RuntimeException (); 
+	    }
+	} catch (CannotSupportException __ex) {
+	    if (!_M_run_testsuite) {
+		java.lang.Object[] __arr = new Object[] {__ex.getSymbolName ()};
+		TopManager.getDefault ().notify 
+		    (new NotifyDescriptor.Exception 
+			(__ex, MessageFormat.format (CORBASupport.CANNOT_SUPPORT,
+						     __arr)));
+		_M_exception_occured = true;
+	    }
+	    else {
+		__ex.printStackTrace ();
+		throw new RuntimeException (); 
+	    }
 	} catch (Exception __x) {
 	    if (!_M_run_testsuite)
 		TopManager.getDefault ().getErrorManager ().notify (__x);
@@ -5185,11 +5314,20 @@ public class ImplGenerator implements PropertyChangeListener {
 		}
 	    }
 	}
-	if (this.showMessage && (!this._M_exception_occured)) { 
-	    // Bug Fix, when sync is disabled, don't show the message
-	    java.lang.Object[] __arr = new Object[] {_M_ido.getPrimaryFile ().getName ()};
-	    TopManager.getDefault ().setStatusText
+	if (this.showMessage) {
+	    if (!this._M_exception_occured) { 
+		// Bug Fix, when sync is disabled, don't show the message
+		java.lang.Object[] __arr = new Object[]
+		{_M_ido.getPrimaryFile ().getName ()};
+		TopManager.getDefault ().setStatusText
 		(MessageFormat.format (CORBASupport.SUCESS_GENERATED, __arr));
+	    }
+	    else {
+		java.lang.Object[] __arr = new Object[]
+		{_M_ido.getPrimaryFile ().getName ()};
+		TopManager.getDefault ().setStatusText
+		(MessageFormat.format (CORBASupport.GENERATOR_ERROR, __arr));
+	    }
 	}
 	if (!this.showMessage) {
 	    TopManager.getDefault ().setStatusText 

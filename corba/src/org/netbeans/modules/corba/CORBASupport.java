@@ -152,6 +152,18 @@ public class CORBASupport {
     public static final String UNDEFINED_VALUE = CORBASupport.bundle.getString
 	("CTL_UNDEFINED_VALUE"); // NOI18N
 
+    public static final String DUPLICATE_EXCEPTION = CORBASupport.bundle.getString
+	("CTL_DUPLICATE_EXCEPTION"); // NOI18N
+
+    public static final String GENERATOR_ERROR = CORBASupport.bundle.getString
+	("CTL_GENERATOR_ERROR"); // NOI18N
+
+    public static final String CANNOT_SUPPORT = CORBASupport.bundle.getString
+	("CTL_CANNOT_SUPPORT");
+
+    public static final String CANNOT_INHERIT_FROM = CORBASupport.bundle.getString
+	("CTL_CANNOT_INHERIT_FROM");
+    
     /** constant for idl extension */
     public static final String IDL_EXT = "idl"; // NOI18N
 

@@ -29,6 +29,10 @@ public class EnumChildren extends Children implements Refreshable {
         super();
         this.enum = def;
     }
+    
+    public EnumDef getEnumStub () {
+        return this.enum;
+    }
 
 
     public void addNotify(){

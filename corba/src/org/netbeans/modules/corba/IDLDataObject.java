@@ -1350,11 +1350,26 @@ public class IDLDataObject extends MultiDataObject
         return _S_request_processor;
     }
     
-    protected FileObject handleMove (DataFolder __dfolder) throws IOException {
+    private void fix_src_names (IDLElement __element, String __source, String __target) {
+	if (__source.equals (__element.getFileName ())) {
+	    //System.out.println ("fixing file name in " + __element.getName ());
+	    __element.setFileName (__target);
+	}
+	Vector __members = __element.getMembers ();
+	for (int __i=0; __i<__members.size (); __i++) {
+	    IDLElement __t_member = (IDLElement)__members.get (__i);
+	    this.fix_src_names (__t_member, __source, __target);
+	}
+    }
+
+    protected FileObject handleMove(DataFolder __dfolder) throws IOException {
         if (DEBUG)
 	    System.out.println ("IDLDataObject::handleMove (" + __dfolder + ");"); // NOI18N
         String oldName = getName();
+	String __orig_name = FileUtils.getRealFileName (this.getPrimaryFile ());
         FileObject __result = super.handleMove(__dfolder);
+	String __current_name = FileUtils.getRealFileName (__result);
+	this.fix_src_names (this._M_src, __orig_name, __current_name);
         //FileObject __pfile = this.getPrimaryFile ();
         //System.out.println ("new pfile: " + __pfile); // NOI18N
         //System.out.println ("__result: " + __result); // NOI18N

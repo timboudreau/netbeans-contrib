@@ -171,8 +171,8 @@ public class IRUnionDefNode extends IRContainerNode {
 
     /** Creates new IRUnionDefNode */
     public IRUnionDefNode(Contained value) {
-        super ( new UnionChildren(UnionDefHelper.narrow(value)));
-        _union = UnionDefHelper.narrow(value);
+        super ( new UnionChildren(value));
+        _union = ((UnionChildren)this.getChildren()).getUnionStub();
         setIconBase(UNION_ICON_BASE);
         this.getCookieSet().add ( new UnionCodeGenerator());
     }

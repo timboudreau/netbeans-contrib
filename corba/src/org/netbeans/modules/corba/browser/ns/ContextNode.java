@@ -184,10 +184,12 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
     public ContextNode (String name, String kind, String url, String ior) {
         super (Children.LEAF);
         setName (name);
+        setKind (kind);
         setIconBase (ICON_BASE_FAILED);
         systemActions = new SystemAction[] {
                                 SystemAction.get (org.netbeans.modules.corba.browser.ns.UnbindContext.class),
                             };
+        this.getCookieSet().add (this);
     }
 
     public ContextNode (NamingContext nc) {
@@ -237,7 +239,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
 	    this.getCookieSet().add ( new CosNamingCookieImpl ());
         }
         setDisplayName (getName ());
-
+        this.getCookieSet().add (this);
     }
 
 
@@ -272,13 +274,6 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
         _loaded = true;
         if (DEBUG)
             System.out.println ("on end of restore - loaded?: " + loaded ());
-    }
-
-    public Node.Cookie getCookie(Class c) {
-        if (c.isInstance(this))
-            return this;
-        else
-            return super.getCookie(c);
     }
 
     public void setName (String n) {
@@ -467,7 +462,6 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             } catch (Exception e) {
                 org.openide.TopManager.getDefault().notify (new NotifyDescriptor.Message (e.toString(), NotifyDescriptor.Message.ERROR_MESSAGE));
             }
-            ((ContextChildren)getChildren ()).addNotify ();
         }
     }
 

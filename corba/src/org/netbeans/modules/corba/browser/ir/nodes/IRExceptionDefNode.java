@@ -122,8 +122,8 @@ public class IRExceptionDefNode extends IRContainerNode {
   
     /** Creates new IRExceptionDefNode */
     public IRExceptionDefNode(Contained value) {
-        super(new ExceptionChildren(ExceptionDefHelper.narrow(value)));
-        _exception = ExceptionDefHelper.narrow(value);
+        super(new ExceptionChildren(value));
+        _exception = ((ExceptionChildren)this.getChildren()).getExceptionStub();
         setIconBase(EXCEPTION_ICON_BASE);
         this.getCookieSet().add (new ExceptionCodeGenerator ());
     }

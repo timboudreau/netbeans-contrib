@@ -471,7 +471,6 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
                     constructorComboBox.addItem(type + POASettings.LBR + POASettings.RBR);
             }
         }
-        constructorComboBox.setSelectedItem(null);
     }
     
     public void changedUpdate(javax.swing.event.DocumentEvent p1) {

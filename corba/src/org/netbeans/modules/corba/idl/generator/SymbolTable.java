@@ -58,7 +58,12 @@ public class SymbolTable {
 		return null;
 	    __current_map = __t_map;
 	}
-	return (IDLElement)__current_map.get (__simple_name);
+	Object __retval = __current_map.get (__simple_name);
+	if (__retval instanceof IDLElement)
+	    return (IDLElement)__retval;
+	else
+	    return null;
+	//return (IDLElement)__current_map.get (__simple_name);
     }
     
     public IDLElement add_element (List __name, IDLElement __element) {

@@ -112,8 +112,8 @@ public class IRStructDefNode extends IRContainerNode{
   
     /** Creates new IRStructDefNode */
     public IRStructDefNode(Contained value) {
-        super ( new StructChildren (StructDefHelper.narrow(value)));
-        _struct = StructDefHelper.narrow(value);
+        super ( new StructChildren (value));
+        _struct = ((StructChildren)this.getChildren()).getStructStub();
         setIconBase(STRUCT_ICON_BASE);
         this.getCookieSet().add ( new StructCodeGenerator ());
     }

@@ -25,11 +25,21 @@ public class ExceptionChildren extends Children implements Refreshable {
 
 
     private ExceptionDef exception;
+    private boolean container;
 
     /** Creates new ExceptionChildren */
-    public ExceptionChildren(ExceptionDef exception) {
+    public ExceptionChildren(Contained contained) {
         super();
-        this.exception = exception;
+        try {
+            this.container = (contained._is_a("IDL:omg.org/CORBA/Container:1.0") || contained._is_a("IDL:omg.org/CORBA/Container:2.3"));
+	}catch (Exception e) {
+            this.container = false;
+	}
+        this.exception = ExceptionDefHelper.narrow(contained);
+    }
+    
+    public ExceptionDef getExceptionStub () {
+        return this.exception;
     }
 
 
@@ -54,7 +64,7 @@ public class ExceptionChildren extends Children implements Refreshable {
             StructMember [] members = this.exception.members();
             Contained[] contained = null;
             
-            if (exception._is_a ("IDL:omg.org/CORBA/Container:1.0") || this.exception._is_a ("IDL:omg.org/CORBA/Container:2.3")) {
+            if (this.container) {
                 contained = this.exception.contents (DefinitionKind.dk_all, false);
             }
             else {

@@ -102,7 +102,7 @@ public class MergeAction extends CookieAction {
                             return;
                         }
                         catch (java.io.IOException ioe) {
-                            TopManager.getDefault().notify ( new NotifyDescriptor.Message (NbBundle.getBundle("TXT_CanNotCreate"),NotifyDescriptor.ERROR_MESSAGE));
+                            TopManager.getDefault().notify ( new NotifyDescriptor.Message (NbBundle.getBundle(IORMerge.class).getString("TXT_CanNotCreate"),NotifyDescriptor.ERROR_MESSAGE));
                             return;
                         }
                         finally {

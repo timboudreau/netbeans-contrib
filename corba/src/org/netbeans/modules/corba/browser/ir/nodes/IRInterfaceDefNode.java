@@ -19,6 +19,7 @@ import org.openide.nodes.Node;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.OpenAction;
+import org.netbeans.modules.corba.settings.CORBASupportSettings;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
@@ -28,6 +29,7 @@ public class IRInterfaceDefNode extends IRContainerNode {
 
     InterfaceDef _interface;
     boolean isAbstract;
+    ORB orb;
 
     private static final String INTERFACE_ICON_BASE =
         "org/netbeans/modules/corba/idl/node/interface";
@@ -44,7 +46,7 @@ public class IRInterfaceDefNode extends IRContainerNode {
                 fill = fill + SPACE;
             code = code + fill;
             try {
-                if (isAbstract || _interface.is_abstract ())
+                if (isAbstract || is_abstract ())
                     code = code + "abstract ";
             }catch (org.omg.CORBA.SystemException sysExc) {}
             code = code + "interface " + _interface.name () + " {\n";
@@ -60,7 +62,7 @@ public class IRInterfaceDefNode extends IRContainerNode {
                 fill = fill + SPACE;
             code = code + fill;
             try {
-                if (isAbstract || _interface.is_abstract ())
+                if (isAbstract || is_abstract ())
                     code = code + "abstract ";
             } catch (org.omg.CORBA.SystemException sysExc) {}
             code = code + "interface " + _interface.name ();
@@ -171,7 +173,7 @@ public class IRInterfaceDefNode extends IRContainerNode {
         ss.put ( new PropertySupport.ReadOnly (Util.getLocalizedString("TITLE_Abstract"), String.class, Util.getLocalizedString("TITLE_Abstract"), Util.getLocalizedString ("TIP_InterfaceAbstract")) {
             public java.lang.Object getValue () {
                 try {
-                    if (isAbstract || _interface.is_abstract())
+                    if (isAbstract || is_abstract())
                         return Util.getLocalizedString ("MSG_Yes");
                     else
                         return Util.getLocalizedString ("MSG_No");
@@ -186,6 +188,31 @@ public class IRInterfaceDefNode extends IRContainerNode {
     
     public org.omg.CORBA.Contained getOwner () {
         return this._interface;
+    }
+    
+    /** This method is a hack to simulate the is_abstract InterfaceDef's
+     * operation which was added to some CORBA implementation and is not 
+     * in specification. This method calls the operation by DII to avoid
+     * NoSuchMethodException when the underlaying ORB is compliant to specificaion
+     * but the remote EndPoint behaves in wrong way
+     */
+    private boolean is_abstract () {
+        try {
+            if (this.orb == null) {
+                CORBASupportSettings settings = (CORBASupportSettings) CORBASupportSettings.findObject(CORBASupportSettings.class);
+                this.orb = settings.getORB();
+            }
+            org.omg.CORBA.Request request = this._interface._request("is_abstract");
+            request.set_return_type (orb.get_primitive_tc (TCKind.tk_boolean));
+            request.invoke();
+            Exception e = request.env().exception();
+            if (e != null)
+                return false;
+            else
+                return request.return_value().extract_boolean();
+        }catch (org.omg.CORBA.SystemException se) {
+            return false;  // In case of exception we suppose not abstract
+        }
     }
     
 

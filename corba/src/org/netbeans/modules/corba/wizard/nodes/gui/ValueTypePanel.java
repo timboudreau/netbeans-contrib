@@ -233,7 +233,8 @@ public class ValueTypePanel extends ExPanel implements javax.swing.event.Documen
                 this.truncatable.setEnabled (false);
             }else {
                 this.custom.setEnabled (true);
-                this.truncatable.setEnabled (true);
+                if (this.base.getText().length()>0)
+                    this.truncatable.setEnabled (true);
             }
         }
         if (source == this.custom) {
@@ -243,19 +244,25 @@ public class ValueTypePanel extends ExPanel implements javax.swing.event.Documen
             }
             else {
                 this.abst.setEnabled (true);
-                this.truncatable.setEnabled (true);
+                if (this.base.getText().length()>0)
+                    this.truncatable.setEnabled (true);
             }
         }
     }
     
     private void checkState () {
         if (base.getText().length() > 0) {
-            if (!this.truncatable.isEnabled())
+            if (!this.truncatable.isEnabled() && !this.custom.isSelected() && !this.abst.isSelected())
                 this.truncatable.setEnabled (true);
         }
         else {
             if (this.truncatable.isEnabled())
                 this.truncatable.setEnabled (false);
+            if (this.truncatable.isSelected()) {
+                this.truncatable.setSelected (false);
+                this.custom.setEnabled (true);
+                this.abst.setEnabled (true);
+            }
         }
         if (IdlUtilities.isValidIDLIdentifier(name.getText()))
             this.enableOk();
