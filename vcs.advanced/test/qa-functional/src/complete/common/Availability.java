@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -178,6 +178,7 @@ public class Availability extends JellyTestCase {
             VCSWizardProfile wizard = new VCSWizardProfile();
             wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
             wizard.setWorkingDirectory(getWorkDirPath());
+            Thread.sleep(2000);
             wizard.finish();
             Thread.sleep(2000);
             String filesystem = "Empty " + getWorkDirPath();
@@ -220,6 +221,7 @@ public class Availability extends JellyTestCase {
             VCSWizardProfile wizard = new VCSWizardProfile();
             wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
             wizard.setWorkingDirectory(getWorkDirPath());
+            Thread.sleep(2000);
             wizard.finish();
             Thread.sleep(2000);
             String filesystem = "Empty " + getWorkDirPath();
@@ -288,6 +290,7 @@ public class Availability extends JellyTestCase {
             VCSWizardProfile wizard = new VCSWizardProfile();
             wizard.setProfile(Utilities.isUnix() ? VCSWizardProfile.EMPTY_UNIX : VCSWizardProfile.EMPTY_WIN);
             wizard.setWorkingDirectory(getWorkDirPath());
+            Thread.sleep(2000);
             wizard.finish();
             Thread.sleep(2000);
             String filesystem = "Empty " + getWorkDirPath();
@@ -331,6 +334,7 @@ public class Availability extends JellyTestCase {
             StringProperty property = new StringProperty(sheet.getPropertySheetTabOperator("Expert"), "General Command Action Class Name");
             property.setStringValue("org.netbeans.modules.vcscore.actions.AddCommandAction");
             commandEditor.ok();
+            Thread.sleep(2000);
             advancedPage.finish();
             Thread.sleep(2000);
             String filesystem = "Empty " + getWorkDirPath();
