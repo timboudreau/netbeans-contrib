@@ -39,9 +39,11 @@ public class VcsCollocationQueryImpl implements CollocationQueryImplementation {
     public VcsCollocationQueryImpl() {}
     
     public boolean areCollocated(File file1, File file2) {
-        File root1 = findRoot(file1);
-        File root2 = findRoot(file2);
-        return root1 != null && root2 != null && root1.equals(root2);
+        FileObject fo1 = FileUtil.toFileObject(file1);
+        FileObject fo2 = FileUtil.toFileObject(file2);
+        Object vcsFS1 = fo1.getAttribute(VcsAttributes.VCS_NATIVE_FS);
+        Object vcsFS2 = fo2.getAttribute(VcsAttributes.VCS_NATIVE_FS);
+        return vcsFS1 != null && vcsFS2 != null && vcsFS1.equals(vcsFS2);
     }
     
     public File findRoot(File f) {
