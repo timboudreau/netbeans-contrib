@@ -84,6 +84,9 @@ public class IDLDataObject extends MultiDataObject {
   public IDLDataObject (final FileObject obj, final MultiFileLoader loader)
     throws DataObjectExistsException {
     super(obj, loader);
+
+    if (DEBUG)
+      System.out.println ("IDLDataObject::IDLDataObject (...)");
     idl_loader = loader;
     // use editor support
     MultiDataObject.Entry entry = getPrimaryEntry ();
@@ -523,6 +526,7 @@ public class IDLDataObject extends MultiDataObject {
 
 /*
  * <<Log>>
+ *  16   Gandalf   1.15        10/5/99  Karel Gardas    update from CVS
  *  15   Gandalf   1.14        10/1/99  Karel Gardas    updates from CVS
  *  14   Gandalf   1.13        8/7/99   Karel Gardas    changes in code which 
  *       hide generated files

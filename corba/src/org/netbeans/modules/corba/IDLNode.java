@@ -41,61 +41,70 @@ import com.netbeans.enterprise.modules.corba.idl.node.*;
 
 public class IDLNode extends DataNode {
 
-   //public static final boolean DEBUG = true;
-   public static final boolean DEBUG = false;
+  //public static final boolean DEBUG = true;
+  public static final boolean DEBUG = false;
 
-   /** Icon base for the IDLNode node */
-   public static final String IDL_ICON_BASE =
-      "com/netbeans/enterprise/modules/corba/settings/idl";
-   public static final String IDL_ERROR_ICON =
-      "com/netbeans/enterprise/modules/corba/settings/idl-error";
+  /** Icon base for the IDLNode node */
+  public static final String IDL_ICON_BASE =
+    "com/netbeans/enterprise/modules/corba/settings/idl";
+  public static final String IDL_ERROR_ICON =
+    "com/netbeans/enterprise/modules/corba/settings/idl-error";
 
-   IDLDocumentChildren children;
-   IDLDataObject ido;
+  IDLDocumentChildren children;
+  IDLDataObject ido;
 
-   /** Default constructor, constructs node */
-   public IDLNode (DataObject dataObject) throws Exception {
-      //super(dataObject, Children.LEAF);
-      //try {
-      super (dataObject, new IDLDocumentChildren ((IDLDataObject) dataObject));
-      ido = (IDLDataObject)dataObject;
-      setIconBase (IDL_ICON_BASE);
-      children = (IDLDocumentChildren) getChildren ();
-      children.setNode (this);
-      //children.startParsing ();
-      //} catch (ParseException e) {
-      //setIconBase(IDL_ERROR_ICON);
-      //}
-      if (DEBUG)
-	 System.out.println ("IDLNode constructor!!!");
-}
+  /** Default constructor, constructs node */
+  public IDLNode (DataObject dataObject) throws Exception {
+    //super(dataObject, Children.LEAF);
+    //try {
+    super (dataObject, new IDLDocumentChildren ((IDLDataObject) dataObject));
+    ido = (IDLDataObject)dataObject;
+    setIconBase (IDL_ICON_BASE);
+    children = (IDLDocumentChildren) getChildren ();
+    children.setNode (this);
+    //children.startParsing ();
+    //} catch (ParseException e) {
+    //setIconBase(IDL_ERROR_ICON);
+    //}
+    if (DEBUG)
+      System.out.println ("IDLNode constructor!!!");
+  }
   
-   /** Overrides default action from DataNode.
-    * Instantiate a template, if isTemplate() returns true.
-    * Opens otherwise.
-    */
-   public SystemAction getDefaultAction () {
-      SystemAction result = super.getDefaultAction();
-      return result == null ? SystemAction.get(OpenAction.class) : result;
-   }
+  /** Overrides default action from DataNode.
+   * Instantiate a template, if isTemplate() returns true.
+   * Opens otherwise.
+   */
+  public SystemAction getDefaultAction () {
+    SystemAction result = super.getDefaultAction();
+    return result == null ? SystemAction.get(OpenAction.class) : result;
+  }
 
-   public boolean canRename () {
-      return true;
-   }
+  public boolean canRename () {
+    return true;
+  }
 
-   protected IDLDataObject getIDLDataObject () {
-      return (IDLDataObject) getDataObject ();
-   }
+  protected IDLDataObject getIDLDataObject () {
+    return (IDLDataObject) getDataObject ();
+  }
    
-   public void update () {
-      children.setSrc (ido.getSources ());
-      children.createKeys ();
-   }
+  public void update () {
+    children.setSrc (ido.getSources ());
+    children.createKeys ();
+  }
+
+  // for better debuging
+  /*
+    public Node.Cookie getCookie (java.lang.Class clazz) {
+    System.out.println ("IDLNode::getCookie (" + clazz + ");");
+    return super.getCookie (clazz);
+    }
+  */
 }
 
 
 /*
  * <<Log>>
+ *  12   Gandalf   1.11        10/5/99  Karel Gardas    update from CVS
  *  11   Gandalf   1.10        10/1/99  Karel Gardas    updates from CVS
  *  10   Gandalf   1.9         8/3/99   Karel Gardas    
  *  9    Gandalf   1.8         7/10/99  Karel Gardas    
