@@ -497,6 +497,7 @@ public class ExternalCommand {
                     eof_stderr = true;
                 }
             } catch (IOException ioexc) {
+                stopped = true;
             }
         }
         
