@@ -33,13 +33,14 @@ Microsystems, Inc. All Rights Reserved.
         debug="${build.compiler.debug}"
         destdir="src">
       <classpath>        
-	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
+				<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
         <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
-	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
-	<pathelement location="${nbroot}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
-        <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
+				<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
+				<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
+				<pathelement location="${nbroot}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
+				<pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
+				<pathelement location="${nbroot}/javacvs/libmodule/netbeans/modules/autoload/cvslib.jar"/>
         <fileset dir="${nbroot}/libs/external">
           <include name="regexp*.jar"/>
         </fileset>
