@@ -181,7 +181,11 @@ public class BasicVariableNode extends AbstractNode {
     
     public String getName() {
         if (var != null) {
-            return var.getLabel();
+            String label = var.getLabel();
+            if (label == null || label.length() == 0) {
+                label = var.getName();
+            }
+            return label;
         } else {
             return super.getName();
         }

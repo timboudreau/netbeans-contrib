@@ -51,6 +51,7 @@ public class AccessoryVariableNode extends AbstractNode {
     private ConditionedString cs = null;
     private IfUnlessCondition mainCondition = null;
     private Children.Array list = null;
+    private boolean readOnly = false;
     private PropertyChangeSupport variableChangeSupport = new PropertyChangeSupport(this);
 
     /** Creates new AccessoryVariableNode */
@@ -139,6 +140,10 @@ public class AccessoryVariableNode extends AbstractNode {
         if (var != null) {
             setShortDescription(NbBundle.getMessage(AccessoryVariableNode.class, "CTL_AccessoryVarDescription", var.getName()));
         }
+    }
+    
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
     
     public void setName(String name) {
@@ -301,6 +306,13 @@ public class AccessoryVariableNode extends AbstractNode {
     }
 
     protected SystemAction [] createActions() {
+        if (readOnly) {
+            if (Children.LEAF.equals(this.getChildren())) {
+                return new SystemAction[] { SystemAction.get(CopyAction.class) };
+            } else {
+                return new SystemAction[0];
+            }
+        }
         ArrayList actions = new ArrayList();
         if (Children.LEAF.equals(this.getChildren())) {
             actions.add(SystemAction.get(CutAction.class));
@@ -329,6 +341,51 @@ public class AccessoryVariableNode extends AbstractNode {
     }
     
     private void createProperties(final VcsConfigVariable var, final Sheet.Set set) {
+        if (readOnly) {
+            createReadOnlyProperties(var, set);
+        } else {
+            createReadWriteProperties(var, set);
+        }
+    }
+    
+    private void createReadOnlyProperties(final VcsConfigVariable var, final Sheet.Set set) {
+        set.put(new PropertySupport.ReadOnly(Node.PROP_NAME, String.class, g("CTL_Name"), g("HINT_Name")) {
+            public Object getValue() {
+                return var.getName();
+            }
+        });
+        if (mainCondition != null) {
+            set.put(new PropertySupport.ReadOnly("if", String.class, g("CTL_DefIf"), g("HINT_DefIf")) {
+                public Object getValue() {
+                    return mainCondition.getIf();
+                }
+            });
+            set.put(new PropertySupport.ReadOnly("unless", String.class, g("CTL_DefIfNot"), g("HINT_DefIfNot")) {
+                public Object getValue() {
+                    return mainCondition.getUnless();
+                }
+            });
+        }
+        if (cs != null) {
+            set.put(new PropertySupport.ReadOnly("value", ConditionedString.class, g("CTL_Value"), g("HINT_Value")) {
+                public Object getValue() {
+                    return cs;
+                }
+
+                public PropertyEditor getPropertyEditor() {
+                    return new ConditionedString.ConditionedStringPropertyEditor();
+                }
+            });
+        } else {
+            set.put(new PropertySupport.ReadOnly("value", String.class, g("CTL_Value"), g("HINT_Value")) {
+                public Object getValue() {
+                    return var.getValue();
+                }
+            });
+        }
+    }
+    
+    private void createReadWriteProperties(final VcsConfigVariable var, final Sheet.Set set) {
         set.put(new PropertySupport.ReadWrite(Node.PROP_NAME, String.class, g("CTL_Name"), g("HINT_Name")) {
             public Object getValue() {
                 return var.getName();
@@ -368,12 +425,6 @@ public class AccessoryVariableNode extends AbstractNode {
 
                 public void setValue(Object value) {
                     cs = (ConditionedString) value;
-                    if (VcsCustomizer.VAR_CONFIG_INPUT_DESCRIPTOR.equals(var.getName())) {
-                        ((AccessoryVariableNode) AccessoryVariableNode.this.getParentNode()).fireVariablePropertyChange(
-                            UserVariablesPanel.PROP_CONFIG_INPUT_DESCRIPTOR,
-                            Boolean.FALSE, UserVariablesPanel.isConfigInputDescriptorVar(var) ? Boolean.TRUE : Boolean.FALSE);
-                    }
-                    //cmd.fireChanged();
                 }
                 
                 public PropertyEditor getPropertyEditor() {
@@ -388,12 +439,6 @@ public class AccessoryVariableNode extends AbstractNode {
                 
                 public void setValue(Object value) {
                     var.setValue((String) value);
-                    if (VcsCustomizer.VAR_CONFIG_INPUT_DESCRIPTOR.equals(var.getName())) {
-                        ((AccessoryVariableNode) AccessoryVariableNode.this.getParentNode()).fireVariablePropertyChange(
-                            UserVariablesPanel.PROP_CONFIG_INPUT_DESCRIPTOR,
-                            Boolean.FALSE, UserVariablesPanel.isConfigInputDescriptorVar(var) ? Boolean.TRUE : Boolean.FALSE);
-                    }
-                    //cmd.fireChanged();
                 }
             });
         }

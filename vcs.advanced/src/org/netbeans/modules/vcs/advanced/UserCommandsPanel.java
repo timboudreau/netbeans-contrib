@@ -44,9 +44,7 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
  * @author Martin Entlicher
  */
 //-------------------------------------------
-public class UserCommandsPanel extends JPanel
-    implements CommandChangeListener, EnhancedCustomPropertyEditor,
-                ExplorerManager.Provider {
+public class UserCommandsPanel extends JPanel implements ExplorerManager.Provider {
 
     private Debug E=new Debug("UserCommandsPanel", true); // NOI18N
     private Debug D=E;
@@ -87,33 +85,16 @@ public class UserCommandsPanel extends JPanel
         getExplorerManager().setRootContext(commandsNode/*createNodes()*/);
         ExplorerActions actions = new ExplorerActions();
         actions.attach(getExplorerManager());
-        HelpCtx.setHelpIDString (this, "VCS_CommandEditor"); // NOI18N
+        HelpCtx.setHelpIDString (this, "VCS_CommandsView"); // NOI18N
         getAccessibleContext().setAccessibleName(g("ACS_UserCommandsPanelA11yName"));  // NOI18N
         getAccessibleContext().setAccessibleDescription(g("ACS_UserCommandsPanelA11yDesc"));  // NOI18N
     }
 
-    /** Called when the command is changed.
-     */
-    public void changed(VcsCommand cmd) {
-        editor.setValue(getPropertyValue());
-    }
-    
-    /** Called when new command is added.
-     */
-    public void added(VcsCommand cmd) {
-        editor.setValue(getPropertyValue());
-    }
-    
-    /** Called when the command is removed.
-     */
-    public void removed(VcsCommand cmd) {
-        editor.setValue(getPropertyValue());
-    }
-    
     private CommandNode createCommandNodes(CommandsTree oldCommands, UserCommand cmd) {
         Children newChildren = new Index.ArrayChildren();
         
         CommandNode newCommands = new CommandNode(newChildren, cmd);
+        newCommands.setReadOnly(true);
         CommandsTree[] oldNodes = oldCommands.children();
         for(int i = 0; i < oldNodes.length; i++) {
             CommandSupport supp = oldNodes[i].getCommandSupport();
@@ -125,6 +106,7 @@ public class UserCommandsPanel extends JPanel
             CommandNode newNode;
             if (!oldNodes[i].hasChildren()) {
                 newNode = new CommandNode(Children.LEAF, newcmd);
+                newNode.setReadOnly(true);
             } else {
                 newNode = createCommandNodes(oldNodes[i], newcmd);
             }
@@ -133,34 +115,6 @@ public class UserCommandsPanel extends JPanel
         return newCommands;
     }
     
-    private CommandsTree createCommands(CommandNode oldCommands, UserCommand cmd, CommandExecutionContext executionContext) {
-        Children oldChildren = oldCommands.getChildren();
-        CommandsTree newCommands = new CommandsTree(new UserCommandSupport(cmd, executionContext));
-        
-        Node[] oldNodes = oldChildren.getNodes();
-        for(int i = 0; i < oldNodes.length; i++) {
-            UserCommand oldcmd = (UserCommand) ((CommandNode) oldNodes[i]).getCommand();
-            UserCommand newcmd = null;
-            if (oldcmd != null) {
-                newcmd = new UserCommand();
-                newcmd.copyFrom(oldcmd);
-            }
-            Children subChildren = oldNodes[i].getChildren();
-            CommandsTree newNode;
-            if (newcmd == null) {
-                newNode = CommandsTree.EMPTY;
-            } else {
-                if (Children.LEAF.equals(subChildren)) {
-                    newNode = new CommandsTree(new UserCommandSupport(newcmd, executionContext));
-                } else {
-                    newNode = createCommands((CommandNode) oldNodes[i], newcmd, executionContext);
-                }
-            }
-            newCommands.add(newNode);
-        }
-        return newCommands;
-    }
-
     public void initComponents(){
         GridBagLayout gb=new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
@@ -168,6 +122,25 @@ public class UserCommandsPanel extends JPanel
         //setBorder(new TitledBorder(g("CTL_Commands")));
         setBorder(new EmptyBorder (12, 12, 0, 11));
         
+        javax.swing.JTextArea descriptionArea = new javax.swing.JTextArea();
+        String profileDisplayName = null;
+        if (executionContext instanceof CommandLineVcsFileSystem) {
+            Profile profile = ((CommandLineVcsFileSystem) executionContext).getProfile();
+            if (profile != null) {
+                profileDisplayName = profile.getDisplayName();
+            }
+        }
+        descriptionArea.setText(g("LBL_ReadOnlyCommandsView", profileDisplayName));
+        descriptionArea.setEditable(false);
+        descriptionArea.setLineWrap(true);
+        descriptionArea.setWrapStyleWord(true);
+        descriptionArea.setBackground(new javax.swing.JLabel().getBackground());
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1.0;
+        c.insets = new java.awt.Insets(0, 0, 11, 0);
+        add(descriptionArea, c);
+        
+        c = new GridBagConstraints();
         PropertySheetView propertySheetView = new PropertySheetView();
         try {
             propertySheetView.setSortingMode(org.openide.explorer.propertysheet.PropertySheet.UNSORTED);
@@ -190,6 +163,7 @@ public class UserCommandsPanel extends JPanel
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1.0;
         c.weighty = 1.0;
+        c.gridy = 1;
         add(split, c);
     }
     
@@ -203,14 +177,12 @@ public class UserCommandsPanel extends JPanel
     }
     
     //-------------------------------------------
-    public Object getPropertyValue() {
-        return createCommands(commandsNode, (UserCommand) commandsNode.getCommand(), executionContext);
-    }
-
-
-    //-------------------------------------------
     private String g(String s) {
         return NbBundle.getMessage(UserCommandsPanel.class, s);
+    }
+
+    private String g(String s, Object obj) {
+        return NbBundle.getMessage(UserCommandsPanel.class, s, obj);
     }
 
 

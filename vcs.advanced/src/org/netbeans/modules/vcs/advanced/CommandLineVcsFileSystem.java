@@ -190,7 +190,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private boolean shortFileStatuses = false;
     private Set compatibleOSs = null;
     private Set uncompatibleOSs = null;
-    private boolean profilesOriginalCommands = false; // whether the set of commands is the original from the profile
     private transient boolean doInitialCheckout = false; // whether to do an initial checkout after the FS is mounted
     private transient boolean isFSAdded = false; // Whether the filesystem is added into the repository
     private transient PropertyChangeListener sharedPasswordChangeListener;
@@ -333,14 +332,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return configFileName;
     }
     
-    public boolean isProfilesOriginalCommands() {
-        return profilesOriginalCommands;
-    }
-    
-    public void setProfilesOriginalCommands(boolean profilesOriginalCommands) {
-        this.profilesOriginalCommands = profilesOriginalCommands;
-    }
-    
     /**
      * Set the profile configuration, that this filesystem uses. This method also
      * sets the commands and variables, that are defined by the profile
@@ -378,11 +369,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             if (setVars) {
                 ConditionedVariables cvariables = profile.getVariables();
                 Condition[] conditions = profile.getConditions();
-                setProfilesOriginalCommands(true);
-                // setVariables will also set commands iff profilesOriginalCommands == true
                 if (cvariables != null) {
                     Collection variables = cvariables.getSelfConditionedVariables(conditions, Variables.getDefaultVariablesMap());
-                    setVariables(copySharedVariables(variables));
+                    setVariables(copySharedVariables(variables)); // TODO copy only basic variables
                 } else{
                     setVariables(new Vector());
                 }
@@ -390,9 +379,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 ConditionedCommands ccommands = profile.getCommands();
                 if (ccommands != null) {
                     CommandsTree commands = ccommands.getCommands(getVariablesAsHashtable());
-                    setCommands(copySharedCommands(commands), true);
+                    setCommands(copySharedCommands(commands));
                 } else {
-                    setCommands(CommandsTree.EMPTY, true);
+                    setCommands(CommandsTree.EMPTY);
                 }
             }
             if (profileChangeListener == null) {
@@ -446,13 +435,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return vars;
     }
     
-    public String getConfigFileModificationTimeStr() {
-        if (CONFIG_ROOT_FO == null) return "0"; // NOI18N
-        FileObject fo = CONFIG_ROOT_FO.getFileObject(configFileName);
-        if (fo == null) return "0"; // NOI18N
-        return fo.lastModified().toGMTString();
-    }
-
     private void setConfigFO() {
         FileSystem dfs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem ();
         FileObject fo = dfs.findResource(CONFIG_ROOT);
@@ -636,10 +618,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             String label = profile.getDisplayName();
             ConditionedVariables cvariables = profile.getVariables();
             Condition[] conditions = profile.getConditions();
-            setProfilesOriginalCommands(true);
             if (cvariables != null) {
                 Collection variables = cvariables.getSelfConditionedVariables(conditions, Variables.getDefaultVariablesMap());
-                setVariables(copySharedVariables(variables));
+                setVariables(copySharedVariables(variables)); // TODO copy only basic variables
             } else{
                 setVariables(new Vector());
             }
@@ -653,19 +634,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return profile != null;
     }
     
-    public void setCommands(CommandsTree root) {
-        setCommands(root, false);
-    }
-    
     /**
      * Set the commands.
-     * @param profileCommands True, when the caller is setting the commands
-     *        stored in the profile.
-     *        False, if the caller is setting commands from other source
-     *        (like user customization).
      */
-    private void setCommands(CommandsTree root, boolean profileCommands) {
-        setProfilesOriginalCommands(profileCommands);
+    public void setCommands(CommandsTree root) {
         boolean isCreateVFS = isCreateVersioningSystem();
         boolean isExistsVFS = getVersioningFileSystem() != null;
         super.setCommands(root);
@@ -1089,6 +1061,25 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
     
     /**
+     * Get a collection of variables that are customized by the user. These variables
+     * are to be persistent, unlike other variables that are provided by the Profile.
+     * Just basic variables are considered as customized.
+     * Thus even when a special config input descriptor is defined, basic variables
+     * need to be set appropriatelly.
+     */
+    public Collection getCustomizedVariables() {
+        Collection custVars = new HashSet();
+        Vector vars = getVariables();
+        for (Iterator it = vars.iterator(); it.hasNext(); ) {
+            VcsConfigVariable var = (VcsConfigVariable) it.next();
+            if (var.isBasic()) {
+                custVars.add(var);
+            }
+        }
+        return custVars;
+    }
+    
+    /**
      * Set the file system's variables.
      * @param variables the vector of <code>VcsConfigVariable</code> objects.
      */
@@ -1112,14 +1103,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
         //System.out.println("setVariables(): Passwd Description = "+passwordDescription+", var = "+var);
         setCacheFile();
-        // Conditionally set the commands if not explicitely set by user
-        if (profilesOriginalCommands && profile != null) {
+        if (profile != null) {
             ConditionedCommands ccommands = profile.getCommands();
             if (ccommands != null) {
                 CommandsTree commands = ccommands.getCommands(getVariablesAsHashtable());
-                setCommands(copySharedCommands(commands), true);
+                setCommands(copySharedCommands(commands));
             } else {
-                setCommands(CommandsTree.EMPTY, true);
+                setCommands(CommandsTree.EMPTY);
             }
         }
     }
@@ -1560,10 +1550,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
          *   	and the property that has changed.
          */
         public void propertyChange(PropertyChangeEvent evt) {
-            if (Profile.PROP_COMMANDS.equals(evt.getPropertyName()) && profilesOriginalCommands) {
+            if (Profile.PROP_COMMANDS.equals(evt.getPropertyName())) {
                 ConditionedCommands ccommands = profile.getCommands();
                 CommandsTree commands = ccommands.getCommands(getVariablesAsHashtable());
-                setCommands(copySharedCommands(commands), true);
+                setCommands(copySharedCommands(commands));
             } else if (Profile.PROP_VARIABLES.equals(evt.getPropertyName())) {
                 //setVariables(profile.getVariables())); TODO - copy only *some*
             }

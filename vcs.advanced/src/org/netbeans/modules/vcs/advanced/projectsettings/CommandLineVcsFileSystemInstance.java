@@ -58,10 +58,14 @@ import org.openide.xml.XMLUtil;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
+import org.netbeans.modules.vcs.advanced.Profile;
+import org.netbeans.modules.vcs.advanced.ProfilesFactory;
 import org.netbeans.modules.vcs.advanced.commands.ConditionedCommands;
 import org.netbeans.modules.vcs.advanced.commands.UserCommandIO;
+import org.netbeans.modules.vcs.advanced.variables.Condition;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
+import org.netbeans.modules.vcscore.Variables;
 
 /**
  *
@@ -137,8 +141,6 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 // Stuff from CommandLineVcsFileSystem
                 new PropertyDescriptor("config", CommandLineVcsFileSystem.class, "getConfig", "setConfig"),
                 new PropertyDescriptor("configFileName", CommandLineVcsFileSystem.class, "getConfigFileName", "setConfigFileName"),
-                new PropertyDescriptor("configFileModificationTimeStr", CommandLineVcsFileSystem.class, "getConfigFileModificationTimeStr", null),
-                new PropertyDescriptor("profilesOriginalCommands", CommandLineVcsFileSystem.class, "isProfilesOriginalCommands", "setProfilesOriginalCommands"),
                 new PropertyDescriptor("cacheId", CommandLineVcsFileSystem.class, "getCacheId", "setCacheId"),
                 new PropertyDescriptor("shortFileStatuses", CommandLineVcsFileSystem.class, "isShortFileStatuses", "setShortFileStatuses"), //NOI18N
                 new PropertyDescriptor("VFSMessageLength", CommandLineVcsFileSystem.class, "getVFSMessageLength", "setVFSMessageLength"), //NOI18N
@@ -440,53 +442,48 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         //Document vcDoc = XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, VariableIO.PUBLIC_ID, VariableIO.SYSTEM_ID);
         Element rootElem = doc.getDocumentElement();
         NodeList configList = rootElem.getElementsByTagName(VariableIO.CONFIG_ROOT_ELEM);
+        Collection customizedVariables = null;
         if (configList.getLength() > 0) {
             Element configNode = (Element) configList.item(0);
-            /* THERE ARE PROBLEMS WITH IMPORT OF NODES (THE NODE ATTRIBUTES ARE NOT IMPORTED)
-             * ANYBODY KNOWS WHY ??
-            NodeList configChildren = configNode.getChildNodes();
-            for (int i = 0; i < configChildren.getLength(); i++) {
-                Node importedNode = vcDoc.importNode(configChildren.item(i), true);
-                System.out.println("  imported Node = "+importedNode);
-                vcDoc.getDocumentElement().appendChild(importedNode);
-            }
-            try {
-                XMLUtil.write(doc, new java.io.FileOutputStream("/home/me97925/testOrig.xml"), null);
-                XMLUtil.write(vcDoc, new java.io.FileOutputStream("/home/me97925/testVC.xml"), null);
-            } catch (java.io.IOException exc) {
-                TopManager.getDefault().notifyException(exc);
-            }
-            fs.setVariables(VariableIO.readVariables(vcDoc));
-            fs.setCommands(UserCommandIO.readCommands(vcDoc));
-             */
             NodeList varList = configNode.getElementsByTagName(VariableIO.VARIABLES_TAG);
             if (varList.getLength() > 0) {
                 Node varsNode = varList.item(0);
-                fs.setVariables(new Vector(VariableIO.getVariables(varsNode.getChildNodes()).getUnconditionedVariables()));
+                customizedVariables = VariableIO.getVariables(varsNode.getChildNodes()).getUnconditionedVariables();
             }
-            NodeList labelList = configNode.getElementsByTagName(VariableIO.LABEL_TAG);
-            Node labelNode = null;
-            if (labelList.getLength() > 0) {
-                labelNode = labelList.item(0);
-            }
-            NodeList commandsList = configNode.getElementsByTagName(UserCommandIO.COMMANDS_TAG);
-            if (commandsList.getLength() > 0) {
-                Node commands = commandsList.item(0);
-                commandsList = commands.getChildNodes();
-            } else commandsList = null;
-            fs.setCommands(UserCommandIO.readCommands(labelNode, commandsList, fs).getCommands());
         }
         readAdditionalFSProperties(fs, doc);
+        String configFile = fs.getConfigFileName();
+        Profile profile = ProfilesFactory.getDefault().getProfile(configFile);
+        fs.setProfile(profile);
+        fs.setVariables(mergeInVars(fs.getVariables(), customizedVariables));
+    }
+    
+    private static Vector mergeInVars(Vector vars, Collection customizedVariables) {
+        HashMap varsByName = new HashMap(vars.size());
+        for (Iterator it = vars.iterator(); it.hasNext(); ) {
+            VcsConfigVariable var = (VcsConfigVariable) it.next();
+            varsByName.put(var.getName(), var);
+        }
+        for (Iterator it = customizedVariables.iterator(); it.hasNext(); ) {
+            VcsConfigVariable var = (VcsConfigVariable) it.next();
+            String name = var.getName();
+            VcsConfigVariable evar = (VcsConfigVariable) varsByName.get(name);
+            if (evar != null) {
+                evar.setValue(var.getValue());
+            } else {
+                vars.add(var);
+            }
+        }
+        return vars;
     }
     
     public static void writeFSProperties(CommandLineVcsFileSystem fs, Document doc) throws DOMException {
         //System.out.println("writeFSProperties("+fs.getSystemName()+")");
         Document vcDoc = XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, VariableIO.PUBLIC_ID, VariableIO.SYSTEM_ID);
         VariableIO.writeVariables(vcDoc, fs.getConfig(),
-                                  new ConditionedVariables(fs.getVariables(),
+                                  new ConditionedVariables(fs.getCustomizedVariables(),
                                                            java.util.Collections.EMPTY_MAP,
                                                            java.util.Collections.EMPTY_MAP));
-        UserCommandIO.writeCommands(vcDoc, fs.getCommands());
         Node importedNode = doc.importNode(vcDoc.getDocumentElement(), true);
         doc.getDocumentElement().appendChild(importedNode);
         writeAdditionalFSProperties(fs, doc);

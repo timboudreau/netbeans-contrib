@@ -39,8 +39,7 @@ import org.netbeans.modules.vcs.advanced.variables.*;
  */
 //-------------------------------------------
 public class UserVariablesPanel extends JPanel implements EnhancedCustomPropertyEditor,
-                                                          ExplorerManager.Provider,
-                                                          PropertyChangeListener {
+                                                          ExplorerManager.Provider {
     
     /** This property is fired when the variable CONFIG_INPUT_DESCRIPTOR is
      * defined/undefined with a meaningfull value */
@@ -66,7 +65,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         getExplorerManager().setRootContext(createNodes());
         ExplorerActions actions = new ExplorerActions();
         actions.attach(getExplorerManager());
-        HelpCtx.setHelpIDString (this, "VCS_VariableEditor"); // NOI18N
+        HelpCtx.setHelpIDString (this, "VCS_VariablesView"); // NOI18N
     }
 
     //-------------------------------------------
@@ -77,6 +76,18 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         //setBorder(new TitledBorder(g("CTL_Variables")));
         setBorder (new EmptyBorder (12, 12, 0, 11));
         
+        javax.swing.JTextArea descriptionArea = new javax.swing.JTextArea();
+        descriptionArea.setText(g("LBL_ReadOnlyVariablesView"));//, profileDisplayName));
+        descriptionArea.setEditable(false);
+        descriptionArea.setLineWrap(true);
+        descriptionArea.setWrapStyleWord(true);
+        descriptionArea.setBackground(new javax.swing.JLabel().getBackground());
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1.0;
+        c.insets = new java.awt.Insets(0, 0, 11, 0);
+        add(descriptionArea, c);
+        
+        c = new GridBagConstraints();
         PropertySheetView propertySheetView = new PropertySheetView();
         try {
             propertySheetView.setSortingMode(org.openide.explorer.propertysheet.PropertySheet.UNSORTED);
@@ -99,24 +110,10 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1.0;
         c.weighty = 1.0;
+        c.gridy = 1;
         add(split, c);
         getAccessibleContext().setAccessibleName(g("ACS_UserVariablesPanelA11yName"));  // NOI18N
         getAccessibleContext().setAccessibleDescription(g("ACS_UserVariablesPanelA11yDesc"));  // NOI18N
-    }
-    
-    public static final boolean isConfigInputDescriptorVar(VcsConfigVariable var) {
-        if (VcsCustomizer.VAR_CONFIG_INPUT_DESCRIPTOR.equals(var.getName())) {
-            String value = var.getValue();
-            if (value != null && value.length() > 0) {
-                try {
-                    VariableInputDescriptor.parseItems(value);
-                } catch (VariableInputFormatException vifex) {
-                    return false;
-                }
-                return true;
-            }
-        }
-        return false;
     }
     
     private static final Comparator getRootVarsComparator() {
@@ -144,18 +141,12 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         basicRoot = new BasicVariableNode(basicChildren);
         accessoryChildren = new Children.SortedArray();
         accessoryRoot = new AccessoryVariableNode(accessoryChildren);
-        //basicRoot.addPropertyChangeListener(WeakListener.propertyChange(this, basicRoot));
-        //accessoryRoot.addPropertyChangeListener(WeakListener.propertyChange(this, accessoryRoot));
-        accessoryRoot.addVariablePropertyChangeListener(this);
+        accessoryRoot.setReadOnly(true);
         varCh.add(new Node[] { basicRoot, accessoryRoot });
         Vector variables = (Vector) editor.getValue();
-        boolean disableBasic = false;
         for(Enumeration enum = variables.elements(); enum.hasMoreElements(); ) {
             VcsConfigVariable var = (VcsConfigVariable) enum.nextElement();
             String name = var.getName();
-            if (isConfigInputDescriptorVar(var)) {
-                disableBasic = true;
-            }
             if (var.isBasic()) {
                 basicChildren.add(new BasicVariableNode[] { new BasicVariableNode(var) });
             } else {
@@ -166,55 +157,12 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
                     filteredVariables.add(var);
                     continue;
                 }
-                accessoryChildren.add(new AccessoryVariableNode[] { new AccessoryVariableNode(var) });
+                AccessoryVariableNode accessoryNode = new AccessoryVariableNode(var);
+                accessoryNode.setReadOnly(true);
+                accessoryChildren.add(new AccessoryVariableNode[] { accessoryNode });
             }
         }
-        if (disableBasic) disableBasicVariables();
         return varRoot;
-    }
-    
-    public void disableBasicVariables() {
-        if (!basicRoot.isEnabled()) return ;
-        Node[] nodes = basicChildren.getNodes();
-        for (int i = 0; i < nodes.length; i++) {
-            BasicVariableNode varNode = (BasicVariableNode) nodes[i];
-            VcsConfigVariable var = varNode.getVariable();
-            var.setOrder(i);
-            accessoryChildren.add(new AccessoryVariableNode[] { new AccessoryVariableNode(var) });
-        }
-        varCh.remove(new Node[] { basicRoot });
-        basicChildren = Children.LEAF;
-        basicRoot = new BasicVariableNode(basicChildren);
-        basicRoot.setEnabled(false);
-        varCh.add(new Node[] { basicRoot });
-    }
-    
-    public void enableBasicVariables() {
-        if (basicRoot.isEnabled()) return ;
-        varCh.remove(new Node[] { basicRoot });
-        basicChildren = new Children.SortedArray();
-        basicRoot = new BasicVariableNode(basicChildren);
-        varCh.add(new Node[] { basicRoot });
-        Node[] nodes = accessoryChildren.getNodes();
-        for (int i = 0; i < nodes.length; i++) {
-            AccessoryVariableNode varNode = (AccessoryVariableNode) nodes[i];
-            VcsConfigVariable var = varNode.getVariable();
-            if (var.isBasic()) {
-                basicChildren.add(new BasicVariableNode[] { new BasicVariableNode(var) });
-                accessoryChildren.remove(new Node[] { varNode });
-            }
-        }
-    }
-
-    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-        if (PROP_CONFIG_INPUT_DESCRIPTOR.equals(propertyChangeEvent.getPropertyName())) {
-            Object newValue = propertyChangeEvent.getNewValue();
-            if (Boolean.TRUE.equals(newValue)) {
-                disableBasicVariables();
-            } else if (Boolean.FALSE.equals(newValue)) {
-                enableBasicVariables();
-            }
-        }
     }
     
     public org.openide.explorer.ExplorerManager getExplorerManager() {
@@ -251,10 +199,13 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         //return editor.getValue ();
     }
 
-
     //-------------------------------------------
     private String g(String s) {
         return NbBundle.getMessage(UserVariablesPanel.class, s);
+    }
+    
+    private String g(String s, Object obj) {
+        return NbBundle.getMessage(UserVariablesPanel.class, s, obj);
     }
     
 }

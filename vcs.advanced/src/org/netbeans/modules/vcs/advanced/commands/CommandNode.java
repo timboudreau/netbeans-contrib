@@ -71,6 +71,7 @@ public class CommandNode extends AbstractNode {
     private Map cproperties = null;
     private ResourceBundle resourceBundle = null;
     private CommandsIndex index = null;
+    private boolean readOnly = false;
     
     private static Table stdandard_propertyClassTypes = new Table();
     private static Table expert_propertyClassTypes = new Table();
@@ -210,6 +211,10 @@ public class CommandNode extends AbstractNode {
         index = new CommandsIndex();
         getCookieSet().add(index);
         fireIconChange();
+    }
+    
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
     
     public void setName(String name) {
@@ -477,53 +482,60 @@ public class CommandNode extends AbstractNode {
     }
     
     private void createStandardProperties(final Sheet.Set set) {
-        if (cmd == null) {
+        if (readOnly || cmd == null) {
             set.put(new PropertySupport.ReadOnly("label", String.class, g("CTL_Label"), g("HINT_Label")) {
                         public Object getValue() {
-                            return g("CTL_Separator");
+                            if (cmd != null) {
+                                return cmd.getDisplayName();
+                            } else {
+                                return g("CTL_Separator");
+                            }
                         }
                     });
             set.put(new PropertySupport.ReadOnly("name", String.class, g("CTL_Name"), g("HINT_Name")) {
                         public Object getValue() {
-                            return g("CTL_SeparatorName");
+                            if (cmd != null) {
+                                return cmd.getName();
+                            } else {
+                                return g("CTL_SeparatorName");
+                            }
                         }
                     });
-            return;
-                        
+        } else {
+            set.put(new PropertySupport.ReadWrite("label", String.class, g("CTL_Label"), g("HINT_Label")) {
+                        public Object getValue() {
+                            //System.out.println("getLabel: cmd = "+cmd);
+                            return cmd.getDisplayName();
+                        }
+
+                        public void setValue(Object value) {
+                            cmd.setDisplayName((String) value);
+                            CommandNode.this.fireNameChange(null, (String) value);
+                            //cmd.fireChanged();
+                        }
+
+                        public boolean supportsDefaultValue() {
+                            return true;
+                        }
+
+                        public void restoreDefaultValue() {
+                            cmd.setDisplayName(null);
+                            CommandNode.this.fireNameChange(null, null);
+                        }
+                    });
+            set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), g("HINT_Name")) {
+                        public Object getValue() {
+                            //System.out.println("getLabel: cmd = "+cmd);
+                            return cmd.getName();
+                        }
+
+                        public void setValue(Object value) {
+                            cmd.setName((String) value);
+                            CommandNode.this.setName((String) value);
+                            //cmd.fireChanged();
+                        }
+                    });
         }
-        set.put(new PropertySupport.ReadWrite("label", String.class, g("CTL_Label"), g("HINT_Label")) {
-                    public Object getValue() {
-                        //System.out.println("getLabel: cmd = "+cmd);
-                        return cmd.getDisplayName();
-                    }
-                    
-                    public void setValue(Object value) {
-                        cmd.setDisplayName((String) value);
-                        CommandNode.this.fireNameChange(null, (String) value);
-                        //cmd.fireChanged();
-                    }
-                    
-                    public boolean supportsDefaultValue() {
-                        return true;
-                    }
-                    
-                    public void restoreDefaultValue() {
-                        cmd.setDisplayName(null);
-                        CommandNode.this.fireNameChange(null, null);
-                    }
-                });
-        set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), g("HINT_Name")) {
-                    public Object getValue() {
-                        //System.out.println("getLabel: cmd = "+cmd);
-                        return cmd.getName();
-                    }
-                    
-                    public void setValue(Object value) {
-                        cmd.setName((String) value);
-                        CommandNode.this.setName((String) value);
-                        //cmd.fireChanged();
-                    }
-                });
         if (mainCondition != null) {
             set.put(new PropertySupport.ReadWrite("if", String.class, g("CTL_DefIf"), g("HINT_DefIf")) {
                 public Object getValue() {
@@ -544,15 +556,12 @@ public class CommandNode extends AbstractNode {
                 }
             });
         }
-        if (isFolderCommand(cmd)) {
-            addProperties(set, folder_std_propertyClassTypes, null);
-        } else {
-            addProperties(set, stdandard_propertyClassTypes, null);
-            //if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
-            //    VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName())) {
-
-            //    addProperties(set, cmd, list_propertyClassTypes, new Integer(-1));
-            //}
+        if (cmd != null) {
+            if (isFolderCommand(cmd)) {
+                addProperties(set, folder_std_propertyClassTypes, null);
+            } else {
+                addProperties(set, stdandard_propertyClassTypes, null);
+            }
         }
     }
     
@@ -600,68 +609,101 @@ public class CommandNode extends AbstractNode {
             final Class valueClass = (Class) propertyClassTypes.get(propertyName);
             if (valueClass == null) continue;
             if (cpcommand == null) {
-                set.put(new PropertySupport.ReadWrite(
-                        propertyName, valueClass,
-                        label, tooltip
-                    ) {
-                        public Object getValue() {
-                            //System.out.println("getName: cmd = "+cmd);
-                            String name = this.getName();
-                            Object value = cmd.getProperty(name);
-                            /*
-                            Class valueType = getValueType();
-                            if (!(value.getClass().equals(valueType))) {
-                                System.out.println("name = "+name+": value = "+value+", class = "+value.getClass()+", value Type = "+getValueType());
+                if (readOnly) {
+                    set.put(new PropertySupport.ReadOnly(
+                            propertyName, valueClass,
+                            label, tooltip
+                        ) {
+                            public Object getValue() {
+                                String name = this.getName();
+                                Object value = cmd.getProperty(name);
+                                if (value == null) {
+                                    value = VcsCommandIO.getDefaultPropertyValue(name);
+                                }
+                                if (value == null) {
+                                    if (Boolean.TYPE.equals(getValueType())) {
+                                        value = Boolean.FALSE;
+                                    } else if (Integer.TYPE.equals(getValueType()) &&
+                                               defaultValue != null &&
+                                               Integer.class.equals(defaultValue.getClass())) {
+                                        value = defaultValue;
+                                    }
+                                }
+                                return value;
                             }
-                             */
-                            if (value == null) {
-                                value = VcsCommandIO.getDefaultPropertyValue(name);
-                            }
-                            if (value == null) {
-                                if (Boolean.TYPE.equals(getValueType())) {
-                                    value = Boolean.FALSE;
-                                } else if (Integer.TYPE.equals(getValueType()) &&
-                                           defaultValue != null &&
-                                           Integer.class.equals(defaultValue.getClass())) {
-                                    value = defaultValue;
+                            
+                            public PropertyEditor getPropertyEditor() {
+                                if (VcsCommand.PROPERTY_EXEC_STRUCTURED.equals(this.getName())) {
+                                    return new StructuredExecEditor(cmd);
+                                } else {
+                                    return super.getPropertyEditor();
                                 }
                             }
-                            return value;
-                        }
+                    });
+                } else {
+                    set.put(new PropertySupport.ReadWrite(
+                            propertyName, valueClass,
+                            label, tooltip
+                        ) {
+                            public Object getValue() {
+                                //System.out.println("getName: cmd = "+cmd);
+                                String name = this.getName();
+                                Object value = cmd.getProperty(name);
+                                /*
+                                Class valueType = getValueType();
+                                if (!(value.getClass().equals(valueType))) {
+                                    System.out.println("name = "+name+": value = "+value+", class = "+value.getClass()+", value Type = "+getValueType());
+                                }
+                                 */
+                                if (value == null) {
+                                    value = VcsCommandIO.getDefaultPropertyValue(name);
+                                }
+                                if (value == null) {
+                                    if (Boolean.TYPE.equals(getValueType())) {
+                                        value = Boolean.FALSE;
+                                    } else if (Integer.TYPE.equals(getValueType()) &&
+                                               defaultValue != null &&
+                                               Integer.class.equals(defaultValue.getClass())) {
+                                        value = defaultValue;
+                                    }
+                                }
+                                return value;
+                            }
 
-                        public void setValue(Object value) {
-                            Object old = getValue();
-                            String name = this.getName();
-                            cmd.setProperty(name, value);
-                            firePropertyChange(name, old, value);
-                            if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(name)) {
-                                cmd.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED, null);
+                            public void setValue(Object value) {
+                                Object old = getValue();
+                                String name = this.getName();
+                                cmd.setProperty(name, value);
+                                firePropertyChange(name, old, value);
+                                if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(name)) {
+                                    cmd.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED, null);
+                                }
+                                //cmd.fireChanged();
                             }
-                            //cmd.fireChanged();
-                        }
-                        
-                        public boolean supportsDefaultValue() {
-                            return true;
-                        }
-                        
-                        public void restoreDefaultValue() {
-                            Object old = getValue();
-                            String name = this.getName();
-                            cmd.setProperty(name, defaultValue);
-                            firePropertyChange(name, old, defaultValue);
-                            if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(name)) {
-                                cmd.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED, null);
+
+                            public boolean supportsDefaultValue() {
+                                return true;
                             }
-                        }
-                        
-                        public PropertyEditor getPropertyEditor() {
-                            if (VcsCommand.PROPERTY_EXEC_STRUCTURED.equals(this.getName())) {
-                                return new StructuredExecEditor(cmd);
-                            } else {
-                                return super.getPropertyEditor();
+
+                            public void restoreDefaultValue() {
+                                Object old = getValue();
+                                String name = this.getName();
+                                cmd.setProperty(name, defaultValue);
+                                firePropertyChange(name, old, defaultValue);
+                                if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(name)) {
+                                    cmd.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED, null);
+                                }
                             }
-                        }
-                });
+
+                            public PropertyEditor getPropertyEditor() {
+                                if (VcsCommand.PROPERTY_EXEC_STRUCTURED.equals(this.getName())) {
+                                    return new StructuredExecEditor(cmd);
+                                } else {
+                                    return super.getPropertyEditor();
+                                }
+                            }
+                    });
+                }
             } else {
                 //final PropertyEditor conditionedPropertyEditor = ConditionedObject.getConditionedPropertyEditor(valueClass);
                 set.put(new PropertySupport.ReadWrite(
@@ -743,6 +785,8 @@ public class CommandNode extends AbstractNode {
     }
 
     protected SystemAction [] createActions() {
+        if (readOnly) return new SystemAction[0];
+        
         ArrayList actions = new ArrayList();
         actions.add(SystemAction.get(MoveUpAction.class));
         actions.add(SystemAction.get(MoveDownAction.class));
