@@ -32,6 +32,7 @@ import org.netbeans.modules.tasklist.core.TaskList;
 import org.netbeans.modules.tasklist.suggestions.SuggestionManagerImpl;
 import org.netbeans.modules.tasklist.suggestions.SuggestionList;
 import org.netbeans.modules.tasklist.suggestions.ScanSuggestionsAction;
+import org.netbeans.modules.tasklist.suggestions.SuggestionsScanner;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 
 /**
@@ -144,12 +145,9 @@ public class SourceTasksAction extends CallableSystemAction {
         DataObject.Container projectFolders[] = new DataObject.Container[project.size()];
         project.toArray(projectFolders);
 
-        SuggestionManagerImpl manager = (SuggestionManagerImpl)
-            SuggestionManager.getDefault();
-
         final int estimatedFolders = allFolders + 1;
         view.estimate(estimatedFolders);
-        manager.scan(projectFolders, list, view);
+        SuggestionsScanner.getDefault().scan(projectFolders, list, view);
 
     }
 
@@ -170,7 +168,6 @@ public class SourceTasksAction extends CallableSystemAction {
     }
 
 
-
     public String getName() {
         return "TODOs";
     }
@@ -179,7 +176,7 @@ public class SourceTasksAction extends CallableSystemAction {
         return new HelpCtx(SourceTasksAction.class);
     }
 
-    public static interface ScanProgressMonitor extends SuggestionManagerImpl.ScanProgress {
+    public static interface ScanProgressMonitor extends SuggestionsScanner.ScanProgress {
         /**
          * Predics how many folders will be scanned.
          * @thread AWT

@@ -77,10 +77,17 @@ import org.openide.windows.Workspace;
  * Actual suggestion manager provided to clients when the Suggestions
  * module is running.
  * <p>
+ * XXX it plays two not well separated roles:
+ * <ul>
+ * <li>creates and registers suggestions scanned by independent scanner
+ * <li>creates, registers and (moreless) visualizes suggestions
+ *     for currently displayed source file
+ * </ul>
+ * It causes problems as each role needs different settings.
+ * Secondly it's not well accomodated to manage more suggestion lists.
+ *
  * @author Tor Norbye
  */
-
-
 final public class SuggestionManagerImpl extends SuggestionManager
         implements DocumentListener, CaretListener, ComponentListener,
         PropertyChangeListener {
@@ -89,9 +96,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     /** Cache tracking suggestions in recently visited files */
     private SuggestionCache cache = null;
-
-    /** Optional progress monitor */
-    private ScanProgress progressMonitor;
 
     /** Create nnew SuggestionManagerImpl.  Public because it needs to be
      * instantiated via lookup, but DON'T go creating instances of this class!
@@ -205,6 +209,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
     SuggestionType unfilteredType = null;
 
 
+    // messages got from SuggestionView class ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // it's the second role, live list of suggestions
+
     /** Called when the Suggestions View is opened */
     void notifyViewOpened() {
         if (!prepared) {
@@ -292,68 +299,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
         if (cache != null) {
             cache.flush();
         }
-        // Clear out provider lists etc.
-        providers = null;
-        docProviders = null;
-        providersByType = null;
     }
 
-    private List providers = null;
-    private List docProviders = null; // subset of elements in providers; these implement DocumentSuggestionProvider
-    private Map providersByType = null;
-
-    /** Return a list of the providers registered
-     * @todo Filter out disabled providers
-     */
-    List getProviders() {
-        if (providers == null) {
-            providers = new ArrayList(20);
-            docProviders = new ArrayList(20);
-            Lookup.Template template =
-                    new Lookup.Template(SuggestionProvider.class);
-            Iterator it = Lookup.getDefault().lookup(template).
-                    allInstances().iterator();
-            // Two stage process so we can sort by priority
-
-            ArrayList provList = new ArrayList(20);
-            while (it.hasNext()) {
-                SuggestionProvider sp = (SuggestionProvider) it.next();
-                provList.add(sp);
-            }
-            SuggestionProvider[] provA =
-                    (SuggestionProvider[]) provList.toArray(
-                            new SuggestionProvider[provList.size()]);
-            final SuggestionTypes types = SuggestionTypes.getTypes();
-            Arrays.sort(provA, new Comparator() {
-                public int compare(Object o1, Object o2) {
-                    SuggestionProvider a = (SuggestionProvider) o1;
-                    SuggestionProvider b = (SuggestionProvider) o2;
-                    try {
-                        SuggestionType at = types.getType(a.getTypes()[0]);
-                        SuggestionType bt = types.getType(b.getTypes()[0]);
-                        return at.getPosition() - bt.getPosition();
-                    } catch (Exception e) {
-                        return -1;
-                    }
-                }
-            });
-            for (int i = 0; i < provA.length; i++) {
-                SuggestionProvider sp = provA[i];
-                providers.add(sp);
-                if (sp instanceof DocumentSuggestionProvider) {
-                    docProviders.add(sp);
-                }
-            }
-        }
-        return providers;
-    }
-
-    List getDocProviders() {
-        if (docProviders == null) {
-            getProviders(); // side effect: initialize docProviders
-        }
-        return docProviders;
-    }
 
     // there is only one SuggestionManager instance
     private static SuggestionList list = null;
@@ -689,35 +636,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
     }
 
-    /** @return The SuggestionProvider responsible for providing suggestions
-     * of a particular type */
-    private SuggestionProvider getProvider(SuggestionType type) {
-        if (providersByType == null) {
-            SuggestionTypes suggestionTypes = SuggestionTypes.getTypes();
-            //Collection types = suggestionTypes.getAllTypes();
-            List providers = getProviders();
-            providersByType = new HashMap(100); // XXXXX ?<??
-            // Perhaps use suggestionTypes.getAllTypes()*2 as a seed?
-            // Note, this includes suggestion types that do not have
-            // providers
-            ListIterator it = providers.listIterator();
-            while (it.hasNext()) {
-                SuggestionProvider provider = (SuggestionProvider) it.next();
-                String typeNames[] = provider.getTypes();
-                if (typeNames == null) {
-                    // Should I just let a NullPointerException occur instead?
-                    // After all, non null is required for correct operation.
-                    ErrorManager.getDefault().log("SuggestionProvider " + provider + " provides null value to getTypes()");
-                    continue;
-                }
-                for (int j = 0; j < typeNames.length; j++) {
-                    SuggestionType tp = suggestionTypes.getType(typeNames[j]);
-                    providersByType.put(tp, provider);
-                }
-            }
-        }
-        return (SuggestionProvider) providersByType.get(type);
-    }
 
 
     boolean isExpandedType(SuggestionType type) {
@@ -736,118 +654,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
 
-    /**
-     * Scans recursively for suggestions notifing given progress monitor.
-     * @param folders
-     * @param list
-     * @param monitor
-     */
-    public final void scan(DataObject.Container[] folders, SuggestionList list, ScanProgress monitor) {
-        try {
-            progressMonitor = monitor;
-            monitor.scanStarted();
-            scan(folders, list, true);
-        } finally {
-            monitor.scanFinished();
-            progressMonitor = null;
-        }
-    }
-
-    /** Iterate over the folder recursively (optional) and scan all files.
-     We skip CVS and SCCS folders intentionally. Would be nice if
-     the filesystem hid these things from us. */
-    public final void scan(DataObject.Container[] folders, SuggestionList list,
-                           boolean recursive) {
-        // package-private instead of private for the benefit of the testsuite
-        for (int i = 0; i < folders.length; i++) {
-            if (Thread.interrupted()) return;
-            DataObject.Container folder = folders[i];
-            scanFolder(folder, recursive, list);
-        }
-    }
-
-    private void scanFolder(DataObject.Container folder, boolean recursive, SuggestionList list) {
-        DataObject[] children = folder.getChildren();
-        for (int i = 0; i < children.length; i++) {
-
-            if (Thread.currentThread().isInterrupted()) return;
-
-            DataObject f = children[i];
-            if (f instanceof DataObject.Container) {
-                if (!recursive) {
-                    continue;
-                }
-
-                //XXX Skip CVS and SCCS folders
-                String name = f.getPrimaryFile().getNameExt();
-                if ("CVS".equals(name) || "SCCS".equals(name)) { // NOI18N
-                    continue;
-                }
-
-                if (progressMonitor == null) {
-                    // XXX stil strange that possibly backgournd process writes directly to UI
-                    StatusDisplayer.getDefault().setStatusText(
-                            NbBundle.getMessage(ScanSuggestionsAction.class,
-                                    "ScanningFolder", // NOI18N
-                                    f.getPrimaryFile().getNameExt()));
-                } else {
-                    progressMonitor.folderEntered(f.getPrimaryFile());
-                }
-
-                scanFolder((DataObject.Container) f, true, list); // recurse!
-                if (progressMonitor != null) {
-                    progressMonitor.folderScanned(f.getPrimaryFile());
-                }
-
-            } else {
-                // Get document, and I do mean now!
-
-                if (!f.isValid()) {
-                    continue;
-                }
-
-                EditorCookie edit =
-                        (EditorCookie) f.getCookie(EditorCookie.class);
-                if (edit == null) {
-                    continue;
-                }
-
-                SuggestionContext env = SPIHole.createSuggestionContext(f);
-
-                if (progressMonitor == null) {
-                    // XXX stil strange that possibly backgournd process writes directly to UI
-                    StatusDisplayer.getDefault().setStatusText(
-                            NbBundle.getMessage(ScanSuggestionsAction.class,
-                                    "ScanningFile", // NOI18N
-                                    f.getPrimaryFile().getNameExt()));
-                }
-
-                scanLeaf(list, env);
-                if (progressMonitor != null) {
-                    progressMonitor.fileScanned(f.getPrimaryFile());
-                }
-            }
-        }
-    }
-
-    private void scanLeaf(SuggestionList list, SuggestionContext env) {
-        List providers = getProviders();
-        ListIterator it = providers.listIterator();
-        while (it.hasNext()) {
-            if (Thread.currentThread().isInterrupted()) return;
-            SuggestionProvider provider = (SuggestionProvider) it.next();
-            if (((unfiltered == null) ||
-                    (unfiltered == provider)) &&
-                    (provider instanceof DocumentSuggestionProvider)) {
-                List l = ((DocumentSuggestionProvider) provider).scan(env);
-                if (l != null) {
-                    // XXX ensure that scan returns a homogeneous list of tasks
-                    register(provider.getTypes()[0], l, null, list, null,
-                            true);
-                }
-            }
-        }
-    }
 
     List erase = null;
     List origIcon = null;
@@ -947,6 +753,16 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
     }
 
+    /**
+     * Update target tasklist including grouping (if over treshold).
+     *
+     * @param typeName suggestion type
+     * @param addList  suggestions to add
+     * @param removeList suggestion sto remove or null
+     * @param tasklist target tasklist
+     * @param request pairing or null
+     * @param sizeKnown ???
+     */
     public synchronized void register(String typeName,
                                       List addList, List removeList,
                                       SuggestionList tasklist,
@@ -1337,7 +1153,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         */
 
         final Long origRequest = currRequest;
-        RequestProcessor.postRequest(new Runnable() {
+        RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 long start = 0, end = 0, total = 0;
                 List providers = getDocProviders();
@@ -2221,22 +2037,18 @@ err.log("Couldn't find current nodes...");
         }
     }
 
-    /**
-     * Handles scan method emmited progress callbacks.
-     * Implementation can interrupt scanning thread
-     * (current thread) by standard thread interruption
-     * methods.
-     */
-    public interface ScanProgress {
-        void scanStarted();
+    // delegate to providers registry ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        void folderEntered(FileObject folder);
+    private List getProviders() {
+        return SuggestionProviders.getDefault().getProviders();
+    }
 
-        void fileScanned(FileObject file);
+    private List getDocProviders() {
+        return SuggestionProviders.getDefault().getDocProviders();
+    }
 
-        void folderScanned(FileObject folder);
-
-        void scanFinished();
+    private SuggestionProvider getProvider(SuggestionType type) {
+        return SuggestionProviders.getDefault().getProvider(type);
     }
 
 }
