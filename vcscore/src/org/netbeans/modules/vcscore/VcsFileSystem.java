@@ -2949,6 +2949,31 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 //-------------------- methods from CacheHandlerListener------------------------
     public void cacheAdded(CacheHandlerEvent event) {
 //        D.deb("cacheAdded called for:" + event.getCvsCacheFile().getName());
+        String root = getRootDirectory().getAbsolutePath();
+        String absPath = event.getCacheFile().getAbsolutePath();
+        if (absPath.startsWith(root)) { // it belongs to this FS -> do something
+            //D.deb("-------- it is in this filesystem");
+            String path;
+            if (root.length() == absPath.length()) {
+                path = "";
+            } else {
+                path = absPath.substring(root.length() + 1, absPath.length());
+                /*
+                if (path.charAt(0) == File.separatorChar) { //another sanity check.
+                    path = path.substring(1);
+                }
+                 */
+            }
+//            D.deb("statusChanged() absPath =" + absPath);
+//            D.deb("statusChanged() root =" + root);
+//            D.deb("statusChanged() path =" + path);
+            path = path.replace(File.separatorChar, '/');
+            if (event.getCacheFile() instanceof org.netbeans.modules.vcscore.cache.CacheDir) {
+                //statusChanged(path, event.isRecursive()); -- do not refresh the add directory!
+            } else {
+                statusChanged(path);
+            }
+        }
     }
     
     public void cacheRemoved(CacheHandlerEvent event) {
@@ -2956,14 +2981,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void statusChanged(CacheHandlerEvent event) {
-        D.deb("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-        D.deb("statusChanged called for:" + event.getCacheFile().getAbsolutePath());
+        //D.deb("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+        //D.deb("statusChanged called for:" + event.getCacheFile().getAbsolutePath());
         //System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         //System.out.println("statusChanged called for:" + event.getCacheFile().getAbsolutePath());
         String root = getRootDirectory().getAbsolutePath();
         String absPath = event.getCacheFile().getAbsolutePath();
         if (absPath.startsWith(root)) { // it belongs to this FS -> do something
-            D.deb("-------- it is in this filesystem");
+            //D.deb("-------- it is in this filesystem");
             String path;
             if (root.length() == absPath.length()) {
                 path = "";
