@@ -15,6 +15,7 @@ package org.netbeans.modules.bookmarks;
 
 import java.awt.Image;
 import java.io.IOException;
+import java.util.HashSet;
 import javax.swing.Icon;
 
 import org.openide.ErrorManager;
@@ -25,6 +26,7 @@ import org.openide.util.datatransfer.NewType;
 import org.openide.cookies.InstanceCookie;
 import org.openide.actions.*;
 import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
 
 import org.netbeans.api.bookmarks.Bookmark;
 
@@ -70,6 +72,92 @@ public class BookmarksNode extends FilterNode {
             return null; // cannot persist original, do not persist filter
         }
     }
+
+    /** Overriden to disable renaming of fixed folders */
+    public boolean canRename() {
+        if ( ! canCopy ) {
+            return false;
+        }
+        return super.canRename();
+    }
+
+    /** Overriden to disable deleting of fixed folders */
+    public boolean canDestroy() {
+        if ( ! canCopy ) {
+            return false;
+        }
+        return super.canDestroy();
+    }
+
+    /** Overriden to disable deleting of fixed folders */
+    public boolean canCut() {
+        if ( ! canCopy ) {
+            return false;
+        }
+        return super.canCut();
+    }
+        
+    /**
+     * Don't show the regular properties - just name.
+     * @return the array of property sets.
+     */
+    public PropertySet[] getPropertySets () {
+        final PropertySet[] orig = super.getPropertySets ();
+        PropertySet[] newSet = new PropertySet[1];
+        boolean propertiesFound = false;
+        for (int i = 0; i < orig.length; i++) {
+            final int j = i;
+            if (! orig[i].getName().equals(Sheet.PROPERTIES)) {
+                continue;
+            }
+            propertiesFound = true;
+            newSet[0] = new PropertySet(
+                orig[i].getName(), 
+                orig[i].getDisplayName(),
+                orig[i].getShortDescription()) {
+                
+                public Node.Property[] getProperties() {
+                    final Node.Property[] origProps = orig[j].getProperties();
+                    Node.Property[] newProps = new Node.Property[1];
+                    boolean nameFound = false;
+                    for (int k = 0; k < newProps.length; k++) {
+                        final int l = k;
+                        if (origProps[k].getName().equals("name")) { //NOI18N
+                            newProps[0] = new PropertySupport.ReadWrite(
+                                    origProps[l].getName(),
+                                    origProps[l].getValueType(), 
+                                    origProps[l].getDisplayName(), 
+                                    origProps[l].getShortDescription()
+                                ) {
+                                public Object getValue() throws IllegalAccessException, 
+                                    java.lang.reflect.InvocationTargetException {
+                                    return origProps[l].getValue();
+                                }
+                                public void setValue(Object newValue) throws IllegalAccessException,
+                                    IllegalArgumentException, java.lang.reflect.InvocationTargetException {
+                                    origProps[l].setValue(newValue);
+                                }
+                                public boolean canWrite () {
+                                    return origProps[l].canWrite();
+                                }
+                            };
+                            nameFound = true;
+                            break;
+                        }
+                    }
+                    if (nameFound) {
+                        return newProps;
+                    }
+                    return new Node.Property[0];
+                }
+            };
+        }
+        if (propertiesFound) {
+            return newSet;
+        }
+        return new PropertySet[0];
+    }
+
     
     /**
      * The list of the actions returned by this method contains
@@ -83,6 +171,7 @@ public class BookmarksNode extends FilterNode {
                 SystemAction.get(CopyAction.class),
                 SystemAction.get(PasteAction.class),
                 SystemAction.get(DeleteAction.class),
+                SystemAction.get(RenameAction.class),
                 null,
                 SystemAction.get(MoveUpAction.class),
                 SystemAction.get(MoveDownAction.class)
@@ -199,8 +288,21 @@ public class BookmarksNode extends FilterNode {
                     return NbBundle.getMessage(BookmarksNode.class, "LBL_NewFolder");
                 }
                 public void create () throws IOException {
-                    DataFolder.create(folder, 
-                        NbBundle.getMessage(BookmarksNode.class, "LBL_NewFolder"));
+                    String name = NbBundle.getMessage(BookmarksNode.class, "LBL_NewFolder");
+                    
+                    // find an unique name
+                    String resName = name;
+                    DataObject []ch = folder.getChildren();
+                    HashSet hs = new HashSet();
+                    for (int i = 0; i < ch.length; i++) {
+                        hs.add(ch[i].getName());
+                    }
+                    int i = 0;
+                    while (hs.contains(resName)) {
+                        resName = name + "_" + i++; // NOI18N
+                    }
+                    // create the folder with the found name
+                    DataFolder.create(folder, resName);
                 }
             }
         };

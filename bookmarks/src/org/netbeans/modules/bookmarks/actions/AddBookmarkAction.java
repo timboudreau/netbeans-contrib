@@ -19,9 +19,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.openide.util.NbBundle;
-import org.openide.util.WeakListener;
-import org.openide.util.HelpCtx;
+import org.openide.util.*;
 import org.openide.windows.*;
 
 import org.netbeans.api.bookmarks.*;
@@ -40,7 +38,8 @@ public class AddBookmarkAction extends AbstractAction implements HelpCtx.Provide
      */
     public AddBookmarkAction() {
         putValue(Action.NAME, getName());
-        Utilities.setActionIcons(this, "org/netbeans/modules/bookmarks/resources/add.gif");
+        String base = "org/netbeans/modules/bookmarks/resources/add.gif";
+        putValue("iconBase", base);
         TopComponent.Registry reg = WindowManager.getDefault().getRegistry();
         reg.addPropertyChangeListener(
             WeakListener.propertyChange(this, reg));

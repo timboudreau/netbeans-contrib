@@ -27,6 +27,11 @@
         <folder name="TopComponents"/>
     </folder>
     
+    <folder name="Actions">
+        <attr boolvalue="true" name="Bookmarks/System"/>
+        <folder name="Bookmarks"/>
+    </folder>
+    
     <folder name="Toolbars">
     
         <folder name="Bookmarks">
@@ -46,7 +51,14 @@
             <attr boolvalue="true" name="org-netbeans-modules-bookmarks-actions-BackAction.instance/org-netbeans-modules-bookmarks-actions-ForwardAction.instance"/>
             <attr boolvalue="true" name="org-netbeans-modules-bookmarks-actions-ForwardAction.instance/org-netbeans-modules-bookmarks-actions-AddBookmarkAction.instance"/>
         </folder>
+        <attr boolvalue="true" name="Edit/Navigation"/>
+        <attr boolvalue="true" name="View/Navigation"/>
+        <attr boolvalue="true" name="Help/Navigation"/>
+        <attr boolvalue="true" name="Tools/Navigation"/>
         <attr boolvalue="true" name="Navigation/Bookmarks"/>
+        <attr boolvalue="true" name="Help/Bookmarks"/>
+        
+        <file name="Standard.xml_hidden"/>
     </folder>
     <folder name="xml">
         <folder name="entities">
@@ -66,6 +78,7 @@
                     <attr methodvalue="org.netbeans.api.settings.Factory.properties" name="settings.convertor"/> 
                     <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.bookmarks.BookmarkImpl"/>
                     <attr name="settings.instanceOf" stringvalue="org.netbeans.api.bookmarks.Bookmark,org.openide.util.actions.Presenter$Toolbar,org.openide.util.actions.Presenter$Menu,org.netbeans.modules.bookmarks.BookmarkImpl"/>
+                    <attr name="xmlproperties.ignoreChanges" stringvalue="AcceleratorKey"/>
                 </file>
             </folder>
         </folder>

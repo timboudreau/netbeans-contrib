@@ -19,6 +19,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JMenuItem;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.AbstractAction;
 
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -26,11 +27,15 @@ import org.openide.windows.Mode;
 import org.openide.windows.Workspace;
 import org.openide.util.actions.Presenter;
 import org.openide.util.Utilities;
+import org.openide.util.NbBundle;
+import org.openide.NotifyDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 
 import org.netbeans.api.bookmarks.*;
 
 /**
- * The default bookmakr implementatoin is craeated for a TopComponent
+ * The default bookmark implementation is created for a TopComponent
  * in order for the user
  * to be able to open the TopComponent with saved content. The bookmark
  * is saved to the system file system by default together with its
@@ -44,7 +49,7 @@ import org.netbeans.api.bookmarks.*;
  * see methods readProperties, writeProperties.
  * @author David Strupl
  */
-public class BookmarkImpl implements Bookmark {
+public class BookmarkImpl extends AbstractAction implements Bookmark {
     
     /** Name of the property used from readProperties, writeProperties */
     private static final String PROP_TC_NAME = "topComponentName";
@@ -78,6 +83,7 @@ public class BookmarkImpl implements Bookmark {
     public BookmarkImpl(TopComponent tc) {
         this.topComponent = tc;
         name = tc.getName();
+        putValue(NAME, name);
     }
     
     /**
@@ -88,9 +94,12 @@ public class BookmarkImpl implements Bookmark {
     public JMenuItem getMenuPresenter() {
         JMenuItem jmi = new JMenuItem(getName());
         jmi.addActionListener(new InvokeBookmarkListener());
-        Image icon = getTopComponent().getIcon();
-        if (icon != null) {
-            jmi.setIcon(new ImageIcon(icon));
+        TopComponent tc = getTopComponent();
+        if (tc != null) {
+            Image icon = tc.getIcon();
+            if (icon != null) {
+                jmi.setIcon(new ImageIcon(icon));
+            }
         }
         return jmi;
     }
@@ -103,9 +112,13 @@ public class BookmarkImpl implements Bookmark {
         JButton jb = new JButton();
         jb.setToolTipText(getName());
         jb.addActionListener(new InvokeBookmarkListener());
-        Image icon = getTopComponent().getIcon();
-        if (icon != null) {
-            jb.setIcon(new ImageIcon(icon));
+        TopComponent tc = getTopComponent();
+        Image icon = null;
+        if (tc != null) {
+            icon = tc.getIcon();
+            if (icon != null) {
+                jb.setIcon(new ImageIcon(icon));
+            }
         }
         if ((icon == null) || (icon.getHeight(null) < 16)) {
             jb.setIcon(new ImageIcon(Utilities.loadImage("org/netbeans/modules/bookmarks/resources/bookmarksToolbarIcon.gif")));
@@ -159,7 +172,7 @@ public class BookmarkImpl implements Bookmark {
      * then tries to clone the result. The effect of this is that if you
      * open the resulting top component a fresh copy with the saved
      * content is opened.
-     * @returns top component for which this bookmark was taken
+     * @returns top component for which this bookmark was taken or null
      */
     public TopComponent getTopComponent() {
         if (tcFileName != null) {
@@ -167,7 +180,12 @@ public class BookmarkImpl implements Bookmark {
                 loadTopComponent(tcFileName);
         } 
         if (topComponent instanceof TopComponent.Cloneable) {
-            topComponent = ((TopComponent.Cloneable)topComponent).cloneComponent();
+            try {
+                topComponent = ((TopComponent.Cloneable)topComponent).cloneComponent();
+            } catch (Exception x) {
+                ErrorManager.getDefault().annotate(x, "Problem when trying to clone " + topComponent); // NOI18N
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, x);
+            }
         }
         return topComponent;
     }
@@ -187,7 +205,60 @@ public class BookmarkImpl implements Bookmark {
                 tc.open();
             }
             tc.requestFocus();
+        } else {
+            // warn
+            NotifyDescriptor.Message warning = 
+                new NotifyDescriptor.Message(
+                    NbBundle.getBundle(BookmarkImpl.class).getString("WARN_NO_TC"),
+                    NotifyDescriptor.WARNING_MESSAGE);
+            DialogDisplayer.getDefault().notify(warning);
         }
+    }
+    
+    /**
+     * Implementing the javax.swing.Action interface.
+     */
+    public void actionPerformed(ActionEvent e) {
+        invoke();
+    }
+    
+    public boolean equals(Object another) {
+        boolean res = super.equals(another);
+        if ( ! (another instanceof BookmarkImpl)) {
+            return false;
+        }
+        BookmarkImpl theOther = (BookmarkImpl)another;
+        if (name != null) {
+            if (! name.equals(theOther.getName())) {
+                return false;
+            }
+        } else {
+            if (theOther.getName() != null) {
+                return false;
+            }
+        }
+        if (tcFileName != null) {
+            if (! tcFileName.equals(theOther.getTopComponentFileName())) {
+                return false;
+            }
+        } else {
+            if (theOther.getTopComponentFileName() != null) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    public int hashCode() {
+        int res = 29;
+        if (name != null) {
+            res += name.hashCode() * 13;
+        }
+        if (tcFileName != null) {
+            res += tcFileName.hashCode() * 7;
+        }
+        return res;
     }
     
     /**
@@ -207,6 +278,7 @@ public class BookmarkImpl implements Bookmark {
     private void readProperties(java.util.Properties p) {
         tcFileName = p.getProperty(PROP_TC_NAME);
         name = p.getProperty(PROP_NAME);
+        putValue(NAME, name);
     }
     
     /**
@@ -218,16 +290,4 @@ public class BookmarkImpl implements Bookmark {
         p.setProperty(PROP_NAME, name);
     }
     
-    /**
-     * XMLPropertiesConvertor expect this class to be source of
-     * property change events.
-     */
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-    }
-    /**
-     * XMLPropertiesConvertor expect this class to be source of
-     * property change events.
-     */
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-    }
 }

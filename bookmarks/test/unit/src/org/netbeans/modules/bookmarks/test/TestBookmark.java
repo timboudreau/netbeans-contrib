@@ -13,12 +13,13 @@
 
 package org.netbeans.modules.bookmarks.test;
 
+import javax.swing.AbstractAction;
 import org.netbeans.api.bookmarks.Bookmark;
 
 /** 
  * Custom implementation of the Bookmark interface.
  */
-public class TestBookmark implements Bookmark, java.io.Serializable {
+public class TestBookmark extends AbstractAction implements Bookmark, java.io.Serializable {
     
     private static final long serialVersionUID = 1L;
     
@@ -28,6 +29,7 @@ public class TestBookmark implements Bookmark, java.io.Serializable {
     
     public TestBookmark(String name) {
         this.name = name;
+        putValue(NAME, name);
     }
     
     public java.awt.Component getToolbarPresenter() {
@@ -44,6 +46,9 @@ public class TestBookmark implements Bookmark, java.io.Serializable {
     
     public void invoke() {
     }
+    
+    public void actionPerformed(java.awt.event.ActionEvent e) {
+    }    
     
 }
 

@@ -263,4 +263,43 @@ public class BookmarkServiceTest extends NbTestCase {
         
         assertTrue("Stored item did not found", deleteFromBookmarksFolder("test1"));
     }
+    
+    /**
+     * This test should tests the functionality of the method
+     * BookmarkService.storeBookmark with respect to the shortcuts folder Actions/Bookmarks.
+     * It does so by creating a bookmark, storing it and checking whether Actions/Bookmarks
+     * folder was also changed.
+     * The tests performs following steps:
+     * <OL><LI> Create a testing bookmark
+     *     <LI> Store the bookmark
+     *     <LI> Check the presence of the new file on 
+     *          the system file system in the Actions/Bookmarks folder
+     *     <LI> Deletes the bookmark
+     *     <LI> Checks whether also corresponding file from Actions/Bookmark was deleted.
+     * </OL>
+     */
+    public void testActionsFolder() throws Exception {
+        Bookmark b = new TestBookmark("test1");
+        BookmarkService.getDefault().storeBookmark(b);
+
+        Context c = BookmarkServiceImpl.getInitialContext();
+        Object folder = c.lookup(BookmarkServiceImpl.BOOKMARKS_ACTIONS);
+        assertTrue("BOOKMARKS_ACTIONS not found", folder instanceof Context);
+        Context c1 = (Context)folder;
+        try {
+            Object obj = c1.lookup("test1");
+            assertNotNull("action should be there ", obj);
+        } catch (NameNotFoundException nnfe) {
+            fail("test1 should be found in the Actions/Bookmarks folder now");
+        }
+
+        assertTrue("Stored item could not be deleted", deleteFromBookmarksFolder("test1"));
+        
+        try {
+            Object obj1 = c1.lookup("test1");
+            fail("action should be gone now also from the Actions/Bookmarks folder");
+        } catch (NameNotFoundException nnfe) {
+            // this is the rigth pass for execution
+        }
+    }
 }
