@@ -25,6 +25,8 @@ import java.util.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import org.openide.actions.PropertiesAction;
+import org.openide.TopManager;
+import org.openide.ErrorManager;
 
 /** A node with some children.
  *
@@ -191,7 +193,7 @@ public class VcsGroupNode extends AbstractNode {
                 VcsGroupNode.this.setShortDescription(value.toString());
             }
             public Object getValue() {
-                return VcsGroupNode.this.getShortDescription();
+                return VcsGroupNode.this.groupDescription;
             }
         });
         set.put(new PropertySupport.ReadWrite("Name", String.class, //NOI18N
@@ -225,6 +227,9 @@ public class VcsGroupNode extends AbstractNode {
     }
     
     public String getShortDescription() {
+        if (this.groupDescription.length() == 0) {
+            return null;
+        }
         return this.groupDescription;
     }
     
@@ -248,7 +253,8 @@ public class VcsGroupNode extends AbstractNode {
                 groupDO.delete();
             } catch (IOException exc) {
                 //TODO
-                System.out.println("cannot delete");
+                TopManager.getDefault().getErrorManager().annotate(exc, 
+                             NbBundle.getBundle(VcsGroupNode.class).getString("VcsGroupNode.cannotDestroyGroup")); //NOI18N
                 return;
             }
         }
@@ -258,7 +264,8 @@ public class VcsGroupNode extends AbstractNode {
                 props.delete(props.lock());
             }
         } catch (IOException ex) {
-            System.out.println("cannot delete prop file.");
+            TopManager.getDefault().getErrorManager().annotate(ex, 
+                       NbBundle.getBundle(VcsGroupNode.class).getString("VcsGroupNode.cannotDestroyGroupProps")); //NOI18N
         }
         // perform additional actions, i.e. delete underlying object
         // (and don't forget about objects represented by your children!)
@@ -276,7 +283,7 @@ public class VcsGroupNode extends AbstractNode {
             writer = new PrintWriter(props.getOutputStream(props.lock()));
             writer.println(PROP_NAME + "=" + getDisplayName()); //NOI18N
             String oneLineDescription = org.openide.util.Utilities.replaceString(
-                                                    getShortDescription(), "\n", "\\n"); //NOI18N
+                                                    this.groupDescription, "\n", "\\n"); //NOI18N
             writer.println(PROP_SHORT_DESCRIPTION + "=" + oneLineDescription); //NOI18N
             writer.close();
         } catch (IOException exc) {
