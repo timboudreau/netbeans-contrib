@@ -330,6 +330,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private volatile boolean commandNotification = true;
 
     private Collection notModifiableStatuses = Collections.EMPTY_SET;
+    private String missingFileStatus = null;
+    private String missingFolderStatus = null;
+    private Collection notMissingableFileStatuses = Collections.EMPTY_SET;
+    private Collection notMissingableFolderStatuses = Collections.EMPTY_SET;
     
     private Boolean createRuntimeCommands = Boolean.TRUE;
     
@@ -713,6 +717,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected void setNotModifiableStatuses(Collection notModifiableStatuses) {
         this.notModifiableStatuses = notModifiableStatuses;
         firePropertyChange(PROP_NOT_MODIFIABLE_STATUSES, null, notModifiableStatuses);
+    }
+    
+    protected void setMissingFileStatus(String missingFileStatus) {
+        this.missingFileStatus = missingFileStatus;
+    }
+    
+    protected void setMissingFolderStatus(String missingFolderStatus) {
+        this.missingFolderStatus = missingFolderStatus;
+    }
+    
+    protected void setNotMissingableFileStatuses(Collection notMissingableFileStatuses) {
+        this.notMissingableFileStatuses = notMissingableFileStatuses;
+    }
+    
+    protected void setNotMissingableFolderStatuses(Collection notMissingableFolderStatuses) {
+        this.notMissingableFolderStatuses = notMissingableFolderStatuses;
     }
     
     /**
@@ -2515,7 +2535,46 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         local.removeAll(cached);
         checkScheduledLocals(name, local, removedFilesScheduledForRemove);
         cached.addAll(local);
+        if (cache != null) {
+            if (missingFileStatus != null || missingFolderStatus != null) {
+                markAsMissingFiles(name, files, cachedFiles);
+            }
+        }
         return (String[]) cached.toArray(new String[0]);
+    }
+    
+    private void markAsMissingFiles(String name, String[] local, String[] cached) {
+        java.util.List locals = Arrays.asList(local);
+        //if (name.length() > 0) name += "/";
+        ArrayList files = new ArrayList();
+        if (missingFileStatus != null && missingFileStatus.equals(missingFolderStatus) &&
+            notMissingableFileStatuses.equals(notMissingableFolderStatuses)) {
+            
+            for (int i = 0; i < cached.length; i++) {
+                if (!locals.contains(cached[i])) files.add(cached[i]);//statusProvider.setFileMissing(name + cached[i]);
+            }
+            if (files.size() > 0) {
+                cache.setExistingFileStatus(name, (String[]) files.toArray(new String[0]),
+                                            missingFileStatus, notMissingableFileStatuses, true);
+            }                        
+        } else {
+            ArrayList folders = new ArrayList();
+            String name1 = (name.length() > 0) ? name + "/" : name;
+            for (int i = 0; i < cached.length; i++) {
+                if (!locals.contains(cached[i])) {
+                    if (folder(name1 + cached[i])) folders.add(cached[i]);//statusProvider.setFileMissing(name + cached[i]);
+                    else files.add(cached[i]);
+                }
+            }
+            if (missingFileStatus != null && files.size() > 0) {
+                cache.setExistingFileStatus(name, (String[]) files.toArray(new String[0]),
+                                            missingFileStatus, notMissingableFileStatuses, true);
+            }
+            if (missingFolderStatus != null && folders.size() > 0) {
+                cache.setExistingFileStatus(name, (String[]) folders.toArray(new String[0]),
+                                            missingFolderStatus, notMissingableFolderStatuses, true);
+            }
+        }
     }
 
     /* Get children files inside a folder
@@ -2947,7 +3006,24 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         boolean success = file.delete();
-        if (cache != null) cache.remove(name, wasDir);
+        //if (cache != null) cache.remove(name, wasDir);
+        // This delete deletes ONLY local files, to delete a file from the repository also
+        // (if it's really desired to do it here), use the delete command with it's own refreshing
+        // The files are removed from the cache if the missing status is not set
+        // (thus the new status would need to be retrieved later)
+        if (cache != null) {
+            if (!wasDir) {
+                if (missingFileStatus == null) cache.remove(name, wasDir);
+            } else {
+                if (missingFolderStatus == null) cache.remove(name, wasDir);
+            }
+        }
+        //if (cache != null && wasDir) cache.remove(name, wasDir);
+        /*
+        if (statusProvider != null) {
+            statusProvider.setFileMissing(name);
+        }
+         */
         callDeleteCommand(name, wasDir);
         return success;
     }
