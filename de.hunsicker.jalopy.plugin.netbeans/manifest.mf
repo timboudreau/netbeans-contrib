@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+OpenIDE-Module: de.hunsicker.jalopy.plugin.netbeans
+OpenIDE-Module-Specification-Title: Jalopy Java Source Code Formatter
+OpenIDE-Module-Specification-Vendor: Marco Hunsicker
+OpenIDE-Module-Specification-Version: 0.4.1
+OpenIDE-Module-Implementation-Title: de.hunsicker.jalopy.plugin.netbeans
+OpenIDE-Module-Implementation-Vendor: Marco Hunsicker
+OpenIDE-Module-Implementation-URL: http://jalopy.sf.net/
+OpenIDE-Module-Localizing-Bundle: de/hunsicker/jalopy/plugin/netbeans/Bundle.properties
+OpenIDE-Module-Implementation-Version: 20050310
+OpenIDE-Module-Layer: de/hunsicker/jalopy/plugin/netbeans/resources/Layer.xml
+OpenIDE-Module-Module-Dependencies: org.openide.loaders, org.openide.io
+OpenIDE-Module-Package-Dependencies: [de.hunsicker.jalopy.plugin.Project], [org.apache.log4j.Level], [org.apache.oro.text.regex.MatchResult]
+Class-Path: ext/jalopy-1.0b11.jar ext/jdom-1.0b8.jar ext/log4j-1.2.6.jar ext/oro-2.0.6.jar
+Install-After: org.netbeans.modules.projects.ProjectDataObject, org.openide.loaders.DataFolder, org.netbeans.modules.java.JavaDataObject, org.netbeans.modules.form.FormDataObject, org.netbeans.modules.autoupdate.NbmDataObject
+
