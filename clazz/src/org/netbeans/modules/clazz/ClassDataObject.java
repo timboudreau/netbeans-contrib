@@ -44,6 +44,7 @@ import org.openide.src.nodes.SourceChildren;
 import org.openide.src.nodes.SourceElementFilter;
 import org.openide.src.nodes.FilterFactory;
 import org.openide.src.nodes.ElementNodeFactory;
+
 /* TODO:
   - check the showDeclaredOnly flag - it works different for
     variables/constructors than for methods (i.e. for variables/constructors
@@ -143,7 +144,14 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
     * @return true if the object can be copied
     */
     public boolean isCopyAllowed () {
-        return isJavaBean ();
+        boolean isSerializable = false;
+        try {
+            isSerializable = Serializable.class.isAssignableFrom(instanceSupport.instanceClass());
+        } catch (Exception exc) {
+            // don't allow copying if some error appeared
+            // during serializability test
+        }
+        return isJavaBean () && isSerializable;
     }
 
     /** Class DO cannot be moved.
