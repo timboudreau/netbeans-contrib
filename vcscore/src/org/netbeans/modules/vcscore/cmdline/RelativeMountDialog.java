@@ -25,6 +25,7 @@ public class RelativeMountDialog extends DialogDescriptor {
     private RelativeMountPanel mountPanel;
     private String rootDir;
     private String relMount;
+    private String[] relMounts;
 
     /** Creates new RelativeMountDialog */
     public RelativeMountDialog() {
@@ -45,8 +46,10 @@ public class RelativeMountDialog extends DialogDescriptor {
                 if (ev.getID() == java.awt.event.ActionEvent.ACTION_PERFORMED) {
                     if (NotifyDescriptor.OK_OPTION.equals(ev.getSource())) {
                         RelativeMountDialog.this.relMount = mountPanel.getRelMount();
+                        RelativeMountDialog.this.relMounts = mountPanel.getRelMounts();
                     } else {
                         RelativeMountDialog.this.relMount = null;
+                        RelativeMountDialog.this.relMounts = null;
                     }
                 }
             }
@@ -59,8 +62,18 @@ public class RelativeMountDialog extends DialogDescriptor {
         mountPanel.initTree(rootDir, relMount);
     }
     
+    public void setDir(String rootDir, String[] relMounts) {
+        this.rootDir = rootDir;
+        this.relMounts = relMounts;
+        mountPanel.initTree(rootDir, relMounts);
+    }
+    
     public String getRelMount() {
         return relMount;
+    }
+    
+    public String[] getRelMounts() {
+        return relMounts;
     }
     
 }

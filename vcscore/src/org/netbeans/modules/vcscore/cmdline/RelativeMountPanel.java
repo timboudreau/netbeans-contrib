@@ -503,6 +503,10 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     }
     
     private void setRelMountText() {
+        if (selectedMounts.length == 0) {
+            txRelMount.setText("");
+            return ;
+        }
         StringBuffer relMounts = new StringBuffer();
         for (int i = 0; i < selectedMounts.length - 1; i++) {
             relMounts.append(selectedMounts[i]);
