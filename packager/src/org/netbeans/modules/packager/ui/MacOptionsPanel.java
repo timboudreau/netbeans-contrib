@@ -1,4 +1,16 @@
 /*
+*                 Sun Public License Notice
+*
+* The contents of this file are subject to the Sun Public License
+* Version 1.0 (the "License"). You may not use this file except in
+* compliance with the License. A copy of the License is available at
+* http://www.sun.com/
+*
+* The Original Code is NetBeans. The Initial Developer of the Original
+* Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+* Microsystems, Inc. All Rights Reserved.
+*/
+/*
  * MacOptionsPanel.java
  *
  * Created on May 29, 2004, 11:44 AM
@@ -6,20 +18,32 @@
 
 package org.netbeans.modules.packager.ui;
 
+import java.io.File;
+import javax.swing.JFileChooser;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
+import org.netbeans.modules.packager.PackagerProject;
+import org.openide.WizardDescriptor;
+import org.openide.util.NbBundle;
 
 /**
  *
  * @author  Tim Boudreau
  */
-public class MacOptionsPanel extends java.awt.Panel implements java.awt.event.FocusListener, java.awt.event.ActionListener {
+public class MacOptionsPanel extends javax.swing.JPanel implements java.awt.event.FocusListener, java.awt.event.ActionListener, java.beans.PropertyChangeListener {
     
     /** Creates new form MacOptionsPanel */
     public MacOptionsPanel() {
         initComponents();
-        
+        setName (NbBundle.getMessage (MacOptionsPanel.class, "LAB_ConfigureMac"));
        
+    }
+    
+    private MacOptionsWizardPanel panel = null;
+    public MacOptionsPanel (MacOptionsWizardPanel panel) {
+        this();
+        this.panel = panel;
     }
     
     /** This method is called from within the constructor to
@@ -33,8 +57,6 @@ public class MacOptionsPanel extends java.awt.Panel implements java.awt.event.Fo
         icon = new javax.swing.JTextField();
         iconchoose = new javax.swing.JButton();
         iconlabel = new javax.swing.JLabel();
-        appnamelabel = new javax.swing.JLabel();
-        appname = new javax.swing.JTextField();
         appversion = new javax.swing.JTextField();
         appversionlabel = new javax.swing.JLabel();
         instructions = new javax.swing.JTextArea();
@@ -43,98 +65,81 @@ public class MacOptionsPanel extends java.awt.Panel implements java.awt.event.Fo
 
         icon.setHorizontalAlignment(javax.swing.JTextField.LEFT);
         icon.addFocusListener(this);
+        icon.addPropertyChangeListener(this);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 200;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 11);
         gridBagConstraints.weightx = 0.25;
         gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 11);
         add(icon, gridBagConstraints);
 
-        iconchoose.setText("Choose...");
+        iconchoose.setText(NbBundle.getMessage(MacOptionsPanel.class,"LBL_ChooseIcon"));
         iconchoose.addActionListener(this);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 11);
         gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 11);
         add(iconchoose, gridBagConstraints);
 
-        iconlabel.setText("Icon file (.icns)");
+        iconlabel.setLabelFor(icon);
+        iconlabel.setText(NbBundle.getMessage(MacOptionsPanel.class,"LBL_IconFile"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipadx = 69;
-        gridBagConstraints.insets = new java.awt.Insets(0, 11, 11, 11);
         gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(0, 11, 11, 11);
         add(iconlabel, gridBagConstraints);
 
-        appnamelabel.setText("Application Name");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(11, 11, 11, 11);
-        gridBagConstraints.weighty = 0.5;
-        add(appnamelabel, gridBagConstraints);
-
-        appname.addFocusListener(this);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 200;
-        gridBagConstraints.insets = new java.awt.Insets(11, 0, 11, 11);
-        gridBagConstraints.weightx = 0.25;
-        gridBagConstraints.weighty = 0.5;
-        add(appname, gridBagConstraints);
-
+        appversion.setText("1.0");
         appversion.addFocusListener(this);
+        appversion.addPropertyChangeListener(this);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipadx = 200;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 11);
+        gridBagConstraints.ipadx = 100;
+        gridBagConstraints.insets = new java.awt.Insets(11, 0, 11, 11);
         gridBagConstraints.weightx = 0.25;
         gridBagConstraints.weighty = 0.5;
         add(appversion, gridBagConstraints);
 
-        appversionlabel.setText("Application Version");
+        appversionlabel.setLabelFor(appversion);
+        appversionlabel.setText(NbBundle.getMessage(MacOptionsPanel.class,"LBL_AppVersion"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 11, 11, 11);
         gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(11, 11, 11, 11);
         add(appversionlabel, gridBagConstraints);
 
         instructions.setEditable(false);
         instructions.setLineWrap(true);
-        instructions.setText("To configure additional application options, such as localized application names, edit the Info.plist file in the root directory of the project.  See Apple's documentation of the .plist file format for details at http://developer.apple.com/technotes/tn/tn2013.html");
+        instructions.setText(NbBundle.getMessage(MacOptionsPanel.class,"MSG_AppleConfig"));
         instructions.setWrapStyleWord(true);
         instructions.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(1, 1, 1, 1)));
         instructions.setOpaque(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipady = 100;
-        gridBagConstraints.insets = new java.awt.Insets(11, 11, 11, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(11, 11, 11, 11);
         add(instructions, gridBagConstraints);
 
     }
@@ -154,9 +159,6 @@ public class MacOptionsPanel extends java.awt.Panel implements java.awt.event.Fo
         else if (evt.getSource() == appversion) {
             MacOptionsPanel.this.iconFocusGained(evt);
         }
-        else if (evt.getSource() == appname) {
-            MacOptionsPanel.this.iconFocusGained(evt);
-        }
     }
 
     public void focusLost(java.awt.event.FocusEvent evt) {
@@ -166,19 +168,54 @@ public class MacOptionsPanel extends java.awt.Panel implements java.awt.event.Fo
         else if (evt.getSource() == appversion) {
             MacOptionsPanel.this.iconFocusLost(evt);
         }
-        else if (evt.getSource() == appname) {
-            MacOptionsPanel.this.iconFocusLost(evt);
+    }
+
+    public void propertyChange(java.beans.PropertyChangeEvent evt) {
+        if (evt.getSource() == appversion) {
+            MacOptionsPanel.this.textComponentPropertyChange(evt);
+        }
+        else if (evt.getSource() == icon) {
+            MacOptionsPanel.this.textComponentPropertyChange(evt);
         }
     }//GEN-END:initComponents
 
+    private void textComponentPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_textComponentPropertyChange
+        if (isShowing() && "text".equals(evt.getPropertyName())) {
+            fire();
+        }
+    }//GEN-LAST:event_textComponentPropertyChange
+
     private void iconchooseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_iconchooseActionPerformed
-        // TODO add your handling code here:
+        JFileChooser jfc = new JFileChooser();
+        jfc.setFileHidingEnabled(true);
+        jfc.setFileFilter(new IcnsFilter());
+        if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File f = jfc.getSelectedFile();
+            if (f != null && f.exists()) {
+                icon.setText (f.getPath());
+                fire();
+            }
+        }
+        
     }//GEN-LAST:event_iconchooseActionPerformed
 
     private void iconFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_iconFocusLost
-        checkValid();
+        fire();
     }//GEN-LAST:event_iconFocusLost
 
+    private static final class IcnsFilter extends FileFilter {
+        
+        public boolean accept(File file) {
+            return file.getName().endsWith (".icns"); //NOI18N
+        }
+        
+        public String getDescription() {
+            return NbBundle.getMessage(MacOptionsPanel.class, 
+                "FILE_FILTER_ICONS"); //NOI18N
+        }
+    }
+    
+    
     private void iconFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_iconFocusGained
         if (evt.getSource() instanceof JTextField) {
             JTextField jtf = (JTextField) evt.getSource();
@@ -198,10 +235,6 @@ public class MacOptionsPanel extends java.awt.Panel implements java.awt.event.Fo
         return procStr (icon);
     }
     
-    public String getApplicationName() {
-        return procStr (appname);
-    }
-    
     private String procStr (JTextComponent jtc) {
         String s = jtc.getText();
         if (s != null) {
@@ -213,18 +246,52 @@ public class MacOptionsPanel extends java.awt.Panel implements java.awt.event.Fo
         return s;
     }
     
-    private boolean checkValid() {
-        return valid(); //XXX
+    public void store (WizardDescriptor desc) {
+        String s = (String) desc.getProperty(PackagerProject.KEY_MAC_ICONFILE);
+        if (s != null) {
+            icon.setText(s);
+        }
+        s = (String) desc.getProperty (PackagerProject.KEY_MAC_APPVERSION);
+        if (s != null) {
+            appversion.setText (s);
+        }
     }
     
-    public boolean valid () {
-        return procStr(appname) != null && procStr (appversion) != null;
+    public void read (WizardDescriptor desc) {
+        desc.putProperty (PackagerProject.KEY_MAC_ICONFILE, procStr(icon));
+        desc.putProperty (PackagerProject.KEY_MAC_APPVERSION, procStr(appversion));
+        String s = (String) desc.getProperty (PackagerProject.KEY_MAC_VERSIONSTRING);
+        
+        //Not distinguishing the secondary version string in the GUI.  If not
+        //set in the properties file, set it to same as the other
+        if (s == null && procStr(appversion) != null) {
+            desc.putProperty (PackagerProject.KEY_MAC_VERSIONSTRING, procStr(appversion));
+        }
     }
+    
+    public boolean valid (WizardDescriptor wizardDescriptor) {
+        boolean result = procStr (appversion) != null;
+        if (!result) {
+            wizardDescriptor.putProperty( "WizardPanel_errorMessage", //NOI18N
+                NbBundle.getMessage(MacOptionsPanel.class,
+                "MSG_MissingJnlpProperties")); //NOI18N
+        } else {
+            wizardDescriptor.putProperty( "WizardPanel_errorMessage", //NOI18N
+                ""); //NOI18N
+        }
+        return result;
+    }
+    
+    private void fire() {
+        if (panel != null) {
+            panel.fire();
+        }
+    }
+    
+    
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField appname;
-    private javax.swing.JLabel appnamelabel;
     private javax.swing.JTextField appversion;
     private javax.swing.JLabel appversionlabel;
     private javax.swing.JTextField icon;

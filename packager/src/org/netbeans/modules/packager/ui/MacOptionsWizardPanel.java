@@ -11,9 +11,9 @@
 * Microsystems, Inc. All Rights Reserved.
 */
 /*
- * CustomizerAsWizardPanel.java
+ * MacOptionsWizardPanel.java
  *
- * Created on May 26, 2004, 4:55 PM
+ * Created on May 29, 2004, 10:44 PM
  */
 
 package org.netbeans.modules.packager.ui;
@@ -24,33 +24,30 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.netbeans.modules.packager.ui.PackagerCustomizer;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
 /**
- * Implementation of WizardDescriptor.Panel that proxies a customizer
- * panel.
  *
  * @author  Tim Boudreau
  */
-public class CustomizerAsWizardPanel implements WizardDescriptor.Panel {
-    private WizardDescriptor wizardDescriptor;
+public class MacOptionsWizardPanel implements WizardDescriptor.Panel {
+    private WizardDescriptor wizardDescriptor = null;
     
-    /** Creates a new instance of CustomizerAsWizardPanel */
-    public CustomizerAsWizardPanel() {
+    /** Creates a new instance of MacOptionsWizardPanel */
+    public MacOptionsWizardPanel() {
     }
-
+    
     private Component comp = null;
     public Component getComponent() {
         if (comp == null) {
-            comp = new PackagerCustomizer(this);
+            comp = new MacOptionsPanel(this);
         }
         return comp;
     }
     
-    private PackagerCustomizer cust() {
-        return (PackagerCustomizer) getComponent();
+    private MacOptionsPanel cust() {
+        return (MacOptionsPanel) getComponent();
     }
     
     public HelpCtx getHelp() {
@@ -60,6 +57,17 @@ public class CustomizerAsWizardPanel implements WizardDescriptor.Panel {
     public boolean isValid() {
         return cust().valid(wizardDescriptor);
     }
+    
+    public synchronized void readSettings(Object settings) {
+        wizardDescriptor = (WizardDescriptor)settings;        
+        cust().read (wizardDescriptor);
+    }
+    
+    public synchronized void storeSettings(Object settings) {
+        WizardDescriptor d = (WizardDescriptor)settings;
+        cust().store(d);
+    }
+
     
     private final Set/*<ChangeListener>*/ listeners = new HashSet(1);
     public final void addChangeListener(ChangeListener l) {
@@ -72,11 +80,7 @@ public class CustomizerAsWizardPanel implements WizardDescriptor.Panel {
             listeners.remove(l);
         }
     }
-    
-    protected final void fireChangeEvent() {
-        storeSettings(wizardDescriptor);
-        
-        System.err.println("Customizer as wizard panel firing");
+    protected final void fire() {
         Iterator it;
         synchronized (listeners) {
             it = new HashSet(listeners).iterator();
@@ -85,15 +89,5 @@ public class CustomizerAsWizardPanel implements WizardDescriptor.Panel {
         while (it.hasNext()) {
             ((ChangeListener)it.next()).stateChanged(ev);
         }
-    }
-    
-    public void readSettings(Object settings) {
-        wizardDescriptor = (WizardDescriptor)settings;        
-        cust().read (wizardDescriptor);
-    }
-    
-    public void storeSettings(Object settings) {
-        WizardDescriptor d = (WizardDescriptor)settings;
-        cust().store(d);
     }
 }

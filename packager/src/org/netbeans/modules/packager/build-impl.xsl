@@ -67,7 +67,7 @@ Microsystems, Inc. All Rights Reserved.
                 <xsl:with-param name="copyfiles" select="'true'"/>
             </xsl:call-template>            
 
-            <target name="build" depends="init,deps-build">
+            <target name="build-mac" if="platform.mac">
                 <mkdir dir="dist/Macintosh/{$name}.app/Contents/MacOS"/>
                 <copy file="Configurations/Macintosh/start.sh" todir="dist/Macintosh/{$name}.app/Contents/MacOS">
                     <filterset>
@@ -79,13 +79,41 @@ Microsystems, Inc. All Rights Reserved.
                 <copy file="Configurations/Macintosh/Info.plist" todir="dist/Macintosh/{$name}.app/Contents">
                     <filterset>
                         <filter token="APPNAME" value="{$name}"/>
-                        <filter token="VERSION" value="1.0"/>
-                        <filter token="APPVERSION" value="1.0 hey"/>
+                        <filter token="VERSION" value="${{mac.appversion}}"/>
+                        <filter token="APPVERSION" value="${{mac.versionstring}}"/>
                         <filter token="ICONFILENAME" value="{$name}.icns"/>
                     </filterset>
                 </copy>
                 <copy file="Configurations/Macintosh/{$name}.icns" tofile="dist/Macintosh/{$name}.app/Contents/Resources/{$name}.icns" failonerror="false"/>
             </target>
+            
+            <target name="build-windows" if="platform.windows">
+                <echo message="Windows build not implemented yet"/>
+            </target>
+            
+            <target name="build-jnlp" if="platform.webstart">
+                <!--XXX MAKE A LIST OF JARS IN THE RESOURCES SECTION -->
+                <!--XXX SIGN JARS IF SECURITY ACCESS REQUESTED -->
+                <copy file="Configurations/WebStart/app.jnlp" tofile="dist/WebStart/{$name}.jnlp">
+                    <filterset>
+                        <filter token="NAME" value="{$name}"/>
+                        <filter token="VENDOR" value="${{jnlp.vendor}}"/>
+                        <!--<filter token="CODEBASE" value="${{jnlp.codebase}}"/> -->
+                        <filter token="CODEBASE" value="file://${{basedir}}/dist/WebStart/"/> <!--XXX for testing-->
+                        <filter token="DESCRIPTION" value="${{jnlp.description}}"/>
+                        <filter token="LONG-DESCRIPTION" value="${{jnlp.longdescription}}"/>
+                        <filter token="HOMEPAGE" value="${{jnlp.homepage}}"/>
+                        <filter token="JAR" value="${{main.class.jar}}"/> <!--XXX-->
+                        <filter token="MAIN-CLASS" value="${{main.class}}"/>
+                    </filterset>
+                </copy>
+            </target>
+            
+            <target name="build-unix" if="platform.unix">
+                <echo message="Unix build not implemented yet"/>
+            </target>
+            
+            <target name="build" depends="init,deps-build,build-mac,build-jnlp,build-windows,build-unix"/>
             
             <target name="run" depends="build">
                 <exec executable="open">
@@ -188,10 +216,18 @@ Microsystems, Inc. All Rights Reserved.
                     </xsl:if>
                 </ant>
                 <xsl:if test="$copyfiles='true'">
+                    <!--XXX test for is.mac here & also copy to jnlp dir -->
                     <mkdir dir="dist/Macintosh/{$projname}.app/Contents/Resources"/>
                     <copy todir="dist/Macintosh/{$projname}.app/Contents/Resources">
                         <xsl:attribute name="file">${reference.<xsl:value-of select="$subproj"/>.jar}</xsl:attribute>
                     </copy>
+
+                    <!--XXX don't always do this, and get it to match the URL in the jnlp file -->
+                    <mkdir dir="dist/WebStart/dist"/>
+                    <copy todir="dist/WebStart/dist">
+                        <xsl:attribute name="file">${reference.<xsl:value-of select="$subproj"/>.jar}</xsl:attribute>
+                    </copy>
+                    
                 </xsl:if>
             </xsl:for-each>
         </target>

@@ -136,11 +136,9 @@
         </Component>
         <Component class="javax.swing.JCheckBox" name="mac">
           <Properties>
-            <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_Mac" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
             </Property>
-            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="unixActionPerformed"/>
@@ -162,8 +160,10 @@
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="org/netbeans/modules/packager/ui/Bundle.properties" key="LBL_WebStart" replaceFormat="NbBundle.getMessage({sourceFileName}.class,&quot;{key}&quot;)"/>
             </Property>
-            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="unixActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

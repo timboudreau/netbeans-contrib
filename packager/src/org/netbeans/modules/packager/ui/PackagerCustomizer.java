@@ -53,7 +53,6 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
     private PackagerCustomizer() {
         initComponents();
         included.setModel(new ProjectListModel());
-        nameKeyTyped(null);
         included.setCellRenderer(new ProjectRenderer());
     }
     
@@ -183,9 +182,7 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
 
         platformspanel.add(windows);
 
-        mac.setSelected(true);
         mac.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_Mac"));
-        mac.setEnabled(false);
         mac.addActionListener(this);
 
         platformspanel.add(mac);
@@ -197,7 +194,8 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         platformspanel.add(unix);
 
         webstart.setText(NbBundle.getMessage(PackagerCustomizer.class,"LBL_WebStart"));
-        webstart.setEnabled(false);
+        webstart.addActionListener(this);
+
         platformspanel.add(webstart);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -263,6 +261,9 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         }
         else if (evt.getSource() == choosedir) {
             PackagerCustomizer.this.choosedirActionPerformed(evt);
+        }
+        else if (evt.getSource() == webstart) {
+            PackagerCustomizer.this.unixActionPerformed(evt);
         }
     }
 
@@ -415,15 +416,6 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
             return false;
         }
 
-        boolean hasPlatform = 
-            windows.isSelected() || mac.isSelected() || unix.isSelected()
-            || webstart.isSelected();
-        if (!hasPlatform) {
-            wizardDescriptor.putProperty( "WizardPanel_errorMessage",
-                NbBundle.getMessage(PackagerCustomizer.class,"MSG_NoPlatform"));
-            return false;
-        }
-        
         File destFolder = new File( dir.getText() );
         File[] kids = destFolder.listFiles();
         if (destFolder.exists() && kids != null && kids.length > 0) {
@@ -444,7 +436,17 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
 
             return false;
         }
-        wizardDescriptor.putProperty( "WizardPanel_errorMessage", "" );
+        
+        boolean hasPlatform = 
+            windows.isSelected() || mac.isSelected() || unix.isSelected()
+            || webstart.isSelected();
+        if (!hasPlatform) {
+            wizardDescriptor.putProperty( "WizardPanel_errorMessage",
+                NbBundle.getMessage(PackagerCustomizer.class,"MSG_NoPlatform"));
+            return false;
+        }
+        
+        wizardDescriptor.putProperty( "WizardPanel_errorMessage", "  " );
         
         return true;
     }
@@ -470,14 +472,14 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
         String nm = name.getText().trim();
         String location = dir.getText().trim();
         
-        
-        d.putProperty(KEY_DIR, new File( location )); // NOI18N
-        d.putProperty(KEY_NAME, nm ); // NOI18N  
-        d.putProperty(KEY_PROJECTS, getDependentProjects());
-        d.putProperty(KEY_MAC, isMac() ? Boolean.TRUE : Boolean.FALSE);
-        d.putProperty(KEY_UNIX, isUnix() ? Boolean.TRUE : Boolean.FALSE);
-        d.putProperty(KEY_WINDOWS, isWindows() ? Boolean.TRUE : Boolean.FALSE);
-        d.putProperty(KEY_WEBSTART, isWebStart() ? Boolean.TRUE : Boolean.FALSE);
+        d.putProperty(PackagerProject.KEY_DIR, new File( location )); // NOI18N
+        d.putProperty(PackagerProject.KEY_NAME, nm ); // NOI18N  
+        d.putProperty(PackagerProject.KEY_PROJECTS, getChildProjects());
+        d.putProperty(PackagerProject.KEY_INDIRECT_DEPENDENCIES, getDependentProjects());
+        d.putProperty(PackagerProject.KEY_MAC, isMac() ? Boolean.TRUE : Boolean.FALSE);
+        d.putProperty(PackagerProject.KEY_UNIX, isUnix() ? Boolean.TRUE : Boolean.FALSE);
+        d.putProperty(PackagerProject.KEY_WINDOWS, isWindows() ? Boolean.TRUE : Boolean.FALSE);
+        d.putProperty(PackagerProject.KEY_WEBSTART, isWebStart() ? Boolean.TRUE : Boolean.FALSE);
         
         File projectsDir = new File(location);
         if (projectsDir.isDirectory()) {
@@ -486,9 +488,9 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
     }
     
     public void read ( WizardDescriptor d ) {
-        File projdir = (File) d.getProperty(KEY_DIR);
-        String nm = (String) d.getProperty(KEY_NAME);
-        Project[] kids = (Project[]) d.getProperty(KEY_PROJECTS);
+        File projdir = (File) d.getProperty(PackagerProject.KEY_DIR);
+        String nm = (String) d.getProperty(PackagerProject.KEY_NAME);
+        Project[] kids = (Project[]) d.getProperty(PackagerProject.KEY_PROJECTS);
         if (projdir != null) {
             dir.setText(projdir.getPath());
         }
@@ -500,21 +502,11 @@ public class PackagerCustomizer extends javax.swing.JPanel implements java.awt.e
                 ((ProjectListModel) included.getModel()).add(kids[i]);
             }
         }
-        unix.setSelected (Boolean.TRUE.equals(d.getProperty(KEY_UNIX)));
-        webstart.setSelected (Boolean.TRUE.equals(d.getProperty(KEY_WEBSTART)));
-        mac.setSelected (Boolean.TRUE.equals(d.getProperty(KEY_MAC)));
-        windows.setSelected (Boolean.TRUE.equals(d.getProperty(KEY_WINDOWS)));
-        
-        mac.setSelected (true); //XXX for now
+        unix.setSelected (Boolean.TRUE.equals(d.getProperty(PackagerProject.KEY_UNIX)));
+        webstart.setSelected (Boolean.TRUE.equals(d.getProperty(PackagerProject.KEY_WEBSTART)));
+        mac.setSelected (Boolean.TRUE.equals(d.getProperty(PackagerProject.KEY_MAC)));
+        windows.setSelected (Boolean.TRUE.equals(d.getProperty(PackagerProject.KEY_WINDOWS)));
     }
-    
-    public static final String KEY_NAME = "name"; //NOI18N
-    public static final String KEY_DIR = "projdir"; //NOI18N
-    public static final String KEY_PROJECTS = "childProjects"; //NOI18N
-    public static final String KEY_MAC = "mac"; //NOI18N
-    public static final String KEY_UNIX = "unix"; //NOI18N
-    public static final String KEY_WINDOWS = "windows"; //NOI18N
-    public static final String KEY_WEBSTART = "webstart"; //NOI18N
     
     public String getName() {
         return NbBundle.getMessage (PackagerCustomizer.class, "LAB_ConfigureProject"); //NOI18N
