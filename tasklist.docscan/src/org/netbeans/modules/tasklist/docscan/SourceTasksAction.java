@@ -83,7 +83,7 @@ public final class SourceTasksAction extends CallableSystemAction {
         /**
          * Predics how many folders will be scanned.
          * @thread AWT
-         * @param folders estimate.
+         * @param folders estimate (-1 for not yet know).
          */
         void estimate(int folders);
 

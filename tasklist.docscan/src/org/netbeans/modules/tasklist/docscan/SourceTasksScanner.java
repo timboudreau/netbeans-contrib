@@ -91,6 +91,7 @@ final class SourceTasksScanner {
         List project = new ArrayList(23);
         int allFolders = -1;
 
+        view.estimate(-1);
         if ("project".equals(System.getProperty("todos.project", "repository"))) {
             allFolders = project(project);
         }
@@ -181,16 +182,17 @@ final class SourceTasksScanner {
 
     private static int countFolders(FileObject projectFolder) {
         int count = 0;
-        Enumeration en = projectFolder.getChildren(true);
+        if (Thread.currentThread().isInterrupted()) return count;
+        Enumeration en = projectFolder.getFolders(false);
         while (en.hasMoreElements()) {
             FileObject next = (FileObject) en.nextElement();
-            if (next.isFolder() == false) continue;
             String name = next.getNameExt();
             //XXX there is discrepancy because CVS folders are skipped by engine
             if ("CVS".equals(name) || "SCCS".equals(name)) { // NOI18N
                 continue;
             }
             count++;
+            count += countFolders(next);  // recursion
         }
         return count;
     }

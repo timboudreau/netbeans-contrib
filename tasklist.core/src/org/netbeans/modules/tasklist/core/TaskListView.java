@@ -16,20 +16,16 @@ package org.netbeans.modules.tasklist.core;
 
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import java.awt.*;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
+import java.lang.ref.WeakReference;
+import java.lang.ref.Reference;
 import javax.swing.*;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
@@ -73,8 +69,11 @@ import org.openide.util.actions.CallbackSystemAction;
  */
 public abstract class TaskListView extends TopComponent
         implements TaskListener, PropertyChangeListener, ExplorerManager.Provider, Lookup.Provider, TaskSelector {
-    /** Keeps track of the category tabs we've added */
-    private transient static HashMap views = null; // LEAK?
+
+    /** Keeps track of the category tabs we've added
+     * <category, reference to topcomponent>
+     */
+    private transient static Map views = null;
 
     /**
      * Registers a view
@@ -86,7 +85,7 @@ public abstract class TaskListView extends TopComponent
             if (views == null) {
                 views = new HashMap();
             }
-            views.put(view.category, view);
+            views.put(view.category, new WeakReference(view));
         }
     }
     
@@ -97,7 +96,9 @@ public abstract class TaskListView extends TopComponent
             return null;
         }
 
-        return (TaskListView) views.get(category);
+        Reference ref = (Reference) views.get(category);
+        if (ref == null) return null;
+        return (TaskListView) ref.get();
     }
     
     /** Property "task summary" */
@@ -746,7 +747,7 @@ for (int i = 0; i < columns.length; i++) {
             if (views == null) {
                 views = new HashMap();
             }
-            views.put(category, this);
+            views.put(category, new WeakReference(this));
         }
     }
 
@@ -943,7 +944,9 @@ for (int i = 0; i < columns.length; i++) {
         Iterator it = vs.iterator();
         TaskListView first = null;
         while (it.hasNext()) {
-            TaskListView tlv = (TaskListView) it.next();
+            Reference ref = (Reference) it.next();
+            TaskListView tlv = (TaskListView) ref.get();
+            if (tlv == null) continue; // remove the key?
             if (tlv.isShowing()) {
                 return tlv;
             }

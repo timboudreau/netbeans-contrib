@@ -574,21 +574,26 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public void estimate(int estimate) {
         estimatedFolders = estimate;
-        realFolders = 0;
+        if (estimate == -1) {
+            getProgress().setVisible(true);
+            getStop().setVisible(true);
+            getStop().setEnabled(false);  // cannot deliver cancel to RP.Task
+            getProgress().setIndeterminate(true);
+            getMiniStatus().setText("Estimating complexity...");
+        } else {
+            getProgress().setIndeterminate(false);
+            getProgress().setMaximum(estimatedFolders);
+        }
     }
 
     public void scanStarted() {
-        if (estimatedFolders > 0) {
-            JProgressBar bar = getProgress();
-            bar.setMaximum(estimatedFolders);
-            bar.setVisible(true);
-
-            JButton stop = getStop();
-            stop.setVisible(true);
-
-            getRefresh().setEnabled(false);
-        }
+        realFolders = 0;
         interrupt = false;
+        Thread.currentThread().interrupted(); // consume/clear the flag
+        getProgress().setVisible(true);
+        getStop().setVisible(true);
+        getStop().setEnabled(true);
+        getRefresh().setEnabled(false);
     }
 
     public void folderEntered(FileObject folder) {
@@ -639,6 +644,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private void handleStop() {
         getMiniStatus().setText("Stopping...");
         interrupt = true;
+        Thread.currentThread().interrupt();
     }
 
     private class StopAction extends AbstractAction {
