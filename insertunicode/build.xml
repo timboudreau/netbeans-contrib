@@ -8,60 +8,40 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <project name="contrib/insertunicode" basedir="." default="netbeans">
 
-    <property name="nbm_alias" value="nb_ide"/>
-    <property name="homepage.base" value="netbeans.org"/>
-    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-    <property name="license.file" value="../../nbbuild/standard-nbm-license.txt"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
-    <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../nbbuild/nbantext.jar"/>
-
-    <target name="init">
+    <target name="init" depends="projectized.init">
         <ant dir="external" target="unscramble"/>
-        <mkdir dir="tmp"/>
-        <available property="uni-names.txt" file="tmp/uni-names.txt"/>
+        <mkdir dir="build/tmp"/>
+        <available property="uni-names.txt" file="build/tmp/uni-names.txt"/>
         <antcall target="subst-uni-names.txt"/>
     </target>
+
     <target name="subst-uni-names.txt" unless="uni-names.txt">
-        <copy file="external/UnicodeData-4.0.0.txt" tofile="tmp/uni-names.txt"/>
-        <replaceregexp file="tmp/uni-names.txt" match="^" replace="~" byline="true"/>
-        <replaceregexp file="tmp/uni-names.txt" match="^~([0-9A-F]{4});([A-Z0-9 -]+);.*$" replace="\1 \2" byline="true"/>
-        <replaceregexp file="tmp/uni-names.txt" match="~.*\n" replace="" flags="g"/>
-        <replaceregexp file="tmp/uni-names.txt" match="~$" replace=""/>
+        <copy file="external/UnicodeData-4.0.0.txt" tofile="build/tmp/uni-names.txt"/>
+        <replaceregexp file="build/tmp/uni-names.txt" match="^" replace="~" byline="true"/>
+        <replaceregexp file="build/tmp/uni-names.txt" match="^~([0-9A-F]{4});([A-Z0-9 -]+);.*$" replace="\1 \2" byline="true"/>
+        <replaceregexp file="build/tmp/uni-names.txt" match="~.*\n" replace="" flags="g"/>
+        <replaceregexp file="build/tmp/uni-names.txt" match="~$" replace=""/>
     </target>
 
-    <target name="compile">
-        <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
-            <classpath>
-                <pathelement location="../../openide/openide-13javac-workaround.jar"/>
-                <pathelement location="../../openide/netbeans/lib/openide.jar"/>
-            </classpath>
-        </javac>
+    <target name="compile" depends="projectized.compile">
+        <copy file="build/tmp/uni-names.txt" tofile="build/classes/org/netbeans/modules/insertunicode/uni-names.txt"/>
     </target>
-
-    <target name="jars" depends="compile,init">
-        <mkdir dir="netbeans/modules"/>
-        <jar jarfile="netbeans/modules/org-netbeans-modules-insertunicode.jar" manifest="manifest.mf" compress="false">
-            <fileset dir="src" excludesfile="../../nbbuild/standard-jar-excludes.txt"/>
-            <zipfileset dir="tmp" fullpath="org/netbeans/modules/insertunicode/uni-names.txt">
-                <include name="uni-names.txt"/>
-            </zipfileset>
-        </jar>
-  </target>
   
-    <target name="netbeans" depends="jars"/>
- 
-    <target name="nbm" depends="netbeans">
-        <makenbm file="org-netbeans-modules-insertunicode.nbm"
-                 topdir="."
-                 module="netbeans/modules/org-netbeans-modules-insertunicode.jar"
-                 distribution="http://${dist.base}/org-netbeans-modules-insertunicode.nbm"
-                 homepage="http://contrib.netbeans.org/insertunicode/"
-                 needsrestart="false">
+    <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
+        <mkdir dir="build"/>
+        <makenbm file="build/${nbm}"
+                 productdir="${netbeans.dest.dir}/${cluster.dir}"
+                 module="${module.jar}"
+                 homepage="http://${nbm.domain}.${homepage.base}/"
+                 distribution="http://${dist.base}/${nbm}"
+                 needsrestart="${nbm.needs.restart}">
             <license name="insertunicode-license.txt">
                 <text>For the module itself:</text>
                 <file location="${license.file}"/>
@@ -70,18 +50,6 @@ Microsystems, Inc. All Rights Reserved.
             </license>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
-    </target>
-
-    <target name="clean">
-        <delete>
-            <fileset dir="src">
-                <include name="**/*.class"/>
-            </fileset>
-        </delete>
-        <delete file="org-netbeans-modules-insertunicode.nbm"/>
-        <delete dir="netbeans"/>
-        <delete dir="Info"/>
-        <delete dir="tmp"/>
     </target>
 
 </project>
