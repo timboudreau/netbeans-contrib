@@ -203,10 +203,26 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param cmd the command to perform
      * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
      * @param fileSystem the VCS file system
-     * @return the command executor of the last executed command.
+     * @return the command executors of all executed commands.
      */
-    public static VcsCommandExecutor doCommand(Table files, VcsCommand cmd, Hashtable additionalVars, VcsFileSystem fileSystem) {
+    public static VcsCommandExecutor[] doCommand(Table files, VcsCommand cmd, Hashtable additionalVars, VcsFileSystem fileSystem) {
+        return doCommand(files, cmd, additionalVars, fileSystem, null, null, null, null);
+    }
+    
+    /**
+     * Do a command on a set of files.
+     * @param files the table of pairs of files and file objects, to perform the command on
+     * @param cmd the command to perform
+     * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
+     * @param fileSystem the VCS file system
+     * @return the command executors of all executed commands.
+     */
+    public static VcsCommandExecutor[] doCommand(Table files, VcsCommand cmd, Hashtable additionalVars, VcsFileSystem fileSystem,
+                                                 CommandOutputListener stdoutListener, CommandOutputListener stderrListener,
+                                                 CommandDataOutputListener stdoutDataListener, CommandDataOutputListener stderrDataListener) {
         //System.out.println("doCommand("+files+", "+cmd+")");
+        if (files.size() == 0) return new VcsCommandExecutor[0];
+        ArrayList executors = new ArrayList();
         boolean[] askForEachFile = null;
         String quoting = fileSystem.getQuoting();
         if (files.size() > 1) {
@@ -227,6 +243,11 @@ public class VcsAction extends NodeAction implements ActionListener {
                 vce = null;
                 break;
             }
+            executors.add(vce);
+            if (stdoutListener != null) vce.addOutputListener(stdoutListener);
+            if (stderrListener != null) vce.addErrorOutputListener(stderrListener);
+            if (stdoutDataListener != null) vce.addDataOutputListener(stdoutDataListener);
+            if (stderrDataListener != null) vce.addDataErrorOutputListener(stderrDataListener);
             pool.startExecutor(vce);
             if (!cmdCanRunOnMultipleFiles) {
                 // When the executor can not run on more than one file, it has to be processed one by one.
@@ -248,7 +269,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 }
             }
         } while (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus);
-        return vce;
+        return (VcsCommandExecutor[]) executors.toArray(new VcsCommandExecutor[executors.size()]);
     }
     
     /**
@@ -331,9 +352,10 @@ public class VcsAction extends NodeAction implements ActionListener {
      * Add files marked as important.
      * @param dd the data object from which the files are read.
      * @param res the <code>Table</code> of path and FileObject pairs which are important.
+     * @param all whether to add unimportant files as well
      */
-    protected void addImportantFiles(Collection fos, Table res) {
-        addImportantFiles(fos, res, false);
+    protected void addImportantFiles(Collection fos, Table res, boolean all) {
+        addImportantFiles(fos, res, all, fileSystem);
     }
 
     /**
@@ -341,8 +363,9 @@ public class VcsAction extends NodeAction implements ActionListener {
      * @param dd the data object from which the files are read.
      * @param res the <code>Table</code> of path and FileObject pairs.
      * @param all whether to add unimportant files as well
+     * @param fileSystem the file system
      */
-    protected void addImportantFiles(Collection fos, Table res, boolean all){
+    public static void addImportantFiles(Collection fos, Table res, boolean all, VcsFileSystem fileSystem) {
         for(Iterator it = fos.iterator(); it.hasNext(); ) {
             FileObject ff = (FileObject) it.next();
             try {
@@ -356,10 +379,10 @@ public class VcsAction extends NodeAction implements ActionListener {
             //D.deb("file = "+file+" for "+fileName);
             //if (file == null || file.isImportant()) {
             if (all || fileSystem.isImportant(fileName)) {
-                D.deb(fileName+" is important");
+                //D.deb(fileName+" is important");
                 res.put(fileName, ff);
             }
-            else D.deb(fileName+" is NOT important");
+            //else D.deb(fileName+" is NOT important");
         }
     }
 
@@ -545,7 +568,7 @@ public class VcsAction extends NodeAction implements ActionListener {
          */
         final VcsCommand cmd = fileSystem.getCommand(cmdName);
         if (cmd == null) return;
-        boolean processAll = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_PROCESS_ALL_FILES) || fileSystem.isProcessUnimportantFiles();
+        boolean processAll = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_PROCESS_ALL_FILES) || fileSystem.isProcessUnimportantFiles();
         Table files = new Table();
         //String mimeType = null;
         //String path = "";
