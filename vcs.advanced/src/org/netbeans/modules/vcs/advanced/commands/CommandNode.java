@@ -166,6 +166,15 @@ public class CommandNode extends AbstractNode {
                         CommandNode.this.setDisplayName((String) value);
                         //cmd.fireChanged();
                     }
+                    
+                    public boolean supportsDefaultValue() {
+                        return true;
+                    }
+                    
+                    public void restoreDefaultValue() {
+                        cmd.setDisplayName(null);
+                        CommandNode.this.setDisplayName(null);
+                    }
                 });
         set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), "") {
                     public Object getValue() {
@@ -267,7 +276,7 @@ public class CommandNode extends AbstractNode {
      */
     public NewType[] getNewTypes() {
         //if (list == null) return new NewType[0];
-        return new NewType[] { new NewCommand() };
+        return new NewType[] { new NewCommand(), new NewSeparator() };
     }
     
     /**
@@ -363,7 +372,33 @@ public class CommandNode extends AbstractNode {
         }
     }
     
+    private final class NewSeparator extends NewType {
+        
+        public String getName() {
+            return org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewSeparator_ActionName");
+        }
+        
+        public void create() throws java.io.IOException {
+            CommandNode newCommand = new CommandNode(Children.LEAF, null);
+            Children ch;
+            if (Children.LEAF.equals(CommandNode.this.getChildren())) {
+                ch = CommandNode.this.getParentNode().getChildren();
+            } else {
+                ch = CommandNode.this.getChildren();
+            }
+                /*
+                if (ch instanceof Index.ArrayChildren) {
+                    ((Index.ArrayChildren) ch).
+                 */
+            ch.add(new Node[] { newCommand });
+        }
+    }
+    
     private final class NewCommand extends NewType {
+
+        public String getName() {
+            return org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_NewCommand_ActionName");
+        }
         
         public void create() throws java.io.IOException {
             System.out.println("create new command: cmd = "+cmd);
@@ -388,6 +423,7 @@ public class CommandNode extends AbstractNode {
             }
             VcsCommand cmd = new UserCommand();
             cmd.setName(name);
+            cmd.setDisplayName(name);
             cmd.setProperty(VcsCommand.PROPERTY_EXEC, "");
             //String name = list.createUniqueName(label);
             //cmd.setName(name);
