@@ -827,6 +827,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     
     private String[] performStatusSubstitution(String[] elements) {
         String status = elements[RefreshCommandSupport.ELEMENT_INDEX_STATUS];
+        if (status == null) return elements;
         for (int i = 0; i < substituitionRegExps.length; i++) {
             if (substituitionRegExps[i].match(status)) {
                 if (STATUS_USE_REG_EXP_PARSE_OUTPUT.equals(substituitionStatuses[i])) {
