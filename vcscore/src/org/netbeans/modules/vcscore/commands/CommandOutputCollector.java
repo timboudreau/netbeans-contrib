@@ -230,14 +230,15 @@ public final class CommandOutputCollector extends Object implements CommandProce
                                 ((CommandOutputCollector) it.next()).freeCommandOutput();
                             }
                             outputCollectorsToFree.clear();
+                            collectorsFreeTask = null;
                         }
                     }
                 });
                 collectorsFreeTask.setPriority(Thread.MIN_PRIORITY);
             }
             if (!finalized) outputCollectorsToFree.add(this);
+            collectorsFreeTask.schedule(5000);
         };
-        collectorsFreeTask.schedule(5000);
         //new Thread(later).start();
         commandProcessor.removeCommandProcessListener(this);
     }

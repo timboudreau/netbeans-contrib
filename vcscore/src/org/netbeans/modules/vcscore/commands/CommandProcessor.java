@@ -269,7 +269,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         }
         synchronized (commandListenersByProviders) {
             commandListeners = new ArrayList(commandListenersForAllProviders);
-            List providerListeners = (List) commandListenersByProviders.get(provider);
+            List providerListeners = getCommandListenersForProvider(provider);
             if (providerListeners != null) commandListeners.addAll(providerListeners);
         }
         for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
@@ -287,6 +287,21 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
         }
         return status;
+    }
+    
+    private List getCommandListenersForProvider(Object provider) {
+        if (provider == null) return null;
+        List commandListeners = null;
+        for (Iterator it = commandListenersByProviders.keySet().iterator(); it.hasNext(); ) {
+            Reference ref = (Reference) it.next();
+            Object providerL = ref.get();
+            if (providerL == null) {
+                commandListenersByProviders.remove(ref); // Remove the listeners when they lost their provider
+            } else if (providerL == provider) {
+                commandListeners = (List) commandListenersByProviders.get(ref);
+            }
+        }
+        return commandListeners;
     }
     
     private boolean showCustomizer(Command cmd) throws IntrospectionException {
@@ -536,7 +551,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         List commandListeners;
         synchronized (commandListenersByProviders) {
             commandListeners = new ArrayList(commandListenersForAllProviders);
-            List providerListeners = (List) commandListenersByProviders.get(provider);
+            List providerListeners = getCommandListenersForProvider(provider);
             if (providerListeners != null) commandListeners.addAll(providerListeners);
         }
         for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
@@ -614,7 +629,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         List commandListeners;
         synchronized (commandListenersByProviders) {
             commandListeners = new ArrayList(commandListenersForAllProviders);
-            List providerListeners = (List) commandListenersByProviders.get(provider);
+            List providerListeners = getCommandListenersForProvider(provider);
             if (providerListeners != null) commandListeners.addAll(providerListeners);
         }
         for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
@@ -1157,10 +1172,10 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             if (provider == null) {
                 commandListenersForAllProviders.add(listener);
             } else {
-                List commandListeners = (List) commandListenersByProviders.get(provider);
+                List commandListeners = getCommandListenersForProvider(provider);
                 if (commandListeners == null) {
                     commandListeners = new ArrayList();
-                    commandListenersByProviders.put(provider, commandListeners);
+                    commandListenersByProviders.put(new WeakReference(provider), commandListeners);
                 }
                 if (!commandListeners.contains(listener)) {
                     commandListeners.add(listener);
@@ -1178,11 +1193,18 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             if (provider == null) {
                 commandListenersForAllProviders.remove(listener);
             } else {
-                List commandListeners = (List) commandListenersByProviders.get(provider);
-                if (commandListeners != null) {
-                    commandListeners.remove(listener);
-                    if (commandListeners.size() == 0) {
-                        commandListenersByProviders.remove(provider);
+                for (Iterator it = commandListenersByProviders.keySet().iterator(); it.hasNext(); ) {
+                    Reference ref = (Reference) it.next();
+                    Object providerL = ref.get();
+                    if (providerL == provider) {
+                        List commandListeners = (List) commandListenersByProviders.get(ref);
+                        if (commandListeners != null) {
+                            commandListeners.remove(listener);
+                            if (commandListeners.size() == 0) {
+                                commandListenersByProviders.remove(ref);
+                            }
+                        }
+                        break;
                     }
                 }
             }
