@@ -45,9 +45,11 @@ public final class VersioningRepository extends Object implements java.io.Serial
                         String nv = (String)ev.getNewValue ();
                         VersioningFileSystem fs = (VersioningFileSystem)ev.getSource ();
                         // when a file system is valid then it is attached to a name
-                        names.remove (ov);
-                        // register name of the file system
-                        names.put (nv, fs);
+                        synchronized (this) {
+                            names.remove (ov);
+                            // register name of the file system
+                            names.put (nv, fs);
+                        }
                     }
                 }
             };
