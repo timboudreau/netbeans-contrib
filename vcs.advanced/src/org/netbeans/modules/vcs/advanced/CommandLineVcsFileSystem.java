@@ -85,6 +85,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                     "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
          */
         cachePath = createNewCacheDir();
+        setCreateVersioningSystem(true);
     }
 
     public VcsFactory getVcsFactory () {
