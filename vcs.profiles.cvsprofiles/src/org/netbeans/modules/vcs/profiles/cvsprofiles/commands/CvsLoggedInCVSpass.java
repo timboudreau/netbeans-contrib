@@ -53,7 +53,11 @@ public class CvsLoggedInCVSpass implements VcsAdditionalCommand {
                 port = Integer.parseInt(portStr);
             } catch (NumberFormatException nfex) {}
         }
-        loggedIn = pasFile.find(connectStr, port) != null;
+        try {
+            loggedIn = pasFile.find(connectStr, port) != null;
+        } catch (IllegalArgumentException iaex) {
+            loggedIn = false;
+        }
         //System.out.println("  loggedIn = "+loggedIn);
         if (loggedIn) {
             vars.put("USER_IS_LOGGED_IN", "true");
