@@ -44,6 +44,9 @@ import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends VcsFileSystem implements java.beans.PropertyChangeListener {
     
+    public static final String VAR_LOCAL_FILES_FILTERED_OUT = "LOCAL_FILES_FILTERED_OUT";
+    public static final String VAR_LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE = "LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE";
+    
     private static final boolean DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE = true;
     
     private static final String DEFAULT_CONFIG_NAME = "empty.xml";
