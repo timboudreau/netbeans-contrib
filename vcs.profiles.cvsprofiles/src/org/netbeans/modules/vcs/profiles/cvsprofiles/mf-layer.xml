@@ -16,6 +16,7 @@ Microsystems, Inc. All Rights Reserved.
   <!ENTITY includefiles_commands SYSTEM "layer-includes-commands.xml">
   <!ENTITY includefiles_commands_passwd SYSTEM "layer-includes-commands-passwd.xml">
   <!ENTITY includefiles_config SYSTEM "layer-includes-config.xml">
+  <!ENTITY includefiles_configRB SYSTEM "layer-includes-configRB.xml">
   <!ENTITY includefiles_list SYSTEM "layer-includes-list.xml">
 ]>
 <filesystem>
@@ -30,6 +31,9 @@ Microsystems, Inc. All Rights Reserved.
                 <folder name="passwd">
                   &includefiles_commands_passwd;
                 </folder>
+              </folder>
+              <folder name="config">
+                &includefiles_configRB;
               </folder>
               <folder name="list">
                 &includefiles_list;
