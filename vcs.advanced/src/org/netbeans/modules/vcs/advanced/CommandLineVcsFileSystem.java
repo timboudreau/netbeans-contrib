@@ -219,7 +219,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return new FilenameFilter() {
                    public boolean accept(File dir, String name) {
                        if (!localFileFilterCaseSensitive) name = name.toUpperCase();
-                       return !localFilesFilteredOut.contains(name);
+                       if (localFilesFilteredOut == null) return false;
+                       else return !localFilesFilteredOut.contains(name);
                        //return !name.equalsIgnoreCase("CVS"); // NOI18N
                    }
                };
