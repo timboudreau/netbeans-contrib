@@ -682,7 +682,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 res.put(fileName, ff);
             }
             Set[] scheduled = (Set[]) ff.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
-            if (scheduled != null) {
+            if (scheduled != null && scheduled[0] != null) {
                 for (Iterator sit = scheduled[0].iterator(); sit.hasNext(); ) {
                     String name = (String) sit.next();
                     res.put(name, null);
@@ -707,7 +707,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                         if (status != null) statuses.add(status);
                     }
                     Set[] scheduled = (Set[]) fo.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
-                    if (scheduled != null) {
+                    if (scheduled != null && scheduled[0] != null) {
                         for (Iterator sit = scheduled[0].iterator(); sit.hasNext(); ) {
                             path = (String) sit.next();
                             String status = statusProv.getFileStatus(path);
@@ -729,7 +729,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                             if (status != null) statuses.add(status);
                         }
                         Set[] scheduled = (Set[]) fo.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
-                        if (scheduled != null) {
+                        if (scheduled != null && scheduled[0] != null) {
                             for (Iterator sit = scheduled[0].iterator(); sit.hasNext(); ) {
                                 path = (String) sit.next();
                                 String status = statusProv.getFileStatus(path);
