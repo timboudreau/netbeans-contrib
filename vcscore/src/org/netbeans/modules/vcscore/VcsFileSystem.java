@@ -4002,15 +4002,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         return repo.isFolder(fo.getNameExt());
                     }
                 } catch (IllegalStateException ex) {
-                    try {
-                        if (justRefreshing.get() == null) {
+                    if (justRefreshing.get() == null) {
+                        try {
                             justRefreshing.set(Boolean.TRUE);
                             ErrorManager.getDefault().annotate(ex, "Probably externaly deleted file, invalidating..."); // NOI18N
                             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
                             parent.refresh();  // calls to folder
+                        } finally {
+                            justRefreshing.set(null);
                         }
-                    } finally {
-                        justRefreshing.set(null);
                     }
                     return false;  // for invalid file actual value does not matter
                 }
