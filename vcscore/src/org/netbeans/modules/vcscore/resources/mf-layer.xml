@@ -85,6 +85,10 @@ Microsystems, Inc. All Rights Reserved.
 
    <folder name="Templates">
      <folder name="Mount">
+      
+       <attr name="org-netbeans-core-ExLocalFileSystem.settings/VCS" boolvalue="true" />
+       <attr name="org-netbeans-core-ExJarFileSystem.settings/VCS" boolvalue="true" />
+      
        <folder name="VCS">
          <file name="org-netbeans-modules-vcscore-wizard-mountcvs-CvsMountFS.settings" url="CvsMountFS.settings">
          <attr name="template" boolvalue="true"/>
