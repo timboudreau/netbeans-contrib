@@ -417,7 +417,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
     /** Gets the output of "cvs commit" command and updates the status of committed files. */
     private static class FileStatusUpdater extends Object implements CommandOutputListener {
         
-        private StatusFilePathsBuilder[] pathsBuilders;
+        private Map pathsBuildersByRelPaths;
         private File workingDir;
         private String cvsRepository;
         private int workPathLength;
@@ -436,7 +436,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             this.fileUpdateListener = fileUpdateListener;
             filePaths = new ArrayList(filePaths); // Have our own copy, we'll change the list to keep there just files
             //this.filePaths = filePaths;
-            this.pathsBuilders = createPathsBuilders(workingDir, filePaths, cvsRepository);//new StatusFilePathsBuilder(workingDir, cvsRepository);
+            this.pathsBuildersByRelPaths = createPathsBuilders(workingDir, filePaths, cvsRepository);//new StatusFilePathsBuilder(workingDir, cvsRepository);
             this.workingDir = workingDir;
             this.cvsRepository = cvsRepository;
             workPathLength = workingDir.getAbsolutePath().length();
@@ -453,10 +453,11 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             }
         }
         
-        private static StatusFilePathsBuilder[] createPathsBuilders(File workingDir, List filePaths, String cvsRepository) {
-            List builders = new ArrayList(filePaths.size());
+        private static Map createPathsBuilders(File workingDir, List filePaths, String cvsRepository) {
+            Map builders = new HashMap(filePaths.size());
             for (Iterator it = filePaths.iterator(); it.hasNext(); ) {
                 String filePath = (String) it.next();
+                if (filePath.equals(".")) filePath = "";// NOI18N
                 File file = new File(workingDir, filePath);
                 if (file.isDirectory()) {
                     String reposPath = cvsRepository;
@@ -464,11 +465,11 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                         reposPath = getRepositoryPath(new File(file, "CVS"));
                     }
                     if (reposPath != null) {
-                        builders.add(new StatusFilePathsBuilder(workingDir, reposPath));
+                        builders.put(filePath, new StatusFilePathsBuilder(file, reposPath));
                     }
                 }
             }
-            return (StatusFilePathsBuilder[]) builders.toArray(new StatusFilePathsBuilder[0]);
+            return builders;
         }
         
         public void outputLine(String line) {
@@ -481,9 +482,16 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 //lastFilePath = pathsBuilder.getStatusFilePath(file, reposFile);
                 lastFilePath = findFilePath(file, reposFile.substring(0, fileIndex));
                 if (lastFilePath == null) {
-                    for (int i = 0; i < pathsBuilders.length; i++) {
-                        lastFilePath = pathsBuilders[i].getStatusFilePath(file, reposFile);
-                        if (lastFilePath != null) break;
+                    for (Iterator it = pathsBuildersByRelPaths.keySet().iterator(); it.hasNext(); ) {
+                        String relPath = (String) it.next();
+                        StatusFilePathsBuilder builder = (StatusFilePathsBuilder) pathsBuildersByRelPaths.get(relPath);
+                        lastFilePath = builder.getStatusFilePath(file, reposFile);
+                        if (lastFilePath != null) {
+                            if (relPath.length() > 0) {
+                                lastFilePath = relPath + "/" + lastFilePath;
+                            }
+                            break;
+                        }
                     }
                 }
                 if (lastFilePath != null) {
