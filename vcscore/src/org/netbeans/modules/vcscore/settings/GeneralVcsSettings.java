@@ -191,6 +191,9 @@ public class GeneralVcsSettings extends SystemOption {
     }
     
     public void setWizardDirectoryCache (java.util.LinkedList cache) {
+        if (cache == null) {
+            cache = new LinkedList();
+        }
         putProperty(PROP_LAST_DIRECTORIES, cache.toArray());
         firePropertyChange(PROP_LAST_DIRECTORIES, null, cache.toArray());
     }
