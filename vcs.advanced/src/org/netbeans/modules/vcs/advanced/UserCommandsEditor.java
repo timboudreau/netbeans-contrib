@@ -108,6 +108,7 @@ public class UserCommandsEditor implements PropertyEditor {
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         8/31/99  Pavel Buzek     
  *  5    Gandalf   1.4         5/4/99   Michal Fadljevic 
  *  4    Gandalf   1.3         5/4/99   Michal Fadljevic 
  *  3    Gandalf   1.2         4/26/99  Michal Fadljevic 
