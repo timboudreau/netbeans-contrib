@@ -13,6 +13,9 @@
 
 package org.netbeans.modules.vcs.advanced.commands;
 
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
@@ -57,7 +60,14 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         execButtonGroup.add(stringRadioButton);
         execButtonGroup.add(structuredRadioButton);
         stringTextField.setColumns(50);
+        attachFocusLostListener();
         postInitComponents();
+        editButton.setVisible(isEditArgTableRowSupported());
+        argTable.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent lsev) {
+                removeButton.setEnabled(argTable.getSelectedRows().length > 0);
+            }
+        });
     }
     
     /** This method is called from within the constructor to
@@ -398,12 +408,6 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         int width = lineHeaderComponent.getPreferredSize().width;
         argTable.getColumnModel().getColumn(1).setPreferredWidth(width + 24);
         argTable.getColumnModel().getColumn(1).setMaxWidth(width + 24);
-        editButton.setVisible(false);
-        argTable.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent lsev) {
-                removeButton.setSelected(argTable.getSelectedRows().length > 0);
-            }
-        });
     }
     
     private void enableString(boolean enable) {
@@ -429,6 +433,10 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         argTableModel.addRow(new Object[] { "", Boolean.FALSE });
     }
     
+    protected boolean isEditArgTableRowSupported() {
+        return false;
+    }
+    
     protected void editArgTableRow() {
     }
     
@@ -438,6 +446,20 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         for (int i = rows.length - 1; i >= 0; i--) {
             argTableModel.removeRow(rows[i]);
         }
+    }
+    
+    private void attachFocusLostListener() {
+        FocusListener fl = new FocusAdapter() {
+            public void focusLost(FocusEvent fe) {
+                fieldsFocusLost();
+            }
+        };
+        stringTextField.addFocusListener(fl);
+        execTextField.addFocusListener(fl);
+        workTextField.addFocusListener(fl);
+        argTable.addFocusListener(fl);
+        stringRadioButton.addFocusListener(fl);
+        structuredRadioButton.addFocusListener(fl);
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -463,6 +485,10 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
     
     protected javax.swing.JTable getArgTable() {
         return argTable;
+    }
+    
+    /** This method is called when some field loose focus */
+    protected void fieldsFocusLost() {
     }
     
     public String getExecString() {
@@ -499,8 +525,10 @@ public class StructuredExecPanel extends javax.swing.JPanel implements EnhancedC
         }
         execTextField.setText(execStructured.getExecutable());
         Argument[] args = execStructured.getArguments();
+        for (int i = argTableModel.getRowCount() - 1; i >= 0; i--) {
+            argTableModel.removeRow(i);
+        }
         for (int i = 0; i < args.length; i++) {
-            argTable.removeAll();
             argTableModel.addRow(new Object[] { args[i].getArgument(),
                                                 args[i].isLine() ?
                                                     Boolean.TRUE :

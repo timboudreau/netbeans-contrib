@@ -13,13 +13,18 @@
 
 package org.netbeans.modules.vcs.advanced.conditioned;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
+import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 
 /**
  *
  * @author  Martin Entlicher
  */
-public class ConditionedIntegerPanel extends javax.swing.JPanel {
+public class ConditionedIntegerPanel extends javax.swing.JPanel implements EnhancedCustomPropertyEditor {
     
     private ConditionedInteger ci;
     
@@ -28,6 +33,12 @@ public class ConditionedIntegerPanel extends javax.swing.JPanel {
         this.ci = ci;
         initComponents();
         fillConditions();
+         editButton.setVisible(false);
+         jTable1.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+             public void valueChanged(javax.swing.event.ListSelectionEvent lsev) {
+                 removeButton.setEnabled(jTable1.getSelectedRows().length > 0);
+             }
+         });
     }
     
     /** This method is called from within the constructor to
@@ -147,6 +158,11 @@ public class ConditionedIntegerPanel extends javax.swing.JPanel {
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
         // Add your handling code here:
+        int[] rows = jTable1.getSelectedRows();
+         java.util.Arrays.sort(rows);
+         for (int i = rows.length - 1; i >= 0; i--) {
+             ((DefaultTableModel) jTable1.getModel()).removeRow(rows[i]);
+         }
     }//GEN-LAST:event_removeButtonActionPerformed
 
     private void editButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editButtonActionPerformed
@@ -155,6 +171,7 @@ public class ConditionedIntegerPanel extends javax.swing.JPanel {
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         // Add your handling code here:
+        ((DefaultTableModel) jTable1.getModel()).addRow(new Object[] { new IfUnlessCondition(null), new Integer(0) });
     }//GEN-LAST:event_addButtonActionPerformed
     
     private void fillConditions() {
@@ -163,20 +180,52 @@ public class ConditionedIntegerPanel extends javax.swing.JPanel {
         jTable1.removeAll();
         Object[][] data = new Object[iucs.length][2];
         for (int i = 0; i < iucs.length; i++) {
-            data[i][0] = iucs[i].toString();
+            data[i][0] = iucs[i];
             data[i][1] = ci.getValue(iucs[i]);
             //conditionComboBox.addItem(iucs[i]);
         }
         DefaultTableModel model = new DefaultTableModel(data, new Object[] {
             org.openide.util.NbBundle.getMessage(ConditionedIntegerPanel.class, "ConditionedIntegerPanel.ConditionTitle"),
             org.openide.util.NbBundle.getMessage(ConditionedIntegerPanel.class, "ConditionedIntegerPanel.ValueTitle")
-            });
+            }) {
+                Class[] types = new Class [] {
+                    IfUnlessCondition.class, java.lang.Integer.class
+                };
+                boolean[] canEdit = new boolean [] {
+                    true, true
+                };
+
+                public Class getColumnClass(int columnIndex) {
+                    return types [columnIndex];
+                }
+
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
+                    return canEdit [columnIndex];
+                }
+        };
         jTable1.setModel(model);
+        javax.swing.table.TableCellEditor cellEditor = new IfUnlessPropertyEditor.IUTableCellEditor();
+        javax.swing.table.TableCellRenderer cellRenderer = new IfUnlessPropertyEditor.IUTableCellRenderer();
+        jTable1.getColumnModel().getColumn(0).setCellEditor(cellEditor);
+        jTable1.getColumnModel().getColumn(0).setCellRenderer(cellRenderer);
         //removeButton.setEnabled(jTable1.getRowCount() > 1);
     }
     
-    public Object getPropertyValue() throws IllegalStateException {
+    private ConditionedInteger createConditionedInteger() {
+        Map valuesByConditions = new HashMap();
+        TableModel model = jTable1.getModel();
+        int nr = model.getRowCount();
+        for (int i = 0; i < nr; i++) {
+            IfUnlessCondition iuc = (IfUnlessCondition) model.getValueAt(i, 0);
+            Object value = model.getValueAt(i, 1);
+            valuesByConditions.put(iuc.getCondition(), value);
+        }
+        ci = new ConditionedInteger(ci.getName(), valuesByConditions);
         return ci;
+    }
+    
+    public Object getPropertyValue() throws IllegalStateException {
+        return createConditionedInteger();
     }    
     
     

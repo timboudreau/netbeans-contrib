@@ -166,19 +166,23 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
         return newCommands;
     }
     
-    private CommandsTree createCommands(CommandNode oldCommands, UserCommand cmd, CommandExecutionContext executionContext) {
+    private ConditionedCommands createCommands(CommandNode oldCommands, UserCommand cmd, CommandExecutionContext executionContext) {
         Children oldChildren = oldCommands.getChildren();
         CommandsTree newCommands = new CommandsTree(new UserCommandSupport(cmd, executionContext));
-        
+        ConditionedCommandsBuilder ccbuilder = new ConditionedCommandsBuilder(newCommands);
+        createCommandsTree(oldCommands, newCommands, executionContext, ccbuilder);
+        return ccbuilder.getConditionedCommands();
+    }
+
+    private CommandsTree createCommandsTree(CommandNode oldCommands, CommandsTree newCommands,
+                                            CommandExecutionContext executionContext,
+                                            ConditionedCommandsBuilder ccbuilder) {
+        Children oldChildren = oldCommands.getChildren();
         Node[] oldNodes = oldChildren.getNodes();
         for(int i = 0; i < oldNodes.length; i++) {
-            UserCommand oldcmd = (UserCommand) ((CommandNode) oldNodes[i]).getCommand();
-            UserCommand newcmd = null;
-            if (oldcmd != null) {
-                newcmd = new UserCommand();
-                newcmd.copyFrom(oldcmd);
-            }
-            Children subChildren = oldNodes[i].getChildren();
+            CommandNode commandNode = (CommandNode) oldNodes[i];
+            UserCommand newcmd = (UserCommand) commandNode.getCommand();
+            Children subChildren = commandNode.getChildren();
             CommandsTree newNode;
             if (newcmd == null) {
                 newNode = CommandsTree.EMPTY;
@@ -186,10 +190,21 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
                 if (Children.LEAF.equals(subChildren)) {
                     newNode = new CommandsTree(new UserCommandSupport(newcmd, executionContext));
                 } else {
-                    newNode = createCommands((CommandNode) oldNodes[i], newcmd, executionContext);
+                    newNode = new CommandsTree(new UserCommandSupport(newcmd, executionContext));
+                    createCommandsTree(commandNode, newNode, executionContext, ccbuilder);
                 }
             }
             newCommands.add(newNode);
+            Condition mainC = commandNode.getMainCondition();
+            Collection conditionedProperties = commandNode.getConditionedProperties();
+            //ConditionedPropertiesCommand cpcommand = commandNode.getConditionedPropertiesCommand();
+            //ConditionedProperty[] cproperties = cpcommand.getConditionedProperties();
+            //for (int p = 0; p < cproperties.length; p++) {
+            if (conditionedProperties != null) {
+                for (Iterator it = conditionedProperties.iterator(); it.hasNext(); ) {
+                    ccbuilder.addPropertyToCommand(commandNode.getCommand().getName(), mainC, (ConditionedProperty) it.next());
+                }
+            }
         }
         return newCommands;
     }
@@ -237,13 +252,7 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
     
     //-------------------------------------------
     public Object getPropertyValue() {
-        return ccommands;
-        /*
-        // TODO edit conditioned commands also
-        return new ConditionedCommandsBuilder(
-            createCommands(commandsNode, (UserCommand) commandsNode.getCommand(), executionContext)
-            ).getConditionedCommands();
-         */
+        return createCommands(commandsNode, (UserCommand) commandsNode.getCommand(), executionContext);
     }
 
 

@@ -13,11 +13,20 @@
 
 package org.netbeans.modules.vcs.advanced.conditioned;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.table.DefaultTableModel;
-import org.netbeans.modules.vcs.advanced.commands.StructuredExecPanel;
+
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+
+import org.netbeans.modules.vcs.advanced.commands.StructuredExecPanel;
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedProperty;
+import org.netbeans.modules.vcs.advanced.variables.Condition;
+
+import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
+import org.netbeans.modules.vcscore.commands.VcsCommand;
 
 /**
  *
@@ -27,6 +36,8 @@ public class ConditionedStructuredExecPanel extends StructuredExecPanel {
     
     private ConditionedString cexecString;
     private ConditionedObject cexecStructured;
+    private VcsCommand cmd;
+    private Map cproperties;
     
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton addButton;
@@ -36,7 +47,10 @@ public class ConditionedStructuredExecPanel extends StructuredExecPanel {
     private javax.swing.JButton removeButton;
     
     /** Creates a new instance of ConditionedStructuredExecPanel */
-    public ConditionedStructuredExecPanel() {
+    public ConditionedStructuredExecPanel(VcsCommand cmd, Map cproperties) {
+        super(cmd);
+        this.cmd = cmd;
+        this.cproperties = cproperties;
     }
     
     protected void postInitComponents() {
@@ -66,11 +80,6 @@ public class ConditionedStructuredExecPanel extends StructuredExecPanel {
         argTable.getColumnModel().getColumn(1).setPreferredWidth(width + 24);
         argTable.getColumnModel().getColumn(1).setMaxWidth(width + 24);
         editButton.setVisible(false);
-        argTable.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent lsev) {
-                removeButton.setSelected(argTable.getSelectedRows().length > 0);
-            }
-        });
     }
     
     private void addConditionPanel() {
@@ -147,15 +156,34 @@ public class ConditionedStructuredExecPanel extends StructuredExecPanel {
 
     private void conditionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {
         // Add your handling code here:
+        setFieldsForCurrentCondition();
+    }
+    
+    private void setFieldsForCurrentCondition() {
         IfUnlessCondition iuc = (IfUnlessCondition) conditionComboBox.getSelectedItem();
-        //valueTextArea.setText(cs.getValue(iuc));
+        if (cexecString != null) {
+            String exec = cexecString.getValue(iuc);
+            if (exec != null) {
+                setExecString(exec);
+            }
+        }
+        if (cexecStructured != null) {
+            StructuredExec sexec = (StructuredExec) cexecStructured.getObjectValue(iuc);
+            if (sexec != null) {
+                setExecStructured(sexec);
+            }
+        }
     }
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {
         // Add your handling code here:
         IfUnlessCondition iuc = (IfUnlessCondition) conditionComboBox.getSelectedItem();
-        cexecString.removeValue(iuc);
-        cexecStructured.removeValue(iuc);
+        if (cexecString != null) {
+            cexecString.removeValue(iuc);
+        }
+        if (cexecStructured != null) {
+            cexecStructured.removeValue(iuc);
+        }
         conditionComboBox.removeItem(iuc);
         removeButton.setEnabled(conditionComboBox.getItemCount() > 1);
     }
@@ -185,19 +213,92 @@ public class ConditionedStructuredExecPanel extends StructuredExecPanel {
         removeButton.setEnabled(conditionComboBox.getItemCount() > 1);
     }
 
+    private void fillConditions() {
+        conditionComboBox.removeAllItems();
+        IfUnlessCondition[] iucs1 = null;
+        if (cexecString != null) {
+            iucs1 = cexecString.getIfUnlessConditions();
+            for (int i = 0; i < iucs1.length; i++) {
+                conditionComboBox.addItem(iucs1[i]);
+            }
+        }
+        if (cexecStructured != null) {
+            IfUnlessCondition[] iucs2 = cexecStructured.getIfUnlessConditions();
+fori:       for (int i = 0; i < iucs2.length; i++) {
+                if (iucs1 != null) {
+                    //Condition c2 = iucs2[i].getCondition();
+                    for (int j = 0; j < iucs1.length; j++) {
+                        //Condition c1 = iucs1[j].getCondition();
+                        //if (c1 == null && c2 == null || c1 != null && c1.equals(c2)) {
+                        if (iucs2[i].equals(iucs1[j])) {
+                            break fori;
+                        }
+                    }
+                }
+                conditionComboBox.addItem(iucs2[i]);
+            }
+        }
+        removeButton.setEnabled(conditionComboBox.getItemCount() > 1);
+    }
+    
+    protected void fieldsFocusLost() {
+        IfUnlessCondition iuc = (IfUnlessCondition) conditionComboBox.getSelectedItem();
+        if (isStringExecSelected()) {
+            String exec = getExecString();
+            if (cexecString == null) {
+                cexecString = new ConditionedString(VcsCommand.PROPERTY_EXEC, new HashMap());
+            }
+            cexecString.setValue(iuc, exec);
+        } else {
+            StructuredExec sexec = getExecStructured();
+            if (cexecStructured == null) {
+                cexecStructured = new ConditionedObject(VcsCommand.PROPERTY_EXEC_STRUCTURED, new HashMap());
+            }
+            cexecStructured.setObjectValue(iuc, sexec);
+        }
+    }
+    
     public ConditionedString getExecStringConditioned() {
         return cexecString;
     }
     
     public void setExecStringConditioned(ConditionedString cexecString) {
         this.cexecString = cexecString;
+        fillConditions();
+        setFieldsForCurrentCondition();
     }
     
     public void setExecStructuredConditioned(ConditionedObject cexecStructured) {
         this.cexecStructured = cexecStructured;
+        fillConditions();
+        setFieldsForCurrentCondition();
     }
     
     public ConditionedObject getExecStructuredConditioned() {
+        return cexecStructured;
+    }
+    
+    public Object getPropertyValue() throws IllegalStateException {
+        ConditionedProperty cproperty = (ConditionedProperty) cproperties.get(VcsCommand.PROPERTY_EXEC);
+        Map valuesByConditions = cexecString.getValuesByConditions();
+        ConditionedProperty newCProperty;
+        Object varValue = null;
+        if (valuesByConditions.size() == 1 && valuesByConditions.keySet().iterator().next() == null) {
+            newCProperty = null;
+            varValue = valuesByConditions.get(null);
+        } else {
+            if (cproperty != null) {
+                newCProperty = new ConditionedProperty(VcsCommand.PROPERTY_EXEC, cproperty.getCondition(), valuesByConditions);
+            } else {
+                newCProperty = new ConditionedProperty(VcsCommand.PROPERTY_EXEC, null, valuesByConditions);
+            }
+        }
+        if (newCProperty != null) {
+            cproperties.put(VcsCommand.PROPERTY_EXEC, newCProperty);
+        } else {
+            cproperties.remove(VcsCommand.PROPERTY_EXEC);
+            cmd.setProperty(VcsCommand.PROPERTY_EXEC, varValue);
+        }
         return cexecStructured;
     }
 }

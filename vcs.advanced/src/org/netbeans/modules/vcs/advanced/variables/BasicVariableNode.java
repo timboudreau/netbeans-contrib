@@ -20,6 +20,7 @@ import java.util.Enumeration;
 import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.openide.*;
@@ -207,7 +208,40 @@ public class BasicVariableNode extends AbstractNode {
     }
     
     public VcsConfigVariable getVariable() {
+        if (cs != null) {
+            Map valuesByConditions = cs.getValuesByConditions();
+            if (valuesByConditions.size() == 1 && valuesByConditions.keySet().iterator().next() == null) {
+                var.setValue((String) valuesByConditions.values().iterator().next());
+            }
+        }
         return var;
+    }
+    
+    public Map getVarsByConditions() {
+        if (cs != null) {
+            Condition mainC = mainCondition.getCondition();
+            Map valuesByConditions = cs.getValuesByConditions();
+            if (mainC == null && valuesByConditions.size() == 1 && valuesByConditions.keySet().iterator().next() == null) {
+                return null;
+            } else {
+                Map varsByConditions = new HashMap();
+                for (Iterator it = valuesByConditions.keySet().iterator(); it.hasNext(); ) {
+                    Condition c = (Condition) it.next();
+                    String value = (String) valuesByConditions.get(c);
+                    VcsConfigVariable cvar = (VcsConfigVariable) var.clone();
+                    cvar.setValue(value);
+                    if (c == null) {
+                        c = VariableIO.createComplementaryCondition(var.getName(), mainC, valuesByConditions.keySet());
+                    } else if (mainC != null) {
+                        c.addCondition(mainC, true);
+                    }
+                    varsByConditions.put(c, cvar);
+                }
+                return varsByConditions;
+            }
+        } else {
+            return null;
+        }
     }
     
     public Collection getAllBasicVariablesNames() {

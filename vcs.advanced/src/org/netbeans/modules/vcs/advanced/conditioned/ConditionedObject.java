@@ -105,8 +105,8 @@ public class ConditionedObject extends Object {
             return new ConditionedInteger.ConditionedIntegerPropertyEditor();
         } else if (propertyClass.equals(Boolean.TYPE)) {
             return new ConditionedBoolean.ConditionedBooleanPropertyEditor();
-        } else if (propertyClass.equals(StructuredExec.class)) {
-            return new ConditionedStructuredExecEditor();
+        //} else if (propertyClass.equals(StructuredExec.class)) {
+        //    return new ConditionedStructuredExecEditor();
         } else {
             throw new IllegalArgumentException("No property editor for class "+propertyClass);
         }

@@ -35,6 +35,10 @@ public class ConditionedString extends ConditionedObject {//implements Cloneable
      */
     public ConditionedString(String name, Map valuesByConditions) {
         super(name, valuesByConditions);
+        for (Iterator it = valuesByConditions.values().iterator(); it.hasNext(); ) {
+            Object value = it.next();
+            if (value != null && !(value instanceof String)) throw new ClassCastException(value.getClass().toString());
+        }
     }
     
     public String getValue(IfUnlessCondition iuc) {
@@ -43,6 +47,11 @@ public class ConditionedString extends ConditionedObject {//implements Cloneable
     
     public void setValue(IfUnlessCondition iuc, String value) {
         valuesByIfUnlessConditions.put(iuc, value);
+    }
+    
+    public void setObjectValue(IfUnlessCondition iuc, Object value) {
+        if (value != null && !(value instanceof String)) throw new ClassCastException(value.getClass().toString());
+        super.setObjectValue(iuc, value);
     }
     
     /*

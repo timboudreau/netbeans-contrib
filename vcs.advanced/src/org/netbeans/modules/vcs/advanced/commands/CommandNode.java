@@ -47,6 +47,8 @@ import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.Con
 import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedProperty;
 import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedCommand;
 import org.netbeans.modules.vcs.advanced.conditioned.ConditionedObject;
+import org.netbeans.modules.vcs.advanced.conditioned.ConditionedString;
+import org.netbeans.modules.vcs.advanced.conditioned.ConditionedStructuredExecEditor;
 import org.netbeans.modules.vcs.advanced.conditioned.IfUnlessCondition;
 import org.netbeans.modules.vcs.advanced.variables.Condition;
 
@@ -272,6 +274,30 @@ public class CommandNode extends AbstractNode {
     
     public VcsCommand getCommand() {
         return cmd;
+    }
+    
+    public Collection getConditionedProperties() {
+        if (cproperties != null) {
+            return cproperties.values();
+            /*
+            ConditionedPropertiesCommand newCPCommand = new ConditionedPropertiesCommand(cpcommand.getCommand());
+            for (Iterator it = cproperties.values().iterator(); it.hasNext(); ) {
+                ConditionedProperty cproperty = (ConditionedProperty) it.next();
+                newCPCommand.addConditionedProperty(cproperty);
+            }
+            return newCPCommand;
+             */
+        } else {
+            return null;
+        }
+    }
+    
+    public Condition getMainCondition() {
+        if (mainCondition != null) {
+            return mainCondition.getCondition();
+        } else {
+            return null;
+        }
     }
     
     /**
@@ -659,10 +685,41 @@ public class CommandNode extends AbstractNode {
                             ConditionedObject co = (ConditionedObject) value;
                             String propertyName = co.getName();
                             ConditionedProperty cproperty = (ConditionedProperty) cproperties.get(propertyName);
+                            Map valuesByConditions = co.getValuesByConditions();
+                            ConditionedProperty newCProperty;
+                            Object varValue = null;
+                            if (valuesByConditions.size() == 1 && valuesByConditions.keySet().iterator().next() == null) {
+                                newCProperty = null;
+                                varValue = valuesByConditions.get(null);
+                            } else {
+                                if (cproperty != null) {
+                                    newCProperty = new ConditionedProperty(propertyName, cproperty.getCondition(), valuesByConditions);
+                                } else {
+                                    newCProperty = new ConditionedProperty(propertyName, null, valuesByConditions);
+                                }
+                            }
+                            if (newCProperty != null) {
+                                cproperties.put(propertyName, newCProperty);
+                            } else {
+                                cproperties.remove(propertyName);
+                                cmd.setProperty(propertyName, varValue);
+                            }
                         }
                         
                         public PropertyEditor getPropertyEditor() {
-                            return ConditionedObject.getConditionedPropertyEditor(valueClass);
+                            if (valueClass.equals(StructuredExec.class)) {
+                                Map valuesByConditions = new HashMap();
+                                ConditionedProperty cproperty = (ConditionedProperty) cproperties.get(VcsCommand.PROPERTY_EXEC);
+                                if (cproperty != null) {
+                                    valuesByConditions = cproperty.getValuesByConditions();
+                                } else {
+                                    valuesByConditions.put(null, cmd.getProperty(VcsCommand.PROPERTY_EXEC));
+                                }
+                                ConditionedString cexec = new ConditionedString(getName(), valuesByConditions);
+                                return new ConditionedStructuredExecEditor(cexec, cmd, cproperties);
+                            } else {
+                                return ConditionedObject.getConditionedPropertyEditor(valueClass);
+                            }
                         }
                 });
             }

@@ -13,12 +13,14 @@
 
 package org.netbeans.modules.vcs.advanced.conditioned;
 
+import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
+
 /**
  * The editor of pair of conditions.
  *
  * @author  Martin Entlicher
  */
-public class IfUnlessConditionPanel extends javax.swing.JPanel {
+public class IfUnlessConditionPanel extends javax.swing.JPanel implements EnhancedCustomPropertyEditor {
     
     private IfUnlessCondition iuc;
     
@@ -115,6 +117,10 @@ public class IfUnlessConditionPanel extends javax.swing.JPanel {
         iuc.setIf((String) ifComboBox.getSelectedItem());
         iuc.setUnless((String) unlessComboBox.getSelectedItem());
         return iuc;
+    }
+    
+    public Object getPropertyValue() throws IllegalStateException {
+        return getCondition();
     }
     
 }

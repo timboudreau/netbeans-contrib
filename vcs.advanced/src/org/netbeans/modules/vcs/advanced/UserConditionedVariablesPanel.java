@@ -245,31 +245,57 @@ public class UserConditionedVariablesPanel extends JPanel implements EnhancedCus
         return manager;
     }
     
-    private Vector createVariables() {
-        Vector vars = new Vector();
+    private ConditionedVariables createVariables() {
+        Collection unconditionedVars = new ArrayList();
+        Map conditionsByVars = new HashMap();
+        Map varsByConditions = new HashMap();
         Node[] nodes = basicChildren.getNodes();
         for (int i = 0; i < nodes.length; i++) {
             BasicVariableNode varNode = (BasicVariableNode) nodes[i];
             VcsConfigVariable var = varNode.getVariable();
-            var.setOrder(i);
-            vars.add(var);
+            Map cvars = varNode.getVarsByConditions();
+            if (cvars != null) {
+                Condition[] conditions = new Condition[cvars.size()];
+                int j = 0;
+                for (Iterator it = cvars.keySet().iterator(); it.hasNext(); j++) {
+                    Condition c = (Condition) it.next();
+                    var = (VcsConfigVariable) cvars.get(c);
+                    var.setOrder(i);
+                    conditions[j] = c;
+                    varsByConditions.put(c, var);
+                }
+                conditionsByVars.put(var.getName(), conditions);
+            } else {
+                var.setOrder(i);
+                unconditionedVars.add(var);
+            }
         }
         nodes = accessoryChildren.getNodes();
         for (int i = 0; i < nodes.length; i++) {
             AccessoryVariableNode varNode = (AccessoryVariableNode) nodes[i];
             VcsConfigVariable var = varNode.getVariable();
-            vars.add(var);
+            Map cvars = varNode.getVarsByConditions();
+            if (cvars != null) {
+                Condition[] conditions = new Condition[cvars.size()];
+                int j = 0;
+                for (Iterator it = cvars.keySet().iterator(); it.hasNext(); j++) {
+                    Condition c = (Condition) it.next();
+                    var = (VcsConfigVariable) cvars.get(c);
+                    conditions[j] = c;
+                    varsByConditions.put(c, var);
+                }
+                conditionsByVars.put(var.getName(), conditions);
+            } else {
+                unconditionedVars.add(var);
+            }
         }
-        vars.addAll(filteredVariables);
-        return vars;
+        unconditionedVars.addAll(filteredVariables);
+        return new ConditionedVariables(unconditionedVars, conditionsByVars, varsByConditions);
     }
     
     public Object getPropertyValue() {
         //D.deb("getPropertyValue()");
-        // TODO handle the conditioned vars as well
-        return new ConditionedVariables(createVariables(), java.util.Collections.EMPTY_MAP,
-                                        java.util.Collections.EMPTY_MAP);
-        //return editor.getValue ();
+        return createVariables();
     }
 
 
