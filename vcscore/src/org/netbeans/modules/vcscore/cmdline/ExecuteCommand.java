@@ -157,6 +157,13 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     public VcsCommand getCommand() {
         return cmd;
     }
+    
+    /**
+     * Get the variables used by this command execution.
+     */
+    public Hashtable getVariables() {
+        return vars;
+    }
 
     //-------------------------------------------
     public int getExitStatus(){
