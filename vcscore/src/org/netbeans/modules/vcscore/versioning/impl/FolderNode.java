@@ -138,6 +138,10 @@ class FolderNode extends AbstractNode {
         }
         return s;
     }
+    
+    protected Image getBlankIcon(int type) {
+        return super.getIcon(type);
+    }
 
     public Image getIcon (int type) {
         Image img = null;

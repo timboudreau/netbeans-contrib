@@ -70,7 +70,7 @@ final class FileNode extends FolderNode implements RefreshRevisionsCookie {
     }
 
     public java.awt.Image getIcon (int type) {
-        java.awt.Image img = super.getIcon(type);
+        java.awt.Image img = getBlankIcon(type);
         try {
             Set files = Collections.singleton(getFile());
             img = getFile().getFileSystem().getStatus().annotateIcon(img, type, files);
