@@ -735,6 +735,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
             FocusListener fl = (FocusListener) flIt.next();
             fl.focusLost(null);
         }
+        VariableInputValidator validator = validateComponents();
+        boolean valid = validator.isValid();
+        if (!valid) {
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(validator.getMessage(), NotifyDescriptor.Message.WARNING_MESSAGE));
+        }
+        return valid;
+    }
+    
+    public VariableInputValidator validateComponents() {
         VariableInputValidator validator = null;
         Set disabledVIComponents = new HashSet();
         for (Iterator it = disabledComponents.keySet().iterator(); it.hasNext(); ) {
@@ -750,11 +759,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         if (validator == null) {
             validator = new VariableInputValidator(null, null);
         }
-        boolean valid = validator.isValid();
-        if (!valid) {
-            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(validator.getMessage(), NotifyDescriptor.Message.WARNING_MESSAGE));
-        }
-        return valid;
+        return validator;
     }
     
     public ActionListener getActionListener() {
