@@ -158,6 +158,7 @@ Microsystems, Inc. All Rights Reserved.
        <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcscore/resources/templatesVCSFS.html"/>
        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.Bundle" />
        </folder>
+     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.Bundle" />
      </folder>
    </folder>
 
