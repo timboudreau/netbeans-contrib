@@ -22,6 +22,7 @@ import org.openide.util.Lookup;
 
 import org.netbeans.modules.enode.ExtensibleNodeActions;
 import org.netbeans.modules.enode.ExtensibleNodeLookup;
+import org.netbeans.modules.enode.ExtensibleNodeIcons;
 
 /**
  * A node capable of reading the list of actions from
@@ -41,6 +42,10 @@ public class ExtensibleNode extends AbstractNode {
      */
     public static final String E_NODE_LOOKUP = "/ExtensibleNode/Lookup/"; // NOI18N
     
+    /** Folder on the system filesystem (context in the naming (JNDI, Registry)
+     * where the icons base dirs are stored.
+     */
+    public static final String E_NODE_ICONS = "/ExtensibleNode/Icons/"; // NOI18N
     /**
      * Our JNDI context paths.
      */
@@ -50,6 +55,11 @@ public class ExtensibleNode extends AbstractNode {
      * Reference the implementation of the actions finder.
      */
     private ExtensibleNodeActions actionManager;
+    
+    /**
+     * Reference the implementation of the icons finder.
+     */
+    private ExtensibleNodeIcons iconManager;
     
     /**
      * Creates a new instance of ExtensibleNode. The paths
@@ -144,9 +154,10 @@ public class ExtensibleNode extends AbstractNode {
     public ExtensibleNode(Children ch, Lookup l, String[] paths) {
         super(ch, l);
         this.paths = paths;
-        
-        // !!! PENDING XXX TODO:
-        setIconBase(paths[0]);
+        String iBase = getIconManager().getIconBase();
+        if (iBase != null) {
+            setIconBase(iBase);
+        }
     }
     
     /**
@@ -157,9 +168,10 @@ public class ExtensibleNode extends AbstractNode {
         super(ch, l);
         this.paths = paths;
         l.setExtensibleNode(this);
-        
-        // !!! PENDING XXX TODO:
-        setIconBase(paths[0]);
+        String iBase = getIconManager().getIconBase();
+        if (iBase != null) {
+            setIconBase(iBase);
+        }
     }
     
     /**
@@ -184,6 +196,16 @@ public class ExtensibleNode extends AbstractNode {
             actionManager = new ExtensibleNodeActions(this);
         }
         return actionManager;
+    }
+    
+    /**
+     * Lazy initialization of the icon manager
+     */
+    private ExtensibleNodeIcons getIconManager() {
+        if (iconManager == null) {
+            iconManager = new ExtensibleNodeIcons(this);
+        }
+        return iconManager;
     }
     
     /**
