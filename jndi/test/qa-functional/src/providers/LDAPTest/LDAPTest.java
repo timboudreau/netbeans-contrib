@@ -33,6 +33,7 @@ import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import junit.framework.AssertionFailedError;
+import org.netbeans.core.windows.StatusLine;
 import org.netbeans.jellytools.ExplorerOperator;
 import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.MainWindowOperator;
@@ -40,6 +41,7 @@ import org.netbeans.jellytools.modules.jndi.actions.RefreshAction;
 import org.netbeans.jellytools.modules.jndi.nodes.ContextNode;
 import org.netbeans.jellytools.modules.jndi.nodes.JNDIRootNode;
 import org.netbeans.jellytools.nodes.Node;
+import org.openide.awt.StatusDisplayer;
 import org.openide.util.Lookup;
 
 public class LDAPTest extends JellyTestCase {
@@ -171,6 +173,7 @@ public class LDAPTest extends JellyTestCase {
         /* Print lookup and binding code */
 //        MainWindowOperator.StatusTextTracer stt = MainWindowOperator.getDefault().getStatusTextTracer();
 //        stt.start ();
+        StatusDisplayer.getDefault().setStatusText("<Dummy>");
         JdirNode.copyLookupCode();
         MainWindowOperator.getDefault().waitStatusText("Lookup code generated to clipboard.");
 //        stt.waitText("Lookup code generated to clipboard.", true);
@@ -180,6 +183,7 @@ public class LDAPTest extends JellyTestCase {
         printClipboardToRef();
 
 //        stt.start ();
+        StatusDisplayer.getDefault().setStatusText("<Dummy>");
         JdirNode.copyBindingCode();
         MainWindowOperator.getDefault().waitStatusText("Binding code generated to clipboard.");
 //        stt.waitText("Binding code generated to clipboard.", true);
