@@ -47,13 +47,14 @@ public class SerTopChildren extends Children.Keys implements NodeListener {
     protected void addNotify() {
         super.addNotify();
         setKeys(new Object[] {SUPER_KEY, ADDED_KEY});
-        dummy = new AbstractNode(src);
+        if (dummy == null) {
+            dummy = new AbstractNode(src);
+        }
         dummy.addNodeListener(this);
     }
     
     protected void removeNotify() {
         dummy.removeNodeListener(this);
-        dummy = null;
         setKeys(Collections.EMPTY_SET);
         super.removeNotify();
     }
