@@ -71,7 +71,9 @@ public final class SuggestionsBroker {
     private Job allOpenedJob;
 
     private SuggestionList allOpenedList;
-    private FileObject lastFileObject;
+
+    /** Holds last fileobject that has been opened (and therefore should appear in "allOpened". */
+    private FileObject lastOpenedFileObject;
 
     private static final Logger LOGGER = TLUtils.getLogger(SuggestionsBroker.class);
 
@@ -81,6 +83,7 @@ public final class SuggestionsBroker {
     public static SuggestionsBroker getDefault() {
         if (instance == null) {
             instance = new SuggestionsBroker();
+//            instance.startAllOpenedBroker();  // TODO debug only
         }
         return instance;
     }
@@ -137,15 +140,12 @@ public final class SuggestionsBroker {
             TopComponent[] documents = SuggestionsScanner.openedTopComponents();
             SuggestionsScanner scanner = SuggestionsScanner.getDefault();
             for (int i = 0; i<documents.length; i++) {
-                Node[] nodes = documents[i].getActivatedNodes();
-                if (nodes == null) continue;
-                for (int n = 0; n<nodes.length; n++) {
-                    DataObject dobj = (DataObject) nodes[n].getCookie(DataObject.class);
-                    if (dobj == null) continue;
-                    FileObject fileObject = dobj.getPrimaryFile();
-                    List suggestions = scanner.scanTopComponent(documents[i]);
-                    openedFilesSuggestionsMap.put(fileObject, suggestions);
-                }
+                DataObject dobj = extractDataObject(documents[i]);
+                if (dobj == null) continue;
+                FileObject fileObject = dobj.getPrimaryFile();
+                List suggestions = scanner.scanTopComponent(documents[i]);
+                openedFilesSuggestionsMap.put(fileObject, suggestions);
+                getAllOpenedSuggestionList().addRemove(suggestions, null, true, null, null);
             }
         }
         return new AllOpenedJob();
@@ -598,6 +598,33 @@ err.log("Couldn't find current nodes...");
 
                 manager.dispatchRescan(document, dataobject, origRequest);
 
+                // update "allOpened" suggestion list
+
+                if (allOpenedClientsCount > 0 && lastOpenedFileObject != null) {
+                    SuggestionList list = getSuggestionListImpl(); // XXX it expects that providers register results synchronously
+                    List scannedSuggestions = list.getRoot().getSubtasks();
+
+                    List previous = (List) openedFilesSuggestionsMap.remove(lastOpenedFileObject);
+                    openedFilesSuggestionsMap.put(lastOpenedFileObject, scannedSuggestions);
+
+                    // copy clones to private "allOpened" suggestions list
+                    // (it must be cloned because tasklist membership is task property)
+                    // TODO should task know about its suggestions list? I think it should not.
+                    Iterator it = scannedSuggestions.iterator();
+                    List clones = new ArrayList(scannedSuggestions.size());
+                    while (it.hasNext()) {
+                        Task next = (Task) it.next();
+                        clones.add(next.cloneTask());
+                    }
+
+                    getAllOpenedSuggestionList().addRemove(null, previous, false, null, null);  //FIXME remove doe snot work
+                    getAllOpenedSuggestionList().addRemove(clones, null, false, null, null);
+
+                    // TODO remove before enabling
+                    getAllOpenedSuggestionList().print();
+
+                }
+
                 // enforce comparable requests, works only for single request source
                 if ((finishedRequest == null) ||
                         ((Comparable)origRequest).compareTo(finishedRequest) > 0) {
@@ -777,20 +804,21 @@ err.log("Couldn't find current nodes...");
         if (allOpenedClientsCount > 0) {
              tc = env.findActiveEditor();
             if (tc == null) {
-                lastFileObject = null;
+                lastOpenedFileObject = null;
             }
-            openedFilesSuggestionsMap.remove(lastFileObject);
+            List previous = (List) openedFilesSuggestionsMap.remove(lastOpenedFileObject);
+            if (previous != null) {
+                getAllOpenedSuggestionList().addRemove(null, previous, false, null, null);
+            }
         }
 
         doRescanInAWT();
 
-        // TODO must be performed after rescan finishes, (in asynchronous thread)
         if (tc != null) {
             DataObject dobj = extractDataObject(tc);
-            lastFileObject = (dobj != null) ? dobj.getPrimaryFile() : null;
-            SuggestionList list = getSuggestionListImpl();
-            List scannedSuggestions = list.getRoot().getSubtasks(); // XXX what is lifetime? Do I need a clone?             
-            openedFilesSuggestionsMap.put(lastFileObject, scannedSuggestions);
+            lastOpenedFileObject = (dobj != null) ? dobj.getPrimaryFile() : null;
+        } else {
+            lastOpenedFileObject = null;
         }
     }
 

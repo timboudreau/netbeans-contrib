@@ -80,7 +80,7 @@ public class TaskList implements ObservableList {
             root = new Task();
             root.setSummary(NbBundle.getMessage(TaskList.class,
                     "Description")); // NOI18N
-            root.setList(this);
+            root.setList(this);  // TODO why does task know about its list?
         }
         return root;
     }
@@ -306,35 +306,34 @@ public class TaskList implements ObservableList {
         if (root != null) root.clear();
     }
 
-//    ///* For debugging purposes:
-//    public void print() {
-//        System.err.println("\nTask List:\n-------------");
-//        if (root == null) {
-//            return;
-//        }
-//        recursivePrint(root, 0);
-//        System.err.println("\n\n");
-//    }
-//
-//    private void recursivePrint(Task node, int depth) {
-//        if (depth > 20) { // probably invalid list
-//            Thread.dumpStack();
-//            return;
-//        }
-//        for (int i = 0; i < depth; i++) {
-//            System.err.print("   ");
-//        }
-//        System.err.println(node);
-//        if (node.getSubtasks() != null) {
-//            List l = node.getSubtasks();
-//            ListIterator it = l.listIterator();
-//            while (it.hasNext()) {
-//                Task task = (Task) it.next();
-//                recursivePrint(task, depth + 1);
-//            }
-//        }
-//    }
-//    // */
+    /** For debugging purposes, only. Writes directly to serr. */
+    public void print() {
+        System.err.println("\nTask List:\n-------------");
+        if (root == null) {
+            return;
+        }
+        recursivePrint(root, 0);
+        System.err.println("\n\n");
+    }
+
+    private void recursivePrint(Task node, int depth) {
+        if (depth > 20) { // probably invalid list
+            Thread.dumpStack();
+            return;
+        }
+        for (int i = 0; i < depth; i++) {
+            System.err.print("   ");
+        }
+        System.err.println(node);
+        if (node.getSubtasks() != null) {
+            List l = node.getSubtasks();
+            ListIterator it = l.listIterator();
+            while (it.hasNext()) {
+                Task task = (Task) it.next();
+                recursivePrint(task, depth + 1);
+            }
+        }
+    }
 
 
 }

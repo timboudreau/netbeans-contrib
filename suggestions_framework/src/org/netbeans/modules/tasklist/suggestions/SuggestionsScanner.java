@@ -204,15 +204,21 @@ public final class SuggestionsScanner implements Cancellable {
     static TopComponent[] openedTopComponents() {
         final Object[] wsResult = new Object[1];
         try {
-            // I just hope that we are not called from non-AWT thread
-            // still holding AWTTreeLock otherwise deadlock
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    Mode editorMode = WindowManager.getDefault().findMode(CloneableEditorSupport.EDITOR_MODE);
-                    wsResult[0] = editorMode.getTopComponents();
-                }
-            });
-            return (TopComponent[]) wsResult[0];
+
+            if (SwingUtilities.isEventDispatchThread()) {
+                Mode editorMode = WindowManager.getDefault().findMode(CloneableEditorSupport.EDITOR_MODE);
+                return editorMode.getTopComponents();                
+            } else {
+                // I just hope that we are not called from non-AWT thread
+                // still holding AWTTreeLock otherwise deadlock
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        Mode editorMode = WindowManager.getDefault().findMode(CloneableEditorSupport.EDITOR_MODE);
+                        wsResult[0] = editorMode.getTopComponents();
+                    }
+                });
+                return (TopComponent[]) wsResult[0];
+            }
         } catch (InterruptedException e) {
             return new TopComponent[0];
         } catch (InvocationTargetException e) {

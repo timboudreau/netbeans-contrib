@@ -16,6 +16,7 @@ Microsystems, Inc. All Rights Reserved.
     <import file="../../nbbuild/default.xml"/>
 
     <property file="../version.properties"/>
+    <property name="build.compiler.debug" value="on"/>
 
     <target name="init" depends="default.init">
       <patternset id="tasklist/suggestions.files">

@@ -81,6 +81,7 @@ public final class TaskTagsPanel extends javax.swing.JPanel
             }
         });
 
+        // FIXME #41228 i18n
         TableColumn sportColumn = patternsTable.getColumnModel().getColumn(1);
         JComboBox combo = new JComboBox();
         combo.addItem(SuggestionPriority.HIGH);

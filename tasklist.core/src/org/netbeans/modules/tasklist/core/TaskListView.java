@@ -1282,6 +1282,7 @@ for (int i = 0; i < columns.length; i++) {
         // In other words, the next action button shouldn't light
         // up when there are no tasks to move to.
 
+        // RFE #40185
         // Make F12 jump to next task
         if (nextActionClz == null) {
             if (lookupAttempted) {
