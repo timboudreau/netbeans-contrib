@@ -166,7 +166,20 @@ final public class SuggestionManagerImpl extends SuggestionManager {
      */
     public void add(Suggestion suggestion) {
         // TODO check instanceof Task here, and throw an exception if not?
-        getList().add((Task)suggestion);
+        getList().add((Task)suggestion, false, false);
+    }
+
+    /**
+     * Same as {@link add(Suggestion)}, but register a set of suggestions
+     * in one operation. Useful when you for example want to preserve
+     * a particular order among a set of related suggestions, since registering
+     * them one by one means the Suggestion Manager gets to order them
+     * (so for example, if it prepends each item your suggestions end up
+     * in the reverse order of the order you registered them.)
+     */
+    public void add(List suggestions) {
+        // TODO check instanceof Task here, and throw an exception if not?
+        getList().addRemove(suggestions, null, false, null);
     }
 
     /**
@@ -290,4 +303,22 @@ final public class SuggestionManagerImpl extends SuggestionManager {
         TaskList list = view.getList();
         return list;
     }
+
+
+    /**
+     * Store whether or not a particular Suggestion type should be
+     * enabled.
+     * <p>
+     *
+     * @param id The String id of the Suggestion Type. See the
+     *    {@link Suggestion} documentation for how Suggestion Types
+     *    are registered and named.
+     * @param enabled True iff the suggestion type should be enabled
+     */
+    public void setEnabled(String id, boolean enabled) {
+        //TODO
+        System.out.println("SuggestionManagerImpl: TODO - store enabled state.");
+    }
+
+    
 }

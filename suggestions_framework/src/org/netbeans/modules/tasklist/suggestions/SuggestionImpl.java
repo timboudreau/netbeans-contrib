@@ -82,7 +82,7 @@ final public class SuggestionImpl extends Task {
         if (l == null) {
             return 0;
         } else {
-            return l.getLineNumber();
+            return l.getLineNumber()+1;
         }
     }
     
@@ -91,7 +91,7 @@ final public class SuggestionImpl extends Task {
      * Use generate() instead.
      * @return summary string */    
     public String toString() {
-        return "SuggestionImpl[\"" + desc + "\", " + filename + ":" + linenumber + "]"; // NOI18N
+        return "SuggestionImpl(" + super.toString() + ")[\"" + getSummary() + "\", " + filename + ":" + linenumber + "]"; // NOI18N
     }
 
     /** Create a node for this item */
@@ -150,13 +150,11 @@ final public class SuggestionImpl extends Task {
     public int getPriorityNumber() {
         return getPriority().intValue();
     }
-    
+
+    /** "Re"defined here to allow access in this package, not just
+     * the api package. Just calls super. */
     protected void setType(String type) {
         super.setType(type);
-    }
-
-    protected String getType() {
-        return super.getType();
     }
 
     SuggestionType getSType() {

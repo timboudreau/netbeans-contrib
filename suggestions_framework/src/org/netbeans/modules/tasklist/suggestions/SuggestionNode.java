@@ -14,22 +14,31 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.util.List;
+
 import org.netbeans.modules.tasklist.core.AutoFixAction;
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskNode;
+import org.netbeans.modules.tasklist.core.GoToTaskAction;
+import org.netbeans.spi.tasklist.LineSuggestionPerformer;
+
 import org.openide.ErrorManager;
 import org.openide.actions.PropertiesAction;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
-
 import org.openide.nodes.Node.Property;
 import org.openide.nodes.PropertySupport.Reflection;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 
+
+/**
+ * A node in the Suggestions View, representing a Suggestion
+ *
+ * @author Tor Norbye
+ */
 
 class SuggestionNode extends TaskNode {
     
@@ -47,8 +56,11 @@ class SuggestionNode extends TaskNode {
 
     private void init(SuggestionImpl item) {
         this.item = item;
-        //setDefaultAction(SystemAction.get(GoToTaskAction.class));
-        setDefaultAction(SystemAction.get(AutoFixAction.class));
+        if (item.getAction() instanceof LineSuggestionPerformer) {
+            setDefaultAction(SystemAction.get(GoToTaskAction.class));
+        } else {
+            setDefaultAction(SystemAction.get(AutoFixAction.class));
+        }
     }
 
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):
@@ -87,19 +99,36 @@ class SuggestionNode extends TaskNode {
                 null
             };
         } else {
-            return new SystemAction[] {
-                //SystemAction.get(GoToTaskAction.class),
-                //null,
-                SystemAction.get(AutoFixAction.class),
-                null,
-                SystemAction.get(FilterAction.class),
-                null,
-                SystemAction.get(ExportAction.class),
-                //null,
-                //SystemAction.get(ScanTasksAction.class),
-                null,
-                SystemAction.get(PropertiesAction.class),
-            };
+            if (item.getAction() instanceof LineSuggestionPerformer) {
+                return new SystemAction[] {
+                    SystemAction.get(GoToTaskAction.class),
+                    null,
+                    SystemAction.get(DisableAction.class),
+                    null,
+                    SystemAction.get(FilterAction.class),
+                    null,
+                    SystemAction.get(ExportAction.class),
+                    //null,
+                    //SystemAction.get(ScanTasksAction.class),
+                    null,
+                    SystemAction.get(PropertiesAction.class),
+                };
+            } else {
+                return new SystemAction[] {
+                    SystemAction.get(AutoFixAction.class),
+                    SystemAction.get(GoToTaskAction.class),
+                    null,
+                    SystemAction.get(DisableAction.class),
+                    null,
+                    SystemAction.get(FilterAction.class),
+                    null,
+                    SystemAction.get(ExportAction.class),
+                    //null,
+                    //SystemAction.get(ScanTasksAction.class),
+                    null,
+                    SystemAction.get(PropertiesAction.class),
+                };
+            }
         }
     }
 
