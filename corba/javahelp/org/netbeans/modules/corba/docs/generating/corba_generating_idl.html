@@ -19,22 +19,23 @@ Microsystems, Inc. All Rights Reserved.
 <html>
 <head>
 <meta name="lastupdated" content="18apr2001">
-<title>Generating IDL Files</title>
+<title>Generating an IDL File</title>
 <link rel="StyleSheet" href="../ide.css" type="text/css">
 </head>
 <body>
 
-<h2>Generating IDL Files</h2>
+<h2>Generating an IDL File</h2>
 <p>
-You can create an IDL file in one of the following ways:
+You can create an IDL file by:
 <ul>
-<li>Selecting the Empty template, which takes you through the Design IDL
-pane in the New From Template wizard to create the IDL file.</li>
-<li>Importing an IDL file from the Interface Repository.</li>
+<li>Selecting the Empty template, which takes you through the New From
+Template wizard to create the IDL file.</li> 
+<li>Importing an IDL file from the interface repository.</li> 
 <li>Selecting the Simple template, which creates an IDL file
-containing an interface declaration. You must add the rest of the
-file's content manually in the Source Editor. </li>
-</ul> 
+containing an interface declaration using the name that you supplied
+for the IDL file. You must add the rest of the file's content manually
+in the Source Editor. </li> 
+</ul>
 </p>
 
 <p>
@@ -46,18 +47,18 @@ Template wizard.</li>
 
 <li>Expand the CORBA node and select Empty. Click Next to proceed.</li>
 <li>Type the name of your IDL file in the Name text field and a
-destination package name in the Package text field. Click Next
-to proceed.</li>
+destination package name in the Package text field. Click Next.</li>
 <li>Select IDL Wizard as the means by which you want to generate an
 IDL file.
 <p>
-Selecting IDL Wizard creates a new IDL file with an IDL editor while selecting
-Interface Repository imports an existing IDL from the Interface
-Repository (IR).</p></li>
-<li>In the Design IDL pane, define the contents of your IDL file.
-<ol>
-<li>Select an operation from the combo box and click Create.
-<li>Enter the appropriate information for the operation in the dialog
+Selecting IDL Wizard creates a new IDL file with an IDL editor. Selecting
+Interface Repository imports an existing IDL from the interface
+repository (IR).</p></li>
+<li>Define the contents of your IDL file.
+<ol type="a">
+<li>Select an operation from the combo box and click Create. The IDL
+file must contain at least an interface declaration.
+<li>Type the appropriate information for the operation in the dialog
 box that opens and click OK.
 </ol>
 <li>Continue adding operations as needed. Use the Remove, Edit, Up,
@@ -70,16 +71,16 @@ application or click Finish to create the IDL file.</li>
 
 <p>
 <a name="idl-ir"></a>
-<b>To import an IDL from the Interface Repository:</b>
+<b>To import an IDL from the interface repository:</b>
 <ol>
-<li>In the Design IDL panel, click Add IR.</li>
-<li>Provide the name of the Interface Repository you are importing the
-IDL file from, and enter either the URL of the repository or the IOR
-string. The string information must be provided as one continuous string.</li>
+<li>Click Add IR.</li>
+<li>Provide the name of the interface repository from which you are
+importing the IDL file from, and type either the URL of the
+repository or the IOR string. The string information must be provided
+as one continuous string.</li> 
 <li>Click OK in the CORBA Panel dialog box.</li>
 <li>Click Refresh to redisplay the repository hierarchy in the display
-pane.
-<li>Click Next to proceed.</li>
+pane. >Click Next.
 <li>Click Continue with CORBA Wizard to continue developing the CORBA
 application or click Finish to create the IDL file.</li>
 </ol>
@@ -91,10 +92,10 @@ application or click Finish to create the IDL file.</li>
 </tr>
 <tr valign="top">
 <td width="23"></td>
-<td><a href="corba_generating_client.html">Generating Client-side
+<td><a href="corba_generating_client.html">Generating Client-Side
 Files With the CORBA Wizard</a>
 <br>
-<a href="corba_generating_server.html">Generating Server-side Files With the CORBA Wizard</a>
+<a href="corba_generating_server.html">Generating Server-Side Files With the CORBA Wizard</a>
 <br>
 <a href="../irbrowser/corba_irbrowser.html">The Interface Repository Browser</a>
 <br>

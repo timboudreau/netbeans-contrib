@@ -29,70 +29,73 @@ Microsystems, Inc. All Rights Reserved.
 <h2>Starting the Interface Repository Browser</h2>
 
 <p>
-The Interface Repository Browser enables you to view the contents of a
-running interface repository. The IDL interfaces are represented by subnodes
-of the browser node. You can select a node and have the browser copy the
-interface into your IDE flesystem.</p>
-<p>
-To start the Interface Repository Browser and view a naming service,
-you need the interface repository's IOR.
+To start the Interface Repository browser and view a naming service,
+you need the interface repository's IOR. Before you start, make sure
+that the ORB you selected supports an IOR.
+</p>
 
 <h3>Obtaining the Interface Repository IOR</h3>
-
-<p>
-If the interface repository is being managed by a system
-administrator, you can ask the administrator for the file location of
-the interface repository IOR. Specify this file when you start the
-Interface Repository Browser.
 <p>
 If you are managing the interface repository, you need to obtain an
 IOR when you start the interface repository from the command line. A
-simple way to get the IOR into the Interface Repository Browser is to
-cut it to the clipboard. Note that you want the string beginning with
-<tt>IOR</tt> and ending at the last non-blank character before
-<tt>Interface Repository</tt>.  After copying the IOR to the clipboard
+simple way to get the IOR into the Interface Repository browser is to
+copy it to the clipboard. You want the string beginning with
+<tt>IOR</tt> and ending at the last nonblank character before
+<tt>Interface Repository</tt>.  After copying the IOR to the clipboard,
 you can either:
 <ul>
 <li>
-Start the Interface Repository Browser and paste the IOR from the clipboard
-to the Interface Repository Browser's startup dialog.</li>
+Start the Interface Repository browser and paste the IOR from the clipboard
+to the Interface Repository browser's startup dialog.</li>
 <li>
 Paste the IOR from the command shell into a text editor, and save it to
-a text file. You can then start the Interface Repository Browser and specify
-this text file in the startup dialog.</li>
+a text file. You can then start the Interface Repository browser and specify
+this text file in the startup dialog box.</li>
 </ul>
 </p>
 
-<h3><a NAME="Set Up the Naming Service Browser"></a>Starting the Interface Repository
-Browser</h3>
+<a NAME="Set Up the Naming Service Browser"></a>
+<h3>Starting the Interface Repository Browser</h3>
 <p>
-To use the Interface Repository Browser with the interface repository process
+To use the Interface Repository browser with the interface repository process
 that you started earlier:
 <ol>
 <li>
 Switch to the Runtime tab of the Explorer window.</li>
 <li>
 Right-click the CORBA Interface Repository node, and choose Add Interface
-Repository from the contextual menu. A dialog box appears that enables you
-to tell the naming service browser how to find the service.</li>
+Repository. A dialog box appears that enables you
+to tell the Naming Service browser how to find the service.</li>
 <li>
-Enter a name to identify the interface repository in the IDE.</li>
+Type a name to identify the interface repository in the IDE.</li>
 <li>
 There are two ways to supply the interface repository IOR:</li>
 <ul>
 <li>
-If you copied the IOR to a file, type the URL for the file (using <tt>file:///&lt;path
-to your file></tt> ) into the URL field.</li>
+If you copied the IOR to a file, type the URL for the file (using
+<tt>file:///</tt><em>pathname</em>) into the URL field.</li>
 <li>
 Paste the IOR that you cut from the command line into the IOR field.</li>
 </ul>
 <li>
 Click OK to close the dialog box. A new node, with the name you specified,
-will appear under the CORBA Interface Repository node. The Interface Repository
+appears under the CORBA Interface Repository node. The Interface Repository
 browser is now communicating with the interface repository process you
 specified.</li>
 </ol>
 </p>
+
+<table>
+<tr valign="top">
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr valign="top">
+<td width="23"></td>
+<td><a href="corba_irbrowser_using.html">Interface Repository Browser Commands</a>
+</td>
+</tr>
+</table>
+
 
 <hr>
 <font size=-2><a href="../credits.html">Legal Notices</a></font>

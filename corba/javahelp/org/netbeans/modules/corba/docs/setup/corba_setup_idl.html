@@ -24,22 +24,22 @@ Microsystems, Inc. All Rights Reserved.
 <html>
 <head>
 <meta name="lastupdated" content="18apr2001">
-<title>Setting up the IDL Compiler</title>
+<title>Setting Up the IDL Compiler</title>
 <link rel="StyleSheet" href="../ide.css" type="text/css">
 </head>
 <body>
 
-<h2>Setting up the IDL Compiler</h2>
+<h2>Setting Up the IDL Compiler</h2>
 
 <p>
 To generate stub and skeleton files, you need to compile your IDL
 source file with an IDL compiler. Each ORB vendor supplies an IDL
-compiler that will generate stubs and skeletons that are compatible
+compiler that generates stubs and skeletons that are compatible
 with its ORB runtime.
 </p> 
 
 <p>
-Set up the IDE as described below to cause a compile command issued on
+You must set up the IDE correctly to cause a compile command issued on
 an IDL file (or on a package containing an IDL file) to execute the
 correct IDL compiler.</p>
 
@@ -49,19 +49,18 @@ executable. There are two ways to set your environment up so that you
 can execute the IDL compiler from inside the IDE.
 </p>
 <p>
-<b>To set the environment:</b> 
+<b>To set up the compiler:</b> 
 <ul> 
 <li>Add the directory containing the IDL compiler executable to your operating
 system's <tt>PATH</tt> variable.</li> 
-<li>Specify the full path to IDL compiler in the IDE's CORBA properties. (See 
-the instructions for <a href="corba_setup_ide.html">setting the IDE's 
-CORBA properties</a>.)</li>
+<li>Specify the full path to the IDL compiler in the IDE's CORBA
+properties.</li> 
 </ul> 
 </p>
 
 <p>
 After you have set up your environment, issuing compile commands on
-files with the <tt>.idl</tt> extension executes the appropriate IDL
+files with an <tt>.idl</tt> extension executes the appropriate IDL
 compiler.
 <table width="550" border="0" cellpadding="2">
 <tr valign="top">
@@ -81,11 +80,13 @@ and usage.</td>
 </tr>
 <tr valign="top">
 <td width="23"></td>
-<td><a href="../generating/corba_generating_idl.html">Generating IDL Files</a><br>
+<a href="corba_setup_ide.html">Setting the IDE's CORBA properties</a><br>
 <a href="corba_setup_ide.html">Specifying an ORB</a><br>
 <a href="corba_setup_runtime.html">Accessing the ORB Runtime Classes</a><br>
 <a href="corba_setup_nsbrowser.html">Setting Up the Naming Service Browser</a><br>
-<a href="corba_setup_irbrowser.html">Setting Up the Interface Repository Browser</a>
+<a href="corba_setup_irbrowser.html">Setting Up the Interface
+Repository Browser</a>
+<a href="../generating/corba_generating_idl.html">Generating an IDL File</a><br>
 </td>
 </tr>
 </table>

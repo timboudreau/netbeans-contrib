@@ -34,7 +34,7 @@ Microsystems, Inc. All Rights Reserved.
 <tocitem text="CORBA Module Setup" target="setup_intro">
    <tocitem text="Supported ORB Products" target="setup_supportedorbs" />
    <tocitem text="Specifying an ORB" target="setup_specifyingorb" />
-   <tocitem text="Setting up the IDL Compiler" target="setup_idlcompiler" />
+   <tocitem text="Setting Up the IDL Compiler" target="setup_idlcompiler" />
    <tocitem text="Accessing the ORB Runtime Classes" target="setup_accessruntime" />
    <tocitem text="Setting Up the Naming Service Browser" target="setup_nsbrowser" />
    <tocitem text="Setting Up the Interface Repository Browser" target="setup_irbrowser" />
@@ -42,26 +42,26 @@ Microsystems, Inc. All Rights Reserved.
 
 
 <tocitem text="Generating CORBA Files" target="generating_intro">
-   <tocitem text="Generating IDL Files" target="generating_idl" />
-   <tocitem text="Generating Client-side Files Using the CORBA Template" target="generating_tmplclient" /> 
-   <tocitem text="Generating Client-side Files With the CORBA Wizard" target="generating_client" />
-   <tocitem text="Generating Server-side Files Using the CORBA Template" target="generating_tmplserver" />
-   <tocitem text="Generating Server-side Files With the CORBA Wizard" target="generating_server" />
+   <tocitem text="Generating an IDL File" target="generating_idl" />
+   <tocitem text="Generating Client-Side Files Using the CORBA Template" target="generating_tmplclient" /> 
+   <tocitem text="Generating Client-Side Files With the CORBA Wizard" target="generating_client" />
+   <tocitem text="Generating Server-Side Files Using the CORBA Template" target="generating_tmplserver" />
+   <tocitem text="Generating Server-Side Files With the CORBA Wizard" target="generating_server" />
 </tocitem>
 
 <tocitem text="Completing Generated Files" target="completing_intro">
-   <tocitem text="Completing Client-side Files" target="completing_client" />
-   <tocitem text="Completing Server-side Files" target="completing_server" />
+   <tocitem text="Completing Client-Side Files" target="completing_client" />
+   <tocitem text="Completing Server-Side Files" target="completing_server" />
 </tocitem>
 
 <tocitem text="The Naming Service Browser" target="nsbrowser_intro">
    <tocitem text="Starting the Naming Service Browser" target="nsbrowser_connecting" />
-   <tocitem text="Using the Naming Service Browser" target="nsbrowser_binding" />
+   <tocitem text="Naming Service Browser Commands" target="nsbrowser_binding" />
 </tocitem>
 
 <tocitem text="The Interface Repository Browser" target="irbrowser_intro">
    <tocitem text="Starting the Interface Repository Browser" target="irbrowser_connecting" />
-   <tocitem text="Using an Interface from the Repository" target="irbrowser_using" />	
+   <tocitem text="Interface Repository Browser Commands" target="irbrowser_using" />	
 </tocitem>
 <tocitem text="Debugging CORBA Programs" target="debugger_intro">
 </tocitem>
