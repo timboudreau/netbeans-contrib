@@ -16,6 +16,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
 
 /**
+ * TODO remove it's unused.
  *
  * @author  Milos Kleint
  */

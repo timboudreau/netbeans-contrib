@@ -58,7 +58,24 @@ import org.openide.util.NbBundle;
 import org.openide.util.SharedClassObject;
 
 /**
- * The menu with VCS commands constructed lazily.
+ * The (popup or main) menu with VCS commands used as FS actions and
+ * in main Versioning menu.
+ * <p>
+ * It contructs UI following CommandsTree model. Before adding
+ * an item it checks its suitability using display name existence and
+ * enablemes using <code>Command.getApplicableFiles != null</code> tests.
+ * <p>
+ * XXX There is also a logic that somehow handles commands with the same
+ * name (e.g. Add All on folder and on file?).
+ * <p>
+ * On action it creates commands using VcsManager. XXX the command was already
+ * available in <code>createPopup</code> so why is it recreated here? If they are instances
+ * of Messaging commands it sets a message. Finally it executes commands
+ * setting them to GUI mode, informing integrity support, running
+ * command customization and waiting on <code>Command.execute()</code>.
+ * <p>
+ * XXX getApplicableFiles() is called two times, it probably
+ * somehow links to command cloning mentioned above.
  *
  * @author  Martin Entlicher
  */

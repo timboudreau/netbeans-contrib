@@ -168,6 +168,7 @@ public class AddToGroupAction extends NodeAction implements ContextAwareDelegate
         VcsGroupSettings settings = (VcsGroupSettings)SharedClassObject.findObject(VcsGroupSettings.class, true);
         if (settings.isDisableGroups()) return false;
         adding = true;
+        // XXX this fails for filter nodes. A cookie check must be used instead
         for (int m = 0; m < node.length; m++) {
             if (node[m] instanceof VcsGroupNode) return false;
             if (node[m] instanceof VcsGroupFileNode) {

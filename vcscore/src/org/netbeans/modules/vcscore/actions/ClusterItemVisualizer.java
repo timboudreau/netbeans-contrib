@@ -18,6 +18,8 @@ import org.openide.nodes.*;
 import javax.swing.Icon;
 
 /**
+ * TODO Is not it unused?
+ * <p> 
  * ClusteringAction expects to have the popup menu to be defined
  * consisting of items implementing this interface. The menu is defined on the default filesystem
  * by the module's layer.

@@ -1,0 +1,20 @@
+<body>
+This package integrates VCS support with actions UI.
+
+<h2>VCS Actions Package</h2>
+
+TODO the package contains a lot of garbage. There are
+various command actions: Add, Diff, Commit, History, Remove
+and Update that seems useless. My observation is
+that CommandMenu and VcsGlobalCommandAction action replaces them
+as they can construct menu from {@link ComamndTree} descriptors.
+There are also few non command related actions: group management,
+opening revision explorer, versioning manager, versioning output.
+There are inproperly placed they should go to repective packages,
+
+<p>
+{@link CommandMenu} class describes menu invoked command lifetime
+(without a phase hidden in command.execute()). It's described
+in {@link org.netbeans.modules.vcscore.commands} package.
+
+</body>

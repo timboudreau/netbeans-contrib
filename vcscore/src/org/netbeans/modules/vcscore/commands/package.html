@@ -1,0 +1,22 @@
+<body>
+
+Commands scheduling and executing framework implementation.
+
+<h2>Command Processing Engine</h2>
+
+Package keeps trace of all running commands and schedules
+and dispatches queued commands to performing threads.
+
+<p>
+Main package entry point is CommandProcessor.process() method
+that is called from CommandTask.run() that is called by ...
+(XXX there is mess, I cannot understand CommandTask.run() vs.
+CommandTask.execute() called by runCommandTask from an Info).
+<p>
+It looks like it's {@link org.netbeans.api.vcs.commnds API} implementation
+so real client entry point is the API.
+
+<h2>UI</h2>
+{@link org.netbeans.modules.vcscore.runtime} contains engine UI implementation.
+
+</body>

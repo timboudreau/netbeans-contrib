@@ -38,7 +38,11 @@ import org.openide.filesystems.*;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.actions.*;
 
-/** 
+/**
+ *
+ * TODO Is not it unused?
+ * <p>
+ * 
  * Action that displays a submenu of actions when presented in a menu or popup.
  * It reads the menu structure from the default filesystem.
  * Example of layer definition:
