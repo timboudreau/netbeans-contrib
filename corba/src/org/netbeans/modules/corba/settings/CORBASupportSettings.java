@@ -38,7 +38,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
    private String[] checkSections = {"CTL_NAME", "IMPORT", "SETTINGS_ORB_PROPERTIES", 
 				     "ORB_SERVER_INIT", "ORB_CLIENT_INIT", "ORB_SERVER_RUN",
-				     "DIR_PARAM", 
+				     "ORB_OBJECT_ACTIVATION", "DIR_PARAM", 
 				     "PACKAGE_PARAM", "COMPILER", "PACKAGE_DELIMITER",
 				     "ERROR_EXPRESSION", "FILE_POSITION", "LINE_POSITION",
 				     "COLUMN_POSITION", "MESSAGE_POSITION", "TIE_PARAM"};
@@ -101,7 +101,8 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 
    private boolean _is_tie;
 
-   public static String _table = "USER="+System.getProperty("user.name")+"\n";
+   public static String _table = "USER="+System.getProperty("user.name")+"\n"; 
+      //      + "VERSION="+System.getProperty ("com.netbeans.ide.major.version")+"\n";
 
 
    String addition = "";
@@ -675,6 +676,14 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 	 if (DEBUG)
 	    System.out.println ("sb: " + getServerBindingName ());	 
 
+	 p.setProperty ("ORB_NAME", orb);
+
+	 if (getServerBinding () != null)
+	    p.setProperty ("SERVER_BINDING", getServerBinding ());
+	 if (getClientBinding () != null)
+	    p.setProperty ("CLIENT_BINDING", getClientBinding ());
+	 
+
 	 p.setProperty ("SETTINGS_ORB_PROPERTIES", ((Properties)props.elementAt (index)).getProperty
 			("SETTINGS_ORB_PROPERTIES"));
 	 if (((Properties)props.elementAt (index)).getProperty 
@@ -707,6 +716,9 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
 	    if ((tmp_property = ((Properties)props.elementAt (index)).getProperty 
 		 ("SERVER_" + getServerBindingName ())) != null)
 	       p.setProperty ("ORB_SERVER_BINDING", tmp_property);
+
+	 p.setProperty ("ORB_OBJECT_ACTIVATION", ((Properties)props.elementAt (index)).getProperty
+			("ORB_OBJECT_ACTIVATION"));
 
 	 p.setProperty ("ORB_SERVER_RUN", ((Properties)props.elementAt (index)).getProperty 
 			("ORB_SERVER_RUN"));

@@ -81,37 +81,44 @@ public class IDLModule implements ModuleInstall {
 	    fo = system.createFolder ("CORBA");
 	 }
 
-	 for (int i=0; i<list_of_files.length; i++) {
-	    FileObject tmp_file = fo.createData (list_of_files[i], "impl");
-	    FileLock lock = tmp_file.lock ();
-	    OutputStream o = tmp_file.getOutputStream (lock);
-	    if (DEBUG)
-	       System.out.println ("file: " + tmp_file );
-	    PrintStream out = new PrintStream (o);
-	    //String name = _package + "." + list_of_files[i];
-	    String name = _package + "/" + list_of_files[i];
-	    if (DEBUG)
-	       System.out.println ("name: " + name);
-	    InputStream input = CORBASupportSettings.class.getResourceAsStream 
-	       (name);
-	    
-	    if (input == null) {
-	       System.err.println ("can't find " + name + " resource.");
-	       continue;
-	    }
-	    BufferedReader in = new BufferedReader (new InputStreamReader (input));
-	    String tmp;
-	    try {
-	       while (true) {
-		  if ((tmp = in.readLine ()) != null)
-		     out.println (tmp);
-		  else
-		     break;
+	 if (fo.getChildren ().length == 0) {
+	    // copy of implementations files
+	    for (int i=0; i<list_of_files.length; i++) {
+	       FileObject tmp_file = fo.createData (list_of_files[i], "impl");
+	       FileLock lock = tmp_file.lock ();
+	       OutputStream o = tmp_file.getOutputStream (lock);
+	       if (DEBUG)
+		  System.out.println ("file: " + tmp_file );
+	       PrintStream out = new PrintStream (o);
+	       //String name = _package + "." + list_of_files[i];
+	       String name = _package + "/" + list_of_files[i];
+	       if (DEBUG)
+		  System.out.println ("name: " + name);
+	       InputStream input = CORBASupportSettings.class.getResourceAsStream 
+		  (name);
+	       
+	       if (input == null) {
+		  System.err.println ("can't find " + name + " resource.");
+		  continue;
 	       }
-	    } catch (IOException e) {
-	       e.printStackTrace ();
+	       BufferedReader in = new BufferedReader (new InputStreamReader (input));
+	       String tmp;
+	       try {
+		  while (true) {
+		     if ((tmp = in.readLine ()) != null)
+			out.println (tmp);
+		     else
+			break;
+		  }
+	       } catch (IOException e) {
+		  e.printStackTrace ();
+	       }
+	       
 	    }
-	 
+	 }
+	 else {
+	    if (DEBUG)
+	       System.out.println ("in system/CORBA exists files :-)");
 	 }
       } catch (IOException e) {
 	 e.printStackTrace ();
@@ -208,6 +215,7 @@ public class IDLModule implements ModuleInstall {
 
 /*
  * <<Log>>
+ *  4    Gandalf   1.3         5/15/99  Karel Gardas    
  *  3    Gandalf   1.2         5/8/99   Karel Gardas    
  *  2    Gandalf   1.1         4/24/99  Karel Gardas    
  *  1    Gandalf   1.0         4/23/99  Karel Gardas    
