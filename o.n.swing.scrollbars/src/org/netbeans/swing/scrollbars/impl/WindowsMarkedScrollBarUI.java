@@ -262,7 +262,7 @@ public class WindowsMarkedScrollBarUI extends WindowsScrollBarUI implements Prop
     }
 
     public void stateChanged(javax.swing.event.ChangeEvent e) {
-        scrollbar.repaint();
+        invalidateMarks();
     }
 
     protected class MarkAndTrackListener extends TrackListener implements ComponentListener {
