@@ -27,6 +27,7 @@ import org.openide.filesystems.RepositoryEvent;
 import org.openide.filesystems.RepositoryReorderedEvent;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListener;
+import org.openide.util.WeakSet;
 //import org.openide.nodes.AbstractNode;
 //import org.openide.nodes.Children;
 
@@ -90,6 +91,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
      *  sub-commands. These subcommands can not be executed without an introduction
      *  of these exceptional commands. */
     private ArrayList commandsExceptionallyRunning;
+    /** Contains executors, that were cancelled and should not be executed.
+     * All resources (command wrapper) were released for these executors. */
+    private WeakSet cancelledCommandExecutors;
     /** The containers of output of commands. Contains pairs of instances of VcsCommandExecutor
      * and instances of CommandOutputCollector */
     private Hashtable outputContainers;
@@ -122,6 +126,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         commandsFinished = new ArrayList();
         commandsWaitQueue = new ArrayList();
         commandsWrappers = new Hashtable();
+        cancelledCommandExecutors = new WeakSet();
         outputContainers = new Hashtable();
         outputVisualizers = new Hashtable();
         fsWithCmdsRemovedOnRequest = new ArrayList();
@@ -227,6 +232,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
             synchronized (this) {
                 commandsToRun.remove(cw);
                 commandsWrappers.remove(vce);
+                cancelledCommandExecutors.add(vce);
                 //commandsFinished.add(vce);
                 notifyAll();
             }
@@ -449,6 +455,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
      */
     public synchronized void startExecutor(final VcsCommandExecutor vce,
                                            final VcsFileSystem fileSystem) {
+        // Do not start for cancelled executors !!
+        if (cancelledCommandExecutors.contains(vce)) return ;
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw == null) {
             cw = new VcsCommandWrapper(vce, fileSystem);
