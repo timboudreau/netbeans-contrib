@@ -20,10 +20,12 @@ import java.util.StringTokenizer;
 
 
 import org.openide.compiler.ExternalCompilerGroup;
+import org.openide.compiler.CompilerJob;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.*;
 
 import com.netbeans.enterprise.modules.corba.settings.*;
+import com.netbeans.modules.loaders.java.JavaDataObject;
 
  /** External Compiler Group 
   * 
@@ -52,7 +54,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 
 
    protected Process createProcess (NbProcessDescriptor desc, String[] files, Object type) 
-      throws IOException {
+   throws IOException {
       FileObject fo = null;
 
       //System.err.println("IDLExternalCompilerGroup: type = " + type);
@@ -65,6 +67,26 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
       }
       throw new IOException("internal error");
    }
+   
+   /* Starts compilation. It should check which files realy needs to be
+   * compiled and compile only those which really need to.
+   * <P>
+   * The compilation should fire info to status listeners and report
+   * all errors to error listeners.
+   *
+   * @return true if successful, false otherwise
+   */
+   public boolean start () { /*
+     if (super.start()) {
+       vsechny IDL -  vsechny java
+       CompilerJob job = new CompilerJob();
+       JavaDataObject.createCompiler(null, job, fo, CompilerCookie.Compile);
+     } else {
+       return false;
+     }
+     */
+   }
+   
 
    /** 
     */
