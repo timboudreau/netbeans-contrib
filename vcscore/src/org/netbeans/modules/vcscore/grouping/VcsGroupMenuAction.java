@@ -83,10 +83,18 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         return "org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"; // NOI18N
     }
 
+    /**
+     * @return false to run in AWT thread.
+     */
+    protected boolean asynchronous() {
+        return false;
+    }
+    
     /** Opens packaging view. */
     public void performAction () {
     }
 
+    // This is going to be called in AWT thread.
     public void actionPerformed(java.awt.event.ActionEvent e){    
         //        System.out.println("Performing cvs command.. :)");
         Node root = null;
