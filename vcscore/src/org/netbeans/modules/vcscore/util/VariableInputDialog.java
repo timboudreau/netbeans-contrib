@@ -135,6 +135,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
         promptEachCheckBox.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.promptEachCheckBox.mnemonic").charAt(0));
         promptEachCheckBox.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.promptEachCheckBox.a11yName"));
         promptEachCheckBox.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.promptEachCheckBox.a11yDescription"));
+        variableTabbedPane.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.variableTabbedPane.a11yName"));
+        variableTabbedPane.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.variableTabbedPane.a11yDescription"));
     }
 
     public void setFilePromptDocumentListener(VariableInputDialog.FilePromptDocumentListener docListener) {
@@ -865,6 +867,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 0);
         gridBagConstraints.fill = gridBagConstraints.HORIZONTAL;
         javax.swing.JButton button = new javax.swing.JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Browse"));
+        button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.BrowseDir.a11yDesc"));
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -893,6 +896,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 0);
         gridBagConstraints.fill = gridBagConstraints.HORIZONTAL;
         javax.swing.JButton button = new javax.swing.JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Browse"));
+        button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.BrowseFile.a11yDesc"));
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -929,6 +933,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets (0, 8, 8, 0);
         gridBagConstraints.fill = gridBagConstraints.HORIZONTAL;
         javax.swing.JButton button = new javax.swing.JButton(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Select"));
+        button.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.Select.a11yDesc"));
         panel.add(button, gridBagConstraints);
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
