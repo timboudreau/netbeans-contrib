@@ -27,6 +27,7 @@ import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.RegexOutputListener;
+import org.openide.ErrorManager;
 
 /** Single external command to be executed. See {@link TestCommand} for typical usage.
  * 
@@ -45,6 +46,7 @@ public class ExternalCommand {
     //private long timeoutMilis = 0;
     private int exitStatus = VcsCommandExecutor.SUCCEEDED;
     private String inputData = null;
+    private boolean inputRepeat = false;
     private int osType = Utilities.getOperatingSystem();
 
     private Object stdOutDataLock = new Object();
@@ -79,7 +81,7 @@ public class ExternalCommand {
     public ExternalCommand(String command, String input) {
         setCommand(command);
         //setTimeout(timeoutMilis);
-        setInput(input);
+        setInput(input, false);
     }
 
 
@@ -101,9 +103,12 @@ public class ExternalCommand {
 
     /**
      * Set the input, which will be send to the command standard input.
+     * @param inputData The String data that will be sent to the command standard input
+     * @param repeat Whether the input sequence should be repeated while the command reads it.
      */
-    public void setInput(String inputData) {
+    public void setInput(String inputData, boolean repeat) {
         this.inputData = inputData;
+        this.inputRepeat = repeat;
     }
     
     public void setEnv(String[] envp) {
@@ -289,14 +294,20 @@ public class ExternalCommand {
             //}
             //D.deb("New WatchDog with timeout = "+timeoutMilis); // NOI18N
 
+            SafeRunnable inputRepeater = null;
             if (inputData != null) {
                 try{
-                    OutputStreamWriter os=new OutputStreamWriter(proc.getOutputStream());
+                    OutputStream os = proc.getOutputStream();
                     //D.deb("stdin>>"+inputData); // NOI18N
                     //System.out.println("stdin>>"+inputData);
-                    os.write(inputData);
-                    os.flush();
-                    os.close();
+                    if (inputRepeat) {
+                        inputRepeater = new InputRepeater(os, inputData);
+                        RequestProcessor.getDefault().post(inputRepeater);
+                    } else {
+                        os.write(inputData.getBytes());
+                        os.flush();
+                        os.close();
+                    }
                 }
                 catch(IOException e){
                     E.err(e,"writeBytes("+inputData+") failed"); // NOI18N
@@ -311,6 +322,9 @@ public class ExternalCommand {
             }
 
             int exit = proc.waitFor();
+            if (inputRepeater != null) {
+                inputRepeater.doStop();
+            }
             //D.deb("process exit="+exit); // NOI18N
 
             setExitStatus(exit == 0 ? VcsCommandExecutor.SUCCEEDED
@@ -562,6 +576,40 @@ public class ExternalCommand {
                     org.openide.ErrorManager.getDefault().notify(t);
                 }
             } while(true);
+        }
+        
+    }
+    
+    private class InputRepeater extends Object implements SafeRunnable {
+        
+        private OutputStream out;
+        private byte[] input;
+        boolean stop = false;
+        
+        public InputRepeater(OutputStream out, String input) {
+            this.out = out;
+            this.input = input.getBytes();
+        }
+        
+        public void doStop() {
+            stop = true;
+            try {
+                out.close();
+            } catch (IOException ioex) {
+                // Probably broken pipe, not worth to notify anyone
+                //ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
+            }
+        }
+        
+        public void run() {
+            try {
+                while (!stop) {
+                    //System.out.println("WRITTING to stdin: '"+new String(input)+"'");
+                    out.write(input);
+                }
+            } catch (IOException ioex) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
+            }
         }
         
     }

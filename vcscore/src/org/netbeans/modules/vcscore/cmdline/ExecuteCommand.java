@@ -546,7 +546,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             String exec = execs[i];
             ExternalCommand ec = new ExternalCommand(exec);
             //ec.setTimeout(cmd.getTimeout());
-            ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT));
+            ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT),
+                        VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_INPUT_REPEAT));
             ec.setEnv(fileSystem.getEnvironmentVars());
             //D.deb(cmd.getName()+".getInput()='"+cmd.getInput()+"'"); // NOI18N
 

@@ -44,7 +44,16 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
      */
     public static final String PROPERTY_REFRESH_PROCESSED_FILES = "refreshProcessedFiles";
 
+    /**
+     * A String property, that defines the input sequence that is sent to the
+     * command input.
+     */
     public static final String PROPERTY_INPUT = "input";
+    /**
+     * A Boolean property. When <code>true</code> and when the {@link #PROPERTY_INPUT}
+     * is defined, the input sequence is repeated infinite times.
+     */
+    public static final String PROPERTY_INPUT_REPEAT = "inputRepeat";
     //public static final String PROPERTY_DISPLAY = "display";
     public static final String PROPERTY_DATA_REGEX = "data.regex";
     public static final String PROPERTY_ERROR_REGEX = "error.regex";
