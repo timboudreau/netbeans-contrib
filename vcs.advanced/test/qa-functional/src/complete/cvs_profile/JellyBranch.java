@@ -107,8 +107,7 @@ public class JellyBranch extends CVSStub {
         
         // workaround - probably jelly issue - if not used, popup menu does not work in versioning frame
         VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("CHECKOUT_COMMAND");
-        voo.close(); 
-        voo.waitClosed();
+        closeAllVCSWindows();
         
         InitDir.waitStatus(null);
         refreshRecursively(root);
