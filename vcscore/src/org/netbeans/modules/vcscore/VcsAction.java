@@ -230,7 +230,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             askForEachFile[0] = true;
         }
         int preprocessStatus;
-        boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
+        boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
         CommandsPool pool = fileSystem.getCommandsPool();
         VcsCommandExecutor vce;
         Hashtable vars = fileSystem.getVariablesAsHashtable();
@@ -239,6 +239,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             setVariables(files, vars, quoting);
             vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
             preprocessStatus = pool.preprocessCommand(vce, vars, askForEachFile);
+            //System.out.println("VcsAction.doCommand(): CommandsPool.preprocessCommand() = "+preprocessStatus+", askForEachFile = "+((askForEachFile.length > 0) ? ""+askForEachFile : ""+askForEachFile[0]));
             if (CommandsPool.PREPROCESS_CANCELLED == preprocessStatus) {
                 vce = null;
                 break;
@@ -264,11 +265,12 @@ public class VcsAction extends NodeAction implements ActionListener {
                         vars = new Hashtable(vars);
                     }
                 }
-                if (files.size() == 1 && askForEachFile != null) {
+                if (files.size() == 1 && askForEachFile != null && askForEachFile[0] == true) {
                     askForEachFile = null; // Do not show the check box for the last file.
                 }
             }
         } while (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus);
+        //System.out.println("VcsAction.doCommand(): executors started = "+executors.size());
         return (VcsCommandExecutor[]) executors.toArray(new VcsCommandExecutor[executors.size()]);
     }
     
@@ -559,7 +561,7 @@ public class VcsAction extends NodeAction implements ActionListener {
     }
     
     protected void performCommand(final String cmdName, final Node[] nodes) {
-        //System.out.println("performCommand("+cmdName+") on "+nodes.length+" nodes.");
+        //System.out.println("performCommand("+cmdName+")");// on "+nodes.length+" nodes.");
         /* should not be used any more:
         if (cmdName.equals("KILL_ALL_CMDS")) {
             killAllCommands();
