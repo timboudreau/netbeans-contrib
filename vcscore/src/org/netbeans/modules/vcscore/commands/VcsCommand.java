@@ -32,6 +32,7 @@ public interface VcsCommand extends VcsCommandCookie {
      * The name of the command which does recursive refresh of a folder.
      */
     public static final String NAME_REFRESH_RECURSIVELY = "LIST_SUB";
+    
     /**
      * The name of the command which will be called to lock the file in VCS.
      */
@@ -44,6 +45,15 @@ public interface VcsCommand extends VcsCommandCookie {
      * The name of the command which will be called to prepare the file for editing in VCS.
      */
     public static final String NAME_EDIT = "EDIT";
+    /**
+     * The name of the command which will be called after a file was deleted.
+     */
+    public static final String NAME_DELETE_FILE = "DELETE_FILE";
+    /**
+     * The name of the command which will be called after a directory was deleted.
+     */
+    public static final String NAME_DELETE_DIR = "DELETE_DIR";
+    
     /**
      * The name of the command which is used to get a specific revision to open.
      */
@@ -121,6 +131,16 @@ public interface VcsCommand extends VcsCommandCookie {
      * If non empty, the user will be asked to confirm this message prior to command execution.
      */
     public static final String PROPERTY_CONFIRMATION_MSG = "confirmationMsg";
+    /**
+     * If non empty, the user will be notified, that the command has finished successfully.
+     * The content of this message will be displayed.
+     */
+    public static final String PROPERTY_NOTIFICATION_SUCCESS_MSG = "notificationSuccessMsg";
+    /**
+     * If non empty, the user will be notified, that the command has failed.
+     * The content of this message will be displayed.
+     */
+    public static final String PROPERTY_NOTIFICATION_FAIL_MSG = "notificationFailMsg";
     
     /**
      * Value of this property should be an array of Strings.
@@ -183,6 +203,12 @@ public interface VcsCommand extends VcsCommandCookie {
      * Whether the command will appear on the actions popup menu.
      */
     public static final String PROPERTY_HIDDEN = "hidden";
+    /**
+     * A string property, that can contain a list of file status attributes. If non empty,
+     * the command menu item will be disabled on files whose status is one of the listed
+     * status attributes in this property value.
+     */
+    public static final String PROPERTY_DISABLED_ON_STATUS = "disabledOnStatus";
 
     /** All execution of this command can be done concurrently with others.
      */
