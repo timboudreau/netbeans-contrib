@@ -182,6 +182,9 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="ARGUMENT_FILES_TO_CLONE" basic="false">
       <value>DESCRIPTION_FILE</value>
     </variable>
+    <variable name="AUTO_FILL_VARS" basic="false">
+      <value>ROOTDIR, AUTO_FILL_CONFIG</value>
+    </variable>
     <variable name="CONFIG_INPUT_DESCRIPTOR" basic="false">
       <value>PROMPT_FOR(ROOTDIR, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(COMMAND_VSS_GGET_WORK), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(ACS_COMMAND_VSS_GGET_WORK_mnc)), SELECTOR_DIR)
              PROMPT_FOR(USER_NAME, getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GGET_UserName), "", ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_UserName_Mnemonic)))                 
@@ -452,6 +455,14 @@ Microsystems, Inc. All Rights Reserved.
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
       </command>
+      <command name="AUTO_FILL_CONFIG">
+      <property name="exec">
+        <value>vcs.commands.VssAutoFillConfig.class</value>
+      </property>
+      <property name="concurrentExec">
+        <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+      </property>
+    </command>
       <command name="CHECKOUT_CONFIRMED">
         <property name="exec">
           <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}</value>
