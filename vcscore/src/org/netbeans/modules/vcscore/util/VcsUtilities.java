@@ -26,6 +26,8 @@ import java.awt.*;
 public class VcsUtilities {
     private Debug E=new Debug("VcsUtilities", false); // NOI18N
     private Debug D=E;
+    
+    private static final String GET_BUNDLE = "getBundle(";
 
 
     //-------------------------------------------
@@ -45,7 +47,7 @@ public class VcsUtilities {
 
     /**
      * Get the pair index of a given character.
-     * <p> getPairIndex("(a-(b+c)+d)", 1, '(', ')') gives 10 -- the position of the last ')' <\p>
+     * <p> i.e. getPairIndex("(a-(b+c)+d)", 1, '(', ')') gives 10 -- the position of the last ')' <\p>
      * @param str the String to search
      * @param from the initial position
      * @param p1 the pair character
@@ -251,6 +253,48 @@ public class VcsUtilities {
             }
         }
         return false;
+    }
+    
+    public static String getBundleString(String str) {
+        if (str.startsWith(GET_BUNDLE)) {
+            int startArgs = GET_BUNDLE.length();
+            int endArgs = VcsUtilities.getPairIndex(str, startArgs, '(', ')');
+            if (endArgs < 0) return str;
+            String args = str.substring(startArgs, endArgs);
+            String key = str.substring(endArgs);
+            startArgs = key.indexOf('(');
+            if (startArgs < 0) return str;
+            startArgs++;
+            endArgs = VcsUtilities.getPairIndex(key, startArgs, '(', ')');
+            if (endArgs < 0) return str;
+            key = key.substring(startArgs, endArgs);
+            Class clazz;
+            try {
+                String className = args;
+                if (className.endsWith(".class")) className = className.substring(0, className.length() - ".class".length());
+                clazz = Class.forName(className, false, org.openide.TopManager.getDefault().systemClassLoader());
+            } catch (ClassNotFoundException exc) {
+                clazz = null;
+                //exc.printStackTrace();
+            }
+            //System.out.println("clazz = "+clazz);
+            String bundleStr = str;
+            try {
+                if (clazz != null) {
+                    bundleStr = org.openide.util.NbBundle.getBundle(clazz).getString(key);
+                } else {
+                    bundleStr = org.openide.util.NbBundle.getBundle(args).getString(key);
+                }
+            } catch (final MissingResourceException missExc) {
+                org.openide.TopManager.getDefault().notifyException(new Exception() {
+                    public String getLocalizedMessage() {
+                        return "MissingResourceException:" + missExc.getMessage();
+                    }
+                });
+            }
+            return bundleStr;
+        }
+        return str;
     }
 
     //-------------------------------------------
