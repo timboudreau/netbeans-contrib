@@ -142,6 +142,7 @@ public abstract class AbstractListCommand extends VcsListCommand implements Comm
         if (errorOutputListener != null) ec.addDataErrorOutputListener(errorOutputListener);
         ec.addOutputListener(stdoutNRListener);
         ec.addErrorOutputListener(stderrNRListener);
+        fileSystem.getCommandsPool().preprocessCommand(ec, vars, fileSystem);
         fileSystem.getCommandsPool().startExecutor(ec, fileSystem);
         try {
             fileSystem.getCommandsPool().waitToFinish(ec);
