@@ -158,12 +158,12 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      */
     public VcsCommandExecutor getCommandExecutor(VcsCommand command, Hashtable variables) {
         if (command instanceof UserCommand) {
-            if (VcsCommandIO.getBooleanProperty(command, UserCommand.PROPERTY_DISPLAY)) {
-                AdditionalCommandDialog addCommand = new org.netbeans.modules.vcscore.cmdline.AdditionalCommandDialog(fileSystem, (UserCommand) command, variables, new javax.swing.JFrame(), false);
-                return addCommand.createCommand();
-            } else {
+            //if (VcsCommandIO.getBooleanProperty(command, UserCommand.PROPERTY_DISPLAY)) {
+            //    AdditionalCommandDialog addCommand = new org.netbeans.modules.vcscore.cmdline.AdditionalCommandDialog(fileSystem, (UserCommand) command, variables, new javax.swing.JFrame(), false);
+            //    return addCommand.createCommand();
+            //} else {
                 return new ExecuteCommand(fileSystem, (UserCommand) command, variables);
-            }
+            //}
         } else {
             return null;
         }
