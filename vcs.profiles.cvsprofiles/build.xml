@@ -88,9 +88,6 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*"/>
 	<exclude name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/**/*_XX.*"/>
       </fileset>
-      <fileset dir="src/">        
-        <include name="**/*.form"/>
-      </fileset>
     </jar>
   </target>
 
