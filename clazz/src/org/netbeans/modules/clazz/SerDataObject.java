@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.clazz;
 
+import java.io.IOException;
+
 import org.openide.filesystems.*;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.InstanceSupport;
@@ -22,6 +24,8 @@ import org.openide.loaders.DataObject;
 
 import org.openide.nodes.Node;
 import org.openide.nodes.CookieSet;
+import org.openide.TopManager;
+import org.openide.ErrorManager;
 
 import org.openide.util.HelpCtx;
 
@@ -101,5 +105,18 @@ public final class SerDataObject extends ClassDataObject {
         // since all serializable object can be treated as JavaBeans, 
         // always add an InstanceCookie.
         cs.add(instanceSupport);
+    }
+
+
+    protected FileObject handleRename (String name) throws IOException {
+        if (name.indexOf(".")!=-1) {
+            throw (IOException)TopManager.getDefault().getErrorManager().annotate(
+            new IOException("Dot in name"), // NOI18N
+            ErrorManager.USER,
+            null, Util.getString("MSG_INVName"),
+            null, null
+	    );
+        }
+        return super.handleRename(name);
     }
 }
