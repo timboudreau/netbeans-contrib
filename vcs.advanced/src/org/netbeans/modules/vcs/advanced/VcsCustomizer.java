@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -1199,6 +1199,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 if (changeSupport != null) {
                     changeSupport.firePropertyChange(new PropertyChangeEvent(this,PROP_PROFILE_SELECTION_CHANGED, null, selectedLabel));
                 }
+                ProfilesFactory.getDefault().setDefaultProfileName(profileName);
             } else {
                 if (oldSelectedLabel == null) {
                     configCombo.setSelectedIndex(0);
@@ -2297,6 +2298,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         }
 
         String selectedConfig = fileSystem.getConfig();
+        if (selectedConfig == null) {
+            String profileName = ProfilesFactory.getDefault().getDefaultProfileName();
+            if (profileName != null) {
+                String selectedLabel = ProfilesFactory.getDefault().getProfileDisplayName(profileName);
+                loadConfig(profileName, selectedLabel);
+            }
+            selectedConfig = fileSystem.getConfig();
+        }
         String selectedConfigName = null;
         //System.out.println("selectedConfig = "+selectedConfig);
         int newIndex = -1;

@@ -18,8 +18,12 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.net.URL;
@@ -46,6 +50,7 @@ import org.openide.ErrorManager;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileSystem;
@@ -91,6 +96,8 @@ public final class ProfilesFactory extends Object {
     
     private static final String PROFILE_ROOT = "vcs/config"; // NOI18N
     
+    private static final String DEFAULT_PROFILE_FILE = "default"; // NOI18N
+    
     /**
      * This variable is defined in a profile that is created as a localized copy
      * from the original. It contains the locale as the value. In the original
@@ -116,6 +123,8 @@ public final class ProfilesFactory extends Object {
     private Map profilesByName;
     private Map splitWhenLocalizedByNames;
     private Map origProfileNamesByLocalized;
+    private String defaultProfileName;
+    private String defaultProfileNameStored;
     
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
@@ -368,6 +377,103 @@ public final class ProfilesFactory extends Object {
         if (org.openide.util.Utilities.isUnix() && uncompatible.contains("Unix") ||
             org.openide.util.Utilities.isWindows() && uncompatible.contains("Windows")) return false;
         return (compatible.size() == 0);
+    }
+    
+    /**
+     * Get the name of the default profile.
+     * @return The name of the default profile or <code>null</code> when no profile
+     *         is defined as default.
+     */
+    public synchronized String getDefaultProfileName() {
+        if (defaultProfileName == null) {
+            // Check the cached last name read
+            if (defaultProfileNameStored != null) {
+                if (profileNames.contains(defaultProfileNameStored)) {
+                    defaultProfileName = defaultProfileNameStored;
+                }
+            } else {
+                FileObject def = profileRoot.getFileObject(DEFAULT_PROFILE_FILE);
+                if (def != null) {
+                    BufferedReader r = null;
+                    try {
+                        r = new BufferedReader(new InputStreamReader(def.getInputStream()));
+                        String profileName = r.readLine();
+                        if (profileName != null) {
+                            defaultProfileNameStored = profileName.intern();
+                            if (profileNames.contains(profileName)) {
+                                defaultProfileName = profileName.intern();
+                            }
+                        }
+                    } catch (IOException ioex) {
+                        ErrorManager.getDefault().notify(ioex);
+                    } finally {
+                        if (r != null) {
+                            try {
+                                r.close();
+                            } catch (IOException ioex) {
+                                ErrorManager.getDefault().notify(ioex);
+                            }
+                        }
+                    }
+                } else {
+                    defaultProfileNameStored = ""; // NOI18N
+                }
+            }
+        }
+        return defaultProfileName;
+    }
+    
+    /**
+     * Set the name of the default profile.
+     * @param profileName The name of the default profile or <code>null</code>
+     *        when no profile should be defined as default.
+     * @throws IllegalArgumentException when profile of the given name does not exist.
+     */
+    public synchronized void setDefaultProfileName(String profileName) throws IllegalArgumentException {
+        if (profileName == null) {
+            defaultProfileName = profileName;
+            FileObject def = profileRoot.getFileObject(DEFAULT_PROFILE_FILE);
+            if (def != null) {
+                try {
+                    def.delete();
+                } catch (IOException ioex) {
+                    ErrorManager.getDefault().notify(ioex);
+                }
+            }
+            defaultProfileNameStored = ""; // NOI18N
+        } else {
+            if (!profileNames.contains(profileName)) {
+                throw new IllegalArgumentException("Profile '"+profileName+"' does not exist.");
+            }
+            defaultProfileName = profileName;
+            FileObject def = profileRoot.getFileObject(DEFAULT_PROFILE_FILE);
+            FileLock lock = null;
+            BufferedWriter bw = null;
+            try {
+                if (def == null) {
+                    def = profileRoot.createData(DEFAULT_PROFILE_FILE);
+                }
+                lock = def.lock();
+                bw = new BufferedWriter(new OutputStreamWriter(def.getOutputStream(lock)));
+                bw.write(profileName);
+                bw.newLine();
+            } catch (IOException ioex) {
+                ErrorManager.getDefault().notify(ioex);
+                return ;
+            } finally {
+                if (bw != null) {
+                    try {
+                        bw.close();
+                    } catch (IOException ioex) {
+                        ErrorManager.getDefault().notify(ioex);
+                    }
+                }
+                if (lock != null) {
+                    lock.releaseLock();
+                }
+            }
+            defaultProfileNameStored = profileName;
+        }
     }
     
     public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
@@ -869,7 +975,10 @@ public final class ProfilesFactory extends Object {
                     String label = (String) profileLabelsByName.get(name);
                     label = VcsUtilities.getBundleString((String[]) resourceBundlesByName.get(name), label);
                     profileLabelsByName.put(name, label);
+                    profileLabels.remove(profileLabels.size() - 1);
+                    profileLabels.add(label);
                 }
+                profileNames.add(name);
                 if (splitLocNamePtr[0] != null) {
                     profileNames.add(splitLocNamePtr[0]);
                     String label = (String) profileLabelsByName.get(splitLocNamePtr[0]);
@@ -892,6 +1001,9 @@ public final class ProfilesFactory extends Object {
                 profileLabels.remove(label);
                 compatibleOSsByName.remove(name);
                 uncompatibleOSsByName.remove(name);
+                if (name.equals(defaultProfileName)) {
+                    defaultProfileName = null;
+                }
             }
             ProfilesFactory.this.firePropertyChange(PROP_PROFILE_REMOVED, name, null);
         }
