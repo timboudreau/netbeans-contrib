@@ -184,11 +184,9 @@ public class VcsGroupNode extends AbstractNode {
     protected Sheet createSheet () {
 	Sheet sheet = super.createSheet ();
 	// Make sure there is a "Properties" set:
-	Sheet.Set props = sheet.get (Sheet.PROPERTIES); // get by name, not display name
-	if (props == null) {
-	    props = Sheet.createPropertiesSet ();
-            sheet.put (props);
-	}
+	Sheet.Set props = Sheet.createPropertiesSet();
+        sheet.put (props);
+        props.setValue("helpID", VcsGroupNode.class.getName()+"_properties");
         createProperties(props);
         return sheet;
     }
