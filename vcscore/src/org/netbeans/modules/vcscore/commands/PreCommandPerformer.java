@@ -345,7 +345,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
             tend++;
             whichElement = whichElement.substring(0, tindex) + ((tend < whichElement.length()) ? whichElement.substring(tend) : ""); // NOI18N
         }
-        String nl = (insertNewLine) ? "\n" : " ".intern(); // NOI18N
+        String nl = (insertNewLine) ? "\n" : "".intern(); // NOI18N
         int commaIndex = whichElement.indexOf(',');
         if (commaIndex > 0) {
             try {
