@@ -19,7 +19,7 @@ import com.netbeans.ide.util.NbBundle;
 import com.netbeans.ide.filesystems.*;
 import com.netbeans.enterprise.modules.vcs.util.*;
 
-/** BeanInfo to CommandLineVcsFileSystem.
+/** BeanInfo for CommandLineVcsFileSystem.
  * 
  * @author Michal Fadljevic
  */
@@ -97,6 +97,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  7    Gandalf   1.6         5/4/99   Michal Fadljevic 
 *  6    Gandalf   1.5         5/4/99   Michal Fadljevic 
 *  5    Gandalf   1.4         4/30/99  Michal Fadljevic 
 *  4    Gandalf   1.3         4/29/99  Michal Fadljevic 

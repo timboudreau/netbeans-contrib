@@ -33,7 +33,6 @@ public class UserCommandsPanel extends JPanel
   private Debug E=new Debug("UserCommandsPanel",true);
   private Debug D=E;
 
-  // GUI
   private JList list=null;
   private DefaultListModel listModel=null;
   private JButton editButton=null;
@@ -269,6 +268,7 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  5    Gandalf   1.4         5/4/99   Michal Fadljevic 
  *  4    Gandalf   1.3         5/4/99   Michal Fadljevic 
  *  3    Gandalf   1.2         4/26/99  Michal Fadljevic 
  *  2    Gandalf   1.1         4/22/99  Michal Fadljevic 

@@ -18,7 +18,7 @@ import java.beans.*;
 
 import com.netbeans.enterprise.modules.vcs.util.*;
 
-/** Property editor for user commands.
+/** Property editor for UserCommand.
  * 
  * @author Michal Fadljevic
  */
@@ -108,6 +108,7 @@ public class UserCommandsEditor implements PropertyEditor {
 
 /*
  * <<Log>>
+ *  5    Gandalf   1.4         5/4/99   Michal Fadljevic 
  *  4    Gandalf   1.3         5/4/99   Michal Fadljevic 
  *  3    Gandalf   1.2         4/26/99  Michal Fadljevic 
  *  2    Gandalf   1.1         4/22/99  Michal Fadljevic 

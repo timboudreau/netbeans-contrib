@@ -31,7 +31,7 @@ import com.netbeans.ide.filesystems.FileStateInvalidException;
 import com.netbeans.ide.filesystems.AbstractFileSystem;
 import com.netbeans.ide.filesystems.DefaultAttributes;
 
-/** Generic command line interface to any VCS.
+/** Generic command line VCS filesystem - the Bean itself.
  * 
  * @author Michal Fadljevic
  */
@@ -41,7 +41,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   AbstractFileSystem.Change, FileSystem.Status, Serializable {
 
   private Debug E=new Debug("CommandLineVcsFileSystem",true );
-  private Debug D=E;
+  private Debug D=new Debug("CommandLineVcsFileSystem",false);
 
   private static final int REFRESH_TIME = 0;
 
@@ -605,6 +605,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  11   Gandalf   1.10        5/4/99   Michal Fadljevic 
  *  10   Gandalf   1.9         5/4/99   Michal Fadljevic 
  *  9    Gandalf   1.8         4/29/99  Michal Fadljevic 
  *  8    Gandalf   1.7         4/28/99  Michal Fadljevic 
