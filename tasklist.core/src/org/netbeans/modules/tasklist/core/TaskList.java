@@ -40,7 +40,7 @@ public class TaskList implements ObservableList {
     // data holder
     protected Task root = null;
     
-    private ArrayList listeners = null;
+    private final ArrayList listeners = new ArrayList(67);
     
     /** Has the options set changed such that we need to save */
     protected boolean needSave = false;
@@ -205,22 +205,20 @@ public class TaskList implements ObservableList {
     }
 
     public void addTaskListener(TaskListener listener) {
-        if (listeners == null) {
-            listeners = new ArrayList(4);
+        synchronized (listeners) {
+            listeners.add(listener);
         }
-        listeners.add(listener);
     }
 
     public void removeTaskListener(TaskListener listener) {
-        if (listeners == null) {
-            return;
+        synchronized (listeners) {
+            listeners.remove(listener);
         }
-        listeners.remove(listener);
     }
 
     /** Fire TaskListener.addedTask */
     protected void fireAdded(Task task) {
-        if (listeners != null) {
+        synchronized (listeners) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
                 TaskListener tl = (TaskListener) listeners.get(i);
@@ -234,7 +232,7 @@ public class TaskList implements ObservableList {
      * @deprecated splitting model from the view
      */
     private void notifySelected(Task task) {
-        if (listeners != null) {
+        synchronized (listeners) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
                 TaskListener tl = (TaskListener) listeners.get(i);
@@ -248,7 +246,7 @@ public class TaskList implements ObservableList {
      * @deprecated splitting model from the view
      */
     private void notifyWarped(Task task) {
-        if (listeners != null) {
+        synchronized (listeners) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
                 TaskListener tl = (TaskListener) listeners.get(i);
@@ -259,18 +257,19 @@ public class TaskList implements ObservableList {
 
     /** Fire TaskListener.structureChanged */
     protected void fireStructureChanged(Task task) {
-        if (listeners != null) {
-            int n = listeners.size();
-            for (int i = 0; i < n; i++) {
-                TaskListener tl = (TaskListener) listeners.get(i);
-                tl.structureChanged(task);
-            }
+        TaskListener[] taskListeners;
+        synchronized (listeners) {
+            taskListeners = new TaskListener[listeners.size()];
+            taskListeners = (TaskListener[]) listeners.toArray(taskListeners);
+        }
+        for (int i = 0; i < taskListeners.length; i++) {
+            taskListeners[i].structureChanged(task);
         }
     }
 
     /** Fire TaskListener.removedTask */
     protected void fireRemoved(Task pt, Task task) {
-        if (listeners != null) {
+        synchronized (listeners) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
                 TaskListener tl = (TaskListener) listeners.get(i);
