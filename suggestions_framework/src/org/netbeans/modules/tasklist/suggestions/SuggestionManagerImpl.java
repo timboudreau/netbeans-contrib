@@ -23,17 +23,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TLUtils;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.io.ByteArrayInputStream;
-import java.io.Writer;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
-import java.io.Reader;
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +33,6 @@ import java.util.Set;
 import java.util.Map;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import javax.swing.JEditorPane;
 import javax.swing.Timer;
 import javax.swing.SwingUtilities;
@@ -53,22 +43,15 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
 
-import org.openide.xml.XMLUtil;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
-
 import org.openide.util.Lookup;
 import org.openide.ErrorManager;
 import org.openide.util.RequestProcessor;
 
 import org.netbeans.api.tasklist.*;
 import org.netbeans.modules.tasklist.core.TaskNode;
+import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
-import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.text.CloneableEditor;
@@ -379,20 +362,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         return list;
     }
 
-    private File getRegistryFile(boolean create) {
-        String loc = System.getProperty("netbeans.user") + // NOI18N
-            File.separatorChar + "system" + File.separatorChar + "TaskList" + //NOI18N
-            File.separatorChar + "suggestiontype-registry.xml"; // NOI18N
-        File file = new File(loc);
-        if (create) {
-            if (!file.exists()) {
-                File parent = file.getParentFile();
-                parent.mkdirs();
-            }
-        }
-        return file;
-    }
-    
+
     /**
      * Return true iff the type of suggestion indicated by the
      * id argument is enabled. By default, all suggestion types
@@ -407,18 +377,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * @return True iff the given suggestion type is enabled
      */
     public synchronized boolean isEnabled(String id) {
-        if (disabled == null) {
-            readTypeRegistry();
-            if (disabled == null) {
-                disabled = new HashSet(40);
-            }
-        }
-        return !disabled.contains(id);
+        return ManagerSettings.getDefault().isEnabled(id);
     }
-
-    /** Map containing names of Suggestion Types that have been disabled
-     * by the user. */
-    private Set disabled = null;
 
     /**
      * Store whether or not a particular Suggestion type should be
@@ -437,16 +397,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                                         boolean dontSave) {
         SuggestionType type = SuggestionTypes.getTypes().getType(id);
 
-        if (disabled == null) {
-            disabled = new HashSet(40);
-        }
-
-        if (enabled) {
-            disabled.remove(id);
-            // Have EditTypes... gui now : setConfirm(type, true, false);
-        } else {
-            disabled.add(id);
-        }
+        ManagerSettings.getDefault().setEnabled(id, enabled);
 
         // Enable/disable providers "live"        
         toggleProvider(type, enabled);
@@ -522,13 +473,6 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
     }
 
-
-
-    Set getDisabledTypes() {
-        return disabled;
-    }
-
-    
     /**
      * Return true iff the type of suggestion indicated by the
      * type argument should produce a confirmation dialog
@@ -546,19 +490,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
      *    confirmation dialog.
      */
     public synchronized boolean isConfirm(SuggestionType type) {
-        if (noconfirm == null) {
-            readTypeRegistry();
-            if (noconfirm == null) {
-                noconfirm = new HashSet(40);
-            }
-        }
-        return !noconfirm.contains(type);
+        return ManagerSettings.getDefault().isConfirm(type);
     }
 
-    
-    /** Map containing names of Suggestion Types that the user wants to
-     * fix without a confirmation dialog */
-    private Set noconfirm = null;
 
     /**
      * Store whether or not a particular Suggestion type should produce
@@ -573,15 +507,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
      *     dialog
      */
     synchronized void setConfirm(SuggestionType type, boolean confirm, boolean write) {
-        if (noconfirm == null) {
-            noconfirm = new HashSet(40);
-        }
-
-        if (confirm) {
-            noconfirm.remove(type);
-        } else {
-            noconfirm.add(type);
-        }
+        ManagerSettings.getDefault().setConfirm(type, confirm);
         if (write) {
             writeTypeRegistry();
         }
@@ -758,223 +684,13 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
 
-
-
-
-    private static class TypeXMLHandler extends DefaultHandler {
-        private boolean parsingDisabled = false;
-        private boolean parsingNoConfirm = false;
-        private boolean parsingExpanded = false;
-        private Set disabled = null;
-        private Set noconfirm = null;
-        private Set expanded = null;
-
-        private int showScanDelay = DEFAULT_SHOW_SCAN_DELAY;
-        private int editScanDelay = DEFAULT_EDIT_SCAN_DELAY;
-        private int saveScanDelay = DEFAULT_SAVE_SCAN_DELAY;
-
-        private boolean scanOnShow = DEFAULT_SCAN_ON_SHOW;
-        private boolean scanOnEdit = DEFAULT_SCAN_ON_EDIT;
-        private boolean scanOnSave = DEFAULT_SCAN_ON_SAVE;
-
-        
-        TypeXMLHandler() {
-        }
-
-        public Set getDisabled() {
-            return disabled;
-        }
-		
-        public Set getNoConfirm() {
-            return noconfirm;
-        }
-		
-        public Set getExpanded() {
-            return expanded;
-        }
-		
-        public void startDocument() {
-        }
-
-        public void endDocument() {
-        }
-
-        public void startElement(String uri, String localName,
-                                 String name, Attributes attrs)
-            throws SAXException {
-            if (name.equals("type")) { // NOI18N
-                if (parsingDisabled) {
-                    String type = (String)attrs.getValue("id"); // NOI18N
-                    if (disabled == null) {
-                        disabled = new HashSet(50);
-                    }
-                    disabled.add(type);
-                } else if (parsingNoConfirm) {
-                    String id = (String)attrs.getValue("id"); // NOI18N
-                    if (noconfirm == null) {
-                        noconfirm = new HashSet(50);
-                    }
-                    SuggestionType type = SuggestionTypes.getTypes().getType(id);
-                    noconfirm.add(type);
-                } else if (parsingExpanded) {
-                    String id = (String)attrs.getValue("id"); // NOI18N
-                    if (expanded == null) {
-                        expanded = new HashSet(50);
-                    }
-                    SuggestionType type = SuggestionTypes.getTypes().getType(id);
-                    expanded.add(type);
-                } else {
-                    ErrorManager.getDefault().log(ErrorManager.WARNING, "SuggestionType Registry Parsing Error: " + name + ", " + attrs); // NOI18N
-                }
-            } else if (name.equals("disabled")) { // NOI18N
-                parsingDisabled = true;
-            } else if (name.equals("noconfirm")) { // NOI18N
-                parsingNoConfirm = true;
-            } else if (name.equals("expanded")) { // NOI18N
-                parsingExpanded = true;
-            } else if (name.equals("scan-preference")) { // NOI18N
-                String event = (String)attrs.getValue("event"); // NOI18N
-                String enabled = (String)attrs.getValue("enabled"); // NOI18N
-                String delay = (String)attrs.getValue("delay"); // NOI18N
-                if ((event == null) || (enabled == null) || (delay == null)) {
-                    ErrorManager.getDefault().log(ErrorManager.WARNING, "Got scan-preference event="+event+", enabled="+enabled+", "+delay);
-                    return;
-                }
-                boolean on = "on".equals(enabled); // NOI18N
-                int interval = -1;
-                try {
-                    interval = Integer.parseInt(delay);
-                } catch (NumberFormatException e) { 
-                }
-                if ("show".equals(event)) { // NOI18N
-                    scanOnShow = on;
-                    showScanDelay = interval;
-                } else if ("save".equals(event)) { // NOI18N
-                    scanOnSave = on;
-                    saveScanDelay = interval;
-                } else if ("edit".equals(event)) { // NOI18N
-                    scanOnEdit = on;
-                    editScanDelay = interval;
-                }
-            }
-        }
-            
-        public void endElement(String uri, String localName, String name) throws SAXException {
-            if (name.equals("disabled")) { // NOI18N
-                parsingDisabled = false;
-            } else if (name.equals("noconfirm")) { // NOI18N
-                parsingNoConfirm = false;
-            } else if (name.equals("expanded")) { // NOI18N
-                parsingExpanded = false;
-            }
-
-        }
-        
-
-    
-        public int getShowScanDelay() {
-            return showScanDelay;
-        }
-        public int getEditScanDelay() {
-            return editScanDelay;
-        }
-        public int getSaveScanDelay() {
-            return saveScanDelay;
-        }
-        public boolean isScanOnShow() {
-            return scanOnShow;
-        }
-        public boolean isScanOnEdit() {
-            return scanOnEdit;
-        }
-        public boolean isScanOnSave() {
-            return scanOnSave;
-        }
-
-
-        /** No validation - don't read the DTD. Assume importers won't
-            require external entities. */
-        public InputSource resolveEntity(String pubid, String sysid) {
-            return new InputSource(new ByteArrayInputStream(new byte[0]));
-        }
-    }
-
-    /** Have we read the type registry yet? */
-    private boolean registryRead = false;
-    
-    /** Read in the SuggestionType registry preferences.
-     * @return True iff the registry was completely initialized without error
-     */
-    private boolean readTypeRegistry() {
-        if (registryRead) {
-            return true;
-        }
-        registryRead = true;
-        File file = getRegistryFile(false);
-        if (file.exists()) {
-            try {
-                Reader fileReader = new BufferedReader(new FileReader(file));
-                try {
-                    XMLReader reader = XMLUtil.createXMLReader(false);
-                    
-                    TypeXMLHandler handler = new TypeXMLHandler();
-                    reader.setContentHandler(handler);
-                    reader.setErrorHandler(handler);
-                    reader.setEntityResolver(handler);
-                    reader.parse(new InputSource(fileReader));
-                    disabled = handler.getDisabled();
-                    noconfirm = handler.getNoConfirm();
-                    expandedTypes = handler.getExpanded();
-                    showScanDelay = handler.getShowScanDelay();
-                    editScanDelay = handler.getEditScanDelay();
-                    saveScanDelay = handler.getSaveScanDelay();
-                    scanOnShow = handler.isScanOnShow();
-                    scanOnEdit = handler.isScanOnEdit();
-                    scanOnSave = handler.isScanOnSave();
-                    return true;
-                } catch (SAXException e) {
-                    ErrorManager.getDefault().notify(
-                                               ErrorManager.INFORMATIONAL, e);
-                }
-                fileReader.close();
-            } catch (Exception e) {
-                ErrorManager.getDefault().notify(
-                                               ErrorManager.INFORMATIONAL, e);
-            }
-        }
-        return false;
-    }
-
-    /** List of SuggestionTypes that should be expanded */
-    private Set expandedTypes = null;
-
     boolean isExpandedType(SuggestionType type) {
-        readTypeRegistry();
-        if (expandedTypes == null) {
-            // Special case: default parse errors to expanded
-            return (type.getName() == "nb-java-errors"); // NOI18N
-        }
-        return expandedTypes.contains(type);
+        return ManagerSettings.getDefault().isExpandedType(type);
     }
 
 
     void setExpandedType(SuggestionType type, boolean expanded) {
-        readTypeRegistry();
-        if (expandedTypes == null) {
-            expandedTypes = new HashSet(2*SuggestionTypes.getTypes().getCount());
-            // Ensure that we default to showing java compilation errors
-            // expanded
-            SuggestionType jc =
-                SuggestionTypes.getTypes().getType("nb-java-errors"); // NOI18N
-            if (jc != null) {
-                expandedTypes.add(jc);
-            }
-        }
-        if (expanded) {
-            expandedTypes.add(type);
-        } else {
-            expandedTypes.remove(type);
-        }
+        ManagerSettings.getDefault().setExpandedType(type, expanded);
     }
 
 
@@ -984,99 +700,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
 
-    /** Write out the SuggestionType registry preferences.
-     * @param view The current view that we're focused on (used to
-     *     persist type expansion state)
-     * @return True iff the registry was completely written out without error
-     */
-    boolean writeTypeRegistry()  {
-        File file = getRegistryFile(true);
-	try {
-            Writer writer = new BufferedWriter(new FileWriter(file));
-            writer.write("<?xml version=\"1.0\"?>\n"); // NOI18N
-            writer.write("<!DOCTYPE suggestionregistry PUBLIC '-//NetBeans//DTD suggestion registry 1.0//EN' 'http://www.netbeans.org/dtds/suggestion-registry-1_0.dtd'>\n"); // NOI18N
-            writer.write("<typeregistry>\n"); // NOI18N
-            Iterator it;
-            if (disabled != null) {
-                it = disabled.iterator();
-                if (it.hasNext()) {
-                    writer.write("  <disabled>\n"); // NOI18N
-                    while (it.hasNext()) {
-                        String typeName = (String)it.next();
-                        writer.write("    <type id=\""); // NOI18N
-                        writer.write(typeName);
-                        writer.write("\"/>\n"); // NOI18N
-                    }
-                    writer.write("  </disabled>\n"); // NOI18N
-                }
-            }
 
-            if (noconfirm != null) {
-                it = noconfirm.iterator();
-                if (it.hasNext()) {
-                    writer.write("  <noconfirm>\n"); // NOI18N
-                    while (it.hasNext()) {
-                        SuggestionType type = (SuggestionType)it.next();
-                        writer.write("    <type id=\""); // NOI18N
-                        writer.write(type.getName());
-                        writer.write("\"/>\n"); // NOI18N
-                    }    
-                    writer.write("  </noconfirm>\n"); // NOI18N
-                }
-            }
-
-            // Write node-expansion settings
-            if (expandedTypes != null) {
-                it = expandedTypes.iterator();
-                if (it.hasNext()) {
-                    writer.write("  <expanded>\n"); // NOI18N
-                    while (it.hasNext()) {
-                        SuggestionType type = (SuggestionType)it.next();
-                        writer.write("    <type id=\""); // NOI18N
-                        writer.write(type.getName());
-                        writer.write("\"/>\n"); // NOI18N
-                    }
-                    writer.write("  </expanded>\n"); // NOI18N
-                }
-            }
-
-            // Write out the scanning preferences (if different
-            // from the default)
-            if ((scanOnShow != DEFAULT_SCAN_ON_SHOW) ||
-                (showScanDelay != DEFAULT_SHOW_SCAN_DELAY)) {
-                writer.write("  <scan-preference event=\"show\" enabled=\""); // NOI18N
-                writer.write(scanOnShow ? "on" : "off"); // NOI18N
-                writer.write("\" delay=\""); // NOI18N
-                writer.write(Integer.toString(showScanDelay));
-                writer.write("\"/>\n"); // NOI18N
-            }   
-            if ((scanOnEdit != DEFAULT_SCAN_ON_EDIT) ||
-                (editScanDelay != DEFAULT_EDIT_SCAN_DELAY)) {
-                writer.write("  <scan-preference event=\"edit\" enabled=\""); // NOI18N
-                writer.write(scanOnEdit ? "on" : "off"); // NOI18N
-                writer.write("\" delay=\""); // NOI18N
-                writer.write(Integer.toString(editScanDelay));
-                writer.write("\"/>\n"); // NOI18N
-            }   
-            if ((scanOnSave != DEFAULT_SCAN_ON_SAVE) ||
-                (saveScanDelay != DEFAULT_SAVE_SCAN_DELAY)) {
-                writer.write("  <scan-preference event=\"save\" enabled=\""); // NOI18N
-                writer.write(scanOnSave ? "on" : "off"); // NOI18N
-                writer.write("\" delay=\""); // NOI18N
-                writer.write(Integer.toString(saveScanDelay));
-                writer.write("\"/>\n"); // NOI18N
-            }   
-            
-            writer.write("</typeregistry>\n"); // NOI18N
-            writer.close();
-            return true;
-        } catch (Exception e) {
-            ErrorManager.getDefault().notify(
-                                           ErrorManager.INFORMATIONAL, e);
-        }
-        return false;
-    }
-    
     /** Iterate over the folder recursively (optional) and scan all files.
         We skip CVS and SCCS folders intentionally. Would be nice if
         the filesystem hid these things from us. */
@@ -1546,17 +1170,17 @@ final public class SuggestionManagerImpl extends SuggestionManager
     /** Return true iff the given provider should rescan when a file is shown */
     private boolean scanOnShow(DocumentSuggestionProvider provider) {
         // For now, just use "global" flag (shared for all providers)
-        return scanOnShow;
+        return ManagerSettings.getDefault().isScanOnShow();
     }
     /** Return true iff the given provider should rescan when a file is saved */
     private boolean scanOnSave(DocumentSuggestionProvider provider) {
         // For now, just use "global" flag (shared for all providers)
-        return scanOnSave;
+        return ManagerSettings.getDefault().isScanOnSave();
     }
     /** Return true iff the given provider should rescan when a file is edited */
     private boolean scanOnEdit(DocumentSuggestionProvider provider) {
         // For now, just use "global" flag (shared for all providers)
-        return scanOnEdit;
+        return ManagerSettings.getDefault().isScanOnEdit();
     }
     
     /**
@@ -1808,7 +1432,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	
     public void insertUpdate(DocumentEvent e) {
         haveEdited = currRequest;
-        scheduleRescan(e, false, editScanDelay);
+        scheduleRescan(e, false, ManagerSettings.getDefault().getEditScanDelay());
 
         // If there's a visible marker annotation on the line, clear it now
         clearMarker();
@@ -1816,7 +1440,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     public void removeUpdate(DocumentEvent e) {
         haveEdited = currRequest;
-        scheduleRescan(e, false, editScanDelay);
+        scheduleRescan(e, false, ManagerSettings.getDefault().getEditScanDelay());
 
         // If there's a visible marker annotation on the line, clear it now
         clearMarker();
@@ -2245,7 +1869,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
 
 	if (delayed) {
-	    runTimer = new Timer(showScanDelay,
+	    runTimer = new Timer(ManagerSettings.getDefault().getShowScanDelay(),
 		     new ActionListener() {
 			 public void actionPerformed(ActionEvent evt) {
                              runTimer = null;
@@ -2399,32 +2023,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         scan briefly selected files */
     private Timer runTimer;
 
-    /** Delay to wait after a file has been shown before we rescan */
-    private int showScanDelay = DEFAULT_SHOW_SCAN_DELAY;
 
-    /** Delay to wait after a file has been edited before we rescan */
-    private int editScanDelay = DEFAULT_EDIT_SCAN_DELAY;
-
-    /** Delay to wait after a file has been saved before we rescan */
-    private int saveScanDelay = DEFAULT_SAVE_SCAN_DELAY;
-
-    private final static int DEFAULT_SHOW_SCAN_DELAY = 500;
-    private final static int DEFAULT_EDIT_SCAN_DELAY = 1000;
-    private final static int DEFAULT_SAVE_SCAN_DELAY = 1000;
-
-    private final static boolean DEFAULT_SCAN_ON_SHOW = true;
-    private final static boolean DEFAULT_SCAN_ON_EDIT = true;
-    private final static boolean DEFAULT_SCAN_ON_SAVE = false;
-
-    /** Scan when a document is shown? */
-    private boolean scanOnShow = DEFAULT_SCAN_ON_SHOW;
-    
-    /** Scan when a document is edited? */
-    private boolean scanOnEdit = DEFAULT_SCAN_ON_EDIT;
-
-    /** Scan when a document is saved? */
-    private boolean scanOnSave = DEFAULT_SCAN_ON_SAVE;
-    
     /** Reacts to changes */
     public void propertyChange(PropertyChangeEvent ev) {
         String prop = ev.getPropertyName();
@@ -2516,6 +2115,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
         writeTypeRegistry();
     }
 
+    private void writeTypeRegistry() {
+        ManagerSettings.getDefault().store();
+    }
+
     private boolean isModified = false;
 
     /**
@@ -2541,116 +2144,12 @@ final public class SuggestionManagerImpl extends SuggestionManager
             if (isModified != wasModified) {
                 if (!isModified) {
                     haveSaved = currRequest;
-                    scheduleRescan(null, false, saveScanDelay);
+                    scheduleRescan(null, false, ManagerSettings.getDefault().getSaveScanDelay());
                 }
             }
         }
     }
     
     
-    /** Getter for property showScanDelay.
-     * @return Value of property showScanDelay.
-     *
-     */
-    public int getShowScanDelay() {
-        return showScanDelay;
-    }
-    
-    /** Setter for property showScanDelay.
-     * @param showScanDelay New value of property showScanDelay.
-     *
-     */
-    public void setShowScanDelay(int showScanDelay) {
-        if (showScanDelay <= 0) {
-            showScanDelay = 500;
-        }
-        this.showScanDelay = showScanDelay;
-    }
-    
-    /** Getter for property editScanDelay.
-     * @return Value of property editScanDelay.
-     *
-     */
-    public int getEditScanDelay() {
-        return editScanDelay;
-    }
-    
-    /** Setter for property editScanDelay.
-     * @param editScanDelay New value of property editScanDelay.
-     *
-     */
-    public void setEditScanDelay(int editScanDelay) {
-        if (editScanDelay <= 0) {
-            editScanDelay = 1000;
-        }
-        this.editScanDelay = editScanDelay;
-    }
-    
-    /** Getter for property saveScanDelay.
-     * @return Value of property saveScanDelay.
-     *
-     */
-    public int getSaveScanDelay() {
-        return saveScanDelay;
-    }
-    
-    /** Setter for property saveScanDelay.
-     * @param saveScanDelay New value of property saveScanDelay.
-     *
-     */
-    public void setSaveScanDelay(int saveScanDelay) {
-        if (saveScanDelay <= 0) {
-            saveScanDelay = 500;
-        }
-        this.saveScanDelay = saveScanDelay;
-    }
-    
-    /** Getter for property scanOnShow.
-     * @return Value of property scanOnShow.
-     *
-     */
-    public boolean isScanOnShow() {
-        return scanOnShow;
-    }
-    
-    /** Setter for property scanOnShow.
-     * @param scanOnShow New value of property scanOnShow.
-     *
-     */
-    public void setScanOnShow(boolean scanOnShow) {
-        this.scanOnShow = scanOnShow;
-    }
-    
-    /** Getter for property scanOnEdit.
-     * @return Value of property scanOnEdit.
-     *
-     */
-    public boolean isScanOnEdit() {
-        return scanOnEdit;
-    }
-    
-    /** Setter for property scanOnEdit.
-     * @param scanOnEdit New value of property scanOnEdit.
-     *
-     */
-    public void setScanOnEdit(boolean scanOnEdit) {
-        this.scanOnEdit = scanOnEdit;
-    }
-    
-    /** Getter for property scanOnSave.
-     * @return Value of property scanOnSave.
-     *
-     */
-    public boolean isScanOnSave() {
-        return scanOnSave;
-    }
-    
-    /** Setter for property scanOnSave.
-     * @param scanOnSave New value of property scanOnSave.
-     *
-     */
-    public void setScanOnSave(boolean scanOnSave) {
-        this.scanOnSave = scanOnSave;
-    }
 
 }

@@ -92,5 +92,24 @@ Microsystems, Inc. All Rights Reserved.
             </file>
         </folder>
     </folder>
+
+    <folder name="Services">
+        <folder name="Hidden">
+            <file name="org-netbeans-modules-tasklist-suggestions-settings-ManagerSettings.instance">
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings org.openide.nodes.Node.Handle"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings.layerEntryPoint"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="UI">
+        <folder name="Services">
+            <folder name="Editing">
+                <file name="org-netbeans-modules-tasklist-suggestion-Settings.shadow">
+                            <attr name="originalFile" stringvalue="Services/Hidden/org-netbeans-modules-tasklist-suggestions-settings-ManagerSettings.instance"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
 </filesystem>
 

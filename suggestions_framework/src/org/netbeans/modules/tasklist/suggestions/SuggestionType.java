@@ -52,7 +52,7 @@ final public class SuggestionType {
     }
 
     /** @return The name which identifies this Suggestion Type */
-    String getName() {
+    public String getName() {
         return name;
     }
         

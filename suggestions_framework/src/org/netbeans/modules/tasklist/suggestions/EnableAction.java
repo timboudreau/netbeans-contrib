@@ -47,6 +47,7 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.XMLDataObject;
 import org.netbeans.api.tasklist.SuggestionManager;
 import org.netbeans.modules.tasklist.core.TaskListView;
+import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 
 /**
  * Let the re-enable disabled suggestion types
@@ -139,17 +140,12 @@ public class EnableAction extends CallableSystemAction
 		(SuggestionManagerImpl)SuggestionManager.getDefault();
 
             int n = 0;
-            Collection disabled = manager.getDisabledTypes();
             SuggestionTypes types = SuggestionTypes.getTypes();
             
-            if (disabled != null) {
-                Iterator it = disabled.iterator();
-                while (it.hasNext()) {
-                    String typeName = (String)it.next();
-                    SuggestionType type = types.getType(typeName);
-                    if (type == null) {
-                        continue;
-                    }
+            Iterator it = types.getAllTypes().iterator();
+            while (it.hasNext()) {
+                SuggestionType type = (SuggestionType) it.next();
+                if (false == ManagerSettings.getDefault().isEnabled(type.getName())) {
                     String category = type.getLocalizedName();
                     menu.add(createMenuItem(category, type));
                     n++;
