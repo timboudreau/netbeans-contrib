@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.corba.poasupport;
 
+import org.netbeans.modules.corba.settings.POASettings;
+
 /*
  * @author Dusan Balek
  */
@@ -25,8 +27,14 @@ public class POAActivatorElement extends POAMemberElement {
     
     public String getDefaultVarName() {
         int counter = 1;
-        while (!canUseAsNewVarName(POASupport.getPOASettings().getDefaultPOAActivatorVarName() + String.valueOf(counter)))
+        POASettings settings;
+        String _tag = getParentPOA().getRootPOA().getORBTag();
+        if (_tag != null)
+            settings = POASupport.getCORBASettings().getSettingByTag(_tag).getPOASettings();
+        else
+            settings = POASupport.getPOASettings();
+        while (!canUseAsNewVarName(settings.getDefaultPOAActivatorVarName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getPOASettings().getDefaultPOAActivatorVarName() + String.valueOf(counter);
+        return settings.getDefaultPOAActivatorVarName() + String.valueOf(counter);
     }
 }

@@ -626,7 +626,7 @@ public class IDLSyntax extends Syntax {
                 }
                 state = ISI_HERROR; // directive error
                 return IDLTokenContext.ERROR;
-
+                
             case ISA_DIRECTIVE:
                 switch (actChar) {
                 case '\n':
@@ -1174,6 +1174,32 @@ public class IDLSyntax extends Syntax {
             default:
                 return null;
             }
+        case '_':
+            if (len != 8 || buffer[offset++] != '_')
+                return null;
+            switch (buffer[offset++]) {
+            case 'L':
+                return (buffer[offset++] == 'I'
+                        && buffer[offset++] == 'N'
+                        && buffer[offset++] == 'E'
+                        
+                        && buffer[offset++] == '_'
+                        && buffer[offset++] == '_')
+                       ? IDLTokenContext.DIRECTIVE : null;
+            case 'F':
+                return (buffer[offset++] == 'I'
+                        && buffer[offset++] == 'L'
+                        && buffer[offset++] == 'E'
+                        
+                        && buffer[offset++] == '_'
+                        && buffer[offset++] == '_')
+                       ? IDLTokenContext.DIRECTIVE : null;
+                       
+            default:
+                
+                return null;
+                
+            }
         default:
             return null;
         }
@@ -1197,18 +1223,33 @@ public class IDLSyntax extends Syntax {
                        && buffer[tokenOffset + 5] == 'n'
                        && buffer[tokenOffset + 6] == 'e';
             case 'e':
-                return offset - tokenOffset == 6
-                       && buffer[tokenOffset + 2] == 'n'
-                       && buffer[tokenOffset + 3] == 'd'
-                       && buffer[tokenOffset + 4] == 'i'
-                       && buffer[tokenOffset + 5] == 'f';
+                if (offset - tokenOffset <= 2)
+                    return false;
+                switch (buffer[tokenOffset + 2]) {
+                case 'l':
+                    if (offset - tokenOffset <= 3)
+                        return false;
+                    switch (buffer[tokenOffset + 3]) {
+                    case 'i':
+                        return offset - tokenOffset == 5
+                               && buffer[tokenOffset + 4] == 'f';
+                    case 's':
+                        return offset - tokenOffset == 5
+                               && buffer[tokenOffset + 4] == 'e';
+                    }
+                case 'n':
+                    return offset - tokenOffset == 6
+                           && buffer[tokenOffset + 3] == 'd'
+                           && buffer[tokenOffset + 4] == 'i'
+                           && buffer[tokenOffset + 5] == 'f';
+                }
             case 'i':
                 if (offset - tokenOffset <= 2)
                     return false;
                 switch (buffer[tokenOffset + 2]) {
                 case 'f':
                     if (offset - tokenOffset <= 3)
-                        return false;
+                        return true;
                     switch (buffer[tokenOffset + 3]) {
                     case 'd':
                         return offset - tokenOffset == 6
@@ -1239,6 +1280,12 @@ public class IDLSyntax extends Syntax {
                        && buffer[tokenOffset + 4] == 'g'
                        && buffer[tokenOffset + 5] == 'm'
                        && buffer[tokenOffset + 6] == 'a';
+            case 'u':
+                return offset - tokenOffset == 6
+                       && buffer[tokenOffset + 2] == 'n'
+                       && buffer[tokenOffset + 3] == 'd'
+                       && buffer[tokenOffset + 4] == 'e'
+                       && buffer[tokenOffset + 5] == 'f';
             default:
                 return false;
             }

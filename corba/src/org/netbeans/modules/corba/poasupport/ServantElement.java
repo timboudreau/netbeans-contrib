@@ -31,7 +31,7 @@ public class ServantElement extends POAMemberElement {
 
     public ServantElement(POAElement _parentPOA, boolean _writeable) {
         super (_parentPOA, _writeable);
-        String disabledMode = POAChecker.checkDisabledServantActivation(_parentPOA.getPolicies());
+        String disabledMode = POAChecker.checkDisabledServantActivation(_parentPOA, _parentPOA.getPolicies());
         if (disabledMode.equals(POASettings.SERVANT_WITH_USER_ID)) {
             idVarName = getDefaultIDVarName();
             idAssignmentMode = POASettings.SERVANT_WITH_SYSTEM_ID;
@@ -48,9 +48,15 @@ public class ServantElement extends POAMemberElement {
     
     public String getDefaultVarName() {
         int counter = 1;
-        while (!canUseAsNewVarName(POASupport.getPOASettings().getDefaultServantVarName() + String.valueOf(counter)))
+        POASettings settings;
+        String _tag = getParentPOA().getRootPOA().getORBTag();
+        if (_tag != null)
+            settings = POASupport.getCORBASettings().getSettingByTag(_tag).getPOASettings();
+        else
+            settings = POASupport.getPOASettings();
+        while (!canUseAsNewVarName(settings.getDefaultServantVarName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getPOASettings().getDefaultServantVarName() + String.valueOf(counter);
+        return settings.getDefaultServantVarName() + String.valueOf(counter);
     }
 
     public boolean canUseAsServantID(String id) {
@@ -59,9 +65,15 @@ public class ServantElement extends POAMemberElement {
 
     public String getDefaultObjID() {
         int counter = 1;
-        while (!canUseAsServantID(POASupport.getPOASettings().getDefaultServantId() + String.valueOf(counter)))
+        POASettings settings;
+        String _tag = getParentPOA().getRootPOA().getORBTag();
+        if (_tag != null)
+            settings = POASupport.getCORBASettings().getSettingByTag(_tag).getPOASettings();
+        else
+            settings = POASupport.getPOASettings();
+        while (!canUseAsServantID(settings.getDefaultServantId() + String.valueOf(counter)))
             counter++;
-        return POASupport.getPOASettings().getDefaultServantId() + String.valueOf(counter);
+        return settings.getDefaultServantId() + String.valueOf(counter);
     }
 
     public String getObjID () {
@@ -80,9 +92,15 @@ public class ServantElement extends POAMemberElement {
 
     public String getDefaultIDVarName() {
         int counter = 1;
-        while (!canUseAsNewVarName(POASupport.getPOASettings().getDefaultServantIdVarName() + String.valueOf(counter)))
+        POASettings settings;
+        String _tag = getParentPOA().getRootPOA().getORBTag();
+        if (_tag != null)
+            settings = POASupport.getCORBASettings().getSettingByTag(_tag).getPOASettings();
+        else
+            settings = POASupport.getPOASettings();
+        while (!canUseAsNewVarName(settings.getDefaultServantIdVarName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getPOASettings().getDefaultServantIdVarName() + String.valueOf(counter);
+        return settings.getDefaultServantIdVarName() + String.valueOf(counter);
     }
 
     public String getIDVarName () {

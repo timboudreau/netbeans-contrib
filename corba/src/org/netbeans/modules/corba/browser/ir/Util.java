@@ -233,7 +233,7 @@ public class Util {
                     if (contained == null)
                         return suffix;   // We can not procede, we return at least part of name, can be OK
                     Contained myContainer = ContainedHelper.narrow (contained.defined_in());
-                    if (contained == null)
+                    if (myContainer == null)
                         return suffix;  // We can not procede, we return at least part of name, can be OK
                     String preffix= myContainer.absolute_name();
                     String absName;
@@ -243,16 +243,10 @@ public class Util {
                     else {
                         absName = parent.absolute_name();
                     }
-                    String partialName = absName;
-                    while (partialName.length()>0) {
-                        if (partialName.equals(preffix))
-                            return suffix;
-                        int index = partialName.lastIndexOf("::");
-                        if (index == -1)
-                            break;
-                        partialName = partialName.substring (0,index);
-                    }
-                    return preffix+"::"+suffix;
+                    if (absName.equals(preffix))
+                	return suffix;
+		    else
+                	return preffix+"::"+suffix;
                 }catch (org.omg.CORBA.SystemException se) {
                     return suffix;
                 }

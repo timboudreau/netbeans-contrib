@@ -35,6 +35,8 @@ import org.netbeans.modules.corba.wizard.CorbaWizard;
 import org.netbeans.modules.corba.wizard.utils.IdlFileFilter;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 import org.netbeans.modules.corba.browser.ir.util.Generatable;
+import org.netbeans.modules.corba.browser.ir.nodes.IRContainerNode;
+
 /** 
  *
  * @author  tzezula
@@ -61,6 +63,7 @@ public class ImportIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
         this.tv.setDefaultActionAllowed (false);
         this.irId.setEditable(false);
         this.connect.setEnabled (false);
+        this.refresh.setEnabled (false);
         this.setName(bundle.getString("TXT_CreateIDL"));
         putClientProperty(CorbaWizard.PROP_CONTENT_SELECTED_INDEX, new Integer(2));
     }
@@ -119,6 +122,7 @@ public class ImportIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
         irId = new javax.swing.JTextField();
         tree = new org.openide.explorer.ExplorerPanel();
         connect = new javax.swing.JButton();
+        refresh = new javax.swing.JButton();
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
         setToolTipText("");
@@ -146,7 +150,7 @@ public class ImportIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
         
         gridBagConstraints2 = new java.awt.GridBagConstraints();
         gridBagConstraints2.gridx = 0;
-        gridBagConstraints2.gridy = 1;
+        gridBagConstraints2.gridy = 2;
         gridBagConstraints2.gridwidth = 0;
         gridBagConstraints2.gridheight = 0;
         gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -160,6 +164,7 @@ public class ImportIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
         gridBagConstraints2 = new java.awt.GridBagConstraints();
         gridBagConstraints2.gridx = 0;
         gridBagConstraints2.gridy = 0;
+        gridBagConstraints2.gridheight = 2;
         gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints2.insets = new java.awt.Insets(12, 12, 6, 12);
         gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
@@ -178,9 +183,26 @@ public class ImportIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
         gridBagConstraints2 = new java.awt.GridBagConstraints();
         gridBagConstraints2.gridx = 1;
         gridBagConstraints2.gridy = 0;
+        gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints2.insets = new java.awt.Insets(12, 0, 12, 12);
         gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
         jPanel2.add(connect, gridBagConstraints2);
+        
+        
+        refresh.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle").getString("TXT_IRRefresh"));
+        refresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshActionPerformed(evt);
+            }
+        }
+        );
+        gridBagConstraints2 = new java.awt.GridBagConstraints();
+        gridBagConstraints2.gridx = 1;
+        gridBagConstraints2.gridy = 1;
+        gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints2.insets = new java.awt.Insets(0, 0, 12, 12);
+        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel2.add(refresh, gridBagConstraints2);
         
         
         gridBagConstraints1 = new java.awt.GridBagConstraints();
@@ -195,6 +217,14 @@ public class ImportIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
         add(jPanel2, gridBagConstraints1);
         
     }//GEN-END:initComponents
+
+    private void refreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshActionPerformed
+        // Add your handling code here:
+        Node[] nodes = this.tree.getExplorerManager().getSelectedNodes();
+        SystemAction action = SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.RefreshAction.class);
+        ActionEvent event = new ActionEvent (nodes,0,"");
+        action.actionPerformed (event);
+    }//GEN-LAST:event_refreshActionPerformed
 
     private void connectIR(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectIR
         // Add your handling code here:
@@ -212,13 +242,14 @@ public class ImportIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
     private javax.swing.JTextField irId;
     private org.openide.explorer.ExplorerPanel tree;
     private javax.swing.JButton connect;
+    private javax.swing.JButton refresh;
     // End of variables declaration//GEN-END:variables
 
     private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle");    
 
     public void propertyChange(final java.beans.PropertyChangeEvent event) {
         Object selection =  event.getNewValue();
-        if ( selection instanceof Node[]){
+        if ( selection != null && selection instanceof Node[]){
             Node[] nodes = (Node[]) selection;
             this.tree.setActivatedNodes (nodes);
             String irList = new String();
@@ -238,6 +269,7 @@ public class ImportIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
             }
             this.irId.setText(irList);
             this.connect.setEnabled (nodes.length == 1 && nodes[0] == tree.getExplorerManager().getRootContext());
+            this.refresh.setEnabled (nodes.length == 1 && nodes[0].getCookie (IRContainerNode.class) != null);
             this.fireChange (this);
         }
     }

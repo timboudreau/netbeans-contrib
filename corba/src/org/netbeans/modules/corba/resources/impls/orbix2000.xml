@@ -17,7 +17,7 @@ Microsystems, Inc. All Rights Reserved.
 <!ENTITY corba23-poa SYSTEM "corba23-poa.ent">
 <!ENTITY corba23-generic-impl SYSTEM "corba23-generic-impl.ent">
 ]>
-<orb-settings name='Orbix2000 for Java 1.x' tag='orbix20004j' supported='true'>
+<orb-settings name='Orbix 2000 for Java 1.x' tag='orbix20004j' supported='true'>
   
   &corba23-poa;
   &corba23-generic-impl;
@@ -33,9 +33,9 @@ Microsystems, Inc. All Rights Reserved.
       <prepare-code><![CDATA[org.omg.CORBA.Any _odPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
         com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValueHelper.insert(_odPolicyAny__$INDEX$__, com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValue.__POLICY_VALUE__);]]>
       </prepare-code>
-      <prepare-code-pattern value='org.omg.CORBA.Any _odPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValueHelper.insert\(_odPolicyAny[0-9]+, com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValue.([:javastart:][:javapart:]*)\);\n'/>
+      <prepare-code-pattern value='org.omg.CORBA.Any _odPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\s*\(\);\n\s* com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValueHelper.insert\s*\(_odPolicyAny[0-9]+, com.iona.corba.IT_PortableServer.ObjectDeactivationPolicyValue.([:javastart:][:javapart:]*)\);\n'/>
       <create-code><![CDATA[__ORB_VAR_NAME__.create_policy(com.iona.corba.IT_PortableServer.OBJECT_DEACTIVATION_POLICY_ID.value, _odPolicyAny__$INDEX$__)]]></create-code>
-      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\(com.iona.corba.IT_PortableServer.OBJECT_DEACTIVATION_POLICY_ID.value, _odPolicyAny[0-9]+\),?'/>
+      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\s*\(com.iona.corba.IT_PortableServer.OBJECT_DEACTIVATION_POLICY_ID.value, _odPolicyAny[0-9]+\),?'/>
     </poa-policy>
 
     <poa-policy name='Persistence Mode' mnemonic_character='P'>
@@ -47,27 +47,27 @@ Microsystems, Inc. All Rights Reserved.
       <prepare-code><![CDATA[org.omg.CORBA.Any _pmPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
         com.iona.corba.IT_PortableServer.PersistenceModePolicyValueHelper.insert(_pmPolicyAny__$INDEX$__, com.iona.corba.IT_PortableServer.PersistenceModePolicyValue.__POLICY_VALUE__);]]>
       </prepare-code>
-      <prepare-code-pattern value='org.omg.CORBA.Any _pmPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* com.iona.corba.IT_PortableServer.PersistenceModePolicyValueHelper.insert\(_pmPolicyAny[0-9]+, com.iona.corba.IT_PortableServer.PersistenceModePolicyValue.([:javastart:][:javapart:]*)\);\n'/>
+      <prepare-code-pattern value='org.omg.CORBA.Any _pmPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\s*\(\);\n\s* com.iona.corba.IT_PortableServer.PersistenceModePolicyValueHelper.insert\s*\(_pmPolicyAny[0-9]+, com.iona.corba.IT_PortableServer.PersistenceModePolicyValue.([:javastart:][:javapart:]*)\);\n'/>
       <create-code><![CDATA[__ORB_VAR_NAME__.create_policy(com.iona.corba.IT_PortableServer.PERSISTENCE_MODE_POLICY_ID.value, _pmPolicyAny__$INDEX$__)]]></create-code>
-      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\(com.iona.corba.IT_PortableServer.PERSISTENCE_MODE_POLICY_ID.value, _pmPolicyAny[0-9]+\),?'/>
+      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\s*\(com.iona.corba.IT_PortableServer.PERSISTENCE_MODE_POLICY_ID.value, _pmPolicyAny[0-9]+\),?'/>
     </poa-policy>
 
     <poa-policy name='Well Known Addressing' mnemonic_character='W'>
       <prepare-code><![CDATA[org.omg.CORBA.Any _wkaPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
         _wkaPolicyAny__$INDEX$__.insert_string("__POLICY_VALUE__");]]>
       </prepare-code>
-      <prepare-code-pattern value='org.omg.CORBA.Any _wkaPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* _wkaPolicyAny[0-9]+.insert_string\("([:javastart:][:javapart:]*)"\);\n'/>
+      <prepare-code-pattern value='org.omg.CORBA.Any _wkaPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\s*\(\);\n\s* _wkaPolicyAny[0-9]+.insert_string\s*\("([:javastart:][:javapart:]*)"\);\n'/>
       <create-code><![CDATA[__ORB_VAR_NAME__.create_policy(com.iona.corba.IT_CORBA.WELL_KNOWN_ADDRESSING_POLICY_ID.value, _wkaPolicyAny__$INDEX$__)]]></create-code>
-      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\(com.iona.corba.IT_CORBA.WELL_KNOWN_ADDRESSING_POLICY_ID.value, _wkaPolicyAny[0-9]+\),?'/>
+      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\s*\(com.iona.corba.IT_CORBA.WELL_KNOWN_ADDRESSING_POLICY_ID.value, _wkaPolicyAny[0-9]+\),?'/>
     </poa-policy>
 
     <poa-policy name='Work Queue' mnemonic_character='Q'>
       <prepare-code><![CDATA[org.omg.CORBA.Any _wqPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
         _wqPolicyAny__$INDEX$__.insert_Object(__POLICY_VALUE__);]]>
       </prepare-code>
-      <prepare-code-pattern value='org.omg.CORBA.Any _wqPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* _wqPolicyAny[0-9]+.insert_Object\(([:javastart:][:javapart:]*)\);\n'/>
+      <prepare-code-pattern value='org.omg.CORBA.Any _wqPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\s*\(\);\n\s* _wqPolicyAny[0-9]+.insert_Object\s*\(([:javastart:][:javapart:]*)\);\n'/>
       <create-code><![CDATA[__ORB_VAR_NAME__.create_policy(com.iona.corba.IT_WorkQueue.WORK_QUEUE_POLICY_ID.value, _wqPolicyAny__$INDEX$__)]]></create-code>
-      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\(com.iona.corba.IT_WorkQueue.WORK_QUEUE_POLICY_ID.value, _wqPolicyAny[0-9]+\),?'/>
+      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\s*\(com.iona.corba.IT_WorkQueue.WORK_QUEUE_POLICY_ID.value, _wqPolicyAny[0-9]+\),?'/>
     </poa-policy>
   </poa-settings>
 

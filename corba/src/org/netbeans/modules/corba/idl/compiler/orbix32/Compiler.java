@@ -19,7 +19,7 @@ import java.io.BufferedReader;
 
 class Compiler {
 
-    public static final String _S_cmd = "idlj"; // NOI18N
+    public static String _S_cmd = "idlj"; // NOI18N
     
     public static void main (String[] __args) throws Exception {
 	//System.out.println ("OrbixWeb 3.2c IDL Compiler Wrapper 1.0");

@@ -33,7 +33,7 @@
               <BorderConstraints direction="East"/>
             </Constraint>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints anchor="17" fill="2" gridHeight="0" gridWidth="0" gridX="0" gridY="1" insetsBottom="12" insetsLeft="12" insetsRight="12" insetsTop="6" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
+              <GridBagConstraints anchor="17" fill="2" gridHeight="0" gridWidth="0" gridX="0" gridY="2" insetsBottom="12" insetsLeft="12" insetsRight="12" insetsTop="6" ipadX="0" ipadY="0" weightX="1.0" weightY="0.0"/>
             </Constraint>
           </Constraints>
 
@@ -73,7 +73,7 @@
               <BorderConstraints direction="East"/>
             </Constraint>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints anchor="17" fill="1" gridHeight="1" gridWidth="1" gridX="0" gridY="0" insetsBottom="6" insetsLeft="12" insetsRight="12" insetsTop="12" ipadX="0" ipadY="0" weightX="1.0" weightY="1.0"/>
+              <GridBagConstraints anchor="17" fill="1" gridHeight="2" gridWidth="1" gridX="0" gridY="0" insetsBottom="6" insetsLeft="12" insetsRight="12" insetsTop="12" ipadX="0" ipadY="0" weightX="1.0" weightY="1.0"/>
             </Constraint>
           </Constraints>
 
@@ -94,7 +94,23 @@
               <BorderConstraints direction="North"/>
             </Constraint>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints anchor="18" fill="0" gridHeight="1" gridWidth="1" gridX="1" gridY="0" insetsBottom="12" insetsLeft="0" insetsRight="12" insetsTop="12" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+              <GridBagConstraints anchor="18" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="0" insetsBottom="12" insetsLeft="0" insetsRight="12" insetsTop="12" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="javax.swing.JButton" name="refresh">
+          <Properties>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/modules/corba/wizard/panels/Bundle.properties" key="TXT_IRRefresh" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+            </Property>
+          </Properties>
+
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="refreshActionPerformed"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="18" fill="2" gridHeight="1" gridWidth="1" gridX="1" gridY="1" insetsBottom="12" insetsLeft="0" insetsRight="12" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
             </Constraint>
           </Constraints>
         </Component>

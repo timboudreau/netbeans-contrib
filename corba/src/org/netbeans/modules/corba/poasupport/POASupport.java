@@ -43,7 +43,7 @@ public class POASupport implements java.beans.PropertyChangeListener {
     }
     
     public void propertyChange(java.beans.PropertyChangeEvent p1) {
-        if (p1.getPropertyName().equals("_M_orb_tag")) { // NOI18N
+        if ("_M_orb_tag".equals(p1.getPropertyName())) { // NOI18N
             settings = corbaSettings.getActiveSetting().getPOASettings();
         }
     }

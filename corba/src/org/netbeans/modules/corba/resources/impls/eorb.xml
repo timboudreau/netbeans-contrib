@@ -37,7 +37,7 @@ Microsystems, Inc. All Rights Reserved.
     <package-param value='-p'/>
     <compiler value='java -classpath {filesystems} com.vertel.idl.parser {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
     <package-delimiter value='.'/>
-    <error-expression value='^([^ ]+), line: ([0-9]+)\\(([0-9]+)\\)(.*)'/>
+    <error-expression value='^([^ ]+), line: ([0-9]+)\(([0-9]+)\)(.*)'/>
     <file-position value='1'/>
     <line-position value='2'/>
     <column-position value='-1'/>

@@ -311,7 +311,7 @@ public class ORBSettings implements java.io.Serializable {
 	    System.out.println ("ORBSettings::readObject (" + __in + ")"); // NOI18N
 	__in.defaultReadObject ();
 	//__in.readObject ();
-      }
+    }
 
 
     public String getClientBindingName () {

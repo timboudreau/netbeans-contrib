@@ -119,7 +119,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	if (!_M_loaded)
 	    this.setBeans (this.getBeans ());
 	if (this.getActiveSetting () == null)
-	    this.setORBTag ("orbacus4u");
+	    this.setORBTag ("jdk13");
 	_M_in_init = false;
     }
     
@@ -482,17 +482,20 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    ORBSettings __setting = (ORBSettings)__beans[i];
 	    if (DEBUG)
 		System.out.println ("trying " + __setting.getName ());
+	    if (DEBUG)
+		System.out.println (__setting);
 	    Iterator __iter = _S_loaded_context.iterator ();
 	    while (__iter.hasNext ()) {
 		ORBSettings __tmp = (ORBSettings)__iter.next ();
+		String __t_tag = __tmp.getORBTag ();
+		String __t_name = this.removeUnsupportedPostfix (__tmp.getOrbName ());
+		String __s_tag = __setting.getORBTag ();
+		String __s_name = this.removeUnsupportedPostfix (__setting.getOrbName ());
 		if (DEBUG)
-		    System.out.println ("comparing: " + __tmp.getORBTag ()
-					+ " with " + __setting.getORBTag ());
+		    System.out.println ("comparing: " + __t_tag	+ " with " + __s_tag);
 		if (DEBUG)
-		    System.out.println ("comparing: " + __tmp.getOrbName ()
-					+ " with " + __setting.getOrbName ());
-		if (__tmp.getORBTag ().equals (__setting.getORBTag ())
-		    || __tmp.getOrbName ().equals (__setting.getOrbName ())) {
+		    System.out.println ("comparing: " + __t_name + " with " + __s_name);
+		if (__t_tag.equals (__s_tag) || __t_name.equals (__s_name)) {
 		    if (DEBUG)
 			System.out.println ("RIGHT :-))");
 		    __serialized_context.add (__beans[i]);
@@ -519,7 +522,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		  (__serialized_context, __loaded_setting.getORBTag ())) != null) */
 		//|| (
 		(__serialized_setting = this.findSettingByName 
-		 (__serialized_context, __loaded_setting.getName ())) != null)
+		 (__serialized_context, __loaded_setting.getOrbName ())) != null)
 		//) 
 	    {
 		// we find serialized setting with same name
@@ -548,10 +551,39 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		    (__loaded_setting.getJavaTemplateCodePatchTable ());
 		__serialized_setting.setLocalBundle (__loaded_setting.getLocalBundle ());
 		if (__serialized_setting.getORBTag () == null) {
+		    // this seems like old boston project
 		    if (DEBUG)
 			System.out.println ("old project for "
 					    + __serialized_setting.getName ());
+		    // sometimes on boston Orb name has '(unsupported)' postfix
+		    // we must recovery it after deserialization from boston
+		    __serialized_setting.setOrbName (__loaded_setting.getOrbName ());
 		    __serialized_setting.setORBTag (__loaded_setting.getORBTag ());
+		    __serialized_setting.setDelegation (__loaded_setting.getDelegation ());
+		    __serialized_setting.setUseGuardedBlocks
+			(__loaded_setting.getUseGuardedBlocks ());
+		    __serialized_setting.setFindMethod (__loaded_setting.getFindMethod ());
+		    // expert options
+		    __serialized_setting.setImplBaseImplPrefix
+			(__loaded_setting.getImplBaseImplPrefix ());
+		    __serialized_setting.setImplBaseImplPostfix
+			(__loaded_setting.getImplBaseImplPostfix ());
+		    __serialized_setting.setTieClassPrefix
+			(__loaded_setting.getTieClassPrefix ());
+		    __serialized_setting.setTieClassPostfix
+			(__loaded_setting.getTieClassPostfix ());
+		    __serialized_setting.setTieImplPrefix
+			(__loaded_setting.getTieImplPrefix ());
+		    __serialized_setting.setTieImplPostfix
+			(__loaded_setting.getTieImplPostfix ());
+		    __serialized_setting.setValueFactoryImplPrefix
+			(__loaded_setting.getValueFactoryImplPrefix ());
+		    __serialized_setting.setValueFactoryImplPostfix
+			(__loaded_setting.getValueFactoryImplPostfix ());
+		    __serialized_setting.setValueImplPrefix
+			(__loaded_setting.getValueImplPrefix ());
+		    __serialized_setting.setValueImplPostfix
+			(__loaded_setting.getValueImplPostfix ());		    
 		}
 		
 		__tmp_implementations.add (__serialized_setting);
@@ -632,7 +664,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	String __orb_name = null;
 	while (__iterator.hasNext ()) {
 	    ORBSettings __setting = (ORBSettings)__iterator.next ();
-	    __orb_name = __setting.getName ();
+	    __orb_name = __setting.getOrbName ();
 	    __orb_name = this.removeUnsupportedPostfix (__orb_name);
 	    /*
 	      if (__orb_name.endsWith (ORBSettingsBundle.CTL_UNSUPPORTED)) {

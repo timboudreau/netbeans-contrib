@@ -18,9 +18,16 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.Hashtable;
 import java.util.ArrayList;
+import java.util.Enumeration;
+
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
+import org.openide.TopManager;
+import org.netbeans.modules.corba.utils.FileUtils;
 
 /*
  * @author David Kaspar
@@ -84,6 +91,7 @@ public class Preprocessor {
     boolean systemFile;
     String[] sysDirs;
     File file;
+    FileObject fobj;
     String pwd;
     String filename;
     BufferedReader input;
@@ -286,6 +294,20 @@ public class Preprocessor {
         return s;
     }
     
+    String eatIncludeString2 () {
+        if (getPosChar () != '"')
+            return null;
+        pos ++;
+        int last = pos;
+        while (pos < str.length ()  &&  str.charAt (pos) != '"')
+            pos ++;
+        if (pos >= str.length ())
+            return null;
+        String s = str.substring(last, pos);
+        pos ++;
+        return s;
+    }
+    
     String eatIdentifier () {
         int last = pos;
         if (pos >= str.length ()  ||  !Character.isJavaIdentifierStart(str.charAt (pos)))
@@ -366,18 +388,21 @@ public class Preprocessor {
                 _systemFile = true;
                 break;
             case '"':
-                fn = eatString ();
+                fn = eatIncludeString2 ();
                 _systemFile = false;
                 break;
-                default:
-                    error ("Invalid include argument: " + str);
-                    return;
+            default:
+                error ("Invalid include argument: " + str);
+                return;
         }
         eatWhiteSpaces ();
         if (pos < str.length ())
             error ("Include command expects one argument only: " + str);
         else {
-            new Preprocessor (file.getParent(), fn, defines, sysDirs, output, _systemFile).perform ();
+            if (file != null)
+                new Preprocessor (file.getParent(), fn, defines, sysDirs, output, _systemFile).perform ();
+            else if (fobj != null)
+                new Preprocessor (FileUtils.getRealFileName(fobj.getParent()), fn, defines, sysDirs, output, _systemFile).perform ();
             output.println ("# " + line + " \"" + filename + "\" 2");
             lineHeight = 1;
         }
@@ -526,7 +551,7 @@ public class Preprocessor {
             ifDepth[0] = MASK_ELSE | MASK_SKIP;
         } else {
             str = def;
-            if (calcExpression ()  &&  (ifDepth[0] & MASK_AVAIL) != 0  &&  (ifDepth.length <= 1  ||  (ifDepth[0] & MASK_SKIP) == 0)) {
+            if (calcExpression ()  &&  (ifDepth[0] & MASK_AVAIL) != 0  &&  (ifDepth.length <= 1  ||  (ifDepth[1] & MASK_SKIP) == 0)) {
                 ifDepth[0] = 0;
             } else {
                 if ((ifDepth[0] & MASK_AVAIL) != 0)
@@ -647,8 +672,8 @@ public class Preprocessor {
                     }
                     pos ++;
                     break;
-                    default:
-                        error ("Internal error: bad state: " + str);
+                default:
+                    error ("Internal error: bad state: " + str);
             }
         }
         str = out;
@@ -826,19 +851,19 @@ public class Preprocessor {
                                 pos ++;
                             }
                             break;
-                            default:
-                                tokenValue = 0;
-                                if (getOctalNumber (getPosChar (1)) < 0) {
-                                    str = null;
-                                    return token = TOKEN_ERROR;
-                                }
-                                for (;;) {
-                                    int v = getOctalNumber (getPosChar (1));
-                                    if (v < 0)
-                                        break;
-                                    tokenValue = tokenValue * 8 + v;
-                                    pos ++;
-                                }
+                        default:
+                            tokenValue = 0;
+                            if (getOctalNumber (getPosChar (1)) < 0) {
+                                str = null;
+                                return token = TOKEN_ERROR;
+                            }
+                            for (;;) {
+                                int v = getOctalNumber (getPosChar (1));
+                                if (v < 0)
+                                    break;
+                                tokenValue = tokenValue * 8 + v;
+                                pos ++;
+                            }
                     }
                 } else if (getPosChar () == '\'')
                     break;
@@ -852,24 +877,24 @@ public class Preprocessor {
                 break;
             case -1:
                 return TOKEN_NONE;
-                default:
-                    if (isDigit (getPosChar ())) {
-                        tokenValue = 0;
-                        do {
-                            tokenValue = tokenValue * 10 + (getPosChar () - '0');
-                            pos ++;
-                        } while (isDigit(getPosChar ()));
-                        return token = TOKEN_VALUE;
-                    }
-                    if (isJavaIdentifierStart(getPosChar ())) {
-                        eatIdentifier ();
-                        String def = (String) defines.get (str.substring (tokenStart, pos));
-                        if (def == null  ||  def.length () < 1)
-                            def = "0 ";
-                        str = str.substring (0, tokenStart) + def + str.substring (pos);
-                        pos = tokenStart;
-                        return getToken ();
-                    }
+            default:
+                if (isDigit (getPosChar ())) {
+                    tokenValue = 0;
+                    do {
+                        tokenValue = tokenValue * 10 + (getPosChar () - '0');
+                        pos ++;
+                    } while (isDigit(getPosChar ()));
+                    return token = TOKEN_VALUE;
+                }
+                if (isJavaIdentifierStart(getPosChar ())) {
+                    eatIdentifier ();
+                    String def = (String) defines.get (str.substring (tokenStart, pos));
+                    if (def == null  ||  def.length () < 1)
+                        def = "0 ";
+                    str = str.substring (0, tokenStart) + def + str.substring (pos);
+                    pos = tokenStart;
+                    return getToken ();
+                }
         }
         str = null;
         return token = TOKEN_ERROR;
@@ -962,8 +987,8 @@ public class Preprocessor {
                 t = t && (val != n);
                 val = n;
                 break;
-                default:
-                    return (t) ? val : 0;
+            default:
+                return (t) ? val : 0;
         }
     }
     
@@ -1000,8 +1025,8 @@ public class Preprocessor {
                 t = t && (val <= n);
                 val = n;
                 break;
-                default:
-                    return (t) ? val : 0;
+            default:
+                return (t) ? val : 0;
         }
     }
     
@@ -1018,8 +1043,8 @@ public class Preprocessor {
                     return 0;
                 val >>= calcRelational ();
                 break;
-                default:
-                    return val;
+            default:
+                return val;
         }
     }
     
@@ -1036,8 +1061,8 @@ public class Preprocessor {
                     return 0;
                 val -= calcMultiplicative ();
                 break;
-                default:
-                    return val;
+            default:
+                return val;
         }
     }
     
@@ -1070,8 +1095,8 @@ public class Preprocessor {
                 }
                 val %= d;
                 break;
-                default:
-                    return val;
+            default:
+                return val;
         }
     }
     
@@ -1096,10 +1121,10 @@ public class Preprocessor {
                 if (!cmpToken (TOKEN_RBRACKET))
                     return 0;
                 return val;
-                default:
-                    if (!cmpToken (TOKEN_VALUE))
-                        return 0;
-                    return tokenValue;
+            default:
+                if (!cmpToken (TOKEN_VALUE))
+                    return 0;
+                return tokenValue;
         }
     }
     
@@ -1115,25 +1140,7 @@ public class Preprocessor {
     }
     
     public void perform () throws PreprocessorException {
-        if (systemFile) {
-            for (int a = 0; a < sysDirs.length; a ++) {
-                file = new File (sysDirs[a], filename);
-                if (file != null  &&  file.exists ()  &&  file.isFile()  &&  file.canRead ())
-                    break;
-                file = null;
-            }
-        } else {
-            file = new File (pwd, filename);
-            if (file != null  &&  (!file.exists ()  ||  !file.isFile ()  ||  !file.canRead ()))
-                file = null;
-        }
-        if (file == null)
-            error ("File not found or cannot be read: " + filename);
-        try {
-            input = new BufferedReader (new FileReader (file));
-        } catch (FileNotFoundException e) {
-            error ("Error opening file: " + filename);
-        }
+        input = getInput();
         state = START;
         String s = "# 1 \"" + filename + '"';
         if (included) {
@@ -1194,9 +1201,9 @@ public class Preprocessor {
                     case CMD_UNKNOWN:
                         performUnknown ();
                         break;
-                        default:
-                            error ("Internal error: bad command: " + str);
-                            writeOutput(null);
+                    default:
+                        error ("Internal error: bad command: " + str);
+                        writeOutput(null);
                 }
             }
         } catch (IOException e) {
@@ -1250,4 +1257,80 @@ public class Preprocessor {
         main (args, System.out);
     }
     
+    private BufferedReader getInput() throws PreprocessorException {
+        if (systemFile) {
+            for (int a = 0; a < sysDirs.length; a ++) {
+                file = new File (sysDirs[a], filename);
+                if (file != null  &&  file.exists ()  &&  file.isFile()  &&  file.canRead ())
+                    break;
+                file = null;
+            }
+        } else {
+            file = new File (pwd, filename);
+            if (file != null  &&  (!file.exists ()  ||  !file.isFile ()  ||  !file.canRead ()))
+                file = null;
+        }
+        if (file != null) {
+            try {
+                return new BufferedReader (new FileReader (file));
+            } catch (FileNotFoundException e) {
+                error ("Error opening file: " + filename);
+            }
+        }
+        else {
+            FileSystem fs = null;
+            for (Enumeration ffs = TopManager.getDefault().getRepository().fileSystems(); ffs.hasMoreElements();) {
+                fs = (FileSystem)ffs.nextElement();
+                if (filename.startsWith(fs.getDisplayName()))
+                    break;
+                fs = null;
+            }
+            if (fs != null) {
+                String _filename = filename.substring(fs.getDisplayName().length());
+                if (_filename.length() > 1) {
+                    _filename = FileUtils.convert2Canonical(_filename);
+                    _filename = _filename.replace(File.separatorChar, '/');
+//                    System.out.print("Trying to find: " + _filename);
+                    fobj = fs.findResource(_filename);
+/*                    if (fobj == null)
+                        System.out.println(" ... FAILED");
+                    else
+                        System.out.println(" ... OK");
+*/
+                }
+            }
+            if (fobj == null && pwd != null) {
+                for (Enumeration ffs = TopManager.getDefault().getRepository().fileSystems(); ffs.hasMoreElements();) {
+                    fs = (FileSystem)ffs.nextElement();
+                    if (pwd.startsWith(fs.getDisplayName()))
+                        break;
+                    fs = null;
+                }
+                if (fs != null) {
+                    String _filename = pwd.substring(fs.getDisplayName().length());
+                    if (_filename.length() > 1)
+                        _filename += File.separatorChar + filename;
+                    else
+                        _filename = filename;
+                    _filename = FileUtils.convert2Canonical(_filename);
+                    _filename = _filename.replace(File.separatorChar, '/');
+//                    System.out.print("Trying to find: " + _filename);
+                    fobj = fs.findResource(_filename);
+/*                    if (fobj == null)
+                        System.out.println(" ... FAILED");
+                    else
+                        System.out.println(" ... OK");
+*/
+                }
+            }
+            if (fobj == null || fobj.isFolder() || !fobj.isValid())
+                error ("File not found or cannot be read: " + filename);
+            try {
+                return new BufferedReader (new InputStreamReader(fobj.getInputStream()));
+            } catch (FileNotFoundException e) {
+                error ("Error opening file: " + filename);
+            }
+        }
+        return null;
+    }
 }

@@ -291,7 +291,7 @@ public class CreateIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
 
     public void propertyChange(final java.beans.PropertyChangeEvent event) {
         Object newValue = event.getNewValue ();
-        if (newValue instanceof Node[] ) {
+        if (newValue != null && newValue instanceof Node[] ) {
             Node[] nodes = (Node[]) newValue;
             if (nodes.length == 1) {
                 this.tree.setActivatedNodes (nodes);
@@ -303,7 +303,7 @@ public class CreateIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
   
     public void vetoableChange(final java.beans.PropertyChangeEvent event) throws java.beans.PropertyVetoException {
         Object newValue = event.getNewValue ();
-        if (newValue instanceof Node[] ) {
+        if (newValue != null && newValue instanceof Node[] ) {
             Node[] nodes = (Node[]) newValue;
             if (nodes.length != 1)
                 throw new PropertyVetoException ("",event);

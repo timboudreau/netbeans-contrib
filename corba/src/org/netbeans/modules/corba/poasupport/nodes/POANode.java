@@ -162,7 +162,7 @@ public class POANode extends AbstractNode implements java.beans.PropertyChangeLi
                     }
                 }
             });
-        if (!POAChecker.checkDisabledServantActivation(getPOAElement().getPolicies()).equals(POASettings.ALL_SERVANTS))
+        if (!POAChecker.checkDisabledServantActivation(getPOAElement(), getPOAElement().getPolicies()).equals(POASettings.ALL_SERVANTS))
             ret.add(new NewType() {
                 public String getName () {
                     return POASupport.getString("LBL_NewType_Servant");
@@ -186,7 +186,7 @@ public class POANode extends AbstractNode implements java.beans.PropertyChangeLi
                     }
                 }
             });
-        if ((POAChecker.isServantManagerEnabled(getPOAElement().getPolicies()))&&(getPOAElement().getServantManager() == null))
+        if ((POAChecker.isServantManagerEnabled(getPOAElement(), getPOAElement().getPolicies()))&&(getPOAElement().getServantManager() == null))
             ret.add(new NewType() {
                 public String getName () {
                     return POASupport.getString("LBL_NewType_ServantManager");
@@ -210,7 +210,7 @@ public class POANode extends AbstractNode implements java.beans.PropertyChangeLi
                     }
                 }
             });
-        if ((POAChecker.isDefaultServantEnabled(getPOAElement().getPolicies()))&&(getPOAElement().getDefaultServant() == null))
+        if ((POAChecker.isDefaultServantEnabled(getPOAElement(), getPOAElement().getPolicies()))&&(getPOAElement().getDefaultServant() == null))
             ret.add(new NewType() {
                 public String getName () {
                     return POASupport.getString("LBL_NewType_DefaultServant");
@@ -441,13 +441,15 @@ public class POANode extends AbstractNode implements java.beans.PropertyChangeLi
     }
     
     public void propertyChange(java.beans.PropertyChangeEvent p1) {
+        if (p1.getSource() == null)
+            return;
         if (p1.getSource() != getPOAElement())
             return;
-        if (p1.getPropertyName().equals(POAElement.PROP_POA_NAME)) {
+        if (POAElement.PROP_POA_NAME.equals(p1.getPropertyName())) {
             super.setName((String)p1.getNewValue());
             return;
         }
-        if (p1.getPropertyName().equals(POAElement.PROP_POLICIES))
+        if (POAElement.PROP_POLICIES.equals(p1.getPropertyName()))
             getPOAChildren().addNotify();
         super.firePropertyChange(p1.getPropertyName(), p1.getOldValue(), p1.getNewValue());
     }

@@ -149,7 +149,13 @@ public class POAChecker {
         Properties newPolicyValues = new Properties();
         Properties oldPolicyValues = new Properties();
         boolean legal = false;
-        ListIterator policyList = POASupport.getPOASettings().getPolicies().listIterator();
+        POASettings settings;
+        String _tag = element.getRootPOA().getORBTag();
+        if (_tag != null)
+            settings = POASupport.getCORBASettings().getSettingByTag(_tag).getPOASettings();
+        else
+            settings = POASupport.getPOASettings();
+        ListIterator policyList = settings.getPolicies().listIterator();
         while (policyList.hasNext()) {
             POAPolicyDescriptor policy = (POAPolicyDescriptor)policyList.next();
             String n = policy.getName();
@@ -167,7 +173,7 @@ public class POAChecker {
         if (!legal) {
             return false;
         }
-        if (!addRequiredPolicyValue(newPolicyValues, oldPolicyValues, name, value)) {
+        if (!addRequiredPolicyValue(settings, newPolicyValues, oldPolicyValues, name, value)) {
             if (notify) {
                 String msg = MessageFormat.format(POASupport.getString("MSG_Invalid_POA_Policy_Dependencies"), new Object[] {name, value});
                 TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
@@ -178,17 +184,17 @@ public class POAChecker {
         do {
             count = oldPolicyValues.size();
             Properties conflictPolicyValues = new Properties();
-            findConflictPolicyValues(newPolicyValues, oldPolicyValues, conflictPolicyValues);
+            findConflictPolicyValues(settings, newPolicyValues, oldPolicyValues, conflictPolicyValues);
             for (Enumeration e = conflictPolicyValues.propertyNames(); e.hasMoreElements();) {
                 String confName = (String)e.nextElement();
                 String confValue = conflictPolicyValues.getProperty(confName);
                 String newValue;
-                ListIterator valueList = POASupport.getPOASettings().getPolicyByName(confName).getValues().listIterator();
+                ListIterator valueList = settings.getPolicyByName(confName).getValues().listIterator();
                 Vector availableValues = new Vector();
                 while (valueList.hasNext()) {
                     POAPolicyValueDescriptor __val = (POAPolicyValueDescriptor)valueList.next();
                     if ((!confValue.equals(__val.getName())) &&
-                    (addRequiredPolicyValue((Properties)newPolicyValues.clone(), (Properties)oldPolicyValues.clone(), confName, __val.getName())))
+                    (addRequiredPolicyValue(settings, (Properties)newPolicyValues.clone(), (Properties)oldPolicyValues.clone(), confName, __val.getName())))
                         availableValues.add(__val.getName());
                 }
                 if (availableValues.size() == 0)
@@ -203,7 +209,7 @@ public class POAChecker {
                     else
                         return false;
                 }
-                if (!addRequiredPolicyValue(newPolicyValues, oldPolicyValues, confName, newValue)) {
+                if (!addRequiredPolicyValue(settings, newPolicyValues, oldPolicyValues, confName, newValue)) {
                     if (notify) {
                         String msg = MessageFormat.format(POASupport.getString("MSG_Invalid_POA_Policy_Dependencies"), new Object[] {name, value});
                         TopManager.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
@@ -216,7 +222,7 @@ public class POAChecker {
             String newName = (String)e.nextElement();
             String newVal = newPolicyValues.getProperty(newName);
             String defaultVal;
-            List _values = POASupport.getPOASettings().getPolicyByName(newName).getValues();
+            List _values = settings.getPolicyByName(newName).getValues();
             if (_values.size() > 0)
                 defaultVal = ((POAPolicyValueDescriptor)_values.get(0)).getName();
             else
@@ -226,19 +232,19 @@ public class POAChecker {
             else
                 policies.setProperty(newName, newVal);
         }
-        if ((element.getServantManager() != null) && (!isServantManagerEnabled(policies))) {
+        if ((element.getServantManager() != null) && (!isServantManagerEnabled(element, policies))) {
             String msg = MessageFormat.format(POASupport.getString("MSG_Confirm_Delete_ServantManager"), new Object[] {name, value});
             NotifyDescriptor desc = new NotifyDescriptor.Confirmation(msg, NotifyDescriptor.OK_CANCEL_OPTION);
             if (NotifyDescriptor.CANCEL_OPTION.equals (TopManager.getDefault().notify(desc)))
                 return false;
         }
-        if ((element.getDefaultServant() != null) && (!isDefaultServantEnabled(policies))) {
+        if ((element.getDefaultServant() != null) && (!isDefaultServantEnabled(element, policies))) {
             String msg = MessageFormat.format(POASupport.getString("MSG_Confirm_Delete_DefaultServant"), new Object[] {name, value});
             NotifyDescriptor desc = new NotifyDescriptor.Confirmation(msg, NotifyDescriptor.OK_CANCEL_OPTION);
             if (NotifyDescriptor.CANCEL_OPTION.equals (TopManager.getDefault().notify(desc)))
                 return false;
         }
-        if ((element.getServants().size() > 0) && (checkDisabledServantActivation(policies).equals(POASettings.ALL_SERVANTS))) {
+        if ((element.getServants().size() > 0) && (checkDisabledServantActivation(element, policies).equals(POASettings.ALL_SERVANTS))) {
             String msg = MessageFormat.format(POASupport.getString("MSG_Confirm_Delete_Servants"), new Object[] {name, value});
             NotifyDescriptor desc = new NotifyDescriptor.Confirmation(msg, NotifyDescriptor.OK_CANCEL_OPTION);
             if (NotifyDescriptor.CANCEL_OPTION.equals (TopManager.getDefault().notify(desc)))
@@ -247,12 +253,12 @@ public class POAChecker {
         return true;
     }
     
-    private static boolean addRequiredPolicyValue (Properties newPolicyValues, Properties oldPolicyValues, String name, String value) {
-        if (!checkConflict(newPolicyValues, name, value))
+    private static boolean addRequiredPolicyValue (POASettings settings, Properties newPolicyValues, Properties oldPolicyValues, String name, String value) {
+        if (!checkConflict(settings, newPolicyValues, name, value))
             return false;
         newPolicyValues.setProperty(name, value);
         oldPolicyValues.remove(name);
-        POAPolicyValueDescriptor _ppvd = POASupport.getPOASettings().getPolicyByName(name).getValueByName(value);
+        POAPolicyValueDescriptor _ppvd = settings.getPolicyByName(name).getValueByName(value);
         if (_ppvd == null)
             return true;
         ListIterator requirements = _ppvd.getRequiredPolicies().listIterator();
@@ -260,31 +266,31 @@ public class POAChecker {
             POAPolicySimpleDescriptor requirement = (POAPolicySimpleDescriptor)requirements.next();
             String reqName = requirement.getName();
             String reqValue = requirement.getValue();
-            if (!addRequiredPolicyValue( newPolicyValues, oldPolicyValues, reqName, reqValue))
+            if (!addRequiredPolicyValue(settings, newPolicyValues, oldPolicyValues, reqName, reqValue))
                 return false;
         }
         return true;
     }
     
-    private static void findConflictPolicyValues(Properties newPolicyValues, Properties oldPolicyValues, Properties conflictPolicyValues) {
+    private static void findConflictPolicyValues(POASettings settings, Properties newPolicyValues, Properties oldPolicyValues, Properties conflictPolicyValues) {
         for (Enumeration e = oldPolicyValues.propertyNames(); e.hasMoreElements();) {
             String name = (String)e.nextElement();
             String value = oldPolicyValues.getProperty(name);
-            if (!checkConflict(newPolicyValues, name, value)) {
+            if (!checkConflict(settings, newPolicyValues, name, value)) {
                 oldPolicyValues.remove(name);
                 conflictPolicyValues.setProperty(name, value);
             }
         }
     }
     
-    private static boolean checkConflict(Properties newPolicyValues, String name, String value) {
+    private static boolean checkConflict(POASettings settings, Properties newPolicyValues, String name, String value) {
         String check_value = newPolicyValues.getProperty(name);
         if (check_value != null)
             if (check_value.equals(value))
                 return true;
             else
                 return false;
-        POAPolicyValueDescriptor _ppvd = POASupport.getPOASettings().getPolicyByName(name).getValueByName(value);
+        POAPolicyValueDescriptor _ppvd = settings.getPolicyByName(name).getValueByName(value);
         if (_ppvd != null) {
             ListIterator requirements = _ppvd.getRequiredPolicies().listIterator();
             while (requirements.hasNext()) {
@@ -308,7 +314,7 @@ public class POAChecker {
         for (Enumeration e = newPolicyValues.propertyNames(); e.hasMoreElements();) {
             String n = (String)e.nextElement();
             String v = newPolicyValues.getProperty(n);
-            POAPolicyValueDescriptor _oppvd = POASupport.getPOASettings().getPolicyByName(n).getValueByName(v);
+            POAPolicyValueDescriptor _oppvd = settings.getPolicyByName(n).getValueByName(v);
             if (_oppvd == null)
                 continue;
             ListIterator otherRequirements = _oppvd.getRequiredPolicies().listIterator();
@@ -323,8 +329,14 @@ public class POAChecker {
         return true;
     }
     
-    public static String checkDisabledServantActivation(Properties policies) {
-        ListIterator policyList = POASupport.getPOASettings().getPolicies().listIterator();
+    public static String checkDisabledServantActivation(POAElement element, Properties policies) {
+        POASettings settings;
+        String _tag = element.getRootPOA().getORBTag();
+        if (_tag != null)
+            settings = POASupport.getCORBASettings().getSettingByTag(_tag).getPOASettings();
+        else
+            settings = POASupport.getPOASettings();
+        ListIterator policyList = settings.getPolicies().listIterator();
         String alreadyDisabled = null;
         while (policyList.hasNext()) {
             POAPolicyDescriptor policy = (POAPolicyDescriptor)policyList.next();
@@ -355,16 +367,22 @@ public class POAChecker {
         return (alreadyDisabled != null) ? alreadyDisabled : "" ; // NOI18N
     }
     
-    public static boolean isServantManagerEnabled(Properties policies) {
-        return isEnabled(policies, POASettings.SERVANT_MANAGER);
+    public static boolean isServantManagerEnabled(POAElement element, Properties policies) {
+        return isEnabled(element, policies, POASettings.SERVANT_MANAGER);
     }
     
-    public static boolean isDefaultServantEnabled(Properties policies) {
-        return isEnabled(policies, POASettings.DEFAULT_SERVANT);
+    public static boolean isDefaultServantEnabled(POAElement element, Properties policies) {
+        return isEnabled(element, policies, POASettings.DEFAULT_SERVANT);
     }
     
-    private static boolean isEnabled(Properties policies, String tag) {
-        ListIterator policyList = POASupport.getPOASettings().getPolicies().listIterator();
+    private static boolean isEnabled(POAElement element, Properties policies, String tag) {
+        POASettings settings;
+        String _tag = element.getRootPOA().getORBTag();
+        if (_tag != null)
+            settings = POASupport.getCORBASettings().getSettingByTag(_tag).getPOASettings();
+        else
+            settings = POASupport.getPOASettings();
+        ListIterator policyList = settings.getPolicies().listIterator();
         while (policyList.hasNext()) {
             POAPolicyDescriptor policy = (POAPolicyDescriptor)policyList.next();
             String name = policy.getName();

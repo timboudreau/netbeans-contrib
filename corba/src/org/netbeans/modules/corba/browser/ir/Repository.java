@@ -27,10 +27,12 @@ import java.io.*;
 public class Repository implements Serializable {
 
     String name;
-    org.omg.CORBA.Container repository;
+    transient private org.omg.CORBA.Container repository;
     String url;
     String ior;
     transient boolean failed;
+
+    static final long serialVersionUID=9175839955806475950L;
 
     public Repository (String _name, org.omg.CORBA.Container repo, String _url, String _ior) {
         name = _name;

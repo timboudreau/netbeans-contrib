@@ -20,6 +20,7 @@ import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.util.Vector;
+import java.util.HashMap;
 
 import org.openide.*;
 import org.openide.nodes.*;
@@ -58,14 +59,15 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
 
 
     private CORBASupportSettings css;
+
+    private static HashMap localNameServices;
     
     static {
         singletonInstance = null;
+	localNameServices = new HashMap ();
     }
     
     class CosNamingCookieImpl implements CosNamingCookie {
-        
-        private org.netbeans.modules.corba.browser.ns.wrapper.AbstractWrapper wrapper;
 	
 	public void performInteractive () {
             final StartPanel panel = new StartPanel ();
@@ -89,53 +91,58 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
 	
 	public void start (String name, String __kind, short port) {
             try {
-                //if (this.wrapper == null) {
-		try {
-		    // Is it IBM JDK
-		    Class.forName ("com.ibm.CosNaming.TransientNameServer");
-		    //System.out.println ("found com.ibm.CosNaming.TransientNameServer");
-		    this.wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.IBMWrapper();
-		    this.wrapper.start (port);
-		} catch (ClassNotFoundException cnfe) {
-		    try {
-			// Is it Sun 1.2 JDK, Apple JDK, Blackdown JDK
-			Class.forName ("com.sun.CosNaming.TransientNameServer");
-			//System.out.println ("found com.sun.CosNaming.TransientNameServer");
-			this.wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.SunWrapper();
-			this.wrapper.start(port);
-		    } catch (ClassNotFoundException cnfe2) {
-			try {
-			    // Is it Sun 1.3 JDK
-			    Class.forName ("com.sun.corba.se.internal.CosNaming.TransientNameServer");
-			    //System.out.println ("found com.sun.corba.se.internal.CosNaming.TransientNameServer");
-			    this.wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.Sun13Wrapper();
-			    this.wrapper.start(port);
-			} catch (ClassNotFoundException cnfe3) {
-			    TopManager.getDefault().notify ( new NotifyDescriptor.Message (NbBundle.getBundle(ContextNode.class).getString("TXT_ClassNotFound"),NotifyDescriptor.Message.ERROR_MESSAGE));
-			    //cnfe3.printStackTrace ();
-			    return;
-			}
-		    }
-		}
-		//}
-                
-                String ior = this.wrapper.getIOR();
-		//System.out.println ("ior: " + ior);
-                if (ior == null) {
-                    TopManager.getDefault().notify(new NotifyDescriptor.Message (java.text.MessageFormat.format (NbBundle.getBundle(ContextNode.class).getString("TXT_BadPort"),new java.lang.Object[]{new Short (port)}),NotifyDescriptor.Message.ERROR_MESSAGE));
+                org.netbeans.modules.corba.browser.ns.wrapper.AbstractWrapper wrapper;
+                wrapper =  (org.netbeans.modules.corba.browser.ns.wrapper.AbstractWrapper)localNameServices.get( new Short (port));
+		if (wrapper != null) {
+                    DialogDescriptor.Message dd = new DialogDescriptor.Message (NbBundle.getBundle(ContextNode.class).getString("TXT_AlreadyRunning"));
+                    TopManager.getDefault().notify(dd);
+                    if (dd.getValue() != DialogDescriptor.OK_OPTION) {
+                        return;
+                    }
                 }
-		else {
-		    ContextNode.this.bind_new_context (name, __kind, "",ior);
-		}
+                else {
+                    try {
+                        // Is it IBM JDK
+                        Class.forName ("com.ibm.CosNaming.TransientNameServer");
+			//System.out.println ("found com.ibm.CosNaming.TransientNameServer");
+			wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.IBMWrapper();
+			wrapper.start (port);
+                    } catch (ClassNotFoundException cnfe) {
+                        try {
+                            // Is it Sun 1.2 JDK, Apple JDK, Blackdown JDK
+                            Class.forName ("com.sun.CosNaming.TransientNameServer");
+                            //System.out.println ("found com.sun.CosNaming.TransientNameServer");
+                            wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.SunWrapper();
+                            wrapper.start(port);
+			} catch (ClassNotFoundException cnfe2) {
+                            try {
+                                // Is it Sun 1.3 JDK
+				Class.forName ("com.sun.corba.se.internal.CosNaming.TransientNameServer");
+				//System.out.println ("found com.sun.corba.se.internal.CosNaming.TransientNameServer");
+				wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.Sun13Wrapper();
+				wrapper.start(port);
+                            } catch (ClassNotFoundException cnfe3) {
+                                TopManager.getDefault().notify ( new NotifyDescriptor.Message (NbBundle.getBundle(ContextNode.class).getString("TXT_ClassNotFound"),NotifyDescriptor.Message.ERROR_MESSAGE));
+				//cnfe3.printStackTrace ();
+				return;
+                            }
+			}
+                    }
+                    localNameServices.put (new Short (port), wrapper);
+                }
+            	String ior = wrapper.getIOR();
+                if (ior == null) {
+                    //Error while startinf NS
+                    TopManager.getDefault().notify(new NotifyDescriptor.Message (java.text.MessageFormat.format (NbBundle.getBundle(ContextNode.class).getString("TXT_BadPort"),new java.lang.Object[]{new Short (port)}),NotifyDescriptor.Message.ERROR_MESSAGE));
+                    return;
+		}		
+		ContextNode.this.bind_new_context (name, __kind, "",ior);
             }catch (Exception se) {
                 TopManager.getDefault().notify (new NotifyDescriptor.Message (se.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
-		//se.printStackTrace ();
             }
 	}
 	
 	public void stop () {
-            if (wrapper != null)
-                wrapper.stop();
         }
 	
     }

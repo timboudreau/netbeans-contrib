@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
 
   <idl-compiler-settings>
 
-    <error-expression value='^([^ ]+)\\(([0-9]+)\\): (.*)'/>
+    <error-expression value='^([^ ]+)\(([0-9]+)\): (.*)'/>
     
   </idl-compiler-settings>
 

@@ -168,9 +168,11 @@ public abstract class POAMemberElementNode extends AbstractNode implements java.
     }
     
     public void propertyChange(java.beans.PropertyChangeEvent p1) {
+        if (p1.getSource() == null)
+            return;
         if (p1.getSource() != getPOAMemberElement())
             return;
-        if (p1.getPropertyName().equals(POAMemberElement.PROP_VAR_NAME)) {
+        if (POAMemberElement.PROP_VAR_NAME.equals(p1.getPropertyName())) {
             super.setName((String)p1.getNewValue());
             return;
         }

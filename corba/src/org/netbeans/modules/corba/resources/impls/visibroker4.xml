@@ -36,9 +36,9 @@ Microsystems, Inc. All Rights Reserved.
       <prepare-code><![CDATA[org.omg.CORBA.Any _bsPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
         com.inprise.vbroker.PortableServerExt.BindSupportPolicyValueHelper.insert(_bsPolicyAny__$INDEX$__, com.inprise.vbroker.PortableServerExt.BindSupportPolicyValue.__POLICY_VALUE__);]]>
       </prepare-code>
-      <prepare-code-pattern value='org.omg.CORBA.Any _bsPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* com.inprise.vbroker.PortableServerExt.BindSupportPolicyValueHelper.insert\(_bsPolicyAny[0-9]+, com.inprise.vbroker.PortableServerExt.BindSupportPolicyValue.([:javastart:][:javapart:]*)\);\n'/>
+      <prepare-code-pattern value='org.omg.CORBA.Any _bsPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\s*\(\);\n\s* com.inprise.vbroker.PortableServerExt.BindSupportPolicyValueHelper.insert\s*\(_bsPolicyAny[0-9]+, com.inprise.vbroker.PortableServerExt.BindSupportPolicyValue.([:javastart:][:javapart:]*)\);\n'/>
       <create-code><![CDATA[__ORB_VAR_NAME__.create_policy(com.inprise.vbroker.PortableServerExt.BIND_SUPPORT_POLICY_TYPE.value, _bsPolicyAny__$INDEX$__)]]></create-code>
-      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\(com.inprise.vbroker.PortableServerExt.BIND_SUPPORT_POLICY_TYPE.value, _bsPolicyAny[0-9]+\),?'/>
+      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\s*\(com.inprise.vbroker.PortableServerExt.BIND_SUPPORT_POLICY_TYPE.value, _bsPolicyAny[0-9]+\),?'/>
     </poa-policy>
   </poa-settings>
 

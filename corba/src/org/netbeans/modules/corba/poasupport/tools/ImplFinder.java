@@ -221,14 +221,14 @@ public class ImplFinder implements PropertyChangeListener {
     }
     
     public void propertyChange(java.beans.PropertyChangeEvent e) {
-        if (e.getPropertyName().equals("_M_orb_tag")) {
+        if ("_M_orb_tag".equals(e.getPropertyName())) {
             os.removePropertyChangeListener(weak2);
             os = POASupport.getCORBASettings().getActiveSetting();
             os.addPropertyChangeListener(weak2);
             resetSearchMode();
             return;
         }
-        if (e.getPropertyName().equals("_M_find_method")) {
+        if ("_M_find_method".equals(e.getPropertyName())) {
             resetSearchMode();
         }
     }

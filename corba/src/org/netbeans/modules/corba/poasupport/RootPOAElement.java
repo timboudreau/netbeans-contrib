@@ -304,8 +304,10 @@ public class RootPOAElement extends POAElement implements java.beans.PropertyCha
     }
     
     public void propertyChange(java.beans.PropertyChangeEvent p1) {
+        if (p1.getSource() == null)
+            return;
         if (p1.getSource() instanceof POAElement) {
-            if (p1.getPropertyName().equals(POAElement.PROP_VAR_NAME))
+            if (POAElement.PROP_VAR_NAME.equals(p1.getPropertyName()))
                 if (p1.getSource().equals(usedVarNames.get(p1.getOldValue()))) {
                     usedVarNames.remove(p1.getOldValue());
                     usedVarNames.put(p1.getNewValue(), p1.getSource());
@@ -314,13 +316,13 @@ public class RootPOAElement extends POAElement implements java.beans.PropertyCha
             return;
         }
         if (p1.getSource() instanceof POAMemberElement) {
-            if (p1.getPropertyName().equals(POAMemberElement.PROP_VAR_NAME)) {
+            if (POAMemberElement.PROP_VAR_NAME.equals(p1.getPropertyName())) {
                 if (p1.getSource().equals(usedVarNames.get(p1.getOldValue()))) {
                     usedVarNames.remove(p1.getOldValue());
                     usedVarNames.put(p1.getNewValue(), p1.getSource());
                 }
             }
-            else if (p1.getPropertyName().equals(ServantElement.PROP_ID_VAR_NAME)) {
+            else if (ServantElement.PROP_ID_VAR_NAME.equals(p1.getPropertyName())) {
                 if (p1.getSource().equals(usedVarNames.get(p1.getOldValue()))) {
                     usedVarNames.remove(p1.getOldValue());
                     usedVarNames.put(p1.getNewValue(), p1.getSource());

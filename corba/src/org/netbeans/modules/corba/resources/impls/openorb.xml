@@ -37,7 +37,7 @@ Microsystems, Inc. All Rights Reserved.
     <tie-param value=''/>
     <dir-param value='-d'/>
     <package-param value='-package'/>
-    <compiler value='java -classpath {classpath} org.openorb.compiler.IdlCompiler {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+    <compiler value='java -classpath {classpath} org.netbeans.modules.corba.idl.compiler.openorb1x.Compiler {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
     <package-delimiter value='.'/>
     <error-expression value='^file:([^ ]+):([0-9]+): (.*)'/>
     <file-position value='1'/>

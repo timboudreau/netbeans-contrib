@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.corba.poasupport;
 
+import org.netbeans.modules.corba.settings.POASettings;
+
 /*
  * @author Dusan Balek
  */
@@ -25,8 +27,14 @@ public class ServantManagerElement extends POAMemberElement {
     
     public String getDefaultVarName() {
         int counter = 1;
-        while (!canUseAsNewVarName(POASupport.getPOASettings().getDefaultServantManagerVarName() + String.valueOf(counter)))
+        POASettings settings;
+        String _tag = getParentPOA().getRootPOA().getORBTag();
+        if (_tag != null)
+            settings = POASupport.getCORBASettings().getSettingByTag(_tag).getPOASettings();
+        else
+            settings = POASupport.getPOASettings();
+        while (!canUseAsNewVarName(settings.getDefaultServantManagerVarName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getPOASettings().getDefaultServantManagerVarName() + String.valueOf(counter);
+        return settings.getDefaultServantManagerVarName() + String.valueOf(counter);
     }
 }

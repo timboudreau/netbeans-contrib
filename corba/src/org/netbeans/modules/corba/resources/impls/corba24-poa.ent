@@ -16,7 +16,7 @@
     <value name='MAIN_THREAD_MODEL'>
     </value>
     <create-code><![CDATA[__ROOT_POA_VAR_NAME__.create_thread_policy(ThreadPolicyValue.__POLICY_VALUE__)]]></create-code>
-    <create-code-pattern value='[:javastart:][:javapart:]*.create_thread_policy\(ThreadPolicyValue.([:javastart:][:javapart:]*)\),?'/>
+    <create-code-pattern value='[:javastart:][:javapart:]*.create_thread_policy\s*\(ThreadPolicyValue.([:javastart:][:javapart:]*)\),?'/>
   </poa-policy>
 
 <!--

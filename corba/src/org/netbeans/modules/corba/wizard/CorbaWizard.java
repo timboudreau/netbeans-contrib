@@ -20,6 +20,9 @@ import java.io.PrintWriter;
 import java.io.FileReader;
 import java.io.OutputStreamWriter;
 import java.io.InputStreamReader;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.text.DateFormat;
 import java.awt.*;
 import java.awt.event.*;
@@ -30,14 +33,15 @@ import java.util.Vector;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.HashMap;
-import java.text.MessageFormat;
 import javax.swing.event.*;
+import org.openide.actions.AbstractCompileAction;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeOp;
 import org.openide.filesystems.FileLock;
 import org.openide.cookies.OpenCookie;
 import org.openide.cookies.SaveCookie;
+import org.openide.cookies.CompilerCookie;
 import org.openide.src.ClassElement;
 import org.openide.src.Type;
 import org.openide.src.Identifier;
@@ -48,10 +52,9 @@ import org.openide.util.RequestProcessor;
 import org.openide.util.Task;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.enum.QueueEnumeration;
 import org.netbeans.modules.corba.wizard.panels.*;
 import org.netbeans.modules.projects.NewProjectAction;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import org.netbeans.modules.corba.IDLDataObject;
 import org.netbeans.modules.corba.CORBASupport;
 import org.netbeans.modules.corba.IDLNodeCookie;
@@ -155,6 +158,12 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                     activeSettings.setSkeletons (ORBSettingsBundle.TIE);
                 else
                     activeSettings.setSkeletons (ORBSettingsBundle.INHER);
+                
+                // Compile IDL file
+                QueueEnumeration q = new QueueEnumeration ();
+                Object cookie = idlDataObject.getCookie (CompilerCookie.Compile.class);
+                if (cookie != null) q.put (cookie);
+                AbstractCompileAction.compile (q, "");
                 
                 // Create Impl files
                 if ((mode & CorbaWizardData.IMPL) == CorbaWizardData.IMPL) {
@@ -612,7 +621,7 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
      *  @param PropertyChangeListener event
      */
     public void propertyChange(final PropertyChangeEvent event) {
-        if (event.getPropertyName().equals(DialogDescriptor.PROP_VALUE)){
+        if (DialogDescriptor.PROP_VALUE.equals(event.getPropertyName())){
             Object option = event.getNewValue();
             if (option == WizardDescriptor.FINISH_OPTION) {
                 WizardGenerator wg = this.new WizardGenerator ();

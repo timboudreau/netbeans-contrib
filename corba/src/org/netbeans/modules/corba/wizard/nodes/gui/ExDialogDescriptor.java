@@ -69,10 +69,10 @@ public class ExDialogDescriptor extends DialogDescriptor implements PropertyChan
     }
 
     public void propertyChange(final java.beans.PropertyChangeEvent event) {
-        if (event.getPropertyName().equals("Ok")){ // No I18N
+        if ("Ok".equals(event.getPropertyName())){ // No I18N
             okButton.setEnabled(((Boolean)event.getNewValue()).booleanValue());
         }
-        else if (event.getPropertyName().equals("Cancel")){  //No I18N
+        else if ("Cancel".equals(event.getPropertyName())){  //No I18N
             cancelButton.setEnabled(((Boolean)event.getNewValue()).booleanValue());
         }
     }

@@ -20,6 +20,7 @@ import java.io.*;
 import org.openide.src.ClassElement;
 import org.openide.cookies.OpenCookie;
 import org.netbeans.modules.corba.poasupport.tools.POAChecker;
+import org.netbeans.modules.corba.settings.POASettings;
 
 /*
  * @author Dusan Balek
@@ -73,9 +74,15 @@ public class POAElement {
     
     public String getDefaultVarName() {
         int counter = 1;
-        while (!canUseAsNewVarName(POASupport.getPOASettings().getDefaultPOAVarName() + String.valueOf(counter)))
+        POASettings settings;
+        String _tag = getParentPOA().getRootPOA().getORBTag();
+        if (_tag != null)
+            settings = POASupport.getCORBASettings().getSettingByTag(_tag).getPOASettings();
+        else
+            settings = POASupport.getPOASettings();
+        while (!canUseAsNewVarName(settings.getDefaultPOAVarName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getPOASettings().getDefaultPOAVarName() + String.valueOf(counter);
+        return settings.getDefaultPOAVarName() + String.valueOf(counter);
     }
     
     public boolean canUseAsPOAName(String name) {
@@ -86,9 +93,15 @@ public class POAElement {
         if (isRootPOA())
             return POASupport.getString("LBL_RootPOA_node");
         int counter = 1;
-        while (!canUseAsPOAName(POASupport.getPOASettings().getDefaultPOAName() + String.valueOf(counter)))
+        POASettings settings;
+        String _tag = getParentPOA().getRootPOA().getORBTag();
+        if (_tag != null)
+            settings = POASupport.getCORBASettings().getSettingByTag(_tag).getPOASettings();
+        else
+            settings = POASupport.getPOASettings();
+        while (!canUseAsPOAName(settings.getDefaultPOAName() + String.valueOf(counter)))
             counter++;
-        return POASupport.getPOASettings().getDefaultPOAName() + String.valueOf(counter);
+        return settings.getDefaultPOAName() + String.valueOf(counter);
     }
     
     public ClassElement getDeclaringClass() {
@@ -147,11 +160,11 @@ public class POAElement {
         if (!_policies.equals(policies)) {
             Properties oldPolicies = policies;
             policies = _policies;
-            if ((getServants().size() > 0) && (POAChecker.checkDisabledServantActivation(policies).equals(POASupport.getPOASettings().ALL_SERVANTS)))
+            if ((getServants().size() > 0) && (POAChecker.checkDisabledServantActivation(this, policies).equals(POASettings.ALL_SERVANTS)))
                 removeAllServants();
-            if ((getServantManager() != null) && (!POAChecker.isServantManagerEnabled(policies)))
+            if ((getServantManager() != null) && (!POAChecker.isServantManagerEnabled(this, policies)))
                 removeServantManager();
-            if ((getDefaultServant() != null) && (!POAChecker.isDefaultServantEnabled(policies)))
+            if ((getDefaultServant() != null) && (!POAChecker.isDefaultServantEnabled(this, policies)))
                 removeDefaultServant();
             firePropertyChange(new java.beans.PropertyChangeEvent(this, PROP_POLICIES, oldPolicies, policies));
         }

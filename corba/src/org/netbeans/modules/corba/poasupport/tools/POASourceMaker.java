@@ -690,7 +690,7 @@ public class POASourceMaker implements PropertyChangeListener {
     }
     
     public void propertyChange(java.beans.PropertyChangeEvent e) {
-        if (e.getPropertyName().equals("_M_orb_tag") && changeListener != null) { // NOI18N
+        if ("_M_orb_tag".equals(e.getPropertyName()) && changeListener != null) { // NOI18N
             if (orbTag == null) {
                 poaSettings = POASupport.getCORBASettings().getSettingByTag((String)e.getNewValue()).getPOASettings();
                 changeListener.stateChanged(new javax.swing.event.ChangeEvent(this));

@@ -26,7 +26,7 @@ Microsystems, Inc. All Rights Reserved.
     <package-param value='--package'/>
     <compiler value='java -classpath {classpath}{:}{library} org.netbeans.modules.corba.idl.compiler.j2ee.Compiler {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
     <package-delimiter value='.'/>
-    <error-expression value='^([^ ][^\n]+) \\(line ([0-9]+)\\): (.*)'/>
+    <error-expression value='^([^ \n]+) \(line ([0-9]+)\): (.*)'/>
     <file-position value='1'/>
     <line-position value='2'/>
     <column-position value='-1'/>

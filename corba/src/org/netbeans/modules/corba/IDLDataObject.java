@@ -982,7 +982,7 @@ public class IDLDataObject extends MultiDataObject
 		__params += __params_on_settings;
 	    if (__params_on_object != null)
 		__params += " " + __params_on_object;
-	    __params += " " + __file_name;
+	    __params += " \"" + __file_name + "\"";
 	    if (DEBUG)
 		System.out.println ("cpp params: " + __params);
 	    String[] __args = Utilities.parseParameters (__params);
@@ -1311,12 +1311,16 @@ public class IDLDataObject extends MultiDataObject
     protected FileObject handleMove (DataFolder __dfolder) throws IOException {
 	if (DEBUG)
 	    System.out.println ("IDLDataObject::handleMove (" + __dfolder + ");"); // NOI18N
+        String oldName = getName();
 	FileObject __result = super.handleMove (__dfolder);
 	//FileObject __pfile = this.getPrimaryFile ();
 	//System.out.println ("new pfile: " + __pfile); // NOI18N
 	//System.out.println ("__result: " + __result); // NOI18N
 	//__pfile.addFileChangeListener (new FileListener ());
 	__result.addFileChangeListener (new FileListener ());
+        String newName = __result.getName();
+        if (!oldName.equals(newName))
+            rename(newName);
 	return __result;
     }
 

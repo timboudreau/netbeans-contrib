@@ -95,7 +95,7 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
         typeNameComboBox.setSelectedItem(element.getTypeName());
         String ctor = element.getConstructor();
         if (ctor != null) {
-            int idx = ctor.lastIndexOf(POASupport.getPOASettings().DOT, ctor.indexOf(POASupport.getPOASettings().LBR));
+            int idx = ctor.lastIndexOf(POASettings.DOT, ctor.indexOf(POASettings.LBR));
             if (idx != -1)
                 ctor = ctor.substring(idx+1);
         }
@@ -312,7 +312,7 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
             }
             else {
                 if (newName != null) {
-                    int idx = newName.lastIndexOf(POASupport.getPOASettings().DOT);
+                    int idx = newName.lastIndexOf(POASettings.DOT);
                     if (idx != -1) {
                         element.setConstructor(newName.substring(0, idx+1) + newCtor);
                         return;
@@ -344,14 +344,14 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
             return;
         }
 /*
-            String tie = finder.findTIEForServant(ce.getSource().getPackage()+ POASupport.getPOASettings().DOT + ce.getName());
+            String tie = finder.findTIEForServant(ce.getSource().getPackage()+ POASettings.DOT + ce.getName());
             if (tie != null)
-                element.setConstructor(tie + POASupport.getPOASettings().LBR + POASupport.getPOASettings().NEW + ce.getSource().getPackage() + POASupport.getPOASettings().DOT + newCtor+ POASupport.getPOASettings().RBR);
+                element.setConstructor(tie + POASettings.LBR + POASettings.NEW + ce.getSource().getPackage() + POASettings.DOT + newCtor+ POASettings().RBR);
             else
  */
         String packageName = (String)typeNameComboBox.getSelectedItem();
         if (packageName != null) {
-            int idx = packageName.lastIndexOf(POASupport.getPOASettings().DOT);
+            int idx = packageName.lastIndexOf(POASettings.DOT);
             if (idx != -1) {
                 element.setConstructor(packageName.substring(0, idx+1) + newCtor);
                 return;
@@ -465,29 +465,29 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
         if (ce != null) {
             ConstructorElement[] ctors = ce.getConstructors();
             if (ctors.length == 0) {
-                constructorComboBox.addItem(ce.getName() + POASupport.getPOASettings().LBR + POASupport.getPOASettings().RBR);
+                constructorComboBox.addItem(ce.getName() + POASettings.LBR + POASettings.RBR);
                 return;
             }
             for (int i = 0; i < ctors.length; i++) {
                 StringBuffer buf = new StringBuffer();
-                buf.append(ctors[i].getName() + POASupport.getPOASettings().LBR);
+                buf.append(ctors[i].getName() + POASettings.LBR);
                 MethodParameter[] params = ctors[i].getParameters();
                 if (params.length > 0)
                     buf.append(params[0].getType().toString());
                 for (int j = 1; j < params.length; j++) {
-                    buf.append(POASupport.getPOASettings().COMMA_SEPARATOR + params[j].getType().toString());
+                    buf.append(POASettings.COMMA_SEPARATOR + params[j].getType().toString());
                 }
-                buf.append(POASupport.getPOASettings().RBR);
+                buf.append(POASettings.RBR);
                 constructorComboBox.addItem(buf.toString());
             }
         }
         else {
             String type = (String)typeNameComboBox.getSelectedItem();
-            int idx = type.lastIndexOf(POASupport.getPOASettings().DOT);
+            int idx = type.lastIndexOf(POASettings.DOT);
             if (idx != -1)
                 type = type.substring(idx+1);
             if (!type.equals("")) // NOI18N
-                constructorComboBox.addItem(type + POASupport.getPOASettings().LBR + POASupport.getPOASettings().RBR);
+                constructorComboBox.addItem(type + POASettings.LBR + POASettings.RBR);
         }
         
     }

@@ -42,7 +42,7 @@ public class IROperationDefNode extends IRLeafNode {
                 fill = fill + SPACE;
             code = code + fill;
             if (_operation.mode() == OperationMode.OP_ONEWAY)
-                code = code + fill + "oneway ";
+                code = code + "oneway ";
             code = code + Util.idlType2TypeString(_operation.result_def(),((IRContainerNode)getParentNode()).getOwner())+" ";
             code = code + _operation.name() + " (";
             ParameterDescription[] params = _operation.params();
