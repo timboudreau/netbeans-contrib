@@ -67,7 +67,7 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
      * @return The command or <code>null</code> when the command of the given
      * class type does not exist.
      */
-    public Command createCommand(Class cmdClass) {
+    public synchronized Command createCommand(Class cmdClass) {
         CommandSupport support = (CommandSupport) commandSupportsByClasses.get(cmdClass);
         if (support != null) {
             return support.createCommand();
@@ -81,7 +81,7 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
      * name does not exist.
      *
      */
-    public Command createCommand(String cmdName) {
+    public synchronized Command createCommand(String cmdName) {
         CommandSupport support = (CommandSupport) commandSupportsByNames.get(cmdName);
         if (support != null) {
             return support.createCommand();
@@ -93,24 +93,29 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
     /**
      * Get the list of VCS command names.
      */
-    public String[] getCommandNames() {
+    public synchronized String[] getCommandNames() {
         return commandNames;
     }
     
-    public CommandsTree getCommands() {
+    public synchronized CommandsTree getCommands() {
         return commands;
     }
     
     public void setCommands(CommandsTree commands) {
-        this.commands = commands;
-        commandSupportsByNames = new HashMap();
-        commandSupportsByClasses = new HashMap();
-        fillCommands(commands);
-        commandNames = (String[]) commandSupportsByNames.keySet().toArray(new String[0]);
+        Map commandSupportsByNames = new HashMap();
+        Map commandSupportsByClasses = new HashMap();
+        fillCommands(commands, commandSupportsByNames, commandSupportsByClasses);
+        synchronized (this) {
+            this.commands = commands;
+            this.commandNames = (String[]) commandSupportsByNames.keySet().toArray(new String[0]);
+            this.commandSupportsByNames = commandSupportsByNames;
+            this.commandSupportsByClasses = commandSupportsByClasses;
+        }
         changeSupport.firePropertyChange(CommandsTree.Provider.PROP_COMMANDS, null, commands);
     }
     
-    private void fillCommands(CommandsTree commands) {
+    private void fillCommands(CommandsTree commands, Map commandSupportsByNames,
+                              Map commandSupportsByClasses) {
         CommandsTree[] subCommands = commands.children();
         for (int i = 0; i < subCommands.length; i++) {
             CommandSupport support = subCommands[i].getCommandSupport();
@@ -121,7 +126,9 @@ public class DefaultVcsCommandsProvider extends VcsCommandsProvider implements C
                     commandSupportsByClasses.put(commandClass, support);
                 }
             }
-            if (subCommands[i].hasChildren()) fillCommands(subCommands[i]);
+            if (subCommands[i].hasChildren()) fillCommands(subCommands[i],
+                                                           commandSupportsByNames,
+                                                           commandSupportsByClasses);
         }
     }
     
