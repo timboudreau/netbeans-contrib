@@ -1729,6 +1729,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 TopManager.getDefault ().notifyException (rese);
             }
         }
+        if (versioningFileSystemShowGarbageFiles == null) {
+            versioningFileSystemShowGarbageFiles = "";
+        }
         //cache.setLocalFilesAdd (localFilesOn);
         if (null == processUnimportantFiles) processUnimportantFiles = Boolean.FALSE;
         last_rootFile = new File(getFSRoot());
