@@ -147,12 +147,12 @@ public class IDLEditorSettingsInitializer extends Settings.AbstractInitializer {
                         return new Coloring(null, null, null);
 
                     case IDLTokenContext.LINE_COMMENT_ID:
-                        return new Coloring(italicFont, Coloring.FONT_MODE_APPLY_STYLE,
-                                                  Color.gray, null);
+                        // #48502 - changed comment coloring to have non-italic font style
+                        return new Coloring(null, Color.gray, null);
 
                     case IDLTokenContext.BLOCK_COMMENT_ID:
-                        return new Coloring(italicFont, Coloring.FONT_MODE_APPLY_STYLE,
-                                                  Color.gray, null);
+                        // #48502 - changed comment coloring to have non-italic font style
+                        return new Coloring(null, Color.gray, null);
 
                     case IDLTokenContext.CHAR_LITERAL_ID:
                         return new Coloring(null, Color.green.darker(), null);
