@@ -87,7 +87,11 @@ class RuntimeCommandNode extends AbstractNode {
                 });
         set.put(new PropertySupport.ReadOnly("files", String.class, g("CTL_Files"), "") {
                         public Object getValue() {
-                            return VcsUtilities.array2stringNl((String[]) executor.getFiles().toArray(new String[0]));
+                            String[] files = (String[]) executor.getFiles().toArray(new String[0]);
+                            for (int i = 0; i < files.length; i++) {
+                                if (files[i].length() == 0) files[i] = ".";
+                            }
+                            return VcsUtilities.array2stringNl(files);
                         }
                 });
         set.put(new PropertySupport.ReadOnly("status", String.class, g("CTL_Status"), "") {
