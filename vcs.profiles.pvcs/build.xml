@@ -69,12 +69,8 @@ Microsystems, Inc. All Rights Reserved.
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
-	 excludes="org/netbeans/modules/vcs/profiles/pvcs/mf-layer_XX.xml"
+	 excludes="org/netbeans/modules/vcs/profiles/pvcs/mf-layer_XX.xml,org/netbeans/modules/vcs/profiles/pvcs/config/pvcsLoc_XX.xml"
          compress="false">
-      <fileset dir="src/" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt">
-        <include name="**/*"/>
-	<exclude name="org/netbeans/modules/vcs/profiles/pvcs/config/*_XX.*"/>
-      </fileset>
     </jar>
   </target>
 

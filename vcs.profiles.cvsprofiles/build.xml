@@ -80,12 +80,8 @@ Microsystems, Inc. All Rights Reserved.
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
-	 excludes="src/org/netbeans/modules/vcs/profiles/cvsprofiles/mf-layer_XX.xml" 
+	 excludes="org/netbeans/modules/vcs/profiles/cvsprofiles/mf-layer_XX.xml" 
          compress="false">
-      <fileset dir="src/" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt">
-        <include name="**/*"/>
-	<exclude name="src/org/netbeans/modules/vcs/profiles/cvsprofiles/**/*_XX.*"/>
-      </fileset>
     </jar>
   </target>
 
