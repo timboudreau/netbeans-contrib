@@ -97,12 +97,6 @@ class ClassDataNode extends DataNode implements Runnable {
 
   private void initialize () {
     setIconBase(initialIconBase());
-    // set right source element to our children
-    SourceCookie sc =
-      (SourceCookie)getDataObject().getCookie(SourceCookie.class);
-    if (sc != null) {
-      ((SourceChildren)getChildren()).setElement(sc.getSource());
-    }
     // icons...
     RequestProcessor.postRequest(this, 200);
   }
@@ -231,6 +225,13 @@ class ClassDataNode extends DataNode implements Runnable {
   * (initialization tasks in separate thread)
   */
   public void run () {
+    // set right source element to our children
+    SourceCookie sc =
+      (SourceCookie)getDataObject().getCookie(SourceCookie.class);
+    if (sc != null) {
+      ((SourceChildren)getChildren()).setElement(sc.getSource());
+    }
+
     resolveIcons();
   }
 
@@ -263,6 +264,8 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  23   Gandalf   1.22        8/9/99   Jaroslav Tulach Delays initialization of
+ *       children => solves one deadlock.
  *  22   Gandalf   1.21        6/28/99  Petr Hrebejk    Multiple node factories 
  *       added
  *  21   Gandalf   1.20        6/9/99   Ian Formanek    ---- Package Change To 
