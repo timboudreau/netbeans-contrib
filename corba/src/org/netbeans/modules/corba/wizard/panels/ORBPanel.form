@@ -65,6 +65,26 @@
             </Constraint>
           </Constraints>
         </Component>
+        <Component class="javax.swing.JCheckBox" name="tie">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+              <ResourceString bundle="org/netbeans/modules/corba/wizard/panels/Bundle.properties" key="TIP_TieImpl"/>
+            </Property>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+              <ResourceString bundle="org/netbeans/modules/corba/wizard/panels/Bundle.properties" key="TXT_TieImpl"/>
+            </Property>
+          </Properties>
+
+          <Events>
+            <EventHandler event="itemStateChanged" handler="tieChanged"/>
+          </Events>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout" value="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout$FlowConstraintsDescription"/>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+              <GridBagConstraints anchor="17" fill="2" gridHeight="1" gridWidth="0" gridX="-1" gridY="-1" insetsBottom="8" insetsLeft="8" insetsRight="8" insetsTop="0" ipadX="0" ipadY="0" weightX="0.0" weightY="0.0"/>
+            </Constraint>
+          </Constraints>
+        </Component>
       </SubComponents>
     </Container>
     <Component class="javax.swing.JLabel" name="jLabel3">

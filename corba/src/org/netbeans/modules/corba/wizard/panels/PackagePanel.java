@@ -48,6 +48,8 @@ public class PackagePanel extends AbstractWizardPanel implements PropertyChangeL
     public PackagePanel() {
         initComponents ();
         BeanTreeView tv = new BeanTreeView();
+        tv.setPopupAllowed (false);
+        tv.setDefaultActionAllowed (false);
         this.tree.setMinimumSize ( new Dimension (400,250));
         this.tree.setPreferredSize ( new Dimension (400,250));
         this.tree.setBorder (new EtchedBorder());
