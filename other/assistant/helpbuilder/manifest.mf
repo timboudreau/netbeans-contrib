@@ -6,4 +6,4 @@ OpenIDE-Module-Layer: org/netbeans/modules/helpbuilder/mf_layer.xml
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 1.24
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/helpbuilder/Bundle.properties
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.javahelp/1 > 1.0
-Class-Path: autoload/ext/jh-2.0.jar 
+Class-Path: autoload/ext/jsearch.jar  

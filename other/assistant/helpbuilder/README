@@ -1,0 +1,6 @@
+Hi,
+
+this is simple module for help creation. It needs to have jsearch.jar inside <netbeans_install>/modules/autoload/ext/ to work properly. Please download javahelp bundle from http://java.sun.com/products/javahelp/download_binary.html#download . Unpack it and copy jsearch.jar from jh2.0/javahelp/lib .
+
+Enjoy!
+
