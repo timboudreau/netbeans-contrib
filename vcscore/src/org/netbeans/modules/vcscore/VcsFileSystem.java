@@ -1598,16 +1598,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 public void run() {
                     //VersioningExplorer.getRevisionExplorer().open();
                     if (versioningSystem == null) {
-                        versioningSystem = new VcsVersioningSystem(VcsFileSystem.this);//new DefaultVersioningSystem(new VcsFileSystemInfo());
-                        assignVersioningProperties((VcsVersioningSystem)versioningSystem);
-                        if (cache != null) {
-                            org.netbeans.modules.vcscore.cache.FileSystemCache fsCache =
-                                org.netbeans.modules.vcscore.cache.CacheHandler.getInstance().getCache(cache);
-                            if (fsCache != null) {
-                                fsCache.addCacheHandlerListener((CacheHandlerListener) WeakListener.create(CacheHandlerListener.class, (CacheHandlerListener) versioningSystem, fsCache));
-                            }
-                        }
-                        VersioningRepository.getRepository().addVersioningFileSystem(versioningSystem);
+                        createVersioningFileSystem();
                     }
                 }
             });
@@ -1629,26 +1620,43 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             org.openide.util.RequestProcessor.postRequest(new Runnable() {
                 public void run() {
                     if (versioningSystem == null) return ;
-                    VersioningRepository.getRepository().removeVersioningFileSystem(versioningSystem);
-                    versioningSystem = null;
-                    try {
-                        VcsFileSystem.this.runAtomicAction(new FileSystem.AtomicAction() {
-                            public void run() {
-                                if (versioningFolderListeners != null) {
-                                    for (Iterator it = versioningFolderListeners.keySet().iterator(); it.hasNext(); ) {
-                                        FileObject fo = (FileObject) it.next();
-                                        FileChangeListener changeL = (FileChangeListener) versioningFolderListeners.get(fo);
-                                        fo.removeFileChangeListener(changeL);
-                                    }
-                                    versioningFolderListeners = null;
-                                }
-                            }
-                        });
-                    } catch (IOException exc) {
-                        ErrorManager.getDefault().notify(exc);
+                    removeVersioningFileSystem();
+                }
+            });
+        }
+    }
+    
+    protected final void createVersioningFileSystem() {
+        this.versioningSystem = new VcsVersioningSystem(VcsFileSystem.this);//new DefaultVersioningSystem(new VcsFileSystemInfo());
+        assignVersioningProperties((VcsVersioningSystem)versioningSystem);
+        if (cache != null) {
+            org.netbeans.modules.vcscore.cache.FileSystemCache fsCache =
+                org.netbeans.modules.vcscore.cache.CacheHandler.getInstance().getCache(cache);
+            if (fsCache != null) {
+                fsCache.addCacheHandlerListener((CacheHandlerListener) WeakListener.create(CacheHandlerListener.class, (CacheHandlerListener) versioningSystem, fsCache));
+            }
+        }
+        VersioningRepository.getRepository().addVersioningFileSystem(versioningSystem);
+    }
+    
+    protected final void removeVersioningFileSystem() {
+        VersioningRepository.getRepository().removeVersioningFileSystem(versioningSystem);
+        versioningSystem = null;
+        try {
+            VcsFileSystem.this.runAtomicAction(new FileSystem.AtomicAction() {
+                public void run() {
+                    if (versioningFolderListeners != null) {
+                        for (Iterator it = versioningFolderListeners.keySet().iterator(); it.hasNext(); ) {
+                            FileObject fo = (FileObject) it.next();
+                            FileChangeListener changeL = (FileChangeListener) versioningFolderListeners.get(fo);
+                            fo.removeFileChangeListener(changeL);
+                        }
+                        versioningFolderListeners = null;
                     }
                 }
             });
+        } catch (IOException exc) {
+            ErrorManager.getDefault().notify(exc);
         }
     }
 
