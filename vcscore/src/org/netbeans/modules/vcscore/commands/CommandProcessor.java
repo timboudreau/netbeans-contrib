@@ -499,6 +499,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                             					 initialFocusedComponent));
                 }
             }
+
             final boolean [] statusContainer = new boolean[1];
             final JButton setAsDefault0 = btnStoreAsDefault;
             ActionListener actionListener = new ActionListener() {
@@ -518,6 +519,8 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             };
             if (addActionListenerMethod == null) {
                 //status = NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dlg));
+
+                // XXX mess, mess there is already added the actionL in constructor
                 dlg.setButtonListener(actionListener);
             } else {
                 dlg.setClosingOptions(new Object[] { NotifyDescriptor.CANCEL_OPTION });
@@ -591,27 +594,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
             ((CommandProcessListener) it.next()).commandStarting(cw);
         }
-        /*
-        CommandOutputCollector collector = null;//new CommandOutputCollector(vce, this);
-        outputContainers.put(vce, collector);
-        VcsCommandVisualizer visualizer = vce.getVisualizer();
-        if (visualizer != null) {
-            if (!visualizer.openAfterCommandFinish()) visualizer.open();
-        }
-        if (VcsCommandIO.getBooleanProperty(vce.getCommand(), VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT)) {
-            openCommandOutput(vce);
-            //CommandOutputVisualizer outputVisualizer = new CommandOutputVisualizer(vce);
-            //outputVisualizer.open();
-            //outputVisualizers.put(vce, outputVisualizer);
-        }
-        //System.out.println("command "+vce.getCommand()+" STARTED, LISTENERS DONE.");
-        if (fileSystem != null) {
-            FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
-            if (cache != null && cache instanceof FileReaderListener) {
-                vce.addFileReaderListener((FileReaderListener) cache);
-            }
-        }
-         */
         cw.setStartTime(System.currentTimeMillis());
     }
     
@@ -632,29 +614,6 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             tasksExceptionallyRunning.remove(cw);
             taskInfos.remove(cmdTask);
         }
-        //System.out.println("  commandsFinished.size() = "+commandsFinished.size());
-        /*
-        if (fileSystem != null && fileSystem.isCreateRuntimeCommands()) {
-            RuntimeCommand rCom = cw.getRuntimeCommand();
-            if (rCom == null) {
-                //rCom = new VcsRuntimeCommand(vce, this);
-                cw.setRuntimeCommand(rCom);
-            }
-            rCom.setState(RuntimeCommand.STATE_DONE);
-            RuntimeSupport rSupport = RuntimeSupport.getInstance();
-            rSupport.updateCommand(fileSystem.getSystemName(), rCom);
-        } else {
-            synchronized (this) {
-                commandsFinished.remove(cw);
-                taskInfos.remove(vce);
-                outputContainers.remove(vce);
-            }
-            
-        }
-        if (!isCollectOutput()) {
-            outputContainers.remove(vce);
-        }
-         */
         //Command cmd = cmdTask.getCommand();
         Object provider = null;
         if (cmdTask instanceof ProvidedCommand) {
@@ -711,66 +670,8 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             }
             StatusDisplayer.getDefault().setStatusText(message);
         }
-        /*
-        String notification = null;
-        if (exit != VcsCommandExecutor.SUCCEEDED && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
-            if (fileSystem != null) fileSystem.debugErr(message);
-            printErrorOutput(vce, fileSystem);
-            if (fileSystem == null || fileSystem.isCommandNotification()) {
-                notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_FAIL_MSG);
-            }
-        } else {
-            if (fileSystem != null) fileSystem.debug(message);
-            if (fileSystem == null || fileSystem.isCommandNotification()) {
-                notification = (String) cmd.getProperty(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG);
-            }
-        }
-        if (notification != null) {
-            CommandExecutorSupport.commandNotification(vce, notification, fileSystem);
-        }
-        VcsCommandVisualizer visualizer = vce.getVisualizer();
-        if (visualizer != null) {
-            visualizer.setExitStatus(exit);
-            if (visualizer.openAfterCommandFinish()) visualizer.open();
-        }
-        VcsCommandVisualizer outputVisualizer = (VcsCommandVisualizer) outputVisualizers.get(vce);
-        if (outputVisualizer != null) {
-            outputVisualizer.setExitStatus(exit);
-        }
-         */
     }
 
-    /**
-     * Start the executor. The method starts the executor in a separate thread.
-     * @param vce the executor
-     *
-    public synchronized void startExecutor(final VcsCommandExecutor vce) {
-        startExecutor(vce, null);
-    }
-    
-    /**
-     * Start the executor. The method starts the executor in a separate thread.
-     * @param vce the executor
-     * @param fileSystem the file system associated with the command. Can be <code>null</code>.
-     *
-    public synchronized void startExecutor(final VcsCommandExecutor vce,
-                                           final VcsFileSystem fileSystem) {
-        CommandTaskInfo cw = (CommandTaskInfo) taskInfos.get(vce);
-        if (cw == null) {
-            cw = new CommandTaskInfo(vce, fileSystem);
-            taskInfos.put(vce, cw);
-        }
-        cw.setSubmittingThread(Thread.currentThread());
-        //setCommandID(vce);
-        commandsToRun.remove(cw);
-        taskWaitQueue.add(cw);
-        notifyAll(); // executorStarterLoop will start the command
-        if (!execStarterLoopStarted) {
-            runExecutorStarterLoop();
-        }
-    }
-     */
-    
     private synchronized void executorStarter(final CommandTaskInfo cw) {
         tasksRunning.add(cw);
         threadsPool.post(new Runnable() {

@@ -495,16 +495,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }//GEN-LAST:event_getDefaultButtonActionPerformed
 
     private void asDefaultButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_asDefaultButtonActionPerformed
-        // TODO implement 52621
-        // FIXME following line always NPEs
-//        VcsCommandsProvider provider = executionContext.getCommandsProvider();
-//        String type = provider.getType();
+        VcsCommandsProvider provider = executionContext.getCommandsProvider();
+        String type = provider.getType();
         inputDescriptor.setValuesAsDefault();
-//        inputDescriptor.storeDefaults(command.getName(), type);
+        inputDescriptor.storeDefaults(command.getName(), type);
         if (globalDescriptor != null) {
             // per profile
             globalDescriptor.setValuesAsDefault();
-//            globalDescriptor.storeDefaults("common-command-options", type);
+            globalDescriptor.storeDefaults("common-command-options", type);
         }
     }//GEN-LAST:event_asDefaultButtonActionPerformed
 
@@ -746,7 +744,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
         return new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
                 if (ev.getID() == ActionEvent.ACTION_PERFORMED) {
-                    if (NotifyDescriptor.OK_OPTION.equals(ev.getSource())) {
+                    Object source = ev.getSource();
+                    if (NotifyDescriptor.OK_OPTION.equals(source)) {
                         if (testValidInput()) {
                             validInput = true;
                             for (Iterator it = closeListeners.iterator(); it.hasNext(); ) {
@@ -757,9 +756,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         }
                         //writeFileContents();
                         //processActions(); -- do not do it now in AWT !
-                    } else {
+                    } else if (NotifyDescriptor.CANCEL_OPTION.equals(source) || NotifyDescriptor.CLOSED_OPTION.equals(source)) {
                         validInput = false;
                         freeReferences();
+                    } else {
+                        // it's save as default that is handled by native button listener
                     }
                 }
             }

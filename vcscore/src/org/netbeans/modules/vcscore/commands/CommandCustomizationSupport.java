@@ -856,10 +856,9 @@ public class CommandCustomizationSupport extends Object {
                     ErrorManager.getDefault().notify(exc);
                     throw new UserCancelException();
                 }
-                // TODO implement 52621
-//                String type = executionContext.getCommandsProvider().getType();
-//                inputDescriptor.loadDefaults("common-command-options", type);
-//                inputDescriptor.loadDefaults(dcmd.getName(), type);
+                String type = executionContext.getCommandsProvider().getType();
+                inputDescriptor.loadDefaults("common-command-options", type);  // NOI18N
+                inputDescriptor.loadDefaults(dcmd.getName(), type);
                 inputDescriptor.setValuesAsDefault();
                 cmd.setProperty(INPUT_DESCRIPTOR_PARSED, inputDescriptor);
             }

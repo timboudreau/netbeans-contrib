@@ -653,16 +653,20 @@ public class VariableInputDescriptor extends Object {
      * @param commandName identifies command in provider namespace or <code>null</code>
      * @param commandProvider identifies provider
      */
-    public final void loadDefaults(String commandName, String commandProvider) {
-        // TODO implement 52621
+    public final void loadDefaults(String commandName, String commandProvider) {  // XXX it's called twice
+        Map map = new HashMap();
+        try {
+            loadDefaultsFromDisk(map, commandName, commandProvider);
+        } catch (IOException ex) {
+            ErrorManager.getDefault().annotate(ex, g("EXC_read"));  // NOI18N
+            ErrorManager.getDefault().notify(ex);
+        }
 
-//        Map map = loadDefaultsFromDisk(commandName, commandProvider);
-//
-//        VariableInputComponent[] comps = components();
-//        for (int i = 0; i < comps.length; i++) {
-//            VariableInputComponent comp = comps[i];
-//            fillValuesAndDefaultsFromMap(map, comp);
-//        }
+        VariableInputComponent[] comps = components();
+        for (int i = 0; i < comps.length; i++) {
+            VariableInputComponent comp = comps[i];
+            fillCurrentValuesFromMap(map, comp);
+        }
     }
 
 
@@ -671,19 +675,19 @@ public class VariableInputDescriptor extends Object {
      * @param commandName identifies command in provider namespace or <code>null</code>
      * @param commandProvider identifies provider
      */
-    public final void storeDefaults(String commandName, String commandProvider) {
+    public final void storeDefaults(String commandName, String commandProvider) {  // XXX it's called twice
         Map defaults = new HashMap();
         VariableInputComponent[] comps = components();
         for (int i = 0; i < comps.length; i++) {
             VariableInputComponent comp = comps[i];
-            fillMapWithCurrentValues(defaults, comp);
+            fillMapFromCurrentValues(defaults, comp);
         }
 
         try {
             writeDefaultsToDisk(defaults, commandName, commandProvider);
         } catch (IOException ex) {
-            ErrorManager.getDefault().annotate(ex, "I/O failure while storing defaults.");
-            ErrorManager.getDefault().notify(ErrorManager.USER, ex);
+            ErrorManager.getDefault().annotate(ex, g("EXC_write"));  // NOI18N
+            ErrorManager.getDefault().notify(ex);
         }
     }
 
@@ -691,11 +695,11 @@ public class VariableInputDescriptor extends Object {
      * Traverses components hiearchy and puts
      * associated values into given map.
      */
-    private void fillMapWithCurrentValues(Map map, VariableInputComponent vic) {
+    private void fillMapFromCurrentValues(Map map, VariableInputComponent vic) {
         VariableInputComponent[] subs = vic.subComponents();
         for (int i = 0; i < subs.length; i++) {
             VariableInputComponent component = subs[i];
-            fillMapWithCurrentValues(map, component);
+            fillMapFromCurrentValues(map, component); // RECURSION
         }
 
         String name = vic.getVariable();
@@ -704,6 +708,25 @@ public class VariableInputDescriptor extends Object {
         String value = vic.getValue();
         if (value == null) return;
         map.put(name, value);
+    }
+
+    /**
+     * Traverses components hiearchy and sets map values
+     * into associated (by variable name) component values.
+     */
+    private void fillCurrentValuesFromMap(Map map, VariableInputComponent vic) {
+        VariableInputComponent[] subs = vic.subComponents();
+        for (int i = 0; i < subs.length; i++) {
+            VariableInputComponent component = subs[i];
+            fillCurrentValuesFromMap(map, component);   // RECURSION
+        }
+
+        String name = vic.getVariable();
+        if (name == null) return;
+        if (vic.needsPreCommandPerform()) return;
+        String value = (String) map.get(name);
+        if (value == null) return;
+        vic.setValue(value);
     }
 
     /**
@@ -718,10 +741,29 @@ public class VariableInputDescriptor extends Object {
             try {
                 storeMapToStream(defaults, out);
             } finally {
-                out.close();
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    // already closed
+                }
             }
         } finally {
             lock.releaseLock();
+        }
+    }
+
+    private void loadDefaultsFromDisk(Map map, String command, String provider) throws IOException {
+        FileObject fo = locateSettingsFile(command, provider, false);
+        if (fo == null) return;
+        InputStream in = fo.getInputStream();
+        try {
+            loadMapFromStream(map, in);
+        } finally {
+            try {
+                in.close();
+            } catch (IOException ex)  {
+                // already closed
+            }
         }
     }
 
@@ -734,30 +776,39 @@ public class VariableInputDescriptor extends Object {
     private FileObject locateSettingsFile(String command, String provider, boolean createIfDoesNotExist) throws IOException {
         FileSystem fs = Repository.getDefault().getDefaultFileSystem();
         FileObject fo = fs.getRoot();
-        FileObject config = fo.getFileObject("config");
-        if (config == null && createIfDoesNotExist) {
-            config = fo.createFolder("config");
-        } else {
-            return null;
-        }
+//        FileObject config = fo.getFileObject("config");
+//        if (config == null) {
+//            if (createIfDoesNotExist) {
+//                config = fo.createFolder("config");
+//            } else {
+//                return null;
+//            }
+//        }
+        FileObject config = fo; // SFS root is userdir/config!!!
         FileObject vcs = config.getFileObject("vcs");
-        if (vcs == null && createIfDoesNotExist) {
-            vcs = config.createFolder("vcs");
-        } else {
-            return null;
+        if (vcs == null) {
+            if (createIfDoesNotExist) {
+                vcs = config.createFolder("vcs");
+            } else {
+                return null;
+            }
         }
         FileObject defaults = vcs.getFileObject("defaults");
-        if (defaults == null && createIfDoesNotExist) {
-            defaults = config.createFolder("defaults");
-        } else {
-            return null;
+        if (defaults == null) {
+            if (createIfDoesNotExist) {
+                defaults = vcs.createFolder("defaults");
+            } else {
+                return null;
+            }
         }
 
         FileObject index = defaults.getFileObject("index.map");
         if (index == null && createIfDoesNotExist) {
-            index = defaults.createData("index.map");
-        } else {
-            return null;
+            if (createIfDoesNotExist) {
+                index = defaults.createData("index.map");
+            } else {
+                return null;
+            }
         }
 
         InputStream in = index.getInputStream();
@@ -765,26 +816,38 @@ public class VariableInputDescriptor extends Object {
             Map indexMap = new HashMap();
             loadMapFromStream(indexMap, in);
             in.close();
-            String defaultsBundle = (String) indexMap.get("" + provider + "/" + command);
-            if (defaultsBundle == null && createIfDoesNotExist) {
-                String fileName = FileUtil.findFreeFileName(defaults, "entry", ".map");
-                indexMap.put("" + provider + "/" + command, fileName);
-                FileObject defaultsFO = defaults.createData(fileName);
-                FileLock lock = index.lock();
-                try {
-                    OutputStream out = index.getOutputStream(lock);
+            String defaultsName = (String) indexMap.get("" + provider + "/" + command);
+            if (defaultsName == null) {
+                if (createIfDoesNotExist) {
+                    defaultsName = FileUtil.findFreeFileName(defaults, "command", "map") + ".map";
+                    indexMap.put("" + provider + "/" + command, defaultsName);
+                    FileLock lock = index.lock();
                     try {
-                        storeMapToStream(indexMap, out);
-                        return defaultsFO;
+                        OutputStream out = index.getOutputStream(lock);
+                        try {
+                            storeMapToStream(indexMap, out);
+                        } finally {
+                            try {
+                                out.close();
+                            } catch (IOException ex) {
+                                // already closed
+                            }
+                        }
                     } finally {
-                        out.close();
+                        lock.releaseLock();
                     }
-                } finally {
-                    lock.releaseLock();
+                } else {
+                    return null;
                 }
-            } else {
-                return null;
             }
+
+            FileObject commandDefaults = defaults.getFileObject(defaultsName);
+            if (commandDefaults == null) {
+                if (createIfDoesNotExist) {
+                    commandDefaults = defaults.createData(defaultsName);
+                }
+            }
+            return commandDefaults;
         } finally {
             try {
                 in.close();
@@ -828,6 +891,7 @@ public class VariableInputDescriptor extends Object {
             os.writeUTF(key);
             os.writeUTF(val);
         }
+        os.flush();
     }
 
 }
