@@ -616,72 +616,73 @@ public class VariableInputDialog extends javax.swing.JPanel {
                              javax.swing.JPanel inputPanel, int leftInset,
                              HashMap varsToEnableDisable,
                              java.awt.Component[] mainComponent_ptr) {
-        if (VariableInputComponent.isVarConditionMatch(component.getVarConditions(), vars)) {
-            boolean visible = (component.isTrivial() && !expert);
+        boolean visible = VariableInputComponent.isVarConditionMatch(component.getVarConditions(), vars);
+        if (visible) {
+            visible = (component.isTrivial() && !expert);
             visible = visible || (component.isExpert() && expert);
             visible = visible || (component.isTrivial() == false && component.isExpert() == false);
-            if (visible) {
-                int componentId = component.getComponent();
-                switch (componentId) {
-                    case VariableInputDescriptor.INPUT_PROMPT_FIELD:
-                        addVarPromptField(component, gridy, inputPanel, leftInset,
-                                          false, mainComponent_ptr);
-                        gridy++;
-                        break;
-                    case VariableInputDescriptor.INPUT_PROMPT_PASSWD:
-                        addVarPromptField(component, gridy, inputPanel, leftInset,
-                                          true, mainComponent_ptr);
-                        gridy++;
-                        break;
-                    case VariableInputDescriptor.INPUT_PROMPT_AREA:
-                        addVarPromptArea(component, gridy, promptAreaNum++,
-                                         inputPanel, leftInset, mainComponent_ptr);
-                        gridy += 2;
-                        break;
-                    case VariableInputDescriptor.INPUT_ASK:
-                        addAskChBox(component, gridy, inputPanel, leftInset,
-                                    varsToEnableDisable, mainComponent_ptr);
-                        gridy++;
-                        break;
-                    case VariableInputDescriptor.INPUT_SELECT_RADIO:
-                        gridy = addSelectRadio(component, gridy, inputPanel,
-                                               leftInset, varsToEnableDisable,
-                                               mainComponent_ptr);
-                        break;
-                    case VariableInputDescriptor.INPUT_SELECT_COMBO:
-                        addSelectCombo(component, gridy, inputPanel, leftInset,
-                                       false, varsToEnableDisable, mainComponent_ptr);
-                        gridy++;
-                        break;
-                    case VariableInputDescriptor.INPUT_SELECT_COMBO_EDITABLE:
-                        addSelectCombo(component, gridy, inputPanel, leftInset,
-                                       true, varsToEnableDisable, mainComponent_ptr);
-                        gridy++;
-                        break;
-                    case VariableInputDescriptor.INPUT_TEXT:
-                        addTextComponent(component, gridy, inputPanel, leftInset,
-                                         mainComponent_ptr);
-                        gridy++;
-                        break;
-                    case VariableInputDescriptor.INPUT_GLOBAL:
-                        setGlobalVars(component);
-                        break;
-                }
-            } else {
-                addActionToProcess(new ActionListener() {
-                    public void actionPerformed(ActionEvent ev) {
-                        if (vars != null) {
-                            String value = component.getDefaultValue();
-                            if (value != null) {
-                                value = Variables.expand(vars, value, false);
-                            }
-                            if (!component.needsPreCommandPerform()) {
-                                vars.put(component.getVariable(), value);
-                            }
+        }
+        if (visible) {
+            int componentId = component.getComponent();
+            switch (componentId) {
+                case VariableInputDescriptor.INPUT_PROMPT_FIELD:
+                    addVarPromptField(component, gridy, inputPanel, leftInset,
+                                      false, mainComponent_ptr);
+                    gridy++;
+                    break;
+                case VariableInputDescriptor.INPUT_PROMPT_PASSWD:
+                    addVarPromptField(component, gridy, inputPanel, leftInset,
+                                      true, mainComponent_ptr);
+                    gridy++;
+                    break;
+                case VariableInputDescriptor.INPUT_PROMPT_AREA:
+                    addVarPromptArea(component, gridy, promptAreaNum++,
+                                     inputPanel, leftInset, mainComponent_ptr);
+                    gridy += 2;
+                    break;
+                case VariableInputDescriptor.INPUT_ASK:
+                    addAskChBox(component, gridy, inputPanel, leftInset,
+                                varsToEnableDisable, mainComponent_ptr);
+                    gridy++;
+                    break;
+                case VariableInputDescriptor.INPUT_SELECT_RADIO:
+                    gridy = addSelectRadio(component, gridy, inputPanel,
+                                           leftInset, varsToEnableDisable,
+                                           mainComponent_ptr);
+                    break;
+                case VariableInputDescriptor.INPUT_SELECT_COMBO:
+                    addSelectCombo(component, gridy, inputPanel, leftInset,
+                                   false, varsToEnableDisable, mainComponent_ptr);
+                    gridy++;
+                    break;
+                case VariableInputDescriptor.INPUT_SELECT_COMBO_EDITABLE:
+                    addSelectCombo(component, gridy, inputPanel, leftInset,
+                                   true, varsToEnableDisable, mainComponent_ptr);
+                    gridy++;
+                    break;
+                case VariableInputDescriptor.INPUT_TEXT:
+                    addTextComponent(component, gridy, inputPanel, leftInset,
+                                     mainComponent_ptr);
+                    gridy++;
+                    break;
+                case VariableInputDescriptor.INPUT_GLOBAL:
+                    setGlobalVars(component);
+                    break;
+            }
+        } else {
+            addActionToProcess(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    if (vars != null) {
+                        String value = component.getDefaultValue();
+                        if (value != null) {
+                            value = Variables.expand(vars, value, false);
+                        }
+                        if (!component.needsPreCommandPerform()) {
+                            vars.put(component.getVariable(), value);
                         }
                     }
-                });
-            }
+                }
+            });
         }
         return gridy;
     }
@@ -2501,7 +2502,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
             for (int i = 0; i < defVals.length; i++) {
                 defVals[i] = ((VariableInputComponent) componentsToPreprocess.get(i)).getDefaultValue();
             }
-            PreCommandPerformer cmdPerf = new PreCommandPerformer(executionContext, vars);
+            Hashtable preCommandVars = new Hashtable(vars);
+            PreCommandPerformer cmdPerf = new PreCommandPerformer(executionContext, preCommandVars);
             try {
                 Collection executedTasks = new ArrayList();
                 String[] values = cmdPerf.process(defVals, executedTasks);
