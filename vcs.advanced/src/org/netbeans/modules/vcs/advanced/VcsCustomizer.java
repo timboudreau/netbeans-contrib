@@ -1716,7 +1716,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         }
         envTableModel.sortByColumn(0, true);
         systemEnvTableModel.sortByColumn(0, true);
-        java.awt.Component comp = this;
+        java.awt.Component comp = configPanel;
         while (comp!=null && !(comp instanceof java.awt.Window)) comp = comp.getParent ();
         if(comp!=null) {
             ((java.awt.Window) comp).pack ();
