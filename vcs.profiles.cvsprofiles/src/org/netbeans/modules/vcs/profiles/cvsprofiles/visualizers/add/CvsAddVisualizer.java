@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.Iterator;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import org.netbeans.api.vcs.commands.CommandTask;
 
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.OutputVisualizer;
 import org.netbeans.modules.vcscore.commands.*;
@@ -260,8 +261,10 @@ public class CvsAddVisualizer extends OutputVisualizer {
     }
     
     public void setExitStatus(int exit) {
-        debug("exit: "+exit);
-        //System.out.println("setExitStatus("+this.hashCode()+") ("+exit+"), cp = "+(contentPane != null));
+        if(!finishVisualizer){            
+            return;     //don't exit parent visualizer is in use
+        }
+        debug("exit: "+exit+"task:"+ getVcsTask().getName());      
         this.exit = exit;
         if (contentPane != null) { // Check whether we have the GUI created
             if (outputInfosToShow != null) {

@@ -39,6 +39,7 @@ import org.openide.windows.Workspace;
 
 import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.modules.vcscore.cmdline.UserCommandTask;
 import org.netbeans.modules.vcscore.commands.CommandOutputCollector;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
 import org.netbeans.modules.vcscore.commands.ProvidedCommand;
@@ -48,6 +49,8 @@ import org.netbeans.modules.vcscore.commands.VcsDescribedTask;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.netbeans.spi.vcs.VcsCommandsProvider;
+import org.openide.util.Task;
+import org.openide.util.TaskListener;
 
 /**
  * The default visualizer of command output.
@@ -68,12 +71,14 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     private boolean opened = false;
     protected String commandName ;
     private CommandOutputCollector outputCollector;
+    /*indicates whether visualizer should be finished imediately or if it should wait while parent task finishes #40113*/
+    protected boolean finishVisualizer = true;
+    private VcsCommandExecutor vce;
     
     private static final long serialVersionUID = -8901790321334731232L;
     
-    
     public abstract Map getOutputPanels();
-    
+
     protected String getMode() {
         return "editor";
     }
@@ -126,7 +131,7 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     public void setVcsTask(VcsDescribedTask task) {
         this.task = (CommandTask) task;
         cmdProvider = ((ProvidedCommand) task).getProvider();
-        VcsCommandExecutor vce = task.getExecutor();
+        vce = task.getExecutor();
         this.files = vce.getFiles();
         Hashtable vars = vce.getVariables();        
         String rootDirPath = (String)vars.get("ROOTDIR");
@@ -138,26 +143,19 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
                 rootDirPath = org.netbeans.modules.vcscore.VcsFileSystem.substractRootDir(rootDirPath, commonParent);
             }
         }
-        this.rootDir = new File(rootDirPath);
-        //actFilePath = ""+vars.get("WORKDIR")+vars.get("FILE");
-        //actFilePath = Variables.expand(vars, actFilePath, false);
+        this.rootDir = new File(rootDirPath);        
         commandName = findDisplayName(this.task);
-    /*    String title;
-        if (files.size() == 1) {
-            String filePath = (String) files.iterator().next();
-            File file = new File(filePath);
-            title = java.text.MessageFormat.format(
-                NbBundle.getBundle(OutputVisualizer.class).getString("CommandOutputVisualizer.title_one"), // NOI18N
-                new Object[] { file.getName(), commandName });
+        //in case there is parent visualizer preferred don't exit visualizer, wait while parent task finishes 
+        String useParent;
+        if ((useParent = (String) vce.getVariables().get(UserCommandTask.VAR_USE_PARENT_VISUALIZER)) != null && useParent.length() > 0) {
+            UserCommandTask parentTask = (UserCommandTask) CommandProcessor.getInstance().getParentTask((CommandTask)task);
+            if (parentTask != null && finishVisualizer) {
+                finishVisualizer = false;                
+                parentTask.addTaskListener(new FinishListener());
+            }
         }
-        else title = java.text.MessageFormat.format(
-            NbBundle.getBundle(OutputVisualizer.class).getString("CommandOutputVisualizer.title_many"), // NOI18N
-            new Object[] { Integer.toString(files.size()), commandName });
-
-        setName(commandName);
-        setDisplayName(title);*/
     }
-    
+        
     public void setOutputCollector(CommandOutputCollector outputCollector) {
         this.outputCollector = outputCollector;
     }
@@ -227,6 +225,8 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     }
     
     public void setExitStatus(int exit) {
+        if(!finishVisualizer)
+            return;
         this.exit = exit;
     }
     
@@ -253,7 +253,16 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
         
     }
     
-     
+    /*
+     *Listener responsible for termination i case parent visualizer is used #40113
+     */
+    final class FinishListener implements TaskListener{
+        public void taskFinished(Task task){            
+            finishVisualizer = true;
+            setExitStatus(vce.getExitStatus());
+        }
+    }
+    
     final class OutputTopComponent extends TopComponent{
         
         private JComponent outputPanel;
