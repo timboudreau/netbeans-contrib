@@ -325,7 +325,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     //public synchronized void loadImpl () {
     public synchronized BeanContext loadImpl () {
 	//boolean DEBUG=true;
-	boolean BSD_DEBUG=true;
+	//boolean BSD_DEBUG=true;
+	boolean BSD_DEBUG=false;
 	int __position = 0;
 	String __prefix = "loading ";
 	String __postfix = "\r";
