@@ -41,20 +41,39 @@ Microsystems, Inc. All Rights Reserved.
   <folder name="Templates">
      <folder name="Mount">
        <folder name="VCS">
-        <file name="org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings">
-          <![CDATA[
+        <file name="org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings" url="GenericVCSMountFS.settings">
+          <!-- [CDATA[
           <!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
           <settings version="1.0">
             <instanceof class="org.openide.filesystems.FileSystem"/>
             <instance class="org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem"/>
           </settings>
-          ]]>
+          ]] -->
           <attr name="template" boolvalue="true"/>
           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
+          <attr name="templateWizardIterator" methodValue="org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardIterator.singleton"/>
+          <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/config/templatesGEN_VCS_FS.html"/>
         </file>
        </folder>
      </folder>
    </folder>
+
+   <!--
+   <folder name="Templates">
+     <folder name="Mount">
+       <folder name="VCS">
+         <file name="org-netbeans-modules-vcscore-wizard-mountcvs-CvsMountFS.settings" url="CvsMountFS.settings">
+         <attr name="template" boolvalue="true"/>
+         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.mountcvs.Bundle" />
+         <attr name="templateWizardIterator" methodValue="org.netbeans.modules.vcscore.wizard.mountcvs.MountCvsWizard.singleton"/>
+         <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcscore/resources/templatesCVSFS.html"/>
+         </file>
+       <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcscore/resources/templatesVCSFS.html"/>
+       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.mountcvs.Bundle" />
+       </folder>
+     </folder>
+   </folder>
+   -->
 
     <folder name="xml">
         <!--
