@@ -16,15 +16,14 @@ Microsystems, Inc. All Rights Reserved.
 
     <property name="build.sysclasspath" value="ignore"/>
 
-    <property name="xtest.build" location="."/>    
+    <property name="xtest.build" location="."/>
     <property name="xtest.file.name" value="test.jar"/>
     <property name="xtest.file.location" value="lib"/>
 
     <property name="netbeans.home" location="../../../nb_all/nbbuild/netbeans"/>
     <property name="nbextra.home" location="../../../nbextra"/>
     <property name="netbeans.test.home" value="${netbeans.home}"/>
-    <!--property name="ffj.home" value="../../../../../f4j_all"/-->
-    
+
     <!-- Says how to create classpath for compilation and code tests.
          Can have values src, jar, ide -->
     <property name="xtest.source.location" value="ide"/>
@@ -33,91 +32,89 @@ Microsystems, Inc. All Rights Reserved.
 
     <!-- Name of tested module -->
     <property name="xtest.module" value="rmi"/>
-    
+
     <property name="xtest.home" location="../../../nb_all/xtest"/>
-   
+
     <!-- default testtypes, attributes and executors -->
     <property name="xtest.testtype" value="qa-functional"/>
     <property name="xtest.attribs" value="experimental"/>
     <property name="xtest.executors" value="ide"/>
-    
+
     <!-- These in/excludes will be added to xtest.pattern    -->
     <!-- if you want to use these properties, you should use -->
     <!-- config with empty testbag                           -->
     <property name="xtest.includes" value=""/>
-    <property name="xtest.excludes" value=""/>   
-    
+    <property name="xtest.excludes" value=""/>
+
     <property name="xtest.module_harness.antfile" location="${xtest.home}/lib/module_harness.xml"/>
+
+
 
     <!-- =================== -->
     <!-- Setting classpathes -->
     <!-- =================== -->
-    
     <target name="init" depends="prepare-compile-classpath,prepare-codetest-classpath">
-        <!-- During filling classpathes remember that only <module>/test 
-             is checked out during automated test execution so <module>/src 
+        <!-- During filling classpathes remember that only <module>/test
+             is checked out during automated test execution so <module>/src
              or <module>/netbeans isn't available.
-             
+
              If you need to add something from <module>/src or <module>/netbeans
              to classpath use target prepare-compile-classpath or prepare-codetest-classpath
              which fills path according to property xtest.source.location. This property
              can hav values "src" (compilation and execution against sources), "jar" (compil.
              and execut. against jars) or "ide" (compil. and execut. against installed IDE).
-             "ide" mode is used during automated test execution so it has to be always supported. 
+             "ide" mode is used during automated test execution so it has to be always supported.
           -->
-    
-        <!-- List of directories where jars will be searched. -->
 
+        <!-- List of directories where jars will be searched. -->
         <property name="xtest.extra.jars.path" location="${nbextra.home}/jemmy;${nbextra.home}/jellytools;${netbeans.home}/modules;${netbeans.home}/lib;${netbeans.home}/lib/ext"/>
-        <!--property name="xtest.extra.jars.path" location="${ffj.home}/testtools/jemmy;${netbeans.home}/modules;${netbeans.home}/lib;${netbeans.home}/lib/ext"/-->
-    
+
         <!-- This jars is used for compilation, execution codetests and also for
              execution ide tests (it means this classpath will be mounted in repository).
-             You can also write only name of jar or zip file, not in which directory it is and 
-             this file will be searched in directories specified by property xtest.extra.jars.path 
+             You can also write only name of jar or zip file, not in which directory it is and
+             this file will be searched in directories specified by property xtest.extra.jars.path
                  example: <property name="xtest.extra.jars" value="jemmy.jar;jelly.jar"/>
           -->
-                
-  	<!--property name="xtest.extra.jars"     value="jemmy.jar;jelly.jar;rmi.jar;rmi-ext.jar;core.jar;openide.jar;java.jar;utilities.jar"/-->
         <property name="xtest.extra.jars"     value="jemmy.jar;jelly-nb.jar;rmi.jar;rmi-ext.jar;core.jar;openide.jar;java.jar;utilities.jar"/>
 
 	<!-- These jars will be copied to directory ${netebans.home}/lib/ext.
-	     Again you can write only name of jar or zip file, not in which directory it is and 
-             this file will be searched in directories specified by property xtest.extra.jars.path 
+	     Again you can write only name of jar or zip file, not in which directory it is and
+             this file will be searched in directories specified by property xtest.extra.jars.path
                  example: <property name="xtest.extra.jars.ide" value="jdbc_driver1.zip;jdbcd_river2.jar"/>
           -->
         <property name="xtest.extra.jars.ide" value=""/>
 
         <!-- This property contains directories to compile.
-             These directories will be compiled separately. 
+             These directories will be compiled separately.
                  exanple: <property name="compile.srcdir" value="unit/src;regr/src"/>
              NEEDS TO BE SET!
           -->
         <property name="compile.srcdir" value="qa-functional/src/support;qa-functional/src"/>
 
-        <!-- Arguments which will be added into commandline of starting IDE. 
+        <!-- Arguments which will be added into commandline of starting IDE.
                  example: <property name="xtest.ide.commandline.suffix" value="-J-Dxtest.useclassloader=org.openidex.util"/>
           -->
         <property name="xtest.ide.commandline.suffix" value=""/>
-  	
-	<!-- This classpath is beside jars in xtest.extra.jars also used for compilation, 
+
+	<!-- This classpath is beside jars in xtest.extra.jars also used for compilation,
 	     but it depends on property xtest.source.location which classpath will be used.
 	     Fill apropriate classpathes in targets "${xtest.source.location}compile-classpath". -->
 	<property name="compiletest.classpath" refid="compiletest.classpath"/>
-	
+
 	<!-- This classpath is beside jars in xtest.extra.jars also used for execution codetests,
 	     but it depends on property xtest.source.location which classpath will be used.
 	     Fill apropriate classpathes in targets "${xtest.source.location}test-classath". -->
 	<property name="codetest.classpath" refid="codetest.classpath"/>
-        
+
     </target>
-    
+
+
+
     <!-- ============ -->
     <!-- Main targets -->
     <!-- ============ -->
-    
     <target name="all" depends="runtests"/>
-    
+
     <!-- This calls common build process. -->
     <!-- You can write your own target if you need something special -->
     <target name="buildtests" depends="init">
@@ -129,22 +126,26 @@ Microsystems, Inc. All Rights Reserved.
             <include name="data/work/New/HelloWorldImpl.class"/>
        </rmic>
        <mkdir dir="${xtest.build}/${xtest.file.location}"/>
-        <jar basedir="." 
+        <jar basedir="."
              jarfile="${xtest.build}/${xtest.file.location}/${xtest.file.name}"
              includesfile="${xtest.home}/standard-test-includes.txt"
              excludesfile="${xtest.home}/standard-test-excludes.txt">
         </jar>
-       
+
     </target>
-    
+
+
+
     <!-- This calls common clean process. -->
     <!-- You can write your own if you need something special -->
     <target name="cleantests">
        <ant dir="." antfile="${xtest.module_harness.antfile}"
              target="cleantests"/>
-    </target> 
+    </target>
 
-    <!-- This target runs tests. You should not change this --> 
+
+
+    <!-- This target runs tests. You should not change this -->
     <!-- target unless you realy know what you are doing -->
     <target name="runtests" depends="buildtests">
         <condition property="is.windows">
@@ -154,10 +155,8 @@ Microsystems, Inc. All Rights Reserved.
         <ant dir="." antfile="${xtest.module_harness.antfile}"
               target="runtests"/>
     </target>
-    
 
-    
-    
+
 
     <!-- This target is executed from test-executor in newly created Project -->
     <!-- Name of this task is defined in cfg-xxx.xml -->
@@ -165,24 +164,26 @@ Microsystems, Inc. All Rights Reserved.
     <target name="runidetest" depends="init">
         <!-- This property contains classpath for execution. 
              All items in this classpath will be mounted in repository -->
-        <parallel>     
+        <parallel>
             <echo message="In parallel mode, now." />
             <echo message="... running rmid wrapper" />
             <antcall target="start_rmid"/>
-            <sequential>	
+            <sequential>
 
             <ant dir="." antfile="${xtest.module_harness.antfile}"
                      target="test">
                     <property name="xtest.exectype" value="ide"/>
-            </ant>     
+            </ant>
 
             <sleep seconds="10"/>
             <echo message="... stopping rmid wrapper" />
             <antcall target="stop_rmid"/>
-            </sequential>	
-        </parallel>     
+            </sequential>
+        </parallel>
     </target>
-    
+
+
+
     <!-- This target is executed from test-executor in newly created Project -->
     <!-- Name of this task is defined in cfg-xxx.xml -->
     <!-- This target executes standalone tests -->
@@ -193,30 +194,34 @@ Microsystems, Inc. All Rights Reserved.
            <property name="xtest.exectype" value="code"/>
         </ant>
     </target>
-    
+
+
+
     <!-- This target is executed from test-executor in newly created Project -->
     <!-- Name of this task is defined in cfg-xxx.xml -->
     <target name="test_report">
         <ant dir="." antfile="${xtest.module_harness.antfile}"
              target="test_report"/>
     </target>
-    
+
     <target name="cleanresults">
         <ant dir="." antfile="${xtest.module_harness.antfile}"
              target="cleanresults"/>
     </target>
-    
+
     <target name="realclean" depends="cleantests,cleanresults">
         <ant dir="." antfile="${xtest.module_harness.antfile}"
              target="realclean"/>
     </target>
-    
+
     <target name="printconfig">
         <echo message="Default config is testtype: ${xtest.testtype}, attributes: ${xtest.attribs}."/>
     </target>
 
+
+
    <!-- =============================================================
-        Following targets are for "advanced" users who needs more 
+        Following targets are for "advanced" users who needs more
         compilacated classpathes, which depends on way of execution.
         ============================================================= -->
 
@@ -233,13 +238,16 @@ Microsystems, Inc. All Rights Reserved.
         </condition>
     </target>
 
+
+
     <!-- ========================= -->
     <!-- Classpath for compilation -->
     <!-- ========================= -->
-    
+
     <target name="prepare-compile-classpath"
          depends="jarcompile-classpath,srccompile-classpath,idecompile-classpath"/>
-    
+
+
     <target name="jarcompile-classpath" depends="which-classpath" if="jarcode.classpath">
         <echo message="Using jars classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against jars -->
@@ -250,11 +258,12 @@ Microsystems, Inc. All Rights Reserved.
             <pathelement location="qa-functional/src"/>  
 	</path>
     </target>
-        
+
+
     <target name="srccompile-classpath" depends="which-classpath" if="srccode.classpath">
         <echo message="Using srcs classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against sources -->
-    	<path id="compiletest.classpath">        
+    	<path id="compiletest.classpath">
     	    <!-- If you need e.g. openide.jar, write this:
 	           <pathelement location="../netbeans/lib/openide.jar"/>
 	         If you need e.g. sources of your tested module, write this:
@@ -263,27 +272,31 @@ Microsystems, Inc. All Rights Reserved.
               <pathelement location="qa-functional/src"/>
 	</path>
     </target>
-    
+
+
     <target name="idecompile-classpath" depends="which-classpath" if="idecode.classpath">
         <echo message="Using IDE classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against installed IDE -->
-    	<path id="compiletest.classpath">   
+    	<path id="compiletest.classpath">
     	    <!-- If you need e.g. openide.jar, write this:
 	           <pathelement location="${netbeans.home}/lib/openide.jar"/>
 	         If you need e.g. your tested module, write this:
 	           <pathelement location="${netbeans.home}/modules/somemodule.jar"/>
- 	      -->     
+ 	      -->
               <pathelement location="qa-functional/src"/>
    	</path>
     </target>
-    
+
+
+
     <!-- ================================== -->
     <!-- Classpath for execution code tests -->
     <!-- ================================== -->
-    
+
     <target name="prepare-codetest-classpath" 
             depends="jartest-classpath,srctest-classpath,idetest-classpath"/>
-    
+
+
     <target name="jartest-classpath" depends="which-classpath" if="jarcode.classpath">
         <echo message="Using jars classpath."/>
         <!-- this classpath will be used for executing tests against jars -->
@@ -293,7 +306,8 @@ Microsystems, Inc. All Rights Reserved.
  	      -->
     	</path>
     </target>
-        
+
+
     <target name="srctest-classpath" depends="which-classpath" if="srccode.classpath">
         <echo message="Using srcs classpath."/>
         <!-- this classpath will be used for executing tests against sources -->
@@ -305,7 +319,8 @@ Microsystems, Inc. All Rights Reserved.
  	      -->
     	</path>
     </target>
-    
+
+
     <target name="idetest-classpath" depends="which-classpath" if="idecode.classpath">
         <echo message="Using IDE classpath."/>
         <!-- this classpath will be used for executing tests against installed IDE -->
@@ -314,10 +329,11 @@ Microsystems, Inc. All Rights Reserved.
 	           <pathelement location="${netbeans.home}/lib/openide.jar"/>
 	         If you need e.g. your tested module, write this:
 	           <pathelement location="${netbeans.home}/modules/somemodule.jar"/>
- 	      -->  
+ 	      -->
     	</path>
     </target>
-    
+
+
 
 <!-- 
     ==========================
@@ -325,6 +341,7 @@ Microsystems, Inc. All Rights Reserved.
     ==========================
 -->
     <target name="start_rmid" depends="start_rmid_os_windows,start_rmid_os_other" />
+
     <target name="stop_rmid" depends="stop_rmid_os_windows,stop_rmid_os_other" />
 
     <target name="start_rmid_os_windows" if="is.windows">
@@ -339,7 +356,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <target name="stop_rmid_os_windows" if="is.windows">
          <echo message="${netbeans.home}\bin\rmid_wrapper.exe -J-Djava.security.policy=${netbeans.home}\bin\rmid.policy -stop"/>
-         <exec command="${netbeans.home}\bin\rmid_wrapper.exe -J-Djava.security.policy=${netbeans.home}\bin\rmid.policy -stop" />           
+         <exec command="${netbeans.home}\bin\rmid_wrapper.exe -J-Djava.security.policy=${netbeans.home}\bin\rmid.policy -stop" />
     </target>
 
     <target name="stop_rmid_os_other" unless="is.windows">
