@@ -21,8 +21,9 @@ import org.openide.nodes.Node;
 //import org.openide.nodes.Children;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.runtime.RuntimeSupport;
+import org.netbeans.modules.vcscore.util.Table;
+import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 
 /**
  * This class is used as a container of all external commands which are either running or finished.
@@ -164,7 +165,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (name == null) name = cmd.getName();
         String exec = vce.getExec();
         fileSystem.debug(g("MSG_Command_preprocessing", name, exec));
-        RuntimeSupport.addWaiting(runtimeNode, vce);
+        RuntimeSupport.addWaiting(runtimeNode, vce, this);
         int preprocessStatus = CommandExecutorSupport.preprocessCommand(fileSystem, vce, vars, askForEachFile);
         if (PREPROCESS_CANCELLED == preprocessStatus) {
             fileSystem.debug(g("MSG_Command_cancelled", name));
@@ -179,7 +180,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (name == null) name = cmd.getName();
         TopManager.getDefault().setStatusText(g("MSG_Command_name_running", name));
         fileSystem.debug(g("MSG_Command_started", name, vce.getExec()));
-        RuntimeSupport.addRunning(runtimeNode, vce);
+        RuntimeSupport.addRunning(runtimeNode, vce, this);
         //System.out.println("command "+vce.getCommand()+" STARTED.");
         synchronized (commandListeners) {
             for(Iterator it = commandListeners.iterator(); it.hasNext(); ) {
@@ -211,7 +212,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
             commandsFinished.add(vce);
             notifyAll();
         }
-        RuntimeSupport.addDone(runtimeNode, vce);
+        RuntimeSupport.addDone(runtimeNode, vce, this);
         synchronized (commandsFinished) {
             //commandsFinished.removeRange(0, commandsFinished.size() - collectFinishedCmdsNum);
             while (commandsFinished.size() > collectFinishedCmdsNum) {
@@ -294,11 +295,20 @@ public class CommandsPool extends Object /*implements CommandListener */{
      * @return true if the output was successfully opened, false otherwise
      * (i.e. output is not available)
      */
-    public boolean openCommandOutput(VcsCommandExecutor vce) {
-        if (outputVisualizers.get(vce) != null) return true;
+    public boolean openCommandOutput(final VcsCommandExecutor vce) {
+        CommandOutputVisualizer visualizer = (CommandOutputVisualizer) outputVisualizers.get(vce);
+        if (visualizer != null) {
+            visualizer.requestFocus();
+            return true;
+        }
         CommandOutputCollector outputCollector = (CommandOutputCollector) outputContainers.get(vce);
         if (outputCollector == null) return false;
         final CommandOutputVisualizer outputVisualizer = new CommandOutputVisualizer(vce);
+        outputVisualizer.addCloseListener(new TopComponentCloseListener() {
+            public void closing() {
+                outputVisualizers.remove(vce);
+            }
+        });
         outputVisualizer.open();
         outputVisualizers.put(vce, outputVisualizer);
         outputCollector.addOutputListener(new CommandOutputListener() {
@@ -321,6 +331,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 outputVisualizer.errOutputData(data);
             }
         });
+        if (!isRunning(vce)) outputVisualizer.setExitStatus(vce.getExitStatus());
         return true;
     }
         
@@ -345,6 +356,15 @@ public class CommandsPool extends Object /*implements CommandListener */{
         }
         return running;
          */
+    }
+    
+    /**
+     * Tells whether the executor is waiting. It can either wait till preprocessing
+     * finishes or till other commands which can not run in parallel with it finish.
+     * @param vce the executor
+     */
+    public synchronized boolean isWaiting(VcsCommandExecutor vce) {
+        return commandsToRun.contains(vce);
     }
     
     /**
@@ -527,6 +547,24 @@ public class CommandsPool extends Object /*implements CommandListener */{
      */
     public synchronized void removeCommandListener(CommandListener listener) {
         commandListeners.remove(listener);
+    }
+    
+    /**
+     * Get the localized string representation of the command exit status.
+     * @param exit the exit status, that will be converted to the string.
+     */
+    public static String getExitStatusString(int exit) {
+        String status;
+        if (VcsCommandExecutor.SUCCEEDED == exit) {
+            status = org.openide.util.NbBundle.getBundle(CommandsPool.class).getString("CommandExitStatus.success");
+        } else if (VcsCommandExecutor.FAILED == exit) {
+            status = org.openide.util.NbBundle.getBundle(CommandsPool.class).getString("CommandExitStatus.failed");
+        } else if (VcsCommandExecutor.INTERRUPTED == exit) {
+            status = org.openide.util.NbBundle.getBundle(CommandsPool.class).getString("CommandExitStatus.interrupted");
+        } else {
+            status = org.openide.util.NbBundle.getBundle(CommandsPool.class).getString("CommandExitStatus.unknown");
+        }
+        return status;
     }
     
     /**
