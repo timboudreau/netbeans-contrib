@@ -129,6 +129,7 @@ Microsystems, Inc. All Rights Reserved.
     <delete file="rmi.nbm"/>
     <delete dir="netbeans"/>
     <delete dir="Info"/>
+    <delete dir="javahelp/org/netbeans/modules/rmi/docs/JavaHelpSearch"/>
   </target>
 
 </project>
