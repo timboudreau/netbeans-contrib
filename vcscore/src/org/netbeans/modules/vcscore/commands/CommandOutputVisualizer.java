@@ -134,6 +134,15 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         return null;
     }
     
+    private void keepReasonableNumOfLines(javax.swing.JTextArea area) {
+        if (area.getLineCount() > CommandsPool.DEFAULT_NUM_OF_LINES_OF_OUTPUT_TO_COLLECT) {
+            try {
+                area.replaceRange(null, area.getLineStartOffset(0), area.getLineStartOffset(1));
+            } catch (javax.swing.text.BadLocationException exc) {
+            }
+        }
+    }
+    
     /**
      * Receive a line of standard output.
      */
@@ -141,7 +150,9 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         // to prevent deadlocks, append output in the AWT thread
         SwingUtilities.invokeLater(new Runnable() {
             public void run () {
-                outputPanel.getStdOutputArea().append(line + "\n");
+                javax.swing.JTextArea area = outputPanel.getStdOutputArea();
+                area.append(line + "\n");
+                keepReasonableNumOfLines(area);
             }
         });
     }
@@ -153,7 +164,9 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         // to prevent deadlocks, append output in the AWT thread
         SwingUtilities.invokeLater(new Runnable() {
             public void run () {
-                outputPanel.getErrOutputArea().append(line + "\n");
+                javax.swing.JTextArea area = outputPanel.getErrOutputArea();
+                area.append(line + "\n");
+                keepReasonableNumOfLines(area);
             }
         });
     }

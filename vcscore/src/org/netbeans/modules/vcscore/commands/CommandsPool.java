@@ -68,6 +68,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
      */
     public static final int DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT = 20;
     
+    /**
+     * The default number of lines of commands' output to store and show to the user.
+     * When the output of a command will be longer than this number of lines,
+     * the lines will be deleted from the beginning.
+     * This is necessary for not running out of memory.
+     */
+    public static final int DEFAULT_NUM_OF_LINES_OF_OUTPUT_TO_COLLECT = 5000;
+    
     /** The maximum number of running commands in the system. This prevents overwhelming
      * the system with too many commands running concurrently */
     private static final int MAX_NUM_RUNNING_COMMANDS = 50;
@@ -90,6 +98,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
     /** The number of finished commands to collect. */
     private int collectFinishedCmdsNum = DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT;
+    /** The number of lines of commands' output to store and show to the user. */
+    private int numOfLinesOfOutputToCollect = DEFAULT_NUM_OF_LINES_OF_OUTPUT_TO_COLLECT;
     /** Whether to collect the whole output of commands. */
     private boolean collectOutput = true;
     /** Whether to collect error output of commands. */
@@ -946,6 +956,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
                     public void outputLine(String line) {
                         synchronized (stdOutput) {
                             stdOutput.add(line);
+                            if (stdOutput.size() > numOfLinesOfOutputToCollect) {
+                                stdOutput.remove(0);
+                            }
                             //if (stdOutputListeners != null) {
                                 for(Iterator it = stdOutputListeners.iterator(); it.hasNext(); ) {
                                     ((CommandOutputListener) it.next()).outputLine(line);
@@ -971,6 +984,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 public void outputLine(String line) {
                     synchronized (errOutput) {
                         errOutput.add(line);
+                        if (errOutput.size() > numOfLinesOfOutputToCollect) {
+                            errOutput.remove(0);
+                        }
                         //if (errOutputListeners != null) {
                             for(Iterator it = errOutputListeners.iterator(); it.hasNext(); ) {
                                 ((CommandOutputListener) it.next()).outputLine(line);
