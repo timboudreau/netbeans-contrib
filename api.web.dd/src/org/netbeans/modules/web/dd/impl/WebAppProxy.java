@@ -7,7 +7,7 @@
 package org.netbeans.modules.web.dd.impl;
 
 import org.netbeans.api.web.dd.WebApp;
-import java.beans.PropertyChangeSupport;
+
 /**
  *
  * @author  mk115033
@@ -16,6 +16,8 @@ public class WebAppProxy implements WebApp {
     private WebApp webApp;
     private String version;
     private java.util.List listeners;
+    public boolean writing=false;
+    private OutputProvider outputProvider; 
     
     /** Creates a new instance of WebAppProxy */
     public WebAppProxy(WebApp wepApp) {
@@ -833,15 +835,56 @@ public class WebAppProxy implements WebApp {
     }
     
     public void write(java.io.OutputStream os) throws java.io.IOException {
+        writing=true;
         webApp.write(os);
     }
     
     public void write(org.openide.filesystems.FileObject fo) throws java.io.IOException {
-        webApp.write(fo);
+        if (outputProvider!=null && fo.equals(outputProvider.getTarget())) {
+            outputProvider.write();
+        } else {
+            try {
+            	org.openide.filesystems.FileLock lock = fo.lock();
+                try {
+                    java.io.OutputStream os = fo.getOutputStream(lock);
+                    try {
+                        writing=true;
+                        write(os);
+                    } finally {
+                        os.close();
+                    }
+                } 
+                finally {
+                    lock.releaseLock();
+                }
+            } catch (org.openide.filesystems.FileAlreadyLockedException ex) {
+                throw new java.io.IOException(ex.getMessage());
+            }
+        }
     }    
     
     public Object clone() {
         return webApp.clone();
+    }
+    
+    public boolean isWriting() {
+        return writing;
+    }
+    
+    public void setWriting(boolean writing) {
+        this.writing=writing;
+    }
+    
+    public void setOutputProvider(OutputProvider iop) {
+        this.outputProvider=iop;
+    }
+    
+    /** Contract between friend modules that enables 
+    * a specific handling of write(FileObject) method for targeted FileObject
+    */
+    public static interface OutputProvider {
+        public void write() throws java.io.IOException;
+        public org.openide.filesystems.FileObject getTarget();
     }
     
 }
