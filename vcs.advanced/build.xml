@@ -133,12 +133,14 @@ Microsystems, Inc. All Rights Reserved.
       <fileset dir="src">
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
+        <include name="org/netbeans/modules/vcs/advanced/config/layer-include*.xml"/>
       </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="vcsgen.nbm"/>
     <delete dir="netbeans"/>
     <delete dir="Info"/>
+    <delete dir="javahelp/netbeans/modules/vcs/advanced/odcs/JavaHelpSearch"/>
   </target>
 
 </project>
