@@ -30,8 +30,30 @@ Microsystems, Inc. All Rights Reserved.
  
 
 <java-template-code>
+<template-code name='SERVER_IMPORT'><![CDATA[import org.omg.CORBA.ORB;
+    import org.omg.CORBA.Policy;
+    import org.omg.PortableServer.POA;
+    import org.omg.PortableServer.IdAssignmentPolicyValue;
+    import org.omg.PortableServer.IdUniquenessPolicyValue;
+    import org.omg.PortableServer.ImplicitActivationPolicyValue;
+    import org.omg.PortableServer.LifespanPolicyValue;
+    import org.omg.PortableServer.RequestProcessingPolicyValue;
+    import org.omg.PortableServer.ServantRetentionPolicyValue;
+    import org.omg.PortableServer.ThreadPolicyValue;
+    
+    import java.util.Properties;]]></template-code>
+
+
   <template-code name='POA_INIT'><![CDATA[POA poa = (POA)orb.resolve_initial_references ("RootPOA");//GEN-LINE:poa_section]]>
   </template-code>
+
+<template-code name='ORB_PROPERTIES'>
+  </template-code>
+
+<template-code name='ORB_INIT'><![CDATA[ORB orb = ORB.init (args, null);]]>
+  </template-code>
+
+  
 </java-template-code>
 
 <idl-compiler-settings>
