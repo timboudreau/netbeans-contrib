@@ -47,6 +47,8 @@ public class ExternalCommand {
     private int exitStatus = VcsCommandExecutor.SUCCEEDED;
     private String inputData = null;
     private boolean inputRepeat = false;
+    // The standard input stream of the process, in case that inputRepeat == false
+    private OutputStream inputStream = null;
     private int osType = Utilities.getOperatingSystem();
 
     private Object stdOutDataLock = new Object();
@@ -64,6 +66,10 @@ public class ExternalCommand {
     private Object stdErrLock = new Object();
     private ArrayList stdOutListeners = new ArrayList();
     private ArrayList stdErrListeners = new ArrayList();
+    private ArrayList stdImmediateOutListeners = new ArrayList();
+    private ArrayList stdImmediateErrListeners = new ArrayList();
+    boolean isImmediateOut = false;
+    boolean isImmediateErr = false;
     
     // The environment variables
     private String[] envp = null;
@@ -109,6 +115,27 @@ public class ExternalCommand {
     public void setInput(String inputData, boolean repeat) {
         this.inputData = inputData;
         this.inputRepeat = repeat;
+    }
+    
+    /**
+     * Send some input data to a running command.
+     * This will do nothing if the input is repeated.
+     */
+    public void sendInput(String inputData) {
+        if (inputStream != null) {
+            try {
+                inputStream.write(inputData.getBytes());
+                inputStream.flush();
+            } catch (IOException ioex) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
+            }
+        } else if (!inputRepeat) {
+            if (this.inputData != null) {
+                this.inputData += inputData;
+            } else {
+                this.inputData = inputData;
+            }
+        }
     }
     
     public void setEnv(String[] envp) {
@@ -295,9 +322,9 @@ public class ExternalCommand {
             //D.deb("New WatchDog with timeout = "+timeoutMilis); // NOI18N
 
             SafeRunnable inputRepeater = null;
+            OutputStream os = proc.getOutputStream();
             if (inputData != null) {
                 try{
-                    OutputStream os = proc.getOutputStream();
                     //D.deb("stdin>>"+inputData); // NOI18N
                     //System.out.println("stdin>>"+inputData);
                     if (inputRepeat) {
@@ -305,13 +332,14 @@ public class ExternalCommand {
                         RequestProcessor.getDefault().post(inputRepeater);
                     } else {
                         os.write(inputData.getBytes());
-                        os.flush();
-                        os.close();
                     }
                 }
                 catch(IOException e){
                     E.err(e,"writeBytes("+inputData+") failed"); // NOI18N
                 }
+            }
+            if (!inputRepeat) {
+                inputStream = os;
             }
 
             output = new OutputGrabber(proc.getInputStream(), proc.getErrorStream());
@@ -324,6 +352,13 @@ public class ExternalCommand {
             int exit = proc.waitFor();
             if (inputRepeater != null) {
                 inputRepeater.doStop();
+            }
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException ioex) {
+                    // silently ignore, will be a broken pipe
+                }
             }
             //D.deb("process exit="+exit); // NOI18N
 
@@ -485,6 +520,14 @@ public class ExternalCommand {
                             }
                         }
                     }
+                    if (n > 0 && isImmediateOut) {
+                        synchronized (stdOutLock) {
+                            Iterator it = stdImmediateOutListeners.iterator();
+                            while(it.hasNext()) {
+                                ((TextOutputListener) it.next()).outputLine(new String(buff, 0, n));
+                            }
+                        }
+                    }
                 } else {
                     stopped = true;
                     eof_stdout = true;
@@ -503,6 +546,14 @@ public class ExternalCommand {
                         } else {
                             if (buff[i] != 13) {
                                 errBuffer.append(buff[i]);
+                            }
+                        }
+                    }
+                    if (n > 0 && isImmediateErr) {
+                        synchronized (stdErrLock) {
+                            Iterator it = stdImmediateErrListeners.iterator();
+                            while(it.hasNext()) {
+                                ((TextOutputListener) it.next()).outputLine(new String(buff, 0, n));
                             }
                         }
                     }
@@ -677,6 +728,30 @@ public class ExternalCommand {
             this.stdErrListeners.add(l);
         }
     }
+    
+    /**
+     * Add a listener to the standard output, that will be noified
+     * immediately as soon as the output text is available. It does not wait
+     * for the new line and does not send output line-by-line.
+     */
+    public void addImmediateTextOutputListener(TextOutputListener l) {
+        isImmediateOut = true;
+        synchronized(stdOutLock) {
+            this.stdImmediateOutListeners.add(l);
+        }
+    }
+
+    /**
+     * Add a listener to the standard error output, that will be noified
+     * immediately as soon as the output text is available. It does not wait
+     * for the new line and does not send output line-by-line.
+     */
+    public void addImmediateTextErrorListener(TextOutputListener l) {
+        isImmediateErr = true;
+        synchronized(stdErrLock) {
+            this.stdImmediateErrListeners.add(l);
+        }
+    }
 
     /**
      * Remove a standard output data listener.
@@ -729,8 +804,14 @@ public class ExternalCommand {
             int n = stdOutDataListeners.size();
             for (int i = 0; i < n; i++) {
                 RE pattern = (RE) stdOutRegexps.get(i);
-                String[] sa = matchToStringArray(pattern, line);
-                if (sa != null && sa.length > 0) ((RegexOutputListener) stdOutDataListeners.get(i)).outputMatchedGroups(sa);
+                try {
+                    String[] sa = matchToStringArray(pattern, line);
+                    if (sa != null && sa.length > 0) ((RegexOutputListener) stdOutDataListeners.get(i)).outputMatchedGroups(sa);
+                } catch (ThreadDeath td) {
+                    throw td;
+                } catch (Error e) {
+                    ErrorManager.getDefault().notify(e);
+                }
             }
         }
         synchronized(stdOutLock) {
@@ -747,8 +828,14 @@ public class ExternalCommand {
             int n = stdErrDataListeners.size();
             for (int i = 0; i < n; i++) {
                 RE pattern = (RE) stdErrRegexps.get(i);
-                String[] sa = matchToStringArray(pattern, line);
-                if (sa != null && sa.length > 0) ((RegexOutputListener) stdErrDataListeners.get(i)).outputMatchedGroups(sa);
+                try {
+                    String[] sa = matchToStringArray(pattern, line);
+                    if (sa != null && sa.length > 0) ((RegexOutputListener) stdErrDataListeners.get(i)).outputMatchedGroups(sa);
+                } catch (ThreadDeath td) {
+                    throw td;
+                } catch (Error e) {
+                    ErrorManager.getDefault().notify(e);
+                }
             }
         }
         synchronized(stdErrLock) {

@@ -45,6 +45,7 @@ import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.commands.CommandOutputCollector;
 import org.netbeans.modules.vcscore.commands.CommandOutputVisualizer;
 import org.netbeans.modules.vcscore.commands.CommandTaskInfo;
+import org.netbeans.modules.vcscore.commands.InteractiveCommandOutputVisualizer;
 import org.netbeans.modules.vcscore.commands.ProvidedCommand;
 import org.netbeans.modules.vcscore.commands.RegexOutputListener;
 import org.netbeans.modules.vcscore.commands.TextOutputListener;
@@ -267,8 +268,9 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         return runtimeCommand;
     }
     
-    private VcsCommandVisualizer createVisualizer() {
-        final CommandOutputVisualizer outputVisualizer = new CommandOutputVisualizer(this);
+    private VcsCommandVisualizer createVisualizer(boolean interactive) {
+        final CommandOutputVisualizer outputVisualizer = (interactive) ? new InteractiveCommandOutputVisualizer() : new CommandOutputVisualizer();
+        outputVisualizer.setVcsTask(this);
         outputCollector.addTextOutputListener(new TextOutputListener() {
             public void outputLine(String line) {
                 outputVisualizer.stdOutputLine(line);
@@ -293,14 +295,14 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     }
     
     public VcsCommandVisualizer getVisualizer() {
-        return getVisualizer(true);
+        return getVisualizer(true, false);
     }
     
-    synchronized VcsCommandVisualizer getVisualizer(boolean showPlainOutput) {
+    synchronized VcsCommandVisualizer getVisualizer(boolean showPlainOutput, boolean interactive) {
         if (visualizer == null) {
             visualizer = executor.getVisualizer();
             if (visualizer == null && showPlainOutput) {
-                visualizer = createVisualizer();
+                visualizer = createVisualizer(interactive);
             }
         }
         if (isFinished()) visualizer.setExitStatus(executor.getExitStatus());

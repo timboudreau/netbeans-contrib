@@ -304,8 +304,11 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (visualizer != null) {
             if (!visualizer.openAfterCommandFinish()) visualizer.open();
         }
-        if (VcsCommandIO.getBooleanProperty(ec.getCommand(), VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT)) {
-            visualizer = userTask.getVisualizer(true);
+        if (VcsCommandIO.getBooleanProperty(ec.getCommand(), VcsCommand.PROPERTY_DISPLAY_INTERACTIVE_OUTPUT)) {
+            visualizer = userTask.getVisualizer(true, true);
+            if (visualizer != null) visualizer.open();
+        } else if (VcsCommandIO.getBooleanProperty(ec.getCommand(), VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT)) {
+            visualizer = userTask.getVisualizer(true, false);
             if (visualizer != null) visualizer.open();
         }
         try {

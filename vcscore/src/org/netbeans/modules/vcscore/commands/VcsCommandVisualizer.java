@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import java.util.Map;
+
 import org.openide.windows.TopComponent;
 
 /**
@@ -22,6 +24,27 @@ import org.openide.windows.TopComponent;
  * @author  Martin Entlicher
  */
 public abstract class VcsCommandVisualizer extends TopComponent {
+    
+    /**
+     * After instatiation this method is called with the task that should
+     * be visualized. Do not attach listeners for the output data here,
+     * use the *Output* methods instead. The task can be already finished
+     * when this method is called.
+     */
+    public void setVcsTask(VcsDescribedTask task) {
+        // subclasses can implement this
+    }
+    
+    /**
+     * After instatiation this method is called with the map of all possible
+     * file statuses. The map contains raw file status strings as keys
+     * and appropriate {@link org.netbeans.api.vcs.FileStatusInfo} objects
+     * as values.
+     * @return The file status map.
+     */
+    public void setPossibleFileStatusInfoMap(Map infoMap) {
+        // subclasses can implement this
+    }
     
     /**
      * This method is called when the command finishes.
@@ -37,25 +60,23 @@ public abstract class VcsCommandVisualizer extends TopComponent {
     public abstract boolean openAfterCommandFinish();
     
     /**
-     * Receive a line of standard output.
-     *
+     * Receive a line of standard output of the visualized command.
+     */
     public abstract void stdOutputLine(String line);
     
     /**
-     * Receive a line of error output.
-     *
+     * Receive a line of error output of the visualized command.
+     */
     public abstract void errOutputLine(String line);
 
     /**
-     * Receive the data output.
-     *
+     * Receive the data output of the visualized command.
+     */
     public abstract void stdOutputData(String[] data);
     
     /**
-     * Receive the error data output.
-     *
-    public abstract void errOutputData(String[] data);
+     * Receive the error data output of the visualized command.
      */
+    public abstract void errOutputData(String[] data);
 
 }
-

@@ -77,6 +77,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private VcsDescribedCommand command = null;
     /** The CommandTask associated with this executor. */
     private CommandTask task = null;
+    
+    /** The underlying external command, if any. */
+    private ExternalCommand externalCommand = null;
 
     //private RegexListener stdoutListener = null;
     //private RegexListener stderrListener = null;
@@ -93,6 +96,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     private ArrayList dataOutputListeners = new ArrayList(); // For compatibility only
     private ArrayList dataErrorListeners = new ArrayList(); // For compatibility only
     private ArrayList fileReaderListeners = new ArrayList();
+    private ArrayList immediateOutputListeners = new ArrayList();
+    private ArrayList immediateErrorListeners = new ArrayList();
     private boolean doFileRefresh; // Whether this command provides updated status of processed files
     private boolean doPostExecutionRefresh; // Whether this command refresh status of all processed files
     private boolean getFileRefreshFromErrOut = false; // Whether to read the refresh info from the error data output also
@@ -297,6 +302,21 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     public void addDataErrorOutputListener(CommandDataOutputListener l) {
         if (dataErrorListeners != null) dataErrorListeners.add(l);
     }
+    
+    public void addImmediateTextOutputListener(TextOutputListener l) {
+        if (immediateOutputListeners != null) immediateOutputListeners.add(l);
+    }
+
+    public void addImmediateTextErrorListener(TextOutputListener l) {
+        if (immediateErrorListeners != null) immediateErrorListeners.add(l);
+    }
+    
+    public void sendInput(String input) {
+        if (externalCommand != null) {
+            externalCommand.sendInput(input);
+        }
+    }
+    
 
     public final VcsCommand getCommand() {
         return cmd;
@@ -329,6 +349,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         regexErrorListeners.clear();
         dataOutputListeners.clear();
         dataErrorListeners.clear();
+        immediateOutputListeners.clear();
+        immediateErrorListeners.clear();
         if (doFileRefresh) {
             flushRefreshInfo();
             cleanupSendRefreshInfo();
@@ -339,6 +361,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         regexErrorListeners = null;
         dataOutputListeners = null;
         dataErrorListeners = null;
+        immediateOutputListeners = null;
+        immediateErrorListeners = null;
         if (success || VcsCommandIO.getIntegerPropertyAssumeNegative(cmd, VcsCommand.PROPERTY_REFRESH_ON_FAIL) == 1) {
             refreshRemainingFiles();
             /* Moved to CommandExecutorSupport
@@ -545,6 +569,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         for (int i = 0; i < execs.length; i++) {
             String exec = execs[i];
             ExternalCommand ec = new ExternalCommand(exec);
+            this.externalCommand = ec;
             //ec.setTimeout(cmd.getTimeout());
             ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT),
                         VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_INPUT_REPEAT));
@@ -558,6 +583,13 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
             for (Iterator it = textErrorListeners.iterator(); it.hasNext(); ) {
                 ec.addTextErrorListener((TextOutputListener) it.next());
+            }
+
+            for (Iterator it = immediateOutputListeners.iterator(); it.hasNext(); ) {
+                ec.addImmediateTextOutputListener((TextOutputListener) it.next());
+            }
+            for (Iterator it = immediateErrorListeners.iterator(); it.hasNext(); ) {
+                ec.addImmediateTextErrorListener((TextOutputListener) it.next());
             }
 
             //E.deb("ec="+ec); // NOI18N

@@ -60,8 +60,8 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     
     private static final long serialVersionUID = -8901790341334731237L;
     
-    protected CommandOutputVisualizer() {
-        outputPanel = new CommandOutputPanel();
+    public CommandOutputVisualizer() {
+        outputPanel = createOutputPanel();
         setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
         putClientProperty("PersistenceType", "Never");
 
@@ -79,27 +79,8 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         }
     }
     
-    /** Creates new CommandOutputVisualizer */
-    public CommandOutputVisualizer(VcsDescribedTask task) {
-        this();
-        this.vce = task.getExecutor();
-        this.task = (CommandTask) task;
-        killListener = new CommandKillListener();
-        outputPanel.addKillActionListener(killListener);
-        outputPanel.setExec(vce.getExec());
-        String name = vce.getCommand().getDisplayName();
-        if (name == null || name.length() == 0) name = vce.getCommand().getName();
-        setName(java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
-                new Object[] { name }));
-    }
-    
-    public CommandOutputVisualizer(java.awt.event.ActionListener killListener, String execString, String name) {
-        this();
-        this.killListener = killListener;
-        outputPanel.addKillActionListener(this.killListener);
-        outputPanel.setExec(execString);
-        setName(java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
-                new Object[] { name }));
+    protected CommandOutputPanel createOutputPanel() {
+        return new CommandOutputPanel();
     }
     
     private void initComponents() {
@@ -113,6 +94,18 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         outputPanel.setStatus(org.openide.util.NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandExitStatus.running"));
         getAccessibleContext().setAccessibleName(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSN_CommandOutputVisualizer"));
         getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CommandOutputVisualizer.class, "ACSD_CommandOutputVisualizer"));
+    }
+    
+    public void setVcsTask(VcsDescribedTask task) {
+        this.task = (CommandTask) task;
+        this.vce = task.getExecutor();
+        killListener = new CommandKillListener();
+        outputPanel.addKillActionListener(killListener);
+        outputPanel.setExec(vce.getExec());
+        String name = vce.getCommand().getDisplayName();
+        if (name == null || name.length() == 0) name = vce.getCommand().getName();
+        setName(java.text.MessageFormat.format(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
+                new Object[] { name }));
     }
     
     /*
@@ -162,24 +155,28 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
         return null;
     }
     
-    private void appendLineToArea(javax.swing.JTextArea area, String line) {
+    protected void appendTextToArea(javax.swing.JTextArea area, String text) {
         synchronized (outputDisplayStuff) {
-        StringBuffer buffer = (StringBuffer) outputDisplayStuff.get(area);
-        if (buffer == null) {
-            buffer = new StringBuffer(line + "\n");
-            synchronized (outputDisplayStuff) {
-                outputDisplayStuff.put(area, buffer);
-                if (outputDisplayStuff.size() == 1) {
-                    outputDisplayStuff.notify(); // it was empty before!
+            StringBuffer buffer = (StringBuffer) outputDisplayStuff.get(area);
+            if (buffer == null) {
+                buffer = new StringBuffer(text);
+                synchronized (outputDisplayStuff) {
+                    outputDisplayStuff.put(area, buffer);
+                    if (outputDisplayStuff.size() == 1) {
+                        outputDisplayStuff.notify(); // it was empty before!
+                    }
+                }
+            } else {
+                buffer.append(text);
+                if (buffer.length() > MAX_BUFFER_SIZE) {
+                    buffer.delete(0, buffer.length() - MAX_AREA_SIZE  - 1);
                 }
             }
-        } else {
-            buffer.append(line + "\n");
-            if (buffer.length() > MAX_BUFFER_SIZE) {
-                buffer.delete(0, buffer.length() - MAX_AREA_SIZE  - 1);
-            }
         }
-        }
+    }
+    
+    private void appendLineToArea(javax.swing.JTextArea area, String line) {
+        appendTextToArea(area, line + '\n');
     }
     
     /**

@@ -25,7 +25,7 @@ import org.netbeans.modules.vcscore.FileReaderListener;
  *
  * @author  Martin Entlicher
  */
-public interface VcsCommandExecutor extends Runnable {
+public interface VcsCommandExecutor extends Runnable, TextInput {
 
     /** The exit status when the command terminated successfully. */
     public static final int SUCCEEDED = 0;
@@ -151,5 +151,18 @@ public interface VcsCommandExecutor extends Runnable {
      *             Use {@link #addRegexErrorListener} instead.
      */
     public void addDataErrorOutputListener(CommandDataOutputListener l);
-
+    
+    /**
+     * Add a listener to the standard output, that will be noified
+     * immediately as soon as the output text is available. It does not wait
+     * for the new line and does not send output line-by-line.
+     */
+    public void addImmediateTextOutputListener(TextOutputListener l);
+    
+    /**
+     * Add a listener to the standard error output, that will be noified
+     * immediately as soon as the output text is available. It does not wait
+     * for the new line and does not send output line-by-line.
+     */
+    public void addImmediateTextErrorListener(TextOutputListener l);
 }
