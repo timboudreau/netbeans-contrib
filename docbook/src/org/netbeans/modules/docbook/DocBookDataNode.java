@@ -17,6 +17,7 @@ import java.awt.Image;
 import java.beans.BeanInfo;
 import org.openide.loaders.*;
 import org.openide.nodes.*;
+import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
 public class DocBookDataNode extends DataNode {
@@ -35,6 +36,18 @@ public class DocBookDataNode extends DataNode {
     
     public Image getOpenedIcon(int type) {
         return getIcon(type);
+    }
+    
+    public String getShortDescription() {
+        String mime = getDataObject().getPrimaryFile().getMIMEType();
+        if (mime.equals(DocBookDataLoader.MIME_DOCBOOK)) {
+            return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_docbook_xml");
+        } else if (mime.equals(DocBookDataLoader.MIME_SLIDES)) {
+            return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_slides");
+        } else {
+            assert false : mime;
+            return super.getShortDescription();
+        }
     }
     
 }

@@ -24,6 +24,7 @@ import org.openide.util.actions.SystemAction;
 public class DocBookDataLoader extends UniFileLoader {
     
     public static final String MIME_SLIDES = "text/x-docbook-slides+xml";
+    public static final String MIME_DOCBOOK = "text/x-docbook+xml";
     
     private static final long serialVersionUID = 1L;
     
@@ -39,6 +40,7 @@ public class DocBookDataLoader extends UniFileLoader {
         super.initialize();
         ExtensionList extensions = new ExtensionList();
         extensions.addMimeType(MIME_SLIDES);
+        extensions.addMimeType(MIME_DOCBOOK);
         setExtensions(extensions);
     }
     

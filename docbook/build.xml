@@ -23,9 +23,10 @@ Microsystems, Inc. All Rights Reserved.
     <target name="external">
         <ant dir="${nbroot}/libs/external"/>
         <property file="${nbroot}/libs/public.properties"/>
-        <mkdir dir="tmp"/>
+        <mkdir dir="tmp/docbook-xml-${libs.docbook-xml.version}"/>
         <unzip src="${nbroot}/libs/external/docbook-xsl-${libs.docbook-xsl.version}.zip" dest="tmp"/>
         <unzip src="${nbroot}/libs/external/slides-${libs.docbook-slides.version}.zip" dest="tmp"/>
+        <unzip src="${nbroot}/libs/external/docbook-xml-${libs.docbook-xml.version}.zip" dest="tmp/docbook-xml-${libs.docbook-xml.version}"/>
         <property name="browser.dir" location="tmp/slides-${libs.docbook-slides.version}/browser"/>
         <fileset id="browser.files.list" dir="${browser.dir}">
             <exclude name="**/ChangeLog"/>
@@ -43,6 +44,7 @@ Microsystems, Inc. All Rights Reserved.
         <propertyfile file="tmp/config.properties" comment="org.netbeans.modules.docbook configuration">
             <entry key="docbook-xsl.version" value="${libs.docbook-xsl.version}"/>
             <entry key="slides.version" value="${libs.docbook-slides.version}"/>
+            <entry key="docbook-xml.version" value="${libs.docbook-xml.version}"/>
             <entry key="browser.files" value="${browser.files}"/>
             <entry key="graphics.files" value="${graphics.files}"/>
         </propertyfile>
@@ -78,6 +80,9 @@ Microsystems, Inc. All Rights Reserved.
                 <include name="docbook-xsl-${libs.docbook-xsl.version}/lib/"/>
                 <include name="docbook-xsl-${libs.docbook-xsl.version}/xhtml/"/>
                 <include name="docbook-xsl-${libs.docbook-xsl.version}/VERSION"/>
+                <include name="docbook-xml-${libs.docbook-xml.version}/*.dtd"/>
+                <include name="docbook-xml-${libs.docbook-xml.version}/*.mod"/>
+                <include name="docbook-xml-${libs.docbook-xml.version}/ent/*.ent"/>
                 <exclude name="**/ChangeLog"/>
             </zipfileset>
         </jar>
@@ -104,8 +109,10 @@ Microsystems, Inc. All Rights Reserved.
             <license name="docbook-license.txt">
                 <text>For the module itself:</text>
                 <file location="${license.file}"/>
-                <text>For the included DocBook DTDs and stylesheets:</text>
+                <text>For the included DocBook stylesheets and Slides DTD:</text>
                 <file location="${nbroot}/libs/external/docbook-sf-net-license.txt"/>
+                <text>For the included DocBook XML DTD:</text>
+                <file location="${nbroot}/libs/external/docbook-xml-license.txt"/>
             </license>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>

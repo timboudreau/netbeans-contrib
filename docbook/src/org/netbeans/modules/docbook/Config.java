@@ -27,6 +27,7 @@ final class Config {
     
     public static final String DOCBOOK_XSL_VERSION;
     public static final String SLIDES_VERSION;
+    public static final String DOCBOOK_XML_VERSION;
     public static final String[] BROWSER_FILES;
     public static final String[] GRAPHICS_FILES;
     
@@ -40,6 +41,7 @@ final class Config {
                 is.close();
             }
             DOCBOOK_XSL_VERSION = p.getProperty("docbook-xsl.version");
+            DOCBOOK_XML_VERSION = p.getProperty("docbook-xml.version");
             SLIDES_VERSION = p.getProperty("slides.version");
             BROWSER_FILES = p.getProperty("browser.files").split(",");
             GRAPHICS_FILES = p.getProperty("graphics.files").split(",");

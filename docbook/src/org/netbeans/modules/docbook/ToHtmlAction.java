@@ -39,6 +39,7 @@ import org.xml.sax.*;
 public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHandler {
     
     private static final String XSL_SLIDES = "http://docbook.sourceforge.net/release/slides/current/xsl/xhtml/plain.xsl";
+    private static final String XSL_ARTICLE = "http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl";
     
     protected Class[] cookieClasses() {
         return new Class[] {DocBookDataObject.class};
@@ -83,17 +84,10 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 reader.setErrorHandler(this);
                 EntityResolver resolver = new DocBookCatalog.Reader();
                 reader.setEntityResolver(resolver);
-                //InputSource styleSource = new InputSource(XSL_SLIDES);
                 InputSource styleSource = resolver.resolveEntity(null, XSL_SLIDES);
                 assert styleSource != null;
                 Source style = new SAXSource(reader, styleSource);
-                //Source style = new StreamSource(XSL_SLIDES);
                 TransformerFactory tf = TransformerFactory.newInstance();
-                /*
-                CodeSource s = tf.getClass().getProtectionDomain().getCodeSource();
-                err.println("Using XSLT transformer from " + (s != null ? s.getLocation().toExternalForm() : "the JRE"));
-                err.println("supports SAX sources: " + tf.getFeature(SAXSource.FEATURE));
-                 */
                 tf.setURIResolver(new EntityResolver2URIResolver(resolver));
                 Transformer t = tf.newTransformer(style);
                 t.setParameter("output.indent", "yes");
@@ -108,7 +102,6 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 reader.setErrorHandler(this);
                 reader.setEntityResolver(resolver); // XXX include EntityCatalog.default too?
                 Source source = new SAXSource(reader, new InputSource(fo.getURL().toExternalForm()));
-                //Source source = new StreamSource(fo.getURL().toExternalForm());
                 Result result = new StreamResult(dummyF);
                 t.setErrorListener(this);
                 t.transform(source, result);
@@ -117,18 +110,59 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 String lib = "org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/";
                 copyDir(folder, "browser/", Config.BROWSER_FILES, lib + "browser/");
                 copyDir(folder, "graphics/", Config.GRAPHICS_FILES, lib + "graphics/");
-                /* To manually override stylesheet in Slides 3.1.0:
-                FileObject[] html = folder.getChildren();
-                for (int i = 0; i < html.length; i++) {
-                    if (html[i].hasExt("html")) {
-                        substInFile(html[i], "http://docbook.sourceforge.net/release/slides/browser/slides.css", "browser/slides.css");
-                    }
-                }
-                 */
                 FileObject index = folder.getFileObject("index.html");
                 if (index != null) {
                     HtmlBrowser.URLDisplayer.getDefault().showURL(index.getURL());
                 }
+                err.println("Done.");
+            } catch (Exception e) {
+                e.printStackTrace(err);
+            } finally {
+                err = null;
+            }
+        } else if (mime.equals(DocBookDataLoader.MIME_DOCBOOK)) {
+            String name = fo.getName();
+            InputOutput io = IOProvider.getDefault().getIO(NbBundle.getMessage(ToHtmlAction.class, "LBL_tab_db_conv"), false);
+            io.select();
+            err = io.getErr();
+            try {
+                err.reset();
+                FileObject out = fo.getParent().getFileObject(name, "html");
+                if (out == null) {
+                    out = fo.getParent().createData(name, "html");
+                }
+                SAXParserFactory saxpf = SAXParserFactory.newInstance();
+                saxpf.setNamespaceAware(true);
+                XMLReader reader = saxpf.newSAXParser().getXMLReader();
+                reader.setErrorHandler(this);
+                EntityResolver resolver = new DocBookCatalog.Reader();
+                reader.setEntityResolver(resolver);
+                InputSource styleSource = resolver.resolveEntity(null, XSL_ARTICLE);
+                assert styleSource != null;
+                Source style = new SAXSource(reader, styleSource);
+                TransformerFactory tf = TransformerFactory.newInstance();
+                tf.setURIResolver(new EntityResolver2URIResolver(resolver));
+                Transformer t = tf.newTransformer(style);
+                t.setParameter("output.indent", "yes");
+                saxpf.setValidating(true);
+                reader = saxpf.newSAXParser().getXMLReader();
+                reader.setErrorHandler(this);
+                reader.setEntityResolver(resolver); // XXX include EntityCatalog.default too?
+                Source source = new SAXSource(reader, new InputSource(fo.getURL().toExternalForm()));
+                FileLock l = out.lock();
+                try {
+                    OutputStream outS = out.getOutputStream(l);
+                    try {
+                        Result result = new StreamResult(outS);
+                        t.setErrorListener(this);
+                        t.transform(source, result);
+                    } finally {
+                        outS.close();
+                    }
+                } finally {
+                    l.releaseLock();
+                }
+                HtmlBrowser.URLDisplayer.getDefault().showURL(out.getURL());
                 err.println("Done.");
             } catch (Exception e) {
                 e.printStackTrace(err);
@@ -171,55 +205,6 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
             }
         }
     }
-    
-    /**
-     * Do a substitution in a file.
-     * UTF-8 encoding is assumed.
-     * @param fo file to transform
-     * @param from initial string
-     * @param to its replacement
-     * /
-    private static void substInFile(FileObject fo, String from, String to) throws IOException {
-        StringBuffer b = new StringBuffer();
-        FileLock l = fo.lock();
-        try {
-            InputStream is = fo.getInputStream();
-            try {
-                Reader r = new InputStreamReader(is, "UTF-8");
-                char[] buf = new char[4096];
-                int i;
-                while ((i = r.read(buf)) != -1) {
-                    b.append(buf, 0, i);
-                }
-            } finally {
-                is.close();
-            }
-            int x = -1;
-            boolean changed = false;
-            while (true) {
-                x = b.indexOf(from, x + 1);
-                if (x == -1) {
-                    break;
-                }
-                changed = true;
-                b.replace(x, x + from.length(), to);
-                x = x + to.length();
-            }
-            if (changed) {
-                OutputStream os = fo.getOutputStream(l);
-                try {
-                    Writer w = new OutputStreamWriter(os, "UTF-8");
-                    w.write(b.toString());
-                    w.flush();
-                } finally {
-                    os.close();
-                }
-            }
-        } finally {
-            l.releaseLock();
-        }
-    }
-     */
     
     public String getName() {
         return NbBundle.getMessage(ToHtmlAction.class, "LBL_action");
