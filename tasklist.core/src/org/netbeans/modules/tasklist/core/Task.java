@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import org.netbeans.api.tasklist.Suggestion;
+import org.netbeans.api.tasklist.SuggestionProvider;
 import org.openide.TopManager;
 import org.openide.nodes.Node;
 
@@ -588,6 +589,15 @@ public class Task extends Suggestion implements Cloneable {
         t.copyFrom(this);
         return t;
     }
+
+    /** 
+     * Get the provider. Not defined for tasks - will be subclassed
+     * in SuggestionImpl but we don't want Task to be abstract...
+     */
+    public SuggestionProvider getProvider() {
+         return null;
+    }
+
 
     /** Copy all the fields in the given task into this object.
         Should only be called on an object of the EXACT same type.

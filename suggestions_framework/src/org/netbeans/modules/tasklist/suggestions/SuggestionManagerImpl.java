@@ -124,6 +124,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
      *             user to the problem: the compiler may add tasks to
      *             fix errors and running these actions open the editor
      *             on the relevant source line.
+     * @param provider The SuggestionProvider creating this suggestion,
+     *             if any. May be null.
      *
      * @todo Provide specific guidelines here for how these sentences
      *       should be worded so that we get a consistent set of
@@ -132,9 +134,8 @@ final public class SuggestionManagerImpl extends SuggestionManager
      */
     public Suggestion createSuggestion(String type,
                                        String summary,
-                                       SuggestionPerformer action) {
-        SuggestionImpl s = new SuggestionImpl();
-
+                                       SuggestionPerformer action,
+                                       SuggestionProvider provider) {
         // "Sanitize" the summary: replace newlines with ':'
         // " " or ":" (let's pick one).
         // (Oh crap. What do we do about CRLF's? Replace with ": " ?
@@ -154,12 +155,14 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
             summary = sb.toString();
         }
-        
-        s.setSummary(summary);
-        s.setAction(action);
-        s.setType(type);
+
         SuggestionType st = SuggestionTypes.getTypes().getType(type);
-        s.setSType(st);
+        if (st == null) {
+            throw new IllegalArgumentException("type " + st + 
+                                               " is not registered");
+        }
+        SuggestionImpl s = new SuggestionImpl(summary, st,
+                                              action, provider);
         return s;
     }
     
@@ -1177,7 +1180,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 erase = new ArrayList(20);
             }
             origIcon.add(s.getIcon());
-            s.setHighlighted(true);
+            //s.setHighlighted(true);
             Image badge = Utilities.loadImage("org/netbeans/modules/tasklist/suggestions/badge.gif"); // NOI18N
             Image image = Utilities.mergeImages(s.getIcon(), badge,
             0, 0);
@@ -1218,7 +1221,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                  SuggestionImpl s = (SuggestionImpl)it.next();
                  Image icon = (Image)itorig.next();
                  s.setIcon(icon);
-                 s.setHighlighted(false);
+                 //s.setHighlighted(false);
              }
         }
         erase = null;

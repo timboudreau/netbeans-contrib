@@ -40,7 +40,8 @@ final public class SuggestionList extends TaskList {
     public SuggestionList() {
         super(new SuggestionImpl(
               NbBundle.getMessage(SuggestionList.class, 
-                                   "SuggestionsRoot"), null, 0)); // NOI18N
+                                   "SuggestionsRoot"), null, null, 
+              null)); // NOI18N
     }
     
 

@@ -137,7 +137,8 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
             String summary = subtask.getSummary();
             Suggestion s = manager.createSuggestion(TYPE,
                 summary,
-                null);
+                null,
+                this);
             s.setLine(subtask.getLine());
             s.setPriority(SuggestionPriority.NORMAL);
             if (tasks == null) {

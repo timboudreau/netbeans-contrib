@@ -20,6 +20,7 @@ import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.text.Line;
 
+import org.netbeans.api.tasklist.*;
 
 
 // XXX todo: fire property change whenever anything changes in the node...
@@ -27,15 +28,16 @@ import org.openide.text.Line;
 /** Class which represents a task in the
  * tasklist.
  * @author Tor Norbye */
-final public class SuggestionImpl extends Task {
+final public class SuggestionImpl extends Task implements Node.Cookie {
 
     //private String action;
-    private String filename;
-    private String basename;
-    private int linenumber;
+    private String filename = null;
+    private String basename = null;
+    private int linenumber = 0;
+    private SuggestionProvider provider = null;
     private String category = null;
     private SuggestionType stype = null;
-    private boolean highlighted = false;
+    //private boolean highlighted = false;
 
     /** Field (package private) used by the SourceScanner as a tag
         to improve search speeds. Don't muck with it. */
@@ -44,11 +46,16 @@ final public class SuggestionImpl extends Task {
     SuggestionImpl() {
     }
 
-    public SuggestionImpl(String desc, String filename, int linenumber) {
-        super(desc, null);
-        this.filename = filename;
-        this.linenumber = linenumber;
-        basename = null;
+    public SuggestionImpl(String summary, SuggestionType stype,
+                          SuggestionPerformer action,
+                          SuggestionProvider provider) {
+        super(summary, null);
+        this.provider = provider;
+        this.stype = stype;
+        setAction(action);
+        if (stype != null) {
+            setType(stype.getName());
+        }
     }
 
     /** Return true iff the task has an associated file position */
@@ -132,7 +139,8 @@ final public class SuggestionImpl extends Task {
         linenumber = from.linenumber;
         basename = from.basename;
         category = from.category;
-        highlighted = from.highlighted;
+        provider = from.provider;
+        //highlighted = from.highlighted;
         
         // TODO XXX Copy fields from Suggestion as well!
     }
@@ -180,23 +188,32 @@ final public class SuggestionImpl extends Task {
  
     }    
 
+    /** 
+     * Get the provider which created this suggestion.
+     * May be null (since not only SuggestionProviders
+     * are allowed to register suggestions)
+     */
+    public SuggestionProvider getProvider() {
+         return provider;
+    }
+
+/*
     public boolean isHighlighted() {
         return highlighted;
     }
-
     public void setHighlighted(boolean highlight) {
-        /*
-        if (highlight) {
-            setSummary("<html><b>" + getSummary() + "</b></html>");
-        } else {
-            String desc = getSummary();
-            setSummary(desc.substring(9, desc.length()-11)); // remove <html><b></b></html>
-        }
-        
-        // getIcon will get called and will report new icon
-         */
+        //if (highlight) {
+        //    setSummary("<html><b>" + getSummary() + "</b></html>");
+        //} else {
+        //    String desc = getSummary();
+        //    setSummary(desc.substring(9, desc.length()-11)); // remove <html><b></b></html>
+        //}
+        //
+        //// getIcon will get called and will report new icon
+        //
         updatedValues(); // TODO - just set this on the setIcon method?
     }
+*/
 }
 
 

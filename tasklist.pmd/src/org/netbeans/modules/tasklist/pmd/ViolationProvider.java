@@ -65,10 +65,6 @@ public class ViolationProvider extends DocumentSuggestionProvider {
 
     final private static String TYPE = "pmd-violations"; // NOI18N
 
-    public ViolationProvider() {
-        instance = this;
-    }
-    
     /**
      * Return the typenames of the suggestions that this provider
      * will create.
@@ -235,7 +231,8 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                         TYPE,
                         rulename + " : " + // NOI18N
                            violation.getDescription(),
-                        action);
+                        action,
+                        this);
                     // XXX Is there a priority for each rule?
                     s.setPriority(SuggestionPriority.NORMAL);
                     s.setLine(line);
@@ -474,16 +471,9 @@ public class ViolationProvider extends DocumentSuggestionProvider {
 	}     
     }
 
-    static ViolationProvider getDefault() {
-        return instance;
-    }
-
     /** The list of tasks we're currently showing in the tasklist */
     private List showingTasks = null;
 
     private DataObject dataobject = null;
     private Document document = null;
-
-    /** Default instance of this provider */
-    static private ViolationProvider instance = null;
 }

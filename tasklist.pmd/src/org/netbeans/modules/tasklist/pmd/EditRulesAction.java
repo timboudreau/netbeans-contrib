@@ -30,6 +30,7 @@ import org.openide.util.actions.NodeAction;
 import org.openide.util.actions.CallableSystemAction;
 
 import org.openide.explorer.propertysheet.*;
+import org.netbeans.api.tasklist.*;
 
 import pmd.config.PMDOptionsSettings;
 import pmd.config.ui.RuleEditor;
@@ -41,9 +42,20 @@ import pmd.config.ui.RuleEditor;
  * @author Tor Norbye
  */
 
-public class EditRulesAction extends CallableSystemAction {
+public class EditRulesAction extends NodeAction {
 
-    public void performAction() {
+    protected boolean enable(Node[] node) {
+        if ((node == null) || (node.length != 1)) {
+            return false;
+        }
+        Suggestion s = (Suggestion)node[0].getCookie(Suggestion.class);
+        if (s == null) {
+            return false;
+        }
+        return true;
+    }
+
+    protected void performAction(Node[] node) {
         PMDOptionsSettings settings = PMDOptionsSettings.getDefault();
         String rules = settings.getRules();
         RuleEditor editor = new RuleEditor();
@@ -62,8 +74,13 @@ public class EditRulesAction extends CallableSystemAction {
         if (d.getValue() == NotifyDescriptor.OK_OPTION) {
             Object value = editor.getValue();
             settings.setRules(value.toString());
-            if (ViolationProvider.getDefault() != null) {
-                ViolationProvider.getDefault().rescan();
+            Suggestion s = (Suggestion)node[0].getCookie(Suggestion.class);
+            if (s != null) {
+                SuggestionProvider provider = s.getProvider();
+                if ((provider != null) && 
+                    (provider instanceof ViolationProvider)) {
+                    ((ViolationProvider)provider).rescan();
+                }
             }
         }
     }

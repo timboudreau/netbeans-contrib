@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.netbeans.api.tasklist.Suggestion;
+
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.TaskListView;
@@ -232,6 +234,9 @@ class SuggestionNode extends TaskNode {
          Node.Cookie c = super.getCookie(cl);
          if (c != null) {
              return c;
+         }
+         if (cl.isAssignableFrom(Suggestion.class)) {
+             return (SuggestionImpl)item;
          }
          Line l = item.getLine();
          if (l != null) {
