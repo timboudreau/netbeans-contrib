@@ -188,6 +188,20 @@ class Focus extends Object implements PropertyChangeListener {
             sb.append(ke.getKeyText(ke.getKeyCode()));
             sb.append (" modifiers=");
             sb.append(KeyEvent.getModifiersExText(ke.getModifiersEx()));
+        } else if (e instanceof FocusEvent) {
+            FocusEvent fe = (FocusEvent) e;
+            Component src = fe.getSource() != null ? (Component) fe.getSource() : null;
+            Component opp = fe.getOppositeComponent();
+            String type = fe.getID() == fe.FOCUS_LOST ? "FOCUS_LOST" : "FOCUS_GAINED";
+            sb.append ("Type: " + type);
+            sb.append ("Source: " + c2s (src));
+            sb.append (" Opposite: " + c2s(opp));
+            boolean lost = fe.getID() == fe.FOCUS_LOST;
+            Point p = lost ? opp.getLocation() : src.getLocation();
+            SwingUtilities.convertPointToScreen(p, c);
+            sb.append (" location of focused:" + p.x + "," + p.y);
+            markComponent(src, lost ? Color.GREEN : Color.ORANGE);
+            markComponent(opp, lost ? Color.ORANGE : Color.GREEN);
         }
         sb.append (" source:");
         sb.append (e.getSource() != null ? e.getSource().getClass().getName() : " null");
@@ -195,6 +209,43 @@ class Focus extends Object implements PropertyChangeListener {
             sb.append (" name=");
             sb.append (((Component) e.getSource()).getName());
         }
+        return sb.toString();
+    }
+
+    private Component lastComponent = null;
+    static final void markComponent(Component c, Color color) {
+        if (c == null) {
+            return;
+        }
+        if (c.isShowing()) {
+            Graphics g = c.getGraphics();
+            Rectangle r = c.getBounds();
+            if (g != null) {
+                Color col = g.getColor();
+                try {
+                    g.setColor(color);
+                    g.drawRect (0,0, r.width-1, r.height-1);
+                    g.drawRect(1,1, r.width-2, r.height-2);
+                } finally {
+                    g.setColor(col);
+                }
+            }
+        }
+    }
+    
+    static String c2s (Component c) {
+        if (c == null) {
+            return "null";
+        }
+        StringBuffer sb = new StringBuffer();
+        String s = c.getName();
+        if (s != null) {
+            sb.append ("name:" + s);
+        }
+        sb.append ("(" + c.getClass().getName() + ")");
+        sb.append (" isVisible=" + c.isVisible());
+        sb.append (" isDisplayable=" + c.isDisplayable());
+        sb.append (" isShowing=" + c.isShowing());
         return sb.toString();
     }
     
