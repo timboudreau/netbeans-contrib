@@ -65,8 +65,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected volatile int refreshTimeToSet = REFRESH_TIME;
 
     private static final String LOCAL_FILES_ADD_VAR = "SHOWLOCALFILES"; // NOI18N
-    private static final String VAR_TRUE = "true"; // NOI18N
-    private static final String VAR_FALSE = "false"; // NOI18N
+    public static final String VAR_TRUE = "true"; // NOI18N
+    public static final String VAR_FALSE = "false"; // NOI18N
     private static final String LOCK_FILES_ON = "LOCKFILES"; // NOI18N
     private static final String PROMPT_FOR_LOCK_ON = "PROMPTFORLOCK"; // NOI18N
 
