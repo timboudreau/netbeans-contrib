@@ -1613,6 +1613,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public VariableValueAdjustment getVarValueAdjustment() {
         return varValueAdjustment;
     }
+    
+    /** Notify the filesystem, that an variable has changed and should be saved.
+     * @param name the name of a changed variables. If <code>null</code> we suppose,
+     *        that all variables changed. */
+    public void variableChanged(String name) {
+        firePropertyChange(PROP_VARIABLES, null, variables);
+    }
 
     /**
      * Set the file system's variables.
