@@ -14,11 +14,14 @@
 package org.netbeans.modules.vcscore.versioning;
 
 import java.util.*;
+
+import org.openide.nodes.Node.Cookie;
+
 /**
  *
  * @author  Martin Entlicher
  */
-public abstract class RevisionItem extends Object implements Comparable, java.io.Serializable {
+public abstract class RevisionItem extends Object implements Cookie, Comparable, java.io.Serializable {
 
     private String revision;
     private String revisionVCS; // the original VCS revision. May differ from "revision".

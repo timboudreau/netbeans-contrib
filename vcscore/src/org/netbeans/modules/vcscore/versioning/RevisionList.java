@@ -23,7 +23,7 @@ import org.openide.nodes.Node;
  * @author  Martin Entlicher
  * RevisionList is a sorted set of RevisionItem objects.
  */
-public abstract class RevisionList extends TreeSet {
+public abstract class RevisionList extends TreeSet implements Node.Cookie {
 
     private transient VcsFileObject fo = null; // The current File Object
     private transient Vector listeners;
