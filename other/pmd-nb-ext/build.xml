@@ -22,7 +22,9 @@ Microsystems, Inc. All Rights Reserved.
   <property name="nb_root" location="../.."/>
   <path id="pmdpath">
     <pathelement location="${nb_root}/contrib/pmd-nb-wrapper/netbeans/modules/pmd.jar"/>
-    <pathelement location="${nb_root}/contrib/pmd-nb-wrapper/netbeans/modules/ext/pmd-1.2.1.jar"/>
+    <fileset dir="${nb_root}/contrib/pmd-nb-wrapper/netbeans/modules/ext">
+      <include name="pmd-*.jar"/>
+    </fileset>
   </path>
 
       <target name="compile">

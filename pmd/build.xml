@@ -20,7 +20,7 @@ Microsystems, Inc. All Rights Reserved.
     <target name="init">
         <ant dir="../../libs/external" target="unscramble"/>
         <mkdir dir="tmp"/>
-        <unzip src="../../libs/external/pmd-netbeans35-bin-0.9.zip" dest="tmp">
+        <unzip src="../../libs/external/pmd-netbeans35-bin-0.91.zip" dest="tmp">
             <patternset>
                 <include name="pmd.nbm"/>
             </patternset>

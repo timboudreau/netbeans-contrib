@@ -30,13 +30,13 @@ Microsystems, Inc. All Rights Reserved.
     <property name="build.compiler.debug" value="on"/>
 
     <target name="init">
-        <property name="sf-pmd" location="${nb_all}/libs/external"/>
         <property name="nb-pmd" location="${nb_all}/contrib/pmd-nb-wrapper"/>
-        <ant dir="${sf-pmd}" target="unscramble"/>
         <ant dir="${nb-pmd}" target="netbeans"/>
         <path id="pmd.cp">
             <pathelement location="${nb-pmd}/netbeans/modules/pmd.jar"/>
-            <pathelement location="${sf-pmd}/pmd-1.3.jar"/>
+            <fileset dir="${nb-pmd}/netbeans/modules/ext">
+                <include name="pmd-*.jar"/>
+            </fileset>
         </path>
     </target>
 
