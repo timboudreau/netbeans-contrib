@@ -2,30 +2,6 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
 
 <filesystem>
-    <folder name="Mount">
-        <folder name="Javadoc">
-            <file name="org-netbeans-modules-testtools-jemmy-javadoc.xml">
-                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jemmysupport.Bundle" />
-	      <![CDATA[
-		<!DOCTYPE Javadoc PUBLIC "-//NetBeans IDE//DTD JavadocLibrary//EN" "http://www.netbeans.org/dtds/JavadocLibrary-1_0.dtd">
-		<Javadoc>
-		    <Archive name="docs/jemmy-javadoc.zip"/>
-		</Javadoc>
-	      ]]>
-            </file>
-        </folder>
-        <folder name="java">
-            <file name="org-netbeans-modules-testtools-jemmy-library.xml">
-                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jemmysupport.Bundle" />
-	      <![CDATA[
-	          <!DOCTYPE Library PUBLIC "-//NetBeans IDE//DTD JavaLibrary//EN" "http://www.netbeans.org/dtds/JavaLibrary-1_0.dtd">
-	          <Library>
-	              <Archive name="modules/ext/jemmy.jar"/>
-	          </Library>
-	      ]]>
-           </file>
-      </folder>
-    </folder>
     <folder name="Menu">
         <folder name="Tools">
                 <file name="org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
@@ -34,13 +10,8 @@
         <folder name="Help">
            <folder name="HelpShortcuts">
                <attr name="org-netbeans-modules-usersguide-sep.instance/org-netbeans-modules-jemmysupport-mainpage.xml" boolvalue="true"/>
-               <file name="org-netbeans-modules-jemmysupport-mainpage.xml">
+               <file name="org-netbeans-modules-jemmysupport-mainpage.xml" url="mainpage.xml">
                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jemmysupport.Bundle"/>
-                      <![CDATA[
-                          <?xml version="1.0"?>
-                          <!DOCTYPE helpctx PUBLIC "-//NetBeans//DTD Help Context 1.0//EN" "http://www.netbeans.org/dtds/helpcontext-1_0.dtd">
-                          <helpctx id="jemmysupport_intro"/>
-                      ]]>
                </file>
                <attr name="org-netbeans-modules-jemmysupport-mainpage.xml/org-netbeans-modules-usersguide-lower-sep.instance" boolvalue="true"/>
             </folder>
@@ -55,12 +26,7 @@
     <folder name="Services">
         <folder name="JavaHelp">
             <attr name="org-netbeans-modules-usersguide-above-regular.txt/org-netbeans-modules-jemmysupport-helpset.xml" boolvalue="true"/>
-            <file name="org-netbeans-modules-jemmysupport-helpset.xml">
-                <![CDATA[
-                    <?xml version="1.0"?>
-                    <!DOCTYPE helpsetref PUBLIC "-//NetBeans//DTD JavaHelp Help Set Reference 1.0//EN" "http://www.netbeans.org/dtds/helpsetref-1_0.dtd">
-                    <helpsetref url="nbdocs:/org/netbeans/modules/jemmysupport/docs/jemmysupport.hs"/>
-                ]]>
+            <file name="org-netbeans-modules-jemmysupport-helpset.xml" url="helpset.xml">
             </file>
             <attr name="org-netbeans-modules-jemmysupport-helpset.xml/org-netbeans-modules-usersguide-below-regular.txt" boolvalue="true"/>
         </folder>

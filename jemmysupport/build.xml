@@ -28,16 +28,10 @@ Microsystems, Inc. All Rights Reserved.
   <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
 
-  <target name="compile-lib">
-    <ant dir="${nbroot}/jemmy/" target="jar"/>
-    <mkdir dir="netbeans/modules/ext"/>
-    <copy file="${nbroot}/jemmy/jemmy.jar" tofile="netbeans/modules/ext/jemmy.jar" filtering="off"/>
-  </target>
-
-  <target name="compile" depends="compile-lib">
+  <target name="compile" depends="timestamp">
   <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <classpath>
-        <pathelement location="netbeans/modules/ext/jemmy.jar"/>
+        <pathelement location="${nbroot}/jemmy/jemmy.jar"/>
         <pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar" />
         <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar" />
@@ -46,22 +40,6 @@ Microsystems, Inc. All Rights Reserved.
       </classpath>
     </javac>
   </target>
-  
-  <target name="javadoc" unless="jemmy.javadoc.uptodate">
-      <ant dir="${nbroot}/jemmy/" target="api"/>
-      <mkdir dir="netbeans/docs"/>
-      <zip zipfile="netbeans/docs/jemmy-javadoc.zip"
-             basedir="${nbroot}/jemmy/javadoc"
-             compress="true">
-      </zip>
-  </target>
-
-  <target name="prepare-docs">
-      <uptodate property="jemmy.javadoc.uptodate" targetfile="netbeans/docs/jemmy-javadoc.zip" >
-  	      <srcfiles dir= "${nbroot}/jemmy/src" includes="**/*.java"/>
-      </uptodate>
-      <antcall target="javadoc"/>
-  </target>
 
   <target name="timestamp" unless="buildnumber">
     <tstamp>
@@ -69,7 +47,7 @@ Microsystems, Inc. All Rights Reserved.
     </tstamp>
   </target>
     
-  <target name="jars" depends="compile,prepare-docs,timestamp">
+  <target name="jars" depends="compile">
     <mkdir dir="netbeans/modules"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
@@ -85,7 +63,7 @@ Microsystems, Inc. All Rights Reserved.
     <genlist targetname="nbm" outputfiledir="netbeans"/>
   </target>
 
-  <target name="nbm" depends="netbeans">
+  <target name="nbm" depends="jars,javahelp">
     <makenbm file="jemmysupport.nbm"
              topdir="."
              module="netbeans/modules/jemmysupport.jar"
@@ -94,10 +72,6 @@ Microsystems, Inc. All Rights Reserved.
       <license file="${license.file}"/>
 <!--      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/> -->
     </makenbm>
-  </target>
-
-  <target name="realclean" depends="clean">
-    <ant dir="${nbroot}/jemmy/" target="clean"/>
   </target>
 
   <target name="clean">
@@ -109,7 +83,7 @@ Microsystems, Inc. All Rights Reserved.
     </delete>
     <delete file="manifest-subst.mf"/>
     <delete file="jemmysupport.nbm"/>
-    <delete dir="netbeans/docs"/>
+    <delete dir="netbeans/update_tracking"/>
     <delete dir="netbeans/modules"/>
     <delete dir="Info"/>
     <delete dir="javahelp/org/netbeans/modules/jemmysupport/docs/JavaHelpSearch2"/>
