@@ -266,14 +266,15 @@ public class HelpTree extends JTree implements TreeSelectionListener{
         public void actionPerformed(ActionEvent ev){
             debug("edit toc");
             editPanel.clear();            
-            editPanel.setName(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("Title_EditPanel"));
-            
+            editPanel.setName(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("Title_EditPanel"));            
             TreePath path = HelpTree.this.getSelectionPath();
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent(); 
             TocTreeItem item = (TocTreeItem) selectedNode.getUserObject();
             editPanel.setName(item.getName());
-            editPanel.setUrlSpec(item.getURLSpec());
-            editPanel.setMapTarget(item.getTarget());
+            String oldUrl = item.getURLSpec();
+            editPanel.setUrlSpec(oldUrl);
+            String oldTarget = item.getTarget();
+            editPanel.setMapTarget(oldTarget);
             editPanel.setHomeID(item.isHomeID());
             
             DialogDescriptor dd = new DialogDescriptor(editPanel,editPanel.getName());            
@@ -281,8 +282,16 @@ public class HelpTree extends JTree implements TreeSelectionListener{
             Object ret = DialogDisplayer.getDefault().notify(dd);
             if(ret == AddPanel.OK_OPTION){
                 item.setName(editPanel.getName());
-                item.setURLSpec(editPanel.getUrlSpec());
-                item.setTarget(editPanel.getMapTarget());
+                String url = editPanel.getUrlSpec();
+                item.setURLSpec(url);
+                String target = editPanel.getMapTarget();
+                if((target != null)&&(target.length() > 0)){
+                    if((url != null)&&(url.length() > 0)){
+                        MapProcessor.getDefault().addMap(new MapProcessor.Map(target, url)); 
+                        MapProcessor.getDefault().removeMap(oldTarget, oldUrl);
+                    }
+                }
+                item.setTarget(target);
                 item.setHomeID(editPanel.isHomeID());
                 ((DefaultTreeModel)getModel()).reload(selectedNode); 
                 setActiveNode(selectedNode);
@@ -312,16 +321,25 @@ public class HelpTree extends JTree implements TreeSelectionListener{
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path.getLastPathComponent(); 
             IndexTreeItem item = (IndexTreeItem) selectedNode.getUserObject();
             editPanel.setName(item.getName());
-            editPanel.setUrlSpec(item.getURLSpec());       
-            editPanel.setMapTarget(item.getTarget());
+            String oldUrl = item.getURLSpec();
+            String oldTarget = item.getTarget();
+            editPanel.setMapTarget(oldTarget);
             
             DialogDescriptor dd = new DialogDescriptor(editPanel,editPanel.getName());            
             dd.setOptions(editPanel.getOptions());            
             Object ret = DialogDisplayer.getDefault().notify(dd);
             if(ret == AddPanel.OK_OPTION){
                 item.setName(editPanel.getName());
-                item.setURLSpec(editPanel.getUrlSpec());
-                item.setTarget(editPanel.getMapTarget());
+                String url = editPanel.getUrlSpec();
+                item.setURLSpec(url);
+                String target = editPanel.getMapTarget();
+                if((target != null)&&(target.length() > 0)){
+                    if((url != null)&&(url.length() > 0)){
+                        MapProcessor.getDefault().addMap(new MapProcessor.Map(target, url)); 
+                        MapProcessor.getDefault().removeMap(oldTarget, oldUrl);
+                    }
+                }
+                item.setTarget(target);
                 ((DefaultTreeModel)getModel()).reload(selectedNode); 
                 setActiveNode(selectedNode);
             }
@@ -355,8 +373,19 @@ public class HelpTree extends JTree implements TreeSelectionListener{
                         else
                             setActiveNode(parent);
                     }
-                    model.removeNodeFromParent(node);
-  
+                    Object item = node.getUserObject();
+                    String url;
+                    String target;
+                    if(item instanceof TocTreeItem){
+                        url = ((TocTreeItem)item).getURLSpec();
+                        target = ((TocTreeItem)item).getTarget();
+                    }else{
+                        url = ((IndexTreeItem)item).getURLSpec();
+                        target = ((IndexTreeItem)item).getTarget();
+                    }   
+                    if((url != null) && (url.length() >0))   
+                        MapProcessor.getDefault().removeMap(target, url);                     
+                    model.removeNodeFromParent(node);  
                 }
             }            
                

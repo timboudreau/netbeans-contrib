@@ -25,6 +25,8 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentListener;
+import org.netbeans.modules.helpbuilder.processors.MapProcessor;
 
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
@@ -37,6 +39,8 @@ import org.openide.util.NbBundle;
 public class AddPanel extends javax.swing.JPanel {    
     public static JButton OK_OPTION;
     public static JButton CANCEL_OPTION;
+    //stores last path to folder choosen in filechooser
+    private String folder;
     
     public AddPanel() {        
         initComponents ();                
@@ -45,34 +49,85 @@ public class AddPanel extends javax.swing.JPanel {
         OK_OPTION.setMnemonic(NbBundle.getMessage(AddPanel.class, "ACS_OK_OPTION_mnc").charAt(0));
         CANCEL_OPTION = new JButton(NbBundle.getMessage(AddPanel.class, "LBL_CANCEL_OPTION"));
         CANCEL_OPTION.setMnemonic(NbBundle.getMessage(AddPanel.class, "ACS_CANCEL_OPTION_mnc").charAt(0));
-        OK_OPTION.setEnabled(false);
-        javax.swing.event.DocumentListener docList = new javax.swing.event.DocumentListener() {
-                public void insertUpdate(javax.swing.event.DocumentEvent e) {                    
-                    setOK_OPTION();
-                }
-                public void removeUpdate(javax.swing.event.DocumentEvent e) {
-                    setOK_OPTION();                   
-                }
-                public void changedUpdate(javax.swing.event.DocumentEvent e) {                  
-                    setOK_OPTION();
-                }
-        }; 
-        txName.getDocument().addDocumentListener(docList);
-       // txtMap.getDocument().addDocumentListener(docList);
+        OK_OPTION.setEnabled(false);        
+        txName.getDocument().addDocumentListener(new DocumentListener(){
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                setOK_OPTION();
+            }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                setOK_OPTION();
+            }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                setOK_OPTION();
+            }
+            private void setOK_OPTION(){
+                String name = txName.getText();
+                String url = txtURL.getText();
+                String map = txtMap.getText();
+                if((name != null)&&(name.length() > 0))                    
+                    OK_OPTION.setEnabled(true);
+                else
+                    OK_OPTION.setEnabled(false);
+                
+            }
+        });
+        txtMap.getDocument().addDocumentListener(new DocumentListener(){
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                setOK_OPTION();
+            }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                setOK_OPTION();
+            }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                setOK_OPTION();
+            }
+            private void setOK_OPTION(){
+                String map = txtMap.getText();
+                if((map!= null) && (map.length() >0))
+                    OK_OPTION.setEnabled(true);
+                else
+                    OK_OPTION.setEnabled(false);
+            }
+        });
         
+        txtURL.getDocument().addDocumentListener(new DocumentListener(){
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                setOK_OPTION();
+            }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                setOK_OPTION();
+            }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                setOK_OPTION();
+            }
+            private void setOK_OPTION(){
+                String name = txName.getText();
+                String url = txtURL.getText();
+                String map = txtMap.getText();
+                if((url != null) &&(url.length()>0)){
+                    lblMap.setEnabled(true);
+                    txtMap.setEnabled(true);
+                    if((map == null)||(map.length()==0)){                        
+                        txtMap.setText(MapProcessor.getDefault().getMapTarget(url));
+                    }
+                    if((name != null)&&(name.length() >0))
+                        OK_OPTION.setEnabled(true);
+                    else
+                        OK_OPTION.setEnabled(false);
+                }else{
+                    lblMap.setEnabled(false);
+                    txtMap.setEnabled(false);
+                    if((name != null)&&(name.length() >0))
+                        OK_OPTION.setEnabled(true);
+                    else
+                        OK_OPTION.setEnabled(false);
+                }                                
+            }
+        });        
+    
     }
     
-    private void setOK_OPTION(){
-        String name = txName.getText();
-     //   String map = txtMap.getText();
-     //   if((name != null)&&(name.length() > 0)&&(map != null)&&(map.length() > 0))
-        if((name != null)&&(name.length() > 0))
-            OK_OPTION.setEnabled(true);
-        else
-            OK_OPTION.setEnabled(false);
-    }
-        
-
+    
     public Object[] getOptions(){
         Object options[] = {OK_OPTION,CANCEL_OPTION};
         return options;
@@ -96,9 +151,9 @@ public class AddPanel extends javax.swing.JPanel {
     
     public void setHomeID(boolean value){
         cbxHomeID.setSelected(value);
-            }
+    }
     
-    public boolean isHomeID(){           
+    public boolean isHomeID(){
         return cbxHomeID.isSelected();
     }
     
@@ -111,7 +166,7 @@ public class AddPanel extends javax.swing.JPanel {
     }
     
     // --- VISUAL DESIGN OF PANEL ---
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -212,25 +267,27 @@ public class AddPanel extends javax.swing.JPanel {
         gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 8, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 8, 0, 0);
         centerPanel.add(cbxHomeID, gridBagConstraints);
 
         lblMap.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("ACS_lblMap_mnc").charAt(0));
         lblMap.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/helpbuilder/ui/Bundle").getString("lblProjectSetupPanel_mapLabel"));
+        lblMap.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
         centerPanel.add(lblMap, gridBagConstraints);
 
+        txtMap.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 12);
         centerPanel.add(txtMap, gridBagConstraints);
 
         add(centerPanel, java.awt.BorderLayout.CENTER);
@@ -248,13 +305,15 @@ public class AddPanel extends javax.swing.JPanel {
     }//GEN-END:initComponents
 
     private void btnBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseActionPerformed
-        JFileChooser chooser = new JFileChooser();
+        JFileChooser chooser = new JFileChooser(folder);
         chooser.setFileSelectionMode(chooser.FILES_ONLY);
         int returnVal = chooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
-            if(file != null)
+            if(file != null){
                 txtURL.setText(file.getAbsolutePath());
+                folder = file.getParent();
+            }
         }
     }//GEN-LAST:event_btnBrowseActionPerformed
 
@@ -265,6 +324,7 @@ public class AddPanel extends javax.swing.JPanel {
         cbxHomeID.setSelected(false);
     }
         
+    
             
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel bottomPanel;
@@ -283,7 +343,5 @@ public class AddPanel extends javax.swing.JPanel {
     private javax.swing.JTextField txtURL;
     private javax.swing.JPanel urlPanel;
     // End of variables declaration//GEN-END:variables
-
-
 
 }

@@ -43,11 +43,11 @@ public class HelpSetProcessor implements HelpProcessor{
     private String title;
     private String homeID;
     private String mapRef;
-    private HashSet views;
+    private Vector views;
     
     private HelpSetProcessor(){
         debug("init");
-        views = new HashSet();
+        views = new Vector();
     }
     
     public static HelpSetProcessor getDefault(){
@@ -57,7 +57,7 @@ public class HelpSetProcessor implements HelpProcessor{
     }
     
     public void addView(HelpSetProcessor.View view){
-        views.add(view);
+        views.addElement(view);
     }
     
     public void export(OutputStream out) throws IOException{ 
@@ -84,7 +84,10 @@ public class HelpSetProcessor implements HelpProcessor{
             writeValue(writer,view.getLabel(), "label");
             writeValue(writer,view.getType(),  "type");
             writeValue(writer, view.getImage(), "image");
-            writeValue(writer, view.getData(),  "data");
+            if(view.getType().equals("javax.help.SearchView"))
+                writeSearchValue(writer,view.getData(),view.getSearchEngine());
+            else
+                writeValue(writer, view.getData(),  "data");
             writer.write("  </view>\n\n");    
             
         }
@@ -92,8 +95,13 @@ public class HelpSetProcessor implements HelpProcessor{
     
     private void writeValue(OutputStreamWriter writer,String value, String tag) throws IOException{
         if((value != null)&&(value.length() > 0))
-                writer.write("    <"+tag+">"+value+"</"+tag+">\n");
-    }        
+            writer.write("    <"+tag+">"+value+"</"+tag+">\n");
+    }
+    
+    private void writeSearchValue(OutputStreamWriter writer,String value, String engine) throws IOException{
+        if((value != null)&&(value.length() > 0))
+            writer.write("    <data engine=\""+engine+"\">"+value+"</data>\n");
+    }
                
         
     private void writeMap(OutputStreamWriter writer) throws IOException{
@@ -125,16 +133,25 @@ public class HelpSetProcessor implements HelpProcessor{
         private String type;
         private String data;
         private String image;
+        private String searchEngine;
+        final static String DEFAULT_ENGINE="com.sun.java.help.search.DefaultSearchEngine";
         
         public View(){
         }
         
-        public View(String name, String label, String type, String data, String image){
+        public View(String name, String label, String type, String data, String searchEngine, String image){
             this.name = name;
             this.label = label;
             this.type = type;
             this.data = data;
             this.image = image;
+            if(type.equals("javax.help.SearchView")){
+                if(searchEngine != null)
+                    this.searchEngine = searchEngine;
+                else
+                    this.searchEngine = DEFAULT_ENGINE; 
+            }
+            
         }
         
         public void setName(String name){
@@ -167,6 +184,14 @@ public class HelpSetProcessor implements HelpProcessor{
         
         public String getData(){
             return data;
+        }
+        
+        public void setSearchEngine(String engine){
+            this.searchEngine = engine;
+        }
+        
+        public String getSearchEngine(){
+            return searchEngine;
         }
         
         public void setImage(String image){

@@ -11,6 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+
 package org.netbeans.modules.helpbuilder;
 
 import org.netbeans.modules.helpbuilder.ui.*;

@@ -22,10 +22,12 @@ import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Vector;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.helpbuilder.processors.HelpSetProcessor;
 import org.netbeans.modules.helpbuilder.processors.MapProcessor;
+import org.netbeans.modules.helpbuilder.processors.SearchProcessor;
 import org.netbeans.modules.helpbuilder.tree.HelpTreeNode;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
@@ -106,10 +108,12 @@ public class ProjectGeneratorPanel extends javax.swing.JPanel {
         jTextArea1.setText("");        
         HelpTreeNode node = TocSetupPanel.getNode();        
         HelpSetProcessor processor = HelpSetProcessor.getDefault();     
-        processor.addView(new HelpSetProcessor.View("TOC", "TOC", "javax.help.TOCView", "TOC.xml", ""));
-        processor.addView(new HelpSetProcessor.View("Index", "INDEX", "javax.help.IndexView", "Index.xml", ""));
+        processor.addView(new HelpSetProcessor.View("TOC", "TOC", "javax.help.TOCView", "TOC.xml", null,""));
+        processor.addView(new HelpSetProcessor.View("Index", "INDEX", "javax.help.IndexView", "Index.xml",null, ""));
+        processor.addView(new HelpSetProcessor.View("Search", "Search", "javax.help.SearchView", "SearchDTB", null,""));
         processor.setMapRef("Map.jhm");
         MapProcessor mapProcessor = MapProcessor.getDefault();        
+        SearchProcessor searchProcessor = new SearchProcessor(location+"SearchDTB", mapProcessor.getPages());
         try{
             jTextArea1.append(NbBundle.getMessage(ProjectGeneratorPanel.class, "GNRTR_TOC"));
             FileOutputStream out = new FileOutputStream(location + "TOC.xml");
@@ -123,7 +127,9 @@ public class ProjectGeneratorPanel extends javax.swing.JPanel {
             processor.export(out);
             jTextArea1.append(NbBundle.getMessage(ProjectGeneratorPanel.class, "GNRTR_MAP"));
             out = new FileOutputStream(location+"Map.jhm");
-            mapProcessor.export(out);
+            mapProcessor.export(out);            
+            jTextArea1.append(NbBundle.getMessage(ProjectGeneratorPanel.class, "GNRTR_SEARCH"));
+            searchProcessor.process();
             jTextArea1.append(NbBundle.getMessage(ProjectGeneratorPanel.class, "GNRTR_DONE"));
             
         }catch(Exception fnf){

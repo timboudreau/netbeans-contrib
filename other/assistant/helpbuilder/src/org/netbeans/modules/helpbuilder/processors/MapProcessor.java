@@ -16,7 +16,8 @@ package org.netbeans.modules.helpbuilder.processors;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Vector;
 import java.util.Iterator;
 
 /**
@@ -29,7 +30,10 @@ import java.util.Iterator;
  */
 public class MapProcessor implements HelpProcessor{
     private static MapProcessor processor = null;
-    private HashSet maps;
+    private Vector maps;   
+    private static Vector pages;
+    private static int id = 0;
+    private static final String DEFAULT_MAP="map";
     
     /**
      * Header part of xml file
@@ -40,7 +44,8 @@ public class MapProcessor implements HelpProcessor{
     "\n<map version=\"1.0\">\n\n";
     
     private MapProcessor(){
-        maps = new HashSet();
+        maps = new Vector();
+        pages = new Vector();        
     }
     
     public static MapProcessor getDefault(){
@@ -50,11 +55,38 @@ public class MapProcessor implements HelpProcessor{
     }
     
     public void addMap(Map map){
-        maps.add(map);
+        maps.addElement(map);
     }
     
     public void removeMap(Map map){
         maps.remove(map);
+    }
+    
+    public void removeMap(String target, String url){
+        Iterator it = maps.iterator();
+        while(it.hasNext()){
+            MapProcessor.Map map = (MapProcessor.Map)it.next();
+            if(map.getTarget().equals(target)&&map.getURL().equals(url)){
+                removeMap(map);
+                break;
+            }
+        }               
+    }
+    
+    /**
+     *If for given page exists map target then return it.
+     *If not then generate one.
+     */
+    public String getMapTarget(String url){
+        if((url == null)||(url.length() == 0))
+            return null;
+       Iterator it = maps.iterator();
+       while(it.hasNext()){
+           MapProcessor.Map map = (MapProcessor.Map)it.next();
+           if(map.getURL().equals(url))
+               return map.getTarget();
+       }
+       return DEFAULT_MAP + (id++);
     }
     
     public void export(OutputStream out) throws IOException{ 
@@ -81,8 +113,14 @@ public class MapProcessor implements HelpProcessor{
     
     public void clear(){
         maps.clear();
+        pages.clear();
     }
     
+    public Vector getPages(){
+        return pages;
+    }
+    
+        
     public static class Map{
         
         private String url;
@@ -95,6 +133,8 @@ public class MapProcessor implements HelpProcessor{
         
         public void setURL(String url){
             this.url = url;
+            if(!pages.contains(url))
+                pages.addElement(url);            
         }
         
         public String getURL(){
@@ -107,6 +147,6 @@ public class MapProcessor implements HelpProcessor{
         public String getTarget(){
             return target;
         }
-    }
-     
+    }    
+
 }

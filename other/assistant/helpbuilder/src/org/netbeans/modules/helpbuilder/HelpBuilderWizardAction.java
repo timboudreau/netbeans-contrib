@@ -9,6 +9,8 @@
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
+ *
+ *
  */
 
 package org.netbeans.modules.helpbuilder;
@@ -43,22 +45,12 @@ public class HelpBuilderWizardAction extends CallableSystemAction {
     
         WizardDescriptor desc = new HelpBuilderWizardDescriptor();
         final Dialog dlg = DialogDisplayer.getDefault ().createDialog (desc);
-        try {
-            SwingUtilities.invokeAndWait (new Runnable () {
-                
-                public void run () {
-                    dlg.show ();
-                    // If nonmodal, should also wait for it to be closed.
-                }
-            });
-        } catch (Exception e) { // InterruptedException, InvocationTargetException
-            ErrorManager.getDefault().notify (e);
-            return;
-        }
+        dlg.show ();
+        
         if (desc.getValue () == WizardDescriptor.FINISH_OPTION) {
-            System.out.println ("User finished the wizard"); // NOI18N
+            //System.out.println ("User finished the wizard"); // NOI18N
         } else {
-            System.out.println ("User cancelled the wizard"); // NOI18N
+            //System.out.println ("User cancelled the wizard"); // NOI18N
         }
         
         
@@ -72,6 +64,10 @@ public class HelpBuilderWizardAction extends CallableSystemAction {
         return "org/netbeans/modules/helpbuilder/images/HelpBuilderWizardActionIcon.gif";
     }
 
+    protected boolean asynchronous(){
+        return false;
+    }
+    
     public HelpCtx getHelpCtx () {  
         return HelpCtx.DEFAULT_HELP;
         // If you will provide context help then use:
