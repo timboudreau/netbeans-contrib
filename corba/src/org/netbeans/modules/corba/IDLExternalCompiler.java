@@ -153,3 +153,15 @@ public class IDLExternalCompiler extends ExternalCompiler {
   }
 
 }
+
+/*
+ * <<Log>>
+ *  5    Gandalf   1.4         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
+ *  4    Gandalf   1.3         10/1/99  Karel Gardas    updates from CVS
+ *  3    Gandalf   1.2         7/10/99  Karel Gardas    
+ *  2    Gandalf   1.1         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
+ *  1    Gandalf   1.0         6/4/99   Karel Gardas    
+ * $
+ */

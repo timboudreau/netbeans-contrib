@@ -107,6 +107,8 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport
 
 /*
  * <<Log>>
+ *  12   Gandalf   1.11        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  11   Gandalf   1.10        10/1/99  Karel Gardas    updates from CVS
  *  10   Gandalf   1.9         8/3/99   Karel Gardas    
  *  9    Gandalf   1.8         7/10/99  Karel Gardas    

@@ -79,6 +79,8 @@ public class GenerateImplAction extends CookieAction {
 
 /*
  * <<Log>>
+ *  9    Gandalf   1.8         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  8    Gandalf   1.7         10/1/99  Karel Gardas    updates from CVS
  *  7    Gandalf   1.6         8/3/99   Karel Gardas    
  *  6    Gandalf   1.5         7/10/99  Karel Gardas    

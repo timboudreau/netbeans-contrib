@@ -294,6 +294,8 @@ public class IDLModule extends ModuleInstall {
 
 /*
  * <<Log>>
+ *  20   Gandalf   1.19        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  19   Gandalf   1.18        10/5/99  Karel Gardas    
  *  18   Gandalf   1.17        10/1/99  Petr Hrebejk    org.openide.modules.ModuleInstall
  *        changed to class + some methods added

@@ -526,6 +526,8 @@ public class IDLDataObject extends MultiDataObject {
 
 /*
  * <<Log>>
+ *  17   Gandalf   1.16        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  16   Gandalf   1.15        10/5/99  Karel Gardas    update from CVS
  *  15   Gandalf   1.14        10/1/99  Karel Gardas    updates from CVS
  *  14   Gandalf   1.13        8/7/99   Karel Gardas    changes in code which 

@@ -83,6 +83,8 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  13   Gandalf   1.12        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
+*       Microsystems Copyright in File Comment
 *  12   Gandalf   1.11        10/13/99 Karel Gardas    Update from CVS
 *  11   Gandalf   1.10        10/1/99  Karel Gardas    updates from CVS
 *  10   Gandalf   1.9         8/3/99   Karel Gardas    

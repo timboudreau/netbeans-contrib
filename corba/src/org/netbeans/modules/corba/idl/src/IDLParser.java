@@ -11,6 +11,18 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+/*
+ * NAME_SUBSTITUTION.java -- synopsis.
+ *
+ *
+ * Date: 15.6.1998 12:22:29$
+ * <<Revision>>
+ *
+ * SUN PROPRIETARY/CONFIDENTIAL:  INTERNAL USE ONLY.
+ *
+ * Copyright © 1997-1999 Sun Microsystems, Inc. All rights reserved.
+ * Use is subject to license terms.
+ */
 //package com.netbeans.enterprise.modules.corba.idl.parser;
 package com.netbeans.enterprise.modules.corba.idl.src;
 
@@ -3201,3 +3213,15 @@ void floating_pt_literal() :
   }
 
 }
+
+/*
+ * <<Log>>
+ *  6    Gandalf   1.5         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
+ *  5    Gandalf   1.4         10/13/99 Karel Gardas    Update from CVS
+ *  4    Gandalf   1.3         10/5/99  Karel Gardas    
+ *  3    Gandalf   1.2         10/5/99  Karel Gardas    
+ *  2    Gandalf   1.1         8/3/99   Karel Gardas    
+ *  1    Gandalf   1.0         7/10/99  Karel Gardas    initial revision
+ * $
+ */

@@ -128,6 +128,8 @@ public class Element extends SimpleNode
 
 /*
  * <<Log>>
+ *  4    Gandalf   1.3         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
  *  3    Gandalf   1.2         10/5/99  Karel Gardas    
  *  2    Gandalf   1.1         8/3/99   Karel Gardas    
  *  1    Gandalf   1.0         7/10/99  Karel Gardas    initial revision

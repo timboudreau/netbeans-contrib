@@ -269,3 +269,22 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 
 
 
+
+/*
+ * <<Log>>
+ *  11   Gandalf   1.10        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
+ *       Microsystems Copyright in File Comment
+ *  10   Gandalf   1.9         10/11/99 Karel Gardas    Update from CVS for new 
+ *       JavaSettings API
+ *  9    Gandalf   1.8         10/8/99  Karel Gardas    
+ *  8    Gandalf   1.7         10/5/99  Karel Gardas    
+ *  7    Gandalf   1.6         10/1/99  Karel Gardas    updates from CVS
+ *  6    Gandalf   1.5         8/3/99   Karel Gardas    
+ *  5    Gandalf   1.4         7/20/99  Karel Gardas    
+ *  4    Gandalf   1.3         7/20/99  Ales Novak      
+ *  3    Gandalf   1.2         7/10/99  Karel Gardas    
+ *  2    Gandalf   1.1         6/9/99   Ian Formanek    ---- Package Change To 
+ *       org.openide ----
+ *  1    Gandalf   1.0         6/4/99   Karel Gardas    
+ * $
+ */
