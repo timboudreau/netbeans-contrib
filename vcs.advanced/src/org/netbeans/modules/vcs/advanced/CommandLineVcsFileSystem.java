@@ -78,6 +78,21 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return CONFIG_ROOT_FO;
     }
 
+    /**
+     * Get human presentable name.
+     */
+    public String getDisplayName() {
+        //D.deb("getDisplayName() isValid="+isValid()); // NOI18N
+        Vector commands = getCommands();
+        if (commands.size() > 1) {
+            UserCommand cmd = (UserCommand) commands.get(0);
+            if (cmd.getExec() == null) {
+                return cmd.getLabel()+" "+getRootDirectory().toString (); // NOI18N
+            }
+        }
+        return g("LAB_FileSystemValid", getRootDirectory().toString ()); // NOI18N
+    }
+
     protected void readConfiguration () {
         D.deb ("readConfiguration ()"); // NOI18N
         CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
@@ -90,6 +105,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         Properties props = VcsConfigVariable.readPredefinedProperties(CONFIG_ROOT_FO, "empty.properties"); // NOI18N
         setVariables (VcsConfigVariable.readVariables(props));
         D.deb("setVariables DONE."); // NOI18N
+        
         setAdvancedConfig (getVcsFactory ().getVcsAdvancedCustomizer().readConfig (props));
         D.deb("readConfiguration() done"); // NOI18N
     }
