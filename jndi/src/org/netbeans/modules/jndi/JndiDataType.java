@@ -72,16 +72,25 @@ final class JndiDataType extends NewType {
   }
   
   
+  /** This is callbvack for OpenAPi, just set name tu null and call 
+   *  create(String)
+   */
+  public void create() throws IOException{
+    this.create(null);
+  }
+  
+  
   /** This method creates either new context, if this.node is instance of JndiRootNode,
    *  or Subdir if this.node is instance of JNDINode
    */
-  public void create() throws IOException {
+  public void create(String provider) throws IOException {
 
     DialogDescriptor descriptor = null;
 
     if (node instanceof JndiRootNode) {
       // Ask for new initial context and context factory
       panel = new NewJndiRootPanel(this.pnode.providers);
+      panel.select(provider);
       descriptor = new DialogDescriptor(panel,
         JndiRootNode.getLocalizedString("TITLE_NewContext"),
         true,
@@ -225,9 +234,9 @@ final class JndiDataType extends NewType {
    */
   public String getName() {
     if (this.node instanceof JndiRootNode) {
-      return "Context";
+      return JndiRootNode.getLocalizedString("CTL_Context");
     } else if (this.node instanceof JndiNode) {
-      return "Directory";
+      return JndiRootNode.getLocalizedString("CTL_Directory");
     } else {
       return "";
     }

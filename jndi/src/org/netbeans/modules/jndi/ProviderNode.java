@@ -113,9 +113,10 @@ public class ProviderNode extends AbstractNode implements Cookie{
    */
   public SystemAction[] createActions () {
     return new SystemAction[] {
-      SystemAction.get(DeleteAction.class),
-      null,
       SystemAction.get(ProviderTestAction.class),
+      SystemAction.get(ProviderConnectAction.class),
+      null,
+      SystemAction.get(DeleteAction.class),
       null,
       SystemAction.get(PropertiesAction.class),
     };
@@ -175,6 +176,12 @@ public class ProviderNode extends AbstractNode implements Cookie{
     }catch(ClassNotFoundException cnfe){
       TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("MSG_CLASS_NOT_FOUND"), NotifyDescriptor.Message.INFORMATION_MESSAGE));
     }
+  }
+  
+  public void connectUsing() {
+    try{
+      ((JndiDataType)JndiRootNode.getDefault().jndinewtypes[0]).create(name);
+    }catch(java.io.IOException ioe){/** Should never happend*/}
   }
   
 }

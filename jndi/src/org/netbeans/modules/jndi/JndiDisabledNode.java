@@ -16,13 +16,15 @@ package com.netbeans.enterprise.modules.jndi;
 import java.util.Hashtable;
 import javax.naming.NamingException;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
 import org.openide.actions.DeleteAction;
+import com.netbeans.enterprise.modules.jndi.utils.Refreshable;
 
 /** This class represents a mounted Context which is from some 
  *  reason, e.g. the naming service is not running, not in progress.
  */
-public class JndiDisabledNode extends JndiAbstractNode {
+public class JndiDisabledNode extends JndiAbstractNode implements Refreshable, Node.Cookie{
 
   /** Icon name*/
   public static final String DISABLED_CONTEXT_ICON = "DISABLED_CONTEXT_ICON";
@@ -35,6 +37,7 @@ public class JndiDisabledNode extends JndiAbstractNode {
    */
   public JndiDisabledNode(Hashtable properties) {
     super (Children.LEAF);
+    this.getCookieSet().add(this);
     this.setName((String)properties.get(JndiRootNode.NB_LABEL));
     this.setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(DISABLED_CONTEXT_ICON));
     this.properties = properties;
@@ -60,8 +63,23 @@ public class JndiDisabledNode extends JndiAbstractNode {
    */
   public SystemAction[] createActions() {
     return new SystemAction[] {
-      SystemAction.get(DeleteAction.class),
+      SystemAction.get(RefreshAction.class),
+      null,
+      SystemAction.get(DeleteAction.class)
     };
   }
   
+  public void refresh() {
+    try{
+      JndiRootNode root = JndiRootNode.getDefault();
+      root.addContext(this.properties);
+      this.destroy();
+    }catch(NamingException ne){
+      // If exception was thrown than we don't
+      // remove the node
+    }
+    catch(java.io.IOException ioe){
+      // Should never happen
+    }
+  }
 }

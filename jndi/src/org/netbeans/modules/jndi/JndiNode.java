@@ -17,11 +17,16 @@ import java.util.Vector;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.io.IOException;
+import java.awt.Dialog;
 import java.awt.datatransfer.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.naming.NamingException;
 import javax.naming.CompositeName;
 import javax.naming.Context;
-
+import javax.naming.directory.DirContext;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import org.openide.TopManager;
 import org.openide.actions.NewAction;
 import org.openide.actions.CopyAction;
@@ -32,18 +37,25 @@ import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.ExClipboard;
+import org.openide.DialogDescriptor;
+import com.netbeans.enterprise.modules.jndi.utils.Refreshable;
+import com.netbeans.enterprise.modules.jndi.utils.AttributeManager;
+import com.netbeans.enterprise.modules.jndi.gui.AttributePanel;
 
 
 /** This class represents JNDI subdirectory 
  *
  *  @author Ales Novak, Tomas Zezula
  */
-final class JndiNode extends JndiObjectNode {
+public final class JndiNode extends JndiObjectNode implements Refreshable, AttributeManager, Node.Cookie{
 
   /** Is this node root of context*/
   private boolean isRoot;
   /** NewType for this node*/
   private NewType[] jndinewtypes;  
+  
+  /** Holder for dialogs*/
+  private transient Dialog dlg;
 
   /**Constructor for creation of Top Level Directory
    * @param ctx DirContext which this node represents
@@ -119,11 +131,12 @@ final class JndiNode extends JndiObjectNode {
     return new SystemAction[] {
       SystemAction.get(LookupCopyAction.class),
       SystemAction.get(BindingCopyAction.class),
-      null,
-      SystemAction.get(NewAction.class),
+      SystemAction.get(EditPropertyAction.class),
       null,
       SystemAction.get(RefreshAction.class),
       SystemAction.get(DeleteAction.class),
+      null,
+      SystemAction.get(NewAction.class),
       null,
       SystemAction.get(ToolsAction.class),
       SystemAction.get(PropertiesAction.class),
@@ -181,4 +194,22 @@ final class JndiNode extends JndiObjectNode {
   public String getClassName(){
     return "javax.naming.Context";
   }
+
+  
+  public void editAttribute(){
+    final AttributePanel panel = new AttributePanel((DirContext)this.getContext(),getOffset());
+    DialogDescriptor dd = new DialogDescriptor(panel,JndiRootNode.getLocalizedString("TITLE_AttributeList"),
+        true,
+        DialogDescriptor.OK_CANCEL_OPTION,
+        DialogDescriptor.CANCEL_OPTION,
+        new ActionListener(){
+          public void actionPerformed(ActionEvent event){
+              JndiNode.this.dlg.setVisible(false);
+              JndiNode.this.createSheet();
+          }
+        });
+    dlg = TopManager.getDefault().createDialog(dd);
+    dlg.setVisible(true);
+  }
+  
 }

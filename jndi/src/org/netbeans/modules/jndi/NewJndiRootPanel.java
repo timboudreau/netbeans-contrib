@@ -261,6 +261,25 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
     return null;
   }
   
+  /** selects provider
+   *  This mrthod does nearly the same as ItemStateChanged,
+   *  but sets also the factory
+   */
+  public void select (String provider){
+    if (provider != null){
+        ProviderProperties p =(ProviderProperties)this.providers.get(provider);
+        if (p!=null){
+          this.factory.setSelectedItem(provider);
+          this.context.setText(p.getContext());
+          this.authentification.setText(p.getAuthentification());
+          this.principal.setText(p.getPrincipal());
+          this.credentials.setText(p.getCredentials());
+          this.properties.setData(p.getAdditionalSave());
+          this.root.setText(p.getRoot());
+        }
+      }
+  }
+  
   
   
 }

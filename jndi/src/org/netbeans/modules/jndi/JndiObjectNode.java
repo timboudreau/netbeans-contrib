@@ -191,7 +191,6 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
    *  @param Object value of property
    */
   public boolean changeJndiPropertyValue(String name,Object value) {
-    System.out.println(name+" = "+value.toString());
     try{
       BasicAttributes attrs = new BasicAttributes();
       BasicAttribute attr = new BasicAttribute(name, value);
@@ -207,6 +206,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
 
 /*
 * <<Log>>
+*  10   Gandalf   1.9         1/14/00  Tomas Zezula    
 *  9    Gandalf   1.8         12/17/99 Tomas Zezula    
 *  8    Gandalf   1.7         12/15/99 Tomas Zezula    
 *  7    Gandalf   1.6         12/15/99 Tomas Zezula    

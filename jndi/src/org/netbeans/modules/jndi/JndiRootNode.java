@@ -301,7 +301,7 @@ public final class JndiRootNode extends AbstractNode{
 
   /** Notifies about an exception that was raised in non Netbeans code. 
    */
-  static void notifyForeignException(Throwable t) {
+  public static void notifyForeignException(Throwable t) {
 
     String msg;
     

@@ -16,6 +16,7 @@ package com.netbeans.enterprise.modules.jndi;
 import org.openide.nodes.Node;
 import org.openide.nodes.FilterNode;
 import org.openide.util.HelpCtx;
+import com.netbeans.enterprise.modules.jndi.utils.Refreshable;
 
 /** Is able to refresh selected JndiNode.
 *
@@ -35,7 +36,7 @@ public final class RefreshAction extends org.openide.util.actions.NodeAction {
   protected void performAction(Node[] nodes) {
 
     if (enable(nodes)) {
-      ((JndiNode) nodes[0].getCookie(JndiNode.class)).refresh();
+      ((Refreshable) nodes[0].getCookie(Refreshable.class)).refresh();
     }
   }
 
@@ -51,7 +52,7 @@ public final class RefreshAction extends org.openide.util.actions.NodeAction {
       return false;
     }
 
-    return (nodes[0].getCookie(JndiNode.class) != null);
+    return (nodes[0].getCookie(Refreshable.class) != null);
   }
 
   /** @return name of the action */

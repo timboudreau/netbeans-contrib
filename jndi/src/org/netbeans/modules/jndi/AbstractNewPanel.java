@@ -25,10 +25,10 @@ import java.util.StringTokenizer;
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
-
 import org.openide.TopManager;
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
+import com.netbeans.enterprise.modules.jndi.utils.SimpleListModel;
 
 /** 
  *

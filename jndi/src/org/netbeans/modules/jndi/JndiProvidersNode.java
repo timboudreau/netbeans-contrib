@@ -34,13 +34,14 @@ import org.openide.filesystems.Repository;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
+import com.netbeans.enterprise.modules.jndi.utils.Refreshable;
 
 
 /** This class represents the branch with providers (factories)
  *
  *  @author Tomas Zezula
  */
-public class JndiProvidersNode extends AbstractNode implements PropertyChangeListener {
+public class JndiProvidersNode extends AbstractNode implements PropertyChangeListener,Cookie,Refreshable {
   
   /** Name for JndiIcons*/
   public static final String DRIVERS = "TITLE_DRIVERS";
@@ -57,6 +58,7 @@ public class JndiProvidersNode extends AbstractNode implements PropertyChangeLis
    */
   public JndiProvidersNode() {
     super ( new Children.Array ());
+    this.getCookieSet().add(this);
     setName (JndiRootNode.getLocalizedString(JndiProvidersNode.DRIVERS));
     setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiProvidersNode.DRIVERS));
     this.installJNDI ();
@@ -132,6 +134,8 @@ public class JndiProvidersNode extends AbstractNode implements PropertyChangeLis
   public SystemAction[] createActions () {
     return new SystemAction[] {
       SystemAction.get(NewAction.class),
+      null,
+      SystemAction.get(RefreshAction.class)
     };
   }
   
@@ -258,5 +262,28 @@ public class JndiProvidersNode extends AbstractNode implements PropertyChangeLis
    */
   private void notifyFileError(){
     TopManager.getDefault().notify ( new NotifyDescriptor.Message (JndiRootNode.getLocalizedString("EXC_Template_IOError"), NotifyDescriptor.Message.ERROR_MESSAGE));
+  }
+  
+  /** Refresh the providers tree
+   */
+  public void refresh() {
+    Repository repo = TopManager.getDefault().getRepository();
+    FileSystem fs = repo.getDefaultFileSystem();
+    FileObject fo = fs.getRoot().getFileObject("JNDI");
+    java.util.Enumeration files = fo.getData(false);
+    while (files.hasMoreElements()){
+      fo = (FileObject) files.nextElement();
+      try{
+        if (fo.getExt().equals("impl") && !this.providers.containsKey(fo.getName().replace('_','.'))){
+            java.io.InputStream in = fo.getInputStream();
+            ProviderProperties p = new ProviderProperties();
+            p.load(in);
+            p.addPropertyChangeListener(this);
+            this.providers.put(p.getFactory(),p);
+            in.close();
+            this.getChildren().add(new Node[]{new ProviderNode(p.getFactory())});
+          }
+        }catch(java.io.IOException ioe){}
+      }
   }
 }
