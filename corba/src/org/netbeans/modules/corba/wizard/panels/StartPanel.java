@@ -45,6 +45,7 @@ public class StartPanel extends AbstractCORBAWizardPanel implements javax.swing.
         this.client.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_Client"));
         this.server.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_Server"));
         this.cbClient.getAccessibleContext().setAccessibleDescription (this.bundle.getString ("AD_CallBackClient"));
+        this.getAccessibleContext().setAccessibleDescription(this.bundle.getString("AD_StartPanel"));
         this.tie.addChangeListener(this);
         this.impl.addChangeListener (this);
         this.client.addChangeListener (this);

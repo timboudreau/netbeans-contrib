@@ -83,6 +83,7 @@ public class PackagePanel extends AbstractCORBAWizardPanel implements PropertyCh
         
         this.tree.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_PackageChooser"));
         this.jLabel3.setDisplayedMnemonic (this.bundle.getString("TXT_Name_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription(this.bundle.getString ("AD_PackagePanel"));
         this.fireChange(this);
     }
     

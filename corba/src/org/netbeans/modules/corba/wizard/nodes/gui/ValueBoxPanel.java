@@ -27,6 +27,7 @@ public class ValueBoxPanel extends ExPanel implements javax.swing.event.Document
         this.type.getDocument().addDocumentListener (this);
         this.jLabel1.setDisplayedMnemonic (this.bundle.getString("TXT_ModuleName_MNE").charAt(0));
         this.jLabel2.setDisplayedMnemonic (this.bundle.getString("TXT_Type_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString ("AD_ValueBoxPanel"));
     }
     
     public String getName () {

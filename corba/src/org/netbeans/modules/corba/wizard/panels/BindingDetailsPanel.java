@@ -127,6 +127,7 @@ public class BindingDetailsPanel extends AbstractCORBAWizardPanel implements jav
     private void initComponents() {
         setLayout(new java.awt.GridBagLayout());
         setPreferredSize(new java.awt.Dimension(500, 340));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_BindingDetailsPanel"));
     }
     
     private void displayItem(WizardRequirement wr) {

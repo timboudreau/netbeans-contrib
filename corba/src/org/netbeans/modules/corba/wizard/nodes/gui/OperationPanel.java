@@ -95,6 +95,7 @@ public class OperationPanel extends ExPanel implements DocumentListener, ChangeL
         this.jLabel4.setDisplayedMnemonic (this.bundle.getString("TXT_Except_MNE").charAt(0));
         this.jLabel5.setDisplayedMnemonic (this.bundle.getString("TXT_Ctx_MNE").charAt(0));
         this.oneway.setMnemonic (this.bundle.getString("TXT_OpMode_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString ("AD_OperationPanel"));
     }
 
     /** This method is called from within the constructor to

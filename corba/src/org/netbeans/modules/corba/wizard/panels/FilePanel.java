@@ -51,6 +51,7 @@ public class FilePanel extends BindingDetail implements javax.swing.event.Docume
         this.label.setDisplayedMnemonic (this.bundle.getString("TXT_FileName_MNE").charAt(0));
         this.jButton1.setMnemonic (this.bundle.getString ("TXT_Browse_MNE").charAt(0));
         this.jButton1.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_Browse"));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_FilePanel"));
     }
 
     /** This method is called from within the constructor to

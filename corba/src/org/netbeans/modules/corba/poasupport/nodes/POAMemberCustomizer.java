@@ -359,6 +359,7 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
     
     private void initDynamicComponents() {
         if (element instanceof ServantElement) {
+            this.getAccessibleContext().setAccessibleDescription (POASupport.getString("AD_POAMemeberCustomizerServantElement"));
             genCheckBox.setText(POASupport.getString("LBL_POAMemberCustomizer_GenServant"));
             genCheckBox.getAccessibleContext().setAccessibleDescription(POASupport.getString("AD_POAMemberCustomizer_GenServant"));
             idTextField = new javax.swing.JTextField();
@@ -403,14 +404,17 @@ public class POAMemberCustomizer extends javax.swing.JPanel implements DocumentL
             add(idTextField, gridBagConstraints1, 3);
         }
         else if (element instanceof ServantManagerElement) {
+            this.getAccessibleContext().setAccessibleDescription (POASupport.getString("AD_POAMemberCustomizerServantManager"));
             genCheckBox.setText(POASupport.getString("LBL_POAMemberCustomizer_GenServantManager"));
             this.genCheckBox.getAccessibleContext().setAccessibleDescription(POASupport.getString ("AD_POAMemberCustomizer_GenServantManager"));
         }
         else if (element instanceof DefaultServantElement) {
+            this.getAccessibleContext().setAccessibleDescription (POASupport.getString("AD_POAMemberCustomizerDefaultServant"));
             genCheckBox.setText(POASupport.getString("LBL_POAMemberCustomizer_GenDefaultServant"));
             this.genCheckBox.getAccessibleContext().setAccessibleDescription(POASupport.getString("AD_POAMemberCustomizer_GenDefaultServant"));
         }
         else if (element instanceof POAActivatorElement) {
+            this.getAccessibleContext().setAccessibleDescription (POASupport.getString("AD_POAMemberCustomizerPOAActivator"));
             genCheckBox.setText(POASupport.getString("LBL_POAMemberCustomizer_GenPOAActivator"));
             this.genCheckBox.getAccessibleContext().setAccessibleDescription(POASupport.getString("AD_POAMemberCustomizer_GenPOAActivator"));
         }

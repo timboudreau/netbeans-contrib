@@ -39,6 +39,7 @@ public class ForwardDclPanel extends ExPanel implements javax.swing.event.Docume
         this.jLabel1.setDisplayedMnemonic (this.bundle.getString("TXT_ModuleName_MNE").charAt(0));
         this.vt.setMnemonic (this.bundle.getString("TXT_ValueType_MNE").charAt(0));
         this.intf.setMnemonic (this.bundle.getString("TXT_Interface_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_ForwardDclPanel"));
     }
     
     

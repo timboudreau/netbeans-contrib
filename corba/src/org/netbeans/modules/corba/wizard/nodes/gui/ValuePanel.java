@@ -39,6 +39,7 @@ public class ValuePanel extends ExPanel implements DocumentListener, ChangeListe
         this.jLabel3.setDisplayedMnemonic (this.bundle.getString("TXT_Length_MNE").charAt(0));
         this.pri.setMnemonic (this.bundle.getString("TXT_ValuePrivate_MNE").charAt(0));
         this.pub.setMnemonic (this.bundle.getString("TXT_ValuePublic_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_ValuePanel"));
     }
     
     public boolean isPublic () {

@@ -90,6 +90,7 @@ public class FileName extends javax.swing.JPanel implements java.beans.PropertyC
         ResourceBundle b = NbBundle.getBundle (FileName.class);
         this.jLabel1.setDisplayedMnemonic (b.getString ("TXT_NewFileName_MNE").charAt(0));
         this.pkg.setDisplayedMnemonic (b.getString("TXT_Package_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (b.getString("AD_FileName"));
         this.pkgName.getAccessibleContext().setAccessibleDescription (b.getString("AD_Package"));
         this.name.getAccessibleContext().setAccessibleDescription (b.getString("AD_NewFileName"));
         this.explorer.getAccessibleContext().setAccessibleName (b.getString("AN_PackageChooser"));

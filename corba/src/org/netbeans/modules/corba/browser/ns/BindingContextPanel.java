@@ -49,6 +49,7 @@ public class BindingContextPanel extends javax.swing.JPanel {
         urlLabel.setDisplayedMnemonic(b.getString("CTL_LabelURL_MNE").charAt(0));      //NOI18N
         kindLabel.setDisplayedMnemonic(b.getString("CTL_LabelKind_MNE").charAt(0));    //NOI18N
         iorLabel.setDisplayedMnemonic(b.getString("CTL_LabelIOR_MNE").charAt(0));      //NOI18N
+        this.getAccessibleContext().setAccessibleDescription (b.getString("AD_BindingContextPanel"));
         nameField.getAccessibleContext().setAccessibleDescription (b.getString("AD_LabelName"));
         iorField.getAccessibleContext().setAccessibleDescription (b.getString("AD_LabelURL"));
         kindField.getAccessibleContext().setAccessibleDescription (b.getString("AD_LabelKind"));

@@ -70,6 +70,7 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
         this.bindButton.getAccessibleContext().setAccessibleDescription(this.bundle.getString("AD_BindContext"));
         this.newButton.getAccessibleContext().setAccessibleDescription(this.bundle.getString("AD_NewContext"));
         this.refreshButton.getAccessibleContext().setAccessibleDescription(this.bundle.getString("AD_IRRefresh"));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString ("AD_NSPanel"));
     }
     
     

@@ -61,6 +61,7 @@ public class AttributePanel extends ExPanel implements DocumentListener, ChangeL
         this.jLabel1.setDisplayedMnemonic (this.bundle.getString ("TXT_ModuleName_MNE").charAt(0));
         this.jLabel2.setDisplayedMnemonic (this.bundle.getString ("TXT_Type_MNE").charAt(0));
         this.readonly.setMnemonic (this.bundle.getString ("TXT_Mode_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString ("AD_AttributePanel"));
     }
 
     /** This method is called from within the constructor to

@@ -28,6 +28,7 @@ public class ValueFactoryPanel extends ExPanel implements javax.swing.event.Docu
         this.params.getDocument().addDocumentListener (this);
         this.jLabel1.setDisplayedMnemonic (this.bundle.getString("TXT_ValueFactoryName_MNE").charAt(0));
         this.jLabel2.setDisplayedMnemonic (this.bundle.getString("TXT_ValueParams_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription(this.bundle.getString("AD_ValueFactoryPanel"));
     }
     
     public String getName () {

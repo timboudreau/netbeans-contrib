@@ -24,6 +24,7 @@ public class StringPanel extends BindingDetail implements javax.swing.event.Docu
         initComponents();
         this.name.getDocument().addDocumentListener (this);
         this.label.setDisplayedMnemonic (this.bundle.getString ("TXT_FileName_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_StringPanel"));
     }
     
     public void setData (Object data) {

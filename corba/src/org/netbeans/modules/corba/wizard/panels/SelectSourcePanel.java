@@ -41,6 +41,7 @@ public class SelectSourcePanel extends AbstractIDLWizardPanel implements javax.s
         this.getAccessibleContext().setAccessibleDescription (this.getAccessibleContext().getAccessibleDescription()+this.bundle.getString("TXT_ChooseIDLSource"));
         this.jRadioButton1.getAccessibleContext().setAccessibleDescription("AD_NewIDL");
         this.jRadioButton2.getAccessibleContext().setAccessibleDescription("AD_IDLFromIR");
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_SelectSourcePanel"));
     }
     
     

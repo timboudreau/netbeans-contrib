@@ -36,6 +36,7 @@ public class UnionPanel extends ExPanel implements DocumentListener {
         this.type.getDocument().addDocumentListener (this);
         this.jLabel1.setDisplayedMnemonic (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_ModuleName_MNE").charAt(0));
         this.jLabel2.setDisplayedMnemonic (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("TXT_DiscriminatorType_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle").getString("AD_UnionPanel"));
     }
 
     /** This method is called from within the constructor to

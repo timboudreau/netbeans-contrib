@@ -84,6 +84,7 @@ public class CreateIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
         this.edit.getAccessibleContext().setAccessibleDescription(this.bundle.getString("AD_EditButton"));
         this.up.getAccessibleContext().setAccessibleDescription(this.bundle.getString("AD_UpButton"));
         this.down.getAccessibleContext().setAccessibleDescription(this.bundle.getString("AD_DownButton"));
+        this.getAccessibleContext().setAccessibleDescription(this.bundle.getString ("AD_CreateIDLPanel"));
        try {
             this.tree.getExplorerManager().setSelectedNodes (new Node[]{this.root});
             this.createCommandPanel (new Node[]{this.root});

@@ -99,6 +99,7 @@ public class FinishPanel extends  AbstractCORBAWizardPanel {
         this.jTextArea1.setLineWrap (true);
         this.jTextArea1.setWrapStyleWord (true);
         this.jTextArea1.setEditable (false);
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_FinishPanel"));
     }
     
     public boolean isValid () {

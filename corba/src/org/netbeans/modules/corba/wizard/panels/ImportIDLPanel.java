@@ -83,6 +83,7 @@ public class ImportIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
         this.irId.getAccessibleContext().setAccessibleDescription(this.bundle.getString("AD_IrId"));
         this.connect.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_IRConnect"));
         this.refresh.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_IRRefresh"));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_ImportIDLPanel"));
     }
   
     /** Sets the panel data from CorbaWizardDescriptor

@@ -58,6 +58,7 @@ public class POACustomizer extends javax.swing.JPanel implements DocumentListene
         this.managerComboBox.getAccessibleContext().setAccessibleDescription (POASupport.getString("AD_POACustomizer_Mgr"));
         this.poaNameTextField.getAccessibleContext().setAccessibleDescription (POASupport.getString("AD_POACustomizer_POAName"));
         this.varNameTextField.getAccessibleContext().setAccessibleDescription (POASupport.getString("AD_POACustomizer_VarName"));
+        this.getAccessibleContext().setAccessibleDescription (POASupport.getString ("AD_POACustomizer"));
         
         managerComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

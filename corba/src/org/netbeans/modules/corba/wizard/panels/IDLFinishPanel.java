@@ -40,6 +40,7 @@ public class IDLFinishPanel extends AbstractIDLWizardPanel implements javax.swin
         putClientProperty(CorbaWizard.PROP_CONTENT_SELECTED_INDEX, new Integer(3));
         this.jCheckBox1.setMnemonic (this.bundle.getString("TXT_ContinueCORBAWizard_MNE").charAt(0));
         this.jCheckBox1.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_ContinueCORBAWizard"));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_IDLFinishPanel"));
     }
     
     public void readIDLSettings (TemplateWizard data) {

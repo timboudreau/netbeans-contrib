@@ -45,6 +45,7 @@ public class ModulePanel extends ExPanel implements DocumentListener {
     public void postInitComponents () {
         this.name.getDocument().addDocumentListener(this);
         this.jLabel1.setDisplayedMnemonic (this.bundle.getString("TXT_ModuleName_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_ModulePanel"));
     }
 
     /** This method is called from within the constructor to

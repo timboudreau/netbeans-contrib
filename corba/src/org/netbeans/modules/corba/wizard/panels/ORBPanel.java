@@ -55,6 +55,7 @@ public class ORBPanel extends AbstractCORBAWizardPanel {
         this.jLabel2.setDisplayedMnemonic (this.bundle.getString("TXT_BindingMethod_MNE").charAt(0));
         this.orbs.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_OrbImplementations"));
         this.bindings.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_BindingMethod"));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_ORBPanel"));
     }
     
     

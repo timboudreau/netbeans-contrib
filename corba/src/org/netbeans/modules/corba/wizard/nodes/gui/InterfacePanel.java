@@ -18,7 +18,7 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
 /** 
  *
- * @author  root
+ * @author Tomas Zezula
  * @version 
  */
 public class InterfacePanel extends ExPanel implements DocumentListener, ChangeListener {
@@ -60,6 +60,7 @@ public class InterfacePanel extends ExPanel implements DocumentListener, ChangeL
         this.jLabel1.setDisplayedMnemonic (this.bundle.getString("TXT_ModuleName_MNE").charAt(0));
         this.jLabel2.setDisplayedMnemonic (this.bundle.getString("TXT_BaseInterfaces_MNE").charAt(0));
         this.abst.setMnemonic (this.bundle.getString("TXT_Abstract_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_InterfacePanel"));
     }
     
 

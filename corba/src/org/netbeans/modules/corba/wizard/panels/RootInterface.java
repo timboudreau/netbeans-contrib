@@ -120,6 +120,7 @@ public class RootInterface extends AbstractCORBAWizardPanel implements javax.swi
         this.jLabel3.setDisplayedMnemonic (this.bundle.getString("TXT_SelectedRootInterface_MNE").charAt(0));
         this.list.getAccessibleContext().setAccessibleDescription("AD_InterfaceList");
         this.name.getAccessibleContext().setAccessibleDescription("AD_SelectedRootInterface");
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_RootInterfacePanel"));
         this.list.setModel (model);
         this.list.addListSelectionListener (this);
         this.name.getDocument().addDocumentListener(this);

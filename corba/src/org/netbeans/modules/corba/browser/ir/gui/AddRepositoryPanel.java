@@ -29,6 +29,7 @@ public class AddRepositoryPanel extends javax.swing.JPanel {
         initComponents ();
 
         java.util.ResourceBundle b = org.openide.util.NbBundle.getBundle("org/netbeans/modules/corba/browser/ir/Bundle"); //NOI18N
+        this.getAccessibleContext().setAccessibleDescription (b.getString("AD_AddRepositoryPanel"));
         nameLabel.setDisplayedMnemonic(b.getString("CTL_NameLabel_MNE").charAt(0)); //NOI18N
         urlLabel.setDisplayedMnemonic(b.getString("CTL_URLLabel_MNE").charAt(0));   //NOI18N
         iorLabel.setDisplayedMnemonic(b.getString("CTL_IORLabel_MNE").charAt(0));   //NOI18N

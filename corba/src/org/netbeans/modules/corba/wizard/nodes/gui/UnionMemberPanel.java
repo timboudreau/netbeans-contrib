@@ -73,6 +73,7 @@ public class UnionMemberPanel extends ExPanel implements DocumentListener {
         this.jLabel2.setDisplayedMnemonic (this.bundle.getString("TXT_Type_MNE").charAt(0));
         this.jLabel3.setDisplayedMnemonic (this.bundle.getString("TXT_Length_MNE").charAt(0));
         this.jLabel4.setDisplayedMnemonic (this.bundle.getString("TXT_Label_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString ("AD_UnionMemberPanel"));
     }
 
     /** This method is called from within the constructor to

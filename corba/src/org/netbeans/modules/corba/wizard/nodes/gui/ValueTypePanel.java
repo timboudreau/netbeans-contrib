@@ -38,6 +38,7 @@ public class ValueTypePanel extends ExPanel implements javax.swing.event.Documen
         this.custom.setMnemonic (this.bundle.getString ("TXT_ValuetypeCustom_MNE").charAt(0));
         this.abst.setMnemonic (this.bundle.getString ("TXT_ValuetypeAbstract_MNE").charAt(0));
         this.truncatable.setMnemonic (this.bundle.getString ("TXT_ValueTypeTrucatable_MNE").charAt(0));
+        this.getAccessibleContext().setAccessibleDescription (this.bundle.getString("AD_ValueTypePanel"));
     }
     
     public boolean isAbstract() {
