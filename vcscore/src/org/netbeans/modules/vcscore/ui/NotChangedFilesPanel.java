@@ -117,8 +117,6 @@ public class NotChangedFilesPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 11);
         add(jTextArea1, gridBagConstraints);
-        jTextArea1.getAccessibleContext().setAccessibleName(NbBundle.getBundle("src/org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_NotChangedFilesPanel.TextArea"));
-        jTextArea1.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("src/org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_NotChangedFilesPanel.TextArea"));
 
         cbPerform.setText(org.openide.util.NbBundle.getBundle(NotChangedFilesPanel.class).getString("NotChangedFilesPanel.cbPerform.text"));
         cbPerform.addActionListener(formListener);
