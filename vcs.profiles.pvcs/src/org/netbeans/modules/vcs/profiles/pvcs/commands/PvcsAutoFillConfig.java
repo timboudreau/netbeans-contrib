@@ -70,7 +70,7 @@ public class PvcsAutoFillConfig extends Object implements VcsAdditionalCommand,
             }
         } catch (InterruptedException intrEx) {
         }
-        if (failed || execs[0].getExitStatus() != VcsCommandExecutor.SUCCEEDED) work = null;
+        if (failed || execs.length == 0 || execs[0].getExitStatus() != VcsCommandExecutor.SUCCEEDED) work = null;
         if (work != null) {
             try {
                 fileSystem.setRootDirectory(new java.io.File(work));
