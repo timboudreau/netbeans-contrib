@@ -613,8 +613,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 try {
                     ignoredGarbageRE = new RE (nue);
                 } catch (RESyntaxException rese) {
-                    IllegalArgumentException iae = new IllegalArgumentException ();
-                    ErrorManager.getDefault().annotate (iae, rese);
+                    IllegalArgumentException iae = new IllegalArgumentException (rese.getMessage());
+                    ErrorManager.getDefault ().annotate (
+                        iae, 
+                        ErrorManager.USER,
+                        null,
+                        NbBundle.getMessage(VcsFileSystem.class, 
+                            "EXC_InvalidRegularExpressionForIgnoredFiles", 
+                             rese.getLocalizedMessage()),
+                        rese,
+                        new java.util.Date());
                     throw iae;
                 }
             } else {
