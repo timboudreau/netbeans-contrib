@@ -31,7 +31,7 @@ import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
  */
 public class CommandOutputVisualizer extends VcsCommandVisualizer {
 
-    private static final String MODE_NAME = "Default VCS Command Output";
+    public static final String MODE_NAME = "Default VCS Command Output";
 
     private CommandOutputPanel outputPanel;
     private ArrayList closeListeners = new ArrayList();
