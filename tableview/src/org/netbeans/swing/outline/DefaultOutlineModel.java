@@ -32,6 +32,7 @@ import javax.swing.tree.AbstractLayoutCache;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.FixedHeightLayoutCache;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.VariableHeightLayoutCache;
 
 /** Proxies a standard TreeModel and TableModel, translating events between
@@ -75,7 +76,7 @@ public class DefaultOutlineModel implements OutlineModel {
             : (AbstractLayoutCache) new VariableHeightLayoutCache();
             
         layout.setRootVisible(true);
-        layout.setModel(this);
+        layout.setModel(treeModel);
         listener = new Listener();
         treePathSupport = new TreePathSupport(this, layout);
         treePathSupport.addTreeExpansionListener(listener);
@@ -178,15 +179,14 @@ public class DefaultOutlineModel implements OutlineModel {
     
     private synchronized void fireTableChange (TableModelEvent e) {
         TableModelListener[] listeners = new TableModelListener[tableListeners.size()];
-        System.err.println("DefaultOutlineModel firing change to " + listeners.length + " listeners");
         listeners = (TableModelListener[]) tableListeners.toArray(listeners);
         for (int i=0; i < listeners.length; i++) {
+//            System.err.println("DefaultOutlineModel firing change to " + listeners[i]);
             listeners[i].tableChanged(e);
         }
     }
     
     private synchronized void fireTreeChange (TreeModelEvent e, int type) {
-        //XXX, do we actually need to rebroadcast this info?
         TreeModelListener[] listeners = new TreeModelListener[treeListeners.size()];
         listeners = (TreeModelListener[]) treeListeners.toArray(listeners);
         for (int i=0; i < listeners.length; i++) {
@@ -250,43 +250,79 @@ public class DefaultOutlineModel implements OutlineModel {
         }
         
         public void treeNodesChanged(TreeModelEvent e) {
+            getLayout().treeNodesChanged(e);
             fireTreeChange (e, NODES_CHANGED);
         }
         
         public void treeNodesInserted(TreeModelEvent e) {
+            getLayout().treeNodesInserted(e);
             fireTreeChange (e, NODES_INSERTED);
         }
         
         public void treeNodesRemoved(TreeModelEvent e) {
+            getLayout().treeNodesRemoved(e);
             fireTreeChange (e, NODES_REMOVED);
         }
         
         public void treeStructureChanged(TreeModelEvent e) {
+            getLayout().treeStructureChanged(e);
             fireTreeChange (e, STRUCTURE_CHANGED);
         }
         
         public void treeCollapsed(TreeExpansionEvent event) {
-            System.err.println("TreeCollapsed: " + event);
-            
+//            System.err.println("TreeCollapsed: " + event);
+	    if(event != null) {
+		TreePath path = event.getPath();
+
+//		completeEditing();
+		if(path != null && getTreePathSupport().isVisible(path)) {
+		    getLayout().setExpandedState(path, false);
+                    /*
+		    updateLeadRow();
+		    updateSize();
+                     */
+		}
+	    }
             fireCheesyEvent();
         }
         
+        protected void updateExpandedDescendants(TreePath path) {
+            //completeEditing();
+                getLayout().setExpandedState(path, true);
+
+                TreePath[] descendants = 
+                    getTreePathSupport().getExpandedDescendants(path);
+
+                if(descendants.length > 0) {
+                    for (int i=0; i < descendants.length; i++) {
+                        getLayout().setExpandedState(descendants[i], true);
+                    }
+                }
+    //	    updateLeadRow();
+    //	    updateSize();
+        }        
+        
         public void treeExpanded(TreeExpansionEvent event) {
-            System.err.println("TreeExpanded: " + event);
+//            System.err.println("TreeExpanded: " + event);
+            //Mysterious how the event could be null, but JTree tests it
+            //so we will too.
+	    if(event != null) {
+		updateExpandedDescendants(event.getPath());
+	    }
             
             fireCheesyEvent();
         }
         
         public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
-            System.err.println("TreeWillCollapse: " + event);
+//            System.err.println("TreeWillCollapse: " + event);
             
-//            fireCheesyEvent();
+            fireCheesyEvent();
         }
         
         public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
-            System.err.println("TreeWillExpand: " + event);
+//            System.err.println("TreeWillExpand: " + event);
             
-//            fireCheesyEvent();
+            fireCheesyEvent();
         }
 
         /** A standin for real translation of tree events into granular table 

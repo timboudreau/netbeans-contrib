@@ -40,6 +40,7 @@ import javax.swing.JViewport;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.event.TableModelEvent;
+import javax.swing.event.TreeModelEvent;
 import javax.swing.table.TableModel;
 import javax.swing.tree.AbstractLayoutCache;
 import javax.swing.tree.TreePath;
@@ -125,6 +126,13 @@ public final class Outline extends JTable {
         }
     }
     
+    public boolean isVisible (TreePath path) {
+        if (getTreePathSupport() != null) {
+            return getTreePathSupport().isVisible(path);
+        }
+        return false;
+    }
+    
     /** Overridden to pass the fixed row height to the tree layout cache */
     public void setRowHeight(int val) {
         super.setRowHeight(val);
@@ -166,17 +174,19 @@ public final class Outline extends JTable {
                 "OutlineModel"); //NOI18N
         }
         if (mdl instanceof OutlineModel) {
+            AbstractLayoutCache layout = ((OutlineModel) mdl).getLayout();
             if (cachedRootVisible != null) {
                 
-                ((OutlineModel) mdl).getLayout().setRootVisible(
+                layout.setRootVisible(
                     cachedRootVisible.booleanValue());
                 
             }
             
-            ((OutlineModel) mdl).getLayout().setRowHeight(getRowHeight());
+            layout.setRowHeight(getRowHeight());
             
             if (((OutlineModel) mdl).isLargeModel()) {
                 addComponentListener (getComponentListener());
+                layout.setNodeDimensions(new ND());
             } else {
                 if (componentListener != null) {
                     removeComponentListener (componentListener);
@@ -244,11 +254,17 @@ public final class Outline extends JTable {
                  me.getClickCount() > 1) {
 
                 boolean expanded = getLayoutCache().isExpanded(path);
-                System.err.println("Setting expanded for " + row + " to " + !expanded);
+                //System.err.println("Setting expanded for " + row + " to " + !expanded);
                 if (!expanded) {
                     getTreePathSupport().expandPath(path);
                 } else {
                     getTreePathSupport().collapsePath(path);
+                }
+                if (getOutlineModel().isLargeModel()) {
+                    getLayoutCache().invalidateSizes();
+//                    getLayoutCache().invalidateSizes();
+//                    revalidate();
+//                    repaint();
                 }
 //                compareSnapshot();
                 return false;
@@ -304,7 +320,7 @@ public final class Outline extends JTable {
     }    
     
     public void tableChanged(TableModelEvent e) {
-        System.err.println("Table got tableChanged " + e);
+//        System.err.println("Table got tableChanged " + e);
         super.tableChanged(e);
     }
     
@@ -341,6 +357,18 @@ public final class Outline extends JTable {
         repaint();
     }
     
+    private class ND extends AbstractLayoutCache.NodeDimensions {
+        
+        public Rectangle getNodeDimensions(Object value, int row, int depth, 
+            boolean expanded, Rectangle bounds) {
+                
+                int wid = Outline.this.getColumnModel().getColumn(0).getPreferredWidth();
+                bounds.setBounds (0, row * getRowHeight(), wid, getRowHeight());
+                return bounds;
+        }
+        
+    }
+    
     
     /** A component listener.  If we're a large model table, we need
      * to inform the FixedHeightLayoutCache when the size changes, so it
@@ -349,22 +377,24 @@ public final class Outline extends JTable {
 	protected Timer timer = null;
 	protected JScrollBar scrollBar = null;
         
-        public void componentHidden(ComponentEvent e) {
+        public void componentMoved(ComponentEvent e) {
 	    if(timer == null) {
 		JScrollPane   scrollPane = getScrollPane();
 
-		if(scrollPane == null)
+		if(scrollPane == null) {
 		    change();
-		else {
+                } else {
 		    scrollBar = scrollPane.getVerticalScrollBar();
 		    if(scrollBar == null || 
 			!scrollBar.getValueIsAdjusting()) {
 			// Try the horizontal scrollbar.
 			if((scrollBar = scrollPane.getHorizontalScrollBar())
-			    != null && scrollBar.getValueIsAdjusting())
+			    != null && scrollBar.getValueIsAdjusting()) {
+                                
 			    startTimer();
-			else
+                        } else {
 			    change();
+                        }
 		    } else {
 			startTimer();
                     }
@@ -390,7 +420,7 @@ public final class Outline extends JTable {
 	    }
 	}        
         
-        public void componentMoved(ComponentEvent e) {
+        public void componentHidden(ComponentEvent e) {
         }
         
         public void componentResized(ComponentEvent e) {

@@ -164,7 +164,55 @@ public final class TreePathSupport {
         }
         TreePath[] result = new TreePath[descendants.size()];
         return (TreePath[]) descendants.toArray(result);
-    }     
+    }
+    
+    public boolean isVisible(TreePath path) {
+        if(path != null) {
+	    TreePath parentPath = path.getParentPath();
+
+	    if(parentPath != null) {
+		return isExpanded(parentPath);
+            }
+	    // Root.
+	    return true;
+	}
+        return false;
+    }    
+    
+    public TreePath[] getExpandedDescendants(TreePath parent) {
+        TreePath[] result = new TreePath[0];
+	if(isExpanded(parent)) {
+            TreePath path;
+            Object value;
+            List results = null;
+
+            if (!expandedPaths.isEmpty()) {
+
+                Iterator i = expandedPaths.keySet().iterator();
+
+                while(i.hasNext()) {
+                    path = (TreePath) i.next();
+                    value = expandedPaths.get(path);
+
+                    // Add the path if it is expanded, a descendant of parent,
+                    // and it is visible (all parents expanded). This is rather
+                    // expensive!
+                    if(path != parent && value != null &&
+                       ((Boolean)value).booleanValue() &&
+                        parent.isDescendant(path) && isVisible(path)) {
+                        if (results == null) {
+                            results = new ArrayList();
+                        }
+                        results.add (path);
+                    }
+                }
+                if (results != null) {
+                    result = (TreePath[]) results.toArray(result);
+                }
+            }
+        }
+        return result;
+    }    
     
     public synchronized void addTreeExpansionListener (TreeExpansionListener l) {
         eListeners.add(l);

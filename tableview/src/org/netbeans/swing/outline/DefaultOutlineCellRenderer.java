@@ -142,6 +142,7 @@ public class DefaultOutlineCellRenderer extends DefaultTableCellRenderer {
                 if (displayName != null) {
                     setText (displayName);
                 }
+                setToolTipText (rendata.getTooltipText(value));
                 Color bg = rendata.getBackground(value);
                 Color fg = rendata.getForeground(value);
                 if (bg != null && !isSelected) {

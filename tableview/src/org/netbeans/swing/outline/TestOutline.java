@@ -49,11 +49,15 @@ public class TestOutline extends JFrame {
         getContentPane().setLayout (new BorderLayout());
         
         //Use root 1 on windows to avoid making a tree of the floppy drive.
+        /*
         TreeModel treeMdl = new DefaultTreeModel(
             new FileTreeNode(File.listRoots()[Utilities.isWindows() ? 1 : 0]));
+         */
+            
+        TreeModel treeMdl = createModel();
         
         OutlineModel mdl = DefaultOutlineModel.createOutlineModel(treeMdl, 
-            new FileAttrConverter(), false);
+            new FileRowModel(), true);
         
         outline = new Outline();
         
@@ -65,18 +69,29 @@ public class TestOutline extends JFrame {
         
         
         getContentPane().add(new JScrollPane(outline), BorderLayout.CENTER);
-        setBounds (20, 20, 400, 200);
+        setBounds (20, 20, 700, 400);
+    }
+    
+    /** A handy method to create a model to install into a JTree to compare
+     * behavior of a real JTree's layout cache and ours */
+    public static TreeModel createModel() {
+//        TreeModel treeMdl = /*new DefaultTreeModel(
+//            new FileTreeNode(File.listRoots()[Utilities.isWindows() ? 1 : 0]));
+                           
+        TreeModel treeMdl = new FileTreeModel (
+            File.listRoots()[Utilities.isWindows() ? 1 : 0]);
+        return treeMdl;
     }
     
     public static void main(String[] ignored) {
         try {
-           // UIManager.setLookAndFeel (new javax.swing.plaf.metal.MetalLookAndFeel());
+           //UIManager.setLookAndFeel (new javax.swing.plaf.metal.MetalLookAndFeel());
         } catch (Exception e) {}
         
         new TestOutline().show();
     }
     
-    private class FileAttrConverter implements RowModel {
+    private class FileRowModel implements RowModel {
         
         public Class getColumnClass(int column) {
             switch (column) {
@@ -96,7 +111,7 @@ public class TestOutline extends JFrame {
         }
         
         public Object getValueFor(Object node, int column) {
-            File f = ((FileTreeNode) node).getFile();
+            File f = (File) node;
             switch (column) {
                 case 0 : return new Date (f.lastModified());
                 case 1 : return new Long (f.length());
@@ -123,11 +138,11 @@ public class TestOutline extends JFrame {
         }
         
         public String getDisplayName(Object o) {
-            return null;
+            return ((File) o).getName();
         }
         
         public java.awt.Color getForeground(Object o) {
-            File f = ((FileTreeNode) o).getFile();
+            File f = (File) o;
             if (!f.isDirectory() && !f.canWrite()) {
                 return UIManager.getColor ("controlShadow");
             }
@@ -140,7 +155,8 @@ public class TestOutline extends JFrame {
         }
         
         public String getTooltipText(Object o) {
-            return null;
+            File f = (File) o;
+            return f.getAbsolutePath();
         }
         
         public boolean isHtmlDisplayName(Object o) {
@@ -149,81 +165,51 @@ public class TestOutline extends JFrame {
         
     }
     
-    private Map nodes = new HashMap();
-    
-    private class FileTreeNode implements TreeNode {
-        private File file;
-        public FileTreeNode (File file) {
-            this.file = file;
-            nodes.put(file, this);
+    private static class FileTreeModel implements TreeModel {
+        private File root;
+        public FileTreeModel (File root) {
+            this.root = root;
         }
         
-        public String toString() {
-            String result = file.getName();
-            if ("".equals(result)) {
-                result = "/";
-            }
-            return result;
+        public void addTreeModelListener(javax.swing.event.TreeModelListener l) {
+            //do nothing
         }
         
-        public File getFile() {
-            return file;
+        public Object getChild(Object parent, int index) {
+            File f = (File) parent;
+            return f.listFiles()[index];
         }
         
-        public Enumeration children() {
-            return new FileNodeEnumeration (new ArrayEnumeration(
-                file.listFiles()));
-        }
-        
-        public boolean getAllowsChildren() {
-            return file.isDirectory();
-        }
-        
-        public TreeNode getChildAt(int childIndex) {
-            return new FileTreeNode(file.listFiles()[childIndex]);
-        }
-        
-        public int getChildCount() {
-            String[] s = file.list();
-            return s == null ? 0 : s.length;
-        }
-        
-        public int getIndex(TreeNode node) {
-            File parent = ((FileTreeNode) node).getFile();
-            if (parent != null) {
-                File[] files = parent.listFiles();
-                if (files == null) {
-                    return 0;
-                }
-                return Arrays.asList(parent.listFiles()).indexOf(file);
-            } else {
+        public int getChildCount(Object parent) {
+            File f = (File) parent;
+            if (!f.isDirectory()) {
                 return 0;
+            } else {
+                return f.list().length;
             }
         }
         
-        public TreeNode getParent() {
-            File par = file.getParentFile();
-            return (TreeNode) nodes.get(par);
+        public int getIndexOfChild(Object parent, Object child) {
+            File par = (File) parent;
+            File ch = (File) child;
+            return Arrays.asList(par.listFiles()).indexOf(ch);
         }
         
-        public boolean isLeaf() {
-            return !file.isDirectory();
+        public Object getRoot() {
+            return root;
+        }
+        
+        public boolean isLeaf(Object node) {
+            File f = (File) node;
+            return !f.isDirectory();
+        }
+        
+        public void removeTreeModelListener(javax.swing.event.TreeModelListener l) {
+            //do nothing
+        }
+        
+        public void valueForPathChanged(javax.swing.tree.TreePath path, Object newValue) {
+            //do nothing
         }
     }
-    
-    private class FileNodeEnumeration extends AlterEnumeration {
-        
-        public FileNodeEnumeration (Enumeration files) {
-            super (files);
-        }
-        
-        protected Object alter(Object o) {
-            File file = (File) o;
-            TreeNode result = (TreeNode) nodes.get(file);
-            if (result == null) {
-                result = new FileTreeNode(file);
-            }
-            return result;
-        }
-    }    
 }
