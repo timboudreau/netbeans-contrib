@@ -405,7 +405,21 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_CONFIRM">
         <property name="exec">
-          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} $[? TEST_CONFIRMATION] [-I-N] [-I-Y] ${IDENT} ${QFILE} ${NUR}</value>
+          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-N ${IDENT} ${QFILE} ${NUR}</value>
+        </property>
+	<property name="error.regex.global">
+	  <value>(^.*)\(Y/N\)N$</value>
+	</property>
+	<property name="ignoreFail">
+	  <value>true</value>
+	</property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+      </command>
+      <command name="CHECKOUT_CONFIRMED">
+        <property name="exec">
+          <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkout ${CHECKOUT_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}</value>
         </property>
 	<property name="error.regex.global">
 	  <value>(^.*)\(Y/N\)N$</value>
@@ -427,7 +441,7 @@ Microsystems, Inc. All Rights Reserved.
           </value>
 	</property>
         <property name="exec">
-          <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t CHECKOUT_CONFIRM</value>
+          <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t CHECKOUT_CONFIRM CHECKOUT_CONFIRMED</value>
         </property>
 	<property name="onDir">
 	  <value>false</value>
@@ -525,7 +539,21 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="UNCHECKOUT_CONFIRM">
         <property name="exec">
-          <value>${RUN_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} $[? TEST_CONFIRMATION] [-I-N] [-I-Y] ${IDENT} ${QFILE} ${NUR}</value>
+          <value>${RUN_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} -I-N ${IDENT} ${QFILE} ${NUR}</value>
+        </property>
+	<property name="error.regex.global">
+	  <value>(^.*)\(Y/N\)N$</value>
+	</property>
+	<property name="ignoreFail">
+	  <value>true</value>
+	</property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+      </command>
+      <command name="UNCHECKOUT_CONFIRMED">
+        <property name="exec">
+          <value>${RUN_NMK} ${QUOTE}${VSSCMD}${QUOTE} uncheckout ${CMD_OPTIONS} -I-Y ${IDENT} ${QFILE} ${NUR}</value>
         </property>
 	<property name="error.regex.global">
 	  <value>(^.*)\(Y/N\)N$</value>
@@ -547,7 +575,7 @@ Microsystems, Inc. All Rights Reserved.
           </value>
 	</property>
         <property name="exec">
-          <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t UNCHECKOUT_CONFIRM</value>
+          <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t UNCHECKOUT_CONFIRM UNCHECKOUT_CONFIRMED</value>
         </property>
 	<property name="onDir">
 	  <value>false</value>
