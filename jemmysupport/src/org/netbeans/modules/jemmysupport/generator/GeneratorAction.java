@@ -30,7 +30,7 @@ public class GeneratorAction extends NodeAction {
      * @param nodes selected nodes
      */    
     protected void performAction(Node[] nodes) {
-        ComponentGeneratorPanel.showDialog();
+        ComponentGeneratorPanel.showDialog(nodes);
     }
     
     /** action is enabled for any selected node

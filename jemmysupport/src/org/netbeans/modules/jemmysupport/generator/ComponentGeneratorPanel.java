@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.jemmysupport.generator;
 
+import java.util.StringTokenizer;
+import org.openide.loaders.DataFolder;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 
@@ -32,6 +34,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     /** root node */
     private Node rootNode;
     private static java.awt.Dialog dialog;
+    private static ComponentGeneratorPanel panel;
     private String packageName;
     private String directory;
     private Thread thread;
@@ -39,9 +42,9 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     
     /** creates ans shows Component Generator dialog
      */    
-    public static void showDialog(){
+    public static void showDialog(Node[] nodes){
         if (dialog==null) {
-            final ComponentGeneratorPanel panel = new ComponentGeneratorPanel();
+            panel = new ComponentGeneratorPanel(nodes);
             dialog = org.openide.TopManager.getDefault().createDialog(new org.openide.DialogDescriptor(panel, NbBundle.getMessage(ComponentGeneratorPanel.class, "Title"), false, new Object[0], null, org.openide.DialogDescriptor.BOTTOM_ALIGN, null, null)); // NOI18N
             dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -49,12 +52,13 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
                 }
             });
         }
+        panel.setSelectedNodes(nodes);
         dialog.show();
     }
     
     /** Creates new ComponentGeneratorPanel
      */
-    public ComponentGeneratorPanel() {
+    public ComponentGeneratorPanel(Node[] nodes) {
         loadProperties();
         initComponents();
         rootNode = createPackagesNode();
@@ -62,7 +66,22 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         packagesPanel.getExplorerManager().addVetoableChangeListener(this);
         packagesPanel.getExplorerManager().addPropertyChangeListener(this);
     }
-   
+    
+    private void setSelectedNodes(Node[] nodes) {
+        DataFolder df;
+        if (packagesTreeView.isEnabled() && nodes!=null && nodes.length>0 && (df=(DataFolder)nodes[0].getCookie(DataFolder.class))!=null) {
+            try {
+                StringTokenizer packageName = new StringTokenizer(df.getPrimaryFile().getPackageName('.'), "."); // NOI18N
+                Node node = packagesPanel.getExplorerManager().getRootContext().getChildren().findChild(df.getPrimaryFile().getFileSystem().getSystemName());
+                while (packageName.hasMoreTokens()) {
+                    node = node.getChildren().findChild(packageName.nextToken());
+                }
+                packagesPanel.getExplorerManager().setSelectedNodes (new Node[]{node});
+            }
+            catch(Exception e) {}
+        }
+    }
+    
     /** Creates node that displays all packages.
     */
     private Node createPackagesNode () {
@@ -366,7 +385,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
      * @param args command line arguments
      */    
     public static void main(String args[]) {
-        showDialog();
+        showDialog(null);
     }
     
 }
