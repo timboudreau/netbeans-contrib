@@ -92,24 +92,19 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         } catch (java.beans.PropertyVetoException exc) {
             // The change was vetoed
         }
-        org.openide.awt.SplittedPanel split = new org.openide.awt.SplittedPanel();
-        split.setSplitType(org.openide.awt.SplittedPanel.HORIZONTAL);
-        //split.add(new VariableTreeView(), org.openide.awt.SplittedPanel.ADD_LEFT);
         org.openide.explorer.view.BeanTreeView beanTreeView = new org.openide.explorer.view.BeanTreeView();
         beanTreeView.getAccessibleContext().setAccessibleName(g("ACS_UserVariablesTreeViewA11yName"));  // NOI18N
         beanTreeView.getAccessibleContext().setAccessibleDescription(g("ACS_UserVariablesTreeViewA11yDesc"));  // NOI18N
         ExplorerPanel explPanel = new ExplorerPanel();
         explPanel.add(beanTreeView);
         manager = explPanel.getExplorerManager();
-        split.add(explPanel, org.openide.awt.SplittedPanel.ADD_LEFT);
-        split.add(propertySheetView, org.openide.awt.SplittedPanel.ADD_RIGHT);
-        //JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new CommandTreeView(), propertySheetView);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, explPanel, propertySheetView);
 
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1.0;
         c.weighty = 1.0;
         c.gridy = 1;
-        add(split, c);
+        add(splitPane, c);
         getAccessibleContext().setAccessibleName(g("ACS_UserVariablesPanelA11yName"));  // NOI18N
         getAccessibleContext().setAccessibleDescription(g("ACS_UserVariablesPanelA11yDesc"));  // NOI18N
     }
