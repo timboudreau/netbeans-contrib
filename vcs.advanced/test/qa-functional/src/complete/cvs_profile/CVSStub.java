@@ -53,16 +53,16 @@ public abstract class CVSStub extends GenericStub {
     }
     
     protected void mountVCSFileSystem () {
-        new Action ("Versioning|Mount Version Control", null).performMenu (); // workaround for issue #31026
+/*        new Action ("Versioning|Mount Version Control", null).performMenu (); // workaround for issue #31026
         new Action ("Tools", null).performMenu (); // workaround for issue #31026
         sleep (10000);
         new Action ("Versioning|Mount Version Control", null).performMenu (); // workaround for issue #31026
-        new Action ("Tools", null).performMenu (); // workaround for issue #31026
+        new Action ("Tools", null).performMenu (); // workaround for issue #31026*/
         new VCSGenericMountAction().perform();
         VCSWizardProfile wizard = new VCSWizardProfile();
         wizard.verify("");
         wizard.setWorkingDirectory(clientDirectory);
-        String profile = Utilities.isUnix() ? VCSWizardProfile.CVS_UNIX : VCSWizardProfile.CVS_WIN_NT;
+        String profile = "CVS";//Utilities.isUnix() ? VCSWizardProfile.CVS_UNIX : VCSWizardProfile.CVS_WIN_NT;
 
         MountWizardIterator mwi = MountWizardIterator.singleton();
         MountWizardData mwd = mwi.getData();
@@ -88,9 +88,9 @@ public abstract class CVSStub extends GenericStub {
         wizard.setProfile(profile);
         history.waitCommand("AUTO_FILL_CONFIG", "");
 
+        wizard.setCVSServerName(""); // workaround for issue #37380
+        wizard.setCVSUserName(""); // workaround for issue #37380
         wizard.setCVSServerType("local");
-        wizard.setCVSServerName("");
-        wizard.setCVSUserName("");
         wizard.setCVSRepository(serverDirectory);
         wizard.next();
         VCSWizardAdvanced wizard2 = new VCSWizardAdvanced();
