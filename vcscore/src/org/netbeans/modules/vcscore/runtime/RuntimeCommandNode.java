@@ -56,6 +56,7 @@ public class RuntimeCommandNode extends AbstractNode {
         if (displayName == null || displayName.length() == 0) displayName = command.getName();
         setDisplayName(displayName);
         setShortDescription(NbBundle.getMessage(RuntimeCommandNode.class, "RuntimeCommandNode.Description", displayName));
+        setState(comm.getState());
         setDefaultAction(CommandOutputViewAction.getInstance());
         getCookieSet().add(comm);
     }
