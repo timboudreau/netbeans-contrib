@@ -2386,7 +2386,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-          <value>${EXECUTE} ${USER_GLOBAL_PARAM} ${TAG_TYPE} ${BRANCH_TAG} $[? DATE] [-D ${DATE}] [] $[? REVISION] [-r ${REVISION}] [] ${FORCE_HEAD} ${MOVE_IF_EXISTS} ${CHECK_FOR_MODIFIED} ${CLEAR_REMOVED} ${NO_TAG_PRG} ${RECURSIVE} ${TAG_NAME} ${QUOTE}${MODPATH}${QUOTE} ${NUR}</value>
+          <value>${EXECUTE} ${USER_GLOBAL_PARAM} ${TAG_TYPE} ${BRANCH_TAG} $[? DATE] [-D ${DATE}] [] $[? REVISION] [-r ${REVISION}] [] ${FORCE_HEAD} ${MOVE_IF_EXISTS} ${CHECK_FOR_MODIFIED} ${CLEAR_REMOVED} ${NO_TAG_PRG} ${RECURSIVE} ${TAG_NAME} $[? FILE] [${QUOTE}${MODPATH}${QUOTE}] [] ${NUR}</value>
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(ResourceMsg1(COMMAND_ADD_TAG_Label),ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_TAG_Label)))
