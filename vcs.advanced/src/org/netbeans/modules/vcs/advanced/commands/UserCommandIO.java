@@ -21,6 +21,7 @@ import org.openide.nodes.Children;
 
 import org.netbeans.modules.vcscore.commands.VcsCommandNode;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
+import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
@@ -102,6 +103,7 @@ public class UserCommandIO extends Object {
     }
     
     private static String getPropertyValueStr(String name, Object value) {
+        if (CommandExecutorSupport.INPUT_DESCRIPTOR_PARSED.equals(name)) return null;
         Class type = (Class) CommandNode.propertyClassTypes.get(name);
         if (String[].class.equals(type)) {
             return convertStringArray2String((String[]) value);
@@ -275,10 +277,12 @@ public class UserCommandIO extends Object {
             for (int j = 0; j < properties.length; j++) {
                 Object value = cmd.getProperty(properties[j]);
                 if (value == null) continue;
+                String valueStr = getPropertyValueStr(properties[j], value);
+                if (valueStr == null) continue;
                 Element propertiesElm = doc.createElement(PROPERTY_TAG);
                 propertiesElm.setAttribute(PROPERTY_NAME_ATTR, properties[j]);
                 Element propValueElem = doc.createElement(PROPERTY_VALUE_TAG);
-                Text valueText = doc.createTextNode(getPropertyValueStr(properties[j], value));
+                Text valueText = doc.createTextNode(valueStr);
                 propValueElem.appendChild(valueText);
                 propertiesElm.appendChild(propValueElem);
                 commandElm.appendChild(propertiesElm);
