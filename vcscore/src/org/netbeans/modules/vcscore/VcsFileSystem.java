@@ -3518,7 +3518,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         if (isLocked) {
-            IOException exc = new IOException("File "+name+" can be altered by a running VCS command, it's modification in the IDE is remporarily disabled.") {
+            IOException exc = new IOException("File "+name+" can be altered by a running VCS command, it's modification in the IDE is temporarily disabled.") {
                 // It's necessary to define localized message separately, so that it's written to the Status bar !!!!!! See issue #9069.
                 public String getLocalizedMessage() {
                     return NbBundle.getMessage (VcsFileSystem.class, "EXC_file_is_being_modified", name);
