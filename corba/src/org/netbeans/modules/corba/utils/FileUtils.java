@@ -29,7 +29,11 @@ public class FileUtils {
     public static String getRealFileName (FileObject fo) {
         try {
 	    File __fs_file = NbClassPath.toFile (fo.getFileSystem ().getRoot ());
-	    String __filesystem = __fs_file.getAbsolutePath ();
+            String __filesystem;
+            if (__fs_file != null)
+	        __filesystem = __fs_file.getAbsolutePath ();
+            else
+                __filesystem = fo.getFileSystem ().getSystemName();
 	    //System.out.println ("__filesystem: " + __filesystem);
             String __file_name = fo.getPackageNameExt (File.separatorChar, '.');
 	    //System.out.println ("__file_name: " + __file_name);

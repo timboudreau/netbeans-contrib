@@ -1351,6 +1351,8 @@ public class IDLDataObject extends MultiDataObject
     }
     
     private void fix_src_names (IDLElement __element, String __source, String __target) {
+        if (__element == null)
+            return;
 	if (__source.equals (__element.getFileName ())) {
 	    //System.out.println ("fixing file name in " + __element.getName ());
 	    __element.setFileName (__target);

@@ -395,6 +395,8 @@ public class POAChecker {
                     continue;
                 value = (POAPolicyValueDescriptor)policy.getValues().get(0);
             }
+            if (value == null)
+                continue;
             List disabledActions = value.getDisabledActions();
             if (disabledActions.contains(tag))
                 return false;

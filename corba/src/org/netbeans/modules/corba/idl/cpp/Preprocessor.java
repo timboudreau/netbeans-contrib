@@ -1280,48 +1280,45 @@ public class Preprocessor {
         }
         else {
             FileSystem fs = null;
+            String system_name = null;
             for (Enumeration ffs = TopManager.getDefault().getRepository().fileSystems(); ffs.hasMoreElements();) {
                 fs = (FileSystem)ffs.nextElement();
-                if (filename.startsWith(NbClassPath.toFile (fs.getRoot()).getAbsolutePath()))
-                    break;
-                fs = null;
-            }
-            if (fs != null) {
-                String _filename = filename.substring(NbClassPath.toFile (fs.getRoot()).getAbsolutePath().length());
-                if (_filename.length() > 1) {
-                    _filename = FileUtils.convert2Canonical(_filename);
-                    _filename = _filename.replace(File.separatorChar, '/');
-//                    System.out.print("Trying to find: " + _filename);
-                    fobj = fs.findResource(_filename);
-/*                    if (fobj == null)
-                        System.out.println(" ... FAILED");
-                    else
-                        System.out.println(" ... OK");
-*/
+                File f = NbClassPath.toFile(fs.getRoot());
+                if (f != null)
+                    system_name = f.getAbsolutePath();
+                else
+                    system_name = fs.getSystemName();
+                if (filename.startsWith(system_name)) {
+                    String _filename = filename.substring(system_name.length());
+                    if (_filename.length() > 1) {
+                        _filename = FileUtils.convert2Canonical(_filename);
+                        _filename = _filename.replace(File.separatorChar, '/');
+                        fobj = fs.findResource(_filename);
+                        if (fobj != null)
+                            break;
+                    }
                 }
             }
             if (fobj == null && pwd != null) {
                 for (Enumeration ffs = TopManager.getDefault().getRepository().fileSystems(); ffs.hasMoreElements();) {
                     fs = (FileSystem)ffs.nextElement();
-                    if (pwd.startsWith(NbClassPath.toFile (fs.getRoot()).getAbsolutePath()))
-                        break;
-                    fs = null;
-                }
-                if (fs != null) {
-                    String _filename = pwd.substring(NbClassPath.toFile (fs.getRoot()).getAbsolutePath().length());
-                    if (_filename.length() > 1)
-                        _filename += File.separatorChar + filename;
+                    File f = NbClassPath.toFile(fs.getRoot());
+                    if (f != null)
+                        system_name = f.getAbsolutePath();
                     else
-                        _filename = filename;
-                    _filename = FileUtils.convert2Canonical(_filename);
-                    _filename = _filename.replace(File.separatorChar, '/');
-//                    System.out.print("Trying to find: " + _filename);
-                    fobj = fs.findResource(_filename);
-/*                    if (fobj == null)
-                        System.out.println(" ... FAILED");
-                    else
-                        System.out.println(" ... OK");
-*/
+                        system_name = fs.getSystemName();
+                    if (pwd.startsWith(system_name)) {
+                        String _filename = pwd.substring(system_name.length());
+                        if (_filename.length() > 1)
+                            _filename += File.separatorChar + filename;
+                        else
+                            _filename = filename;
+                        _filename = FileUtils.convert2Canonical(_filename);
+                        _filename = _filename.replace(File.separatorChar, '/');
+                        fobj = fs.findResource(_filename);
+                        if (fobj != null)
+                            break;
+                    }
                 }
             }
             if (fobj == null || fobj.isFolder() || !fobj.isValid())
