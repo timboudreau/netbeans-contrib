@@ -3936,6 +3936,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
             path = path.replace(File.separatorChar, '/');
             if (removedFile instanceof CacheDir) {
+                // refresh the parent folder first, because the removed dir does not have to exist at all any more.
+                String parentDir = VcsUtilities.getDirNamePart(path);
+                if (!path.equals(parentDir)) {
+                    refreshResource(parentDir, true);
+                }
                 refreshExistingFolders(path);
                 statusChanged(path, true);
             } else {
