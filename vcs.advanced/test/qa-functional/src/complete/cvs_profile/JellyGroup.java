@@ -58,7 +58,6 @@ import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCheckoutFolderAd
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCommitFileAdvDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSRevisionSelectorDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSUpdateFileAdvDialog;
-import org.openide.TopManager;
 import org.openide.filesystems.FileSystem;
 import org.openide.util.Utilities;
 import util.Helper;

@@ -48,8 +48,8 @@ import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCheckoutFolderAd
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSCommitFileAdvDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSRevisionSelectorDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSUpdateFileAdvDialog;
-import org.openide.TopManager;
 import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.Repository;
 import org.openide.util.Utilities;
 import util.Helper;
 import util.History;
@@ -234,7 +234,7 @@ public class JellyBranch extends JellyTestCase {
         boolean found = false;
         info.println("Searching for CVS filesystem: " + nRoot);
         for (int a = 0; a < 10; a ++) {
-            Enumeration e = TopManager.getDefault().getRepository().getFileSystems();
+            Enumeration e = Repository.getDefault().getFileSystems();
             while (e.hasMoreElements()) {
                 FileSystem f = (FileSystem) e.nextElement();
                 info.println("Is it: " + f.getDisplayName());
