@@ -109,27 +109,21 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
                     try {
                         // Is it IBM JDK
                         Class.forName ("com.ibm.CosNaming.TransientNameServer");
-			//System.out.println ("found com.ibm.CosNaming.TransientNameServer");
 			wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.IBMWrapper();
-			wrapper.start (port);
                     } catch (ClassNotFoundException cnfe) {
                         try {
                             // Is it Sun 1.2 JDK, Apple JDK, Blackdown JDK
                             Class.forName ("com.sun.CosNaming.TransientNameServer");
-                            //System.out.println ("found com.sun.CosNaming.TransientNameServer");
                             wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.SunWrapper();
-                            wrapper.start(port);
 			} catch (ClassNotFoundException cnfe2) {
                             try {
                                 // Is it Sun 1.3 JDK or JDK 1.4
 				Class.forName ("com.sun.corba.se.internal.CosNaming.TransientNameServer");
-				//System.out.println ("found com.sun.corba.se.internal.CosNaming.TransientNameServer");
                                 String sval = System.getProperty (JAVA_SPEC_VERSION);
                                 if (sval!=null && sval.equals(JAVA_1_3))
                                     wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.Sun13Wrapper();
                                 else
                                     wrapper = new org.netbeans.modules.corba.browser.ns.wrapper.Sun14Wrapper();
-				wrapper.start(port);
                             } catch (ClassNotFoundException cnfe3) {
                                 TopManager.getDefault().notify ( new NotifyDescriptor.Message (ContextNode.this.getLocalizedString("TXT_ClassNotFound"),NotifyDescriptor.Message.ERROR_MESSAGE));
 				//cnfe3.printStackTrace ();
@@ -137,16 +131,20 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
                             }
 			}
                     }
+                    localNameServices.put (new Short (port), wrapper);
+                    wrapper.start (port);
                 }
             	String ior = wrapper.getIOR();
                 if (ior == null) {
                     //Error while startinf NS
+                    localNameServices.remove (new Short (port));
                     TopManager.getDefault().notify(new NotifyDescriptor.Message (java.text.MessageFormat.format (ContextNode.this.getLocalizedString("TXT_BadPort"),new java.lang.Object[]{new Short (port)}),NotifyDescriptor.Message.ERROR_MESSAGE));
                     return;
 		}		
 		ContextNode.this.bind_new_context (name, __kind, "",ior, false);
-                localNameServices.put (new Short (port), wrapper);
+                
             }catch (Exception se) {
+                localNameServices.remove (new Short (port));
                 TopManager.getDefault().notify (new NotifyDescriptor.Message (se.toString (), NotifyDescriptor.Message.ERROR_MESSAGE));
             }
 	}
