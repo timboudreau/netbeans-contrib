@@ -15,6 +15,7 @@ package org.netbeans.modules.vcscore.registry;
 
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
+import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.Serializable;
 
@@ -76,6 +77,10 @@ public interface FSInfo extends Serializable {
      * This method should cleanup the filesystem, if necessary.
      */
     public void destroy();
+    
+    public void addVetoableChangeListener(VetoableChangeListener l);
+    
+    public void removeVetoableChangeListener(VetoableChangeListener l);
     
     public void addPropertyChangeListener(PropertyChangeListener l);
     

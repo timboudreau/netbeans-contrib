@@ -17,6 +17,7 @@ import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.Reference;
@@ -45,6 +46,7 @@ import org.netbeans.modules.vcscore.runtime.RuntimeCommandsProvider;
  */
 public class VcsFSProvider extends AutoMountProvider implements FileSystemProvider,
                                                                 PropertyChangeListener,
+                                                                VetoableChangeListener,
                                                                 FSRegistryListener {
     /** If the FSRegistryEvent should be ignored, the propagationId property
      * is set to this constant. */
@@ -85,6 +87,7 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
             try {
                 mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fs);
                 fsInfo.addPropertyChangeListener(VcsFSProvider.this);
+                fsInfo.addVetoableChangeListener(VcsFSProvider.this);
                 mountedFSNotify(fs);
             } catch (IOException ioex) {
                 ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
@@ -158,6 +161,7 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
                 // Assure, that we register the FS info only once!
                 if (!FSRegistry.getDefault().isRegistered(fsInfo)) {
                     fsInfo.addPropertyChangeListener(VcsFSProvider.this);
+                    fsInfo.addVetoableChangeListener(VcsFSProvider.this);
                     FSRegistry.getDefault().register(fsInfo, PROPAGATION_IGNORE_FSREGISTRY_EVENT, true);
                 }
                 return true;
@@ -209,6 +213,25 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
             runtimeProvider.unregister();
         }
     }
+    
+    public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
+        if (FSInfo.PROP_ROOT.equals(evt.getPropertyName())) {
+            Object source = evt.getSource();
+            if (source instanceof FSInfo) {
+                FSInfo fsInfo = (FSInfo) source;
+                if (mountSupport != null) {
+                    try {
+                        if (fsInfo.isControl()) {
+                            //System.out.println("Unmounting "+fsInfo.getFileSystem());
+                            mountSupport.unmount(fsInfo.getFileSystem());
+                        }
+                    } catch (IOException ioex) {
+                        ErrorManager.getDefault().notify(ioex);
+                    }
+                }
+            }
+        }
+    }
 
     public void propertyChange(PropertyChangeEvent evt) {
         //System.out.println("VcsFSProvider.propertyChange("+evt+"), prop name = "+evt.getPropertyName());
@@ -229,6 +252,22 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
                 }
             }
         }
+        if (FSInfo.PROP_ROOT.equals(evt.getPropertyName())) {
+            Object source = evt.getSource();
+            if (source instanceof FSInfo) {
+                FSInfo fsInfo = (FSInfo) source;
+                if (mountSupport != null) {
+                    try {
+                        if (fsInfo.isControl()) {
+                            //System.out.println("new info path is "+fsInfo.getFSRoot()+", FS path is "+org.openide.filesystems.FileUtil.toFile(fsInfo.getFileSystem().getRoot()).getAbsolutePath());
+                            mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fsInfo.getFileSystem());
+                        }
+                    } catch (IOException ioex) {
+                        ErrorManager.getDefault().notify(ioex);
+                    }
+                }
+            }
+        }
     }
     
     public void fsAdded(FSRegistryEvent ev) {
@@ -238,6 +277,7 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
             FileSystem fs = fsInfo.getFileSystem();
             mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fs);
             fsInfo.addPropertyChangeListener(VcsFSProvider.this);
+            fsInfo.addVetoableChangeListener(VcsFSProvider.this);
             mountedFSNotify(fs);
         } catch (IOException ioex) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
@@ -251,6 +291,7 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
             FileSystem fs = fsInfo.getFileSystem();
             mountSupport.unmount(fs);
             fsInfo.removePropertyChangeListener(VcsFSProvider.this);
+            fsInfo.removeVetoableChangeListener(VcsFSProvider.this);
             unmountedFSNotify(fs);
         } catch (IOException ioex) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);

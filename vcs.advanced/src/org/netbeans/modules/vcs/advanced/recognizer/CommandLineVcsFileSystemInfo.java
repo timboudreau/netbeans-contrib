@@ -17,6 +17,9 @@ import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
+import java.beans.VetoableChangeSupport;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -32,7 +35,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.util.Utilities;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.registry.FSInfo;
@@ -54,7 +57,9 @@ import org.openide.loaders.InstanceDataObject;
  *
  * @author  Martin Entlicher
  */
-public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, PropertyChangeListener {
+public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
+                                                                    PropertyChangeListener,
+                                                                    VetoableChangeListener {
     
     private static String DEFAULT_DISPLAY_TYPE = "VCS"; // NOI18N
     private static String FS_SETTINGS_FOLDER = "VCSMount"; // NOI18N
@@ -66,6 +71,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
     private String settingName = null;
     private transient Reference fileSystemRef = new WeakReference(null);
     private transient PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+    private transient VetoableChangeSupport vchangeSupport = new VetoableChangeSupport(this);
     private transient DataFolder settingsFolder;
     
     static final long serialVersionUID = 8679717370363337670L;
@@ -185,7 +191,8 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
         if (settingName == null) {
             settingName = storeFSSettings(fs);
         }
-        fs.addPropertyChangeListener(WeakListener.propertyChange(this, fs));
+        fs.addPropertyChangeListener(WeakListeners.propertyChange(this, fs));
+        fs.addVetoableChangeListener(WeakListeners.vetoableChange(this, fs));
         return fs;
     }
     
@@ -291,6 +298,12 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
         fileSystemRef = new WeakReference(null);
     }
     
+    public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
+        if (FileSystem.PROP_ROOT.equals(evt.getPropertyName())) {
+            fireVetoableChange(PROP_ROOT, evt.getOldValue(), evt.getNewValue());
+        }
+    }
+    
     /** This method gets called when a FS property is changed.
      * @param evt A PropertyChangeEvent object describing the event source
      *   	and the property that has changed.
@@ -301,7 +314,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
             if (fs != null) {
                 root = fs.getRootDirectory();
             }
-            firePropertyChange(PROP_ROOT, null, root);
+            firePropertyChange(PROP_ROOT, evt.getOldValue(), root);
         } else if (VcsFileSystem.PROP_VARIABLES.equals(evt.getPropertyName())) {
             CommandLineVcsFileSystem fs = (CommandLineVcsFileSystem) fileSystemRef.get();
             if (fs != null) {
@@ -317,6 +330,18 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
     
     private final void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
         changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+    }
+    
+    private final void fireVetoableChange(String propertyName, Object oldValue, Object newValue) throws PropertyVetoException {
+        vchangeSupport.fireVetoableChange(propertyName, oldValue, newValue);
+    }
+    
+    public void addVetoableChangeListener(VetoableChangeListener l) {
+        vchangeSupport.addVetoableChangeListener(l);
+    }
+    
+    public void removeVetoableChangeListener(VetoableChangeListener l) {
+        vchangeSupport.removeVetoableChangeListener(l);
     }
     
     public void addPropertyChangeListener(PropertyChangeListener l) {
@@ -342,6 +367,8 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
         in.defaultReadObject();
         fileSystemRef = new WeakReference(null);
         changeSupport = new PropertyChangeSupport(this);
+        vchangeSupport = new VetoableChangeSupport(this);
         initSettingsFolder();
     }
+    
 }
