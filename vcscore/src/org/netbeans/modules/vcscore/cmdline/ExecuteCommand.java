@@ -705,7 +705,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         //System.out.println("  translated = "+VcsUtilities.arrayToString(elements));
         if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
-            elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].length() > 0) {
+            elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].trim().length() > 0) {
                 
             flushRefreshInfo();
         }
@@ -747,7 +747,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //System.out.println("  merged elements = "+VcsUtilities.arrayToString(elements));
         for (; elements != null; elements = mergeInfoElements()) {
             if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
-                elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].length() > 0) {
+                elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].trim().length() > 0) {
                 
                 elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].replace(java.io.File.separatorChar, '/');
                 String fileName = elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME];
@@ -804,7 +804,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 refreshInfoElements.remove(0);
             } else {
                 if (elements1[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] == null ||
-                    elements1[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].length() == 0) {
+                    elements1[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].trim().length() == 0) {
                     elements = mergeElements(elements, elements1);
                     refreshInfoElements.remove(0);
                 } else {
