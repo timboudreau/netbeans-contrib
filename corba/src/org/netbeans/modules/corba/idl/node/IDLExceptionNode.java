@@ -29,7 +29,7 @@ public class IDLExceptionNode extends AbstractNode {
       "com/netbeans/enterprise/modules/corba/idl/node/exception";
 
    public IDLExceptionNode (ExceptionElement value) {
-      super (new IDLDocumentChildren ((Element)value));
+      super (new IDLDocumentChildren ((IDLElement)value));
       setIconBase (EXCEPTION_ICON_BASE);
       _exception = value;
    }
@@ -44,6 +44,20 @@ public class IDLExceptionNode extends AbstractNode {
    public String getName () {
       return "exception";
    }
+
+
+   protected Sheet createSheet () {
+      Sheet s = Sheet.createDefault ();
+      Sheet.Set ss = s.get (Sheet.PROPERTIES);
+      ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of exception") {
+	 public Object getValue () {
+	    return _exception.getName ();
+	 }
+      });
+
+      return s;
+   }
+
 
 }
 

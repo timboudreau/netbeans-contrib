@@ -32,7 +32,7 @@ public class IDLInterfaceNode extends AbstractNode {
       "com/netbeans/enterprise/modules/corba/idl/node/interface";
 
    public IDLInterfaceNode (InterfaceElement value) {
-      super (new IDLDocumentChildren ((Element)value));
+      super (new IDLDocumentChildren ((IDLElement)value));
       setIconBase (INTERFACE_ICON_BASE);
       _interface = value;
    }

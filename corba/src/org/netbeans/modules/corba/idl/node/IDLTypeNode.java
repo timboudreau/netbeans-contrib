@@ -31,7 +31,7 @@ public class IDLTypeNode extends AbstractNode {
    String name;
 
    public IDLTypeNode (TypeElement value) {
-      super (new IDLDocumentChildren ((Element)value));
+      super (new IDLDocumentChildren ((IDLElement)value));
       setIconBase (TYPE_ICON_BASE);
       _type = value;
       if (_type != null) {

@@ -36,7 +36,7 @@ public class IDLDocumentChildren extends Children.Keys {
    
 
    //private com.netbeans.enterprise.modules.corba.idl.src.SimpleNode src;
-   private Element src;
+   private IDLElement src;
 
    private IDLNode idlNode;
 
@@ -48,7 +48,7 @@ public class IDLDocumentChildren extends Children.Keys {
 
    }
 
-   public IDLDocumentChildren (Element tree) {
+   public IDLDocumentChildren (IDLElement tree) {
       src = tree;
       if (src != null)
 	 createKeys ();
@@ -58,7 +58,7 @@ public class IDLDocumentChildren extends Children.Keys {
       idlNode = node;
    }
 
-   public void setSrc (Element s) {
+   public void setSrc (IDLElement s) {
       src = s;
    }
 
@@ -72,13 +72,19 @@ public class IDLDocumentChildren extends Children.Keys {
       if (DEBUG)
 	 System.out.println ("members: " + src.getMembers ());
       //com.netbeans.enterprise.modules.corba.idl.src.Node child;
-      Element child;
+      IDLElement child;
       if (DEBUG)
 	 System.out.println ("children: " + counter);
       for (int i=0; i<counter; i++) {
 	 if (DEBUG)
 	    System.out.println ("----cycle: " + i + "--------");
-	 child = (Element)src.getMember (i);
+	 child = (IDLElement)src.getMember (i);
+	 if (child instanceof ModuleElement) {
+	    if (DEBUG)
+               System.out.println ("found module");
+	    keys.addElement ((org.openide.nodes.Node)new IDLModuleNode
+			     ((ModuleElement) child));
+	 }
 	 if (child instanceof InterfaceElement) {
 	    if (DEBUG)
 	       System.out.println ("found interface");
