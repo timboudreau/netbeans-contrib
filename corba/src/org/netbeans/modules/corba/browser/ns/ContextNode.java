@@ -139,14 +139,10 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
 	 try {
 	    bind_new_context (child.getName (), child.getKind (), child.getURL (), child.getIOR ());
 	 } catch (Exception e) {
-	    //e.printStackTrace ();
-	 }	 
-	 /*
-	   finally {
+	    if (DEBUG)
+	       e.printStackTrace ();
 	    naming_children.remove (i);
-	    css.getNamingServiceChildren ().remove (i);
-	 }
-	 */
+	 }	 
       }
       _loaded = true;
       if (DEBUG)
@@ -236,6 +232,10 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
       
       //if (context == null) {
       if (root ()) {
+	 // try to list context - it succeed if context is alife
+	 BindingIteratorHolder it = new BindingIteratorHolder ();
+	 BindingListHolder list = new BindingListHolder ();
+	 nc.list (0, list, it);
 	 ContextNode cn = new ContextNode (nc);
 	 cn.setName (name);
 	 cn.setKind (kind);
@@ -259,10 +259,10 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
 	 //context_name.value[0].id = name;
 	 //context_name.value[0].kind = "";
 	 //try {
-	    context.bind_context (context_name.value, nc);
-	    //} catch (Exception e) {
-	    //e.printStackTrace ();
-	    //}
+	 context.bind_context (context_name.value, nc);
+	 //} catch (Exception e) {
+	 //e.printStackTrace ();
+	 //}
       }
       if (DEBUG)
 	 System.out.println ("loaded?: " + loaded ());

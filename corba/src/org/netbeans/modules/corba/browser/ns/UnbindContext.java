@@ -64,8 +64,16 @@ public class UnbindContext extends NodeAction {
       if (DEBUG)
 	 System.out.println ("UnbindContext.java");
       if (enable (activatedNodes)) {
-	 for (int i=0; i<activatedNodes.length; i++)
-	    ((ContextNode) activatedNodes[i].getCookie(ContextNode.class)).unbind ();
+	 for (int i=0; i<activatedNodes.length; i++) {
+	    try {
+	       ((ContextNode) activatedNodes[i].getCookie(ContextNode.class)).unbind ();
+	    } catch (Exception e) {
+	       if (DEBUG)
+		  e.printStackTrace ();
+	       TopManager.getDefault ().notify (new NotifyDescriptor.Exception 
+						((java.lang.Throwable) e));
+	    }
+	 }
       }
    }
 

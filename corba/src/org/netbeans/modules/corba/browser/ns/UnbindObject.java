@@ -51,10 +51,17 @@ public class UnbindObject extends NodeAction {
       if (DEBUG)
 	 System.out.println ("UnbindObject.java");
       if (enable (activatedNodes)) {
-	 ((ObjectNode) activatedNodes[0].getCookie(ObjectNode.class)).unbind ();
+	 try {
+	    ((ObjectNode) activatedNodes[0].getCookie(ObjectNode.class)).unbind ();
+	 } catch (Exception e) {
+	    if (DEBUG)
+	       e.printStackTrace ();
+	    TopManager.getDefault ().notify (new NotifyDescriptor.Exception 
+					     ((java.lang.Throwable) e));
+	 }
       }
    }
-
+   
 }
 
 
