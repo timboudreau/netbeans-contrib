@@ -466,8 +466,9 @@ public final class SuggestionsScanner implements Cancellable {
             // System.err.println("MEM " + max + " " +  total + " " + rt.freeMemory());
             if (tryGC) {
                 try {
-                    byte[] gcProvocation = new byte[(int)required + REQUIRED_PER_FULL_GC];
+                    byte[] gcProvocation = new byte[(int)required];
                     gcProvocation = null;
+                    return;
                 } catch (OutOfMemoryError e) {
                     handleNoMemory();
                 }
