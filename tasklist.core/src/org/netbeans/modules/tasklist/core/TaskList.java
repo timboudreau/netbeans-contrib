@@ -35,13 +35,21 @@ public class TaskList implements ObservableList, TaskListener {
     // List category
     final static String USER_CATEGORY = "usertasks"; // NOI18N
 
-    /** Data holder, you must synchonize property and keep listCopyIsFresh updated. */
+    /**
+     * Data holder, you must synchonize on it and keep listCopy updated (reset it to null on modification).
+     * <p>
+     * <pre>
+     * e.g. write operation:       e.g. read operation:
+     * synchronized(tasks) {       synchronized(tasks) {
+     *   // tasks.modify();          // iterator = tasks.iterator();
+     *   listCopy = null;            // return tasks.size();
+     * }                           }
+     * </pre>
+     */
     private List tasks = new LinkedList();
 
     // #43166 this one is distributed to clients
-    private List listCopy = Collections.unmodifiableList(tasks);
-
-    private boolean listCopyIsFresh = true;
+    private List listCopy;
 
     private final ArrayList listeners = new ArrayList(67);
     
@@ -66,10 +74,9 @@ public class TaskList implements ObservableList, TaskListener {
     /** Read-only access to tasks held by this list. */
     public final List getTasks() {
         synchronized(tasks) {
-            if (listCopyIsFresh == false) {
-                // clone it for iterators safeness
+            if (listCopy == null) {
+                // #43166 clone it for iterators safeness
                 listCopy = Collections.unmodifiableList(new ArrayList(tasks));
-                listCopyIsFresh = true;
             }
             return listCopy;
         }
@@ -167,12 +174,12 @@ public class TaskList implements ObservableList, TaskListener {
             if (append) {
                 synchronized(tasks) {
                     tasks.add(task);
-                    listCopyIsFresh = false;
+                    listCopy = null;
                 }
             } else {
                 synchronized(tasks) {
                     tasks.add(0, task);
-                    listCopyIsFresh = false;
+                    listCopy = null;
                 }
             }
             fireAdded(task);     // TODO silent update?
@@ -201,7 +208,7 @@ public class TaskList implements ObservableList, TaskListener {
         task.addTaskListener(this);
         synchronized(tasks) {
             tasks.add(task);
-            listCopyIsFresh = false;
+            listCopy = null;
         }
         fireAdded(task);
     }
@@ -225,7 +232,7 @@ public class TaskList implements ObservableList, TaskListener {
         boolean removed = false;
         synchronized(tasks) {
             removed = tasks.remove(task);
-            listCopyIsFresh = false;
+            listCopy = null;
         }
         if (removed) {
             fireRemoved(null, task); // TODO silent update?
@@ -388,7 +395,7 @@ public class TaskList implements ObservableList, TaskListener {
     public void clear() {
         synchronized(tasks) {
             tasks.clear();
-            listCopyIsFresh = false;
+            listCopy = null;
         }
         fireStructureChanged(null);
     }
