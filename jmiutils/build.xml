@@ -20,7 +20,7 @@ Microsystems, Inc. All Rights Reserved.
         <patternset id="module.files">
             <include name="${module.jar}"/>
             <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
-            <include name="../jmiutils/dist/jmiutils.jar"/>
+            <include name="${nb.modules.dir}/ext/jmiutils.jar"/>
         </patternset>
     </target>
 
