@@ -67,8 +67,6 @@ Microsystems, Inc. All Rights Reserved.
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/teamware-profile.jar"
          manifest="manifest-subst.mf"
-         basedir="src"
-         excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
          compress="false">
       <fileset dir="src/" excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt">
         <include name="**/*"/>
