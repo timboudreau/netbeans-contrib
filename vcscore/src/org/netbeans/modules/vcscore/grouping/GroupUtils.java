@@ -51,7 +51,10 @@ public class GroupUtils {
             if (dobj != null && dobj instanceof InstanceDataObject) {
                 InstanceDataObject ido = (InstanceDataObject)dobj;
                 InstanceCookie cook = (InstanceCookie)ido.getCookie(InstanceCookie.class);
-                root = (MainVcsGroupNode)ido.getNodeDelegate();
+                try {
+                    root = (MainVcsGroupNode)cook.instanceCreate();//ido.getNodeDelegate();
+                } catch (IOException ioExc) {
+                } catch (ClassNotFoundException cnfExc) {}
             }
         }
         return root;
