@@ -400,49 +400,68 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     /**
      * Execute a command-line command.
      */
-    private void runCommand(String exec){
-        E.deb("runCommand: "+exec); // NOI18N
+    private void runCommand(String[] execs) {
+        //E.deb("runCommand: "+exec); // NOI18N
 
-        exec = Variables.expand(vars,exec, true);
-        preferredExec = exec;
-        ExternalCommand ec = new ExternalCommand(exec);
-        //ec.setTimeout(cmd.getTimeout());
-        ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT));
-        ec.setEnv(fileSystem.getEnvironmentVars());
-        //D.deb(cmd.getName()+".getInput()='"+cmd.getInput()+"'"); // NOI18N
-
+        //exec = Variables.expand(vars,exec, true);
+        preferredExec = VcsUtilities.array2stringNl(execs);
+        StringBuffer[] globalDataOutputWhole = null;
         RE[] globalRegexs = new RE[2];
-        StringBuffer[] globalDataOutput = addRegexListeners(ec, globalRegexs);
+        for (int i = 0; i < execs.length; i++) {
+            String exec = execs[i];
+            ExternalCommand ec = new ExternalCommand(exec);
+            //ec.setTimeout(cmd.getTimeout());
+            ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT));
+            ec.setEnv(fileSystem.getEnvironmentVars());
+            //D.deb(cmd.getName()+".getInput()='"+cmd.getInput()+"'"); // NOI18N
 
-        for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
-            ec.addStdoutListener((CommandOutputListener) it.next());
-        }
-        for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
-            ec.addStderrListener((CommandOutputListener) it.next());
-        }
+            StringBuffer[] globalDataOutput = addRegexListeners(ec, globalRegexs);
 
-        E.deb("ec="+ec); // NOI18N
-        exitStatus = ec.exec();
-        if (globalDataOutput != null) {
-            if (globalDataOutput[0] != null) {
-                printGlobalDataOutput(globalDataOutput[0].toString(), globalRegexs[0]);
+            for (Iterator it = commandOutputListener.iterator(); it.hasNext(); ) {
+                ec.addStdoutListener((CommandOutputListener) it.next());
             }
-            if (globalDataOutput[1] != null) {
-                printGlobalErrorDataOutput(globalDataOutput[1].toString(), globalRegexs[1]);
+            for (Iterator it = commandErrorOutputListener.iterator(); it.hasNext(); ) {
+                ec.addStderrListener((CommandOutputListener) it.next());
+            }
+
+            //E.deb("ec="+ec); // NOI18N
+            int status = ec.exec();
+            if (status != exitStatus) {
+                if (exitStatus == VcsCommandExecutor.SUCCEEDED ||
+                        exitStatus == VcsCommandExecutor.FAILED &&
+                        status == VcsCommandExecutor.INTERRUPTED) {
+                    exitStatus = status;
+                }
+            }
+            if (globalDataOutput != null) {
+                if (globalDataOutputWhole == null) {
+                    globalDataOutputWhole = globalDataOutput;
+                } else {
+                    globalDataOutputWhole[0].append(globalDataOutput[0]);
+                    globalDataOutputWhole[1].append(globalDataOutput[1]);
+                }
+            }
+        }
+        if (globalDataOutputWhole != null) {
+            if (globalDataOutputWhole[0] != null) {
+                printGlobalDataOutput(globalDataOutputWhole[0].toString(), globalRegexs[0]);
+            }
+            if (globalDataOutputWhole[1] != null) {
+                printGlobalErrorDataOutput(globalDataOutputWhole[1].toString(), globalRegexs[1]);
             }
         }
         E.deb("Command exited with exit status = "+exitStatus); // NOI18N
         //D.deb("errorContainer = "+errorContainer); // NOI18N
         switch (exitStatus) {
         case VcsCommandExecutor.SUCCEEDED:
-            commandFinished(exec, true);
+            commandFinished(preferredExec, true);
             break;
         case VcsCommandExecutor.INTERRUPTED:
             //commandFinished(exec, false);
             //break;
             // Do the same as when the command fails.
         case VcsCommandExecutor.FAILED:
-            commandFinished(exec, false);
+            commandFinished(preferredExec, false);
             fileSystem.removeNumDoAutoRefresh((String) vars.get("DIR")); // NOI18N
             break;
         }
@@ -588,15 +607,29 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //isRunning = true;
         //hasStarted = true;
         String exec;
+        int maxCmdLength = 0;
+        String maxCmdLengthStr = (String) vars.get(Variables.MAX_CMD_LENGTH);
+        if (maxCmdLengthStr != null) {
+            try {
+                maxCmdLength = Integer.parseInt(maxCmdLengthStr);
+            } catch (NumberFormatException nfex) {}
+        }
         //System.out.println("ExecuteCommand.run(): exec = "+exec+"\npreferredExec = "+preferredExec);
         if (preferredExec != null) exec = preferredExec;
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         if (exec == null) return ; // Silently ignore null exec
+        String execOrig = exec;
         exec = Variables.expand(vars, exec, true);
         exec = exec.trim();
         if (exec.trim().length() == 0) {
             preferredExec = "";
             return ; // Silently ignore empty exec
+        }
+        String[] execs;
+        if (maxCmdLength > 0 && exec.length() > maxCmdLength) {
+            execs = splitExec(execOrig, maxCmdLength);
+        } else {
+            execs = new String[] { exec };
         }
         if (doPostExecutionRefresh) {
             filesToRefresh = new ArrayList(getFiles()); // All files should be refreshed at the end.
@@ -609,11 +642,81 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         E.deb("first = "+first); // NOI18N
         boolean disableRefresh = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS);
         if (disableRefresh) fileSystem.disableRefresh();
-        if (first != null && (first.toLowerCase().endsWith(".class"))) // NOI18N
-            runClass(exec, first.substring(0, first.length() - ".class".length()), tokens); // NOI18N
-        else
-            runCommand(exec);
-        if (disableRefresh) fileSystem.enableRefresh();
+        try {
+            if (first != null && (first.toLowerCase().endsWith(".class"))) // NOI18N
+                runClass(exec, first.substring(0, first.length() - ".class".length()), tokens); // NOI18N
+            else
+                runCommand(execs);
+        } finally {
+            if (disableRefresh) fileSystem.enableRefresh();
+        }
+    }
+    
+    private String[] splitExec(String exec, int maxCmdLength) {
+        String[] varNames = new String[] { "FILES", "QFILES", "PATHS", "QPATHS", "MPATHS", "QMPATHS" };
+        int nVARS = varNames.length;
+        int[][] fileIndexes = new int[nVARS][];
+        int nFiles = 0;
+        for (int i = 0; i < nVARS; i++) {
+            String indexesEncoded = (String) vars.get(varNames[i]+"_FILE_POS_INDEXES");
+            if (indexesEncoded != null) {
+                try {
+                    fileIndexes[i] = (int[]) VcsUtilities.decodeValue(indexesEncoded);
+                    nFiles = fileIndexes[i].length;
+                } catch (java.io.IOException ioex) {}
+            }
+        }
+        String[] varValues = new String[nVARS];
+        for (int i = 0; i < nVARS; i++) {
+            varValues[i] = (String) vars.get(varNames[i]);
+        }
+        ArrayList execs = new ArrayList();
+        int startFileIndex = 0;
+        do {
+            int i = startFileIndex;
+            int j = nFiles;
+            String execTemp = null;
+            while (i < j) {
+                int k = (i + j)/2;
+                execTemp = getTempExec(startFileIndex, k, fileIndexes, exec,
+                                       nVARS, varNames, varValues);
+                if (execTemp.length() < maxCmdLength) {
+                    i = k;
+                    j = k; // For simplicity stop it here. Do not look for longer exec.
+                } else {
+                    j = k;
+                }
+            }
+            if (i == startFileIndex || execTemp == null) { // The execution string is too long even with one file
+                return new String[] { Variables.expand(vars, exec, true) }; // Therefore I simply return the original exec
+            }
+            execs.add(execTemp);
+            startFileIndex = i;
+            execTemp = getTempExec(startFileIndex, nFiles, fileIndexes, exec,
+                                   nVARS, varNames, varValues);
+            if (execTemp.length() < maxCmdLength || startFileIndex == (nFiles - 1)) {
+                // It's either O.K. or there is the last file anyway.
+                execs.add(execTemp);
+                break;
+            }
+        } while (startFileIndex < nFiles);
+        return (String[]) execs.toArray(new String[0]);
+    }
+    
+    private String getTempExec(int j, int k, int[][] fileIndexes, String exec,
+                               int nVARS, String[] varNames, String[] varValues) {
+        for (int i = 0; i < nVARS; i++) {
+            String varTempValue;
+            if (k < fileIndexes[i].length) {
+                varTempValue = varValues[i].substring(fileIndexes[i][j], fileIndexes[i][k]);
+            } else {
+                varTempValue = varValues[i].substring(fileIndexes[i][j]);
+            }
+            vars.put(varNames[i], varTempValue);
+        }
+        String execTemp = Variables.expand(vars, exec, true);
+        execTemp = execTemp.trim();
+        return execTemp;
     }
 
     

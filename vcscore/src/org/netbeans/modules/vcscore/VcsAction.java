@@ -1118,7 +1118,12 @@ public class VcsAction extends NodeAction implements ActionListener {
         StringBuffer qmpaths = new StringBuffer();
         StringBuffer vfiles = new StringBuffer();
         StringBuffer qfiles = new StringBuffer();
-        for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
+        int nVARS = 6;
+        int nFILES = files.size();
+        int[][] fileIndexes = new int[6][nFILES];
+        // The array is automatically initialized with zeros.
+        int iFile = 0;
+        for (Enumeration enum = files.keys(); enum.hasMoreElements(); iFile++) {
             fullName = (String) enum.nextElement();
             fo = (FileObject) files.get(fullName);
             if (fullName.length() == 0) fullName = "."; // NOI18N
@@ -1127,6 +1132,12 @@ public class VcsAction extends NodeAction implements ActionListener {
             fullName = fullName.replace('/', separatorChar);
             file = valueAdjustment.adjustVarValue(file);
             fullName = valueAdjustment.adjustVarValue(fullName);
+            fileIndexes[0][iFile] = vfiles.length();
+            fileIndexes[1][iFile] = qfiles.length();
+            fileIndexes[2][iFile] = paths.length();
+            fileIndexes[3][iFile] = qpaths.length();
+            fileIndexes[4][iFile] = mpaths.length();
+            fileIndexes[5][iFile] = qmpaths.length();
             vfiles.append(file);
             vfiles.append(separatorChar);
             qfiles.append(quoting);
@@ -1152,6 +1163,14 @@ public class VcsAction extends NodeAction implements ActionListener {
         vars.put("QPATHS", qpaths.toString().trim()); // NOI18N
         vars.put("MPATHS", mpaths.toString().trim()); // NOI18N
         vars.put("QMPATHS", qmpaths.toString().trim()); // NOI18N
+        try {
+            vars.put("FILES_FILE_POS_INDEXES", VcsUtilities.encodeValue(fileIndexes[0]));
+            vars.put("QFILES_FILE_POS_INDEXES", VcsUtilities.encodeValue(fileIndexes[1]));
+            vars.put("PATHS_FILE_POS_INDEXES", VcsUtilities.encodeValue(fileIndexes[2]));
+            vars.put("QPATHS_FILE_POS_INDEXES", VcsUtilities.encodeValue(fileIndexes[3]));
+            vars.put("MPATHS_FILE_POS_INDEXES", VcsUtilities.encodeValue(fileIndexes[4]));
+            vars.put("QMPATHS_FILE_POS_INDEXES", VcsUtilities.encodeValue(fileIndexes[5]));
+        } catch (java.io.IOException ioex) {}
         vars.put("NUM_FILES", ""+files.size()); // NOI18N
         vars.put("MULTIPLE_FILES", (files.size() > 1) ? Boolean.TRUE.toString() : ""); // NOI18N
         vars.put("FILES_IS_FOLDER", (isFileFolder) ? Boolean.TRUE.toString() : "");// among FILES there is a folder // NOI18N

@@ -110,6 +110,16 @@ public class Variables {
      */
     public static final String GROUP_NAME = "GROUP_NAME"; //NOI18N
     
+    /**
+     * If this variable is defined, than it's value (should be integer) is supposed
+     * to be the maximum length of a command in the system.
+     * If the length of the execution string exceeds this value and it's possible
+     * to split it (the command takes more than one file as an argument),
+     * the execution string is split into two or more execution strings.
+     * These are then executed synchronously in the OS.
+     */
+    public static final String MAX_CMD_LENGTH = "MAX_CMD_LENGTH"; // NOI18N
+    
     //private boolean warnUndefVars = true;
 
     private static final String SUBSTRACT = "-"; // NOI18N
