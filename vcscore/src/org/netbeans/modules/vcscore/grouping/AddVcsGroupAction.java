@@ -59,19 +59,28 @@ public class AddVcsGroupAction extends NodeAction implements Runnable {
         if (newName == null) return ;
         DataFolder rootFolder = GroupUtils.getMainVcsGroupFolder();
         if (rootFolder != null) {
+            FileObject fo = rootFolder.getPrimaryFile();
+            String foldName = FileUtil.findFreeFolderName(fo, "group");//NOI18N
+            FileObject props = fo.getFileObject(foldName, VcsGroupNode.PROPFILE_EXT);
+            PrintWriter writer = null;
+            FileLock lock = null;
             try {
-                FileObject fo = rootFolder.getPrimaryFile();
-                String foldName = FileUtil.findFreeFolderName(fo, "group");//NOI18N
-                FileObject props = fo.getFileObject(foldName, VcsGroupNode.PROPFILE_EXT);
                 if (props == null) {
                     props = fo.createData(foldName, VcsGroupNode.PROPFILE_EXT);
                 }
-                PrintWriter writer = new PrintWriter(props.getOutputStream(props.lock()));
+                lock = props.lock();
+                writer = new PrintWriter(props.getOutputStream(lock));
                 writer.println(VcsGroupNode.PROP_NAME + "=" + newName);//NOI18N
-                writer.close();
                 FileObject group = rootFolder.getPrimaryFile().createFolder(foldName);
             } catch (IOException exc) {
                 ErrorManager.getDefault().notify(exc);
+            } finally {
+                if (writer != null) {
+                    writer.close();
+                }
+                if (lock != null) {
+                    lock.releaseLock();
+                }
             }
         }
              

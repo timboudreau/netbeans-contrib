@@ -104,8 +104,9 @@ public class AddToGroupAction extends NodeAction {
         while (children.hasMoreElements()) {
             FileObject fo = (FileObject)children.nextElement();
             if (fo.getExt().equals(VcsGroupNode.PROPFILE_EXT)) {
+                BufferedReader reader = null;
                 try {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(fo.getInputStream()));
+                    reader = new BufferedReader(new InputStreamReader(fo.getInputStream()));
                     String line = reader.readLine();
                     String dispName = "";
                     if (line.startsWith(VcsGroupNode.PROP_NAME + "=")) {
@@ -116,10 +117,16 @@ public class AddToGroupAction extends NodeAction {
                         hasAny = true;
                         menu.add(createItem(fo.getName(), dispName));
                     }
-                } catch (Exception exc) {
+                } catch (IOException exc) {
                     // just ignore missing resource or error while reading the props..
                     ErrorManager manager = ErrorManager.getDefault();
                     manager.notify(ErrorManager.INFORMATIONAL, exc);
+                } finally {
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException ioex) {}
+                    }
                 }
             }
         }
