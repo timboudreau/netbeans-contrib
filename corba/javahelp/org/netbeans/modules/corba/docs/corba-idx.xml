@@ -16,104 +16,141 @@ Microsystems, Inc. All Rights Reserved.
   PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Index Version 1.0//EN"  
          "http://java.sun.com/products/javahelp/index_1_0.dtd">  
 <index version="1.0">
+
 <indexitem text=" "/>
 <indexitem text="===================================="/>
 <indexitem text="CORBA Module" />
 <indexitem text="===================================="/>
 
 <indexitem text="-B-"/>
-<indexitem text="binding server side" target="setup_nsbrowser" />
-<indexitem text="breakpoints" target="debugger_intro" />
-<indexitem text="browsers" target="irbrowser_intro" >
-  <indexitem text="Interface Repository" target="irbrowser_intro" />
-  <indexitem text="Naming Service" target="nsbrowser_intro" />
-</indexitem>
+<indexitem text="binding server side" target="setup_nsbrowser"></indexitem>
+<indexitem text="breakpoints" target="debugger_intro"></indexitem>
+
 <indexitem text=" "/>
 <indexitem text="-C-"/>
-<indexitem text="client-side lookup" target="setup_nsbrowser" />
-<indexitem text="compiler: IDL" target="setup_idlcompiler" />
+<indexitem text="client class" target="concepts_basics"></indexitem>
+<indexitem text="client-side files" target="concepts_files"></indexitem>
+<indexitem text="client-side lookup" target="setup_nsbrowser"></indexitem>
+<indexitem text="compiler: IDL" target="setup_idlcompiler"></indexitem>
 <indexitem text="completing generated files" target="completing_intro" >
   <indexitem text="client-side files" target="completing_client" />
   <indexitem text="server-side fles" target="completing_server" />
  </indexitem>
-<indexitem text="configuration" target="setup_intro" />
-<indexitem text="context binding" target="setup_nsbrowser" />
-<indexitem text="CORBA" target="concepts_basics" >
+<indexitem text="configuration" target="setup_intro"></indexitem>
+<indexitem text="context binding" target="setup_nsbrowser"></indexitem>
+<indexitem text="CORBA" target="corba_intro" >
   <indexitem text="CORBA basics" target="concepts_basics" />
-  <indexitem text="node settings" target="settings_corbanode" />
+  <indexitem text="model illustration" target="concepts_basics" />  
+  <indexitem text="node settings" target="settings_get" />
   <indexitem text="project settings" target="settings_intro" />
+  <indexitem text="setting up the CORBA module" target="setup_intro" />
   <indexitem text="using the CORBA module" target="concepts_procs" />
 </indexitem>
+
 <indexitem text=" "/>
 <indexitem text="-D-"/>
-<indexitem text="debugging" target="debugger_intro" />
+<indexitem text="debugging" target="debugger_intro"></indexitem>
 
+<indexitem text=" "/>
+<indexitem text="-E-"/>
+<indexitem text="external IDL compiler, setting" target="setup_specifyingorb"></indexitem>
+
+<indexitem text=" "/>
 <indexitem text="-F-"/>
-<indexitem text="files needed for Java" target="concepts_files" />
+<indexitem text="files needed for Java" target="concepts_files"></indexitem>
+
 <indexitem text=" "/>
 <indexitem text="-G-"/>
 <indexitem text="generating CORBA files" target="generating_intro" >
-  <indexitem text="client-side fles" target="generating_client" />
+  <indexitem text="client-side fles with the template" target="generating_tmplclient" />
+  <indexitem text="client-side fles with the wizard" target="generating_client" />
   <indexitem text="files needed for Java" target="concepts_files" />
-  <indexitem text="server-side files" target="generating_server" />
+  <indexitem text="IDL fles" target="generating_idl" />
+  <indexitem text="server-side files with the template" target="generating_tmplserver" />
+  <indexitem text="server-side files with the wizard" target="generating_server" />
+  <indexitem text="stub and skeleton files" target="setup_idlcompiler" />
   </indexitem>
+
 <indexitem text=" "/>
 <indexitem text="-I-"/>
-<indexitem text="IDL compiler" target="setup_idlcompiler" />
-<indexitem text="IDL definitions" target="setup_irbrowser" />
-<indexitem text="idltojava compiler" target="setup_idlcompiler" />
+<indexitem text="IDL compiler" target="setup_idlcompiler">
+  <indexitem text="specifying as a property" target="setup_specifyingorb" />
+</indexitem>
+<indexitem text="IDL files" target="concepts_files"></indexitem>
+<indexitem text="idltojava compiler" target="setup_idlcompiler"></indexitem>
+<indexitem text="implementation class" target="concepts_basics"></indexitem>
+<indexitem text="importing IDL files" target="generating_idl"></indexitem>
 <indexitem text="Interface Repository Browser" target="irbrowser_intro" >
   <indexitem text="starting the browser" target="irbrowser_connecting" />
   <indexitem text="using the browser" target="irbrowser_using" />
 </indexitem>
+<indexitem text="IOR, obtaining from Interface Repository" target="irbrowser_connecting"></indexitem>
+<indexitem text="IOR, obtaining from Naming Service" target="nsbrowser_connecting"></indexitem>
+
 <indexitem text=" "/>
 <indexitem text="-J-"/>
 <indexitem text="J2EE ORB" target="setup_supportedorbs" >
   <indexitem text="accessing runtime classes" target="setup_accessruntime" />
 </indexitem>
-<indexitem text="JacORB" target="setup_supportedorbs" />
-<indexitem text="JavaORB" target="setup_supportedorbs" />
+<indexitem text="JacORB" target="setup_supportedorbs"></indexitem>
+<indexitem text="JavaORB" target="setup_supportedorbs"></indexitem>
 <indexitem text="JDK ORB" target="setup_supportedorbs" >
   <indexitem text="accessing runtime classes" target="setup_accessruntime" />
   <indexitem text="idltojava compiler" target="setup_idlcompiler" />
 </indexitem>
-<indexitem text=" "/>
 
+<indexitem text=" "/>
+<indexitem text="-L-"/>
+<indexitem text="lookup() method" target="completing_client"></indexitem>
+
+<indexitem text=" "/>
 <indexitem text="-N-"/>
 <indexitem text="Naming Service Browser" target="nsbrowser_intro" >
   <indexitem text="setting up" target="setup_nsbrowser" />
   <indexitem text="starting the browser" target="nsbrowser_connecting" />
   <indexitem text="using the browser" target="nsbrowser_binding" />
 </indexitem>
+<indexitem text="narrow() method" target="completing_client"></indexitem>
+
 <indexitem text=" "/>
 <indexitem text="-O-"/>
 <indexitem text="ORB" target="settings_orbnamenode" >
   <indexitem text="accessing runtime classes" target="setup_accessruntime" />
-  <indexitem text="CORBA node" target="settings_corbanode" />
+  <indexitem text="classes, definition" target="concepts_basics" />
+  <indexitem text="CORBA node" target="settings_get" />
   <indexitem text="IDL Compiler" target="setup_idlcompiler" />
   <indexitem text="specifying" target="setup_specifyingorb" />
   <indexitem text="supported products" target="setup_supportedorbs" />
 </indexitem>
-<indexitem text="ORBacus" target="setup_supportedorbs" />
 <indexitem text="Orbix" target="setup_supportedorbs" />
+
 <indexitem text=" "/>
 <indexitem text="-P-"/>
-<indexitem text="PATH settings" target="setup_idlcompiler" />
-<indexitem text="project settings" target="settings_intro" />
+ <indexitem text="accessing project settings" target="settings_get"></indexitem>
+<indexitem text="PATH settings" target="setup_idlcompiler"></indexitem>
+<indexitem text="project settings" target="settings_intro"></indexitem>
+
 <indexitem text=" "/>
 <indexitem text="-R-"/>
-<indexitem text="runtime classes of ORBS" target="setup_accessruntime" />
+<indexitem text="resolve() method" target="completing_client"></indexitem>
+<indexitem text="runtime classes of ORBS" target="setup_accessruntime"></indexitem>
+
 <indexitem text=" "/>
 <indexitem text="-S-"/>
-<indexitem text="server side binding" target="setup_nsbrowser" />
+<indexitem text="server class" target="concepts_basics"></indexitem>
+<indexitem text="server-side binding" target="setup_nsbrowser"></indexitem>
+<indexitem text="server-side files" target="concepts_files"></indexitem>
 <indexitem text="setup" target="setup_intro" >
-  <indexitem text="CORBA node" target="settings_corbanode" />
-  <indexitem text="NamingService Browser" target="setup_nsbrowser" />
+  <indexitem text="CORBA node" target="settings_get" />
+  <indexitem text="Interface Repository Browser" target="setup_irbrowser" />
+  <indexitem text="Naming Service Browser" target="setup_nsbrowser" />
   <indexitem text="ORB node" target="settings_orbnamenode" />
 </indexitem>
-<indexitem text=" "/>
+<indexitem text="skeleton class" target="concepts_basics"></indexitem>
+<indexitem text="stub class" target="concepts_basics"></indexitem>
 
+<indexitem text=" "/>
 <indexitem text="-V-"/>
-<indexitem text="Visibroker" target="setup_supportedorbs" />
+<indexitem text="Visibroker" target="setup_supportedorbs"></indexitem>
 
 </index>

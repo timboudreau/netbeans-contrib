@@ -16,8 +16,8 @@ Microsystems, Inc. All Rights Reserved.
  *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
 >   *     Use is subject to license terms.
 >   *
->   *     Copyright 2001 Sun Microsystems, Inc. Tous droits réservés.
->   *     L'utilisation est régie par les termes de cette licence.
+>   *     Copyright 2001 Sun Microsystems, Inc. Tous droits r&eacute;serv&eacute;s.
+>   *     L'utilisation est r&eacute;gie par les termes de cette licence.
 >   *
 >   *
 > -->
@@ -27,34 +27,52 @@ Microsystems, Inc. All Rights Reserved.
 <title>Accessing the ORB Runtime Classes</title>
 <link rel="StyleSheet" href="../ide.css" type="text/css">
 </head>
-<body bgcolor="#ffffff">
-<h2>
-Accessing the ORB Runtime Classes</h2>
-To run CORBA programs, each process needs to access the classes that make
-up the ORB runtime. If you are using the JDK ORB (1.2 or 1.3), the ORB
-is included in the JDK and the ORB runtime classes are already accessible
-from the IDE. If you are using the J2EE Reference Implementation, the J2EE
-ORB runtime is included in the Reference Implementation.
-<p>If you are using any other ORB implementation, you need to make sure
-that the runtime classes supplied with your ORB are available to your 
-development
-projects in Forte for Java:
+<body>
+
+<h2>Accessing the ORB Runtime Classes</h2>
+
+<p>
+To run CORBA programs, each process needs to access the classes that
+make up the ORB runtime. If you are using the JDK ORB (1.2 or 1.3),
+the ORB is included in the JDK and the ORB runtime classes are already
+accessible from the IDE. If you are using the J2EE Reference
+Implementation, the J2EE ORB runtime is included in the Reference
+Implementation.</p>
+
+<p>
+If you are using any other ORB implementation, you need to make sure
+that the runtime classes supplied with your ORB are available to your
+development projects in the IDE. For a list of the runtime classes,
+and their directory locations within the ORB installation, refer to
+the ORB product documentation.
+</p>
+<p>
+<b>To select the ORB classes you want:</b>
 <ol>
-<li>
-For a list of the runtime classes, and their directory locations within
-the ORB installation, refer to the ORB product documentation.</li>
+<li>In the IDE's Explorer window, locate the Filesystems node.</li>
 
-<li>
-In the IDE's Explorer window, locate the Filesystems node.</li>
-
-<li>
-Right-click it and choose either Add Jar Archive or Add Directory,
+<li>Right-click it and choose either Mount Jar Archive or Mount Directory,
 depending on which format the ORB vendor used for the classes.</li>
 
-<li>
-Use the browser field to select the ORB classes.</li>
+<li>Use the browser field to select the ORB classes.</li>
 </ol>
+</p>
 
-<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+<table>
+<tr valign="top">
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr valign="top">
+<td width="23"></td>
+<td><a href=corba_setup_ide.html">Specifying an ORB</a><br>
+<a href="corba_setup_idl.html">Setting up the IDL Compiler</a><br>
+<a href="corba_setup_nsbrowser.html">Setting Up the Naming Service Browser</a><br>
+<a href="corba_setup_irbrowser.html">Setting Up the Interface Repository Browser</a>
+</td>
+</tr>
+</table
+
+<hr>
+<font size=-2><a href="../credits.html">Legal Notices</a></font>
 </body>
 </html>

@@ -14,76 +14,81 @@ Microsystems, Inc. All Rights Reserved.
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <!--
  *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
->   *     Use is subject to license terms.
->   *
->   *     Copyright 2001 Sun Microsystems, Inc. Tous droits réservés.
->   *     L'utilisation est régie par les termes de cette licence.
->   *
->   *
-> -->
+ *     Use is subject to license terms.
+ *
+-->
 <html>
 <head>
 <meta name="lastupdated" content="18apr2001">
 <title>Using the CORBA Module</title>
 <link rel="StyleSheet" href="../ide.css" type="text/css">
 </head>
-<body bgcolor="#ffffff">
+<body>
 
-<h2>
-Using the CORBA Module</h2>
+<h2>Using the CORBA Module</h2>
+<p>
 The CORBA module generates most of the Java source code you need for CORBA
 client and server programs. Because this is a complex process, the procedures
 you follow to create CORBA programs are outlined below:
+
 <ol>
-<li>
-Before generating any code, complete the installation and setup procedures.</li>
-(See <a href="../setup/corba_setup.html">CORBA Module Setup</a>)
-<li>
-Obtain or write the IDL source file that defines the interfaces for your
-CORBA programs.</li>
+<li>Before generating any code, complete the installation and setup
+procedures.
+<p>
+(See <a href="../setup/corba_setup.html">CORBA Module Setup</a>)</p></li>
+
+<li>Obtain or write the IDL source file that defines the interfaces for your
+CORBA programs.
 <ul>
-<li>
-If you are using the CORBA templates to generate code, generate your IDL
+<li>If you are using the CORBA templates to generate code, generate your IDL
 file first.</li>
-<li>
-If you are using the CORBA wizard to generate code, you can use the wizard
+<li>If you are using the CORBA wizard to generate code, you can use the wizard
 to write your IDL as part of the process that generates the Java source
 files.</li>
+</li>
 </ul>
 
-<li>
-Decide which Java source files you need generated, client-side, server-side
+<li>Decide which Java source files you need generated, client-side, server-side
 or both.</li>
 
-<li>
-Use either the CORBA wizard or the CORBA templates to generate the files.</li>
+<li>Use either the CORBA wizard or the CORBA templates to generate the files.</li>
 
-<li>
-Add the code that completes the generated classes::</li>
+<li>Add the code that completes the generated classes:
 <ul>
-<li>
-On the client side, add the code that requests a specific IOR from the
+<li>On the client side, add the code that requests a specific IOR from the
 naming service. When the server is running, you can use the CORBA module's
 Naming Service Browser to generate this code for you and paste it into
 your client class file.</li>
 
-<li>
-On the server side, add the code that binds the servant instance to the
+<li>On the server side, add the code that binds the servant instance to the
 naming service. You can use the CORBA module's Naming Service Browser to
 generate this code for you and paste it into you server class file.</li>
 
-<li>
-Also on the server side, add business logic to the generated implementation
+<li>Also on the server side, add business logic to the generated implementation
 class.</li>
+</li>
 </ul>
 
-<li>
-Compile the IDL file.</li>
+<li>Compile the IDL file.</li>
 
-<li>
-Compile, run and test your programs.</li>
+<li>Compile, run and test your programs.</li>
 </ol>
+</p>
 
-<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+<table>
+<tr valign="top">
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr valign="top">
+<td width="23"></td>
+<td><a href="corba_concepts_basics.html">CORBA Basics</a>
+<br>
+<a href="corba_concepts_files.html">Java Files for CORBA Programs</a>
+</td>
+</tr>
+</table>
+
+<hr>
+<font size=-2><a href="../credits.html">Legal Notices</a></font>
 </body>
 </html>

@@ -16,8 +16,8 @@ Microsystems, Inc. All Rights Reserved.
  *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
 >   *     Use is subject to license terms.
 >   *
->   *     Copyright 2001 Sun Microsystems, Inc. Tous droits réservés.
->   *     L'utilisation est régie par les termes de cette licence.
+>   *     Copyright 2001 Sun Microsystems, Inc. Tous droits r&eacute;serv&eacute;s.
+>   *     L'utilisation est r&eacute;gie par les termes de cette licence.
 >   *
 >   *
 > -->
@@ -26,72 +26,75 @@ Microsystems, Inc. All Rights Reserved.
 </head>
 <body bgcolor="#ffffff">
 
-<h2>
-Starting the Interface Repository Browser</h2>
+<h2>Starting the Interface Repository Browser</h2>
+
+<p>
 The Interface Repository Browser enables you to view the contents of a
 running interface repository. The IDL interfaces are represented by subnodes
 of the browser node. You can select a node and have the browser copy the
-interface into your IDE flesystem.
-<p>To start the Interface Repository Browser and view a naming service,
+interface into your IDE flesystem.</p>
+<p>
+To start the Interface Repository Browser and view a naming service,
 you need the interface repository's IOR.
-<h3>
-Obtaining the Interface Repository IOR</h3>
-If the interface repository is being managed by a system administrator,
-the interface repository IOR will probably be stored in a well-known file.
-Specify this file when you start the Interface Repository Browser.
-<p>If you are managing the interface repository yourself, you need to obtain
-an IOR when you start the interface repository from the command line. A
-simple way to get this IOR into the Interface Repository Browser is to
-cut it to the clipboard. Note that you want the string beginning with <tt>IOR</tt>
-and ending at the last non-blank character before <tt>Interface Repository</tt>.
-After copying the IOR to the clipboard you can either:
+
+<h3>Obtaining the Interface Repository IOR</h3>
+
+<p>
+If the interface repository is being managed by a system
+administrator, you can ask the administrator for the file location of
+the interface repository IOR. Specify this file when you start the
+Interface Repository Browser.
+<p>
+If you are managing the interface repository, you need to obtain an
+IOR when you start the interface repository from the command line. A
+simple way to get the IOR into the Interface Repository Browser is to
+cut it to the clipboard. Note that you want the string beginning with
+<tt>IOR</tt> and ending at the last non-blank character before
+<tt>Interface Repository</tt>.  After copying the IOR to the clipboard
+you can either:
 <ul>
 <li>
 Start the Interface Repository Browser and paste the IOR from the clipboard
 to the Interface Repository Browser's startup dialog.</li>
-
 <li>
 Paste the IOR from the command shell into a text editor, and save it to
 a text file. You can then start the Interface Repository Browser and specify
 this text file in the startup dialog.</li>
 </ul>
+</p>
 
-<h3>
-<a NAME="Set Up the Naming Service Browser"></a>Starting the Interface Repository
+<h3><a NAME="Set Up the Naming Service Browser"></a>Starting the Interface Repository
 Browser</h3>
+<p>
 To use the Interface Repository Browser with the interface repository process
 that you started earlier:
 <ol>
 <li>
 Switch to the Runtime tab of the Explorer window.</li>
-
 <li>
 Right-click the CORBA Interface Repository node, and choose Add Interface
 Repository from the contextual menu. A dialog box appears that enables you
 to tell the naming service browser how to find the service.</li>
-
 <li>
 Enter a name to identify the interface repository in the IDE.</li>
-
 <li>
 There are two ways to supply the interface repository IOR:</li>
-
 <ul>
 <li>
 If you copied the IOR to a file, type the URL for the file (using <tt>file:///&lt;path
 to your file></tt> ) into the URL field.</li>
-
 <li>
 Paste the IOR that you cut from the command line into the IOR field.</li>
 </ul>
-
 <li>
 Click OK to close the dialog box. A new node, with the name you specified,
 will appear under the CORBA Interface Repository node. The Interface Repository
 browser is now communicating with the interface repository process you
 specified.</li>
 </ol>
+</p>
 
-<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+<hr>
+<font size=-2><a href="../credits.html">Legal Notices</a></font>
 </body>
 </html>

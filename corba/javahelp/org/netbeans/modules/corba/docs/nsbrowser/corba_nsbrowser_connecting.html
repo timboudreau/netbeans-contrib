@@ -13,110 +13,129 @@ Microsystems, Inc. All Rights Reserved.
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <!--
- *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
+>   *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
 >   *     Use is subject to license terms.
 >   *
->   *     Copyright 2001 Sun Microsystems, Inc. Tous droits réservés.
->   *     L'utilisation est régie par les termes de cette licence.
+>   *     Copyright 2001 Sun Microsystems, Inc. Tous droits r&eacute;serv&eacute;s.
+>   *     L'utilisation est r&eacute;gie par les termes de cette licence.
 >   *
 >   *
 > -->
-<title>Starting the Naming Service</title>
+<title>Starting the Naming Service Browser</title>
 <link rel="StyleSheet" href="../ide.css" type="text/css">
 </head>
-<body bgcolor="#ffffff">
+<body>
 
-<h2>
-Starting the Naming Service Browser</h2>
-The Naming Service Browser enables you to view the contents of a running
-naming service. The naming contexts and CORBA servers are represented by
-subnodes of the browser node. You can select a node and have the browser
-generate code that binds an object to the selected node or code that performs a resolve() and returns a reference to the selected node.
-<p>To start the Naming Service Browser and view a naming service, you need
+<h2>Starting the Naming Service Browser</h2>
+
+<p>
+The Naming Service Browser enables you to view the contents of a
+running naming service. The naming contexts and CORBA servers are
+represented by subnodes of the browser node. You can select a node and
+have the browser generate code that binds an object to the selected
+node or code that performs a <tt>resolve()</tt> and returns a reference to the
+selected node.
+</p>
+
+<p>
+To start the Naming Service Browser and view a naming service, you need
 the naming service's IOR.
-<h3>
-Obtaining the Naming Service IOR</h3>
-If the naming service is being managed by a system administrator, the naming
-service IOR will probably be stored in a well-known file. Specify this
-file when you start the Naming Service Browser.
+</p>
+
+<h3>Obtaining the Naming Service IOR</h3>
+
+<p>
+If the naming service is being managed by a system administrator, the
+naming service IOR will probably be stored in a well-known
+file. Specify this file when you start the Naming Service Browser.
 <p>If you are managing the naming service yourself, you need to obtain
-an IOR when you start the naming service from the command line. For example,
-to start the JDK 1.2 ORB Naming Service:
+an IOR when you start the naming service from the command line. For
+example, to start the JDK 1.2 ORB Naming Service:
 <ol>
 <li>
 Open a command shell and navigate to the JDK installation directory. Navigate
 to the <tt>/bin</tt> directory.</li>
-
 <li>
-Start the naming service by typing:</li>
-
-<ol><tt>tnameserv -ORBInitialPort 1050</tt></ol>
-Note: If the naming service returns an error message indicating that the
+Start the naming service by typing:
+<pre>
+ tnameserv -ORBInitialPort 1050
+</pre>
+<p>
+If the naming service returns an error message indicating that the
 port is use, you can use a different port number, but make a note of it
-- you will need to know it for the next procedure.
+- you will need to know it for the next procedure.</p></li>
 <li>
 The naming service returns information on the command line that is similar
-to the following:</li>
-
-<ol><tt>Initial Naming Context:</tt>
-<br><tt>IOR:000000000000002849444c3a6f6d672e6f72672f436f734e616d696e672f4</tt>
-<br><tt>e616d696e67436f6e746578743a312e30000000000100000000000000300</tt>
-<br><tt>00100000000000774696d2d7773000006db000000000018afabcafe00000</tt>
-<br><tt>002cbb35b05000000080000000000000000</tt>
-<br><tt>TransientNameServer: setting port for initial object references
-to: 1050</tt></ol>
+to the following output:
+<pre>
+ Initial Naming Context:
+ IOR:000000000000002849444c3a6f6d672e6f72672f436f734e616d696e672f4</tt>
+ e616d696e67436f6e746578743a312e30000000000100000000000000300</tt>
+ 00100000000000774696d2d7773000006db000000000018afabcafe00000</tt>
+ 002cbb35b05000000080000000000000000</tt>
+ TransientNameServer: setting port for initial object references to: 1050
+</pre>
 </ol>
+<p>
 A simple way to get this IOR into the naming service browser is to cut
-it to the clipboard. Note that you want the string beginning with <tt>IOR</tt>
-and ending at the last non-blank character before <tt>TransientNameServer</tt>.
-After copying the IOR to the clipboard you can either:
+it to the clipboard. You want the string beginning with
+<tt>IOR</tt> and ending at the last non-blank character before
+<tt>TransientNameServer</tt>. After copying the IOR to the clipboard
+you can either:
 <ul>
 <li>
 Start the Naming Service Browser and paste the IOR from the clipboard to
 the Naming Service Browser's startup dialog.</li>
-
 <li>
 Paste the IOR from the command shell into a text editor, and save it to
 a text file. You can then start the Naming Service Browser and specify
 this text file in the Naming Service Browser's startup dialog.</li>
 </ul>
 
-<h3>
-<a NAME="Set Up the Naming Service Browser"></a>Starting the Naming Service
+<h3><a NAME="Set Up the Naming Service Browser"></a>Starting the Naming Service
 Browser</h3>
+
+<p>
 To use the Naming Service Browser with the naming service
 process that you started earlier:
 <ol>
 <li>
 Switch to the Runtime tab of the Explorer.</li>
-
 <li>
 Right click the CORBA Naming Service node, and choose Bind New Context from
 the contextual menu. A dialog box appears that enables you to tell the naming
 service browser how to find the service.</li>
-
 <li>
 Enter the following: in the Name field&nbsp; "JDK"; in the Kind field,
 "Naming."</li>
-
 <li>
-There are two ways to supply the naming service IOR:</li>
-
+Supply the naming service IOR in one of the following ways:</li>
 <ul>
 <li>
 If you copied the IOR to a file, type the URL for the file (using <tt>file:///&lt;path
 to your file></tt> ) into the URL field.</li>
-
 <li>
 Paste the IOR that you cut from the command line into the IOR field.</li>
 </ul>
-
 <li>
 Click OK to close the dialog box. A new node, named JDK, appears under
 CORBA Naming Service. The Naming Service browser is now communicating with
-the naming service process you havespecified.</li>
+the naming service process you have specified.</li>
 </ol>
 
-<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+<table>
+<tr valign="top">
+<th colspan=2 align=left>See also</th>
+</tr>
+<tr valign="top">
+<td width="23"></td>
+<td><a href="corba_nsbrowser_binding.html">Using the Naming Service Browser</a>
+</td>
+</tr>
+</table>
+
+
+<hr>
+<font size=-2><a href="../credits.html">Legal Notices</a></font>
 </body>
 </html>

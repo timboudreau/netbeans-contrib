@@ -16,8 +16,8 @@ Microsystems, Inc. All Rights Reserved.
  *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
 >   *     Use is subject to license terms.
 >   *
->   *     Copyright 2001 Sun Microsystems, Inc. Tous droits réservés.
->   *     L'utilisation est régie par les termes de cette licence.
+>   *     Copyright 2001 Sun Microsystems, Inc. Tous droits r&eacute;serv&eacute;s.
+>   *     L'utilisation est r&eacute;gie par les termes de cette licence.
 >   *
 >   *
 > -->
@@ -27,275 +27,383 @@ Microsystems, Inc. All Rights Reserved.
 <title>ORB Product Subnode Settings</title>
 <link rel="StyleSheet" href="../ide.css" type="text/css">
 </head>
-<body bgcolor="#ffffff">
+<body>
 
 
-<h2>
-ORB Product Subnode Settings</h2>
+<h2>ORB Product Subnode Settings</h2>
+
+<p>
 These properties appear when you select a subnode of the CORBA Settings
-node.
-<h3>
-Properties Tab</h3>
+node.</p>
 
-<h4>
-Client Binding</h4>
-Use this property to specify what kind of code should be generated for
+<h3>Properties Tab</h3>
+
+<h4>Client Binding</h4>
+<p>
+Specifies what kind of code should be generated for
 binding the client to a server.
 <ul>
-<li>
-Naming Service -- Generate client code that obtains a server reference
+<li>Naming Service -- Generate client code that obtains a server reference
 from a naming service.</li>
 
-<li>
-IOR From File -- Generate client code that reads a server reference
+<li>IOR From File -- Generate client code that reads a server reference
 from a file.</li>
 
-<li>
-IOR From Standard Input -- Generate client&nbsp; code that reads a
+<li>IOR From Standard Input -- Generate client&nbsp; code that reads a
 server reference from standard input.</li>
 
-<li>
-Proprietary Binder -- Generate&nbsp; client&nbsp; code that works with
+<li>Proprietary Binder -- Generate&nbsp; client&nbsp; code that works with
 the proprietary binding methods defined by the ORB vendor. This is available
 when you are using OrbixWeb 3.2, Orbacus for Java 3.1.x, and VisiBroker
 for Java.</li>
 </ul>
+</p>
+<p>
 When you are developing both the client and the server, you should use
 the same binding type for both the client and server sides. If you are
 developing a client that uses an existing server, you have to choose
-the type of binding that works with the server.
-<h4>
-Generated Skeletons</h4>
+the type of binding that works with the server.</p>
+
+<h4>Delegation Type</h4>
+<p>
+Specifies the object type whose definition is used
+at runtime instead of another object type.
+<ul>
+<li>None -- No inheritance occurs, empty method bodies are generated.</li> 
+
+<li>Static -- Methods of the base class are called
+indirectly by the derived class.</li>
+
+<li>Virtual -- Methods of the base class are called directly by
+derived class.</li>
+</ul>
+</p>
+
+<h4>Generated Skeletons</h4>
+<p>
 Use this property to specify whether the skeleton code generated from your
 IDL file should be inheritance-based or tie-based.
 <ul>
-<li>
-Inheritance Based -- The implementation class is an extension of the skeleton
-class, as in:</li>
+<li>Inheritance Based -- The implementation class is an extension of
+the skeleton class, as in:
+<pre>
+ class HelloImpl extends _HelloImplBase
+</pre></li>
 
-<ul>class HelloImpl extends _HelloImplBase</ul>
+<li>Tie Based -- The implementation class has no direct relationship with the
+skeleton class, as in:
+<pre>
+ class HelloImplTIE implements _HelloOperations
+</pre>
+In this case, a tie class, such as <tt>_HelloTie</tt>, establishes the
+relationship between the implementation class and the skeleton class.</li>
+</ul>
+</p>
 
-<li>
-Tie Based -- The implementation class has no direct relationship with the
-skeleton class, as in:</li>
-
-<ul>class HelloImplTIE implements _HelloOperations</ul>
-In this case, a tie class, such as _HelloTie, establishes the relationship
-between the implementation class and the skeleton class.</ul>
-
-<h4>
-Generation</h4>
-Use this property to specify what kind of implementation code should be
+<h4>Generation</h4>
+<p>
+Specifies what kind of implementation code should be
 generated for operations (methods) declared in your IDL file:
 <ul>
-<li>
-Generate Nothing -- Generate empty method bodies for operations (methods)
+<li>Generate Nothing -- Generate empty method bodies for operations (methods)
 declared in the IDL.</li>
 
-<li>
-Generate Exception -- In each method body, generate a statement that throws
+<li>Generate Exception -- In each method body, generate a statement that throws
 an invalid exception.</li>
 
-<li>
-Generate "Return Null" -- In each method body, generate a "return null"
-statement.</li>
+<li>Generate <tt>Return Null</tt> -- In each method body, generate a
+<tt>return null</tt> statement.</li>
 </ul>
+</p>
 
-<h4>
-Hide Generated Files</h4>
+<h4>Hide Generated Files</h4>
+<p>
 Use this property to specify whether the stubs and skeleton files generated
 from you IDL by the IDL compiler will be visible in the IDE.
 <ul>
-<li>
-True -- The stub and skeleton files are not visible in the Explorer window.
+<li>True -- The stub and skeleton files are not visible in the Explorer window.
 Since you rarely edit these files or reference them directly in your code,
 you might prefer that they be invisible.</li>
 
-<li>
-False -- The stub and skeleton files are visible in the Explorer window.</li>
+<li>False -- The stub and skeleton files are visible in the Explorer
+window.</li> 
 </ul>
+</p>
 
-<h4>
-Parameters for IDL compiler</h4>
+<h4>Parameters for IDL compiler</h4>
+<p>
 Use this property to set up any parameters you want to pass to the IDL
 compiler. Anything you type in this property is passed to the IDL
 compiler when it is executed.
-<h4>
-Server binding</h4>
-Use this property to specify what kind of code should be generated on the
+</p>
+
+<h4>Server binding</h4>
+<p>
+Specifies what kind of code should be generated on the
 server side for preparing a reference to the implementation instance/servant
 object:
 <ul>
-<li>
-Naming Service -- Generate server code that registers a reference to
+<li>Naming Service -- Generate server code that registers a reference to
 the implementation instance/servant object with a naming service.</li>
 
-<li>
-IOR From File -- Generate server code that writes a reference to the
+<li>IOR From File -- Generate server code that writes a reference to the
 implementation instance/servant object to a file.</li>
 
-<li>
-IOR To Standard OutPut -- Generate server code that writes the IOR
+<li>IOR To Standard OutPut -- Generate server code that writes the IOR
 for the implementation instance/servant object to standard output.</li>
 
-<li>
-Proprietary Binder -- Generate server code that works with the proprietary
+<li>Proprietary Binder -- Generate server code that works with the proprietary
 binding methods defined by the ORB vendor. This is available when you are
 using OrbixWeb 3.2, Orbacus for Java 3.1.x, and VisiBroker for Java.</li>
 </ul>
-The client side must use the same binding method. For example, if the server-side
-code registers the implementation instance/servant object with the naming
-service, the client must obtain its reference to the servant from the naming
-service.
-<h4>
-Synchronization</h4>
-Use this property to specify how the IDE should behave when you modify
+</p>
+<p>
+The client side must use the same binding method. For example, if the
+server-side code registers the implementation instance/servant object
+with the naming service, the client must obtain its reference to the
+servant from the naming service.</p>
+
+<h4>Synchronization</h4>
+<p>
+Specifes how the IDE should behave when you modify
 an IDL definition. Depending on the setting, the IDE displays
 a dialog box that enables you to synchronize IDL and implementation:
 <ul>
-<li>
-Disabled -- The IDE will not prompt you to synchronize IDL and implementation.</li>
+<li>Disabled -- The IDE will not prompt you to synchronize IDL and
+implementation.</li> 
 
-<li>
-On Update -- When you edit an IDL file, open its contextual menu, and choose
-either the Update Implementation or Update and Generate Implementation
-command, you are prompted to synchronize the IDL and its implementation.
-(If you modify an IDL&nbsp; interface, the contextual menu will have the Update
-Implementation command; if you add a new interface to the IDL file, the
-contextual menu will have the Update and Generate Implementation command.)</li>
+<li>On Update -- When you edit an IDL file, open its contextual menu,
+and choose either the Update Implementation or Update and Generate
+Implementation command, you are prompted to synchronize the IDL and
+its implementation.  (If you modify an IDL interface, the contextual
+menu will have the Update Implementation command; if you add a new
+interface to the IDL file, the contextual menu will have the Update
+and Generate Implementation command.)</li>
 
-<li>
-On Save Action -- When you edit and then save an IDL file, you will be
+<li>On Save Action -- When you edit and then save an IDL file, you will be
 prompted to synchronize the IDL and its implementation.</li>
 </ul>
-Note that after modifying an IDL interface definition you also need to
-recompile it, in order-- to regenerate the stub and skeleton classes.
-<h3>
-Expert Tab</h3>
+</p>
+<p>
+After modifying an IDL interface definition you also need to
+recompile it to regenerate the stub and skeleton classes.</p>
 
-<h4>
-Column Position</h4>
-Number of the group returned by the Error Expression (see below) that contains
-the column of the offending code when the IDL compiler returns errors.
-If your IDL compiler does not return this information, or your Error Expression
-does not parse it, set this parameter to -1. A valid default value is supplied
-for each supported ORB product; it is unlikely that you will need to change
-it.
-<h4>
-Directory Switch for IDL Compiler</h4>
-The switch passed on the command line to the IDL compiler to indicate that
-what follows it is the directory in which it should put the files it generates.
-A valid default is supplied for each supported ORB product and its IDL
-compiler; it is unlikely that you will need to change it..
-<h4>
-Error Expression</h4>
-A POSIX syntax regular expression which is used to parse the IDL compiler's
-error output. It sorts the compiler's output into groups for error message,
-column number, file name, and line number. A valid error expression is
-supplied for each supported ORB product; it is unlikely you will need to
-change it.
-<h4>
-Extended Class Postfix</h4>
-A string used to build a name for the generated class that servers as the
-base class for the implementation class. (In other words, the IDL compiler
-generates a class that the implementation class must extend.) Each ORB
-product has a naming convention for this base class, and therefore a valid
-default value is supplied for each supported ORB product; it is unlikely
-that you will need to change it.
-<br>For an example, most ORB products use a prefix of&nbsp; "_" and a postfix
-of "ImplBase" for the base classes they generate; if you compile an IDL
-interface named Hello with one of these ORB products it generates a base
-class named _HelloImplBase. And the actual implementation class will be
-declared "extends _HelloImplBase."
-<h4>
-Extended Class Prefix</h4>
+<h4>Use Guarded Blocks</h4>
+<p>
+Enables you to protect portions of code that the CORBA module outputs
+with guarded (highlighted) blocks.
+<ul>
+<li>True -- Delegated methods are put in guarded blocks and cannot be
+edited.</li> 
+
+<li>False -- Delegated methods are available to be edited in the source.</li> 
+</ul></p>
+
+<h3>Expert Tab</h3>
+
+<h4>Column Position</h4>
+<p>
+Specifies the number of the group returned by the Error Expression
+(see below) that contains the column of the offending code when the
+IDL compiler returns errors.  If your IDL compiler does not return
+this information, or your Error Expression does not parse it, set this
+parameter to -1. A valid default value is supplied for each supported
+ORB product; it is unlikely that you will need to change it.
+</p>
+
+<h4>Directory Switch for IDL Compiler</h4>
+<p>
+Provides the switch passed on the command line to the IDL compiler to
+indicate that what follows it is the directory in which it should put
+the files it generates.  A valid default is supplied for each
+supported ORB product and its IDL compiler; it is unlikely that you
+will need to change it.
+</p>
+
+<h4>Error Expression</h4>
+<p>
+specifies a POSIX syntax regular expression which is used to parse the
+IDL compiler's error output. It sorts the compiler's output into
+groups for error message, column number, file name, and line number. A
+valid error expression is supplied for each supported ORB product; it
+is unlikely you will need to change it.</p>
+
+<h4>Extended Class Postfix</h4>
+<p>
+Specifies a string used to build a name for the generated class that
+servers as the base class for the implementation class. (In other
+words, the IDL compiler generates a class that the implementation
+class must extend.)  Each ORB product has a naming convention for this
+base class, and therefore a valid default value is supplied for each
+supported ORB product; it is unlikely that you will need to change
+it.</p>
+
+<p>
+For example, most ORB products use a prefix of "_" and a
+postfix of <tt>ImplBase</tt> for the base classes they generate; if you
+compile an IDL interface named Hello with one of these ORB products it
+generates a base class named <tt>_HelloImplBase</tt>. And the actual
+implementation class will be declared <tt>extends _HelloImplBase</tt>.</p>
+
+<h4>Extended Class Prefix</h4>
+<p>
 See Extended Class Postfix. A valid default value is supplied for each
 supported ORB product; it is unlikely that you will need to change it.
-<h4>
-External IDL compiler</h4>
-Use this property to identify the IDL compiler for a specific ORB product.
+</p>
+
+<h4>External IDL compiler</h4>
+<p>
+Identifies the IDL compiler for a specific ORB product.
 Type in either the full path to the IDL compiler, or, if the IDL compiler's
 directory is included in the operating system's PATH environment variable,
-just type in the executable's name.
-<h4>
-File Position</h4>
-An integer value indicating which group in the Error Expression contains
-the file name of the IDL source file that produced errors. See Error Expression.
-<h4>
-ImplBase Implementation Postfix</h4>
-A string used to build a name for a generated implementation class to be
-used with inheritance-based skeletons. Each ORB product has a naming convention
-for this class, and therefore the IDE supplies a valid default value for
-each supported ORB product; it is unlikely that you will need to change
-it.
-<br>For an example, most ORB products use no prefix and a postfix of "Impl"
-for the implementation classes they generate; if you generate an implementation
-class for an IDL interface named Hello with one of these ORB products it
-generates an implementation class name HelloImpl.
-<h4>
-ImplBase Implementation Prefix</h4>
+just type in the executable's name.</p>
+
+<h4>File Position</h4>
+<p>
+Provides an integer value indicating which group in the Error
+Expression contains the file name of the IDL source file that produced
+errors. See Error Expression.</p>
+
+<h4>ImplBase Implementation Postfix</h4>
+<p>
+Specifies a string used to build a name for a generated implementation
+class to be used with inheritance-based skeletons. Each ORB product
+has a naming convention for this class, and therefore the IDE supplies
+a valid default value for each supported ORB product; it is unlikely
+that you will need to change it.
+<p>
+For example, most ORB products use no prefix and a postfix of
+<tt>Impl</tt> for the implementation classes they generate; if you
+generate an implementation class for an IDL interface named
+<tt>Hello</tt> with one of these ORB products it generates an
+implementation class name <tt>HelloImpl</tt>.</p>
+
+<h4>ImplBase Implementation Prefix</h4>
+<p>
 See Implementation Postfix. A valid default value is supplied for each
-supported ORB product; it is unlikely you will need to change it.
-<h4>
-Implemented Interface Postfix</h4>
-A string used to build a name for a generated tie interface to be used
-with tie-based skeletons. Each ORB product has a naming convention for
-this interface, and therefore a valid default value is supplied for each
-supported ORB product; it is unlikely that you will need to change it.
-<br>For an example, most ORB products use no prefix and a postfix of "Operations"
-for the implementation classes they generate; if you generate a tie interface
-for an IDL interface named Hello with one of these ORB products it generates
-an interface named HelloOperations.
-<h4>
-Implemented Interface Prefix</h4>
-See Implemented Interface Postfix. A valid default value is supplied for
-each supported ORB product; it is unlikely you will need to change it.
-<h4>
-Line Position</h4>
-An integer value indicating which group in the Error Expression contains
-the line number of the source code that the IDL compiler could not process.
-See Error Expression.
-<h4>
-Message Position</h4>
-An integer value indicating which group in the Error Expression contains
-the error message. See Error Expression.
-<h4>
-Package Delimiter</h4>
-The character used to separate package names in commands passed to the
-IDL compiler. This is the "." character (as in java.awt) for all currently
-supported ORB products.
-<h4>
-Package Switch for IDL Compiler</h4>
-The string that the IDL compiler recognizes as the command line switch
-which to be followed by the name of the package for files generated by
-compiler.
-<h4>
-Template Table</h4>
-The templates contain text tags that are replaced when code is generated.
-These tags are delimited by two underscore characters on each side of them.
-The template table consists of entries such as USER=JOEBLOW. Whenever __USER__
-is encountered when the user creates a new class from the template, it
-is replaced by JOEBLOW.
-<h4>
-Tie Implementation Postfix</h4>
-A string used to build a name for a generated implementation class for
-use with tie-based skeletons. Each ORB product has a naming convention
-for this class, and therefore a valid default value is supplied for each
-supported ORB product; it is unlikely that you will need to change it.
-<br>For an example, most ORB products use no prefix and a postfix of "ImplTIE"
-for the tie-based implementation classes they generate; if you generate
-a tie-based implementation class for an IDL interface named Hello with
-one of these ORB products it generates an implementation class name HelloImplTIE.
-<h4>
-Tie Implementation Prefix</h4>
-See Tie Implementation Postfix. A valid default value is supplied for each
-supported ORB product; it is unlikely you will need to change it.
-<h4>
-Tie parameter</h4>
-Line switch included on the command line to the IDE's Implementation Generator;
-tells the Implementation Generator to generate classes for use with tie-based
-skeleton instead of inheritance-based skeleton.
-<br>
-<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+supported ORB product; it is unlikely you will need to change it.</p>
+
+<h4>Implemented Interface Postfix</h4>
+<p>
+Specifies a string used to build a name for a generated tie interface
+to be used with tie-based skeletons. Each ORB product has a naming
+convention for this interface, and therefore a valid default value is
+supplied for each supported ORB product; it is unlikely that you will
+need to change it.
+<p>
+For example, most ORB products use no prefix and a postfix of
+<tt>Operations</tt> for the implementation classes they generate; if
+you generate a tie interface for an IDL interface named <tt>Hello</tt>
+with one of these ORB products it generates an interface named
+<tt>HelloOperations</tt>.
+
+<h4>Implemented Interface Prefix</h4>
+<p>
+See Implemented Interface Postfix. A valid default value is supplied
+for each supported ORB product; it is unlikely you will need to change
+it.</p>
+
+<h4>Line Position</h4>
+<p>
+Provides an integer value indicating which group in the Error
+Expression contains the line number of the source code that the IDL
+compiler could not process.  See Error Expression.</p>
+
+<h4>Message Position</h4>
+<p>
+Provides an integer value indicating which group in the Error
+Expression contains the error message. See Error Expression.</p>
+
+<h4>Package Delimiter</h4> 
+<p>
+Specifies the character used to separate package names in commands
+passed to the IDL compiler. This is the "." character (as in
+<tt>java.awt</tt>) for all currently supported ORB products.</p>
+
+<h4>Package Switch for IDL Compiler</h4>
+<p>
+Specifies the string that the IDL compiler recognizes as the command
+line switch which to be followed by the name of the package for files
+generated by compiler.</p>
+
+<h4>Template Table</h4> 
+<p>
+Specifies a value for a template text tag. The templates contain text
+tags that are replaced when code is generated. These tags are
+delimited by two underscore characters on each side of them. The
+template table consists of entries such as
+<tt>USER=JOEUSER</tt>. Whenever <tt>__USER__</tt> is encountered when
+the user creates a new class from the template, it is replaced by
+<tt>JOEUSER</tt>.</p>
+
+<h4>Tie Implementation Postfix</h4>
+<p>
+Specifies a string used to build a name for a generated implementation
+class for use with tie-based skeletons. Each ORB product has a naming
+convention for this class, and therefore a valid default value is
+supplied for each supported ORB product; it is unlikely that you will
+need to change it.</p>
+<p>
+For example, most ORB products use no prefix and a postfix of
+<tt>ImplTIE</tt> for the tie-based implementation classes they
+generate; if you generate a tie-based implementation class for an IDL
+interface named <tt>Hello</tt> with one of these ORB products it
+generates an implementation class name <tt>HelloImplTIE</tt>.</p>
+
+<h4>Tie Implementation Prefix</h4>
+<p>
+See Tie Implementation Postfix. A valid default value is supplied for
+each supported ORB product; it is unlikely you will need to change it.</p>
+
+<h4>Tie parameter</h4>
+<p>
+Line switch included on the command line to the IDE's Implementation
+Generator; tells the Implementation Generator to generate classes for
+use with tie-based skeleton instead of inheritance-based skeleton.
+</p>
+
+<h4>Value Factory Implementation Postfix</h4>
+<p>
+Specifies a string used to build a name for a generated implementation
+class for use with inheritance-based skeletons. Each ORB product has a
+naming convention for this class, and therefore a valid default
+factory value is supplied for each supported ORB product; it is
+unlikely that you will need to change it.</p>
+<p>
+For example, most ORB products use no prefix and a postfix of
+<tt>ValueFactoryImpl</tt> for the value factory implementation classes they
+generate; if you generate a value factory implementation class for an IDL
+interface named <tt>Hello</tt> with one of these ORB products it
+generates an implementation class name with <tt>_M_</tt> delegation
+variable postifix, <tt>HelloFactoryImpl</tt> .</p>
+
+<h4>Value Factory Implementation Prefix</h4>
+<p>
+See Value Factory Implementation Postfix. A valid default value is supplied for
+each supported ORB product; it is unlikely you will need to change it.</p>
+
+<h4>Value Implementation Postfix</h4>
+<p>
+specifies a string used to build a name for a generated implementation
+class for use with inheritance-based skeletons. Each ORB product has a
+naming convention for this class, and therefore a valid default value
+is supplied for each supported ORB product; it is unlikely that you
+will need to change it.</p>
+<p>
+For example, most ORB products use no prefix and a postfix of
+<tt>ValueImpl</tt> for the value implementation classes they
+generate; if you generate a value implementation class for an IDL
+interface named <tt>Hello</tt> with one of these ORB products it
+generates an implementation class name <tt>HelloValueImpl</tt>.</p>
+
+<h4>Value Implementation Prefix</h4>
+<p>
+See Value Implementation Postfix. A valid default value is supplied for
+each supported ORB product; it is unlikely you will need to change it.</p>
+
+
+
+<hr>
+<font size=-2><a href="../credits.html">Legal Notices</a></font>
 </body>
 </html>

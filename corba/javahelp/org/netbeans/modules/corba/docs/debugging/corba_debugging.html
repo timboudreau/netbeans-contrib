@@ -17,8 +17,8 @@ Microsystems, Inc. All Rights Reserved.
  *     Copyright 2001 Sun Microsystems, Inc. All rights reserved.
 >   *     Use is subject to license terms.
 >   *
->   *     Copyright 2001 Sun Microsystems, Inc. Tous droits réservés.
->   *     L'utilisation est régie par les termes de cette licence.
+>   *     Copyright 2001 Sun Microsystems, Inc. Tous droits r&eacute;serv&eacute;s.
+>   *     L'utilisation est r&eacute;gie par les termes de cette licence.
 >   *
 >   *
 > -->
@@ -28,12 +28,13 @@ Microsystems, Inc. All Rights Reserved.
 <title>Debugging CORBA Programs</title>
 <link rel="StyleSheet" href="../ide.css" type="text/css">
 </head>
-<body bgcolor="#ffffff">
+<body>
 
-<h2>
-Debugging CORBA Programs</h2>
+<h2>Debugging CORBA Programs</h2>
+
+<p>
 You can use the IDE's debugger with your CORBA client and server programs.
-There are few things you must consider:
+There are a few things you must consider:
 <ul>
 <li>
 You must debug client and server programs separately; you cannot start
@@ -43,14 +44,14 @@ then run the client; the debugger will show the server executing in response
 to the request.)</li>
 
 <li>
-You cannot use the Forte for Java debugger for processes that are started
-outside of the IDE. In particular,&nbsp; you cannot debug CORBA server
+You cannot use the IDE's debugger for processes that are started
+outside of the IDE. In particular, you cannot debug CORBA server
 processes that are started from an implementation repository.</li>
 
 <li>
 If you want to debug a server-side program that is already running, you
 need to unbind it from the naming service before restarting it. (If you
-don't, you will get an exception when the binding code executes.)</li>
+don't, you will get an exception when the binding code executes.)
 
 <ul>
 <li>
@@ -59,12 +60,11 @@ the Runtime tab of Explorer), right click on the node for the server, choose
 Unbind from the context menu.</li>
 
 <li>
-If it is not attached, you will need too kill and restart tnameserv:</li>
-
-Either using shell utilities (ps and kill) or your operating system's
-task manager, kill tnameserv's process.
-<br>Restart it using the same arguments as before (tnameserv -ORBInitialPort
-1050).</ul>
+If it is not attached, you will need too kill and restart <tt>tnameserv</tt>
+by either using shell utilities (<tt>ps</tt> and <tt>kill</tt>) or using
+your operating system's task manager to kill the <tt>tnameserv</tt> process.
+Restart it using the same arguments as before (<tt>tnameserv -ORBInitialPort
+1050</tt>).</li></ul></li>
 
 <li>
 If you only want to debug the client side, it is not necessary to restart
@@ -72,27 +72,42 @@ the naming service and rebind the implementation instance.</li>
 </ul>
 
 <h3>Setting Breakpoints</h3>
+
+<p>
 Use the standard IDE procedures for setting breakpoints. For example, to
 set a breakpoint in the Hello World example's implementation class:
 <ol>
 <li>
-Go to the HelloImpl class in the editor. Locate the line containing the
-for() loop in the code which you entered earlier.</li>
+Go to the <tt>HelloImpl</tt> class in the editor and locate the line containing the
+<tt>for()</tt> loop in the code that you entered earlier.</li>
 
 <li>
-Place the text caret on this line, and press CTRL-F8 to set a breakpoint
+Put the insertion point on this line, and press CTRL-F8 to set a breakpoint
 on this line.</li>
 
 <li>
-Select the HelloServer class in the Explorer, and press F5 to start the
+Select the <tt>HelloServer</tt> class in the Explorer, and press F5 to start the
 server in the debugger.</li>
 </ol>
+</p>
+<p>
 Execute the client as you did before. Server-side execution will pause
 at your breakpoint. Just as when debugging other Java objects, you can
 freely make use of tracing, watch variables, and other debugging techniques.
-<br>Note: If you are running the IDE on HotSpot you must disable HotSpot
-before restarting the client.
-<br>
-<hr><font size=-2><a href="../credits.html">Legal Notices</a></font>
+
+<table width="550" border="0" cellpadding="2">
+<tr valign="top">
+<td><img src="../images/tip.gif" width="12" height="12"></td>
+<td>If you are running the IDE on HotSpot you must disable HotSpot
+before restarting the client.</td>
+</tr>
+</table>
+</p>
+
+
+
+
+<hr>
+<font size=-2><a href="../credits.html">Legal Notices</a></font>
 </body>
 </html>

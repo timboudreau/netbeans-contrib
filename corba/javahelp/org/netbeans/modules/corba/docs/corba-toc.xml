@@ -26,49 +26,49 @@ Microsystems, Inc. All Rights Reserved.
 <tocitem text="The CORBA Module" target="corba_intro">
 
 <tocitem text="Concepts" target="concepts_intro">
-
-	<tocitem text="CORBA Basics" target="concepts_basics" />
-	<tocitem text="Files for a CORBA Program" target="concepts_files" />
-	<tocitem text="CORBA Module Procedures" target="concepts_procs" />
-	
+   <tocitem text="CORBA Basics" target="concepts_basics" />
+   <tocitem text="Java Files for CORBA Programs" target="concepts_files" />
+   <tocitem text="Using the CORBA Module" target="concepts_procs" />
 </tocitem>
 
 <tocitem text="CORBA Module Setup" target="setup_intro">
-       <tocitem text="Supported ORB Products" target="setup_supportedorbs" />
-       <tocitem text="Specifying the ORB You Are Using" target="setup_specifyingorb" />
-       <tocitem text="IDL Compiler Setup" target="setup_idlcompiler" />
-       <tocitem text="Accessing the ORB Runtime" target="setup_accessruntime" />
-       <tocitem text="Setting Up the Naming Service Browser" target="setup_nsbrowser" />
-       <tocitem text="Setting Up the Interface Repository Browser" target="setup_irbrowser" />
+   <tocitem text="Supported ORB Products" target="setup_supportedorbs" />
+   <tocitem text="Specifying an ORB" target="setup_specifyingorb" />
+   <tocitem text="Setting up the IDL Compiler" target="setup_idlcompiler" />
+   <tocitem text="Accessing the ORB Runtime Classes" target="setup_accessruntime" />
+   <tocitem text="Setting Up the Naming Service Browser" target="setup_nsbrowser" />
+   <tocitem text="Setting Up the Interface Repository Browser" target="setup_irbrowser" />
 </tocitem>
 
 
-<tocitem text="Generating Program Files" target="generating_intro">
-       <tocitem text="Generating Client-side Files" target="generating_client" />
-       <tocitem text="Generating Server-side Files" target="generating_server" />
+<tocitem text="Generating CORBA Files" target="generating_intro">
+   <tocitem text="Generating IDL Files" target="generating_idl" />
+   <tocitem text="Generating Client-side Files Using the CORBA Template" target="generating_tmplclient" /> 
+   <tocitem text="Generating Client-side Files With the CORBA Wizard" target="generating_client" />
+   <tocitem text="Generating Server-side Files Using the CORBA Template" target="generating_tmplserver" />
+   <tocitem text="Generating Server-side Files With the CORBA Wizard" target="generating_server" />
 </tocitem>
 
 <tocitem text="Completing Generated Files" target="completing_intro">
-	<tocitem text="Completing Client-side Files" target="completing_client" />
-	<tocitem text="Completing Server-side Files" target="completing_server" />
+   <tocitem text="Completing Client-side Files" target="completing_client" />
+   <tocitem text="Completing Server-side Files" target="completing_server" />
 </tocitem>
 
 <tocitem text="The Naming Service Browser" target="nsbrowser_intro">
-        <tocitem text="Starting the Naming Service Browser" target="nsbrowser_connecting" />
-	<tocitem text="Using the Naming Service Browser" target="nsbrowser_binding" />
+   <tocitem text="Starting the Naming Service Browser" target="nsbrowser_connecting" />
+   <tocitem text="Using the Naming Service Browser" target="nsbrowser_binding" />
 </tocitem>
 
 <tocitem text="The Interface Repository Browser" target="irbrowser_intro">
-	<tocitem text="Connecting to an Interface Repository" target="irbrowser_connecting" />
-	<tocitem text="Using an Interface from the Repository" target="irbrowser_using" />	
+   <tocitem text="Starting the Interface Repository Browser" target="irbrowser_connecting" />
+   <tocitem text="Using an Interface from the Repository" target="irbrowser_using" />	
 </tocitem>
-
 <tocitem text="Debugging CORBA Programs" target="debugger_intro">
 </tocitem>
 
 <tocitem text="CORBA Project Settings" target="settings_intro">
-	<tocitem text="CORBA Node Settings" target="settings_corbanode" />
-	<tocitem text="ORB Product Subnode Settings" target="settings_orbnamenode" />	
+   <tocitem text="Accessing CORBA Project Settings" target="settings_get" />
+   <tocitem text="ORB Product Subnode Settings" target="settings_orbnamenode" />	
 </tocitem>
 
 
