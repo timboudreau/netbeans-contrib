@@ -84,7 +84,9 @@ public class NBUtilities extends Utilities {
         if (ec == null)
             return null;
         
-        return ec.openDocument();
+        Document result = ec.openDocument();
+        
+        return result;
     }
     
     public Object[] getRelativeFileList(Object file, String relativePath) throws IOException {

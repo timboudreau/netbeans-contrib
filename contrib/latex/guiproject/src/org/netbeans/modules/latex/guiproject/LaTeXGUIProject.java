@@ -173,7 +173,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
     }
     
     public void invokeAction(String command, Lookup context) throws IllegalArgumentException {
-        System.err.println("invoked: " + command);
+//        System.err.println("invoked: " + command);
         if (COMMAND_BUILD.equals(command)) {
             ActionsFactory.build(this, "build");
             return ;
@@ -261,7 +261,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         }
         
         private void doSetKeys() {
-            Thread.dumpStack();
+//            Thread.dumpStack();
             DocumentNode dn = getSource().getDocument();
             List toAdd = new ArrayList();
             
@@ -270,13 +270,10 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
             
             Object main = getSource().getMainFile();
             
-            if (toAdd.contains(main)) {
-                toAdd.remove(main);
-            }
-            
+            toAdd.remove(main);
             toAdd.add(0, main);
             
-            System.err.println("toAdd=" + toAdd);
+//            System.err.println("toAdd=" + toAdd);
             setKeys(toAdd);
         }
         

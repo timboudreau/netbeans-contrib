@@ -15,12 +15,16 @@
 package org.netbeans.modules.latex.model.command;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
 import org.openide.util.WeakListeners;
 
+/**
+ * @author Jan Lahoda
+ */
 public abstract class LaTeXSourceFactory {
     
     private List/*<MainFileListener>*/ listeners;
@@ -63,6 +67,17 @@ public abstract class LaTeXSourceFactory {
     public abstract boolean isKnownFile(Object file);
     
     public abstract boolean isMainFile(Object file);
+    
+    /**Return collection of known files. This method should return collection of
+     * files for which holds <code>get(file) != null</code> for this factory.
+     * The implementors should use best-effort approach. If for some or all of the
+     * files cannot be determined whether holds <code>get(file) != null</code>,
+     * it is legal not to list them in the resulting collection.
+     * 
+     * @return list of all known files (<code>get(file) != null</code>). Should
+     *              never return <code>null</code>.
+     */
+    public abstract Collection getAllKnownFiles();
 
     public static interface MainFileListener extends EventListener {
         

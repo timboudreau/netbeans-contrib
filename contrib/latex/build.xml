@@ -44,7 +44,22 @@ Microsystems, Inc. All Rights Reserved.
 	<ant dir="../nbbuild" target="all-latex/project" />
 	<ant dir="../nbbuild" target="all-latex/ui" />
     </target>
-    
+
+    <target name="nbm-modules">
+        <ant dir="ant" target="nbm" />
+        <ant dir="auted" target="nbm" />
+        <ant dir="bibtex" target="nbm" />
+        <ant dir="branding" target="nbm" />
+        <ant dir="core" target="nbm" />
+        <ant dir="editor" target="nbm" />
+        <ant dir="guiproject" target="nbm" />
+        <ant dir="loaders" target="nbm" />
+        <ant dir="model" target="nbm" />
+        <ant dir="nexplorer" target="nbm" />
+        <ant dir="project" target="nbm" />
+        <ant dir="ui" target="nbm" />
+    </target>
+
     <target name="test-modules">
         <ant dir="bibtex/test" />
         <ant dir="test" />

@@ -30,7 +30,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionListener;
 import org.netbeans.modules.latex.model.command.LaTeXSourceFactory;
-import org.netbeans.modules.latex.project.LaTeXSourceFactoryImpl;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 
@@ -215,13 +214,14 @@ public class GoToFile extends JPanel implements DocumentListener {
             return ;
         
         lastPrefix = prefix;
-
-        LaTeXSourceFactory fact = (LaTeXSourceFactory) Lookup.getDefault().lookup(LaTeXSourceFactory.class);
         
-        if (fact instanceof LaTeXSourceFactoryImpl) {
-            LaTeXSourceFactoryImpl factImpl = (LaTeXSourceFactoryImpl) fact;
+        Lookup.Result factories = Lookup.getDefault().lookup(new Lookup.Template(LaTeXSourceFactory.class));
+        
+        List result = new ArrayList();
+        
+        for (Iterator factoryIterator = factories.allInstances().iterator(); factoryIterator.hasNext(); ) {
+            LaTeXSourceFactory factImpl = (LaTeXSourceFactory) factoryIterator.next();
             Collection files = factImpl.getAllKnownFiles();
-            List result = new ArrayList();
             Iterator iter = files.iterator();
             
             while (iter.hasNext()) {
@@ -230,16 +230,14 @@ public class GoToFile extends JPanel implements DocumentListener {
                 if (entry.getName().startsWith(prefix))
                     result.add(entry);
             }
-            
-            Collections.sort(result);
-            
-            jList1.setListData(result.toArray());
-            
-            if (result.size() > 0) {
-                jList1.setSelectedIndex(0);
-            }
-        } else {
-            //Well, something strange ;-(.
+        }
+        
+        Collections.sort(result);
+        
+        jList1.setListData(result.toArray());
+        
+        if (result.size() > 0) {
+            jList1.setSelectedIndex(0);
         }
     }
     
@@ -280,7 +278,7 @@ public class GoToFile extends JPanel implements DocumentListener {
     public void addListSelectionListener(ListSelectionListener l) {
         jList1.addListSelectionListener(l);
     }
-
+    
     public void removeListSelectionListener(ListSelectionListener l) {
         jList1.removeListSelectionListener(l);
     }

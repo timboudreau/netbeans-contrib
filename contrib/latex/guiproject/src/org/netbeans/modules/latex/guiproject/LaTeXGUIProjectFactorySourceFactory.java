@@ -15,7 +15,9 @@
 package org.netbeans.modules.latex.guiproject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -97,6 +99,20 @@ public class LaTeXGUIProjectFactorySourceFactory extends LaTeXSourceFactory {
     
     public boolean isMainFile(Object file) {
         return mainFile2Project.get(file) != null;
+    }
+    
+    public Collection getAllKnownFiles() {
+        Collection result = new ArrayList();
+        
+        //TODO: is this fast enough?:
+        for (Iterator i = mainFile2Project.values().iterator(); i.hasNext(); ) {
+            LaTeXGUIProject p = (LaTeXGUIProject) i.next();
+            DocumentNode dn = p.getSource().getDocument(); //TODO:no locking? (currently intentionally)
+            
+            result.addAll(dn.getFiles());
+        }
+        
+        return result;
     }
     
     /*package private*/ void projectLoad(LaTeXGUIProject project, FileObject master) {

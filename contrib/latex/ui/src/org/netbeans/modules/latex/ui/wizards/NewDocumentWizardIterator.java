@@ -25,7 +25,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.modules.latex.model.command.LaTeXSourceFactory;
 import org.netbeans.modules.latex.model.command.Option;
-import org.netbeans.modules.latex.project.LaTeXSourceFactoryImpl;
 
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
@@ -169,14 +168,6 @@ public class NewDocumentWizardIterator implements TemplateWizard.Iterator {
         String     targetName = wiz.getTargetName();
         
         DataObject instatied = template.createFromTemplate(target, targetName);
-        
-        LaTeXSourceFactory factory = (LaTeXSourceFactory) Lookup.getDefault().lookup(LaTeXSourceFactory.class);
-        
-        if (factory != null && factory instanceof LaTeXSourceFactoryImpl) {
-            LaTeXSourceFactoryImpl impl = (LaTeXSourceFactoryImpl) factory;
-            
-            impl.setAsMainFile(instatied.getPrimaryFile());
-        }
         
         EditorCookie ec = (EditorCookie) instatied.getCookie(EditorCookie.class);
         

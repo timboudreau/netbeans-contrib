@@ -14,6 +14,8 @@
  */
 package org.netbeans.modules.latex.model.command.impl;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import org.openide.filesystems.FileObject;
 
@@ -39,6 +41,10 @@ public class LaTeXSourceFactoryImpl extends AbstractLaTeXSourceFactory {
     
     public boolean isMainFile(Object file) {
         return true;
+    }
+
+    public Collection getAllKnownFiles() {
+        return Collections.EMPTY_LIST;
     }
     
 }

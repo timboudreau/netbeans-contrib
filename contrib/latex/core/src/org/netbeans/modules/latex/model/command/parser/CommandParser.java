@@ -105,7 +105,7 @@ public class CommandParser {
         
         NBDocumentNodeImpl result = parseDocument(input, source);
         
-//        result.setFiles(usedFiles.toArray());
+        result.addUsedFile(mainFile);
         
         closeFile(input);
         
