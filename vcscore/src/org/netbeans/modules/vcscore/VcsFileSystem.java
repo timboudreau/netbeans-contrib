@@ -426,6 +426,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     /** The display name of the filesystem */
     private transient String displayName;
+    
+    private String preferredSystemName = null;
 
 
     public boolean isLockFilesOn () {
@@ -2982,6 +2984,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private String computeSystemNameBase (File rootFile) {
         //System.out.println("computeSystemName()");
         //D.deb("computeSystemName() ->"+rootFile.toString ().replace(File.separatorChar, '/') ); // NOI18N
+        if (preferredSystemName != null) {
+            return preferredSystemName;
+        }
         Hashtable vars = getVariablesAsHashtable();
         String systemNameAnnotation = (String) vars.get(VAR_FS_SYSTEM_NAME_ANNOTATION);
         if (systemNameAnnotation != null) {
@@ -3026,6 +3031,23 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         } while (testName != null);
         return name;
+    }
+    
+    /**
+     * Set a preferred system name of the filesystem.
+     * This have higher priority then VAR_FS_SYSTEM_NAME_ANNOTATION.
+     */
+    public void setPreferredSystemName(String preferredSystemName) {
+        this.preferredSystemName = preferredSystemName;
+        setAdjustedSystemName(preferredSystemName);
+    }
+    
+    /**
+     * Get a preferred system name of the filesystem.
+     * This have higher priority then VAR_FS_SYSTEM_NAME_ANNOTATION.
+     */
+    public String getPreferredSystemName() {
+        return preferredSystemName;
     }
 
     /** Get file representation for given string name.
