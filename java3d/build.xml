@@ -131,5 +131,20 @@ Microsystems, Inc. All Rights Reserved.
      </javadoc>
 
   </target>
+  
+  <target name="java3dparserdb" depends="clean,release">
+    <mkdir dir="java3dparserdb/netbeans"/>
+      <copy todir="java3dparserdb/netbeans" includeEmptyDirs="false">
+        <fileset dir="release"/>
+      </copy>
+      <makenbm file="java3dparserdb.nbm"
+        topdir="java3dparserdb"
+        manifest="manifest.parserdb.mf"
+        homepage="http://java3D.${homepage.base}/"
+        distribution="http://{dist.base}/java3dparserdb.nbm">
+        <license file="${license.file}"/>
+      </makenbm>
+      <delete dir="java3dparserdb" />
+    </target>
 
 </project>
