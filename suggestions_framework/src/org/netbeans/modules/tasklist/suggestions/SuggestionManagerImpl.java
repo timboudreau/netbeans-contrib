@@ -747,7 +747,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
 		    continue;
 		}
 		
-                // Skip CVS and SCCS folders
+                //XXX Skip CVS and SCCS folders
                 String name = f.getPrimaryFile().getNameExt();
                 if ("CVS".equals(name) || "SCCS".equals(name)) { // NOI18N
                     continue;

@@ -104,9 +104,10 @@ public class SourceTasksAction extends CallableSystemAction {
         Repository repository = Repository.getDefault();
         Enumeration en = repository.fileSystems();
         List project = new ArrayList(23);
+        int allFolders = 0;
         while (en.hasMoreElements()) {
             FileSystem next = (FileSystem) en.nextElement();
-            if (next.isDefault() || next.isHidden()) {
+            if (next.isDefault() || next.isHidden() || next.isReadOnly()) {
                 continue;
             }
             if (next.isValid()) {
@@ -115,6 +116,7 @@ public class SourceTasksAction extends CallableSystemAction {
                     DataObject dobj = DataObject.find(fo);
                     if (dobj instanceof DataObject.Container) {
                         project.add(dobj);
+                        allFolders += countFolders(fo);
                     }
                 } catch (DataObjectNotFoundException e) {
                     e.printStackTrace();
@@ -126,10 +128,15 @@ public class SourceTasksAction extends CallableSystemAction {
 
         SuggestionManagerImpl manager = (SuggestionManagerImpl)
             SuggestionManager.getDefault();
+
+        final int estimatedFolders = allFolders + 1;
         manager.scan(projectFolders, list, new SuggestionManagerImpl.ScanProgress() {
 
+            int realFolders = 0;
+
             public void folderEntered(FileObject folder) {
-                StatusDisplayer.getDefault ().setStatusText("Scanning " + folder.getPath());
+                realFolders++;
+                StatusDisplayer.getDefault ().setStatusText("" + realFolders + "/" + estimatedFolders + ": scanning " + folder.getPath());
                 handlePendingAWTEvents();
             }
 
@@ -142,6 +149,22 @@ public class SourceTasksAction extends CallableSystemAction {
             }
         });
 
+    }
+
+    private static int countFolders(FileObject projectFolder) {
+        int count = 0;
+        Enumeration en = projectFolder.getChildren(true);
+        while (en.hasMoreElements()) {
+            FileObject next = (FileObject) en.nextElement();
+            if (next.isFolder() == false) continue;
+            String name = next.getNameExt();
+            //XXX there is discrepancy because CVS folders are skipped by engine
+            if ("CVS".equals(name) || "SCCS".equals(name)) { // NOI18N
+                continue;
+            }
+            count++;
+        }
+        return count;
     }
 
     /**
