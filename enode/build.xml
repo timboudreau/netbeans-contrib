@@ -90,7 +90,7 @@ All Rights Reserved.
     <path id="cp">
         <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
-        <pathelement location="${nb_all}/core/naming/netbeans/modules/autoload/naming.jar"/>
+        <pathelement location="${nb_all}/openide/registry/netbeans/modules/org-netbeans-modules-registry.jar"/>
     </path>
     
     <target name="javadoc" description="Build Javadoc.">

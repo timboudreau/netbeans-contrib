@@ -14,7 +14,6 @@
 package org.netbeans.modules.enode;
 
 import javax.swing.Action;
-import javax.naming.*;
 import javax.swing.JPopupMenu;
 
 import junit.textui.TestRunner;
@@ -136,11 +135,17 @@ public class ExtensibleActionsTest extends NbTestCase {
     public void testHierarchicalBehaviour() throws Exception {
         ExtensibleNode en1 = new ExtensibleNode("test/t1", true);
         assertEquals("No actions at the start", 0, en1.getActions(false).length);
-        FileObject test = root.createFolder("test");
+        FileObject test = root.getFileObject("test");
+        if (test == null) {
+            test = root.createFolder("test");
+        }
         FileObject a1 = test.createData("org-openide-actions-PropertiesAction.instance");
         Action [] res = en1.getActions(false);
         assertEquals("There should be exactly one action.", 1, res.length);
-        FileObject t1 = test.createFolder("t1");
+        FileObject t1 = test.getFileObject("t1");
+        if (t1 == null) {
+            t1 = test.createFolder("t1");
+        }
         FileObject a2 = t1.createData("org-openide-actions-CutAction.instance");
         assertEquals("There should 2 actions.", 2, en1.getActions(false).length);
         

@@ -102,9 +102,9 @@ public class ExtensibleIconsTest extends NbTestCase {
         Object iconMan = getIconManagerMethod.invoke(en1, new Object[0]);
         java.lang.reflect.Method getIconBaseMethod = iconMan.getClass().getMethod("getIconBase", new Class[0]);
         assertNull("No files - no dirs", getIconBaseMethod.invoke(iconMan, new Object[0]));
-        FileObject a = root.createFolder("a");
-        FileObject b = a.createFolder("b");
-        FileObject c = b.createFolder("c");
+        FileObject a = root.getFileObject("a");
+        FileObject b = a.getFileObject("b");
+        FileObject c = b.getFileObject("c");
         String base1 = "base1";
         org.openide.loaders.InstanceDataObject.create(
             org.openide.loaders.DataFolder.findFolder(b), 

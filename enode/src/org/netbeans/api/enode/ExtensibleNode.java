@@ -32,17 +32,17 @@ import org.netbeans.modules.enode.ExtensibleNodeIcons;
  */
 public class ExtensibleNode extends AbstractNode {
     
-    /** Folder on the system filesystem (context in the naming (JNDI, Registry)
+    /** Folder on the system filesystem (context in the Registry)
      * where actions for extensible nodes are stored.
      */
     public static final String E_NODE_ACTIONS = "/ExtensibleNode/Actions/"; // NOI18N
     
-    /** Folder on the system filesystem (context in the naming (JNDI, Registry)
+    /** Folder on the system filesystem (context in the Registry)
      * where lookup objects for extensible nodes are stored.
      */
     public static final String E_NODE_LOOKUP = "/ExtensibleNode/Lookup/"; // NOI18N
     
-    /** Folder on the system filesystem (context in the naming (JNDI, Registry)
+    /** Folder on the system filesystem (context in the Registry)
      * where the icons base dirs are stored.
      */
     public static final String E_NODE_ICONS = "/ExtensibleNode/Icons/"; // NOI18N

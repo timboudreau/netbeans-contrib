@@ -7,17 +7,18 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Nokia. Portions Copyright 2003 Nokia.
+ * Code is Nokia. Portions Copyright 2003-2004 Nokia.
  * All Rights Reserved.
  */
 
 package org.netbeans.modules.enode;
 
+import java.util.Iterator;
 import javax.swing.*;
-import javax.naming.*;
-import javax.naming.event.*;
 
 import org.openide.ErrorManager;
+
+import org.netbeans.api.registry.*;
 
 /**
  * Special action serving as a wrapper for submenus added to the popup
@@ -70,38 +71,31 @@ public class SubMenuAction extends AbstractAction implements org.openide.util.ac
     private JMenu createMenuForContext(Context c, String name) {
         JMenu menu = new JMenu(); 
         menu.setText(name);
-        try {
-            NamingEnumeration en = c.listBindings(""); // NOI18N
-            while (en.hasMoreElements()) {
-                Binding b = (Binding)en.nextElement();
-                Object obj = b.getObject();
-                if (obj instanceof Action) {
-                    if (obj instanceof org.openide.util.actions.Presenter.Popup) {
-                        menu.add(((org.openide.util.actions.Presenter.Popup)obj).getPopupPresenter());
-                    } else {
-                        menu.add((Action)obj);
-                    }
-                }
-                // general JComponents are inserted as they are
-                if (obj instanceof JComponent) {
-                    menu.add((JComponent)obj);
-                }
-                //
-                if (obj instanceof Context) {
-                    // recurisvelly add submenus!
-                    b.setRelative(true);
-                    String n = b.getName();
-                    if ((n != null) && (n.startsWith(ExtensibleNodeActions.SUBMENU_PREFIX)) && 
-                        (n.length() > (ExtensibleNodeActions.SUBMENU_PREFIX.length()))) {
-                        menu.add(createMenuForContext((Context)obj, 
-                            n.substring(ExtensibleNodeActions.SUBMENU_PREFIX.length())));
-                    }
+        
+        Iterator it = c.getOrderedNames().iterator();
+        while (it.hasNext()) {
+            String n = (String)it.next();
+            Object obj = c.getObject(n, null);
+            if (obj instanceof Action) {
+                if (obj instanceof org.openide.util.actions.Presenter.Popup) {
+                    menu.add(((org.openide.util.actions.Presenter.Popup)obj).getPopupPresenter());
+                } else {
+                    menu.add((Action)obj);
                 }
             }
-        } catch (NameNotFoundException nnfe) {
-            // no problem
-        } catch (NamingException ne) {
-            ErrorManager.getDefault().notify(ne);
+            // general JComponents are inserted as they are
+            if (obj instanceof JComponent) {
+                menu.add((JComponent)obj);
+            }
+            //
+            if (obj instanceof Context) {
+                // recurisvelly add submenus!
+                if ((n != null) && (n.startsWith(ExtensibleNodeActions.SUBMENU_PREFIX)) && 
+                    (n.length() > (ExtensibleNodeActions.SUBMENU_PREFIX.length()))) {
+                    menu.add(createMenuForContext((Context)obj, 
+                        n.substring(ExtensibleNodeActions.SUBMENU_PREFIX.length())));
+                }
+            }
         }
         return menu;
     }
