@@ -40,6 +40,7 @@ import javax.swing.text.JTextComponent;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.Task;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.openide.awt.Mnemonics;
 import org.openide.DialogDescriptor;
 import org.openide.ErrorManager;
@@ -103,7 +104,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     
     private SimpleDateFormat format;
     private ComboBoxModel prioritiesModel = 
-        new DefaultComboBoxModel(Task.getPriorityNames());
+        new DefaultComboBoxModel(SuggestionPriority.getPriorityNames());
     private ListCellRenderer priorityRenderer = new PriorityListCellRenderer();
     
     private static boolean appendDefault = Settings.getDefault().getAppend();
@@ -199,7 +200,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
             task.setCategory(""); // NOI18N
         else
             task.setCategory(categoryCombo.getSelectedItem().toString().trim());
-        task.setPriority(Task.getPriority(priorityComboBox.getSelectedIndex() + 1));
+        task.setPriority(SuggestionPriority.getPriority(priorityComboBox.getSelectedIndex() + 1));
         if (fileCheckBox.isSelected()) {
             task.setFilename(fileTextField.getText().trim());
             try {

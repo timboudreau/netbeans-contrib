@@ -30,7 +30,7 @@ import org.netbeans.modules.tasklist.core.Task;
  * @author Tim Lebedkov
  */
 public class PriorityPropertyEditor extends PropertyEditorSupport {
-    private static final String[] TAGS = Task.getPriorityNames();
+    private static final String[] TAGS = SuggestionPriority.getPriorityNames();
     private static final JLabel LABEL = new JLabel();
     
     /**
@@ -59,7 +59,7 @@ public class PriorityPropertyEditor extends PropertyEditorSupport {
         }
         if  (index == -1) throw new IllegalArgumentException("Unknown priority");
         
-        setValue(Task.getPriority(index + 1));
+        setValue(SuggestionPriority.getPriority(index + 1));
     }
     
     public boolean isPaintable() {

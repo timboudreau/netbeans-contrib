@@ -13,29 +13,19 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import java.util.Arrays;
-import java.util.EventObject;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.Component;
-import java.awt.Dimension;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.awt.Mnemonics;
+import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
+import org.openide.util.NbBundle;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.CellEditorListener;
-import javax.swing.table.*;
-
-import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
-import org.openide.awt.Mnemonics;
-import org.openide.util.NbBundle;
-import org.openide.NotifyDescriptor;
-import org.openide.DialogDisplayer;
-
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Customizer panel for the set of tags scanned from source.
@@ -44,11 +34,9 @@ import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
  * this file using the form builder.
  * <p>
  *
- * @todo Set single list selection?
- *
  * @author  Tor Norbye
  */
-public class TaskTagsPanel extends javax.swing.JPanel
+public final class TaskTagsPanel extends javax.swing.JPanel
         implements EnhancedCustomPropertyEditor, ActionListener {
 
     private DefaultTableModel model = null;

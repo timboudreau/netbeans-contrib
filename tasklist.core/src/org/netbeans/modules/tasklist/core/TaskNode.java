@@ -357,15 +357,7 @@ public class TaskNode extends AbstractNode {
         if (n == null) {
             return null;
         }
-        if (n instanceof TaskNode) {
-            return ((TaskNode)n).getTask();
-        } else if (n instanceof FilterTaskNode) {
-            n = ((FilterTaskNode)n).getOriginal();
-            if (n instanceof TaskNode) {
-                return ((TaskNode)n).getTask();
-            }
-        }
-        return null;
+        return (Task) n.getCookie(Task.class);
     }
     
     /** Find the TaskNode corresponding to a given node, or null

@@ -13,13 +13,39 @@
 
 package org.netbeans.modules.tasklist.client;
 
+import org.openide.util.NbBundle;
+
+import java.util.ResourceBundle;
+
 /**
  * This class represents an enumerated type for suggestion priorities.
  *
  * @author Tor Norbye
  */
 final public class SuggestionPriority implements Comparable {
-    private int priority;
+
+    private final int priority;
+
+    /** Keys for the Bundle.properties */
+    private static final String[] PRIORITIES_KEYS = {
+        "PriorityHigh",  // NOI18N
+        "PriorityMediumHigh", // NOI18N
+        "PriorityMedium", // NOI18N
+        "PriorityMediumLow", // NOI18N
+        "PriorityLow" // NOI18N
+    };
+
+    /** Names for priorities */
+    private static String[] PRIORITIES;
+
+    static {
+        PRIORITIES = new String[PRIORITIES_KEYS.length];
+        ResourceBundle rb = NbBundle.getBundle(SuggestionPriority.class);
+        for (int i = 0; i < PRIORITIES_KEYS.length; i++) {
+            PRIORITIES[i] = rb.getString(PRIORITIES_KEYS[i]);
+        }
+    }
+
     private SuggestionPriority(int priority) {
         this.priority = priority;
     }
@@ -70,5 +96,36 @@ final public class SuggestionPriority implements Comparable {
 
     public int compareTo(Object o) {
         return ((SuggestionPriority)o).priority - priority;
+    }
+
+    /**
+     * Returns names for priorities
+     *
+     * @return [0] - high, [1] - medium-high, ...
+     */
+    public static String[] getPriorityNames() {
+        return PRIORITIES;
+    }
+
+    /**
+     * Finds a priority.
+     * @param n integer representation of a priority
+     * @return priority
+     */
+    public static SuggestionPriority getPriority(int n) {
+        switch (n) {
+            case 1:
+                return HIGH;
+            case 2:
+                return MEDIUM_HIGH;
+            case 3:
+                return MEDIUM;
+            case 4:
+                return MEDIUM_LOW;
+            case 5:
+                return LOW;
+            default:
+                return MEDIUM;
+        }
     }
 }

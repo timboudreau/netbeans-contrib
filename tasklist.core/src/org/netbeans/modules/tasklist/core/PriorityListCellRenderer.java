@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.tasklist.core;
 
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
+
 import java.awt.Color;
 import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
@@ -24,7 +26,7 @@ import javax.swing.JList;
  * @author Tim Lebedkov
  */
 public class PriorityListCellRenderer extends DefaultListCellRenderer {
-    private static final String[] TAGS = Task.getPriorityNames();
+    private static final String[] TAGS = SuggestionPriority.getPriorityNames();
     
     /**
      * Default colors for diferent priorities

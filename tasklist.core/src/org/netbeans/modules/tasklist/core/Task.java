@@ -71,57 +71,6 @@ public class Task extends Suggestion implements Cloneable, Node.Cookie {
         LOGGER.setLevel(Level.OFF);
     }
 
-    /** Keys for the Bundle.properties */
-    private static final String[] PRIORITIES_KEYS = {
-        "PriorityHigh",  // NOI18N
-        "PriorityMediumHigh", // NOI18N
-        "PriorityMedium", // NOI18N
-        "PriorityMediumLow", // NOI18N
-        "PriorityLow" // NOI18N
-    };
-
-    /** Names for priorities */
-    private static String[] PRIORITIES;
-
-    static {
-        PRIORITIES = new String[PRIORITIES_KEYS.length];
-        ResourceBundle rb = NbBundle.getBundle(Task.class);
-        for (int i = 0; i < PRIORITIES_KEYS.length; i++) {
-            PRIORITIES[i] = rb.getString(PRIORITIES_KEYS[i]);
-        }
-    }
-
-    /**
-     * Returns names for priorities
-     *
-     * @return [0] - high, [1] - medium-high, ...
-     */
-    public static String[] getPriorityNames() {
-        return PRIORITIES;
-    }
-
-    /**
-     * Finds a priority.
-     * @param n integer representation of a priority
-     * @return priority
-     */
-    public static SuggestionPriority getPriority(int n) {
-        switch (n) {
-            case 1:
-                return SuggestionPriority.HIGH;
-            case 2:
-                return SuggestionPriority.MEDIUM_HIGH;
-            case 3:
-                return SuggestionPriority.MEDIUM;
-            case 4:
-                return SuggestionPriority.MEDIUM_LOW;
-            case 5:
-                return SuggestionPriority.LOW;
-            default:
-                return SuggestionPriority.MEDIUM;
-        }
-    }
-
     /**
      * Some of this items attributes (such as its description - anything
      * except the subtask list) has changed
