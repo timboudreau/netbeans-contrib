@@ -847,12 +847,6 @@ Microsystems, Inc. All Rights Reserved.
         <property name="needsHierarchicalOrder">
           <value>true</value>
         </property>
-        <property name="notificationSuccessMsg">
-          <value>$[? FOLDER_CONTENTS] [$[? DO_COMMIT] [] [$[? MULTIPLE_FILES] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_ADD_DIRs_Success, ${NUM_FILES})] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_ADD_DIR_Success, ${FILE})]]] []</value>
-        </property>
-        <property name="notificationFailMsg">
-          <value>$[? FOLDER_CONTENTS] [$[? DO_COMMIT] [] [$[? MULTIPLE_FILES] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_ADD_DIRs_Fail, ${NUM_FILES})] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_ADD_DIR_Fail, ${FILE})]]] []</value>
-        </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
         </property>
