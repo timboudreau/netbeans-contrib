@@ -327,9 +327,16 @@ public class ExternalCommand {
             D.deb("watchDog.cancel()"); // NOI18N
             if (watchDog != null) watchDog.cancel();
             output.doStop();
-            try {
-                output.waitToFinish();
-            } catch (InterruptedException iexc) {}
+            boolean finished = false;
+            do {
+                try {
+                    output.waitToFinish();
+                    finished = true;
+                } catch (InterruptedException iexc) {
+                    // It's dangerous to finish before output finishes
+                    output.doReallyStop();
+                }
+            } while (!finished);
                 
         }
 
@@ -379,6 +386,14 @@ public class ExternalCommand {
         /** Stop the grabber */
         public void doStop() {
             shouldStop = true;
+        }
+        
+        public void doReallyStop() {
+            // We really need to stop it!
+            try {
+                stdout.close();
+                stderr.close();
+            } catch (IOException ioexc) {}
         }
         
         /** Whether the grabber is stopped. If yes, should be flushed and garbage-collected. */
@@ -468,42 +483,42 @@ public class ExternalCommand {
         public void run() {
             //System.out.println("OutputGrabbersProcessor started.");
             do {
-                synchronized (outputGrabbers) {
-                    //System.out.println("outputGrabbers.size = "+outputGrabbers.size());
-                    while (outputGrabbers.size() == 0) {
-                        try {
+                try {
+                    synchronized (outputGrabbers) {
+                        //System.out.println("outputGrabbers.size = "+outputGrabbers.size());
+                        while (outputGrabbers.size() == 0) {
                             //System.out.println(" waiting...");
                             outputGrabbers.wait();
                             //System.out.println(" notified.");
-                        } catch (InterruptedException iexc) {
-                            break;
                         }
                     }
-                }
-                boolean processed = false;
-                int n = outputGrabbers.size();
-                //System.out.println("  numGrabbers = "+n);
-                for (int i = 0; i < n; i++) {
-                    OutputGrabber output = (OutputGrabber) outputGrabbers.get(i);
-                    //System.out.println("  output("+i+"): isStopped() = "+output.isStopped()+", hasOutput() = "+output.hasOutput());
-                    if (!output.isStopped()) {
-                        if (output.hasOutput()) {
-                            output.run();
-                            processed = true;
+                    boolean processed = false;
+                    int n = outputGrabbers.size();
+                    //System.out.println("  numGrabbers = "+n);
+                    for (int i = 0; i < n; i++) {
+                        OutputGrabber output = (OutputGrabber) outputGrabbers.get(i);
+                        //System.out.println("  output("+i+"): isStopped() = "+output.isStopped()+", hasOutput() = "+output.hasOutput());
+                        if (!output.isStopped()) {
+                            if (output.hasOutput()) {
+                                output.run();
+                                processed = true;
+                            }
+                        } else {
+                            output.flush();
+                            outputGrabbers.remove(i);
+                            i--;
+                            n--;
                         }
-                    } else {
-                        output.flush();
-                        outputGrabbers.remove(i);
-                        i--;
-                        n--;
                     }
-                }
-                if (!processed) {
-                    try {
+                    if (!processed) {
                         Thread.currentThread().sleep(200);
-                    } catch (InterruptedException iexc) {
-                        break;
                     }
+                } catch (InterruptedException iexc) {
+                    break;
+                } catch (ThreadDeath td) {
+                    throw td;
+                } catch (Throwable t) {
+                    org.openide.TopManager.getDefault().notifyException(t);
                 }
             } while(true);
         }
