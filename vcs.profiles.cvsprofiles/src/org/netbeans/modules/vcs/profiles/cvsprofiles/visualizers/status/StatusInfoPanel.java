@@ -420,6 +420,7 @@ final class StatusInfoPanel extends JPanel {
                   DialogDisplayer.getDefault().notify(nd);
               }
               final StatusInformation sInfo = statVis.getStatusInfo();
+              if (sInfo == null) return ;
               statusInfo.setFile(sInfo.getFile());
               statusInfo.setRepositoryFileName(sInfo.getRepositoryFileName());
               statusInfo.setRepositoryRevision(sInfo.getRepositoryRevision());

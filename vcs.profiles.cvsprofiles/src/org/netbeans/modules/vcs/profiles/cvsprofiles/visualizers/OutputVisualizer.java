@@ -96,7 +96,16 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
         VcsCommandExecutor vce = task.getExecutor();
         this.files = vce.getFiles();
         Hashtable vars = vce.getVariables();        
-        this.rootDir = new File((String)vars.get("ROOTDIR"));
+        String rootDirPath = (String)vars.get("ROOTDIR");
+        String module = (String) vars.get("MODULE");
+        if (module != null && module.length() > 0) {
+            rootDirPath = rootDirPath + File.separator + module;
+            String commonParent = (String) vars.get("COMMON_PARENT");
+            if (commonParent != null && commonParent.length() > 0) {
+                rootDirPath = org.netbeans.modules.vcscore.VcsFileSystem.substractRootDir(rootDirPath, commonParent);
+            }
+        }
+        this.rootDir = new File(rootDirPath);
         //actFilePath = ""+vars.get("WORKDIR")+vars.get("FILE");
         //actFilePath = Variables.expand(vars, actFilePath, false);
         commandName = findDisplayName(this.task);
