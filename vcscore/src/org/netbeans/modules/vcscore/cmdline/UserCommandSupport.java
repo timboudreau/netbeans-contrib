@@ -270,6 +270,9 @@ public class UserCommandSupport extends CommandSupport implements java.security.
     protected CommandTaskSupport createTask(Command command) {
         if (!(command instanceof VcsDescribedCommand)) return null;
         //if (!isCommandCustomized) doCustomization(false, command);
+        if (((CustomizationStatus) command).isCustomizationFailed()) {
+            throw new IllegalStateException("Attempt to create a task whose customization did not finish successfully.");
+        }
         if (!((CustomizationStatus) command).isAlreadyCustomizedUserCommand()) {
             doCustomization(false, (VcsDescribedCommand) command);
         }
@@ -468,7 +471,17 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (!(cmd instanceof VcsDescribedCommand)) {
             throw new IllegalArgumentException("Command "+cmd+" is not an instance of VcsDescribedCommand!");
         }
-        return doCustomization(cmd.isGUIMode(), (VcsDescribedCommand) cmd);
+        Object ret = null;
+        boolean customizationBroken = true;
+        try {
+            ret = doCustomization(cmd.isGUIMode(), (VcsDescribedCommand) cmd);
+            customizationBroken = false;
+        } finally {
+            if (customizationBroken || (ret instanceof UserCancelException)) {
+                ((CustomizationStatus) cmd).setCustomizationFailed(true);
+            }
+        }
+        return ret;
     }
 
     private static final String QUOTING = "${QUOTE}"; // NOI18N
@@ -1515,6 +1528,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         public boolean isAlreadyCustomizedUserCommand();
         
         public void setAlreadyCustomizedUserCommand(boolean customized);
+        
+        public boolean isCustomizationFailed();
+        
+        public void setCustomizationFailed(boolean failed);
         
     }
 }
