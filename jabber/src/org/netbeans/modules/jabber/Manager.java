@@ -70,7 +70,8 @@ public class Manager {
         messages = new MessageQueue();
         
         // XXX - provisional, will handle timeouts in user UI
-        SmackConfiguration.setPacketReplyTimeout((int)set.getTimeout());
+	int timeout = (int)set.getTimeout();
+        if (timeout > 0) SmackConfiguration.setPacketReplyTimeout(timeout);
 
         con = new Connection(this);
 
