@@ -68,7 +68,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         treeTableView1.setPopupAllowed(false);
         treeTableView1.setRootVisible(false);
         treeTableView1.setDefaultActionAllowed(false);
-        treeTableView1.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        treeTableView1.setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         properties = new Node.Property[]{
             new PropertySupport.ReadOnly(
             "displayType", // NOI18N
@@ -292,18 +292,34 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         public void actionPerformed(ActionEvent e) {
             Node[] selectedNodes = getExplorerManager().getSelectedNodes();
             if (selectedNodes.length == 0) return ;
-            final FSInfo info = (FSInfo)((FSInfoBeanNode) selectedNodes[0]).getInfo();
-            if(info == null)
-                return;
+            final FSInfo[] infos = new FSInfo[selectedNodes.length];
+            int sn = 0;
+            for (int i = 0; i < selectedNodes.length; i++) {
+                infos[sn] = (FSInfo)((FSInfoBeanNode) selectedNodes[i]).getInfo();
+                if (infos[sn] != null) sn++;
+            }
+            if (sn == 0) return ;
+            final int length = sn;
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
-                    Object option = DialogDisplayer.getDefault().notify(
+                    Object option;
+                    if (length == 1) {
+                        option = DialogDisplayer.getDefault().notify(
                         new NotifyDescriptor.Confirmation(
-                            NbBundle.getMessage(VcsManager.class, "MSG_ConfirmFSRemoval", info.getFSRoot().getAbsolutePath()),
+                            NbBundle.getMessage(VcsManager.class, "MSG_ConfirmFSRemoval", infos[0].getFSRoot().getAbsolutePath()),
                             NbBundle.getMessage(VcsManager.class, "VCSManager.btnRemove"),
                             NotifyDescriptor.YES_NO_OPTION));
+                    } else {
+                        option = DialogDisplayer.getDefault().notify(
+                        new NotifyDescriptor.Confirmation(
+                            NbBundle.getMessage(VcsManager.class, "MSG_ConfirmMultiFSRemoval", new Integer(length)),
+                            NbBundle.getMessage(VcsManager.class, "VCSManager.btnRemove"),
+                            NotifyDescriptor.YES_NO_OPTION));
+                    }
                     if (NotifyDescriptor.YES_OPTION == option) {
-                        FSRegistry.getDefault().unregister(info);
+                        for (int i = 0; i < length; i++) {
+                            FSRegistry.getDefault().unregister(infos[i]);
+                        }
                     }
                 }
             });
@@ -325,7 +341,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         }
         
         public boolean isEnabled() {
-            return getExplorerManager().getSelectedNodes().length > 0;
+            return getExplorerManager().getSelectedNodes().length == 1;
         }
         
         public void actionPerformed(ActionEvent e){
