@@ -99,11 +99,13 @@ public class VersioningExplorer {
         panel.add(VersioningBTV);
         panel.getAccessibleContext().setAccessibleDescription(
             org.openide.util.NbBundle.getMessage(VersioningExplorer.class, "ACSD_versioningSystemName.dialog"));
+        panel.setView(VersioningBTV);
     }
     
     public static class Panel extends ExplorerPanel {
 
         private transient ArrayList closeListeners = new ArrayList();
+        private transient TreeView view;
     
         static final long serialVersionUID =-264310566346550916L;
 
@@ -156,7 +158,16 @@ public class VersioningExplorer {
             // empty to keep the title unchanged
             //setName(getExplorerManager().getRootContext().getDisplayName());
         }
+        
+        void setView(TreeView view) {
+            this.view = view;
+        }
 
+        public boolean requestFocusInWindow() {
+            super.requestFocusInWindow();
+            return view.requestFocusInWindow();
+        }
+                                                                                                           
         /** Writes a resolvable */
         protected Object writeReplace() {
             return new Resolvable();
