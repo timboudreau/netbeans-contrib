@@ -280,6 +280,9 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
 
     /** @deprecated use fillDirFilesWithTurbo */
     private void fillDirFiles(Table files, CacheDir dir, CommandInfo info, boolean recursive) {
+
+        assert Turbo.implemented() == false;
+
         String path;
         if (dir instanceof VcsCacheDir) {
             path = ((VcsCacheDir) dir).getFSPath();
@@ -495,6 +498,9 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
 
     /** @deprecated use FileObject */
     private boolean runCommandsRecursively(VcsCacheDir dir, Collection cmdInfos) throws InterruptedException {
+
+        assert Turbo.implemented() == false;
+
         ArrayList realRecursiveCommands = new ArrayList();
         ArrayList somewhatRecursiveCommands = new ArrayList();
         if (printFilesToProcess) {
@@ -664,6 +670,9 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
     }
     
     private boolean runCommandsSomewhatRecursively(VcsCacheDir dir, File dirFile, Collection cmdInfos) throws InterruptedException {
+
+        assert Turbo.implemented() == false;
+
         //System.out.println("runCommandsSomewhatRecursively("+dir+"), localOnly = "+localOnly);
         if (dirFile == null) waitToLoad(dir, false);
         CommandsPool cPool = fileSystem.getCommandsPool();
@@ -723,7 +732,7 @@ public class RecursiveFolderCommand extends Object implements VcsAdditionalComma
                         if (!dir.isIgnored(subDirName) &&
                             fsFilter.accept(dirFile, subDirName)) {
                                 
-                            status &= runCommandsSomewhatRecursively(dir,
+                            status &= runCommandsSomewhatRecursively(dir,  // recursion
                                         new File(dirFile, subDirName), cmdInfos);
                         }
                     }

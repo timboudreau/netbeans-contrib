@@ -628,6 +628,9 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
      * and do refresh of that directory.
      */
     public void cacheAdded(CacheHandlerEvent event) {
+
+        assert Turbo.implemented() == false;
+
         CacheFile cFile = event.getCacheFile();
         //System.out.println("VOIS.cacheAdded("+cFile+")");
         if (cFile instanceof CacheDir || cFile.isLocal()) return ;
@@ -680,6 +683,9 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     /** is Called when a file/dir is removed from cache.
      */
     public void cacheRemoved(CacheHandlerEvent event) {
+
+        assert Turbo.implemented() == false;
+
         CacheFile cFile = event.getCacheFile();
         // If the removed cache file was local, ignore it, because only delete
         // can remove it entirely.
@@ -711,6 +717,9 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     /** is called each time the status of a file changes in cache.
      */
     public void statusChanged(CacheHandlerEvent event) {
+
+        assert Turbo.implemented() == false;
+
         CacheFile cFile = event.getCacheFile();
         if (cFile instanceof CacheDir) return ;
         //System.out.println("VOIS.statusChanged("+cFile+")");

@@ -147,7 +147,10 @@ public class SharableFilesCommand implements VcsAdditionalCommand {
         } else {
             ArrayList fos = new ArrayList();
             //FileCacheProvider cacheProvider = fileSystem.getCacheProvider();
-            FileSystemCache cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
+            FileSystemCache cache = null;
+            if (Turbo.implemented() == false) {
+                cache = CacheHandler.getInstance().getCache(fileSystem.getCacheIdStr());
+            }
             Object locker = new Object();
             /*
             if (cache != null) {

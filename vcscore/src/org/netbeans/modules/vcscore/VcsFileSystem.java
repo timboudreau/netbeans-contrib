@@ -4161,6 +4161,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
 //-------------------- methods from CacheHandlerListener------------------------
     public void cacheAdded(CacheHandlerEvent event) {
+
+        assert Turbo.implemented() == false;
+
         String root = getRootDirectory().getAbsolutePath();
         String absPath = event.getCacheFile().getAbsolutePath();
         if (absPath.startsWith(root)) { // it belongs to this FS -> do something
@@ -4180,6 +4183,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     public void cacheRemoved(CacheHandlerEvent event) {
+
+        assert Turbo.implemented() == false;
+
         String root = getRootDirectory().getAbsolutePath();
         CacheFile removedFile = event.getCacheFile();
         String absPath = removedFile.getAbsolutePath();
@@ -4210,6 +4216,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     public void statusChanged(CacheHandlerEvent event) {
+
+        assert Turbo.implemented() == false;
+        
         //System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         //System.out.println("statusChanged called for:" + event.getCacheFile().getAbsolutePath());
         String root = getRootDirectory().getAbsolutePath();

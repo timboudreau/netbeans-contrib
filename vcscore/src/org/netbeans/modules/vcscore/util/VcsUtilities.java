@@ -35,6 +35,7 @@ import org.openide.util.io.NbObjectInputStream;
 import org.openide.util.io.NbObjectOutputStream;
 
 import org.netbeans.modules.vcscore.VcsAttributes;
+import org.netbeans.modules.vcscore.turbo.Turbo;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 
@@ -1075,6 +1076,9 @@ public class VcsUtilities {
     public static List createIgnoreList(final org.netbeans.modules.vcscore.cache.CacheDir dir,
                                              final String path,
                                              final org.netbeans.modules.vcscore.VcsFileSystem.IgnoreListSupport ignSupport) {
+
+        assert Turbo.implemented() == false;
+        
         org.netbeans.modules.vcscore.cache.CacheDir parent = dir.getParent();
         //System.out.println("createIgnoreList("+dir.getAbsolutePath()+", "+path+"), parent = "+((parent == null) ? "null" : parent.getAbsolutePath()));
         List ignoreList = null;
