@@ -81,10 +81,13 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
             DataObject dos = (DataObject)childs.nextElement();
             if (dos instanceof DataShadow) {
                  DataShadow shadow = (DataShadow)dos;
-//                 shadow.getOriginal().addPropertyChangeListener(this);
+                 shadow.getOriginal().addPropertyChangeListener(this);
+                 shadow.addPropertyChangeListener(this);
                  list.add(shadow);
             }
-            
+            if (dos.getClass().getName().equals("org.openide.loaders.BrokenDataShadow")) { //NOI18N
+                list.add(dos);
+            }
         }
         return list;
     }
@@ -98,6 +101,11 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
             DataShadow shad = (DataShadow)key;
             return new Node[] {new VcsGroupFileNode(shad) };
         }
+        if (key.getClass().getName().equals("org.openide.loaders.BrokenDataShadow")) { //NOI18N
+            DataObject obj = (DataObject)key;
+            obj.addPropertyChangeListener(this);
+            return new Node[] {obj.getNodeDelegate()};
+        }
         return new Node[0];
     }
     
@@ -109,16 +117,17 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
                     ((VcsGroupFileNode)nods[i]).checkShowLinks();
                 }
             }
+            return;
         }
-/*        System.out.println("property=" + propertyChangeEvent.getPropertyName());
         if (propertyChangeEvent.getPropertyName().equals(DataObject.PROP_VALID)) {
-            System.out.println("value property fired..");
-            Boolean bool = (Boolean)propertyChangeEvent.getNewValue();
-            if (bool.booleanValue() == false) {
-                refreshAll();
+            if (propertyChangeEvent.getNewValue() != null 
+                        && propertyChangeEvent.getNewValue() instanceof Boolean) {
+                Boolean bool = (Boolean)propertyChangeEvent.getNewValue();
+                if (bool.booleanValue() == false) {
+                    refreshAll();
+                }
             }
         }
- */
     }  
 
 
