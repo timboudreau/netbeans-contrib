@@ -14,6 +14,7 @@
 package com.netbeans.enterprise.modules.jndi;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import javax.naming.NamingException;
 import javax.naming.CompositeName;
 import javax.naming.directory.DirContext;
@@ -97,6 +98,13 @@ final class JndiLeafNode extends JndiObjectNode {
    */
   public DirContext getContext(){
     return this.ctx;
+  }
+  
+  /** Returns the properties of InitialDirContext
+   *  @return Hashtable properties;
+   */
+  public Hashtable getInitialDirContextProperties() throws NamingException {
+    return this.ctx.getEnvironment();
   }
 
   /** Returns offset of the node in respect to InitialContext

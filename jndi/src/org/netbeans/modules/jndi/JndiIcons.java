@@ -27,6 +27,9 @@ abstract class JndiIcons extends Object {
   /** The array of pairs (Class,IconName)*/
   private final static String[] defaultIcons = {"*","def",
                                               JndiRootNode.NB_ROOT,"jndi",
+                                              JndiProvidersNode.DRIVERS,"folder",
+                                              ProviderNode.DRIVER,"driver",
+                                              JndiDisabledNode.DISABLED_CONTEXT_ICON,"disabled",
                                               "javax.naming.Context","folder",
                                               "java.io.File","file"};
   /** Hashtable with Class name as key, Icon name as value*/

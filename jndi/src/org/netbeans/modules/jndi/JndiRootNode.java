@@ -13,12 +13,17 @@
 
 package com.netbeans.enterprise.modules.jndi;
 
+import java.awt.Dialog;
 import java.util.StringTokenizer;
 import java.util.Properties;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.StringTokenizer;
 import java.util.ResourceBundle;
+import java.util.Hashtable;
+import java.net.URL;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import javax.naming.NamingException;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
@@ -28,18 +33,22 @@ import org.openide.NotifyDescriptor;
 import org.openide.actions.NewAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.actions.ToolsAction;
+import org.openide.nodes.Node;
 import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Node.Cookie;
 import org.openide.nodes.Children;
 import org.openide.nodes.DefaultHandle;
+import org.openide.nodes.Sheet;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
+
 
 /** Top Level JNDI Node
  *
  * @author Ales Novak, Tomas Zezula
  */
-public final class JndiRootNode extends AbstractNode {
+public final class JndiRootNode extends AbstractNode{
   
   /** Name of property holding the name of context */
   public final static String NB_LABEL="NB_LABEL";
@@ -50,14 +59,30 @@ public final class JndiRootNode extends AbstractNode {
   /** NewTypes*/
   protected NewType[] jndinewtypes = null;
   
+  /** The holder of an instance of this class*/
+  private static JndiRootNode instance = null;
+  
+  /** Was the class already setup from externalization */
+  private boolean initialized;
+
+  
   /** Constructor
    */
   public JndiRootNode() {
     super(new Children.Array());
+    instance = this;
+    this.initialized =false;
     setName("JNDI");
     setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(JndiRootNode.NB_ROOT));
+    JndiProvidersNode drivers = new JndiProvidersNode();
+    this.getChildren().add(new Node[] {drivers});
+    this.jndinewtypes= new NewType[]{ new JndiDataType(this,drivers)};
     initStartContexts();
-    createProperties();
+  }
+  
+  
+  public static JndiRootNode getDefault () {
+    return instance;
   }
   
   /** Returns name of the node
@@ -107,14 +132,14 @@ public final class JndiRootNode extends AbstractNode {
   /** No default action
    *  @return null;
    */  
-  public SystemAction getDefaultAction() {
+  public org.openide.util.actions.SystemAction getDefaultAction() {
     return null;
   }
 
   /** Returns actions for this node	
    *  @return array of SystemAction
    */
-  public SystemAction[] getActions() {
+  public org.openide.util.actions.SystemAction[] getActions() {
     if (jndiactions == null) {
       jndiactions = this.createActions();
     }
@@ -124,11 +149,9 @@ public final class JndiRootNode extends AbstractNode {
   /** Creates actions for this node 
    *  @return array of SystemAction
    */
-  public SystemAction[] createActions() {
+  public org.openide.util.actions.SystemAction[] createActions() {
     return new SystemAction[] {
       SystemAction.get(NewAction.class),
-      null,
-      SystemAction.get(ToolsAction.class),
     };
   }
   
@@ -136,10 +159,7 @@ public final class JndiRootNode extends AbstractNode {
    *  @return array with JndiDataType
    */
   public NewType[] getNewTypes() {
-    if (jndinewtypes == null) {
-      jndinewtypes= new NewType[]{ new JndiDataType(this)};
-    }
-    return jndinewtypes;
+    return this.jndinewtypes;
   }
 
   /** Creates handle
@@ -148,6 +168,7 @@ public final class JndiRootNode extends AbstractNode {
   public Handle getHandle() {
     return DefaultHandle.createHandle(this);
   }
+  
 
   /** This function adds an Context
    *  @param context adds context from String
@@ -173,7 +194,6 @@ public final class JndiRootNode extends AbstractNode {
   public void addContext(String label, String factory, String context, String authentification, String principal, String credentials, Vector prop)
     throws NamingException {
       if (label==null || factory==null || label.equals("") || factory.equals("")) throw new JndiException("Arguments missing");
-      JndiNode[] nodes = new JndiNode[1];
       Properties env = new Properties();
       env.put(JndiRootNode.NB_LABEL,label);
       env.put(Context.INITIAL_CONTEXT_FACTORY,factory);
@@ -202,11 +222,28 @@ public final class JndiRootNode extends AbstractNode {
           env.put(path, tk.nextToken());
         }
       }
-      JndiDirContext ctx = new JndiDirContext(env);
+      this.addContext (env);
+  }
+  
+  /** This method adds new Context
+   *  @param Hashtable properties of context
+   **/
+  void addContext (Hashtable properties) throws NamingException {
+      JndiDirContext ctx = new JndiDirContext(properties);
+      JndiNode[] nodes = new JndiNode[1];
       nodes[0]= new JndiNode(ctx);
       this.getChildren().add(nodes);
   }
   
+  
+  /** This method adds an disabled Context
+   *  @param Hashtable properties of Context
+   */
+  public void addDisabledContext ( Hashtable properties) {
+    Node[] nodes = new Node[1];
+    nodes[0]= new JndiDisabledNode(properties);
+    this.getChildren().add(nodes);
+  }
   
   
   /**This function takes a string and converts it to set of properties
@@ -243,13 +280,19 @@ public final class JndiRootNode extends AbstractNode {
   
   /** Set up initial start contexts
   */
-  protected void initStartContexts() {
+  protected synchronized void initStartContexts() {
+    if (JndiModule.redProviders != null && ! this.initialized ) {
+      for (int i = 0; i < JndiModule.redProviders.size(); i++) {
+        try{
+          this.addContext((Hashtable)JndiModule.redProviders.get(i));
+        }catch(NamingException ne){
+          this.addDisabledContext((Hashtable)JndiModule.redProviders.get(i));
+        }
+      }
+      this.initialized = true;
+    }
   }
-
-  /** CreatesProperties
-   */
-  protected void createProperties() {
-  }
+  
 
   /** Notifies about an exception that was raised in non Netbeans code. 
    */
@@ -282,4 +325,6 @@ public final class JndiRootNode extends AbstractNode {
     }
     return bundle.getString(s);
   }
+  
+  
 }

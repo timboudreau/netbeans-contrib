@@ -16,6 +16,7 @@ package com.netbeans.enterprise.modules.jndi;
 import java.io.IOException;
 import java.awt.Dialog;
 import java.awt.event.*;
+import java.util.Hashtable;
 import javax.swing.JPanel;
 import javax.naming.*;
 import javax.naming.directory.*;
@@ -38,11 +39,14 @@ final class JndiDataType extends NewType {
   private Dialog dlg = null;
   /** Panel for Dialog */
   private NewJndiRootPanel panel;
+  /** Hashtable of providers taken from JNDI root node */
+  private JndiProvidersNode pnode;
 
   /** Constructor
    *  @param node the Jndi root node
    */
-  public JndiDataType(JndiRootNode node) {
+  public JndiDataType(JndiRootNode node, JndiProvidersNode pnode) {
+    this.pnode=pnode;
     this.node = node;
   }
   
@@ -70,7 +74,7 @@ final class JndiDataType extends NewType {
 
     if (node instanceof JndiRootNode) {
       // Ask for new initial context and context factory
-      panel = new NewJndiRootPanel();
+      panel = new NewJndiRootPanel(this.pnode.providers);
       descriptor = new DialogDescriptor(panel,
         JndiRootNode.getLocalizedString("TITLE_NewContext"),
         true,

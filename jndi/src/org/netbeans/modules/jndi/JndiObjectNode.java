@@ -35,40 +35,25 @@ import org.openide.util.actions.SystemAction;
 *
 * @author Ales Novak, Tomas Zezula
 */
-abstract class JndiObjectNode extends AbstractNode implements Cookie, TemplateCreator {   
+abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, TemplateCreator {   
 
   
   /** Set to true only if this node is being destroyed.
   * If a node with removed set to true is removed then its parent calls refresh.
   */
   private boolean removed = false;
- 
-  /** My actions */
-  private SystemAction[] jndiactions;
 
   /**
   * @param children
   * @param name
   */
   public JndiObjectNode(Children children, String name) {
-    super (children);
-    setName(name);
+    super (children,name);
     getCookieSet().add(this);
     if (! children.equals(Children.LEAF)) {
       addNodeListener(new Refresher());
     }
   }
-  
-  /** @return actions */
-  public final SystemAction[] getActions() {
-    if (jndiactions == null) {
-      jndiactions = createActions();
-    }
-    return jndiactions;
-  }
-  
-  /** @creates actions */
-  protected abstract SystemAction[] createActions();
   
   /** @return true */
   public final boolean canCopy() {
@@ -117,7 +102,12 @@ abstract class JndiObjectNode extends AbstractNode implements Cookie, TemplateCr
     }
     setSheet (sheet);			  
     return sheet;
-  }  
+  }
+  
+  /** Returns initial dir context
+   *  @return DirContext initial context of this JNDI subtree 
+   */
+  public abstract DirContext getContext();
 
   /** Creates a java source code for obtaining 
    *  reference to this node
@@ -125,11 +115,6 @@ abstract class JndiObjectNode extends AbstractNode implements Cookie, TemplateCr
    *  @exception NamingException when a JNDI fault happends.
    */
   public abstract String createTemplate() throws NamingException;
-  
-  /** Returns initial dir context
-   *  @return DirContext initial context of this JNDI subtree 
-   */
-  public abstract DirContext getContext();
   
   /** Returns the offset of this Node in subtree of his context
    * @return CompositeName the offset in subtree
@@ -180,6 +165,7 @@ abstract class JndiObjectNode extends AbstractNode implements Cookie, TemplateCr
 
 /*
 * <<Log>>
+*  4    Gandalf   1.3         10/6/99  Tomas Zezula    
 *  3    Gandalf   1.2         8/7/99   Ian Formanek    getString->getLocalizedString
 *        to avoid compiler warnings
 *  2    Gandalf   1.1         7/9/99   Ales Novak      localization + code 
