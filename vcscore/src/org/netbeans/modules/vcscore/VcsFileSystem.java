@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -2834,58 +2834,56 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
 
-    String[] addLocalFiles(String name, String[] cachedFiles, Map removedFilesScheduledForRemove) {
-
-        throw new UnsupportedOperationException();
-    }
-
     private String[] childrenWithTurbo(String name) {
-        String[] files = getLocalFiles(name);
-
-        // TODO hide dead files, consider deferring to VisibilityQuery
-        if (isHideShadowFiles() == false) { // show shadow files
-            if (isShowDeadFiles() == false) {
-                //files = filterDeadFilesOut(name,files);
-            }
-            if (files != null) {
-                // files = filterScheduledSecondaryFiles(name, files);
-            }
-        }
-
-        // merge with virtual repository files
-        // updating RepositoryFiles if the file exists locally
-
         FileObject folder = findResource(name);
         if (folder == null) {
             // Some invalid folder supplied
             return new String[0];
         }
+        
+        String[] files = getLocalFiles(name);
+
         RepositoryFiles repo = RepositoryFiles.forFolder(folder);
         repo.commitRemoved();  // #53079
-        Iterator it = repo.virtualsIterator();
-        if (it.hasNext()) {
+        
+        if (isHideShadowFiles() == false) { // show shadow files
+            // merge with virtual repository files
+            // updating RepositoryFiles if the file exists locally
             ArrayList virtuals = new ArrayList(5);
-            while (it.hasNext()) {
-                FolderEntry next = (FolderEntry) it.next();
-                boolean existsLocally = false;
-                for (int i = 0; i<files.length; i++) {
-                    if (files[i].equals(next.getName())) {
-                        existsLocally = true;
-                        break;
+            Iterator it = repo.virtualsIterator();
+            if (it.hasNext()) {
+                while (it.hasNext()) {
+                    FolderEntry next = (FolderEntry) it.next();
+                    boolean existsLocally = false;
+                    for (int i = 0; i<files.length; i++) {
+                        if (files[i].equals(next.getName())) {
+                            existsLocally = true;
+                            break;
+                        }
+                    }
+                    if (existsLocally == false) {
+                        virtuals.add(next.getName());
                     }
                 }
-                if (existsLocally == false) {
-                    virtuals.add(next.getName());
+
+                if (virtuals.size() > 0) {
+                    ArrayList all = new ArrayList(files.length + virtuals.size());
+                    for (int i = 0; i<files.length; i++) {
+                        all.add(files[i]);
+                    }
+                    all.addAll(virtuals);
+                    files = (String[]) all.toArray(new String[all.size()]);
                 }
             }
-
-            if (virtuals.size() > 0) {
-                ArrayList all = new ArrayList(files.length + virtuals.size());
-                for (int i = 0; i<files.length; i++) {
-                    all.add(files[i]);
-                }
-                all.addAll(virtuals);
-                files = (String[]) all.toArray(new String[all.size()]);
+            if (isShowDeadFiles() == false) { // Show all by default
+                //files = filterDeadFilesOut(name,files);
+            }
+            if (files != null) {
+                HashMap removedFilesScheduledForRemove = new HashMap();
+                files = filterScheduledSecondaryFiles(name, files, removedFilesScheduledForRemove);
+                java.util.List local = new LinkedList(Arrays.asList(files));
+                local.removeAll(virtuals);
+                checkScheduledLocals(name, local, removedFilesScheduledForRemove);
             }
         }
         
