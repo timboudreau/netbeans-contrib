@@ -39,6 +39,7 @@ import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.ExClipboard;
 import org.openide.DialogDescriptor;
 import org.netbeans.modules.jndi.utils.Refreshable;
+import org.netbeans.modules.jndi.utils.DisconnectCtxCookie;
 import org.netbeans.modules.jndi.gui.AttributePanel;
 
 
@@ -46,7 +47,7 @@ import org.netbeans.modules.jndi.gui.AttributePanel;
  *
  *  @author Ales Novak, Tomas Zezula
  */
-public final class JndiNode extends JndiObjectNode implements Refreshable, Node.Cookie{
+public final class JndiNode extends JndiObjectNode implements Refreshable, DisconnectCtxCookie, Node.Cookie{
 
     /** Is this node root of context*/
     private boolean isRoot;
@@ -110,20 +111,15 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Node.
     * @exception IOException
     */
     public void destroy() throws IOException {
-        if (isRoot()) {
+        try {
+            // destroy this context first
+            JndiChildren children = (JndiChildren) getChildren();
+            Context parentCtx = children.getContext();
+            parentCtx.destroySubcontext(children.getOffset());
+            // Destroy the node
             super.destroy();
-            return;
-        } else {
-            try {
-                // destroy this context first
-                JndiChildren children = (JndiChildren) getChildren();
-                Context parentCtx = children.getContext();
-                parentCtx.destroySubcontext(children.getOffset());
-                // Destroy the node
-                super.destroy();
-            } catch (NamingException e) {
-                JndiRootNode.notifyForeignException(e);
-            }
+        } catch (NamingException e) {
+            JndiRootNode.notifyForeignException(e);
         }
     }
 
@@ -136,7 +132,7 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Node.
                    SystemAction.get(BindingCopyAction.class),
                    null,
                    SystemAction.get(RefreshAction.class),
-                   SystemAction.get(DeleteAction.class),
+                   isRoot()?SystemAction.get(DisconnectAction.class):SystemAction.get(DeleteAction.class),
                    null,
                    SystemAction.get(NewAction.class),
                    null,
@@ -219,6 +215,17 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Node.
      */
     public void setRefresh(){
         this.needRefresh = true;
+    }
+    
+    /** Disconnects the root Context
+     */
+    public void disconnect () {
+        try {
+            super.destroy ();
+        }catch (java.io.IOException ioe) {
+            // Should never happen
+            JndiRootNode.notifyForeignException (ioe);
+        }
     }
 
     /** The node supports customizer */

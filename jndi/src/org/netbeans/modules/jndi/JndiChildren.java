@@ -209,7 +209,8 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
      */
     public void postAction() throws Exception{
         this.setKeys(this.keys);
-        this.remove ( new Node[]{ this.waitNode});
+        if (this.waitNode != null)
+            this.remove ( new Node[]{ this.waitNode});
     }
 
     /** public method that returns the node for which the Children is created

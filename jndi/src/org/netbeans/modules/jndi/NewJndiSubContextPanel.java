@@ -13,10 +13,13 @@
 
 package org.netbeans.modules.jndi;
 
-import java.awt.BorderLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
+import org.openide.util.NbBundle;
 
 /** Panel for adding new subdirectory
  *
@@ -29,10 +32,29 @@ final class NewJndiSubContextPanel extends JPanel {
     /** Constructor
      */
     public NewJndiSubContextPanel() {
-        this.setLayout(new BorderLayout());
+        this.setLayout(new GridBagLayout());
+        JLabel label = new JLabel (NbBundle.getBundle(NewJndiSubContextPanel.class).getString("TXT_SubContextName"));
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 1;
+        c.gridheight =1;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.NONE;
+        c.insets = new Insets (12,12,12,6);
+        ((GridBagLayout)this.getLayout()).setConstraints (label,c);
+        this.add (label);
         this.name = new JTextField(25);
-        this.add("North", new JLabel("Subcontext name:"));
-        this.add("Center", this.name);
+        c = new GridBagConstraints();
+        c.gridx = 1;
+        c.gridy = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.gridheight = 1;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets (12,6,12,12);
+        ((GridBagLayout)this.getLayout()).setConstraints (this.name,c);
+        this.add (name);
     }
 
     /** Accessor for directory name
