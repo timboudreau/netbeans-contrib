@@ -22,6 +22,22 @@ Microsystems, Inc. All Rights Reserved.
 		</testset>
 	</testbag>
 
+	<testbag testattribs="stable,full,validation,idlwizard" executor="ide" name="testbag_IDLWizard" resultsprocessor="qa-functional">
+		<testset dir="qa-functional/src">
+			<patternset>
+				<include name="test/idlwizard/Main.class"/>
+			</patternset>
+		</testset>
+	</testbag>
+
+	<testbag testattribs="stable,full,validation,poasupport" executor="ide" name="testbag_POASupport" resultsprocessor="qa-functional">
+		<testset dir="qa-functional/src">
+			<patternset>
+				<include name="test/poasupport/Main.class"/>
+			</patternset>
+		</testset>
+	</testbag>
+
 	<testbag testattribs="stable,full,poasearch" executor="ide" name="testbag_POASearch" resultsprocessor="qa-functional">
 		<testset dir="qa-functional/src">
 			<patternset>

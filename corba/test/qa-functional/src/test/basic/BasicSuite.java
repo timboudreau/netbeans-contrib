@@ -22,8 +22,6 @@ public class BasicSuite {
         suite.addTest (test.parser.Main.suite ());
         suite.addTest (test.ioranalyzer.Main.suite ());
         suite.addTest (test.nsbrowser.Main.suite ());
-        suite.addTest (test.idlwizard.Main.suite ());
-        suite.addTest (test.poasupport.Main.suite ());
         suite.addTest (test.indentation.Main.suite ());
         suite.addTest (test.corbawizard.Main.suite ());
         return suite;
