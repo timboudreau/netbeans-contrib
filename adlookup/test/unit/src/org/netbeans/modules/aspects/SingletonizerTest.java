@@ -54,7 +54,8 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Lookup lookup = Aspects.getLookup(representedObject, provider);
         
         assertNotNull ("Lookup created", lookup);
-        assertSize ("It is small", Collections.singleton (lookup), 40, new Object[] { runImpl, representedObject });
+        // initialized at 40, increased to 48 when added byte[] with cached results
+        assertSize ("It is small", Collections.singleton (lookup), 48, new Object[] { runImpl, representedObject });
         
         Runnable r = (Runnable)lookup.lookup(Runnable.class);
         assertNotNull ("Runnable provided", r);
@@ -104,32 +105,44 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         Object representedObject = "sampleRO";
         Lookup lookup = Aspects.getLookup(representedObject, provider);
         
+        assertSame ("Next time the same lookup is returned", lookup, Aspects.getLookup(representedObject, provider));
+        Object representedObject2 = "sampleRO2";
+        Lookup lookup2 = Aspects.getLookup(representedObject2, provider);
+        
         Lookup.Result resultListener = lookup.lookup (new Lookup.Template (java.awt.event.ActionListener.class));
         assertNotNull (resultListener);
         Lookup.Result resultRunnable = lookup.lookup (new Lookup.Template (Runnable.class));
         assertNotNull (resultRunnable);
+        Lookup.Result resultRunnable2 = lookup2.lookup (new Lookup.Template (Runnable.class));
+        assertNotNull (resultRunnable2);
         
         Listener listenerListener = new Listener (resultListener);
         Listener listenerRunnable = new Listener (resultRunnable);
+        Listener listenerRunnable2 = new Listener (resultRunnable2);
         
         assertEquals ("Runnable is there once", 1, resultRunnable.allInstances ().size ()); 
         assertEquals ("ActionListener is not there", 0, resultListener.allInstances ().size ()); 
+        assertEquals ("Runnable2 is there once", 1, resultRunnable2.allInstances ().size ()); 
         
         runImpl.isEnabled = false;
         runImpl.listener.stateChanged (new ChangeEvent (representedObject));
         
         assertEquals ("Runnable is not there anymore", 0, resultRunnable.allInstances ().size ()); 
+        assertEquals ("Runnable2 is still there as nobody fired a change", 1, resultRunnable2.allInstances ().size ()); 
         assertEquals ("ActionListener is not there still", 0, resultListener.allInstances ().size ()); 
         listenerRunnable.assertCount ("This one changed", 1);
+        listenerRunnable2.assertCount ("No change in run2", 0);
         listenerListener.assertCount ("This one have not", 0);
 
         runImpl.isEnabled = true;
         runImpl.listener.stateChanged (new ChangeEvent (representedObject));
         
         assertEquals ("Runnable reappeared", 1, resultRunnable.allInstances ().size ()); 
+        assertEquals ("Runnable2 is still there as nobody fired a change", 1, resultRunnable.allInstances ().size ()); 
         assertEquals ("ActionListener is not there still", 0, resultListener.allInstances ().size ()); 
         listenerRunnable.assertCount ("This one changed", 1);
         listenerListener.assertCount ("This one have not", 0);
+        listenerRunnable2.assertCount ("No change in run2 again", 0);
         
     }
     
