@@ -89,7 +89,7 @@ class ConfigurationUI extends javax.swing.JPanel {
         messageLabel = new javax.swing.JLabel();
 
         saveButton.setText("Save");
-        createButton.setText("Create Accont");
+        createButton.setText("Create Account");
         cancelButton.setText("Cancel");
 
         setLayout(new java.awt.GridBagLayout());
@@ -108,8 +108,8 @@ class ConfigurationUI extends javax.swing.JPanel {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         add(jidField, gridBagConstraints);
 
         passLabel.setLabelFor(passField);
@@ -125,8 +125,8 @@ class ConfigurationUI extends javax.swing.JPanel {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         add(passField, gridBagConstraints);
 
         loginLabel.setText("Autologin:");
@@ -142,8 +142,8 @@ class ConfigurationUI extends javax.swing.JPanel {
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         add(loginCombo, gridBagConstraints);
 
         messageLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);

@@ -9,7 +9,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="createButton">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Create Accont"/>
+        <Property name="text" type="java.lang.String" value="Create Account"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="cancelButton">
