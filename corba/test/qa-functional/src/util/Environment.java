@@ -81,7 +81,7 @@ public class Environment {
             css.getActiveSetting ().setServerBindingFromString (ORBSettingsBundle.SERVER_NS);
             css.getActiveSetting ().setClientBindingFromString (ORBSettingsBundle.CLIENT_NS);
         }
-
+        
     }
     
     public static class Open1xORB extends ORB {
@@ -247,6 +247,18 @@ public class Environment {
     
     public static FileObject findFileObject (String path) {
         return Repository.getDefault().findResource(path);
+    }
+    
+    public static String getActiveORBName () {
+        return css.getActiveSetting().getOrbName();
+    }
+
+    public static String getServerBindingName () {
+        return css.getActiveSetting ().getServerBindingName();
+    }
+
+    public static String getClientBindingName () {
+        return css.getActiveSetting ().getClientBindingName();
     }
 
 }
