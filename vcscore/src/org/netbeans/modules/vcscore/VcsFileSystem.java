@@ -945,35 +945,34 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
       return module.getValue();
     }    
     
-    public void setRelativeMountPoint(String module) throws PropertyVetoException, IOException {
-        synchronized (this) {
-            Hashtable vars = variablesByName;
-            String root = this.getFSRoot();
-            VcsConfigVariable mod = (VcsConfigVariable) vars.get("MODULE");
-            if (mod != null && module.equals(mod.getValue())) return ;
-            if (mod == null) {
-                mod = new VcsConfigVariable("MODULE", "", module, false, false, false, null);
-                variables.add(mod);
-                variablesByName.put("MODULE", mod);
+    public void setRelativeMountPoint(final String module) throws PropertyVetoException, IOException {
+        runAtomicAction(new FileSystem.AtomicAction() {
+            public void run() throws IOException {
+                synchronized (this) {
+                    //System.out.println("setRelativeMountPoint("+module+")");
+                    Hashtable vars = variablesByName;
+                    String root = VcsFileSystem.this.getFSRoot();
+                    VcsConfigVariable mod = (VcsConfigVariable) vars.get("MODULE");
+                    if (mod != null && module.equals(mod.getValue())) return ;
+                    if (mod == null) {
+                        mod = new VcsConfigVariable("MODULE", "", module, false, false, false, null);
+                        variables.add(mod);
+                        variablesByName.put("MODULE", mod);
+                    }
+                    String oldModule = mod.getValue();
+                    mod.setValue(module);
+                    try {
+                        setRootDirectory(new File(root));
+                    } catch (PropertyVetoException prop) {
+                        mod.setValue(oldModule);
+                        throw (IOException) TopManager.getDefault().getErrorManager().annotate(new IOException(), prop);
+                    } catch (IOException io) {
+                        mod.setValue(oldModule);
+                        throw io;
+                    }
+                }
             }
-            String oldModule = mod.getValue();
-            mod.setValue(module);
-            try {
-                this.setRootDirectory(new File(root));
-            } catch (PropertyVetoException prop) {
-                mod.setValue(oldModule);
-                throw prop;
-            } catch (IOException io) {
-                mod.setValue(oldModule);
-                throw io;
-            }
-        }
-         
-        if (isValid()) {
-            if (cache != null) {
-                cache.refreshDirFromDiskCache(getFile(""));
-            }
-        }
+        });
     }    
     
         
@@ -2527,11 +2526,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //HACK 
   //      this.cache.refreshDir(this.getRelativeMountPoint());
          
-        firePropertyChange(PROP_ROOT, null, refreshRoot ());
         if (cache != null) {
             cache.setFSRoot(r.getAbsolutePath());
             cache.setRelativeMountPoint(module);
         }
+        firePropertyChange(PROP_ROOT, null, refreshRoot ());
     }
     
     /** Modified to never throw PropertyVetoException by the name adjustment. */
