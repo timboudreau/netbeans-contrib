@@ -324,7 +324,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                     }
                 }
             }
-            SwingUtilities.invokeLater(new Runnable() {
+            SwingUtilities.invokeLater (new Runnable() {
                 public void run() {
                     if (children.size() == 0) {
                         parent.setAllowsChildren(false);
@@ -434,6 +434,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
      * @param multipleSelections whether multiple nodes can be selected
      */
     public void initTree(String rootDir, final String[] relMounts, boolean multipleSelections) {
+        this.initiallyExpanding = true;
         createTree(rootDir);
         //trRelMount.setSelectionModel(new MySelectionModel()); // because of not allowing to select local dirs
         if (multipleSelections) {
@@ -501,7 +502,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                     }
                 }
             paths[i] = path;
-        }    
+        }
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 trRelMount.setSelectionPaths(paths);
