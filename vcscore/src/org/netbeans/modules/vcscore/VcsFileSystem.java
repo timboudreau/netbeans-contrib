@@ -3870,6 +3870,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void lock (final String name) throws IOException {
         //System.out.println("lock("+name+")");
         if (!isImportant(name)) return; // ignore locking of unimportant files
+        try { // because of adjustment of the thrown exception
         checkModificationLock(name);
         //final VcsFileSystem current = this;
         final File file = getFile (name);
@@ -3913,11 +3914,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         if (!file.canWrite () && file.exists()) {
             throw new IOException() {
-                /** Localized message. */
+                /** Localized message. It should be different from the message. */
                 public String getLocalizedMessage () {
                     return g("EXC_CannotLockReadOnly", file.toString());
                 }
             };
+        }
+        } catch (IOException ioex) {
+            // When an IOException was thrown, we want to make it more pleasant for the end-user:
+            ErrorManager.getDefault().annotate(ioex, ErrorManager.WARNING, null,
+                                               ioex.getLocalizedMessage(), null, null);
+            throw ioex;
         }
     }
     
