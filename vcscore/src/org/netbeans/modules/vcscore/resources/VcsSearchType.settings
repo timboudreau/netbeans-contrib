@@ -2,7 +2,9 @@
 <!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
 <settings version="1.0">
     <module name="org.netbeans.modules.vcscore/1"/>
+    <instanceof class="java.io.Serializable"/>
     <instanceof class="org.openide.ServiceType"/>
     <instanceof class="org.openidex.search.SearchType"/>
+    <instanceof class="org.netbeans.modules.vcscore.search.VcsSearchType"/>
     <instance class="org.netbeans.modules.vcscore.search.VcsSearchType"/>
 </settings>
