@@ -63,6 +63,12 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
     private String fsRootDir;
     
     /**
+     * The full path of the command's working directory. The updated files
+     * are relative to this directory.
+     */
+    private String workingFullPath;
+    
+    /**
      * The original file revisions before the update is executed.
      */
     //private Map fileRevisions;
@@ -104,8 +110,8 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
     public boolean exec(Hashtable vars, String[] args,
                         CommandOutputListener stdoutListener,
                         CommandOutputListener stderrListener,
-                        CommandDataOutputListener stdoutDataListener, String dataRegex,
-                        CommandDataOutputListener stderrDataListener, String errorRegex) {
+                        final CommandDataOutputListener stdoutDataListener, String dataRegex,
+                        final CommandDataOutputListener stderrDataListener, String errorRegex) {
         
         if (args.length < 2 || "-n".equals(args[0]) && args.length < 3) {
             stderrListener.outputLine("The current command's working dir and cvs update OR cvs checkout commands are expected as arguments.\n"+ // NOI18N
@@ -126,14 +132,19 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
             foldersByProcessingFiles = getFoldersByProcessingFiles(processingFiles);
         }
 
-        final String rootDir = Variables.expand(vars, (String) vars.get(args[0]), false); // NOI18N
-        final ArrayList filesBuff = new ArrayList();
-        final ArrayList filesStatusBuff = new ArrayList();
+        final String rootDir = Variables.expand(vars, (String) vars.get(args[0]), false);
+        workingFullPath = rootDir; //(rootDir.length() > 0) ?
+                            //(fsRootDir + "/" + rootDir).replace('/', File.separatorChar) :
+                            //fsRootDir.replace('/', File.separatorChar);
+        final List filesBuff = new ArrayList();
+        final List filesStatusBuff = new ArrayList();
         final ArrayList foldersBuff = new ArrayList();
         final ArrayList removedFiles = new ArrayList(); // Files removed by the update.
+        final String[] lastFileFolder = { null }; // The folder of the last updated file.
         VcsCommand cmd = fileSystem.getCommand(args[1]);
         VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
-        vce.addDataOutputListener(new CommandDataOutputListener() {
+        if (doRefresh) {
+          vce.addDataOutputListener(new CommandDataOutputListener() {
             public void outputData(String[] data) {
                 if (data != null && data.length > 1) {
                     String status;
@@ -145,14 +156,37 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
                         status = data[0];
                         fileName = data[1];
                     }
+                    int index = fileName.lastIndexOf('/');
+                    String name;
+                    String folder;
+                    if (index < 0) {
+                        name = fileName;
+                        folder = "";
+                    } else {
+                        name = fileName.substring(index + 1);
+                        folder = fileName.substring(0, index);
+                    }
+                    if (!folder.equals(lastFileFolder[0])) {
+                        if (lastFileFolder[0] != null) {
+                            sendUpdatedFiles((rootDir + File.separator + lastFileFolder[0]).
+                                              replace('/', File.separatorChar), filesBuff,
+                                             filesStatusBuff, stdoutDataListener);
+                            filesBuff.clear();
+                            filesStatusBuff.clear();
+                        }
+                        lastFileFolder[0] = folder;
+                    }
+                    filesBuff.add(name);
                     filesStatusBuff.add(status);
-                    String file = (rootDir + File.separator + fileName).
-                                  replace('/', File.separatorChar);
-                    filesBuff.add(file);
+                    //filesStatusBuff.add(status);
+                    //String file = (rootDir + File.separator + fileName).
+                    //              replace('/', File.separatorChar);
+                    //filesBuff.add(file);
+                    //sendUpdatedFile(file, status, stdoutDataListener);
                 }
             }
-        });
-        vce.addDataErrorOutputListener(new CommandDataOutputListener() {
+          });
+          vce.addDataErrorOutputListener(new CommandDataOutputListener() {
             public void outputData(String[] data) {
                 if (data != null && data.length > 0 && data[0] != null) {
                     String file;
@@ -164,12 +198,20 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
                     file = file.replace('/', File.separatorChar);
                     if (data.length > 1 && data[1].length() > 0) {
                         removedFiles.add(file);
+                        //sendRemovedFile(file, stdoutDataListener);
                     } else {
                         foldersBuff.add(file);
+                        /*
+                        Potreba refreshnout cely adresar, ve ktery je "file" folder!
+                        Nebo alespon zjistit je-li adresar zapsan v diskove cachi
+                        a refreshnout cely adresar jen neni-li zapsan.
+                        sendUpdatedFolder(file, stdoutDataListener);
+                         */
                     }
                 }
             }
-        });
+          });
+        }
         fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
         try {
             fileSystem.getCommandsPool().waitToFinish(vce);
@@ -178,8 +220,16 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
             Thread.currentThread().interrupt();
         }
         if (doRefresh) {
+            if (lastFileFolder[0] != null) {
+                sendUpdatedFiles((rootDir + File.separator + lastFileFolder[0]).
+                                  replace('/', File.separatorChar), filesBuff,
+                                 filesStatusBuff, stdoutDataListener);
+                filesBuff.clear();
+                filesStatusBuff.clear();
+            }
             cachedEntries.clear(); // The Entries probably has changed
-            sendUpdatedFiles(filesBuff, filesStatusBuff, foldersBuff, stdoutDataListener);
+            //sendUpdatedFiles(filesBuff, filesStatusBuff, foldersBuff, stdoutDataListener);
+            sendUpdatedFolders(foldersBuff, stdoutDataListener);
             sendRemovedFiles(removedFiles, stdoutDataListener);
             sendUpdateProcessedFiles(processingFiles, stdoutDataListener);
             sendRemovedFolders(foldersByProcessingFiles,
@@ -252,7 +302,12 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         HashMap map = new HashMap();
         for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
             String processingFile = (String) it.next();
-            String file = fsRootDir + File.separator + processingFile;
+            String file;
+            if (processingFile.length() == 0 || ".".equals(processingFile)) {
+                file = fsRootDir;
+            } else {
+                file = fsRootDir + File.separator + processingFile;
+            }
             file.replace('/', File.separatorChar);
             map.put(processingFile, getFoldersUnder(new File(file)));
         }
@@ -276,6 +331,128 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         return folders;
     }
     
+    private void sendUpdatedFiles(String folderName, List files, List states,
+                                  CommandDataOutputListener stdoutDataListener) {
+        //System.out.println("sendUpdatedFiles("+folderName+", "+files+", "+states+")");
+        int i = 0;
+        File folder = new File(folderName);
+        HashSet filesInFolder = (HashSet) refreshedFilesByFolders.get(folder);
+        if (filesInFolder == null) {
+            filesInFolder = new HashSet();
+            refreshedFilesByFolders.put(folder, filesInFolder);
+        }
+        Map entriesMap = (Map) cachedEntries.get(folder);
+        if (entriesMap == null) {
+            File entriesFile = new File(folder, CVS_ENTRIES);
+            entriesMap = CvsListOffline.createEntriesByFiles(
+                             CvsListOffline.loadEntries(entriesFile));
+            cachedEntries.put(folder, entriesMap);
+        }
+        for (Iterator it = files.iterator(); it.hasNext(); i++) {
+            String fileName = (String) it.next();
+            File file = new File(folder, fileName);
+            filesInFolder.add(fileName);
+            String entry = (String) entriesMap.get(fileName);
+            if (entry == null) { // Didn't find the entry. The file should not exist. What can I do then?
+                //System.err.println("DIDN'T found file '"+fileName+"' in "+new File(folder, CVS_ENTRIES));
+                continue;
+            }
+            String[] entryElements = CvsListOffline.parseEntry(entry);
+            sendFileRefresh(file, (String) states.get(i), entryElements, stdoutDataListener);
+        }
+        for (Iterator entryIt = entriesMap.keySet().iterator(); entryIt.hasNext(); ) {
+            String fileName = (String) entryIt.next();
+            if (filesInFolder.contains(fileName)) continue;
+            File file = new File(folder, fileName);
+            String entry = (String) entriesMap.get(fileName);
+            sendFileRefresh(file, null, CvsListOffline.parseEntry(entry), stdoutDataListener);
+        }
+    }
+    
+    /*
+    private void sendUpdatedFile(String filePath, String state,
+                                 CommandDataOutputListener stdoutDataListener) {
+        File file = new File(filePath);
+        File folder = file.getParentFile();
+        Map entriesMap = (Map) cachedEntries.get(folder);
+        if (entriesMap == null) {
+            File entriesFile = new File(folder, CVS_ENTRIES);
+            entriesMap = CvsListOffline.createEntriesByFiles(
+                             CvsListOffline.loadEntries(entriesFile));
+            cachedEntries.put(folder, entriesMap);
+        }
+        String fileName = file.getName();
+        HashSet filesInFolder = (HashSet) refreshedFilesByFolders.get(folder);
+        if (filesInFolder == null) {
+            filesInFolder = new HashSet();
+            refreshedFilesByFolders.put(folder, filesInFolder);
+        }
+        filesInFolder.add(fileName);
+        String entry = (String) entriesMap.get(fileName);
+        if (entry == null) { // Didn't find the entry. The file should not exist. What can I do then?
+            return ;
+        }
+        String[] entryElements = CvsListOffline.parseEntry(entry);
+        sendFileRefresh(file, state, entryElements, stdoutDataListener);
+    }
+     */
+    
+    /*
+    private void sendUpdatedFolder(String folderPath,
+                                   CommandDataOutputListener stdoutDataListener) {
+        File folder = new File(folderPath);
+        sendFolderRefresh(folder, stdoutDataListener);
+        /*
+        Set refreshedFiles = (Set) refreshedFilesByFolders.get(folder);
+        if (refreshedFiles == null) refreshedFiles = Collections.EMPTY_SET;
+        Map entriesMap = (Map) cachedEntries.get(folder);
+        if (entriesMap == null) {
+            File entriesFile = new File(folder, CVS_ENTRIES);
+            entriesMap = CvsListOffline.createEntriesByFiles(
+                             CvsListOffline.loadEntries(entriesFile));
+            cachedEntries.put(folder, entriesMap);
+        }
+        for (Iterator entryIt = entriesMap.keySet().iterator(); entryIt.hasNext(); ) {
+            String fileName = (String) entryIt.next();
+            if (refreshedFiles.contains(fileName)) continue;
+            File file = new File(folder, fileName);
+            String entry = (String) entriesMap.get(fileName);
+            sendFileRefresh(file, null, CvsListOffline.parseEntry(entry), stdoutDataListener);
+        }
+         *//*
+    }
+            */
+    
+    private void sendUpdatedFolders(List folders,
+                                    CommandDataOutputListener stdoutDataListener) {
+        for (Iterator it = folders.iterator(); it.hasNext(); ) {
+            File folder = new File((String) it.next());
+            sendFolderRefresh(folder, stdoutDataListener);
+            File parent = folder.getParentFile();
+            if (parent == null) continue;
+            Set refreshedFiles = (Set) refreshedFilesByFolders.get(parent);
+            if (refreshedFiles == null) {
+                refreshedFiles = new HashSet();
+                refreshedFilesByFolders.put(parent, refreshedFiles);
+                Map entriesMap = (Map) cachedEntries.get(folder);
+                if (entriesMap == null) {
+                    File entriesFile = new File(folder, CVS_ENTRIES);
+                    entriesMap = CvsListOffline.createEntriesByFiles(
+                                     CvsListOffline.loadEntries(entriesFile));
+                    cachedEntries.put(folder, entriesMap);
+                }
+                for (Iterator entryIt = entriesMap.keySet().iterator(); entryIt.hasNext(); ) {
+                    String fileName = (String) entryIt.next();
+                    //if (refreshedFiles.contains(fileName)) continue;
+                    File file = new File(folder, fileName);
+                    String entry = (String) entriesMap.get(fileName);
+                    sendFileRefresh(file, null, CvsListOffline.parseEntry(entry), stdoutDataListener);
+                }
+            }
+        }
+    }
+    
+    /*
     private void sendUpdatedFiles(ArrayList files, ArrayList states, ArrayList folders,
                                   CommandDataOutputListener stdoutDataListener) {
         int i = 0;
@@ -309,7 +486,7 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
                     changed = !revision.equals(entryElements[1]);
                 }
             }
-             */
+             *//*
             //if (changed) {
                 sendFileRefresh(file, (String) states.get(i), entryElements, stdoutDataListener);
                 /*
@@ -320,7 +497,7 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
                 doRefresh = false;
                 return ;
             }
-                 */
+                 *//*
         }
         for (Iterator it = folders.iterator(); it.hasNext(); ) {
             File folder = new File((String) it.next());
@@ -374,8 +551,9 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
                 }
             }
         }
-         */
+         *//*
     }
+            */
     
     private void sendUpdateProcessedFiles(Collection processingFiles, CommandDataOutputListener stdoutDataListener) {
         for (Iterator it = processingFiles.iterator(); it.hasNext(); ) {
@@ -405,8 +583,8 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         if (CvsListCommand.isCVSDirectory(folder)) {
             String[] statuses = new String[8];
             String filePath = folder.getAbsolutePath();
-            if (filePath.length() > fsRootDir.length()) {
-                filePath = filePath.substring(fsRootDir.length() + 1);
+            if (filePath.length() > workingFullPath.length()) {
+                filePath = filePath.substring(workingFullPath.length() + 1);
             } else {
                 return ;
             }
@@ -425,7 +603,7 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
     private void sendFileRefresh(File file, String status, String[] entryElements,
                                  CommandDataOutputListener stdoutDataListener) {
         String[] statuses = new String[8];
-        String filePath = file.getAbsolutePath().substring(fsRootDir.length() + 1);
+        String filePath = file.getAbsolutePath().substring(workingFullPath.length() + 1);
         filePath = filePath.replace(File.separatorChar, '/');
         statuses[0] = filePath;
         statuses[2] = entryElements[1];
@@ -468,11 +646,23 @@ public class CvsUpdate extends Object implements VcsAdditionalCommand {
         stdoutDataListener.outputData(statuses);
     }
     
+    /*
+    private void sendRemovedFile(String file,
+                                 CommandDataOutputListener stdoutDataListener) {
+        String filePath = file.substring(fsRootDir.length() + 1);
+        filePath = filePath.replace(File.separatorChar, '/');
+        String[] statuses = new String[8];
+        //statuses[0] = filePath;
+        statuses[7] = filePath;
+        stdoutDataListener.outputData(statuses);
+    }
+     */
+    
     private void sendRemovedFiles(List removedFiles,
                                   CommandDataOutputListener stdoutDataListener) {
         for (Iterator it = removedFiles.iterator(); it.hasNext(); ) {
             String file = (String) it.next();
-            String filePath = file.substring(fsRootDir.length() + 1);
+            String filePath = file.substring(workingFullPath.length() + 1);
             filePath = filePath.replace(File.separatorChar, '/');
             String[] statuses = new String[8];
             //statuses[0] = filePath;
