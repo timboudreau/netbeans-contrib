@@ -18,7 +18,8 @@ import java.util.ResourceBundle;
 import org.openide.util.NbBundle;
 import org.openide.filesystems.*;
 
-import org.netbeans.modules.vcscore.util.*;
+import org.netbeans.modules.vcscore.settings.VcsSettings;
+import org.netbeans.modules.vcscore.settings.RefreshModePropertyEditor;
 
 /** BeanInfo for CommandLineVcsFileSystem.
  * 
@@ -26,8 +27,6 @@ import org.netbeans.modules.vcscore.util.*;
  */
 //-------------------------------------------
 public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
-    private static Debug E=new Debug("CommandLineVcsFileSystemBeanInfo", true); // NOI18N
-    private static Debug D=E;
 
     /** Array of property descriptors. */
     private static PropertyDescriptor[] desc;
@@ -48,7 +47,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor acceptUserParams = null;
         PropertyDescriptor runRefreshCommand = null;
         PropertyDescriptor annotationPattern = null;
-
+        PropertyDescriptor autoRefresh = null;
 
         try {
             rootDirectory=new PropertyDescriptor
@@ -83,15 +82,20 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                                ("offLine", CommandLineVcsFileSystem.class, "isOffLine", "setOffLine"); // NOI18N
             annotationPattern = new PropertyDescriptor
                                ("annotationPattern", CommandLineVcsFileSystem.class, "getAnnotationPattern", "setAnnotationPattern"); // NOI18N
+            autoRefresh = new PropertyDescriptor
+                               ("autoRefresh", CommandLineVcsFileSystem.class, "getAutoRefresh", "setAutoRefresh"); // NOI18N
+            autoRefresh.setPropertyEditorClass(RefreshModePropertyEditor.class);
 
 
             desc = new PropertyDescriptor[] {
                        rootDirectory, debug, variables, commands, cacheId, config,
-                       lock, lockPrompt, acceptUserParams, runRefreshCommand, annotationPattern
+                       lock, lockPrompt, acceptUserParams, runRefreshCommand, annotationPattern,
+                       autoRefresh
                    };
 
-            ResourceBundle bundle = NbBundle.getBundle
-                                    ("org.netbeans.modules.vcs.advanced.Bundle"); // NOI18N
+            ResourceBundle bundle = NbBundle.getBundle (CommandLineVcsFileSystemBeanInfo.class);
+            ResourceBundle bundleSettings = NbBundle.getBundle (VcsSettings.class);
+
             rootDirectory.setDisplayName      (bundle.getString("PROP_rootDirectory"));
             rootDirectory.setShortDescription (bundle.getString("HINT_rootDirectory"));
             debug.setDisplayName              (bundle.getString("PROP_debug"));
@@ -110,10 +114,12 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
             lockPrompt.setShortDescription    (bundle.getString("HINT_lockPrompt"));
             acceptUserParams.setDisplayName   (bundle.getString("PROP_acceptUserParams"));
             acceptUserParams.setShortDescription(bundle.getString("HINT_acceptUserParams"));
-            runRefreshCommand.setDisplayName  (bundle.getString("PROP_offLineMode"));
-            runRefreshCommand.setShortDescription(bundle.getString("HINT_offLineMode"));
+            runRefreshCommand.setDisplayName  (bundleSettings.getString("PROP_offline"));
+            runRefreshCommand.setShortDescription(bundleSettings.getString("HINT_offline"));
             annotationPattern.setDisplayName  (bundle.getString("PROP_annotationPattern"));
             annotationPattern.setShortDescription(bundle.getString("HINT_annotationPattern"));
+            autoRefresh.setDisplayName        (bundleSettings.getString("PROP_autoRefresh"));
+            autoRefresh.setShortDescription   (bundleSettings.getString("HINT_autoRefresh"));
 
         } catch (IntrospectionException ex) {
             ex.printStackTrace ();
@@ -141,7 +147,6 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 
     public BeanDescriptor getBeanDescriptor(){
-        D.deb("getBeanDescriptor()"); // NOI18N
         return new BeanDescriptor(CommandLineVcsFileSystem.class, org.netbeans.modules.vcs.advanced.VcsCustomizer.class);
     }
 
