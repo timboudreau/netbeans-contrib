@@ -2709,13 +2709,16 @@ public class ImplGenerator implements PropertyChangeListener {
 	    }
 	}
 	ConstructorElement[] __target_constructors = __target.getConstructors ();
+	MethodElement __target_init = __target.getMethod
+	    (org.openide.src.Identifier.create (ImplGenerator.INITIALIZE_INHERITANCE_TREE),
+	     new Type [0]);
 	String __to_find = "this." + ImplGenerator.INITIALIZE_INHERITANCE_TREE;
 	String __call = __to_find + " ();\n";
 	for (int __i=0; __i<__target_constructors.length; __i++) {
 	    // I have to check that all constructors call _initialize_inheritance_tree
 	    // method in case of using delegation or not.
 	    String __body = __target_constructors[__i].getBody ();
-	    if (__body.indexOf (__to_find) < 0
+	    if (__body.indexOf (__to_find) < 0 && (__target_init != null)
 		&& (!(_M_delegation.equals (ORBSettingsBundle.DELEGATION_NONE)))) {
 		// call not found => I have to add it
 		//__body += "\n" + __call;
@@ -3121,14 +3124,14 @@ public class ImplGenerator implements PropertyChangeListener {
 		__ex.printStackTrace ();
 	    }
 	    try {
-		// synchronize constructor
-		this.synchronize_constructors (__source, __target);
+		// synchronize init methods
+		this.synchronize_init_methods (__source, __target);
 	    } catch (SourceException __ex) {
 		__ex.printStackTrace ();
 	    }
 	    try {
-		// synchronize init methods
-		this.synchronize_init_methods (__source, __target);
+		// synchronize constructor
+		this.synchronize_constructors (__source, __target);
 	    } catch (SourceException __ex) {
 		__ex.printStackTrace ();
 	    }
