@@ -127,7 +127,8 @@ public class CommandMenu extends JMenuPlus {
     }
 
     private void createPopup() {
-        boolean wasSeparator = false;       
+        boolean wasSeparator = true; // In order not to add the separator at the beginning
+        boolean willAddSeparator = false; // Whether a separator should be added before the command
         CommandsTree[] children = commandRoot.children();
         FileObject[] allFiles;
         if (filesWithMessages.size() == 1) {
@@ -142,20 +143,25 @@ public class CommandMenu extends JMenuPlus {
         Map multiCommandsByDisplayName = getMultiCommandsByDisplayName(children, allFiles);
         Set addedDisplayNames = new HashSet();
         for (int i = 0; i < children.length; i++) {
-            CommandSupport cmd = (CommandSupport) children[i].getCommandSupport();                                  
+            CommandSupport cmd = (CommandSupport) children[i].getCommandSupport();
             if (cmd == null) {
-                // an extra check to not allow more separators, than appropriate     
-                if(!wasSeparator){
-                    addSeparator();
-                    wasSeparator=true;                  
+                // an extra check to not allow more separators, than appropriate
+                if (!wasSeparator) {
+                    willAddSeparator = true;
+                    wasSeparator = true;
                 }
                 continue;
-            }                                 
+            }
             String displayName = cmd.getDisplayName();
             //System.out.println("VcsAction.addMenu(): cmd = "+cmd.getName());
-            if (displayName == null) continue;            
+            if (displayName == null) continue;
             if (removeDisabled && cmd.getApplicableFiles(allFiles) == null) {
                 continue;
+            }
+            if (willAddSeparator) {
+                // Add the separator only when a non-null command follows
+                addSeparator();
+                willAddSeparator = false;
             }
             wasSeparator = false;           
             JMenuItem item;
