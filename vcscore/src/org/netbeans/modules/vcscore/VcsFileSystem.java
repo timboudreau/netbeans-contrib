@@ -164,8 +164,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private transient String password = null;
 
-    /** advanced confgiguration */
-    //private Object advanced = null; // Not used any more, use commandsRoot instead
+    /** Advanced confgiguration.
+     * Not used any more, use commandsRoot instead.
+     * Needed only for deserialization from NetBeans 3.1 and older
+     */
+    private Object advanced = null;
     private transient Node commandsRoot = null;
 
     private String cacheID = null;
@@ -260,17 +263,29 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private Collection notModifiableStatuses = Collections.EMPTY_SET;
 
-    public boolean isLockFilesOn () { return lockFilesOn; }
+    public boolean isLockFilesOn () {
+        return lockFilesOn && isEnabledLockFiles();
+    }
     public void setLockFilesOn (boolean lock) { lockFilesOn = lock; }
     public boolean isPromptForLockOn () { return promptForLockOn; }
     public void setPromptForLockOn (boolean prompt) { promptForLockOn = prompt; }
     public boolean getAskIfDownloadRecursively () { return askIfDownloadRecursively; }
     public void setAskIfDownloadRecursively (boolean ask) { askIfDownloadRecursively = ask; }
-    public boolean isCallEditFilesOn() { return callEditFilesOn; }
+    public boolean isCallEditFilesOn() {
+        return callEditFilesOn && isEnabledEditFiles();
+    }
     public void setCallEditFilesOn(boolean edit) { callEditFilesOn = edit; }
     public boolean isPromptForEditOn () { return promptForEditOn; }
     public void setPromptForEditOn (boolean prompt) { promptForEditOn = prompt; }
     public boolean isUseUnixShell () { return useUnixShell; }
+    
+    public boolean isEnabledLockFiles() {
+        return (getCommand(VcsCommand.NAME_LOCK) != null);
+    }
+
+    public boolean isEnabledEditFiles() {
+        return (getCommand(VcsCommand.NAME_EDIT) != null);
+    }
 
     protected void setUseUnixShell (boolean unixShell) {
         useUnixShell = unixShell;
@@ -797,7 +812,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 settingsChanged(event.getPropertyName(), event.getOldValue(), event.getNewValue());
             }
         });
-        RepositoryListener wl = /*WeakListener.repository (*/new RepositoryListener() {
+        /*
+        RepositoryListener wl = /*WeakListener.repository (*new RepositoryListener() {
             public void fileSystemAdded(RepositoryEvent ev) {
                 //System.out.println("fileSystemAdded("+ev.getFileSystem());
                 //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
@@ -823,14 +839,32 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         };//, null);
         TopManager.getDefault ().getRepository ().addRepositoryListener (wl);
+         */
     }
     
-    /** This method is called when the filesystem is removed from the repository,
-     * to allow to do some cleanup. Sublasses should call super if overide this method
+    /** Notifies this file system that it has been added to the repository. 
      */
-    protected void fsRemoved() {
+    public void addNotify() {
+        //System.out.println("fileSystemAdded("+this+")");
+        //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
+        commandsPool.setupRuntime();
+        if (!isOffLine()
+            && (getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_MOUNT_AND_RESTART
+            || (deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_RESTART)
+            || (!deserialized && getAutoRefresh() == VcsSettings.AUTO_REFRESH_ON_MOUNT))) {
+                CommandExecutorSupport.doRefresh(VcsFileSystem.this, "", true);
+        }
+        super.addNotify();
     }
-
+    
+    /** Notifies this file system that it has been removed from the repository. 
+     */
+    public void removeNotify() {
+        //System.out.println("fileSystem Removed("+this+")");
+        commandsPool.cleanup();
+        super.removeNotify();
+    }
+    
     private static final long serialVersionUID =8108342718973310275L;
 
     /**
