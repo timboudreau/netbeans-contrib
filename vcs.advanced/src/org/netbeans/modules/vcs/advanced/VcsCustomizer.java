@@ -1304,10 +1304,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         offLineCheckBox.setSelected(fileSystem.isOffLine());
         boolean isEdit = fileSystem.isEnabledEditFiles();
         editCheckBox.setEnabled(isEdit);
-        promptEditCheckBox.setEnabled(isEdit);
+        promptEditCheckBox.setEnabled(isEdit && editCheckBox.isSelected());
         boolean isLock = fileSystem.isEnabledLockFiles();
         lockCheckBox.setEnabled(isLock);
-        promptLockCheckBox.setEnabled(isLock);
+        promptLockCheckBox.setEnabled(isLock && lockCheckBox.isSelected());
     }
     
     //-------------------------------------------
