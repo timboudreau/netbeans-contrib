@@ -59,7 +59,9 @@ public class PvcsProjectDatabaseSelector extends Object implements VcsAdditional
                         CommandOutputListener stderrNRListener,
                         CommandDataOutputListener stdoutListener, String dataRegex,
                         CommandDataOutputListener stderrListener, String errorRegex) {
-        PvcsDatabaseSelectorPanel panel = new PvcsDatabaseSelectorPanel(fileSystem, args, (String) vars.get("PROJECT_DB"));
+        String projectDB = (String) vars.get("PROJECT_DB");
+        projectDB = fileSystem.getVarValueAdjustment().revertAdjustedVarValue(projectDB);
+        PvcsDatabaseSelectorPanel panel = new PvcsDatabaseSelectorPanel(fileSystem, args, projectDB);
         if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(
             new DialogDescriptor(panel, panel.getName(), true,
                                  DialogDescriptor.OK_CANCEL_OPTION,
