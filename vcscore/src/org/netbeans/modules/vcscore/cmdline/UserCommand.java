@@ -36,7 +36,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
     private static Debug D=E;
 
     public static final String PROPERTY_INPUT = "input";
-    public static final String PROPERTY_DISPLAY = "display";
+    //public static final String PROPERTY_DISPLAY = "display";
     public static final String PROPERTY_DATA_REGEX = "data.regex";
     public static final String PROPERTY_ERROR_REGEX = "error.regex";
     public static final String PROPERTY_CHECK_FOR_MODIFICATIONS = "checkForModifications";
@@ -530,7 +530,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
             //setProperty("timeout", new Long(getTimeout()));
             setProperty(UserCommand.PROPERTY_DATA_REGEX, dataRegex);//getDataRegex());
             setProperty(UserCommand.PROPERTY_ERROR_REGEX, errorRegex);//getErrorRegex());
-            setProperty(UserCommand.PROPERTY_DISPLAY, new Boolean(displayOutput));//isDisplayOutput()));
+            setProperty(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, new Boolean(displayOutput));//isDisplayOutput()));
             //setProperty("doRefresh", new Boolean(isDoRefresh())); <- not needed any more
             setProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED, refreshRecursivelyPattern);//getRefreshRecursivelyPattern());
             setProperty(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, new Boolean(doRefresh/*isDoRefresh()*/ && refreshParent));//isRefreshParent()));
