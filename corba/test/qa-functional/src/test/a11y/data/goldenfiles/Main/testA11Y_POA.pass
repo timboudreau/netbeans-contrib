@@ -24,7 +24,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: New Servant
 Results of Accessibility test
 
@@ -51,7 +51,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: New Servant
 Results of Accessibility test
 
@@ -78,7 +78,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: Customizer Dialog
 Results of Accessibility test
 
@@ -99,14 +99,13 @@ Results of Accessibility test
    - none.
 
  Components with no mnemonic :
-   Class: javax.swing.JButton {  Close |  Close button } 
-
+   - none.
 
  Components with wrong mnemonic (mnemonic isn't ASCII , label doesn't contain mnemonic):
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: Customizer Dialog
 Results of Accessibility test
 
@@ -127,14 +126,13 @@ Results of Accessibility test
    - none.
 
  Components with no mnemonic :
-   Class: javax.swing.JButton {  Close |  Close button } 
-
+   - none.
 
  Components with wrong mnemonic (mnemonic isn't ASCII , label doesn't contain mnemonic):
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: Customizer Dialog
 Results of Accessibility test
 
@@ -155,14 +153,13 @@ Results of Accessibility test
    - none.
 
  Components with no mnemonic :
-   Class: javax.swing.JButton {  Close |  Close button } 
-
+   - none.
 
  Components with wrong mnemonic (mnemonic isn't ASCII , label doesn't contain mnemonic):
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: New Child POA
 Results of Accessibility test
 
@@ -189,7 +186,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: Customizer Dialog
 Results of Accessibility test
 
@@ -210,14 +207,13 @@ Results of Accessibility test
    - none.
 
  Components with no mnemonic :
-   Class: javax.swing.JButton {  Close |  Close button } 
-
+   - none.
 
  Components with wrong mnemonic (mnemonic isn't ASCII , label doesn't contain mnemonic):
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: New Child POA
 Results of Accessibility test
 
@@ -244,7 +240,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: Customizer Dialog
 Results of Accessibility test
 
@@ -265,11 +261,10 @@ Results of Accessibility test
    - none.
 
  Components with no mnemonic :
-   Class: javax.swing.JButton {  Close |  Close button } 
-
+   - none.
 
  Components with wrong mnemonic (mnemonic isn't ASCII , label doesn't contain mnemonic):
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.

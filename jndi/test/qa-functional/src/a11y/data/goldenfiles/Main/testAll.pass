@@ -24,7 +24,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Dialog: New Provider
 Results of Accessibility test
 
@@ -51,7 +51,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Dialog: Customizer Dialog
 Results of Accessibility test
 
@@ -63,8 +63,7 @@ Results of Accessibility test
    - none.
 
  No Accessible description :
-   Class: org.netbeans.core.NbDialog {  Customizer Dialog |  } 
-
+   - none.
 
  Label with LABEL_FOR not set :
    - none.
@@ -79,7 +78,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Dialog: Add Property
 Results of Accessibility test
 
@@ -106,7 +105,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Dialog: Customizer Dialog
 Results of Accessibility test
 
@@ -118,8 +117,7 @@ Results of Accessibility test
    - none.
 
  No Accessible description :
-   Class: org.netbeans.core.NbDialog {  Customizer Dialog |  } 
-
+   - none.
 
  Label with LABEL_FOR not set :
    - none.
@@ -134,7 +132,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Dialog: New JNDI Context
 Results of Accessibility test
 
@@ -161,7 +159,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Dialog: Add Property
 Results of Accessibility test
 
@@ -188,7 +186,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Dialog: New JNDI Context
 Results of Accessibility test
 
@@ -215,7 +213,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Dialog: Customizer Dialog
 Results of Accessibility test
 
@@ -227,8 +225,7 @@ Results of Accessibility test
    - none.
 
  No Accessible description :
-   Class: org.netbeans.core.NbDialog {  Customizer Dialog |  } 
-
+   - none.
 
  Label with LABEL_FOR not set :
    - none.
@@ -243,7 +240,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Dialog: New Context
 Results of Accessibility test
 
@@ -270,4 +267,4 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.

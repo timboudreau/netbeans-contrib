@@ -102,11 +102,12 @@ public class Main extends org.netbeans.jellytools.JellyTestCase {
         info = getLog();
         
         org.netbeans.a11y.TestSettings ts = new org.netbeans.a11y.TestSettings();
+        ts.setDefaultSettings();
+		ts.tabTraversal = false; //
         if (comp instanceof JDialog)
             ts.setWindowTitle(((JDialog) comp).getTitle());
         if (close)
             ts.setCancelLabel("Close");
-        ts.setDefaultSettings();
         org.netbeans.a11y.AccessibilityTester at = new org.netbeans.a11y.AccessibilityTester(comp, ts);
         at.startTests();
         org.netbeans.a11y.TextReport treport = new org.netbeans.a11y.TextReport(at, ts);

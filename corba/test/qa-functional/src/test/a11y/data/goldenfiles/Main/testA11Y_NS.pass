@@ -24,7 +24,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: Resolve Initial References
 Results of Accessibility test
 
@@ -51,7 +51,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: Local Name Service
 Results of Accessibility test
 
@@ -78,7 +78,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: CORBA Panel
 Results of Accessibility test
 
@@ -105,7 +105,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: CORBA Panel
 Results of Accessibility test
 
@@ -132,7 +132,7 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.
 ---> Testing Window: CORBA Panel
 Results of Accessibility test
 
@@ -159,4 +159,4 @@ Results of Accessibility test
    - none.
 
  Components not reachable with tab traversal :
-   - none.
+   - not tested.

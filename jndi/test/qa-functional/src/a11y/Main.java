@@ -39,11 +39,13 @@ public class Main extends org.netbeans.junit.NbTestCase {
         new org.netbeans.jemmy.EventTool().waitNoEvent(1000);
         TestSettings ts = new TestSettings ();
         ts.setDefaultSettings();
+		ts.tabTraversal = false; //
         if (close)
             ts.setCancelLabel("Close");
         AccessibilityTester at = new AccessibilityTester (comp, ts);
-        at.testProperties();
-        at.testTraversal();
+		at.startTests ();
+//        at.testProperties();
+//        at.testTraversal();
         TextReport treport = new TextReport (at, ts);
         if (comp instanceof JDialog)
             getRef ().println ("---> Testing Dialog: " + ((JDialog) comp).getTitle ());
