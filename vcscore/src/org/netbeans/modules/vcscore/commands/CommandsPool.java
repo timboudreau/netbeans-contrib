@@ -262,7 +262,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
             }
         }
         CommandOutputCollector collector = new CommandOutputCollector(vce, this);
-        outputContainers.put(vce, collector);
+        synchronized (this) {
+            outputContainers.put(vce, collector);
+        }
         VcsCommandVisualizer visualizer = vce.getVisualizer();
         if (visualizer != null) {
             if (!visualizer.openAfterCommandFinish()) visualizer.open();
@@ -471,8 +473,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
                     vce = cw.getExecutor();
                     cw.setRunningThread(Thread.currentThread());
                     if (isListCommand(vce.getCommand())) numRunningListCommands++;
-                    commandStarted(cw);
                 }
+                commandStarted(cw);
                 Error err = null;
                 try {
                     vce.run();
