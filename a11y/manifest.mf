@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Specification-Version: 2.0
+OpenIDE-Module-Implementation-Version: 2.0
+OpenIDE-Module-Display-Category: Tools
+OpenIDE-Module: org.netbeans.modules.a11y/1
+OpenIDE-Module-Name: Accessibility
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.form/2 > 1.7
+OpenIDE-Module-Layer: org/netbeans/modules/a11y/layer.xml
+OpenIDE-Module-Short-Description: Allows accessibility of forms to be assessed at design-time.
+OpenIDE-Module-Long-Description: A tool to assess accessibility of forms created in the form editor at design time, allowing corrections to be made before deployment. Tool contains part for accessibility testing of IDE or another java application.
+Created-By: NetBeans
+
+Name: org/netbeans/modules/a11y/A11yAction.class
+OpenIDE-Module-Class: Action
