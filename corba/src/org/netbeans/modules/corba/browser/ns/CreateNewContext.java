@@ -54,7 +54,7 @@ public class CreateNewContext extends NodeAction {
             System.out.println ("CreateNewContext.java");
         CreateNewContextPanel p = new CreateNewContextPanel ();
         DialogDescriptor dd = new DialogDescriptor
-                              (p, "CORBA Panel", true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION,
+                              (p, NbBundle.getBundle(ContextNode.class).getString("CTL_CorbaTitle"), true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION,
                                DialogDescriptor.BOTTOM_ALIGN, null, null);
         TopManager.getDefault ().createDialog (dd).show ();
         if (dd.getValue () == DialogDescriptor.OK_OPTION) {

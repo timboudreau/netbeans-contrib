@@ -115,17 +115,17 @@ public class ObjectNode extends AbstractNode implements Node.Cookie {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("Name", String.class, "Name", "Name of Object") {
+        ss.put (new PropertySupport.ReadOnly ("Name", String.class, NbBundle.getBundle(ContextNode.class).getString("CTL_Name"), NbBundle.getBundle(ContextNode.class).getString("TIP_ObjectName")) {
                     public java.lang.Object getValue () {
                         return name;
                     }
                 });
-        ss.put (new PropertySupport.ReadOnly ("Kind", String.class, "Kind", "Kind of Object") {
+        ss.put (new PropertySupport.ReadOnly ("Kind", String.class, NbBundle.getBundle(ContextNode.class).getString("CTL_Kind"), NbBundle.getBundle(ContextNode.class).getString("TIP_ObjectType")) {
                     public java.lang.Object getValue () {
                         return getKind ();
                     }
                 });
-        ss.put (new PropertySupport.ReadOnly ("IOR", String.class, "IOR", "IOR of Object") {
+        ss.put (new PropertySupport.ReadOnly ("IOR", String.class, NbBundle.getBundle(ContextNode.class).getString("CTL_IOR"), NbBundle.getBundle(ContextNode.class).getString("TIP_ObjectIOR")) {
                     public java.lang.Object getValue () {
                         return ior;
                     }

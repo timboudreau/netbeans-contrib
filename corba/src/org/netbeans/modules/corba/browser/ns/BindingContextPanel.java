@@ -13,7 +13,7 @@
 
 package org.netbeans.modules.corba.browser.ns;
 
-
+import org.openide.util.NbBundle;
 
 
 
@@ -58,7 +58,7 @@ public class BindingContextPanel extends javax.swing.JPanel {
         setBorder (new javax.swing.border.EmptyBorder(new java.awt.Insets(8, 8, 8, 8)));
 
         nameLabel = new javax.swing.JLabel ();
-        nameLabel.setText ("Name:");
+        nameLabel.setText (NbBundle.getBundle(ContextNode.class).getString("CTL_LabelName"));
 
 
         gridBagConstraints1 = new java.awt.GridBagConstraints ();
@@ -80,7 +80,7 @@ public class BindingContextPanel extends javax.swing.JPanel {
         add (nameField, gridBagConstraints1);
 
         kindLabel = new javax.swing.JLabel ();
-        kindLabel.setText ("Kind:");
+        kindLabel.setText (NbBundle.getBundle(ContextNode.class).getString("CTL_LabelKind"));
 
 
         gridBagConstraints1 = new java.awt.GridBagConstraints ();
@@ -107,7 +107,7 @@ public class BindingContextPanel extends javax.swing.JPanel {
         add (kindField, gridBagConstraints1);
 
         urlLabel = new javax.swing.JLabel ();
-        urlLabel.setText ("URL:");
+        urlLabel.setText (NbBundle.getBundle(ContextNode.class).getString("CTL_LabelURL"));
 
 
         gridBagConstraints1 = new java.awt.GridBagConstraints ();
@@ -129,7 +129,7 @@ public class BindingContextPanel extends javax.swing.JPanel {
         add (urlField, gridBagConstraints1);
 
         iorLabel = new javax.swing.JLabel ();
-        iorLabel.setText ("IOR:");
+        iorLabel.setText (NbBundle.getBundle(ContextNode.class).getString("CTL_LabelIOR"));
 
 
         gridBagConstraints1 = new java.awt.GridBagConstraints ();

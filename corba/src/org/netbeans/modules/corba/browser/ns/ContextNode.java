@@ -408,21 +408,21 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("Name", String.class, "Name", "Name of Context") {
+        ss.put (new PropertySupport.ReadOnly ("Name", String.class, NbBundle.getBundle(ContextNode.class).getString("CTL_Name"), NbBundle.getBundle(ContextNode.class).getString("TIP_Name")) {
                     public java.lang.Object getValue () {
                         return name;
                     }
                 });
-        ss.put (new PropertySupport.ReadOnly ("Kind", String.class, "Kind", "Kind of Context") {
+        ss.put (new PropertySupport.ReadOnly ("Kind", String.class, NbBundle.getBundle(ContextNode.class).getString("CTL_Kind"), NbBundle.getBundle(ContextNode.class).getString("TIP_Kind")) {
                     public java.lang.Object getValue () {
                         return getKind ();
                     }
                 });
-        ss.put (new PropertySupport.ReadOnly ("IOR", String.class, "IOR", "IOR of Context") {
+        ss.put (new PropertySupport.ReadOnly ("IOR", String.class, NbBundle.getBundle(ContextNode.class).getString("CTL_IOR"), NbBundle.getBundle(ContextNode.class).getString("TIP_IOR")) {
                     public java.lang.Object getValue () {
                         if (orb == null)
                             lazyInit();
-                        return context != null ? orb.object_to_string (context) : "unknown";
+                        return context != null ? orb.object_to_string (context) : NbBundle.getBundle(ContextNode.class).getString("TXT_Unknown");
                     }
                 });
 

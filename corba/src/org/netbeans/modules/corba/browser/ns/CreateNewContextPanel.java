@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.corba.browser.ns;
 
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -38,7 +39,7 @@ public class CreateNewContextPanel extends javax.swing.JPanel {
         setBorder (new javax.swing.border.EmptyBorder(new java.awt.Insets(8, 8, 8, 8)));
 
         nameLabel = new javax.swing.JLabel ();
-        nameLabel.setText ("Name:");
+        nameLabel.setText (NbBundle.getBundle(ContextNode.class).getString("CTL_LabelName"));
 
 
         gridBagConstraints1 = new java.awt.GridBagConstraints ();
@@ -55,7 +56,7 @@ public class CreateNewContextPanel extends javax.swing.JPanel {
         add (nameField, gridBagConstraints1);
 
         kindLabel = new javax.swing.JLabel ();
-        kindLabel.setText ("Kind:");
+        kindLabel.setText (NbBundle.getBundle(ContextNode.class).getString("CTL_LabelKind"));
 
 
         gridBagConstraints1 = new java.awt.GridBagConstraints ();
