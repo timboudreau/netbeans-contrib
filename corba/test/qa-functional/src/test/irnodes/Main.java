@@ -189,7 +189,7 @@ public class Main extends JellyTestCase {
     public void perform (String ior) {
         assertTrue ("Invalid IOR: " + ior, ior != null  &&  ior.startsWith ("IOR:"));
         
-        irname = "IRCopyCodeTest_" + new SimpleDateFormat ("yyyyMMddHHmmss").format (new Date (System.currentTimeMillis()));
+        irname = "IRNodesTest_" + new SimpleDateFormat ("yyyyMMddHHmmss").format (new Date (System.currentTimeMillis()));
         out.println ("Adding IR");
         new CORBAInterfaceRepositoryNode (exp.runtimeTab().tree ()).addInterfaceRepository();
         AddInterfaceRepositoryDialog addir = new AddInterfaceRepositoryDialog ();
