@@ -670,19 +670,28 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     break;
             }
         } else {
-            addActionToProcess(new ActionListener() {
-                public void actionPerformed(ActionEvent ev) {
-                    if (vars != null) {
-                        String value = component.getDefaultValue();
-                        if (value != null) {
-                            value = Variables.expand(vars, value, false);
-                        }
-                        if (!component.needsPreCommandPerform()) {
-                            vars.put(component.getVariable(), value);
+
+            // for invisible components variables still make sense unless
+            // defined as mutually exclusive for either TRIVIAL or EXPERT mode
+
+            boolean expertSuffix = component.getVariable().endsWith(VariableInputDescriptor.INPUT_IS_EXPERT);
+            boolean trivialSuffix = component.getVariable().endsWith(VariableInputDescriptor.INPUT_IS_TRIVIAL);
+            boolean universal = !expertSuffix && !trivialSuffix;
+            if (universal || expertSuffix == expert || trivialSuffix == !expert) {
+                addActionToProcess(new ActionListener() {
+                    public void actionPerformed(ActionEvent ev) {
+                        if (vars != null) {
+                            String value = component.getDefaultValue();
+                            if (value != null) {
+                                value = Variables.expand(vars, value, false);
+                            }
+                            if (!component.needsPreCommandPerform()) {
+                                vars.put(component.getVariable(), value);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
         return gridy;
     }

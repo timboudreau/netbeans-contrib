@@ -1028,12 +1028,12 @@ Microsystems, Inc. All Rights Reserved.
                                                         IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RUN_RECURSIVELY, ResourceMsg1(COMMAND_ADD_Recursively), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Recursively);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Recursively_mnc)) ,"", "-l")
                                                         ASK_FOR(DO_COMMIT, ResourceMsg1(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_DoCommit_mnc)))])
 
-                 SELECT_RADIO_TRIVIAL(TRIVIAL_KFLAG, ResourceMsg1(COMMAND_ADD_BFlag), "", A11Y,
+                 SELECT_RADIO_TRIVIAL(KFLAG_TRIVIAL, ResourceMsg1(COMMAND_ADD_BFlag), "", A11Y,
                     ["ResourceMsg1(COMMAND_ADD_BFlag_a)", "", A11Y],
                     ["ResourceMsg1(COMMAND_ADD_BFlag_b)", "-kb", A11Y],
                     ["ResourceMsg1(COMMAND_ADD_BFlag_c)", "-kkv", A11Y] )
 
-                 SELECT_COMBO_EXPERT(RCS_KFLAG, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)),["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
+                 SELECT_COMBO_EXPERT(KFLAG_EXPERT, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)),["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
           </value>
 	</property>
         <property name="onDir">
@@ -1076,58 +1076,6 @@ Microsystems, Inc. All Rights Reserved.
               <value>&versioned-statuses;, "Yet-Unknown"</value>
           </property>
       </command>
-      <!--
-      <command name="ADD_DIR" displayName="ResourceMsg1(CVS_ADD)">
-        <property name="labelMnemonic">
-          <value>ResourceMsg1(CVS_ADD_Mnemonic)</value>
-        </property>
-	<property name="advancedName">
-	  <value>add</value>
-	</property>
-	<property name="supportsAdvancedMode">
-	  <value>true</value>
-	</property>
-	<property name="exec">
-	  <value>${RUNCDW} ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} add ${QFILES} ${NUR}</value>
-	</property>
-	<property name="onDir">
-	  <value>true</value>
-	</property>
-	<property name="onFile">
-	  <value>false</value>
-	</property>
-        <property name="disabledOnStatus">
-          <value>""</value>
-	</property>
-	<property name="data.regex">
-	  <value>$ ^</value>
-	</property>
-	<property name="error.regex">
-	  <value>$ ^</value>
-	</property>
-	<property name="onRoot">
-	  <value>true</value>
-	</property>
-        <property name="refreshParentFolder">
-          <value>true</value>
-        </property>
-        <property name="concurrentExec">
-          <value>12</value>
-        </property>
-        <property name="runOnMultipleFilesInFolder">
-          <value>true</value>
-        </property>
-        <property name="needsHierarchicalOrder">
-          <value>true</value>
-        </property>
-        <property name="notificationSuccessMsg">
-          <value>$[? MULTIPLE_FILES] [ResourceMsg1(NOTIFICATION_ADD_DIRs_Success, ${NUM_FILES})] [ResourceMsg1(NOTIFICATION_ADD_DIR_Success, ${FILE})]</value>
-        </property>
-        <property name="notificationFailMsg">
-          <value>$[? MULTIPLE_FILES] [ResourceMsg1(NOTIFICATION_ADD_DIRs_Fail, ${NUM_FILES})] [ResourceMsg1(NOTIFICATION_ADD_DIR_Fail, ${FILE})]</value>
-        </property>
-      </command>
-      -->
       <command name="ADD" displayName="ResourceMsg1(CVS_ADD)">
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_ADD_Mnemonic)</value>
@@ -1139,7 +1087,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add ${TRIVIAL_KFLAG} ${RCS_KFLAG} $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [$[? message] [-m ${QUOTE}${message}${QUOTE}] []] ${QFILES} ${NUR}</value>
+	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add $[? KFLAG_TRIVIAL] [${KFLAG_TRIVIAL}] [$[? KFLAG_EXPERT] [${KFLAG_EXPERT}] [$[? PROCESSING_BINARY_FILES] [-kb] []]] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [$[? message] [-m ${QUOTE}${message}${QUOTE}] []] ${QFILES} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>
@@ -1148,11 +1096,11 @@ Microsystems, Inc. All Rights Reserved.
             PROMPT_FOR(DESCRIPTION, ResourceMsg1(COMMAND_ADD_Description), "${message}",
                 ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Description);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Description_mnc))) 
             ASK_FOR(DO_COMMIT, ResourceMsg1(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_DoCommit_mnc)))
-            SELECT_RADIO_TRIVIAL(TRIVIAL_KFLAG, ResourceMsg1(COMMAND_ADD_BFlag), "", A11Y,
+            SELECT_RADIO_TRIVIAL(KFLAG_TRIVIAL, ResourceMsg1(COMMAND_ADD_BFlag), "", A11Y,
                 ["ResourceMsg1(COMMAND_ADD_BFlag_a)", "", A11Y],
                 ["ResourceMsg1(COMMAND_ADD_BFlag_b)", "-kb", A11Y],
                 ["ResourceMsg1(COMMAND_ADD_BFlag_c)", "-kkv", A11Y] )
-            SELECT_COMBO_EXPERT(RCS_KFLAG, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)), ["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
+            SELECT_COMBO_EXPERT(KFLAG_EXPERT, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)), ["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
           </value>
 	</property>
         <property name="visualizer">
@@ -1227,7 +1175,8 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="ADD_CMD">
 	<property name="exec">
-	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add ${TRIVIAL_KFLAG} ${RCS_KFLAG} $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [] ${QFILES} ${NUR}</value>
+        <!-- if user specified KFLAG use it otherwise use MIME based autodetection (that marks just binary files, leaving others on CVS)-->
+	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add $[? KFLAG_TRIVIAL] [${KFLAG_TRIVIAL}] [$[? KFLAG_EXPERT] [${KFLAG_EXPERT}] [$[? PROCESSING_BINARY_FILES] [-kb] []]] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [] ${QFILES} ${NUR}</value>
 	</property>
         <property name="visualizer">
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
