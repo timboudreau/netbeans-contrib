@@ -38,7 +38,7 @@ public final class DiffPages extends Object {
         File f2 = new File (args[1]);
         
         if (f1.isDirectory() && f2.isDirectory ()) {
-            generateIndex (f1, f2, new File (args[2]), new File (args[3]));
+            generateIndex (f1, f2, new File (args[2]));
             return;
         }
         
@@ -68,7 +68,7 @@ public final class DiffPages extends Object {
     }
     
     
-    private static void generateIndex (File dir1, File dir2, File index, File out) throws IOException {
+    private static void generateIndex (File dir1, File dir2, File out) throws IOException {
         Set files1 = new TreeSet ();
         allRefs (dir1, "", files1);
         
@@ -146,9 +146,10 @@ public final class DiffPages extends Object {
         w.close ();
         */
         
+        /*
         System.out.println("Writing index file index.html");
         updateLinks (index, out, dir1, dir2, res);
-
+        */
     }
     
     private static void updateLinks (File index, File out, File dir1, File dir2, ContentDiff res) throws IOException {

@@ -88,7 +88,7 @@ Microsystems, Inc. All Rights Reserved.
     
     
     <target name="compile">
-          <ant dir="${new-nb}/nbbuild" >
+          <ant dir="${new-nb}/nbbuild" target="build-nozip" >
             <property name="modules" value="diff" />
           </ant>
           <ant dir="${new-nb}/diff" />
@@ -108,14 +108,15 @@ Microsystems, Inc. All Rights Reserved.
              <jvmarg value="-Xmx512m" />
              <arg value="${old-javadoc}" /> 
              <arg value="${new-javadoc}" />
-             <arg value="list.html" />
              <arg value="diff" />
              <classpath>
                   <pathelement location="${new-nb}/diff/netbeans/modules/diff.jar" />
                   <pathelement location="${new-nb}/openide/netbeans/lib/openide.jar" />
                   <pathelement location="netbeans/modules/eager/htmldiff.jar" />
              </classpath>
-        </java>    
+        </java>
+        <delete file="diff/index.html" />
+        <copy file="list.html" tofile="diff/index.html" />  
     </target>
     
     <target name="all" depends="new-co, old-co, new-javadoc, old-javadoc, api-list, diff" />

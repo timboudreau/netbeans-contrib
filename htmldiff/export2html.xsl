@@ -33,7 +33,19 @@ Microsystems, Inc. All Rights Reserved.
         <body>
 
         <center><h1>NetBeans Architecture Documents List</h1></center>
+        
+        
+        <h3>Major Changes</h3>
 
+        <UL>
+            <li>(Nov 12 '03) New Window System implementation (<a href="OpenAPIs/apichanges.html#issue-29836">4.13</a>) </li>
+            <li>(Aug 25 '03) Actions can be run directly in event thread (<a href="OpenAPIs/apichanges.html#actions-event-thread">4.11</a>) </li>
+            <li>(Jul 16 '03) Property Sheet Rewrite (<a href="OpenAPIs/apichanges.html#issue-29447">4.9</a>)</li>
+            <li>(May 14 '03) J2SE 1.4 required (<a href="OpenAPIs/apichanges.html#jdk1.4">4.6</a>) </li>
+            <li>(Apr 2 '03) DataSystems separated into own JAR file (<a href="LoadersAPI/apichanges.html#issue-32937">4.3</a>)</li>
+        </UL>
+        
+        <h3>List of all components</h3>
         <!--
         This document provides a simple list of <em>NetBeans Architecture Documents</em>. 
         If you are looking for a more detailed overview, check <a href="index.html">
@@ -64,13 +76,16 @@ Microsystems, Inc. All Rights Reserved.
                                     <xsl:value-of select="@target" />
                                 </xsl:attribute>
                                 <xsl:value-of select="@name"/>
-                            </a> 
+                            </a>
+                            -
+                            <!-- 
                             (<a><xsl:attribute name="href">
                                     <xsl:value-of select="substring-before(@target, '/')" /><xsl:text>/list.html</xsl:text>
                                 </xsl:attribute>
                                 list of changed pages</a>)
-                                
+                                -->
                             <xsl:apply-templates select="description" />
+                            <p/>
                         </li>
                     </xsl:when>
                     <xsl:otherwise>
