@@ -667,6 +667,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
         }
     }
 
+    /** @return never <code>null</code> */
     List dispatchScan(DataObject dataobject, ProviderAcceptor acceptor) {
 
         if (dataobject.isValid() == false) return Collections.EMPTY_LIST;

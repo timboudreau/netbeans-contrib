@@ -618,13 +618,19 @@ err.log("Couldn't find current nodes...");
                     List previous = (List) openedFilesSuggestionsMap.remove(fo);
                     openedFilesSuggestionsMap.put(fo, scannedSuggestions);
 
-                    getAllOpenedSuggestionList().addRemove(scannedSuggestions, previous, false, null, null);
+                    // fast check if anything have changed, avoid firing events from tasklist
+                    if (previous == null || previous.size() != scannedSuggestions.size() || previous.containsAll(scannedSuggestions) == false) {
+                        getAllOpenedSuggestionList().addRemove(scannedSuggestions, previous, false, null, null);
+                    }
                 }
 
                 if (clientCount > 0) {
                     List previous = new ArrayList(getCurrentSuggestionsList().getTasks());
-                    getCurrentSuggestionsList().addRemove(scannedSuggestions, previous, false, null, null);
 
+                    // fast check if anything have changed, avoid firing events from tasklist
+                    if (previous == null || previous.size() != scannedSuggestions.size() || previous.containsAll(scannedSuggestions) == false) {
+                        getCurrentSuggestionsList().addRemove(scannedSuggestions, previous, false, null, null);
+                    }
                 }
 
                 // enforce comparable requests, works only for single request source
