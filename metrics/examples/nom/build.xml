@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="metrics-nom" basedir="." default="netbeans">
+
+  <target name="compile" depends="check-root">
+    <javac srcdir="src" destdir="src" deprecation="true"
+     debug="${build.compiler.debug}"> 
+     <classpath>
+       <fileset dir="../../../openide/netbeans/lib">
+         <include name="openide*.jar" />
+       </fileset>
+       <pathelement location="../../../metrics/netbeans/modules/metrics.jar" />
+    </classpath>
+    </javac>
+  </target>
+
+       
+  <target name="jars" depends="compile">
+    <mkdir dir="netbeans/modules" />
+    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+    <jar jarfile="netbeans/modules/metrics-nom.jar" 
+     manifest="manifest-subst.mf" 
+     basedir="src" 
+     excludesfile="jar-excludes.txt" 
+     compress="false"/>
+  </target>
+
+  <target name="netbeans" depends="jars"/>
+
+  <target name="check-root" depends="check-root-file" unless="root-specified">
+     <fail message="Environment variable NB_ROOT invalid or not set."/>
+  </target>
+  <target name="check-root-file">
+     <available property="root-specified" file="../../../nbbuild/build.xml"/>
+  </target>
+
+  <target name="clean">
+    <delete>
+      <fileset dir="src">
+        <include name="**/*.class"/>
+      </fileset>
+    </delete>
+    <delete file="manifest-subst.mf"/>
+    <delete file="metrics-nom.nbm"/>
+    <delete dir="netbeans"/>
+    <delete dir="Info"/>
+  </target>
+
+  <target name="real-clean" depends="clean">
+  </target>
+
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../../nbbuild/nbantext.jar"/>
+  <target name="nbm" depends="netbeans">
+    <makenbm file="metrics-nom.nbm"
+             topdir="."
+             module="netbeans/modules/metrics-nom.jar"
+	     homepage="http://www.netbeans.org"
+	     distribution="http://www.netbeans.org/download/nbms/40/metrics-nom.nbm">
+      <license file="../nbbuild/standard-nbm-license.txt"/>
+      <!--signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"-->
+    </makenbm>
+  </target>
+
+</project>

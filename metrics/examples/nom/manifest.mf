@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.metrics.nom/1
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.metrics/1
+OpenIDE-Module-Name: NOM Metric
+OpenIDE-Module-Short-Description: Number of methods metric plug-in.
+OpenIDE-Module-Display-Category: Java
+OpenIDE-Module-Specification-Version: 0.6.1
+OpenIDE-Module-Implementation-Version: 0.1
+OpenIDE-Module-Layer: org/netbeans/modules/metrics/nom/mf-layer.xml
