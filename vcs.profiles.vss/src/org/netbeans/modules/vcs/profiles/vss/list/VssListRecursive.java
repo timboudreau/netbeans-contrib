@@ -21,6 +21,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.netbeans.modules.vcscore.Variables;
@@ -268,11 +269,6 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
     private void processUndistinguishableFiles(Hashtable vars, String cmdName) throws InterruptedException {
         VcsCommand cmd = fileSystem.getCommand(cmdName);
         if (cmd != null) {
-            String dir = (String) vars.get("DIR");
-            if (dir == null) {
-                dir = "";
-            }
-            boolean dirAppend = dir.length() > 0;
             String psStr = (String) vars.get("PS");
             char ps;
             if (psStr == null) ps = File.separatorChar;
@@ -288,7 +284,8 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
                 VcsDirContainer filesByNameCont = (path.length() > 0) ? rootFilesByNameCont.getContainerWithPath(path) : rootFilesByNameCont;
                 Hashtable filesByName = (Hashtable) filesByNameCont.getElement();
                 Hashtable varsCmd = new Hashtable(vars);
-                varsCmd.put("DIR", (dirAppend) ? (dir + ps + path.replace('/', ps)) : path.replace('/', ps));
+                varsCmd.put("DIR", path.replace('/', ps));
+                varsCmd.put("MODULE", relDir);
                 String[] files = getUndistinguishableFiles(pattern, filesByName.keySet());
                 for (int i = 0; i < files.length; i++) {
                     String file = files[i];
@@ -548,12 +545,15 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
                 skipNextLine = true;
                 Hashtable filesByName = (Hashtable) lastFilesCont.getElement();
                 String pattern = elements[0].substring(0, VssListCommand.STATUS_POSITION).trim();
-                file = getDistinguishable(pattern, filesByName);
+                file = getDistinguishable(pattern, filesByName.keySet());
                 if (file != null) {
                     String[] statuses = (String[]) filesByName.get(file);
                     statuses[2] = VssListCommand.addLocker(statuses[2], VssListCommand.parseLocker(elements[0].substring(index, index2).trim()));
                 } else {
-                    undistiguishable.add(lastFilesCont.getPath()+"/"+pattern);
+                    String patternPath = lastFilesCont.getPath()+"/"+pattern;
+                    if (!undistiguishable.contains(patternPath)) {
+                        undistiguishable.add(patternPath);
+                    }
                 }
             }
         } else {
@@ -561,11 +561,11 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         }
     }
     
-    private static String getDistinguishable(String pattern, Map files) {
+    private static String getDistinguishable(String pattern, Set files) {
         String file = null;
-        for (Iterator it = files.keySet().iterator(); it.hasNext(); ) {
+        for (Iterator it = files.iterator(); it.hasNext(); ) {
             String fileName = (String) it.next();
-            if (pattern.equals(fileName.substring(0, Math.min(pattern.length(), fileName.length())))) {
+            if (pattern.equals(fileName.substring(0, Math.min(VssListCommand.STATUS_POSITION, fileName.length())).trim())) {
                 if (file != null) {
                     return null;
                 } else {
