@@ -249,11 +249,15 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
             if (fileInfoContainer != null) {
                 File lastFile = fileInfoContainer.getFile();
                 if (lastFile != null) {
-                    bestMatch = new File(lastFile.getParentFile(), name);
+                    if (name.indexOf('/') > 0) {
+                        bestMatch = new File(name);
+                    } else {
+                        bestMatch = new File(lastFile.getParentFile(), name);
+                    }
                 }
             }
             if (bestMatch == null) {
-                if (paths.length > 0) {
+                if (paths.length > 0 && !".".equals(paths[0])) {
                     bestMatch = new File(paths[0] + File.separator + fileName);
                 } else {
                     bestMatch = new File(fileName);
