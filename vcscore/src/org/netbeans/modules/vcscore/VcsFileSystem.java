@@ -2691,20 +2691,24 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     String[] addLocalFiles(String name, String[] cachedFiles, Map removedFilesScheduledForRemove) {
         String[] files = getLocalFiles(name);
+        String[] mergedFiles;
         if (files == null || files.length == 0) {
-            return cachedFiles;
+            files = new String[0];
+            mergedFiles = cachedFiles;
+        } else {
+            Vector cached = new Vector(Arrays.asList(cachedFiles));
+            Vector local = new Vector(Arrays.asList(files));
+            local.removeAll(cached);
+            checkScheduledLocals(name, local, removedFilesScheduledForRemove);
+            cached.addAll(local);
+            mergedFiles = (String[]) cached.toArray(new String[0]);
         }
-        Vector cached = new Vector(Arrays.asList(cachedFiles));
-        Vector local = new Vector(Arrays.asList(files));
-        local.removeAll(cached);
-        checkScheduledLocals(name, local, removedFilesScheduledForRemove);
-        cached.addAll(local);
         if (cache != null) {
             if (missingFileStatus != null || missingFolderStatus != null) {
                 markAsMissingFiles(name, files, cachedFiles);
             }
         }
-        return (String[]) cached.toArray(new String[0]);
+        return mergedFiles;
     }
     
     private void markAsMissingFiles(String name, String[] local, String[] cached) {
