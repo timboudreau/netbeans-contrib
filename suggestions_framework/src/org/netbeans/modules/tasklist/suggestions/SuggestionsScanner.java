@@ -148,6 +148,7 @@ public final class SuggestionsScanner {
                     continue;
                 }
 
+                boolean isPrimed = edit.getDocument() == null;
                 SuggestionContext env = SPIHole.createSuggestionContext(f);
 
                 if (progressMonitor == null) {
@@ -159,6 +160,15 @@ public final class SuggestionsScanner {
                 }
 
                 scanLeaf(list, env);
+
+                // XXX default editor cookie implementation (CloneableEditorSupport)
+                // does not release documents on unless one explicitly
+                // call close() that as side effect closes all components.
+                // So call close() is we are likely only document users
+                if (isPrimed && edit.getOpenedPanes() == null) {
+                    edit.close();
+                }
+
                 if (progressMonitor != null) {
                     progressMonitor.fileScanned(f.getPrimaryFile());
                 }
