@@ -6,6 +6,7 @@
         <folder name="Tools">
                 <file name="org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
+                <file name="org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.instance"/>
         </folder>
         <folder name="Help">
            <folder name="HelpShortcuts">
@@ -24,11 +25,15 @@
         <file name="CA-R.instance">
 	    <attr name="instanceClass" stringvalue="org.netbeans.modules.jemmysupport.bundlelookup.BundleLookupAction"/>
 	</file>
+        <file name="CA-A.instance">
+	    <attr name="instanceClass" stringvalue="org.netbeans.modules.jemmysupport.namelookup.NameLookupAction"/>
+	</file>
     </folder>
     <folder name="Toolbars">
         <folder name="Jemmy Support">
                 <file name="org-netbeans-modules-jemmysupport-generator-GeneratorAction.instance"/>
                 <file name="org-netbeans-modules-jemmysupport-bundlelookup-BundleLookupAction.instance"/>
+                <file name="org-netbeans-modules-jemmysupport-namelookup-NameLookupAction.instance"/>
         </folder>
     </folder>
     <folder name="Services">
