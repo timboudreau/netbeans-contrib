@@ -349,6 +349,7 @@ public class JellyAddCommands extends JellyStub {
             dumpDiffGraphical (tco);
         } finally {
             tco.close();
+            waitIsShowing(tco.getSource());
         }
 
         difffile.cvsNode (exp).cVSDiffGraphical();
@@ -365,6 +366,7 @@ public class JellyAddCommands extends JellyStub {
             dumpDiffGraphical (tco);
         } finally {
             tco.close();
+            waitIsShowing(tco.getSource());
         }
 
         compareReferenceFiles();
@@ -386,6 +388,7 @@ public class JellyAddCommands extends JellyStub {
             dumpDiffGraphicalTextual (tco);
         } finally {
             tco.close();
+            waitIsShowing(tco.getSource());
         }
 
         difffile.cvsNode (exp).cVSDiffGraphical();
@@ -402,6 +405,7 @@ public class JellyAddCommands extends JellyStub {
             dumpDiffGraphicalTextual (tco);
         } finally {
             tco.close();
+            waitIsShowing(tco.getSource());
         }
 
         compareReferenceFiles();
