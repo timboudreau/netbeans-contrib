@@ -80,20 +80,6 @@ final class UserTaskNode extends AbstractNode {
         this.item = item;
         this.node = node;
         
-        //init();
-    } 
-
-    /**
-     * TODO: comment
-     */
-    public UserTask getTask() {
-        return item;
-    }
-    
-    /**
-     * Common part of both constructors
-     */
-    private void init() {
         item.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent e) {
                 String n = e.getPropertyName();
@@ -102,6 +88,13 @@ final class UserTaskNode extends AbstractNode {
                 }
             }
         });
+    } 
+
+    /**
+     * TODO: comment
+     */
+    public UserTask getTask() {
+        return item;
     }
     
     protected void updateIcon() {
@@ -403,6 +396,7 @@ final class UserTaskNode extends AbstractNode {
             item.getParent().removeSubtask(item);
         else
             utl.removeTask(item);
+        super.destroy();
     }
     
     /**

@@ -111,6 +111,28 @@ public class TreeTable extends JTable {
     }
 
     /**
+     * Expands all nodes
+     */    
+    public void expandAll() {
+        TreePath tp = new TreePath(tree.getModel().getRoot());
+        expandAllUnder(tp);
+    }
+    
+    /**
+     * Expands all nodes under the specified path
+     *
+     * @param tp the path
+     */
+    public void expandAllUnder(TreePath tp) {
+        tree.expandPath(tp);
+        Object last = tp.getLastPathComponent();
+        for (int i = 0; i < tree.getModel().getChildCount(last); i++) {
+            Object child = tree.getModel().getChild(last, i);
+            expandAllUnder(tp.pathByAddingChild(child));
+        }
+    }
+    
+    /**
      * Sets new sorting model
      *
      * @param sm new sorting model or null

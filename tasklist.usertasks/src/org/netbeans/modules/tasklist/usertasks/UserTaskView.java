@@ -160,10 +160,17 @@ public class UserTaskView extends TaskListView implements TaskListener {
         if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
             InputMap keys = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
             if (keys != null) {
+                UTUtils.LOGGER.fine("InputMap.class: " + keys.getClass());
                 KeyStroke[] ks = keys.keys();
-                for (int i = 0; i < ks.length; i++) {
-                    UTUtils.LOGGER.fine(ks[i] + " " + keys.get(ks[i]));
+                if (ks != null) {
+                    for (int i = 0; i < ks.length; i++) {
+                        UTUtils.LOGGER.fine(ks[i] + " " + keys.get(ks[i]));
+                    }
+                } else {
+                    UTUtils.LOGGER.fine("InputMap.keys() == null");
                 }
+            } else {
+                UTUtils.LOGGER.fine("InputMap == null");
             }
         }
     }
@@ -596,7 +603,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     protected void loadColumnsConfiguration() {
-        if (UTUtils.LOGGER.isLoggable(Level.FINE))
+        if (UTUtils.LOGGER.isLoggable(Level.FINER))
             Thread.dumpStack();
         if (tt == null)
             return;
@@ -604,4 +611,9 @@ public class UserTaskView extends TaskListView implements TaskListener {
         ColumnsConfiguration cc = getDefaultColumns();
         tt.loadColumns(cc);
     }
+    
+    public void expandAll() {
+        tt.expandAll();
+    }
+    
 }
