@@ -1586,7 +1586,16 @@ final public class SuggestionManagerImpl extends SuggestionManager
     /** List of suggestions restored from the cache that we must delete
         when leaving this document */
     private List docSuggestions = null;
-    
+
+    private void setScanning(boolean scanning) {
+        SuggestionList tasklist = getList();
+        TaskListView v = tasklist.getView();
+        if (v instanceof SuggestionsView) {
+            SuggestionsView view = (SuggestionsView)v;
+            view.setScanning(scanning);
+        }
+    }
+
     /**
      * The given document has been edited or saved, and a time interval
      * (by default around 2 seconds I think) has passed without any
@@ -1605,6 +1614,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
      */
     public void rescan(final Document document,
                        final DataObject dataobject) {
+        setScanning(true);
         if ((docSuggestions != null) && (docSuggestions.size() > 0)) {
             // Clear out previous items before a rescan
             register(null, null, docSuggestions, getList(), null, true);
@@ -1671,6 +1681,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
         if (stats) {
             System.out.println("TOTAL SCAN TIME = " + total + "\n");
+        }
+        if (currRequest == finishedRequest) {
+            setScanning(false);
         }
                  }});
     }
