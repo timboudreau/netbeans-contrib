@@ -62,6 +62,7 @@ public class CommandLineVcsFileSystemNode extends AbstractNode {
         obj.addPropertyChangeListener(WeakListener.propertyChange(xmlPropertyListener, obj));
         setIconBase("org/netbeans/modules/vcs/advanced/vcsGeneric"); // NOI18N
         getCookieSet().add(ic);
+        getCookieSet().add(obj);
         updateState();
     }
     
