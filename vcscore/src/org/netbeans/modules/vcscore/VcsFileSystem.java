@@ -707,6 +707,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 } catch (IOException exc) {}
                 removeScheduledFromPrimary(fo, 1);
             }
+            /*
             if (VcsAttributes.VCS_SCHEDULING_REMOVE.equals(attr) && scheduledStatusRemove != null &&
                 !scheduledStatusRemove.equals(status.getFileStatus(fo.getPackageNameExt('/', '.')))) {
                 try {
@@ -714,6 +715,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 } catch (IOException exc) {}
                 removeScheduledFromPrimary(fo, 0);
             }
+             */
         }
     }
     
@@ -728,8 +730,20 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Set[] scheduled = (Set[]) primary.getAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
         if (scheduled != null && scheduled[id] != null) {
             scheduled[id].remove(fo.getPackageNameExt('/', '.'));
+            scheduled = cleanScheduledAttrs(scheduled);
             try {
                 primary.setAttribute(VcsAttributes.VCS_SCHEDULED_FILES_ATTR, scheduled);
+            } catch (IOException exc) {}
+        }
+    }
+    
+    private void removeScheduledFromPrimary(String scheduledFile, String primaryFile, int id) {
+        Set[] scheduled = (Set[]) attr.readAttribute(primaryFile, VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
+        if (scheduled != null && scheduled[id] != null) {
+            scheduled[id].remove(scheduledFile);
+            scheduled = cleanScheduledAttrs(scheduled);
+            try {
+                attr.writeAttribute(primaryFile, VcsAttributes.VCS_SCHEDULED_FILES_ATTR, scheduled);
             } catch (IOException exc) {}
         }
     }
@@ -1931,8 +1945,34 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         String files[] = dir.list(getLocalFileFilter());
         return files;
     }
+    
+    /**
+     * The file scheduled for remove is onthe disk.
+     * If it does not contain VcsAttributes.VCS_SCHEDULING_REMOVE,
+     * it will be removed from the list of scheduled files, because it was
+     * deleted and reappeared.
+     */
+    private void checkScheduledLocals(String path, Collection locals, Map removedFilesScheduledForRemove) {
+        FileStatusProvider status = getStatusProvider();
+        if (status == null) return ;
+        VcsConfigVariable schVar = (VcsConfigVariable) variablesByName.get(VAR_STATUS_SCHEDULED_REMOVE);
+        String scheduledStatusRemove = (schVar != null) ? schVar.getValue() : null;
+        if (scheduledStatusRemove == null) return ;
+        for (Iterator it = locals.iterator(); it.hasNext(); ) {
+            String name = path + "/" + it.next();
+            if (removedFilesScheduledForRemove.containsKey(name)) {
+                String primary = (String) removedFilesScheduledForRemove.get(name);
+                //System.out.println("checkScheduledLocals("+name+")");
+                String attribute = (String) attr.readAttribute(name, VcsAttributes.VCS_SCHEDULED_FILE_ATTR);
+                //System.out.println("attr("+VcsAttributes.VCS_SCHEDULED_FILE_ATTR+") = "+attr);
+                if (!VcsAttributes.VCS_SCHEDULING_REMOVE.equals(attribute)) {
+                    removeScheduledFromPrimary(name, primary, 0);
+                }
+            }
+        }
+    }
 
-    private String[] addLocalFiles(String name, String[] cachedFiles) {
+    private String[] addLocalFiles(String name, String[] cachedFiles, Map removedFilesScheduledForRemove) {
         String[] files = getLocalFiles(name);
         if (files == null || files.length == 0) {
             return cachedFiles;
@@ -1940,6 +1980,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Vector cached = new Vector(Arrays.asList(cachedFiles));
         Vector local = new Vector(Arrays.asList(files));
         local.removeAll(cached);
+        checkScheduledLocals(name, local, removedFilesScheduledForRemove);
         cached.addAll(local);
         return (String[]) cached.toArray(new String[0]);
     }
@@ -1959,6 +2000,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return new String[0];
         }
 
+        HashMap removedFilesScheduledForRemove = new HashMap();
         if (cache != null) {// && cache.isDir(name)) {
             cache.readDirFromDiskCache(name);
             vcsFiles = cache.getFilesAndSubdirs(name);
@@ -1977,14 +2019,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return files;
             */
             if (vcsFiles != null) {
-                vcsFiles = filterScheduledSecondaryFiles(name, vcsFiles);
+                vcsFiles = filterScheduledSecondaryFiles(name, vcsFiles, removedFilesScheduledForRemove);
             }
         }
         if (vcsFiles == null || isHideShadowFiles()) files = getLocalFiles(name);
-        else files = addLocalFiles(name, vcsFiles);
+        else files = addLocalFiles(name, vcsFiles, removedFilesScheduledForRemove);
         //D.deb("children('"+name+"') = "+VcsUtilities.arrayToString(files));
         if (cache != null) {
             VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
+            //System.out.println("files = "+VcsUtilities.arrayToString(files));
+            //System.out.println("cacheDir = "+cacheDir+"; is Loaded = "+((cacheDir != null) ? ""+cacheDir.isLoaded() : "x")+", is Local = "+((cacheDir != null) ? ""+cacheDir.isLocal() : "x"));
             if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal()))) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
         }
         //System.out.println("children = "+files);
@@ -1992,7 +2036,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return files;
     }
 
-    private String[] filterScheduledSecondaryFiles(String packageName, String[] files) {
+    private String[] filterScheduledSecondaryFiles(String packageName, String[] files, Map removedFiles) {
         ArrayList filtered = new ArrayList(Arrays.asList(files));
         for (int i = 0; i < files.length; i++) {
             Set[] scheduled = (Set[]) attr.readAttribute(packageName + "/" + files[i], VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
@@ -2011,11 +2055,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                             try {
                                 attr.writeAttribute(secFile, VcsAttributes.VCS_SCHEDULED_FILE_ATTR, null);
                             } catch (IOException exc) {}
+                        } else {
+                            removedFiles.put(secFile, packageName + "/" + files[i]);
                         }
                     }
                 }
                 if (toRemove.size() > 0) {
                     scheduled[0].removeAll(toRemove);
+                    scheduled = cleanScheduledAttrs(scheduled);
                     try {
                         attr.writeAttribute(packageName + "/" + files[i], VcsAttributes.VCS_SCHEDULED_FILES_ATTR, scheduled);
                     } catch (IOException exc) {}
@@ -2023,6 +2070,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         return (String[]) filtered.toArray(new String[0]);
+    }
+    
+    private static final Set[] cleanScheduledAttrs(Set[] scheduled) {
+        //System.out.print("cleanScheduledAttrs("+scheduled+") = ");
+        boolean canClean = true;
+        for (int k = 0; k < scheduled.length; k++) {
+            if (scheduled[k] != null && scheduled[k].size() == 0) scheduled[k] = null;
+            if (scheduled[k] != null) {
+                canClean = false;
+                break;
+            }
+        }
+        if (canClean) scheduled = null;
+        //System.out.println(scheduled);
+        return scheduled;
     }
 
     // create local folder for existing VCS folder that is missing
