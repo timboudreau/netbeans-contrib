@@ -13,6 +13,9 @@
 
 package org.netbeans.modules.vcscore.grouping;
 
+import org.openide.actions.DeleteAction;
+import org.openide.actions.PropertiesAction;
+import org.openide.actions.ToolsAction;
 import org.openide.nodes.*;
 import org.openide.loaders.*;
 import org.openide.filesystems.*;
@@ -93,7 +96,21 @@ public class VcsGroupFileNode extends FilterNode {
     
     public org.openide.util.actions.SystemAction[] getActions() {
         SystemAction[] actions = originalNode.getActions();
+        List actionsList = Arrays.asList(actions);
+        if (!actionsList.contains(SystemAction.get(DeleteAction.class))) {
+            actions = addDelete(actionsList);
+        }
         return actions;
+    }
+    
+    private SystemAction[] addDelete(List actionsList) {
+        actionsList = new ArrayList(actionsList);
+        int i = actionsList.size() - 1;
+        if (i >= 0 && actionsList.get(i).equals(SystemAction.get(PropertiesAction.class))) i--;
+        if (i >= 0 && actionsList.get(i).equals(SystemAction.get(ToolsAction.class))) i--;
+        i++;
+        actionsList.add(i, SystemAction.get(DeleteAction.class));
+        return (SystemAction[]) actionsList.toArray(new SystemAction[0]);
     }
     
     
