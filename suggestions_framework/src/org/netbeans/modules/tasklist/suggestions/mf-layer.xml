@@ -28,7 +28,7 @@ Microsystems, Inc. All Rights Reserved.
         <attr name="org-netbeans-modules-tasklist-javaparser-parse-error.xml/org-netbeans-modules-tasklist-usertasks-duetasks.xml" boolvalue="true" />
         <attr name="org-netbeans-modules-tasklist-usertasks-duetasks.xml/pmd-rule_violation.xml" boolvalue="true" />
         <attr name="pmd-rule_violation.xml/org-netbeans-modules-tasklist-html-docerror.xml" boolvalue="true" />
-        <attr name="org-netbeans-modules-tasklist-docscan-scanned_task.xml/org-netbeans-modules-tasklist-docscan-scanned_task.xml" boolvalue="true" />
+        <attr name="org-netbeans-modules-tasklist-html-docerror.xml/org-netbeans-modules-tasklist-docscan-scanned_task.xml" boolvalue="true" />
         <attr name="org-netbeans-modules-tasklist-docscan-scanned_task.xml/org-netbeans-modules-tasklist-javadoc-docerror.xml" boolvalue="true" />
         <attr name="org-netbeans-modules-tasklist-javadoc-docerror.xml/org-netbeans-modules-tasklist-docscan-copyright_suggestion.xml" boolvalue="true" />
       </folder>
