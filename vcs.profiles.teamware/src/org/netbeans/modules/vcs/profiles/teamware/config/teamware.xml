@@ -25,10 +25,10 @@ Contributor(s): Daniel Blaukopf.
             <value>Teamware</value>
         </variable>
         <variable basic="false" name="POSSIBLE_FILE_STATUSES">
-            <value>"Checked in", "Local", "Editing", "Ignored", "Needs checkout", ""</value>
+            <value>"Checked in", "Local", "Editing", "Ignored", "Needs checkout", "Writable but not checked out for editing", ""</value>
         </variable>
         <variable basic="false" name="GENERIC_STATUS_MODIFIED">
-            <value>"Editing"</value>
+            <value>"Editing", "Writable but not checked out for editing"</value>
         </variable>
         <variable basic="false" name="GENERIC_STATUS_UP_TO_DATE">
             <value>"Checked in", ""</value>
@@ -97,7 +97,30 @@ Contributor(s): Daniel Blaukopf.
                     <value>false</value>
                 </property>
                 <property name="disabledOnStatus">
-                    <value>"Local", "Editing", "Ignored", "Checked in"</value>
+                    <value>"Local", "Editing", "Ignored", "Checked in", "Writable but not checked out for editing"</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>true</value>
+                </property>
+                <property name="refreshProcessedFiles">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Undo changes" name="UNEDIT_WITHOUT_EDIT">
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareGetCommand.class</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Editing", "Ignored", "Checked in", "Needs Checkout"</value>
                 </property>
                 <property name="checkForModifications">
                     <value>true</value>
@@ -120,7 +143,30 @@ Contributor(s): Daniel Blaukopf.
                     <value>false</value>
                 </property>
                 <property name="disabledOnStatus">
-                    <value>"Local", "Editing", "Ignored", "Needs checkout"</value>
+                    <value>"Local", "Editing", "Ignored", "Needs checkout", "Writable but not checked out for editing"</value>
+                </property>
+                <property name="checkForModifications">
+                    <value>true</value>
+                </property>
+                <property name="refreshProcessedFiles">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Check out for editing, preserving changes" name="EDIT_POST_FACTO">
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareEditPostFactoCommand.class</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Editing", "Ignored", "Needs checkout", "Checked in"</value>
                 </property>
                 <property name="checkForModifications">
                     <value>true</value>
@@ -146,7 +192,7 @@ Contributor(s): Daniel Blaukopf.
                     <value>false</value>
                 </property>
                 <property name="disabledOnStatus">
-                    <value>"Local", "Checked in", "Ignored", "Needs checkout"</value>
+                    <value>"Local", "Checked in", "Ignored", "Needs checkout", "Writable but not checked out for editing"</value>
                 </property>
                 <property name="generalCommandActionClassName">
                     <value>org.netbeans.modules.vcscore.actions.CommitCommandAction</value>
@@ -195,7 +241,7 @@ Contributor(s): Daniel Blaukopf.
                     <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
                 </property>
                 <property name="disabledOnStatus">
-                    <value>"Editing", "Checked in", "Needs checkout"</value>
+                    <value>"Editing", "Checked in", "Needs checkout", "Writable but not checked out for editing"</value>
                 </property>
                 <property name="checkForModifications">
                     <value>true</value>
@@ -227,7 +273,7 @@ You will lose any changes.</value>
                     <value>false</value>
                 </property>
                 <property name="disabledOnStatus">
-                    <value>"Local", "Checked in", "Ignored", "Needs checkout"</value>
+                    <value>"Local", "Checked in", "Ignored", "Needs checkout", "Writable but not checked out for editing"</value>
                 </property>
                 <property name="checkForModifications">
                     <value>true</value>
@@ -256,7 +302,7 @@ the last check-in, without deleting changes.</value>
                     <value>false</value>
                 </property>
                 <property name="disabledOnStatus">
-                    <value>"Local", "Editing", "Ignored", "Needs checkout"</value>
+                    <value>"Local", "Editing", "Ignored", "Needs checkout", "Writable but not checked out for editing"</value>
                 </property>
                 <property name="checkForModifications">
                     <value>true</value>

@@ -118,6 +118,31 @@ public class SFile {
         baseFileOut.close();
     }
     
+    public synchronized void editPostFacto() throws IOException {
+        File baseFile = getBaseFile();
+        File pFile = new File(sFile.getParent(),
+            "p." + baseFile.getName());
+        if (pFile.exists()) {
+            throw new IOException("SCCS" + File.separator + pFile.getName()
+                + " exists");
+        }
+        SRevisionItem activeRevision = getRevisions().getActiveRevision();
+        String[] components = activeRevision.getRevision().split("\\.");
+        int newLeaf = 1 + Integer.parseInt(components[components.length - 1]);
+        StringBuffer newRevBuffer = new StringBuffer();
+        for (int i = 0; i < components.length - 1; i++) {
+            newRevBuffer.append(components[i]);
+            newRevBuffer.append(".");
+        }
+        newRevBuffer.append(newLeaf);
+        Writer pFileWriter = new FileWriter(pFile);
+        pFileWriter.write(activeRevision.getRevision() + " ");
+        pFileWriter.write(newRevBuffer.toString() + " ");
+        pFileWriter.write(System.getProperty("user.name") + " ");
+        pFileWriter.write(dateTime(System.currentTimeMillis()) + "\n");
+        pFileWriter.close();
+    }
+
     public synchronized void unedit() throws IOException {
         String name = sFile.getName().substring(2);
         File pFile = new File(sFile.getParent(),
@@ -507,7 +532,7 @@ public class SFile {
                 || dataMatches(baseData, expectedData2);
         if (!match) {
             throw new IOException(baseFile.getName()
-                    + "is writable and has been changed.");
+                    + " is writable and has been changed.");
         }
     }
     
