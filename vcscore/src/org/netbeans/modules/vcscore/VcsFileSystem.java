@@ -1471,6 +1471,44 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (Boolean.getBoolean("netbeans.experimental.RepositoryTest") == false ) {  // NOI18N disabled in unit tests
             integritySupportMaintainer = new IntegritySupportMaintainer(this, this);
         }
+        
+        /* Use for debug purposes to see who is doing what
+         *
+        class FSListener extends Object implements FileChangeListener {
+            public FSListener() {}
+            
+            public void fileDataCreated(org.openide.filesystems.FileEvent fe) {
+                System.out.println("FS DataCreated: "+fe);
+                td();
+            }
+            public void fileFolderCreated(org.openide.filesystems.FileEvent fe) {
+                System.out.println("FS FolderCreated: "+fe);
+                td();
+            }
+            public void fileChanged(org.openide.filesystems.FileEvent fe) {
+                System.out.println("FS Changed: "+fe);
+                td();
+            }
+            public void fileDeleted(org.openide.filesystems.FileEvent fe) {
+                System.out.println("FS Deleted: "+fe);
+                td();
+            }
+            public void fileRenamed(org.openide.filesystems.FileRenameEvent fe) {
+                System.out.println("FS Renamed: "+fe);
+                td();
+            }
+            public void fileAttributeChanged(org.openide.filesystems.FileAttributeEvent fe) {
+                System.out.println("FS AttributeChanged: "+fe);
+                td();
+            }
+            
+            private void td() {
+                Thread.currentThread().dumpStack();
+            }
+        }
+        
+        this.addFileChangeListener(new FSListener());
+         */
     }
 
     public void activate(VcsObjectIntegritySupport objectIntegritySupport) {
@@ -1912,6 +1950,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if(var.getName ().equals ("CD")) { // NOI18N
                 //var.setValue (cdValue); <- I don't want to change the value if it is set !!
                 containsCd = true;
+            }
+            if (var.getName().equals("PASSWORD")) { // NOI18N
+                // When the variables contain the password, set it.
+                if (getPassword() == null) {
+                    setPassword(var.getValue());
+                }
             }
         }
         /*
