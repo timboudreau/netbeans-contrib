@@ -18,7 +18,8 @@
     <!ATTLIST id name CDATA #REQUIRED >
 
 <!-- section -->
-<!ELEMENT section (name|item*)>
+<!ELEMENT section (item*)>
+  <!ATTLIST section name CDATA #REQUIRED>  
   <!ATTLIST section type (link|text) "link" >
   <!ATTLIST section icon CDATA #IMPLIED>
 

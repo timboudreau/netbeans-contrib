@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : assistant.xml
+    Created on : October 23, 2002, 2:35 PM
+    Author     : Richard Gregor
+    Description:
+        Demo xml for assistant
+-->
+
+<!DOCTYPE assistant >
+<assistant version="1.0">
+    <id name="comp1">
+        <section name="IDE Navigator">
+            <item url="org/netbeans/modules/assistant/pages/Comp1_Nav1.html">Comp1_Nav1</item>
+            <item url="org/netbeans/modules/assistant/pages/Comp1_Nav2.html">Comp1_Nav2</item>
+        </section>
+        <section name="Dynamic Helper">
+            <item url="org/netbeans/modules/assistant/pages/Comp1_Help1.html">Comp1_Help1</item>
+            <item url="org/netbeans/modules/assistant/pages/Comp1_Help2.html">Comp1_Help2</item>
+        </section>
+        <section name="Description">
+            <item url="org/netbeans/modules/assistant/pages/Comp1_Desc.html">Comp1_Desc</item> 
+        </section>
+    </id>
+    <id name="comp2">
+        <section name="IDE Navigator">
+            <item url="org/netbeans/modules/assistant/pages/Comp2_Nav1.html">Comp2_Nav1</item>
+            <item url="org/netbeans/modules/assistant/pages/Comp2_Nav2.html">Comp2_Nav2</item>
+        </section>
+        <section name="Dynamic Helper">
+            <item url="org/netbeans/modules/assistant/pages/Comp1_Help1.html">Comp2_Help2</item>
+            <item url="org/netbeans/modules/assistant/pages/Comp2_Help2.html">Comp2_Help2</item>
+        </section>
+        <section name="Description">
+            <item url="org/netbeans/modules/assistant/pages/Comp2_Desc.html">Comp2_Desc</item> 
+        </section>
+    </id>
+</assistant>
