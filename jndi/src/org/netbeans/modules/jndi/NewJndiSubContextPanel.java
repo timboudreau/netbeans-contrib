@@ -34,6 +34,7 @@ final class NewJndiSubContextPanel extends JPanel {
     public NewJndiSubContextPanel() {
         this.setLayout(new GridBagLayout());
         this.name = new JTextField(25);
+        this.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_NewJndiSubContextPanel"));
         this.name.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AC_SubContextName"));
         JLabel label = new JLabel (NbBundle.getBundle(NewJndiSubContextPanel.class).getString("TXT_SubContextName"));
         label.setLabelFor (this.name);
@@ -59,15 +60,6 @@ final class NewJndiSubContextPanel extends JPanel {
         c.insets = new Insets (12,6,12,12);
         ((GridBagLayout)this.getLayout()).setConstraints (this.name,c);
         this.add (name);
-        this.name.requestFocus();
-    }
-    
-    public boolean requestDefaultFocus () {
-        this.name.requestFocus();
-        return true;
-    }
-    
-    public void requestFocus () {
         this.name.requestFocus();
     }
 

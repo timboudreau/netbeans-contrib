@@ -39,7 +39,8 @@ public class NotFoundPanel extends JPanel {
         comments.setEnabled(false);
         comments.setBackground(label.getBackground());
         javax.accessibility.AccessibleContext ac = this.getAccessibleContext();
-        ac.setAccessibleName (errMsg+errTip);
+        ac.setAccessibleName (ac.getAccessibleName()+errMsg+errTip);
+        ac.setAccessibleDescription (JndiRootNode.getLocalizedString("AD_NotFoundPanel"));
         GridBagConstraints c;
         this.setLayout( new GridBagLayout());
         c  = new GridBagConstraints();

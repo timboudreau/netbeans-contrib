@@ -29,6 +29,7 @@ final class NewPropertyPanel extends GridBagPanel {
     /** Constructor
      */
     public NewPropertyPanel() {
+        this.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_NewPropertyPanel"));
         name = new JTextField(20);
         name.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString ("AD_PropertyName"));
         value= new JTextField(20);
@@ -44,15 +45,6 @@ final class NewPropertyPanel extends GridBagPanel {
         add(label,1,2,1,1,0,8,8,8);
         add(this.value,2,2,2,1,0,0,8,8);
         this.name.requestFocus ();
-    }
-    
-    public boolean requestDefaultFocus () {
-        this.name.requestFocus ();
-        return true;
-    }
-    
-    public void requestFocus () {
-        this.name.requestFocus();
     }
 
     /** Accessor for name of property

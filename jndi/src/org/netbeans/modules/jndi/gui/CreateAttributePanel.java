@@ -23,21 +23,13 @@ public class CreateAttributePanel extends javax.swing.JPanel {
 
     /** Creates new form CreateAttributePanel */
     public CreateAttributePanel() {
+        this.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_CreateAttributePanel"));
         initComponents ();
         this.nameLabel.setDisplayedMnemonic (JndiRootNode.getLocalizedString ("TXT_AttributeName_MNEM").charAt(0));
         this.valueLabel.setDisplayedMnemonic (JndiRootNode.getLocalizedString("TXT_AttributeValue_MNEN").charAt(0));
         this.nameLabel.requestFocus();
         name.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString ("AD_AttributeName"));
         value.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString("AD_AttributeValue"));
-    }
-
-    public void requestFocus () {
-        this.name.requestFocus();
-    }
-    
-    public boolean requestDefaultFocus () {
-        this.name.requestFocus();
-        return true;
     }
     
     /** Returns the name of the Attribute

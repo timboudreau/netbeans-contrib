@@ -50,6 +50,7 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
         this.offset = offset;
         this.owner = owner;
         initComponents ();
+        this.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_AttributePanel"));
         jLabel1.setDisplayedMnemonic (JndiRootNode.getLocalizedString("TXT_AttributeList_MNEM").charAt(0));
         addButton.addActionListener(this);
         addButton.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString("AD_AddAttribute"));
@@ -66,15 +67,6 @@ public class AttributePanel extends javax.swing.JPanel implements ListSelectionL
         attrList.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString("AD_AttributeList"));
         this.attrList.requestFocus();
         initData();
-    }
-    
-    public void requestFocus () {
-        this.attrList.requestFocus();
-    }
-    
-    public boolean requestDefaultFocus () {
-        this.attrList.requestFocus();
-        return true;
     }
 
     /** This method is called from within the constructor to

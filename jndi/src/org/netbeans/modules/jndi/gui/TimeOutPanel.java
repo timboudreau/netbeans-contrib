@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.jndi.gui;
 
+import org.netbeans.modules.jndi.JndiRootNode;
 /**
  *
  * @author  tzezula
@@ -55,7 +56,8 @@ public class TimeOutPanel extends javax.swing.JPanel {
         this.jTextArea1.setLineWrap(true);
         this.jTextArea1.setWrapStyleWord(true);
         javax.accessibility.AccessibleContext ac = this.getAccessibleContext ();
-        ac.setAccessibleName (message+note);
+        ac.setAccessibleName (ac.getAccessibleName()+message+note);
+        ac.setAccessibleDescription (JndiRootNode.getLocalizedString("AD_TimeOutPanel"));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

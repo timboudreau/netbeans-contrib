@@ -237,7 +237,8 @@ public class ProviderNode extends AbstractNode implements Cookie{
             this.credentials.addFocusListener(this);
             this.properties.setData(this.target.getAdditional());
             this.properties.addListDataListener(this);
-            this.factory.setEnabled(false);
+            this.factory.setEditable(false);
+            this.factory.addFocusListener (this);
         }
 
         /** Handles action fired when field is changed in customizer
@@ -290,6 +291,9 @@ public class ProviderNode extends AbstractNode implements Cookie{
         }
 
         public void focusGained(final java.awt.event.FocusEvent event) {
+            if (event.getSource() == this.factory) {
+                this.factory.selectAll();
+            }
         }
 
 

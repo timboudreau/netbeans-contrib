@@ -36,18 +36,10 @@ public class NewProviderPanel extends AbstractNewPanel {
     /** Creates new NewProviderPanel */
     public NewProviderPanel() {
         super();
+        this.getAccessibleContext().setAccessibleDescription(JndiRootNode.getLocalizedString("AD_NewProviderPanel"));
         this.listeners = new PropertyChangeSupport(this);
         javax.accessibility.AccessibleContext ac = this.getAccessibleContext();
         ac.setAccessibleName (JndiRootNode.getLocalizedString("TIP_Installation"));
-    }
-    
-    public boolean requestDefaultFocus () {
-        this.factory.requestFocus();
-        return true;
-    }
-    
-    public void requestFocus () {
-        this.factory.requestFocus();
     }
 
     /** Accessor for Factory

@@ -92,15 +92,6 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
         return this.label.getText();
     }
 
-    public boolean requestDefaultFocus () {
-        this.label.requestFocus();
-        return true;
-    }
-    
-    public void requestFocus () {
-        this.label.requestFocus();
-    }
-
 
     /** Synchronization of Factory and Protocol
      *  @param event ItemEvent
@@ -126,6 +117,7 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
 
     /** Creates a part of GUI, called grom createGUI */
     JPanel createSubGUI(){
+        this.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString("AD_NewJndiRootPanel"));
         this.label = new JTextField();
         this.label.getAccessibleContext().setAccessibleDescription (JndiRootNode.getLocalizedString("AD_Label"));
         this.factory = new JComboBox();
