@@ -2866,6 +2866,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     protected void createBackupFile(String name) throws java.io.IOException {
         if (!isImportant(name) || name.endsWith(getBackupExtension())) return ;
+        if (!getFile(name).exists()) return ;
         InputStream in = inputStream(name);
         try {
             OutputStream out = outputStream (name + getBackupExtension());
