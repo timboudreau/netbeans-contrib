@@ -107,8 +107,7 @@ public class JellyOverall extends CVSStub {
         
         // stabilization
         VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator("CHECKOUT_COMMAND");
-        voo.close();
-        voo.waitClosed();
+        closeAllVCSWindows();
         
         refresh (root);
         InitDir.waitStatus(null);
