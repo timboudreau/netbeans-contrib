@@ -21,6 +21,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 import java.text.*;
+import javax.swing.text.DefaultEditorKit;
 
 import org.openide.explorer.*;
 import org.openide.explorer.propertysheet.*;
@@ -38,7 +39,10 @@ import org.netbeans.modules.vcs.advanced.variables.*;
  * @author Martin Entlicher
  */
 //-------------------------------------------
-public class UserConditionedVariablesPanel extends JPanel implements EnhancedCustomPropertyEditor, ExplorerManager.Provider, PropertyChangeListener {
+public class UserConditionedVariablesPanel extends JPanel implements EnhancedCustomPropertyEditor,
+                                                                     ExplorerManager.Provider,
+                                                                     PropertyChangeListener,
+                                                                     Lookup.Provider {
     
     /** This property is fired when the variable CONFIG_INPUT_DESCRIPTOR is
      * defined/undefined with a meaningfull value */
@@ -48,7 +52,8 @@ public class UserConditionedVariablesPanel extends JPanel implements EnhancedCus
     //private Debug D=E;
 
     private UserConditionedVariablesEditor editor;
-    private ExplorerManager manager = null;
+    private ExplorerManager manager;
+    private Lookup lookup;
     private Children.Array varCh = null;
     private BasicVariableNode basicRoot = null;
     private AccessoryVariableNode accessoryRoot = null;
@@ -62,8 +67,6 @@ public class UserConditionedVariablesPanel extends JPanel implements EnhancedCus
         this.editor = editor;
         initComponents();
         getExplorerManager().setRootContext(createNodes());
-        ExplorerActions actions = new ExplorerActions();
-        actions.attach(getExplorerManager());
         HelpCtx.setHelpIDString (this, "VCS_VariableEditor"); // NOI18N
     }
 
@@ -100,6 +103,21 @@ public class UserConditionedVariablesPanel extends JPanel implements EnhancedCus
         add(split, c);
         getAccessibleContext().setAccessibleName(g("ACS_UserVariablesPanelA11yName"));  // NOI18N
         getAccessibleContext().setAccessibleDescription(g("ACS_UserVariablesPanelA11yDesc"));  // NOI18N
+        
+        ActionMap map = getActionMap();
+        map.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
+        map.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
+        map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
+        map.put("delete", ExplorerUtils.actionDelete(manager, true));
+
+        InputMap keys = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        keys.put(KeyStroke.getKeyStroke("control c"), DefaultEditorKit.copyAction);
+        keys.put(KeyStroke.getKeyStroke("control x"), DefaultEditorKit.cutAction);
+        keys.put(KeyStroke.getKeyStroke("control v"), DefaultEditorKit.pasteAction);
+        keys.put(KeyStroke.getKeyStroke("DELETE"), "delete");
+
+        // initialize the lookup variable
+        lookup = ExplorerUtils.createLookup (manager, map);
     }
     
     public static final boolean isConfigInputDescriptorVar(VcsConfigVariable var) {
@@ -236,13 +254,24 @@ public class UserConditionedVariablesPanel extends JPanel implements EnhancedCus
         }
     }
     
-    public org.openide.explorer.ExplorerManager getExplorerManager() {
-        synchronized(this) {
-            if (manager == null) {
-                manager = new ExplorerManager();
-            }
-        }
+    // It is good idea to switch all listeners on and off when the
+    // component is shown or hidden.
+    public void addNotify() {
+        super.addNotify();
+        ExplorerUtils.activateActions(manager, true);
+    }
+    
+    public void removeNotify() {
+        ExplorerUtils.activateActions(manager, false);
+        super.removeNotify();
+    }
+    
+    public ExplorerManager getExplorerManager() {
         return manager;
+    }
+    
+    public Lookup getLookup() {
+        return lookup;
     }
     
     private ConditionedVariables createVariables() {

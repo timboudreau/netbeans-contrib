@@ -25,7 +25,7 @@ import org.netbeans.modules.vcs.advanced.variables.Condition;
  *
  * @author  Martin Entlicher
  */
-public class ConditionedStructuredExec extends StructuredExec {
+public class ConditionedStructuredExec extends StructuredExec implements Cloneable {
     
     /** Creates a new instance of ConditionedExecArgument */
     public ConditionedStructuredExec(java.io.File working, String executable, StructuredExec.Argument[] args) {
@@ -47,6 +47,20 @@ public class ConditionedStructuredExec extends StructuredExec {
             }
         }
         return (StructuredExec.Argument[]) newArgs.toArray(new StructuredExec.Argument[0]);
+    }
+    
+    public Object clone() {
+        StructuredExec.Argument[] args = getArguments();
+        StructuredExec.Argument[] newArgs = new StructuredExec.Argument[args.length];
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] instanceof ConditionedArgument) {
+                newArgs[i] = new ConditionedArgument((Condition) ((ConditionedArgument) args[i]).getCondition().clone(),
+                                                     args[i].getArgument(), args[i].isLine());
+            } else {
+                newArgs[i] = new StructuredExec.Argument(args[i].getArgument(), args[i].isLine());
+            }
+        }
+        return new ConditionedStructuredExec(getWorking(), getExecutable(), newArgs);
     }
     
     /**

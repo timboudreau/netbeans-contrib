@@ -15,6 +15,9 @@ package org.netbeans.modules.vcs.advanced.variables;
 
 import java.awt.datatransfer.*;
 import java.util.Collection;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.openide.cookies.InstanceCookie;
 import org.openide.nodes.*;
@@ -179,30 +182,65 @@ class VariableCopySupport extends Object {
     
     private static void copyVariables(AbstractNode sourceNode, AbstractNode targetNode) {
         VcsConfigVariable var;
+        Map vbc;
+        Condition[] conditions = null;
         if (sourceNode instanceof BasicVariableNode) {
             var = ((BasicVariableNode) sourceNode).getVariable();
+            vbc = ((BasicVariableNode) sourceNode).getVarsByConditions();
         } else if (sourceNode instanceof AccessoryVariableNode) {
             var = ((AccessoryVariableNode) sourceNode).getVariable();
+            vbc = ((AccessoryVariableNode) sourceNode).getVarsByConditions();
         } else return ;
         if (var == null) return ;
         var = new VcsConfigVariable(var.getName(), var.getLabel(), var.getValue(),
                                     var.isBasic(), var.isLocalFile(), var.isLocalDir(),
                                     var.getCustomSelector(), var.getOrder());
-        
-        AbstractNode newNode;
-        if (targetNode instanceof BasicVariableNode) {
-            var.setBasic(true);
-            String label = var.getLabel();
-            if (label ==  null || label.length() == 0) var.setLabel(var.getName());
-            newNode = new BasicVariableNode(var);
-        } else if (targetNode instanceof AccessoryVariableNode) {
-            var.setBasic(false);
-            newNode = new AccessoryVariableNode(var);
-        } else return ;
         Collection varNames = BasicVariableNode.getAllVariablesNames(targetNode);
         varNames.addAll(Variables.getContextVariablesNames());
         var.setName(VcsUtilities.createUniqueName(var.getName(), varNames));
         
+        if (targetNode instanceof BasicVariableNode) {
+            var.setBasic(true);
+            String label = var.getLabel();
+            if (label ==  null || label.length() == 0) var.setLabel(var.getName());
+            int order = targetNode.getChildren().getNodesCount();
+            var.setOrder(order);
+        } else {
+            var.setBasic(false);
+            var.setLabel(null);
+        }
+        Map varsByConditions = null;
+        if (vbc != null) {
+            conditions = new Condition[vbc.size()];
+            varsByConditions = new IdentityHashMap();
+            int i = 0;
+            for (Iterator it = vbc.keySet().iterator(); it.hasNext(); i++) {
+                Condition c = (Condition) it.next();
+                VcsConfigVariable cvar = (VcsConfigVariable) vbc.get(c);
+                c = (Condition) c.clone();
+                cvar = (VcsConfigVariable) cvar.clone();
+                cvar.setName(var.getName());
+                cvar.setBasic(var.isBasic());
+                cvar.setLabel(var.getLabel());
+                cvar.setOrder(var.getOrder());
+                varsByConditions.put(c, cvar);
+                conditions[i] = c;
+            }
+        }
+        AbstractNode newNode;
+        if (targetNode instanceof BasicVariableNode) {
+            if (varsByConditions != null) {
+                newNode = new BasicVariableNode(var.getName(), conditions, varsByConditions);
+            } else {
+                newNode = new BasicVariableNode(var);
+            }
+        } else if (targetNode instanceof AccessoryVariableNode) {
+            if (varsByConditions != null) {
+                newNode = new AccessoryVariableNode(var.getName(), conditions, varsByConditions);
+            } else {
+                newNode = new AccessoryVariableNode(var);
+            }
+        } else return ;
         targetNode.getChildren().add(new Node[] { newNode });
     }
 

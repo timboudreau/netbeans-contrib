@@ -18,6 +18,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
 import java.text.MessageFormat;
+import javax.swing.text.DefaultEditorKit;
 
 import org.openide.util.NbBundle;
 import org.openide.nodes.Children;
@@ -27,6 +28,7 @@ import org.openide.explorer.*;
 import org.openide.explorer.propertysheet.*;
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
@@ -46,7 +48,10 @@ import org.netbeans.modules.vcs.advanced.variables.Condition;
  * @author Martin Entlicher
  */
 //-------------------------------------------
-public class UserConditionedCommandsPanel extends JPanel implements CommandChangeListener, EnhancedCustomPropertyEditor, ExplorerManager.Provider {
+public class UserConditionedCommandsPanel extends JPanel implements CommandChangeListener,
+                                                                    EnhancedCustomPropertyEditor,
+                                                                    ExplorerManager.Provider,
+                                                                    Lookup.Provider {
 
     private UserConditionedCommandsEditor editor;
 
@@ -55,7 +60,8 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
     private CommandNode commandsNode = null;
     private ConditionedCommands ccommands = null;
     
-    private ExplorerManager manager = null;
+    private ExplorerManager manager;
+    private Lookup lookup;
     
     private transient CommandExecutionContext executionContext;
 
@@ -92,8 +98,6 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
         commandsNode = createCommandNodes(commands, newcmd, null, null);
         initComponents();
         getExplorerManager().setRootContext(commandsNode/*createNodes()*/);
-        ExplorerActions actions = new ExplorerActions();
-        actions.attach(getExplorerManager());
         HelpCtx.setHelpIDString (this, "VCS_CommandEditor"); // NOI18N
         getAccessibleContext().setAccessibleName(g("ACS_UserCommandsPanelA11yName"));  // NOI18N
         getAccessibleContext().setAccessibleDescription(g("ACS_UserCommandsPanelA11yDesc"));  // NOI18N
@@ -239,17 +243,43 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
         c.weightx = 1.0;
         c.weighty = 1.0;
         add(split, c);
+        
+        ActionMap map = getActionMap();
+        map.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
+        map.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
+        map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
+        map.put("delete", ExplorerUtils.actionDelete(manager, true));
+
+        InputMap keys = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        keys.put(KeyStroke.getKeyStroke("control c"), DefaultEditorKit.copyAction);
+        keys.put(KeyStroke.getKeyStroke("control x"), DefaultEditorKit.cutAction);
+        keys.put(KeyStroke.getKeyStroke("control v"), DefaultEditorKit.pasteAction);
+        keys.put(KeyStroke.getKeyStroke("DELETE"), "delete");
+
+        // initialize the lookup variable
+        lookup = ExplorerUtils.createLookup (manager, map);
+    }
+    
+    // It is good idea to switch all listeners on and off when the
+    // component is shown or hidden.
+    public void addNotify() {
+        super.addNotify();
+        ExplorerUtils.activateActions(manager, true);
+    }
+    
+    public void removeNotify() {
+        ExplorerUtils.activateActions(manager, false);
+        super.removeNotify();
     }
     
     public ExplorerManager getExplorerManager() {
-        synchronized(this) {
-            if (manager == null) {
-                manager = new ExplorerManager();
-            }
-        }
         return manager;
     }
     
+    public Lookup getLookup() {
+        return lookup;
+    }
+
     //-------------------------------------------
     public Object getPropertyValue() {
         return createCommands(commandsNode, (UserCommand) commandsNode.getCommand(), executionContext);
@@ -260,6 +290,5 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
     private String g(String s) {
         return NbBundle.getMessage(UserConditionedCommandsPanel.class, s);
     }
-
 
 }

@@ -14,6 +14,12 @@
 package org.netbeans.modules.vcs.advanced.commands;
 
 import java.awt.datatransfer.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.openide.cookies.InstanceCookie;
 import org.openide.nodes.*;
@@ -21,6 +27,12 @@ import org.openide.util.datatransfer.PasteType;
 
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedPropertiesCommand;
+import org.netbeans.modules.vcs.advanced.commands.ConditionedCommandsBuilder.ConditionedProperty;
+import org.netbeans.modules.vcs.advanced.variables.Condition;
+import org.netbeans.modules.vcscore.cmdline.UserCommand;
+import org.netbeans.modules.vcscore.cmdline.UserCommandSupport;
 
 class CommandCopySupport extends Object {
 
@@ -176,9 +188,9 @@ class CommandCopySupport extends Object {
         }
     }
     
-    private static VcsCommand copyVcsCommand(VcsCommand cmd) {
-        if (cmd == null) return cmd;
-        VcsCommand newCmd = new org.netbeans.modules.vcscore.cmdline.UserCommand();
+    private static UserCommand copyVcsCommand(VcsCommand cmd) {
+        if (cmd == null) return null;
+        UserCommand newCmd = new UserCommand();
         newCmd.setName(cmd.getName());
         newCmd.setDisplayName(cmd.getDisplayName());
         String[] propNames = cmd.getPropertyNames();
@@ -189,18 +201,55 @@ class CommandCopySupport extends Object {
     }
     
     private static void copyCommands(CommandNode sourceNode, CommandNode targetNode) {
-        VcsCommand cmd = sourceNode.getCommand();
+        VcsCommand scmd = sourceNode.getCommand();
+        Condition mc = sourceNode.getMainCondition();
+        Collection cproperties = sourceNode.getConditionedProperties();
         Children ch;
         if (Children.LEAF.equals(sourceNode.getChildren())) {
             ch = Children.LEAF;
         } else {
             ch = new Children.Array();
         }
-        cmd = copyVcsCommand(cmd);
+        UserCommand cmd = copyVcsCommand(scmd);
         if (cmd != null) {
             cmd.setName(VcsUtilities.createUniqueName(cmd.getName(), targetNode.getAllCommandsNames()));
         }
-        CommandNode newNode = new CommandNode(ch, cmd);
+        CommandNode newNode;
+        if (cproperties != null) {
+            //CommandsTree ct = new CommandsTree(new UserCommandSupport(cmd, null));
+            //ConditionedCommandsBuilder ccbuilder = new ConditionedCommandsBuilder()
+            ConditionedPropertiesCommand cpc = new ConditionedPropertiesCommand(new UserCommandSupport(cmd, null));
+            for (Iterator it = cproperties.iterator(); it.hasNext(); ) {
+                ConditionedProperty cp = (ConditionedProperty) it.next();
+                Condition c = cp.getCondition();
+                if (c != null) c = (Condition) c.clone();
+                Map valuesByConditions = new IdentityHashMap();
+                Map vbc = cp.getValuesByConditions();
+                for (Iterator vbcIt = vbc.keySet().iterator(); vbcIt.hasNext(); ) {
+                    Condition vc = (Condition) vbcIt.next();
+                    Object value = vbc.get(vc);
+                    if (vc != null) vc = (Condition) vc.clone();
+                    if (value instanceof Cloneable) {
+                        try {
+                            Method cloneM = value.getClass().getMethod("clone",  new Class[0]);
+                            value = cloneM.invoke(value, new Object[0]);
+                        } catch (NoSuchMethodException nsmex) {
+                        } catch (SecurityException sex) {
+                        } catch (IllegalAccessException iaex) {
+                        } catch (IllegalArgumentException iaex) {
+                        } catch (InvocationTargetException itex) {
+                        }
+                    }
+                    valuesByConditions.put(vc, value);
+                }
+                cp = new ConditionedProperty(cp.getName(), c, valuesByConditions);
+                cpc.addConditionedProperty(cp);
+            }
+            if (mc != null) mc = (Condition) mc.clone();
+            newNode = new CommandNode(ch, cmd, mc, cpc);
+        } else {
+            newNode = new CommandNode(ch, cmd);
+        }
         targetNode.getChildren().add(new Node[] { newNode });
         Node[] sourceSubnodes = sourceNode.getChildren().getNodes();
         for (int i = 0; i < sourceSubnodes.length; i++) {
