@@ -615,8 +615,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * Use this method to supply new variable values to the components.
      */
     private void updateVariableValues(Hashtable vars, boolean resetVars) {
-        //System.out.println("updateVariableValues("+resetVars+")");
         List propertyChangeEvents = new ArrayList(); // The list of properties that needs to be fired
+        Set eventsToAdjust = new HashSet(); // The set of properties that needs to be adjusted
         for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
             String varName = (String) it.next();
             String varValue = (String) vars.get(varName);
@@ -625,13 +625,29 @@ public class VariableInputDialog extends javax.swing.JPanel {
             if (inComponent == null) {
                 continue;
             }
+            java.awt.Component[] components = (java.awt.Component[]) awtComponentsByVars.get(varName);
+            
             String oldValue = inComponent.getValue();
             if (varValue != null && varValue.equals(oldValue)) {
+                // The values equals, but radio buttons might need to be set
+                // in order to clean up potential unselected buttons.
+                if (components != null) {
+                    for (int i = 0; i < components.length; i++) {
+                        if (components[i] instanceof javax.swing.JRadioButton) {
+                            javax.swing.JRadioButton button = (javax.swing.JRadioButton) components[i];
+                            javax.swing.ButtonModel model = button.getModel();
+                            if (model instanceof javax.swing.DefaultButtonModel) {
+                                javax.swing.ButtonGroup group = ((javax.swing.DefaultButtonModel) model).getGroup();
+                                String selectedValue = selectButton(varValue, inComponent.subComponents(), group);
+                            }
+                        }
+                    }
+                }
                 continue;
             }
+           
             //System.out.println("  VAR '"+varName+"' = '"+varValue+"'");
             inComponent.setValue(varValue);
-            java.awt.Component[] components = (java.awt.Component[]) awtComponentsByVars.get(varName);
             if (components != null) {
                 for (int i = 0; i < components.length; i++) {
                     java.awt.Component component = components[i];
@@ -674,12 +690,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         javax.swing.ButtonModel model = button.getModel();
                         if (model instanceof javax.swing.DefaultButtonModel) {
                             javax.swing.ButtonGroup group = ((javax.swing.DefaultButtonModel) model).getGroup();
+                            inComponent.setValue(oldValue); // Set back the old value, we can not be sure, that the new value can be set.
                             String selectedValue = selectButton(varValue, inComponent.subComponents(), group);
-                            //System.out.println("  selected value = '"+selectedValue+"', varValue = '"+varValue+"'");
-                            if (!varValue.equals(selectedValue)) {
-                                PropertyChangeEvent pcev = new PropertyChangeEvent(this, PROP_VAR_CHANGED+varName, oldValue, selectedValue);
-                                propertyChangeEvents.add(pcev);
-                            }
+                            //System.out.println("  selected value = '"+selectedValue+"', component value = '"+inComponent.getValue()+"', varValue = '"+varValue+"'");
+                            // The value of inComponent can change by setting up of subsequent components.
+                            // Therefore we'll adjust the property change event later
+                            PropertyChangeEvent pcev = new PropertyChangeEvent(this, PROP_VAR_CHANGED+varName, oldValue, inComponent);
+                            propertyChangeEvents.add(pcev);
+                            eventsToAdjust.add(pcev);
                         }
                     } else if (component instanceof javax.swing.JComboBox) {
                         javax.swing.JComboBox comboBox = (javax.swing.JComboBox) component;
@@ -710,6 +728,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
             }
         }
         if (resetVars) this.vars = vars;
+        for (Iterator it = eventsToAdjust.iterator(); it.hasNext(); ) {
+            PropertyChangeEvent evt = (PropertyChangeEvent) it.next();
+            VariableInputComponent inComponent = (VariableInputComponent) evt.getNewValue();
+            propertyChangeEvents.remove(evt);
+            propertyChangeEvents.add(new PropertyChangeEvent(this, evt.getPropertyName(), evt.getOldValue(), inComponent.getValue()));
+        }
         if (propertyChangeEvents.size() > 0) {
             firePropertyChange(PROP_VARIABLES_CHANGED, null, propertyChangeEvents);
         }
@@ -1615,9 +1639,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     if (unselectedRadioButtons.contains(button)) {  // If it was unselected, select it again.
                         //System.out.println("  Selecting BACK the button '"+button.getText()+"'");
                         unselectedRadioButtons.remove(button);
-                        button.doClick();
-                        button.setSelected(true);
+                        
+                        Object oldValue = superComponent.getValue();
                         superComponent.setValue(component.getValue());
+                        firePropertyChange(PROP_VAR_CHANGED + superComponent.getVariable(), oldValue, superComponent.getValue());
+                        //System.out.println("component '"+superComponent.getVariable()+"' setValue("+component.getValue()+"), old value = '"+oldValue+"'");
+                        button.setSelected(true);
+                        //button.doClick();
+                        //button.setSelected(true);
+                        //superComponent.setValue(component.getValue());
                     }
                 }
             }
@@ -1628,36 +1658,49 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     Object oldValue = superComponent.getValue();
                     superComponent.setValue(component.getValue());
                     firePropertyChange(PROP_VAR_CHANGED + superComponent.getVariable(), oldValue, superComponent.getValue());
-                    //System.out.println("component '"+superComponent.getVariable()+"' setValue("+component.getValue()+")");
+                    //System.out.println("component '"+superComponent.getVariable()+"' setValue("+component.getValue()+"), old value = '"+oldValue+"'");
                 }
             }
         });
         return gridy;
     }
     
-    /** Select a radio button. Return the value of the actually selected component.
-     */
-    private String selectButton(String value, VariableInputComponent[] subComponents,
-                                     javax.swing.ButtonGroup group) {
-        if (value == null && subComponents.length > 0) value = subComponents[0].getValue();
+    private void removeUnselectedButtons(javax.swing.ButtonGroup group) {
         Enumeration enum = group.getElements();
         for (int i = 0; enum.hasMoreElements(); i++) {
             javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
+            unselectedRadioButtons.remove(radio);
+        }
+    }
+    
+    /** Select a radio button. Return the value of the actually selected component.
+     */
+    private String selectButton(String value, VariableInputComponent[] subComponents,
+                                javax.swing.ButtonGroup group) {
+        if (value == null && subComponents.length > 0) value = subComponents[0].getValue();
+        Enumeration enum = group.getElements();
+        javax.swing.JRadioButton toBeSelectedRadio = null;
+        for (int i = 0; enum.hasMoreElements(); i++) {
+            javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
             if (value.equals(subComponents[i].getValue())) {
-                if (!radio.isSelected()) {
-                    radio.doClick(); // <-- to trigger an action event
-                }
                 if (radio.isEnabled()) {
+                    if (!radio.isSelected()) {
+                        radio.doClick(); // <-- to trigger an action event
+                    }
+                    removeUnselectedButtons(group);
+                    //System.out.println("selectButton("+value+"), selected enabled '"+radio.getText()+"'");
                     return value;
+                } else {
+                    toBeSelectedRadio = radio;
                 }
                 break;
             }
         }
         //System.out.println("!!! SELECT BUTTON: The button that is to be selected is not enabled !!!!!!!");
-        enum = group.getElements();
-        for (int i = 0; enum.hasMoreElements(); i++) {
-            javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
-            unselectedRadioButtons.remove(radio);
+        removeUnselectedButtons(group);
+        if (toBeSelectedRadio != null) {
+            //System.out.println("  Set unselected to to-be-selected: "+toBeSelectedRadio.getText());
+            unselectedRadioButtons.add(toBeSelectedRadio);
         }
         // The button that is to be selected is not enabled => we need to find the seleced one
         // and return it's value
