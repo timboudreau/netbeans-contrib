@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -386,10 +386,13 @@ public class CVSPasswd extends Object {
     /** The method connects to the server specified in the PasswdEntry parameter.
      * After opening, it does the authentification (See CVS cleint/server protocol).
      * Then it disconnects.
-     * @return true if authentification succeed, othewise false.
      * @param toCheck The info about the Cvs root. (server + repository + user and password)
- */
-    public static boolean checkServer(PasswdEntry toCheck) throws UnknownHostException, IOException {
+     * @param message returns the error message
+     * @return true if authentification succeed, othewise false.
+     */
+    public static boolean checkServer(PasswdEntry toCheck, StringBuffer message)
+            throws UnknownHostException, IOException {
+        
         OutputStreamWriter outStreamWriter = null;
         InputStreamReader inStreamReader = null;
         OutputStream outStream = null;
@@ -433,46 +436,36 @@ public class CVSPasswd extends Object {
             int n;
             StringBuffer buffer = new StringBuffer();
             try {
-              while(inStream.available() == 0);
-              while((n = inStream.available()) > 0) {
-                  byte[] bbuffer = new byte[n];
-                  inStream.read(bbuffer);
-                  buffer.append(new String(bbuffer));
-              }
+                while(inStream.available() == 0);
+                while((n = inStream.available()) > 0) {
+                    byte[] bbuffer = new byte[n];
+                    inStream.read(bbuffer);
+                    buffer.append(new String(bbuffer));
+                }
             } catch (IOException e) {
-            // TODO
-              D("Exception while read: "+e);
+                message.append(e.getLocalizedMessage());
+                return false;
             }
             String result = buffer.toString();
             ok =  result.equals(AUTH_SUCCESSFULL);
             if (!ok) {
-              javax.swing.SwingUtilities.invokeLater(new Runnable () {
-                  public void run () {
-                    DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(CVSPasswd.class).getString("CVSPasswd.wrongPassword")));
-                  }
-              });
+                message.append(org.openide.util.NbBundle.getBundle(CVSPasswd.class).getString("CVSPasswd.wrongPassword"));
             }   
         } catch (IOException e) {
-            // TODO
-            D("Exception getting input: "+e);
+            message.append(e.getLocalizedMessage());
             ok = false;
         }
         finally {
-          try {
-            if (outStream != null) {outStream.close();}
-            if (inStream != null) {inStream.close();}
-            if (socket != null) {socket.close();}
-          } catch (IOException e) {
-              // TODO
-              D("Exception when closing the connection: "+e);
-          }
+            try {
+                if (outStream != null) {outStream.close();}
+                if (inStream != null) {inStream.close();}
+                if (socket != null) {socket.close();}
+            } catch (IOException e) {
+                message.append(e.getLocalizedMessage());
+            }
         }
         return ok;
         
     }
 
-    private static void D(String debug) {
-        //System.out.println("CvsPasswd(): "+debug);
-    }
-    
 }

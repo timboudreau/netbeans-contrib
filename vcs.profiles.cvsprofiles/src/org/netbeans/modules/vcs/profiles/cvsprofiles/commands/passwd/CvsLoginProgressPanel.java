@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -25,6 +25,8 @@ public class CvsLoginProgressPanel extends javax.swing.JPanel {
     /** Creates new form CvsLoginProgressPanel */
     public CvsLoginProgressPanel() {
         initComponents();
+        infoTextArea.setBackground(getBackground());
+        infoTextArea.setForeground(java.awt.Color.BLACK);
     }
     
     /** This method is called from within the constructor to
@@ -35,22 +37,29 @@ public class CvsLoginProgressPanel extends javax.swing.JPanel {
     private void initComponents() {//GEN-BEGIN:initComponents
         java.awt.GridBagConstraints gridBagConstraints;
 
-        progressLabel = new javax.swing.JLabel();
+        infoTextArea = new javax.swing.JTextArea();
         progressBar = new javax.swing.JProgressBar();
 
         setLayout(new java.awt.GridBagLayout());
 
-        progressLabel.setText("Login");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(11, 11, 6, 12);
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        add(progressLabel, gridBagConstraints);
-
+        infoTextArea.setColumns(30);
+        infoTextArea.setEditable(false);
+        infoTextArea.setLineWrap(true);
+        infoTextArea.setRows(5);
+        infoTextArea.setWrapStyleWord(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(11, 11, 12, 12);
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(infoTextArea, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 11, 12, 12);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         add(progressBar, gridBagConstraints);
 
@@ -58,17 +67,17 @@ public class CvsLoginProgressPanel extends javax.swing.JPanel {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextArea infoTextArea;
     private javax.swing.JProgressBar progressBar;
-    private javax.swing.JLabel progressLabel;
     // End of variables declaration//GEN-END:variables
     
     public void connectingTo(String serverName) {
-        progressLabel.setText(NbBundle.getMessage(CvsLoginProgressPanel.class, "CvsLoginProgressPanel.connectingTo", serverName));
+        infoTextArea.setText(NbBundle.getMessage(CvsLoginProgressPanel.class, "CvsLoginProgressPanel.connectingTo", serverName));
         progressBar.setIndeterminate(true);
     }
     
     public void loginFinished(String message) {
-        progressLabel.setText(message);
+        infoTextArea.setText(message);
         progressBar.setValue(progressBar.getMaximum());
         progressBar.setIndeterminate(false);
     }

@@ -57,8 +57,8 @@ public class LoginPanel extends javax.swing.JPanel {
     /** Creates new form LoginPanel */
     public LoginPanel() {
         initComponents(); 
-        loginButton = new JButton(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.loginButton.text"));
-        offlineButton = new JButton(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.offlineButton.text"));
+        loginButton = new JButton(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.loginButton.text"));
+        offlineButton = new JButton(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.offlineButton.text"));
         options[0] = loginButton;
         options[1] = offlineButton;
 	btnListener = new BtnListener();
@@ -68,15 +68,15 @@ public class LoginPanel extends javax.swing.JPanel {
     }
     
     private void initAccessibility() {
-        passwordLabel.setDisplayedMnemonic(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.passwordLabel.text_Mnemonic").charAt(0));  // NOI18N
-        loginButton.setMnemonic(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.loginButton.text_Mnemonic").charAt(0));  // NOI18N
-        offlineButton.setMnemonic(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.offlineButton.text_Mnemonic").charAt(0));  // NOI18N
-        getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("ACS_LoginDialogA11yName"));  // NOI18N
-        getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("ACS_LoginDialogA11yDesc"));  // NOI18N
-        loginLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("ACS_LoginDialog.loginLabel.textA11yDesc"));  // NOI18N
-        passwordLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("ACS_LoginDialog.passwordLabel.textA11yDesc"));  // NOI18N
-        passwordField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("ACS_passwordFieldA11yName"));  // NOI18N
-        statusLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("ACS_LoginDialog.statusA11yDesc"));  // NOI18N
+        passwordLabel.setDisplayedMnemonic(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.passwordLabel.text_Mnemonic").charAt(0));  // NOI18N
+        loginButton.setMnemonic(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.loginButton.text_Mnemonic").charAt(0));  // NOI18N
+        offlineButton.setMnemonic(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.offlineButton.text_Mnemonic").charAt(0));  // NOI18N
+        getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialogA11yName"));  // NOI18N
+        getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialogA11yDesc"));  // NOI18N
+        loginLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialog.loginLabel.textA11yDesc"));  // NOI18N
+        passwordLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialog.passwordLabel.textA11yDesc"));  // NOI18N
+        passwordField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_passwordFieldA11yName"));  // NOI18N
+        statusLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("ACS_LoginDialog.statusA11yDesc"));  // NOI18N
     }
     
     
@@ -142,7 +142,7 @@ public class LoginPanel extends javax.swing.JPanel {
     
     public Dialog createDialog(VcsFileSystem fileSystem) {              
         this.fileSystem = fileSystem;
-        DialogDescriptor dd = new DialogDescriptor(this,org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.title"),
+        DialogDescriptor dd = new DialogDescriptor(this,org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.title"),
                               true,options,options[0],DialogDescriptor.DEFAULT_ALIGN,null,btnListener);
         dialog = DialogDisplayer.getDefault().createDialog(dd);       
         return dialog;
@@ -157,7 +157,7 @@ public class LoginPanel extends javax.swing.JPanel {
     }
 
     public void setPserverName(String pserverName) {
-        loginLabel.setText(java.text.MessageFormat.format(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.loginLabel.text"), new Object[] { pserverName }));        
+        loginLabel.setText(java.text.MessageFormat.format(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.loginLabel.text"), new Object[] { pserverName }));        
     }
     
     public void setStatus(Object status) {
@@ -166,10 +166,10 @@ public class LoginPanel extends javax.swing.JPanel {
     
     public void setStatus(Object status, String message) {
         if (status.equals(STATUS_FAILED)) {
-            statusLabel.setText(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.status.failed"));
+            statusLabel.setText(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.status.failed"));
             if (message != null) statusLabel.setToolTipText(message);
         } else if (status.equals(STATUS_CONNECTING)) {
-            statusLabel.setText(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.status.connecting"));
+            statusLabel.setText(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.status.connecting"));
         } else if (status instanceof String) {
             statusLabel.setText((String) status);
         }
@@ -246,10 +246,10 @@ public class LoginPanel extends javax.swing.JPanel {
             pasFile.add(connectStr, port, password);
             loggedIn = CVSPasswd.checkLogin(fileSystem, message);
         } catch (java.net.UnknownHostException exc) {
-            setStatus(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.unknownHost"));
+            setStatus(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.unknownHost"));
             return;
         } catch (java.io.IOException exc) {
-            setStatus(org.openide.util.NbBundle.getBundle(CvsLoginDialog.class).getString("LoginDialog.connectionIOError"));
+            setStatus(org.openide.util.NbBundle.getBundle(LoginPanel.class).getString("LoginDialog.connectionIOError"));
             return;
         } catch (IllegalArgumentException iaex) {
             setStatus(iaex.getLocalizedMessage());

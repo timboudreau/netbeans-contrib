@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -28,7 +28,7 @@ import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.cmdline.*;
 
 import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.CVSPasswd;
-import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.CvsLoginDialog;
+import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.LoginPanel;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.CvsLoginProgressPanel;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.PasswdEntry;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.StandardScrambler;
@@ -84,7 +84,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
             loginPanel = new CvsLoginProgressPanel();
             //SwingUtilities.invokeLater(new Runnable
             DialogDescriptor dialogDescr = new DialogDescriptor(loginPanel,
-                org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.title"),
+                org.openide.util.NbBundle.getMessage(LoginPanel.class, "LoginDialog.title"),
                 true, new Object[] { NotifyDescriptor.CLOSED_OPTION }, null, 0,
                 null/*new HelpCtx(CvsLoginProgressPanel.class)*/, null);
             dialog = DialogDisplayer.getDefault().createDialog(dialogDescr);
@@ -132,7 +132,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
                     String scrambledPassword = StandardScrambler.getInstance().scramble(password);
                     entry.setEntry(connectStr+" "+scrambledPassword);
                     if (port > 0) entry.getCVSRoot().setPort(port);
-                    loggedIn = CVSPasswd.checkServer(entry);
+                    loggedIn = CVSPasswd.checkServer(entry, message);
                     if (loggedIn) {
                         pasFile.add(connectStr, port, password);
                         pasFile.savePassFile();
@@ -148,12 +148,12 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
                     /*
                     DialogDisplayer.getDefault().notify(
                         new NotifyDescriptor.Message(
-                            org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.unknownHost")));
+                            org.openide.util.NbBundle.getMessage(LoginPanel.class, "LoginDialog.unknownHost")));
                      */
-                    loginPanel.loginFinished(org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.unknownHost"));
+                    loginPanel.loginFinished(org.openide.util.NbBundle.getMessage(LoginPanel.class, "LoginDialog.unknownHost"));
                 } else {
                     stderrNRListener.outputLine(
-                        org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.unknownHost"));
+                        org.openide.util.NbBundle.getMessage(LoginPanel.class, "LoginDialog.unknownHost"));
                 }
                 vars.put("USER_IS_LOGGED_IN", "");
                 vars.put(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_UPDATE_CHANGED_FROM_SELECTOR, "true");
@@ -163,12 +163,12 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
                     /*
                     DialogDisplayer.getDefault().notify(
                         new NotifyDescriptor.Message(
-                            org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.connectionIOError")));
+                            org.openide.util.NbBundle.getMessage(LoginPanel.class, "LoginDialog.connectionIOError")));
                      */
-                    loginPanel.loginFinished(org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.connectionIOError"));
+                    loginPanel.loginFinished(org.openide.util.NbBundle.getMessage(LoginPanel.class, "LoginDialog.connectionIOError"));
                 } else {
                     stderrNRListener.outputLine(
-                        org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.connectionIOError"));
+                        org.openide.util.NbBundle.getMessage(LoginPanel.class, "LoginDialog.connectionIOError"));
                 }
                 vars.put("USER_IS_LOGGED_IN", "");
                 vars.put(org.netbeans.modules.vcscore.util.VariableInputDialog.VAR_UPDATE_CHANGED_FROM_SELECTOR, "true");
@@ -185,13 +185,13 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
                 /*
                 DialogDisplayer.getDefault().notify(
                     new NotifyDescriptor.Message(
-                        org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.status.failed") + " "+ message));
+                        org.openide.util.NbBundle.getMessage(LoginPanel.class, "LoginDialog.status.failed") + " "+ message));
                  */
                 //System.out.println("message = '"+message+"'.");
-                loginPanel.loginFinished(org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.status.failed") + " "+ message);
+                loginPanel.loginFinished(org.openide.util.NbBundle.getMessage(LoginPanel.class, "LoginDialog.status.failed") + " "+ message);
             } else {
                 stderrNRListener.outputLine(
-                    org.openide.util.NbBundle.getMessage(CvsLoginDialog.class, "LoginDialog.status.failed") + " "+ message);
+                    org.openide.util.NbBundle.getMessage(LoginPanel.class, "LoginDialog.status.failed") + " "+ message);
             }
             vars.put("USER_IS_LOGGED_IN", "");
         } else {
