@@ -2960,7 +2960,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public VcsCommand getCommand(String name){
         if (commandsByName == null) {
-            setCommands (commandsRoot);
+            setCommands (getCommands());
         }
         return (VcsCommand) commandsByName.get(name);
     }
