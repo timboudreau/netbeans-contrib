@@ -31,6 +31,8 @@ import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ImportAction;
+import org.netbeans.modules.tasklist.core.filter.FilterAction;
+import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ClearCompletedAction;
 import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
@@ -50,8 +52,6 @@ import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PriorityPropertyEditor;
-import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
-import org.netbeans.modules.tasklist.usertasks.filter.RemoveFilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.openide.ErrorManager;
 import org.openide.actions.CopyAction;
@@ -151,7 +151,7 @@ public final class UserTaskNode extends AbstractNode {
                 null,
                 SystemAction.get(PasteAction.class),
                 null,
-                SystemAction.get(FilterUserTaskAction.class),
+                SystemAction.get(FilterAction.class),
                 SystemAction.get(PurgeTasksAction.class),
                 null,
                 SystemAction.get(ExpandAllUserTasksAction.class),
@@ -181,8 +181,8 @@ public final class UserTaskNode extends AbstractNode {
                 SystemAction.get(MoveUpAction.class),
                 SystemAction.get(MoveDownAction.class),
                 null,
-                SystemAction.get(FilterUserTaskAction.class),
-                SystemAction.get(RemoveFilterUserTaskAction.class),
+                SystemAction.get(FilterAction.class),
+                SystemAction.get(RemoveFilterAction.class),
                 null,
                 SystemAction.get(PurgeTasksAction.class),
                 SystemAction.get(ClearCompletedAction.class),
@@ -511,8 +511,6 @@ public final class UserTaskNode extends AbstractNode {
     }
 
     public void destroy() throws IOException {
-        throw new InternalError("should never be called"); // NOI18N
-/*      TODO: remove  
         AdvancedTreeTableNode n = 
             (AdvancedTreeTableNode) this.node.findNextNodeAfterDelete();
         UTUtils.LOGGER.fine("selected node after delete:" + n); // NOI18N
@@ -526,7 +524,7 @@ public final class UserTaskNode extends AbstractNode {
             TreePath tp = new TreePath(n.getPathToRoot());
             tt.select(tp);
             tt.scrollTo(tp);
-        }*/
+        }
     }
     
     /**

@@ -144,6 +144,38 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
     }
     
     /**
+     * Searches for owners through all tasks.
+     *
+     * @return all found categories
+     */
+    public String[] getOwners() {
+        Iterator it = this.getSubtasks().iterator();
+        Set cat = new java.util.HashSet();
+        while (it.hasNext()) {
+            UserTask ut = (UserTask) it.next();
+            findOwners(ut, cat);
+        }
+        return (String[]) cat.toArray(new String[cat.size()]);
+    }
+    
+    /**
+     * Searches for owners
+     *
+     * @param task search for owners in this task and all of it's subtasks
+     * recursively
+     * @param cat container for found owners. <String>
+     */
+    private static void findOwners(UserTask task, Set cat) {
+        if (task.getOwner().length() != 0)
+            cat.add(task.getOwner());
+        
+        Iterator it = task.getSubtasks().iterator();
+        while (it.hasNext()) {
+            findOwners((UserTask) it.next(), cat);
+        }
+    }
+    
+    /**
      * Searches for categories through all tasks.
      *
      * @return all found categories

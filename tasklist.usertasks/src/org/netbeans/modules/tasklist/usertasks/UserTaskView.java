@@ -41,9 +41,11 @@ import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.filter.Filter;
+import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
+import org.netbeans.modules.tasklist.core.filter.FilteredTopComponent;
+import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.core.util.RightSideBorder;
-import org.netbeans.modules.tasklist.usertasks.actions.AsListAction;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveDownAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveUpAction;
@@ -51,8 +53,6 @@ import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTDeleteAction;
-import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
-import org.netbeans.modules.tasklist.usertasks.filter.RemoveFilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter;
 import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
 import org.netbeans.modules.tasklist.usertasks.translators.HtmlExportFormat;
@@ -95,7 +95,8 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
  * @author Tor Norbye
  */
 public class UserTaskView extends TopComponent implements
-ExplorerManager.Provider, ExportImportProvider, FileChangeListener {    
+ExplorerManager.Provider, ExportImportProvider, FileChangeListener,
+FilteredTopComponent {    
     // List category
     private final static String USER_CATEGORY = "usertasks"; // NOI18N    
     
@@ -240,8 +241,8 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
         return new SystemAction[] {
             SystemAction.get(NewTaskAction.class),
             SystemAction.get(GoToUserTaskAction.class),
-            SystemAction.get(FilterUserTaskAction.class),
-            SystemAction.get(RemoveFilterUserTaskAction.class),
+            SystemAction.get(FilterAction.class),
+            SystemAction.get(RemoveFilterAction.class),
             SystemAction.get(StartTaskAction.class),
             SystemAction.get(PauseAction.class),
             SystemAction.get(MoveUpAction.class),
@@ -256,8 +257,8 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
             "#37438 dangling componentActivated event, no componentOpened()" +  // NOI18N
             " called at " + this; // NOI18N
         ExplorerUtils.activateActions(manager, true);
-        RemoveFilterUserTaskAction removeFilter =
-            (RemoveFilterUserTaskAction) SystemAction.get(RemoveFilterUserTaskAction.class);
+        RemoveFilterAction removeFilter =
+            (RemoveFilterAction) SystemAction.get(RemoveFilterAction.class);
         removeFilter.enable();
     }
     
@@ -354,16 +355,14 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
             }
         }
         if (ver >= 3) {
-            tt.readExpandedState(objectInput);
-            tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
+            // just reading expanded state without using it
+            // for compatibility only
+            objectInput.readObject();
         }
         if (ver >= 4) {
-            Object sel = objectInput.readObject();
-            if (sel != null) {
-                TreePath tp = tt.readResolveTreePath(sel);
-                if (tp != null)
-                    tt.select(tp);
-            }
+            // just reading selected node without using it
+            // for compatibility only
+            objectInput.readObject();
         }
         if (ver >= 5) {
             String uid = (String) objectInput.readObject();
@@ -377,6 +376,7 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
             }
         }
         if (ver >= 6) {
+            // scroll bars positions
             Map m = (Map) objectInput.readObject();
             Point p = (Point) m.get("scrollPosition"); // NOI18N
             if (p != null) {
@@ -384,15 +384,34 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
                 scrollPane.getHorizontalScrollBar().setValue(p.x);
             }
             
+            // columns
             TreeTable.ColumnsConfig cc = (TreeTable.ColumnsConfig) m.get("columns"); // NOI18N
             if (UTUtils.LOGGER.isLoggable(Level.FINE))
                 UTUtils.LOGGER.fine(cc.toString());
-            
             if (cc != null) {
                 UTUtils.LOGGER.fine("setting columns"); // NOI18N
                 tt.setColumnsConfig(cc);
             } else {
                 UTUtils.LOGGER.fine("no columns found"); // NOI18N
+            }
+            
+            // active filter 25. March 2005
+            String filter = (String) m.get("filter");
+            if (filter != null) {
+                Filter f = getFilters().getFilterByName(filter);
+                setFilter(f);
+            }
+            
+            // expanded state 25. March 2005
+            Object expn = m.get("expandedNodes");
+            if (expn != null) {
+                tt.setExpandedNodes(tt.readResolveExpandedNodes(expn));
+            }
+            
+            // selected nodes
+            Object seln = m.get("selectedNodes");
+            if (seln != null) {
+                tt.select(tt.readResolveExpandedNodes(seln));
             }
         }
     }
@@ -451,14 +470,13 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
             objectOutput.writeObject(null);
         }
         
-        tt.writeExpandedState(objectOutput);
+        // writing null instead of expanded nodes
+        // just for compatibility
+        objectOutput.writeObject(null);
         
-        // selected task
-        TreePath tp = tt.getSelectedPath();
-        if (tp != null)
-            objectOutput.writeObject(tt.writeReplaceTreePath(tp));
-        else
-            objectOutput.writeObject(null);
+        // writing null instead of the selected task 
+        // just for compatibility
+        objectOutput.writeObject(null);
         
         // started task
         if (StartedUserTask.getStarted() != null && 
@@ -469,18 +487,30 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
             objectOutput.writeObject(null);
         }
 
-        // other attributes
         Map m = new HashMap();
+        
+        // scroll bars positions
         Point p = new Point(            
             scrollPane.getHorizontalScrollBar().getValue(), 
             scrollPane.getVerticalScrollBar().getValue());
         m.put("scrollPosition", p); // NOI18N
-        
+
+        // columns
         Serializable cc = tt.getColumnsConfig();
         m.put("columns", cc); // NOI18N
-        
         if (UTUtils.LOGGER.isLoggable(Level.FINE))
             UTUtils.LOGGER.fine(cc.toString());
+        
+        
+        // active filter
+        if (getFilter() != null)
+            m.put("filter", getFilter().getName());
+        
+        // expanded nodes
+        m.put("expandedNodes", tt.writeReplaceExpandedNodes(tt.getExpandedNodes()));
+        
+        // selected nodes
+        m.put("selectedNodes", tt.writeReplaceExpandedNodes(tt.getSelectedPaths()));
         
         objectOutput.writeObject(m);
 
@@ -538,8 +568,8 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
 
     protected void setFiltered() {
         if (getFilter() != null) {
-            ((RemoveFilterUserTaskAction) SystemAction.get(
-                RemoveFilterUserTaskAction.class)).enable();
+            ((RemoveFilterAction) SystemAction.get(
+                RemoveFilterAction.class)).enable();
         }
 
         TreeTableModel ttm = tt.getTreeTableModel();
@@ -624,13 +654,14 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
             ExplorerUtils.actionCut(manager));
         map.put(javax.swing.text.DefaultEditorKit.pasteAction, 
             ExplorerUtils.actionPaste(manager));
+        map.put("delete", ExplorerUtils.actionDelete(manager, true));  // NOI18N
 
         // following line tells the top component which lookup should be associated with it
         associateLookup(ExplorerUtils.createLookup(manager, map));
         
         FindAction find = (FindAction) FindAction.get(FindAction.class);
-        FilterUserTaskAction filter = (FilterUserTaskAction) 
-            FilterUserTaskAction.get(FilterUserTaskAction.class);
+        FilterAction filter = (FilterAction) 
+            FilterAction.get(FilterAction.class);
         getActionMap().put(find.getActionMapKey(), filter);
 
         setLayout(new BorderLayout());
@@ -661,7 +692,7 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
 
         tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
         
-        map.put("delete", new UTDeleteAction(tt)); // NOI18N
+        // map.put("delete", new UTDeleteAction(tt)); // NOI18N
     }
 
     public ExplorerManager getExplorerManager() {
@@ -804,14 +835,6 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
         this.activeFilter = filter;
         setFiltered();
     }
-
-    /*public boolean requestFocusInWindow() {
-        super.requestFocusInWindow();
-        if (tt != null) {
-            tt.requestFocusInWindow();
-        }
-        return true;
-    }*/
 
     public void requestActive() {
         super.requestActive();

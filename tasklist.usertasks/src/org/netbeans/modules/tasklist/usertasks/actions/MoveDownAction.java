@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import java.io.Serializable;
 import org.netbeans.modules.tasklist.usertasks.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;

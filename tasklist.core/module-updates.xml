@@ -1,4 +1,9 @@
 <updates>
+    <update version="1.32.6.15">
+        <change>FilteredTopComponent</change>
+        <change>Bugfix for #57030: Import task list file chooser doesn't show 
+            directories</change>
+    </update>
     <update version="1.25">
         <change>TaskListener.removedTask changed from 
         void removedTask(Task pt, Task t); to

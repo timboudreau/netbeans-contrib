@@ -130,6 +130,8 @@ public class TreeTable extends JTable {
      * See setExpandedNodesAndSelection/getExpandedNodesAndSelection
      */
     private static final class ExpandedNodesAndSelection {
+        public static final long serialVersionUID = 1L;
+        
         /** selection */
         public TreePath[] selection;
         
@@ -215,11 +217,6 @@ public class TreeTable extends JTable {
         });
     }
 
-    public void paint(Graphics g) {
-        if (!paintDisabled)
-            super.paint(g);
-    }
-    
     /**
      * Returns selected path
      *
@@ -349,6 +346,20 @@ public class TreeTable extends JTable {
         int row = this.getRowForPath(path);
         if (row >= 0)
             this.getSelectionModel().setSelectionInterval(row, row);
+    }
+
+    /**
+     * Selects the specified path
+     *
+     * @param path the path to be selected
+     */
+    public void select(TreePath[] path) {
+        getSelectionModel().clearSelection();
+        for (int i = 0; i < path.length; i++) {
+            int row = this.getRowForPath(path[i]);
+            if (row >= 0)
+                getSelectionModel().addSelectionInterval(row, row);
+        }
     }
 
     /**
@@ -578,8 +589,8 @@ public class TreeTable extends JTable {
      * @param node a node from this tree
      * @return handle for the node. != null
      */
-    protected Object writeReplaceNode(Object node) {
-        return node;
+    protected Serializable writeReplaceNode(Object node) {
+        return (Serializable) node;
     }
     
     /**
@@ -660,47 +671,79 @@ public class TreeTable extends JTable {
     }
 
     /**
-     * Writes the state of expanded nodes to a stream. Only one object
-     * will be written.
+     * Returns all expanded nodes
      *
-     * @param objectOutput output stream
+     * @return expanded nodes
      */
-    public void writeExpandedState(ObjectOutput objectOutput) throws IOException {
+    public TreePath[] getExpandedNodes() {
         Enumeration en = tree.getExpandedDescendants( 
             new TreePath(getTreeTableModel().getRoot()));
         
         List paths = new ArrayList();
         if (en != null) {
             while (en.hasMoreElements()) {
-                paths.add(writeReplaceTreePath((TreePath) en.nextElement()));
+                paths.add((TreePath) en.nextElement());
             }
         }
-
-        objectOutput.writeObject(paths);
+        
+        return (TreePath[]) paths.toArray(new TreePath[paths.size()]);
     }
     
     /**
-     * Read the expanded nodes from the specified stream.
+     * Sets expanded nodes
      *
-     * @param oi object input
+     * @param n expanded nodes
      */
-    public void readExpandedState(ObjectInput oi) throws IOException, 
-    ClassNotFoundException {
-        List l = (List) oi.readObject();
+    public void setExpandedNodes(TreePath[] n) {
+        for (int i = 0; i < n.length; i++) {
+            TreePath tp = n[i];
+            expandPath(tp);
+        }
+    }
+    
+    /**
+     * Replaces expanded nodes from this TT for writing into a stream.
+     *
+     * @param n nodes to be written
+     * @return replacement
+     */
+    public Serializable writeReplaceExpandedNodes(TreePath[] n) {
+        List paths = new ArrayList();
+        for (int i = 0; i < n.length; i++) {
+            paths.add(writeReplaceTreePath((TreePath) n[i]));
+        }
+        
+        return (Serializable) paths;
+    }
+    
+    /**
+     * Resolves expanded nodes in this TT from an object read from a stream.
+     *
+     * @return ser expanded nodes or null
+     * @param o read object
+     */
+    public TreePath[] readResolveExpandedNodes(Object ser) {
+        if (ser == null)
+            return new TreePath[0];
+        
+        List ret = new ArrayList();
+        List l = (List) ser;
         for (int i = 0; i < l.size(); i++) {
             TreePath tp = readResolveTreePath(l.get(i));
             if (tp != null)
-                expandPath(tp);
+                ret.add(tp);
         }
+        
+        return (TreePath[]) ret.toArray(new TreePath[ret.size()]);
     }
 
     /**
-     * Replaces a tree from this TT for writing into a stream.
+     * Replaces a tree path from this TT for writing into a stream.
      *
      * @param tp a path from this TT
      * @return replacement
      */
-    public Object writeReplaceTreePath(TreePath tp) {
+    public Serializable writeReplaceTreePath(TreePath tp) {
         Object[] p = tp.getPath();
         p[0] = null;
         for (int i = 1; i < p.length; i++) {
@@ -952,6 +995,8 @@ public class TreeTable extends JTable {
 	    int offsetRow = rv ? r : r - 1;
 	    Rectangle bounds = t.getRowBounds(offsetRow);
 	    int offset = bounds.x;
+            Rectangle cb = TreeTable.this.getCellRect(r, c, false);
+            offset += cb.x;
 	    TreeCellRenderer tcr = t.getCellRenderer();
 	    if (tcr instanceof DefaultTreeCellRenderer) {
 		Object node = t.getPathForRow(offsetRow).
@@ -964,6 +1009,7 @@ public class TreeTable extends JTable {
 		else
 		    icon = ((DefaultTreeCellRenderer)tcr).getClosedIcon();
 		if (icon != null) {
+                    UTUtils.LOGGER.fine("offset=" + offset); // NOI18N
 		    offset += ((DefaultTreeCellRenderer)tcr).getIconTextGap() +
 			      icon.getIconWidth();
 		}
@@ -1136,23 +1182,5 @@ public class TreeTable extends JTable {
 		updateSelectedPathsFromSelectedRows();
 	    }
 	}
-    }
-
-    /**
-     * Returns the current state of repainting.
-     *
-     * @return true = painting is disabled
-     */
-    public boolean isPaintDisabled() {
-        return paintDisabled;
-    }
-
-    /**
-     * Disables repainting.
-     *
-     * @param paintDisable true = disable painting
-     */
-    public void setPaintDisabled(boolean paintDisabled) {
-        this.paintDisabled = paintDisabled;
     }
 }

@@ -25,7 +25,6 @@ import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
 
 /**
  * Filter for user tasks
- * @author Tim Lebedkov
  */
 public class UserTaskFilter extends Filter {
     private static final SuggestionProperty[] PROPS = new SuggestionProperty[] {

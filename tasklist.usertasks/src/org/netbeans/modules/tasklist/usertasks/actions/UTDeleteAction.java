@@ -20,6 +20,8 @@ import org.openide.util.NbBundle;
 
 /**
  * DeleteAction for UserTasks
+ *
+ * This class is not used.
  */
 public class UTDeleteAction extends AbstractAction 
 implements ListSelectionListener {
@@ -119,7 +121,7 @@ implements ListSelectionListener {
 
         // perform action if confirmed
         if (doConfirm(tasks)) {
-            tt.setPaintDisabled(true);
+            //tt.setPaintDisabled(true);
             for (int i = 0; i < tasks.length; i++) {
                 UserTask item = tasks[i].getUserTask();
                 UserTaskList utl = item.getList();
@@ -134,7 +136,7 @@ implements ListSelectionListener {
                 tt.select(tp);
                 tt.scrollTo(tp);
             }        
-            tt.setPaintDisabled(false);
+            //tt.setPaintDisabled(false);
             tt.repaint();
         }
     }

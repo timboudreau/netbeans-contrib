@@ -52,6 +52,15 @@ public class SummaryTreeCellRenderer extends DefaultTreeCellRenderer {
     
     private ImageIcon icon = new ImageIcon();
     
+    public SummaryTreeCellRenderer() {
+        ImageIcon icon = new ImageIcon(IMAGE);
+        
+        // see TreeTable.TreeTableCellEditor.getTableCellEditorComponent
+        setLeafIcon(icon);
+        setOpenIcon(icon);
+        setClosedIcon(icon);
+    }
+    
     public Component getTreeCellRendererComponent(JTree tree, Object value,
 				   boolean selected, boolean expanded,
 				   boolean leaf, int row, boolean hasFocus) {

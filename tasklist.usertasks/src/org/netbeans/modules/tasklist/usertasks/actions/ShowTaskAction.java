@@ -75,6 +75,7 @@ public class ShowTaskAction extends NodeAction {
         DialogDescriptor d = new DialogDescriptor(panel,
             NbBundle.getMessage(ShowTaskAction.class, "TITLE_edit_todo")); // NOI18N
         d.setModal(true);
+        d.setHelpCtx(new HelpCtx("org.netbeans.modules.tasklist.usertasks.NewTaskDialog")); // NOI18N
         d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
         d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
         Dialog dlg = DialogDisplayer.getDefault().createDialog(d);

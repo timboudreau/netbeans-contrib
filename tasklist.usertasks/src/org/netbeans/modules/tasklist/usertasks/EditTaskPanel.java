@@ -244,7 +244,13 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         
         dp.fillPanel(item);
         
-        jTextFieldOwner.setText(item.getOwner());
+        String[] owners = item.getList().getOwners();
+        if (owners.length > 0) {
+            DefaultComboBoxModel model = new DefaultComboBoxModel(owners);
+            jComboBoxOwner.setModel(model);
+        }
+        jComboBoxOwner.setSelectedItem(item.getOwner());
+        
         jLabelCompleted.setText(df.format(new Date(item.getCompletedDate())));
         
         DefaultListModel dlm = new DefaultListModel();
@@ -322,7 +328,10 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         
         dp.fillObject();
         
-        task.setOwner(jTextFieldOwner.getText());
+        if (jComboBoxOwner.getSelectedItem() == null)
+            task.setOwner(""); // NOI18N
+        else
+            task.setOwner(jComboBoxOwner.getSelectedItem().toString().trim());
     }
     
     /**
@@ -333,11 +342,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private Date getDueDate() {
         Date ret;
         if (dueCheckBox.isSelected()) {
-            try {
-                ret = format.parse(dueDateTextField.getText());
-            } catch (ParseException e) {
-                ret = null;
-            }
+            ret = jDateChooserDue.getDate();
         } else {
             ret = null;
         }
@@ -361,24 +366,14 @@ public class EditTaskPanel extends JPanel implements ActionListener {
      * @param d the due date
      */
     private void setDueDate(Date d) {
-        String s = null;
-        
         if (d != null) {
-            s = format.format(d);
-        }
-        
-        if (s != null) {
-            dueDateTextField.setText(s);
+            jDateChooserDue.setDate(d);
             dueCheckBox.setSelected(true);
-            dueDateBrowseButton.setEnabled(true);
-            dueDateTextField.setEnabled(true);
-            dueDateTextField.setEditable(true);
+            enableDueChooser(true);
         } else {
-            dueDateTextField.setText(""); // NOI18N
-            dueDateBrowseButton.setEnabled(false);
-            dueDateTextField.setEnabled(false);
+            jDateChooserDue.setDate(new Date());
             dueCheckBox.setSelected(false);
-            dueDateTextField.setEditable(false);
+            enableDueChooser(false);
         }
     }
     
@@ -475,12 +470,10 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         addSourceButton = new javax.swing.JButton();
         prioLabel = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        jTextFieldOwner = new javax.swing.JTextField();
+        jComboBoxOwner = new javax.swing.JComboBox();
         jPanel3 = new javax.swing.JPanel();
-        dueDateTextField = new javax.swing.JTextField();
         dueCheckBox = new javax.swing.JCheckBox();
         jPanel1 = new javax.swing.JPanel();
-        dueDateBrowseButton = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabelLastEdited = new javax.swing.JLabel();
@@ -500,7 +493,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         durationPanelSpent = new org.netbeans.modules.tasklist.usertasks.DurationPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabelCompleted = new javax.swing.JLabel();
-        jPanelDue = new javax.swing.JPanel();
+        jDateChooserDue = new com.toedter.calendar.JDateChooser();
         jPanelDependencies = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -713,30 +706,19 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanelGeneral.add(jLabel1, gridBagConstraints);
 
+    jComboBoxOwner.setEditable(true);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 4;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.ipadx = 100;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
-    jPanelGeneral.add(jTextFieldOwner, gridBagConstraints);
+    jPanelGeneral.add(jComboBoxOwner, gridBagConstraints);
 
     jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "General"), jPanelGeneral);
 
     jPanel3.setLayout(new java.awt.GridBagLayout());
 
     jPanel3.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(11, 11, 12, 12)));
-    dueDateTextField.setColumns(14);
-    dueDateTextField.setEditable(false);
-    dueDateTextField.setEnabled(false);
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 0;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    jPanel3.add(dueDateTextField, gridBagConstraints);
-
     /*
     dueCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "DueDateCb")); // NOI18N();
     */
@@ -762,23 +744,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.weightx = 1.0;
     gridBagConstraints.weighty = 1.0;
     jPanel3.add(jPanel1, gridBagConstraints);
-
-    /*
-    dueDateBrowseButton.setText("...");
-    */
-    dueDateBrowseButton.setEnabled(false);
-    dueDateBrowseButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent evt) {
-            dueDateBrowseButtonActionPerformed(evt);
-        }
-    });
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 2;
-    gridBagConstraints.gridy = 0;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    jPanel3.add(dueDateBrowseButton, gridBagConstraints);
 
     jLabel6.setText(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "LastEditedLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -966,10 +931,13 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanel3.add(jLabelCompleted, gridBagConstraints);
 
+    jDateChooserDue.setEnabled(false);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 3;
+    gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 0;
-    jPanel3.add(jPanelDue, gridBagConstraints);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel3.add(jDateChooserDue, gridBagConstraints);
 
     jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "TimeRelated"), jPanel3);
 
@@ -1058,8 +1026,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
                    EditTaskPanel.class, "DueDateCb")); // NOI18N
         Mnemonics.setLocalizedText(addLabel, NbBundle.getMessage(
                 EditTaskPanel.class, "AddTo")); // NOI18N
-        Mnemonics.setLocalizedText(dueDateBrowseButton, NbBundle.getMessage(
-                EditTaskPanel.class, "Browse")); // NOI18N
         Mnemonics.setLocalizedText(beginningToggle, NbBundle.getMessage(
                        EditTaskPanel.class, "BeginningList")); // NOI18N
         Mnemonics.setLocalizedText(endToggle, NbBundle.getMessage(
@@ -1084,11 +1050,11 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         // doesn't have a setLabelFor (since it is itself an input component)
         // so we have to label the associated component ourselves
         fileTextField.getAccessibleContext().setAccessibleName(fileCheckBox.getText());
-        dueDateTextField.getAccessibleContext().setAccessibleName(dueCheckBox.getText());
+        jDateChooserDue.getAccessibleContext().setAccessibleName(dueCheckBox.getText());
 
         lineTextField.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_Line")); // NOI18N
-        dueDateTextField.getAccessibleContext().setAccessibleDescription(
+        jDateChooserDue.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_Due")); // NOI18N
         fileCheckBox.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_FileCb")); // NOI18N
@@ -1121,41 +1087,21 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             if (evt.getStateChange() == ItemEvent.SELECTED) {
                 enable = true;
             }
-            dueDateBrowseButton.setEnabled(enable);
-            dueDateTextField.setEnabled(enable);
-            dueDateTextField.setEditable(enable);
+            enableDueChooser(enable);
         }
     }//GEN-LAST:event_dueCheckBoxItemStateChanged
 
-    private void dueDateBrowseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dueDateBrowseButtonActionPerformed
-        if (evt.getID() == ActionEvent.ACTION_PERFORMED) {
-            DateSelectionPanel pnl;
-            Date date = getDueDate();
-            if (date != null) {
-                pnl = new DateSelectionPanel(date);
-            } else {
-                pnl = new DateSelectionPanel();
-            }
-            String title = NbBundle.getMessage(EditTaskPanel.class, "SelectDateLabel"); // NOI18N
-            DialogDescriptor d = new DialogDescriptor(pnl, title);
-            d.setModal(true);
-            d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
-            d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
-            Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
-            dlg.pack();
-            dlg.show();
-            
-            if (d.getValue() == NotifyDescriptor.OK_OPTION) {
-                Date due = pnl.getDate();
-                if (due != null) {
-                    SimpleDateFormat format = new SimpleDateFormat();
-                    dueDateTextField.setText(format.format(due));
-                }
-            }
+    /**
+     * Bugfix for JDateChooser.setEnabled
+     *
+     * @param enable true = enabled
+     */
+    private void enableDueChooser(boolean enable) {
+        for (int i = 0; i < jDateChooserDue.getComponentCount(); i++) {
+            jDateChooserDue.getComponent(i).setEnabled(enable);
         }
-    }//GEN-LAST:event_dueDateBrowseButtonActionPerformed
-
-
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup addButtonGroup;
     private javax.swing.JLabel addLabel;
@@ -1171,14 +1117,14 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JScrollPane detailsScrollPane;
     private javax.swing.JTextArea detailsTextArea;
     private javax.swing.JCheckBox dueCheckBox;
-    private javax.swing.JButton dueDateBrowseButton;
-    private javax.swing.JTextField dueDateTextField;
     private org.netbeans.modules.tasklist.usertasks.DurationPanel durationPanelSpent;
     private javax.swing.ButtonGroup effortButtonGroup;
     private javax.swing.JRadioButton endToggle;
     private javax.swing.JCheckBox fileCheckBox;
     private javax.swing.JTextField fileTextField;
+    private javax.swing.JComboBox jComboBoxOwner;
     private javax.swing.JComboBox jComboBoxProgress;
+    private com.toedter.calendar.JDateChooser jDateChooserDue;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -1198,7 +1144,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanelDependencies;
-    private javax.swing.JPanel jPanelDue;
     private javax.swing.JPanel jPanelEffort;
     private javax.swing.JPanel jPanelGeneral;
     private javax.swing.JRadioButton jRadioButtonComputeEffort;
@@ -1209,7 +1154,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JRadioButton jRadioButtonSpent;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane;
-    private javax.swing.JTextField jTextFieldOwner;
     private javax.swing.JLabel lineLabel;
     private javax.swing.JTextField lineTextField;
     private javax.swing.JLabel prioLabel;

@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks;
 
 import java.awt.Point;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -28,14 +29,15 @@ import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ImportAction;
 import org.netbeans.modules.tasklist.core.filter.Filter;
+import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskListAction;
 import org.netbeans.modules.tasklist.usertasks.editors.CategoryTableCellEditor;
+import org.netbeans.modules.tasklist.usertasks.editors.OwnerTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PriorityTableCellEditor;
-import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.renderers.CategoryTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DateTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DurationTableCellRenderer;
@@ -58,6 +60,7 @@ import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.renderers.OwnerTableCellRenderer;
 
 /**
  * TT for user tasks
@@ -213,6 +216,11 @@ public class UserTasksTreeTable extends NodesTreeTable {
         
         tcm.getColumn(UserTasksTreeTableModel.EFFORT).setCellRenderer(
             new EffortTableCellRenderer());
+
+        tcm.getColumn(UserTasksTreeTableModel.OWNER).
+            setCellEditor(new OwnerTableCellEditor());
+        tcm.getColumn(UserTasksTreeTableModel.OWNER).
+            setCellRenderer(new OwnerTableCellRenderer());
     }
 
     /**
@@ -243,7 +251,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
             SystemAction.get(NewTaskAction.class),
             SystemAction.get(NewTaskListAction.class),
             null,
-            SystemAction.get(FilterUserTaskAction.class),
+            SystemAction.get(FilterAction.class),
             null,
             SystemAction.get(ExpandAllUserTasksAction.class),
             SystemAction.get(CollapseAllAction.class),
@@ -253,7 +261,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
         };
     }    
 
-    protected Object writeReplaceNode(Object node) {
+    protected Serializable writeReplaceNode(Object node) {
         return ((UserTaskTreeTableNode) node).getUserTask().getUID();
     }
 

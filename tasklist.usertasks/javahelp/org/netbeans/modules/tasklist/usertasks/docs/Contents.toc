@@ -22,5 +22,6 @@ Microsystems, Inc. All Rights Reserved.
     <tocitem target="org.netbeans.modules.tasklist.usertasks.Filter">Searching/Filtering</tocitem>
     <tocitem target="org.netbeans.modules.tasklist.usertasks.Translators">Export and Import Wizards</tocitem>
     <tocitem target="org.netbeans.modules.tasklist.usertasks.AddTask">How to Add a Task to the Source</tocitem>
+    <tocitem target="org.netbeans.modules.tasklist.usertasks.NewTaskDialog">"New Task" Dialog</tocitem>
   </tocitem>
 </toc>

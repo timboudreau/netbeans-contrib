@@ -40,8 +40,10 @@ public class ExtensionFileFilter extends FileFilter {
                 if (name.endsWith(extensions[i]))
                     return true;
             }
+            return false;
+        } else {
+            return true;
         }
-        return false;
     }
     
     public String getDescription() {

@@ -14,11 +14,12 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <map version="1.0">
-  <mapID target="org.netbeans.modules.tasklist.usertasks.HOMEID" url="content/usertasks.html" />
-  <mapID target="org.netbeans.modules.tasklist.usertasks.Options" url="content/options.html" />
-  <mapID target="org.netbeans.modules.tasklist.usertasks.TableOperation" url="content/table-operation.html" />
-  <mapID target="org.netbeans.modules.tasklist.usertasks.Actions" url="content/actions.html" />
-  <mapID target="org.netbeans.modules.tasklist.usertasks.Filter" url="content/filter.html" />
-  <mapID target="org.netbeans.modules.tasklist.usertasks.AddTask" url="content/addTask.html" />
-  <mapID target="org.netbeans.modules.tasklist.usertasks.Translators" url="content/translators.html" />
+    <mapID target="org.netbeans.modules.tasklist.usertasks.HOMEID" url="content/usertasks.html" />
+    <mapID target="org.netbeans.modules.tasklist.usertasks.Options" url="content/options.html" />
+    <mapID target="org.netbeans.modules.tasklist.usertasks.TableOperation" url="content/table-operation.html" />
+    <mapID target="org.netbeans.modules.tasklist.usertasks.Actions" url="content/actions.html" />
+    <mapID target="org.netbeans.modules.tasklist.usertasks.Filter" url="content/filter.html" />
+    <mapID target="org.netbeans.modules.tasklist.usertasks.AddTask" url="content/addTask.html" />
+    <mapID target="org.netbeans.modules.tasklist.usertasks.Translators" url="content/translators.html" />
+    <mapID target="org.netbeans.modules.tasklist.usertasks.NewTaskDialog" url="content/newTaskDialog.html" />
 </map>

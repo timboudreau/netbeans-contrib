@@ -104,7 +104,7 @@ public class NewTaskAction extends NodeAction {
                  NbBundle.getMessage(NewTaskAction.class,
                                      "TITLE_add_todo")); // NOI18N
             dd.setModal(true);
-            dd.setHelpCtx(new HelpCtx("NewTask")); // NOI18N
+            dd.setHelpCtx(new HelpCtx("org.netbeans.modules.tasklist.usertasks.NewTaskDialog")); // NOI18N
             dd.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
 
             // dialog buttons
@@ -120,14 +120,14 @@ public class NewTaskAction extends NodeAction {
                 DialogDescriptor.OK_OPTION,
                 DialogDescriptor.CANCEL_OPTION
             });
-        dd.setButtonListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Object src = e.getSource();
-                if (src == addAnotherButton) {
-                    addAnotherTask();
+            dd.setButtonListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    Object src = e.getSource();
+                    if (src == addAnotherButton) {
+                        addAnotherTask();
+                    }
                 }
-            }
-        });
+            });
         }
         return dd;
     }

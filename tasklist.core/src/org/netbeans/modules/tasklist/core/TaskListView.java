@@ -16,8 +16,6 @@ package org.netbeans.modules.tasklist.core;
 
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -33,21 +31,18 @@ import javax.swing.*;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreeNode;
-import javax.swing.table.TableModel;
 
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
+import org.netbeans.modules.tasklist.core.filter.FilteredTopComponent;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
-
-import org.openide.explorer.view.TreeTableView;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
-import org.openide.nodes.Children;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -60,13 +55,11 @@ import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileSystem;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.text.Line;
-import org.openide.util.actions.ActionPerformer;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.WindowManager;
 import org.openide.windows.TopComponent;
-import org.openide.util.actions.CallbackSystemAction;
+
 
 
 /**
@@ -74,7 +67,9 @@ import org.openide.util.actions.CallbackSystemAction;
  * @author Tor Norbye, Trond Norbye
  */
 public abstract class TaskListView extends TopComponent
-    implements TaskListener, ExplorerManager.Provider, TaskSelector {
+implements TaskListener, ExplorerManager.Provider, TaskSelector,
+FilteredTopComponent
+{
 
     private static final long serialVersionUID = 1;
 
