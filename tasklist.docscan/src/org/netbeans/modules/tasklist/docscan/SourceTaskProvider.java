@@ -251,7 +251,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
                 }
 
                 // calculate current line number
-                int idx = index;
+                int idx = 0;
                 while (idx <= begin) {
                     if (text.charAt(idx) == '\n') {// NOI18N
                         ++lineno;
