@@ -282,7 +282,7 @@ public class UserCommandsPanel extends JPanel
     UserCommand uc=(UserCommand)commands.elementAt(index);
     if (uc == null) return;
     EditUserCommand ec=new EditUserCommand(new Frame(),uc);
-    ec.setLocationRelativeTo(list);
+    ec.setLocationRelativeTo(this/*list*/);
     ec.show();
     if( ec.wasCancelled()==false ){
       listModel.setElementAt(uc.toString(),index);
@@ -441,6 +441,7 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  19   Jaga      1.16.1.1    3/15/00  Martin Entlicher setLocation changed
  *  18   Jaga      1.16.1.0    3/9/00   Martin Entlicher Fix of long panel width.
  *  17   Gandalf   1.16        1/27/00  Martin Entlicher NOI18N
  *  16   Gandalf   1.15        11/30/99 Martin Entlicher 
