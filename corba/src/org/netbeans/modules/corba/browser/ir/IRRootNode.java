@@ -14,7 +14,6 @@
 package org.netbeans.modules.corba.browser.ir;
 
 import org.omg.CORBA.*;
-//import org.omg.CosNaming.*;
 
 import java.io.*;
 import java.net.*;
@@ -28,14 +27,18 @@ import org.openide.*;
 import org.netbeans.modules.corba.*;
 import org.netbeans.modules.corba.settings.*;
 import org.netbeans.modules.corba.browser.ir.util.AsyncTarget;
+import org.netbeans.modules.corba.browser.ir.util.FromInitialReferencesCookie;
+import org.netbeans.modules.corba.browser.ir.actions.FromInitialReferencesAction;
 /*
- * @author Karel Gardas
+ * @author Karel Gardas, Tomas Zezula
  */
 
-public class IRRootNode extends AbstractNode implements Node.Cookie {
+public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitialReferencesCookie {
 
     static final String ICON_BASE_ROOT
-        = "org/netbeans/modules/corba/browser/ir/resources/ir-root";
+        = "org/netbeans/modules/corba/browser/ir/resources/ir-root";    // No I18N
+
+    static final String INTERFACE_REPOSITORY_SERVICE = "InterfaceRepository";   // No I18N
 
     public static final boolean DEBUG = false;
     //public static final boolean DEBUG = true;
@@ -79,7 +82,7 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
         super (new IRRootNodeChildren ());
         instance = this;
         this.rqProcessor = new RequestProcessor ("CORBA-Browsers");
-        setName (NbBundle.getBundle(IRRootNode.class).getString("CTL_CORBAInterfaceRepository"));
+        setName (Util.getLocalizedString("CTL_CORBAInterfaceRepository"));
         init ();
     }
 
@@ -102,7 +105,10 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
         ((IRRootNodeChildren)getChildren ()).setRootNode (this);
 
         systemActions = new SystemAction[] {
-            SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.AddRepository.class)
+            SystemAction.get (org.netbeans.modules.corba.browser.ir.actions.AddRepository.class),
+            SystemAction.get (FromInitialReferencesAction.class),
+            null,
+            SystemAction.get (org.openide.actions.PropertiesAction.class)
         };
     }
 
@@ -227,7 +233,8 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
                 throw new RuntimeException();
         }
         else {
-            TopManager.getDefault().notify ( new NotifyDescriptor.Message(NbBundle.getBundle(IRRootNode.class).getString("TXT_EmptyFieldsError"),NotifyDescriptor.ERROR_MESSAGE));
+            TopManager.getDefault().notify ( new NotifyDescriptor.Message(Util.getLocalizedString("TXT_EmptyFieldsError"),NotifyDescriptor.ERROR_MESSAGE));
+            return;
         }
         if (DEBUG)
             System.out.println ("loaded?: " + loaded ());
@@ -272,6 +279,33 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
 
     public void refresh () {
         ((IRRootNodeChildren)getChildren ()).addNotify ();
+    }
+    
+    public void fromInitialReferences () {
+        try {
+            NotifyDescriptor.InputLine desc = new NotifyDescriptor.InputLine (Util.getLocalizedString("CTL_NameLabel"),Util.getLocalizedString("TXT_FromInitialReferencesDlgTitle"));
+            desc.setInputText (Util.getLocalizedString("TXT_InterfaceRepository"));
+            TopManager.getDefault().notify (desc);
+            if (desc.getValue() == DialogDescriptor.OK_OPTION) {
+                String name = desc.getInputText();
+                if (name == null || name.length()==0) {
+                    TopManager.getDefault().notify( new NotifyDescriptor.Message (Util.getLocalizedString("TXT_ObligatoryName"),NotifyDescriptor.ERROR_MESSAGE));
+                    return;
+                }
+                if (this.orb == null)
+                    lazyInit();
+                org.omg.CORBA.Object ref = this.orb.resolve_initial_references (INTERFACE_REPOSITORY_SERVICE);
+                String ior = this.orb.object_to_string (ref);
+                this.addRepository (name,"",ior); // No I18N
+            }
+        }catch (org.omg.CORBA.ORBPackage.InvalidName invalidName) {
+            TopManager.getDefault().getErrorManager().log (invalidName.toString());
+            TopManager.getDefault().notify (new NotifyDescriptor.Message (Util.getLocalizedString("TXT_NoInitialReference"),NotifyDescriptor.ERROR_MESSAGE));
+        }
+        catch (Exception generalException) {
+            TopManager.getDefault().getErrorManager().log (generalException.toString());
+            TopManager.getDefault().notify (new NotifyDescriptor.Message (Util.getLocalizedString("TXT_InitialReferencesException"),NotifyDescriptor.ERROR_MESSAGE));
+        }
     }
     
     private void lazyInit () {
