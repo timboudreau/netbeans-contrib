@@ -645,8 +645,7 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
             lastSel.set(propSupport, null);
             } 
             catch (Exception e) { 
-            if (Boolean.getBoolean("netbeans.debug.exceptions"))
-            e.printStackTrace(); 
+            org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, e);
             }  
             
             // end super

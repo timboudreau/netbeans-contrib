@@ -53,8 +53,7 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 	    //System.out.println ("// initialization of the array of descriptors"); // NOI18N
 	} catch (IntrospectionException ex) {
             //throw new InternalError ();
-            if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-		ex.printStackTrace ();
+            org.openide.ErrorManager.getDefault().notify(ex);
         }
     }
 */
@@ -106,8 +105,7 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 	    //System.out.println ("// initialization of the array of descriptors"); // NOI18N
 	} catch (IntrospectionException ex) {
             //throw new InternalError ();
-            if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-		ex.printStackTrace ();
+            org.openide.ErrorManager.getDefault().notify(ex);
         }
 /*        final ResourceBundle bundle =
             NbBundle.getBundle(IDLDataLoaderBeanInfo.class);
@@ -120,8 +118,7 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
             descriptors[0].setDisplayName(bundle.getString("PROP_Name"));
             descriptors[0].setShortDescription(bundle.getString("HINT_Name"));
         } catch (IntrospectionException e) {
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-		e.printStackTrace ();
+	    org.openide.ErrorManager.getDefault().notify(e);
         }
 */
     }

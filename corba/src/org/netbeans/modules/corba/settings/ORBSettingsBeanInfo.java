@@ -341,8 +341,7 @@ public class ORBSettingsBeanInfo extends SimpleBeanInfo {
 	    
         } catch (IntrospectionException ex) {
             //throw new InternalError ();
-	    //if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-	    ex.printStackTrace ();
+	    org.openide.ErrorManager.getDefault().notify(ex);
         }
     }
 

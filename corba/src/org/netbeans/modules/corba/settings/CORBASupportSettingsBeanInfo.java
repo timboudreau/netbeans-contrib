@@ -66,8 +66,7 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 	    desc[4].setHidden (true);  // _M_implementations
 	} catch (IntrospectionException ex) {
             //throw new InternalError ();
-	    //if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-	    ex.printStackTrace ();
+	    org.openide.ErrorManager.getDefault().notify(ex);
         }
     }
 

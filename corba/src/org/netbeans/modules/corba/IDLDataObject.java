@@ -248,8 +248,7 @@ public class IDLDataObject extends MultiDataObject
                 _M_idl_node.setIconBase(IDLNode.IDL_ERROR_ICON);
             }
         } catch (Exception e) {
-            if (Boolean.getBoolean("netbeans.debug.exceptions")) // NOI18N
-                e.printStackTrace();
+            org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, e);
         }
         return _M_idl_node;
     }
@@ -1057,8 +1056,7 @@ public class IDLDataObject extends MultiDataObject
             //TopManager.getDefault ().notifyException (ex);
             if (DEBUG)
                 System.out.println("IDLParser exception in " + this.getPrimaryFile()); // NOI18N
-            if (Boolean.getBoolean("netbeans.debug.exceptions")) // NOI18N
-                ex.printStackTrace();
+            org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, ex);
         } finally {
             try {
                 if (DEBUG)

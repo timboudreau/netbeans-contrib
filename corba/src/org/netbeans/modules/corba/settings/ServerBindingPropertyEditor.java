@@ -79,8 +79,7 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport {
 	    _M_choices = __choices;
 	    return _M_choices;
 	} catch (Exception e) {
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-		e.printStackTrace ();
+	    org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, e);
 	}
 	return new String[] {""}; // NOI18N
     } 

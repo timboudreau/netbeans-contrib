@@ -93,8 +93,7 @@ final public class SuggestionTypesFolder extends FolderInstance {
             if (df != null)
                 folder = new SuggestionTypesFolder(f, df);
         } catch (DataObjectNotFoundException ex) {
-            if( Boolean.getBoolean( "netbeans.debug.exceptions" ) )
-                ex.printStackTrace();
+            org.openide.ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, ex);
             return null;
         }
         return folder;
