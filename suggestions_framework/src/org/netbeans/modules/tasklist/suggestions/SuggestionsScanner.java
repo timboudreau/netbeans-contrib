@@ -467,6 +467,7 @@ public final class SuggestionsScanner implements Cancellable {
             if (tryGC) {
                 try {
                     byte[] gcProvocation = new byte[(int)required];
+                    gcProvocation[0] = 75;
                     gcProvocation = null;
                     return;
                 } catch (OutOfMemoryError e) {
