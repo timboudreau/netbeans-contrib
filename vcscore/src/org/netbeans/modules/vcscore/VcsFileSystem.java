@@ -721,6 +721,28 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
     
+    /*
+     * Mark the file as being important or unimportant.
+     * @param name the file name
+     * @param important whether the file is important or not.
+     */
+    public void markImportant(String name, boolean important) {
+        Reference ref = findReference(name);
+        if (ref != null && ref instanceof CacheReference) {
+            if (important) {
+                ((CacheReference) ref).markImportant();
+            } else {
+                ((CacheReference) ref).markUnimportant();
+            }
+        } else {
+            if (important) {
+                unimportantFiles.remove(name);
+            } else {
+                unimportantFiles.add(name);
+            }
+        }
+    }
+    
     public boolean isImportant(String name) {
         Reference ref = findReference(name);
         if (ref != null && ref instanceof CacheReference) {
