@@ -514,11 +514,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public void statusChanged (String name) {
         FileObject fo = findResource(name);
+        //System.out.println("findResource("+name+") = "+fo);
         if (fo == null) return;
-        //HashSet hs = new HashSet();
-        //hs.add(fo);
-        //Set s = Collections.synchronizedSet(hs);
         fireFileStatusChanged (new FileStatusEvent(this, fo, false, true));
+        /*
+        try {
+            DataObject dobj = DataObject.find(fo);
+            Set fos = dobj.files();
+            Set ds = Collections.synchronizedSet(fos);
+            fireFileStatusChanged (new FileStatusEvent(this, ds, false, true));
+        } catch (org.openide.loaders.DataObjectNotFoundException exc) {
+            exc.printStackTrace();
+        }
+         */
+        //statusChanged(fo.getParent().getPackageNameExt('/', '.'), false);
+        //System.out.println("fo = "+fo+" and parent = "+fo.getParent()+" refreshed.");
     }
     
     public void disableRefresh() {
@@ -1241,6 +1251,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (acceptUserParams && userLocalParamsLabels != null) {
                 String[] cmdUserParams = (String[]) cmd.getProperty(VcsCommand.PROPERTY_USER_PARAMS);
                 if (cmdUserParams == null) cmdUserParams = new String[userLocalParamsLabels.length];
+                cmd.setProperty(VcsCommand.PROPERTY_USER_PARAMS, cmdUserParams);
                 if (num >= userLocalParamsLabels.length) num = userLocalParamsLabels.length - 1;
                 if (cmdUserParams[num] != null) defaultParam = cmdUserParams[num];
                 results.put(userLocalParamsLabels[num], defaultParam);
