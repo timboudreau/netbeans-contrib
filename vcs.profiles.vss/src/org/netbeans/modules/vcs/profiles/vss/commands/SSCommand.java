@@ -18,12 +18,18 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import org.netbeans.modules.vcs.advanced.ProfilesFactory;
 import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
+import org.netbeans.modules.vcscore.cmdline.exec.BadRegexException;
+import org.netbeans.modules.vcscore.cmdline.exec.ExternalCommand;
 import org.netbeans.modules.vcscore.cmdline.exec.StructuredExec;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
@@ -32,6 +38,7 @@ import org.netbeans.modules.vcscore.commands.TextOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.util.NotifyDescriptorInputPassword;
 import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 
@@ -46,6 +53,8 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
     
     private static final String PASSWORD = "Password:"; // NOI18N
     private static final String USERNAME = "Username:"; // NOI18N
+    //private static final String USER_NOT_FOUND_PATTERN = "User \".*\" not found"; // NOI18N (TODO: Uncomment if you're able to grab it from error output)
+    private static final String INVALID_PASSWORD = "Invalid password"; // NOI18N
     
     private CommandExecutionContext context;
     private volatile Thread executionThread;
@@ -53,6 +62,13 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
     private Hashtable vars;
     private String usernameStr = USERNAME;
     private String passwordStr = PASSWORD;
+    //private String userNotFoundPatternStr = USER_NOT_FOUND_PATTERN; (Uncomment if you're able to grab it from error output)
+    //private Pattern userNotFoundPattern; (Uncomment if you're able to grab it from error output)
+    private String currentUserName;
+    private String invalidPasswordStr = INVALID_PASSWORD;
+    private volatile boolean haveWrongPassword = false;
+    private volatile boolean passwordPromptCanceled = false;
+    private CommandOutputListener errorOutputListener;
     
     /** Creates a new instance of SSCommand */
     public SSCommand() {
@@ -84,7 +100,11 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
         if (vars.containsKey(ProfilesFactory.VAR_LOCALIZED_PROFILE_COPY)) {
             usernameStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("USERNAME_Prompt");
             passwordStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("PASSWORD_Prompt");
+            //userNotFoundPatternStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("USER_NOT_FOUND_PATTERN_Prompt");  (Uncomment if you're able to grab it from error output)
+            invalidPasswordStr = NbBundle.getBundle("org/netbeans/modules/vcs/profiles/vss/config/BundleLocalizedVSS").getString("InvalidPassword_Output");
         }
+        //userNotFoundPattern = Pattern.compile(userNotFoundPatternStr); (Uncomment if you're able to grab it from error output)
+        currentUserName = (String) vars.get("USER_NAME");
         File dir = null;
         String ssExe = (String) vars.get("VSSCMD"); // NOI18N
         //List commands = new ArrayList();
@@ -125,10 +145,11 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
                 (StructuredExec.Argument[]) arguments.toArray(new StructuredExec.Argument[0]));
             if (index < args.length && args[index].equals("&&")) index++; // NOI18N
         
+            haveWrongPassword = false; // Be positive ;-)
             boolean status = runCommand(exec, vars, silent ? null : stdoutNRListener,
-                                        stderrNRListener, stdoutListener, dataRegex,
-                                        stderrListener, errorRegex);
-            if (!status) {
+                                        stderrNRListener, silent ? null : stdoutListener,
+                                        dataRegex, stderrListener, errorRegex);
+            if (!status || passwordPromptCanceled) {
                 return status;
             }
         } while(index < args.length);
@@ -154,10 +175,9 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
         cmd.setProperty(UserCommand.PROPERTY_DATA_REGEX, dataRegex);
         cmd.setProperty(UserCommand.PROPERTY_ERROR_REGEX, errorRegex);
         ExecuteCommand ec = new ExecuteCommand(context, cmd, vars);
-        if (stdoutNRListener != null) ec.addOutputListener(stdoutNRListener);
-        ec.addErrorOutputListener(stderrNRListener);
-        ec.addDataOutputListener(stdoutListener);
-        ec.addDataErrorOutputListener(stderrListener);
+        ec.addOutputListener(new FilterListener(false, stdoutNRListener, stdoutListener, dataRegex));
+        errorOutputListener = new FilterListener(true, stderrNRListener, stderrListener, errorRegex);
+        ec.addErrorOutputListener(errorOutputListener);
         ec.addImmediateTextOutputListener(this);
         executionThread = Thread.currentThread();
         this.ec = ec;
@@ -193,17 +213,40 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
         //System.out.println("Immediate line = '"+line+"'");
         if (line.trim().equalsIgnoreCase(passwordStr)) { // NOI18N
             // ss.exe is asking for a password!
-            String password = getPassword(context.getPasswordDescription());
-            context.setPassword(password);
-            if (password == null) {
+            String password = context.getPassword();
+            //System.out.println("haveWrongPassword = "+haveWrongPassword+", have password: '"+password+"'.");
+            if (haveWrongPassword || password == null) {
+                password = getPassword(context.getPasswordDescription());
+                context.setPassword(password);
+                if (password == null) {
+                    passwordPromptCanceled = true;
+                    executionThread.interrupt();
+                    errorOutputListener.outputLine(invalidPasswordStr);
+                    return ;
+                }
+            } else {
+                // Maybe that the context have the correct password, test it...
+                haveWrongPassword = true; // But suppose that the password is wrong so that we ask the user next time.
+            }
+            //System.out.println("putting password: '"+password+"'.");
+            vars.put("PASSWORD", password); // NOI18N
+            ec.sendInput(password + "\n");
+        } else if (line.trim().equalsIgnoreCase(usernameStr)) { // NOI18N
+            ec.sendInput(currentUserName + "\n"); //NOI18N
+            /* The below does not work - is put to error output
+        } else if (userNotFoundPattern.matcher(line).matches()) {
+            System.out.println("User Not Found matched!!");
+            String userName = getUserName(line);
+            if (userName == null) {
                 executionThread.interrupt();
                 return ;
             }
-            vars.put("PASSWORD", password); // NOI18N
-            ec.sendInput(password + "\n");
-        }
-        if (line.trim().equalsIgnoreCase(usernameStr)) { // NOI18N
-            ec.sendInput(vars.get("USER_NAME") + "\n"); //NOI18N
+            vars.put("USER_NAME", userName); // NOI18N
+            Vector allVars = context.getVariables();
+            setVar(allVars, "USER_NAME", userName);
+            context.setVariables(allVars);
+            currentUserName = userName;
+             */
         }
     }
     
@@ -221,8 +264,125 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
         }
     }
     
+    /*  (Uncomment if you're able to grab the prompt from error output)
+    private static String getUserName(String errorLine) {
+        NotifyDescriptor.InputLine nd;
+        nd = new NotifyDescriptor.InputLine(NbBundle.getMessage(SSCommand.class, "MSG_UserName"), errorLine); // NOI18N
+        if (NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(nd))) {
+            return nd.getInputText ();
+        } else {
+            return null;
+        }
+    }
+    
+    private static void setVar(Vector vars, String name, String value) {
+        for (Iterator it = vars.iterator(); it.hasNext(); ) {
+            VcsConfigVariable var = (VcsConfigVariable) it.next();
+            if (name.equals(var.getName())) {
+                var.setValue(value);
+                break;
+            }
+        }
+    }
+     */
+    
     private static String g(String s) {
         return org.openide.util.NbBundle.getBundle(org.netbeans.modules.vcscore.commands.CommandCustomizationSupport.class).getString(s);
     }
     
+    /**
+     * Filters out the Password: and Username: prompts. And "Invalid password" outputs.
+     */
+    private class FilterListener extends Object implements CommandOutputListener {
+        
+        private boolean isErr;
+        private CommandOutputListener outputListener;
+        private CommandDataOutputListener  dataListener;
+        private Pattern pattern;
+        
+        /**
+         * @param isErr When we filter error output.
+         */
+        public FilterListener(boolean isErr, CommandOutputListener outputListener,
+                              CommandDataOutputListener dataListener, String regex) {
+            this.isErr = isErr;
+            this.outputListener = outputListener;
+            this.dataListener = dataListener;
+            if (regex != null) {
+                try {
+                    this.pattern = Pattern.compile(regex);
+                } catch (PatternSyntaxException psex) {
+                    ErrorManager.getDefault().notify(new BadRegexException(psex.getLocalizedMessage(), psex));
+                }
+            }
+        }
+        
+        public void outputLine(String line) {
+            //System.out.println("FilterListener\""+isErr+"\".outputLine("+line+")");
+            line = filterLine(line);
+            if (line == null) return ;
+            try {
+                if (outputListener != null) {
+                    outputListener.outputLine(line);
+                }
+                if (dataListener != null) {
+                    if (pattern != null) {
+                        String[] sa = ExternalCommand.matchToStringArray(pattern, line);
+                        if (sa != null && sa.length > 0) dataListener.outputData(sa);
+                    } else {
+                        dataListener.outputData(new String[] { line });
+                    }
+                }
+            } catch (ThreadDeath td) {
+                throw td;
+            } catch (Throwable th) {
+                ErrorManager.getDefault().notify(th);
+            }
+        }
+        
+        public String filterLine(String line) {
+            if (isErr) {
+                if (invalidPasswordStr.equals(line) && !passwordPromptCanceled) {
+                    line = null;
+                    /* The below does not work - it's buffered!!!!!!!!
+                } else if (userNotFoundPattern.matcher(line).matches()) {
+                    System.out.println("User Not Found matched!!");
+                    String userName = getUserName(line);
+                    if (userName == null) {
+                        executionThread.interrupt();
+                        return line;
+                    }
+                    vars.put("USER_NAME", userName); // NOI18N
+                    Vector allVars = context.getVariables();
+                    setVar(allVars, "USER_NAME", userName);
+                    context.setVariables(allVars);
+                    currentUserName = userName;
+                     */
+                }
+            } else {
+                while (line != null) {
+                    if (line.startsWith(usernameStr)) {
+                        if (line.equals(usernameStr + " " + currentUserName)) {
+                            line = null;
+                        } else {
+                            line = remove(usernameStr, line);
+                        }
+                    } else if (line.startsWith(passwordStr)) {
+                        line = remove(passwordStr, line);
+                    } else {
+                        break;
+                    }
+                }
+            }
+            return line;
+        }
+        
+        private String remove(String prefix, String line) {
+            int index = prefix.length();
+            while (index < line.length() && Character.isWhitespace(line.charAt(index))) {
+                index++;
+            }
+            return line.substring(index);
+        }
+    }
 }
