@@ -13,15 +13,19 @@
 
 package org.netbeans.modules.vcs.profiles.commands;
 
+import org.openide.util.NbBundle;
+
+import org.netbeans.api.diff.Difference;
+
 import org.netbeans.modules.vcscore.VcsFileSystem;
-import org.netbeans.modules.vcscore.util.*;
-import org.netbeans.modules.vcscore.cmdline.diff.*;
+import org.netbeans.modules.vcscore.util.Debug;
 
 /**
+ * Parser of differences produced by VCS commands. Several formats are handled.
  *
  * @author  Martin Entlicher
  */
-public class Diff extends AbstractDiffCmdline {
+public class Diff extends AbstractDiffCommand {
 
     private Debug E=new Debug("Diff",true);
     private Debug D=E;
@@ -40,11 +44,13 @@ public class Diff extends AbstractDiffCmdline {
     private int lastDiffLine1 = 0; // for STCMD and PVCS
     private int lastDiffLine2 = 0; // for STCMD and PVCS
     private int caDocShift = 0; // the "shift" of the second document line numbers
+    private StringBuffer firstText = new StringBuffer();
+    private StringBuffer secondText = new StringBuffer();
 
     //static final long serialVersionUID =8341896634226664590L;
     /** Creates new Diff */
     public Diff() {
-        setBundle(org.openide.util.NbBundle.getBundle(Diff.class));
+        //setBundle(org.openide.util.NbBundle.getBundle(Diff.class));
     }
 
     /** Set the VCS file system to use to execute commands.
@@ -71,6 +77,19 @@ public class Diff extends AbstractDiffCmdline {
      * @params elements The input to parse.
      */
     public void matchUnixLike(String[] elements) {
+        if (elements[0].startsWith("< ")) {
+            firstText.append(elements[0].substring(2) + "\n");
+            return ;
+        } else if (elements[0].startsWith("> ")) {
+            secondText.append(elements[0].substring(2) + "\n");
+            return ;
+        } else if (elements[0].startsWith("--")) {
+            return ;
+        } else {
+            setTextOnLastDifference(firstText.toString(), secondText.toString());
+            firstText.delete(0, firstText.length());
+            secondText.delete(0, secondText.length());
+        }
         int index = 0, commaIndex = 0;
         int n1 = 0, n2 = 0, n3 = 0, n4 = 0;
         String nStr;
@@ -101,7 +120,8 @@ public class Diff extends AbstractDiffCmdline {
                 E.deb("NumberFormatException "+e.getMessage());
                 return;
             }
-            diff.addAddAction(n1, n3, n4);
+            addDifference(new Difference(Difference.ADD, n1, 0, n3, n4));
+            //diff.addAddAction(n1, n3, n4);
         } else if ((index = elements[0].indexOf('d')) >= 0) {
             commaIndex = elements[0].lastIndexOf(',', index);
             try {
@@ -127,7 +147,8 @@ public class Diff extends AbstractDiffCmdline {
                 E.deb("NumberFormatException "+e.getMessage());
                 return;
             }
-            diff.addDeleteAction(n1, n2, n3);
+            addDifference(new Difference(Difference.DELETE, n1, n2, n3, 0));
+            //diff.addDeleteAction(n1, n2, n3);
         } else if ((index = elements[0].indexOf('c')) >= 0) {
             commaIndex = elements[0].lastIndexOf(',', index);
             try {
@@ -165,7 +186,8 @@ public class Diff extends AbstractDiffCmdline {
                 E.deb("NumberFormatException "+e.getMessage());
                 return;
             }
-            diff.addChangeAction(n1, n2, n3, n4);
+            addDifference(new Difference(Difference.CHANGE, n1, n2, n3, n4));
+            //diff.addChangeAction(n1, n2, n3, n4);
         }
     }
 
@@ -251,7 +273,8 @@ public class Diff extends AbstractDiffCmdline {
             else if (lastDiff < 0) {  // last was delete, it ends now
                 //DiffAction action = new DiffAction();
                 //action.setDeleteAction(lastDiffLine1, n1, lastDiffLine2);
-                diff.addDeleteAction(lastDiffLine1, n1, lastDiffLine2);
+                addDifference(new Difference(Difference.DELETE, lastDiffLine1, n1, lastDiffLine2, 0));
+                //diff.addDeleteAction(lastDiffLine1, n1, lastDiffLine2);
                 D.deb("Delete: ("+lastDiffLine1+", "+n1+", "+lastDiffLine2+")");
                 //diffActions.add(action);
             }
@@ -263,7 +286,8 @@ public class Diff extends AbstractDiffCmdline {
             else if (lastDiff > 0) {  // last was add, it ends now
                 //DiffAction action = new DiffAction();
                 //action.setAddAction(lastDiffLine1, lastDiffLine2, n2);
-                diff.addAddAction(lastDiffLine1, lastDiffLine2, n2);
+                addDifference(new Difference(Difference.ADD, lastDiffLine1, 0, lastDiffLine2, n2));
+                //diff.addAddAction(lastDiffLine1, lastDiffLine2, n2);
                 D.deb("Add: ("+lastDiffLine1+", "+lastDiffLine2+", "+n2+")");
                 //diffActions.add(action);
             }
@@ -274,13 +298,15 @@ public class Diff extends AbstractDiffCmdline {
             if (lastDiff > 0) {        // ADD
                 //DiffAction action = new DiffAction();
                 //action.setAddAction(lastDiffLine1, lastDiffLine2, n2 - 1);
-                diff.addAddAction(lastDiffLine1, lastDiffLine2, n2 - 1);
+                addDifference(new Difference(Difference.ADD, lastDiffLine1, 0, lastDiffLine2, n2 - 1));
+                //diff.addAddAction(lastDiffLine1, lastDiffLine2, n2 - 1);
                 D.deb("Add: ("+lastDiffLine1+", "+lastDiffLine2+", "+(n2 - 1)+")");
                 //diffActions.add(action);
             } else if (lastDiff < 0) { // DELETE
                 //DiffAction action = new DiffAction();
                 //action.setDeleteAction(lastDiffLine1, n1 - 1, lastDiffLine2);
-                diff.addDeleteAction(lastDiffLine1, n1 - 1, lastDiffLine2);
+                addDifference(new Difference(Difference.DELETE, lastDiffLine1, n1 - 1, lastDiffLine2, 0));
+                //diff.addDeleteAction(lastDiffLine1, n1 - 1, lastDiffLine2);
                 D.deb("Delete: ("+lastDiffLine1+", "+(n1 - 1)+", "+lastDiffLine2+")");
                 //diffActions.add(action);
             }
@@ -290,15 +316,18 @@ public class Diff extends AbstractDiffCmdline {
     
     private void addCADiffAction() {
         switch (lastDiff) {
-            case  1: diff.addChangeAction(lastLine1, lastLine2, lastDiffLine1, lastDiffLine2);
+            case  1: addDifference(new Difference(Difference.CHANGE, lastLine1, lastLine2, lastDiffLine1, lastDiffLine2));
+                     //diff.addChangeAction(lastLine1, lastLine2, lastDiffLine1, lastDiffLine2);
                      caDocShift -= lastLine2 - lastLine1 - (lastDiffLine2 - lastDiffLine1);
                      //System.out.println("Change("+lastLine1+", "+lastLine2+", "+lastDiffLine1+", "+lastDiffLine2+"), caDocShift = "+caDocShift);
                      break;
-            case -1: diff.addDeleteAction(lastLine1, lastLine2, lastDiffLine1);
+            case -1: addDifference(new Difference(Difference.DELETE, lastLine1, lastLine2, lastDiffLine1, 0));
+                     //diff.addDeleteAction(lastLine1, lastLine2, lastDiffLine1);
                      caDocShift -= lastLine2 + 1 - lastLine1;
                      //System.out.println("Delete("+lastLine1+", "+lastLine2+", "+lastDiffLine1+"), caDocShift = "+caDocShift);
                      break;
-            case  2: diff.addAddAction(lastLine1, lastDiffLine1, lastDiffLine2);
+            case  2: addDifference(new Difference(Difference.ADD, lastLine1, 0, lastDiffLine1, lastDiffLine2));
+                     //diff.addAddAction(lastLine1, lastDiffLine1, lastDiffLine2);
                      caDocShift += lastDiffLine2 + 1 - lastDiffLine1;
                      //System.out.println("Add("+lastLine1+", "+lastDiffLine1+", "+lastDiffLine2+"), caDocShift = "+caDocShift);
                      break;
@@ -391,5 +420,21 @@ public class Diff extends AbstractDiffCmdline {
             if (lastDiff != 0) addCADiffAction();
             break;
         }
+        if (firstText.length() > 0 || secondText.length() > 0) {
+            setTextOnLastDifference(firstText.toString(), secondText.toString());
+        }
     }
+    
+    protected String getTitleHeadRevision() {
+        return NbBundle.getMessage(Diff.class, "Diff.titleHeadRevision");
+    }
+    
+    protected String getTitleWorkingRevision() {
+        return NbBundle.getMessage(Diff.class, "Diff.titleWorkingFile");
+    }
+    
+    protected String getTitleRevision(String revNumber) {
+        return NbBundle.getMessage(Diff.class, "Diff.titleRevision", revNumber);
+    }
+    
 }
