@@ -801,6 +801,23 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected void setNotMissingableFolderStatuses(Collection notMissingableFolderStatuses) {
         this.notMissingableFolderStatuses = notMissingableFolderStatuses;
     }
+    
+    /**
+     * Tell, whether the file is missing according to it's status information.
+     * If we do not know what is the missing status, check it's existence on disk.
+     */
+    public boolean isMissing(CacheFile file) {
+        boolean dir = file instanceof CacheDir;
+        if (dir && missingFolderStatus == null || !dir && missingFileStatus == null) {
+            return !(new File(file.getAbsolutePath()).exists());
+        } else {
+            if (dir) {
+                return missingFolderStatus.equals(file.getStatus());
+            } else {
+                return missingFileStatus.equals(file.getStatus());
+            }
+        }
+    }
 
     /**
      * Get whether to perform the auto-refresh in the given directory path.
