@@ -28,9 +28,9 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
         <pathelement location="${core/settings.dir}/${nb.modules/autoload.dir}/core-settings.jar"/>
         <!-- tasklist api -->
-        <pathelement path="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>
+        <pathelement location="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>
         <!-- depend on core/output so we can override F12 action -->
-        <pathelement path="${core/output.dir}/${nb.modules/autoload.dir}/core-output.jar"/>
+        <pathelement location="${core/output.dir}/${nb.modules/autoload.dir}/core-output.jar"/>
       </path>
     </target>
   
