@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.io.*;
 
+import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
@@ -132,41 +133,48 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
             missingFiles.add(file);
             return true;
         } else {
-            Hashtable varsCmd = new Hashtable(vars);
-            varsCmd.put("DIR", VcsUtilities.getDirNamePart(file));
-            varsCmd.put("FILE", VcsUtilities.getFileNamePart(file));
             VcsCommand cmd = fileSystem.getCommand(diffCmd);
             if (cmd == null) {
                 stderrListener.outputLine("Unknown command: "+diffCmd);
                 return false;
             }
-            VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, varsCmd);
+            Table files = new Table();
+            files.put(file, fileSystem.findFileObject(file));
             final boolean[] differ = new boolean[1];
             final boolean[] cannotDiff = new boolean[1];
             differ[0] = false;
             cannotDiff[0] = false;
-            vce.addDataOutputListener(new CommandDataOutputListener() {
+            VcsCommandExecutor[] execs = VcsAction.doCommand(files, cmd, null, fileSystem, null, null, 
+            new CommandDataOutputListener() {
                 public void outputData(String[] elements) {
                     if (elements != null) {
                         //D.deb(" ****  status match = "+VcsUtilities.arrayToString(elements));
                         if (elements[0].length() > 0) differ[0] = true;
                     }
                 }
-            });
-            vce.addDataErrorOutputListener(new CommandDataOutputListener() {
+            },
+            new CommandDataOutputListener() {
                 public void outputData(String[] elements) {
                     if (elements != null) {
                         if (elements[0].length() > 0) cannotDiff[0] = true;
                     }
                 }
             });
-            fileSystem.getCommandsPool().preprocessCommand(vce, varsCmd, fileSystem);
-            fileSystem.getCommandsPool().startExecutor(vce);
-            try {
-                fileSystem.getCommandsPool().waitToFinish(vce);
-            } catch (InterruptedException iexc) {
-                fileSystem.getCommandsPool().kill(vce);
-                interrupted = true;
+            boolean status = true;
+            if (execs != null) {
+                try {
+                    for (int i = 0; i < execs.length; i++) {
+                        fileSystem.getCommandsPool().waitToFinish(execs[i]);
+                        status = status && execs[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED;
+                    }
+                } catch (InterruptedException iexc) {
+                    for (int i = 0; i < execs.length; i++) {
+                        fileSystem.getCommandsPool().kill(execs[i]);
+                    }
+                    interrupted = true;
+                    return false;
+                }
+            } else {
                 return false;
             }
             if (!cannotDiff[0]) {
@@ -176,7 +184,7 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
                     currentFiles.add(file);
                 }
             }
-            return vce.getExitStatus() == VcsCommandExecutor.SUCCEEDED || differ[0];
+            return status || differ[0];
         }
     }
     
@@ -195,15 +203,13 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
             statuses[1] = status;
             VcsCommand cmd = fileSystem.getCommand(args[1]);
             if (cmd != null) {
-                Hashtable varsCmd = new Hashtable(vars);
-                varsCmd.put("DIR", VcsUtilities.getDirNamePart(file));
-                varsCmd.put("FILE", VcsUtilities.getFileNamePart(file));
-                //cmd.setProperty(UserCommand.PROPERTY_DATA_REGEX, "^"+file.substring(0, Math.min(STATUS_POSITION, file.length()))+" (.*$)");
+                Table filesT = new Table();
+                filesT.put(file, fileSystem.findFileObject(file));
                 statuses[2] = null;
                 final boolean[] existing = new boolean [1];
                 existing[0] = true;
-                VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, varsCmd);
-                vce.addDataOutputListener(new CommandDataOutputListener() {
+                VcsCommandExecutor[] execs = VcsAction.doCommand(filesT, cmd, null, fileSystem, null, null, 
+                new CommandDataOutputListener() {
                     public void outputData(String[] elements) {
                         if (elements != null) {
                             //D.deb(" ****  status match = "+VcsUtilities.arrayToString(elements));
@@ -211,8 +217,8 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
                             addStatuses(elements);
                         }
                     }
-                });
-                vce.addDataErrorOutputListener(new CommandDataOutputListener() {
+                },
+                new CommandDataOutputListener() {
                     public void outputData(String[] elements2) {
                         if (elements2 != null) {
                             if (elements2[0].indexOf("$/") == 0) {
@@ -224,14 +230,22 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
                         }
                     }
                 });
-                fileSystem.getCommandsPool().preprocessCommand(vce, varsCmd, fileSystem);
-                fileSystem.getCommandsPool().startExecutor(vce);
-                try {
-                    fileSystem.getCommandsPool().waitToFinish(vce);
-                } catch (InterruptedException iexc) {
-                    fileSystem.getCommandsPool().kill(vce);
-                    interrupted = true;
-                    return ;
+                boolean state = true;
+                if (execs != null) {
+                    try {
+                        for (int i = 0; i < execs.length; i++) {
+                            fileSystem.getCommandsPool().waitToFinish(execs[i]);
+                            state = state && execs[i].getExitStatus() == VcsCommandExecutor.SUCCEEDED;
+                        }
+                    } catch (InterruptedException iexc) {
+                        for (int i = 0; i < execs.length; i++) {
+                            fileSystem.getCommandsPool().kill(execs[i]);
+                        }
+                        interrupted = true;
+                        return ;
+                    }
+                } else {
+                    continue;
                 }
                 if (!existing[0]) statuses[1] = STATUS_UNKNOWN;
             } else statuses[2] = "";
