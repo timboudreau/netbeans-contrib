@@ -1080,20 +1080,20 @@ final public class SuggestionManagerImpl extends SuggestionManager
     /** Iterate over the folder recursively (optional) and scan all files.
         We skip CVS and SCCS folders intentionally. Would be nice if
         the filesystem hid these things from us. */
-    void scan(DataFolder[] folders, SuggestionList list,
+    void scan(DataObject.Container[] folders, SuggestionList list,
 	boolean recursive) {
         // package-private instead of private for the benefit of the testsuite
         for (int i = 0; i < folders.length; i++) {
-            DataFolder folder = folders[i];
+            DataObject.Container folder = folders[i];
             scan(folder, recursive, list);
         }
     }
     
-    private void scan(DataFolder folder, boolean recursive, SuggestionList list) {
+    private void scan(DataObject.Container folder, boolean recursive, SuggestionList list) {
         DataObject[] children = folder.getChildren();
         for (int i = 0; i < children.length; i++) {
             DataObject f = children[i];
-            if (f instanceof DataFolder) {
+            if (f instanceof DataObject.Container) {
 		if (!recursive) {
 		    continue;
 		}
@@ -1109,7 +1109,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                                     "ScanningFolder",  // NOI18N
                                        f.getPrimaryFile().getNameExt()));
 
-                scan((DataFolder)f, true, list); // recurse!
+                scan((DataObject.Container)f, true, list); // recurse!
             } else {
                 // Get document, and I do mean now!
 
