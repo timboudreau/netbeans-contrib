@@ -629,6 +629,7 @@ public class CommandCustomizationSupport extends Object {
         if (notification1 == null || notification1.trim().length() == 0) return ;
         org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
+                if (executionContext.isCommandNotification() == false) return;
                 NotifyDescriptor msg = new NotifyDescriptor.Message(notification1);
                 JCheckBox checkBox;
                 if (executionContext != null) {
