@@ -879,13 +879,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (ignSupport != null) {
                 final String path = fo.getPackageNameExt('/','.');
                 if (cache.isDir (path)) {
-                    org.openide.util.RequestProcessor.postRequest(new Runnable() {
+                    new Thread(/*org.openide.util.RequestProcessor.postRequest(*/new Runnable() {
                         public void run() {
                             synchronized (ignSupport) {
                                 createIgnoreList(fo, path, ignSupport);
                             }
                         }
-                    });
+                    }, "VCS Ignore List Creation Thread").start();
                 }
             }
 	    return ref;
@@ -1076,7 +1076,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (isCreateVersioningSystem()) {
             org.openide.util.RequestProcessor.postRequest(new Runnable() {
                 public void run() {
-                    VersioningExplorer.getRevisionExplorer().open();
+                    //VersioningExplorer.getRevisionExplorer().open();
                     if (versioningSystem == null) {
                         versioningSystem = new DefaultVersioningSystem(new VcsFileSystemInfo());
                     }
@@ -2155,16 +2155,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static final Object versioningFolderListenersLock = new Object();
     
     private void addVersioningFolderListener(String name) {
-        System.out.println("addVersioningFolderListener("+name+")");
+        //System.out.println("addVersioningFolderListener("+name+")");
         FileObject fo = findResource(name);
-        System.out.println("  fo = "+fo);
+        //System.out.println("  fo = "+fo);
         if (fo != null) {
             synchronized (versioningFolderListenersLock) {
                 if (versioningFolderListeners == null) {
                     versioningFolderListeners = new WeakHashMap();
                 }
                 FileChangeListener listener = (FileChangeListener) versioningFolderListeners.get(fo);
-                System.out.println(" listener for "+fo+" = "+listener);
+                //System.out.println(" listener for "+fo+" = "+listener);
                 if (listener == null) {
                     FileChangeListener chListener = new VersioningFolderChangeListener(name);
                     listener = WeakListener.fileChange(chListener, fo);
