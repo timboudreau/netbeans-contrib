@@ -19,8 +19,22 @@ Microsystems, Inc. All Rights Reserved.
   <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
 
-  <target name="compile">
-    <javac srcdir="src" destdir="src">
+  <target name="precompile">
+    <javac srcdir="libsrc" destdir="libsrc">
+      <classpath /> 
+    </javac>
+  </target>
+
+  <target name="precompile-rmic" depends="precompile">
+    <rmic base="libsrc" classname="org.netbeans.rmi.RMIDWrapperImpl">
+      <classpath>
+        <pathelement path="libsrc" />
+      </classpath> 
+    </rmic>
+  </target>
+  
+  <target name="compile" depends="precompile-rmic">
+  <javac srcdir="src" destdir="src">
       <classpath>
         <pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
@@ -49,9 +63,21 @@ Microsystems, Inc. All Rights Reserved.
       <branding name="f4j_ce"/>
       <branding name="f4j_ie"/>	 
     </locjar>
+    <mkdir dir="netbeans/lib/ext"/>
+    <jar jarfile="netbeans/lib/ext/rmi-ext.jar"
+         basedir="libsrc"
+	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
+	 compress="false"/>
   </target>
 
-  <target name="netbeans" depends="jars"/>
+  <target name="release">
+    <copy todir="netbeans">
+      <fileset dir="release"/>
+    </copy>
+  </target>
+
+
+  <target name="netbeans" depends="jars,release"/>
 
 <!--
   <target name="nbm" depends="netbeans">
