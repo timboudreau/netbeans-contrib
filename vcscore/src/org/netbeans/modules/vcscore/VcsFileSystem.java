@@ -899,6 +899,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         init();
         //cache.setLocalFilesAdd (localFilesOn);
         ProjectChangeHack.restored();
+        org.openide.util.RequestProcessor.postRequest(new Runnable () {
+            public void run() {
+                ProjectChangeHack.initSearchService();
+            }
+        });
         if (null == processUnimportantFiles) processUnimportantFiles = Boolean.FALSE;
         last_rootFile = new File(getFSRoot());
         //} catch (Throwable thr) {
@@ -2088,6 +2093,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
                     if (isPromptForEditOn()) {
                         throw new org.openide.util.UserQuestionException(g("MSG_EditFileCh")) {
+                            /*
+                            public String getLocalizedMessage () {
+                                return g("EXC_CannotDeleteReadOnly", file.toString());
+                            }
+                             */
                             public void confirmed() {
                                 Table files = new Table();
                                 files.put(name, findResource(name));
