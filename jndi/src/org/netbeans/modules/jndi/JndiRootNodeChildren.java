@@ -99,6 +99,10 @@ public class JndiRootNodeChildren extends Children.Keys {
         this.setKeys (keys);
     }
     
+    public void updateKey (Object key) {
+        this.refreshKey (key);
+    }
+    
     
     public JndiProvidersNode getProvidersNode () {
         if (this.providersNode == null)

@@ -224,6 +224,10 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
                 key.failed = true;
                 ((JndiChildren)parentChildren).updateKey (key);
             }
+            else if (parentChildren instanceof JndiRootNodeChildren) {
+                JndiRootCtxKey key = new JndiRootCtxKey (this.thisContext.getEnvironment(),((JndiNode)this.getNode()).getIndex());
+                ((JndiRootNodeChildren)parentChildren).updateKey (key);
+            }
             else if (this.waitNode != null) {
                 this.remove( new Node[] {this.waitNode});
                 this.waitNode = null;

@@ -273,6 +273,15 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
         ((DirContext)this.getContext()).modifyAttributes("",DirContext.REPLACE_ATTRIBUTE,attrs); // No I18N
     }
     
+    /** Returns index of subtree or -1 if not a root of subtree.
+     *  Package private method used by JndiChildren when the failure of
+     *  service occures.
+     *  @return int
+     */
+    int getIndex () {
+        return this.index;
+    }
+    
     
     private void init () {
         this.needRefresh = false;
