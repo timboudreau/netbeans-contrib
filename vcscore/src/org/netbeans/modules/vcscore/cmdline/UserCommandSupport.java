@@ -128,7 +128,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             if (label != null && label.indexOf('$') >= 0) {
                 this.displayNameDefined = false; // must be dynamically resolved
             } else {
-                this.displayName = getDisplayName(cmd, executionContext.getVariablesAsHashtable());
+                this.displayName = getDisplayName(cmd);
                 this.displayNameDefined = true;
             }
         } else {
@@ -164,10 +164,13 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         return cmdClass;
     }
     
-    private static String getDisplayName(UserCommand cmd, Hashtable variableMap) {
+    private String getDisplayName(UserCommand cmd) {
         String label = cmd.getDisplayName();
         if (label != null) {
-            label = Variables.expand(variableMap, label, false);
+            if (Variables.needFurtherExpansion(label)) {
+                Hashtable variableMap = executionContext.getVariablesAsHashtable();
+                label = Variables.expand(variableMap, label, false);
+            }
             String mnemonic = (String) cmd.getProperty(VcsCommand.PROPERTY_LABEL_MNEMONIC);
             if (mnemonic != null && mnemonic.length() > 0) {
                 char mnemonicChar = mnemonic.charAt(0);
@@ -218,7 +221,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             return displayName;
         } else {
             if (executionContext == null) return null;
-            return getDisplayName(cmd, executionContext.getVariablesAsHashtable());
+            return getDisplayName(cmd);
         }
     }
     
