@@ -18,6 +18,7 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileSystem;
 import org.openide.nodes.AbstractNode;
 import org.openide.util.actions.SystemAction;
 
@@ -67,6 +68,33 @@ final class FolderNode extends AbstractNode {
         return folder.getNameExt();
     }
 
+    public String getDisplayName() {
+        String s;
+        try {
+            Set target = Collections.singleton(folder);
+            s = folder.getFileSystem().getStatus().annotateName(folder.getNameExt(), target);
+        } catch (FileStateInvalidException exc) {
+            s = super.getDisplayName();
+        }
+        return s;
+    }
+    
+    public String getHtmlDisplayName() {
+        String s;
+        try {
+            Set target = Collections.singleton(folder);
+            FileSystem.Status fsStatus = folder.getFileSystem().getStatus();
+            if (fsStatus instanceof FileSystem.HtmlStatus) {
+                s = ((FileSystem.HtmlStatus) fsStatus).annotateNameHtml(folder.getNameExt(), target);
+            } else {
+                s = fsStatus.annotateName(folder.getNameExt(), target);
+            }
+        } catch (FileStateInvalidException exc) {
+            s = super.getHtmlDisplayName();
+        }
+        return s;
+    }
+
     public Image getIcon (int type) {
         Image img = null;
         if (type == BeanInfo.ICON_COLOR_16x16) {
@@ -75,16 +103,15 @@ final class FolderNode extends AbstractNode {
         }
         if (img == null) {
             img = super.getIcon(type);
-        } else {
-            // give chance to annotate icon returned from UIManeger
-            // copied from DataNode to keep the contract
-            try {
-                Set target = Collections.singleton(folder);
-                img = folder.getFileSystem().
-                      getStatus().annotateIcon(img, type, target);
-            } catch (FileStateInvalidException e) {
-                // no fs, do nothing
-            }
+        }
+        // give chance to annotate icon
+        // copied from DataNode to keep the contract
+        try {
+            Set target = Collections.singleton(folder);
+            img = folder.getFileSystem().
+                  getStatus().annotateIcon(img, type, target);
+        } catch (FileStateInvalidException e) {
+            // no fs, do nothing
         }
         return img;
     }
@@ -102,21 +129,20 @@ final class FolderNode extends AbstractNode {
         }
         if (img == null) {
             img = super.getOpenedIcon(type);
-        } else {
-            // give chance to annotate icon returned from UIManeger
-            // copied from DataNode to keep the contract
-            try {
-                Set target = Collections.singleton(folder);
-                img = folder.getFileSystem().
-                getStatus().annotateIcon(img, type, target);
-            } catch (FileStateInvalidException e) {
-                // no fs, do nothing
-            }
+        }
+        // give chance to annotate icon
+        // copied from DataNode to keep the contract
+        try {
+            Set target = Collections.singleton(folder);
+            img = folder.getFileSystem().
+            getStatus().annotateIcon(img, type, target);
+        } catch (FileStateInvalidException e) {
+            // no fs, do nothing
         }
         return img;
     }
 
-    public SystemAction[] createActions() {
+    public Action[] getActions(boolean context) {
         return FolderNode.getFolderActions();
     }
 

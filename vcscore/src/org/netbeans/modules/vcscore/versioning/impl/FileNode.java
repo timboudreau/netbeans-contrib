@@ -119,6 +119,22 @@ final class FileNode extends AbstractNode {
         }
         return s;
     }
+    
+    public String getHtmlDisplayName() {
+        String s;
+        try {
+            Set target = Collections.singleton(file);
+            FileSystem.Status fsStatus = file.getFileSystem().getStatus();
+            if (fsStatus instanceof FileSystem.HtmlStatus) {
+                s = ((FileSystem.HtmlStatus) fsStatus).annotateNameHtml(file.getNameExt(), target);
+            } else {
+                s = fsStatus.annotateName(file.getNameExt(), target);
+            }
+        } catch (FileStateInvalidException exc) {
+            s = super.getHtmlDisplayName();
+        }
+        return s;
+    }
 
     public java.awt.Image getIcon (int type) {
         java.awt.Image img = super.getIcon(type);
