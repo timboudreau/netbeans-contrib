@@ -1,0 +1,19 @@
+
+
+BODY { background-color: #FFFFFF; font-family: geneva, helvetica, arial, lucida sans, sans-serif; font-size:80%  }
+TD { background-color: #FFFFFF; font-family: geneva, helvetica, arial, lucida sans, sans-serif; font-size:80%  }
+
+
+A:link {color:#669}
+A:active {color:#F00}
+A:visited {color:#336}
+A:hover {color:#99C}
+
+H1 {font-family: geneva, helvetica, arial, lucida sans, sans-serif; background-color:#FFFFFF; Color:#666699; font-size:190%}
+H2 {font-family: geneva, helvetica, arial, lucida sans, sans-serif; background-color:#FFFFFF; Color:#666699; font-size:160% }
+H3 {font-family: geneva, helvetica, arial, lucida sans, sans-serif; background-color:#FFFFFF; Color:#666699; font-size:130% }
+H4 {font-family: geneva, helvetica, arial, lucida sans, sans-serif; background-color:#FFFFFF; Color:#666699; font-size:110% }
+H5 {font-family: geneva, helvetica, arial, lucida sans, sans-serif; background-color:#FFFFFF; Color:#666699; font-size:80%; font-weight:bold }
+H6 {font-family: geneva, helvetica, arial, lucida sans, sans-serif; background-color:#FFFFFF; Color:#666699; font-size:80%; font-weight:normal }
+
+PRE

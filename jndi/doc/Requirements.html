@@ -1,0 +1,75 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.73 [en] (X11; I; Linux 2.2.17 i686) [Netscape]">
+   <title>Forte for Java - Requirements</title>
+<link REL="StyleSheet" HREF="Forte.css" TYPE="text/css" TITLE="Forte-Sun Style">
+</head>
+<body>
+
+<h1>
+Forte for Java: JNDI module</h1>
+
+<h1>
+Requirements</h1>
+<b>Version:</b> <i>0.9</i>
+<br><b>Author:</b> Tomas Zezula<i>, Sun Microsystems/NetBeans</i>
+<br>&nbsp;
+<dl>
+<dt>
+<b>Abstract:</b></dt>
+
+<dt>
+This document briefly describes the requirements for JNDI module. This
+module adds support for uniform access to naming and directory services
+into the IDE. There are one main area of this support: JNDI Browser.</dt>
+
+<dt>
+<b>Document History:</b></dt>
+</dl>
+
+<dl>
+<dd>
+[04/08/2000] : version 0.9 : First version of the document - current status</dd>
+</dl>
+
+<dl>
+<dt>
+<b>Contents:</b></dt>
+
+<dd>
+1. JNDI Browser</dd>
+
+<dd>
+1.1 Code Generation</dd>
+</dl>
+
+<h2>
+<a NAME="1"></a>1. JNDI Browser</h2>
+JNDI specification covers uniform access to naming and directory services
+such as CORBA CosNaming, RMI Registry or LDAP. JNDI browser allows user
+to mount these naming contexts, browse them&nbsp; and modify them. For
+context witch support properties like LDAP or CORBA CosTrading service
+browser allows user to add remove or customize them. Browser is able to
+generate both binding code for naming context or accessing code for object
+bound in the mounted directory.
+<h3>
+<a NAME="1.1"></a>1.1 Code Generation</h3>
+Browser generates the binding or accessing code to clipboard. This code
+can be put to editor to allow user program manipulate with objects in directories.
+</body>
+</html>
