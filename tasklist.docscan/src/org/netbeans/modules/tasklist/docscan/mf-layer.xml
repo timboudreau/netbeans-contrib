@@ -49,9 +49,9 @@ Microsystems, Inc. All Rights Reserved.
 
     <folder name="Menu">
         <folder name="Window">
-            <folder name="TaskList">
-                <file name="org-netbeans-modules-tasklist-docscan-SourceTasksAction.instance"/>
-            </folder>
+            <attr name="oldRootsEnd.txt/org-netbeans-modules-tasklist-docscan-SourceTasksAction.instance" boolvalue="true" />
+            <file name="org-netbeans-modules-tasklist-docscan-SourceTasksAction.instance"/>
+            <attr name="org-netbeans-modules-tasklist-docscan-SourceTasksAction.instance/Form" boolvalue="true" />
         </folder>
     </folder>
 
