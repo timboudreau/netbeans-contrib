@@ -116,14 +116,16 @@ public class ORBSettings implements java.io.Serializable {
     public String _M_impl_int_prefix;
     public String _M_impl_int_postfix;
 
-    private boolean _M_is_tie;
+    public boolean _M_is_tie;
 
     public String _M_table = "USER="+System.getProperty("user.name")+"\n";
     //      + "VERSION="+System.getProperty ("org.openide.major.version")+"\n";
 
-    private String _M_orb_name;
+    public String _M_orb_name;
 
     private transient PropertyChangeSupport _M_property_change_support;
+
+    public transient boolean _M_supported = false;
 
     private static Hashtable _M_all_properties;
 
@@ -131,13 +133,16 @@ public class ORBSettings implements java.io.Serializable {
     public String displayName() {
 	if (DEBUG)
 	    System.out.println ("ORBSettings::displayName () -> " + _M_orb_name); // NOI18N
-        return _M_orb_name;
+	//if (this.isSupported ())
+	return _M_orb_name;
+	//else
+	//return _M_orb_name + " [unsupported]"; // NOI18N
     }
 
 
     public String getName() {
-	//if (DEBUG)
-	//    System.out.println ("ORBSettings::getName () -> " + _M_orb_name); // NOI18N
+	if (DEBUG)
+	    System.out.println ("ORBSettings::getName () -> " + _M_orb_name); // NOI18N
         return _M_orb_name;
     }
 
@@ -159,6 +164,46 @@ public class ORBSettings implements java.io.Serializable {
         _M_client_bindings = new Vector (5);
         _M_server_bindings = new Vector (5);
 	_M_property_change_support = new PropertyChangeSupport (this);
+    }
+
+    public ORBSettings (ORBSettings __parent) {
+	_M_client_bindings = __parent._M_client_bindings;
+	_M_server_bindings = __parent._M_server_bindings;
+	_M_properties = __parent._M_properties;
+	_M_skeletons = __parent._M_skeletons;
+	_M_params = __parent._M_params;
+	_M_server_binding = __parent._M_server_binding;
+	_M_client_binding = __parent._M_client_binding;
+	_M_hide_generated_files = __parent._M_hide_generated_files;
+	_M_generation = __parent._M_generation;
+	_M_synchro = __parent._M_synchro;
+	_M_idl = __parent._M_idl;
+	_M_tie_param = __parent._M_tie_param;
+	_M_package_param = __parent._M_package_param;
+	_M_dir_param = __parent._M_dir_param;
+	_M_orb_class = __parent._M_orb_class;
+	_M_orb_singleton = __parent._M_orb_singleton;
+	_M_orb_import = __parent._M_orb_import;
+	_M_package_delimiter = __parent._M_package_delimiter;
+	_M_error_expression = __parent._M_error_expression;
+	_M_file_position = __parent._M_file_position;
+	_M_line_position = __parent._M_line_position;
+	_M_column_position = __parent._M_column_position;
+	_M_message_position = __parent._M_message_position;
+	_M_impl_prefix = __parent._M_impl_prefix;
+	_M_impl_postfix = __parent._M_impl_postfix;
+	_M_ext_class_prefix = __parent._M_ext_class_prefix;
+	_M_ext_class_postfix = __parent._M_ext_class_postfix;
+	_M_tie_prefix = __parent._M_tie_prefix;
+	_M_tie_postfix = __parent._M_tie_postfix;
+	_M_impl_int_prefix = __parent._M_impl_int_prefix;
+	_M_impl_int_postfix = __parent._M_impl_int_postfix;
+	_M_is_tie = __parent._M_is_tie;
+	_M_table = __parent._M_table;
+	_M_orb_name = __parent._M_orb_name;
+	//_M_property_change_support = __parent._M_property_change_support;
+	_M_property_change_support = new PropertyChangeSupport (this);
+	_M_supported = __parent._M_supported;
     }
 
     public void init () {
@@ -1162,6 +1207,12 @@ public class ORBSettings implements java.io.Serializable {
 		}
 	    }
 	    setOrbName (__properties.getProperty ("CTL_NAME"));
+	    // for supported orbs
+	    String __supported;
+	    if ((__supported = __properties.getProperty ("PROP_SUPPORTED_ORB")) != null // NOI18N
+		&& __supported.toLowerCase ().equals ("true")) { // NOI18N
+		this.setSupported (true);
+	    }
 	    
 	    if (DEBUG)
 		System.out.println ("impl: " + _M_orb_name); // NOI18N
@@ -1383,6 +1434,15 @@ public class ORBSettings implements java.io.Serializable {
 	if (DEBUG)
 	    System.out.println ("ORBSettings::getClientBindings () -> " + _M_client_bindings); // NOI18N
 	return _M_client_bindings;
+    }
+
+    public void setSupported (boolean __value) {
+	_M_supported = __value;
+    }
+
+    public boolean isSupported () {
+	return _M_supported;
+
     }
 
     public void cacheThrow () {

@@ -13,8 +13,12 @@
 
 package org.netbeans.modules.corba.settings;
 
-import java.io.*;
-import org.omg.CORBA.*;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+
+import org.omg.CORBA.ORB;
 
 import org.openide.options.SystemOption;
 //import org.openide.options.ContextSystemOption;
@@ -23,6 +27,8 @@ import org.openide.execution.NbProcessDescriptor;
 
 import org.netbeans.modules.java.settings.JavaSettings;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.Enumeration;
@@ -39,7 +45,11 @@ import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 
 import org.openide.filesystems.FileObject;
-import org.netbeans.modules.corba.*;
+
+import org.netbeans.modules.corba.CORBASupport;
+import org.netbeans.modules.corba.IDLDataLoader;
+
+import org.netbeans.modules.corba.utils.FullBeanContextSupport;
 
 public class CORBASupportSettings extends SystemOption implements BeanContextProxy { 
 								  //PropertyChangeListener {
@@ -88,7 +98,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     protected static String _M_orb_name_cache;
     protected static ORBSettings _M_setting_cache;
 
-    protected static BeanContextSupport _M_implementations = new BeanContextSupport ();
+    protected static FullBeanContextSupport _M_implementations = new FullBeanContextSupport ();
+    //protected static BeanContextSupport _M_implementations = new BeanContextSupport ();
     //= new BeanContextSupport ();
     //protected static Vector _M_orb_names;
 
@@ -1127,14 +1138,15 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     }
     
     //public synchronized void loadImpl () {
-    public BeanContextSupport loadImpl () {
+    public BeanContext loadImpl () {
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::loadImpl ()"); // NOI18N
 
 	//if (_M_loaded)
 	//    return;
 
-	BeanContextSupport __context = new BeanContextSupport ();
+	//BeanContextSupport __context = new BeanContextSupport ();
+	BeanContext __context = new FullBeanContextSupport ();
 
 	_M_loaded = true;
 	//if (_M_orb_names == null)
@@ -1176,7 +1188,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		}
 	    }
 	}
-	else {	    
+	else {    
 	    //TopManager.getDefault ().notify 
 	    //(new NotifyDescriptor.Message (CORBASupport.CANT_FIND_IMPLS));
 	    //System.out.println ("can't find system/CORBA directory"); // NOI18N
@@ -1249,8 +1261,9 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     */
 
     public java.beans.beancontext.BeanContextChild getBeanContextProxy () {
-	if (DEBUG)
-	    System.out.println ("CORBASupportSettings::getBeanContextProxy ()"); // NOI18N
+	//if (DEBUG)
+	System.out.println ("CORBASupportSettings::getBeanContextProxy ()"); // NOI18N
+	//Thread.dumpStack ();
 	if (!_M_loaded) {
 	    //loadImpl ();
 	    this.setBeans (this.getBeans ());
@@ -1271,19 +1284,34 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     public java.lang.Object[] getBeans () {
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::getBeans () -> " + _M_implementations); // NOI18N
-	if (_M_implementations == null)
-	    _M_implementations = new BeanContextSupport ();
+	if (_M_implementations == null) {
+	    //_M_implementations = new BeanContextSupport ();
+	    _M_implementations = new FullBeanContextSupport ();
+	}
+	//java.lang.Object[] __array = _M_implementations.toArray ();
 	return _M_implementations.toArray ();
+	//java.util.Arrays.sort (__array, new ORBSettingsComparator ());
+	//System.out.println ("after sort:");
+	//for (int __i=0; __i < __array.length; __i++)
+	//    System.out.println (__i + " -> " + ((ORBSettings)__array[__i]).getName ());
+	//return __array;
     }
 
     public void setBeans (java.lang.Object[] beans) {
 	if (DEBUG)
-	    System.out.println ("CORBASupportSettings::setBeans (" + beans + ");"); // NOI18N
+	    System.out.println ("CORBASupportSettings::setBeans (" 
+				+ beans + ":" + beans.length + ");"); // NOI18N
 
-	_M_implementations = new BeanContextSupport ();
-
-	BeanContextSupport __loaded_context = this.loadImpl ();
-	BeanContextSupport __serialized_context = new BeanContextSupport ();
+	//_M_implementations = new BeanContextSupport ();
+	//BeanContextSupport __tmp_implementations = new BeanContextSupport ();
+	_M_implementations = new FullBeanContextSupport ();
+	FullBeanContextSupport __tmp_implementations = new FullBeanContextSupport ();
+	//FullBeanContextSupport __distinguish_implementations = new FullBeanContextSupport ();
+	
+	//BeanContextSupport __loaded_context = this.loadImpl ();
+	//BeanContextSupport __serialized_context = new BeanContextSupport ();
+	FullBeanContextSupport __loaded_context = (FullBeanContextSupport)this.loadImpl ();
+	FullBeanContextSupport __serialized_context = new FullBeanContextSupport ();
 	for (int i = 0; i < beans.length; i++) {
 	    ORBSettings __setting = (ORBSettings)beans[i];
 	    if (__setting.getProperties () == null) {
@@ -1309,7 +1337,17 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		    System.out.println ("add serialized setting: " // NOI18N
 					+ __serialized_setting.getName ());
 		}
-		_M_implementations.add (__serialized_setting);
+		//_M_implementations.add (__serialized_setting);
+		// we must set transient _M_supported variable
+		if (__loaded_setting.isSupported ()) {
+		    __serialized_setting.setSupported (true);
+		    if (DEBUG) {
+			System.out.println (__serialized_setting.getName () + " is supported "
+					    + __serialized_setting.isSupported ());
+		    }
+		    //__serialized_setting.setSupported (__loaded_setting.getSupported ());
+		}
+		__tmp_implementations.add (__serialized_setting);
 	    }
 	    else {
 		// we don't find serialized setting with same name as this loaded setting
@@ -1317,12 +1355,48 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		if (DEBUG) {
 		    System.out.println ("add loaded setting: " + __loaded_setting.getName ()); // NOI18N
 		}
-		_M_implementations.add (__loaded_setting);
+		//_M_implementations.add (__loaded_setting);
+		__tmp_implementations.add (__loaded_setting);
+	    }
+	}
+	// now we must distinguish between supported and unsupported orbs and sort same 
+	// implementions by name
+	BeanContext __supported_orbs = new FullBeanContextSupport ();
+	BeanContext __unsupported_orbs = new FullBeanContextSupport ();	
+	Iterator __iterator = __tmp_implementations.iterator ();
+	while (__iterator.hasNext ()) {
+	    ORBSettings __settings = (ORBSettings)__iterator.next ();
+	    if (__settings.isSupported ())
+		__supported_orbs.add (__settings);
+	    else
+		__unsupported_orbs.add (__settings);
+	}
+	    
+	//ArrayList __sorted_implementations = new ArrayList (__tmp_implementations);
+	//ArrayList __sorted_implementations = new ArrayList (__distinguish_implementations);
+	ArrayList __sorted_supported_orbs = new ArrayList (__supported_orbs);
+	ArrayList __sorted_unsupported_orbs = new ArrayList (__unsupported_orbs);
+	Collections.sort (__sorted_supported_orbs, new ORBSettingsComparator ());
+	Collections.sort (__sorted_unsupported_orbs, new ORBSettingsComparator ());
+	//Iterator __iterator = __sorted_implementations.iterator ();
+	//__iterator = __distinguish_implementations.iterator ();
+	__iterator = __sorted_supported_orbs.iterator ();
+	while (__iterator.hasNext ()) {
+	    _M_implementations.add (__iterator.next ());
+	}
+	__iterator = __sorted_unsupported_orbs.iterator ();
+	while (__iterator.hasNext ()) {
+	    _M_implementations.add (__iterator.next ());
+	}
+	if (DEBUG) {
+	    __iterator = _M_implementations.iterator ();
+	    while (__iterator.hasNext ()) {
+		System.out.println (((ORBSettings)__iterator.next ()).getName ());
 	    }
 	}
     }
 
-    public ORBSettings findSettingByName (BeanContextSupport __context, String __name) {
+    public ORBSettings findSettingByName (BeanContext __context, String __name) {
 	Iterator __iterator = __context.iterator ();
 	while (__iterator.hasNext ()) {
 	    ORBSettings __setting = (ORBSettings)__iterator.next ();
