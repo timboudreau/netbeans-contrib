@@ -377,7 +377,7 @@ public final class TLUtils {
             // System.out.println("NETWORK URL was " + filename);
             return null;
         } else {
-            filename = "file:" + file.getPath(); // NOI18N
+            filename = file.toURI().toString();
         }
         return filename;
         */
