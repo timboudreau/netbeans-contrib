@@ -518,7 +518,7 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
     
     public void fromInitialReferences() {
         try {
-            NotifyDescriptor.InputLine desc = new NotifyDescriptor.InputLine (this.getLocalizedString("CTL_LabelName"),this.getLocalizedString("TXT_FromInitialReferencesDlgTitle"));
+            NotifyDescriptor.InputLine desc = new NotifyDescriptor.InputLine (this.getLocalizedString("TXT_LabelName"),this.getLocalizedString("TXT_FromInitialReferencesDlgTitle"));
             desc.setInputText (this.getLocalizedString("TXT_NameService"));
             TopManager.getDefault().notify (desc);
             if (desc.getValue() == DialogDescriptor.OK_OPTION) {
