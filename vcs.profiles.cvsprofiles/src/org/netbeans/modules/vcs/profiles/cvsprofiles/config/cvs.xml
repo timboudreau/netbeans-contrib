@@ -718,11 +718,12 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>vcs.commands.CvsCommit.class COMMIT_CMD</value>
 	</property>
         <property name="inputDescriptor">
+            <!-- TODO use JCOMPONENT(TMP_TEMPLATE_FILE, org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsCommitMessageComponent) -->
           <value>
             LABEL(ResourceMsg1(COMMAND_COMMIT_Label),
                 ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_Label)))
             PROMPT_FOR_FILE(TEMPLATE_FILE, ResourceMsg1(COMMAND_COMMIT_Reason), {FILE_OUTPUT_OF_COMMIT_TEMPLATE_GETTER(0)},ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_Reason);;MNEMONIC_ResourceMsg1(ACS_COMMAND_COMMIT_Reason_mnc)), 10, 75)
-            ASK_FOR_EXPERT(FORCE, ResourceMsg1(COMMAND_COMMIT_Force), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_Force);;MNEMONIC_ResourceMsg1(ACS_COMMAND_COMMIT_Force_mnc)), "-f", "")                
+            ASK_FOR_EXPERT(FORCE, ResourceMsg1(COMMAND_COMMIT_Force), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_Force);;MNEMONIC_ResourceMsg1(ACS_COMMAND_COMMIT_Force_mnc)), "-f", "")
             PROMPT_FOR_EXPERT(BRANCH, ResourceMsg1(COMMAND_COMMIT_To_Branch), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_To_Branch);;MNEMONIC_ResourceMsg1(ACS_COMMAND_COMMIT_To_Branch_mnc)), IF_VAR_EMPTY"FILES_IS_FOLDER"_SELECTOR_CMD_SELECTOR_BRANCHES)                
             ASK_FOR_EXPERT(RUN_MODULE_PROGRAM, ResourceMsg1(COMMAND_COMMIT_Run_Module_Program), "true",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_COMMIT_Run_Module_Program);;MNEMONIC_ResourceMsg1(ACS_COMMAND_COMMIT_Run_Module_Program_mnc)), "", "-n")
             IF_VAR_EMPTY"recursionBanned"_IF_VAR_NON_EMPTY"FILES_IS_FOLDER"_ASK_FOR_EXPERT(RECURSIVE, ResourceMsg1(COMMAND_Recursive), "$[? recursionBanned] [-l] [-R]",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Recursive);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Recursive_mnc)),"-R", "-l")
