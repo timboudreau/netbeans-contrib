@@ -36,7 +36,7 @@ public class IDLStateMemberNode extends IDLAbstractNode {
     StateMemberElement _M_state_member;
     DeclaratorElement _M_declarator_element;
     private static final String STATE_MEMBER_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/state_member";
+        "org/netbeans/modules/corba/idl/node/state_member"; // NOI18N
 
     //public IDLStateMemberNode (StateMemberElement value) {
     public IDLStateMemberNode (DeclaratorElement __declarator, StateMemberElement __state) {
@@ -52,18 +52,18 @@ public class IDLStateMemberNode extends IDLAbstractNode {
         //return _M_state_member;
 	return _M_declarator_element;
     }
-
-    public String getDisplayName () {
-        if (_M_state_member != null) {
-            //return ((Identifier)_M_state_member.getMember (0)).getName ();
-            return _M_declarator_element.getName ();
-        }
-        else
-            return "NoName :)";
-    }
-
+    /*
+      public String getDisplayName () {
+      if (_M_state_member != null) {
+      //return ((Identifier)_M_state_member.getMember (0)).getName ();
+      return _M_declarator_element.getName ();
+      }
+      else
+      return "NoName :)";
+      }
+    */
     public String getName () {
-        return "attribute";
+        return "attribute"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
@@ -74,36 +74,36 @@ public class IDLStateMemberNode extends IDLAbstractNode {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of state") {
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_STATE) { // NOI18N
 		public Object getValue () {
 		    return _M_declarator_element.getName ();
 		}
 	    });
-        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of state") {
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, IDLNodeBundle.TYPE, IDLNodeBundle.TYPE_OF_STATE) { // NOI18N
 		public Object getValue () {
 		    return _M_state_member.getType ().getName ();
 		}
 	    });
-        ss.put (new PropertySupport.ReadOnly ("dimension", String.class, "dimension",
-                                              "dimension of state") {
+        ss.put (new PropertySupport.ReadOnly ("dimension", String.class, IDLNodeBundle.DIMENSION, // NOI18N
+                                              IDLNodeBundle.DIMENSION_OF_STATE) {
 		public Object getValue () {
-		    String retval = "";
+		    String retval = ""; // NOI18N
 		    Vector dim = _M_declarator_element.getDimension ();
 		    for (int i=0; i<dim.size (); i++) {
-			retval = retval + "[" + ((Integer)dim.elementAt (i)).toString () + "]";
+			retval = retval + "[" + ((Integer)dim.elementAt (i)).toString () + "]"; // NOI18N
 		    }
 		    return retval;
 		}
 	    });
 
-        ss.put (new PropertySupport.ReadOnly ("modifier", String.class, "modifier",
-                                              "state modifier") {
+        ss.put (new PropertySupport.ReadOnly ("modifier", String.class, IDLNodeBundle.MODIFIER, // NOI18N
+                                              IDLNodeBundle.MODIFIER_OF_STATE) {
 		public Object getValue () {
 		    if (_M_state_member.getModifier () == StateMemberElement.PUBLIC)
-			return "public";
+			return IDLNodeBundle.PUBLIC;
 		    if (_M_state_member.getModifier () == StateMemberElement.PRIVATE)
-			return "private";
-		    return "unknown";
+			return IDLNodeBundle.PRIVATE;
+		    return IDLNodeBundle.UNKNOWN;
 		}
 	    });
 	

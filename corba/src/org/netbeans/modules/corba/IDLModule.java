@@ -58,23 +58,23 @@ public class IDLModule extends ModuleInstall {
     /** Module installed for the first time. */
     public void installed() {
         if (DEBUG)
-            System.out.println ("CORBA Support Module installing...");
+            System.out.println ("CORBA Support Module installing..."); // NOI18N
         copyImpls ();
         copyTemplates ();
         createAction();
 
         restored ();
         if (DEBUG)
-            System.out.println ("CORBA Support Module installed :)");
+            System.out.println ("CORBA Support Module installed :)"); // NOI18N
     }
 
 
     /** Module installed again. */
     public void restored() {
         if (DEBUG)
-            System.out.println ("CORBA Support Module restoring...");
+            System.out.println ("CORBA Support Module restoring..."); // NOI18N
         if (DEBUG)
-            System.out.println ("restoring editor support ...");
+            System.out.println ("restoring editor support ..."); // NOI18N
 
         CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                    (CORBASupportSettings.class, true);
@@ -83,7 +83,7 @@ public class IDLModule extends ModuleInstall {
 
         installColoring ();
         if (DEBUG)
-            System.out.println ("CORBA Support Module restored...");
+            System.out.println ("CORBA Support Module restored..."); // NOI18N
     }
     
     /** Called when module is uninstalled
@@ -95,16 +95,16 @@ public class IDLModule extends ModuleInstall {
 
     private void installColoring () {
         if (DEBUG)
-            System.out.println ("installColoring()");
+            System.out.println ("installColoring()"); // NOI18N
         try {
             Class settings = Class.forName
-                             ("org.netbeans.editor.Settings",
+                             ("org.netbeans.editor.Settings", // NOI18N
                               false, this.getClass().getClassLoader()); // only test for editor module
 
             Class restore = Class.forName
-                            ("org.netbeans.modules.corba.idl.editor.settings.RestoreColoring",
+                            ("org.netbeans.modules.corba.idl.editor.settings.RestoreColoring", // NOI18N
                              false, this.getClass().getClassLoader());
-            Method restoreMethod = restore.getMethod ("restore", null);
+            Method restoreMethod = restore.getMethod ("restore", null); // NOI18N
             restoreMethod.invoke (restore.newInstance(), null);
 
         } catch (ClassNotFoundException e) {
@@ -147,7 +147,7 @@ public class IDLModule extends ModuleInstall {
         try {
             org.openide.filesystems.FileUtil.extractJar (
                 org.openide.TopManager.getDefault ().getPlaces ().folders().templates ().getPrimaryFile (),
-                getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/templates.jar")
+                getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/templates.jar") // NOI18N
             );
         } catch (java.io.IOException e) {
             org.openide.TopManager.getDefault ().notifyException (e);
@@ -158,7 +158,7 @@ public class IDLModule extends ModuleInstall {
         try {
             org.openide.filesystems.FileUtil.extractJar (
                 org.openide.TopManager.getDefault ().getRepository ().getDefaultFileSystem ().getRoot (),
-                getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/impls.jar")
+                getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/corba/resources/impls.jar") // NOI18N
             );
         } catch (java.io.IOException e) {
             org.openide.TopManager.getDefault ().notifyException (e);
@@ -180,12 +180,12 @@ public class IDLModule extends ModuleInstall {
     
     private void removeAction () {
         try {
-            DataFolder toolsFolder = DataFolder.create(TopManager.getDefault().getPlaces().folders().menus(),"Tools"); // No I18N
+            DataFolder toolsFolder = DataFolder.create(TopManager.getDefault().getPlaces().folders().menus(),"Tools"); // NOI18N
             if (toolsFolder != null) {
                 Utilities2.removeAction (org.netbeans.modules.corba.wizard.CorbaWizardAction.class, toolsFolder);
             }
         }catch (Exception e) {
-            if (Boolean.getBoolean ("netbeans.debug.exceptions"))  // No I18N
+            if (Boolean.getBoolean ("netbeans.debug.exceptions"))  // NOI18N
                 e.printStackTrace();
         }
     }

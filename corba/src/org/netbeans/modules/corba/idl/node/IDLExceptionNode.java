@@ -33,7 +33,7 @@ public class IDLExceptionNode extends IDLAbstractNode {
 
     ExceptionElement _exception;
     private static final String EXCEPTION_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/exception";
+        "org/netbeans/modules/corba/idl/node/exception"; // NOI18N
 
     public IDLExceptionNode (ExceptionElement value) {
         super (new IDLDocumentChildren ((IDLElement)value));
@@ -45,16 +45,16 @@ public class IDLExceptionNode extends IDLAbstractNode {
     public IDLElement getIDLElement () {
         return _exception;
     }
-
-    public String getDisplayName () {
-        if (_exception != null)
-            return ((Identifier)_exception.jjtGetChild (0)).getName ();
-        else
-            return "NoName :)";
-    }
-
+    /*
+      public String getDisplayName () {
+      if (_exception != null)
+      return ((Identifier)_exception.jjtGetChild (0)).getName ();
+      else
+      return "NoName :)";
+      }
+    */
     public String getName () {
-        return "exception";
+        return "exception"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
@@ -65,11 +65,11 @@ public class IDLExceptionNode extends IDLAbstractNode {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of exception") {
-                    public Object getValue () {
-                        return _exception.getName ();
-                    }
-                });
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_EXCEPTION) { // NOI18N
+		public Object getValue () {
+		    return _exception.getName ();
+		}
+	    });
 
         return s;
     }

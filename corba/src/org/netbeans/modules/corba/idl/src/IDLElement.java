@@ -45,18 +45,18 @@ public class IDLElement extends SimpleNode
     public IDLElement (int i) {
         super (i);
         _M_members = new Vector ();
-        _M_name = "";
+        _M_name = ""; // NOI18N
     }
 
     public IDLElement (IDLParser p, int i) {
         super (p, i);
         _M_members = new Vector ();
-        _M_name = "";
+        _M_name = ""; // NOI18N
     }
 
     public void setDataObject (IDLDataObject val) {
         if (DEBUG)
-            System.out.println ("IDLElement ``" + getName () + " '' ::setDataObject (val)");
+            System.out.println ("IDLElement ``" + getName () + " '' ::setDataObject (val)"); // NOI18N
         _M_ido = val;
         setDataObjectForMembers (val);
     }
@@ -73,39 +73,39 @@ public class IDLElement extends SimpleNode
 
     public void setLine (int i) {
         if (DEBUG)
-            System.out.println ("set line for " + getName () + " : " + i);
+            System.out.println ("set line for " + getName () + " : " + i); // NOI18N
         _M_line = i;
         //getLine (); // debug check
     }
 
     public int getLine () {
         if (DEBUG)
-            System.out.println ("get line for " + getName () + " : " + _M_line);
+            System.out.println ("get line for " + getName () + " : " + _M_line); // NOI18N
         return _M_line;
     }
 
     public void setColumn (int i) {
         if (DEBUG)
-            System.out.println ("set column for " + getName () + " : " + i);
+            System.out.println ("set column for " + getName () + " : " + i); // NOI18N
         _M_column = i;
         //getColumn (); // debug check
     }
 
     public int getColumn () {
         if (DEBUG)
-            System.out.println ("get column for " + getName () + " : " + _M_column);
+            System.out.println ("get column for " + getName () + " : " + _M_column); // NOI18N
         return _M_column;
     }
 
     public void setName (String v) {
         if (DEBUG)
-            System.out.println ("setName: " + v);
+            System.out.println ("setName: " + v); // NOI18N
         _M_name = v;
     }
 
     public String getName () {
         if (DEBUG)
-            System.out.println ("getName: " + _M_name);
+            System.out.println ("getName: " + _M_name); // NOI18N
         return _M_name;
     }
 
@@ -141,30 +141,30 @@ public class IDLElement extends SimpleNode
 
     public void open () {
         if (DEBUG)
-            System.out.println ("open action :-))");
+            System.out.println ("open action :-))"); // NOI18N
     }
 
     public String deepToString (IDLElement element) {
         if (DEBUG)
-            System.out.println ("IDLElement::deepToString (" + element + ");");
+            System.out.println ("IDLElement::deepToString (" + element + ");"); // NOI18N
 
         // for tests
         //return element.getName ();
 
-        String names = element.getName () + ":" + element.getLine () + ":"
-                       + element.getColumn () + ":" + "(";
+        String names = element.getName () + ":" + element.getLine () + ":" // NOI18N
+                       + element.getColumn () + ":" + "("; // NOI18N
         Vector members = element.getMembers ();
         for (int i=0; i<members.size (); i++) {
             IDLElement tmp = (IDLElement)members.elementAt (i);
-            //names = names + " " + tmp.getName () + " (" + deepToString (tmp) + ")";
-            names = names + tmp.getName () + ":" + tmp.getLine () + ":" + tmp.getColumn () + ":"
-                    + " (" + deepToString (tmp) + ")";
-            //names = names + " " + tmp.getName ();
+            //names = names + " " + tmp.getName () + " (" + deepToString (tmp) + ")"; // NOI18N
+            names = names + tmp.getName () + ":" + tmp.getLine () + ":" + tmp.getColumn () + ":" // NOI18N
+                    + " (" + deepToString (tmp) + ")"; // NOI18N
+            //names = names + " " + tmp.getName (); // NOI18N
         }
 
         if (DEBUG)
-            System.out.println ("-> " + names);
-        return names + ")";
+            System.out.println ("-> " + names); // NOI18N
+        return names + ")"; // NOI18N
 
     }
 
@@ -172,8 +172,8 @@ public class IDLElement extends SimpleNode
         IDLElement element;
         if (!(obj instanceof IDLElement)) {
             if (DEBUG) {
-                System.out.println (this.getName () + "::equals (" + obj + ");");
-                System.out.println ("isn't IDLElement");
+                System.out.println (this.getName () + "::equals (" + obj + ");"); // NOI18N
+                System.out.println ("isn't IDLElement"); // NOI18N
             }
             return false;
         } else {
@@ -181,8 +181,8 @@ public class IDLElement extends SimpleNode
         }
 
         if (DEBUG)
-            System.out.println (this.getName () + "::equals (" + ((IDLElement)element).getName ()
-                                + ");");
+            System.out.println (this.getName () + "::equals (" + ((IDLElement)element).getName () // NOI18N
+                                + ");"); // NOI18N
 
         if (element.className ().equals (className ())) {
             IDLElement tmp_element = (IDLElement)element;
@@ -190,19 +190,19 @@ public class IDLElement extends SimpleNode
             String object_names = deepToString ((IDLElement)element);
             if (this_names.equals (object_names)) {
                 if (DEBUG)
-                    System.out.println ("return true;");
+                    System.out.println ("return true;"); // NOI18N
                 return true;
             }
         }
         if (DEBUG)
-            System.out.println ("return false;");
+            System.out.println ("return false;"); // NOI18N
         return false;
     }
 
 
     public String className () {
         String tmp = this.getClass ().getName ();
-        return tmp.substring (tmp.lastIndexOf (".") + 1, tmp.length ());
+        return tmp.substring (tmp.lastIndexOf (".") + 1, tmp.length ()); // NOI18N
     }
 
 
@@ -210,14 +210,14 @@ public class IDLElement extends SimpleNode
         String name = className () + deepToString (this);
         int code = name.hashCode ();
         if (DEBUG)
-            System.out.println ("IDLElement::hashCode () : " + name + " : " + code);
+            System.out.println ("IDLElement::hashCode () : " + name + " : " + code); // NOI18N
         return code;
     }
 
 
     public void jjtClose () {
         //if (DEBUG)
-        //  System.out.println ("IDLElement.jjtClose ()");
+        //  System.out.println ("IDLElement.jjtClose ()"); // NOI18N
         for (int i=0; i<jjtGetNumChildren (); i++) {
             addMember (jjtGetChild (i));
         }
@@ -228,10 +228,10 @@ public class IDLElement extends SimpleNode
     }
 
     public void xDump (String s) {
-        //System.out.println ("dump: " + members);
+        //System.out.println ("dump: " + members); // NOI18N
         for (int i=0; i<_M_members.size (); i++) {
             System.out.println (s + _M_members.elementAt (i));
-            ((IDLElement)_M_members.elementAt (i)).xDump (s + " ");
+            ((IDLElement)_M_members.elementAt (i)).xDump (s + " "); // NOI18N
         }
     }
 

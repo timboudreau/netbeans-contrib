@@ -36,19 +36,19 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
 
     // initialization of the array of descriptors
     static {
-	//System.out.println ("// initialization of the array of descriptors");
+	//System.out.println ("// initialization of the array of descriptors"); // NOI18N
         try {
             descriptors = new PropertyDescriptor[] {
-		new PropertyDescriptor ("_M_hide_generated_files", IDLDataLoader.class,
-					"getHide", "setHide")
+		new PropertyDescriptor ("_M_hide_generated_files", IDLDataLoader.class, // NOI18N
+					"getHide", "setHide") // NOI18N
 		    };
 	    // hidden options for serialization
-	    // descriptors[0].setHidden (true);
+	    descriptors[0].setHidden (true);
 
-	    //System.out.println ("// initialization of the array of descriptors");
+	    //System.out.println ("// initialization of the array of descriptors"); // NOI18N
 	} catch (IntrospectionException ex) {
             //throw new InternalError ();
-            if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+            if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		ex.printStackTrace ();
         }
     }
@@ -74,11 +74,11 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
         if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) ||
                 (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
             if (icon == null)
-                icon = loadImage("/org/netbeans/modules/corba/settings/idl.gif");
+                icon = loadImage("/org/netbeans/modules/corba/settings/idl.gif"); // NOI18N
             return icon;
         } else {
             if (icon32 == null)
-                icon32 = loadImage ("/org/netbeans/modules/corba/settings/idl32.gif");
+                icon32 = loadImage ("/org/netbeans/modules/corba/settings/idl32.gif"); // NOI18N
             return icon32;
         }
     }
@@ -86,16 +86,16 @@ public final class IDLDataLoaderBeanInfo extends SimpleBeanInfo {
     private static void initializeDescriptors () {
         final ResourceBundle bundle =
             NbBundle.getBundle(IDLDataLoaderBeanInfo.class);
-	//System.out.println ("initializeDescriptors");
+	//System.out.println ("initializeDescriptors"); // NOI18N
         try {
             descriptors =  new PropertyDescriptor[] {
-                               new PropertyDescriptor ("displayName", IDLDataLoader.class,
-                                                       "getDisplayName", null),
+                               new PropertyDescriptor ("displayName", IDLDataLoader.class, // NOI18N
+                                                       "getDisplayName", null), // NOI18N
                            };
             descriptors[0].setDisplayName(bundle.getString("PROP_Name"));
             descriptors[0].setShortDescription(bundle.getString("HINT_Name"));
         } catch (IntrospectionException e) {
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		e.printStackTrace ();
         }
     }

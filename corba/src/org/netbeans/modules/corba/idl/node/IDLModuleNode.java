@@ -35,7 +35,7 @@ public class IDLModuleNode extends IDLAbstractNode {
     ModuleElement _module;
 
     private static final String MODULE_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/module";
+        "org/netbeans/modules/corba/idl/node/module"; // NOI18N
 
     public IDLModuleNode (ModuleElement value) {
         super (new IDLDocumentChildren ((IDLElement)value));
@@ -47,23 +47,23 @@ public class IDLModuleNode extends IDLAbstractNode {
     public IDLElement getIDLElement () {
         return _module;
     }
-
-    public String getDisplayName () {
-        if (_module != null)
-            //return ((Identifier)_interface.jjtGetChild (0)).getName ();
-            return _module.getName ();
-        else
-            return "NoName :)";
-    }
-
+    /*
+      public String getDisplayName () {
+      if (_module != null)
+      //return ((Identifier)_interface.jjtGetChild (0)).getName ();
+      return _module.getName ();
+      else
+      return "NoName :)";
+      }
+    */
     public String getName () {
-        return "module";
+        return "module"; // NOI18N
     }
 
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of module") {
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_MODULE) { // NOI18N
                     public Object getValue () {
                         return _module.getName ();
                     }

@@ -31,12 +31,12 @@ public class IDLCompilerSupport extends CompilerSupport {
     public IDLCompilerSupport (MultiDataObject.Entry entry, Class cookie) {
         super (entry, cookie);
         if (DEBUG)
-            System.out.println ("IDLCompilerSupport::IDLCompilerSupport (...)");
+            System.out.println ("IDLCompilerSupport::IDLCompilerSupport (...)"); // NOI18N
     }
 
     protected CompilerType defaultCompilerType () {
         if (DEBUG)
-            System.out.println ("IDLCompilerSupport::defaultCompilerType ()");
+            System.out.println ("IDLCompilerSupport::defaultCompilerType ()"); // NOI18N
         return new IDLCompilerType ();
     }
 
@@ -47,7 +47,7 @@ public class IDLCompilerSupport extends CompilerSupport {
         public Compile (MultiDataObject.Entry entry) {
             super (entry, CompilerCookie.Compile.class);
             if (DEBUG)
-                System.out.println ("Compile::Compile (...)");
+                System.out.println ("Compile::Compile (...)"); // NOI18N
         }
     }
 

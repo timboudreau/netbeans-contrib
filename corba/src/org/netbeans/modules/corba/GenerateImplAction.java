@@ -30,11 +30,11 @@ public class GenerateImplAction extends CookieAction {
 
     //private String name = NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
     private String generate = NbBundle.getBundle (CORBASupport.class).getString
-                              ("ACT_GENERATE");
+                              ("ACT_GENERATE"); // NOI18N
     private String update_and_generate = NbBundle.getBundle (CORBASupport.class).getString
-                                         ("ACT_UPDATE_AND_GENERATE");
+                                         ("ACT_UPDATE_AND_GENERATE"); // NOI18N
     private String update = NbBundle.getBundle (CORBASupport.class).getString
-                            ("ACT_UPDATE");
+                            ("ACT_UPDATE"); // NOI18N
 
     private String name;
 
@@ -59,7 +59,7 @@ public class GenerateImplAction extends CookieAction {
     */
     public String getName() {
         //return NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
-        //System.out.println ("getName () -> " + name);
+        //System.out.println ("getName () -> " + name); // NOI18N
         return name;
     }
 
@@ -74,12 +74,12 @@ public class GenerateImplAction extends CookieAction {
     * @return resource name
     */
     protected String iconResource () {
-        return "/org/openide/resources/actions/empty.gif"; // no icon
+        return "/org/openide/resources/actions/empty.gif"; // no icon // NOI18N
     }
 
 
     protected boolean enable (Node[] activatedNodes) {
-        //name = "Update Implementations";
+        //name = "Update Implementations"; // NOI18N
         try {
             IDLDataObject __ido = (IDLDataObject)activatedNodes[0].getCookie 
 		(IDLDataObject.class);

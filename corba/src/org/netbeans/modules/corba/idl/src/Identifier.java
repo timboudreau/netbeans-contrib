@@ -25,7 +25,7 @@ public class Identifier extends IDLElement {
     }
 
     public String toString () {
-        //return "id: " + getName ();
+        //return "id: " + getName (); // NOI18N
         return getName ();
     }
 

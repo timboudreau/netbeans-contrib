@@ -117,14 +117,14 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
     public ImplGenerator () {
-        IMPLBASE_IMPL_PREFIX = "";
-        IMPLBASE_IMPL_POSTFIX = "Impl";
-        EXT_CLASS_PREFIX = "_";
-        EXT_CLASS_POSTFIX = "ImplBase";
-        TIE_IMPL_PREFIX = "";
-        TIE_IMPL_POSTFIX = "ImplTIE";
-        IMPL_INT_PREFIX = "";
-        IMPL_INT_POSTFIX = "Operations";
+        IMPLBASE_IMPL_PREFIX = ""; // NOI18N
+        IMPLBASE_IMPL_POSTFIX = "Impl"; // NOI18N
+        EXT_CLASS_PREFIX = "_"; // NOI18N
+        EXT_CLASS_POSTFIX = "ImplBase"; // NOI18N
+        TIE_IMPL_PREFIX = ""; // NOI18N
+        TIE_IMPL_POSTFIX = "ImplTIE"; // NOI18N
+        IMPL_INT_PREFIX = ""; // NOI18N
+        IMPL_INT_POSTFIX = "Operations"; // NOI18N
         TIE = false;
     }
 
@@ -141,83 +141,83 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
     public String simple2java (IDLType idl_type) {
-        String type = "";
+        String type = ""; // NOI18N
 
         if (idl_type.getType () == IDLType.VOID)
-            type = "void";
+            type = "void"; // NOI18N
         if (idl_type.getType () == IDLType.BOOLEAN)
-            type = "boolean";
+            type = "boolean"; // NOI18N
         if (idl_type.getType () == IDLType.CHAR)
-            type = "char";
+            type = "char"; // NOI18N
         if (idl_type.getType () == IDLType.WCHAR)
-            type = "char";
+            type = "char"; // NOI18N
         if (idl_type.getType () == IDLType.OCTET)
-            type = "byte";
+            type = "byte"; // NOI18N
         if (idl_type.getType () == IDLType.STRING)
-            type = "String";
+            type = "String"; // NOI18N
         if (idl_type.getType () == IDLType.WSTRING)
-            type = "String";
+            type = "String"; // NOI18N
         if (idl_type.getType () == IDLType.SHORT)
-            type = "short";
+            type = "short"; // NOI18N
         if (idl_type.getType () == IDLType.USHORT)
-            type = "short";
+            type = "short"; // NOI18N
         if (idl_type.getType () == IDLType.LONG)
-            type = "int";
+            type = "int"; // NOI18N
         if (idl_type.getType () == IDLType.ULONG)
-            type = "int";
+            type = "int"; // NOI18N
         if (idl_type.getType () == IDLType.ULONGLONG)
-            type = "long";
+            type = "long"; // NOI18N
         if (idl_type.getType () == IDLType.FLOAT)
-            type = "float";
+            type = "float"; // NOI18N
         if (idl_type.getType () == IDLType.DOUBLE)
-            type = "double";
+            type = "double"; // NOI18N
 
         if (idl_type.getType () == IDLType.OBJECT)
-            type = "org.omg.CORBA.Object";
+            type = "org.omg.CORBA.Object"; // NOI18N
 
         if (idl_type.getType () == IDLType.ANY)
-            type = "org.omg.CORBA.Any";
+            type = "org.omg.CORBA.Any"; // NOI18N
 
         if (DEBUG)
-            System.out.println ("simple2java: " + type);
+            System.out.println ("simple2java: " + type); // NOI18N
         return type;
     }
 
     public Type type2java (IDLType idl_type) {
         if (DEBUG)
-            System.out.println ("ImplGenerator::type2java (" + idl_type + ");");
+            System.out.println ("ImplGenerator::type2java (" + idl_type + ");"); // NOI18N
         String java_type = simple2java (idl_type);
 
         if (DEBUG) {
-            System.out.println ("java_type: " + java_type);
+            System.out.println ("java_type: " + java_type); // NOI18N
         }
 
-        if (java_type.equals ("void"))
+        if (java_type.equals ("void")) // NOI18N
             return Type.VOID;
-        if (java_type.equals ("boolean"))
+        if (java_type.equals ("boolean")) // NOI18N
             return Type.BOOLEAN;
-        if (java_type.equals ("char"))
+        if (java_type.equals ("char")) // NOI18N
             return Type.CHAR;
-        if (java_type.equals ("byte"))
+        if (java_type.equals ("byte")) // NOI18N
             return Type.BYTE;
-        if (java_type.equals ("String"))
-            return Type.createClass (org.openide.src.Identifier.create ("java.lang.String", "String"));
-        if (java_type.equals ("short"))
+        if (java_type.equals ("String")) // NOI18N
+            return Type.createClass (org.openide.src.Identifier.create ("java.lang.String", "String")); // NOI18N
+        if (java_type.equals ("short")) // NOI18N
             return Type.SHORT;
-        if (java_type.equals ("int"))
+        if (java_type.equals ("int")) // NOI18N
             return Type.INT;
-        if (java_type.equals ("long"))
+        if (java_type.equals ("long")) // NOI18N
             return Type.LONG;
-        if (java_type.equals ("float"))
+        if (java_type.equals ("float")) // NOI18N
             return Type.FLOAT;
-        if (java_type.equals ("double"))
+        if (java_type.equals ("double")) // NOI18N
             return Type.DOUBLE;
 
-        if (java_type.equals ("org.omg.CORBA.Object"))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.Object"));
+        if (java_type.equals ("org.omg.CORBA.Object")) // NOI18N
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.Object")); // NOI18N
 
-        if (java_type.equals ("org.omg.CORBA.Any"))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.Any"));
+        if (java_type.equals ("org.omg.CORBA.Any")) // NOI18N
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.Any")); // NOI18N
 
         return null;
     }
@@ -226,41 +226,41 @@ public class ImplGenerator implements PropertyChangeListener {
     public Type JavaTypeToHolder (Type type) throws UnknownTypeException {
 
         if (DEBUG)
-            System.out.println ("ImplGenerator::JavaTypeToHolder (" + type + ");");
-        //if (java_type.equals ("void"))
+            System.out.println ("ImplGenerator::JavaTypeToHolder (" + type + ");"); // NOI18N
+        //if (java_type.equals ("void")) // NOI18N
         //  return Type.VOID;
         if (type.equals (Type.BOOLEAN))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.BooleanHolder"));
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.BooleanHolder")); // NOI18N
         if (type.equals (Type.CHAR))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.CharHolder"));
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.CharHolder")); // NOI18N
         if (type.equals (Type.CHAR))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.ByteHolder"));
-        if (type.equals (Type.createClass (org.openide.src.Identifier.create("java.lang.String",
-                                           "String"))))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.StringHolder"));
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.ByteHolder")); // NOI18N
+        if (type.equals (Type.createClass (org.openide.src.Identifier.create("java.lang.String", // NOI18N
+                                           "String")))) // NOI18N
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.StringHolder")); // NOI18N
         if (type.equals (Type.SHORT))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.ShortHolder"));
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.ShortHolder")); // NOI18N
         if (type.equals (Type.INT))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.IntHolder"));
-        //if (type.equals ("long"))
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.IntHolder")); // NOI18N
+        //if (type.equals ("long")) // NOI18N
         //  return Type.LONG;
-        //if (type.equals ("float"))
-        //  return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.FloatHolder"));
+        //if (type.equals ("float")) // NOI18N
+        //  return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.FloatHolder")); // NOI18N
         if (type.equals (Type.FLOAT))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.FloatHolder"));
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.FloatHolder")); // NOI18N
         if (type.equals (Type.DOUBLE))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.DoubleHolder"));
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.DoubleHolder")); // NOI18N
 
         if (type.equals (Type.createClass (org.openide.src.Identifier.create
-                                           ("org.omg.CORBA.Object"))))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.ObjectHolder"));
+                                           ("org.omg.CORBA.Object")))) // NOI18N
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.ObjectHolder")); // NOI18N
 
         if (type.equals (Type.createClass (org.openide.src.Identifier.create
-                                           ("org.omg.CORBA.Any"))))
-            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.AnyHolder"));
+                                           ("org.omg.CORBA.Any")))) // NOI18N
+            return Type.createClass (org.openide.src.Identifier.create ("org.omg.CORBA.AnyHolder")); // NOI18N
 
         if (DEBUG)
-            System.out.println ("error unknown type!!!");
+            System.out.println ("error unknown type!!!"); // NOI18N
         throw new UnknownTypeException (type.getSourceString ());
     }
 
@@ -273,15 +273,15 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public boolean isAbsoluteScopeName (String name) {
         if (DEBUG)
-            System.out.println ("isAbsoluteScopeName (" + name + ");");
+            System.out.println ("isAbsoluteScopeName (" + name + ");"); // NOI18N
         if (name.length () >= 3)
-            if (name.substring (0, 2).equals ("::")) {
+            if (name.substring (0, 2).equals ("::")) { // NOI18N
                 if (DEBUG)
-                    System.out.println ("YES");
+                    System.out.println ("YES"); // NOI18N
                 return true;
             }
         if (DEBUG)
-            System.out.println ("NO");
+            System.out.println ("NO"); // NOI18N
         return false;
     }
 
@@ -308,41 +308,41 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public boolean isScopeName (String name) {
         if (DEBUG)
-            System.out.println ("isScopeName (" + name + ");");
-        if (name.indexOf ("::") > -1) {
+            System.out.println ("isScopeName (" + name + ");"); // NOI18N
+        if (name.indexOf ("::") > -1) { // NOI18N
             if (DEBUG)
-                System.out.println ("YES");
+                System.out.println ("YES"); // NOI18N
             return true;
         }
         else {
             if (DEBUG)
-                System.out.println ("NO");
+                System.out.println ("NO"); // NOI18N
             return false;
         }
     }
 
 
     public String getSimpleName (String name) {
-        String retval = name.substring (name.lastIndexOf ("::") + 2, name.length ());
+        String retval = name.substring (name.lastIndexOf ("::") + 2, name.length ()); // NOI18N
         if (DEBUG)
-            System.out.println ("getSimpleName (" + name + "); => " + retval);
+            System.out.println ("getSimpleName (" + name + "); => " + retval); // NOI18N
         return retval;
     }
 
     public String scopedName2javaName (String name, boolean absolute) {
-        StringTokenizer st = new StringTokenizer (name, "::");
-        String retval = "";
+        StringTokenizer st = new StringTokenizer (name, "::"); // NOI18N
+        String retval = ""; // NOI18N
         while (st.hasMoreTokens ()) {
-            retval += st.nextToken () + ".";
+            retval += st.nextToken () + "."; // NOI18N
         }
         retval = retval.substring (0, retval.length () - 1);
         // added Package between name of interface and name of data type
         if (!absolute)
-            retval = retval.substring (0, retval.lastIndexOf (".")) + "Package."
-                     + retval.substring (retval.lastIndexOf (".") + 1, retval.length ());
+            retval = retval.substring (0, retval.lastIndexOf (".")) + "Package." // NOI18N
+                     + retval.substring (retval.lastIndexOf (".") + 1, retval.length ()); // NOI18N
         if (DEBUG) {
-            System.out.println ("scoped name: " + name);
-            System.out.println ("java name: " + retval);
+            System.out.println ("scoped name: " + name); // NOI18N
+            System.out.println ("java name: " + retval); // NOI18N
         }
         return retval;
     }
@@ -370,7 +370,7 @@ public class ImplGenerator implements PropertyChangeListener {
     public boolean isExceptionDefinedIn (InterfaceElement _interface, String exc) {
         boolean is_in = false;
         if (DEBUG)
-            System.out.println ("isExceptionDefinedIn ...");
+            System.out.println ("isExceptionDefinedIn ..."); // NOI18N
         for (int i=0; i<_interface.getMembers ().size (); i++) {
             if (_interface.getMember (i) instanceof ExceptionElement)
                 if (((ExceptionElement)_interface.getMember (i)).getName ()
@@ -385,7 +385,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public String modules2package (InterfaceElement _interface) {
         // checking modules
-        String modules = "";
+        String modules = ""; // NOI18N
         if (_interface.getParent () instanceof ModuleElement) {
             // has min one Module as Parent
             IDLElement tmp = _interface;
@@ -396,7 +396,7 @@ public class ImplGenerator implements PropertyChangeListener {
             }
             // transform modules names from vector to string in package format
             for (int i=mods.size () - 1; i>=0; i--) {
-                modules = modules + (String)mods.elementAt (i) + ".";
+                modules = modules + (String)mods.elementAt (i) + "."; // NOI18N
             }
         }
 
@@ -406,7 +406,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public String elements2package (IDLElement _element) {
         // checking modules
-        String modules = "";
+        String modules = ""; // NOI18N
         if (_element.getParent () instanceof ModuleElement) {
             // has min one Module as Parent
             IDLElement tmp = _element;
@@ -417,7 +417,7 @@ public class ImplGenerator implements PropertyChangeListener {
             }
             // transform modules names from vector to string in package format
             for (int i=mods.size () - 1; i>=0; i--) {
-                modules = modules + (String)mods.elementAt (i) + ".";
+                modules = modules + (String)mods.elementAt (i) + "."; // NOI18N
             }
         }
 
@@ -591,8 +591,8 @@ public class ImplGenerator implements PropertyChangeListener {
         if (from == null)
             return null;
         if (DEBUG)
-            System.out.println ("ImplGenerator::hasSimpleParent (" + type.getName ()
-                                + ", " + from + ");");
+            System.out.println ("ImplGenerator::hasSimpleParent (" + type.getName () // NOI18N
+                                + ", " + from + ");"); // NOI18N
 
         Type java_type;
 
@@ -602,14 +602,14 @@ public class ImplGenerator implements PropertyChangeListener {
         // if type is template type it hasn't simple parent
         if (type.getType () == IDLType.SEQUENCE) {
             if (DEBUG)
-                System.out.println ("hasn't simple parent -- is template type");
+                System.out.println ("hasn't simple parent -- is template type"); // NOI18N
             return null;
         }
         if (type.getType () == IDLType.STRUCT
                 || type.getType () == IDLType.UNION
                 || type.getType () == IDLType.ENUM) {
             if (DEBUG)
-                System.out.println ("hasn't simple parent -- is constructed type");
+                System.out.println ("hasn't simple parent -- is constructed type"); // NOI18N
             return null;
         }
 
@@ -626,12 +626,12 @@ public class ImplGenerator implements PropertyChangeListener {
 
         IDLElement tmp_element = findElementByName (type.getName (), from);
         if (DEBUG)
-            System.out.println ("dimension of element: " + type.ofDimension ());
+            System.out.println ("dimension of element: " + type.ofDimension ()); // NOI18N
         if (tmp_element instanceof TypeElement) {
             TypeElement result = (TypeElement)tmp_element;
             if (result == null) {
                 if (DEBUG) {
-                    System.out.println ("can't find type: " + type.getName ());
+                    System.out.println ("can't find type: " + type.getName ()); // NOI18N
                 }
                 return null;
             }
@@ -645,7 +645,7 @@ public class ImplGenerator implements PropertyChangeListener {
             }
             for (int i=0; i<dim.size (); i++) {
                 if (DEBUG)
-                    System.out.println ("!!!!!!!!!!!!! " + i + "  !!!!!!!!!!!!!!!!!!!");
+                    System.out.println ("!!!!!!!!!!!!! " + i + "  !!!!!!!!!!!!!!!!!!!"); // NOI18N
                 java_type = Type.createArray (java_type);
             }
             return java_type;
@@ -674,24 +674,24 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public IDLType createChildFromType (IDLType type) {
         if (DEBUG)
-            System.out.println ("ImplGenerator::createChildFromType (" + type + ");");
+            System.out.println ("ImplGenerator::createChildFromType (" + type + ");"); // NOI18N
         if (type.getType () == IDLType.SEQUENCE) {
             if (DEBUG)
-                System.out.println ("-- for sequences");
+                System.out.println ("-- for sequences"); // NOI18N
             return new IDLType (type.ofType ().getType (),
                                 type.ofType ().getName ().substring
-                                (type.ofType ().getName ().lastIndexOf ("::") + 2,
+                                (type.ofType ().getName ().lastIndexOf ("::") + 2, // NOI18N
                                  type.ofType ().getName ().length ()),
                                 type.ofType (),
                                 type.ofDimension ());
         }
         else {
             if (DEBUG)
-                System.out.println ("-- for simple types");
+                System.out.println ("-- for simple types"); // NOI18N
             //return new IDLType (type.getType (), type.getName ());
 
             return new IDLType (type.getType (),
-                                type.getName ().substring (type.getName ().lastIndexOf ("::") + 2,
+                                type.getName ().substring (type.getName ().lastIndexOf ("::") + 2, // NOI18N
                                                            type.getName ().length ()));
 
             //type);
@@ -833,8 +833,8 @@ public class ImplGenerator implements PropertyChangeListener {
             return null;
 
         if (DEBUG)
-            System.out.println ("ImplGenerator::hasTemplateParent (" + type.getName () + ", " + mode
-                                + ", " + from + ");");
+            System.out.println ("ImplGenerator::hasTemplateParent (" + type.getName () + ", " + mode // NOI18N
+                                + ", " + from + ");"); // NOI18N
         Vector mm = from.getMembers ();
         boolean is_in = false;
         TypeElement type_element = null;
@@ -850,7 +850,7 @@ public class ImplGenerator implements PropertyChangeListener {
             // is scoped name
             if (DEBUG) {
                 System.out.println (type.getType ());
-                System.out.println (type.getName ().substring (type.getName ().lastIndexOf ("::") + 2,
+                System.out.println (type.getName ().substring (type.getName ().lastIndexOf ("::") + 2, // NOI18N
                                     type.getName ().length ()));
                 System.out.println (type.ofType ());
                 System.out.println (type.ofDimension ());
@@ -866,7 +866,7 @@ public class ImplGenerator implements PropertyChangeListener {
                 || type.getType () == IDLType.UNION
                 || type.getType () == IDLType.ENUM) {
             if (DEBUG)
-                System.out.println ("hasn't template parent -- is constructed type");
+                System.out.println ("hasn't template parent -- is constructed type"); // NOI18N
             return null;
         }
 
@@ -878,21 +878,21 @@ public class ImplGenerator implements PropertyChangeListener {
             WAS_TEMPLATE = true;
 
             if (mode == Parameter.IN) {
-                // variable of this type is "in"
+                // variable of this type is "in" // NOI18N
                 if (DEBUG)
-                    System.out.println ("\"IN\"");
+                    System.out.println ("\"IN\""); // NOI18N
                 if (DEBUG)
-                    System.out.println ("has simple parent??");
+                    System.out.println ("has simple parent??"); // NOI18N
                 if ((java_type = hasSimpleParent (type.ofType (), from)) != null) {
                     if (DEBUG)
-                        System.out.println (type + "has simple parent2");
+                        System.out.println (type + "has simple parent2"); // NOI18N
                     return java_type;
                 }
             }
             else {
-                // variable of this type is "inout" or "out"
+                // variable of this type is "inout" or "out" // NOI18N
                 if (DEBUG)
-                    System.out.println ("\"INOUT\" || \"OUT\" => return null");
+                    System.out.println ("\"INOUT\" || \"OUT\" => return null"); // NOI18N
                 return null;
             }
         }
@@ -902,7 +902,7 @@ public class ImplGenerator implements PropertyChangeListener {
             if (mode == Parameter.IN) {
                 if ((java_type = hasSimpleParent (type, from)) != null) {
                     if (DEBUG)
-                        System.out.println (type + "has simple parent");
+                        System.out.println (type + "has simple parent"); // NOI18N
                     return java_type;
                 }
 
@@ -921,7 +921,7 @@ public class ImplGenerator implements PropertyChangeListener {
                         else {
                             if (WAS_TEMPLATE) {
                                 if (DEBUG)
-                                    System.out.println ("::id1 " + type_element.getName ());
+                                    System.out.println ("::id1 " + type_element.getName ()); // NOI18N
                                 return Type.createClass (org.openide.src.Identifier.create
                                                          (type_element.getName ()));
                             }
@@ -934,7 +934,7 @@ public class ImplGenerator implements PropertyChangeListener {
                     else {
                         type_element = (TypeElement)tmp_element;
                         if (DEBUG)
-                            System.out.println ("Chcip 1:" + type_element.getType () + " : "
+                            System.out.println ("Chcip 1:" + type_element.getType () + " : " // NOI18N
                                                 + type_element.getName ());
 
 
@@ -944,17 +944,17 @@ public class ImplGenerator implements PropertyChangeListener {
 
                             if (WAS_TEMPLATE) {
                                 if (DEBUG)
-                                    System.out.println ("hasn't template parent -- is constructed type but"
-                                                        + " WAS_TEMPLATE");
+                                    System.out.println ("hasn't template parent -- is constructed type but" // NOI18N
+                                                        + " WAS_TEMPLATE"); // NOI18N
                                 if (DEBUG)
-                                    System.out.println ("::id2 " + type_element.getName ());
+                                    System.out.println ("::id2 " + type_element.getName ()); // NOI18N
                                 return Type.createClass (org.openide.src.Identifier.create
                                                          (type_element.getName ()));
                             }
                             else {
                                 if (DEBUG)
-                                    System.out.println ("hasn't template parent -- is constructed type but"
-                                                        + " WASN'T_TEMPLATE");
+                                    System.out.println ("hasn't template parent -- is constructed type but" // NOI18N
+                                                        + " WASN'T_TEMPLATE"); // NOI18N
                                 return null;
                             }
                         }
@@ -965,7 +965,7 @@ public class ImplGenerator implements PropertyChangeListener {
                         else {
                             if (WAS_TEMPLATE) {
                                 if (DEBUG)
-                                    System.out.println ("::id3 " + type_element.getName ());
+                                    System.out.println ("::id3 " + type_element.getName ()); // NOI18N
                                 return Type.createClass (org.openide.src.Identifier.create
                                                          (type_element.getName ()));
                             }
@@ -977,7 +977,7 @@ public class ImplGenerator implements PropertyChangeListener {
                 if (tmp_element instanceof InterfaceElement) {
                     if (WAS_TEMPLATE) {
                         if (DEBUG)
-                            System.out.println ("::id4 " + type.getName ());
+                            System.out.println ("::id4 " + type.getName ()); // NOI18N
                         return Type.createClass (org.openide.src.Identifier.create (type.getName ()));
                     }
                     else
@@ -987,14 +987,14 @@ public class ImplGenerator implements PropertyChangeListener {
             else {
                 IDLElement tmp_element = findElementByName (type.getName (), from);
                 if (DEBUG)
-                    System.out.println ("tmp_element: " + tmp_element.getName () + " : " + tmp_element);
-                //System.out.println ("956: Package: "+_package);
-                String full_name = _package + "." + ctype2package (tmp_element);
-                full_name = full_name + "Holder";
+                    System.out.println ("tmp_element: " + tmp_element.getName () + " : " + tmp_element); // NOI18N
+                //System.out.println ("956: Package: "+_package); // NOI18N
+                String full_name = _package + "." + ctype2package (tmp_element); // NOI18N
+                full_name = full_name + "Holder"; // NOI18N
 
                 if (WAS_TEMPLATE) {
                     if (DEBUG)
-                        System.out.println ("::id5 " + full_name);
+                        System.out.println ("::id5 " + full_name); // NOI18N
                     return Type.createClass (org.openide.src.Identifier.create (full_name));
                 }
                 else
@@ -1097,8 +1097,8 @@ public class ImplGenerator implements PropertyChangeListener {
         if (from == null || type == null)
             return null;
         if (DEBUG)
-            System.out.println ("ImplGenerator::getTopParentType (" + type.getName () + ", "
-                                + from + ");");
+            System.out.println ("ImplGenerator::getTopParentType (" + type.getName () + ", " // NOI18N
+                                + from + ");"); // NOI18N
 
         if (type instanceof TypeElement) {
             TypeElement type_element = (TypeElement)type;
@@ -1106,7 +1106,7 @@ public class ImplGenerator implements PropertyChangeListener {
                     || type_element.getType ().getType() == IDLType.UNION
                     || type_element.getType ().getType() == IDLType.ENUM) {
                 if (DEBUG)
-                    System.out.println ("-- top parent type found");
+                    System.out.println ("-- top parent type found"); // NOI18N
                 return type;
             }
         }
@@ -1114,7 +1114,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
         if (type instanceof InterfaceElement) {
             if (DEBUG)
-                System.out.println ("-- top parent interface found");
+                System.out.println ("-- top parent interface found"); // NOI18N
 
             return type;
         }
@@ -1139,8 +1139,8 @@ public class ImplGenerator implements PropertyChangeListener {
         if (from == null || type == null)
             return 0;
         if (DEBUG)
-            System.out.println ("ImplGenerator::getArrayDimensionOfType (" + type.getName () + ", "
-                                + from + ", " + counter + ");");
+            System.out.println ("ImplGenerator::getArrayDimensionOfType (" + type.getName () + ", " // NOI18N
+                                + from + ", " + counter + ");"); // NOI18N
 
         if (type instanceof TypeElement) {
             TypeElement type_element = (TypeElement)type;
@@ -1148,25 +1148,25 @@ public class ImplGenerator implements PropertyChangeListener {
                     || type_element.getType ().getType() == IDLType.UNION
                     || type_element.getType ().getType() == IDLType.ENUM) {
                 if (DEBUG)
-                    System.out.println ("-- top parent type found");
+                    System.out.println ("-- top parent type found"); // NOI18N
                 return counter;
             }
         }
 
         if (type instanceof InterfaceElement) {
             if (DEBUG)
-                System.out.println ("-- top parent interface found");
+                System.out.println ("-- top parent interface found"); // NOI18N
 
             return counter;
         }
 
         if (type instanceof DeclaratorElement) {
             if (DEBUG)
-                System.out.println ("declarator element!");
+                System.out.println ("declarator element!"); // NOI18N
             DeclaratorElement de = (DeclaratorElement)type;
             counter = counter + de.getDimension ().size ();
             if (DEBUG)
-                System.out.println ("counter: " + counter);
+                System.out.println ("counter: " + counter); // NOI18N
 
         }
 
@@ -1194,8 +1194,8 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public IDLElement findModule (String name, IDLElement from) {
         if (DEBUG)
-            System.out.println ("ImplGenerator::findModule (" + name + ", " + from.getName () + ":"
-                                + from + ");");
+            System.out.println ("ImplGenerator::findModule (" + name + ", " + from.getName () + ":" // NOI18N
+                                + from + ");"); // NOI18N
         if (from.getName ().equals (name)) {
             return from;
         }
@@ -1217,8 +1217,8 @@ public class ImplGenerator implements PropertyChangeListener {
             return null;
 
         if (DEBUG)
-            System.out.println ("ImplGenerator::findModuleIn (" + name + ", " + from.getName ()
-                                + ":" + from + ");");
+            System.out.println ("ImplGenerator::findModuleIn (" + name + ", " + from.getName () // NOI18N
+                                + ":" + from + ");"); // NOI18N
 
         Vector mm = from.getMembers ();
         IDLElement retval = null;
@@ -1239,8 +1239,8 @@ public class ImplGenerator implements PropertyChangeListener {
     public IDLElement findElementByName (String name, IDLElement from) {
         // constructed type by name
         if (DEBUG)
-            System.out.println ("ImplGenerator::findElementByName (" + name + ", " + from.getName ()
-                                + ":" + from + ");");
+            System.out.println ("ImplGenerator::findElementByName (" + name + ", " + from.getName () // NOI18N
+                                + ":" + from + ");"); // NOI18N
         //from = findType (name, from);
         Vector mm = from.getMembers ();
         IDLElement result = null;
@@ -1272,10 +1272,10 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public IDLElement findModuleForScopeName (String name, IDLElement from) {
         if (DEBUG)
-            System.out.println ("ImplGenerator::findModuleForScopeName (" + name + ", " +
-                                from.getName () + ":" + from + ");");
-        StringTokenizer st = new StringTokenizer (name, "::");
-        String retval = "";
+            System.out.println ("ImplGenerator::findModuleForScopeName (" + name + ", " + // NOI18N
+                                from.getName () + ":" + from + ");"); // NOI18N
+        StringTokenizer st = new StringTokenizer (name, "::"); // NOI18N
+        String retval = ""; // NOI18N
         String s1;
         IDLElement fm = findModule (st.nextToken (), from);
         while (st.hasMoreTokens ()) {
@@ -1295,8 +1295,8 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public IDLElement findModuleForScopeType (IDLType type, IDLElement from) {
         if (DEBUG)
-            System.out.println ("ImplGenerator::findModuleForScopeType (" + type + ", "
-                                + from.getName () + ":" + from + ");");
+            System.out.println ("ImplGenerator::findModuleForScopeType (" + type + ", " // NOI18N
+                                + from.getName () + ":" + from + ");"); // NOI18N
         if (type.getType () == IDLType.SEQUENCE)
             return findModuleForScopeName (type.ofType ().getName (), from);
         else
@@ -1324,10 +1324,10 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public IDLElement findTopLevelModuleForName (String name, IDLElement from) {
         if (DEBUG)
-            System.out.println ("ImplGenerator::findTopLevelModuleForName (" + name + ", "
-                                + from.getName () + ":" + from + ");");
-        StringTokenizer st = new StringTokenizer (name, "::");
-        String retval = "";
+            System.out.println ("ImplGenerator::findTopLevelModuleForName (" + name + ", " // NOI18N
+                                + from.getName () + ":" + from + ");"); // NOI18N
+        StringTokenizer st = new StringTokenizer (name, "::"); // NOI18N
+        String retval = ""; // NOI18N
         String s1;
         IDLElement fm = from;
         // find top level IDLElement
@@ -1351,8 +1351,8 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public IDLElement findTopLevelModuleForType (IDLType type, IDLElement from) {
         if (DEBUG)
-            System.out.println ("ImplGenerator::findTopLevelModuleForType (" + type + ", "
-                                + from.getName () + ":" + from + ");");
+            System.out.println ("ImplGenerator::findTopLevelModuleForType (" + type + ", " // NOI18N
+                                + from.getName () + ":" + from + ");"); // NOI18N
         if (type.getType () == IDLType.SEQUENCE)
             return findTopLevelModuleForName (type.ofType ().getName (), from);
         else
@@ -1364,8 +1364,8 @@ public class ImplGenerator implements PropertyChangeListener {
     public String ctype2package (IDLElement type) {
         // checking modules
         if (DEBUG)
-            System.out.println ("ImplGenerator::ctype2package (" + type + ");");
-        String modules = "";
+            System.out.println ("ImplGenerator::ctype2package (" + type + ");"); // NOI18N
+        String modules = ""; // NOI18N
         if (type != null) {
             Vector mods = new Vector ();
             mods.add (type.getName ());
@@ -1374,19 +1374,19 @@ public class ImplGenerator implements PropertyChangeListener {
                 if (type instanceof ModuleElement)
                     mods.add (type.getName ());
                 if (type instanceof InterfaceElement)
-                    mods.add (type.getName () + "Package");
+                    mods.add (type.getName () + "Package"); // NOI18N
 
             }
             // transform modules names from vector to string in package format
             for (int i=mods.size () - 1; i>=0; i--) {
                 if (DEBUG)
-                    System.out.println ("transfrom: " + (String)mods.elementAt (i));
-                modules = modules + (String)mods.elementAt (i) + ".";
+                    System.out.println ("transfrom: " + (String)mods.elementAt (i)); // NOI18N
+                modules = modules + (String)mods.elementAt (i) + "."; // NOI18N
             }
             // without last dot
             modules = modules.substring (0, modules.length () - 1);
             if (DEBUG)
-                System.out.println ("result: >" + modules + "<");
+                System.out.println ("result: >" + modules + "<"); // NOI18N
         }
         return modules;
     }
@@ -1394,16 +1394,16 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public Type isSimpleType (IDLType type, IDLElement _element) {
         if (DEBUG)
-            System.out.println ("ImplGenerator::isSimpleType (" + type + ", " + _element.getName ()
-                                + ");");
+            System.out.println ("ImplGenerator::isSimpleType (" + type + ", " + _element.getName () // NOI18N
+                                + ");"); // NOI18N
         return type2java (type);
     }
 
 
     public String nameFromScopeName (String name) {
         if (name != null) {
-            if (name.lastIndexOf ("::") != -1) {
-                return name.substring (name.lastIndexOf ("::") + 2, name.length ());
+            if (name.lastIndexOf ("::") != -1) { // NOI18N
+                return name.substring (name.lastIndexOf ("::") + 2, name.length ()); // NOI18N
             }
         }
         return name;
@@ -1416,40 +1416,40 @@ public class ImplGenerator implements PropertyChangeListener {
             return null;
 
         if (DEBUG)
-            System.out.println ("ImplGenerator::findElementInElement (" + name + ", "
-                                + element.getName () + ":" + element + ");");
+            System.out.println ("ImplGenerator::findElementInElement (" + name + ", " // NOI18N
+                                + element.getName () + ":" + element + ");"); // NOI18N
         Vector mm = element.getMembers ();
         IDLElement tmp_element = null;
 
         for (int i=0; i<mm.size (); i++) {
             if (DEBUG)
-                System.out.println ("i = " + i);
+                System.out.println ("i = " + i); // NOI18N
             if (element.getMember (i) instanceof TypeElement) {
                 if (DEBUG)
-                    System.out.println ("type element");
+                    System.out.println ("type element"); // NOI18N
                 if ((element.getMember (i).getMember (0) instanceof StructTypeElement)
                         || (element.getMember (i).getMember (0) instanceof EnumTypeElement)
                         || (element.getMember (i).getMember (0) instanceof UnionTypeElement)) {
                     if (DEBUG)
-                        System.out.println ("constructed type");
+                        System.out.println ("constructed type"); // NOI18N
                     if (((TypeElement)element.getMember (i).getMember (0)).getName ().equals (name)) {
                         tmp_element = element.getMember (i).getMember (0);
                         if (DEBUG)
-                            System.out.println ("element: " + tmp_element+ " : " + tmp_element.getName ());
+                            System.out.println ("element: " + tmp_element+ " : " + tmp_element.getName ()); // NOI18N
                         return tmp_element;
                     }
                 }
                 if (element.getMember (i).getMember (0) instanceof DeclaratorElement) {
                     if (DEBUG) {
-                        System.out.println ("declarator element: " +
+                        System.out.println ("declarator element: " + // NOI18N
                                             ((TypeElement)element.getMember (i).getMember (0)).getName ()
-                                            + ":" + ((DeclaratorElement)element.getMember (i).getMember (0)).getType ().ofDimension ());
+                                            + ":" + ((DeclaratorElement)element.getMember (i).getMember (0)).getType ().ofDimension ()); // NOI18N
                     }
 
                     if (((TypeElement)element.getMember (i).getMember (0)).getName ().equals (name)) {
                         tmp_element = element.getMember (i).getMember (0);
                         if (DEBUG)
-                            System.out.println ("element: " + tmp_element+ " : " + tmp_element.getName ());
+                            System.out.println ("element: " + tmp_element+ " : " + tmp_element.getName ()); // NOI18N
                         return tmp_element;
                     }
                 }
@@ -1458,36 +1458,36 @@ public class ImplGenerator implements PropertyChangeListener {
                             instanceof DeclaratorElement)) {
                     int last = element.getMember (i).getMembers ().size () - 1;
                     if (DEBUG) {
-                        System.out.println ("last declarator element: " +
+                        System.out.println ("last declarator element: " + // NOI18N
                                             ((TypeElement)element.getMember (i).getMember (last)).getName ());
-                        System.out.println ("name: " + name);
+                        System.out.println ("name: " + name); // NOI18N
                     }
                     if (((TypeElement)element.getMember (i).getMember (last)).getName ().equals (name)) {
                         tmp_element = element.getMember (i).getMember (last);
                         if (DEBUG)
-                            System.out.println ("element: " + tmp_element+ " : " + tmp_element.getName ());
+                            System.out.println ("element: " + tmp_element+ " : " + tmp_element.getName ()); // NOI18N
                         return tmp_element;
                     }
                 }
             }
             if (element.getMember (i) instanceof ExceptionElement) {
                 if (DEBUG)
-                    System.out.println ("exception");
+                    System.out.println ("exception"); // NOI18N
                 if (((IDLElement)element.getMember (i)).getName ().equals (name)) {
                     tmp_element = element.getMember (i);
                     if (DEBUG)
-                        System.out.println ("element: " + tmp_element + " : " + tmp_element.getName ());
+                        System.out.println ("element: " + tmp_element + " : " + tmp_element.getName ()); // NOI18N
                     return (IDLElement)tmp_element;
 
                 }
             }
             if (element.getMember (i) instanceof InterfaceElement) {
                 if (DEBUG)
-                    System.out.println ("interface element");
+                    System.out.println ("interface element"); // NOI18N
                 if (((IDLElement)element.getMember (i)).getName ().equals (name)) {
                     tmp_element = element.getMember (i);
                     if (DEBUG)
-                        System.out.println ("element: " + tmp_element + " : " + tmp_element.getName ());
+                        System.out.println ("element: " + tmp_element + " : " + tmp_element.getName ()); // NOI18N
                     return (IDLElement)tmp_element;
 
                 }
@@ -1500,8 +1500,8 @@ public class ImplGenerator implements PropertyChangeListener {
     public Type type2java (IDLType idl_type, int mode, String _package,
                            InterfaceElement _interface) {
         if (DEBUG)
-            System.out.println ("ImplGenerator::type2java (" + idl_type + ", " + mode + ", "
-                                + _package + ", " + _interface.getName () + ");");
+            System.out.println ("ImplGenerator::type2java (" + idl_type + ", " + mode + ", " // NOI18N
+                                + _package + ", " + _interface.getName () + ");"); // NOI18N
         String name_of_interface = _interface.getName ();
         String type_name;
         Type type = null;
@@ -1509,7 +1509,7 @@ public class ImplGenerator implements PropertyChangeListener {
         int dim = 0;
 
         if (DEBUG)
-            System.out.println ("-- is simple type?");
+            System.out.println ("-- is simple type?"); // NOI18N
         if ((type = isSimpleType (idl_type, _interface)) != null) {
             // idl_type is mapped to java simple type
             if (mode == Parameter.IN)
@@ -1527,7 +1527,7 @@ public class ImplGenerator implements PropertyChangeListener {
             }
         }
         if (DEBUG)
-            System.out.println ("-- is type with simple parent?");
+            System.out.println ("-- is type with simple parent?"); // NOI18N
         if ((type = hasSimpleParent (idl_type, _interface)) != null) {
             // idl_type is mapped throw other idl type(s) to simple java type
             if (mode == Parameter.IN) {
@@ -1550,19 +1550,19 @@ public class ImplGenerator implements PropertyChangeListener {
             }
         }
         if (DEBUG)
-            System.out.println ("-- is type with simple parent? NOOOO");
+            System.out.println ("-- is type with simple parent? NOOOO"); // NOI18N
 
         if (DEBUG)
-            System.out.println ("-- is type with template parent?");
+            System.out.println ("-- is type with template parent?"); // NOI18N
 
         WAS_TEMPLATE = false;
         if ((type = hasTemplateParent (idl_type, mode, _package, _interface)) != null) {
             // idl_type is template type
             if (DEBUG)
-                System.out.println ("-- is type with template parent? YEEES");
+                System.out.println ("-- is type with template parent? YEEES"); // NOI18N
 
             if (DEBUG)
-                System.out.println ("-- has this template type array parent?");
+                System.out.println ("-- has this template type array parent?"); // NOI18N
             IDLElement tmp_element_for_type = findElementByName (idl_type.getName (), _interface);
             IDLElement element_for_type = null;
             // here we must find top parent type of type
@@ -1571,7 +1571,7 @@ public class ImplGenerator implements PropertyChangeListener {
                 dim = getArrayDimensionOfType (tmp_element_for_type, _interface, 0);
 
                 if (DEBUG)
-                    System.out.println ("dim: " + dim);
+                    System.out.println ("dim: " + dim); // NOI18N
                 for (int i=0; i<dim; i++) {
                     type = Type.createArray (type);
                 }
@@ -1580,14 +1580,14 @@ public class ImplGenerator implements PropertyChangeListener {
             return type;
         }
         if (DEBUG)
-            System.out.println ("-- is type with template parent? NOOOO");
+            System.out.println ("-- is type with template parent? NOOOO"); // NOI18N
 
         //if (DEBUG)
-        //  System.out.println ("cons: " + ctype2package (findElementByName (idl_type.getName (),
+        //  System.out.println ("cons: " + ctype2package (findElementByName (idl_type.getName (), // NOI18N
         //								       _interface)));
 
         if (DEBUG)
-            System.out.println ("-- is type with absolute scope name");
+            System.out.println ("-- is type with absolute scope name"); // NOI18N
         if (isAbsoluteScopeType (idl_type)) {
             // is absolute scoped name
 
@@ -1596,20 +1596,20 @@ public class ImplGenerator implements PropertyChangeListener {
             IDLElement tmp = findTopLevelModuleForType (idl_type, _interface);
             //
             IDLElement element_for_type = findElementInElement (idl_type.getName (), tmp);
-            String full_name ="";
+            String full_name =""; // NOI18N
             if (_package.length() >0) 
-                full_name = _package + ".";
+                full_name = _package + "."; // NOI18N
             full_name = full_name + ctype2package (element_for_type);
             if (mode != Parameter.IN)
-                full_name = full_name + "Holder";
+                full_name = full_name + "Holder"; // NOI18N
             if (DEBUG)
-                System.out.println ("::id6 " + full_name);
+                System.out.println ("::id6 " + full_name); // NOI18N
             type = Type.createClass (org.openide.src.Identifier.create (full_name));
 
             return type;
         }
         if (DEBUG)
-            System.out.println ("-- is type with scope name");
+            System.out.println ("-- is type with scope name"); // NOI18N
         if (isScopeType (idl_type)) {
             // find first module of this scoped type
 
@@ -1619,14 +1619,14 @@ public class ImplGenerator implements PropertyChangeListener {
             //Type tmp_type;
             IDLElement tmp = findModuleForScopeType (idl_type, _interface);
             IDLElement element_for_type = findElementInElement (idl_type.getName (), tmp);
-            String full_name ="";
+            String full_name =""; // NOI18N
             if (_package.length() >0) 
-                full_name = _package + ".";
+                full_name = _package + "."; // NOI18N
             full_name = full_name + ctype2package (element_for_type);
             if (mode != Parameter.IN)
-                full_name = full_name + "Holder";
+                full_name = full_name + "Holder"; // NOI18N
             if (DEBUG)
-                System.out.println ("::id7 " + full_name);
+                System.out.println ("::id7 " + full_name); // NOI18N
             type = Type.createClass (org.openide.src.Identifier.create (full_name));
 
             return type;
@@ -1634,13 +1634,13 @@ public class ImplGenerator implements PropertyChangeListener {
         }
 
         if (DEBUG)
-            System.out.println ("-- is type normal name");
+            System.out.println ("-- is type normal name"); // NOI18N
         //Type tmp_type;
         IDLElement tmp_element_for_type = findElementByName (idl_type.getName (), _interface);
         IDLElement element_for_type = null;
         dim = getArrayDimensionOfType (tmp_element_for_type, _interface, 0);
         if (DEBUG)
-            System.out.println ("dim: " + dim);
+            System.out.println ("dim: " + dim); // NOI18N
         // here we must find top parent type of type
         if (mode == Parameter.IN || dim == 0) {
             element_for_type = getTopParentTypeElement (tmp_element_for_type, _interface);
@@ -1653,16 +1653,16 @@ public class ImplGenerator implements PropertyChangeListener {
             element_for_type = tmp_element_for_type;
         }
         if (DEBUG)
-            System.out.println ("element_for_type: " + element_for_type.getName () + " : "
+            System.out.println ("element_for_type: " + element_for_type.getName () + " : " // NOI18N
                                 + element_for_type);
-        String full_name ="";
+        String full_name =""; // NOI18N
             if (_package.length() >0) 
-                full_name = _package + ".";
+                full_name = _package + "."; // NOI18N
             full_name = full_name + ctype2package (element_for_type);
         if (mode != Parameter.IN)
-            full_name = full_name + "Holder";
+            full_name = full_name + "Holder"; // NOI18N
         if (DEBUG)
-            System.out.println ("::id8 " + full_name);
+            System.out.println ("::id8 " + full_name); // NOI18N
         type = Type.createClass (org.openide.src.Identifier.create (full_name));
         if (mode == Parameter.IN) {
             for (int i=0; i<dim; i++) {
@@ -1678,41 +1678,41 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public String exception2java (String ex, String _package, InterfaceElement _interface) {
         if (DEBUG)
-            System.out.println ("-- is exception with absolute scope name");
+            System.out.println ("-- is exception with absolute scope name"); // NOI18N
 
         if (isAbsoluteScopeName (ex)) {
             // is absolute scope name
             IDLElement tmp = findTopLevelModuleForName (ex, _interface);
             IDLElement element_for_exception = findElementInElement (ex, tmp);
-            String full_name ="";
+            String full_name =""; // NOI18N
             if (_package.length() >0) 
-                full_name = _package + ".";
+                full_name = _package + "."; // NOI18N
             full_name = full_name + ctype2package (element_for_exception);
 
             return full_name;
         }
         if (DEBUG)
-            System.out.println ("-- is exception with scope name");
+            System.out.println ("-- is exception with scope name"); // NOI18N
         if (isScopeName (ex)) {
             IDLElement tmp = findModuleForScopeName (ex, _interface);
             IDLElement element_for_exception = findElementInElement (ex, tmp);
-            String full_name ="";
+            String full_name =""; // NOI18N
             if (_package.length() >0) 
-                full_name = _package + ".";
+                full_name = _package + "."; // NOI18N
             full_name = full_name + ctype2package (element_for_exception);
 
             return full_name;
 
         }
         if (DEBUG)
-            System.out.println ("-- is exception with normal name");
+            System.out.println ("-- is exception with normal name"); // NOI18N
         IDLElement element_for_exception = findElementByName (ex, _interface);
         if (DEBUG)
-            System.out.println ("element_for_exception: " + element_for_exception.getName () + " : "
+            System.out.println ("element_for_exception: " + element_for_exception.getName () + " : " // NOI18N
                                 + element_for_exception);
-        String full_name ="";
+        String full_name =""; // NOI18N
             if (_package.length() >0) 
-                full_name = _package + ".";
+                full_name = _package + "."; // NOI18N
             full_name = full_name + ctype2package (element_for_exception);
 
         return full_name;
@@ -1755,7 +1755,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public boolean existMethodInClass (ClassElement clazz, MethodElement method) {
         if (DEBUG) {
-            System.out.println ("ImplGenerator::existMethodInClass (" + clazz + ", " + method + ");");
+            System.out.println ("ImplGenerator::existMethodInClass (" + clazz + ", " + method + ");"); // NOI18N
         }
         MethodParameter[] mps = method.getParameters ();
         org.openide.src.Identifier id = method.getName ();
@@ -1765,12 +1765,12 @@ public class ImplGenerator implements PropertyChangeListener {
 
         boolean exist_id = false;
         boolean exist_params = false;
-        //System.out.println ("methods: ");
+        //System.out.println ("methods: "); // NOI18N
         MethodElement[] methods = clazz.getMethods ();
         for (int i=0; i<methods.length; i++) {
             if (DEBUG) {
-		System.out.println (i + ". " + methods[i]);
-		System.out.println ("id: " + methods[i].getName ());
+		System.out.println (i + ". " + methods[i]); // NOI18N
+		System.out.println ("id: " + methods[i].getName ()); // NOI18N
 	    }
             if (id.equals (methods[i].getName ())) {
                 exist_id = true;
@@ -1793,7 +1793,7 @@ public class ImplGenerator implements PropertyChangeListener {
                 }
                 if (exist_id && exist_params) {
                     if (DEBUG)
-                        System.out.println ("\n------------ YES!!!");
+                        System.out.println ("\n------------ YES!!!"); // NOI18N
                     return true;
                 }
                 else {
@@ -1803,7 +1803,7 @@ public class ImplGenerator implements PropertyChangeListener {
             }
         }
         if (DEBUG)
-            System.out.println ("\n------------ NOOO");
+            System.out.println ("\n------------ NOOO"); // NOI18N
         return false;
     }
 
@@ -1812,21 +1812,21 @@ public class ImplGenerator implements PropertyChangeListener {
         InterfaceElement _interface = (InterfaceElement)attr.getParent ();
         Type attr_type = type2java (attr.getType (), Parameter.IN, _package, _interface);
         if (DEBUG)
-            System.out.println ("attribute2java");
+            System.out.println ("attribute2java"); // NOI18N
         if (DEBUG) {
-            System.out.println ("attribute: " + attr.getName ());
-            System.out.println ("type: " + attr.getType ());
-            System.out.println ("java: " + attr_type);
-            System.out.println ("package: " + _package);
+            System.out.println ("attribute: " + attr.getName ()); // NOI18N
+            System.out.println ("type: " + attr.getType ()); // NOI18N
+            System.out.println ("java: " + attr_type); // NOI18N
+            System.out.println ("package: " + _package); // NOI18N
         }
         try {
             MethodElement geter = new MethodElement ();
             if (DEBUG)
-                System.out.println ("::id9 " + attr.getName ());
+                System.out.println ("::id9 " + attr.getName ()); // NOI18N
             geter.setName (org.openide.src.Identifier.create (attr.getName ()));
             geter.setModifiers (Modifier.PUBLIC);
             geter.setReturn (attr_type);
-            //geter.setBody ("\n  return null;\n");
+            //geter.setBody ("\n  return null;\n"); // NOI18N
             setBodyOfMethod (geter);
             //if (!existMethodInClass (clazz, geter))
             clazz.addMethod (geter); // now addMethod throws SourceExcetion
@@ -1838,14 +1838,14 @@ public class ImplGenerator implements PropertyChangeListener {
             try {
                 MethodElement seter = new MethodElement ();
                 if (DEBUG)
-                    System.out.println ("::id10 " + attr.getName ());
+                    System.out.println ("::id10 " + attr.getName ()); // NOI18N
                 seter.setName (org.openide.src.Identifier.create (attr.getName ()));
                 seter.setModifiers (Modifier.PUBLIC);
                 seter.setReturn (Type.VOID);
-                //seter.setBody ("\n");
+                //seter.setBody ("\n"); // NOI18N
                 setBodyOfMethod (seter);
                 seter.setParameters (new MethodParameter[] {
-                                         new MethodParameter ("value", attr_type, false) });
+                                         new MethodParameter ("value", attr_type, false) }); // NOI18N
                 //if (!existMethodInClass (clazz, seter))
                 clazz.addMethod (seter); // now addMethod throws SourceExcetion
             } catch (SourceException e) {
@@ -1857,19 +1857,19 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public void operation2java (OperationElement operation, ClassElement clazz) {
         if (DEBUG)
-            System.out.println ("operation2java");
+            System.out.println ("operation2java"); // NOI18N
         String _package = _M_ido.getPrimaryFile ().getParent ().getPackageName ('.');
         InterfaceElement _interface = (InterfaceElement)operation.getParent ();
         Type rettype = type2java (operation.getReturnType (), Parameter.IN, _package, _interface);
         if (DEBUG) {
-            System.out.println ("operation: " + operation.getName ());
-            System.out.println ("operation rettype:" + operation.getReturnType () + ":");
-            System.out.println ("return type: " + rettype);
+            System.out.println ("operation: " + operation.getName ()); // NOI18N
+            System.out.println ("operation rettype:" + operation.getReturnType () + ":"); // NOI18N
+            System.out.println ("return type: " + rettype); // NOI18N
         }
         try {
             MethodElement oper = new MethodElement ();
             if (DEBUG)
-                System.out.println ("::id11 " + operation.getName ());
+                System.out.println ("::id11 " + operation.getName ()); // NOI18N
             oper.setName (org.openide.src.Identifier.create (operation.getName ()));
             oper.setModifiers (Modifier.PUBLIC);
             oper.setReturn (rettype);
@@ -1887,8 +1887,8 @@ public class ImplGenerator implements PropertyChangeListener {
             }
             if (operation.getContexts ().size () != 0)
                 params[params.length - 1] = new MethodParameter
-                                            ("ctx", Type.createClass (org.openide.src.Identifier.create
-                                                                      ("org.omg.CORBA.Context")), false);
+                                            ("ctx", Type.createClass (org.openide.src.Identifier.create // NOI18N
+                                                                      ("org.omg.CORBA.Context")), false); // NOI18N
             oper.setParameters (params);
 
             // exceptions
@@ -1903,7 +1903,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
             // set body to return null if rettype != void;
             //if (oper.getReturn () != Type.VOID)
-            //oper.setBody ("\n  return null;\n");
+            //oper.setBody ("\n  return null;\n"); // NOI18N
             setBodyOfMethod (oper);
 
             //if (!existMethodInClass (clazz, oper))
@@ -1945,7 +1945,7 @@ public class ImplGenerator implements PropertyChangeListener {
         // throw new SymbolNotFound ();
 
         if (DEBUG)
-            System.out.println ("ImplGenerator::interface2java (clazz, " + element.getName () + ");");
+            System.out.println ("ImplGenerator::interface2java (clazz, " + element.getName () + ");"); // NOI18N
         // parents...
 
         Vector parents = element.getParents ();
@@ -1985,19 +1985,19 @@ public class ImplGenerator implements PropertyChangeListener {
     public void interface2java (InterfaceElement element)
 	throws SymbolNotFoundException, java.io.IOException {
         if (DEBUG)
-            System.out.println ("interface2java: " + element.getName ());
+            System.out.println ("interface2java: " + element.getName ()); // NOI18N
         if (DEBUG)
-            System.out.println ("name: " + _M_ido.getPrimaryFile ().getName ());
+            System.out.println ("name: " + _M_ido.getPrimaryFile ().getName ()); // NOI18N
 
 
-        String impl_name = "";
-        String super_name = "";
+        String impl_name = ""; // NOI18N
+        String super_name = ""; // NOI18N
         String modules = modules2package (element);
         String _package = _M_ido.getPrimaryFile ().getParent ().getPackageName ('.');
 	
         if (DEBUG) {
-            System.out.println ("modules:>" + modules + "<");
-            System.out.println ("package:>" + _package + "<");
+            System.out.println ("modules:>" + modules + "<"); // NOI18N
+            System.out.println ("package:>" + _package + "<"); // NOI18N
         }
 
 
@@ -2005,7 +2005,7 @@ public class ImplGenerator implements PropertyChangeListener {
             impl_name = IMPLBASE_IMPL_PREFIX + element.getName () + IMPLBASE_IMPL_POSTFIX;
             if (where_generate == IN_IDL_PACKAGE) {
                 if (_package.length() >0)
-                    super_name = _package + ".";
+                    super_name = _package + "."; // NOI18N
                 super_name = super_name + modules + EXT_CLASS_PREFIX + element.getName ()
                              + EXT_CLASS_POSTFIX;
             } else
@@ -2015,7 +2015,7 @@ public class ImplGenerator implements PropertyChangeListener {
             impl_name = TIE_IMPL_PREFIX + element.getName () + TIE_IMPL_POSTFIX;
             if (where_generate == IN_IDL_PACKAGE) {
                 if (_package.length() >0)
-                    super_name = _package + ".";
+                    super_name = _package + "."; // NOI18N
                 super_name = super_name + modules + IMPL_INT_PREFIX + element.getName ()
                              + IMPL_INT_POSTFIX;
             } else
@@ -2023,15 +2023,15 @@ public class ImplGenerator implements PropertyChangeListener {
         }
 
         // print to status line
-        String status_package = "";
-        StringTokenizer st = new StringTokenizer (_package, ".");
+        String status_package = ""; // NOI18N
+        StringTokenizer st = new StringTokenizer (_package, "."); // NOI18N
         while (st.hasMoreTokens ()) {
-            status_package += st.nextToken () + "/";
+            status_package += st.nextToken () + "/"; // NOI18N
         }
 
 	String __status_package = status_package;
 	String __impl_name = impl_name;
-	//System.out.println ("Generate " + __status_package + __impl_name + " ...");
+	//System.out.println ("Generate " + __status_package + __impl_name + " ..."); // NOI18N
 	java.lang.Object[] __arr = new Object[] {__status_package + __impl_name};
 	TopManager.getDefault ().setStatusText 
 	    (MessageFormat.format (CORBASupport.GENERATE, __arr));
@@ -2079,30 +2079,29 @@ public class ImplGenerator implements PropertyChangeListener {
             FileObject folder = _M_ido.getPrimaryFile ().getParent ();
             FileObject impl;
 
-            if ((impl = folder.getFileObject (impl_name, "java")) != null) {
+            if ((impl = folder.getFileObject (impl_name, "java")) != null) { // NOI18N
                 if (DEBUG)
-                    System.out.println ("file exists");
-                String full_name = "";
+                    System.out.println ("file exists"); // NOI18N
+                String full_name = ""; // NOI18N
                 if (_package.length() > 0) 
-                    full_name = full_name + _package + ".";
+                    full_name = full_name + _package + "."; // NOI18N
                 full_name = full_name + impl_name;
                 if (DEBUG)
-                    System.out.println ("full name: " + full_name);
+                    System.out.println ("full name: " + full_name); // NOI18N
                 final ClassElement dest = ClassElement.forName (full_name);
                 if (DEBUG) {
-                    System.out.println ("orig class: " + dest.toString ());
-                    System.out.println ("new class: " + clazz.toString ());
+                    System.out.println ("orig class: " + dest.toString ()); // NOI18N
+                    System.out.println ("new class: " + clazz.toString ()); // NOI18N
                 }
 
-		if (css.getActiveSetting ().getSynchro () != CORBASupport.SYNCHRO_DISABLE) {
+		if (css.getActiveSetting ().getSynchro () != ORBSettingsBundle.SYNCHRO_DISABLED) {
 		    /*
 		      javax.swing.SwingUtilities.invokeLater (new Runnable () {
 		      public void run () {
 		    */
 		    List changes = new LinkedList ();
 		    JavaConnections.compareMethods 
-			(dest, clazz, changes, "Add Method {0}",
-			 "Update Method {0}");
+			(dest, clazz, changes, CORBASupport.ADD_METHOD, CORBASupport.UPDATE_METHOD);
 		    if (changes.size () > 0)
 			JavaConnections.showChangesDialog 
 			    (changes, (byte)JavaConnections.TYPE_ALL);
@@ -2118,9 +2117,9 @@ public class ImplGenerator implements PropertyChangeListener {
             }
             else {
                 if (DEBUG)
-                    System.out.println ("file don't exists");
+                    System.out.println ("file don't exists"); // NOI18N
                 //try {
-		impl = folder.createData (impl_name, "java");
+		impl = folder.createData (impl_name, "java"); // NOI18N
                 //} catch (IOException e) {
 		//e.printStackTrace ();
                 //}
@@ -2133,10 +2132,10 @@ public class ImplGenerator implements PropertyChangeListener {
                 // add comment
                 printer.println ("/*\n * This file was generated from "
                                  + _M_ido.getPrimaryFile ().getName () + ".idl\n"
-                                 + " */");
+                                 + " */"); // NOI18N
 		
                 if (_package.length() > 0) // If it isn't in file system root
-		    printer.println ("\npackage " + _package + ";\n");
+		    printer.println ("\npackage " + _package + ";\n"); // NOI18N
                 printer.println (clazz.toString ());
                 lock.releaseLock ();
             }
@@ -2157,9 +2156,9 @@ public class ImplGenerator implements PropertyChangeListener {
     public void generate () {
 	this.showMessage = true;  // We suppose that we generate or synchronization is not disabled
         if (DEBUG) {
-            System.out.println ("generate :-))");
+            System.out.println ("generate :-))"); // NOI18N
             try {
-                _M_src.dump ("");
+                _M_src.dump (""); // NOI18N
             } catch (NullPointerException ex) {
                 ex.printStackTrace ();
             }
@@ -2169,10 +2168,12 @@ public class ImplGenerator implements PropertyChangeListener {
 
         //if (_M_src == null) {
 	if (DEBUG)
-	    System.out.println ("status = " + _M_ido.getStatus ());
+	    System.out.println ("status = " + _M_ido.getStatus ()); // NOI18N
 	if (_M_ido.getStatus () == IDLDataObject.STATUS_ERROR) {
+	    java.lang.Object[] __arr = new Object[] {_M_ido.getPrimaryFile ().getName ()};
             TopManager.getDefault ().setStatusText 
-		("Parse Error in " + _M_ido.getPrimaryFile ().getName () + ".");
+		(MessageFormat.format (CORBASupport.PARSE_ERROR, __arr));
+		//("Parse Error in " + _M_ido.getPrimaryFile ().getName () + "."); // NOI18N
 	    if (_M_listen) {
 		_M_ido.removePropertyChangeListener (this);
 		_M_listen = false;
@@ -2181,7 +2182,8 @@ public class ImplGenerator implements PropertyChangeListener {
         }
 	if (_M_ido.getStatus () == IDLDataObject.STATUS_NOT_PARSED) {
             TopManager.getDefault ().setStatusText 
-		("Waiting For Idl Parser...");
+		(CORBASupport.WAITING_FOR_PARSER);
+		//("Waiting For Idl Parser..."); // NOI18N
 	    if (!_M_listen) {
 		_M_ido.addPropertyChangeListener (this);
 		_M_listen = true;
@@ -2189,8 +2191,10 @@ public class ImplGenerator implements PropertyChangeListener {
             return;
         }
 	if (_M_ido.getStatus () == IDLDataObject.STATUS_PARSING) {
-            TopManager.getDefault ().setStatusText 
-		("Parsing " + _M_ido.getPrimaryFile ().getName () + "...");
+	    java.lang.Object[] __arr = new Object[] {_M_ido.getPrimaryFile ().getName ()};
+            TopManager.getDefault ().setStatusText
+		(MessageFormat.format (CORBASupport.PARSING, __arr));
+		//("Parsing " + _M_ido.getPrimaryFile ().getName () + "..."); // NOI18N
 	    if (!_M_listen) {
 		_M_ido.addPropertyChangeListener (this);
 		_M_listen = true;
@@ -2206,9 +2210,11 @@ public class ImplGenerator implements PropertyChangeListener {
                     interface2java ((InterfaceElement)members.elementAt (i));
                     //} catch (SymbolNotFound e) {
                 } catch (SymbolNotFoundException __ex) {
+		    java.lang.Object[] __arr = new Object[] {__ex.getSymbolName ()};
 		    TopManager.getDefault ().notify 
 			(new NotifyDescriptor.Exception 
-			    (__ex, "can't find symbol: " + __ex.getSymbolName ()));
+			    (__ex, MessageFormat.format (CORBASupport.CANT_FIND_SYMBOL, __arr)));
+		    //(__ex, "can't find symbol: " + __ex.getSymbolName ())); // NOI18N
                     //System.err.println ("can't find symbol: " + e.getSymbolName ());
                     //System.err.println (e);
                 } catch (Exception __ex) {
@@ -2227,23 +2233,27 @@ public class ImplGenerator implements PropertyChangeListener {
 		    OpenCookie __cookie = (OpenCookie)__jdo.getCookie (OpenCookie.class);
 		    __cookie.open ();
 		} catch (DataObjectNotFoundException __ex) {
-		    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
-			System.out.println ("can't find " + __fo.toString ());
+		    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
+			System.out.println ("can't find " + __fo.toString ()); // NOI18N
 		}
 	    }
 	}
 
 	if (this.showMessage) { // Bug Fix, when sync is disabled, don't show the message
-	    javax.swing.SwingUtilities.invokeLater (new Runnable () {
-		    public void run () {
-			TopManager.getDefault ().setStatusText 
-			    ("Successfully Generated Implementation Classes for "
-			     + _M_ido.getPrimaryFile ().getName () + ".");
-		    }
-		});
+	    //javax.swing.SwingUtilities.invokeLater (new Runnable () {
+	    //public void run () {
+	    java.lang.Object[] __arr = new Object[] {_M_ido.getPrimaryFile ().getName ()};
+	    TopManager.getDefault ().setStatusText
+		(MessageFormat.format (CORBASupport.SUCESS_GENERATED, __arr));
+		//("Successfully Generated Implementation Classes for " // NOI18N
+		// + _M_ido.getPrimaryFile ().getName () + "."); // NOI18N
+	    //}
+	    //});
 	}
 	else {
-	    TopManager.getDefault ().setStatusText ("Idl synchronization for this project is disabled.");
+	    TopManager.getDefault ().setStatusText 
+		(ORBSettingsBundle.SYNCHRO_DISABLED);
+		//("Idl synchronization for this project is disabled."); // NOI18N
 	}
 
 	if (_M_listen) {
@@ -2256,23 +2266,23 @@ public class ImplGenerator implements PropertyChangeListener {
 
     public void setBodyOfMethod (MethodElement method) throws SourceException {
         if (DEBUG) {
-	    System.out.println ("setBodyOfMethod (" + method + ");");
-            //System.out.println ("css.getGeneration () : " + css.getGeneration ());
+	    System.out.println ("setBodyOfMethod (" + method + ");"); // NOI18N
+            //System.out.println ("css.getGeneration () : " + css.getGeneration ()); // NOI18N
         }
 
-	if (css.getActiveSetting ().getGeneration ().equals (CORBASupport.GEN_NOTHING)) {
-	    //System.out.println ("CORBASupport.GEN_NOTHING");
-	    method.setBody ("\n");
+	if (css.getActiveSetting ().getGeneration ().equals (ORBSettingsBundle.GEN_NOTHING)) {
+	    //System.out.println ("CORBASupport.GEN_NOTHING"); // NOI18N
+	    method.setBody ("\n"); // NOI18N
 	    return;
 	}
-	if (css.getActiveSetting ().getGeneration ().equals (CORBASupport.GEN_EXCEPTION)) {
-	    //System.out.println ("CORBASupport.GEN_EXCEPTION");
-	    method.setBody ("\n  throw new UnsupportedOperationException ();\n");
+	if (css.getActiveSetting ().getGeneration ().equals (ORBSettingsBundle.GEN_EXCEPTION)) {
+	    //System.out.println ("CORBASupport.GEN_EXCEPTION"); // NOI18N
+	    method.setBody ("\n  throw new UnsupportedOperationException ();\n"); // NOI18N
 	    return;
 	}
-	if (css.getActiveSetting ().getGeneration ().equals (CORBASupport.GEN_RETURN_NULL)) {
-            //System.out.println ("CORBASupport.GEN_RETURN_NULL");
-            method.setBody ("\n  return null;\n");
+	if (css.getActiveSetting ().getGeneration ().equals (ORBSettingsBundle.GEN_RETURN_NULL)) {
+            //System.out.println ("CORBASupport.GEN_RETURN_NULL"); // NOI18N
+            method.setBody ("\n  return null;\n"); // NOI18N
             return;
 	}
 

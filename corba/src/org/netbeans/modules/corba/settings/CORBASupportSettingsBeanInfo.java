@@ -47,8 +47,8 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 		/*
 		  new PropertyDescriptor ("skels", CORBASupportSettings.class),
 		*/
-                       new PropertyDescriptor ("_M_orb_name", CORBASupportSettings.class,
-					       "getOrb", "setOrb"),
+                       new PropertyDescriptor ("_M_orb_name", CORBASupportSettings.class, // NOI18N
+					       "getOrb", "setOrb"), // NOI18N
 		       /*
 			 new PropertyDescriptor ("params", CORBASupportSettings.class,
                                                "getParams", "setParams"),
@@ -97,16 +97,16 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
                        new PropertyDescriptor ("_impl_int_postfix", CORBASupportSettings.class,
                                                "getImplIntPostfix", "setImplIntPostfix"),
 		       */
-		       new PropertyDescriptor ("namingChildren", CORBASupportSettings.class,
-                                               "getNamingServiceChildren", 
-					       "setNamingServiceChildren"),
+		       new PropertyDescriptor ("namingChildren", CORBASupportSettings.class, // NOI18N
+                                               "getNamingServiceChildren", // NOI18N
+					       "setNamingServiceChildren"), // NOI18N
 		       /*
                        new PropertyDescriptor ("_hide_generated_files", CORBASupportSettings.class,
                                                "hideGeneratedFiles", "setHideGeneratedFiles"),
 		       */
-		       new PropertyDescriptor ("IRChildren", CORBASupportSettings.class,
-					       "getInterfaceRepositoryChildren",
-                                               "setInterfaceRepositoryChildren"),
+		       new PropertyDescriptor ("IRChildren", CORBASupportSettings.class, // NOI18N
+					       "getInterfaceRepositoryChildren", // NOI18N
+                                               "setInterfaceRepositoryChildren"), // NOI18N
 		       /*
 
                        new PropertyDescriptor ("generation", CORBASupportSettings.class,
@@ -114,8 +114,8 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
                        new PropertyDescriptor ("synchro", CORBASupportSettings.class,
 		       "getSynchro", "setSynchro")
 		       */
-		       new PropertyDescriptor ("_M_implementations", CORBASupportSettings.class,
-					       "getBeans", "setBeans")
+		       new PropertyDescriptor ("_M_implementations", CORBASupportSettings.class, // NOI18N
+					       "getBeans", "setBeans") // NOI18N
 	    };
 	    desc[0].setDisplayName (CORBASupport.bundle.getString ("PROP_ORB"));
 	    desc[0].setShortDescription (CORBASupport.bundle.getString ("HINT_ORB"));
@@ -201,7 +201,7 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
 	    */
 	} catch (IntrospectionException ex) {
             //throw new InternalError ();
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		ex.printStackTrace ();
         }
     }
@@ -216,11 +216,11 @@ public class CORBASupportSettingsBeanInfo extends SimpleBeanInfo {
     public Image getIcon(int type) {
         if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
             if (icon == null)
-                icon = loadImage("/org/netbeans/modules/corba/settings/orb.gif");
+                icon = loadImage("/org/netbeans/modules/corba/settings/orb.gif"); // NOI18N
             return icon;
         } else {
             if (icon32 == null)
-                icon32 = loadImage ("/org/netbeans/modules/corba/settings/orb32.gif");
+                icon32 = loadImage ("/org/netbeans/modules/corba/settings/orb32.gif"); // NOI18N
             return icon32;
         }
     }

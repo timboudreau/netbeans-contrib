@@ -32,10 +32,9 @@ import org.netbeans.modules.corba.idl.src.DeclaratorElement;
 public class IDLUnionMemberNode extends IDLAbstractNode {
 
     UnionMemberElement _unionmember;
-    String name;
 
     private static final String UNIONMEMBER_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/unionmember";
+        "org/netbeans/modules/corba/idl/node/unionmember"; // NOI18N
 
     public IDLUnionMemberNode (UnionMemberElement value) {
         //super (new IDLDocumentChildren ((SimpleNode)value));
@@ -43,32 +42,14 @@ public class IDLUnionMemberNode extends IDLAbstractNode {
         setIconBase (UNIONMEMBER_ICON_BASE);
         _unionmember = value;
         setCookieForDataObject (_unionmember.getDataObject ());
-        if (_unionmember != null) {
-            /*
-            for (int i=0; i<_unionmember.getUnionMembers ().size (); i++)  {
-            if (_unionmember.getUnionMember (i) instanceof Identifier) {
-            name = ((Identifier)_unionmember.getUnionMember (i)).getName ();
-            System.out.println ("found name: " + name + " at " + i + " position");
-        }
-        }
-        }
-            */
-            name = _unionmember.getName ();
-        }
-        else
-            name = "NoName :)";
     }
 
     public IDLElement getIDLElement () {
         return _unionmember;
     }
 
-    public String getDisplayName () {
-        return name;
-    }
-
     public String getName () {
-        return "unionmember";
+        return "unionmember"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
@@ -79,30 +60,30 @@ public class IDLUnionMemberNode extends IDLAbstractNode {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of union member") {
-                    public Object getValue () {
-                        return _unionmember.getName ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of union member") {
-                    public Object getValue () {
-                        return _unionmember.getType ().getName ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("dimension", String.class, "dimension",
-                                              "dimension of union member") {
-                    public Object getValue () {
-                        return ((DeclaratorElement)_unionmember.getMember
-                                (_unionmember.getMembers ().size () -1 )).getDimension ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("case", String.class, "case",
-                                              "case of union member") {
-                    public Object getValue () {
-                        return _unionmember.getCases ();
-                    }
-                });
-
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_UNION_MEMBER) { // NOI18N
+		public Object getValue () {
+		    return _unionmember.getName ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, IDLNodeBundle.TYPE, IDLNodeBundle.TYPE_OF_UNION_MEMBER) { // NOI18N
+		public Object getValue () {
+		    return _unionmember.getType ().getName ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("dimension", String.class, IDLNodeBundle.DIMENSION, // NOI18N
+                                              IDLNodeBundle.DIMENSION_OF_DECLARATOR) {
+		public Object getValue () {
+		    return ((DeclaratorElement)_unionmember.getMember
+			    (_unionmember.getMembers ().size () -1 )).getDimension ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("case", String.class, IDLNodeBundle.CASE, // NOI18N
+                                              IDLNodeBundle.CASE_OF_UNION_MEMBER) {
+		public Object getValue () {
+		    return _unionmember.getCases ();
+		}
+	    });
+	
         return s;
     }
 

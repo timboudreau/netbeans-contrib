@@ -27,9 +27,9 @@ import org.netbeans.modules.corba.*;
 
 public class SynchronizationPropertyEditor extends PropertyEditorSupport {
 
-    private static final String[] modes = {CORBASupport.SYNCHRO_DISABLE,
-                                           CORBASupport.SYNCHRO_ON_UPDATE,
-                                           CORBASupport.SYNCHRO_ON_SAVE};
+    private static final String[] modes = {ORBSettingsBundle.SYNCHRO_DISABLED,
+                                           ORBSettingsBundle.SYNCHRO_ON_UPDATE,
+                                           ORBSettingsBundle.SYNCHRO_ON_SAVE};
 
     public String[] getTags() {
         return modes;

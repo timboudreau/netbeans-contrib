@@ -27,8 +27,8 @@ import org.netbeans.modules.corba.*;
 
 public class GenerationPropertyEditor extends PropertyEditorSupport {
 
-    private static final String[] viewers = {CORBASupport.GEN_NOTHING, CORBASupport.GEN_EXCEPTION,
-                                            CORBASupport.GEN_RETURN_NULL};
+    private static final String[] viewers = {ORBSettingsBundle.GEN_NOTHING, ORBSettingsBundle.GEN_EXCEPTION,
+                                            ORBSettingsBundle.GEN_RETURN_NULL};
 
     public String[] getTags() {
         return viewers;

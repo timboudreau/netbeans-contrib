@@ -27,7 +27,7 @@ import org.netbeans.modules.corba.idl.src.TypeElement;
 public class IDLEnumTypeNode extends IDLTypeNode {
 
     private static final String ENUM_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/enum";
+        "org/netbeans/modules/corba/idl/node/enum"; // NOI18N
 
     public IDLEnumTypeNode (TypeElement value) {
         super (value);

@@ -27,11 +27,11 @@ import org.netbeans.modules.corba.idl.src.TypeElement;
 public class IDLStructTypeNode extends IDLTypeNode {
 
     public static final String STRUCT_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/struct";
+        "org/netbeans/modules/corba/idl/node/struct"; // NOI18N
 
     public IDLStructTypeNode (TypeElement value) {
         super (value);
-        //System.out.println ("IDLStructTypeNode...");
+        //System.out.println ("IDLStructTypeNode..."); // NOI18N
         setIconBase (STRUCT_ICON_BASE);
     }
 

@@ -78,14 +78,14 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
     public IDLExternalCompilerGroup () {
         super ();
         if (DEBUG)
-            System.out.println ("IDLExternalCompilerGroup ()");
+            System.out.println ("IDLExternalCompilerGroup ()"); // NOI18N
         _files = new Vector ();
         _file_objects = new Vector ();
     }
 
     public void add (Compiler comp) {
         if (DEBUG)
-            System.out.print ("add (" + comp + ");");
+            System.out.print ("add (" + comp + ");"); // NOI18N
         super.add (comp);
         IDLExternalCompiler ec = (IDLExternalCompiler)comp;
         if (ec.getIDLFileObject () != null) {
@@ -98,19 +98,19 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
         //Thread.dumpStack ();
         FileObject fo = null;
         if (DEBUG) {
-            System.out.println ("IDLExternalCompilerGroup::createProcess (" + desc + ", "
-                                + files + ");");
+            System.out.println ("IDLExternalCompilerGroup::createProcess (" + desc + ", " // NOI18N
+                                + files + ");"); // NOI18N
         }
         if (DEBUG) {
-            System.out.println("IDLExternalCompilerGroup:");
-            System.out.print ("files(" + files.length + "): ");
+            System.out.println("IDLExternalCompilerGroup:"); // NOI18N
+            System.out.print ("files(" + files.length + "): "); // NOI18N
             System.out.flush ();
         }
         //_files.add (type);
         for (int i=0; i<files.length; i++) {
             //_files.add (files[i]);
             if (DEBUG) {
-                System.out.print (files[i] + ", ");
+                System.out.print (files[i] + ", "); // NOI18N
                 System.out.flush ();
             }
         }
@@ -118,7 +118,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
         //fo = findFileObject (files[0]);
         fo = (FileObject)_file_objects.elementAt (0);
         return desc.exec (new IDLFormat (files, fo));
-        //throw new IOException("internal error");
+        //throw new IOException("internal error"); // NOI18N
     }
 
     /* Starts compilation. It should check which files realy needs to be
@@ -133,7 +133,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
     public boolean start () {
         boolean result = super.start ();
         if (DEBUG)
-            System.out.println ("end of compilation");
+            System.out.println ("end of compilation"); // NOI18N
 
         return result;
     }
@@ -149,12 +149,12 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 
         //public PrintWriter out;
 
-        public static final String TAG_RTCLASSPATH = "rtclasspath";
-        public static final String TAG_PACKAGEROOT = "package_root";
-        public static final String TAG_PARAMS = "params";
-        public static final String TAG_PACKAGE_PARAM = "package_param";
-        public static final String TAG_OUTPUTDIR_PARAM = "dir_param";
-        public static final String TAG_PACKAGE = "package";
+        public static final String TAG_RTCLASSPATH = "rtclasspath"; // NOI18N
+        public static final String TAG_PACKAGEROOT = "package_root"; // NOI18N
+        public static final String TAG_PARAMS = "params"; // NOI18N
+        public static final String TAG_PACKAGE_PARAM = "package_param"; // NOI18N
+        public static final String TAG_OUTPUTDIR_PARAM = "dir_param"; // NOI18N
+        public static final String TAG_PACKAGE = "package"; // NOI18N
 
 
         private CORBASupportSettings css;
@@ -162,19 +162,19 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
         public IDLFormat (String[] files, FileObject fo) {
             super (files);
             //try {
-            //out = new PrintWriter (new FileOutputStream ("IDLFormat.debug-messages"));
+            //out = new PrintWriter (new FileOutputStream ("IDLFormat.debug-messages")); // NOI18N
             //} catch (Exception ex) {
             //ex.printStackTrace ();
             //}
             boolean is_in_root = false;
             if (fo.getParent ().isRoot ()) {
-                System.out.println ("idl is in root of repository!!!");
+                //System.out.println ("idl is in root of repository!!!"); // NOI18N
                 is_in_root = true;
             }
 
             css = (CORBASupportSettings) CORBASupportSettings.findObject
                   (CORBASupportSettings.class, true);
-            String params = " ";
+            String params = " "; // NOI18N
 	    if (css.getActiveSetting ().getParams () != null)
 		params += css.getActiveSetting ().getParams ();
 	    if (css.getActiveSetting ().isTie ())
@@ -188,8 +188,8 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 
             // workaround for compilation of file which is in root of repository
             if (is_in_root) {
-                map.put (TAG_PACKAGE_PARAM, "");
-                map.put (TAG_PACKAGE, "");
+                map.put (TAG_PACKAGE_PARAM, ""); // NOI18N
+                map.put (TAG_PACKAGE, ""); // NOI18N
             }
             else {
 		map.put (TAG_PACKAGE_PARAM, css.getActiveSetting ().getPackageParam ());
@@ -210,26 +210,26 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
         }
             */
             if (DEBUG) {
-                System.out.println ("files: " + files);
-                System.out.println ("map: " + map);
-                System.out.println ("file: " + getFile (fo));
+                System.out.println ("files: " + files); // NOI18N
+                System.out.println ("map: " + map); // NOI18N
+                System.out.println ("file: " + getFile (fo)); // NOI18N
             }
-            //throw new RuntimeException ("map:" + map);
+            //throw new RuntimeException ("map:" + map); // NOI18N
         }
 
     } // class IDLFormat
 
     public static String getFile (FileObject fo) {
         if (DEBUG)
-            System.out.println ("fo: " + fo.getName ());
+            System.out.println ("fo: " + fo.getName ()); // NOI18N
         return fo.getName ();
     }
 
     public static String getRTClasspath() {
         String fileSeparator = System.getProperty("file.separator");
         String javaRuntimeRoot = System.getProperty("java.home") + fileSeparator;
-        String javaRoot = javaRuntimeRoot + ".." + fileSeparator;
-        return javaRuntimeRoot + "lib" + fileSeparator + "rt.jar";
+        String javaRoot = javaRuntimeRoot + ".." + fileSeparator; // NOI18N
+        return javaRuntimeRoot + "lib" + fileSeparator + "rt.jar"; // NOI18N
     }
 
     public static String getPackage (FileObject fo) {
@@ -252,7 +252,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
             throw new IllegalArgumentException();
         } catch (EnvironmentNotSupportedException ex) {
             // use current directory
-            return ".";
+            return "."; // NOI18N
         }
         // root must be directory ! test if it is not a jar file
         String root = pr.toString();
@@ -261,7 +261,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
             if (fr.isDirectory()) return root;
         } catch (Exception ex) {
         }
-        return ".";
+        return "."; // NOI18N
 
         /*
           if (DEBUG) {

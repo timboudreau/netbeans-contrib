@@ -20,9 +20,9 @@ import java.awt.event.ActionEvent;
 import org.netbeans.modules.corba.wizard.CorbaWizardData;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
 import org.netbeans.modules.corba.settings.ORBSettingsWrapper;
+import org.netbeans.modules.corba.settings.ORBSettingsBundle;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
-import org.netbeans.modules.corba.CORBASupport;
 
 /**
  *
@@ -91,7 +91,7 @@ public class ORBPanel extends AbstractWizardPanel {
                 }
             });
             data.setDefaultTie (css.getActiveSetting().isTie());
-            this.css.getActiveSetting().setSkeletons(CORBASupport.INHER);
+            this.css.getActiveSetting().setSkeletons(ORBSettingsBundle.INHER);
             this.initialized = true;
         }
         
@@ -246,9 +246,9 @@ public class ORBPanel extends AbstractWizardPanel {
   private void tieChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_tieChanged
       // Add your handling code here:
       if (this.tie.isSelected())
-          this.css.getActiveSetting().setSkeletons(CORBASupport.TIE);
+          this.css.getActiveSetting().setSkeletons(ORBSettingsBundle.TIE);
       else
-          this.css.getActiveSetting().setSkeletons(CORBASupport.INHER);
+          this.css.getActiveSetting().setSkeletons(ORBSettingsBundle.INHER);
       
   }//GEN-LAST:event_tieChanged
   
@@ -262,17 +262,17 @@ public class ORBPanel extends AbstractWizardPanel {
         if (serverBind == null)
             return;   //dirty hack
         this.css.getActiveSetting ().setServerBindingFromString (serverBind);
-        if (serverBind.equals (CORBASupport.SERVER_NS)) {
-            clientBind = CORBASupport.CLIENT_NS;
+        if (serverBind.equals (ORBSettingsBundle.SERVER_NS)) {
+            clientBind = ORBSettingsBundle.CLIENT_NS;
         }
-        else if (serverBind.equals (CORBASupport.SERVER_IOR_TO_FILE)) {
-            clientBind = CORBASupport.CLIENT_IOR_FROM_FILE;
+        else if (serverBind.equals (ORBSettingsBundle.SERVER_IOR_TO_FILE)) {
+            clientBind = ORBSettingsBundle.CLIENT_IOR_FROM_FILE;
         }
-        else if (serverBind.equals (CORBASupport.SERVER_IOR_TO_OUTPUT)) {
-            clientBind = CORBASupport.CLIENT_IOR_FROM_INPUT;
+        else if (serverBind.equals (ORBSettingsBundle.SERVER_IOR_TO_OUTPUT)) {
+            clientBind = ORBSettingsBundle.CLIENT_IOR_FROM_INPUT;
         }
-        if (serverBind.equals (CORBASupport.SERVER_BINDER)) {
-            clientBind = CORBASupport.CLIENT_BINDER;
+        if (serverBind.equals (ORBSettingsBundle.SERVER_BINDER)) {
+            clientBind = ORBSettingsBundle.CLIENT_BINDER;
         }
         this.css.getActiveSetting ().setClientBindingFromString (clientBind);
         
@@ -289,9 +289,9 @@ public class ORBPanel extends AbstractWizardPanel {
             this.css.getActiveSetting ().setServerBindingFromString (this.data.getDefaultServerBindingValue());
         if (this.data != null)
             if (this.data.getDefaultTie())
-                this.css.getActiveSetting().setSkeletons(CORBASupport.TIE);
+                this.css.getActiveSetting().setSkeletons(ORBSettingsBundle.TIE);
             else
-                this.css.getActiveSetting().setSkeletons(CORBASupport.INHER);
+                this.css.getActiveSetting().setSkeletons(ORBSettingsBundle.INHER);
         this.css.setOrb ((String) this.orbs.getSelectedItem ());
         if (this.data != null){
             this.data.setDefaultServerBindingValue(this.css.getActiveSetting().getClientBinding().getValue());
@@ -303,7 +303,7 @@ public class ORBPanel extends AbstractWizardPanel {
         for ( int i=0; i< list.size(); i++) {
             this.bindings.addItem (list.elementAt(i));
         }
-        this.css.getActiveSetting().setSkeletons (CORBASupport.INHER);
+        this.css.getActiveSetting().setSkeletons (ORBSettingsBundle.INHER);
         this.tie.setSelected (false);
     }//GEN-LAST:event_orbChanged
     

@@ -35,7 +35,7 @@ public class IDLValueBoxNode extends IDLAbstractNode {
     ValueBoxElement _M_value;
 
     private static final String VALUE_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/value";
+        "org/netbeans/modules/corba/idl/node/value"; // NOI18N
 
     public IDLValueBoxNode (ValueBoxElement value) {
         //super (new IDLDocumentChildren ((IDLElement)value));
@@ -48,16 +48,16 @@ public class IDLValueBoxNode extends IDLAbstractNode {
     public IDLElement getIDLElement () {
         return _M_value;
     }
-
-    public String getDisplayName () {
-        if (_M_value != null)
-            return _M_value.getName ();
-        else
-            return "NoName :)";
-    }
-
+    /*
+      public String getDisplayName () {
+      if (_M_value != null)
+      return _M_value.getName ();
+      else
+      return "NoName :)";
+      }
+    */
     public String getName () {
-        return "interface";
+        return "value box"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
@@ -68,26 +68,26 @@ public class IDLValueBoxNode extends IDLAbstractNode {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of interface") {
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_VALUEBOX) { // NOI18N
                     public Object getValue () {
                         return _M_value.getName ();
                     }
                 });
-        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of value box") {
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, IDLNodeBundle.TYPE, IDLNodeBundle.TYPE_OF_VALUEBOX) { // NOI18N
 		public Object getValue () {
 		    IDLType __type = _M_value.getType ();
 		    int __type_value = __type.getType ();
-		    //System.out.println ("type: " + __type +  " value: " + __type_value);
+		    //System.out.println ("type: " + __type +  " value: " + __type_value); // NOI18N
 		    if (__type.getType () != IDLType.STRUCT && __type.getType () != IDLType.UNION 
 			&& __type.getType () != IDLType.ENUM) {
-			//System.out.println ("simple type");
+			//System.out.println ("simple type"); // NOI18N
 			return __type.getName ();
 		    }
 		    else {
-			//System.out.println ("constr type");
+			//System.out.println ("constr type"); // NOI18N
 			TypeElement __real_type 
 			    = (TypeElement)_M_value.getMembers ().elementAt (1);
-			return __type.getName () + " " + __real_type.getName ();
+			return __type.getName () + " " + __real_type.getName (); // NOI18N
 		    }
 		}
 	    });

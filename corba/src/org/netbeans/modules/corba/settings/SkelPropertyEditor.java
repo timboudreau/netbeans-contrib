@@ -28,7 +28,7 @@ import org.netbeans.modules.corba.*;
 public class SkelPropertyEditor extends PropertyEditorSupport {
 
     /** array of hosts */
-    private static final String[] viewers = {CORBASupport.INHER, CORBASupport.TIE};
+    private static final String[] viewers = {ORBSettingsBundle.INHER, ORBSettingsBundle.TIE};
 
     /** @return names of the supported LookAndFeels */
     public String[] getTags() {

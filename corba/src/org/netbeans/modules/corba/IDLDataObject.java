@@ -75,6 +75,7 @@ import org.netbeans.modules.java.JavaExternalCompilerType;
 
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
 import org.netbeans.modules.corba.settings.ORBSettings;
+import org.netbeans.modules.corba.settings.ORBSettingsBundle;
 
 import org.netbeans.modules.corba.idl.src.IDLParser;
 import org.netbeans.modules.corba.idl.src.IDLElement;
@@ -112,9 +113,9 @@ public class IDLDataObject extends MultiDataObject {
     private static final int STYLE_ALL = 3;
 
     private static RequestProcessor _S_request_processor 
-	= new RequestProcessor ("CORBA - IDL Parser");
+	= new RequestProcessor ("CORBA - IDL Parser"); // NOI18N
     private static RequestProcessor _S_request_processor2 
-	= new RequestProcessor ("CORBA - Implementation Generator");
+	= new RequestProcessor ("CORBA - Implementation Generator"); // NOI18N
 
     private int _M_status;
     private IDLElement _M_src;
@@ -148,7 +149,7 @@ public class IDLDataObject extends MultiDataObject {
         super(obj, loader);
 
         if (DEBUG)
-            System.out.println ("IDLDataObject::IDLDataObject (...)");
+            System.out.println ("IDLDataObject::IDLDataObject (...)"); // NOI18N
         idl_loader = loader;
 	_M_status = STATUS_NOT_PARSED;
         // use editor support
@@ -186,7 +187,7 @@ public class IDLDataObject extends MultiDataObject {
 			 }
                      });
 
-        FileUtil.setMIMEType ("idl", "text/x-idl");
+        FileUtil.setMIMEType ("idl", "text/x-idl"); // NOI18N
         FileObject __pfile = this.getPrimaryFile();
 	//_M_parent_folder = __pfile.getParent ();
 	__pfile.addFileChangeListener (new FileListener ());
@@ -217,7 +218,7 @@ public class IDLDataObject extends MultiDataObject {
     protected Node createNodeDelegate () {
         //return new DataNode (this, Children.LEAF);
         if (DEBUG)
-	    System.out.println ("createNodeDelegate");
+	    System.out.println ("createNodeDelegate"); // NOI18N
         try {
             _M_idl_node = new IDLNode (this);
             //if (_M_status == STATUS_OK) {
@@ -226,11 +227,11 @@ public class IDLDataObject extends MultiDataObject {
 	    //}
             if (_M_status == STATUS_ERROR) {
                 if (DEBUG)
-                    System.out.println ("set error icon...");
+                    System.out.println ("set error icon..."); // NOI18N
                 _M_idl_node.setIconBase (IDLNode.IDL_ERROR_ICON);
             }
         } catch (Exception e) {
-            if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+            if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		e.printStackTrace ();
         }
         return _M_idl_node;
@@ -249,7 +250,7 @@ public class IDLDataObject extends MultiDataObject {
 
     public void openAtPosition (int line_pos, int offset) {
         if (DEBUG)
-            System.out.println ("openAtPosition (" + line_pos + ", " + offset + ");");
+            System.out.println ("openAtPosition (" + line_pos + ", " + offset + ");"); // NOI18N
         LineCookie line_cookie = (LineCookie)getCookie (LineCookie.class);
         if (line_cookie != null) {
             Line line = line_cookie.getLineSet().getOriginal (line_pos - 1);
@@ -263,45 +264,45 @@ public class IDLDataObject extends MultiDataObject {
 
     public void setLinePosition (int line) {
         if (DEBUG)
-            System.out.println ("setLinePosition: " + line);
+            System.out.println ("setLinePosition: " + line); // NOI18N
         _line = line;
     }
 
     public int getLinePosition () {
         if (DEBUG)
-            System.out.println ("getLinePosition: " + _line);
+            System.out.println ("getLinePosition: " + _line); // NOI18N
         return _line;
     }
 
     public void setColumnPosition (int column) {
         if (DEBUG)
-            System.out.println ("setColumnPosition: " + column);
+            System.out.println ("setColumnPosition: " + column); // NOI18N
         _column = column;
     }
 
     public int getColumnPosition () {
         if (DEBUG)
-            System.out.println ("getColumnPosition: " + _column);
+            System.out.println ("getColumnPosition: " + _column); // NOI18N
         return _column;
     }
 
     public void setPositionRef (PositionRef ref) {
         if (DEBUG)
-            System.out.println ("setPositionRef");
+            System.out.println ("setPositionRef"); // NOI18N
         position_of_element = ref;
     }
 
 
     public PositionRef getPositionRef () {
         if (DEBUG)
-            System.out.println ("getPositionRef");
+            System.out.println ("getPositionRef"); // NOI18N
         return position_of_element;
     }
 
 
     public Compiler createCompiler (CompilerJob __job, Class __type) {
         if (DEBUG)
-            System.out.println ("IDLDataObject.java:112:createCompiler");
+            System.out.println ("IDLDataObject.java:112:createCompiler"); // NOI18N
         CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                    (CORBASupportSettings.class, true);
         if (css.getOrb () == null) {
@@ -317,10 +318,10 @@ public class IDLDataObject extends MultiDataObject {
 	    __setting = css.getActiveSetting ();
 	}
 	if (DEBUG)
-            System.out.println ("IDLDataObject.java:112:createCompiler: orb for compilation:" 
+            System.out.println ("IDLDataObject.java:112:createCompiler: orb for compilation:" // NOI18N
 				+ __setting.getName ());
 	ExternalCompiler.ErrorExpression __eexpr = new ExternalCompiler.ErrorExpression
-	    ("blabla", __setting.getErrorExpression (), 
+	    ("blabla", __setting.getErrorExpression (), // NOI18N
 	     __setting.file (), __setting.line (), 
 	     __setting.column (), __setting.message ());
 
@@ -337,28 +338,28 @@ public class IDLDataObject extends MultiDataObject {
         JavaCompilerType __jct = (JavaCompilerType)TopManager.getDefault ().getServices
 	    ().find(JavaExternalCompilerType.class);
         if (DEBUG)
-            System.out.println ("generated files: " + __gens);
+            System.out.println ("generated files: " + __gens); // NOI18N
         FileSystem __fs = null;
         try {
             __fs = getPrimaryFile ().getFileSystem ();
         } catch (FileStateInvalidException __ex) {
-            if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+            if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		__ex.printStackTrace ();
         }
 
-        String __package_name = "";
+        String __package_name = ""; // NOI18N
         for (int __j = 0; __j < __gens.size (); __j++) {
             if (DEBUG)
-                System.out.println ("add compiler to job for "
+                System.out.println ("add compiler to job for " // NOI18N
                                     + ((FileObject)__gens.elementAt (__j)).getName ());
 
             __package_name = ((FileObject)__gens.elementAt (__j)).getPackageNameExt ('/', '.');
 
             if (DEBUG)
-                System.out.println ("package name: " + __package_name);
+                System.out.println ("package name: " + __package_name); // NOI18N
 
             // future extension: jct.prepareIndirectCompiler
-            //                    (type, fs, package_name, "text to status line");
+            //                    (type, fs, package_name, "text to status line"); // NOI18N
             __job.add (__jct.prepareIndirectCompiler (__type, __fs, __package_name));
         }
 
@@ -428,7 +429,7 @@ public class IDLDataObject extends MultiDataObject {
 
     private LinkedList getIdlConstructs (int __style) {
         if (DEBUG)
-            System.out.println ("IDLDataObject::getIdlConstructs (" + __style + ");");
+            System.out.println ("IDLDataObject::getIdlConstructs (" + __style + ");"); // NOI18N
         /*
           Vector idl_constructs = new Vector ();
           String name;
@@ -470,15 +471,15 @@ public class IDLDataObject extends MultiDataObject {
 
     private LinkedList getIdlInterfaces (int __style) {
         if (DEBUG)
-            System.out.println ("IDLDataObject::getIdlInterfaces (" + __style + ");");
+            System.out.println ("IDLDataObject::getIdlInterfaces (" + __style + ");"); // NOI18N
         // wrapper
         return this.getIdlInterfaces (_M_src, __style);
     }
 
     private LinkedList getIdlInterfaces (IDLElement __element, int __style) {
         if (DEBUG)
-            System.out.println ("IDLDataObject.getIdlInterfaces (" 
-				+ __element + ", " + __style + ");");
+            System.out.println ("IDLDataObject.getIdlInterfaces (" // NOI18N
+				+ __element + ", " + __style + ");"); // NOI18N
         LinkedList __idl_interfaces = new LinkedList ();
         String __name;
         Vector __type_members;
@@ -490,7 +491,7 @@ public class IDLDataObject extends MultiDataObject {
             if (__element != null) {
                 //tmp_members = src.getMembers ();
                 if (DEBUG)
-                    System.out.println ("element: " + __element.getMembers ());
+                    System.out.println ("element: " + __element.getMembers ()); // NOI18N
                 for (int __i = 0; __i < __element.getMembers ().size (); __i++) {
                     if (__element.getMember (__i) instanceof InterfaceElement) {
                         __name = __element.getMember (__i).getName ();
@@ -500,7 +501,7 @@ public class IDLDataObject extends MultiDataObject {
                 if (DEBUG) {
 		    Iterator __iterator = __idl_interfaces.iterator ();
 		    while (__iterator.hasNext ()) {
-			System.out.println ("interface: " + (String)__iterator.next ());
+			System.out.println ("interface: " + (String)__iterator.next ()); // NOI18N
 		    }
 		    /*
 		      for (int __i = 0; __i < __idl_interfaces.size (); __i++)
@@ -514,7 +515,7 @@ public class IDLDataObject extends MultiDataObject {
             if (__element != null) {
                 //tmp_members = element.getMembers ();
                 if (DEBUG)
-                    System.out.println ("element: " + __element.getMembers ());
+                    System.out.println ("element: " + __element.getMembers ()); // NOI18N
                 for (int __i = 0; __i < __element.getMembers ().size (); __i++) {
                     if (__element.getMember (__i) instanceof InterfaceElement) {
                         __name = __element.getMember (__i).getName ();
@@ -531,7 +532,7 @@ public class IDLDataObject extends MultiDataObject {
                 if (DEBUG) {
 		    Iterator __iterator = __idl_interfaces.iterator ();
 		    while (__iterator.hasNext ()) {
-			System.out.println ("interface: " + (String)__iterator.next ());
+			System.out.println ("interface: " + (String)__iterator.next ()); // NOI18N
 		    }
 		    /*
 		      for (int __i = 0; __i < __idl_interfaces.size (); __i++)
@@ -549,7 +550,7 @@ public class IDLDataObject extends MultiDataObject {
 					  LinkedList __idl_interfaces) {
         Hashtable __possible_names = new Hashtable ();
         if (DEBUG)
-            System.out.println ("IDLDataObject.createPossibleNames () ...");
+            System.out.println ("IDLDataObject.createPossibleNames () ..."); // NOI18N
         String __name;
         // for various idl constructs
 	/*
@@ -559,10 +560,10 @@ public class IDLDataObject extends MultiDataObject {
 	Iterator __iterator = __idl_constructs.iterator ();
 	while (__iterator.hasNext ()) {
 	    __name = (String)__iterator.next (); 
-            if (__name != null && (!__name.equals (""))) {
-                __possible_names.put (__name + "Holder", "");
-                __possible_names.put (__name + "Helper", "");
-                __possible_names.put (__name, "");
+            if (__name != null && (!__name.equals (""))) { // NOI18N
+                __possible_names.put (__name + "Holder", ""); // NOI18N
+                __possible_names.put (__name + "Helper", ""); // NOI18N
+                __possible_names.put (__name, ""); // NOI18N
             }
         }
         // for idl interfaces
@@ -573,39 +574,39 @@ public class IDLDataObject extends MultiDataObject {
 	__iterator = __idl_interfaces.iterator ();
 	while (__iterator.hasNext ()) {
 	    __name = (String)__iterator.next ();
-            if (__name != null && (!__name.equals (""))) {
+            if (__name != null && (!__name.equals (""))) { // NOI18N
                 //
                 // now I comment *tie* names which classes are necesary to instantiate in server
                 // and it's better when user can see it in explorer
                 //
-                __possible_names.put ("_" + __name + "Stub", "");
-                //possible_names.put ("POA_" + name + "_tie", "");
-                //possible_names.put ("POA_" + name, "");
-                __possible_names.put (__name + "POA", "");
-                //possible_names.put (name + "POATie", "");
-                __possible_names.put (__name + "Operations", "");
-                //possible_names.put ("_" + name + "ImplBase_tie", "");
+                __possible_names.put ("_" + __name + "Stub", ""); // NOI18N
+                //possible_names.put ("POA_" + name + "_tie", ""); // NOI18N
+                //possible_names.put ("POA_" + name, ""); // NOI18N
+                __possible_names.put (__name + "POA", ""); // NOI18N
+                //possible_names.put (name + "POATie", ""); // NOI18N
+                __possible_names.put (__name + "Operations", ""); // NOI18N
+                //possible_names.put ("_" + name + "ImplBase_tie", ""); // NOI18N
 
                 // for JavaORB
-                __possible_names.put ("StubFor" + __name, "");
-                __possible_names.put ("_" + __name + "ImplBase", "");
+                __possible_names.put ("StubFor" + __name, ""); // NOI18N
+                __possible_names.put ("_" + __name + "ImplBase", ""); // NOI18N
                 // for VisiBroker
-                __possible_names.put ("_example_" + __name, "");
-                //possible_names.put ("_tie_" + name, "");
-                __possible_names.put ("_st_" + __name, "");
+                __possible_names.put ("_example_" + __name, ""); // NOI18N
+                //possible_names.put ("_tie_" + name, ""); // NOI18N
+                __possible_names.put ("_st_" + __name, ""); // NOI18N
                 // for OrbixWeb
-                __possible_names.put ("_" + __name + "Skeleton", "");
-                __possible_names.put ("_" + __name + "Stub", "");
-                __possible_names.put ("_" + __name + "Operations", "");
+                __possible_names.put ("_" + __name + "Skeleton", ""); // NOI18N
+                __possible_names.put ("_" + __name + "Stub", ""); // NOI18N
+                __possible_names.put ("_" + __name + "Operations", ""); // NOI18N
                 // for idltojava - with tie
-                //possible_names.put ("_" + name + "Tie", "");
+                //possible_names.put ("_" + name + "Tie", ""); // NOI18N
                 // for hidding folders
-                // possible_names.put (name + "Package", "");
+                // possible_names.put (name + "Package", ""); // NOI18N
             }
 
         }
         if (DEBUG)
-            System.out.println ("possible names for " + this.getPrimaryFile ().getName () + " : "
+            System.out.println ("possible names for " + this.getPrimaryFile ().getName () + " : " // NOI18N
                                 + __possible_names) ;
         return __possible_names;
     }
@@ -613,15 +614,15 @@ public class IDLDataObject extends MultiDataObject {
     public boolean canGenerate (FileObject __fo) {
         String __name = __fo.getName ();
         if (DEBUG)
-            System.out.print ("IDLDataObject.canGenerate (" + __name + ") ...");
+            System.out.print ("IDLDataObject.canGenerate (" + __name + ") ..."); // NOI18N
         if (_M_possible_names.get (__name) != null) {
             if (DEBUG)
-                System.out.println ("yes");
+                System.out.println ("yes"); // NOI18N
             return true;
         }
         else {
             if (DEBUG)
-                System.out.println ("no");
+                System.out.println ("no"); // NOI18N
             return false;
         }
     }
@@ -660,11 +661,11 @@ public class IDLDataObject extends MultiDataObject {
 	//Thread.dumpStack ();
 	//try {
 	if (DEBUG)
-	    System.out.println ("IDLDataObject::hasGeneratedImplementation ();");
+	    System.out.println ("IDLDataObject::hasGeneratedImplementation ();"); // NOI18N
 	int __retval = 0;
 	LinkedList __names = this.getImplementationNames ();
 	if (DEBUG)
-	    System.out.println ("names: " + __names + " of size: " + __names.size ());
+	    System.out.println ("names: " + __names + " of size: " + __names.size ()); // NOI18N
 	FileObject __ifo_folder = this.getPrimaryFile ().getParent ();
 	/*
 	  for (int i=0; i<names.size (); i++) {
@@ -675,9 +676,9 @@ public class IDLDataObject extends MultiDataObject {
 	FileObject __file = null;
 	while (__iterator.hasNext ()) {
 	    if ((__file = __ifo_folder.getFileObject 
-		 ((String)__iterator.next (), "java")) != null) {
+		 ((String)__iterator.next (), "java")) != null) { // NOI18N
 		if (DEBUG)
-		    System.out.println ("find file: " + __file);
+		    System.out.println ("find file: " + __file); // NOI18N
 		if (__retval == 0 && __first) {
 		    __retval = 2;
 		    __first = false;
@@ -696,7 +697,7 @@ public class IDLDataObject extends MultiDataObject {
 	    }
 	}
 	if (DEBUG)
-	    System.out.println ("-> " + __retval);
+	    System.out.println ("-> " + __retval); // NOI18N
 	return __retval;
 	//} catch (Exception __ex) {
 	//    __ex.printStackTrace ();
@@ -706,7 +707,7 @@ public class IDLDataObject extends MultiDataObject {
 
     public void update () {
         if (DEBUG)
-            System.out.println ("IDLDataObject.update ()...");
+            System.out.println ("IDLDataObject.update ()..."); // NOI18N
         // clearing MultiDataObject secondary entries
 
         Set __entries = this.secondaryEntries ();
@@ -716,7 +717,7 @@ public class IDLDataObject extends MultiDataObject {
 	while (__iterator.hasNext ()) {
             Object o = __iterator.next ();
             if (DEBUG)
-                System.out.println ("removing: " + o);
+                System.out.println ("removing: " + o); // NOI18N
             this.removeSecondaryEntry ((MultiDataObject.Entry) o);
         }
 
@@ -765,16 +766,16 @@ public class IDLDataObject extends MultiDataObject {
     }
     public void startParsing () {
 	if (DEBUG)
-	    System.out.println ("IDLDataObject::startParsing ();");
+	    System.out.println ("IDLDataObject::startParsing ();"); // NOI18N
 	_M_status = STATUS_PARSING;
-	this.firePropertyChange ("_M_status", null, null);
+	this.firePropertyChange ("_M_status", null, null); // NOI18N
         _S_request_processor.post (new Runnable () {
 		public void run () {
 		    parse ();
 		}
 	    }, 0, Thread.MIN_PRIORITY);
         //if (src != null)
-        //  src.xDump (" ");
+        //  src.xDump (" "); // NOI18N
         /*
           if (src != null)
           createKeys ();
@@ -782,44 +783,44 @@ public class IDLDataObject extends MultiDataObject {
           setKeys (new Vector ());
         */
 	if (DEBUG)
-	    System.out.println ("IDLDataObject::startParsing (); --> END");
+	    System.out.println ("IDLDataObject::startParsing (); --> END"); // NOI18N
     }    
 
     public void parse () {
 	if (DEBUG)
-	    System.out.println ("IDLDataObject::parse () of " + this.getPrimaryFile ());
+	    System.out.println ("IDLDataObject::parse () of " + this.getPrimaryFile ()); // NOI18N
 	InputStream __stream = null;
         try {
 	    __stream = this.getPrimaryFile ().getInputStream ();
             IDLParser __parser = new IDLParser (getPrimaryFile ().getInputStream ());
             //if (DEBUG)
 	    if (DEBUG)
-		System.out.println ("parsing of " + getPrimaryFile ().getName ());
+		System.out.println ("parsing of " + getPrimaryFile ().getName ()); // NOI18N
             _M_src = (IDLElement)__parser.Start ();
-            //_M_src.xDump (" ");
+            //_M_src.xDump (" "); // NOI18N
             _M_src.setDataObject (this);
             _M_status = STATUS_OK;	    
 	    if (DEBUG)
-                _M_src.dump ("");
+                _M_src.dump (""); // NOI18N
             if (DEBUG)
-		System.out.println ("parse OK :-)");
+		System.out.println ("parse OK :-)"); // NOI18N
         } catch (ParseException e) {
             if (DEBUG)
-		System.out.println ("parse exception");
+		System.out.println ("parse exception"); // NOI18N
             _M_status = STATUS_ERROR;
         } catch (TokenMgrError e) {
             if (DEBUG)
-		System.out.println ("parser error!!!");
+		System.out.println ("parser error!!!"); // NOI18N
             _M_status = STATUS_ERROR;
         } catch (java.io.FileNotFoundException e) {
-            if (Boolean.getBoolean ("netbeans.debug.exceptions")) {
+            if (Boolean.getBoolean ("netbeans.debug.exceptions")) { // NOI18N
 		e.printStackTrace ();
 	    }
         } catch (Exception ex) {
             //TopManager.getDefault ().notifyException (ex);
 	    if (DEBUG)
-		System.out.println ("IDLParser exception in " + this.getPrimaryFile ());
-            if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		System.out.println ("IDLParser exception in " + this.getPrimaryFile ()); // NOI18N
+            if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		ex.printStackTrace ();
         } finally {
 	    try {
@@ -829,16 +830,16 @@ public class IDLDataObject extends MultiDataObject {
 	    }
 	}
 	if (DEBUG)
-	    System.out.println ("status: " + _M_status);
+	    System.out.println ("status: " + _M_status); // NOI18N
 	if (_M_idl_node != null) {
 	    if (_M_status == STATUS_OK) {
 		if (DEBUG)
-		    System.out.println ("STATUS_OK");
+		    System.out.println ("STATUS_OK"); // NOI18N
 		_M_idl_node.setIconBase (IDLNode.IDL_ICON_BASE);
 	    }
 	    if (_M_status == STATUS_ERROR) {
 		if (DEBUG)
-		    System.out.println ("STATUS_ERROR");
+		    System.out.println ("STATUS_ERROR"); // NOI18N
                 _M_idl_node.setIconBase (IDLNode.IDL_ERROR_ICON);
 		_M_src = null;
 	    }
@@ -847,9 +848,9 @@ public class IDLDataObject extends MultiDataObject {
 	} 
 	else {
 	    if (DEBUG)
-		System.out.println ("idl node is null");
+		System.out.println ("idl node is null"); // NOI18N
 	}
-	this.firePropertyChange ("_M_status", null, null);
+	this.firePropertyChange ("_M_status", null, null); // NOI18N
     }
 
     public IDLElement getSources () {
@@ -859,7 +860,7 @@ public class IDLDataObject extends MultiDataObject {
     class FileListener extends FileChangeAdapter {
         public void fileChanged (FileEvent e) {
             if (DEBUG)
-		System.out.println ("idl file was changed.");
+		System.out.println ("idl file was changed."); // NOI18N
             //IDLDataObject.this.handleFindDataObject (
             //IDLDataObject.this.startParsing ();
             IDLDataObject.this.update ();
@@ -867,35 +868,35 @@ public class IDLDataObject extends MultiDataObject {
 		IDLDataObject.this._M_idl_node.update ();
             CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                        (CORBASupportSettings.class, true);
-	    if (css.getActiveSetting ().getSynchro () == CORBASupport.SYNCHRO_ON_SAVE)
+	    if (css.getActiveSetting ().getSynchro () == ORBSettingsBundle.SYNCHRO_ON_SAVE)
 		IDLDataObject.this.generateImplementation ();
         }
 
         public void fileRenamed (FileRenameEvent e) {
             if (DEBUG)
-		System.out.println ("IDLDocumentChildren::FileListener::FileRenamed (" + e + ")");
+		System.out.println ("IDLDocumentChildren::FileListener::FileRenamed (" + e + ")"); // NOI18N
         }
 
 	public void fileAttributeChanged (org.openide.filesystems.FileAttributeEvent __event) {
 	    if (DEBUG)
-		System.out.println ("fileAttributeChanged listened: " + __event);
+		System.out.println ("fileAttributeChanged listened: " + __event); // NOI18N
 	}
 
 	public void fileDataCreated (FileEvent __event) {
 	    if (DEBUG)
-		System.out.println ("fileDataCreated listened: " + __event 
-				    + ":" + __event.getFile ());
+		System.out.println ("fileDataCreated listened: " + __event // NOI18N
+				    + ":" + __event.getFile ()); // NOI18N
 	}
 
 	public void fileDeleted (FileEvent __event) {
 	    if (DEBUG)
-		System.out.println ("fileDeleted listened: " + __event 
-				    + ":" + __event.getFile ());
+		System.out.println ("fileDeleted listened: " + __event // NOI18N
+				    + ":" + __event.getFile ()); // NOI18N
 	}
 
 	public void fileFolderCreated (FileEvent __event) {
 	    if (DEBUG)
-		System.out.println ("fileFolderCreated listened: " + __event);
+		System.out.println ("fileFolderCreated listened: " + __event); // NOI18N
 	}
 
     }
@@ -924,10 +925,10 @@ public class IDLDataObject extends MultiDataObject {
         FileObject folder = this.getPrimaryFile ().getParent ();
         FileObject gen_file;
         while (enum.hasMoreElements ()) {
-            gen_file = folder.getFileObject ((String)enum.nextElement (), "java");
+            gen_file = folder.getFileObject ((String)enum.nextElement (), "java"); // NOI18N
             if (DEBUG)
                 if (gen_file != null)
-                    System.out.println ("add fo: " + gen_file.getName ());
+                    System.out.println ("add fo: " + gen_file.getName ()); // NOI18N
             if (gen_file != null)
                 result.add (gen_file);
         }
@@ -943,7 +944,7 @@ public class IDLDataObject extends MultiDataObject {
         }
 
         if (DEBUG)
-	    System.out.println ("generating of idl implemenations...");
+	    System.out.println ("generating of idl implemenations..."); // NOI18N
         generator = new ImplGenerator (this);
         generator.setSources (getSources ());
 	// this can be done in system RequestProcessor
@@ -960,7 +961,7 @@ public class IDLDataObject extends MultiDataObject {
 		    }, 0, Thread.MIN_PRIORITY);
 	    }
 	    else {
-		//System.out.println ("can't generate while generating!");
+		//System.out.println ("can't generate while generating!"); // NOI18N
 		TopManager.getDefault ().notify 
 		    (new NotifyDescriptor.Message (CORBASupport.CANT_GENERATE));
 	    }
@@ -970,13 +971,13 @@ public class IDLDataObject extends MultiDataObject {
     public void setOrbForCompilation (String __value) throws IOException {
 	_M_orb_for_compilation = __value;
 	FileObject __idl_file = this.getPrimaryFile ();
-	__idl_file.setAttribute ("orb_for_compilation", _M_orb_for_compilation);
+	__idl_file.setAttribute ("orb_for_compilation", _M_orb_for_compilation); // NOI18N
     }
 
     public String getOrbForCompilation () {
 	FileObject __idl_file = this.getPrimaryFile ();
 	if (!_M_orb_for_compilation_cache) {
-	    _M_orb_for_compilation = (String)__idl_file.getAttribute ("orb_for_compilation");
+	    _M_orb_for_compilation = (String)__idl_file.getAttribute ("orb_for_compilation"); // NOI18N
 	    _M_orb_for_compilation_cache = true;
 	}
 	return _M_orb_for_compilation;
@@ -992,11 +993,11 @@ public class IDLDataObject extends MultiDataObject {
 
     protected FileObject handleMove (DataFolder __dfolder) throws IOException {
 	if (DEBUG)
-	    System.out.println ("IDLDataObject::handleMove (" + __dfolder + ");");
+	    System.out.println ("IDLDataObject::handleMove (" + __dfolder + ");"); // NOI18N
 	FileObject __result = super.handleMove (__dfolder);
 	//FileObject __pfile = this.getPrimaryFile ();
-	//System.out.println ("new pfile: " + __pfile);
-	//System.out.println ("__result: " + __result);
+	//System.out.println ("new pfile: " + __pfile); // NOI18N
+	//System.out.println ("__result: " + __result); // NOI18N
 	//__pfile.addFileChangeListener (new FileListener ());
 	__result.addFileChangeListener (new FileListener ());
 	return __result;
@@ -1004,7 +1005,7 @@ public class IDLDataObject extends MultiDataObject {
 
     protected void handleDelete () throws IOException {
 	if (DEBUG)
-	    System.out.println ("IDLDataObject::handleDelete ();");
+	    System.out.println ("IDLDataObject::handleDelete ();"); // NOI18N
 	CloseCookie __cookie = (CloseCookie)this.getCookie (CloseCookie.class);
 	if (__cookie.close ()) {
 	    // user really want to close this data object

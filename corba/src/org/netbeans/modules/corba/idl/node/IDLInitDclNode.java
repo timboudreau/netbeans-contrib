@@ -37,7 +37,7 @@ public class IDLInitDclNode extends IDLAbstractNode {
 
     InitDclElement _M_init_dcl_element;
     private static final String OPERATION_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/factory";
+        "org/netbeans/modules/corba/idl/node/factory"; // NOI18N
 
     public IDLInitDclNode (InitDclElement value) {
         //super (new IDLDocumentChildren ((SimpleNode)value));
@@ -50,17 +50,17 @@ public class IDLInitDclNode extends IDLAbstractNode {
     public IDLElement getIDLElement () {
         return _M_init_dcl_element;
     }
-
-    public String getDisplayName () {
-        if (_M_init_dcl_element != null)
-            return _M_init_dcl_element.getName();
-        //	 return ((Identifier)_M_init_dcl_element.jjtGetChild (0)).getName ();
-        else
-            return "NoName :)";
-    }
-
+    /*
+      public String getDisplayName () {
+      if (_M_init_dcl_element != null)
+      return _M_init_dcl_element.getName();
+      //	 return ((Identifier)_M_init_dcl_element.jjtGetChild (0)).getName ();
+      else
+      return "NoName :)";
+      }
+    */
     public String getName () {
-        return "factory";
+        return "factory"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
@@ -71,37 +71,37 @@ public class IDLInitDclNode extends IDLAbstractNode {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of factory") {
-                    public Object getValue () {
-                        return _M_init_dcl_element.getName ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("params", String.class, "parameters",
-                                              "parameters of factory") {
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_FACTORY) { // NOI18N
+		public Object getValue () {
+		    return _M_init_dcl_element.getName ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("params", String.class, IDLNodeBundle.PARAMETERS, // NOI18N
+                                              IDLNodeBundle.PARAMETERS_OF_FACTORY) {
 		public Object getValue () {
 		    try {
-		    if (_M_init_dcl_element != null) {
-			String __params = "";
-			Vector __members = _M_init_dcl_element.getMembers ();
-			for (int __i=1; __i<__members.size (); __i++) {
-			    InitParamDeclElement __param 
-				= (InitParamDeclElement)__members.elementAt (__i);
-			    DeclaratorElement __declarator 
-				= (DeclaratorElement)__param.getMembers ().elementAt (0);
-			    __params = __params + "in " + __param.getType ().getName () + " "
-				+ __declarator.getName () + ", ";
+			if (_M_init_dcl_element != null) {
+			    String __params = ""; // NOI18N
+			    Vector __members = _M_init_dcl_element.getMembers ();
+			    for (int __i=1; __i<__members.size (); __i++) {
+				InitParamDeclElement __param 
+				    = (InitParamDeclElement)__members.elementAt (__i);
+				DeclaratorElement __declarator 
+				    = (DeclaratorElement)__param.getMembers ().elementAt (0);
+				__params = __params + "in " + __param.getType ().getName () + " " // NOI18N
+				    + __declarator.getName () + ", "; // NOI18N
+			    }
+			    // if operation has some parameters we will destroy last ", " // NOI18N
+			    if (!__params.equals ("")) // NOI18N
+				__params = __params.substring (0, __params.length () - 2);
+			    return __params;
 			}
-			// if operation has some parameters we will destroy last ", "
-			if (!__params.equals (""))
-			    __params = __params.substring (0, __params.length () - 2);
-			return __params;
-		    }
-		    else
-			return "";
+			else
+			    return ""; // NOI18N
 		    } catch (Exception __ex) {
 			__ex.printStackTrace ();
 		    }
-		    return "";
+		    return ""; // NOI18N
 		}
 	    });
         return s;

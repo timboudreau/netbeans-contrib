@@ -32,7 +32,7 @@ public class IDLConstNode extends IDLAbstractNode {
 
     ConstElement _const;
     private static final String CONST_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/const";
+        "org/netbeans/modules/corba/idl/node/const"; // NOI18N
 
     public IDLConstNode (ConstElement value) {
         super (Children.LEAF);
@@ -44,45 +44,45 @@ public class IDLConstNode extends IDLAbstractNode {
     public IDLElement getIDLElement () {
         return _const;
     }
-
-    public String getDisplayName () {
-        if (_const != null)
-            return _const.getName ();
-        else
-            return "NoName :)";
-    }
-
+    /*
+      public String getDisplayName () {
+      if (_const != null)
+      return _const.getName ();
+      else
+      return "NoName :)"; // NOI18N
+      }
+    */
     public String getName () {
-        return "const";
+        return "const"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
         SystemAction result = super.getDefaultAction();
         return result == null ? SystemAction.get(OpenAction.class) : result;
     }
-
+    
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of constant") {
-                    public Object getValue () {
-                        return _const.getName ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of constant") {
-                    public Object getValue () {
-                        return _const.getType ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("exp", String.class, "expression",
-                                              "constant expression") {
-                    public Object getValue () {
-                        if (_const.getExpression () != null)
-                            return _const.getExpression ();
-                        else
-                            return "";
-                    }
-                });
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_CONSTANT) { // NOI18N
+		public Object getValue () {
+		    return _const.getName ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, IDLNodeBundle.TYPE, IDLNodeBundle.TYPE_OF_CONSTANT) { // NOI18N
+		public Object getValue () {
+		    return _const.getType ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("exp", String.class, IDLNodeBundle.EXPRESSION, // NOI18N
+                                              IDLNodeBundle.CONSTANT_EXPRESSION) {
+		public Object getValue () {
+		    if (_const.getExpression () != null)
+			return _const.getExpression ();
+		    else
+			return ""; // NOI18N
+		}
+	    });
         return s;
     }
 

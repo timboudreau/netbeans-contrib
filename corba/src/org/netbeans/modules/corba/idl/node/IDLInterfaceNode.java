@@ -33,11 +33,11 @@ public class IDLInterfaceNode extends IDLAbstractNode {
     InterfaceElement _interface;
 
     private static final String INTERFACE_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/interface";
+        "org/netbeans/modules/corba/idl/node/interface"; // NOI18N
 
     public IDLInterfaceNode (InterfaceElement value) {
         super (new IDLDocumentChildren ((IDLElement)value));
-        //System.out.println ("IDLInterfaceNode (" + value + ");");
+        //System.out.println ("IDLInterfaceNode (" + value + ");"); // NOI18N
         setIconBase (INTERFACE_ICON_BASE);
         _interface = value;
         setCookieForDataObject (_interface.getDataObject ());
@@ -46,17 +46,17 @@ public class IDLInterfaceNode extends IDLAbstractNode {
     public IDLElement getIDLElement () {
         return _interface;
     }
-
-    public String getDisplayName () {
-        if (_interface != null)
-            //return ((Identifier)_interface.jjtGetChild (0)).getName ();
-            return _interface.getName ();
-        else
-            return "NoName :)";
-    }
-
+    /*
+      public String getDisplayName () {
+      if (_interface != null)
+      //return ((Identifier)_interface.jjtGetChild (0)).getName ();
+      return _interface.getName ();
+      else
+      return "NoName :)";
+      }
+    */
     public String getName () {
-        return "interface";
+        return "interface"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
@@ -67,36 +67,36 @@ public class IDLInterfaceNode extends IDLAbstractNode {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of interface") {
-                    public Object getValue () {
-                        return _interface.getName ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("abstract", String.class, "abstract", "is interface abstract") {
-                    public Object getValue () {
-                        if (_interface.isAbstract ())
-                            return "yes";
-                        else
-                            return "no";
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("inherited", String.class, "inherited",
-                                              "inherited from") {
-                    public Object getValue () {
-                        String inher = "";
-                        if (_interface.getParents ().size () > 0) {
-                            for (int i=0; i<_interface.getParents ().size (); i++)
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_INTERFACE) { // NOI18N
+		public Object getValue () {
+		    return _interface.getName ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("abstract", String.class, IDLNodeBundle.ABSTRACT, IDLNodeBundle.ABSTRACT_INTERFACE) { // NOI18N
+		public Object getValue () {
+		    if (_interface.isAbstract ())
+			return IDLNodeBundle.YES;
+		    else
+			return IDLNodeBundle.NO;
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("inherited", String.class, IDLNodeBundle.INHERITED, // NOI18N
+                                              IDLNodeBundle.INHERITED_FROM) {
+		public Object getValue () {
+		    String inher = ""; // NOI18N
+		    if (_interface.getParents ().size () > 0) {
+			for (int i=0; i<_interface.getParents ().size (); i++)
                                 //inher = inher + ((Identifier)_interface.getParents ().elementAt (i)).getName ()
-                                inher = inher + (String)_interface.getParents ().elementAt (i)
-                                        + ", ";
-                            inher = inher.substring (0, inher.length () - 2);
-                        }
-                        else
-                            inher = "";
-                        return inher;
-                    }
-                });
-
+			    inher = inher + (String)_interface.getParents ().elementAt (i)
+				+ ", "; // NOI18N
+			inher = inher.substring (0, inher.length () - 2);
+		    }
+		    else
+			inher = ""; // NOI18N
+		    return inher;
+		}
+	    });
+	
         return s;
     }
 

@@ -96,9 +96,9 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
     public IDLEditorSupport(MultiDataObject.Entry entry) {
         super (entry);
         if (DEBUG)
-            System.out.println ("IDLEditorSupport(" + entry + ");");
+            System.out.println ("IDLEditorSupport(" + entry + ");"); // NOI18N
         idl_file = entry;
-        //System.out.println("editor support constructor - " + entry.getFile().getName());
+        //System.out.println("editor support constructor - " + entry.getFile().getName()); // NOI18N
         //Thread.dumpStack();
         //initialize();
     }
@@ -166,7 +166,7 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
 
     public EditorSupport.Editor openAt (PositionRef pos) {
         if (DEBUG)
-            System.out.println ("openAt (" + pos + ");");
+            System.out.println ("openAt (" + pos + ");"); // NOI18N
         return super.openAt (pos);
     }
 
@@ -175,7 +175,7 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
         int line = 1;
         int column = 1;
         if (DEBUG)
-            System.out.println ("open ();");
+            System.out.println ("open ();"); // NOI18N
         IDLDataObject ido = (IDLDataObject)idl_file.getDataObject ();
         if (ido != null) {
             //position = ido.getPositionRef ();
@@ -203,7 +203,7 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
     /** Simply open for an editor. */
     protected final CloneableTopComponent openCloneableTopComponent2() {
         if (DEBUG)
-            System.out.println("openCloneableTopComponent2()");
+            System.out.println("openCloneableTopComponent2()"); // NOI18N
 
         MessageFormat mf = new MessageFormat (NbBundle.getBundle(IDLEditorSupport.class).
                                               getString ("CTL_IDL_OPEN"));
@@ -318,7 +318,7 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
     protected CloneableTopComponent createCloneableTopComponent () {
         // initializes the document if not initialized
         if (DEBUG)
-            System.out.println ("createCloneableTopComponent ()");
+            System.out.println ("createCloneableTopComponent ()"); // NOI18N
         prepareDocument ();
 
         DataObject obj = idl_file.getDataObject ();
@@ -532,14 +532,14 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
         public IDLEditor() {
             super();
             if (DEBUG)
-                System.out.println("IDLEditor");
+                System.out.println("IDLEditor"); // NOI18N
 
         }
 
         public IDLEditor(DataObject obj, IDLEditorSupport support) {
             super(obj, support);
             if (DEBUG)
-                System.out.println("IDLEditor (" + obj + ", " + support + ");");
+                System.out.println("IDLEditor (" + obj + ", " + support + ");"); // NOI18N
 
             this.propSupport = support;
             initMe();

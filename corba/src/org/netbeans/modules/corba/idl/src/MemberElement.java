@@ -39,7 +39,7 @@ public class MemberElement extends IDLElement {
       }
     */
     public void jjtClose () {
-        //System.out.println ("MemberElement.jjtClose ()");
+        //System.out.println ("MemberElement.jjtClose ()"); // NOI18N
         super.jjtClose ();
         // remove all children of type Identifier
         /*
@@ -62,7 +62,7 @@ public class MemberElement extends IDLElement {
         if (getMember (0) instanceof DeclaratorElement) {
             for (int i = 0; i<getMembers ().size (); i++) {
                 //System.out.println (((DeclaratorElement)getMember (i)).getName ()
-                //		+ " set type " + getType ());
+                //		+ " set type " + getType ()); // NOI18N
                 ((DeclaratorElement)getMember (i)).setType (getType ());
             }
         }

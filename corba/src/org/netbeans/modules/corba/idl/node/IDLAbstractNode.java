@@ -42,7 +42,7 @@ public abstract class IDLAbstractNode extends AbstractNode {
     public IDLAbstractNode (Children children) {
         super (children);
         if (DEBUG)
-            System.out.println ("IDLAbstractNode (...)");
+            System.out.println ("IDLAbstractNode (...)"); // NOI18N
     }
 
     public void setCookieForDataObject (IDLDataObject ido) {
@@ -52,14 +52,22 @@ public abstract class IDLAbstractNode extends AbstractNode {
 
     public SystemAction getDefaultAction () {
         if (DEBUG)
-            System.out.println ("getDefaultAction ()");
+            System.out.println ("getDefaultAction ()"); // NOI18N
         SystemAction result = super.getDefaultAction();
         if (DEBUG)
-            System.out.println ("result: " + result);
+            System.out.println ("result: " + result); // NOI18N
         //getIDLElement ().getDataObject ().setPositionRef (getPositionRef ());
         getIDLElement ().getDataObject ().setLinePosition (getIDLElement ().getLine ());
         getIDLElement ().getDataObject ().setColumnPosition (getIDLElement ().getColumn ());
         return result == null ? SystemAction.get(OpenAction.class) : result;
+    }
+
+    public String getDisplayName () {
+	IDLElement __element = this.getIDLElement ();
+        if (__element != null)
+            return __element.getName ();
+        else
+            return ""; // NOI18N
     }
 
     abstract public IDLElement getIDLElement ();
@@ -71,7 +79,7 @@ public abstract class IDLAbstractNode extends AbstractNode {
     public PositionRef getPositionRef () {
         int line = getIDLElement ().getLine ();
         if (DEBUG)
-            System.out.println ("getPositionRef for line: " + line);
+            System.out.println ("getPositionRef for line: " + line); // NOI18N
         IDLEditorSupport editor = (IDLEditorSupport)getIDLElement ().getDataObject ().getCookie
                                   (IDLEditorSupport.class);
         return editor.createPositionRef (line, Bias.Forward);

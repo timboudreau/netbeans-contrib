@@ -32,33 +32,21 @@ public class IDLTypeNode extends IDLAbstractNode {
 
     TypeElement _type;
     private static final String TYPE_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/type";
-
-    String name;
+        "org/netbeans/modules/corba/idl/node/type"; // NOI18N
 
     public IDLTypeNode (TypeElement value) {
         super (new IDLDocumentChildren ((IDLElement)value));
         setIconBase (TYPE_ICON_BASE);
         _type = value;
         setCookieForDataObject (_type.getDataObject ());
-        if (_type != null) {
-            name = _type.getName ();
-            //name = _type.getType ();
-        }
-        else
-            name = "NoName :)";
     }
 
     public IDLElement getIDLElement () {
         return _type;
     }
 
-    public String getDisplayName () {
-        return name;
-    }
-
     public String getName () {
-        return "type";
+        return "type"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
@@ -69,16 +57,16 @@ public class IDLTypeNode extends IDLAbstractNode {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of typedef") {
-                    public Object getValue () {
-                        return _type.getName ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type") {
-                    public Object getValue () {
-                        return _type.getType ().getName ();
-                    }
-                });
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_TYPEDEF) { // NOI18N
+		public Object getValue () {
+		    return _type.getName ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, IDLNodeBundle.TYPE, IDLNodeBundle.TYPE) { // NOI18N
+		public Object getValue () {
+		    return _type.getType ().getName ();
+		}
+	    });
         return s;
     }
 

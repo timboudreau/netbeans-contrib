@@ -33,7 +33,7 @@ public class IDLValueForwardNode extends IDLAbstractNode {
     ValueForwardElement _M_value;
 
     private static final String VALUE_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/value";
+        "org/netbeans/modules/corba/idl/node/value"; // NOI18N
 
     public IDLValueForwardNode (ValueForwardElement value) {
         //super (new IDLDocumentChildren ((IDLElement)value));
@@ -46,16 +46,16 @@ public class IDLValueForwardNode extends IDLAbstractNode {
     public IDLElement getIDLElement () {
         return _M_value;
     }
-
-    public String getDisplayName () {
-        if (_M_value != null)
-            return _M_value.getName ();
-        else
-            return "NoName :)";
-    }
-
+    /*
+      public String getDisplayName () {
+      if (_M_value != null)
+      return _M_value.getName ();
+      else
+      return "NoName :)";
+      }
+    */
     public String getName () {
-        return "interface";
+        return "value"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
@@ -66,19 +66,19 @@ public class IDLValueForwardNode extends IDLAbstractNode {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of interface") {
-                    public Object getValue () {
-                        return _M_value.getName ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("abstract", String.class, "abstract", "is interface abstract") {
-                    public Object getValue () {
-                        if (_M_value.isAbstract ())
-                            return "yes";
-                        else
-                            return "no";
-                    }
-                });
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_VALUE) { // NOI18N
+		public Object getValue () {
+		    return _M_value.getName ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("abstract", String.class, IDLNodeBundle.ABSTRACT, IDLNodeBundle.ABSTRACT_VALUE) { // NOI18N
+		public Object getValue () {
+		    if (_M_value.isAbstract ())
+			return IDLNodeBundle.YES;
+		    else
+			return IDLNodeBundle.NO;
+		}
+	    });
 
         return s;
     }

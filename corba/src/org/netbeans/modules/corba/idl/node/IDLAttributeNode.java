@@ -32,7 +32,7 @@ public class IDLAttributeNode extends IDLAbstractNode {
 
     AttributeElement _attribute;
     private static final String ATTRIBUTE_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/attribute";
+        "org/netbeans/modules/corba/idl/node/attribute"; // NOI18N
 
     public IDLAttributeNode (AttributeElement value) {
         //super (new IDLDocumentChildren ((SimpleNode)value));
@@ -45,18 +45,18 @@ public class IDLAttributeNode extends IDLAbstractNode {
     public IDLElement getIDLElement () {
         return _attribute;
     }
-
-    public String getDisplayName () {
-        if (_attribute != null) {
-            //return ((Identifier)_attribute.getMember (0)).getName ();
-            return _attribute.getName ();
-        }
-        else
-            return "NoName :)";
-    }
-
+    /*
+      public String getDisplayName () {
+      if (_attribute != null) {
+      //return ((Identifier)_attribute.getMember (0)).getName ();
+      return _attribute.getName ();
+      }
+      else
+      return ""; // NOI18N
+      }
+    */
     public String getName () {
-        return "attribute";
+        return "attribute"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
@@ -67,16 +67,16 @@ public class IDLAttributeNode extends IDLAbstractNode {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of attribute") {
-                    public Object getValue () {
-                        return _attribute.getName ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of attribute") {
-                    public Object getValue () {
-                        return (_attribute.getType ()).getName ();
-                    }
-                });
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_ATTRIBUTE) { // NOI18N
+		public Object getValue () {
+		    return _attribute.getName ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, IDLNodeBundle.TYPE, IDLNodeBundle.TYPE_OF_ATTRIBUTE) { // NOI18N
+		public Object getValue () {
+		    return (_attribute.getType ()).getName ();
+		}
+	    });
         /*
           ss.put (new PropertySupport.ReadOnly ("other", String.class, "other", 
           "other attribute whith same type") {
@@ -96,13 +96,13 @@ public class IDLAttributeNode extends IDLAbstractNode {
           }
           });
         */
-        ss.put (new PropertySupport.ReadOnly ("readonly", String.class, "readonly",
-                                              "readonly attribute") {
+        ss.put (new PropertySupport.ReadOnly ("readonly", String.class, IDLNodeBundle.READONLY, // NOI18N
+                                              IDLNodeBundle.READONLY_ATTRIBUTE) {
                     public Object getValue () {
                         if (_attribute.getReadOnly ())
-                            return "yes";
+                            return IDLNodeBundle.YES;
                         else
-                            return "no";
+                            return IDLNodeBundle.NO;
                     }
                 });
 

@@ -27,15 +27,15 @@ public class TypeElement extends IDLElement {
     public TypeElement (int id) {
         super(id);
         //members = new Vector ();
-        setName ("typedef");
-        setTypeName ("none");
+        setName ("typedef"); // NOI18N
+        setTypeName ("none"); // NOI18N
     }
 
     public TypeElement (IDLParser p, int id) {
         super(p, id);
         //members = new Vector ();
-        setName ("typedef");
-        setTypeName ("none");
+        setName ("typedef"); // NOI18N
+        setTypeName ("none"); // NOI18N
     }
 
     public void setTypeName (String t) {
@@ -58,9 +58,9 @@ public class TypeElement extends IDLElement {
         super.jjtSetParent (n);
         String type;
         //if (DEBUG) {
-        //  System.out.println ("TypeElement.jjtSetParent ()");
+        //  System.out.println ("TypeElement.jjtSetParent ()"); // NOI18N
         //  if (getType () != null)
-        //System.out.println ("type: " + getType ().getName ());
+        //System.out.println ("type: " + getType ().getName ()); // NOI18N
         //}
         //if (getMember (0) instanceof Identifier)
         setName (((IDLElement)getMember (0)).getName ());
@@ -72,12 +72,12 @@ public class TypeElement extends IDLElement {
         }
 
         if (DEBUG)
-            System.out.println ("name: " + getName ());
+            System.out.println ("name: " + getName ()); // NOI18N
 
         else {
             // constr type
             //setType (((Identifier)getMember (0).getMember (0)).getName ());
-            //setType ("typedef");
+            //setType ("typedef"); // NOI18N
             //for (int i = 1; i<getMembers ().size (); i++)
         }
         for (int i = 0; i<getMembers ().size (); i++) {

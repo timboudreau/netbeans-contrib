@@ -42,7 +42,7 @@ public class IDLCompilerType extends CompilerType {
 
     public void prepareJob (CompilerJob job, Class type, DataObject obj) {
         if (DEBUG)
-            System.out.println ("IDLCompilerType::prepareJob (...)");
+            System.out.println ("IDLCompilerType::prepareJob (...)"); // NOI18N
         if (obj instanceof IDLDataObject)
             ((IDLDataObject)obj).createCompiler(job, type);
     }

@@ -34,91 +34,116 @@ public class CORBASupport {
     /** bundle to obtain text information from */
     public static ResourceBundle bundle = NbBundle.getBundle(CORBASupport.class);
 
+    public static final String SETTINGS = CORBASupport.bundle.getString
+	("CTL_CORBA_SETTINGS"); // NOI18N
+
     public static final String NOT_SETUPED = CORBASupport.bundle.getString
-            ("CTL_NotSetuped");
-
+	("CTL_NOTSETUPED"); // NOI18N
+    
     public static final String CANT_GENERATE = CORBASupport.bundle.getString
-            ("CTL_CantGenerate");
-
+	("CTL_CANTGENERATE"); // NOI18N
+    
     public static final String GENERATE = CORBASupport.bundle.getString
-            ("CTL_GENERATE");
+	("CTL_GENERATE"); // NOI18N
+    /*
+      public static final String INHER = CORBASupport.bundle.getString ("CTL_Inher");
+      
+      public static final String TIE = CORBASupport.bundle.getString ("CTL_Tie");
 
-    public static final String INHER = CORBASupport.bundle.getString ("CTL_Inher");
-
-    public static final String TIE = CORBASupport.bundle.getString ("CTL_Tie");
-
-    public static final String SERVER_NS = CORBASupport.bundle.getString
-                                           ("CTL_SERVER_NS");
-
-    public static final String SERVER_IOR_TO_FILE = CORBASupport.bundle.getString
-            ("CTL_SERVER_IOR_TO_FILE");
-
-    public static final String SERVER_IOR_TO_OUTPUT = CORBASupport.bundle.getString
-            ("CTL_SERVER_IOR_TO_OUTPUT");
-
-    public static final String SERVER_BINDER = CORBASupport.bundle.getString
-            ("CTL_SERVER_BINDER");
-
-    public static final String CLIENT_NS = CORBASupport.bundle.getString
-                                           ("CTL_CLIENT_NS");
-
-    public static final String CLIENT_IOR_FROM_FILE = CORBASupport.bundle.getString
-            ("CTL_CLIENT_IOR_FROM_FILE");
-
-    public static final String CLIENT_IOR_FROM_INPUT = CORBASupport.bundle.getString
-            ("CTL_CLIENT_IOR_FROM_INPUT");
-
-    public static final String CLIENT_BINDER = CORBASupport.bundle.getString
-            ("CTL_CLIENT_BINDER");
-
-    public static final String SYNCHRO_DISABLE = CORBASupport.bundle.getString
-            ("CTL_SYNCHRO_DISABLE");
-
-    public static final String SYNCHRO_ON_UPDATE = CORBASupport.bundle.getString
-            ("CTL_SYNCHRO_ON_UPDATE");
-
-    public static final String SYNCHRO_ON_SAVE = CORBASupport.bundle.getString
-            ("CTL_SYNCHRO_ON_SAVE");
-
-    public static final String GEN_NOTHING = CORBASupport.bundle.getString
-            ("CTL_GEN_NOTHING");
-
-    public static final String GEN_EXCEPTION = CORBASupport.bundle.getString
-            ("CTL_GEN_EXCEPTION");
-
-    public static final String GEN_RETURN_NULL = CORBASupport.bundle.getString
-	("CTL_GEN_RETURN_NULL");
-
+      public static final String SERVER_NS = CORBASupport.bundle.getString
+      ("CTL_SERVER_NS"); // NOI18N
+      
+      public static final String SERVER_IOR_TO_FILE = CORBASupport.bundle.getString
+      ("CTL_SERVER_IOR_TO_FILE"); // NOI18N
+      
+      public static final String SERVER_IOR_TO_OUTPUT = CORBASupport.bundle.getString
+      ("CTL_SERVER_IOR_TO_OUTPUT"); // NOI18N
+      
+      public static final String SERVER_BINDER = CORBASupport.bundle.getString
+      ("CTL_SERVER_BINDER"); // NOI18N
+      
+      public static final String CLIENT_NS = CORBASupport.bundle.getString
+      ("CTL_CLIENT_NS"); // NOI18N
+      
+      public static final String CLIENT_IOR_FROM_FILE = CORBASupport.bundle.getString
+      ("CTL_CLIENT_IOR_FROM_FILE"); // NOI18N
+      
+      public static final String CLIENT_IOR_FROM_INPUT = CORBASupport.bundle.getString
+      ("CTL_CLIENT_IOR_FROM_INPUT"); // NOI18N
+      
+      public static final String CLIENT_BINDER = CORBASupport.bundle.getString
+      ("CTL_CLIENT_BINDER"); // NOI18N
+      
+      public static final String SYNCHRO_DISABLE = CORBASupport.bundle.getString
+      ("CTL_SYNCHRO_DISABLE"); // NOI18N
+      
+      public static final String SYNCHRO_ON_UPDATE = CORBASupport.bundle.getString
+      ("CTL_SYNCHRO_ON_UPDATE"); // NOI18N
+      
+      public static final String SYNCHRO_ON_SAVE = CORBASupport.bundle.getString
+      ("CTL_SYNCHRO_ON_SAVE"); // NOI18N
+      
+      public static final String GEN_NOTHING = CORBASupport.bundle.getString
+      ("CTL_GEN_NOTHING"); // NOI18N
+      
+      public static final String GEN_EXCEPTION = CORBASupport.bundle.getString
+      ("CTL_GEN_EXCEPTION"); // NOI18N
+      
+      public static final String GEN_RETURN_NULL = CORBASupport.bundle.getString
+      ("CTL_GEN_RETURN_NULL"); // NOI18N
+    */
     public static final String IDL_COMPILATION = CORBASupport.bundle.getString
-	("PROP_COMPILATION");
+	("PROP_COMPILATION"); // NOI18N
 
     public static final String IDL_COMPILATION_HINT = CORBASupport.bundle.getString
-	("HINT_COMPILATION");
+	("HINT_COMPILATION"); // NOI18N
 
     public static final String ORB_FOR_COMPILATION = CORBASupport.bundle.getString
-	("PROP_ORB_FOR_COMPILATION");
+	("PROP_ORB_FOR_COMPILATION"); // NOI18N
 
     public static final String ORB_FOR_COMPILATION_HINT = CORBASupport.bundle.getString
-	("HINT_ORB_FOR_COMPILATION");
+	("HINT_ORB_FOR_COMPILATION"); // NOI18N
 
     public static final String CANT_FIND_IMPLS = CORBASupport.bundle.getString 
-	("CTL_CANT_FIND_IMPLS");
+	("CTL_CANT_FIND_IMPLS"); // NOI18N
 
     public static final String WAIT =  CORBASupport.bundle.getString
-	("CTL_WAIT");
+	("CTL_WAIT"); // NOI18N
 
+    public static final String PARSE_ERROR = CORBASupport.bundle.getString ("CTL_PARSE_ERROR");
+
+    public static final String WAITING_FOR_PARSER = CORBASupport.bundle.getString 
+	("CTL_WAITING_FOR_PARSER"); // NOI18N
+
+    public static final String PARSING = CORBASupport.bundle.getString ("CTL_PARSING");
+
+    public static final String CANT_FIND_SYMBOL = CORBASupport.bundle.getString
+	("CTL_CANT_FIND_SYMBOL"); // NOI18N
+
+    public static final String SUCESS_GENERATED = CORBASupport.bundle.getString
+	("CTL_SUCESS_GENERATED"); // NOI18N
+    /*
+      public static final String SYNC_DISABLED = CORBASupport.bundle.getString
+      ("CTL_SYNC_DISABLED"); // NOI18N
+    */
+    public static final  String ADD_METHOD = CORBASupport.bundle.getString
+	("CTL_ADD_METHOD"); // NOI18N
+      
+    public static final  String UPDATE_METHOD = CORBASupport.bundle.getString
+	("CTL_UPDATE_METHOD"); // NOI18N
+   
     /** constant for idl extension */
-    public static final String IDL_EXT = "idl";
+    public static final String IDL_EXT = "idl"; // NOI18N
 
     /** constant for java extension */
-    private static final String JAVA_EXT = "java";
+    private static final String JAVA_EXT = "java"; // NOI18N
 
     /**
      * no-arg constructor
      */
     CORBASupport() {
         if (DEBUG)
-            System.out.println ("CORBASupport");
+            System.out.println ("CORBASupport"); // NOI18N
     }
 
 }

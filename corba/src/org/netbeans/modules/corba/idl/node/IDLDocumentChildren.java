@@ -37,7 +37,7 @@ public class IDLDocumentChildren extends Children.Keys {
 
     public static final Object NOT_KEY = new Object ();
 
-    public static final String WAIT_ICON = "org/openide/resources/src/wait";
+    public static final String WAIT_ICON = "org/openide/resources/src/wait"; // NOI18N
 
     //private org.netbeans.modules.corba.idl.src.SimpleNode src;
     private IDLElement _M_src;
@@ -64,7 +64,7 @@ public class IDLDocumentChildren extends Children.Keys {
 
     public void setSrc (IDLElement s) {
         if (DEBUG)
-            System.out.println ("setSrc (" + s.getName () + ");");
+            System.out.println ("setSrc (" + s.getName () + ");"); // NOI18N
         _M_src = s;
     }
 
@@ -79,13 +79,13 @@ public class IDLDocumentChildren extends Children.Keys {
     public void createKeys () {
         Vector keys = new Vector ();
         if (DEBUG)
-	    System.out.println ("createKeys ()");
+	    System.out.println ("createKeys ()"); // NOI18N
 	//Thread.dumpStack ();
 	if (_M_idl_node != null) {
 	    if (_M_idl_node.getIDLDataObject ().getStatus () == IDLDataObject.STATUS_NOT_PARSED
 		|| _M_idl_node.getIDLDataObject ().getStatus () == IDLDataObject.STATUS_PARSING) {
 		if (DEBUG)
-		    System.out.println ("adding wait key");
+		    System.out.println ("adding wait key"); // NOI18N
 		keys.add (IDLDocumentChildren.NOT_KEY);
 		this.setKeys (keys);
 	    }
@@ -94,18 +94,18 @@ public class IDLDocumentChildren extends Children.Keys {
         if (_M_src == null) {
 	    // we must set empty keys for colapsing IDL tree when parse exception was thrown
 	    if (DEBUG)
-		System.out.println ("setting empty keys");
+		System.out.println ("setting empty keys"); // NOI18N
 	    this.setKeys (keys);
             return;
 	}
 	
         if (DEBUG) {
-            System.out.println ("setKeys (" + _M_src.getName () + ");");
+            System.out.println ("setKeys (" + _M_src.getName () + ");"); // NOI18N
             Vector tmp = _M_src.getMembers ();
             for (int i=0; i<tmp.size (); i++) {
-                System.out.println ("key: " + ((IDLElement)tmp.elementAt (i)).getName ());
+                System.out.println ("key: " + ((IDLElement)tmp.elementAt (i)).getName ()); // NOI18N
             }
-            _M_src.xDump (" ");
+            _M_src.xDump (" "); // NOI18N
         }
         setKeys (_M_src.getMembers ());
 
@@ -136,7 +136,7 @@ public class IDLDocumentChildren extends Children.Keys {
           }
         */
         if (DEBUG)
-	    System.out.println ("---end of createKeys ()----------");
+	    System.out.println ("---end of createKeys ()----------"); // NOI18N
     }
 
     protected org.openide.nodes.Node[] createNodes (Object key) {
@@ -144,7 +144,7 @@ public class IDLDocumentChildren extends Children.Keys {
         //if (DEBUG) {
 	//try {
 	if (DEBUG)
-	    System.out.println ("createNodes (" + key + ");");
+	    System.out.println ("createNodes (" + key + ");"); // NOI18N
 	//} catch (Exception e) {
 	//e.printStackTrace ();
 	//}
@@ -164,7 +164,7 @@ public class IDLDocumentChildren extends Children.Keys {
 
         if (child instanceof ModuleElement) {
             if (DEBUG)
-                System.out.println ("found module");
+                System.out.println ("found module"); // NOI18N
             nodes.addElement (new IDLModuleNode ((ModuleElement) child));
 
             return vector2nodes (nodes);
@@ -172,49 +172,49 @@ public class IDLDocumentChildren extends Children.Keys {
 
         if (child instanceof InterfaceElement) {
             if (DEBUG)
-                System.out.println ("found interface");
+                System.out.println ("found interface"); // NOI18N
             nodes.addElement (new IDLInterfaceNode ((InterfaceElement) child));
             return vector2nodes (nodes);
         }
 
         if (child instanceof InterfaceForwardElement) {
             if (DEBUG)
-                System.out.println ("found forward interface");
+                System.out.println ("found forward interface"); // NOI18N
             nodes.addElement (new IDLInterfaceForwardNode ((InterfaceForwardElement) child));
             return vector2nodes (nodes);
         }
 
         if (child instanceof ValueForwardElement) {
             if (DEBUG)
-		System.out.println ("found forward value");
+		System.out.println ("found forward value"); // NOI18N
             nodes.addElement (new IDLValueForwardNode ((ValueForwardElement) child));
             return vector2nodes (nodes);
         }
 
         if (child instanceof ValueBoxElement) {
             if (DEBUG)
-		System.out.println ("found value box");
+		System.out.println ("found value box"); // NOI18N
             nodes.addElement (new IDLValueBoxNode ((ValueBoxElement) child));
             return vector2nodes (nodes);
         }
 
 	if (child instanceof ValueElement) {
 	    if (DEBUG)
-		System.out.println ("found valuetype");
+		System.out.println ("found valuetype"); // NOI18N
 	    nodes.addElement (new IDLValueNode ((ValueElement) child));          
 	    return vector2nodes (nodes);
 	}
 
 	if (child instanceof ValueAbsElement) {
 	    if (DEBUG)
-		System.out.println ("found abstract valuetype");
+		System.out.println ("found abstract valuetype"); // NOI18N
 	    nodes.addElement (new IDLValueAbsNode ((ValueAbsElement) child));
 	    return vector2nodes (nodes);
 	}
 
 	if (child instanceof StateMemberElement) {
 	    if (DEBUG)
-		System.out.println ("found state member");
+		System.out.println ("found state member"); // NOI18N
 	    Vector __members = child.getMembers ();
 	    for (int __i=0; __i<__members.size (); __i++) {
 		if (__members.elementAt (__i) instanceof DeclaratorElement) {
@@ -229,14 +229,14 @@ public class IDLDocumentChildren extends Children.Keys {
 
 	if (child instanceof InitDclElement) {
 	    if (DEBUG)
-		System.out.println ("found factory");
+		System.out.println ("found factory"); // NOI18N
 	    nodes.addElement (new IDLInitDclNode ((InitDclElement) child));
 	    return vector2nodes (nodes);
 	}
 
         if (child instanceof OperationElement) {
             if (DEBUG)
-                System.out.println ("found operation");
+                System.out.println ("found operation"); // NOI18N
             nodes.addElement (new IDLOperationNode ((OperationElement) child));
 
             return vector2nodes (nodes);
@@ -244,7 +244,7 @@ public class IDLDocumentChildren extends Children.Keys {
 
         if (child instanceof AttributeElement) {
             if (DEBUG)
-                System.out.println ("found attribute");
+                System.out.println ("found attribute"); // NOI18N
             nodes.addElement (new IDLAttributeNode ((AttributeElement) child));
 
             return vector2nodes (nodes);
@@ -254,7 +254,7 @@ public class IDLDocumentChildren extends Children.Keys {
         // it is important for struct (enums and unoins) nested for example in union
         if (child instanceof StructTypeElement) {
             if (DEBUG)
-                System.out.println ("found struct type element");
+                System.out.println ("found struct type element"); // NOI18N
             nodes.addElement (new IDLStructTypeNode ((TypeElement) child));
 
             return vector2nodes (nodes);
@@ -262,7 +262,7 @@ public class IDLDocumentChildren extends Children.Keys {
 
         if (child instanceof UnionTypeElement) {
             if (DEBUG)
-                System.out.println ("found union type element");
+                System.out.println ("found union type element"); // NOI18N
             nodes.addElement (new IDLUnionTypeNode ((UnionTypeElement) child));
 
             return vector2nodes (nodes);
@@ -280,7 +280,7 @@ public class IDLDocumentChildren extends Children.Keys {
                 nodes.addElement (new IDLUnionTypeNode ((TypeElement) first_member));
             }
             if (DEBUG)
-                System.out.println ("found union member element");
+                System.out.println ("found union member element"); // NOI18N
             nodes.addElement (new IDLUnionMemberNode ((UnionMemberElement) child));
 
             return vector2nodes (nodes);
@@ -288,7 +288,7 @@ public class IDLDocumentChildren extends Children.Keys {
 
         if (child instanceof EnumTypeElement) {
             if (DEBUG)
-                System.out.println ("found enum type element");
+                System.out.println ("found enum type element"); // NOI18N
             nodes.addElement (new IDLEnumTypeNode ((TypeElement) child));
 
             return vector2nodes (nodes);
@@ -296,7 +296,7 @@ public class IDLDocumentChildren extends Children.Keys {
 
         if (child instanceof ConstElement) {
             if (DEBUG)
-                System.out.println ("found const element");
+                System.out.println ("found const element"); // NOI18N
             nodes.addElement (new IDLConstNode ((ConstElement) child));
 
             return vector2nodes (nodes);
@@ -304,17 +304,17 @@ public class IDLDocumentChildren extends Children.Keys {
 
         if (child instanceof TypeElement) {
             if (DEBUG)
-                System.out.println ("found type element");
+                System.out.println ("found type element"); // NOI18N
             Vector members = ((TypeElement) child).getMembers ();
             if (DEBUG)
-                System.out.println ("members" + members);
+                System.out.println ("members" + members); // NOI18N
             if ((members.elementAt (0) instanceof StructTypeElement ||
                     members.elementAt (0) instanceof UnionTypeElement ||
                     members.elementAt (0) instanceof EnumTypeElement)) {
 
                 if (members.size () == 1) {
                     if (DEBUG)
-                        System.out.println ("1----------------------------");
+                        System.out.println ("1----------------------------"); // NOI18N
                     // constructed type whithout type children
                     if (members.elementAt (0) instanceof StructTypeElement)
                         nodes.addElement
@@ -332,7 +332,7 @@ public class IDLDocumentChildren extends Children.Keys {
                 }
                 else {
                     if (DEBUG)
-                        System.out.println ("2--------------------------");
+                        System.out.println ("2--------------------------"); // NOI18N
                     // constructed type whith type children
                     Vector tmp_members = ((TypeElement) child).getMembers ();
                     // add constructed type
@@ -356,22 +356,22 @@ public class IDLDocumentChildren extends Children.Keys {
                     type = ((TypeElement) ((TypeElement) child).getMembers ().elementAt (0)).getType ();
                     // add constructed type instances
                     if (DEBUG) {
-                        //System.out.println ("name: " + name);
-                        System.out.println ("type: " + type);
+                        //System.out.println ("name: " + name); // NOI18N
+                        System.out.println ("type: " + type); // NOI18N
                     }
                     for (int j=1; j<tmp_members.size (); j++) {
                         if (DEBUG)
-                            System.out.println ("adding declarator: " + j);
+                            System.out.println ("adding declarator: " + j); // NOI18N
                         nodes.addElement (new IDLDeclaratorNode
                                           ((DeclaratorElement)tmp_members.elementAt (j)));
 
                         //if (DEBUG)
-                        //System.out.println ("adding member: " + j);
+                        //System.out.println ("adding member: " + j); // NOI18N
                         //MemberElement tme = new MemberElement (-1);
                         //tme.addMember ((Identifier)tmp_members.elementAt (j));
                         //tme.setName (((Identifier)tmp_members.elementAt (j)).getName ());
                         //tme.setType (type);
-                        //tme.setType ("type");
+                        //tme.setType ("type"); // NOI18N
                         //((Element)tme.getMember (0)).setName (name);
                         //((Element)tme.getMember (0)).setType (type);
                         //nodes.addElement (new IDLMemberNode
@@ -382,7 +382,7 @@ public class IDLDocumentChildren extends Children.Keys {
             }
             else {
                 if (DEBUG)
-                    System.out.println ("3-----------------------");
+                    System.out.println ("3-----------------------"); // NOI18N
                 // simple types => make MemberNodes
 
                 Vector tmp_members = ((TypeElement) child).getMembers ();
@@ -409,13 +409,13 @@ public class IDLDocumentChildren extends Children.Keys {
 
         if (child instanceof ExceptionElement) {
             if (DEBUG)
-                System.out.println ("found exception");
+                System.out.println ("found exception"); // NOI18N
             nodes.addElement (new IDLExceptionNode ((ExceptionElement) child));
             return vector2nodes (nodes);
         }
         //if (child instanceof DeclaratorElement) {
         //if (DEBUG)
-        //System.out.println ("found member");
+        //System.out.println ("found member"); // NOI18N
         //nodes.addElement (new IDLDeclaratorNode
         //((DeclaratorElement) child));
         //return vector2nodes (nodes);
@@ -423,16 +423,16 @@ public class IDLDocumentChildren extends Children.Keys {
 
         if (child instanceof MemberElement) {
             if (DEBUG)
-                System.out.println ("found member");
+                System.out.println ("found member"); // NOI18N
             if (child.getMember (0) instanceof DeclaratorElement) {
                 for (int j = 0; j<child.getMembers ().size (); j++) {
                     // standard MemberElement with ids
                     nodes.addElement (new IDLDeclaratorNode
                                       ((DeclaratorElement) child.getMember (j)));
                     if (DEBUG)
-                        System.out.println ("adding node for "
+                        System.out.println ("adding node for " // NOI18N
                                             + ((DeclaratorElement) child.getMember (j)).getName ()
-                                            + ": "
+                                            + ": " // NOI18N
                                             + ((DeclaratorElement) child.getMember (j)).getType ());
                 }
             }
@@ -458,7 +458,7 @@ public class IDLDocumentChildren extends Children.Keys {
                 for (int j=1; j<tmp_members.size (); j++) {
                     if (tmp_members.elementAt (j) instanceof DeclaratorElement) {
                         if (DEBUG)
-                            System.out.println ("adding declarator: " + j);
+                            System.out.println ("adding declarator: " + j); // NOI18N
                         nodes.addElement (new IDLDeclaratorNode
                                           ((DeclaratorElement)tmp_members.elementAt (j)));
                     }
@@ -481,7 +481,7 @@ public class IDLDocumentChildren extends Children.Keys {
             return vector2nodes (nodes);
         }
         if (DEBUG)
-            System.out.println ("return empty nodes");
+            System.out.println ("return empty nodes"); // NOI18N
         return new org.openide.nodes.Node[0];
     }
 

@@ -51,9 +51,9 @@ public class IDLNode extends DataNode {
 
     /** Icon base for the IDLNode node */
     public static final String IDL_ICON_BASE =
-        "org/netbeans/modules/corba/settings/idl";
+        "org/netbeans/modules/corba/settings/idl"; // NOI18N
     public static final String IDL_ERROR_ICON =
-        "org/netbeans/modules/corba/settings/idl-error";
+        "org/netbeans/modules/corba/settings/idl-error"; // NOI18N
 
     IDLDocumentChildren _M_children;
     IDLDataObject _M_ido;
@@ -72,7 +72,7 @@ public class IDLNode extends DataNode {
         //setIconBase(IDL_ERROR_ICON);
         //}
         if (DEBUG)
-            System.out.println ("IDLNode constructor!!!");
+            System.out.println ("IDLNode constructor!!!"); // NOI18N
     }
 
     /** Overrides default action from DataNode.
@@ -93,7 +93,7 @@ public class IDLNode extends DataNode {
     }
 
     public void update () {
-	//System.out.println ("IDLNode::update ();");
+	//System.out.println ("IDLNode::update ();"); // NOI18N
         _M_children.setSrc (_M_ido.getSources ());
         _M_children.createKeys ();
     }
@@ -110,13 +110,13 @@ public class IDLNode extends DataNode {
 
         Sheet.Set ps = sheet.get(Sheet.PROPERTIES);
         ps = new Sheet.Set ();
-	ps.setName("Compilation");
+	ps.setName("Compilation"); // NOI18N
 	//ps.setDisplayName(Util.getString("PROP_executionSetName"));
 	ps.setDisplayName (CORBASupport.IDL_COMPILATION);
 	//ps.setShortDescription(Util.getString("HINT_executionSetName"));
 	ps.setShortDescription (CORBASupport.IDL_COMPILATION_HINT);
 	ps.put (new PropertySupport.ReadWrite (
-					       "compilation",
+					       "compilation", // NOI18N
 					       String.class,
 					       CORBASupport.ORB_FOR_COMPILATION,
 					       CORBASupport.ORB_FOR_COMPILATION_HINT

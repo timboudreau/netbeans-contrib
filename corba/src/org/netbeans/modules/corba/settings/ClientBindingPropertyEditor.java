@@ -40,13 +40,13 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
     		   CORBASupport.CLIENT_BINDER};
     */
 
-    private static String[] _M_choices = {""};
+    private static String[] _M_choices = {""}; // NOI18N
 
     private ORBSettingsWrapper _M_settings;
 
     public ClientBindingPropertyEditor () {
         if (DEBUG)
-            System.out.println ("ClientBindingPropertyEditor () ...");
+            System.out.println ("ClientBindingPropertyEditor () ..."); // NOI18N
 	/*
 	  CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
 	  (CORBASupportSettings.class, true);
@@ -66,7 +66,7 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
     public String[] getTags() {
 	try {
 	    if (DEBUG)
-		System.out.println ("ClientBindingPropertyEditor::getTags () -> " + _M_choices);
+		System.out.println ("ClientBindingPropertyEditor::getTags () -> " + _M_choices); // NOI18N
 	    _M_settings = (ORBSettingsWrapper)getValue ();
 	    String[] __choices 
 		= new String[_M_settings.getSettings ().getClientBindings ().size ()];
@@ -75,10 +75,10 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
 	    _M_choices = __choices;
 	    return _M_choices;
 	} catch (Exception e) {
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		e.printStackTrace ();
 	}
-	return new String[] {""};
+	return new String[] {""}; // NOI18N
     } 
 
     /*
@@ -125,9 +125,9 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
 	try {
 	    ORBSettingsWrapper __tmp = (ORBSettingsWrapper)getValue ();
 	    if (DEBUG) {
-		System.out.println ("ClientBindingPropertyEditor::getAsText () -> " 
+		System.out.println ("ClientBindingPropertyEditor::getAsText () -> " // NOI18N
 				    + __tmp.getSettings () 
-				    + __tmp.getSettings ().displayName () + " : " 
+				    + __tmp.getSettings ().displayName () + " : " // NOI18N
 				    + __tmp.getValue ());
 	    }
 	    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
@@ -135,22 +135,22 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
 	    java.lang.Object[] __beans = css.getBeans ();
 	    if (DEBUG) {
 		for (int __i = 0; __i < __beans.length; __i++) {
-		    System.out.println (__i + " : " + __beans[__i]);
+		    System.out.println (__i + " : " + __beans[__i]); // NOI18N
 		}
 	    }
 	    return ((ORBSettingsWrapper)getValue ()).getValue ();
 	} catch (Exception __e) {
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		__e.printStackTrace ();
 	}
-	return "";
+	return ""; // NOI18N
     }
 
 
     /** @param text A text for the current value. */
     public void setAsText (String __value) {
 	if (DEBUG)
-	    System.out.println ("ClientBindingPropertyEditor::setAsText (" + __value + ")");
+	    System.out.println ("ClientBindingPropertyEditor::setAsText (" + __value + ")"); // NOI18N
         //((ORBSettingsWrapper)getValue ()).setValue (__value);
 	setValue (new ORBSettingsWrapper (((ORBSettingsWrapper)getValue ()).getSettings (), 
 					  __value));

@@ -31,12 +31,11 @@ import org.netbeans.modules.corba.idl.src.MemberElement;
 public class IDLMemberNode extends IDLAbstractNode {
 
     MemberElement _member;
-    String name;
 
     //private static final String MEMBER_ICON_BASE =
-    //   "org/netbeans/modules/corba/idl/node/member";
+    //   "org/netbeans/modules/corba/idl/node/member"; // NOI18N
     private static final String MEMBER_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/declarator";
+        "org/netbeans/modules/corba/idl/node/declarator"; // NOI18N
 
     public IDLMemberNode (MemberElement value) {
         //super (new IDLDocumentChildren ((SimpleNode)value));
@@ -44,32 +43,14 @@ public class IDLMemberNode extends IDLAbstractNode {
         setIconBase (MEMBER_ICON_BASE);
         _member = value;
         setCookieForDataObject (_member.getDataObject ());
-        if (_member != null) {
-            /*
-            for (int i=0; i<_member.getMembers ().size (); i++)  {
-            if (_member.getMember (i) instanceof Identifier) {
-            name = ((Identifier)_member.getMember (i)).getName ();
-            System.out.println ("found name: " + name + " at " + i + " position");
-        }
-        }
-        }
-            */
-            name = _member.getName ();
-        }
-        else
-            name = "NoName :)";
     }
 
     public IDLElement getIDLElement () {
         return _member;
     }
 
-    public String getDisplayName () {
-        return name;
-    }
-
     public String getName () {
-        return "member";
+        return "member"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
@@ -80,16 +61,16 @@ public class IDLMemberNode extends IDLAbstractNode {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of member") {
-                    public Object getValue () {
-                        return _member.getName ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type of member") {
-                    public Object getValue () {
-                        return _member.getType ();
-                    }
-                });
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_MEMBER) { // NOI18N
+		public Object getValue () {
+		    return _member.getName ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, IDLNodeBundle.TYPE, IDLNodeBundle.TYPE_OF_MEMBER) { // NOI18N
+		public Object getValue () {
+		    return _member.getType ();
+		}
+	    });
         return s;
     }
 

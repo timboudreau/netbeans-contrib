@@ -74,20 +74,20 @@ public class ValueElement extends ValueAbsElement {
 		__new_members.add (__element);
 	    }
 	} 
-	//System.out.println ("members: " + __members);
+	//System.out.println ("members: " + __members); // NOI18N
         ValueHeaderElement __header = (ValueHeaderElement)__members.elementAt (0);
-	//System.out.println ("members of header: " + __header.getMembers ());
+	//System.out.println ("members of header: " + __header.getMembers ()); // NOI18N
 	try {
 	    ValueInheritanceSpecElement __inheritance
 		= (ValueInheritanceSpecElement)__header.getMembers ().elementAt (1);
-	    //System.out.println ("inherited: " + __inheritance.getValues ());
+	    //System.out.println ("inherited: " + __inheritance.getValues ()); // NOI18N
 	    this.setParents (__inheritance.getValues ());
-	    //System.out.println ("supports: " + __inheritance.getInterfaces ());
+	    //System.out.println ("supports: " + __inheritance.getInterfaces ()); // NOI18N
 	    this.setSupported (__inheritance.getInterfaces ());
 	} catch (ClassCastException __ex) {
 	    // this valuetype don't inherits or supports any value or interface(s)
 	} catch (Exception __ex) {
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) {
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) { // NOI18N
 		__ex.printStackTrace ();
 	    }
 	}

@@ -24,23 +24,23 @@ public class ORBSettingsWrapper implements java.io.Serializable {
     
     public ORBSettingsWrapper () {
 	if (DEBUG)
-	    System.out.println ("ORBSettingsWrapper::ORBSettingsWrapper ()");
+	    System.out.println ("ORBSettingsWrapper::ORBSettingsWrapper ()"); // NOI18N
     }  
 
     public ORBSettingsWrapper (ORBSettings __settings) {
 	if (DEBUG) 
-	    System.out.println ("ORBSettingsWrapper::ORBSettingsWrapper (" + __settings + ")");
+	    System.out.println ("ORBSettingsWrapper::ORBSettingsWrapper (" + __settings + ")"); // NOI18N
 	_M_settings = __settings;
 	if (_M_settings.getServerBindings ().size () > 0)
 	    _M_value = (String)_M_settings.getServerBindings ().elementAt (0);
 	else
-	    _M_value = "";
+	    _M_value = ""; // NOI18N
     }
 
     public ORBSettingsWrapper (ORBSettings __settings, String __value) {
 	if (DEBUG) 
-	    System.out.println ("ORBSettingsWrapper::ORBSettingsWrapper (" + __settings + ", "
-				+ __value + ")");
+	    System.out.println ("ORBSettingsWrapper::ORBSettingsWrapper (" + __settings + ", " // NOI18N
+				+ __value + ")"); // NOI18N
 	_M_settings = __settings;
 	_M_value = __value;
     }
@@ -59,13 +59,13 @@ public class ORBSettingsWrapper implements java.io.Serializable {
 
     public void setValue (String __value) {
 	if (DEBUG)
-	    System.out.println ("ORBSettingsWrapper::setValue (" + __value);
+	    System.out.println ("ORBSettingsWrapper::setValue (" + __value); // NOI18N
 	_M_value = __value;
     }
 
     public boolean equals (Object __value) {
 	if (DEBUG)
-	    System.out.print ("ORBSettingsWrapper::equals (...) -> ");
+	    System.out.print ("ORBSettingsWrapper::equals (...) -> "); // NOI18N
 	boolean __return = false;
 	try {
 	    ORBSettingsWrapper __tmp = (ORBSettingsWrapper)__value;
@@ -73,7 +73,7 @@ public class ORBSettingsWrapper implements java.io.Serializable {
 		if (this.getValue ().equals (__tmp.getValue ()))
 		    __return = true;
 	} catch (Exception __e) {
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		__e.printStackTrace ();
 	}
 	if (DEBUG)

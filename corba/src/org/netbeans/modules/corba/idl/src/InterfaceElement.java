@@ -65,7 +65,7 @@ public class InterfaceElement extends IDLElement {
         super.jjtClose ();
         // first header
         if (DEBUG)
-            System.out.println ("InterfaceElement.jjtClose ()");
+            System.out.println ("InterfaceElement.jjtClose ()"); // NOI18N
         Vector _members = super.getMembers ();
         header = (InterfaceHeaderElement)_members.elementAt (0);
         setName (header.getName ());

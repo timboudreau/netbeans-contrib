@@ -34,29 +34,29 @@ public class OrbPropertyEditor extends PropertyEditorSupport {
     //private static final boolean DEBUG = true;
     private static final boolean DEBUG = false;
 
-    private static String[] orbs = {""};
+    private static String[] orbs = {""}; // NOI18N
 
     public OrbPropertyEditor () {
         if (DEBUG)
-            System.out.println ("OrbPropertyEditor ()...");
+            System.out.println ("OrbPropertyEditor ()..."); // NOI18N
         CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                    (CORBASupportSettings.class, true);
         java.util.Vector names = css.getNames ();
         int length = names.size ();
         if (DEBUG)
-            System.out.println ("length: " + length);
+            System.out.println ("length: " + length); // NOI18N
 
         if (length > 0) {
             orbs = new String[length];
             for (int i = 0; i<length; i++) {
                 orbs[i] = (String)names.elementAt (i);
                 if (DEBUG)
-                    System.out.println ("name: " + orbs[i]);
+                    System.out.println ("name: " + orbs[i]); // NOI18N
             }
         }
         if (DEBUG) {
-            System.out.println ("first:");
-            System.out.println ("names: " + orbs[0]);
+            System.out.println ("first:"); // NOI18N
+            System.out.println ("names: " + orbs[0]); // NOI18N
             System.out.flush ();
         }
     }

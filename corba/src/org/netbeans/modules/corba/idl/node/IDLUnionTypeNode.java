@@ -28,7 +28,7 @@ import org.netbeans.modules.corba.idl.src.TypeElement;
 public class IDLUnionTypeNode extends IDLTypeNode {
 
     private static final String UNION_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/union";
+        "org/netbeans/modules/corba/idl/node/union"; // NOI18N
 
     private UnionTypeElement _union_type;
 
@@ -41,22 +41,21 @@ public class IDLUnionTypeNode extends IDLTypeNode {
     protected Sheet createSheet () {
         Sheet s = Sheet.createDefault ();
         Sheet.Set ss = s.get (Sheet.PROPERTIES);
-        ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of typedef") {
-                    public Object getValue () {
-                        return _type.getName ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("type", String.class, "type", "type") {
-                    public Object getValue () {
-                        return _type.getType ().getName ();
-                    }
-                });
-        ss.put (new PropertySupport.ReadOnly ("switch type", String.class, "switch type",
-                                              "switch type") {
-                    public Object getValue () {
-                        return _union_type.getSwitchType ();
-                    }
-                });
+        ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_UNION) { // NOI18N
+		public Object getValue () {
+		    return _type.getName ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("type", String.class, IDLNodeBundle.TYPE, IDLNodeBundle.TYPE) { // NOI18N
+		public Object getValue () {
+		    return _type.getType ().getName ();
+		}
+	    });
+        ss.put (new PropertySupport.ReadOnly ("switch type", String.class, IDLNodeBundle.SWITCH_TYPE, IDLNodeBundle.SWITCH_TYPE) { // NOI18N
+		public Object getValue () {
+		    return _union_type.getSwitchType ();
+		}
+	    });
         return s;
     }
 

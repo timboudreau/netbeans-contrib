@@ -54,21 +54,21 @@ public class ORBSettings implements java.io.Serializable {
 
     static final long serialVersionUID = 6055827315091215552L;
 
-    private String[] _M_check_sections = {"CTL_NAME", "IMPORT", "SETTINGS_ORB_PROPERTIES",
-					  "ORB_SERVER_INIT", "ORB_CLIENT_INIT", "ORB_SERVER_RUN",
-					  "ORB_OBJECT_ACTIVATION", "DIR_PARAM",
-					  "PACKAGE_PARAM", "COMPILER", "PACKAGE_DELIMITER",
-					  "ERROR_EXPRESSION", "FILE_POSITION", "LINE_POSITION",
-					  "COLUMN_POSITION", "MESSAGE_POSITION", "TIE_PARAM",
+    private String[] _M_check_sections = {"CTL_NAME", "IMPORT", "SETTINGS_ORB_PROPERTIES", // NOI18N
+					  "ORB_SERVER_INIT", "ORB_CLIENT_INIT", "ORB_SERVER_RUN", // NOI18N
+					  "ORB_OBJECT_ACTIVATION", "DIR_PARAM", // NOI18N
+					  "PACKAGE_PARAM", "COMPILER", "PACKAGE_DELIMITER", // NOI18N
+					  "ERROR_EXPRESSION", "FILE_POSITION", "LINE_POSITION", // NOI18N
+					  "COLUMN_POSITION", "MESSAGE_POSITION", "TIE_PARAM", // NOI18N
 					  // added for implementation generator
-					  "IMPLBASE_IMPL_PREFIX", "IMPLBASE_IMPL_POSTFIX",
-					  "EXT_CLASS_PREFIX", "EXT_CLASS_POSTFIX",
-					  "TIE_IMPL_PREFIX", "TIE_IMPL_POSTFIX",
-					  "IMPL_INT_PREFIX", "IMPL_INT_POSTFIX"};
+					  "IMPLBASE_IMPL_PREFIX", "IMPLBASE_IMPL_POSTFIX", // NOI18N
+					  "EXT_CLASS_PREFIX", "EXT_CLASS_POSTFIX", // NOI18N
+					  "TIE_IMPL_PREFIX", "TIE_IMPL_POSTFIX", // NOI18N
+					  "IMPL_INT_PREFIX", "IMPL_INT_POSTFIX"}; // NOI18N
 
-    private String[] _M_cbindings = {"NS", "IOR_FROM_FILE", "IOR_FROM_INPUT", "BINDER"};
+    private String[] _M_cbindings = {"NS", "IOR_FROM_FILE", "IOR_FROM_INPUT", "BINDER"}; // NOI18N
 
-    private String[] _M_sbindings = {"NS", "IOR_TO_FILE", "IOR_TO_OUTPUT", "BINDER"};
+    private String[] _M_sbindings = {"NS", "IOR_TO_FILE", "IOR_TO_OUTPUT", "BINDER"}; // NOI18N
 
 
 
@@ -78,7 +78,7 @@ public class ORBSettings implements java.io.Serializable {
 
     public transient Properties _M_properties;
 
-    public String _M_skeletons = CORBASupport.INHER;
+    public String _M_skeletons = ORBSettingsBundle.INHER;
 
     public String _M_params;
 
@@ -88,9 +88,9 @@ public class ORBSettings implements java.io.Serializable {
 
     public boolean _M_hide_generated_files = true;
 
-    public String _M_generation = CORBASupport.GEN_NOTHING;
+    public String _M_generation = ORBSettingsBundle.GEN_NOTHING;
 
-    public String _M_synchro = CORBASupport.SYNCHRO_ON_UPDATE;
+    public String _M_synchro = ORBSettingsBundle.SYNCHRO_ON_UPDATE;
 
     // advanced settings
 
@@ -130,14 +130,14 @@ public class ORBSettings implements java.io.Serializable {
     /** @return human presentable name */
     public String displayName() {
 	if (DEBUG)
-	    System.out.println ("ORBSettings::displayName () -> " + _M_orb_name);
+	    System.out.println ("ORBSettings::displayName () -> " + _M_orb_name); // NOI18N
         return _M_orb_name;
     }
 
 
     public String getName() {
 	//if (DEBUG)
-	//    System.out.println ("ORBSettings::getName () -> " + _M_orb_name);
+	//    System.out.println ("ORBSettings::getName () -> " + _M_orb_name); // NOI18N
         return _M_orb_name;
     }
 
@@ -154,7 +154,7 @@ public class ORBSettings implements java.io.Serializable {
 
     public ORBSettings () {
         if (DEBUG)
-            System.out.println ("ORBSettings () ...");
+            System.out.println ("ORBSettings () ..."); // NOI18N
 
         _M_client_bindings = new Vector (5);
         _M_server_bindings = new Vector (5);
@@ -271,7 +271,7 @@ public class ORBSettings implements java.io.Serializable {
     
     private void writeObject (java.io.ObjectOutputStream __out) throws IOException {
 	if (DEBUG)
-	    System.out.println ("ORBSettings::writeObject (" + __out + ")");
+	    System.out.println ("ORBSettings::writeObject (" + __out + ")"); // NOI18N
 	__out.defaultWriteObject ();
 	//__out.writeObject (this.getBeans ());
     }
@@ -279,7 +279,7 @@ public class ORBSettings implements java.io.Serializable {
     
     private void readObject (java.io.ObjectInputStream __in) throws IOException, ClassNotFoundException {
 	if (DEBUG)
-	    System.out.println ("ORBSettings::readObject (" + __in + ")");
+	    System.out.println ("ORBSettings::readObject (" + __in + ")"); // NOI18N
 	__in.defaultReadObject ();
 	//__in.readObject ();
       }
@@ -287,27 +287,27 @@ public class ORBSettings implements java.io.Serializable {
 
     public String getClientBindingName () {
 
-        String name = "";
+        String name = ""; // NOI18N
 	if (DEBUG) {
-	    System.out.println ("ORBSettings::getClientBindingName ()");
+	    System.out.println ("ORBSettings::getClientBindingName ()"); // NOI18N
 	    if (_M_client_binding != null)
 		System.out.println (_M_client_binding.getValue ());
 	    else
-		System.out.println ("is NULL");		
+		System.out.println ("is NULL"); // NOI18N
 	}
 
         if (_M_client_binding != null) {
-            if (_M_client_binding.getValue ().equals (CORBASupport.CLIENT_NS))
-                name = "NS";
-            if (_M_client_binding.getValue ().equals (CORBASupport.CLIENT_IOR_FROM_FILE))
-                name = "IOR_FROM_FILE";
-            if (_M_client_binding.getValue ().equals (CORBASupport.CLIENT_IOR_FROM_INPUT))
-                name = "IOR_FROM_INPUT";
-            if (_M_client_binding.getValue ().equals (CORBASupport.CLIENT_BINDER))
-                name = "BINDER";
+            if (_M_client_binding.getValue ().equals (ORBSettingsBundle.CLIENT_NS))
+                name = "NS"; // NOI18N
+            if (_M_client_binding.getValue ().equals (ORBSettingsBundle.CLIENT_IOR_FROM_FILE))
+                name = "IOR_FROM_FILE"; // NOI18N
+            if (_M_client_binding.getValue ().equals (ORBSettingsBundle.CLIENT_IOR_FROM_INPUT))
+                name = "IOR_FROM_INPUT"; // NOI18N
+            if (_M_client_binding.getValue ().equals (ORBSettingsBundle.CLIENT_BINDER))
+                name = "BINDER"; // NOI18N
         }
 	if (DEBUG)
-	    System.out.println ("name: " + name);
+	    System.out.println ("name: " + name); // NOI18N
         return name;
     }
 
@@ -319,26 +319,26 @@ public class ORBSettings implements java.io.Serializable {
 
     public String getServerBindingName () {
 
-        String name = "";
+        String name = ""; // NOI18N
 	if (DEBUG) {
-	    System.out.println ("ORBSettings::getServerBindingName ()");
+	    System.out.println ("ORBSettings::getServerBindingName ()"); // NOI18N
 	    if (_M_server_binding != null)
 		System.out.println (_M_server_binding.getValue ());
 	    else
-		System.out.println ("is NULL");		
+		System.out.println ("is NULL"); // NOI18N
 	}
         if (_M_server_binding != null) {
-            if (_M_server_binding.getValue ().equals (CORBASupport.SERVER_NS))
-                name = "NS";
-            if (_M_server_binding.getValue ().equals (CORBASupport.SERVER_IOR_TO_FILE))
-                name = "IOR_TO_FILE";
-            if (_M_server_binding.getValue ().equals (CORBASupport.SERVER_IOR_TO_OUTPUT))
-                name = "IOR_TO_OUTPUT";
-            if (_M_server_binding.getValue ().equals (CORBASupport.SERVER_BINDER))
-                name = "BINDER";
+            if (_M_server_binding.getValue ().equals (ORBSettingsBundle.SERVER_NS))
+                name = "NS"; // NOI18N
+            if (_M_server_binding.getValue ().equals (ORBSettingsBundle.SERVER_IOR_TO_FILE))
+                name = "IOR_TO_FILE"; // NOI18N
+            if (_M_server_binding.getValue ().equals (ORBSettingsBundle.SERVER_IOR_TO_OUTPUT))
+                name = "IOR_TO_OUTPUT"; // NOI18N
+            if (_M_server_binding.getValue ().equals (ORBSettingsBundle.SERVER_BINDER))
+                name = "BINDER"; // NOI18N
         }
 	if (DEBUG)
-	    System.out.println ("name: " + name);
+	    System.out.println ("name: " + name); // NOI18N
         return name;
     }
 
@@ -357,7 +357,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_skeletons;
 	_M_skeletons = __value;
-        firePropertyChange ("_M_skeletons", __old, _M_skeletons);
+        firePropertyChange ("_M_skeletons", __old, _M_skeletons); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -366,7 +366,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_params;
 	_M_params = __value;
-        firePropertyChange ("_M_params", __old, _M_params);
+        firePropertyChange ("_M_params", __old, _M_params); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -390,13 +390,13 @@ public class ORBSettings implements java.io.Serializable {
 	_M_client_binding = __value;
         if (this ==((CORBASupportSettings)org.openide.options.SystemOption.findObject (CORBASupportSettings.class, true)).getActiveSetting())
 	    this.setJavaTemplateTable ();
-        firePropertyChange ("_M_client_binding", __old, _M_client_binding);
+        firePropertyChange ("_M_client_binding", __old, _M_client_binding); // NOI18N
 	this.cacheThrow ();
     }
 
     public void setClientBindingFromString (String __value) {
 	if (DEBUG)
-	    System.out.println ("ORBSettings::setClientBindingFromString (" + __value + ")");
+	    System.out.println ("ORBSettings::setClientBindingFromString (" + __value + ")"); // NOI18N
 	this.setClientBinding (new ORBSettingsWrapper (this, __value));
     }
     /*
@@ -410,25 +410,25 @@ public class ORBSettings implements java.io.Serializable {
 
     public void setServerBinding (ORBSettingsWrapper __value) {
 	if (DEBUG)
-	    System.out.println ("ORBSettings::setServerBinding (" + __value + ")");
+	    System.out.println ("ORBSettings::setServerBinding (" + __value + ")"); // NOI18N
 	if (_M_property_change_support == null)
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	ORBSettingsWrapper __old = _M_server_binding;
 	_M_server_binding = __value;
         if (this == ((CORBASupportSettings)org.openide.options.SystemOption.findObject (CORBASupportSettings.class, true)).getActiveSetting())
 	    this.setJavaTemplateTable ();
-	firePropertyChange ("_M_server_binding", __old, _M_server_binding);
+	firePropertyChange ("_M_server_binding", __old, _M_server_binding); // NOI18N
 	this.cacheThrow ();
 	//public void setServerBinding (String __value) {
 	//_M_server_binding = __value;
         //String old = _server_binding;
         //_server_binding = s;
-        //firePropertyChange ("_server_binding", old, _server_binding);
+        //firePropertyChange ("_server_binding", old, _server_binding); // NOI18N
     }
 
     public void setServerBindingFromString (String __value) {
 	if (DEBUG) {
-	    System.out.println ("ORBSettings::setServerBindingFromString (" + __value + ")");
+	    System.out.println ("ORBSettings::setServerBindingFromString (" + __value + ")"); // NOI18N
 	    if (__value == null) {
 		//Thread.dumpStack ();
 	    }
@@ -451,15 +451,15 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	NbProcessDescriptor __old = _M_idl;
 	_M_idl = __value;
-        //System.out.println ("setIdl :-)");
-        //System.out.println ("switch: " + idl.getClasspathSwitch ());
+        //System.out.println ("setIdl :-)"); // NOI18N
+        //System.out.println ("switch: " + idl.getClasspathSwitch ()); // NOI18N
         //int length = idl.getProcessArgs ().length;
         //String[] params = idl.getProcessArgs ();
         //for (int i=0; i<length; i++)
-        //	 System.out.println ("param[" + i + "]: " + params[i]);
+        //	 System.out.println ("param[" + i + "]: " + params[i]); // NOI18N
 
         //Thread.dumpStack ();
-        firePropertyChange ("_M_idl", __old, _M_idl);
+        firePropertyChange ("_M_idl", __old, _M_idl); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -469,21 +469,21 @@ public class ORBSettings implements java.io.Serializable {
         String __old = _M_tie_param;
 	_M_tie_param = __value;
         //_tie_param = s;
-        firePropertyChange ("_M_tie_param", __old, _M_tie_param);
+        firePropertyChange ("_M_tie_param", __old, _M_tie_param); // NOI18N
 	this.cacheThrow ();
     }
 
     public boolean isTie () {
 
-        if (_M_skeletons.equals (CORBASupport.TIE)) {
+        if (_M_skeletons.equals (ORBSettingsBundle.TIE)) {
             _M_is_tie = true;
             if (DEBUG)
-                System.out.println ("is TIE");
+                System.out.println ("is TIE"); // NOI18N
         }
         else {
             _M_is_tie = false;
             if (DEBUG)
-                System.out.println ("isn't TIE");
+                System.out.println ("isn't TIE"); // NOI18N
         }
 	
         return _M_is_tie;
@@ -502,7 +502,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_package_param;
 	_M_package_param = __value;
-        firePropertyChange ("_M_package_param", __old, _M_package_param);
+        firePropertyChange ("_M_package_param", __old, _M_package_param); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -519,7 +519,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_dir_param;
 	_M_dir_param = __value;
-        firePropertyChange ("_M_dir_param", __old, _M_dir_param);
+        firePropertyChange ("_M_dir_param", __old, _M_dir_param); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -540,7 +540,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_package_delimiter;
 	_M_package_delimiter = __value;
-        firePropertyChange ("_M_package_delimiter", __old, _M_package_delimiter);
+        firePropertyChange ("_M_package_delimiter", __old, _M_package_delimiter); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -557,7 +557,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_error_expression;
 	_M_error_expression = __value;
-        firePropertyChange ("_M_error_expression", __old, _M_error_expression);
+        firePropertyChange ("_M_error_expression", __old, _M_error_expression); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -574,7 +574,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_file_position;
 	_M_file_position = __value;
-        firePropertyChange ("_M_file_position", __old, _M_file_position);
+        firePropertyChange ("_M_file_position", __old, _M_file_position); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -591,7 +591,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_line_position;
 	_M_line_position = __value;
-        firePropertyChange ("_M_line_position", __old, _M_line_position);
+        firePropertyChange ("_M_line_position", __old, _M_line_position); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -608,7 +608,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_column_position;
 	_M_column_position = __value;
-        firePropertyChange ("_M_column_position", __old, _M_column_position);
+        firePropertyChange ("_M_column_position", __old, _M_column_position); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -625,7 +625,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_message_position;
 	_M_message_position = __value;
-        firePropertyChange ("_M_message_position", __old, _M_message_position);
+        firePropertyChange ("_M_message_position", __old, _M_message_position); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -639,7 +639,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_impl_prefix;
         _M_impl_prefix = __value;
-	firePropertyChange ("_M_impl_prefix", __old, _M_impl_prefix);
+	firePropertyChange ("_M_impl_prefix", __old, _M_impl_prefix); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -652,7 +652,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_impl_postfix;
         _M_impl_postfix = __value;
-	firePropertyChange ("_M_impl_postfix", __old, _M_impl_postfix);
+	firePropertyChange ("_M_impl_postfix", __old, _M_impl_postfix); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -666,7 +666,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_ext_class_prefix;
         _M_ext_class_prefix = __value;
-	firePropertyChange ("_M_ext_class_prefix", __old, _M_ext_class_prefix);
+	firePropertyChange ("_M_ext_class_prefix", __old, _M_ext_class_prefix); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -679,7 +679,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_ext_class_postfix;
         _M_ext_class_postfix = __value;
-	firePropertyChange ("_M_ext_class_postfix", __old, _M_ext_class_postfix);
+	firePropertyChange ("_M_ext_class_postfix", __old, _M_ext_class_postfix); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -692,7 +692,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_tie_prefix;
         _M_tie_prefix = __value;
-	firePropertyChange ("_M_tie_prefix", __old, _M_tie_prefix);
+	firePropertyChange ("_M_tie_prefix", __old, _M_tie_prefix); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -705,7 +705,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_tie_postfix;
         _M_tie_postfix = __value;
-	firePropertyChange ("_M_tie_postfix", __old, _M_tie_postfix);
+	firePropertyChange ("_M_tie_postfix", __old, _M_tie_postfix); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -719,7 +719,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_impl_int_prefix;
         _M_impl_int_prefix = __value;
-	firePropertyChange ("_M_impl_int_prefix", __old, _M_impl_int_prefix);
+	firePropertyChange ("_M_impl_int_prefix", __old, _M_impl_int_prefix); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -732,7 +732,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_impl_int_postfix;
         _M_impl_int_postfix = __value;
-	firePropertyChange ("_M_impl_int_postfix", __old, _M_impl_int_postfix);
+	firePropertyChange ("_M_impl_int_postfix", __old, _M_impl_int_postfix); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -746,7 +746,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_table;
 	_M_table = __value;
-        firePropertyChange ("_M_table", __old, _M_table);
+        firePropertyChange ("_M_table", __old, _M_table); // NOI18N
 	this.cacheThrow ();
     }
 
@@ -768,8 +768,8 @@ public class ORBSettings implements java.io.Serializable {
     }
 
     public void fireChangeChoices () {
-        //firePropertyChange ("_client_binding", null, null);
-        //firePropertyChange ("_server_binding", null, null);
+        //firePropertyChange ("_client_binding", null, null); // NOI18N
+        //firePropertyChange ("_server_binding", null, null); // NOI18N
     }
 
     /*
@@ -848,6 +848,7 @@ public class ORBSettings implements java.io.Serializable {
       }
     */
     public boolean hideGeneratedFiles () {
+	//System.out.println ("ORBSettings::hideGeneratedFiles () -> " + _M_hide_generated_files); // NOI18N
         return _M_hide_generated_files;
     }
 
@@ -857,7 +858,7 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	boolean __old = _M_hide_generated_files;
         _M_hide_generated_files = __value;	
-	firePropertyChange ("_M_hide_generated_files", __old, _M_hide_generated_files);
+	firePropertyChange ("_M_hide_generated_files", __old, _M_hide_generated_files); // NOI18N
 	this.cacheThrow ();
 	IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
 	    (IDLDataLoader.class, true);
@@ -1015,7 +1016,7 @@ public class ORBSettings implements java.io.Serializable {
         String tmp_property;
 
         if (DEBUG)
-            System.out.println ("ORBSettings::setJavaTemplateTable");
+            System.out.println ("ORBSettings::setJavaTemplateTable"); // NOI18N
 
         JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
         Properties __properties = js.getReplaceableStringsProps ();
@@ -1030,74 +1031,74 @@ public class ORBSettings implements java.io.Serializable {
 	      }
 	    */
             //if (DEBUG)
-            //   System.out.println ("props at position: " + props.elementAt (index));
+            //   System.out.println ("props at position: " + props.elementAt (index)); // NOI18N
 
             //if (DEBUG)
             //   System.out.println (((Properties)props.elementAt (index)).getProperty
-            //     ("SETTINGS_ORB_PROPERTIES"));
+            //     ("SETTINGS_ORB_PROPERTIES")); // NOI18N
 
             //if (DEBUG)
             //    System.out.println ("sett: " + ((Properties)props.elementAt (index)).getProperty
-            //			("SETTINGS_ORB_PROPERTIES"));
+            //			("SETTINGS_ORB_PROPERTIES")); // NOI18N
             if (DEBUG)
-                System.out.println ("cb: " + this.getClientBindingName ());
+                System.out.println ("cb: " + this.getClientBindingName ()); // NOI18N
             if (DEBUG)
-                System.out.println ("sb: " + this.getServerBindingName ());
+                System.out.println ("sb: " + this.getServerBindingName ()); // NOI18N
 
-            __properties.setProperty ("ORB_NAME", this.getOrbName ());
+            __properties.setProperty ("ORB_NAME", this.getOrbName ()); // NOI18N
 
             if (this.getServerBinding () != null)
-                __properties.setProperty ("SERVER_BINDING", this.getServerBinding ().getValue ());
+                __properties.setProperty ("SERVER_BINDING", this.getServerBinding ().getValue ()); // NOI18N
             if (this.getClientBinding () != null)
-                __properties.setProperty ("CLIENT_BINDING", this.getClientBinding ().getValue ());
+                __properties.setProperty ("CLIENT_BINDING", this.getClientBinding ().getValue ()); // NOI18N
 
 
             __properties.setProperty ("SETTINGS_ORB_PROPERTIES", _M_properties.getProperty
-				      ("SETTINGS_ORB_PROPERTIES"));
+				      ("SETTINGS_ORB_PROPERTIES")); // NOI18N
             if (_M_properties.getProperty
-		("IMPORT_" + this.getClientBindingName ()) != null) {
+		("IMPORT_" + this.getClientBindingName ()) != null) { // NOI18N
                 __properties.setProperty ("ORB_IMPORT",_M_properties.getProperty
-					  ("IMPORT_" + this.getClientBindingName ()));
+					  ("IMPORT_" + this.getClientBindingName ())); // NOI18N
             }
 	    else {
                 if (_M_properties.getProperty
-		    ("IMPORT_" + this.getServerBindingName ()) != null) {
+		    ("IMPORT_" + this.getServerBindingName ()) != null) { // NOI18N
                     __properties.setProperty ("ORB_IMPORT",_M_properties.getProperty
-					      ("IMPORT_" + this.getServerBindingName ()));
+					      ("IMPORT_" + this.getServerBindingName ())); // NOI18N
                 }
                 else {
                     __properties.setProperty ("ORB_IMPORT", _M_properties.getProperty
-					      ("IMPORT"));
+					      ("IMPORT")); // NOI18N
                 }
             }
 	    
             __properties.setProperty ("ORB_SERVER_INIT", _M_properties.getProperty
-				      ("ORB_SERVER_INIT"));
+				      ("ORB_SERVER_INIT")); // NOI18N
             __properties.setProperty ("ORB_CLIENT_INIT", _M_properties.getProperty
-				      ("ORB_CLIENT_INIT"));
+				      ("ORB_CLIENT_INIT")); // NOI18N
 	    
-	    if (!this.getClientBindingName ().equals (""))
+	    if (!this.getClientBindingName ().equals ("")) // NOI18N
 		if ((tmp_property = _M_properties.getProperty
-		     ("CLIENT_" + this.getClientBindingName ())) != null)
-		    __properties.setProperty ("ORB_CLIENT_BINDING", tmp_property);
+		     ("CLIENT_" + this.getClientBindingName ())) != null) // NOI18N
+		    __properties.setProperty ("ORB_CLIENT_BINDING", tmp_property); // NOI18N
 	    /*
 	      __properties.setProperty ("ORB_CLIENT_BINDING", _M_properties.getProperty 
 	      ("CLIENT_" + this.getClientBindingName ()));
 	    */
 	    
-	    if (!this.getServerBindingName ().equals (""))
+	    if (!this.getServerBindingName ().equals ("")) // NOI18N
 		if ((tmp_property = _M_properties.getProperty
-		     ("SERVER_" + this.getServerBindingName ())) != null)
-		    __properties.setProperty ("ORB_SERVER_BINDING", tmp_property);
+		     ("SERVER_" + this.getServerBindingName ())) != null) // NOI18N
+		    __properties.setProperty ("ORB_SERVER_BINDING", tmp_property); // NOI18N
 	    /*
 	      __properties.setProperty ("ORB_SERVER_BINDING", _M_properties.getProperty 
 	      ("SERVER_" + this.getServerBindingName ()));
 	    */
             __properties.setProperty ("ORB_OBJECT_ACTIVATION", _M_properties.getProperty
-				      ("ORB_OBJECT_ACTIVATION"));
+				      ("ORB_OBJECT_ACTIVATION")); // NOI18N
 
             __properties.setProperty ("ORB_SERVER_RUN", _M_properties.getProperty
-				      ("ORB_SERVER_RUN"));
+				      ("ORB_SERVER_RUN")); // NOI18N
 
             // added for implementation generator
             /*
@@ -1115,7 +1116,7 @@ public class ORBSettings implements java.io.Serializable {
             */
 
         } catch (Exception e) {
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		e.printStackTrace ();
         }
 
@@ -1129,7 +1130,7 @@ public class ORBSettings implements java.io.Serializable {
                 System.out.println (e);
         }
         //if (DEBUG)
-        //	 System.out.println ("properties: " + bs.toString ());
+        //	 System.out.println ("properties: " + bs.toString ()); // NOI18N
         js.setReplaceableStringsTable (bs.toString ());
 
     }
@@ -1144,7 +1145,7 @@ public class ORBSettings implements java.io.Serializable {
 	
 
         if (DEBUG)
-            System.out.println ("loadImpl (" + __fo.getName () + ") ...");
+            System.out.println ("loadImpl (" + __fo.getName () + ") ..."); // NOI18N
 
         TopManager tm = TopManager.getDefault ();
 
@@ -1163,7 +1164,7 @@ public class ORBSettings implements java.io.Serializable {
 	    setOrbName (__properties.getProperty ("CTL_NAME"));
 	    
 	    if (DEBUG)
-		System.out.println ("impl: " + _M_orb_name);
+		System.out.println ("impl: " + _M_orb_name); // NOI18N
 	    //getNames ().add (__properties.getProperty ("CTL_NAME"));
 
 	    // make client and server bindings
@@ -1172,9 +1173,9 @@ public class ORBSettings implements java.io.Serializable {
 	    for (int j=0; j<_M_cbindings.length; j++)
 		if (__properties.getProperty ("CLIENT_" + _M_cbindings[j]) != null) {
 		    if (DEBUG)
-			System.out.println ("add cb: " + "CTL_CLIENT_" + _M_cbindings[j]);
-		    __client_bindings.add (CORBASupport.bundle.getString
-					   ("CTL_CLIENT_" + _M_cbindings[j]));
+			System.out.println ("add cb: " + "CTL_CLIENT_" + _M_cbindings[j]); // NOI18N
+		    __client_bindings.add (ORBSettingsBundle.bundle.getString
+					   ("CTL_CLIENT_" + _M_cbindings[j])); // NOI18N
 		}
 	    //_M_client_bindings.add (__client_bindings);
 	    _M_client_bindings = __client_bindings;
@@ -1183,46 +1184,46 @@ public class ORBSettings implements java.io.Serializable {
 	    for (int j=0; j<_M_sbindings.length; j++)
 		if (__properties.getProperty ("SERVER_" + _M_sbindings[j]) != null) {
 		    if (DEBUG)
-			System.out.println ("add sb: " + "CTL_SERVER_" + _M_sbindings[j]);
-		    __server_bindings.add (CORBASupport.bundle.getString
-					   ("CTL_SERVER_" + _M_sbindings[j]));
+			System.out.println ("add sb: " + "CTL_SERVER_" + _M_sbindings[j]); // NOI18N
+		    __server_bindings.add (ORBSettingsBundle.bundle.getString
+					   ("CTL_SERVER_" + _M_sbindings[j])); // NOI18N
 		}
 	    //_M_server_bindings.add (__server_bindings);
 	    _M_server_bindings = __server_bindings;
-	    //System.out.println ("props: ");
+	    //System.out.println ("props: "); // NOI18N
 	    //props.list (System.out);
 	    
 	    if (DEBUG) {
-		//System.out.println ("names: " + getNames ());
-		System.out.println ("clients bindings: " + _M_client_bindings);
-		System.out.println ("servers bindings: " + _M_server_bindings);
+		//System.out.println ("names: " + getNames ()); // NOI18N
+		System.out.println ("clients bindings: " + _M_client_bindings); // NOI18N
+		System.out.println ("servers bindings: " + _M_server_bindings); // NOI18N
 	    }
 	    setServerBinding (new ORBSettingsWrapper (this));
 	    setClientBinding (new ORBSettingsWrapper (this));
 
-	    //setAdvancedOrbOptions ("");
+	    //setAdvancedOrbOptions (""); // NOI18N
 	    setTieParam (_M_properties.getProperty ("TIE_PARAM"));
 	    setDirParam (_M_properties.getProperty ("DIR_PARAM"));
 	    setPackageParam (_M_properties.getProperty ("PACKAGE_PARAM"));
 
 	    String compiler = (String)_M_properties.getProperty ("COMPILER");
 	    if (DEBUG)
-		System.out.println ("compiler: " + compiler);
+		System.out.println ("compiler: " + compiler); // NOI18N
 
 	    StringTokenizer st = new StringTokenizer (compiler);
 	    String process = st.nextToken ();
-	    String args = "";
+	    String args = ""; // NOI18N
 	    while (st.hasMoreTokens ()) {
 		if (args.length () > 0)
-		    args = args + " " + st.nextToken ();
+		    args = args + " " + st.nextToken (); // NOI18N
 		else
 		    args = st.nextToken ();
 	    }
 	    if (DEBUG) {
-		System.out.println ("process: " + process);
-		System.out.println ("args: " + args);
+		System.out.println ("process: " + process); // NOI18N
+		System.out.println ("args: " + args); // NOI18N
 	    }
-	    setIdl (new NbProcessDescriptor (process, args, ""));
+	    setIdl (new NbProcessDescriptor (process, args, "")); // NOI18N
 
         setErrorExpression (_M_properties.getProperty ("ERROR_EXPRESSION"));
         setFilePosition (_M_properties.getProperty ("FILE_POSITION"));
@@ -1280,39 +1281,39 @@ public class ORBSettings implements java.io.Serializable {
     */
 
     public String getGeneration () {
-        //System.out.println ("ORBSettings::getGeneration () -> " + _M_generation + " for " + _M_orb_name);
+        //System.out.println ("ORBSettings::getGeneration () -> " + _M_generation + " for " + _M_orb_name); // NOI18N
         return _M_generation;
     }
 
     public void setGeneration (String __value) {
-        //System.out.println ("ORBSettings::setGeneration (" + __value + "); for " + _M_orb_name);
+        //System.out.println ("ORBSettings::setGeneration (" + __value + "); for " + _M_orb_name); // NOI18N
 	if (_M_property_change_support == null)
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_generation;
         _M_generation = __value;
-	firePropertyChange ("_M_generation", __old, _M_generation);
+	firePropertyChange ("_M_generation", __old, _M_generation); // NOI18N
 	this.cacheThrow ();
     }
 
     public String getSynchro () {
-        //System.out.println ("getSynchro () -> " + synchro);
+        //System.out.println ("getSynchro () -> " + synchro); // NOI18N
         return _M_synchro;
     }
 
     public void setSynchro (String __value) {
-        //System.out.println ("setSynchro (" + value + ");");
+        //System.out.println ("setSynchro (" + value + ");"); // NOI18N
 	if (_M_property_change_support == null)
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_synchro;
         _M_synchro = __value;
-	firePropertyChange ("_M_synchro", __old, _M_synchro);
+	firePropertyChange ("_M_synchro", __old, _M_synchro); // NOI18N
 	this.cacheThrow ();
     }
 
 
     public void addPropertyChangeListener (PropertyChangeListener __listener) {
 	if (DEBUG)
-	    System.out.println ("ORBSettings::addPropertyChangeListener (" + __listener + ")");
+	    System.out.println ("ORBSettings::addPropertyChangeListener (" + __listener + ")"); // NOI18N
 	//_M_listeners.add (__listener);
 	_M_property_change_support.addPropertyChangeListener (__listener);
     }
@@ -1320,7 +1321,7 @@ public class ORBSettings implements java.io.Serializable {
     
     public void removePropertyChangeListener (PropertyChangeListener __listener) {
 	if (DEBUG)
-	    System.out.println ("ORBSettings::removePropertyChangeListener (" + __listener + ")");
+	    System.out.println ("ORBSettings::removePropertyChangeListener (" + __listener + ")"); // NOI18N
 	//_M_listeners.remove (__listener);
 	_M_property_change_support.removePropertyChangeListener (__listener);
     }
@@ -1368,19 +1369,19 @@ public class ORBSettings implements java.io.Serializable {
 
     public void setOrbName (String __value) {
 	if (DEBUG)
-	    System.out.println ("ORBSettings::setOrbName (" + __value + ")");
+	    System.out.println ("ORBSettings::setOrbName (" + __value + ")"); // NOI18N
 	_M_orb_name = __value;
     }
 
     public Vector getServerBindings () {
 	if (DEBUG)
-	    System.out.println ("ORBSettings::getServerBindings () -> " + _M_server_bindings);
+	    System.out.println ("ORBSettings::getServerBindings () -> " + _M_server_bindings); // NOI18N
 	return _M_server_bindings;
     }
 
     public Vector getClientBindings () {
 	if (DEBUG)
-	    System.out.println ("ORBSettings::getClientBindings () -> " + _M_client_bindings);
+	    System.out.println ("ORBSettings::getClientBindings () -> " + _M_client_bindings); // NOI18N
 	return _M_client_bindings;
     }
 
@@ -1396,7 +1397,7 @@ public class ORBSettings implements java.io.Serializable {
 
     public void loadAllProperties () {
 	if (DEBUG) {
-	    System.out.println ("ORBSettings::loadAllProperties ();");
+	    System.out.println ("ORBSettings::loadAllProperties ();"); // NOI18N
 	}
 	_M_all_properties = new Hashtable ();
 	FileObject __parent = CORBASupportSettings.findImplFolder ();
@@ -1407,11 +1408,11 @@ public class ORBSettings implements java.io.Serializable {
 		try {
 		    __tmp.loadImpl (__files[__i]);
 		    if (DEBUG)
-			System.out.println ("load props from: " + __files[__i]);
+			System.out.println ("load props from: " + __files[__i]); // NOI18N
 		    _M_all_properties.put (__tmp.getName (), __tmp.getProperties ());
 		} catch (PropertyNotFoundException __ex) {
 		} catch (IOException __ex) {
-		    if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 			__ex.printStackTrace ();
 		}
 		
@@ -1428,8 +1429,8 @@ public class ORBSettings implements java.io.Serializable {
 
     public void loadProperties () {
 	if (DEBUG) {
-	    System.out.println ("ORBSettings::loadProperties ();");
-	    System.out.println ("for " + this.getName ());
+	    System.out.println ("ORBSettings::loadProperties ();"); // NOI18N
+	    System.out.println ("for " + this.getName ()); // NOI18N
 	}
 	if (_M_all_properties == null) {
 	    this.loadAllProperties ();

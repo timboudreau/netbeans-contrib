@@ -60,7 +60,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     private static final boolean DEBUG = false;
     
     private transient CORBASupportSettings _M_css;
-    public static final String IDL_EXTENSION = "idl";
+    public static final String IDL_EXTENSION = "idl"; // NOI18N
     
     protected transient int fi_counter = 0;
     
@@ -75,7 +75,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     public IDLDataLoader() {
 	super(IDLDataObject.class);
 	if (DEBUG)
-	    System.out.println ("IDLDataLoader...");
+	    System.out.println ("IDLDataLoader..."); // NOI18N
 	_M_folders = new HashMap ();
     }
     
@@ -116,27 +116,27 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 
     public boolean getHide () {
 	if (DEBUG)
-	    System.out.println ("IDLDataLoader::getHide () -> " + _M_hide_generated_files);
+	    System.out.println ("IDLDataLoader::getHide () -> " + _M_hide_generated_files); // NOI18N
 	return _M_hide_generated_files;
     }
 
     public void setHide (boolean __value) {
 	if (DEBUG)
-	    System.out.println ("IDLDataLoader::setHide (" + __value + ");");
+	    System.out.println ("IDLDataLoader::setHide (" + __value + ");"); // NOI18N
 	//Thread.dumpStack ();
 	boolean __old = _M_hide_generated_files;
 	_M_hide_generated_files = __value;
-	this.firePropertyChange ("_M_hide_generated_files", null, null);
+	this.firePropertyChange ("_M_hide_generated_files", null, null); // NOI18N
     }
 
     public boolean folderIsInCache (FileObject __folder) {
 	if (DEBUG) {
-	    System.out.println ("IDLDataLoader::folderIsInCache (" + __folder.toString () + ");");
+	    System.out.println ("IDLDataLoader::folderIsInCache (" + __folder.toString () + ");"); // NOI18N
 	    //if (_M_folders.containsKey (__folder.toString ()))
 	    if (_M_folders.containsKey (__folder))
-		System.out.println ("YES");
+		System.out.println ("YES"); // NOI18N
 	    else
-		System.out.println ("NO");
+		System.out.println ("NO"); // NOI18N
 	}
 	//return _M_folders.containsKey (__folder.toString ());
 	return _M_folders.containsKey (__folder);
@@ -148,8 +148,8 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 
     public void addFolderToCache (FileObject __folder) {
 	if (DEBUG)
-	    System.out.println ("IDLDataLoader::addFolderToCache (" + __folder.toString () 
-				+ ")");
+	    System.out.println ("IDLDataLoader::addFolderToCache (" + __folder.toString () // NOI18N
+				+ ")"); // NOI18N
 	WeakSet __tmp = new WeakSet ();
 	__folder.addFileChangeListener (this);
 	//_M_folders.put (__folder.toString (), __tmp);
@@ -158,8 +158,8 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 
     public void removeFolderFromCache (FileObject __folder) {
 	if (DEBUG)
-	    System.out.println ("IDLDataLoader::removeFolderFromCache (" + __folder.toString () 
-				+ ")");
+	    System.out.println ("IDLDataLoader::removeFolderFromCache (" + __folder.toString () // NOI18N
+				+ ")"); // NOI18N
 	__folder.removeFileChangeListener (this);
 	//_M_folders.put (__folder.toString (), __tmp);
 	_M_folders.remove (__folder);
@@ -167,8 +167,8 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 
     public void addFosToCache (FileObject __parent, WeakSet __fos) {
 	if (DEBUG)
-	    System.out.println ("IDLDataLoader::addFosToCache (" + __parent.toString () + ", "
-				+  __fos.toString () + ")");
+	    System.out.println ("IDLDataLoader::addFosToCache (" + __parent.toString () + ", " // NOI18N
+				+  __fos.toString () + ")"); // NOI18N
 	__parent.addFileChangeListener (this);
 	//_M_folders.put (__parent.toString (), __fos);
 	_M_folders.put (__parent, __fos);
@@ -185,18 +185,18 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 
     public void addFileObjectToCache (FileObject __fo) {
 	if (DEBUG)
-	    System.out.println ("IDLDataLoader::addDataObjectToCache (" + __fo.toString () 
-				+ ");");
+	    System.out.println ("IDLDataLoader::addDataObjectToCache (" + __fo.toString () // NOI18N
+				+ ");"); // NOI18N
 	FileObject __parent = __fo.getParent ();
 	//WeakSet __idls_in_folder = (WeakSet)_M_folders.get (__parent.toString ());
 	WeakSet __idls_in_folder = (WeakSet)_M_folders.get (__parent);
 	if (__idls_in_folder != null) {
 	    //if (DEBUG)
 	    if (!this.isFileObjectInWeakSet (__idls_in_folder, __fo)) {
-		String __name = __fo.getName () + "." + __fo.getExt ();
+		String __name = __fo.getName () + "." + __fo.getExt (); // NOI18N
 		if (DEBUG) {
-		    System.out.println ("adding file object: " + __name);
-		    System.out.println ("weak set: " + __idls_in_folder);
+		    System.out.println ("adding file object: " + __name); // NOI18N
+		    System.out.println ("weak set: " + __idls_in_folder); // NOI18N
 		    //Thread.dumpStack ();
 		}
 		__idls_in_folder.add (__fo);
@@ -204,7 +204,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 	}
 	else {
 	    if (DEBUG)
-		System.out.println ("adding pair of folder and file object");
+		System.out.println ("adding pair of folder and file object"); // NOI18N
 	    WeakSet __tmp = new WeakSet ();
 	    __tmp.add (__fo);
 	    //_M_folders.put (__parent.toString (), __tmp);
@@ -218,13 +218,13 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 	    WeakSet __set = (WeakSet)_M_folders.get (__fo.getParent ());
 	    if (this.isFileObjectInWeakSet (__set, __fo)) {
 		if (DEBUG) {
-		    System.out.println ("weak set: " + __set + " : " + __set.size ());
-		    System.out.println ("sucessfully remove: " + __fo);
+		    System.out.println ("weak set: " + __set + " : " + __set.size ()); // NOI18N
+		    System.out.println ("sucessfully remove: " + __fo); // NOI18N
 		}
 		__set.remove (__fo);
 		if (DEBUG) {
-		    System.out.println ("weak set size: " + __set.size ());
-		    System.out.println ("weak set: " + __set + " : " + __set.size ());
+		    System.out.println ("weak set size: " + __set.size ()); // NOI18N
+		    System.out.println ("weak set: " + __set + " : " + __set.size ()); // NOI18N
 		}
 	    }
 	}	
@@ -232,8 +232,8 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     
     public WeakSet getFileObjectsForFileObject (FileObject __fo) {
 	if (DEBUG)
-	    System.out.println ("IDLDataLoader::getFileObjectsForFileObject (" 
-				+ __fo.toString () + ");");
+	    System.out.println ("IDLDataLoader::getFileObjectsForFileObject (" // NOI18N
+				+ __fo.toString () + ");"); // NOI18N
 	//(Vector)_M_folders.get (fo.getParent ()));
 	//return (WeakSet)_M_folders.get (__fo.getParent ().toString ());
 	return (WeakSet)_M_folders.get (__fo.getParent ());
@@ -242,7 +242,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 
     public LinkedList getDataObjectsFromFileObjects (WeakSet __fos) {
 	if (DEBUG)
-	    System.out.println ("IDLDataLoader::getDataObjectsFromFileObjects (" + __fos + ")");
+	    System.out.println ("IDLDataLoader::getDataObjectsFromFileObjects (" + __fos + ")"); // NOI18N
 	LinkedList __idos = new LinkedList ();
 
 	if (__fos == null)
@@ -257,7 +257,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 		__tmp_do = DataObject.find (__fo);
 	    } catch (DataObjectNotFoundException __ex) {
 		__tmp_do = null;
-		if (Boolean.getBoolean ("netbeans.debug.exceptions"))
+		if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		    __ex.printStackTrace ();
 	    }
 	    if (__tmp_do != null) {
@@ -289,7 +289,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     protected FileObject findPrimaryFile (FileObject __fo) {
 	//long __time_at_start = 0;
 	//if (DEBUG) {
-	//System.out.println ("IDLDataLoader::findPrimaryFile (" + __fo + ");");
+	//System.out.println ("IDLDataLoader::findPrimaryFile (" + __fo + ");"); // NOI18N
 	//__time_at_start = System.currentTimeMillis ();
 	//}
 
@@ -298,7 +298,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 
 	if (__fo.getParent () == null) {
 	    if (DEBUG)
-		System.out.println ("!!!!NULL FOLDER!!!! - for " + __fo.toString ());
+		System.out.println ("!!!!NULL FOLDER!!!! - for " + __fo.toString ()); // NOI18N
 	    return null;
 	}
 
@@ -309,7 +309,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 		// profiling hack
 		//long __time_at_end = System.currentTimeMillis ();
 		//_M_msec_in_find_primary_file += __time_at_end - __time_at_start;
-		//System.out.println ("milisecond: " + _M_msec_in_find_primary_file);
+		//System.out.println ("milisecond: " + _M_msec_in_find_primary_file); // NOI18N
 		// end of profiling hack
 	    }
 	    return __fo;
@@ -318,15 +318,15 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 	if (_M_css == null)
 	    _M_css = (CORBASupportSettings)
 		CORBASupportSettings.findObject (CORBASupportSettings.class, true);
-	//System.out.println ("_M_css: " + _M_css);
+	//System.out.println ("_M_css: " + _M_css); // NOI18N
 
 	ORBSettings __settings = _M_css.getActiveSetting ();
-	//System.out.println ("__settings: " + __settings);
+	//System.out.println ("__settings: " + __settings); // NOI18N
 	if (__settings != null) {
 	    if (__settings.hideGeneratedFiles ()) {
 		if (!this.folderIsInCache (__fo.getParent ())) {
 		    if (DEBUG)
-			System.out.println ("find idls in folder");
+			System.out.println ("find idls in folder"); // NOI18N
 		    WeakSet __idls_in_folder = this.findIdls (__fo);
 		    FileObject __parent = __fo.getParent ();
 		    this.addFosToCache (__parent, __idls_in_folder);
@@ -340,7 +340,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 			// profiling hack
 			//long __time_at_end = System.currentTimeMillis ();
 			//_M_msec_in_find_primary_file += __time_at_end - __time_at_start;
-			//System.out.println ("milisecond: " + _M_msec_in_find_primary_file);
+			//System.out.println ("milisecond: " + _M_msec_in_find_primary_file); // NOI18N
 			// end of profiling hack
 		    }
 		    return null;
@@ -356,13 +356,13 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 			if (__tmp_ido.canGenerate (__fo)) {
 			    __retval = __tmp_ido.getPrimaryFile ();
 			    if (DEBUG)
-				System.out.println (__fo.toString () + " generated from " 
+				System.out.println (__fo.toString () + " generated from " // NOI18N
 						    + __retval.toString ());
 			    if (DEBUG) {
 				// profiling hack
 				//long __time_at_end = System.currentTimeMillis ();
 				//_M_msec_in_find_primary_file += __time_at_end - __time_at_start;
-				//System.out.println ("milisecond: " 
+				//System.out.println ("milisecond: " // NOI18N
 				//		     + _M_msec_in_find_primary_file);
 				// end of profiling hack
 			    }
@@ -390,7 +390,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 		} catch (ClassCastException ex) {
 		    //ex.printStackTrace ();
 		    if (DEBUG)
-			System.out.println ("exception: " + ex);
+			System.out.println ("exception: " + ex); // NOI18N
 		}
 	    }
 	}
@@ -404,7 +404,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 	    // profiling hack
 	    //long __time_at_end = System.currentTimeMillis ();
 	    //_M_msec_in_find_primary_file += __time_at_end - __time_at_start;
-	    //System.out.println ("milisecond: " + _M_msec_in_find_primary_file);
+	    //System.out.println ("milisecond: " + _M_msec_in_find_primary_file); // NOI18N
 	    // end of profiling hack
 	}
 	return null;
@@ -436,11 +436,11 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     protected WeakSet findIdls (FileObject __fo) {
 	fi_counter++;
 	if (DEBUG)
-	    System.out.println ("IDLDataLoader::findIdls ()..." + fi_counter);
+	    System.out.println ("IDLDataLoader::findIdls ()..." + fi_counter); // NOI18N
 	FileObject __folder = __fo.getParent ();
 	//if (__folder == null) {
 	//if (DEBUG)
-	//System.out.println ("!!!!NULL FOLDER!!!! - for " + fo.getName ());
+	//System.out.println ("!!!!NULL FOLDER!!!! - for " + fo.getName ()); // NOI18N
 	/** Changed for the Jaga 1010 bug
 	 */
 	//return new Vector ();
@@ -454,11 +454,11 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 	    if (__files[__i].isData ()) {
 		// file object represent data file
 		//System.out.println (files[i]);
-		if (__files[__i].getExt ().equals ("idl")) {
+		if (__files[__i].getExt ().equals ("idl")) { // NOI18N
 		    // idl file
 		    __idls.add (__files[__i]);
 		    if (DEBUG)
-			System.out.println ("idl file: " + __files[__i].toString ());
+			System.out.println ("idl file: " + __files[__i].toString ()); // NOI18N
 		}
 	    }
 	}
@@ -510,14 +510,14 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
         protected java.text.Format createFormat (FileObject target, String n, String e) {
             Map map = createStringsMap ();
 
-            map.put("DATE", DateFormat.getDateInstance (DateFormat.LONG).format (new Date()));
-            map.put("TIME", DateFormat.getTimeInstance (DateFormat.SHORT).format (new Date()));
-            map.put("NAME", n);
-            //map.put("PACKAGE", target.getPackageName('.'));
+            map.put("DATE", DateFormat.getDateInstance (DateFormat.LONG).format (new Date())); // NOI18N
+            map.put("TIME", DateFormat.getTimeInstance (DateFormat.SHORT).format (new Date())); // NOI18N
+            map.put("NAME", n); // NOI18N
+            //map.put("PACKAGE", target.getPackageName('.')); // NOI18N
 
             MapFormat format = new MapFormat (map);
-            format.setLeftBrace ("__");
-            format.setRightBrace ("__");
+            format.setLeftBrace ("__"); // NOI18N
+            format.setRightBrace ("__"); // NOI18N
             format.setExactMatch (false);
             return format;
         }
@@ -526,18 +526,18 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     
     public void fileAttributeChanged (FileAttributeEvent __event) {
 	if (DEBUG)
-	    System.out.println ("fileAttributeChanged listened: " + __event);
+	    System.out.println ("fileAttributeChanged listened: " + __event); // NOI18N
     }
 
     public void fileChanged (FileEvent __event) {
 	if (DEBUG)
-	    System.out.println ("fileChanged listened: " + __event);
+	    System.out.println ("fileChanged listened: " + __event); // NOI18N
     }
 
     public void fileDataCreated (FileEvent __event) {
 	if (DEBUG)
-	    System.out.println ("fileDataCreated listened: " + __event 
-				+ ":" + __event.getFile ());
+	    System.out.println ("fileDataCreated listened: " + __event // NOI18N
+				+ ":" + __event.getFile ()); // NOI18N
 	FileObject __fo = __event.getFile ();
 	FileObject __parent = __fo.getParent ();
 	if (this.folderIsInCache (__parent) && __fo.getExt ().equals (CORBASupport.IDL_EXT)) {
@@ -547,7 +547,7 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 
     public void fileDeleted (FileEvent __event) {
 	if (DEBUG)
-	    System.out.println ("fileDeleted listened: " + __event + ":" + __event.getFile ());
+	    System.out.println ("fileDeleted listened: " + __event + ":" + __event.getFile ()); // NOI18N
 	FileObject __fo = __event.getFile ();
 	if (__fo.isFolder ()) {
 	    // user deleted folder which is in cache
@@ -561,12 +561,12 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 
     public void fileFolderCreated (FileEvent __event) {
 	if (DEBUG)
-	    System.out.println ("fileFolderCreated listened: " + __event);
+	    System.out.println ("fileFolderCreated listened: " + __event); // NOI18N
     }
 
     public void fileRenamed (FileRenameEvent __event) {
 	if (DEBUG)
-	    System.out.println ("fileRenamed listened: " + __event);
+	    System.out.println ("fileRenamed listened: " + __event); // NOI18N
     }
 
 

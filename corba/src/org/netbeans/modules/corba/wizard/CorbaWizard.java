@@ -43,6 +43,8 @@ import org.netbeans.modules.corba.IDLDataObject;
 import org.netbeans.modules.corba.CORBASupport;
 import org.netbeans.modules.corba.IDLNodeCookie;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
+import org.netbeans.modules.corba.settings.ORBSettingsBundle;
+
 
 /** 
  *
@@ -369,9 +371,9 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
             if (this.data.getDefaultClientBindingValue() != null)
                 css.getActiveSetting().setClientBindingFromString (this.data.getDefaultClientBindingValue());
             if (this.data.getDefaultTie())
-                css.getActiveSetting().setSkeletons (CORBASupport.TIE);
+                css.getActiveSetting().setSkeletons (ORBSettingsBundle.TIE);
             else
-                css.getActiveSetting().setSkeletons (CORBASupport.INHER);
+                css.getActiveSetting().setSkeletons (ORBSettingsBundle.INHER);
             if (this.data.getDefaultOrbValue() != null)
                 css.setOrb(this.data.getDefaultOrbValue());
             }

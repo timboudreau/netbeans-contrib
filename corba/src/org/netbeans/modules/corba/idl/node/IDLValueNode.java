@@ -35,7 +35,7 @@ public class IDLValueNode extends IDLAbstractNode {
     ValueElement _value;
 
     private static final String VALUE_ICON_BASE =
-	"org/netbeans/modules/corba/idl/node/value";
+	"org/netbeans/modules/corba/idl/node/value"; // NOI18N
 
     public IDLValueNode (ValueElement value) {
 	super (new IDLDocumentChildren ((IDLElement)value));
@@ -43,21 +43,21 @@ public class IDLValueNode extends IDLAbstractNode {
 	_value = value;
 	setCookieForDataObject (_value.getDataObject ());
     }
-
-    public String getDisplayName () {
-	if (_value != null)
-	    //return ((Identifier)_Value.jjtGetChild (0)).getName ();
-	    return _value.getName ();
-	else 
-	    return "NoName :)";
-    }
-
+    /*
+      public String getDisplayName () {
+      if (_value != null)
+      //return ((Identifier)_Value.jjtGetChild (0)).getName ();
+      return _value.getName ();
+      else 
+      return "NoName :)";
+      }
+    */
     public IDLElement getIDLElement () {
 	return _value;
     }
 
     public String getName () {
-	return "Value";
+	return "value"; // NOI18N
     }
 
     public SystemAction getDefaultAction () {
@@ -66,54 +66,54 @@ public class IDLValueNode extends IDLAbstractNode {
     }
 
     protected Sheet createSheet () {
-	//System.out.println ("IDLValueNode::createSheet ();");
+	//System.out.println ("IDLValueNode::createSheet ();"); // NOI18N
 	Sheet s = Sheet.createDefault ();
 	Sheet.Set ss = s.get (Sheet.PROPERTIES);
-	ss.put (new PropertySupport.ReadOnly ("name", String.class, "name", "name of value") {
+	ss.put (new PropertySupport.ReadOnly ("name", String.class, IDLNodeBundle.NAME, IDLNodeBundle.NAME_OF_VALUE) { // NOI18N
 		public Object getValue () {
 		    return _value.getName ();
 		}
 	    });
-	ss.put (new PropertySupport.ReadOnly ("custom", String.class, "custom", "is value custom") {
+	ss.put (new PropertySupport.ReadOnly ("custom", String.class, IDLNodeBundle.CUSTOM, IDLNodeBundle.CUSTOM_VALUE) { // NOI18N
 		public Object getValue () {
 		    if (_value.isCustom ())
-			return "yes";
+			return IDLNodeBundle.YES;
 		    else
-			return "no";
+			return IDLNodeBundle.NO;
 		}
 	    });
-	ss.put (new PropertySupport.ReadOnly ("inherited", String.class, "inherited", 
-					      "inherited from") {
+	ss.put (new PropertySupport.ReadOnly ("inherited", String.class, IDLNodeBundle.INHERITED, // NOI18N
+					      IDLNodeBundle.INHERITED_FROM) {
 		public Object getValue () {
-		    String inher = "";
+		    String inher = ""; // NOI18N
 		    if (_value.getParents ().size () > 0) {
 			for (int i=0; i<_value.getParents ().size (); i++)
 			    //inher = inher + ((Identifier)_Value.getParents ().elementAt (i)).getName () 
 			    inher = inher + (String)_value.getParents ().elementAt (i)
-				+ ", ";
+				+ ", "; // NOI18N
 			inher = inher.substring (0, inher.length () - 2);
 		    }
 		    else
-			inher = "";
+			inher = ""; // NOI18N
 		    return inher;
 		}
 	    });
-
-	ss.put (new PropertySupport.ReadOnly ("supported", String.class, "supported", 
-					      "supports interface(s)") {
+	
+	ss.put (new PropertySupport.ReadOnly ("supported", String.class, IDLNodeBundle.SUPPORTED, // NOI18N
+					      IDLNodeBundle.SUPPORTS_INTERFACES) {
 		public Object getValue () {
-		    String __supports = "";
+		    String __supports = ""; // NOI18N
 		    Vector __tmp_supported = _value.getSupported ();
 		    if (__tmp_supported.size () > 0) {
 			for (int __i=0; __i<__tmp_supported.size (); __i++) {
 			    //inher = inher + ((Identifier)_Value.getParents ().elementAt (i)).getName () 
 			    __supports = __supports + (String)__tmp_supported.elementAt (__i)
-				+ ", ";
+				+ ", "; // NOI18N
 			}
 			__supports = __supports.substring (0, __supports.length () - 2);
 		    }
 		    else
-			__supports = "";
+			__supports = ""; // NOI18N
 		    return __supports;
 		}
 	    });
