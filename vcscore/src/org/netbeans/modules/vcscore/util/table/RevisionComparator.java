@@ -53,6 +53,9 @@ public class RevisionComparator implements TableInfoComparator {
     }
     
     public String getDisplayValue(Object obj, Object rowObject) {
-        return obj.toString();
+        if (obj != null) {
+            return obj.toString();
+        }
+        return "";
     }
 }
