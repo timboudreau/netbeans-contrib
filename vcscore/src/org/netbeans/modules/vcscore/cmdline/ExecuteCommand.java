@@ -788,7 +788,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                     elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
                 }
                 //System.out.println("readFileFinished("+fileDir+", "+VcsUtilities.arrayToString(elements)+")");
-                for (Iterator it = fileReaderListeners.iterator(); it.hasNext(); ) {
+                for (Iterator it = new ArrayList(fileReaderListeners).iterator(); it.hasNext(); ) {
                     ((FileReaderListener) it.next()).readFileFinished(fileDir, Collections.singleton(elements));
                 }
                 filesToRefresh.remove(filePath);
