@@ -30,11 +30,13 @@ public interface VcsSearchTypeFileSystem {
      */
     public String[] getPossibleFileStatuses();
     
-    /** returns the status for a dataobject. If it matches the status 
-     * the user selected in the find dialog (list of all possible states), then
-     * it's found and displayed.
+    /** 
+     * Get all states of files that are part of a DataObject.
+     * If it matches the status the user selected in the find dialog
+     * (list of all possible states), then it's found and displayed.
+     * @return The list of file states
      */
-    public String getStatus(org.openide.loaders.DataObject dObject);
+    public String[] getStates(org.openide.loaders.DataObject dObject);
     
 }
 

@@ -314,11 +314,16 @@ public class VcsSearchType extends SearchType {
             searchFS = (VcsSearchTypeFileSystem) fo.getAttribute(VcsSearchTypeFileSystem.VCS_SEARCH_TYPE_ATTRIBUTE);
         }
         if (searchFS == null) return false;
-        String status = searchFS.getStatus(dobj);
+        String[] states = searchFS.getStates(dobj);
         if (matchExcept) {
-            return !matchStatuses.contains(status);
+            List statesList = Arrays.asList(states);
+            return !matchStatuses.containsAll(statesList);
         } else {
-            return matchStatuses.contains(status);
+            boolean contains = false;
+            for (int i = 0; i < states.length; i++) {
+                contains = contains || matchStatuses.contains(states[i]);
+            }
+            return contains;
         }
     }
 

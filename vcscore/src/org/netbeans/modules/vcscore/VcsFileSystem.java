@@ -2155,6 +2155,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return status;
     }
 
+    /**
+     * Get the status of a DataObject. When the DataObject consists of more than
+     * file, the result may be some composition of these states.
+     */
     public String getStatus(DataObject dobj) {
         Set files = dobj.files();
         Object[] oo = files.toArray();
@@ -2170,6 +2174,109 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                            "${"+RefreshCommandSupport.ANNOTATION_PATTERN_STATUS+"}", statusProvider,
                                                                            multiFilesAnnotationTypes);
         } else return "";
+    }
+    
+    /**
+     * Get states of all important files inside the DataObject. To get the status,
+     * wait for the status reader command if necessary.
+     * @param dobj The DataObject
+     * @return The list of important files states. The order of files is kept unchanged.
+     */
+    public String[] getStates(DataObject dobj) {
+        Set files = dobj.files();
+        Object[] oo = files.toArray();
+        int len = oo.length;
+        if (len == 0) return new String[0];
+        if (statusProvider != null) {
+            for (int i = 0; i < len; i++) {
+                oo[i] = convertForeignFileObjectToMyFileObject((FileObject) oo[i]);
+            }
+            if (len == 1) {
+                return new String[] {
+                    getRealStatus(((FileObject) oo[0]).getPackageNameExt('/', '.'))
+                };
+            } else {
+                ArrayList importantFiles = getImportantFiles(oo);
+                String[] states = new String[importantFiles.size()];
+                for (int i = 0; i < states.length; i++) {
+                    states[i] = getRealStatus((String) importantFiles.get(i));
+                }
+                return states;
+            }
+        } else return new String[0];
+    }
+    
+    /** Get the "real" status of a file. If necessary wait for the status to be
+     * retrieved from the VCS */
+    private String getRealStatus(String fullName) {
+        if (cache != null) {
+            //findLoadedCacheDir(fullName);
+            String dirName = VcsUtilities.getDirNamePart(fullName);
+            String fileName = VcsUtilities.getFileNamePart(fullName);
+            CacheDir dir = cache.getDir(dirName);
+            if (dir == null || dir.isLocal()) {
+                dir = findLoadedCacheDir(dirName);
+            }
+            // first ask for the status - this will either read the file status
+            // from memory cache or from disk cache or start a Refresh command
+            String firstStatus = statusProvider.getFileStatus(fullName);
+            // If the cache directory exists wait till it's fully loaded (till the Refresh command finish)
+            if (dir != null && dir instanceof VcsCacheDir) {
+                VcsCacheDir vcsdir = (VcsCacheDir) dir;
+                if (!vcsdir.isLocal()) {
+                    try {
+                        vcsdir.waitToLoad();
+                    } catch (InterruptedException inex) {}
+                }
+                // Also ask whether the file is ignored to load the list of ignored files
+                dir.isIgnored(fileName);
+            }
+        }
+        // Now the correct status should be ready
+        String status = statusProvider.getFileStatus(fullName);
+        String trans = null;
+        HashMap possibleFileStatusesMap = statusProvider.getPossibleFileStatusesTable();
+        if (possibleFileStatusesMap != null && status != null) {
+            synchronized (possibleFileStatusesMap) {
+                trans = (String) possibleFileStatusesMap.get(status);
+            }
+        }
+        if (trans != null) {
+            status = trans;
+        }
+        return status;
+    }
+    
+    /** find a cache dir, that currently does not exist, but can be obtained
+     * after it's parents are loaded */
+    private CacheDir findLoadedCacheDir(String name) {
+        String dirName = VcsUtilities.getDirNamePart(name);
+        String fileName = VcsUtilities.getFileNamePart(name);
+        if (dirName.length() == 0 || dirName.length() == name.length()) return null;
+        CacheDir dir = cache.getDir(dirName);
+        if (dir == null || dir.isLocal()) {
+            dir = findLoadedCacheDir(dirName);
+        }
+        if (dir != null && !dir.isLocal() && (dir instanceof VcsCacheDir)) {
+            VcsCacheDir vcsdir = (VcsCacheDir) dir;
+            if (!vcsdir.isLoaded()) {
+                // ask for the status - this will either read the file status
+                // from memory cache or from disk cache or start a Refresh command
+                String firstStatus = statusProvider.getFileStatus(name);
+                // If the cache directory exists wait till it's fully loaded (till the Refresh command finish)
+                if (!vcsdir.isLocal()) {
+                    try {
+                        vcsdir.waitToLoad();
+                    } catch (InterruptedException inex) {}
+                }
+            }
+        }
+        if (dir != null) {
+            // Also ask whether the file is ignored to load the list of ignored files
+            dir.isIgnored(fileName);
+            dir = dir.getSubDir(fileName);
+        }
+        return dir;
     }
     
     /** Converts a FileObject from a different file system (usually
