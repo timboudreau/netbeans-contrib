@@ -18,9 +18,12 @@ import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -32,6 +35,7 @@ import org.openide.util.RequestProcessor;
 
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.api.vcs.commands.MessagingCommand;
 
 import org.netbeans.spi.vcs.commands.CommandSupport;
@@ -77,7 +81,7 @@ public class CommandMenu extends JMenuPlus {
              removeDisabled, inMenu, globalExpertMode, null, new HashMap());
     }
     
-    public CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
+    private CommandMenu(CommandsTree commandRoot, Map filesWithMessages,
                        String advancedOptionsSign,
                        boolean removeDisabled, boolean inMenu, boolean globalExpertMode,
                        ActionListener listener, Map actionCommandMap) {
@@ -135,6 +139,8 @@ public class CommandMenu extends JMenuPlus {
             }
             allFiles = (FileObject[]) files.toArray(new FileObject[files.size()]);
         }
+        Map multiCommandsByDisplayName = getMultiCommandsByDisplayName(children, allFiles);
+        Set addedDisplayNames = new HashSet();
         for (int i = 0; i < children.length; i++) {
             CommandSupport cmd = (CommandSupport) children[i].getCommandSupport();
             if (cmd == null) {
@@ -147,8 +153,9 @@ public class CommandMenu extends JMenuPlus {
                 continue;
             }
             wasNullCommand = false;
+            String displayName = cmd.getDisplayName();
             //System.out.println("VcsAction.addMenu(): cmd = "+cmd.getName());
-            if (cmd.getDisplayName() == null) continue;
+            if (displayName == null) continue;
             if (removeDisabled && cmd.getApplicableFiles(allFiles) == null) {
                 continue;
             }
@@ -167,8 +174,19 @@ public class CommandMenu extends JMenuPlus {
                 add(submenu);
                 item = submenu;
             } else {
+                if (addedDisplayNames.contains(displayName) && multiCommandsByDisplayName.containsKey(displayName)) {
+                    continue;
+                }
                 item = cmdMenu;
                 //                item.addMenuKeyListener(ctrlListener);
+                List cmdList = (List) multiCommandsByDisplayName.get(cmd.getDisplayName());
+                if (cmdList != null) {
+                    item = createItem((CommandSupport[]) cmdList.toArray(new CommandSupport[cmdList.size()]),
+                                      displayName, globalExpertMode,
+                                      switchableList, advancedOptionsSign, inMenu,
+                                      listener, actionCommandMap);
+                    addedDisplayNames.add(displayName);
+                }
                 add(item);
             }
             if (!removeDisabled && cmd.getApplicableFiles(allFiles) == null) {
@@ -176,6 +194,31 @@ public class CommandMenu extends JMenuPlus {
             }
         }
         popupCreated = true;
+    }
+    
+    private static Map getMultiCommandsByDisplayName(CommandsTree[] children,
+                                                     FileObject[] allFiles) {
+        Map commandsByDisplayNames = new HashMap();
+        Map multiCommandsByDisplayName = new HashMap();
+        for (int i = 0; i < children.length; i++) {
+            CommandSupport cmd = (CommandSupport) children[i].getCommandSupport();
+            if (cmd != null && !children[i].hasChildren()) {
+                String dn = cmd.getDisplayName();
+                if (dn != null) {
+                    if (commandsByDisplayNames.containsKey(dn)) {
+                        List cmdList = (List) multiCommandsByDisplayName.get(dn);
+                        if (cmdList == null) {
+                            cmdList = new LinkedList();
+                            cmdList.add(commandsByDisplayNames.get(dn));
+                            multiCommandsByDisplayName.put(dn, cmdList);
+                        }
+                        cmdList.add(cmd);
+                    }
+                    commandsByDisplayNames.put(dn, cmd);
+                }
+            }
+        }
+        return multiCommandsByDisplayName;
     }
 
     /**
@@ -203,6 +246,42 @@ public class CommandMenu extends JMenuPlus {
                 commandStr = base + ++i;
             }
             actionCommandMap.put(commandStr, cmd);
+        }
+        item.setActionCommand(commandStr);
+        item.addActionListener(listener);
+        if (hasExpert) {// && (!expertMode)) {
+            switchableList.add(item);
+        }
+        return item;
+    }
+    
+    /**
+     * Create a menu item, that represents several commands of the same display name.
+     * @param cmd the command
+     */
+    private static JMenuItem createItem(CommandSupport[] cmds, String label, boolean expertMode,
+                                        List switchableList, String advancedOptionsSign,
+                                        boolean inMenu, ActionListener listener,
+                                        Map actionCommandMap) {
+        boolean hasExpert = expertMode && advancedOptionsSign != null;
+        if (hasExpert) {
+            for (int i = 0; i < cmds.length && hasExpert; i++) {
+                hasExpert = hasExpert && cmds[i].hasExpertMode();
+            }
+            if (hasExpert) {
+                label += advancedOptionsSign;
+            }
+        }
+        JMenuItem item = new JMenuItem();
+        Actions.setMenuText(item, label, inMenu);
+        String commandStr = cmds[0].getName();
+        if (actionCommandMap != null) {
+            String base = commandStr;
+            int i = 0;
+            while (actionCommandMap.containsKey(commandStr)) {
+                commandStr = base + ++i;
+            }
+            actionCommandMap.put(commandStr, cmds);
         }
         item.setActionCommand(commandStr);
         item.addActionListener(listener);
@@ -265,32 +344,61 @@ public class CommandMenu extends JMenuPlus {
          */
         public void actionPerformed(ActionEvent e) {
             final String cmdName = e.getActionCommand();
-            final CommandSupport cmdSupport;
+            final CommandSupport[] cmdSupports;
             if (actionCommandMap != null) {
-                cmdSupport = (CommandSupport) actionCommandMap.get(cmdName);
+                Object cmd = actionCommandMap.get(cmdName);
+                if (cmd instanceof CommandSupport[]) {
+                    cmdSupports = (CommandSupport[]) cmd;
+                } else {
+                    cmdSupports = new CommandSupport[] { (CommandSupport) cmd };
+                }
             } else {
-                cmdSupport = null;
+                cmdSupports = null;
             }
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
                     for (Iterator it = filesWithMessages.keySet().iterator(); it.hasNext(); ) {
                         FileObject[] files = (FileObject[]) it.next();
                         String message = (String) filesWithMessages.get(files);
-                        Command cmd = null;
-                        if (cmdSupport != null) {
-                            cmd = cmdSupport.createCommand();
+                        Command[] cmds;
+                        if (cmdSupports != null) {
+                            cmds = new Command[cmdSupports.length];
+                            for (int i = 0; i < cmdSupports.length; i++) {
+                                cmds[i] = cmdSupports[i].createCommand();
+                            }
                         } else {
+                            Command cmd = null;
                             try {
                                 cmd = VcsManager.getDefault().createCommand(cmdName, files);
                             } catch (IllegalArgumentException iaex) {}
+                            if (cmd != null) {
+                                cmds = new Command[] { cmd };
+                            } else {
+                                cmds = new Command[0];
+                            }
                         }
-                        if (cmd != null) {
+                        for (int i = 0; i < cmds.length; i++) {
+                            Command cmd = cmds[i];
+                            if (cmd.getApplicableFiles(files) == null) {
+                                continue;
+                            }
                             if (message != null && cmd instanceof MessagingCommand) {
                                 ((MessagingCommand) cmd).setMessage(message);
                             }
                             cmd.setGUIMode(true);
                             if (CTRL_Down[0]) cmd.setExpertMode(CTRL_Down[0] ^ CTRL_Down[1]);
-                            VcsFSCommandsAction.executeCommand(cmd, files);
+                            CommandTask task = VcsFSCommandsAction.executeCommand(cmd, files);
+                            if (task != null) {
+                                try {
+                                    task.waitFinished(0);
+                                } catch (InterruptedException iex) {
+                                    // The command was interrupted, do not run the rest.
+                                    break;
+                                }
+                            } else {
+                                // The command was canceled, do not run the rest.
+                                break;
+                            }
                             //boolean customized = VcsManager.getDefault().showCustomizer(cmd);
                             //if (customized) cmd.execute();
                         }
