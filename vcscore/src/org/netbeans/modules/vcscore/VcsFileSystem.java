@@ -1584,9 +1584,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setEnvironmentVar (String key, String value) {
 	for (int i=0; i<this.environmentVars.length; i++) {
 	    StringTokenizer tk = new StringTokenizer (this.environmentVars[i],"=");
-	    if (tk.countTokens() != 2)  // Broken env variable
-		continue;
-	    String pairKey = tk.nextToken();
+            String pairKey;
+            if (tk.countTokens() != 2) { // Broken env variable
+		if (environmentVars[i].endsWith("=")) { // the value is not defined
+                    pairKey = environmentVars[i].substring(0, environmentVars[i].length() - 1);
+                } else {
+                    continue; // Something's bad
+                }
+            } else {
+                pairKey = tk.nextToken();
+            }
 	    if (pairKey.equals(key)) {
 		this.environmentVars[i]=key+"="+value;
 		return;
