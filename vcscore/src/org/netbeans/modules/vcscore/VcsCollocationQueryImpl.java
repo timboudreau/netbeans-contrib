@@ -41,6 +41,15 @@ public class VcsCollocationQueryImpl implements CollocationQueryImplementation {
     public boolean areCollocated(File file1, File file2) {
         FileObject fo1 = FileUtil.toFileObject(file1);
         FileObject fo2 = FileUtil.toFileObject(file2);
+        
+        // NPE HOTFIX: see the documentation of CollocationQueryImplementation.
+        // It explicitely says that files might not exist. Please rewrite to
+        // not depend on FileObjects. For now I at least check for null otherwise
+        // I'm getting NPE.
+        if (fo1 == null || fo2 == null) {
+            return false;
+        }
+        
         Object vcsFS1 = fo1.getAttribute(VcsAttributes.VCS_NATIVE_FS);
         Object vcsFS2 = fo2.getAttribute(VcsAttributes.VCS_NATIVE_FS);
         return vcsFS1 != null && vcsFS2 != null && vcsFS1.equals(vcsFS2);
@@ -48,6 +57,12 @@ public class VcsCollocationQueryImpl implements CollocationQueryImplementation {
     
     public File findRoot(File f) {
         FileObject fo = FileUtil.toFileObject(f);
+        
+        // NPE HOTFIX: see above
+        if (fo == null) {
+            return null;
+        }
+        
         VcsFileSystem vcsFS = (VcsFileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
         if (vcsFS == null) return null;
         else return vcsFS.getRootDirectory();
