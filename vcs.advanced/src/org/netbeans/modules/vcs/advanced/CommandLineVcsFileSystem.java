@@ -477,6 +477,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         this.cacheId = cacheId;
         this.cachePath = createNewCacheDir();
     }
+    
+    private String getCacheFilePathInFSCache(String path) {
+        return cachePath + File.separator + getRelativeMountPoint()
+               + File.separator + path + File.separator + CACHE_FILE_NAME;
+    }
 
     /**
      * Get the full file path where cache information should be stored.
@@ -487,12 +492,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             if (!cacheFolderCanCreate) {
                 File cacheFile = new File(cacheFilePath);
                 // No cache file when the parent does not exist and I can not create it.
-                if (!cacheFile.getParentFile().exists()) return null;
+                if (!cacheFile.getParentFile().exists()) {
+                    cacheFilePath = getCacheFilePathInFSCache(path);
+                }
             }
             return cacheFilePath;
         }
-        return (cachePath + File.separator + getRelativeMountPoint()
-               + File.separator + path + File.separator + CACHE_FILE_NAME).intern();
+        return getCacheFilePathInFSCache(path).intern();
         /*
         File file = getFile(path);
         if (!file.isDirectory()) file = file.getParentFile();
@@ -509,7 +515,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             if (!cacheFolderCanCreate) {
                 File cacheFile = new File(cacheFilePath);
                 // No cache file when the parent does not exist and I can not create it.
-                if (!cacheFile.getParentFile().exists()) return null;
+                if (!cacheFile.getParentFile().exists()) {
+                    cacheFilePath = getCacheFilePathInFSCache(path);
+                }
             }
             return new File(cacheFilePath);
         }
@@ -519,8 +527,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         if (file.isFile()) {
             path = path.substring(0, path.lastIndexOf(File.separatorChar));
         }
-        return new File(cachePath + File.separator + getRelativeMountPoint()
-               + File.separator + path + File.separator + CACHE_FILE_NAME);
+        return new File(getCacheFilePathInFSCache(path));
     }
 
     private void createDir(String path) {
