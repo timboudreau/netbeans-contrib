@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.openide.TopManager;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
@@ -387,6 +389,18 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             // VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(logCmd, vars);
             // fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
             files = null;
+        }
+        if ("LIST".equals(cmd.getName()) && fileSystem.isOffLine() &&
+            fileSystem.getCommand(org.netbeans.modules.vcscore.commands.VcsCommand.NAME_REFRESH +
+                                  org.netbeans.modules.vcscore.commands.VcsCommand.NAME_SUFFIX_OFFLINE) == null) {
+            if (NotifyDescriptor.Confirmation.YES_OPTION.equals (
+                DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Confirmation (
+                    NbBundle.getMessage(org.netbeans.modules.vcscore.caching.VcsFSCache.class,
+                                        "DLG_RefreshCommandDisabled"), NotifyDescriptor.Confirmation.YES_NO_OPTION)))) { // NOI18N
+                fileSystem.setOffLine(false);
+            } else {
+                return new UserCancelException();
+            }
         }
         if (files != null && VcsCommandIO.getBooleanPropertyAssumeDefault(this.cmd, VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER)) {
             files = createHierarchicalOrder(files);
