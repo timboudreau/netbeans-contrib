@@ -8,20 +8,18 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="Looks To Aspects Tests" basedir="." default="all">
-    <import file="../../../../nbbuild/default-properties.xml"/>
-
 
     <!-- Ant property. Value 'ignore' means that system classpath is ignored
          and only classpath specified in build file is used. -->
     <property name="build.sysclasspath" value="ignore"/>
 
-    <!-- Points to directory with IDE to test-->
-		<property name="netbeans.dest.dir" location="../../../../nbbuild/netbeans"/>
+    <!-- Points to directory with moduleCluster.properties and directories.properties -->
+    <property name="netbeans.dest.dir" location="../../../../nbbuild"/>
 
     <!-- Name of tested module -->
     <property name="xtest.module" value="Looks To Aspects"/>
