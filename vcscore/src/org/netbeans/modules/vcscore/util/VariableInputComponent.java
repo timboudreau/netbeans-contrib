@@ -181,8 +181,6 @@ public class VariableInputComponent extends Object {
         String value = getDefaultValue();
         if (value == null) return true;
         int index = value.indexOf("${");
-        if(index == 0)
-            return true;
         if (index < 0) index = value.indexOf("$[?");
         if (index >= 0 && (index == 0 || value.charAt(index - 1) != '\\')) {
             return false;
