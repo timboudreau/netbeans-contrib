@@ -1034,7 +1034,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>(.*$)</value>
 	</property>
         <property name="preCommands">
-          <value>SET_RELEVANT_MASKS</value>
+          <value>SET_RELEVANT_MASKS, ADD_LOCAL_PARENTS</value>
 	</property>
         <property name="refreshParentFolder">
           <value>true</value>
@@ -1047,9 +1047,6 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="concurrentExec">
           <value>-1</value> <!-- EXEC_SERIAL_INERT -->
-        </property>
-        <property name="preCommands">
-          <value>ADD_LOCAL_PARENTS</value>
         </property>
         <property name="notificationSuccessMsg">
           <value>ResourceMsg(NOTIFICATION_VSS_ADD_ALL_Success)</value>
