@@ -21,8 +21,11 @@ package org.netbeans.modules.vcscore.commands;
 
 import java.util.*;
 import java.io.*;
-import org.netbeans.modules.vcscore.util.*;
 import javax.swing.*;
+
+import org.openide.util.NbBundle;
+
+import org.netbeans.modules.vcscore.util.*;
 
 public class SaveToFilePanel extends javax.swing.JPanel {
 
@@ -33,6 +36,7 @@ public class SaveToFilePanel extends javax.swing.JPanel {
     /** Creates new form SaveToFilePanel */
     public SaveToFilePanel() {
         initComponents();
+        initAccessibility();
     }
 
     /** This method is called from within the constructor to
@@ -128,6 +132,24 @@ public class SaveToFilePanel extends javax.swing.JPanel {
 
     }//GEN-END:initComponents
 
+    private void initAccessibility() {
+        getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(SaveToFilePanel.class, "ACSD_SaveToFilePanel.dialog"));
+        lblFile.setDisplayedMnemonic(NbBundle.getMessage(SaveToFilePanel.class, "SaveToFilePanel.lblFile.mnemonic").charAt(0));
+        lblFile.setLabelFor(txFile);
+        btnFile.setMnemonic(NbBundle.getMessage(SaveToFilePanel.class, "SaveToFilePanel.btnFile.mnemonic").charAt(0));
+        cbStdOut.setMnemonic(NbBundle.getMessage(SaveToFilePanel.class, "SaveToFilePanel.cbStdOut.mnemonic").charAt(0));
+        cbStdErr.setMnemonic(NbBundle.getMessage(SaveToFilePanel.class, "SaveToFilePanel.cbStdErr.mnemonic").charAt(0));
+        cbDataOut.setMnemonic(NbBundle.getMessage(SaveToFilePanel.class, "SaveToFilePanel.cbDataOut.mnemonic").charAt(0));
+        cbDataErr.setMnemonic(NbBundle.getMessage(SaveToFilePanel.class, "SaveToFilePanel.cbDataErr.mnemonic").charAt(0));
+        txFile.getAccessibleContext().setAccessibleName(NbBundle.getMessage(SaveToFilePanel.class, "ACSN_SaveToFilePanel.lblFile"));
+        txFile.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(SaveToFilePanel.class, "ACSD_SaveToFilePanel.lblFile"));
+        btnFile.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(SaveToFilePanel.class, "ACSD_SaveToFilePanel.btnFile"));
+        cbStdOut.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(SaveToFilePanel.class, "ACSD_SaveToFilePanel.cbStdOut"));
+        cbStdErr.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(SaveToFilePanel.class, "ACSD_SaveToFilePanel.cbStdErr"));
+        cbDataOut.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(SaveToFilePanel.class, "ACSD_SaveToFilePanel.cbDataOut"));
+        cbDataErr.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(SaveToFilePanel.class, "ACSD_SaveToFilePanel.cbDataErr"));
+    }
+    
     private void btnFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFileActionPerformed
         // Add your handling code here:
         File initDir = new File(txFile.getText());
