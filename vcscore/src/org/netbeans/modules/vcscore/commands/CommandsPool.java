@@ -288,6 +288,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
             case VcsCommandExecutor.SUCCEEDED:
                 message = g("MSG_Command_name_finished", name);
                 CommandExecutorSupport.doRefresh(fileSystem, vce);
+                CommandExecutorSupport.checkRevisionChanges(fileSystem, vce);
                 break;
             case VcsCommandExecutor.FAILED:
                 message = g("MSG_Command_name_failed", name);
