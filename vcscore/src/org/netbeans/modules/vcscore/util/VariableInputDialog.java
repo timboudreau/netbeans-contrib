@@ -107,6 +107,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         prevButton.setEnabled(currentHistory > 0);
         nextButton.setEnabled(false);
         //initFileLabel(files[0]);
+        setA11y(this, inputDescriptor);
     }
 
     public void setFilePromptDocumentListener(VariableInputDialog.FilePromptDocumentListener docListener) {
@@ -594,14 +595,20 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
      */
     
+    private static void setA11y(javax.swing.JComponent jComponent, VariableInputDescriptor descriptor) {
+        setA11y(jComponent, descriptor.getA11yName(), descriptor.getA11yDescription());
+    }
+    
     private static void setA11y(javax.swing.JComponent jComponent, VariableInputComponent component) {
+        setA11y(jComponent, component.getA11yName(), component.getA11yDescription());
+    }
+    
+    private static void setA11y(javax.swing.JComponent jComponent, String a11yName, String a11yDescription) {
         if (Boolean.getBoolean("netbeans.accessibility")) {
-            String a11y = component.getA11yName();
-            if (a11y != null)
-                jComponent.getAccessibleContext().setAccessibleName(a11y);
-            a11y = component.getA11yDescription();
-            if (a11y != null)
-                jComponent.getAccessibleContext().setAccessibleDescription(a11y);
+            if (a11yName != null)
+                jComponent.getAccessibleContext().setAccessibleName(a11yName);
+            if (a11yDescription != null)
+                jComponent.getAccessibleContext().setAccessibleDescription(a11yDescription);
         }
     }
     

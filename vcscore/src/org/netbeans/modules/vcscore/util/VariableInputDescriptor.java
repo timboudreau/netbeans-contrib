@@ -23,6 +23,7 @@ import java.util.*;
 public class VariableInputDescriptor extends Object {
 
     public static final int INPUT_LABEL = 0;
+    public static final int INPUT_ACCESSIBILITY = 10;
     public static final int INPUT_PROMPT_FIELD = 1;
     public static final int INPUT_PROMPT_AREA = 2;
     public static final int INPUT_ASK = 3;
@@ -45,7 +46,7 @@ public class VariableInputDescriptor extends Object {
     public static final String INPUT_STR_ENABLE = "ENABLE";
     public static final String INPUT_STR_DISABLE = "DISABLE";
     
-    public static final String INPUT_STR_ACCESSIBILITY = "ACCESSIBILITY(";
+    public static final String INPUT_STR_ACCESSIBILITY = "ACCESSIBILITY";
     public static final String INPUT_STR_A11Y_NAME = "NAME_";
     public static final String INPUT_STR_A11Y_DESCRIPTION = "DESCRIPTION_";
     public static final String INPUT_STR_MNEMONIC = "MNEMONIC_";
@@ -71,6 +72,8 @@ public class VariableInputDescriptor extends Object {
     private static final Object inputMapLock = new Object();
     
     private String label;
+    private String a11yName = null;
+    private String a11yDescription = null;
     private ArrayList components = new ArrayList();
     
     /** Creates new VariableInputDescriptor */
@@ -80,6 +83,7 @@ public class VariableInputDescriptor extends Object {
                 if (inputMap == null) {
                     inputMap = new HashMap();
                     inputMap.put(INPUT_STR_LABEL, new Integer(INPUT_LABEL));
+                    inputMap.put(INPUT_STR_ACCESSIBILITY, new Integer(INPUT_ACCESSIBILITY));
                     inputMap.put(INPUT_STR_PROMPT_FIELD, new Integer(INPUT_PROMPT_FIELD));
                     inputMap.put(INPUT_STR_PROMPT_AREA, new Integer(INPUT_PROMPT_AREA));
                     inputMap.put(INPUT_STR_ASK, new Integer(INPUT_ASK));
@@ -132,6 +136,11 @@ public class VariableInputDescriptor extends Object {
             //System.out.println("parseItems: "+inputStr+": "+inputArg);
             if (inputId == INPUT_LABEL && inputArgs.length > 0) {
                 descriptor.label = VcsUtilities.getBundleString(inputArgs[0]);
+            } else if (inputId == INPUT_ACCESSIBILITY && inputArgs.length > 0) {
+                VariableInputComponent testComponent = new VariableInputComponent(0, "", "");
+                setA11y(VcsUtilities.getBundleString(inputArg), testComponent);
+                descriptor.a11yName = testComponent.getA11yName();
+                descriptor.a11yDescription = testComponent.getA11yDescription();
             } else {
                 VariableInputComponent component = parseComponent(inputId, inputArgs, inputArg);
                 component.setExpert(expert);
@@ -161,6 +170,20 @@ public class VariableInputDescriptor extends Object {
      */
     public String getLabel() {
         return label;
+    }
+    
+    /**
+     * Get the accessibility name of this input descriptor.
+     */
+    public String getA11yName() {
+        return a11yName;
+    }
+    
+    /**
+     * Get the accessibility description of this input descriptor.
+     */
+    public String getA11yDescription() {
+        return a11yDescription;
     }
     
     /**
@@ -264,7 +287,12 @@ public class VariableInputDescriptor extends Object {
         if (len > 3 && inputArgs[3].startsWith(INPUT_STR_ACCESSIBILITY)) {
             component = new VariableInputComponent(id, inputArgs[0],
                                                    VcsUtilities.getBundleString(inputArgs[1]));
-            setA11y(inputArgs[3], component);
+            int begin = inputArgs[3].indexOf(INPUT_STR_ARG_OPEN, 0);
+            if (begin > 0) {
+                int end = inputArgs[3].lastIndexOf(INPUT_STR_ARG_CLOSE);
+                if (end < 0) end = inputArgs[3].length();
+                setA11y(inputArgs[3].substring(begin + 1, end), component);
+            }
             argNum = 4;
         } else {
             component = new VariableInputComponent(id, inputArgs[0],
@@ -452,9 +480,6 @@ public class VariableInputDescriptor extends Object {
     }
 
     private static void setA11y(String a11yStr, VariableInputComponent component) {
-        a11yStr = a11yStr.substring(INPUT_STR_ACCESSIBILITY.length());
-        int end = a11yStr.lastIndexOf(")");
-        if (end > 0) a11yStr = a11yStr.substring(0, end);
         StringTokenizer a11yTokens = new StringTokenizer(a11yStr, INPUT_STR_A11Y_DELIMETER);
         while (a11yTokens.hasMoreTokens()) {
             String a11y = a11yTokens.nextToken();
