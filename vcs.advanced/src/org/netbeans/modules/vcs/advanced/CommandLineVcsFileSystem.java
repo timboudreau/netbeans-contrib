@@ -434,6 +434,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             return ;
         }
         org.w3c.dom.Document doc = null;
+        /*
         org.openide.loaders.DataObject dobj = null;
         try {
             dobj = org.openide.loaders.DataObject.find(file);
@@ -443,6 +444,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         if (dobj != null && dobj instanceof org.openide.loaders.XMLDataObject) {
             doc = ((org.openide.loaders.XMLDataObject) dobj).createDocument();
         }
+         */
+        doc = org.openide.xml.XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, null, null);
         Vector variables = this.getVariables ();
         //org.openide.nodes.Node commands = this.getCommands();
         //String label = selected;
@@ -453,7 +456,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 CommandLineVcsAdvancedCustomizer.writeConfig(doc, this.getCommands());
                 lock = file.lock();
                 //VariableIO.writeVariables(doc, label, variables);
-                org.openide.loaders.XMLDataObject.write(doc, new BufferedWriter(new OutputStreamWriter(file.getOutputStream(lock))));
+                org.openide.xml.XMLUtil.write(doc, file.getOutputStream(lock), null);
+                //org.openide.loaders.XMLDataObject.write(doc, new BufferedWriter(new OutputStreamWriter(file.getOutputStream(lock))));
             //} catch (org.w3c.dom.DOMException exc) {
             //    org.openide.TopManager.getDefault().notifyException(exc);
             } catch (java.io.IOException ioexc) {

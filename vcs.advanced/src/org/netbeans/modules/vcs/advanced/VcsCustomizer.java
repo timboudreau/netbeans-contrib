@@ -701,6 +701,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             }
         }
         org.w3c.dom.Document doc = null;
+        /*
         DataObject dobj = null;
         try {
             dobj = DataObject.find(file);
@@ -710,6 +711,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if (dobj != null && dobj instanceof XMLDataObject) {
             doc = ((XMLDataObject) dobj).createDocument();
         }
+         */
+        doc = org.openide.xml.XMLUtil.createDocument(VariableIO.CONFIG_ROOT_ELEM, null, null, null);
         Vector variables = fileSystem.getVariables ();
         Node commands = fileSystem.getCommands();
         if (configLabel == null) configLabel = selected;
@@ -720,7 +723,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 lock = file.lock();
                 VariableIO.writeVariables(doc, configLabel, variables);
                 UserCommandIO.writeCommands(doc, commands);
-                XMLDataObject.write(doc, new BufferedWriter(new OutputStreamWriter(file.getOutputStream(lock))));
+                org.openide.xml.XMLUtil.write(doc, file.getOutputStream(lock), null);
+                //XMLDataObject.write(doc, new BufferedWriter(new OutputStreamWriter(file.getOutputStream(lock))));
             } catch (org.w3c.dom.DOMException exc) {
                 org.openide.TopManager.getDefault().notifyException(exc);
             } catch (java.io.IOException ioexc) {

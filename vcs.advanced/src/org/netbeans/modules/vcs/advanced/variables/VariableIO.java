@@ -350,8 +350,8 @@ public class VariableIO extends Object {
      * and localDir are false.
      */
     public static void writeVariables(Document doc, String label, Vector vars) throws DOMException {
-        Element rootElem = doc.createElement(CONFIG_ROOT_ELEM);
-        doc.appendChild(rootElem);
+        Element rootElem = doc.getDocumentElement(); //doc.createElement(CONFIG_ROOT_ELEM);
+        //doc.appendChild(rootElem);
         Element labelNode = doc.createElement(LABEL_TAG);
         Text labelText = doc.createTextNode(label);
         labelNode.appendChild(labelText);
