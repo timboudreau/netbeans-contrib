@@ -69,9 +69,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     public static final String VCS_PROVIDER_ATTRIBUTE = "VCS Provider";
 
-    public static final String PROP_ROOT = "root"; // NOI18N
+    //public static final String PROP_ROOT = "root"; // NOI18N
     public static final String PROP_VARIABLES = "variables"; // NOI18N
     public static final String PROP_COMMANDS = "commands"; // NOI18N
+    public static final String PROP_DEBUG = "debug"; // NOI18N
+    public static final String PROP_CALL_EDIT = "edit"; // NOI18N
+    public static final String PROP_CALL_EDIT_PROMPT = "editPrompt"; // NOI18N
+    public static final String PROP_CALL_LOCK = "lock"; // NOI18N
+    public static final String PROP_CALL_LOCK_PROMPT = "lockPrompt"; // NOI18N
+    public static final String PROP_EXPERT_MODE = "expertMode"; // NOI18N
+    public static final String PROP_PROCESS_UNIMPORTANT_FILES = "processUnimportantFiles"; // NOI18N
+    public static final String PROP_ANNOTATION_PATTERN = "annotationPattern"; // NOI18N
+    public static final String PROP_ANNOTATION_TYPES = "annotationTypes"; // NOI18N
+    public static final String PROP_COMMAND_NOTIFICATION = "commandNotification"; // NOI18N
     
     private static ResourceBundle resourceBundle = null;
     
@@ -163,7 +173,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     private String[] environmentVars = null;
 
-    private transient String password = null;
+    private String password = null;
+    
+    private boolean rememberPassword = false;
 
     /** Advanced confgiguration.
      * Not used any more, use commandsRoot instead.
@@ -267,17 +279,37 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public boolean isLockFilesOn () {
         return lockFilesOn && isEnabledLockFiles();
     }
-    public void setLockFilesOn (boolean lock) { lockFilesOn = lock; }
+    public void setLockFilesOn (boolean lock) {
+        if (lock != lockFilesOn) {
+            lockFilesOn = lock;
+            firePropertyChange(PROP_CALL_LOCK, new Boolean(!lockFilesOn), new Boolean(lockFilesOn));
+        }
+    }
     public boolean isPromptForLockOn () { return promptForLockOn; }
-    public void setPromptForLockOn (boolean prompt) { promptForLockOn = prompt; }
+    public void setPromptForLockOn (boolean prompt) {
+        if (prompt != promptForLockOn) {
+            promptForLockOn = prompt;
+            firePropertyChange(PROP_CALL_LOCK_PROMPT, new Boolean(!promptForLockOn), new Boolean(promptForLockOn));
+        }
+    }
     public boolean getAskIfDownloadRecursively () { return askIfDownloadRecursively; }
     public void setAskIfDownloadRecursively (boolean ask) { askIfDownloadRecursively = ask; }
     public boolean isCallEditFilesOn() {
         return callEditFilesOn && isEnabledEditFiles();
     }
-    public void setCallEditFilesOn(boolean edit) { callEditFilesOn = edit; }
+    public void setCallEditFilesOn(boolean edit) {
+        if (edit != callEditFilesOn) {
+            callEditFilesOn = edit;
+            firePropertyChange(PROP_CALL_EDIT, new Boolean(!callEditFilesOn), new Boolean(callEditFilesOn));
+        }
+    }
     public boolean isPromptForEditOn () { return promptForEditOn; }
-    public void setPromptForEditOn (boolean prompt) { promptForEditOn = prompt; }
+    public void setPromptForEditOn (boolean prompt) {
+        if (prompt != promptForEditOn) {
+            promptForEditOn = prompt;
+            firePropertyChange(PROP_CALL_EDIT_PROMPT, new Boolean(!promptForEditOn), new Boolean(promptForEditOn));
+        }
+    }
     public boolean isUseUnixShell () { return useUnixShell; }
     
     public boolean isEnabledLockFiles() {
@@ -327,8 +359,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setExpertMode(boolean expertMode) {
-        this.expertMode = expertMode;
-        setAcceptUserParams(expertMode);
+        if (expertMode != this.expertMode) {
+            this.expertMode = expertMode;
+            setAcceptUserParams(expertMode);
+            firePropertyChange(PROP_EXPERT_MODE, new Boolean(!expertMode), new Boolean(expertMode));
+        }
     }
     
     public boolean isExpertMode() {
@@ -336,7 +371,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setCommandNotification(boolean commandNotification) {
-         this.commandNotification = commandNotification;
+        if (commandNotification != this.commandNotification) {
+            this.commandNotification = commandNotification;
+            firePropertyChange(PROP_COMMAND_NOTIFICATION, new Boolean(!commandNotification), new Boolean(commandNotification));
+        }
     }
     
     public boolean isCommandNotification() {
@@ -366,7 +404,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     public void setProcessUnimportantFiles(boolean processUnimportantFiles) {
         synchronized (this.processUnimportantFiles) {
-            this.processUnimportantFiles = new Boolean(processUnimportantFiles);
+            if (processUnimportantFiles != this.processUnimportantFiles.booleanValue()) {
+                Boolean old = this.processUnimportantFiles;
+                this.processUnimportantFiles = new Boolean(processUnimportantFiles);
+                firePropertyChange(PROP_PROCESS_UNIMPORTANT_FILES, old, this.processUnimportantFiles);
+            }
         }
     }
     
@@ -954,13 +996,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         // cache is transient
         numberOfFinishedCmdsToCollect = new Integer(commandsPool.getCollectFinishedCmdsNum());
         out.writeBoolean (true/*cache.isLocalFilesAdd ()*/); // for compatibility
+        if (!rememberPassword) password = null;
         out.defaultWriteObject();
     }
 
 
     //-------------------------------------------
     public void setDebug(boolean debug){
-        this.debug=debug;
+        if (this.debug != debug) {
+            this.debug = debug;
+            firePropertyChange(PROP_DEBUG, new Boolean(!debug), new Boolean(debug));
+        }
     }
 
 
@@ -1189,6 +1235,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public String getPassword(){
         return password;
     }
+    
+    public void setRememberPassword(boolean remember) {
+        this.rememberPassword = remember;
+    }
+    
+    public boolean isRememberPassword() {
+        return rememberPassword;
+    }
 
     private void createTempPromptFiles(Hashtable promptFile) {
         for(Enumeration enum = promptFile.keys(); enum.hasMoreElements(); ) {
@@ -1302,7 +1356,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setAnnotationPattern(String annotationPattern) {
+        String old = this.annotationPattern;
         this.annotationPattern = annotationPattern;
+        firePropertyChange(PROP_ANNOTATION_PATTERN, old, this.annotationPattern);
     }
     
     public int[] getMultiFileAnnotationTypes() {
@@ -1313,7 +1369,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (multiFilesAnnotationTypes.length != RefreshCommandSupport.NUM_ELEMENTS) {
             throw new IllegalArgumentException("Wrong length of the array ("+multiFileAnnotationTypes.length+" != "+RefreshCommandSupport.NUM_ELEMENTS+")");
         }
+        int[] old = this.multiFilesAnnotationTypes;
         this.multiFilesAnnotationTypes = multiFilesAnnotationTypes;
+        firePropertyChange(PROP_ANNOTATION_TYPES, old, this.multiFilesAnnotationTypes);
     }
 
     //-------------------------------------------
@@ -2031,11 +2089,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             in = new FileInputStream (getFile (name));
         } catch (java.io.FileNotFoundException exc) {
             final String fname = name;
-            throw new java.io.FileNotFoundException() {
-                public String getLocalizedMessage() {
-                    return g("MSG_FileNotExist", fname);
-                }
-            };
+            throw (java.io.FileNotFoundException) TopManager.getDefault().getErrorManager().annotate(
+                new java.io.FileNotFoundException() {
+                    public String getLocalizedMessage() {
+                        return g("MSG_FileNotExist", fname);
+                    }
+                }, g("MSG_FileNotExist", fname));
         }
         return in;
     }
