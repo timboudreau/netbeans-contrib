@@ -39,6 +39,7 @@ import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.commands.TextErrorListener;
 import org.netbeans.modules.vcscore.commands.VcsCommandVisualizer;
 
+import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.Validators;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.list.StatusFilePathsBuilder;
 import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.OutputVisualizer;
 
@@ -121,21 +122,17 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         if (commonParent != null && commonParent.length() > 0) {
             commonPath = new File(commonPath, commonParent);
         }
-        // Use the statusFilePathsBuildersByFiles only on JDK 1.4 where we do not
-        // have the error stream merged in and therefore do not know the file paths.
-        // Also check which client is used, built-in can merge the streams everytime.
-        if (System.getProperty("java.version").startsWith("1.4")) { // NOI18N
-            String builtIn = (String) task.getVariables().get("BUILT-IN");
-            if (builtIn == null || builtIn.length() == 0) {
-                statusFilePathsBuildersByFiles = new HashMap();
-                Iterator  it = files.iterator();
-                while(it.hasNext()) {
-                    String path = (String)it.next();
-                    File file = getFile(path);
-                    statusFilePathsBuildersByFiles.put(file,
-                        new StatusFilePathsBuilder(commonPath,
-                                                   (String) task.getVariables().get("CVS_REPOSITORY")));
-                }
+        // Use the statusFilePathsBuildersByFiles only when we do not have the
+        // error stream merged in correctly and therefore do not know the file paths.
+        if (!Validators.canHaveOutputStreamsMergedCorrectly(task.getVariables())) {
+            statusFilePathsBuildersByFiles = new HashMap();
+            Iterator  it = files.iterator();
+            while(it.hasNext()) {
+                String path = (String)it.next();
+                File file = getFile(path);
+                statusFilePathsBuildersByFiles.put(file,
+                    new StatusFilePathsBuilder(commonPath,
+                                               (String) task.getVariables().get("CVS_REPOSITORY")));
             }
         }
     }

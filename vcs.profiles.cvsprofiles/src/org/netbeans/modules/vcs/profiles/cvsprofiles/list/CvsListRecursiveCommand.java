@@ -17,6 +17,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.Validators;
 import org.openide.ErrorManager;
 
 import org.openide.util.RequestProcessor;
@@ -406,14 +407,12 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand implements 
         String logCmd = args[1];
         initVars(vars);
 
-        // Call getRepositoryPaths only on JDK 1.4 where we do not
-        // have the error stream merged in and therefore do not know the file paths.
-        // Also check which client is used, built-in can merge the streams everytime.
-        if (System.getProperty("java.version").startsWith("1.4")) { // NOI18N
-            String builtIn = (String) vars.get("BUILT-IN"); // NOI18N
-            if (builtIn == null || builtIn.length() == 0) {
-                getRepositoryPaths(new File(dir));
-            }
+        // Call getRepositoryPaths only when we do not have the streams merged
+        // in the correct order
+        boolean needToGetRepositoryPaths = !Validators.canHaveOutputStreamsMergedCorrectly(vars);
+        //System.out.println("CvsListRecursiveCommand: needToGetRepositoryPaths = "+needToGetRepositoryPaths);
+        if (needToGetRepositoryPaths) {
+            getRepositoryPaths(new File(dir));
         }
         boolean interrupted = false;
         VcsCommandExecutor statusExecutor = runStatusCommand(vars, statusCmd);
