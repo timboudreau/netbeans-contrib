@@ -95,5 +95,11 @@ public abstract class RuntimeCommand {
      */
     public abstract String getId();
     
+    /**
+     * If you returned the KillRunningCommandAction among the other actions in getActions() method,
+     * this method will be called and should attempt  to stop the running command.
+     */
+    public abstract void killCommand();
+    
 
 }
