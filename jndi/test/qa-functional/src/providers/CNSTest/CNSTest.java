@@ -36,6 +36,7 @@ import junit.framework.AssertionFailedError;
 import org.netbeans.jellytools.ExplorerOperator;
 import org.netbeans.jellytools.MainWindowOperator;
 import org.netbeans.jellytools.NbDialogOperator;
+import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.modules.jndi.actions.RefreshAction;
 import org.netbeans.jellytools.modules.jndi.nodes.ContextNode;
 import org.netbeans.jellytools.modules.jndi.nodes.JNDIRootNode;
@@ -46,7 +47,7 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.Repository;
 import org.openide.util.Lookup;
 
-public class CNSTest extends org.netbeans.junit.NbTestCase {
+public class CNSTest extends JellyTestCase {
     
     public static String name = "CNSCtx";
     public static String dirname = "CNSTestContext.CNSTestContextKind";
