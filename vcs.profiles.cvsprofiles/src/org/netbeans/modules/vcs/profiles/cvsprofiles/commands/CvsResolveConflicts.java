@@ -64,9 +64,9 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
     
     private static final String TMP_PREFIX = "merge"; // NOI18N
     
-    private static final String CHANGE_LEFT = "<<<<<<< "; // NOI18N
-    private static final String CHANGE_RIGHT = ">>>>>>> "; // NOI18N
-    private static final String CHANGE_DELIMETER = "======="; // NOI18N
+    static final String CHANGE_LEFT = "<<<<<<< "; // NOI18N
+    static final String CHANGE_RIGHT = ">>>>>>> "; // NOI18N
+    static final String CHANGE_DELIMETER = "======="; // NOI18N
 
     private VcsFileSystem fileSystem = null;
     private String leftFileRevision = null;
@@ -363,7 +363,7 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
      * Repair the CVS/Entries of the file - remove the conflict.
      * @param file The file to remove the conflict for
      */
-    private static void repairEntries(File file) throws IOException {
+    static void repairEntries(File file) throws IOException {
         String name = file.getName();
         File entries = new File(file.getParentFile(), "CVS"+File.separator+"Entries");
         File backup = new File(entries.getAbsolutePath()+".Backup");

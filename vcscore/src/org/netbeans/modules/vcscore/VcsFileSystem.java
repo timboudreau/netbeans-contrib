@@ -14,6 +14,8 @@
 package org.netbeans.modules.vcscore;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.*;
 import java.io.*;
 import java.lang.ref.Reference;
@@ -22,6 +24,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
 
 import org.openide.*;
 import org.openide.util.actions.*;
@@ -3593,6 +3596,58 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return in;
     }
+    
+    private Map fileChangeHandlers;
+    
+    /**
+     * We allow to have custom listeners on file changes. These listeners are
+     * retrieved from FILE_CHANGE_HANDLERS, where we expect pairs of status
+     * string and class name (separated by commas, optionally quoted).
+     * The class name should be an implementation of ActionListener.
+     * When a file of the given status is changed, the action listener is called
+     * with ActionEvent, whose source is this filesystem instance and command
+     * String is the file path (relative to FS root).
+     */
+    private Map collectFileChangeHandlers() {
+        VcsConfigVariable chhVar = (VcsConfigVariable) variablesByName.get("FILE_CHANGE_HANDLERS"); // NOI18N
+        if (chhVar == null) {
+            return Collections.EMPTY_MAP;
+        } else {
+            String chh = chhVar.getValue();
+            String[] statusHandlers = VcsUtilities.getQuotedStrings(chh);
+            Map fileChangeHandlers = new HashMap();
+            for (int i = 0; i < statusHandlers.length - 1; i += 2) {
+                String status = statusHandlers[i];
+                String className = statusHandlers[i+1];
+                try {
+                    Class clazz = Class.forName(className, true, VcsUtilities.getSFSClassLoader());
+                    Object instance = clazz.newInstance();
+                    if (!(instance instanceof ActionListener)) {
+                        ErrorManager.getDefault().notify(ErrorManager.getDefault().annotate(new IllegalArgumentException(), "Class '"+className+"' is not an instance of ActionListener, in FILE_CHANGE_HANDLERS."));
+                        continue;
+                    }
+                    fileChangeHandlers.put(status, instance);
+                } catch (Exception ex) {
+                    ErrorManager.getDefault().notify(ErrorManager.getDefault().annotate(ex, "Can not create object from class name '"+className+"' when introspecting FILE_CHANGE_HANDLERS."));
+                }
+            }
+            return fileChangeHandlers;
+        }
+    }
+    
+    private synchronized void resetFileChangeHandlers() {
+        fileChangeHandlers = null;
+    }
+    
+    private synchronized void callFileChangeHandler(String name, String status) {
+        if (fileChangeHandlers == null) {
+            fileChangeHandlers = collectFileChangeHandlers();
+        }
+        ActionListener handler = (ActionListener) fileChangeHandlers.get(status);
+        if (handler != null) {
+            handler.actionPerformed(new ActionEvent(this, 0, name));
+        }
+    }
 
     private static final Object GROUP_LOCK = new Object();
 
@@ -3621,6 +3676,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     updated.setStatus(status);
                     Turbo.setMeta(fo, updated);
                 }
+                callFileChangeHandler(name, oldStatus);
                 VcsGroupSettings grSettings = (VcsGroupSettings) SharedClassObject.findObject(VcsGroupSettings.class, true);
                 if (!grSettings.isDisableGroups()) {
                     if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_TO_DEFAULT
