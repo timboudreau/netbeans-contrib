@@ -39,7 +39,7 @@ import org.openide.util.datatransfer.NewType;
 public final class JndiRootNode extends AbstractNode {
     
   public final static String NB_LABEL="NB_LABEL";
-  public final static String NB_ROOT="NB_ROOT";
+  public final static String NB_ROOT="HomePath";
   
   protected SystemAction[] jndiactions = null;
   protected NewType[] jndinewtypes = null;
@@ -151,7 +151,12 @@ public final class JndiRootNode extends AbstractNode {
         if (tk.countTokens() != 2) {
           continue;
         }
-        env.put(tk.nextToken(), tk.nextToken());
+        String path = tk.nextToken();
+        if (path.equals(NB_ROOT)) {
+          env.put(NB_ROOT, tk.nextToken());
+        } else {
+          env.put(path, tk.nextToken());
+        }
       }
       JndiDirContext ctx = new JndiDirContext(env);
       nodes[0]= new JndiNode(ctx);
