@@ -936,7 +936,8 @@ err.log("Couldn't find current nodes...");
                 // determine what components have been closed, window system does not
                 // provide any other listener to do it in more smart way
 
-                Set actual = TopComponent.getRegistry().getOpened();
+                List list = Arrays.asList(SuggestionsScanner.openedTopComponents());
+                Set actual = new HashSet(list);
                 openedSoFar.removeAll(actual);
 
                 Iterator it = openedSoFar.iterator();
@@ -945,7 +946,7 @@ err.log("Couldn't find current nodes...");
                     handleTopComponentClosed(tc);
                 }
 
-                openedSoFar = new HashSet(actual);
+                openedSoFar = actual;
             }
         }
 
