@@ -1,0 +1,40 @@
+Implements suggestion framework (<code>tasklist.client</code>, <code>tasklist.providers</code>) API.
+
+<h2>Suggestion Framework Implementation</h2>
+
+<h3>Model</h3>
+
+The default implementation provides 3 basic processors:
+
+<dl>
+<dt>{@link SuggestionsScanner}
+<dd>It can scan suggestions into snapshot list
+in specified context. It queries registered
+<code>DocumentSuggestionProvider</code> providers.
+
+<dt>{@link SuggestionsBroker}
+<dd>It maintains live suggestions list for currently edited
+source or for all opened sources. It queries registered
+<code>DocumentSuggestionProvider</code> providers.
+
+<dt>{@link SuggestionManagerImpl}
+<dd>It maintains live suggestions list containing
+suggestions registered by active <code>SuggestionProvider</code>s.
+
+</dl>
+
+<p>
+Suggestion providers registry is modeled using
+{@link SuggestionTypes}, {@link SuggestionProviders}
+and {@link SuggestionTypeProcessor}. SuggestionManagerImpl
+also contais some dispatch type of methods accessing the
+registry.
+
+<h3>GUI</h3>
+
+There are also some support classes for actions, annotations, node and
+default suggestions view. Note that no arbitrart view can be created
+using pure <code>tasklist.client</code> APIs
+
+<hr>
+On 4th April 2004 by Petr Kuzel
