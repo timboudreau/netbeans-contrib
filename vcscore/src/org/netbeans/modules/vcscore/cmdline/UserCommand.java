@@ -80,6 +80,15 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
      */
     public static final String PROPERTY_REFRESH_INFO_FROM_BOTH_DATA_OUTS = "refreshInfoFromBothDataOuts";
     
+    /**
+     * The relative path of files that are returned at index PROPERTY_LIST_INDEX_FILE_NAME.
+     * If not defined, the default relative path is the greatest parent of all
+     * selected folders. If one folder is selected, it's that folder,
+     * if one file is selected, it is it's parent.
+     * The path is relative to ROOTDIR.
+     */
+    public static final String PROPERTY_REFRESH_FILE_RELATIVE_PATH = "refreshFileRelativePath";
+    
     // Properties:
     private String name="";          // e.g. "CHECKIN" // NOI18N
     private String advancedName = null;// e.g. "commit" // NOI18N

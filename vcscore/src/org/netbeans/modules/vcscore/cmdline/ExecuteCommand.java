@@ -90,6 +90,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                                       // Files, that were not refreshed when the command finish
                                       // will be refreshed by the LIST_FILE command (if present).
     private ArrayList refreshInfoElements;
+    /** The base folder, that will be prepended to the refreshed files, so that
+     * the result will be relative to FS root (work + relative mount point) */
+    private String refreshFilesBase = null;
+    /** The folder that the refreshed files must start with. This is important
+     * if there is a non-empty relative mount point, but the files are relative
+     * to working dir (the files must start with the relative mount point in this
+     * case). */
+    private String refreshFilesMustStartWith = null;
     
     private boolean substituteStatuses = false;
     private RE[] substituitionRegExps;
@@ -764,6 +772,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         } else if (doFileRefresh) {
             filesToRefresh = new ArrayList(); // Only some files (with unmatched status) should be refreshed.
         }
+        // Initialize refreshFilesBase and refreshFilesMustStartWith fields:
+        createRefreshFilesBase();
         
         String[] allArgs = VcsUtilities.getQuotedArguments(exec);
         String first = allArgs[0];
@@ -940,6 +950,49 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
     }
     
+    /** Initialize refreshFilesBase and refreshFilesMustStartWith fields. */
+    private void createRefreshFilesBase() {
+        refreshFilesBase = (String) cmd.getProperty(
+                                UserCommand.PROPERTY_REFRESH_FILE_RELATIVE_PATH);
+        if (refreshFilesBase == null) {
+            refreshFilesBase = (String) vars.get("COMMON_PARENT");
+            refreshFilesMustStartWith = null;
+        } else {
+            refreshFilesBase = Variables.expand(vars, refreshFilesBase, false);
+            String relMountPoint = fileSystem.getRelativeMountPoint();
+            //System.out.println("createRefreshFilesBase(): base = '"+refreshFilesBase+"', rel. M. = '"+relMountPoint+"'");
+            if (refreshFilesBase.length() <= relMountPoint.length()) {
+                if (!relMountPoint.startsWith(refreshFilesBase)) {
+                    doFileRefresh = false; // The base and rel. mount point do not match!
+                    return ; // The file does not match with this relative mount point
+                }
+                //fileName = fileName.substring(commonParent.length() + 1);
+                refreshFilesMustStartWith = relMountPoint.substring(refreshFilesBase.length());
+                while (refreshFilesMustStartWith.startsWith("/")) {
+                    refreshFilesMustStartWith = refreshFilesMustStartWith.substring(1);
+                }
+                if (refreshFilesMustStartWith.length() == 0) {
+                    refreshFilesMustStartWith = null;
+                }
+                refreshFilesBase = null;
+                //System.out.println("createRefreshFilesBase(): base < rel. M.: must start with '"+refreshFilesMustStartWith+"', base = null");
+            } else {
+                if (!refreshFilesBase.startsWith(relMountPoint)) {
+                    doFileRefresh = false; // The base and rel. mount point do not match!
+                    //System.out.println("createRefreshFilesBase(): base '"+refreshFilesBase+"' does not start with Rel Mount '"+relMountPoint+"'!");
+                    return ; // The common parent does not match with this relative mount point
+                }
+                refreshFilesBase = refreshFilesBase.substring(relMountPoint.length());
+                while (refreshFilesBase.startsWith("/")) {
+                    refreshFilesBase = refreshFilesBase.substring(1);
+                }
+                if (refreshFilesBase.length() == 0) refreshFilesBase = null;
+                refreshFilesMustStartWith = null;
+                //System.out.println("createRefreshFilesBase(): base >= rel. M.: must start with '"+refreshFilesMustStartWith+"', base = '"+refreshFilesBase+"'");
+            }
+        }
+    }
+    
     private void collectRefreshInfo(String[] elements) {
         //System.out.println("collectRefreshInfo("+VcsUtilities.arrayToString(elements)+")");
         elements = CommandLineVcsDirReader.translateElements(elements, cmd);
@@ -960,9 +1013,15 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         String fileDir = "";
         String filePath;
         fileName.replace(java.io.File.separatorChar, '/');
-        String commonParent = (String) vars.get("COMMON_PARENT");
-        if (commonParent != null) {
-            filePath = commonParent + "/" + fileName;
+        if (refreshFilesMustStartWith != null) {
+            if (!fileName.startsWith(refreshFilesMustStartWith)) {
+                // the file does not match our requirements
+                return ;
+            }
+            fileName = fileName.substring(refreshFilesMustStartWith.length() + 1);
+        }
+        if (refreshFilesBase != null) {
+            filePath = refreshFilesBase + "/" + fileName;
             fileDir = VcsUtilities.getDirNamePart(filePath);
             fileName = VcsUtilities.getFileNamePart(filePath);
         } else {
@@ -998,7 +1057,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //System.out.println("flushRefreshInfo()");
         String name = null;
         String[] elements = mergeInfoElements();
-        String commonParent = (String) vars.get("COMMON_PARENT");
         //System.out.println("  merged elements = "+VcsUtilities.arrayToString(elements)+", commonParent = "+commonParent);
         for (; elements != null; elements = mergeInfoElements()) {
             if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
@@ -1008,8 +1066,15 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 String fileName = elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME];
                 String fileDir = "";
                 String filePath;
-                if (commonParent != null) {
-                    filePath = commonParent + "/" + fileName;
+                if (refreshFilesMustStartWith != null) {
+                    if (!fileName.startsWith(refreshFilesMustStartWith)) {
+                        // the file does not match our requirements
+                        return ;
+                    }
+                    fileName = fileName.substring(refreshFilesMustStartWith.length() + 1);
+                }
+                if (refreshFilesBase != null) {
+                    filePath = refreshFilesBase + "/" + fileName;
                     fileDir = VcsUtilities.getDirNamePart(filePath);
                     fileName = VcsUtilities.getFileNamePart(filePath);
                     elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
