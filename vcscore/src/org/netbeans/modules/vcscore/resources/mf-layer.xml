@@ -38,6 +38,12 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance" /> 
         </folder>
         <attr name="Versioning/Separator3.instance" boolvalue="true"/>
+        <folder name="SelectDocumentNode">
+            <file name="SelectInVersioningExplorerAction.shadow">
+                <attr name="originalFile" stringvalue="Menu/Window/Versioning/org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance"/>
+            </file>
+            <attr name="SelectInProjectsTabAction.shadow/SelectInVersioningExplorerAction.shadow" boolvalue="true"/>
+        </folder>
     </folder>
   </folder>
   
@@ -45,7 +51,11 @@ Microsystems, Inc. All Rights Reserved.
       <file name="C-8.instance">
           <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VersioningExplorerAction" />
       </file>
+      <file name="CS-8.instance">
+          <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VersioningExplorerAction" />
+      </file>
   </folder>
+
 
   <folder name="Actions">
     <folder name="Versioning">
