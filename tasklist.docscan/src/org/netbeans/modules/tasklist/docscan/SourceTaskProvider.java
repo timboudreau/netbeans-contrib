@@ -143,7 +143,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
     public void docHidden(Document document, DataObject dataobject) {
         //System.out.println("docHidden(" + document + ")");
 	if (scanner != null) {
-	    scanner.stop();
 	    scanner = null;
         }        
      }
