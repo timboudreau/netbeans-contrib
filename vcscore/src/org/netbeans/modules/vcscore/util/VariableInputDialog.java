@@ -2416,7 +2416,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     vars.put(c.getVariable(), defVals[i]);
                 }
             }
-            updateVariableValues(vars);
+            updateVariableValues(vars, true);
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     for (Iterator it = cursorChangedComponents.keySet().iterator(); it.hasNext(); ) {
