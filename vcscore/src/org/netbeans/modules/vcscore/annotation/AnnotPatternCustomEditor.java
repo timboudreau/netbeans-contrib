@@ -38,6 +38,7 @@ public class AnnotPatternCustomEditor extends javax.swing.JPanel implements Expl
     private AnnotationPatternPropertyEditor editor;
     public AnnotPatternCustomEditor() {
         initComponents();
+        initAccessibility();
         org.openide.util.HelpCtx.setHelpIDString (this, AnnotPatternCustomEditor.class.getName ());
     }
 
@@ -63,7 +64,7 @@ public class AnnotPatternCustomEditor extends javax.swing.JPanel implements Expl
         }
         org.openide.awt.SplittedPanel split = new org.openide.awt.SplittedPanel();
         split.setSplitType(org.openide.awt.SplittedPanel.HORIZONTAL);
-        split.add(new BeanTreeView(), org.openide.awt.SplittedPanel.ADD_LEFT);
+        split.add(new AccessibleBeanTreeView(), org.openide.awt.SplittedPanel.ADD_LEFT);
         split.add(propertySheetView, org.openide.awt.SplittedPanel.ADD_RIGHT);
         //panel.add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new RevisionTreeView(), propertySheetView));
         panel.add(split);
@@ -146,7 +147,13 @@ public class AnnotPatternCustomEditor extends javax.swing.JPanel implements Expl
 
     private static final long serialVersionUID = -7082330953630397064L;    
 
-    
+    private void initAccessibility() {
+        getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(AnnotPatternCustomEditor.class, "ACSD_AnnotPatternCustomEditor"));
+        btnDefaultValue.setMnemonic(NbBundle.getMessage(AnnotPatternCustomEditor.class, "AnnotPatternCustomEditor.btnDefaultValue.mnemonic").charAt(0));
+        btnDefaultValue.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(AnnotPatternCustomEditor.class, "ACSD_AnnotPatternCustomEditor.btnDefaultValue"));
+        btnApply.setMnemonic(NbBundle.getMessage(AnnotPatternCustomEditor.class, "AnnotPatternCustomEditor.btnApply.mnemonic").charAt(0));
+        btnApply.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(AnnotPatternCustomEditor.class, "ACSD_AnnotPatternCustomEditor.btnApply"));
+    }
 
     public AnnotPatternNode expand(HashMap map, String cmd) {
         AnnotPatternNode node = AnnotPatternNode.createInstance(AnnotPatternNode.TYPE_PARENT);
@@ -273,5 +280,12 @@ public class AnnotPatternCustomEditor extends javax.swing.JPanel implements Expl
         }
     }
 
-    
+    private static final class AccessibleBeanTreeView extends BeanTreeView {
+        
+        public AccessibleBeanTreeView() {
+            tree.getAccessibleContext().setAccessibleName(NbBundle.getMessage(AnnotPatternCustomEditor.class, "ACSN_AnnotPatternCustomEditor.tree"));
+            tree.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(AnnotPatternCustomEditor.class, "ACSD_AnnotPatternCustomEditor.tree"));
+        }
+        
+    }
 }
