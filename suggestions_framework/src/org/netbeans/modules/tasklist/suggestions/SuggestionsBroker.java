@@ -664,6 +664,8 @@ err.log("Couldn't find current nodes...");
                 err.annotate(e, "[TODO] cannot get " + tc.getDisplayName() + " state.");  // NOI18N
                 err.notify(e);
                 return false;
+            } finally {
+                if (attempt != 0) Thread.currentThread().interrupt();  // retain the interrupted flag
             }
         }
         return false;
