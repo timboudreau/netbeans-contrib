@@ -593,6 +593,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         path = path.replace('/', java.io.File.separatorChar);
         fullName = fullName.replace('/', java.io.File.separatorChar);
         vars.put("PATH", fullName); // NOI18N
+        vars.put("QPATH", (fullName.length() > 0) ? quoting+fullName+quoting : fullName); // NOI18N
         vars.put("DIR", path); // NOI18N
         if (path.length() == 0 && file.length() > 0 && file.charAt(0) == '/') file = file.substring (1, file.length ());
         vars.put("FILE", file); // NOI18N
