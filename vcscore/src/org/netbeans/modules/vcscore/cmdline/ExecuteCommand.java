@@ -925,6 +925,9 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         if (sexec == null) sexec = (StructuredExec) cmd.getProperty(VcsCommand.PROPERTY_EXEC_STRUCTURED);
         if (sexec != null) {
             sexec = sexec.getExpanded(vars, false);
+            if (sexec.getExecutable() == null || sexec.getExecutable().trim().length() == 0) {
+                return ; // Silently ignore empty exec
+            }
         } else {
             if (preferredExec != null) exec = preferredExec;
             else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);

@@ -877,12 +877,18 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 Hashtable vars = new Hashtable(cmd.getAdditionalVariables());
                 structuredExec = CommandCustomizationSupport.preCustomizeStructuredExec(executionContext, vcsCmd, vars);
                 success = structuredExec != null;
-                if (success) cmd.setPreferredStructuredExec(structuredExec);
+                if (success) {
+                    cmd.setPreferredStructuredExec(structuredExec);
+                    cmd.setAdditionalVariables(vars);
+                }
             } else if (commandExec != null) {
                 Hashtable vars = new Hashtable(cmd.getAdditionalVariables());
                 commandExec = CommandCustomizationSupport.preCustomizeExec(executionContext, vcsCmd, vars);
                 success = commandExec != null;
-                if (success) cmd.setPreferredExec(commandExec);
+                if (success) {
+                    cmd.setPreferredExec(commandExec);
+                    cmd.setAdditionalVariables(vars);
+                }
             }
             //String newExec = CommandCustomizationSupport.preCustomize(executionContext, vcsCmd, vars);
             //if (commandExec != null && newExec == null) return new UserCancelException();
