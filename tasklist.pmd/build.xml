@@ -13,25 +13,17 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="tasklist/pmd" default="netbeans" basedir=".">
-    <property file="build.ant.properties"/>
+
+    <import file="../../nbbuild/default.xml"/>
 
     <property name="nb_all" value="../.."/>
-
-    <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-    <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-
-    <property name="nbm_alias" value="nb_ide"/>
-    <property name="homepage.base" value="netbeans.org"/>
-    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-    <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
+    
     <property file="../version.properties"/>
-
 
     <!-- TODO Remove this when the module is part of the full tasklist build -->
     <property name="build.compiler.debug" value="on"/>
 
-    <target name="init">
+    <target name="init" depends="default.init">
         <property name="nb-pmd" location="${nb_all}/contrib/pmd-nb-wrapper"/>
         <ant dir="${nb-pmd}" target="netbeans"/>
         <path id="pmd.cp">
@@ -40,18 +32,25 @@ Microsystems, Inc. All Rights Reserved.
                 <include name="pmd-*.jar"/>
             </fileset>
         </path>
+        
+      <patternset id="tasklist/pmd.files">
+        <include name="${nb.modules/eager.dir}/tasklist-pmd.jar"/>
+      </patternset>
+      
+      <path id="cp">
+        <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
+        <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+        <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
+        <pathelement path="${tasklist/api.dir}/${nb.modules/autoload.dir}/tasklist-api.jar"/>
+        <pathelement path="${tasklist/core.dir}/${nb.modules/autoload.dir}/tasklist-core.jar"/>
+      </path>
+        
     </target>
 
     <target name="compile" depends="init">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4">
             <classpath>
-                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
-                <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
-                <pathelement location="${nb_all}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-                <!-- tasklist api -->
-                <pathelement path="../api/src"/>
-                <!-- tasklist core -->
-                <pathelement path="../core/src"/>
+                <path refid="cp"/>                
                 <!-- java src model -->
                 <pathelement path="../../java/srcmodel/netbeans/modules/autoload/java-src-model.jar"/>
                 <!-- pmd -->
@@ -61,28 +60,31 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="jars" depends="compile">
-        <mkdir dir="netbeans/modules"/>
+        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/eager.dir}"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <filter filtersfile="../version.properties"/>
         <filter token="tl.pmd.spec" value="${tl.pmd.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/eager/tasklist-pmd.jar"
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/eager.dir}/tasklist-pmd.jar"
                 manifest="manifest-subst.mf"
                 basedir="src"
 	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
 	        compress="false">
-            <locale name="ja"/>
-        </locjar>
+        </jar>
     </target>
 
     <target name="netbeans" depends="jars">
-        <genlist targetname="nbm" outputfiledir="netbeans"/>
+        <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules/eager.dir}/tasklist-pmd.jar">
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+                <patternset refID="tasklist/pmd.files"/>
+           </fileset>
+        </genlist>
     </target>
 
     <target name="nbm" depends="netbeans">
-        <makenbm file="../tasklist-pmd.nbm"
-                 topdir="."
-                 module="netbeans/modules/eager/tasklist-pmd.jar"
+        <makenbm file="tasklist-pmd.nbm"                 
+                 module="${nb.modules/eager.dir}/tasklist-pmd.jar"
+                 productdir="${netbeans.dest.dir}/${cluster.dir}"                 
                  homepage="http://tasklist.${homepage.base}/updates/tasklist-pmd.html"
                  distribution="http://${dist.base}/tasklist-pmd.nbm"
                  needsrestart="false">
@@ -99,14 +101,17 @@ Microsystems, Inc. All Rights Reserved.
     <target name="release"/>
     <target name="javahelp"/>
  
-    <target name="clean">
+    <target name="clean" depends="init">
         <delete>
             <fileset dir="src">
                 <include name="**/*.class"/>
             </fileset>
+            <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+               <patternset refID="tasklist/pmd.files"/>
+            </fileset>            
         </delete>
         <delete file="manifest-subst.mf"/>
-        <delete file="../tasklist-pmd.nbm"/>
+        <delete file="tasklist-pmd.nbm"/>
         <delete dir="netbeans"/>
         <delete dir="Info"/>
     </target>
