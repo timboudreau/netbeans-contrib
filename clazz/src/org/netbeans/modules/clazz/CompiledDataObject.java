@@ -177,7 +177,7 @@ public class CompiledDataObject extends ClassDataObject {
 
     // innerclasses .......................................................
     
-    private static class ExecSupport extends org.openide.loaders.ExecutionSupport {
+    private static class ExecSupport extends org.openide.loaders.ExecSupport {
         ExecSupport(MultiDataObject.Entry en) {
             super(en);
         }
