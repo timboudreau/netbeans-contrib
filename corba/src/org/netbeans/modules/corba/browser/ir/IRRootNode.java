@@ -28,6 +28,7 @@ import org.openide.*;
 
 import org.netbeans.modules.corba.*;
 import org.netbeans.modules.corba.settings.*;
+import org.netbeans.modules.corba.utils.InvalidIORException;
 import org.netbeans.modules.corba.browser.ir.util.AsyncTarget;
 import org.netbeans.modules.corba.browser.ir.util.FromInitialReferencesCookie;
 import org.netbeans.modules.corba.browser.ir.actions.FromInitialReferencesAction;
@@ -192,26 +193,36 @@ public class IRRootNode extends AbstractNode implements Node.Cookie, FromInitial
 
 
     public void addRepository (String name, String url, String ior)
-        throws java.net.MalformedURLException,
-        java.io.IOException {
+        throws InvalidIORException {
 
         org.omg.CORBA.Container rep = null;
 
         if (DEBUG)
             System.out.println ("IRRootNode::addRepository (...);");
         if (!url.equals ("")) {
-            URL uc = new URL (url);
-            String ref;
-            BufferedReader in =
-                new BufferedReader(new InputStreamReader(uc.openStream ()));
-            ref = in.readLine();
-            in.close();
-            if (orb == null)
-                lazyInit();
-            org.omg.CORBA.Object o = orb.string_to_object (ref);
-            rep = ContainerHelper.narrow (o);
-            if (rep == null)
-                throw new RuntimeException();
+            BufferedReader in = null;
+            try {
+                URL uc = new URL (url);
+                String ref;
+                in = new BufferedReader(new InputStreamReader(uc.openStream ()));
+                ref = in.readLine();
+                if (ref == null)
+                    throw new InvalidIORException (Util.getLocalizedString ("TXT_IOREmpty"));
+                if (orb == null)
+                    lazyInit();
+                org.omg.CORBA.Object o = orb.string_to_object (ref);
+                rep = ContainerHelper.narrow (o);
+                if (rep == null)
+                    throw new InvalidIORException (Util.getLocalizedString ("TXT_IORInvalid"));
+            }catch (IOException exception) {
+                throw new InvalidIORException (exception);
+            }
+            finally {
+                if (in != null)
+                    try {
+                        in.close ();
+                    } catch (IOException ioe) {}
+            }
         }
 
         else if (!ior.equals ("")) { 

@@ -31,6 +31,7 @@ import org.openide.util.*;
 
 import org.netbeans.modules.corba.*;
 import org.netbeans.modules.corba.settings.*;
+import org.netbeans.modules.corba.utils.InvalidIORException;
 import org.netbeans.modules.corba.browser.ir.actions.FromInitialReferencesAction;
 import org.netbeans.modules.corba.browser.ir.util.FromInitialReferencesCookie;
 /*
