@@ -225,7 +225,9 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
      */
     public void disconnect () {
         try {
+            JndiRootNode rootNode = ((JndiRootNode)this.getParentNode());
             super.destroy ();
+            rootNode.syncProjectSettings();
         }catch (java.io.IOException ioe) {
             // Should never happen
             JndiRootNode.notifyForeignException (ioe);

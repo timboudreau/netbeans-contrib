@@ -181,7 +181,7 @@ final class JndiDataType extends NewType {
                                                         // we should check the context
                                                         ((JndiDirContext)ctx).checkContext();
                                                     }
-                                                    ((JndiRootNode)node).addContext(ctx);
+                                                    ((JndiRootNode)node).addContext(ctx, true);
                                                     synchronized (this) { 
                                                         this.status = new ConnectOperationStatus (SUCCESSFULL);
                                                     }
@@ -197,12 +197,15 @@ final class JndiDataType extends NewType {
                                                             e = ne.getRootCause();
                                                         else
                                                             e = ne;
-                                                        if (e instanceof JndiException)
+                                                        if (e instanceof JndiException) {
                                                             this.status = new ConnectOperationStatus (JNDI_EXCEPTION,e);
-                                                        if (e instanceof javax.naming.InterruptedNamingException || e instanceof InterruptedException)
+                                                        }
+                                                        else if (e instanceof javax.naming.InterruptedNamingException || e instanceof InterruptedException) {
                                                             this.status = new ConnectOperationStatus (NAMING_INTERRUPTED_EXCEPTION,e);
-                                                        else
-                                                            this.status = new ConnectOperationStatus (NAMING_INTERRUPTED_EXCEPTION,e);
+                                                        }
+                                                        else {
+                                                            this.status = new ConnectOperationStatus (NAMING_EXCEPTION,e);
+                                                        }
                                                     }
                                                 }
                                                 catch (NullPointerException npe){
@@ -238,9 +241,9 @@ final class JndiDataType extends NewType {
                                             t.interrupt();
                                          }
                                          ConnectOperationStatus status = connector.getOperationStatus ();
-										 int statusCode = TIMEOUT_TO_SHORT; // By default we suppose that time was to short to start connector thread
-										if (status != null)
-											statusCode = status.getOperationStatus();
+                                         int statusCode = TIMEOUT_TO_SHORT; // By default we suppose that time was to short to start connector thread
+                                         if (status != null)
+                                            statusCode = status.getOperationStatus();
                                          switch (statusCode) {
                                              case SUCCESSFULL:
                                                  org.openide.TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_Connected"));
@@ -256,9 +259,9 @@ final class JndiDataType extends NewType {
                                                  TopManager.getDefault().setStatusText(JndiRootNode.getLocalizedString("TXT_ConnectFailed"));
                                                  TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_Items"), NotifyDescriptor.Message.ERROR_MESSAGE));
                                                  break;
-											 case TIMEOUT_TO_SHORT:
-												TopManager.getDefault().notify (new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_TimeoutToShort"), NotifyDescriptor.Message.ERROR_MESSAGE));
-												break;
+                                             case TIMEOUT_TO_SHORT:
+                                                TopManager.getDefault().notify (new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("EXC_TimeoutToShort"), NotifyDescriptor.Message.ERROR_MESSAGE));
+						break;
                                              case INTERRUPTED_EXCEPTION:
                                              case NAMING_INTERRUPTED_EXCEPTION:
                                                  Throwable e = status.getException();

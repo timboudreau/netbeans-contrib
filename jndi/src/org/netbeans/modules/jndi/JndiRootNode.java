@@ -18,6 +18,7 @@ import java.util.StringTokenizer;
 import java.util.Properties;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.ResourceBundle;
 import java.util.Hashtable;
@@ -182,13 +183,15 @@ public final class JndiRootNode extends AbstractNode{
     /** This function adds an Context
      *  @param context adds context from String
      */	
-    public void addContext(String context) throws NamingException {
+    public void addContext(String context, boolean sync) throws NamingException {
         JndiNode[] nodes;
         nodes = new JndiNode[1];
         Properties env = parseStartContext(context);
         DirContext ctx = new JndiDirContext(env);
         nodes[0] = new JndiNode(ctx);
         getChildren().add(nodes);
+        if (sync)
+            syncProjectSettings ();
     }
 
     /** This function adds an Context
@@ -200,15 +203,15 @@ public final class JndiRootNode extends AbstractNode{
      *  @param credentials credentials for naming system
      *  @param prop vector type java.lang.String, additional properties in form key=value
      */
-    public void addContext(String label, String factory, String context, String root, String authentification, String principal, String credentials, Vector prop) throws NamingException {
+    public void addContext(String label, String factory, String context, String root, String authentification, String principal, String credentials, Vector prop, boolean sync) throws NamingException {
         Properties env = createContextProperties(label,factory,context,root, authentification, principal, credentials, prop);
-        this.addContext (env);
+        this.addContext (env, sync);
     }
 
     /** This method adds new Context
      *  @param Hashtable properties of context
      **/
-    void addContext (Hashtable properties) throws NamingException {
+    void addContext (Hashtable properties, boolean sync) throws NamingException {
         JndiDirContext ctx = new JndiDirContext(properties);
         String root = (String)properties.get(NB_ROOT);
         Context rootedCtx;
@@ -218,17 +221,19 @@ public final class JndiRootNode extends AbstractNode{
         else{
             rootedCtx = ctx;
         }
-        addContext(rootedCtx);
+        addContext(rootedCtx, sync);
     }
 
     /** This methods adds new Context
      *  @param javax.naming.Context context
      *  @exception java.naming.NamingException
      */
-    void addContext (Context rootedCtx) throws NamingException {
+    void addContext (Context rootedCtx, boolean sync) throws NamingException {
         JndiNode[] nodes = new JndiNode[1];
         nodes[0]= new JndiNode(rootedCtx);
         this.getChildren().add(nodes);
+        if (sync)
+            syncProjectSettings ();
     }
 
     /** This method transforms parameters to properties for Context
@@ -332,7 +337,7 @@ public final class JndiRootNode extends AbstractNode{
         if (nodes!=null){
             for (int i = 0; i < nodes.size(); i++) {
                 try{
-                    this.addContext((Hashtable)nodes.get(i));
+                    this.addContext((Hashtable)nodes.get(i), false);
                 }catch(NamingException ne){
                     this.addDisabledContext((Hashtable)nodes.get(i));
                 }
@@ -371,6 +376,21 @@ public final class JndiRootNode extends AbstractNode{
             bundle = NbBundle.getBundle(JndiRootNode.class);
         }
         return bundle.getString(s);
+    }
+
+    void syncProjectSettings () {
+        ArrayList array = new ArrayList();
+        Node[] nodes = this.getChildren().getNodes();
+        for (int i = 0; i < nodes.length; i++) {
+            if (!nodes[i].getName().equals(JndiRootNode.getLocalizedString(JndiProvidersNode.DRIVERS))) {
+                try {
+                    Hashtable contextProperties = ((JndiAbstractNode) nodes[i]).getInitialDirContextProperties();
+                    array.add(contextProperties);
+                }catch (javax.naming.NamingException ne){}
+            }
+        }
+        JndiSystemOption settings = (JndiSystemOption) JndiSystemOption.findObject (JndiSystemOption.class, true);
+        settings.setInitialContexts (array);
     }
 
     /** Shows an status

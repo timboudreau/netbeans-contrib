@@ -25,27 +25,64 @@ import javax.naming.NamingException;
  *  @author Ales Novak, Tomas Zezula 
  */
 final class JndiObjectCreator {
+    
+    /** Table of hexadecimal digits */
+    private static final char[] hexDigitTable = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
     /** This method corrects string that contains \ to \\
+     *   and also handles special chars and nonvisible chars
+     *   escaping
      */
-    static String correctValue(String str) {
+    static String correctValue(String str, boolean inString) {
         StringBuffer sb = new StringBuffer(str);
         for (int i = 0; i < sb.length(); i++) {
             if (sb.charAt(i) == '\\') {
                 sb.insert(i, '\\');
                 i++;
             }
-            else if (sb.charAt(i) == '\''){
+            else if (sb.charAt(i) == '\'' && inString){
                 sb.insert(i,'\\');
                 i++;
             }
-            else if (sb.charAt(i) =='\"'){
+            else if (sb.charAt(i) =='\"' && inString){
                 sb.insert(i,'\\');
                 i++;
+            }
+            else if (sb.charAt(i) =='\t') {
+                sb.setCharAt (i,'t');
+                sb.insert (i,'\\');
+                i++;
+            }
+            else if (sb.charAt(i) =='\n') {
+                sb.setCharAt (i,'n');
+                sb.insert (i,'\\');
+                i++;
+            }
+            else if (sb.charAt(i) =='\b') {
+                sb.setCharAt (i,'b');
+                sb.insert (i,'\\');
+                i++;
+            }
+            else if (sb.charAt(i) =='\r') {
+                sb.setCharAt (i,'r');
+                sb.insert (i,'\\');
+                i++;
+            }
+            else if (sb.charAt(i) =='\f') {
+                sb.setCharAt (i,'f');
+                sb.insert (i,'\\');
+                i++;
+            }
+            else if (sb.charAt(i)<0x20 || sb.charAt(i)>0x127) {
+                String hexStr = hexStrVal (sb.charAt(i));
+                sb.deleteCharAt(i);
+                sb.insert (i, hexStr);
+                i+=hexStr.length()-1;
             }
         }
         return sb.toString();
     }
+    
 
     /** Returns Java source code for accessing object
      *  @param ctx InitialContext
@@ -110,8 +147,8 @@ final class JndiObjectCreator {
         Enumeration keys = env.keys();
         Enumeration values = env.elements();
         while (keys.hasMoreElements()) {
-            String name = correctValue((String)keys.nextElement());
-            String value= correctValue((String)values.nextElement());
+            String name = correctValue((String)keys.nextElement(),true);
+            String value= correctValue((String)values.nextElement(),true);
             if (name.equals(JndiRootNode.NB_ROOT) ||
                     name.equals(JndiRootNode.NB_LABEL)) {
                 continue;
@@ -131,11 +168,11 @@ final class JndiObjectCreator {
         String code = new String();
         code = code + "try {\n    javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);\n"; // No I18N
         if (root != null && root.length() > 0){
-            code = code + "    javax.naming.Context jndiRootCtx = (javax.naming.Context) jndiCtx.lookup(\""+correctValue(root)+"\");\n";  // No I18N
-            code = code + "    "+className+" jndiObject = ("+className+")jndiRootCtx.lookup(\"" + correctValue(offset) + "\");\n"; // No I18N
+            code = code + "    javax.naming.Context jndiRootCtx = (javax.naming.Context) jndiCtx.lookup(\""+correctValue(root,true)+"\");\n";  // No I18N
+            code = code + "    "+className+" jndiObject = ("+className+")jndiRootCtx.lookup(\"" + correctValue(offset,true) + "\");\n"; // No I18N
         }
         else{
-            code = code + "    "+className+" jndiObject = ("+className+")jndiCtx.lookup(\"" + correctValue(offset) + "\");\n";  //No I18N
+            code = code + "    "+className+" jndiObject = ("+className+")jndiCtx.lookup(\"" + correctValue(offset,true) + "\");\n";  //No I18N
         }
         return code;
     }
@@ -145,5 +182,22 @@ final class JndiObjectCreator {
      */
     private static String generateTail(){
         return "} catch (javax.naming.NamingException ne) {\n    ne.printStackTrace();\n}\n"; // No I18N
+    }
+    
+    /** Returns string representing the hexadecimal
+     *  value of character
+     *  @param char c, character to be converted
+     *  @result String in the form 0x<hexdigit>+
+     */
+    private static String hexStrVal (char c) {
+        int val = (int) c;
+        StringBuffer res = new StringBuffer ("\\u0000");
+        int index = 5;
+        do {
+            int rem = (val & 0xf);
+            val = (val >>> 4);
+            res.setCharAt (index--, hexDigitTable[rem]);
+        }while (val > 0);
+        return res.toString();
     }
 }

@@ -73,6 +73,8 @@ public class JndiSystemOption extends SystemOption {
         try {
             timeOut = ((Integer)in.readObject()).intValue();
             redProviders = (ArrayList) in.readObject();
+            if (redProviders == null)
+                redProviders = new ArrayList ();
             JndiRootNode node = JndiRootNode.getDefault();
             if ( node != null ) node.initStartContexts(redProviders);
         }catch (java.io.IOException ioe){timeOut=DEFAULT_TIMEOUT;}
@@ -83,24 +85,9 @@ public class JndiSystemOption extends SystemOption {
      *  @param ObjectOutput out
      */
     public void writeExternal (java.io.ObjectOutput out){
-        JndiRootNode node = JndiRootNode.getDefault();
-        ArrayList array = null;
-        if (node != null){
-            Node[] nodes = node.getChildren().getNodes();
-            array = new ArrayList();
-            for (int i = 0; i < nodes.length; i++) {
-                if (!nodes[i].getName().equals(JndiRootNode.getLocalizedString(JndiProvidersNode.DRIVERS))) {
-                    try {
-                        Hashtable contextProperties = ((JndiAbstractNode) nodes[i]).getInitialDirContextProperties();
-                        array.add(contextProperties);
-                    }catch (javax.naming.NamingException ne){}
-                }
-            }
-        }
-        this.setInitialContexts (array);
         try{
             out.writeObject( new Integer(timeOut));
-            if (array != null) out.writeObject(this.redProviders);
+            out.writeObject(redProviders);
         }catch (java.io.IOException ioe) {}
     }
 

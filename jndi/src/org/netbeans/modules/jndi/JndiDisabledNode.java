@@ -89,7 +89,7 @@ public class JndiDisabledNode extends JndiAbstractNode implements Refreshable, N
                 // we should check the context
                 ((JndiDirContext)ctx).checkContext();
             }
-            root.addContext(ctx);
+            root.addContext(ctx, false);
             this.destroy();
         }catch(NamingException ne){
             // If exception was thrown than we don't

@@ -137,7 +137,8 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
                 java.util.Enumeration enum = attrs.getAll();
                 while (enum.hasMoreElements()){
                     Attribute attr = (Attribute) enum.nextElement();
-                    jndiSet.put ( new JndiProperty (attr.getID(),String.class,attr.getID(),null,attr.get().toString(),this,true));
+                    String attrId = attr.getID();
+                    jndiSet.put ( new JndiProperty (attrId,String.class,attrId,null,attr.get().toString(),this,true));
                 }
                 sheet.put( jndiSet);
             }catch (NamingException ne){}
