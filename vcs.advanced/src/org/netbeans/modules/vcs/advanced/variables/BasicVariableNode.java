@@ -119,7 +119,7 @@ public class BasicVariableNode extends AbstractNode {
     }
     
     private void createProperties(final VcsConfigVariable var, final Sheet.Set set) {
-        set.put(new PropertySupport.ReadWrite("label", String.class, g("CTL_Label"), "") {
+        set.put(new PropertySupport.ReadWrite("label", String.class, g("CTL_Label"), g("HINT_Label")) {
                         public Object getValue() {
                             return var.getLabel();
                         }
@@ -130,7 +130,7 @@ public class BasicVariableNode extends AbstractNode {
                             //cmd.fireChanged();
                         }
                 });
-        set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), "") {
+        set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), g("HINT_Name")) {
             public Object getValue() {
                 return var.getName();
             }
@@ -140,14 +140,14 @@ public class BasicVariableNode extends AbstractNode {
                 //cmd.fireChanged();
             }
         });
-        set.put(new PropertySupport.ReadOnly("order", String.class, g("CTL_Order"), "") {
+        set.put(new PropertySupport.ReadOnly("order", String.class, g("CTL_Order"), g("HINT_Order")) {
                         public Object getValue() {
                             //System.out.println("getName: cmd = "+cmd);
                             //int order = ((Children.SortedArray) getChildren()).indexOf(this);
                             return Integer.toString(var.getOrder());
                         }
                 });
-        set.put(new PropertySupport.ReadWrite("value", String.class, g("CTL_Value"), "") {
+        set.put(new PropertySupport.ReadWrite("value", String.class, g("CTL_Value"), g("HINT_Value")) {
             public Object getValue() {
                 return var.getValue();
             }
@@ -157,7 +157,7 @@ public class BasicVariableNode extends AbstractNode {
                 //cmd.fireChanged();
             }
         });
-        set.put(new PropertySupport.ReadWrite("selector", String.class, g("CTL_Selector"), "") {
+        set.put(new PropertySupport.ReadWrite("selector", String.class, g("CTL_Selector"), g("HINT_Selector")) {
             public Object getValue() {
                 return var.getCustomSelector();
             }
@@ -167,7 +167,7 @@ public class BasicVariableNode extends AbstractNode {
                 //cmd.fireChanged();
             }
         });
-        set.put(new PropertySupport.ReadWrite("localFile", Boolean.TYPE, g("CTL_LocalFile"), "") {
+        set.put(new PropertySupport.ReadWrite("localFile", Boolean.TYPE, g("CTL_LocalFile"), g("HINT_LocalFile")) {
             public Object getValue() {
                 //System.out.println("getName: cmd = "+cmd);
                 return new Boolean(var.isLocalFile());
@@ -178,7 +178,7 @@ public class BasicVariableNode extends AbstractNode {
                 //cmd.fireChanged();
             }
         });
-        set.put(new PropertySupport.ReadWrite("localDir", Boolean.TYPE, g("CTL_LocalDir"), "") {
+        set.put(new PropertySupport.ReadWrite("localDir", Boolean.TYPE, g("CTL_LocalDir"), g("HINT_LocalFile")) {
             public Object getValue() {
                 //System.out.println("getName: cmd = "+cmd);
                 return new Boolean(var.isLocalDir());

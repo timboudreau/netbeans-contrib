@@ -111,7 +111,7 @@ public class AccessoryVariableNode extends AbstractNode {
     }
     
     private void createProperties(final VcsConfigVariable var, final Sheet.Set set) {
-        set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), "") {
+        set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), g("HINT_Name")) {
             public Object getValue() {
                 return var.getName();
             }
@@ -121,7 +121,7 @@ public class AccessoryVariableNode extends AbstractNode {
                 //cmd.fireChanged();
             }
         });
-        set.put(new PropertySupport.ReadWrite("value", String.class, g("CTL_Value"), "") {
+        set.put(new PropertySupport.ReadWrite("value", String.class, g("CTL_Value"), g("HINT_Value")) {
             public Object getValue() {
                 return var.getValue();
             }
