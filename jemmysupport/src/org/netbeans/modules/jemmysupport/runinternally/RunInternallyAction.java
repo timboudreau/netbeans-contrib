@@ -16,10 +16,6 @@ package org.netbeans.modules.jemmysupport.runinternally;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AllPermission;
-import java.security.CodeSource;
-import java.security.PermissionCollection;
-import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -32,6 +28,7 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 
 import org.netbeans.api.queries.FileBuiltQuery;
+import org.netbeans.modules.jemmysupport.Utils;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.ErrorManager;
 import org.openide.cookies.SourceCookie;
@@ -208,23 +205,6 @@ public class RunInternallyAction extends NodeAction {
         }
     }
 
-    /** Returns NetBeans SystemClassLoader from threads hierarchy. */
-    private ClassLoader getSystemClassLoader() {
-        ThreadGroup tg = Thread.currentThread().getThreadGroup();
-        ClassLoader systemClassloader = Thread.currentThread().getContextClassLoader();
-        while(!systemClassloader.getClass().getName().endsWith("SystemClassLoader")) { // NOI18N
-            tg = tg.getParent();
-            if(tg == null) {
-                ErrorManager.getDefault().notify(new Exception("NetBeans SystemClassLoader not found!"));
-            }
-            Thread[] list = new Thread[tg.activeCount()];
-            tg.enumerate(list);
-            systemClassloader = list[0].getContextClassLoader();
-        }
-        return systemClassloader;
-    }
-
-
     /** Gets IDE's system class loader, adds given classpath and invokes main
      * method of given class.
      * @throws BuildException when something's wrong
@@ -232,7 +212,7 @@ public class RunInternallyAction extends NodeAction {
     private void execute(FileObject fObj, String classname) {
         try {
             URL[] urls = classpathToURL(fObj);
-            URLClassLoader testClassLoader = new TestClassLoader(urls, getSystemClassLoader());
+            URLClassLoader testClassLoader = new Utils.TestClassLoader(urls, Utils.getSystemClassLoader());
             /*
             URL[] u = testClassLoader.getURLs();
             for(int i=0;i<u.length;i++) {
@@ -265,38 +245,6 @@ public class RunInternallyAction extends NodeAction {
             list.add(entry.getURL());
         }
         return (URL[])list.toArray(new URL[list.size()]);
-    }
-    
-    /** Classloder with overriden getPermissions method because it doesn't
-     * have sufficient permissions when run from IDE.
-     */
-    private static class TestClassLoader extends URLClassLoader {
-        
-        public TestClassLoader(URL[] urls, ClassLoader parent) {
-            super(urls, parent);
-        }
-        
-        protected PermissionCollection getPermissions(CodeSource codesource) {
-            Permissions permissions = new Permissions();
-            permissions.add(new AllPermission());
-            permissions.setReadOnly();
-            
-            return permissions;
-        }
-        
-        protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
-            if (name.startsWith("org.netbeans.jemmy") || name.startsWith("org.netbeans.jellytools")) { // NOI18N
-                //System.out.println("CLASSNAME="+name);
-                // Do not proxy to parent!
-                Class c = findLoadedClass(name);
-                if (c != null) return c;
-                c = findClass(name);
-                if (resolve) resolveClass(c);
-                return c;
-            } else {
-                return super.loadClass(name, resolve);
-            }
-        }
     }
 }
 
