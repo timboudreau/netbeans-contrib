@@ -45,6 +45,7 @@ public class ImplGenerator {
     private static final boolean DEBUG = false;
 
 
+    private boolean showMessage; // Fix of showing message when the sync is disabled
     private IDLElement src;
 
     private String IMPLBASE_IMPL_PREFIX;
@@ -954,6 +955,7 @@ public class ImplGenerator {
                 IDLElement tmp_element = findElementByName (type.getName (), from);
                 if (DEBUG)
                     System.out.println ("tmp_element: " + tmp_element.getName () + " : " + tmp_element);
+                System.out.println ("956: Package: "+_package);
                 String full_name = _package + "." + ctype2package (tmp_element);
                 full_name = full_name + "Holder";
 
@@ -1560,7 +1562,10 @@ public class ImplGenerator {
             IDLElement tmp = findTopLevelModuleForType (idl_type, _interface);
             //
             IDLElement element_for_type = findElementInElement (idl_type.getName (), tmp);
-            String full_name = _package + "." + ctype2package (element_for_type);
+            String full_name ="";
+            if (_package.length() >0) 
+                full_name = _package + ".";
+            full_name = full_name + ctype2package (element_for_type);
             if (mode != Parameter.IN)
                 full_name = full_name + "Holder";
             if (DEBUG)
@@ -1580,7 +1585,10 @@ public class ImplGenerator {
             //Type tmp_type;
             IDLElement tmp = findModuleForScopeType (idl_type, _interface);
             IDLElement element_for_type = findElementInElement (idl_type.getName (), tmp);
-            String full_name = _package + "." + ctype2package (element_for_type);
+            String full_name ="";
+            if (_package.length() >0) 
+                full_name = _package + ".";
+            full_name = full_name + ctype2package (element_for_type);
             if (mode != Parameter.IN)
                 full_name = full_name + "Holder";
             if (DEBUG)
@@ -1613,7 +1621,10 @@ public class ImplGenerator {
         if (DEBUG)
             System.out.println ("element_for_type: " + element_for_type.getName () + " : "
                                 + element_for_type);
-        String full_name = _package + "." + ctype2package (element_for_type);
+        String full_name ="";
+            if (_package.length() >0) 
+                full_name = _package + ".";
+            full_name = full_name + ctype2package (element_for_type);
         if (mode != Parameter.IN)
             full_name = full_name + "Holder";
         if (DEBUG)
@@ -1639,7 +1650,10 @@ public class ImplGenerator {
             // is absolute scope name
             IDLElement tmp = findTopLevelModuleForName (ex, _interface);
             IDLElement element_for_exception = findElementInElement (ex, tmp);
-            String full_name = _package + "." + ctype2package (element_for_exception);
+            String full_name ="";
+            if (_package.length() >0) 
+                full_name = _package + ".";
+            full_name = full_name + ctype2package (element_for_exception);
 
             return full_name;
         }
@@ -1648,7 +1662,10 @@ public class ImplGenerator {
         if (isScopeName (ex)) {
             IDLElement tmp = findModuleForScopeName (ex, _interface);
             IDLElement element_for_exception = findElementInElement (ex, tmp);
-            String full_name = _package + "." + ctype2package (element_for_exception);
+            String full_name ="";
+            if (_package.length() >0) 
+                full_name = _package + ".";
+            full_name = full_name + ctype2package (element_for_exception);
 
             return full_name;
 
@@ -1659,7 +1676,10 @@ public class ImplGenerator {
         if (DEBUG)
             System.out.println ("element_for_exception: " + element_for_exception.getName () + " : "
                                 + element_for_exception);
-        String full_name = _package + "." + ctype2package (element_for_exception);
+        String full_name ="";
+            if (_package.length() >0) 
+                full_name = _package + ".";
+            full_name = full_name + ctype2package (element_for_exception);
 
         return full_name;
     }
@@ -1947,18 +1967,22 @@ public class ImplGenerator {
 
         if (!TIE) {
             impl_name = IMPLBASE_IMPL_PREFIX + element.getName () + IMPLBASE_IMPL_POSTFIX;
-            if (where_generate == IN_IDL_PACKAGE)
-                super_name = _package + "." + modules + EXT_CLASS_PREFIX + element.getName ()
+            if (where_generate == IN_IDL_PACKAGE){
+                if (_package.length() >0)
+                    super_name = _package + ".";
+                super_name = super_name + modules + EXT_CLASS_PREFIX + element.getName ()
                              + EXT_CLASS_POSTFIX;
-            else
+            }else
                 super_name = EXT_CLASS_PREFIX + element.getName () + EXT_CLASS_POSTFIX;
         }
         else {
             impl_name = TIE_IMPL_PREFIX + element.getName () + TIE_IMPL_POSTFIX;
-            if (where_generate == IN_IDL_PACKAGE)
-                super_name = _package + "." + modules + IMPL_INT_PREFIX + element.getName ()
+            if (where_generate == IN_IDL_PACKAGE){
+                if (_package.length() >0)
+                    super_name = _package + ".";
+                super_name = super_name + modules + IMPL_INT_PREFIX + element.getName ()
                              + IMPL_INT_POSTFIX;
-            else
+            }else
                 super_name = IMPL_INT_PREFIX + element.getName () + IMPL_INT_POSTFIX;
         }
 
@@ -2017,7 +2041,10 @@ public class ImplGenerator {
             if ((impl = folder.getFileObject (impl_name, "java")) != null) {
                 if (DEBUG)
                     System.out.println ("file exists");
-                String full_name = _package + "." + impl_name;
+                String full_name = "";
+                if (_package.length() > 0) 
+                    full_name = full_name + _package + ".";
+                full_name = full_name + impl_name;
                 if (DEBUG)
                     System.out.println ("full name: " + full_name);
                 ClassElement dest = ClassElement.forName (full_name);
@@ -2033,6 +2060,9 @@ public class ImplGenerator {
                     if (changes.size () > 0)
                         JavaConnections.showChangesDialog (changes, (byte)JavaConnections.TYPE_ALL);
                 }
+		else {
+		    this.showMessage = false;
+		}
             }
             else {
                 if (DEBUG)
@@ -2053,7 +2083,8 @@ public class ImplGenerator {
                                  + ido.getPrimaryFile ().getName () + ".idl\n"
                                  + " */");
 
-                printer.println ("\npackage " + _package + ";\n");
+                if (_package.length() > 0) // If it isn't in file system root
+                    printer.println ("\npackage " + _package + ";\n");
                 printer.println (clazz.toString ());
                 lock.releaseLock ();
             }
@@ -2067,6 +2098,7 @@ public class ImplGenerator {
 
 
     public void generate () {
+	this.showMessage = true;  // We suppose that we generate or synchronization is not disabled
         if (DEBUG) {
             System.out.println ("generate :-))");
             try {
@@ -2094,8 +2126,13 @@ public class ImplGenerator {
                 }
         }
 
-        TopManager.getDefault ().setStatusText ("Successfully Generated Implementation Classes for "
+	if (this.showMessage) { // Bug Fix, when sync is disabled, don't show the message
+    	    TopManager.getDefault ().setStatusText ("Successfully Generated Implementation Classes for "
                                                 + ido.getPrimaryFile ().getName () + ".");
+	}
+	else{
+	    TopManager.getDefault ().setStatusText ("Idl synchronization for this project is disabled.");
+	}
 
     }
 
