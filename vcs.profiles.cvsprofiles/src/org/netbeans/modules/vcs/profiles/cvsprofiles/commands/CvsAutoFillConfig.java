@@ -106,14 +106,16 @@ public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
                     } catch (IOException eIO) {}
                 }
             }
-        }
-        if (serverType != null) vars.put("SERVERTYPE", serverType);
-        if (repository != null) vars.put("CVS_REPOSITORY", repository);
-        if (userName != null) vars.put("CVS_USERNAME", userName);
-        if (serverName != null) vars.put("CVS_SERVER", serverName);
-        if (serverPort != null) vars.put("ENVIRONMENT_VAR_CVS_CLIENT_PORT", serverPort);
-        else vars.remove("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
-        vars.remove("BUILT-IN"); // Not to alter that variable
+            vars.put("DO_CHECKOUT",""); // NOI18N
+        }else
+            vars.put("DO_CHECKOUT","true");// NOI18N
+        if (serverType != null) vars.put("SERVERTYPE", serverType);// NOI18N
+        if (repository != null) vars.put("CVS_REPOSITORY", repository);// NOI18N
+        if (userName != null) vars.put("CVS_USERNAME", userName);// NOI18N
+        if (serverName != null) vars.put("CVS_SERVER", serverName);// NOI18N
+        if (serverPort != null) vars.put("ENVIRONMENT_VAR_CVS_CLIENT_PORT", serverPort);// NOI18N
+        else vars.remove("ENVIRONMENT_VAR_CVS_CLIENT_PORT");// NOI18N
+        vars.remove("BUILT-IN"); // Not to alter that variable   // NOI18N         
         return true;
     }
 }

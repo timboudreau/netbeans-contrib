@@ -274,7 +274,7 @@ Microsystems, Inc. All Rights Reserved.
       <value>$[? QUIETNESS] [${QUIETNESS} ][]$[? DISK_CHANGE] [-n ] []$[? TRACE] [-t ] []$[? HISTORY_LOGGING] [-l ] []$[? CHECKOUT_RO_RW] [${CHECKOUT_RO_RW} ][]$[? NOT_USE_CVSRC] [${NOT_USE_CVSRC} ][]${COMPRESSION}</value>
     </variable>
     <variable name="AUTO_FILL_VARS" basic="false">
-      <value>ROOTDIR, AUTO_FILL_CONFIG, MODULE, AUTO_FILL_CONFIG, SERVERTYPE, SET_LOGIN_STATE, CVS_SERVER, SET_LOGIN_STATE, CVS_USERNAME, SET_LOGIN_STATE, CVS_REPOSITORY, SET_LOGIN_STATE, ENVIRONMENT_VAR_CVS_CLIENT_PORT, SET_LOGIN_STATE</value>
+      <value>ROOTDIR, AUTO_FILL_CONFIG, MODULE, AUTO_FILL_CONFIG, SERVERTYPE, SET_LOGIN_STATE, CVS_SERVER, SET_LOGIN_STATE, CVS_USERNAME, SET_LOGIN_STATE, CVS_REPOSITORY, SET_LOGIN_STATE, ENVIRONMENT_VAR_CVS_CLIENT_PORT, SET_LOGIN_STATE,FILESYSTEM_PROPERTY_offLine, AUTO_FILL_CHECKOUT</value>
     </variable>
     <variable name="AUTORECOGNIZE_FROM_COMMAND" basic="false">
       <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsFSAutorecognizer</value>
@@ -2766,6 +2766,17 @@ Microsystems, Inc. All Rights Reserved.
     <command name="AUTO_FILL_CONFIG">
       <property name="exec">
         <value>vcs.commands.CvsAutoFillConfig.class</value>
+      </property>
+      <property name="executionPriority">
+        <value>1</value> <!-- HIGH PRIORITY -->
+      </property>
+      <property name="ignoreFail">
+        <value>true</value>
+      </property>
+    </command>
+    <command name="AUTO_FILL_CHECKOUT">
+      <property name="exec">
+        <value>vcs.commands.CvsAutoFillOffline.class</value>
       </property>
       <property name="executionPriority">
         <value>1</value> <!-- HIGH PRIORITY -->
