@@ -1132,7 +1132,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             try
             {
                 File defDir = new File(System.getProperty("user.home"));  // NOI18N
-                if (Utilities.isUnix())
+                if (Utilities.isUnix() || (Utilities.getOperatingSystem() == Utilities.OS_VMS))
                     rootDirFile = defDir;
                 else if (Utilities.isWindows())
                 {
