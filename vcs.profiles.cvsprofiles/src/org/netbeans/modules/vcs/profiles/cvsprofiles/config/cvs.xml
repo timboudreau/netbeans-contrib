@@ -863,6 +863,26 @@ Microsystems, Inc. All Rights Reserved.
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.CvsUpdateVisualizer</value>
         </property>        
       </command>
+      <command name="UPDATE_CMD_STD">
+	<property name="exec">
+	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>          
+	</property>
+	<property name="data.regex">
+	  <value>^([UPARMC]) (.*$)|^(.*) (already contains the differences)(.*)$</value>
+	</property>
+	<property name="error.regex">
+	  <value>^.* warning: (.*) (is not \(any longer\).*)$|^.*: (.*) (is no longer.*)$|^.*: Updating (.*)$</value>
+	</property>
+        <property name="concurrentExec">
+          <value>10</value>
+        </property>
+        <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>
+        <property name="display">
+	  <value>true</value>
+	</property>               
+      </command>
       <command name="UPDATE" displayName="ResourceMsg1(CVS_UPDATE)">
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_UPDATE_Mnemonic)</value>
@@ -873,8 +893,8 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-	<property name="exec">
-	  <value>vcs.commands.CvsUpdate.class $[? DISK_CHANGE] [-n ] []MODDIR UPDATE_CMD</value>
+	<property name="exec">          
+	  <value>vcs.commands.CvsUpdate.class $[? DISK_CHANGE] [-n ] []MODDIR $[? SEND_TO_STDOUT][UPDATE_CMD_STD] [UPDATE_CMD]</value>          
         </property>
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg1(COMMAND_UPDATE_Label),

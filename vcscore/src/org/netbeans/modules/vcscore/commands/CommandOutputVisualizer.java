@@ -102,10 +102,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
         outputPanel.addKillActionListener(killListener);
         outputPanel.setIgnoreFailure(VcsCommandIO.getBooleanPropertyAssumeDefault(task.getVcsCommand(), VcsCommand.PROPERTY_IGNORE_FAIL));
         final String title;
-        String commandName = vce.getCommand().getDisplayName();
-        if (commandName == null || commandName.length() == 0) {
-            commandName = vce.getCommand().getName();
-        }
+        String commandName = findDisplayName(this.task);
         java.util.Collection files = vce.getFiles();
         if (files.size() == 1) {
             String filePath = (String) files.iterator().next();
@@ -131,6 +128,19 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
                 setDisplayName(title);
             }
         });
+    }
+    
+    /**
+     *Searchs tasks structure for valid displayName
+     */
+    private String findDisplayName(CommandTask task) {
+        String dispName = null;
+        while(dispName == null && task != null) {
+            dispName = task.getDisplayName();
+            task = CommandProcessor.getInstance().getParentTask(task);
+        }
+        if (dispName == null) dispName = this.task.getName();
+        return Actions.cutAmpersand(dispName);
     }
     
     public void setOutputCollector(CommandOutputCollector outputCollector) {
