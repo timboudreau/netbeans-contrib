@@ -2048,13 +2048,17 @@ public class VariableInputDialog extends javax.swing.JPanel {
         final javax.swing.JTextArea textArea = new javax.swing.JTextArea(valueExpanded);
         mainComponent_ptr[0] = textArea;
         if (value != null && !value.equals(valueExpanded)) {
-            addPropertyChangeListener(new TextUpdateListener(textArea, value));
+            TextUpdateListener tuListener = new TextUpdateListener(textArea, value);
+            tuListener.doSetA11y();
+            addPropertyChangeListener(tuListener);
         }
         textArea.setWrapStyleWord(true);
         textArea.setLineWrap(component.isMultiLine());
         textArea.setEditable(false);
         textArea.setEnabled(false);
         textArea.setOpaque(false);
+        textArea.getAccessibleContext().setAccessibleName(valueExpanded);
+        textArea.getAccessibleContext().setAccessibleDescription(valueExpanded);
         java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints();
         java.awt.Dimension dimension = component.getDimension();
         gridBagConstraints1.gridx = dimension.width;
@@ -2337,9 +2341,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
      */
     private class TextUpdateListener extends Object implements PropertyChangeListener {
         
-        private Object textComponent;
+        private javax.swing.JComponent textComponent;
         private java.lang.reflect.Method setTextMethod;
         private String text;
+        private boolean setA11y = false;
         
         /**
          * Create a new text update listener.
@@ -2347,7 +2352,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
          *        method, that is called with the updated expanded text.
          * @param text The original, unexpanded text.
          */
-        public TextUpdateListener(Object textComponent, String text) {
+        public TextUpdateListener(javax.swing.JComponent textComponent, String text) {
             this.textComponent = textComponent;
             try {
                 setTextMethod = textComponent.getClass().getMethod("setText", new Class[] { String.class });
@@ -2355,6 +2360,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 ErrorManager.getDefault().notify(ex);
             }
             this.text = text;
+        }
+        
+        public void doSetA11y() {
+            this.setA11y = true;
         }
         
         public void propertyChange(PropertyChangeEvent evt) {
@@ -2388,6 +2397,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 setTextMethod.invoke(textComponent, new Object[] { textExpanded });
             } catch (Exception ex) {
                 ErrorManager.getDefault().notify(ex);
+            }
+            if (setA11y) {
+                textComponent.getAccessibleContext().setAccessibleName(textExpanded);
+                textComponent.getAccessibleContext().setAccessibleDescription(textExpanded);
             }
         }
         
