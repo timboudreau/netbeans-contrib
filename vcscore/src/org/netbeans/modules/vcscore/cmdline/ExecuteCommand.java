@@ -555,13 +555,25 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * to the file system root.
      */
     public Collection getFiles() {
-        String path = (String) vars.get("DIR");
-        String file = (String) vars.get("FILE");
-        String fullPath = ((path.length() > 0) ? path.replace(File.separatorChar, '/') + "/" : "") + ((file == null) ? "" : file);
-        return Collections.singleton(fullPath);
-        //HashSet set = new HashSet(1);
-        //set.add(file);
-        //return set;
+        String paths = (String) vars.get("PATHS");
+        if (paths != null) {
+            ArrayList files = new ArrayList();
+            int len = paths.length();
+            int begin = 0;
+            do {
+                int index = paths.indexOf(File.separator + File.separator, begin);
+                if (index < 0) index = len;
+                String file = paths.substring(begin, index);
+                files.add(file.replace(File.separatorChar, '/'));
+                begin = index + (File.separator + File.separator).length();
+            } while (begin < len);
+            return files;
+        } else {
+            String path = (String) vars.get("DIR");
+            String file = (String) vars.get("FILE");
+            String fullPath = ((path.length() > 0) ? path.replace(File.separatorChar, '/') + "/" : "") + ((file == null) ? "" : file);
+            return Collections.singleton(fullPath);
+        }
     }
     
     /**
