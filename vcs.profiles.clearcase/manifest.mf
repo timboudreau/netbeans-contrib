@@ -4,6 +4,8 @@ OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/vcs/profiles/clearcase/Bu
 OpenIDE-Module-Specification-Version: 1.3
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.18
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.vcscore/1 > 1.6, org.netbeans.modules.vcs.advanced/1 > 1.6
+OpenIDE-Module-Module-Dependencies:
+ org.netbeans.modules.vcscore/1 > 1.10,
+ org.netbeans.modules.vcs.advanced/1 > 1.10
 OpenIDE-Module-Layer: org/netbeans/modules/vcs/profiles/clearcase/mf-layer.xml
 
