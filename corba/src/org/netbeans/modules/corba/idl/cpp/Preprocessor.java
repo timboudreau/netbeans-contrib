@@ -431,8 +431,6 @@ public class Preprocessor {
         eatWhiteSpaces();
         if (pos < str.length ())
             error ("Undef command expects one argument only: " + str);
-        if (defines.remove(def) == null)
-            error ("Define does not exists: " + def + ": " + str);
         writeOutput (null);
     }
     
