@@ -61,7 +61,7 @@ Microsystems, Inc. All Rights Reserved.
     <makenbm file="org-netbeans-modules-pmd-ext.nbm"
              topdir="."
              module="netbeans/modules/eager/org-netbeans-modules-pmd-ext.jar"
-	     homepage="http://www.netbeans.org/"
+             homepage="http://contrib.${homepage.base}/pmd-nb"
              needsrestart="false"
 	     distribution="http://${dist.base}/org-netbeans-modules-pmd-ext.nbm">
       <license file="${license.file}"/>
