@@ -17,6 +17,9 @@ import java.awt.Dimension;
 import java.util.*;
 
 import org.netbeans.modules.vcscore.Variables;
+import org.openide.ErrorManager;
+
+import javax.swing.*;
 
 /**
  * The representation of component for variable input.
@@ -47,7 +50,12 @@ public class VariableInputComponent extends Object {
     private String[] varConditions = new String[2];
     private String[] selectorVarConditions = new String[2];
     private ArrayList history = new ArrayList();
-    
+
+    /** Use for INPUT_JCOMPONENT components only. */
+    private Class componentClass;
+
+    private NestableInputComponent nestableComponent;
+
     /** Creates new VariableInputComponent */
     public VariableInputComponent(int component, String variable, String label) {
         this(component, variable, label, null);
@@ -65,7 +73,14 @@ public class VariableInputComponent extends Object {
             this.labelMnemonic = null;
         }
     }
-    
+
+    /** Creates new VariableInputComponent */
+    public VariableInputComponent(int component, String variable, Class componentClass) {
+        this.component = component;
+        this.variable = variable;
+        this.componentClass = componentClass;
+    }
+
     public int getComponent() {
         return component;
     }
@@ -295,7 +310,12 @@ public class VariableInputComponent extends Object {
     }
     
     public VariableInputValidator validate() {
-        return new VariableInputValidator(this, validator);
+
+        if (component == VariableInputDescriptor.INPUT_JCOMPONENT) {
+            return new NestableInputValidator(this);
+        } else {
+            return new VariableInputValidator(this, validator);
+        }
     }
     
     public void setStyle(String style) {
@@ -484,5 +504,25 @@ public class VariableInputComponent extends Object {
     /** If true commonent can be displayed in trivial mode only. */
     public boolean isTrivial() {
         return trivial;
+    }
+
+    /** Instance of JCOMPONENT type of componnet otherwise <code>null</code> */
+    public NestableInputComponent getNestableComponent(boolean newInstance) {
+        if (nestableComponent == null || newInstance) {
+            try {
+                Object o = componentClass.newInstance();
+                JComponent c = (JComponent) o;
+                nestableComponent = (NestableInputComponent) o;
+            } catch (InstantiationException e) {
+                ErrorManager err = ErrorManager.getDefault();
+                err.annotate(e, "Missing public no arg constructor " + componentClass); // NOI18N
+                err.notify(e);
+            } catch (IllegalAccessException e) {
+                ErrorManager err = ErrorManager.getDefault();
+                err.annotate(e, "Unaccesible public no arg constructor " + componentClass); // NOI18N
+                err.notify(e);
+            }
+        }
+        return nestableComponent;
     }
 }

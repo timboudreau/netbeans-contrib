@@ -164,29 +164,6 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         return vce;
     }
     
-    private String getRefreshPath(VcsFileSystem fileSystem, Hashtable vars) {
-        String path = null;
-        FileObject[] fos = cmd.getFiles();
-        if (fos != null && fos.length > 0) {
-            path = fos[0].getPath();
-            int i = path.lastIndexOf('.');
-            if (i != -1 && i > path.lastIndexOf('/')) {
-                path = path.substring(0, i);
-            }
-        } else {
-            File[] diskFiles = cmd.getDiskFiles();
-            if (diskFiles != null && diskFiles.length > 0) {
-                path = FileUtil.normalizeFile(diskFiles[0]).getAbsolutePath();
-                String root = fileSystem.getFile("").getAbsolutePath();
-                if (path.indexOf(root) == 0) {
-                    path = path.substring(root.length());
-                    while (path.startsWith(File.separator)) path = path.substring(1);
-                }
-            }
-        }
-        return path;
-    }
-    
     private File getRefreshDir(VcsFileSystem fileSystem, Hashtable vars) {
         File dir = null;
         FileObject[] fos = cmd.getFiles();

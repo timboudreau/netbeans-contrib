@@ -16,7 +16,9 @@ package org.netbeans.modules.vcscore.util;
 import org.netbeans.modules.vcscore.commands.VcsDescribedCommand;
 import org.openide.filesystems.*;
 import org.openide.ErrorManager;
+import org.openide.util.Lookup;
 
+import javax.swing.*;
 import java.awt.Dimension;
 import java.util.*;
 import java.io.*;
@@ -44,6 +46,7 @@ public class VariableInputDescriptor extends Object {
     public static final int INPUT_HELP_ID = 13;
     public static final int INPUT_AUTOFILL = 14;
     public static final int INPUT_PROFILE_DEFAULTS = 16;
+    public static final int INPUT_JCOMPONENT = 17;
 
     public static final String INPUT_STR_LABEL = "LABEL";
     /**
@@ -64,6 +67,13 @@ public class VariableInputDescriptor extends Object {
      * </ul>
      */
     public static final String INPUT_STR_PROFILE_DEFAULTS = "VARIABLE_DEFAULTS";
+
+    /**
+     * The name of statement that points to JComponnet that implements
+     * {@link NestableInputComponent}. The syntax is:
+     * <code>JCOMPONENT(VARIABLE_NAME, package.className)</code>
+     */
+    public static final String INPUT_STR_JCOMPONENT = "JCOMPONENT";
 
     public static final String DEFAULTS_MODE_USER = "USER"; // NOI18N
     public static final String DEFAULTS_MODE_EXPERT_USER = "EXPERT_USER"; // NOI18N
@@ -147,6 +157,7 @@ public class VariableInputDescriptor extends Object {
                     inputMap.put(INPUT_STR_TEXT, new Integer(INPUT_TEXT));
                     inputMap.put(INPUT_STR_AUTOFILL, new Integer(INPUT_AUTOFILL));
                     inputMap.put(INPUT_STR_PROFILE_DEFAULTS, new Integer(INPUT_PROFILE_DEFAULTS));
+                    inputMap.put(INPUT_STR_JCOMPONENT, new Integer(INPUT_JCOMPONENT));
                 }
             }
         }
@@ -508,6 +519,20 @@ public class VariableInputDescriptor extends Object {
                         component);
             }
             argNum = 4;
+        } else if(len == 2 && id == INPUT_JCOMPONENT) {
+            // validate second argument, a class name
+            String className = inputArgs[1];
+            Lookup lookup = Lookup.getDefault();
+            ClassLoader loader = (ClassLoader) lookup.lookup(ClassLoader.class);
+            try {
+                Class componentClass = Class.forName(className, true, loader);
+                assert JComponent.class.isAssignableFrom(componentClass);
+                assert NestableInputComponent.class.isAssignableFrom(componentClass);
+                component = new VariableInputComponent(id, inputArgs[0], componentClass);
+            } catch (ClassNotFoundException e) {
+                throw new VariableInputFormatException("VID: missing class " + className);
+            }
+            argNum = 2;
         } else {
             component = new VariableInputComponent(id, inputArgs[0],
                                                    VcsUtilities.getBundleString(resourceBundles, inputArgs[1]));

@@ -13,15 +13,14 @@
 
 package org.netbeans.modules.vcscore.util;
 
-import java.awt.Component;
-import java.awt.Cursor;
+import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
+import java.util.List;
+import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.JTextComponent;
 
@@ -91,11 +90,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private static final int TEXTAREA_ROWS = 6;
     private static final int DEFAULT_INDENT = 20;
     private boolean validInput = false;
-    private javax.swing.JLabel[] varPromptLabels = new javax.swing.JLabel[0];
-    private javax.swing.JLabel[] filePromptLabels = new javax.swing.JLabel[0];
     private javax.swing.JLabel[] userPromptLabels = new javax.swing.JLabel[0];
     private String[]             userPromptLabelTexts = null;
-    private javax.swing.JTextArea[] filePromptAreas = new javax.swing.JTextArea[0];
     private javax.swing.JTextField[] varPromptFields = new javax.swing.JTextField[0];
     private javax.swing.JTextField[] userPromptFields = new javax.swing.JTextField[0];
     private javax.swing.JCheckBox[] varAskCheckBoxes = new javax.swing.JCheckBox[0];
@@ -108,8 +104,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private CommandExecutionContext executionContext = null;
     private Hashtable vars = null;
     private boolean expert = false;
-    private String exec = null;
-    
+
     private VariableInputDescriptor inputDescriptor;
     private VariableInputDescriptor globalDescriptor = null;
     private ArrayList globalVars = null;
@@ -148,8 +143,6 @@ public class VariableInputDialog extends javax.swing.JPanel {
      */
     public static final String VAR_AUTO_FILL = "AUTO_FILL_VARS";
     private HashMap autoFillVars = new HashMap();
-    private Vector varTextFields = new Vector ();
-    private Vector varVariables = new Vector ();
     private volatile org.openide.util.RequestProcessor.Task autoFillTask;
     private volatile String lastCommandName;
     private boolean rapidVariablesAssignment = false;
@@ -682,6 +675,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
                                      mainComponent_ptr);
                     gridy++;
                     break;
+                case VariableInputDescriptor.INPUT_JCOMPONENT:
+                    addJComponent(component, gridy, inputPanel, leftInset,
+                                     mainComponent_ptr);
+                    gridy++;
+                    break;
+
                 case VariableInputDescriptor.INPUT_GLOBAL:
                     setGlobalVars(component);
                     break;
@@ -712,7 +711,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         }
         return gridy;
     }
-    
+
     private static Map createVarsByAWTComponents(Map awtComponentsByVars) {
         Map varsByAWTComponents = new HashMap();
         for (Iterator it = awtComponentsByVars.keySet().iterator(); it.hasNext(); ) {
@@ -761,7 +760,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
         }
         return validator;
     }
-    
+
+    VariableInputComponent getInputComponent(String var) {
+        return (VariableInputComponent) componentsByVars.get(var);
+    }
+
     public ActionListener getActionListener() {
         return new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
@@ -1045,9 +1048,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     /**
      * Set the execution string.
+     * @deprecated nop method
      */
     public void setExec(String exec) {
-        this.exec = exec;
+
     }
     
     private void removeGlobalInputTab() {
@@ -1260,8 +1264,6 @@ public class VariableInputDialog extends javax.swing.JPanel {
             new javax.swing.JPasswordField(TEXTFIELD_COLUMNS) :
             new javax.swing.JTextField(TEXTFIELD_COLUMNS);
         mainComponent_ptr[0] = field;
-        varTextFields.addElement(field);
-        varVariables.addElement(component.getVariable());
         if (varLabel != null && varLabel.length() > 0) {
             String varLabelExpanded = Variables.expand(vars, varLabel, false);
             javax.swing.JLabel label = new javax.swing.JLabel(varLabelExpanded);
@@ -2318,13 +2320,32 @@ public class VariableInputDialog extends javax.swing.JPanel {
             gridBagConstraints1.insets = new java.awt.Insets(0, leftInset, 8, 8);
         }
         variablePanel.add(textArea, gridBagConstraints1);
-        varTextFields.addElement(textArea);
-        varVariables.addElement(component.getVariable());
-        //componentList.add(textArea);
         awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { textArea });
         componentsByVars.put(component.getVariable(), component);
     }
-    
+
+    /** Adds custom JComponent into variablePanel. It takes full width. */
+    private void addJComponent(VariableInputComponent component, int gridy, JPanel inputPanel, int leftInset, Component[] mainComponent_ptr) {
+        NestableInputComponent embed = component.getNestableComponent(true);
+        JComponent c = (JComponent) embed;
+        String var = component.getVariable();
+
+        embed.joinNest(new VariableInputNest(this, var));
+        mainComponent_ptr[0] = c;
+        GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+        gridBagConstraints1.gridx = 0;
+        gridBagConstraints1.gridy = gridy;
+        gridBagConstraints1.gridwidth = GridBagConstraints.REMAINDER;
+        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.weightx = 1.0;
+        gridBagConstraints1.insets = new java.awt.Insets(0, leftInset, 8, 0);
+        inputPanel.add(c, gridBagConstraints1);
+        awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { c });
+        componentsByVars.put(component.getVariable(), component);
+    }
+
+
     private void setGlobalVars(VariableInputComponent component) {
         String varsStr = component.getVariable();
         String[] vars = VcsUtilities.getQuotedStrings(varsStr);
@@ -2372,7 +2393,6 @@ public class VariableInputDialog extends javax.swing.JPanel {
             this.userPromptLabelTexts[i] = labelStr;
             javax.swing.JLabel label = new javax.swing.JLabel(labelStr+":");
             javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
-            varTextFields.addElement(field);
             field.setText((String) varLabels.get(labelStr));
             java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
             java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();

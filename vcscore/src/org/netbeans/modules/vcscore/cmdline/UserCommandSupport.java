@@ -444,9 +444,9 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         }
         return doCustomization(cmd.isGUIMode(), (VcsDescribedCommand) cmd);
     }
-    
+
     private static final String QUOTING = "${QUOTE}"; // NOI18N
-    
+
     /**
      * Perform the basic customization and preprocessing of the command.
      * This needs to be done even if a GUI customizer is not desired.
