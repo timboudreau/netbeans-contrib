@@ -894,6 +894,10 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             String input = (String) cmd.getProperty(UserCommand.PROPERTY_INPUT);
             if (dataRegex != null) vars.put("DATAREGEX", dataRegex); // NOI18N
             if (errorRegex != null) vars.put("ERRORREGEX", errorRegex); // NOI18N
+            String dataGlobalRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX_GLOBAL);
+            String errorGlobalRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX_GLOBAL);
+            if (dataGlobalRegex != null) vars.put("DATA_GLOBAL_REGEX", dataGlobalRegex); // NOI18N
+            if (errorGlobalRegex != null) vars.put("ERROR_GLOBAL_REGEX", errorGlobalRegex); // NOI18N
             if (input != null) vars.put("INPUT", input); // NOI18N
             //vars.put("TIMEOUT", new Long(cmd.getTimeout())); // NOI18N
             //TopManager.getDefault().setStatusText(g("MSG_Command_name_running", cmd.getName()));

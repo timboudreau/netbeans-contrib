@@ -642,7 +642,7 @@ Microsystems, Inc. All Rights Reserved.
           </value>
 	</property>
         <property name="exec">
-          <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t UNCHECKOUT_CONFIRM UNCHECKOUT_CONFIRMED</value>
+          <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -te UNCHECKOUT_CONFIRM UNCHECKOUT_CONFIRMED</value>
         </property>
 	<property name="onDir">
 	  <value>false</value>
@@ -696,7 +696,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_UNCHECKOUT_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -m(Y/N)N UNCHECKOUTR_CONFIRM UNCHECKOUT_FILES_CONFIRMED ${RECURSIVELY}</value>
+	  <value>org.netbeans.modules.vcs.profiles.vss.commands.ConfirmationCommand.class -e -t -te -m(Y/N)N UNCHECKOUTR_CONFIRM UNCHECKOUT_FILES_CONFIRMED ${RECURSIVELY}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>

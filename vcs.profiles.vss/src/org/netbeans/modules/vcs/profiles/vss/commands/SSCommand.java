@@ -69,7 +69,7 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
     private String invalidPasswordStr = INVALID_PASSWORD;
     private volatile boolean haveWrongPassword = false;
     private volatile boolean passwordPromptCanceled = false;
-    private CommandOutputListener errorOutputListener;
+    private FilterListener errorOutputListener;
     
     /** Creates a new instance of SSCommand */
     public SSCommand() {
@@ -173,16 +173,27 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
         }
          */
         cmd.setProperty(VcsCommand.PROPERTY_EXEC_STRUCTURED, exec);
+        /* - Not necessary - we use FilterListener for that.
         cmd.setProperty(UserCommand.PROPERTY_DATA_REGEX, dataRegex);
         cmd.setProperty(UserCommand.PROPERTY_ERROR_REGEX, errorRegex);
+        cmd.setProperty(UserCommand.PROPERTY_DATA_REGEX_GLOBAL, (String) vars.get("DATA_GLOBAL_REGEX")); // NOI18N
+        cmd.setProperty(UserCommand.PROPERTY_ERROR_REGEX_GLOBAL, (String) vars.get("ERROR_GLOBAL_REGEX")); // NOI18N
+         */
+        String dataGlobalRegex = (String) vars.get("DATA_GLOBAL_REGEX"); // NOI18N
+        String errorGlobalRegex = (String) vars.get("ERROR_GLOBAL_REGEX"); // NOI18N
         ExecuteCommand ec = new ExecuteCommand(context, cmd, vars);
-        ec.addOutputListener(new FilterListener(false, stdoutNRListener, stdoutListener, dataRegex));
-        errorOutputListener = new FilterListener(true, stderrNRListener, stderrListener, errorRegex);
+        FilterListener stdOutputListener = new FilterListener(false, stdoutNRListener, stdoutListener,
+                                                              dataRegex, dataGlobalRegex);
+        ec.addOutputListener(stdOutputListener);
+        errorOutputListener = new FilterListener(true, stderrNRListener, stderrListener,
+                                                 errorRegex, errorGlobalRegex);
         ec.addErrorOutputListener(errorOutputListener);
         ec.addImmediateTextOutputListener(this);
         executionThread = Thread.currentThread();
         this.ec = ec;
         ec.run();
+        stdOutputListener.flush();
+        errorOutputListener.flush();
         return ec.getExitStatus() == ExecuteCommand.SUCCEEDED;
     }
     
@@ -328,18 +339,29 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
         private CommandOutputListener outputListener;
         private CommandDataOutputListener  dataListener;
         private Pattern pattern;
+        private Pattern globalPattern;
+        private StringBuffer globalDataOutput;
         
         /**
          * @param isErr When we filter error output.
          */
         public FilterListener(boolean isErr, CommandOutputListener outputListener,
-                              CommandDataOutputListener dataListener, String regex) {
+                              CommandDataOutputListener dataListener, String regex,
+                              String globalRegex) {
             this.isErr = isErr;
             this.outputListener = outputListener;
             this.dataListener = dataListener;
             if (regex != null) {
                 try {
                     this.pattern = Pattern.compile(regex);
+                } catch (PatternSyntaxException psex) {
+                    ErrorManager.getDefault().notify(new BadRegexException(psex.getLocalizedMessage(), psex));
+                }
+            }
+            if (globalRegex != null) {
+                try {
+                    this.globalPattern = Pattern.compile(globalRegex);
+                    globalDataOutput = new StringBuffer();
                 } catch (PatternSyntaxException psex) {
                     ErrorManager.getDefault().notify(new BadRegexException(psex.getLocalizedMessage(), psex));
                 }
@@ -355,11 +377,23 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
                     outputListener.outputLine(line);
                 }
                 if (dataListener != null) {
+                    String[] sa;
                     if (pattern != null) {
-                        String[] sa = ExternalCommand.matchToStringArray(pattern, line);
-                        if (sa != null && sa.length > 0) dataListener.outputData(sa);
+                        sa = ExternalCommand.matchToStringArray(pattern, line);
                     } else {
-                        dataListener.outputData(new String[] { line });
+                        sa = new String[] { line };
+                    }
+                    if (globalPattern != null) {
+                        if (sa != null) {
+                            for (int i = 0; i < sa.length; i++) {
+                                globalDataOutput.append(sa[i]);
+                            }
+                            globalDataOutput.append(" ");
+                        }
+                    } else {
+                        if (sa != null && sa.length > 0) {
+                            dataListener.outputData(sa);
+                        }
                     }
                 }
             } catch (ThreadDeath td) {
@@ -369,7 +403,18 @@ public class SSCommand extends Object implements VcsAdditionalCommand,
             }
         }
         
-        public String filterLine(String line) {
+        public void flush() {
+            if (globalDataOutput != null) {
+                String globalDataOutput = this.globalDataOutput.toString();
+                if (globalDataOutput.endsWith(" ")) {
+                    globalDataOutput = globalDataOutput.substring(0, globalDataOutput.length() - 1);
+                }
+                String[] parsed = ExternalCommand.matchToStringArray(globalPattern, globalDataOutput);
+                dataListener.outputData(parsed);
+            }
+        }
+        
+        private String filterLine(String line) {
             if (isErr) {
                 if (invalidPasswordStr.equals(line) && !passwordPromptCanceled) {
                     line = null;
