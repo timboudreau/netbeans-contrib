@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -100,6 +100,13 @@ public interface VcsCommand extends VcsCommandCookie {
      * any number of variables that are expanded prior to execution.
      */
     public static final String PROPERTY_EXEC = "exec";
+    /**
+     * This property denotes the structured execution property. The value of this
+     * property is an instance of <code>StructuredExec</code> class.
+     * The working directory, executable and arguments can contain variables
+     * that are expanded prior to execution.
+     */
+    public static final String PROPERTY_EXEC_STRUCTURED = "execStructured";
     /**
      * This property contains the name of command, that is executed on scheduled files.
      * To obtain the full name of this property it has to followed by the scheduled action name.
