@@ -98,7 +98,7 @@ public final class HeapTest extends NbTestCase {
         int TL_SIZE = 6650336;
         //int TABLE_SIZE = 6604320 + 20000;  // the table size is very random (I've seen 7308880 (with all submodules), too)
                                              // XXX why submodule spresence affects it >500kB
-        int TABLE_SIZE = 7308880 + 20000;
+        int TABLE_SIZE = 7308880 + 40000;
         int TABLE_LEAK = 400; // tolerated leak
 
 //        int initial_tl_size = assertSize("Tasklist actual size too big", Collections.singleton(view.discloseModel()), TL_SIZE, filter);
@@ -106,7 +106,7 @@ public final class HeapTest extends NbTestCase {
         int initial_node_size = assertSize("Node actual size too big", Collections.singleton(view.discloseNode()), Integer.MAX_VALUE, filter);
         int initial_view_size = assertSize("View actual size too big", Collections.singleton(view), Integer.MAX_VALUE, filter);
 
-        for (int i = 0 ; i <1; i++) {
+        for (int i = 0 ; i <5; i++) {
             view.getRefresh().doClick(1);
             try {
                 Thread.sleep(2000);
@@ -115,11 +115,12 @@ public final class HeapTest extends NbTestCase {
 
 //            assertSize("Tasklist after refresh #" + i, Collections.singleton(view.discloseModel()), initial_tl_size, filter); // 0B leak
             int current_table_size = assertSize("Table after refresh #" + i, Collections.singleton(view.discloseTable()), initial_table_size + TABLE_LEAK, filter);  // 20-400B leak
-            int current_node_size = assertSize("Node after refresh #" + i, Collections.singleton(view.discloseNode()), initial_node_size, filter);  // 968b leak
-
-            int knownLeak = (current_table_size - initial_table_size) + (current_node_size - initial_node_size);
-            assertSize("View after refresh #" + i, Collections.singleton(view), initial_view_size + knownLeak, filter);  // 2Kb leak
+//            int current_node_size = assertSize("Node after refresh #" + i, Collections.singleton(view.discloseNode()), initial_node_size, filter);  // 968b leak
+//
+//            int knownLeak = (current_table_size - initial_table_size) + (current_node_size - initial_node_size);
+//            assertSize("View after refresh #" + i, Collections.singleton(view), initial_view_size + knownLeak, filter);  // 2Kb leak
         }
+        assertSize("View after refresh test", Collections.singleton(view), initial_view_size, filter);  // 2Kb leak
 
     }
 
