@@ -1,0 +1,70 @@
+File1 - Brief
+===================================================================
+File: File1            	Status: Up-to-date
+   Working revision:	1.1.2.1
+   Repository revision:	1.1.2.1
+   Sticky Tag:		BranchTag1 (branch: 1.1.2)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+File1 - Verbose
+===================================================================
+File: File1            	Status: Up-to-date
+   Working revision:	1.1.2.1
+   Repository revision:	1.1.2.1
+   Sticky Tag:		BranchTag1 (branch: 1.1.2)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+   Existing Tags:
+	BranchTag1               	(branch: 1.1.2)
+Dir1 - Recursive - Brief
+===================================================================
+File: File1            	Status: Up-to-date
+   Working revision:	1.1.2.1
+   Repository revision:	1.1.2.1
+   Sticky Tag:		BranchTag1 (branch: 1.1.2)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+===================================================================
+File: File2            	Status: Up-to-date
+   Working revision:	1.1.2.1
+   Repository revision:	1.1.2.1
+   Sticky Tag:		BranchTag2 (branch: 1.1.2)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+Dir1 - Recursive - Verbose
+===================================================================
+File: File1            	Status: Up-to-date
+   Working revision:	1.1.2.1
+   Repository revision:	1.1.2.1
+   Sticky Tag:		BranchTag1 (branch: 1.1.2)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+   Existing Tags:
+	BranchTag1               	(branch: 1.1.2)
+===================================================================
+File: File2            	Status: Up-to-date
+   Working revision:	1.1.2.1
+   Repository revision:	1.1.2.1
+   Sticky Tag:		BranchTag2 (branch: 1.1.2)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+   Existing Tags:
+	BranchTag2               	(branch: 1.1.2)
+Dir1 - Brief
+===================================================================
+File: File1            	Status: Up-to-date
+   Working revision:	1.1.2.1
+   Repository revision:	1.1.2.1
+   Sticky Tag:		BranchTag1 (branch: 1.1.2)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+Dir1 - Verbose
+===================================================================
+File: File1            	Status: Up-to-date
+   Working revision:	1.1.2.1
+   Repository revision:	1.1.2.1
+   Sticky Tag:		BranchTag1 (branch: 1.1.2)
+   Sticky Date:		(none)
+   Sticky Options:	(none)
+   Existing Tags:
+	BranchTag1               	(branch: 1.1.2)

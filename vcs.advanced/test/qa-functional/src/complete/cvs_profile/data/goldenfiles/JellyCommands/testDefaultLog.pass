@@ -1,0 +1,44 @@
+RCS file: 
+Working file: StatusDir1/File1
+head: 1.1
+branch:
+locks: strict
+access list:
+symbolic names:
+	BranchTag1: 1.1.0.2
+keyword substitution: kv
+total revisions: 2;	selected revisions: 2
+description:
+Init1
+----------------------------
+revision 1.1
+date: ;  author: ;  state: Exp;
+branches:  1.1.2;
+HEAD1
+----------------------------
+revision 1.1.2.1
+date: ;  author: ;  state: Exp;  lines: +1 -1
+BranchCommit1
+=============================================================================
+RCS file: 
+Working file: StatusDir1/StatusDir2/File2
+head: 1.1
+branch:
+locks: strict
+access list:
+symbolic names:
+	BranchTag2: 1.1.0.2
+keyword substitution: kv
+total revisions: 2;	selected revisions: 2
+description:
+Init2
+----------------------------
+revision 1.1
+date: ;  author: ;  state: Exp;
+branches:  1.1.2;
+HEAD2
+----------------------------
+revision 1.1.2.1
+date: ;  author: ;  state: Exp;  lines: +1 -1
+BranchCommit2
+=============================================================================
