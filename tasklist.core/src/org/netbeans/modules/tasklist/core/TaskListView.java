@@ -207,6 +207,9 @@ public abstract class TaskListView extends TopComponent
             ExplorerUtils.actionPaste(manager));
         map.put("delete", ExplorerUtils.actionDelete(manager, true));  // NOI18N
 
+        map.put("jumpNext", new PrevNextAction (false)); // NOI18N
+        map.put("jumpPrev", new PrevNextAction (true)); // NOI18N
+
         // following line tells the top component which lookup should be associated with it
         associateLookup(ExplorerUtils.createLookup(manager, map));
     }
@@ -593,7 +596,6 @@ public abstract class TaskListView extends TopComponent
         assert initialized : 
             "#37438 dangling componentActivated event, no componentOpened()" + 
             " called at " + this;
-        installJumpActions(true);
         ExplorerUtils.activateActions(manager, true);
         RemoveFilterAction removeFilter =
                 (RemoveFilterAction) SystemAction.get(RemoveFilterAction.class);
@@ -1360,75 +1362,6 @@ for (int i = 0; i < columns.length; i++) {
         return nodes;
     }
 
-    private Class nextActionClz = null;
-    private Class prevActionClz = null;
-
-    /**
-     * Assign the Next/Previous build actions to point to the
-     * task window
-     *
-     * @param install true = install, false = deinstall
-     */
-    private void installJumpActions(boolean install) {
-        // TODO - only install if the list is non empty (and call
-        // this method from SMI when the list becomes non-empty)
-        // In other words, the next action button shouldn't light
-        // up when there are no tasks to move to.
-
-        // RFE #40185
-        // Make F12 jump to next task
-        if (nextActionClz == null) {
-            if (lookupAttempted) {
-                return;
-            }
-            lookupAttempted = true;
-            ClassLoader systemClassLoader = (ClassLoader) Lookup.getDefault().
-                    lookup(ClassLoader.class);
-            try {
-                nextActionClz = systemClassLoader.
-                        loadClass("org.netbeans.core.output2.NextOutJumpAction"); // NOI18N
-                prevActionClz = systemClassLoader.
-                        loadClass("org.netbeans.core.output2.PreviousOutJumpAction"); // NOI18N
-            } catch (Exception e) {
-                // Check if the old core/output is installed instead.
-                try {
-                    nextActionClz = systemClassLoader.
-                        loadClass("org.netbeans.core.output.NextOutJumpAction"); // NOI18N
-                    prevActionClz = systemClassLoader.
-                        loadClass("org.netbeans.core.output.PreviousOutJumpAction"); // NOI18N
-                } catch (Exception e2) {
-                    // Notify original error.
-                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                    return;
-                }
-            }
-        }
-
-        CallbackSystemAction nextAction =
-                (CallbackSystemAction) SystemAction.get(nextActionClz);
-        CallbackSystemAction previousAction =
-                (CallbackSystemAction) SystemAction.get(prevActionClz);
-
-        if (install) {
-            nextAction.setActionPerformer(new ActionPerformer() {
-                public void performAction(SystemAction action) {
-                    nextTask();
-                }
-            });
-            previousAction.setActionPerformer(new ActionPerformer() {
-                public void performAction(SystemAction action) {
-                    prevTask();
-                }
-            });
-
-            nextCandidate = null;
-            prevCandidate = null;
-        } else {
-            nextAction.setActionPerformer(null);
-            previousAction.setActionPerformer(null);
-        }
-    }
-
     private boolean lookupAttempted = false;
 
     private static void invokeLater(Runnable runnable) {
@@ -1695,16 +1628,6 @@ for (int i = 0; i < columns.length; i++) {
 
     protected void componentHidden() {
         hideTaskInEditor();
-
-        // Remove jump actions
-        // Cannot do this, because componentHidden can be called
-        // after another TaskListView is shown (for example when you
-        // switch from one tasklist view to another) so this would
-        // cripple the newly showing tasklist view.
-        //
-        // According to issue #37367 hidden and activated events works
-        // together smmothly to get desired result
-        installJumpActions(false);
     }
 
     /** Return true iff the given node is expanded */
@@ -1782,5 +1705,25 @@ for (int i = 0; i < columns.length; i++) {
             }
         }
         return (ColumnProperty[]) ret.toArray(new ColumnProperty[ret.size()]);
+    }
+    
+    /** Action to just to previous or next task.
+     */
+    private final class PrevNextAction extends javax.swing.AbstractAction {
+        private boolean prev;
+        
+        public PrevNextAction (boolean prev) {
+            this.prev = prev;
+        }
+
+        public void actionPerformed (java.awt.event.ActionEvent actionEvent) {
+            if (prev) {
+                prevTask ();
+            } else {
+                nextTask ();
+            }
+        }
+        
+        
     }
 }
