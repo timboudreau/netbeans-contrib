@@ -107,8 +107,8 @@ public class VcsGroupFileNode extends FilterNode {
     private SystemAction[] addDelete(List actionsList) {
         actionsList = new ArrayList(actionsList);
         int i = actionsList.size() - 1;
-        if (i >= 0 && actionsList.get(i).equals(SystemAction.get(PropertiesAction.class))) i--;
-        if (i >= 0 && actionsList.get(i).equals(SystemAction.get(ToolsAction.class))) i--;
+        if (i >= 0 && SystemAction.get(PropertiesAction.class).equals(actionsList.get(i))) i--;
+        if (i >= 0 && SystemAction.get(ToolsAction.class).equals(actionsList.get(i))) i--;
         i++;
         actionsList.add(i, SystemAction.get(DeleteAction.class));
         return (SystemAction[]) actionsList.toArray(new SystemAction[0]);
