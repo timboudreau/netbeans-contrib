@@ -328,7 +328,13 @@ public interface VcsCommand extends VcsCommandCookie {
     /** Serial execution of all commands. This command will not run if at least one
      * command is already running.
      */
-    public static final int EXEC_SERIAL_ALL = -1;
+    public static final int EXEC_SERIAL_ALL = 16;
+    /** This command is inert with all other commands. When other commands are
+     * considered whether they can be executed, commands with inert concurrent
+     * execution property are ignored. This can be used for meta commands,
+     * that takes care of execution of other commands.
+     */
+    public static final int EXEC_SERIAL_INERT = -1;
     
     /** When this constant is the value of PROPERTY_REFRESH_ON_FAIL command property,
      * the refresh command will be performed after the command fails.

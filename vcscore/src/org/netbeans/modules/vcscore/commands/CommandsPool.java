@@ -688,12 +688,15 @@ public class CommandsPool extends Object /*implements CommandListener */{
         // at first check for the maximum number of running commands
         if (commands.size() >= MAX_NUM_RUNNING_COMMANDS) return false;
         VcsCommand cmd = vce.getCommand();
+        //System.out.println("canRun("+cmd.getName()+")");
         Collection files = vce.getFiles();
         int concurrency = VcsCommandIO.getIntegerPropertyAssumeZero(cmd,
                             VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
         String concurrencyWith = (String) cmd.getProperty(VcsCommand.PROPERTY_CONCURRENT_EXECUTION_WITH);
-        if (concurrency == VcsCommand.EXEC_CONCURRENT_ALL
-            && concurrencyWith == null) return true;
+        //System.out.println("  concurrency = "+concurrency+", concurrencyWith = "+concurrencyWith);
+        if ((concurrency == VcsCommand.EXEC_CONCURRENT_ALL
+             && concurrencyWith == null)
+            || concurrency == VcsCommand.EXEC_SERIAL_INERT) return true;
         HashMap concurrencyMap = createConcurrencyMap(concurrencyWith);
         String name = cmd.getName();
         boolean haveToWait = false;
@@ -701,11 +704,19 @@ public class CommandsPool extends Object /*implements CommandListener */{
         boolean serialOnPackage = (concurrency & VcsCommand.EXEC_SERIAL_ON_PACKAGE) != 0;
         boolean serialWithParent = (concurrency & VcsCommand.EXEC_SERIAL_WITH_PARENT) != 0;
         boolean serialOfCommand = (concurrency & VcsCommand.EXEC_SERIAL_OF_COMMAND) != 0;
+        boolean serialOfAll = (concurrency & VcsCommand.EXEC_SERIAL_ALL) != 0;
         boolean matchOnFile = false;
         boolean matchOnPackage = false;
         boolean matchWithParent = false;
         boolean matchOfCommand = false;
         ArrayList commandsToTestAgainst = new ArrayList(commands.keySet());
+        //System.out.println("  serialOnFile = "+serialOnFile);
+        //System.out.println("  serialOnPackage = "+serialOnPackage);
+        //System.out.println("  serialWithParent = "+serialWithParent);
+        //System.out.println("  serialOfCommand = "+serialOfCommand);
+        //System.out.println("  serialOfAll = "+serialOfAll);
+        //System.out.println("  commandsToTestAgainst = "+commandsToTestAgainst);
+        if (serialOfAll && commandsToTestAgainst.size() > 0) return false;
         //commandsToTestAgainst.addAll(commandsToRun);
         //commandsToTestAgainst.addAll(commandsWaitQueue);
         //commandsToTestAgainst.remove(vce);
@@ -713,6 +724,10 @@ public class CommandsPool extends Object /*implements CommandListener */{
             VcsCommandExecutor ec = (VcsCommandExecutor) iter.next();
             Collection cmdFiles = ec.getFiles();
             VcsCommand uc = ec.getCommand();
+            //System.out.println("  testing with cmd = "+uc.getName());
+            int cmdConcurrency = VcsCommandIO.getIntegerPropertyAssumeZero(uc, VcsCommand.PROPERTY_CONCURRENT_EXECUTION);
+            //System.out.println("  cmdConcurrency = "+cmdConcurrency);
+            if (VcsCommand.EXEC_SERIAL_INERT == cmdConcurrency) continue;
             String cmdName = uc.getName();
             if (serialOnFile) {
                 for(Iterator it = files.iterator(); it.hasNext(); ) {
@@ -737,6 +752,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 matchOfCommand = name.equals(cmdName);
             }
             if (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand) {
+                //System.out.println("  matchOnFile = "+matchOnFile+", matchOnPackage = "+matchOnPackage+", matchWithParent = "+matchWithParent+", matchOfCommand = "+matchOfCommand);
                 haveToWait = true;
                 break;
             }
@@ -748,6 +764,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 }
             }
         }
+        //System.out.println("haveToWait = "+haveToWait);
         return !haveToWait;
     }
     
