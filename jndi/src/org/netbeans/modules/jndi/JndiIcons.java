@@ -44,12 +44,14 @@ abstract class JndiIcons extends Object {
      *  @return name of icon
      */
     public static String getIconName(String name) {
-        String iconname;
+        String iconname = null;
 
         if (icontable == null) {
             lazyInitialize();
         }
-        iconname = (String) icontable.get(name);
+        if (name != null) {
+            iconname = (String) icontable.get(name);
+        }
         if (iconname != null) {
             return iconname;
         } else {

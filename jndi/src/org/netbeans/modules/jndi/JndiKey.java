@@ -55,9 +55,12 @@ public final class JndiKey extends Object {
             return false;
         }
         JndiKey key = (JndiKey) obj;
-        if (!this.name.getName().equals(key.name.getName()) || !this.name.getClassName().equals(key.name.getClassName()))
+        if (!this.name.getName().equals(key.name.getName()))
             return false;
-        else return true;
+        else if (this.name.getClassName() == null) {
+            return key.name.getClassName() == null;
+        }
+        else return this.name.getClassName().equals(key.name.getClassName());
     }
 
     /** Hash code of object

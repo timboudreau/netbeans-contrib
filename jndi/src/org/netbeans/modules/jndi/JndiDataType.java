@@ -157,12 +157,11 @@ final class JndiDataType extends NewType {
                                                     // Here we have to check the context, if it works
                                                     // because all ehe operation starting with addContext
                                                     // are asynchronous to AWT Thread
-                                                    String root = panel.getRoot();
                                                     Hashtable env = ((JndiRootNode)node).createContextProperties(
                                                     panel.getLabel(),
                                                     panel.getFactory(),
                                                     panel.getContext(),
-                                                    root,
+                                                    panel.getRoot(),
                                                     panel.getAuthentification(),
                                                     panel.getPrincipal(),
                                                     panel.getCredentials(),

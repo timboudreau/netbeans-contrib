@@ -102,7 +102,7 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
      *  exception NamingException if Context.list() failed
      */
     public void prepareKeys(){
-        JndiRootNode.getDefault().refresher.postRequest (new Request (this));
+        JndiRootNode.getDefault().refresher.post (new Request (this));
     }
 
     /** Creates Node for key
@@ -142,6 +142,9 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
      *  @return true if className represents the name of Context*/
     static boolean isContext(Binding binding) {
         String className = binding.getClassName();
+        if (className == null) {
+            return false;
+        }
         if (className.equals(CONTEXT_CLASS_NAME)) {
             return true;
         } else if (isPrimitive(className)) {
@@ -194,14 +197,15 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
         if (ne == null)
             return;
         while (ne.hasMore()){
-            this.keys.add(new JndiKey((Binding)ne.next()));
+            Binding b = (Binding)ne.next();
+            this.keys.add(new JndiKey(b));
         }
     }
 
 
     /** This action is called by Refreshd after performing main action
      */
-    public void postAction() throws Exception{
+    public void postAction() throws Exception {
         this.setKeys(this.keys);
         if (this.waitNode != null)
             this.remove ( new Node[]{ this.waitNode});
