@@ -202,6 +202,8 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     // End of variables declaration//GEN-END:variables
     
     private void initAccessibility() {
+        getAccessibleContext().setAccessibleDescription(
+            NbBundle.getMessage(RelativeMountPanel.class, "ACSD_RMPanel"));
         trRelMount.getAccessibleContext().setAccessibleDescription(
             NbBundle.getMessage(RelativeMountPanel.class, "ACSD_RMPanel.relMountTree"));
         txRelMount.getAccessibleContext().setAccessibleDescription(
