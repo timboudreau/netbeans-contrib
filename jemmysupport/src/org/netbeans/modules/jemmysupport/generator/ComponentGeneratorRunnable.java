@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -32,8 +32,8 @@ import org.netbeans.api.diff.Difference;
 import org.netbeans.api.diff.StreamSource;
 import org.netbeans.core.NbMainExplorer;
 import org.netbeans.jemmy.util.PNGEncoder;
-import org.netbeans.modules.merge.builtin.visualizer.MergeDialogComponent;
-import org.netbeans.modules.merge.builtin.visualizer.MergePanel;
+//import org.netbeans.modules.merge.builtin.visualizer.MergeDialogComponent;
+//import org.netbeans.modules.merge.builtin.visualizer.MergePanel;
 import org.netbeans.spi.diff.DiffProvider;
 import org.netbeans.spi.diff.MergeVisualizer;
 import org.openide.ErrorManager;
@@ -152,6 +152,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
         DiffProvider diff=(DiffProvider)Lookup.getDefault().lookup(DiffProvider.class);
         MergeVisualizer merge=(MergeVisualizer)Lookup.getDefault().lookup(MergeVisualizer.class);
         Component c=merge.createView(diff.computeDiff(s1.createReader(), s2.createReader()), s1, s2, s3);
+        /* MergeDialogComponent is not public anymore, but it should work as before
         if (c instanceof MergeDialogComponent) {
             ((MergeDialogComponent)c).getSelectedMergePanel().firePropertyChange(MergePanel.PROP_CAN_BE_SAVED,false,true);
             // add listener to open result of merging
@@ -168,6 +169,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                 }
             });
         }
+         */
     }
 
     /** Opens given FileObject in source editor and selects node in explorer. 
