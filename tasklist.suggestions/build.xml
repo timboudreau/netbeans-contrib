@@ -12,9 +12,17 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<project name="tasklist/suggestions" default="netbeans" basedir=".">
+<project name="tasklist/suggestions/ui" default="netbeans" basedir=".">
 
-    <property name="nb_all" value="../.."/>
+    <!-- 
+      Sole purpose of this build stript is to package subset
+      of parent build.xml produced classed into seperate jar and nbm.
+
+      It's NetBeans nbbuild contraint that one build.xml
+      can produce just one NBM.
+    -->
+
+    <property name="nb_all" location="../../.."/>
 
     <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
     <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nb_all}/nbbuild/nbantext.jar"/>
@@ -25,33 +33,22 @@ Microsystems, Inc. All Rights Reserved.
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
   
-    <target name="compile">
-        <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4">
-            <classpath>
-                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
-                <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
-                <pathelement location="${nb_all}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-                <!-- tasklist api -->
-                <pathelement path="../api/src"/>
-                <!-- tasklist core -->
-                <pathelement path="../core/src"/>
-		<pathelement path="../../core/external/xml-apis-1.0b2.jar"/>
-            </classpath>
-        </javac>
+    <target name="compile">        
+         <ant dir=".." target="compile"/>
     </target>
 
     <target name="jars" depends="compile">
         <mkdir dir="netbeans/modules"/>
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
 
-       <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-        <locjar jarfile="netbeans/modules/autoload/suggestions-framework.jar"
+        <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+        <locjar jarfile="netbeans/modules/tasklist-suggestions.jar"
                 manifest="manifest-subst.mf"
-                basedir="src"
+                basedir="../src"
 	        excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
 	        compress="false">
             <locale name="ja"/>
-            <exclude name="org/netbeans/modules/tasklist/suggestions/ui/*"/>
+            <include name="org/netbeans/modules/tasklist/suggestions/ui/*"/>
         </locjar>
     </target>
 
@@ -60,25 +57,26 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="nbm" depends="netbeans">
-        <makenbm file="../suggestions-framework.nbm"
+        <makenbm file="../../tasklist-suggestions.nbm"
                  topdir="."
-                 module="netbeans/modules/autoload/suggestions-framework.jar"
+                 module="netbeans/modules/tasklist-suggestions.jar"
                  homepage="http://tasklist.${homepage.base}/"
-                 distribution="http://${dist.base}/suggestions-framework.nbm"
+                 distribution="http://${dist.base}/tasklist-suggestions.nbm"
                  needsrestart="false">
             <license file="${license.file}"/>
+            <notification file="module-updates.txt"/>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
     </target>
   
     <target name="clean">
         <delete>
-            <fileset dir="src">
+            <fileset dir="../src">
                 <include name="**/*.class"/>
             </fileset>
         </delete>
         <delete file="manifest-subst.mf"/>
-        <delete file="../suggestions-framework.nbm"/>
+        <delete file="../../tasklist-suggestions.nbm"/>
         <delete dir="netbeans"/>
         <delete dir="Info"/>
         <delete dir="javadoc"/>
@@ -88,11 +86,6 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="javahelp">
-    </target>
-
-    <!-- This target will only work *inside* the IDE! -->
-    <target name= "test" depends="jars" description="Test the module inside the running IDE." >
-       <nbinstaller action="reinstall" module="netbeans/modules/tasklist-suggestions.jar"/>
     </target>
 
 
