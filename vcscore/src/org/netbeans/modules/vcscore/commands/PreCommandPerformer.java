@@ -180,11 +180,11 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
         ArrayList runningExecutors = new ArrayList();
         for (int i = 0; i < preCommands.length; i++) {
             String cmdName = preCommands[i];
+            preCommandOutput[i] = new Vector();
+            preCommandError[i] = new Vector();
             CommandSupport cmdSupport = executionContext.getCommandSupport(cmdName);
             if (cmdSupport == null) continue; // Nothing to run
             Command cmd = cmdSupport.createCommand();
-            preCommandOutput[i] = new Vector();
-            preCommandError[i] = new Vector();
             if (cmd instanceof VcsDescribedCommand) {
                 ((VcsDescribedCommand) cmd).setAdditionalVariables(vars);
                 ((VcsDescribedCommand) cmd).addRegexOutputListener(new DataOutputContainer(i));
