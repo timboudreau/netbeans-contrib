@@ -273,9 +273,12 @@ static final long serialVersionUID =-8717988834353784544L;
     FieldElement curFE = null;
     Map result = new HashMap(reflFields.length);
     for (int i = 0; i < reflFields.length; i++) {
-      curFE = new FieldElement(new FieldElementImpl(reflFields[i]),
-                               (ClassElement)element);
-      result.put(curFE.getName(), curFE);
+      // filter out methods added by compiler
+      if (!addedByCompiler(reflFields[i])) {
+        curFE = new FieldElement(new FieldElementImpl(reflFields[i]),
+                                 (ClassElement)element);
+        result.put(curFE.getName(), curFE);
+      }
     }
     return result;
   }
@@ -345,9 +348,12 @@ static final long serialVersionUID =-8717988834353784544L;
     MethodElement curME = null;
     Map result = new HashMap(reflMethods.length);
     for (int i = 0; i < reflMethods.length; i++) {
-      curME = new MethodElement(new MethodElementImpl(reflMethods[i]),
-                                (ClassElement)element);
-      result.put(new MethodElement.Key(curME), curME);
+      // filter out methods added by compiler
+      if (!addedByCompiler(reflMethods[i])) {
+        curME = new MethodElement(new MethodElementImpl(reflMethods[i]),
+                                  (ClassElement)element);
+        result.put(new MethodElement.Key(curME), curME);
+      }
     }
     return result;
   }
@@ -355,11 +361,20 @@ static final long serialVersionUID =-8717988834353784544L;
   public Object readResolve() {
     return new ClassElement(this, (SourceElement)null);
   }
+  
+  /** @return true if given member was generated automatically by compiler,
+  * false otherwise. Decision is made by inspecting the name of the member.
+  */
+  private static boolean addedByCompiler (Member member) {
+    String name = member.getName();
+    return name.indexOf('$') >= 0;
+  }
 
 }
 
 /*
 * Log
+*  13   src-jtulach1.12        1/5/00   David Simonek   #2642
 *  12   src-jtulach1.11        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment
 *  11   src-jtulach1.10        8/9/99   Ian Formanek    Generated Serial Version 
