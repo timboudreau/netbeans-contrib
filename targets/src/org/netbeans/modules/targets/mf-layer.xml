@@ -8,20 +8,21 @@
             <file name="org-netbeans-modules-targets-ShowTargets.instance"/>
         </folder>
     </folder>
-    <!-- Menu item -->
+
     <folder name="Menu">
         <folder name="Window">
             <file name="ShowTargets.shadow">
                 <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-targets-ShowTargets.instance"/>
             </file>
-            <!-- Position of menu item in Window menu is not defined. It is good idea
-                 to defined its position relative to other menu items using attribute
-                 example from core-ui module:
-                 <attr name="org-netbeans-core-actions-NewTemplateCallableAction.instance/Separator1.instance" boolvalue="true" />
-                 You must know names of other items so you must check layer of other modules
-                 in IDE or application.  -->
         </folder>
     </folder>
+
+    <folder name="Toolbars">
+        <folder name="Targets">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.targets.Bundle" />
+            <file name="org-netbeans-modules-targets-PresenterSourceAction.instance"/>
+        </folder>
+    </folder>    
 
     <!-- Window system configuration --> 
     <folder name="Windows2">
