@@ -40,26 +40,27 @@ import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
  */
 public class VariableIO extends Object {
 
-    public static final String CONFIG_FILE_EXT = "xml";
-    public static final String CONFIG_ROOT_ELEM = "configuration";
-    public static final String LABEL_TAG = "label";
-    public static final String OS_TAG = "os";
-    public static final String OS_COMPATIBLE_TAG = "compatible";
-    public static final String OS_UNCOMPATIBLE_TAG = "uncompatible";
-    public static final String VARIABLES_TAG = "variables";
-    public static final String VARIABLE_TAG = "variable";
-    public static final String VARIABLE_SELECTOR_TAG = "selector";
-    public static final String VARIABLE_NAME_ATTR = "name";
-    public static final String VARIABLE_LABEL_ATTR = "label";
-    public static final String VARIABLE_BASIC_ATTR = "basic";
-    public static final String VARIABLE_LOCAL_FILE_ATTR = "localFile";
-    public static final String VARIABLE_LOCAL_DIR_ATTR = "localDir";
-    public static final String VARIABLE_EXECUTABLE_ATTR = "executable";
-    public static final String VARIABLE_ORDER_ATTR = "order";
-    public static final String VARIABLE_VALUE_TAG = "value";
+    public static final String CONFIG_FILE_EXT = "xml";                          // NOI18N
+    public static final String CONFIG_ROOT_ELEM = "configuration";               // NOI18N
+    public static final String LABEL_TAG = "label";                              // NOI18N
+    public static final String OS_TAG = "os";                                    // NOI18N
+    public static final String OS_COMPATIBLE_TAG = "compatible";                 // NOI18N
+    public static final String OS_UNCOMPATIBLE_TAG = "uncompatible";             // NOI18N
+    public static final String VARIABLES_TAG = "variables";                      // NOI18N
+    public static final String VARIABLE_TAG = "variable";                        // NOI18N
+    public static final String VARIABLE_SELECTOR_TAG = "selector";               // NOI18N
+    public static final String VARIABLE_NAME_ATTR = "name";                      // NOI18N
+    public static final String VARIABLE_LABEL_ATTR = "label";                    // NOI18N
+    public static final String VARIABLE_LABEL_MNEMONIC_ATTR = "labelMnemonic";   // NOI18N
+    public static final String VARIABLE_BASIC_ATTR = "basic";                    // NOI18N
+    public static final String VARIABLE_LOCAL_FILE_ATTR = "localFile";           // NOI18N
+    public static final String VARIABLE_LOCAL_DIR_ATTR = "localDir";             // NOI18N
+    public static final String VARIABLE_EXECUTABLE_ATTR = "executable";          // NOI18N
+    public static final String VARIABLE_ORDER_ATTR = "order";                    // NOI18N
+    public static final String VARIABLE_VALUE_TAG = "value";                     // NOI18N
     
-    public static final String BOOLEAN_VARIABLE_TRUE = "true";
-    public static final String BOOLEAN_VARIABLE_FALSE = "false";
+    public static final String BOOLEAN_VARIABLE_TRUE = "true";                   // NOI18N
+    public static final String BOOLEAN_VARIABLE_FALSE = "false";                 // NOI18N
     
     /** The DTD for a configuration profile. */
     public static final String PUBLIC_ID = "-//NetBeans//DTD VCS Configuration 1.0//EN"; // NOI18N
@@ -292,7 +293,7 @@ public class VariableIO extends Object {
      */
     public static Vector readVariables(Document doc) throws DOMException {
         Element rootElem = doc.getDocumentElement();
-        if (!CONFIG_ROOT_ELEM.equals(rootElem.getNodeName())) return null;
+        if (!CONFIG_ROOT_ELEM.equals(rootElem.getNodeName())) throw new DOMException((short) 0, "Wrong root element: "+rootElem.getNodeName());
         Vector vars;
         NodeList varList = rootElem.getElementsByTagName(VARIABLES_TAG);
         if (varList.getLength() > 0) {
@@ -382,6 +383,7 @@ public class VariableIO extends Object {
     
     private static VcsConfigVariable getBasicVariable(String name, String value, Node varNode, NamedNodeMap varAttrs) throws DOMException {
         String label = "";
+        String labelMnemonic = null;
         boolean localFile = false;
         boolean localDir = false;
         boolean executable = false;
@@ -389,6 +391,8 @@ public class VariableIO extends Object {
         int order = -1;
         Node attrNode = varAttrs.getNamedItem(VARIABLE_LABEL_ATTR);
         if (attrNode != null) label = VcsUtilities.getBundleString(attrNode.getNodeValue());
+        attrNode = varAttrs.getNamedItem(VARIABLE_LABEL_MNEMONIC_ATTR);
+        if (attrNode != null) labelMnemonic = VcsUtilities.getBundleString(attrNode.getNodeValue());
         localFile = getBooleanAttrVariable(VARIABLE_LOCAL_FILE_ATTR, varAttrs);
         localDir = getBooleanAttrVariable(VARIABLE_LOCAL_DIR_ATTR, varAttrs);
         executable = getBooleanAttrVariable(VARIABLE_EXECUTABLE_ATTR, varAttrs);
@@ -411,6 +415,9 @@ public class VariableIO extends Object {
         }
         VcsConfigVariable var = new VcsConfigVariable(name, label, value, true, localFile, localDir, customSelector, order);
         var.setExecutable(executable);
+        if (labelMnemonic != null && labelMnemonic.length() > 0) {
+            var.setLabelMnemonic(new Character(labelMnemonic.charAt(0)));
+        }
         return var;
     }
 
@@ -445,6 +452,9 @@ public class VariableIO extends Object {
             varElem.setAttribute(VARIABLE_BASIC_ATTR, (var.isBasic()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
             if (var.isBasic()) {
                 varElem.setAttribute(VARIABLE_LABEL_ATTR, var.getLabel());
+                if (var.getLabelMnemonic() != null) {
+                    varElem.setAttribute(VARIABLE_LABEL_MNEMONIC_ATTR, var.getLabelMnemonic().toString());
+                }
                 varElem.setAttribute(VARIABLE_LOCAL_FILE_ATTR, (var.isLocalFile()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
                 varElem.setAttribute(VARIABLE_LOCAL_DIR_ATTR, (var.isLocalDir()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);
                 varElem.setAttribute(VARIABLE_EXECUTABLE_ATTR, (var.isLocalDir()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);

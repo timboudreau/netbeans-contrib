@@ -1654,6 +1654,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 if(!varLabel.endsWith (":")) varLabel += ":"; // NOI18N
                 lb.setText (varLabel);
                 tf.setText (var.getValue ());
+                lb.setLabelFor(tf);
+                if (var.getLabelMnemonic() != null) {
+                    lb.setDisplayedMnemonic(var.getLabelMnemonic().charValue());
+                }
                 if (var.isLocalFile ()) {
                     button = new JButton ();
                     button.addActionListener (new BrowseLocalFile (tf));

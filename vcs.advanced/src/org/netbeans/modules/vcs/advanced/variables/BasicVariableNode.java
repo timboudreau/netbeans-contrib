@@ -225,6 +225,16 @@ public class BasicVariableNode extends AbstractNode {
     }
     
     private void createProperties(final VcsConfigVariable var, final Sheet.Set set) {
+        set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), g("HINT_Name")) {
+            public Object getValue() {
+                return var.getName();
+            }
+            
+            public void setValue(Object value) {
+                var.setName((String) value);
+                //cmd.fireChanged();
+            }
+        });
         set.put(new PropertySupport.ReadWrite("label", String.class, g("CTL_Label"), g("HINT_Label")) {
                         public Object getValue() {
                             return var.getLabel();
@@ -236,16 +246,29 @@ public class BasicVariableNode extends AbstractNode {
                             //cmd.fireChanged();
                         }
                 });
-        set.put(new PropertySupport.ReadWrite("name", String.class, g("CTL_Name"), g("HINT_Name")) {
-            public Object getValue() {
-                return var.getName();
-            }
-            
-            public void setValue(Object value) {
-                var.setName((String) value);
-                //cmd.fireChanged();
-            }
-        });
+        set.put(new PropertySupport.ReadWrite("labelMnemonic", Character.class, g("CTL_LabelMnemonic"), g("HINT_LabelMnemonic")) {
+                        public Object getValue() {
+                            Character value = var.getLabelMnemonic();
+                            if (value == null) {
+                                value = new Character((char) 0);
+                            }
+                            return value;
+                        }
+                        
+                        public void setValue(Object value) {
+                            var.setLabelMnemonic((Character) value);
+                            //cmd.fireChanged();
+                        }
+
+                        public boolean supportsDefaultValue() {
+                            return true;
+                        }
+                    
+                        public void restoreDefaultValue() {
+                            var.setLabelMnemonic(null);
+                            firePropertyChange(getName(), null, null);
+                        }
+                });
         set.put(new PropertySupport.ReadOnly("order", String.class, g("CTL_Order"), g("HINT_Order")) {
                         public Object getValue() {
                             //System.out.println("getName: cmd = "+cmd);
