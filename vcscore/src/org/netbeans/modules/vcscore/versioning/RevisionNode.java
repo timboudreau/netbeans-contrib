@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcscore.versioning;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Enumeration;
@@ -21,10 +23,11 @@ import java.util.Collections;
 
 import org.openide.nodes.*;
 import org.openide.actions.*;
+import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.util.actions.SystemAction;
-import org.openide.cookies.OpenCookie;
+import org.openide.util.WeakListener;
 
 import org.netbeans.modules.vcscore.actions.VSRevisionAction;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
@@ -34,7 +37,7 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
  *
  * @author  Martin Entlicher
  */
-public class RevisionNode extends AbstractNode implements OpenCookie {
+public class RevisionNode extends AbstractNode implements OpenCookie, PropertyChangeListener {
 
     private static final String ICON_BRANCH = "/org/netbeans/modules/vcscore/revision/branchIcon";
     //private static final String ICON_OPEN_BRANCH = "/org/openide/resources/defaultFolderOpen.gif";
@@ -69,6 +72,7 @@ public class RevisionNode extends AbstractNode implements OpenCookie {
         this.item = item;
         addCookies();
         setIcon();
+        if (item != null) item.addPropertyChangeListener(WeakListener.propertyChange(this, item));
     }
     
     private void addCookies() {
@@ -93,22 +97,18 @@ public class RevisionNode extends AbstractNode implements OpenCookie {
         }
     }
     
-    public void refreshIcons() {
+    private void refreshIcons() {
         setIcon();
         fireIconChange();
-        for (Enumeration enum = getChildren().nodes(); enum.hasMoreElements(); ) {
-            ((RevisionNode) enum.nextElement()).refreshIcons();
-        }
     }
-    
 
-    
     public void setItem(RevisionItem item) {
         this.item = item;
         setName(item.getRevisionVCS());
         setDisplayName(item.getDisplayName());
         addCookies();
         setIcon();
+        if (item != null) item.addPropertyChangeListener(WeakListener.propertyChange(this, item));
     }
     
     public RevisionItem getItem() {
@@ -264,6 +264,15 @@ public class RevisionNode extends AbstractNode implements OpenCookie {
                 });
             }
         });
+    }
+    
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+        String propertyName = propertyChangeEvent.getPropertyName();
+        if (RevisionItem.PROP_CURRENT_REVISION.equals(propertyName)) {
+            refreshIcons();
+        } else if (RevisionItem.PROP_DISPLAY_NAME.equals(propertyName)) {
+            setDisplayName(item.getDisplayName());
+        }
     }
     
     private String g(String resource) {
