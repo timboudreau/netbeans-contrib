@@ -29,6 +29,7 @@ import org.openide.*;
 import org.openide.nodes.*;
 import org.openide.actions.*;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.actions.ActionPerformer;
 import org.openide.util.datatransfer.NewType;
@@ -45,6 +46,12 @@ import org.netbeans.modules.vcscore.util.Table;
  * @author  Martin Entlicher
  */
 public class CommandNode extends AbstractNode {
+
+    private static final String DEFAULT_FOLDER = "/org/openide/resources/defaultFolder.gif"; // NOI18N
+    private static final String DEFAULT_OPEN_FOLDER = "/org/openide/resources/defaultFolderOpen.gif"; // NOI18N
+    //private static final String DEFAULT_COMMAND = "/org/netbeans/modules/vcscore/runtime/commandIcon.gif"; // NOI18N
+    private static final String DEFAULT_COMMAND = "/org/netbeans/modules/vcs/advanced/commands/commandsJmenuItem.gif"; // NOI18N
+    private static final String DEFAULT_HIDDEN_COMMAND_BADGE = "/org/netbeans/modules/vcs/advanced/commands/commandsHiddenBadgeIcon.gif"; // NOI18N
 
     private VcsCommand cmd = null;
     private ResourceBundle resourceBundle = null;
@@ -150,6 +157,13 @@ public class CommandNode extends AbstractNode {
         fireIconChange();
     }
     
+    public void setDisplayName(String s) {
+        if (s == null && cmd != null) {
+            s = NbBundle.getMessage(CommandNode.class, "LBL_HiddenCommandName", cmd.getName());
+        }
+        super.setDisplayName(s);
+    }
+    
     /**
      * Get the Class type of the known command properties.
      * @return the class type or null, when the property is not known
@@ -198,44 +212,32 @@ public class CommandNode extends AbstractNode {
         if (java.beans.BeanInfo.ICON_MONO_16x16 == type) {
             if (SEPARATOR_ICONS[0] == null) {
                 try {
-                    SEPARATOR_ICONS[0] = new org.openide.nodes.BeanNode(new javax.swing.JSeparator()).getIcon(type);
-                } catch (java.beans.IntrospectionException exc) {
-                    exc.printStackTrace();
-                }
+                    SEPARATOR_ICONS[0] = java.beans.Introspector.getBeanInfo(javax.swing.JSeparator.class).getIcon(type);
+                } catch (java.beans.IntrospectionException exc) {}
             }
             icon = SEPARATOR_ICONS[0];
-        }
-        if (java.beans.BeanInfo.ICON_MONO_32x32 == type) {
+        } else if (java.beans.BeanInfo.ICON_MONO_32x32 == type) {
             if (SEPARATOR_ICONS[1] == null) {
                 try {
-                    SEPARATOR_ICONS[1] = new org.openide.nodes.BeanNode(new javax.swing.JSeparator()).getIcon(type);
-                } catch (java.beans.IntrospectionException exc) {
-                    exc.printStackTrace();
-                }
+                    SEPARATOR_ICONS[1] = java.beans.Introspector.getBeanInfo(javax.swing.JSeparator.class).getIcon(type);
+                } catch (java.beans.IntrospectionException exc) {}
             }
             icon = SEPARATOR_ICONS[1];
-        }
-        if (java.beans.BeanInfo.ICON_COLOR_16x16 == type) {
+        } else if (java.beans.BeanInfo.ICON_COLOR_16x16 == type) {
             if (SEPARATOR_ICONS[2] == null) {
                 try {
-                    SEPARATOR_ICONS[2] = new org.openide.nodes.BeanNode(new javax.swing.JSeparator()).getIcon(type);
-                } catch (java.beans.IntrospectionException exc) {
-                    exc.printStackTrace();
-                }
+                    SEPARATOR_ICONS[2] = java.beans.Introspector.getBeanInfo(javax.swing.JSeparator.class).getIcon(type);
+                } catch (java.beans.IntrospectionException exc) {}
             }
             icon = SEPARATOR_ICONS[2];
-        }
-        if (java.beans.BeanInfo.ICON_COLOR_32x32 == type) {
+        } else if (java.beans.BeanInfo.ICON_COLOR_32x32 == type) {
             if (SEPARATOR_ICONS[3] == null) {
                 try {
-                    SEPARATOR_ICONS[3] = new org.openide.nodes.BeanNode(new javax.swing.JSeparator()).getIcon(type);
-                } catch (java.beans.IntrospectionException exc) {
-                    exc.printStackTrace();
-                }
+                    SEPARATOR_ICONS[3] = java.beans.Introspector.getBeanInfo(javax.swing.JSeparator.class).getIcon(type);
+                } catch (java.beans.IntrospectionException exc) {}
             }
             icon = SEPARATOR_ICONS[3];
         } else icon = null;
-        System.out.println("  type = "+type+", icon = "+icon);
         if (icon != null) {
             return icon;
         } else {
@@ -250,21 +252,23 @@ public class CommandNode extends AbstractNode {
      * @return icon to use to represent the bean
      */
     public Image getIcon (int type) {
-        System.out.println("getIcon("+type+"): cmd = "+cmd);
+        //System.out.println("getIcon("+type+"): cmd = "+cmd);
         if (cmd == null) {
             return getSeparatorIcon(type);
+        } else if (isFolderCommand(cmd)) {
+            return Utilities.loadImage(DEFAULT_FOLDER);
         } else {
-            return super.getIcon(type);
+            if (cmd.getDisplayName() == null) {
+                return Utilities.mergeImages(Utilities.loadImage(DEFAULT_COMMAND), Utilities.loadImage(DEFAULT_HIDDEN_COMMAND_BADGE), 16, 8);
+            } else {
+                return Utilities.loadImage(DEFAULT_COMMAND);
+            }
         }
     }
     
     public Image getOpenedIcon(int type) {
-        System.out.println("getOpenedIcon("+type+"): cmd = "+cmd);
-        if (cmd == null) {
-            return getSeparatorIcon(type);
-        } else {
-            return super.getOpenedIcon(type);
-        }
+        //System.out.println("getOpenedIcon("+type+"): cmd = "+cmd);
+        return Utilities.loadImage(DEFAULT_OPEN_FOLDER);
     }
 
     public boolean canCopy() {
