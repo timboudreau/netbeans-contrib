@@ -50,7 +50,8 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         this.editor = editor;
         initComponents();
         getExplorerManager().setRootContext(createNodes());
-        //setPreferredSize(screenSize);
+        ExplorerActions actions = new ExplorerActions();
+        actions.attach(getExplorerManager());
     }
 
     //-------------------------------------------

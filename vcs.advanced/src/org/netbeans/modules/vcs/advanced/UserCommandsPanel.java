@@ -70,6 +70,8 @@ public class UserCommandsPanel extends JPanel
         //D.deb("UserCommandsPanel() commands = "+commands); // NOI18N
         initComponents();
         getExplorerManager().setRootContext(commandsNode/*createNodes()*/);
+        ExplorerActions actions = new ExplorerActions();
+        actions.attach(getExplorerManager());
     }
 
     /** Called when the command is changed.

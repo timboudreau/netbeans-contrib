@@ -13,6 +13,9 @@
 
 package org.netbeans.modules.vcs.advanced.variables;
 
+import java.awt.datatransfer.*;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Comparator;
 import java.util.ArrayList;
 
@@ -83,25 +86,127 @@ public class BasicVariableNode extends AbstractNode {
         return var;
     }
     
+    public Collection getAllBasicVariablesNames() {
+        BasicVariableNode root = this;
+        if (Children.LEAF.equals(this.getChildren())) {
+            root = (BasicVariableNode) getParentNode();
+        }
+        ArrayList names = new ArrayList();
+        for (Enumeration nodesEnum = root.getChildren().nodes(); nodesEnum.hasMoreElements(); ) {
+            BasicVariableNode varNode = (BasicVariableNode) nodesEnum.nextElement();
+            names.add(varNode.getVariable().getName());
+        }
+        return names;
+    }
+
+    static Collection getAllVariablesNames(Node varNode) {
+        Node root = varNode;
+        while (root.getParentNode() != null) root = root.getParentNode();
+        ArrayList varNames = new ArrayList();
+        fillVariableNames(root, varNames);
+        return varNames;
+    }
+    
+    private static void fillVariableNames(Node varNode, Collection varNames) {
+        VcsConfigVariable var;
+        if (varNode instanceof BasicVariableNode) {
+            var = ((BasicVariableNode) varNode).getVariable();
+        } else if (varNode instanceof AccessoryVariableNode) {
+            var = ((AccessoryVariableNode) varNode).getVariable();
+        } else {
+            var = null;
+        }
+        if (var != null) {
+            varNames.add(var.getName());
+        }
+        Node[] subNodes = varNode.getChildren().getNodes();
+        for (int i = 0; i < subNodes.length; i++) {
+            fillVariableNames(subNodes[i], varNames);
+        }
+    }
+    
+    public boolean canCopy() {
+        return (Children.LEAF.equals(getChildren()));
+    }
+    
+    public boolean canCut() {
+        return (Children.LEAF.equals(getChildren()));
+    }
+    
     public boolean canDestroy() {
-        return true;
+        return (Children.LEAF.equals(getChildren()));
     }
         
+    public boolean canRename() {
+        return (Children.LEAF.equals(getChildren()));
+    }
+    
+    /** Copy this node to the clipboard.
+     *
+     * @return The transferable for VcsCommand
+     * @throws IOException if it could not copy
+     */
+    public Transferable clipboardCopy() throws java.io.IOException {
+        return new VariableCopySupport.VariableTransferable(
+            VariableCopySupport.VARIABLE_COPY_FLAVOR, this);
+    }
+
+    /** Cut this node to the clipboard.
+     *
+     * @return {@link Transferable} with one flavor, {@link COMMAND_CUT_FLAVOR }
+     * @throws IOException if it could not cut
+     */
+    public Transferable clipboardCut() throws java.io.IOException {
+        return new VariableCopySupport.VariableTransferable(
+            VariableCopySupport.VARIABLE_CUT_FLAVOR, this);
+    }
+
+    /** Accumulate the paste types that this node can handle
+     * for a given transferable.
+     * <P>
+     * Obtain the paste types from the
+     * {@link VariableCopySupport.VariablePaste transfer data} and inserts them into the set.
+     *
+     * @param t a transferable containing clipboard data
+     * @param s a list of {@link PasteType}s that will have added to it all types
+     *    valid for this node
+     */
+    protected void createPasteTypes(Transferable t, java.util.List s) {
+        if (Children.LEAF.equals(this.getChildren()))
+            return;
+
+        boolean copy = t.isDataFlavorSupported(VariableCopySupport.VARIABLE_COPY_FLAVOR);
+        boolean cut = t.isDataFlavorSupported(VariableCopySupport.VARIABLE_CUT_FLAVOR);
+
+        if (copy || cut) { // copy or cut some command
+            Node transNode = null;
+            try {
+                transNode = (Node) t.getTransferData(t.getTransferDataFlavors()[0]);
+            }
+            catch (UnsupportedFlavorException e) {} // should not happen
+            catch (java.io.IOException e) {} // should not happen
+            if (this.equals(transNode) || transNode == null)
+                return;
+
+            s.add(new VariableCopySupport.VariablePaste(t, this));
+        }
+    }
+
     protected SystemAction [] createActions() {
         ArrayList actions = new ArrayList();
         actions.add(SystemAction.get(MoveUpAction.class));
         actions.add(SystemAction.get(MoveDownAction.class));
         actions.add(null);
+        if (Children.LEAF.equals(this.getChildren())) {
+            actions.add(SystemAction.get(CutAction.class));
+            actions.add(SystemAction.get(CopyAction.class));
+        } else {
+            actions.add(SystemAction.get(PasteAction.class));
+        }
+        actions.add(null);
         actions.add(SystemAction.get(NewAction.class));
-        DeleteAction delete = (DeleteAction) SystemAction.get(DeleteAction.class);
-        //delete.setEnabled(true);
-        delete.setActionPerformer(new ActionPerformer() {
-            public void performAction(SystemAction action) {
-                delete();
-            }
-        });
-        if (Children.LEAF.equals(getChildren())) {  // Delete not present on the root node.
-            actions.add(delete);
+        if (Children.LEAF.equals(this.getChildren())) {
+            actions.add(SystemAction.get(DeleteAction.class));
         }
         actions.add(null);
         actions.add(SystemAction.get(PropertiesAction.class));
@@ -279,7 +384,7 @@ public class BasicVariableNode extends AbstractNode {
     
     /**
      * Deletes the current variable.
-     */
+     *
     public void delete() {
         try {
             destroy();
@@ -287,6 +392,7 @@ public class BasicVariableNode extends AbstractNode {
             // silently ignored
         }
     }
+     */
     
     private String g(String name) {
         return org.openide.util.NbBundle.getBundle(BasicVariableNode.class).getString(name);

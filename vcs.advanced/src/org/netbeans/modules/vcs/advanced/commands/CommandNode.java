@@ -14,6 +14,8 @@
 package org.netbeans.modules.vcs.advanced.commands;
 
 import java.awt.Image;
+import java.awt.datatransfer.*;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Map;
@@ -116,6 +118,7 @@ public class CommandNode extends AbstractNode {
         }
         index = new CommandsIndex();
         getCookieSet().add(index);
+        fireIconChange();
     }
     
     /**
@@ -135,11 +138,30 @@ public class CommandNode extends AbstractNode {
     public void setCommand(VcsCommand cmd) {
         this.cmd = cmd;
         init();
-        fireIconChange();
     }
     
     public VcsCommand getCommand() {
         return cmd;
+    }
+    
+    /**
+     * Get the collection of names of all commands.
+     */
+    public Collection getAllCommandsNames() {
+        CommandNode root = this;
+        while (root.getParentNode() != null) root = (CommandNode) root.getParentNode();
+        ArrayList commandNames = new ArrayList();
+        fillCommandNames(root, commandNames);
+        return commandNames;
+    }
+    
+    private static void fillCommandNames(CommandNode node, Collection commandNames) {
+        VcsCommand cmd = node.getCommand();
+        if (cmd != null) commandNames.add(cmd.getName());
+        Node[] subNodes = node.getChildren().getNodes();
+        for (int i = 0; i < subNodes.length; i++) {
+            fillCommandNames((CommandNode) subNodes[i], commandNames);
+        }
     }
     
     private Image getSeparatorIcon(int type) {
@@ -217,13 +239,64 @@ public class CommandNode extends AbstractNode {
     }
 
     public boolean canCopy() {
-        return true;
+        return (getParentNode() != null);
     }
     
     public boolean canCut() {
-        return true;
+        return (getParentNode() != null);
     }
     
+    /** Copy this node to the clipboard.
+     *
+     * @return The transferable for VcsCommand
+     * @throws IOException if it could not copy
+     */
+    public Transferable clipboardCopy() throws java.io.IOException {
+        return new CommandCopySupport.CommandTransferable(
+            CommandCopySupport.COMMAND_COPY_FLAVOR, this);
+    }
+
+    /** Cut this node to the clipboard.
+     *
+     * @return {@link Transferable} with one flavor, {@link COMMAND_CUT_FLAVOR }
+     * @throws IOException if it could not cut
+     */
+    public Transferable clipboardCut() throws java.io.IOException {
+        return new CommandCopySupport.CommandTransferable(
+            CommandCopySupport.COMMAND_CUT_FLAVOR, this);
+    }
+
+    /** Accumulate the paste types that this node can handle
+     * for a given transferable.
+     * <P>
+     * Obtain the paste types from the
+     * {@link CopySupport.CommandPaste transfer data} and inserts them into the set.
+     *
+     * @param t a transferable containing clipboard data
+     * @param s a list of {@link PasteType}s that will have added to it all types
+     *    valid for this node
+     */
+    protected void createPasteTypes(Transferable t, java.util.List s) {
+        if (Children.LEAF.equals(CommandNode.this.getChildren()))
+            return;
+
+        boolean copy = t.isDataFlavorSupported(CommandCopySupport.COMMAND_COPY_FLAVOR);
+        boolean cut = t.isDataFlavorSupported(CommandCopySupport.COMMAND_CUT_FLAVOR);
+
+        if (copy || cut) { // copy or cut some command
+            CommandNode transNode = null;
+            try {
+                transNode = (CommandNode) t.getTransferData(t.getTransferDataFlavors()[0]);
+            }
+            catch (UnsupportedFlavorException e) {} // should not happen
+            catch (java.io.IOException e) {} // should not happen
+            if (this.equals(transNode) || transNode == null)
+                return;
+
+            s.add(new CommandCopySupport.CommandPaste(t, this));
+        }
+    }
+
     public boolean canDestroy() {
         return true;
     }
@@ -347,6 +420,11 @@ public class CommandNode extends AbstractNode {
                             if (value == null) {
                                 value = VcsCommandIO.getDefaultPropertyValue(name);
                             }
+                            if (value == null) {
+                                if (Boolean.TYPE.equals(getValueType())) {
+                                    value = Boolean.FALSE;
+                                }
+                            }
                             return value;
                         }
 
@@ -381,7 +459,16 @@ public class CommandNode extends AbstractNode {
         actions.add(SystemAction.get(MoveUpAction.class));
         actions.add(SystemAction.get(MoveDownAction.class));
         actions.add(null);
+        if (getParentNode() != null) {  // Cut/Copy not present on the root node.
+            actions.add(SystemAction.get(CutAction.class));
+            actions.add(SystemAction.get(CopyAction.class));
+        }
+        if (!Children.LEAF.equals(getChildren())) { // Paste only on folders
+            actions.add(SystemAction.get(PasteAction.class));
+        }
+        actions.add(null);
         actions.add(SystemAction.get(NewAction.class));
+        /*
         DeleteAction delete = (DeleteAction) SystemAction.get(DeleteAction.class);
         //delete.setEnabled(true);
         delete.setActionPerformer(new ActionPerformer() {
@@ -389,8 +476,9 @@ public class CommandNode extends AbstractNode {
                 delete();
             }
         });
+         */
         if (getParentNode() != null) {  // Delete not present on the root node.
-            actions.add(delete);
+            actions.add(SystemAction.get(DeleteAction.class));//delete);
         }
         actions.add(null);
         actions.add(SystemAction.get(PropertiesAction.class));
@@ -418,7 +506,7 @@ public class CommandNode extends AbstractNode {
     }
     
     /** Tells whether the given name is a name of an existing command.
-     */
+     *
     private boolean existsCommandName(String name) {
         CommandNode root = this;
         Node parent;
@@ -440,6 +528,7 @@ public class CommandNode extends AbstractNode {
         }
         return false;
     }
+     */
 
     private String g(String s) {
         if (resourceBundle == null) {
@@ -542,7 +631,7 @@ public class CommandNode extends AbstractNode {
 
             String labelName = input.getInputText();
             String name = labelName.toUpperCase();
-            if (existsCommandName(name)) {
+            if (getAllCommandsNames().contains(name)) {
                 NotifyDescriptor.Message message = new NotifyDescriptor.Message(
                     org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_CommandNameAlreadyExists")
                 );
@@ -621,7 +710,7 @@ public class CommandNode extends AbstractNode {
 
             String labelName = input.getInputText();
             String name = labelName.toUpperCase();
-            if (existsCommandName(name)) {
+            if (getAllCommandsNames().contains(name)) {
                 NotifyDescriptor.Message message = new NotifyDescriptor.Message(
                     org.openide.util.NbBundle.getBundle(CommandNode.class).getString("CTL_CommandNameAlreadyExists")
                 );
