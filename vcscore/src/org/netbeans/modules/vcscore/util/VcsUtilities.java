@@ -632,7 +632,21 @@ public class VcsUtilities {
         }
         return bundleStr;
     }
-    
+
+    /** Get a string where some of it's parts can be loaded from one or more resource bundles.
+     *
+     * This method resolves all occurrences of
+     * "ResourceMsg<number>(<key>[, <format param>, ...])"
+     * to the value of the key obtained from the resource bundle formatted with the optional parameters,
+     * where "number" is the index of the resource bundle in the provided array.
+     *
+     * @param resourceBundles The array of class names or paths to the resource bundles
+     * @param str the string
+     * @return the resolved string.
+     */
+    public static String getBundleString(String[] resourceBundles, String str) {
+        return getBundleString(resourceBundles, str, "");  // NOI18N
+    }
     /** Get a string where some of it's parts can be loaded from one or more resource bundles.
      * 
      * This method resolves all occurrences of
@@ -641,16 +655,20 @@ public class VcsUtilities {
      * where "number" is the index of the resource bundle in the provided array.
      * 
      * @param resourceBundles The array of class names or paths to the resource bundles
-     * @param str the string
+     * @param str the key identifier (bundle, key string encoded pair)
+     * @param suffix key suffix
      * @return the resolved string.
      */
-    public static String getBundleString(String[] resourceBundles, String str) {
+    public static String getBundleString(String[] resourceBundles, String str, String suffix) {
+
+        assert suffix != null;
+
         if (resourceBundles == null) {
-            return getBundleString(str);
+            return getBundleString(str + suffix);
         }
         int index = str.indexOf(RESOURCE_MSG);
         if (index < 0) {
-            return getBundleString(str);
+            return getBundleString(str + suffix);
         }
         //long start = System.currentTimeMillis();
         int lastIndex = 0;
@@ -691,7 +709,7 @@ public class VcsUtilities {
             }
             String msg = key;
             try {
-                msg = rb.getString(key);
+                msg = rb.getString(key + suffix);
             } catch (final MissingResourceException mrex) {
                 org.openide.ErrorManager.getDefault().notify(new Exception() {
                     public String getLocalizedMessage() {

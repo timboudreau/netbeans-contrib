@@ -24,6 +24,7 @@ public class VariableInputDescriptor extends Object {
 
     public static final int INPUT_LABEL = 0;
     public static final int INPUT_ACCESSIBILITY = 10;
+    public static final int INPUT_A11Y = 15;
     public static final int INPUT_PROMPT_FIELD = 1;
     public static final int INPUT_PROMPT_AREA = 2;
     public static final int INPUT_PROMPT_PASSWD = 12;
@@ -65,6 +66,7 @@ public class VariableInputDescriptor extends Object {
     public static final String INPUT_STR_DISABLE = "DISABLE";
     
     public static final String INPUT_STR_ACCESSIBILITY = "ACCESSIBILITY";
+    public static final String INPUT_STR_A11Y = "A11Y";
     public static final String INPUT_STR_A11Y_NAME = "NAME_";
     public static final String INPUT_STR_A11Y_DESCRIPTION = "DESCRIPTION_";
     public static final String INPUT_STR_MNEMONIC = "MNEMONIC_";
@@ -98,7 +100,8 @@ public class VariableInputDescriptor extends Object {
     private String helpID;
     private String autoFillVars;
     private ArrayList components = new ArrayList();
-    
+
+
     /** Creates new VariableInputDescriptor */
     private VariableInputDescriptor() {
         if (inputMap == null) {
@@ -108,6 +111,7 @@ public class VariableInputDescriptor extends Object {
                     inputMap.put(INPUT_STR_LABEL, new Integer(INPUT_LABEL));
                     inputMap.put(INPUT_STR_HELP_ID, new Integer(INPUT_HELP_ID));
                     inputMap.put(INPUT_STR_ACCESSIBILITY, new Integer(INPUT_ACCESSIBILITY));
+                    inputMap.put(INPUT_STR_A11Y, new Integer(INPUT_A11Y));
                     inputMap.put(INPUT_STR_PROMPT_FIELD, new Integer(INPUT_PROMPT_FIELD));
                     inputMap.put(INPUT_STR_PROMPT_AREA, new Integer(INPUT_PROMPT_AREA));
                     inputMap.put(INPUT_STR_PROMPT_PASSWD, new Integer(INPUT_PROMPT_PASSWD));
@@ -437,8 +441,18 @@ public class VariableInputDescriptor extends Object {
             throw new VariableInputFormatException(g("EXC_InsufficientArgs"));
         }
         int argNum; // the number of currently processing argument
-        
-        if (len > 3 && inputArgs[3].startsWith(INPUT_STR_ACCESSIBILITY)) {
+
+        if (len > 3 && INPUT_STR_A11Y.equals(inputArgs[3])) {
+            component = new VariableInputComponent(id, inputArgs[0],
+                                                   VcsUtilities.getBundleString(resourceBundles, inputArgs[1]));
+            String key = inputArgs[1];
+            String description = VcsUtilities.getBundleString(resourceBundles, key, "_desc"); // NOI!8N
+            String mne = VcsUtilities.getBundleString(resourceBundles, key, "_mne"); // NOI!8N
+            component.setA11yDescription(description);
+            component.setLabelMnemonic(mne);
+            argNum = 4;
+
+        } else if (len > 3 && inputArgs[3].startsWith(INPUT_STR_ACCESSIBILITY)) {
             component = new VariableInputComponent(id, inputArgs[0],
                                                    VcsUtilities.getBundleString(resourceBundles, inputArgs[1]));
             int begin = inputArgs[3].indexOf(INPUT_STR_ARG_OPEN, 0);
@@ -501,7 +515,7 @@ public class VariableInputDescriptor extends Object {
             }
             for (int i = 0; i < inputSelectArgs.length; i++) {
                 String[] subArgs = VcsUtilities.getQuotedStringsWithPairedCharacters(inputSelectArgs[i], INPUT_STR_ARG_OPEN, INPUT_STR_ARG_CLOSE);
-                VariableInputComponent subComponent = parseComponent(subId, subArgs, inputSelectArgs[i], resourceBundles);
+                VariableInputComponent subComponent = parseComponent(subId, subArgs, inputSelectArgs[i], resourceBundles);  // RECURSION
                 component.addSubComponent(subComponent);
             }
         }
