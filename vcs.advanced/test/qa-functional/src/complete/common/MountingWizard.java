@@ -246,8 +246,8 @@ public class MountingWizard extends NbTestCase {
             Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), "Empty " + getWorkDirPath());
             filesystemNode.expand();
             new OpenAction().perform(new Node(filesystemNode, "A_File"));
-            EditorOperator editor = new EditorOperator("A_File");
-            editor.pressKey(32);
+            EditorOperator editor = new EditorOperator(new EditorWindowOperator(), "A_File");
+            editor.pushTabKey();
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
             try { new QuestionDialogOperator("Do you want to lock the file ?").yes(); }
