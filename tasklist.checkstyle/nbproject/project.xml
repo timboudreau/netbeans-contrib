@@ -15,8 +15,8 @@ Microsystems, Inc. All Rights Reserved.
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/1">
-            <code-name-base>org.netbeans.modules.tasklist.html</code-name-base>
-            <path>tasklist/html</path>
+            <code-name-base>org.netbeans.modules.tasklist.checkstyle</code-name-base>
+            <path>tasklist/checkstyle</path>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.openide</code-name-base>
