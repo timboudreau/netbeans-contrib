@@ -17,7 +17,8 @@ import java.util.ResourceBundle;
 
 import org.openide.util.NbBundle;
 import org.openide.filesystems.*;
-import com.netbeans.enterprise.modules.vcs.util.*;
+
+import com.netbeans.developer.modules.vcs.util.*;
 
 /** BeanInfo for CommandLineVcsFileSystem.
  * 
@@ -25,7 +26,7 @@ import com.netbeans.enterprise.modules.vcs.util.*;
  */
 //-------------------------------------------
 public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
-  private static Debug E=new Debug("CommandLineVcsFileSystemBeanInfo", false);
+  private static Debug E=new Debug("CommandLineVcsFileSystemBeanInfo", true);
   private static Debug D=E;
 
   /** Array of property descriptors. */
@@ -53,7 +54,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
       variables=new PropertyDescriptor
 	("variables",CommandLineVcsFileSystem.class,"getVariables","setVariables");
       variables.setPropertyEditorClass
-	(com.netbeans.enterprise.modules.vcs.UserVariablesEditor.class);
+	(com.netbeans.developer.modules.vcs.UserVariablesEditor.class);
 
       commands=new PropertyDescriptor
 	("commands",CommandLineVcsFileSystem.class,"getCommands","setCommands");
@@ -112,14 +113,15 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 
   public BeanDescriptor getBeanDescriptor(){
-    //D.deb("getBeanDescriptor()");
-    return new BeanDescriptor(CommandLineVcsFileSystem.class, com.netbeans.enterprise.modules.vcs.VcsCustomizer.class);
+    D.deb("getBeanDescriptor()");
+    return new BeanDescriptor(CommandLineVcsFileSystem.class, com.netbeans.developer.modules.vcs.VcsCustomizer.class);
   }
   
 }
 
 /*
 * <<Log>>
+*  14   Gandalf   1.13        9/30/99  Pavel Buzek     
 *  13   Gandalf   1.12        9/8/99   Pavel Buzek     class model changed, 
 *       customization improved, several bugs fixed
 *  12   Gandalf   1.11        8/31/99  Pavel Buzek     

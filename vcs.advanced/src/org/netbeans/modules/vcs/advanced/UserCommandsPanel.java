@@ -20,10 +20,12 @@ import javax.swing.event.*;
 import javax.swing.border.*;
 import java.text.*;
 
-import com.netbeans.enterprise.modules.vcs.util.*;
 import org.openide.explorer.propertysheet.*;
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.util.*;
+
+import com.netbeans.developer.modules.vcs.util.*;
+import com.netbeans.developer.modules.vcs.cmdline.*;
 
 /** User commands panel.
  * 
@@ -295,6 +297,7 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  11   Gandalf   1.10        9/30/99  Pavel Buzek     
  *  10   Gandalf   1.9         9/8/99   Pavel Buzek     class model changed, 
  *       customization improved, several bugs fixed
  *  9    Gandalf   1.8         8/31/99  Pavel Buzek     

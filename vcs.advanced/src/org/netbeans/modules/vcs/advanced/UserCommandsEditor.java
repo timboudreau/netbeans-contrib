@@ -16,7 +16,8 @@ import java.awt.*;
 import java.util.*;
 import java.beans.*;
 
-import com.netbeans.enterprise.modules.vcs.util.*;
+import com.netbeans.developer.modules.vcs.util.*;
+import com.netbeans.developer.modules.vcs.cmdline.*;
 
 /** Property editor for UserCommand.
  * 
@@ -84,7 +85,7 @@ public class UserCommandsEditor implements PropertyEditor {
     commands=new Vector();
     Vector vect = (Vector) value;
     for(int i=0;i<vect.size (); i++) {
-      UserCommand cmd = (UserCommand) vect.get (i);
+      com.netbeans.developer.modules.vcs.cmdline.UserCommand cmd = (com.netbeans.developer.modules.vcs.cmdline.UserCommand) vect.get (i);
       commands.add (cmd.clone ());
     }
     
@@ -115,6 +116,7 @@ public class UserCommandsEditor implements PropertyEditor {
 
 /*
  * <<Log>>
+ *  10   Gandalf   1.9         9/30/99  Pavel Buzek     
  *  9    Gandalf   1.8         9/8/99   Pavel Buzek     
  *  8    Gandalf   1.7         9/8/99   Pavel Buzek     class model changed, 
  *       customization improved, several bugs fixed

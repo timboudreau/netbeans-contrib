@@ -22,8 +22,6 @@ import javax.swing.*;
 import org.openide.util.actions.*;
 import org.openide.util.NbBundle;
 import org.openide.*;
-import com.netbeans.enterprise.modules.vcs.*;
-import com.netbeans.enterprise.modules.vcs.util.*;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileSystem.Status;
@@ -32,99 +30,31 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
 
+import com.netbeans.developer.modules.vcs.*;
+import com.netbeans.developer.modules.vcs.cmdline.*;
+import com.netbeans.developer.modules.vcs.util.*;
+
 /** Generic command line VCS filesystem.
  * 
  * @author Michal Fadljevic
  */
 //-------------------------------------------
-public class CommandLineVcsFileSystem extends VcsFileSystem {
-
-  /** Just convenience table.
-      [key="LIST" value=UserCommand]
-  */
-  private transient Hashtable commandsByName=null;
-  
+public class CommandLineVcsFileSystem extends CvsFileSystem {
+ 
   public VcsFactory getVcsFactory () {
     return new CommandLineVcsFactory ();
   }
     
-
   //-------------------------------------------
   public CommandLineVcsFileSystem () {
     //D.deb("CommandLineVcsFileSystem()");
     super ();
   }
-
-  //-------------------------------------------
-  public Hashtable getVariablesAsHashtable(){
-    int len=getVariables().size();
-    Hashtable result=new Hashtable(len+5);
-    for(int i=0; i<len; i++) {
-      VcsConfigVariable var = (VcsConfigVariable) getVariables().elementAt (i);
-      result.put(var.getName (), var.getValue ());
-    }
-
-    result.put("netbeans.home",System.getProperty("netbeans.home"));
-    result.put("java.home",System.getProperty("java.home"));
-    String osName=System.getProperty("os.name");
-    result.put("classpath.separator", (osName.indexOf("Win")<0 ? ":":";" ));
-    result.put("path.separator", ""+File.separator);
-
-    result.put("ROOTDIR",getRootDirectory().toString());
-
-    return result;
-  }
-
-
-  //-------------------------------------------
-  public Vector getCommands(){
-    return (Vector) getAdvancedConfig ();
-  }
-
-
-  public void setAdvancedConfig (Object advanced) {
-    super.setAdvancedConfig (advanced);
-    Vector commands = (Vector) advanced;
-    int len=commands.size();
-    commandsByName=new Hashtable(len+5);
-    for(int i=0;i<len;i++){
-      UserCommand uc=(UserCommand)commands.elementAt(i);
-      commandsByName.put(uc.getName(), uc);
-    }
-  }
-  
-  //-------------------------------------------
-  public void setCommands(Vector commands){
-    setAdvancedConfig (commands);
-  }
-
-
-  //-------------------------------------------
-  public UserCommand getCommand(String name){
-    if( commandsByName==null ){
-      setCommands ((Vector) getAdvancedConfig ());
-    }
-    return (UserCommand)commandsByName.get(name);
-  }
-
-
-  //-------------------------------------------
-  public Vector getAdditionalCommands(){
-    Vector commands=getCommands();
-    int len=commands.size();
-    Vector additionalCommands=new Vector(5);
-    for(int i=0;i<len;i++){
-      UserCommand uc=(UserCommand)commands.elementAt(i);
-      if( isAdditionalCommand(uc.getName()) ){
-	additionalCommands.add(uc);
-      }
-    }
-    return additionalCommands;
-  }
 }
 
 /*
  * <<Log>>
+ *  41   Gandalf   1.40        9/30/99  Pavel Buzek     
  *  40   Gandalf   1.39        9/13/99  Pavel Buzek     
  *  39   Gandalf   1.38        9/10/99  Martin Entlicher removed import regexp
  *  38   Gandalf   1.37        9/8/99   Pavel Buzek     
