@@ -184,28 +184,28 @@ public class ViolationProvider extends DocumentSuggestionProvider
 
     private boolean callCheckstyle(File file) {
         // TODO: this should only be done once, not for each scan!!!
-        Checker checker = new Checker();
-        ModuleFactory moduleFactory = null;
-        checker.setModuleFactory(moduleFactory);
-        Configuration config = null;
-        Properties props = System.getProperties();
         try {
-            // For now, grab the configuration from the module
-            File f = org.openide.modules.InstalledFileLocator.getDefault().locate("configs/checkstyle.xml", "org.netbeans.modules.tasklist.checkstyle", false);
-            //System.out.println("FILE LOCATED = " + f);
-            if (f == null) {
-                ErrorManager.getDefault().log("Couldn't find configs/checkstyle.xml");
-                return false;
-            }
-            config = ConfigurationLoader.loadConfiguration(f.getPath(), new PropertiesExpander(props));
+            Checker checker = new Checker();
+            ModuleFactory moduleFactory = null;
+            checker.setModuleFactory(moduleFactory);
+            Configuration config = null;
+            Properties props = System.getProperties();
+                // For now, grab the configuration from the module
+                File f = org.openide.modules.InstalledFileLocator.getDefault().locate("configs/checkstyle.xml", "org.netbeans.modules.tasklist.checkstyle", false);
+                //System.out.println("FILE LOCATED = " + f);
+                if (f == null) {
+                    ErrorManager.getDefault().log("Couldn't find configs/checkstyle.xml");
+                    return false;
+                }
+                config = ConfigurationLoader.loadConfiguration(f.getPath(), new PropertiesExpander(props));
+            checker.configure(config);
+            checker.addListener(this);
+            checker.process(new File[] { file }); // Yuck!
+            return true;
         } catch (CheckstyleException e) {
             ErrorManager.getDefault().notify(e);
             return false;
         }
-        checker.configure(config);
-        checker.addListener(this);
-        checker.process(new File[] { file }); // Yuck!
-        return true;
     }
 
     public void clear(SuggestionContext env,
