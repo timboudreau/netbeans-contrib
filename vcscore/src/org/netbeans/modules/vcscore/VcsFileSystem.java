@@ -1330,6 +1330,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             result =  super.createReference(fo);
         }
         String fullName = fo.getPath();
+        if (versioningSystem != null && fo.isFolder()) addVersioningFolderListener(fo);
         return result;
     }
 
@@ -1611,6 +1612,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 fsCache.addCacheHandlerListener((CacheHandlerListener) WeakListeners.create(CacheHandlerListener.class, (CacheHandlerListener) versioningSystem, fsCache));
             }
         }
+        addVersioningFolderListener(getRoot());
         VersioningRepository.getRepository().addVersioningFileSystem(versioningSystem);
     }
     
@@ -3177,7 +3179,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         //System.out.println("children = "+files);
         //System.out.println("  children = "+VcsUtilities.arrayToString(files));
-        if (versioningSystem != null) addVersioningFolderListener(name);
         return files;
     }
 
@@ -3216,23 +3217,19 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private transient WeakHashMap versioningFolderListeners;
     private static final Object versioningFolderListenersLock = new Object();
 
-    private void addVersioningFolderListener(String name) {
-        //System.out.println("addVersioningFolderListener("+name+")");
-        FileObject fo = findResource(name);
-        //System.out.println("  fo = "+fo);
-        if (fo != null) {
-            synchronized (versioningFolderListenersLock) {
-                if (versioningFolderListeners == null) {
-                    versioningFolderListeners = new WeakHashMap();
-                }
-                FileChangeListener listener = (FileChangeListener) versioningFolderListeners.get(fo);
-                //System.out.println(" listener for "+fo+" = "+listener);
-                if (listener == null) {
-                    FileChangeListener chListener = new VersioningFolderChangeListener(name);
-                    listener = WeakListener.fileChange(chListener, fo);
-                    fo.addFileChangeListener(listener);
-                    versioningFolderListeners.put(fo, chListener);
-                }
+    private void addVersioningFolderListener(FileObject fo) {
+        //System.out.println("addVersioningFolderListener("+fo+")");
+        synchronized (versioningFolderListenersLock) {
+            if (versioningFolderListeners == null) {
+                versioningFolderListeners = new WeakHashMap();
+            }
+            FileChangeListener listener = (FileChangeListener) versioningFolderListeners.get(fo);
+            //System.out.println(" listener for "+fo+" = "+listener);
+            if (listener == null) {
+                FileChangeListener chListener = new VersioningFolderChangeListener(fo.getPath());
+                listener = WeakListener.fileChange(chListener, fo);
+                fo.addFileChangeListener(listener);
+                versioningFolderListeners.put(fo, chListener);
             }
         }
     }
