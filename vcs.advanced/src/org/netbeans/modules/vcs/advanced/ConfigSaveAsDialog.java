@@ -83,6 +83,7 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
         getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialogA11yName"));  // NOI18N
         getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialogA11yDesc"));  // NOI18N
         fileList.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialog.fileListA11yName"));  // NOI18N
+        fileList.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialog.fileListA11yDesc")); // NOI18N
         fileNameLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialog.fileNameLabel.textA11yDesc"));  // NOI18N
         fileNameTextField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialog.fileNameTextField.textA11yName"));  // NOI18N
         configLabelLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("ACS_ConfigSaveAsDialog.configLabelLabel.textA11yDesc"));  // NOI18N
