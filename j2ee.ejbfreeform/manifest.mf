@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.j2ee.ejbfreeform
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/j2ee/ejbfreeform/Bundle.properties
+OpenIDE-Module-Layer: org/netbeans/modules/j2ee/ejbfreeform/resources/layer.xml
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.ant.freeform > 1.3,
+ org.netbeans.api.java/1 > 1.5, org.netbeans.modules.java.project/0,
+ org.netbeans.modules.java.freeform, org.netbeans.modules.project.ant/0,
+ org.netbeans.modules.queries/0, org.netbeans.modules.projectapi/0,
+ org.openide/1 > 4.33, org.netbeans.modules.j2ee.api.ejbmodule,
+ org.netbeans.modules.projectuiapi/0, org.openide.loaders,
+ org.netbeans.modules.j2ee.ejbjarproject = 1.1.1
