@@ -123,7 +123,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
     /* Provides the VCSFileSystem's icon */
     public java.awt.Image getIcon(int type) {
         if (icon == null) {
-            icon = loadImage("/org/netbeans/modules/vcs/advanced/vcs2.gif"); // NOI18N
+            icon = loadImage("/org/netbeans/modules/vcscore/vcs2.gif"); // NOI18N
             icon32 = icon;
         }
         if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16))
