@@ -77,6 +77,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
 
     /** Creates new VcsVersioningSystem */
     public VcsVersioningSystem(VcsFileSystem fileSystem) {
+        super(fileSystem);
         this.fileSystem = fileSystem;
         try {
             setSystemName(fileSystem.getSystemName());
@@ -114,13 +115,14 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     }
      */
     
-    public FileSystem.Status getStatus() {
-        return fileSystem.getStatus();
-    }
     
     public VersioningFileSystem.Versions getVersions() {
         return versions;
     }
+    
+    public FileSystem.Status getStatus() {
+        return fileSystem.getStatus();
+    }        
     
     public FileStatusProvider getFileStatusProvider() {
         return fileSystem.getStatusProvider();
@@ -135,42 +137,6 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         firePropertyChange(PROP_SHOW_DEAD_FILES, new Boolean(!showDeadFiles), new Boolean(showDeadFiles));
     }
     
-    public String getDisplayName() {
-        return fileSystem.getDisplayName();
-    }
-    
-    /** Creates Reference. In FileSystem, which subclasses AbstractFileSystem, you can overload method
-     * createReference(FileObject fo) to achieve another type of Reference (weak, strong etc.)
-     * @param fo is FileObject. It`s reference yourequire to get.
-     * @return Reference to FileObject
-     */
-    protected java.lang.ref.Reference createReference(final FileObject fo) {
-        try {
-            org.openide.loaders.DataLoaderPool.setPreferredLoader(fo,
-                (VersioningDataLoader) org.openide.util.SharedClassObject.findObject(VersioningDataLoader.class, true));
-        } catch (java.io.IOException exc) {}
-        return super.createReference(fo);
-    }
-    
-    public SystemAction[] getActions(Set vfoSet) {
-        return fileSystem.getActions(vfoSet);
-        /*
-        FileSystem fs = fsInfo.getFileSystem();
-        if (fsInfo.canActOnVcsFileObjects()) {
-            return fs.getActions(vfoSet);
-        } else {
-            OrderedSet foSet = new OrderedSet();
-            for (Iterator it = vfoSet.iterator(); it.hasNext(); ) {
-                VcsFileObject vfo = (VcsFileObject) it.next();
-                FileObject fo = fs.findResource(vfo.getPackageName('/'));
-                if (fo != null) {
-                    foSet.add(fo);
-                }
-            }
-            return fs.getActions(foSet);
-        }
-         */
-    }
     
     /*
     public RevisionChildren createRevisionChildren(RevisionList list) {
@@ -299,67 +265,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
 
     }
 
-    private class VersioningFSChange extends Object implements AbstractFileSystem.Change {
 
-        public void delete(String name) throws java.io.IOException {
-            FileObject fo = fileSystem.findFileObject(name);
-            if (fo != null) {
-                fo.delete(fo.lock());
-                //fileSystem.delete(name);
-            } else {
-                throw new java.io.IOException(NbBundle.getMessage(VcsVersioningSystem.class, "Exc_FileCanNotDelete", name));
-            }
-        }
-
-        public void createFolder(String path) throws java.io.IOException {
-            String dir = VcsUtilities.getDirNamePart(path);
-            String file = VcsUtilities.getFileNamePart(path);
-            FileObject fo = fileSystem.findFileObject(dir);
-            if (fo != null) {
-                fo.createFolder(file);
-            } else {
-                throw new java.io.IOException(NbBundle.getMessage(VcsVersioningSystem.class, "Exc_FolderCanNotCreate", path));
-            }
-        }
-
-        public void createData(String path) throws java.io.IOException {
-            String dir = VcsUtilities.getDirNamePart(path);
-            String file = VcsUtilities.getFileNamePart(path);
-            FileObject fo = fileSystem.findFileObject(dir);
-            if (fo != null) {
-                fo.createData(file);
-            } else {
-                throw new java.io.IOException(NbBundle.getMessage(VcsVersioningSystem.class, "Exc_FileCanNotCreate", path));
-            }
-        }
-
-        public void rename(String oldName, String newName) throws java.io.IOException {
-            int extIndex = newName.lastIndexOf('.');
-            if (extIndex >= 0) {
-                // sort of a hack: the VersioningDataNode adds the file extension to it's name.
-                //                 Therefore we need to remove it here otherwise it would be added twise.
-                newName = newName.substring(0, extIndex);
-            }
-            String oldDir = VcsUtilities.getDirNamePart(oldName);
-            String oldFile = VcsUtilities.getFileNamePart(oldName);
-            String newFile = VcsUtilities.getFileNamePart(newName);
-            String newFileExt;
-            extIndex = newFile.lastIndexOf('.');
-            if (extIndex >= 0) {
-                newFileExt = newFile.substring(extIndex + 1);
-                newFile = newFile.substring(0, extIndex);
-            } else {
-                newFileExt = null;
-            }
-            FileObject fo = fileSystem.findFileObject(oldName);
-            if (fo != null) {
-                fo.rename(fo.lock(), newFile, newFileExt);
-            } else {
-                throw new java.io.IOException(NbBundle.getMessage(VcsVersioningSystem.class, "Exc_FileCanNotRename", oldName));
-            }
-        }
-
-    }
     
     private class VersioningVersions extends Object implements VersioningFileSystem.Versions {
         
@@ -479,48 +385,6 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         }
     }
 
-    /**
-     * A very simple implementation of attributes held in memory.
-     */
-    private static class VersioningAttrs extends Object implements AbstractFileSystem.Attr {
-        
-        private HashMap files = new HashMap();
-        
-        public void deleteAttributes(String name) {
-            files.remove(name);
-        }
-        
-        public java.util.Enumeration attributes(String name) {
-            HashMap attrs = (HashMap) files.get(name);
-            if (attrs == null) {
-                return new org.openide.util.enum.EmptyEnumeration();
-            } else {
-                return Collections.enumeration(attrs.keySet());
-            }
-        }
-        
-        public void renameAttributes(String oldName, String newName) {
-            HashMap attrs = (HashMap) files.get(oldName);
-            if (attrs != null) {
-                files.remove(oldName);
-                files.put(newName, attrs);
-            }
-        }
-        
-        public void writeAttribute(String name, String attrName, Object value) throws java.io.IOException {
-            HashMap attrs = (HashMap) files.get(name);
-            if (attrs == null) attrs = new HashMap();
-            attrs.put(attrName, value);
-            files.put(name, attrs);
-        }
-        
-        public java.lang.Object readAttribute(String name, String attrName) {
-            HashMap attrs = (HashMap) files.get(name);
-            if (attrs == null) return null;
-            else return attrs.get(attrName);
-        }
-        
-    }
     
     private class FSPropertyChangeListener implements PropertyChangeListener {
         public void propertyChange(final PropertyChangeEvent event) {

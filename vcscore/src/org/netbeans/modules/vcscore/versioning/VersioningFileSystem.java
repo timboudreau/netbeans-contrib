@@ -31,8 +31,11 @@ import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.FileStatusEvent;
 import org.openide.filesystems.FileStatusListener;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.NbBundle;
 
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.versioning.impl.VersioningDataLoader;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 
 /**
@@ -43,10 +46,10 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
 
     private static final SystemAction[] NO_ACTIONS = new SystemAction[0];
     
-    //protected AbstractFileSystem.List list;
-    //protected AbstractFileSystem.Info info;
     //protected FileSystem.Status status;
     //protected VersioningFileSystem.Versions versions;
+    
+    private AbstractFileSystem fileSystem;
     
     private transient EventListenerList listenerList = new EventListenerList();
     //private transient HashMap revisionListenerMap = new HashMap();
@@ -61,15 +64,14 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
     
     private static final long serialVersionUID = 1437726745709092169L;
 
-    /*
     public VersioningFileSystem() {
-        list = getList();
-        info = getInfo();
-        change = null;
-        attr = null;
     }
-     */
     
+    public VersioningFileSystem(AbstractFileSystem underlyingFs) {
+        fileSystem = underlyingFs;
+//        change = new VersioningFSChange();
+//        attr = new VersioningAttrs();
+    }
     //public abstract AbstractFileSystem.List getList();
     
     //public abstract AbstractFileSystem.Info getInfo();
@@ -90,8 +92,35 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
      * @return the file system or null
      */
     protected FileSystem getFileSystem() {
-        return null;
+        return fileSystem;
     }
+    
+    
+    /** Creates Reference. In FileSystem, which subclasses AbstractFileSystem, you can overload method
+     * createReference(FileObject fo) to achieve another type of Reference (weak, strong etc.)
+     * @param fo is FileObject. It`s reference yourequire to get.
+     * @return Reference to FileObject
+     */
+    protected java.lang.ref.Reference createReference(final FileObject fo) {
+        try {
+            org.openide.loaders.DataLoaderPool.setPreferredLoader(fo,
+                (VersioningDataLoader) org.openide.util.SharedClassObject.findObject(VersioningDataLoader.class, true));
+        } catch (java.io.IOException exc) {}
+        return super.createReference(fo);
+    }
+    
+
+    
+    public String getDisplayName() {
+        return fileSystem.getDisplayName();
+    }
+    
+
+    
+    public SystemAction[] getActions(Set vfoSet) {
+        return fileSystem.getActions(vfoSet);
+    }
+    
     
     /**
      * Get the status provider. All file status information
@@ -206,5 +235,129 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
             listeners[i].vcsStatusChanged(ev);
         }
     }
+    
+    /**
+     * A very simple implementation of attributes held in memory.
+     */
+    public static class VersioningAttrs extends Object implements AbstractFileSystem.Attr {
+        
+        private HashMap files = new HashMap();
+        
+        public void deleteAttributes(String name) {
+            files.remove(name);
+        }
+        
+        public java.util.Enumeration attributes(String name) {
+            HashMap attrs = (HashMap) files.get(name);
+            if (attrs == null) {
+                return new org.openide.util.enum.EmptyEnumeration();
+            } else {
+                return Collections.enumeration(attrs.keySet());
+            }
+        }
+        
+        public void renameAttributes(String oldName, String newName) {
+            HashMap attrs = (HashMap) files.get(oldName);
+            if (attrs != null) {
+                files.remove(oldName);
+                files.put(newName, attrs);
+            }
+        }
+        
+        public void writeAttribute(String name, String attrName, Object value) throws java.io.IOException {
+            HashMap attrs = (HashMap) files.get(name);
+            if (attrs == null) attrs = new HashMap();
+            attrs.put(attrName, value);
+            files.put(name, attrs);
+        }
+        
+        public java.lang.Object readAttribute(String name, String attrName) {
+            HashMap attrs = (HashMap) files.get(name);
+            if (attrs == null) return null;
+            else return attrs.get(attrName);
+        }
+        
+    }
+    
+    public class VersioningFSChange extends Object implements AbstractFileSystem.Change {
+
+        public void delete(String name) throws java.io.IOException {
+            FileObject fo = fileSystem.findResource(name);
+            if (fo != null) {
+                fo.delete(fo.lock());
+                //fileSystem.delete(name);
+            } else {
+                throw new java.io.IOException(NbBundle.getMessage(VersioningFileSystem.class, "Exc_FileCanNotDelete", name));
+            }
+        }
+
+        public void createFolder(String path) throws java.io.IOException {
+            String dir = VcsUtilities.getDirNamePart(path);
+            String file = VcsUtilities.getFileNamePart(path);
+            FileObject fo = fileSystem.findResource(dir);
+            if (fo != null) {
+                fo.createFolder(file);
+            } else {
+                throw new java.io.IOException(NbBundle.getMessage(VersioningFileSystem.class, "Exc_FolderCanNotCreate", path));
+            }
+        }
+
+        public void createData(String path) throws java.io.IOException {
+            String dir = VcsUtilities.getDirNamePart(path);
+            String file = VcsUtilities.getFileNamePart(path);
+            FileObject fo = fileSystem.findResource(dir);
+            if (fo != null) {
+                fo.createData(file);
+            } else {
+                throw new java.io.IOException(NbBundle.getMessage(VersioningFileSystem.class, "Exc_FileCanNotCreate", path));
+            }
+        }
+
+        public void rename(String oldName, String newName) throws java.io.IOException {
+            int extIndex = newName.lastIndexOf('.');
+            if (extIndex >= 0) {
+                // sort of a hack: the VersioningDataNode adds the file extension to it's name.
+                //                 Therefore we need to remove it here otherwise it would be added twise.
+                newName = newName.substring(0, extIndex);
+            }
+            String oldDir = VcsUtilities.getDirNamePart(oldName);
+            String oldFile = VcsUtilities.getFileNamePart(oldName);
+            String newFile = VcsUtilities.getFileNamePart(newName);
+            String newFileExt;
+            extIndex = newFile.lastIndexOf('.');
+            if (extIndex >= 0) {
+                newFileExt = newFile.substring(extIndex + 1);
+                newFile = newFile.substring(0, extIndex);
+            } else {
+                newFileExt = null;
+            }
+            FileObject fo = fileSystem.findResource(oldName);
+            if (fo != null) {
+                fo.rename(fo.lock(), newFile, newFileExt);
+            } else {
+                throw new java.io.IOException(NbBundle.getMessage(VersioningFileSystem.class, "Exc_FileCanNotRename", oldName));
+            }
+        }
+
+    }
+    
+    public class DefVersioningList extends Object implements AbstractFileSystem.List {
+        
+        public java.lang.String[] children(java.lang.String str) {
+            FileObject fo = fileSystem.findResource(str);
+            FileObject[] childs = fo.getChildren();
+            if (childs != null) {
+                String[] toReturn = new String[childs.length];
+                for (int i = 0; i < childs.length; i++) {
+                    toReturn[i] = childs[i].getNameExt();
+                }
+                return toReturn;
+            } else {
+                return new String[0];
+            }
+        }
+        
+    }
+
     
 }
