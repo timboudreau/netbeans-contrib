@@ -19,6 +19,7 @@ public class ValueAbsElement extends IDLElement {
 
     protected boolean is_abstract;
     private Vector _M_inherited;
+    private Vector _M_supported;
 
     public ValueAbsElement(int id) {
         super(id);
@@ -38,6 +39,14 @@ public class ValueAbsElement extends IDLElement {
 
     public Vector getParents () {
         return _M_inherited;
+    }
+
+    public void setSupported (Vector __value) {
+	_M_supported = __value;
+    }
+
+    public Vector getSupported () {
+	return _M_supported;
     }
 
     public void setAbstract (boolean value) {
@@ -61,6 +70,8 @@ public class ValueAbsElement extends IDLElement {
 		    = (ValueInheritanceSpecElement)__members.get (1);
 		//System.out.println ("inherited: " + __inheritance.getValues ()); // NOI18N
 		this.setParents (__inheritance.getValues ());
+                //System.out.println ("supports: " + __inheritance.getInterfaces ()); // NOI18N
+	        this.setSupported (__inheritance.getInterfaces ());
 	    }
 	} catch (ClassCastException __ex) {
 	    // this valuetype don't inherits any value

@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.corba.idl.node;
 
+import java.util.Vector;
+
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
@@ -93,6 +95,24 @@ public class IDLValueAbsNode extends IDLAbstractNode {
 		    else
 			inher = ""; // NOI18N
 		    return inher;
+		}
+	    });
+	ss.put (new PropertySupport.ReadOnly ("supported", String.class, IDLNodeBundle.SUPPORTED, // NOI18N
+					      IDLNodeBundle.SUPPORTS_INTERFACES) {
+		public Object getValue () {
+		    String __supports = ""; // NOI18N
+		    Vector __tmp_supported = _value.getSupported ();
+		    if (__tmp_supported.size () > 0) {
+			for (int __i=0; __i<__tmp_supported.size (); __i++) {
+			    //inher = inher + ((Identifier)_Value.getParents ().elementAt (i)).getName () 
+			    __supports = __supports + (String)__tmp_supported.elementAt (__i)
+				+ ", "; // NOI18N
+			}
+			__supports = __supports.substring (0, __supports.length () - 2);
+		    }
+		    else
+			__supports = ""; // NOI18N
+		    return __supports;
 		}
 	    });
 

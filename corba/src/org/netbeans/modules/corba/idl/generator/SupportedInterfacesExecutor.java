@@ -16,7 +16,7 @@ package org.netbeans.modules.corba.idl.generator;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.netbeans.modules.corba.idl.src.ValueElement;
+import org.netbeans.modules.corba.idl.src.ValueAbsElement;
 import org.netbeans.modules.corba.idl.src.InterfaceElement;
 
 import org.netbeans.modules.corba.utils.ParentsExecutor;
@@ -29,8 +29,8 @@ public class SupportedInterfacesExecutor implements ParentsExecutor {
 
     public List getParents (Object __element) {
 	ArrayList __result = new ArrayList ();
-	if (__element instanceof ValueElement) {
-	    ValueElement __value = (ValueElement)__element;
+	if (__element instanceof ValueAbsElement) {
+	    ValueAbsElement __value = (ValueAbsElement)__element;
 	    __result.addAll (__value.getSupported ());
 	}
 	if (__element instanceof InterfaceElement) {

@@ -3071,7 +3071,8 @@ public class ImplGenerator implements PropertyChangeListener {
 
 
     private void synchronize_implementations (ClassElement __source, 
-					      ClassElement __target) {
+					      ClassElement __target,
+                                              boolean __tie) {
 	
 	if (DEBUG) {
 	    System.out.println ("orig class: " + __source.toString ()); // NOI18N
@@ -3083,7 +3084,7 @@ public class ImplGenerator implements PropertyChangeListener {
 		this.remove_all_guarded_blocks (__target);
 	    }
 	    // synchronize class headers
-	    if (!this.TIE) {
+	    if (!__tie) {
 		// impl-base skeletons
 		org.openide.src.Identifier __source_id = __source.getSuperclass ();
 		org.openide.src.Identifier __target_id = __target.getSuperclass ();
@@ -3409,7 +3410,7 @@ public class ImplGenerator implements PropertyChangeListener {
                 if (DEBUG)
                     System.out.println ("file exists"); // NOI18N
                 ClassElement __dest = ClassElement.forName (__full_impl_name);
-		this.synchronize_implementations (__clazz, __dest);
+		this.synchronize_implementations (__clazz, __dest, this.TIE);
 		_M_generated_impls.add (__dest);
             }
             else {
@@ -3494,7 +3495,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    + this.VALUE_IMPL_POSTFIX;
         String __super_name = this.idl_name2java_name (__element.getName (), false);
 	return this.prepare_implementation_class
-	    (__element, __impl_name, __super_name, this.TIE);
+	    (__element, __impl_name, __super_name, false);
     }
 
     private void synchronise_implementation_class (ClassElement __clazz,
@@ -3535,7 +3536,7 @@ public class ImplGenerator implements PropertyChangeListener {
 	    if (DEBUG)
 		System.out.println ("file exists"); // NOI18N
 	    ClassElement __dest = ClassElement.forName (__full_impl_name);
-	    this.synchronize_implementations (__clazz, __dest);
+	    this.synchronize_implementations (__clazz, __dest, (__element instanceof ValueElement ? false : this.TIE));
 	}
 	else {
 	    if (DEBUG)

@@ -18,7 +18,6 @@ import java.util.Vector;
 public class ValueElement extends ValueAbsElement {
 
     private boolean _M_is_custom;
-    private Vector _M_supported;
 
     public ValueElement(int id) {
         super(id);
@@ -51,13 +50,6 @@ public class ValueElement extends ValueAbsElement {
       return _M_inherited;
       }
     */
-    public void setSupported (Vector __value) {
-	_M_supported = __value;
-    }
-
-    public Vector getSupported () {
-	return _M_supported;
-    }
 
     public void jjtClose () {
         super.jjtClose ();
