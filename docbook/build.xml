@@ -8,40 +8,35 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <project name="contrib/docbook" basedir="." default="netbeans">
 
-    <property name="nbroot" location="../.."/>
-    
-    <property name="nbm_alias" value="nb_ide"/>
-    <property name="homepage.base" value="netbeans.org"/>
-    <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-    <property name="license.file" value="../../nbbuild/standard-nbm-license.txt"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
     <target name="external">
-        <ant dir="${nbroot}/libs/external"/>
-        <property file="${nbroot}/libs/public.properties"/>
-        <mkdir dir="tmp/docbook-xml-${libs.docbook-xml.version}"/>
-        <unzip src="${nbroot}/libs/external/docbook-xsl-${libs.docbook-xsl.version}.zip" dest="tmp"/>
-        <unzip src="${nbroot}/libs/external/slides-${libs.docbook-slides.version}.zip" dest="tmp"/>
-        <unzip src="${nbroot}/libs/external/docbook-xml-${libs.docbook-xml.version}.zip" dest="tmp/docbook-xml-${libs.docbook-xml.version}"/>
-        <property name="browser.dir" location="tmp/slides-${libs.docbook-slides.version}/browser"/>
+        <ant dir="${nb_all}/libs/external"/>
+        <property file="${nb_all}/libs/public.properties"/>
+        <mkdir dir="build/docbook-libs/docbook-xml-${libs.docbook-xml.version}"/>
+        <unzip src="${nb_all}/libs/external/docbook-xsl-${libs.docbook-xsl.version}.zip" dest="build/docbook-libs"/>
+        <unzip src="${nb_all}/libs/external/slides-${libs.docbook-slides.version}.zip" dest="build/docbook-libs"/>
+        <unzip src="${nb_all}/libs/external/docbook-xml-${libs.docbook-xml.version}.zip" dest="build/docbook-libs/docbook-xml-${libs.docbook-xml.version}"/>
+        <property name="browser.dir" location="build/docbook-libs/slides-${libs.docbook-slides.version}/browser"/>
         <fileset id="browser.files.list" dir="${browser.dir}">
             <exclude name="**/ChangeLog"/>
         </fileset>
         <pathconvert property="browser.files" refid="browser.files.list" pathsep="," dirsep="/">
             <map from="${browser.dir}${file.separator}" to=""/>
         </pathconvert>
-        <property name="graphics.dir" location="tmp/slides-${libs.docbook-slides.version}/graphics"/>
+        <property name="graphics.dir" location="build/docbook-libs/slides-${libs.docbook-slides.version}/graphics"/>
         <fileset id="graphics.files.list" dir="${graphics.dir}">
             <exclude name="**/ChangeLog"/>
         </fileset>
         <pathconvert property="graphics.files" refid="graphics.files.list" pathsep="," dirsep="/">
             <map from="${graphics.dir}${file.separator}" to=""/>
         </pathconvert>
-        <propertyfile file="tmp/config.properties" comment="org.netbeans.modules.docbook configuration">
+        <propertyfile file="build/docbook-libs/config.properties" comment="org.netbeans.modules.docbook configuration">
             <entry key="docbook-xsl.version" value="${libs.docbook-xsl.version}"/>
             <entry key="slides.version" value="${libs.docbook-slides.version}"/>
             <entry key="docbook-xml.version" value="${libs.docbook-xml.version}"/>
@@ -50,26 +45,16 @@ Microsystems, Inc. All Rights Reserved.
         </propertyfile>
     </target>
 
-    <target name="compile">
-        <javac srcdir="src" destdir="src" source="1.4" debug="true">
-            <classpath>
-                <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
-                <pathelement location="${nbroot}/openide/loaders/netbeans/lib/openide-loaders.jar"/>
-                <pathelement location="${nbroot}/openide/io/netbeans/modules/org-openide-io.jar"/>
-                <pathelement location="${nbroot}/xml/catalog/netbeans/modules/xml-catalog.jar"/>
-            </classpath>
-        </javac>
-    </target>
-
-    <target name="jars" depends="compile,external">
-        <mkdir dir="netbeans/modules"/>
-        <jar jarfile="netbeans/modules/org-netbeans-modules-docbook.jar" manifest="manifest.mf" compress="false">
-            <fileset dir="src">
-                <exclude name="**/*.java"/>
-                <exclude name="**/*.form"/>
-                <exclude name="**/.nbattrs"/>
-            </fileset>
-            <zipfileset prefix="org/netbeans/modules/docbook/lib" dir="tmp">
+    <target name="jar-with-module-deps" if="module.dependencies" depends="external">
+        <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${module.jar}" compress="false" manifest="${manifest.mf}">
+            <manifest>
+                <attribute name="OpenIDE-Module-Public-Packages" value="${public.packages}"/>
+                <attribute name="OpenIDE-Module-IDE-Dependencies" value="${ide.dependencies}"/>
+                <attribute name="OpenIDE-Module-Module-Dependencies" value="${module.dependencies}"/>
+                <attribute name="OpenIDE-Module-Implementation-Version" value="${buildnumber}"/>
+            </manifest>
+            <fileset dir="${build.classes.dir}"/>
+            <zipfileset prefix="org/netbeans/modules/docbook/lib" dir="build/docbook-libs">
                 <include name="config.properties"/>
                 <include name="slides-${libs.docbook-slides.version}/schema/dtd/slides.dtd"/>
                 <include name="slides-${libs.docbook-slides.version}/schema/dtd/slides-full.dtd"/>
@@ -88,46 +73,26 @@ Microsystems, Inc. All Rights Reserved.
         </jar>
     </target>
 
-    <target name="netbeans" depends="jars" description="Build the module.">
-        <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../../nbbuild/nbantext.jar"/>
-        <genlist targetname="nbm" outputfiledir="netbeans"/>
-    </target>
-
-    <!-- This target will only work *inside* the IDE! -->
-    <target name="reload" depends="jars" description="Test the module inside the running IDE.">
-        <nbinstaller module="netbeans/modules/org-netbeans-modules-docbook.jar" action="reinstall"/>
-    </target>
-
-    <target name="nbm" depends="netbeans" description="Prepare the module for distribution via Auto Update.">
-        <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbroot}/nbbuild/nbantext.jar"/>
-        <makenbm file="org-netbeans-modules-docbook.nbm"
-                 topdir="."
-                 module="netbeans/modules/org-netbeans-modules-docbook.jar"
-                 needsrestart="false"
-                 homepage="http://contrib.netbeans.org/"
-                 distribution="http://${dist.base}/org-netbeans-modules-docbook.nbm">
+    <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
+        <mkdir dir="build"/>
+        <makenbm file="build/${nbm}"
+                 productdir="${netbeans.dest.dir}/${cluster.dir}"
+                 module="${module.jar}"
+                 homepage="http://${nbm.domain}.${homepage.base}/"
+                 distribution="http://${dist.base}/${nbm}"
+                 needsrestart="${nbm.needs.restart}"
+                 releasedate="${nbm.release.date}"
+		 moduleauthor="${nbm.module.author}">
+            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
             <license name="docbook-license.txt">
                 <text>For the module itself:</text>
                 <file location="${license.file}"/>
                 <text>For the included DocBook stylesheets and Slides DTD:</text>
-                <file location="${nbroot}/libs/external/docbook-sf-net-license.txt"/>
+                <file location="${nb_all}/libs/external/docbook-sf-net-license.txt"/>
                 <text>For the included DocBook XML DTD:</text>
-                <file location="${nbroot}/libs/external/docbook-xml-license.txt"/>
+                <file location="${nb_all}/libs/external/docbook-xml-license.txt"/>
             </license>
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
-    </target>
-
-    <target name="clean" description="Clean all build products.">
-        <delete>
-            <fileset dir="src">
-                <include name="**/*.class"/>
-            </fileset>
-        </delete>
-        <delete dir="netbeans"/>
-        <delete dir="Info"/>
-        <delete dir="tmp"/>
-        <delete file="org-netbeans-modules-docbook.nbm"/>
     </target>
 
 </project>
