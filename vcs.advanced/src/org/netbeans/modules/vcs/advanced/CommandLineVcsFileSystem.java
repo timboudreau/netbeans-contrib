@@ -21,6 +21,7 @@ import java.text.*;
 import gnu.regexp.*;
 import com.netbeans.ide.util.actions.*;
 import com.netbeans.ide.util.NbBundle;
+import com.netbeans.ide.*;
 import com.netbeans.enterprise.modules.vcs.*;
 import com.netbeans.enterprise.modules.vcs.util.*;
 import com.netbeans.ide.filesystems.FileObject;
@@ -69,10 +70,27 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   private long cacheId=0;
 
   private static transient String CACHE_ROOT="vcs/cache";
+  private static transient String CONFIG_ROOT="vcs/config";
   private static transient long CACHE_LAST_ID=0;
   
   private transient VcsAction action=null;
 
+
+  //-------------------------------------------
+  public void debugClear(){
+    if( getDebug() ){
+      try{
+	TopManager.getDefault().getStdOut().reset();
+      }catch (IOException e){}
+    }
+  }
+
+  //-------------------------------------------
+  public void debug(String msg){
+    if( getDebug() ){
+      TopManager.getDefault().getStdOut().println(msg);
+    }
+  }
 
   //-------------------------------------------
   public void setImportant(boolean important){
@@ -84,7 +102,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   public VcsCache getCache(){
     return cache;
   }
+
+  //-------------------------------------------
+  public String getConfigRoot(){
+    return CONFIG_ROOT;
+  }
   
+
 
   //-------------------------------------------
   private void createDir(String path){
@@ -102,6 +126,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   private void init(){
     CACHE_ROOT=System.getProperty("netbeans.home")+File.separator+
       "system"+File.separator+"vcs"+File.separator+"cache";
+    CONFIG_ROOT=System.getProperty("netbeans.home")+File.separator+
+      "system"+File.separator+"vcs"+File.separator+"config";
     String cacheDir=CACHE_ROOT+File.separator+cacheId;
     createDir(cacheDir);
     cache=new VcsCache(this,cacheDir);
@@ -118,13 +144,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     list = a;
     setRefreshTime (REFRESH_TIME);
 
-    // this is a fast hack... to be changed
-    Properties props=UserCommand.readPredefinedProperties("predefined.properties");
-    variables=UserCommand.readVariables("st30",props);
-    commands=UserCommand.readCommands("st30",props);
-
     cacheId=getNewCacheId();
     init();
+
+    // this should read empty.properties in future - to be changed
+    Properties props=UserCommand.readPredefinedProperties(CONFIG_ROOT+File.separator+"st30.properties");
+    variables=UserCommand.readVariables(props);
+    commands=UserCommand.readCommands(props);
+
   }
 
 
@@ -278,6 +305,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
     cachedAnnotatedFullName=fullName;
     cachedAnnotatedResult=result;
+    //D.deb("result="+result);
     return result;
   }
   
@@ -311,7 +339,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   
   //-------------------------------------------
   public SystemAction[] getActions(){
-    D.deb("getActions()");
+    //D.deb("getActions()");
     if( action==null ){
       action=new VcsAction(this);
     }
@@ -595,6 +623,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     } catch (IndexOutOfBoundsException e) {
       s = null;
     }
+    D.deb("s="+s);
     return s == null ? "content/unknown" : s;
   }
 
@@ -712,6 +741,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  16   Gandalf   1.15        5/14/99  Michal Fadljevic 
  *  15   Gandalf   1.14        5/13/99  Michal Fadljevic 
  *  14   Gandalf   1.13        5/11/99  Michal Fadljevic 
  *  13   Gandalf   1.12        5/7/99   Michal Fadljevic 

@@ -89,7 +89,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 
   public BeanDescriptor getBeanDescriptor(){
-    D.deb("getBeanDescriptor()");
+    //D.deb("getBeanDescriptor()");
     return new BeanDescriptor(CommandLineVcsFileSystem.class, CommandLineVcsCustomizer.class);
   }
   
@@ -97,6 +97,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  8    Gandalf   1.7         5/14/99  Michal Fadljevic 
 *  7    Gandalf   1.6         5/4/99   Michal Fadljevic 
 *  6    Gandalf   1.5         5/4/99   Michal Fadljevic 
 *  5    Gandalf   1.4         4/30/99  Michal Fadljevic 
