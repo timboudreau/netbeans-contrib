@@ -25,11 +25,7 @@ Microsystems, Inc. All Rights Reserved.
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
     <property name="license.file" value="${nb_all}/nbbuild/standard-nbm-license.txt"/>
 
-    <target name="init">
-       <ant dir="external" target="unscramble"/>
-    </target>
-
-    <target name="compile" depends="init">
+    <target name="compile">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
             <classpath>
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
@@ -42,7 +38,7 @@ Microsystems, Inc. All Rights Reserved.
                 <!-- diff -->
                 <pathelement path="../../diff/netbeans/modules/diff.jar"/>
                 <!-- Tidy library -->
-                <fileset dir="external">
+                <fileset dir="../external">
                     <include name="Tidy*.jar"/>
                 </fileset>
                 <!-- tasklist core -->
@@ -94,10 +90,10 @@ Microsystems, Inc. All Rights Reserved.
         <delete dir="javadoc"/>
     </target>
 
-    <target name="release" depends="init">
+    <target name="release">
        <mkdir dir="netbeans/modules/ext"/>
        <copy todir="netbeans/modules/ext">
-         <fileset dir="external">
+         <fileset dir="../external">
            <include name="Tidy*.jar"/>
          </fileset>
        </copy>
