@@ -350,6 +350,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 ((CommandListener) it.next()).commandDone(vce);
             }
         }
+        CommandExecutorSupport.postprocessCommand(fileSystem, vce);
         //System.out.println("command "+vce.getCommand()+" DONE, LISTENERS DONE.");
         int exit = vce.getExitStatus();
         //String name = vce.getCommand().getDisplayName();
@@ -357,26 +358,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
         switch (exit) {
             case VcsCommandExecutor.SUCCEEDED:
                 message = g("MSG_Command_name_finished", name);
-                CommandExecutorSupport.doRefresh(fileSystem, vce);
-                CommandExecutorSupport.checkRevisionChanges(fileSystem, vce);
                 break;
             case VcsCommandExecutor.FAILED:
                 message = g("MSG_Command_name_failed", name);
-                Object refresh = cmd.getProperty(VcsCommand.PROPERTY_REFRESH_ON_FAIL);
-                if (VcsCommand.REFRESH_ON_FAIL_TRUE.equals(refresh)) {
-                    CommandExecutorSupport.doRefresh(fileSystem, vce);
-                } else if (VcsCommand.REFRESH_ON_FAIL_TRUE_ON_FOLDERS.equals(refresh)) {
-                    CommandExecutorSupport.doRefresh(fileSystem, vce, true);
-                }
                 break;
             case VcsCommandExecutor.INTERRUPTED:
                 message = g("MSG_Command_name_interrupted", name);
-                refresh = cmd.getProperty(VcsCommand.PROPERTY_REFRESH_ON_FAIL);
-                if (VcsCommand.REFRESH_ON_FAIL_TRUE.equals(refresh)) {
-                    CommandExecutorSupport.doRefresh(fileSystem, vce);
-                } else if (VcsCommand.REFRESH_ON_FAIL_TRUE_ON_FOLDERS.equals(refresh)) {
-                    CommandExecutorSupport.doRefresh(fileSystem, vce, true);
-                }
                 break;
         }
         final String finalMessage = message;

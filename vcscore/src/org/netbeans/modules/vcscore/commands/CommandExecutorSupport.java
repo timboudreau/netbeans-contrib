@@ -33,6 +33,7 @@ import org.openide.DialogDescriptor;
 import org.openide.util.UserCancelException;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.RetrievingDialog;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
@@ -245,6 +246,42 @@ public class CommandExecutorSupport extends Object {
     }
     
     /**
+     * Postprocess the command after it's execution.
+     */
+    public static void postprocessCommand(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
+        int exit = vce.getExitStatus();
+        VcsCommand cmd = vce.getCommand();
+        //String name = vce.getCommand().getDisplayName();
+        if (VcsCommandExecutor.SUCCEEDED == exit) {
+            checkForModifications(fileSystem, vce);
+            doRefresh(fileSystem, vce);
+            checkRevisionChanges(fileSystem, vce);
+        } else {
+            Object refresh = cmd.getProperty(VcsCommand.PROPERTY_REFRESH_ON_FAIL);
+            if (VcsCommand.REFRESH_ON_FAIL_TRUE.equals(refresh)) {
+                doRefresh(fileSystem, vce);
+            } else if (VcsCommand.REFRESH_ON_FAIL_TRUE_ON_FOLDERS.equals(refresh)) {
+                doRefresh(fileSystem, vce, true);
+            }
+        }
+    }
+    
+    private static void checkForModifications(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
+        if (VcsCommandIO.getBooleanProperty(vce.getCommand(), VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)) {
+            Collection files = vce.getFiles();
+            for (Iterator it = files.iterator(); it.hasNext(); ) {
+                String path = (String) it.next();
+                fileSystem.checkForModifications(path);
+                /*
+                org.openide.filesystems.FileObject fo = fileSystem.findResource(path);
+                System.out.println("fo("+path+") = "+fo);
+                 */
+            }
+        }
+    }
+
+    
+    /**
      * Performs an automatic refresh after the command finishes.
      */
     public static void doRefresh(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
@@ -258,12 +295,23 @@ public class CommandExecutorSupport extends Object {
         VcsCommand cmd = vce.getCommand();
         //String dir = vce.getPath();
         //String file = "";
-        Collection files = vce.getFiles();
-        for(Iterator it = files.iterator(); it.hasNext(); ) {
-            String fullPath = (String) it.next();
-            String dir = VcsUtilities.getDirNamePart(fullPath);
-            String file = VcsUtilities.getFileNamePart(fullPath);
-            doRefresh(fileSystem, vce.getExec(), cmd, dir, file, foldersOnly);
+        boolean doRefreshCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER);
+        boolean doRefreshParent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER);
+        /*
+        boolean doRefreshFiles = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PROCESSED_FILES);
+        if (doRefreshFiles) {
+            doRefreshFiles(fileSystem, vce.getFiles());
+        }
+         */
+        if (doRefreshCurrent || doRefreshParent) {
+            Collection files = vce.getFiles();
+            for(Iterator it = files.iterator(); it.hasNext(); ) {
+                String fullPath = (String) it.next();
+                String dir = VcsUtilities.getDirNamePart(fullPath);
+                String file = VcsUtilities.getFileNamePart(fullPath);
+                doRefresh(fileSystem, vce.getExec(), cmd, dir, file, foldersOnly,
+                doRefreshCurrent, doRefreshParent);
+            }
         }
     }
     
@@ -300,12 +348,11 @@ public class CommandExecutorSupport extends Object {
     }
     
     private static void doRefresh(VcsFileSystem fileSystem, String exec, VcsCommand cmd,
-                                  String dir, String file, boolean foldersOnly) {
+                                  String dir, String file, boolean foldersOnly,
+                                  boolean doRefreshCurrent, boolean doRefreshParent) {
         FileCacheProvider cache = fileSystem.getCacheProvider();
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
         if (statusProvider == null) return; // No refresh without a status provider
-        boolean doRefreshCurrent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER);
-        boolean doRefreshParent = VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER);
         if((doRefreshCurrent || doRefreshParent) && fileSystem.getDoAutoRefresh(dir/*(String) vars.get("DIR")*/)) { // NOI18N
             //D.deb("Now refresh folder after CheckIn,CheckOut,Lock,Unlock... commands for convenience"); // NOI18N
             fileSystem.setAskIfDownloadRecursively(false); // do not ask if using auto refresh
@@ -321,25 +368,10 @@ public class CommandExecutorSupport extends Object {
             if (!foldersOnly || cache.isDir(refreshPath)) {
                 doRefresh(fileSystem, refreshPath, rec);
             }
-            /*
-                VcsCommand listSub = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY);
-                Object execList = (listSub != null) ? listSub.getProperty(VcsCommand.PROPERTY_EXEC) : null;
-                if (execList != null && ((String) execList).trim().length() > 0) {
-                    statusProvider.refreshDirRecursive(refreshPath);
-                } else {
-                    RetrievingDialog rd = new RetrievingDialog(fileSystem, refreshPath, new javax.swing.JFrame(), false);
-                    VcsUtilities.centerWindow(rd);
-                    Thread t = new Thread(rd, "VCS Recursive Retrieving Thread - "+refreshPath); // NOI18N
-                    t.start();
-                }
-            } else {
-                statusProvider.refreshDir(refreshPath);
-            }
-             */
         }
         if (!(doRefreshCurrent || doRefreshParent)) fileSystem.removeNumDoAutoRefresh(dir); //(String)vars.get("DIR")); // NOI18N
     }
-
+    
     public static void checkRevisionChanges(VcsFileSystem fileSystem, VcsCommandExecutor vce) {
         int whatChanged = RevisionEvent.REVISION_NO_CHANGE;
         String changedRevision = null;
