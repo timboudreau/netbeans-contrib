@@ -60,7 +60,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
             in.read(b);
             in.close();
             rootIcon = new ImageIcon(b);
-            in = TopManager.class.getClassLoader().getResourceAsStream("org/openide/resources/src/sourceOptions.gif"); // NOI18N
+            in = TopManager.class.getClassLoader().getResourceAsStream("org/openide/src/resources/sourceOptions.gif"); // NOI18N
             b = new byte[in.available()];
             in.read(b);
             in.close();

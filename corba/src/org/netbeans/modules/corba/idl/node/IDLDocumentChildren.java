@@ -39,7 +39,7 @@ public class IDLDocumentChildren extends Children.Keys {
     
     public static final Object NOT_KEY = new Object ();
     
-    public static final String WAIT_ICON = "org/openide/resources/src/wait"; // NOI18N
+    public static final String WAIT_ICON = "org/openide/src/resources/wait"; // NOI18N
     
     //private org.netbeans.modules.corba.idl.src.SimpleNode src;
     private IDLElement _M_src;
