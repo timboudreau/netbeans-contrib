@@ -30,7 +30,7 @@ import org.netbeans.jellytools.nodes.FilesystemNode;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jemmy.JemmyException;
 import org.netbeans.junit.NbTestSuite;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
+import org.netbeans.jellytools.modules.vcsgeneric.cvs_profile.*;
 
 
 public class JellyOverall extends CVSStub {

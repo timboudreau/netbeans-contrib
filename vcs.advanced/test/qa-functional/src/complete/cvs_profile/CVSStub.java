@@ -34,7 +34,7 @@ import org.netbeans.jemmy.operators.JTabbedPaneOperator;
 import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardData;
 import org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardIterator;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
+import org.netbeans.jellytools.modules.vcsgeneric.cvs_profile.*;
 import org.openide.filesystems.FileSystem;
 import org.openide.util.Utilities;
 import util.History;

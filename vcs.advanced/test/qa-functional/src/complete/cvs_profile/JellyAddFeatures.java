@@ -35,7 +35,7 @@ import org.netbeans.modules.vcscore.runtime.RuntimeCommand;
 import org.netbeans.modules.vcscore.runtime.VcsRuntimeCommand;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.CVSRemoveFileAdvDialog;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.CVSRemoveFolderAdvDialog;
-import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.*;
+import org.netbeans.jellytools.modules.vcsgeneric.cvs_profile.*;
 import util.History;
 
 
