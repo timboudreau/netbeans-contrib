@@ -356,6 +356,31 @@ Microsystems, Inc. All Rights Reserved.
         <property name="needsHierarchicalOrder">
           <value>true</value>
         </property>
+        <property name="preCommands">
+          <value>ADD_LOCAL_PARENTS</value>
+        </property>
+      </command>
+      <command name="CREATE_PROJECT_CMD">
+        <!-- The same as CREATE_PROJECT, but without the pre-command to avoid loop -->
+        <run>
+          <executable value="${PCLI_CMD}"/>
+          <arg value="CreateProject ${PRIDPP} ${QFILE}"/>
+        </run>
+        <property name="onFile">
+          <value>false</value>
+	</property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
+	</property>
+        <property name="refreshParentFolder">
+          <value>true</value>
+        </property>
+        <property name="concurrentExec">
+          <value>38</value> <!-- SERIAL_ON_PACKAGE + SERIAL_WITH_PARENT + SERIAL_WITH_PENDING -->
+        </property>
+        <property name="needsHierarchicalOrder">
+          <value>true</value>
+        </property>
       </command>
       <separator />
       <command name="CHECKIN" displayName="ResourceMsg(PVCS_CHECKIN)">
@@ -621,6 +646,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+        <property name="preCommands">
+          <value>ADD_LOCAL_PARENTS</value>
+        </property>
         <property name="commandsAfterSuccess">
           <value>$[? RECURSIVE] [ADD_FILES_IN_DIR] [ADD_DIR_CMD]</value>
         </property>
@@ -630,6 +658,20 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg(PVCS_GENERAL_ACTION_ADD)</value>
         </property>
+      </command>
+      <command name="ADD_LOCAL_PARENTS">
+	<property name="exec">
+	  <value>org.netbeans.modules.vcs.profiles.commands.AddLocalParents.class CREATE_PROJECT_CMD</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+	<property name="onDir">
+	  <value>true</value>
+	</property>
+	<property name="onNonRecursiveDir">
+	  <value>true</value>
+	</property>
       </command>
       <command name="ADD_DIR_CMD">
         <run>
