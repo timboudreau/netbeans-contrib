@@ -310,6 +310,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public String getConfigFileName() {
         return configFileName;
     }
+    
+    public String getConfigFileModificationTimeStr() {
+        if (CONFIG_ROOT_FO == null) return "0";
+        FileObject fo = CONFIG_ROOT_FO.getFileObject(configFileName);
+        return fo.lastModified().toGMTString();
+    }
 
     private void setConfigFO() {
         FileSystem dfs = TopManager.getDefault ().getRepository ().getDefaultFileSystem ();
