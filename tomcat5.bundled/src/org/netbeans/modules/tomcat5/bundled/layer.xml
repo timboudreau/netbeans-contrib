@@ -19,6 +19,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="InstalledServers">
             <file name="Tomcat_instance">
                 <attr name="url" stringvalue="tomcat:home=jakarta-tomcat-5.0.27:base=jakarta-tomcat-5.0.27_base"/>
+                <attr name="displayName" stringvalue="Bundled Tomcat (5.0.27)"/>
                 <attr name="host" stringvalue="localhost"/>
                 <attr name="server_port" stringvalue="8084"/>
                 <attr name="admin_port" stringvalue="8025"/>
