@@ -81,7 +81,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
     * @return the action's icon location
     */
     protected String iconResource () {
-        return "/org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"; // NOI18N
+        return "org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"; // NOI18N
     }
 
     /** Opens packaging view. */

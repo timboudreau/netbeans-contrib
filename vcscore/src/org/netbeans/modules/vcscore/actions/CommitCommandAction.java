@@ -37,7 +37,7 @@ public class CommitCommandAction extends GeneralCommandAction {
     }
     
     protected String iconResource() {
-       return "/org/netbeans/modules/vcscore/actions/CommitCommandActionIcon.gif";
+       return "org/netbeans/modules/vcscore/actions/CommitCommandActionIcon.gif";
     }
     
     public String getName() {

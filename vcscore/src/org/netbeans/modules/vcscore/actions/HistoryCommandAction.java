@@ -37,7 +37,7 @@ public class HistoryCommandAction extends GeneralCommandAction {
     }
     
     protected String iconResource() {
-       return "/org/netbeans/modules/vcscore/actions/HistoryCommandActionIcon.gif";
+       return "org/netbeans/modules/vcscore/actions/HistoryCommandActionIcon.gif";
     }
     
     public String getName() {

@@ -36,7 +36,7 @@ public class RemoveCommandAction extends GeneralCommandAction {
     }
     
     protected String iconResource() {
-       return "/org/netbeans/modules/vcscore/actions/RemoveCommandActionIcon.gif";
+       return "org/netbeans/modules/vcscore/actions/RemoveCommandActionIcon.gif";
     }
     
     public String getName() {

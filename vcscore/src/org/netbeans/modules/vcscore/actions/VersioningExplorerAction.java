@@ -53,7 +53,7 @@ public class VersioningExplorerAction extends GeneralCommandAction {
     }
     
     protected String iconResource () {
-        return "/org/netbeans/modules/vcscore/versioning/impl/versioningExplorer.gif";
+        return "org/netbeans/modules/vcscore/versioning/impl/versioningExplorer.gif";
     }
 
     public org.openide.util.HelpCtx getHelpCtx() {

@@ -38,7 +38,7 @@ public class DiffCommandAction extends GeneralCommandAction {
     }
     
     protected String iconResource() {
-       return "/org/netbeans/modules/vcscore/actions/DiffCommandActionIcon.gif";
+       return "org/netbeans/modules/vcscore/actions/DiffCommandActionIcon.gif";
     }
     
     public String getName() {

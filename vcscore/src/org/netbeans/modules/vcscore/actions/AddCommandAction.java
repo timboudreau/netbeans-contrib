@@ -36,7 +36,7 @@ public class AddCommandAction extends GeneralCommandAction {
     }
     
     protected String iconResource() {
-       return "/org/netbeans/modules/vcscore/actions/AddCommandActionIcon.gif";
+       return "org/netbeans/modules/vcscore/actions/AddCommandActionIcon.gif";
     }
     
     public String getName() {
