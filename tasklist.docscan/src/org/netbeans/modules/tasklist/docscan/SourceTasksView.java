@@ -374,6 +374,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (job == null) {  // XXX how relates to deserialization?, is it called at all?
             handleCurrentFile();
         }
+        
+        updateButtonsState();
     }
 
     protected void componentClosed() {
@@ -1481,6 +1483,26 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         this.background = background;
     }
 
+    private void updateButtonsState() {
+        switch (getMode()) {
+            case CURRENT_FILE_MODE: 
+                currentFile.setSelected(true); 
+                openedFiles.setSelected(false); 
+                folderSelector.setSelected(false); 
+                break;
+            case OPENED_FILES_MODE: 
+                currentFile.setSelected(false); 
+                openedFiles.setSelected(true); 
+                folderSelector.setSelected(false); 
+                break;
+                
+            case SELECTED_FOLDER_MODE:
+                currentFile.setSelected(false); 
+                openedFiles.setSelected(false); 
+                folderSelector.setSelected(true); 
+                break;
+        }
+    }
 
     private static long lastUISync = System.currentTimeMillis();
 
