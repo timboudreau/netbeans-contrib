@@ -349,7 +349,14 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         } finally {
             if (visualizer != null) {
                 visualizer.setExitStatus(ec.getExitStatus());
-                if (visualizer.openAfterCommandFinish()) visualizer.open();
+                if (visualizer.openAfterCommandFinish()) {
+                    final VcsCommandVisualizer fvisualizer = visualizer;
+                    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            fvisualizer.open();
+                        }
+                    });
+                }
             }
         }
         return ec.getExitStatus();

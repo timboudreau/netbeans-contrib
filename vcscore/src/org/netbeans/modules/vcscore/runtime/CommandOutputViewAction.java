@@ -39,6 +39,13 @@ public class CommandOutputViewAction extends NodeAction {
         return g("CTL_Command_Output_GUI_View_Action"); // NOI18N
     }
 
+    /**
+     * @return false to run in AWT thread.
+     */
+    public boolean asynchronous() {
+        return false;
+    }
+    
     public void performAction(Node[] nodes) {
         for (int i = 0; i < nodes.length; i++) {
             RuntimeCommand comm = (RuntimeCommand) nodes[i].getCookie(RuntimeCommand.class);
