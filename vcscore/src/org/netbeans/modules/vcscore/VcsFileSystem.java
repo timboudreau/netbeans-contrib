@@ -2511,7 +2511,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
             //System.out.println("files = "+VcsUtilities.arrayToString(files));
             //System.out.println("cacheDir = "+cacheDir+"; is Loaded = "+((cacheDir != null) ? ""+cacheDir.isLoaded() : "x")+", is Local = "+((cacheDir != null) ? ""+cacheDir.isLocal() : "x"));
-            if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal()))) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
+            if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) ||
+                (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal())) && areOnlyHiddenFiles(files)) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
         }
         //System.out.println("children = "+files);
         //System.out.println("  children = "+VcsUtilities.arrayToString(files));
@@ -2525,6 +2526,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         return files;
+    }
+    
+    private boolean areOnlyHiddenFiles(String[] files) {
+        ArrayList fileList = new ArrayList(Arrays.asList(files));
+        fileList.remove(".nbattrs"); // NOI18N
+        fileList.remove("fileSystem.attributes"); // NOI18N
+        for (int i = 0; i < fileList.size(); i++) {
+            String file = (String) fileList.get(i);
+            if (file.endsWith("~")) fileList.remove(i--); // NOI18N
+        }
+        return fileList.size() == 0;
     }
     
     String[] filterDeadFilesOut(String name, String[] vcsFiles) {
