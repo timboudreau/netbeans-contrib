@@ -30,12 +30,6 @@ public class LineNumberPropertyEditor extends PropertyEditorSupport {
         LABEL.setHorizontalAlignment(SwingConstants.RIGHT);
     }
     
-    /**
-     * Constructor
-     */
-    public LineNumberPropertyEditor() {
-    }
-
     public boolean isPaintable() {
         return true;
     }
