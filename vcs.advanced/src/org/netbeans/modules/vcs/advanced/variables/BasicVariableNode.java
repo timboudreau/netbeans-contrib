@@ -307,7 +307,7 @@ public class BasicVariableNode extends AbstractNode {
                 //cmd.fireChanged();
             }
         });
-        set.put(new PropertySupport.ReadWrite("localDir", Boolean.TYPE, g("CTL_LocalDir"), g("HINT_LocalFile")) {
+        set.put(new PropertySupport.ReadWrite("localDir", Boolean.TYPE, g("CTL_LocalDir"), g("HINT_LocalDir")) {
             public Object getValue() {
                 //System.out.println("getName: cmd = "+cmd);
                 return new Boolean(var.isLocalDir());
