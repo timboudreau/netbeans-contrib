@@ -90,6 +90,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  5    Gandalf   1.4         4/30/99  Michal Fadljevic 
 *  4    Gandalf   1.3         4/29/99  Michal Fadljevic 
 *  3    Gandalf   1.2         4/26/99  Michal Fadljevic 
 *  2    Gandalf   1.1         4/21/99  Michal Fadljevic 
