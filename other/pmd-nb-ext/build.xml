@@ -1,17 +1,28 @@
 <?xml version="1.0"?>
+<!--
+                Sun Public License Notice
 
-<!-- Sample Ant script to create a NetBeans module and test it. -->
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
 
 <project name="pmd-nb-ext" basedir="." default="all">
 
-<!--  <property name="nb_root" location="/opt/devel/nbtrunk/nb_all"/>-->
-  <property name="nb_root" location="C:/devel/trunk"/>
-  <property name="pmdroot" location="../pmd-netbeans-0.5"/>
+  <property name="nb_root" location="../.."/>
+  <property name="pmdroot" location="../../pmd-netbeans-0.7"/>
   <path id="pmdpath">
-    <pathelement location="${pmdroot}/lib/pmd-1.01.jar"/>
+    <pathelement location="${pmdroot}/lib/pmd-1.03.jar"/>
+    <pathelement location="${pmdroot}/build/pmd.jar"/>
   </path>
 
       <target name="compile">
+        <mkdir dir="classes"/>
         <javac srcdir="src" destdir="classes" 
                deprecation="${build.compiler.deprecation}" 
                debug="${build.compiler.debug}">

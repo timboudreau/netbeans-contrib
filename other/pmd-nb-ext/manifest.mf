@@ -1,3 +1,5 @@
 OpenIDE-Module: org.netbeans.modules.pmd/1
-OpenIDE-Module-Specification-Version: 1.0
-OpenIDE-Module-Module-Dependencies: pmd
+OpenIDE-Module-Specification-Version: 1.1
+OpenIDE-Module-Display-Category: Tools
+OpenIDE-Module-Install: org/netbeans/modules/pmd/PMDInstall.class
+OpenIDE-Module-Module-Dependencies: pmd > 0.70
