@@ -3025,7 +3025,7 @@ Microsystems, Inc. All Rights Reserved.
                  PROMPT_FOR(CVS_REPOSITORY, "ResourceMsg(VAR_Repository):", "",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_Repository);;MNEMONIC_ResourceMsg(INIT_VAR_Repository_Mnemonic)),
                             VALIDATOR_FOLDER, SELECTOR_DIR)
-                 PROMPT_FOR(CVS_EXE, "ResourceMsg(VAR_EXE):", "${CVS_EXE}",
+                 PROMPT_FOR(CVS_EXE, "ResourceMsg(VAR_EXE):", "cvs",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_EXE);;MNEMONIC_ResourceMsg(VAR_EXE_Mnemonic)),
                             VALIDATOR_NON_EMPTY, SELECTOR_FILE)
           </value>
@@ -3093,7 +3093,7 @@ Microsystems, Inc. All Rights Reserved.
                         VALIDATOR_NON_EMPTY, IF_VAR_NON_EMPTY"IS_LOCAL_METHOD"_SELECTOR_DIR)
                  SELECT_RADIO(BUILT-IN, "", "true", ["ResourceMsg(VAR_BuiltIn_true)", "true", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_true);;MNEMONIC_ResourceMsg(VAR_BuiltIn_true_Mnemonic))"],
                                             ["ResourceMsg(VAR_BuiltIn_false)", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_false);;MNEMONIC_ResourceMsg(VAR_BuiltIn_false_Mnemonic))",
-                 PROMPT_FOR(CVS_EXE, "ResourceMsg(VAR_EXE):", "${CVS_EXE}",
+                 PROMPT_FOR(CVS_EXE, "ResourceMsg(VAR_EXE):", "cvs",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_EXE);;MNEMONIC_ResourceMsg(GL_VAR_EXE_Mnemonic)),
                             SELECTOR_FILE)
                  PROMPT_FOR(ENVIRONMENT_VAR_CVS_RSH, "ResourceMsg(VAR_CVS_RSH):", "ssh",
@@ -3247,7 +3247,7 @@ Microsystems, Inc. All Rights Reserved.
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_IMPORT_ReposDir);;MNEMONIC_ResourceMsg(COMMAND_IMPORT_ReposDir_Mnemonic)), VALIDATOR_NON_EMPTY)
                  SELECT_RADIO(BUILT-IN, "", "true", ["ResourceMsg(VAR_BuiltIn_true)", "true", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_true);;MNEMONIC_ResourceMsg(VAR_BuiltIn_true_Mnemonic))"],
                                             ["ResourceMsg(VAR_BuiltIn_false)", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_BuiltIn_false);;MNEMONIC_ResourceMsg(VAR_BuiltIn_false_Mnemonic))",
-                 PROMPT_FOR(CVS_EXE, "ResourceMsg(VAR_EXE):", "${CVS_EXE}",
+                 PROMPT_FOR(CVS_EXE, "ResourceMsg(VAR_EXE):", "cvs",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_EXE);;MNEMONIC_ResourceMsg(GL_VAR_EXE_Mnemonic)),
                             SELECTOR_FILE)
                  PROMPT_FOR(ENVIRONMENT_VAR_CVS_RSH, "ResourceMsg(VAR_CVS_RSH):", "ssh",
