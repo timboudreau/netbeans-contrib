@@ -16,13 +16,11 @@ package com.netbeans.developer.modules.loaders.clazz;
 import java.io.IOException;
 
 import com.netbeans.ide.filesystems.FileObject;
-import com.netbeans.ide.loaders.FileEntry;
-import com.netbeans.ide.loaders.MultiFileLoader;
-import com.netbeans.ide.loaders.DataObject;
-import com.netbeans.ide.loaders.DataObjectExistsException;
-import com.netbeans.ide.loaders.MultiDataObject;
+import com.netbeans.ide.loaders.*;
 import com.netbeans.ide.util.actions.SystemAction;
+import com.netbeans.ide.util.NbBundle;
 import com.netbeans.ide.actions.*;
+
 
 /** The DataLoader for ClassDataObjects.
 * This class is final only for performance reasons,
@@ -38,6 +36,9 @@ public final class ClassDataLoader extends MultiFileLoader {
 
   private static final char INNER_CLASS_DIVIDER = '$';
 
+  /** List of extensions recognized by this loader */
+  private static ExtensionList extensions;
+
   /** Creates a new ClassDataLoader */
   public ClassDataLoader () {
     super (ClassDataObject.class);
@@ -45,6 +46,8 @@ public final class ClassDataLoader extends MultiFileLoader {
   }
 
   private void initialize () {
+    setDisplayName(NbBundle.getBundle(this).
+                   getString("PROP_ClassLoader_Name"));
     setActions (new SystemAction [] {
       SystemAction.get(CustomizeBeanAction.class),
       null,
@@ -122,12 +125,6 @@ public final class ClassDataLoader extends MultiFileLoader {
     return new FileEntry.Numb(secondaryFile);
   }
 
-  /** finds file with the same name and specified extension in the same folder as param javaFile */
-  static protected FileObject findFile(FileObject javaFile, String ext) {
-    if (javaFile == null) return null;
-    return javaFile.getParent().getFileObject (javaFile.getName(), ext);
-  }
-
   /** Utility method, finds primary class file for given class file.
   * (input class file can be innerclass class file) */
   private FileObject findPrimaryForClass (final FileObject fo) {
@@ -142,10 +139,30 @@ public final class ClassDataLoader extends MultiFileLoader {
     return fo;
   }
 
+  /** @return The list of extensions this loader recognizes
+  * (default list constains class, ser extensions)
+  */
+  public ExtensionList getExtensions () {
+    if (extensions == null) {
+      extensions = new ExtensionList();
+      extensions.addExtension(CLASS_EXT);
+      extensions.addExtension(SER_EXT);
+    }
+    return extensions;
+  }
+
+  /** Sets the extension list for this data loader.
+  * @param ext new list of extensions.
+  */
+  public void setExtensions(ExtensionList ext) {
+    extensions = ext;
+  }
+
 }
 
 /*
  * Log
+ *  4    Gandalf   1.3         2/16/99  David Simonek   
  *  3    Gandalf   1.2         1/19/99  David Simonek   
  *  2    Gandalf   1.1         1/6/99   Ian Formanek    Reflecting change in 
  *       datasystem package
