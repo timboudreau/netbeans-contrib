@@ -24,8 +24,12 @@ import java.util.Set;
  * @author  Jaroslav Tulach
  */
 public final class ContentDiff extends Object {
-    /** names of all pages to compare */
-    private Set allFiles;
+    /** base URLs */
+    private URL base1;
+    private URL base2;
+    
+    /** names of all pages <String, Page> */
+    private HashMap allPages;
     /** source to read or null */
     private Source source;
     /** map of dependencies between pages */
@@ -34,9 +38,25 @@ public final class ContentDiff extends Object {
     private Cluster[] clusters;
     
     /** no instances outside */
-    private ContentDiff (Source source, Set allFiles) {
+    private ContentDiff (Source source, URL base1, URL base2) {
         this.source = source;
-        this.allFiles = allFiles;
+        this.base1 = base1;
+        this.base2 = base2;
+    }
+    
+    /** For a given file name finds a page that describes it.
+     * @param name the name to search for
+     * @return page for that name or null
+     */
+    public Page findPage (String name) {
+        return (Page)allPages.get (name);
+    }
+    
+    /** All pages in the compared documents.
+     * @return Set<Page>
+     */
+    public Set getPages () {
+        return new HashSet (allPages.values ());
     }
     
 
@@ -49,12 +69,12 @@ public final class ContentDiff extends Object {
         }
         
         try {
-            List sort = org.openide.util.Utilities.topologicalSort (allFiles, deps);
+            List sort = org.openide.util.Utilities.topologicalSort (allPages.keySet (), deps);
             
             // ok, no cycles in between pages
             clusters = new Cluster[sort.size ()];
             for (int i = 0; i < clusters.length; i++) {
-                clusters[i] = new Cluster (Collections.singleton (sort.get (i)));
+                clusters[i] = new Cluster (Collections.singleton (findPage ((String)sort.get (i))));
             }
         } catch (org.openide.util.TopologicalSortException ex) {
             // ok, there are cycles
@@ -62,16 +82,22 @@ public final class ContentDiff extends Object {
             Set[] sets = ex.topologicalSets();
             clusters = new Cluster[sets.length];
             for (int i = 0; i < clusters.length; i++) {
-                clusters[i] = new Cluster (sets[i]);
+                HashSet s = new HashSet ();
+                Iterator it = sets[i].iterator();
+                while (it.hasNext ()) {
+                    s.add (findPage ((String)it.next ()));
+                }
+                clusters[i] = new Cluster (s);
             }
         }
         
-        // references <String -> Cluster>
+        // references <Page -> Cluster>
         HashMap refs = new HashMap ();
         for (int i = 0; i < clusters.length; i++) {
             java.util.Iterator it = clusters[i].getPages ().iterator ();
             while (it.hasNext()) {
-                refs.put (it.next (), clusters[i]);
+                Page p = (Page)it.next ();
+                refs.put (p, clusters[i]);
             }
         }
         
@@ -79,11 +105,13 @@ public final class ContentDiff extends Object {
             Set references = new HashSet ();
             java.util.Iterator it = clusters[i].getPages ().iterator ();
             while (it.hasNext()) {
-                Collection c = (Collection)deps.get (it.next ());
+                Page contained = (Page)it.next ();
+                Collection c = (Collection)deps.get (contained.getFileName());
                 if (c != null) {
                     Iterator d = c.iterator();
                     while (d.hasNext()) {
-                        references.add (refs.get (d.next ()));
+                        String pageName = (String)d.next ();
+                        references.add (refs.get (findPage (pageName)));
                     }
                 }
             }
@@ -96,11 +124,6 @@ public final class ContentDiff extends Object {
     }
     
     
-    
-    /** @param removed 
-     */
-    private void pageAddedRemoved (String filename, boolean removed) {
-    }
     
     /** Parses the page for URL dependencies */
     private void parseHRefs (URL page, String name, URL base) throws IOException {
@@ -133,10 +156,13 @@ public final class ContentDiff extends Object {
      * @return result of comparation
      */
     public static ContentDiff diff (URL base1, Set files1, URL base2, Set files2, Source source) throws IOException {
+        
         Set allFiles = new HashSet (files1);
         allFiles.addAll (files2);
+
+        HashMap allPages = new HashMap (allFiles.size () * 4 / 3);
         
-        ContentDiff result = new ContentDiff (source, allFiles);
+        ContentDiff result = new ContentDiff (source, base1, base2);
         
         Iterator names = allFiles.iterator();
         while (names.hasNext ()) {
@@ -147,26 +173,21 @@ public final class ContentDiff extends Object {
             boolean isIn1 = files1.contains (fileName);
             if (isIn1 != files2.contains (fileName)) {
                 // page is either missing or added
-                result.pageAddedRemoved (fileName, isIn1);
+                allPages.put (fileName, result.new Page (fileName, isIn1));
                 if (isIn1) {
                     result.parseHRefs (f1, fileName, base1);
                 } else {
                     result.parseHRefs (f2, fileName, base2);
                 }
             } else {
+                allPages.put (fileName, result.new Page (fileName));
                 // parse the diffs
                 result.parseHRefs (f1, fileName, base1);
                 result.parseHRefs (f2, fileName, base2);
-                /*
-                Reader r1 = source.getReader (f1);
-                Reader r2 = source.getReader (f2);
-                
-                r1.close ();
-                r2.close ();
-                 */
             }
         }
-            
+
+        result.allPages = allPages;
             
         return result;
     }
@@ -185,7 +206,7 @@ public final class ContentDiff extends Object {
     /** Describes a set of pages that seem to be related. E.g. refer to each 
      * other.
      */
-    public static final class Cluster extends Object {
+    public final class Cluster extends Object {
         /** set of <String> */
         private Set pages;
         /** reference clusters */
@@ -197,7 +218,7 @@ public final class ContentDiff extends Object {
         }
         
         /** Names of pages that are the in the cluster.
-         * @return set of <String>
+         * @return set of <Page>
          */
         public Set getPages () {
             return pages;
@@ -209,4 +230,102 @@ public final class ContentDiff extends Object {
             return references;
         }
     } // end of Cluster
+    
+    
+    /** Describes one page in old or new sources.
+     */
+    public final class Page extends Object {
+        /** name of the page */
+        private String name;
+        /** added, removed or changed */
+        private Boolean added;
+        /** how much this page changed */
+        private float change = -1;
+        
+        Page (String name) {
+            this.name = name;
+        }
+        
+        Page (String name, boolean removed) {
+            this (name);
+            added = removed ? Boolean.FALSE : Boolean.TRUE;
+        }
+        
+        /** @return the file name of the page 
+         */
+        public String getFileName () {
+            return name;
+        }
+        
+        /** @return true if the page was added
+         */
+        public boolean isAdded () {
+            return Boolean.TRUE.equals (added);
+        }
+        
+        /** @return true if the page was removed
+         */
+        public boolean isRemoved () {
+            return Boolean.FALSE.equals (added);
+        }
+        
+        /** Writes the differences page into provided writer. 
+         * @param w writer
+         * @exception IOException if I/O fails
+         */
+        public void writeDiff (Writer w) throws IOException {
+            Reader r1 = isAdded() ? new StringReader ("") : source.getReader (new URL (base1, getFileName()));
+            Reader r2 = isRemoved () ? new StringReader ("") : source.getReader (new URL (base2, getFileName()));
+            
+            HtmlDiff[] res = HtmlDiff.diff (r1, r2);
+
+            int len = 0;
+            int diff = 0;
+            for (int i = 0; i < res.length; i++) {
+                if (res[i].isDifference()) {
+                    // put there both
+                    w.write ("<strike>");
+                    w.write (res[i].getOld());
+                    len += res[i].getOld ().length();
+                    diff += res[i].getOld ().length();
+                    w.write ("</strike><span style=\"background: #FFFF00\">");
+                    w.write (res[i].getNew());
+                    len += res[i].getNew ().length();
+                    diff += res[i].getNew ().length();
+                    w.write ("</span>");
+                } else {
+                    w.write (res[i].getNew ());
+                    len += 2 * res[i].getNew ().length();
+                }
+            }
+            r1.close ();
+            r2.close ();
+            
+            if (change < 0.0) {
+                change = ((float)diff) / ((float)len);
+            }
+        }
+        
+        /** Getter for the % of diffs in old and new version. It is wiser, 
+         * but not necessary, to call {@link #writeDiff} first.
+         *
+         * @return value from 0.0 to 1.0
+         */
+        public float getChanged () {
+            if (added != null) {
+                return 1.0f;
+            }
+            
+            if (change < 0.0) {
+                // this method computes the change
+                try {
+                    writeDiff (new StringWriter ());
+                } catch (IOException ex) {
+                    org.openide.ErrorManager.getDefault ().notify (ex);
+                }
+            }
+            return change < 0.0 ? 0.0f : change;
+        }
+        
+    } // end of Page
 }

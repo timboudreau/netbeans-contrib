@@ -18,7 +18,7 @@ import junit.framework.*;
 
 import org.netbeans.junit.*;
 
-
+import org.netbeans.modules.htmldiff.ContentDiff.*;
 
 /** Test diff for set of pages.
  *
@@ -93,7 +93,7 @@ public final class ContentDiffTest extends NbTestCase {
         assertNotNull (diff);
         assertEquals ("One cluster", 1, diff.getClusters().length);
         assertEquals ("One page", 1, diff.getClusters()[0].getPages ().size ());
-        assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains ("index.html"));
+        assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains (diff.findPage ("index.html")));
     }
     
     public void testSimplePageWithURL () throws Exception {
@@ -106,7 +106,7 @@ public final class ContentDiffTest extends NbTestCase {
         assertNotNull (diff);
         assertEquals ("One cluster", 1, diff.getClusters().length);
         assertEquals ("One page", 1, diff.getClusters()[0].getPages ().size ());
-        assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains ("index.html"));
+        assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains (diff.findPage ("index.html")));
     }
     
     public void testSimplePageWithExternalURL () throws Exception {
@@ -119,7 +119,7 @@ public final class ContentDiffTest extends NbTestCase {
         assertNotNull (diff);
         assertEquals ("One cluster", 1, diff.getClusters().length);
         assertEquals ("One page", 1, diff.getClusters()[0].getPages ().size ());
-        assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains ("index.html"));
+        assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains (diff.findPage ("index.html")));
     }
 
     public void testTwoPages () throws Exception {
@@ -139,6 +139,21 @@ public final class ContentDiffTest extends NbTestCase {
         
         assertEquals ("No refs outside", 0, diff.getClusters()[0].getReferences ().length);
         assertEquals ("No refs outside", 0, diff.getClusters()[1].getReferences ().length);
+        
+        assertEquals ("Two pages", 2, diff.getPages ().size ());
+        
+        Page index = diff.findPage ("index.html");
+        assertTrue ("Is there", diff.getPages ().contains (index));
+        assertTrue ("Is removed", index.isRemoved());
+        assertFalse("Is not added", index.isAdded ());
+        
+        Page n = diff.findPage ("new.html");
+        assertTrue ("Is there", diff.getPages ().contains (n));
+        assertFalse ("Is not removed", n.isRemoved());
+        assertTrue ("Is added", n.isAdded ());
+        
+        assertEquals ("Complete change for removed page", 1.0f, index.getChanged(), 0.01);
+        assertEquals ("Complete change for added page", 1.0f, n.getChanged (), 0.01);
     }
     
     public void testTwoPagesInNewVersionReferingToEachOther () throws Exception {
@@ -155,8 +170,8 @@ public final class ContentDiffTest extends NbTestCase {
         assertNotNull (diff);
         assertEquals ("One cluster", 1, diff.getClusters().length);
         assertEquals ("Both pages there", 2, diff.getClusters()[0].getPages ().size ());
-        assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains ("index.html"));
-        assertTrue ("Cluster new.html", diff.getClusters()[0].getPages ().contains ("new.html"));
+        assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains (diff.findPage ("index.html")));
+        assertTrue ("Cluster new.html", diff.getClusters()[0].getPages ().contains (diff.findPage ("new.html")));
     }
     
     public void testOnePageRefersToAnother () throws Exception {
@@ -171,8 +186,8 @@ public final class ContentDiffTest extends NbTestCase {
         
         assertNotNull (diff);
         assertEquals ("Two clusters", 2, diff.getClusters().length);
-        assertTrue ("First contains index.html as it is the `root`", diff.getClusters()[0].getPages ().contains ("index.html"));
-        assertTrue ("Second contains new.html", diff.getClusters()[1].getPages ().contains ("new.html"));
+        assertTrue ("First contains index.html as it is the `root`", diff.getClusters()[0].getPages ().contains (diff.findPage ("index.html")));
+        assertTrue ("Second contains new.html", diff.getClusters()[1].getPages ().contains (diff.findPage ("new.html")));
         
         assertEquals ("There is a dep from first cluster to the other",
             diff.getClusters()[1], 
