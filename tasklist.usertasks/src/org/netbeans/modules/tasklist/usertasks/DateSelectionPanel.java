@@ -37,6 +37,9 @@ import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
  */
 public class DateSelectionPanel extends javax.swing.JPanel
     implements EnhancedCustomPropertyEditor {
+
+    private static final long serialVersionUID = 1;
+
     /**
      * A calendar object I use for varius things (mostly for converting values
      * to string representation...
@@ -296,6 +299,9 @@ public class DateSelectionPanel extends javax.swing.JPanel
      * An inner class used by the table
      */
     private class DateSelectionTableModel extends AbstractTableModel {
+
+        private static final long serialVersionUID = 1;
+
         private Object            columnNames[];
         private GregorianCalendar calendar, today;
         private Object            days[][];
@@ -506,6 +512,9 @@ public class DateSelectionPanel extends javax.swing.JPanel
      * in red...
      */
     private static class CalendarRenderer extends DefaultTableCellRenderer {
+
+        private static final long serialVersionUID = 1;
+
         private Integer today;
         private Color   defaultColor;
         

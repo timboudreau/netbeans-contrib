@@ -24,6 +24,9 @@ import java.awt.*;
  * @author Petr Kuzel
  */
 final class FilterSourceTasksAction extends FilterAction {
+
+    private static final long serialVersionUID = 1;
+
     protected Component createSubpanel() {
         return null;
     }

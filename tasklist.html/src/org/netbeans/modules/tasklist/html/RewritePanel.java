@@ -33,7 +33,9 @@ import org.openide.util.NbBundle;
  */
 public class RewritePanel extends javax.swing.JPanel 
      implements ActionListener {
-    
+
+    private static final long serialVersionUID = 1;
+
     private RewriteAction action;
     private Document doc;
     private DataObject dobj;

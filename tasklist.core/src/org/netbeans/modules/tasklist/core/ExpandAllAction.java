@@ -23,7 +23,10 @@ import org.openide.util.actions.CallableSystemAction;
  * @author Tor Norbye 
  */
 public final class ExpandAllAction extends CallableSystemAction {
-    /** 
+
+    private static final long serialVersionUID = 1;
+
+    /**
      * Do the actual expansion
      */    
     public void performAction() {

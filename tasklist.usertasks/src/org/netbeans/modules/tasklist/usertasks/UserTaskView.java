@@ -61,6 +61,9 @@ import org.openide.windows.WindowManager;
  * @author Tor Norbye
  */
 public class UserTaskView extends TaskListView implements TaskListener {
+
+    private static final long serialVersionUID = 1;
+
     private static final Logger LOGGER = TLUtils.getLogger(UserTaskView.class);
     
     static {

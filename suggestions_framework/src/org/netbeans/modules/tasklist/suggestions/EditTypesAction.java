@@ -33,7 +33,9 @@ import org.openide.DialogDisplayer;
  * @author Tor Norbye */
 public final class EditTypesAction extends CallableSystemAction
     implements ActionPerformer {
-    
+
+    private static final long serialVersionUID = 1;
+
     public void performAction() {
         TypesCustomizer panel = new TypesCustomizer();
         panel.setPreferredSize(new Dimension(550,550));

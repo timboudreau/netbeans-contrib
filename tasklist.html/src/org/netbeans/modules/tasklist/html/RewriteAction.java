@@ -53,6 +53,8 @@ import org.w3c.tidy.*;
 public class RewriteAction extends NodeAction 
      implements ErrorReporter  {
 
+    private static final long serialVersionUID = 1;
+
      protected boolean asynchronous() {
          return false;
      }

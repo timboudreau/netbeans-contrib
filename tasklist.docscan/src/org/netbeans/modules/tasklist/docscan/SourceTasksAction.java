@@ -31,6 +31,8 @@ import org.netbeans.modules.tasklist.core.Background;
  */
 public final class SourceTasksAction extends CallableSystemAction {
 
+    private static final long serialVersionUID = 1;
+
     protected boolean asynchronous() {
         return false;
     }

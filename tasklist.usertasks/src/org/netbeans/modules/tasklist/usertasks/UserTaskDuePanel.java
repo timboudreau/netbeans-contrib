@@ -27,7 +27,9 @@ import org.openide.awt.Mnemonics;
  * @author  Tor Norbye
  */
 public class UserTaskDuePanel extends javax.swing.JPanel {
-    
+
+    private static final long serialVersionUID = 1;
+
     /** Creates new form UserTaskDuePanel */
     public UserTaskDuePanel() {
         initComponents();

@@ -57,7 +57,10 @@ import org.openide.awt.Mnemonics;
  */
 public final class TypesCustomizer extends javax.swing.JPanel
     implements ListSelectionListener {
-    /** 
+
+    private static final long serialVersionUID = 1;
+
+    /**
      * Creates new form TypesCustomizer 
      */
     public TypesCustomizer() {
@@ -196,6 +199,9 @@ public final class TypesCustomizer extends javax.swing.JPanel
      * TableModel for SuggestionTypes
      */
     private static class SuggTypesTableModel extends AbstractTableModel {
+
+        private static final long serialVersionUID = 1;
+
         private static String[] columnNames;
         
         static {

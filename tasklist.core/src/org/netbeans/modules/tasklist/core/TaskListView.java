@@ -74,6 +74,9 @@ import org.openide.util.actions.CallbackSystemAction;
  */
 public abstract class TaskListView extends TopComponent
         implements TaskListener, ExplorerManager.Provider, Lookup.Provider, TaskSelector {
+
+    private static final long serialVersionUID = 1;
+
     private static final Logger LOGGER = TLUtils.getLogger(TaskListView.class);
     
     static {

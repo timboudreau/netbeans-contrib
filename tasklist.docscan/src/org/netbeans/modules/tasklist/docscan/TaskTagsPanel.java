@@ -41,6 +41,8 @@ import java.awt.event.ActionListener;
 public final class TaskTagsPanel extends javax.swing.JPanel
         implements EnhancedCustomPropertyEditor, ActionListener {
 
+    private static final long serialVersionUID = 1;
+
     private DefaultTableModel model = null;
 
     /** Creates new form TaskTagsPanel */

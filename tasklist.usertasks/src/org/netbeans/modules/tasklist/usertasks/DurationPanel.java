@@ -22,6 +22,9 @@ import javax.swing.SpinnerNumberModel;
  * @author Tim Lebedkov
  */
 public class DurationPanel extends javax.swing.JPanel {
+
+    private static final long serialVersionUID = 1;
+
     /**
      * Creates new form DurationPanel
      */

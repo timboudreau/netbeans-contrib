@@ -20,6 +20,8 @@ import org.openide.options.SystemOption;
  */
 public final class CopyrightSettings extends SystemOption {
 
+    private static final long serialVersionUID = 1;
+
     public static final String PROP_SCAN_COPYRIGHT = "scanCopyright";	//NOI18N
 
     /**

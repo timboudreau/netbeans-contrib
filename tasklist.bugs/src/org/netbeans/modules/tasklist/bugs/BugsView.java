@@ -29,6 +29,8 @@ import org.openide.util.Utilities;
  */
 public class BugsView extends TaskListView implements TaskListener {
 
+    private static final long serialVersionUID = 1;
+
     final static String CATEGORY = "bugs"; // NOI18N
     
     public BugsView() {

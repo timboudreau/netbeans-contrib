@@ -29,8 +29,7 @@ import org.openide.nodes.Node;
  */
 public class TaskListDataObject extends MultiDataObject implements OpenCookie {
 
-    /** Serial version number */
-    static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1;
 
     public TaskListDataObject(FileObject pf, TaskListLoader loader)
 			    throws DataObjectExistsException {

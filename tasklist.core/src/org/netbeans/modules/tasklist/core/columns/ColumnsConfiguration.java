@@ -13,32 +13,14 @@
 
 package org.netbeans.modules.tasklist.core.columns;
 
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Toolkit;
-import java.awt.font.FontRenderContext;
-import java.beans.PropertyChangeSupport;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Map;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 import javax.swing.table.TableColumn;
 
 import org.netbeans.modules.tasklist.core.ColumnProperty;
 import org.netbeans.modules.tasklist.core.TaskListView;
-import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.Repository;
 
 /**
  * View's columns

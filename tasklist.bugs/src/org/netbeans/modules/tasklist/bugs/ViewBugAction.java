@@ -24,6 +24,9 @@ import org.openide.util.actions.NodeAction;
    @author Tor Norbye
 */
 public class ViewBugAction extends NodeAction {
+
+    private static final long serialVersionUID = 1;
+
     protected boolean asynchronous() {
         return false;
     }

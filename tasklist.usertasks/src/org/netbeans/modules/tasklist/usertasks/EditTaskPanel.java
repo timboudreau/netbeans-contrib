@@ -61,6 +61,9 @@ import org.openide.DialogDisplayer;
  * @author Tim Lebedkov
  */
 class EditTaskPanel extends JPanel implements ActionListener {
+
+    private static final long serialVersionUID = 1;
+
     private static final Logger LOGGER = TLUtils.getLogger(EditTaskPanel.class);
     
     static {

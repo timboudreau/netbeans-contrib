@@ -29,6 +29,8 @@ import java.awt.*;
  */
 public class GoToTaskAction extends NodeAction {
 
+    private static final long serialVersionUID = 1;
+
     protected boolean asynchronous() {
         return false;
     }

@@ -26,7 +26,9 @@ import javax.swing.text.*;
  * @author  Tor Norbye
  */
 public class ConfPanel extends javax.swing.JPanel {
-    
+
+    private static final long serialVersionUID = 1;
+
     /** Creates new form ConfPanel */
     public ConfPanel(String beforeDesc, String beforeContents,
                      String afterDesc, String afterContents,

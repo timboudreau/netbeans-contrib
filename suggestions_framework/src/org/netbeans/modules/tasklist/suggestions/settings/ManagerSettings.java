@@ -40,6 +40,8 @@ import java.beans.IntrospectionException;
  */
 public final class ManagerSettings implements Node.Handle {
 
+    private static final long serialVersionUID = 1;
+
     public static final String AFTER_OPEN_SCAN_DELAY = "showScanDelay";
     public static final String AFTER_EDIT_SCAN_DELAY = "editScanDelay";
 

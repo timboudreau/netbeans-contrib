@@ -24,6 +24,8 @@ import org.openide.util.actions.CallableSystemAction;
  * @author Tor Norbye */
 public class ViewBugListAction extends CallableSystemAction {
 
+    private static final long serialVersionUID = 1;
+
     public void performAction() {
 	    show();
     }

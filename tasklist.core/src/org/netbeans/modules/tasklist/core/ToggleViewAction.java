@@ -35,6 +35,9 @@ import org.openide.windows.WindowManager;
  */
 public abstract class ToggleViewAction extends BooleanStateAction implements
 PropertyChangeListener, Presenter.Menu {
+
+    private static final long serialVersionUID = 1;
+
     private boolean block;
     private String mode = "output"; // NOI18N
     private WeakReference activated;

@@ -27,6 +27,9 @@ import org.openide.explorer.view.TreeTableView;
 // JTable!
 // todo comments
 final class MyTreeTableView extends TreeTableView implements TreeTableIntf {
+
+    private static final long serialVersionUID = 1;
+
     public MyTreeTableView() {
 
         JTable table = treeTable;

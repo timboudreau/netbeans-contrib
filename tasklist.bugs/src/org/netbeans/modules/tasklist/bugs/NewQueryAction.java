@@ -42,6 +42,8 @@ import org.openide.windows.WindowManager;
  */
 public class NewQueryAction extends NodeAction {
 
+    private static final long serialVersionUID = 1;
+
     protected boolean enable(Node[] node) {
         return true;
     }

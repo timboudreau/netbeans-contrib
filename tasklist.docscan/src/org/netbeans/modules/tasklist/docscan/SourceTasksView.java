@@ -57,6 +57,8 @@ import org.netbeans.modules.tasklist.client.SuggestionPriority;
  */
 final class SourceTasksView extends TaskListView implements SourceTasksAction.ScanProgressMonitor, SuggestionView {
 
+    private static final long serialVersionUID = 1;
+
     // The category should be DIFFERENT from the category used
     // for the default suggestion view (the active scanning view)
     // such that the "Show Suggestions View" action does not
@@ -429,6 +431,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private class ScanProgressBar extends JProgressBar {
+
+        private static final long serialVersionUID = 1;
+
         public String getToolTipText() {
             if (scannedFolder != null) {
                 return createLabel(scannedFolder);
@@ -584,6 +589,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     class DropDown extends JButton {
+
+        private static final long serialVersionUID = 1;
 
         DropDown() {
             super(new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/dropdown.gif")));  // NOI18N
@@ -963,6 +970,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private class StopAction extends AbstractAction {
+
+        private static final long serialVersionUID = 1;
+
         public void actionPerformed(ActionEvent e) {
             if (getStop().isVisible()) {
                 handleStop();
@@ -971,6 +981,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private static class DelegateAction extends AbstractAction {
+
+        private static final long serialVersionUID = 1;
+
         AbstractButton target;
 
         DelegateAction(AbstractButton target) {

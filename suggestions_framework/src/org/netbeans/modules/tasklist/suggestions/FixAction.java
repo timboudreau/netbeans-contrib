@@ -48,6 +48,9 @@ import org.netbeans.modules.tasklist.core.*;
  */
 
 public final class FixAction extends NodeAction {
+
+    private static final long serialVersionUID = 1;
+
     protected boolean asynchronous() {
         return false;
     }

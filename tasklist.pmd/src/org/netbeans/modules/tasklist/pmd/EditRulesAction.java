@@ -37,6 +37,9 @@ import pmd.config.ui.RuleEditor;
  */
 
 public class EditRulesAction extends NodeAction {
+
+    private static final long serialVersionUID = 1;
+
     protected boolean asynchronous() {
         return false;
     }

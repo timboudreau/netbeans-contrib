@@ -55,6 +55,9 @@ import org.openide.util.NbBundle;
  * @author serff
  */
 public class BugzillaQueryPanel extends JPanel implements QueryPanelIF {
+
+    private static final long serialVersionUID = 1;
+
     /** A panel at the top to hold the combobox and label */
     private JPanel mTopPanel;
     /** a panel that holds the query part */

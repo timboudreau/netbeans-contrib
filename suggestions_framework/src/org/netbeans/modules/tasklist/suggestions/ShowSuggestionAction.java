@@ -30,6 +30,9 @@ import org.openide.text.Line;
  * @author Tor Norbye
  */
 public class ShowSuggestionAction extends GoToTaskAction {
+
+    private static final long serialVersionUID = 1;
+
     public String getName() {
         return NbBundle.getMessage(ShowSuggestionAction.class, "LBL_Goto"); // NOI18N
     }

@@ -13,40 +13,20 @@
 
 package org.netbeans.modules.tasklist.suggestions;
 
-import java.io.Serializable;
-import java.awt.MenuShortcut;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.event.MenuListener;
-import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-import javax.swing.JRadioButtonMenuItem;
 
 import javax.swing.event.*;
 import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JMenu;
 
-import org.openide.NotifyDescriptor;
-import org.openide.windows.Mode;
-import org.openide.windows.TopComponent;
-import org.openide.windows.Workspace;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.*;
 import org.openide.awt.*;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.XMLDataObject;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
-import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 
 /**
@@ -60,6 +40,8 @@ import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
  */
 public final class EnableAction extends CallableSystemAction
     implements Presenter.Menu {
+
+    private static final long serialVersionUID = 1;
 
     public EnableAction() {
     }
