@@ -42,6 +42,8 @@ import org.netbeans.modules.vcscore.commands.*;
 public class VcsAction extends NodeAction implements ActionListener {
     private Debug E=new Debug("VcsAction", true); // NOI18N
     private Debug D=E;
+    
+    protected boolean REMOVE_DISABLED = false;
 
     protected VcsFileSystem fileSystem = null;
     protected Collection selectedFileObjects = null;
@@ -392,6 +394,35 @@ public class VcsAction extends NodeAction implements ActionListener {
             //else D.deb(fileName+" is NOT important");
         }
     }
+    
+    private Set getSelectedFileStatusAttributes() {
+        Set statuses = new HashSet();
+        FileStatusProvider statusProv = fileSystem.getStatusProvider();
+        if (statusProv != null) {
+            if (selectedFileObjects != null) {
+                for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
+                    FileObject fo = (FileObject) it.next();
+                    String path = fo.getPackageNameExt('/', '.');
+                    String status = statusProv.getFileStatus(path);
+                    if (status != null) statuses.add(status);
+                }
+            } else {
+                Node[] nodes = getActivatedNodes();
+                for (int i = 0; i < nodes.length; i++) {
+                    DataObject dd = (DataObject) (nodes[i].getCookie(DataObject.class));
+                    if (dd == null) continue;
+                    Set files = dd.files();
+                    for (Iterator it = files.iterator(); it.hasNext(); ) {
+                        FileObject fo = (FileObject) it.next();
+                        String path = fo.getPackageNameExt('/', '.');
+                        String status = statusProv.getFileStatus(path);
+                        if (status != null) statuses.add(status);
+                    }
+                }
+            }
+        }
+        return statuses;
+    }
 
     /**
      * Create the command menu item.
@@ -427,8 +458,8 @@ public class VcsAction extends NodeAction implements ActionListener {
     /**
      * Add a popup submenu.
      */
-    private void addMenu(Node commands, JMenu parent,
-                        boolean onDir, boolean onFile, boolean onRoot) {
+    private void addMenu(Node commands, JMenu parent, boolean onDir, boolean onFile,
+                         boolean onRoot, Set statuses) {
         Children children = commands.getChildren();
         for (Enumeration subnodes = children.nodes(); subnodes.hasMoreElements(); ) {
             Node child = (Node) subnodes.nextElement();
@@ -446,6 +477,10 @@ public class VcsAction extends NodeAction implements ActionListener {
 
                 continue;
             }
+            boolean disabled = VcsUtilities.matchQuotedStringToSet(
+                (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
+            if (disabled && REMOVE_DISABLED) continue;
+            JMenuItem item;
             if (!child.isLeaf()) {
                 JMenu submenu;
                 String[] props = cmd.getPropertyNames();
@@ -454,11 +489,15 @@ public class VcsAction extends NodeAction implements ActionListener {
                 //} else {
                 //    submenu = new JMenuPlus();
                 //}
-                addMenu(child, submenu, onDir, onFile, onRoot);
+                addMenu(child, submenu, onDir, onFile, onRoot, statuses);
                 parent.add(submenu);
+                item = submenu;
             } else {
-                JMenuItem item = createItem(cmd.getName());
+                item = createItem(cmd.getName());
                 parent.add(item);
+            }
+            if (disabled) {
+                item.setEnabled(false);
             }
         }
     }
@@ -467,20 +506,6 @@ public class VcsAction extends NodeAction implements ActionListener {
      * Get a menu item that can present this action in a <code>JPopupMenu</code>.
      */
     public JMenuItem getPopupPresenter() {
-        JInlineMenu inlineMenu = new JInlineMenu();
-        ArrayList menuItems = new ArrayList();
-        for (int i = 0; i < actionCommandsSubTrees.length; i++) {
-            JMenuItem menuItem = getPopupPresenter(actionCommandsSubTrees[i]);
-            if (menuItem != null) menuItems.add(menuItem);
-        }
-        inlineMenu.setMenuItems((JMenuItem[]) menuItems.toArray(new JMenuItem[menuItems.size()]));
-        return inlineMenu;
-    }
-    
-    /**
-     * Get a menu item that can present this action in a <code>JPopupMenu</code>.
-     */
-    private JMenuItem getPopupPresenter(Node commandRoot) {
         boolean onRoot = isOnRoot();
         boolean onDir;
         boolean onFile;
@@ -490,6 +515,23 @@ public class VcsAction extends NodeAction implements ActionListener {
             onDir = isOnDirectory();
             onFile = isOnFile();
         }
+        Set statuses = getSelectedFileStatusAttributes();
+        JInlineMenu inlineMenu = new JInlineMenu();
+        ArrayList menuItems = new ArrayList();
+        for (int i = 0; i < actionCommandsSubTrees.length; i++) {
+            JMenuItem menuItem = getPopupPresenter(actionCommandsSubTrees[i], onDir,
+                                                   onFile, onRoot, statuses);
+            if (menuItem != null) menuItems.add(menuItem);
+        }
+        inlineMenu.setMenuItems((JMenuItem[]) menuItems.toArray(new JMenuItem[menuItems.size()]));
+        return inlineMenu;
+    }
+    
+    /**
+     * Get a menu item that can present this action in a <code>JPopupMenu</code>.
+     */
+    private JMenuItem getPopupPresenter(Node commandRoot, boolean onDir, boolean onFile,
+                                        boolean onRoot, Set statuses) {
         String name = commandRoot.getDisplayName();
         /*
         if (name == null) {
@@ -497,7 +539,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
          */
         JMenuItem menu = new JMenuPlus(name);
-        addMenu(commandRoot, /*first, lastOrder, */(JMenu) menu, onDir, onFile, onRoot);
+        addMenu(commandRoot, /*first, lastOrder, */(JMenu) menu, onDir, onFile, onRoot, statuses);
         if (menu.getSubElements().length == 0) {
             VcsCommand cmd = (VcsCommand) commandRoot.getCookie(VcsCommand.class);
             if (cmd == null) {
