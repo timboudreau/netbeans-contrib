@@ -35,6 +35,7 @@ import java.awt.datatransfer.Transferable;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
+import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.openide.text.Line;
 import org.openide.loaders.DataObject;
@@ -189,14 +190,14 @@ public class SuggestionNode extends TaskNode {
             p.setName(SuggestionsView.PROP_SUGG_FILE);
             p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "File")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "FileHint")); // NOI18N
-            // HACK #38190
-            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
-            p.setValue("canEditAsText", Boolean.FALSE); // NOI18N
+            p.setPropertyEditorClass(StringPropertyEditor.class);
             ss.put(p);
 
             p = new Reflection(item, Integer.TYPE, "getLineNumber", null /* Don't allow users to edit this! "setLineNumber" */); // NOI18N
             p.setName(SuggestionsView.PROP_SUGG_LINE);
-            p.setPropertyEditorClass(LineNumberPropertyEditor.class);
+            // LineNumberPropertyEditor sometimes does not paint anything and it
+            // uses right side aligment (HIE does not like it)
+            p.setPropertyEditorClass(StringPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Line")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(SuggestionNode.class, "LineHint")); // NOI18N
             ss.put(p);

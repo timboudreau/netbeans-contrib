@@ -695,34 +695,49 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private int realFolders = 0;
     private int estimatedFolders = -1;
 
-    public void estimate(int estimate) {
-        estimatedFolders = estimate;
-        if (estimate == -1) {
-            getProgress().setVisible(true);
-            getStop().setVisible(true);
-            getProgress().setIndeterminate(true);
-            getMiniStatus().setText("Estimating media search complexity...");
-            Cache.load(); // hide this possibly long operation here
-        } else {
-            getProgress().setIndeterminate(false);
-            getProgress().setMaximum(estimatedFolders);
-        }
+    public void estimate(final int estimate) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                estimatedFolders = estimate;
+                if (estimate == -1) {
+                    getProgress().setVisible(true);
+                    getStop().setVisible(true);
+                    getProgress().setIndeterminate(true);
+                    getMiniStatus().setText("Estimating media search complexity...");
+                    Cache.load(); // hide this possibly long operation here
+                } else {
+                    getProgress().setIndeterminate(false);
+                    getProgress().setMaximum(estimatedFolders);
+                }
+            }
+        });
+
     }
 
     public void scanStarted() {
-        realFolders = 0;
-        reasonMsg = null;
-        getProgress().setVisible(true);
-        getStop().setVisible(true);
-        getRefresh().setEnabled(false);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                realFolders = 0;
+                reasonMsg = null;
+                getProgress().setVisible(true);
+                getStop().setVisible(true);
+                getRefresh().setEnabled(false);
+            }
+        });
+
     }
 
-    public void folderEntered(FileObject folder) {
-        if (estimatedFolders >0) {
-            realFolders++;
-            getProgress().setValue(realFolders);
-        }
-        getMiniStatus().setText("Scanning " + folder.getPath());
+    public void folderEntered(final FileObject folder) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                if (estimatedFolders >0) {
+                    realFolders++;
+                    getProgress().setValue(realFolders);
+                }
+                getMiniStatus().setText("Scanning " + folder.getPath());
+            }
+        });
+
         handlePendingAWTEvents();
     }
 
@@ -734,30 +749,44 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         handlePendingAWTEvents();
     }
 
-    public void scanTerminated(int reason) {
-        if (reason == -1) {
-            reasonMsg = "(Low Memory Interrupt)";
-        } else if (reason == -2) {
-            reasonMsg = "(Interrupted by User)";
-        } else if (reason == -3) {
-            reasonMsg = "(Usability Limit Reached)";
-        }
+    public void scanTerminated(final int reason) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                if (reason == -1) {
+                    reasonMsg = "(Low Memory Interrupt)";
+                } else if (reason == -2) {
+                    reasonMsg = "(Interrupted by User)";
+                } else if (reason == -3) {
+                    reasonMsg = "(Usability Limit Reached)";
+                }
+            }
+        });
     }
 
     public void scanFinished() {
-        estimatedFolders = -1;
-        getProgress().setVisible(false);
-        getStop().setVisible(false);
-        getRefresh().setEnabled(job == null);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                estimatedFolders = -1;
+                getProgress().setVisible(false);
+                getStop().setVisible(false);
+                getRefresh().setEnabled(job == null);
+            }
+        });
     }
 
-    public void statistics(int todos) {
-        if (job == null) {
-            String text = NbBundle.getMessage(SourceTasksView.class,
-                                                   "TodoScanDone", new Integer(todos)); // NOI18N
-            getMiniStatus().setText(text + (reasonMsg != null ? reasonMsg : ""));
-        }
+    public void statistics(final int todos) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                if (job == null) {
+                    String text = NbBundle.getMessage(SourceTasksView.class,
+                                                           "TodoScanDone", new Integer(todos)); // NOI18N
+                    getMiniStatus().setText(text + (reasonMsg != null ? reasonMsg : ""));
+                }
+            }
+        });
     }
+
+    // AWT request handlers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     private void handleStop() {
         background.interrupt();
@@ -785,7 +814,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
 
         if (selectedFolder == null) {
-            showFolderSelectorPopup();
+            if (recentFolders.size() > 0) {
+                showFolderSelectorPopup();
+            } else {
+                handleSelectFolder();
+            }
             return;
         } else {
             // it might be resored from persitent setting and unavailable
@@ -796,7 +829,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 // let it be null
             }
             if (seletedDataFolder == null) {
-                showFolderSelectorPopup();
+                if (recentFolders.size() > 0) {
+                    showFolderSelectorPopup();
+                } else {
+                    handleSelectFolder();
+                }
                 return;
             }
         }
