@@ -169,7 +169,7 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         if (c != null) c.addMouseListener(popupListener);
         this.addMouseListener(popupListener);
         toolbar.addMouseListener(popupListener);
-        scroll.addMouseListener(popupListener);
+        scroll.addMouseListener(popupListenerView);
         
     }
     
