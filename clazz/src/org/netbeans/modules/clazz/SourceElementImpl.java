@@ -33,6 +33,8 @@ import org.openide.src.*;
 public final class SourceElementImpl extends MemberElementImpl
     implements SourceElement.Impl, ElementProperties, Node.Cookie {
 
+    private static final Map EMPTY_MAP = Collections.unmodifiableMap(new HashMap(0));
+    
     /** Empty array of imports - constant to return fro getImports() */
     static final Import[] EMPTY_IMPORTS = new Import[0];
     static final ClassElement[] NO_CLASSES = new ClassElement[0];
@@ -184,11 +186,16 @@ public final class SourceElementImpl extends MemberElementImpl
     */
     private Map getAllClassesMap () {
         Map allClassesMap = (allClasses == null) ? null : (Map)allClasses.get();
-        if (allClassesMap == null && data != null) {
-            // soft ref null, we must recreate
-            allClassesMap = createClassesMap();
-            // remember it, please ...
-            allClasses = new SoftReference(allClassesMap);
+        if (allClassesMap == null) {
+            if (data != null) {
+                // soft ref null, we must recreate
+                allClassesMap = createClassesMap();
+                // remember it, please ...
+                allClasses = new SoftReference(allClassesMap);
+            } else {
+                // can't really do anything - return empty map:
+                return EMPTY_MAP;
+            }
         }
         return allClassesMap;
     }
