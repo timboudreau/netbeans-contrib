@@ -32,40 +32,29 @@ import org.openide.util.NbBundle;
 class SystemPropertyNewType extends NewType {
 
     /** ResourceBundle used in this class. */
-    private static ResourceBundle  bundle = NbBundle.getBundle (SystemPropertyNewType.class);
+    private static ResourceBundle bundle = NbBundle.getBundle (SystemPropertyNewType.class);
     
     /** Name of the Property. May be null. */
     private String propertyName = null;
     
     /**
-     * Creates a new default SystemPropertyNewType.
-     */
-    public SystemPropertyNewType() {
-    }
-    
-    /**
      * Creates a new SystemPropertyNewType with a propertyName.
      */
-    public SystemPropertyNewType(String propertyName) {
+    public SystemPropertyNewType (String propertyName) {
         this.propertyName = propertyName;
     }    
     
     /**
      * Returns the Name of this NewType.
+     * @return a localized display name
      */
     public String getName () {
         return bundle.getString ("LBL_NewProp");
     }
 
     /**
-     * Returns the HelpContext for this NewType.
-     */
-    public HelpCtx getHelpCtx () {
-        return new HelpCtx ("org.netbeans.modules.sysprops");
-    }
-
-    /**
      * Creates a new SystemProperty and refreshs the SystemProperties.
+     * @throws IOException doesn't, actually
      */
     public void create () throws IOException {
         // create a new Dialog to ask the Name of the Property
@@ -74,7 +63,7 @@ class SystemPropertyNewType extends NewType {
 
         NotifyDescriptor.InputLine desc = new NotifyDescriptor.InputLine (msg, title);
         if (propertyName != null) {
-            desc.setInputText(propertyName + ".");
+            desc.setInputText (propertyName + ".");
         }
 
         TopManager.getDefault ().notify (desc);
@@ -86,6 +75,7 @@ class SystemPropertyNewType extends NewType {
         // create a new Dialog to ast the Value of the Propertry
         msg = bundle.getString ("MSG_NewProp_dialog_value");
         desc = new NotifyDescriptor.InputLine (msg, title);
+        // [PENDING] return if result is a cancel
         TopManager.getDefault ().notify (desc);
         String value = desc.getInputText ();
 
@@ -93,6 +83,6 @@ class SystemPropertyNewType extends NewType {
         System.setProperty (key, value);
 
         // refresh the SystemProperties-Node(s)
-        PropertiesNotifier.changed ();
+        PropertiesNotifier.getDefault ().changed ();
     }
 }

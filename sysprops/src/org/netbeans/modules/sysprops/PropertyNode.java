@@ -15,6 +15,7 @@
 package org.netbeans.modules.sysprops;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.*;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
@@ -27,6 +28,7 @@ import org.openide.util.datatransfer.NewType;
 import org.openide.NotifyDescriptor;
 import org.openide.TopManager;
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListener;
 
 /** A Node for a SystemProperty and/or a Parent-Node for SystemProperties.
  *
@@ -36,136 +38,120 @@ import org.openide.util.NbBundle;
 public class PropertyNode extends AbstractNode {
 
     /** ResourceBundle used in this class. */
-    private static      ResourceBundle  bundle = NbBundle.getBundle (PropertyNode.class);
+    private static ResourceBundle  bundle = NbBundle.getBundle (PropertyNode.class);
     
-    /** Name of this Property. */
-    protected String       property;
-    /** Set of all Keys. Maybe used later to show all Subproperties, too. */
-    //public Set          keys;
-    /** If true, this Node is really a key, if  false it is a folder for subkeys. */
-    protected boolean      isKey;
-    /** If true, this Node has Children. */
-    protected boolean      hasChildren;
-    /** Value of this Property. May be null if this isKey is false. */
-    protected String       propertyValue;
-    /** true if the Node is deletable. */
-    protected boolean      isDeletable = false;
-    /** Sheet of this Node. */
-    protected Sheet        sheet;
+    /** Name of this Property; null for the root node. */
+    protected String property;
+    /** Current value of the property, or null if unset. */
+    protected String value;
+    /** List of all child properties (may be empty). */
+    protected List kids;
+    /** Listener to change in properties. */
+    private ChangeListener listener;
+    /** Current property sheet. */
+    private Sheet sheet;
     
     /**
      * Creates a new PropertyNode.
-     * @param property the name of the property.
+     * @param prop the name of the property (null for root node)
+     * @param kids list of properties starting with this prefix, not including this one
      */
-    public PropertyNode (String property) {
-        super (new PropertyChildren (property));
-        this.property = property;
+    public PropertyNode (String prop, List kids) {
+        super (kids.isEmpty () ?
+               Children.LEAF :
+               new PropertyChildren (prop));
+        property = prop;
+        this.kids = kids;
         
         // set the default Action
         setDefaultAction (SystemAction.get (PropertiesAction.class));
         
-        // Set FeatureDescriptor stuff:
-        super.setName(property);
-        int p = property.lastIndexOf('.');
-        if (p > -1) {
-            setDisplayName (property.substring(property.lastIndexOf('.') + 1));
+        if (property != null) {
+            // Set FeatureDescriptor stuff:
+            setName (property);
+            setDisplayName (shorten (property));
+            value = System.getProperty (property);
         } else {
-            setDisplayName(property);
+            value = null;
         }
-        
-        // refresh the Data
-        refreshData();
-    }
+        updateShortDescription ();
 
-    /**
-     * Refreshs the data and view (icon and Sheet) of this Node.
-     */
-    public void refreshData() {
-        searchKeys();
-        setIcon();
-        
-        if (isKey) {
-            //setShortDescription ("Property " + property + " = " + propertyValue);
-            setShortDescription (property + "=" + propertyValue);
-            isDeletable = DeleteChecker.isDeletable(property);
-        } else {
-            //setShortDescription ("This node isn't a Property");
-        }
-        
-        // Update the sheet
-        updateSheet();
+        updateIcon ();
+        listener = new ChangeListener () {
+            public void stateChanged (ChangeEvent ev) {
+                fireAllChanges ();
+            }
+        };
+        PropertiesNotifier.getDefault ().addChangeListener
+            (WeakListener.change (listener, PropertiesNotifier.getDefault ()));
     }
     
-    /**
-     * Sets the right IconBase.
+    /** Ensure that the tool tip for the node is correct. */
+    private void updateShortDescription () {
+        if (value != null)
+            setShortDescription
+                (MessageFormat.format
+                    (bundle.getString ("HINT_property_name_and_value"),
+                    new Object[] { getDisplayName (), value }));
+        else
+            setShortDescription (getDisplayName ());
+    }
+    
+    /** Shorten a property name to its last component.
+     * @param property the full name
+     * @return the shorter version
      */
-    public void setIcon() {
-        if (hasChildren) {
-            if (isKey) {
-                setIconBase ("/org/netbeans/modules/sysprops/resources/propertyFolder");
-            } else {
-                setIconBase ("/org/netbeans/modules/sysprops/resources/folder");
-            }
+    private static String shorten (String property) {
+        int p = property.lastIndexOf('.');
+        if (p > -1) {
+            return property.substring (p + 1);
         } else {
-            setIconBase ("/org/netbeans/modules/sysprops/resources/property");
+            return property;
+        }
+    }
+    
+    /** Refresh all display aspects of this node. */
+    private void fireAllChanges () {
+        value = (property == null ? null : System.getProperty (property));
+        kids = (property == null ?
+                SystemPropertiesNode.listAllProperties () :
+                PropertyChildren.findSubProperties (property));
+        updateIcon ();
+        updateSheet ();
+        updateShortDescription ();
+        // I.e. changes in the values of node properties, not the node itself:
+        firePropertyChange (null, null, null);
+    }
+
+    /** Refresh this node's icon. */
+    private void updateIcon () {
+        if (property == null) {
+            setIconBase ("/org/netbeans/modules/sysprops/resources/propertiesRoot");
+        } else {
+            if (! kids.isEmpty ()) {
+                if (value != null) {
+                    setIconBase ("/org/netbeans/modules/sysprops/resources/propertyFolder");
+                } else {
+                    setIconBase ("/org/netbeans/modules/sysprops/resources/folder");
+                }
+            } else {
+                setIconBase ("/org/netbeans/modules/sysprops/resources/property");
+            }
         }
     }
     
     /**
      * Returns a new NewType-Array. Only a NewType for a new SystemProperty is 
      * returned.
+     * @return one new type
      */
     public NewType[] getNewTypes () {
-        return new NewType[] { new SystemPropertyNewType(property) };
+        return new NewType[] { new SystemPropertyNewType (property) };
     }
-    
-    
-    /**
-     * Refreshs this Node and its Children.
-     */
-    public void refresh() {
-        refreshData();
-        PropertyChildren c = (PropertyChildren) getChildren();
-        c.refreshChildren();
-        Node[] nodes = c.getNodes();
-        for (int x=0; x < nodes.length; x++) {
-            PropertyNode node = (PropertyNode) nodes[x];
-            node.refresh();
-        }
-    }
-    
-    /** Searchs all Keys - and SubKeys of this Property ands sets the variables
-     * isKey and hasChildren.
-     */
-    public void searchKeys() {
-        //keys = new TreeSet(); this Set can be used to show all subProperties too
-        isKey = false;
-        hasChildren = false;
-        
-        // search all Keys and subkeys.
-        Properties p = System.getProperties();
-        Enumeration e = p.propertyNames();
-        while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
-            
-            if (name.startsWith(property) && (name.length() > 0)) {
-                if (name.equals(property)) {
-                    isKey = true;
-                    propertyValue = System.getProperty(name, "error");
-                    //keys.add(name);
-                } else {
-                    if (name.startsWith(property + ".")) {
-                        hasChildren = true;
-                        //keys.add(name);
-                    }
-                }
-            }
-        }
-    }
-    
     
     /**
      * Returns an Array of Actions allowed by this Node.
+     * @return a list of standard actions
      */
     protected SystemAction[] createActions () {
         return new SystemAction[] {
@@ -179,31 +165,17 @@ public class PropertyNode extends AbstractNode {
         };
     }
     
-
-    /**
-     * Returns the HelpContext for this Node.
-     */ 
-    public HelpCtx getHelpCtx () {
-        return new HelpCtx ("org.netbeans.modules.sysprops");
-    }
-
-    /**
-     * Returns the Children of this Node.
-     * Uncomment this method, if you need it.
-     */
-    /*protected PropertyChildren getPropertyChildren () {
-        return (PropertyChildren) getChildren ();
-    }*/
-
     /**
      * Clones this Node.
+     * @return a similar one
      */
     public Node cloneNode () {
-        return new PropertyNode (property);
+        return new PropertyNode (property, kids);
     }
   
     /**
      * Returns a Sheet used to change this Property.
+     * @return the property sheet
      */
     protected Sheet createSheet () {
         sheet = super.createSheet ();
@@ -212,71 +184,75 @@ public class PropertyNode extends AbstractNode {
         return sheet;
     }
     
+    /** A property for a system property and its value. */
+    private static class ValueProp extends PropertySupport.ReadWrite {
+        /** The property name. */
+        private String property;
+        /** Make a property.
+         * @param property the property name to use
+         */
+        public ValueProp (String property) {
+            super (property, String.class,
+                   /* [PENDING] could be localized */ property,
+                   bundle.getString ("HINT_value"));
+            this.property = property;
+        }
+        /** Returns the Value of the system property.
+         * @return the value
+         */
+        public Object getValue () {
+            return System.getProperty (property);
+        }
+        /** Sets the Value of the PropertySupport.
+         * @param nue the new value to use
+         */
+        public void setValue (Object nue) {
+            System.setProperty (property, (String) nue);
+            PropertiesNotifier.getDefault ().changed ();
+        }
+    }
+
     /**
-     * Updates the Sheet.
+     * Updates the property sheet.
+     * Adds a Name property for real properties.
+     * Also adds the system property with its value for this
+     * property and all subproperties.
      */
     public void updateSheet() {
         if (sheet == null) return;
-         
-        Sheet.Set props = sheet.get (Sheet.PROPERTIES);
-        if (props == null) {
-            props = Sheet.createPropertiesSet ();
-            sheet.put (props);
-        }
-        props.put (new PropertySupport.Name (this));
-        
-        // Only add the key, if the PropertyNode is a key.
-        if (isKey) {
-            class ValueProp extends PropertySupport.ReadWrite {
-                /** Constructor */
-                public ValueProp () {
-                    super ("value", String.class,
-                           bundle.getString ("PROP_value"), bundle.getString ("HINT_value"));
-                }
-                /** Returns the Value of the PropertySupport. */
-                public Object getValue () {
-                    return System.getProperty (property);
-                }
-                /** Sets the Value of the PropertySupport. */
-                public void setValue (Object nue) {
-                    System.setProperty (property, (String) nue);
-                    PropertiesNotifier.changed ();
-                }
-                /** Returns true, if the PropertySupport is writable. */
-                public boolean canWrite() {
-                    /*if(isDeletable) {
-                        return true;
-                    } else {
-                        return false;
-                    }*/
-                    return true;
-                }
-            }
-            props.put (new ValueProp ());
-        } else {
-            // remove the PropValue if it was added earlier.
-            props.remove("value");
-        }
+        // [PENDING] should avoid deleting and recreating properties
+        // unless it actually has to...
+        Sheet.Set props = Sheet.createPropertiesSet ();
+        sheet.put (props);
+        if (value != null)
+            props.put (new PropertySupport.Name (this));
+        if (value != null) props.put (new ValueProp (property));
+        Iterator it = kids.iterator ();
+        while (it.hasNext ())
+            props.put (new ValueProp ((String) it.next ()));
     }
     
-    /** Returns always false. */
+    /** Can someone copy it?
+     * @return yes
+     */
     public boolean canCopy () {
-        return false;
+        return true;
     }
     
-    /** Returns always false. */
+    /** Can someone cut it?
+     * @return no
+     */
     public boolean canCut () {
         return false;
     }
     
     /**
-     * Returns true, if this Node can be renamed.
-     *
-     * @see org.openide.nodes.Node
+     * Can someone rename it?
+     * @return yes, if it is a real property and not a system built-in
      */
     public boolean canRename () {
-        if (isKey) {
-            return isDeletable;
+        if (value != null) {
+            return DeleteChecker.isDeletable (property);
         } else {
             return false;
         }
@@ -284,36 +260,44 @@ public class PropertyNode extends AbstractNode {
     
     /**
      * Sets a new Name for this Property.
+     * @param nue the new name
      */
     public void setName (String nue) {
-        Properties p = System.getProperties ();
-        String value = p.getProperty (property);
-        p.remove (property);
-        if (value != null) p.setProperty (nue, value);
-        System.setProperties (p);
-        PropertiesNotifier.changed ();
+        if (getName () == null) {
+            super.setName (nue);
+        } else {
+            Properties p = System.getProperties ();
+            String value = p.getProperty (property);
+            p.remove (property);
+            if (value != null) p.setProperty (nue, value);
+            System.setProperties (p);
+            PropertiesNotifier.getDefault ().changed ();
+        }
     }
     
     /**
-     * Returns true if the Property can be deleted.
-     * 
-     * @see org.openide.nodes.Node
+     * Can someone delete the node?
+     * @return yes if it is really a property and not a system built-in
      */
     public boolean canDestroy () {
-        if (isKey) {
-            return isDeletable;
+        // [PENDING] better to permit the whole subtree to be deleted if
+        // all are deletable
+        if (value != null) {
+            return DeleteChecker.isDeletable (property);
         } else {
             return false;
         }
     }
     
     /**
-     * Destroys this Node.
+     * Delete the node.
+     * @throws IOException actually does not
      */
     public void destroy () throws IOException {
+        // [PENDING] destroy also subproperties
         Properties p = System.getProperties ();
         p.remove (property);
         System.setProperties (p);
-        PropertiesNotifier.changed ();
+        PropertiesNotifier.getDefault ().changed ();
     }
 }

@@ -31,7 +31,7 @@ import java.util.TreeSet;
 public class DeleteChecker extends Object {
     
     /** Array of all default SystemProperties (taken from System.getProperties()
-     * in the javadoc of jdk1.3.
+     * in the javadoc of jdk1.3).
      */
     public final static String[] defaultPropertyNames = 
     {                                 "java.version",
@@ -79,39 +79,4 @@ public class DeleteChecker extends Object {
         return true;
     }
 
-    
-    
-    /* public static Set defaultProperties = new TreeSet(); */
-    
-    /**
-     * Initialize the properties Set.
-     */
-    /* static{
-        updateDefaultProperties();
-    }
-    */
-    
-    
-    /*
-    public static void updateDefaultProperties() {
-        Properties defaultProps = System.getProperties();
-        System.setProperties(new Properties());
-        Properties p2 = System.getProperties();
-        Enumeration e = p2.propertyNames();
-        defaultProperties = new TreeSet();
-        while(e.hasMoreElements()) {
-            defaultProperties.add(e.nextElement());
-        }
-        System.setProperties(defaultProps);
-        System.out.println("Properties count: " + defaultProps.size());
-        System.out.println(defaultProps);
-        System.out.println("Nondeletable: " + defaultProperties.size());
-    }*/
-    
-    
-    /*
-    public final static boolean isDeletable(String name) {
-        return ! defaultProperties.contains(name);
-        //return true;
-    }*/
 }

@@ -14,9 +14,7 @@
  */
 package org.netbeans.modules.sysprops;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -26,16 +24,27 @@ import javax.swing.event.ChangeListener;
  * @author Jesse Glick
  */
 public class PropertiesNotifier {
-  
+
+    /** Default instance. */
+    private static PropertiesNotifier DEFAULT = null;
+    /** Get default instance of the notifier.
+     * @return the default instance
+     */
+    public static synchronized PropertiesNotifier getDefault () {
+        if (DEFAULT == null)
+            DEFAULT = new PropertiesNotifier ();
+        return DEFAULT;
+    }
+    
     /** Set of all Listeners on this Notifier. */
-    private static Set listeners = new HashSet ();
+    private Set listeners = new HashSet ();
     
     
     /** Adds a ChangeListener to this Notifier.
      * 
      * @param listener the listener to add.
      */
-    public static void addChangeListener (ChangeListener listener) {
+    public synchronized void addChangeListener (ChangeListener listener) {
         listeners.add (listener);
     }
     
@@ -43,16 +52,20 @@ public class PropertiesNotifier {
      * 
      * @param listener the listener to remove.
      */
-    public static void removeChangeListener (ChangeListener listener) {
+    public synchronized void removeChangeListener (ChangeListener listener) {
         listeners.remove (listener);
     }
     
     /**
      * Sends a ChangeEvent to all Listeners.
      */
-    public static void changed () {
+    public void changed () {
         ChangeEvent ev = new ChangeEvent (PropertiesNotifier.class);
-        Iterator it = listeners.iterator ();
+        Collection listeners_;
+        synchronized (this) {
+            listeners_ = new ArrayList (listeners);
+        }
+        Iterator it = listeners_.iterator ();
         while (it.hasNext ()) {
             ((ChangeListener) it.next ()).stateChanged (ev);
         }

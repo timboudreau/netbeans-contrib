@@ -15,83 +15,130 @@
 package org.netbeans.modules.sysprops;
 
 import java.util.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.openide.nodes.*;
 
 /** Children for a PropertyNode.
+ * Manages deciding which nodes should be displayed beneath it.
+ * <p>The keys are as follows: one key per node, being the full
+ * property name of the subnode. If that node should itself have
+ * any children, the name is prefixed by an asterisk. The asterisk
+ * does not in itself change the behavior of the subnode, however
+ * this means that if one of the subnodes newly receives subsubnodes,
+ * or newly loses all of them, then the list of keys will correspondingly
+ * change, triggering the creation of a distinct new subnode. It is
+ * necessary to create a brand new node if the subproperty switches the
+ * state of having subsubproperties, because if there are no subsubproperties
+ * then Children.LEAF is used to make the node a leaf node in the Explorer,
+ * and a given node can never change its children object (though the nodes
+ * contained in the children object can change, provided it is a not a leaf).
  *
  * @author Jesse Glick
  * @author Michael Ruflin
  */
 public class PropertyChildren extends Children.Keys {
 
-    /** Optional holder for the keys, to be used when changing them dynamically. */
-    Set myKeys;
-    
     /** Name of the Property. */
-    String property;
+    protected String property;
+    
+    /** An associated listener to changes in system properties. */
+    private ChangeListener listener = null;
 
     /** Creates new PropertyChildren
      * 
-     * @param property the Name of the Property (of the Node).
+     * @param property the Name of the Property (of the Node); may be null for root.
      */
     public PropertyChildren (String property) {
         this.property = property;
-        myKeys = null;
     }
 
     /**
      * Activates this Children.
      */
     protected void addNotify () {
-        if (myKeys != null) return;
-        searchKeys();
-        if (myKeys.size() > 0) setKeys (myKeys);
+        updateKeys ();
+        PropertiesNotifier.getDefault ().addChangeListener
+            (listener = new ChangeListener () {
+                public void stateChanged (ChangeEvent ev) {
+                    updateKeys ();
+                }
+        });
     }
 
     /**
      * Deactivates this Children.
      */
     protected void removeNotify () {
-        myKeys = null;
+        if (listener != null) {
+            PropertiesNotifier.getDefault ().removeChangeListener (listener);
+            listener = null;
+        }
         setKeys (Collections.EMPTY_SET);
     }
 
     /**
      * Creates a Node of an Object key.
+     * @param the key to use. In this case it will be a property name for a subproperty;
+     *        a prefixed asterisk indicates that there are in fact sub-sub-properties
+     * @return one node for the subproperty
      */
     protected Node[] createNodes (Object key) {
-        // interpret your key here...usually one node generated, but could be zero or more
-        return new Node[] { new PropertyNode ((String) key) };
+        String prop = (String) key;
+        if (prop.startsWith ("*")) prop = prop.substring (1);
+        return new Node[] { new PropertyNode (prop, findSubProperties (prop)) };
     }
     
-    /**
-     * Refreshs the Set of childrens
+    /** Find all subproperties based on a given
+     * property.
+     * @param the starting property (or pseudo-property)
+     * @return a (possibly empty) list
      */
-    public void refreshChildren() {
-        searchKeys();
-        setKeys(myKeys);
+    public static List findSubProperties (String prop) {
+        List subprops = new ArrayList ();
+        Enumeration e = System.getProperties ().propertyNames ();
+        while (e.hasMoreElements ()) {
+            String subprop = (String) e.nextElement ();
+            if (subprop.startsWith (prop + ".")) {
+                subprops.add (subprop);
+            }
+        }
+        Collections.sort (subprops);
+        return subprops;
     }
     
     /**
      * Searchs all subkeys of this Node.
+     * Note that only one level of dot-separation is considered,
+     * so the resulting property names are not necessarily real
+     * system properties. Asterisks are prepended where there
+     * are subsubproperties.
      */
-    public void searchKeys() {
-        myKeys = new TreeSet();
-        Properties p = System.getProperties();
-        Enumeration e = p.propertyNames();
-        String searchString = property + ".";
-        String prop;
-        while (e.hasMoreElements()) {
-            prop = (String) e.nextElement();
-            if (prop.startsWith(searchString)) {
-                int i = prop.indexOf('.', searchString.length());
-                if (i < 0) {
-                    myKeys.add(prop);
-                } else {
-                    myKeys.add(prop.substring(0, i));
-                }
-            }
+    private void updateKeys () {
+        Collection keys = new TreeSet ();
+        Enumeration e = System.getProperties ().propertyNames ();
+        while (e.hasMoreElements ()) {
+            String prop = (String) e.nextElement ();
+            if (property != null && ! prop.startsWith (property + '.'))
+                continue;
+            int idx;
+            if (property == null)
+                idx = prop.indexOf ((int) '.');
+            else
+                idx = prop.indexOf ((int) '.', property.length () + 1);
+            if (idx == -1)
+                keys.add (prop);
+            else
+                keys.add ("*" + prop.substring (0, idx));
         }
+        Iterator it = keys.iterator ();
+        while (it.hasNext ()) {
+            String prop = (String) it.next ();
+            if (! prop.startsWith ("*") && keys.contains ("*" + prop))
+                it.remove ();
+        }
+        setKeys (keys);
     }
+    
 }

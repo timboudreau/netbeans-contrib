@@ -32,11 +32,12 @@ public class RefreshPropertiesAction extends CallableSystemAction {
      * Performs the Action.
      */
     public void performAction () {
-        PropertiesNotifier.changed ();
+        PropertiesNotifier.getDefault ().changed ();
     }
     
     /**
      * Returns the Name of this Action.
+     * @return a localized display name
      */
     public String getName () {
         return NbBundle.getBundle (RefreshPropertiesAction.class).getString ("LBL_RefreshProps");       
@@ -44,8 +45,10 @@ public class RefreshPropertiesAction extends CallableSystemAction {
     
     /**
      * Returns the HelpContext for this Action.
+     * @return no particular help
      */
     public HelpCtx getHelpCtx () {
-        return new HelpCtx ("org.netbeans.modules.sysprops");
+        return HelpCtx.DEFAULT_HELP;
     }
+    
 }

@@ -29,12 +29,12 @@ import org.openide.util.NbBundle;
 
 /** Root Node for all SystemProperties.
  *
- * @author Michael Ruflin
+ * @author Michael Ruflin, Jesse Glick
  */
-public class SystemPropertiesNode extends AbstractNode {
+public class SystemPropertiesNode extends PropertyNode {
     
     /** ResourceBundle used in this class. */
-    private static ResourceBundle  bundle = NbBundle.getBundle (SystemPropertiesNode.class);
+    private static ResourceBundle bundle = NbBundle.getBundle (SystemPropertiesNode.class);
     
     /** Listener for changes of the SystemProperties.*/
     private ChangeListener listener;
@@ -46,30 +46,28 @@ public class SystemPropertiesNode extends AbstractNode {
      * Creates a new SystemPropertiesNode.
      */
     public SystemPropertiesNode () {
-        super (new SystemPropertiesChildren ());
-        
-        // set the IconBase
-        setIconBase ("/org/netbeans/modules/sysprops/resources/propertiesRoot");
-        
-        // DefaultAction
-        setDefaultAction (SystemAction.get (PropertiesAction.class));
+        super (null, listAllProperties ());
         
         // Set FeatureDescriptor stuff:
         setName ("SystemPropertiesNode");
         setDisplayName (bundle.getString ("LBL_AllPropsNode"));
         setShortDescription (bundle.getString ("HINT_AllPropsNode"));
-        
-        // Listener for changes of the Systemproperties
-        listener = new ChangeListener () {
-            public void stateChanged (ChangeEvent ev) {
-                refresh();
-            }
-        };
-        PropertiesNotifier.addChangeListener (listener);
+    }
+    
+    /** Get a list of all system properties.
+     * @return all of them
+     */
+    public static List listAllProperties () {
+        List l = new ArrayList ();
+        Enumeration en = System.getProperties ().propertyNames ();
+        while (en.hasMoreElements ())
+            l.add (en.nextElement ());
+        return l;
     }
     
     /**
      * Returns an Array of SystemActions allowed by this Node.
+     * @return a specialized set of actions
      */
     protected SystemAction[] createActions () {
         return new SystemAction[] {
@@ -86,136 +84,11 @@ public class SystemPropertiesNode extends AbstractNode {
     }
 
     /**
-     * Returns the HelpContext for this Node.
-     */    
-    public HelpCtx getHelpCtx () {
-        return new HelpCtx ("org.netbeans.modules.sysprops");
-    }
-
-    /**
-     * Refreshs the hierarchy of the nodes and the nodes itsself.
-     */
-    public void refresh() {
-        // update the Sheet
-        updateSheet();
-        
-        SystemPropertiesChildren c = (SystemPropertiesChildren) getChildren();
-        c.refreshChildren();
-        
-        // refresh all subnodes.
-        Node[] nodes = c.getNodes();
-        for (int x=0; x < nodes.length; x++) {
-            PropertyNode node = (PropertyNode) nodes[x];
-            node.refresh();
-        }
-    }
-
-    /**
      * Clones this Node.
+     * @return a clone
      */
     public Node cloneNode () {
         return new SystemPropertiesNode ();
     }
    
-    /**
-     * Finalizes this Object.
-     * 
-     */
-    protected void finalize () throws Throwable {
-        super.finalize ();
-        if (listener != null) {
-            PropertiesNotifier.removeChangeListener (listener);
-        }
-    }
-    
-    /**
-     * Returns a Sheet used to change this Property.
-     */
-    protected Sheet createSheet () {
-        sheet = super.createSheet ();
-        updateSheet();
-        
-        return sheet;
-    }
-    
-    /**
-     * Updates the Sheet.
-     */
-    public void updateSheet() {
-        if (sheet == null) return;
-
-        // Get the Properties Sheet.Set
-        // Create one if not yet created -> Bug??? Also needed to create a new
-        // one and put it, if already one is created, or a deadlock (one minute
-        // or so) occures.
-        Sheet.Set props = sheet.get (Sheet.PROPERTIES);
-        if (props == null) {
-            props = Sheet.createPropertiesSet ();
-            sheet.put (props);
-        } else {
-            // hack !
-            props = Sheet.createPropertiesSet ();
-            sheet.put (props);
-            // remove all Properties -> only needed if the Sheet works correctly
-            /*Node.Property[] pro = props.getProperties();
-            for (int x=0; x < pro.length; x++) {
-                Node.Property nnn= props.remove(pro[x].getName());
-            }*/
-        }
-        
-        // Displays a Property with the key and its value
-        class ValuePropView extends PropertySupport.ReadOnly {
-            String propertyName;
-            /** Constructor */
-            public ValuePropView (String propertyName) {
-                super (propertyName, String.class, propertyName, "");
-                this.propertyName = propertyName;
-            }
-            /** Returns the Value of the PropertySupport. */
-            public Object getValue () {
-                return System.getProperty (propertyName);
-            }
-            /** Returns the Name of the PropertySupport. */
-            /*public String toString() {
-                return propertyName;
-            }*/
-        }
-        
-        // get all SystemProperties and order them
-        Set set = new TreeSet();
-        Enumeration e = System.getProperties().propertyNames();
-        while (e.hasMoreElements()) set.add(e.nextElement());
-        
-        // add all Properties
-        Iterator it = set.iterator();
-        while (it.hasNext()) {
-            String s = (String) it.next();
-            props.put (new ValuePropView(s));
-        }
-    }
-    
-    /** Returns always false. */
-    public boolean canCopy () {
-        return false;
-    }
-    
-    /** Returns always false. */
-    public boolean canCut () {
-        return false;
-    }
- 
-    /**
-     * Returns a new NewType-Array. Only a NewType for a new SystemProperty is 
-     * returned.
-     */
-    public NewType[] getNewTypes () {
-        return new NewType[] { new SystemPropertyNewType() };            
-    }
-
-    /**
-     * Returns the Children of the SystemPropertiesNode.
-     */
-    /*protected SystemPropertiesChildren getSystemPropertiesChildren () {
-        return (SystemPropertiesChildren) getChildren ();
-    }*/
 }
