@@ -95,6 +95,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
          */
         cachePath = createNewCacheDir();
         setCreateVersioningSystem(true);
+        try {
+            setRootDirectory(getRootDirectory(), true);
+        } catch (PropertyVetoException vetoExc) {
+        } catch (IOException ioExc) {
+        }
     }
 
     public VcsFactory getVcsFactory () {
