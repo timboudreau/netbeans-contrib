@@ -373,6 +373,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     /*
     beginningToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
     */
+    addButtonGroup.add(beginningToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(beginningToggle, gridBagConstraints);
@@ -380,6 +381,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     /*
     endToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N();
     */
+    addButtonGroup.add(endToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(endToggle, gridBagConstraints);
