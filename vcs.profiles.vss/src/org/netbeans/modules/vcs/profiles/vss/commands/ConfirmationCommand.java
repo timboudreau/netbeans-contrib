@@ -16,9 +16,11 @@ package org.netbeans.modules.vcs.profiles.vss.commands;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
@@ -475,7 +477,11 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         Object yesAllOption = NbBundle.getMessage(ConfirmationCommand.class, "CTL_YesAll");
         Object noAllOption = NbBundle.getMessage(ConfirmationCommand.class, "CTL_NoAll");
         Object skipOption = NbBundle.getMessage(ConfirmationCommand.class, "CTL_Skip");
+        Object skipAllOption = NbBundle.getMessage(ConfirmationCommand.class, "CTL_SkipAll");
         List patternItems = new ArrayList();
+        String[] ambiguousFile = new String[] { null };
+        Set ambiguousFiles = new HashSet();
+        boolean doSkipAll = false;
         for (int i = 0; i < messages.length; i++) {
             String file = checkPatterns(confirmedPatterns, messages[i]);
             if (file != null) {
@@ -495,20 +501,27 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
                 continue;
             }
             patternItems.clear();
-            file = getUnambiguousFile(messages[i], rootDir, selectedFiles, patternItems);
+            file = getUnambiguousFile(messages[i], rootDir, selectedFiles, patternItems, ambiguousFile);
             //System.out.println("  file = '"+file+"', patternItems = "+patternItems);
             if (file == null) {
+                if (doSkipAll || ambiguousFiles.contains(ambiguousFile[0])) {
+                    continue;
+                }
+                ambiguousFiles.add(ambiguousFile[0]);
                 String msg = reduceBigMessage(messages[i]) + "\n\n" +
                              NbBundle.getMessage(ConfirmationCommand.class, "MSG_Ambiguous");
                 NotifyDescriptor confirmation = new NotifyDescriptor(msg,
                     NbBundle.getMessage(ConfirmationCommand.class, "TTL_Warning"), 
                     NotifyDescriptor.OK_CANCEL_OPTION,
                     NotifyDescriptor.WARNING_MESSAGE,
-                    new Object[] { skipOption,
+                    new Object[] { skipOption, skipAllOption,
                                    NotifyDescriptor.CANCEL_OPTION },
                     skipOption);
                 Object result = DialogDisplayer.getDefault().notify(confirmation);
                 if (skipOption.equals(result)) {
+                    continue;
+                } if (skipAllOption.equals(result)) {
+                    doSkipAll = true;
                     continue;
                 } else {
                     return null;
@@ -544,7 +557,8 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
      * Get the file relative to rootDir.
      */
     private static String getUnambiguousFile(String message, String rootDir,
-                                             String[] selectedFiles, List patternItems) {
+                                             String[] selectedFiles, List patternItems,
+                                             String[] ambiguousFile) {
         int begin = 0;
         int fileIndex;
         String file = null;
@@ -579,6 +593,7 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             int firstSpace = message.indexOf(' ', sentenceEnd);
             if (firstSpace > 0) {
                 file = message.substring(sentenceEnd, firstSpace);
+                ambiguousFile[0] = file;
                 file = uniqueFilePath(file, selectedFiles);
                 if (file == null) {
                     return null;
