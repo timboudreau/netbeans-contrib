@@ -220,7 +220,15 @@ public class VcsAttributes extends DefaultAttributes {
      */
     public Object readAttribute(String name, String attrName) {
         if (FILE_ATTRIBUTE.equals(attrName)) {
-            return fileSystem.getFile(name);
+            java.io.File file = fileSystem.getFile(name);
+            if (!file.isAbsolute()) {
+                // It's dangerous to return a file, that is not absolute.
+                // E.g. loaders are broken after a non-absolute file is returned.
+                // See issue #32698 for details.
+                return null;
+            } else {
+                return file;
+            }
         }
         if (RUNTIME_PROVIDER.equals(attrName)) {
             return runtimeProvider;
