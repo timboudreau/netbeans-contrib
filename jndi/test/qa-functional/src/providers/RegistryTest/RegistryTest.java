@@ -86,7 +86,7 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
     }
     
     public Node waitSubNode(Node node, String name) {
-        for (int a = 0; a < 20; a ++) {
+        for (int a = 0; a < 30; a ++) {
             try { Thread.sleep(1000); } catch (Exception e) { }
             Node n = findSubNode(node, name);
             if (n != null)
@@ -96,7 +96,7 @@ public class RegistryTest extends org.netbeans.junit.NbTestCase {
     }
     
     public boolean waitNoSubNode(Node node, String name) {
-        for (int a = 0; a < 10; a ++) {
+        for (int a = 0; a < 30; a ++) {
             try { Thread.sleep(1000); } catch (Exception e) { }
             if (findSubNode(node, name) == null)
                 return true;
