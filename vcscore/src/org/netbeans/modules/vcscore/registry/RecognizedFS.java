@@ -13,13 +13,16 @@
 
 package org.netbeans.modules.vcscore.registry;
 
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.openide.util.SharedClassObject;
+import org.openide.util.WeakListeners;
 
 import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
@@ -29,7 +32,7 @@ import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
  *
  * @author  Martin Entlicher
  */
-public class RecognizedFS extends Object implements Serializable {
+public class RecognizedFS extends Object implements Serializable, PropertyChangeListener {
     
     private Set manuallyRecognized;
     private Set removedRoots;
@@ -50,6 +53,10 @@ public class RecognizedFS extends Object implements Serializable {
             defaultInstance = settings.getRecognizedFS();
             if (defaultInstance == null) {
                 defaultInstance = new RecognizedFS();
+            }
+            for (Iterator it = defaultInstance.manuallyRecognized.iterator(); it.hasNext(); ) {
+                FSInfo fsInfo = (FSInfo) it.next();
+                fsInfo.addPropertyChangeListener(WeakListeners.propertyChange(defaultInstance, fsInfo));
             }
         }
         return defaultInstance;
@@ -80,6 +87,7 @@ public class RecognizedFS extends Object implements Serializable {
      */
     public synchronized void addManuallyRecognized(FSInfo fsInfo) {
         manuallyRecognized.add(fsInfo);
+        fsInfo.addPropertyChangeListener(WeakListeners.propertyChange(this, fsInfo));
         saveMe();
     }
 
@@ -105,6 +113,10 @@ public class RecognizedFS extends Object implements Serializable {
         clon.manuallyRecognized = new HashSet(this.manuallyRecognized);
         clon.removedRoots = new HashSet(this.removedRoots);
         return clon;
+    }
+    
+    public void propertyChange(java.beans.PropertyChangeEvent evt) {
+        saveMe();
     }
     
 }
