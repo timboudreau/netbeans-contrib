@@ -1,7 +1,7 @@
 OpenIDE-Module: com.netbeans.enterprise.modules.rmi/1
 OpenIDE-Module-Name: RMI Support
 OpenIDE-Module-Install: com/netbeans/enterprise/modules/rmi/RMIModule.class
-OpenIDE-Module-Module-Dependencies: com.netbeans.developer.modules.loaders.java/1, com.netbeans.developer.modules.httpserver/1
+OpenIDE-Module-Module-Dependencies: com.netbeans.developer.modules.loaders.java/1, com.netbeans.developer.modules.httpserver/1, com.netbeans.developer.modules.debugger.core/1
 OpenIDE-Module-Specification-Version: 0.9
 OpenIDE-Module-Implementation-Version: 0.9
 OpenIDE-Module-Description: com.netbeans.enterprise.modules.rmi.docs.HelpSet
@@ -17,6 +17,9 @@ Name: com/netbeans/enterprise/modules/rmi/RMIRegistryNode.class
 OpenIDE-Module-Class: Node
 
 Name: com/netbeans/enterprise/modules/rmi/RMIExecutor.class
+OpenIDE-Module-Class: Executor
+
+Name: com/netbeans/enterprise/modules/rmi/RMIDebugType.class
 OpenIDE-Module-Class: Executor
 
 Name: com/netbeans/enterprise/modules/rmi/wizard/RMIWizardCookieAction.class
