@@ -13,3 +13,8 @@ NetBeans-Module-Class: Option
 Name: com/netbeans/enterprise/modules/rmi/settings/CompilerSettings.class
 NetBeans-Module-Class: Option
 
+Name: com/netbeans/enterprise/modules/rmi/RMIRegistryNode.class
+Netbeans-Module-Class: Node
+
+Name: com/netbeans/enterprise/modules/rmi/RMIExecutor.class
+Netbeans-Module-Class: Executor
