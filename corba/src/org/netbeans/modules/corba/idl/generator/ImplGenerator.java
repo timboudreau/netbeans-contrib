@@ -112,11 +112,17 @@ import org.netbeans.modules.corba.CORBASupport;
 
 public class ImplGenerator implements PropertyChangeListener {
 
+    private java.util.ArrayList m_log = new java.util.ArrayList ();
+
     //public static final boolean DEBUG = true;
     private static final boolean DEBUG = false;
 
     private static final boolean DEBUG_EXCEPT = false;
     //private static final boolean DEBUG_EXCEPT = true;
+    
+    private static final int GUARDING_FAILED = -1;
+    private static final int GUARDING_RUNNING = 0;
+    private static final int GUARDING_OK = 1;
 
     private boolean showMessage; // Fix of showing message when the sync is disabled
     private boolean _M_exception_occured;
@@ -139,6 +145,7 @@ public class ImplGenerator implements PropertyChangeListener {
     
     private int IN_MODULE_PACKAGE = 0;
     private int IN_IDL_PACKAGE = 1;
+    private int _M_guarding_status;
 
     private int where_generate = IN_MODULE_PACKAGE;
 
@@ -2035,8 +2042,8 @@ public class ImplGenerator implements PropertyChangeListener {
     }
 
 
-    private void work_with_guarded (int __action, MemberElement __guarded_element,
-				    String __name_of_block, JavaEditor __editor) {
+    private void work_with_guarded (final int __action, final MemberElement __guarded_element,
+				    final String __name_of_block, final JavaEditor __editor) {
 	try {
 	    if (DEBUG)
 		System.out.println ("name of guarded block: " + __name_of_block);
@@ -2049,154 +2056,184 @@ public class ImplGenerator implements PropertyChangeListener {
 	    Assertion.assert (__editor != null);
 	    //Assertion.assert (__editor.sourceToText 
 	    //(__guarded_element.getDeclaringClass ()) != null);
-	    SourceCookie.Editor __src_editor = (SourceCookie.Editor)
-		__guarded_element.getDeclaringClass ().getCookie (SourceCookie.Editor.class);
-	    Assertion.assert (__src_editor != null);
-	    javax.swing.text.Document __root_document =  __src_editor.sourceToText
+            SourceCookie.Editor __src_editor = (SourceCookie.Editor)
+                        __guarded_element.getDeclaringClass ().getCookie (SourceCookie.Editor.class);
+                    Assertion.assert (__src_editor != null);
+            final javax.swing.text.StyledDocument __root_document = (javax.swing.text.StyledDocument) __src_editor.sourceToText
 		(__guarded_element.getDeclaringClass ()).getDocument ();
 	    Assertion.assert (__root_document != null);
-	    String __root_text = __root_document.getText (0, __root_document.getLength ());
-	    if (DEBUG)
-		System.out.println ("__root_text: " + __root_text);
-	    __src_editor = (SourceCookie.Editor)__guarded_element.getCookie
-		(SourceCookie.Editor.class);
-            javax.swing.text.Element __element = __src_editor.sourceToText
-		(__guarded_element);
-	    Assertion.assert (__element != null);
-	    List __l_bounds = new ArrayList ();
-	    if ((__guarded_element instanceof MethodElement)
-		|| (__guarded_element instanceof FieldElement)) {
-		if (DEBUG)
-		    System.out.println ("not constructor: " + __guarded_element);
-		int __tmp_start_offset = __element.getStartOffset();
-		int __start_offset = -1;
-		for (int __i=__tmp_start_offset; __i>0; __i--) {
-		    // finding "\n"
-		    //System.out.println (__i + ". `" + __root_text.charAt (__i) + "'");
-		    if (__root_text.charAt (__i) == '\n') {
-			__start_offset = __i+1;
-			break;
-		    }
-		}
-		int __tmp_end_offset = __element.getEndOffset();
-		int __end_offset = __root_text.indexOf ('\n', __tmp_end_offset) + 1;
-		Assertion.assert (__element.getDocument () != null);
-		PositionRef __start_pos_ref = __editor.createPositionRef 
-		    (__start_offset, null);
-		PositionRef __end_pos_ref = __editor.createPositionRef
-		    (__end_offset, null);
-		//System.out.println("__start_pos_ref: " + __start_pos_ref);
-		PositionBounds __bounds = new PositionBounds (__start_pos_ref, __end_pos_ref);
-		if (DEBUG)
-		    System.out.println("bounds: " + __bounds);
-		__l_bounds.add (new Pair (__name_of_block, __bounds));
-	    }
-	    else {
-		// __element is ConstructorElement so we need to create/remove two
-		// guarded blocks
-		if (DEBUG)
-		    System.out.println ("constructor: " + __guarded_element);
-		System.out.println ("_M_elements_for_guard_blocks: "
+            synchronized (this) {
+                _M_guarding_status = GUARDING_RUNNING;
+            }
+			__src_editor.getSource().prepare().waitFinished();
+            org.openide.text.NbDocument.runAtomic (__root_document, new Runnable () {
+                public void run () {
+                    int __status=ImplGenerator.GUARDING_RUNNING;
+                    try {
+                    String __root_text = __root_document.getText (0, __root_document.getLength ());
+                    if (DEBUG)
+                        System.out.println ("__root_text: " + __root_text);
+                    SourceCookie.Editor __src_editor = (SourceCookie.Editor)__guarded_element.getCookie
+                        (SourceCookie.Editor.class);
+                    javax.swing.text.Element __element = __src_editor.sourceToText
+                        (__guarded_element);
+                    Assertion.assert (__element != null);
+                    List __l_bounds = new ArrayList ();
+                    if ((__guarded_element instanceof MethodElement)
+                        || (__guarded_element instanceof FieldElement)) {
+                        if (DEBUG)
+                            System.out.println ("not constructor: " + __guarded_element);
+                        int __tmp_start_offset = __element.getStartOffset();
+                        int __start_offset = -1;
+                        for (int __i=__tmp_start_offset; __i>0; __i--) {
+                            // finding "\n"
+                            //System.out.println (__i + ". `" + __root_text.charAt (__i) + "'");
+                            if (__root_text.charAt (__i) == '\n') {
+                                __start_offset = __i+1;
+        		        break;
+                	    }
+                        }
+			
+                        int __tmp_end_offset = __element.getEndOffset();
+                        int __end_offset = __root_text.indexOf ('\n', __tmp_end_offset) + 1;
+                        Assertion.assert (__element.getDocument () != null);
+                        PositionRef __start_pos_ref = __editor.createPositionRef 
+                            (__start_offset, null);
+                        PositionRef __end_pos_ref = __editor.createPositionRef
+                            (__end_offset, null);
+                        //System.out.println("__start_pos_ref: " + __start_pos_ref);
+                        PositionBounds __bounds = new PositionBounds (__start_pos_ref, __end_pos_ref);
+                        if (DEBUG)
+                            System.out.println("bounds: " + __bounds);
+                        __l_bounds.add (new Pair (__name_of_block, __bounds));
+			m_log.add (new String ("Generating block name:"+__name_of_block+"\n\tstart offset:"+__start_offset+"\n\tend offset:"+__end_offset));
+                    }
+                    else {
+                        // __element is ConstructorElement so we need to create/remove two
+                        // guarded blocks
+                        if (DEBUG)
+                            System.out.println ("constructor: " + __guarded_element);
+                        System.out.println ("_M_elements_for_guard_blocks: "
 				    + _M_elements_for_guard_blocks);
-		Thread.dumpStack ();
-		int __tmp_start_offset = __element.getStartOffset();
-		int __start_offset = -1;
-		for (int __i=__tmp_start_offset; __i>0; __i--) {
-		    // finding "\n"
-		    //System.out.println (__i + ". `" + __root_text.charAt (__i) + "'");
-		    if (__root_text.charAt (__i) == '\n') {
-			__start_offset = __i+1;
-			break;
-		    }
-		}
-		int __tmp_end_offset = __element.getEndOffset();
-		int __semicolon_offset = __root_text.indexOf (';', __start_offset) + 1;
-		int __end_offset = __semicolon_offset;
-		for (int __i=__semicolon_offset; __i<__tmp_end_offset; __i++) {
-		    //System.out.println (__i + ":0char `"+__root_text.charAt (__i) + "'");
-		    // finding "\n"
-		    if (__root_text.charAt (__i) == '\n') {
-			if (Character.isWhitespace (__root_text.charAt (__i+1))) {
-			    __end_offset = __i+1;
-			    break;
-			}
-			else {
-			    __end_offset = __i;
-			    break;
-			}
-		    }
-		    if (!Character.isWhitespace (__root_text.charAt (__i))) {
-			//System.out.println (__i + ":1char `" + __root_text.charAt (__i)
-			//+ "' is not whitespace");
-			__end_offset = __i-1;
-			break;
-		    };
-		}
-		Assertion.assert (__element.getDocument () != null);
-		PositionRef __start_pos_ref = __editor.createPositionRef 
-		    (__start_offset, null);
-		PositionRef __end_pos_ref = __editor.createPositionRef
-		    (__end_offset, null);
-		//System.out.println("__start_pos_ref: " + __start_pos_ref);
-		//System.out.println ("__start_offset: " + __start_offset);
-		//System.out.println ("__end_offset: " + __end_offset);
-		PositionBounds __bounds = new PositionBounds
-		    (__start_pos_ref, __end_pos_ref);
-		//System.out.println("bounds: " + __bounds);
-		__l_bounds.add (new Pair (__name_of_block + "_begin", __bounds));
-		//int __tmp_end_offset = __element.getEndOffset();
-		int __tmp_bracket_offset = __root_text.indexOf
-		    ('}', __tmp_start_offset) - 1;
-		__start_offset = __end_offset + 1;
-		for (int __i=__tmp_bracket_offset; __i>=__end_offset; __i--) {
-		    //System.out.println (__i + ":3char `"+__root_text.charAt (__i) + "'");
-		    // finding "\n"
-		    //System.out.println (__i + ". `" + __root_text.charAt (__i) + "'");
-		    if (__root_text.charAt (__i) == '\n') {
-			__start_offset = __i+1;
-			break;
-		    }
-		    if (!Character.isWhitespace (__root_text.charAt (__i))) {
-			//System.out.println (__i + ":2char `" + __root_text.charAt (__i)
-			//+ "' is not whitespace");
-			__start_offset = __i+1;
-			break;
-		    }
+                        // Thread.dumpStack ();
+                        int __tmp_start_offset = __element.getStartOffset();
+                        int __start_offset = -1;
+                        for (int __i=__tmp_start_offset; __i>0; __i--) {
+                            // finding "\n"
+                            //System.out.println (__i + ". `" + __root_text.charAt (__i) + "'");
+                            if (__root_text.charAt (__i) == '\n') {
+                                __start_offset = __i+1;
+                                break;
+                            }
+                        }
+                        int __tmp_end_offset = __element.getEndOffset();
+                        int __semicolon_offset = __root_text.indexOf (';', __start_offset) + 1;
+                        int __end_offset = __semicolon_offset;
+                        for (int __i=__semicolon_offset; __i<__tmp_end_offset; __i++) {
+                            //System.out.println (__i + ":0char `"+__root_text.charAt (__i) + "'");
+                            // finding "\n"
+                            if (__root_text.charAt (__i) == '\n') {
+                                if (Character.isWhitespace (__root_text.charAt (__i+1))) {
+                                    __end_offset = __i+1;
+                                    break;
+                                }
+                                else {
+                                    __end_offset = __i;
+                                    break;
+                                }
+                            }
+                            if (!Character.isWhitespace (__root_text.charAt (__i))) {
+                                //System.out.println (__i + ":1char `" + __root_text.charAt (__i)
+                                //+ "' is not whitespace");
+                                __end_offset = __i-1;
+                                break;
+                            };
+                        }
+                        Assertion.assert (__element.getDocument () != null);
+                        PositionRef __start_pos_ref = __editor.createPositionRef 
+                            (__start_offset, null);
+                        PositionRef __end_pos_ref = __editor.createPositionRef
+                            (__end_offset, null);
+                        //System.out.println("__start_pos_ref: " + __start_pos_ref);
+                        //System.out.println ("__start_offset: " + __start_offset);
+                        //System.out.println ("__end_offset: " + __end_offset);
+                        PositionBounds __bounds = new PositionBounds
+                            (__start_pos_ref, __end_pos_ref);
+                        //System.out.println("bounds: " + __bounds);
+                        __l_bounds.add (new Pair (__name_of_block + "_begin", __bounds));
+                        //int __tmp_end_offset = __element.getEndOffset();
+                        int __tmp_bracket_offset = __root_text.indexOf
+                            ('}', __tmp_start_offset) - 1;
+                        __start_offset = __end_offset + 1;
+                        for (int __i=__tmp_bracket_offset; __i>=__end_offset; __i--) {
+                            //System.out.println (__i + ":3char `"+__root_text.charAt (__i) + "'");
+                            // finding "\n"
+                            //System.out.println (__i + ". `" + __root_text.charAt (__i) + "'");
+                            if (__root_text.charAt (__i) == '\n') {
+                                __start_offset = __i+1;
+                                break;
+                            }
+                            if (!Character.isWhitespace (__root_text.charAt (__i))) {
+                                //System.out.println (__i + ":2char `" + __root_text.charAt (__i)
+                                //+ "' is not whitespace");
+                                __start_offset = __i+1;
+                                break;
+                            }
 	    
-		}
-		__end_offset = __root_text.indexOf ('\n', __start_offset) + 1;
-		__start_pos_ref = __editor.createPositionRef (__start_offset, null);
-		__end_pos_ref = __editor.createPositionRef (__end_offset, null);
-		__bounds = new PositionBounds (__start_pos_ref, __end_pos_ref);
-		__l_bounds.add (new Pair (__name_of_block + "_end", __bounds));
-		//System.out.println ("__start_offset: " + __start_offset);
-		//System.out.println ("__end_offset: " + __end_offset);
-		//System.out.println ("__bounds: " + __bounds);
-	    }
-	    Iterator __iter = __l_bounds.iterator ();
-	    while (__iter.hasNext ()) {
-		Pair __pair = (Pair)__iter.next ();
-		String __name = (String)__pair.first;
-		PositionBounds __bounds = (PositionBounds)__pair.second;
-		JavaEditor.SimpleSection __guarded = __editor.findSimpleSection
-		    (__name);
-		if (__guarded != null) {
-		    if (__action == ImplGenerator.REMOVE_SECTION) {
-			if (!__guarded.removeSection ())
-			    Assertion.assert (false);
-			__editor.saveDocument ();
-		    }
-		}
-		else {
-		    // can't find guard block with name __name_of_block
-		    // we will create one
-		    if (__action == ImplGenerator.CREATE_SECTION) {
-			JavaEditor.SimpleSection __section = __editor.createSimpleSection 
-			    (__bounds, __name);
-			__editor.saveDocument ();
-		    }
-		}
-	    }
+                        }
+                        __end_offset = __root_text.indexOf ('\n', __start_offset) + 1;
+                        __start_pos_ref = __editor.createPositionRef (__start_offset, null);
+                        __end_pos_ref = __editor.createPositionRef (__end_offset, null);
+                        __bounds = new PositionBounds (__start_pos_ref, __end_pos_ref);
+                        __l_bounds.add (new Pair (__name_of_block + "_end", __bounds));
+                        //System.out.println ("__start_offset: " + __start_offset);
+                        //System.out.println ("__end_offset: " + __end_offset);
+                        //System.out.println ("__bounds: " + __bounds);
+                    }
+                    Iterator __iter = __l_bounds.iterator ();
+                    while (__iter.hasNext ()) {
+                        Pair __pair = (Pair)__iter.next ();
+                        String __name = (String)__pair.first;
+                        PositionBounds __bounds = (PositionBounds)__pair.second;
+                        JavaEditor.SimpleSection __guarded = __editor.findSimpleSection
+                            (__name);
+                        if (__guarded != null) {
+                            if (__action == ImplGenerator.REMOVE_SECTION) {
+                                if (!__guarded.removeSection ())
+                                    Assertion.assert (false);
+                            }
+                        }
+                        else {
+                            // can't find guard block with name __name_of_block
+                            // we will create one
+                            if (__action == ImplGenerator.CREATE_SECTION) {
+                                JavaEditor.SimpleSection __section = __editor.createSimpleSection 
+                                    (__bounds, __name);
+				m_log.add (new String("Appending Guarded Section name: "+__name+"\n\t"+__bounds));
+                            }
+                        }
+                        __status = GUARDING_OK;
+                    }
+                    }catch (Exception __ex) {
+                        __status = GUARDING_FAILED;
+                    }
+                    finally {
+                        synchronized (ImplGenerator.this) {
+                            ImplGenerator.this._M_guarding_status = __status;
+                            ImplGenerator.this.notify ();
+                        }
+                    }
+                }
+            });
+            synchronized (this) {
+                while (this._M_guarding_status == GUARDING_RUNNING)
+                    try {
+                        this.wait ();
+                    }catch (InterruptedException ie) {}
+                __editor.saveDocument ();
+                if (this._M_guarding_status == GUARDING_FAILED)
+                    Assertion.assert (false);
+            }
 	} catch (AssertionException __ex) {
 	    throw __ex;
 	} catch (Exception __ex) {
@@ -3109,6 +3146,13 @@ public class ImplGenerator implements PropertyChangeListener {
 			printer.println ("//\n");
 			
 			printer.println (__final_clazz.toString ());
+			
+			Iterator it = m_log.iterator();
+			printer.println ("/**Debug");
+			while (it.hasNext())
+			    printer.println (it.next());
+                        printer.println ("*/");
+			
 			printer.close ();
 			//_M_generated_impls.add (clazz);
 			
@@ -3879,6 +3923,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
     private void generate_concrete_value (IDLElement __element) throws Exception {
 	//boolean DEBUG=true;
+	m_log.clear();
 	if (DEBUG)
 	    System.out.println ("generate_concrete_value: " + __element.getName ());
 	List __name = this.element2list_name (__element);
