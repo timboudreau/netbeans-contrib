@@ -108,6 +108,7 @@ public class ToLockFilesPanel extends javax.swing.JPanel {
         setLayout(new java.awt.GridBagLayout());
 
         setPreferredSize(new java.awt.Dimension(250, 250));
+        cbPerform.setText(org.openide.util.NbBundle.getBundle(ToLockFilesPanel.class).getString("ToLockFilesPanel.cbPerform.text"));
         cbPerform.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -117,6 +118,7 @@ public class ToLockFilesPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 11);
         add(cbPerform, gridBagConstraints);
 
+        rbAll.setText(org.openide.util.NbBundle.getBundle(ToLockFilesPanel.class).getString("ToLockFilesPanel.rbAll.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -124,6 +126,7 @@ public class ToLockFilesPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 11);
         add(rbAll, gridBagConstraints);
 
+        rbSelectedOnly.setText(org.openide.util.NbBundle.getBundle(ToLockFilesPanel.class).getString("ToLockFilesPanel.rbSelectedOnly.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -133,6 +136,8 @@ public class ToLockFilesPanel extends javax.swing.JPanel {
 
         spToBeAddedFiles.setMinimumSize(new java.awt.Dimension(150, 120));
         spToBeAddedFiles.setViewportView(tblToBeAddedFiles);
+        tblToBeAddedFiles.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/commands/Bundle").getString("ACS_ToLockFilesPanel.tbl"));
+        tblToBeAddedFiles.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/commands/Bundle").getString("ACSD_ToLockFilesPanel.tbl"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -144,9 +149,10 @@ public class ToLockFilesPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 30, 11, 11);
         add(spToBeAddedFiles, gridBagConstraints);
 
-        jTextArea1.setWrapStyleWord(true);
-        jTextArea1.setLineWrap(true);
         jTextArea1.setEditable(false);
+        jTextArea1.setLineWrap(true);
+        jTextArea1.setText(org.openide.util.NbBundle.getBundle(ToLockFilesPanel.class).getString("ToLockFilesPanel.lblDescription.text"));
+        jTextArea1.setWrapStyleWord(true);
         jTextArea1.setOpaque(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -154,6 +160,8 @@ public class ToLockFilesPanel extends javax.swing.JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 11);
         add(jTextArea1, gridBagConstraints);
+        jTextArea1.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/commands/Bundle").getString("ACS_ToLockFilesPanel.textArea"));
+        jTextArea1.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/commands/Bundle").getString("ACSD_ToLockFilesPanel.textArea"));
 
     }
 
