@@ -64,10 +64,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     //-------------------------------------------
     public ExecuteCommand(VcsFileSystem fileSystem, UserCommand cmd, Hashtable vars) {
         this(fileSystem, cmd, vars, null);
-        //super("VCS-ExecuteCommand-"+cmd.getName()); // NOI18N
-        //this.fileSystem=fileSystem;
-        //this.cmd=cmd;
-        //this.vars=vars;
     }
 
     public ExecuteCommand(VcsFileSystem fileSystem, UserCommand cmd, Hashtable vars, String preferredExec) {
@@ -75,50 +71,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         this.fileSystem = fileSystem;
         this.cmd = cmd;
         this.vars = vars;
-        //this(fileSystem, cmd, vars);
         if (preferredExec == null) {
             preferredExec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
         }
         this.preferredExec = preferredExec;
-        //fileSystem.getCommandsPool().add(this);
     }
 
-    /*
-    //-------------------------------------------
-    public void setErrorContainer(OutputContainer errorContainer) {
-        this.errorContainer = errorContainer;
-    }
-
-    //-------------------------------------------
-    public OutputContainer getErrorContainer() {
-        return this.errorContainer;
-    }
-     */
-
-    /*
-    //-------------------------------------------
-    public void setOutputListener(RegexListener listener){
-        stdoutListener=listener;
-    }
-
-
-    //-------------------------------------------
-    public void setErrorListener(RegexListener listener){
-        stderrListener=listener;
-    }
-
-    //-------------------------------------------
-    public void setOutputNoRegexListener(NoRegexListener listener){
-        stdoutNoRegexListener=listener;
-    }
-
-
-    //-------------------------------------------
-    public void setErrorNoRegexListener(NoRegexListener listener){
-        stderrNoRegexListener=listener;
-    }
-     */
-    
     /**
      * Add the listener to the standard output of the command. The listeners are removed
      * when the command finishes.
@@ -177,16 +135,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     public VcsCommandVisualizer getVisualizer() {
         return null;
     }
-    
-    /*
-    public synchronized void addCommandListener(CommandListener listener) {
-        commandListeners.add(listener);
-    }
-    
-    public synchronized void removeCommandListener(CommandListener listener) {
-        commandListeners.remove(listener);
-    }
-     */
     
     private void commandFinished(String exec, boolean success) {
         commandOutputListener.clear();
@@ -563,7 +511,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      */
     public Collection getFiles() {
         String paths = (String) vars.get("PATHS");
-        if (paths != null) {
+        if (paths != null && paths.length() > 0) {
             ArrayList files = new ArrayList();
             int len = paths.length();
             int begin = 0;
@@ -610,30 +558,3 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
     
 }
-
-/*
- * Log
- *  18   Jaga      1.16.1.0    3/8/00   Martin Entlicher Do not debug output when
- *       written to the output window.
- *  17   Gandalf   1.16        2/10/00  Martin Entlicher 
- *  16   Gandalf   1.15        1/18/00  Martin Entlicher 
- *  15   Gandalf   1.14        1/15/00  Ian Formanek    NOI18N
- *  14   Gandalf   1.13        1/7/00   Martin Entlicher 
- *  13   Gandalf   1.12        1/6/00   Martin Entlicher 
- *  12   Gandalf   1.11        1/5/00   Martin Entlicher 
- *  11   Gandalf   1.10        12/29/99 Martin Entlicher 
- *  10   Gandalf   1.9         12/28/99 Martin Entlicher 
- *  9    Gandalf   1.8         12/16/99 Martin Entlicher 
- *  8    Gandalf   1.7         12/14/99 Martin Entlicher Output Listener added
- *  7    Gandalf   1.6         11/30/99 Martin Entlicher 
- *  6    Gandalf   1.5         11/23/99 Martin Entlicher Changed for 
- *       VcsFilesystem instead of CvsFileSystem
- *  5    Gandalf   1.4         10/25/99 Pavel Buzek     
- *  4    Gandalf   1.3         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  3    Gandalf   1.2         10/7/99  Martin Entlicher Fixed runClass
- *  2    Gandalf   1.1         10/5/99  Pavel Buzek     VCS at least can be 
- *       mounted
- *  1    Gandalf   1.0         9/30/99  Pavel Buzek     
- * $
- */
