@@ -74,11 +74,7 @@ public class UpdateInfoPanel extends JPanel{
         this.visualizer = visualizer;
         initComponents();
         initAccessibility();
-        btnStop.setMnemonic(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.stopButton.mnemonic").charAt(0)); //NOI18N
-        btnViewLog.setMnemonic(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.logButton.mnemonic").charAt(0)); // NOI18N
-        btnViewLog.addActionListener(new ViewLogActionListener());
-        btnStop.setDefaultCapable(true);
-        
+ 
         setPreferredSize(new java.awt.Dimension(450, 200));
         setMinimumSize(new java.awt.Dimension(450, 200));
         labelString = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.lblSending.text"); // NOI18N
@@ -125,8 +121,6 @@ public class UpdateInfoPanel extends JPanel{
         spCentral = new javax.swing.JScrollPane();
         tblUpdates = new javax.swing.JTable();
         pnlButtons = new javax.swing.JPanel();
-        btnViewLog = new javax.swing.JButton();
-        btnStop = new javax.swing.JButton();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -164,23 +158,6 @@ public class UpdateInfoPanel extends JPanel{
 
         pnlButtons.setLayout(new java.awt.GridBagLayout());
 
-        btnViewLog.setText(org.openide.util.NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.logButton"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.weightx = 0.5;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
-        pnlButtons.add(btnViewLog, gridBagConstraints);
-
-        btnStop.setText(org.openide.util.NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.stopButton"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
-        pnlButtons.add(btnStop, gridBagConstraints);
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -196,12 +173,10 @@ public class UpdateInfoPanel extends JPanel{
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnViewLog;
-    private javax.swing.JTable tblUpdates;
-    private javax.swing.JScrollPane spCentral;
-    private javax.swing.JButton btnStop;
     private javax.swing.JLabel lblSending;
     private javax.swing.JPanel pnlButtons;
+    private javax.swing.JScrollPane spCentral;
+    private javax.swing.JTable tblUpdates;
     // End of variables declaration//GEN-END:variables
     
     
@@ -209,13 +184,7 @@ public class UpdateInfoPanel extends JPanel{
         
         AccessibleContext context = this.getAccessibleContext();
         context.setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel"));
-        
-        context = btnViewLog.getAccessibleContext();
-        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.btnViewLog"));
-        
-        context = btnStop.getAccessibleContext();
-        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.btnStop"));
-        
+
         context = tblUpdates.getAccessibleContext();
         context.setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSN_UpdateInfoPanel.tblUpdates"));
         context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.tblUpdates"));
@@ -235,17 +204,11 @@ public class UpdateInfoPanel extends JPanel{
         col.setMaxWidth(40);
         
         stopActionListener = new StopActionListener();
-        btnStop.addActionListener(stopActionListener);
-        btnViewLog.setEnabled(false);
         
     }
     
     protected void shutDownCommand() {
         // we can do that because it's running from other thread then command and won't kill itself
-        if (btnStop != null) {
-            btnStop.setText(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.stopping")); // NOI18N
-            btnStop.setEnabled(false);
-        }
         if(this.task.isRunning())
             this.task.stop();
     }
@@ -255,16 +218,6 @@ public class UpdateInfoPanel extends JPanel{
      *  displaying as single Dialog.. whatever.
      */
     private void displayOutputData() {
-        
-        btnStop.setText(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.closeButton")); // NOI18N
-        btnStop.setMnemonic(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.closeButton.mnemonic").charAt(0)); //NOI18N
-        AccessibleContext context = btnStop.getAccessibleContext();
-        context.setAccessibleName(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_UpdateInfoPanel.btnClose"));
-        btnStop.setEnabled(true);
-        btnStop.removeActionListener(stopActionListener);
-        btnStop.addActionListener(new CloseActionListener());        
-        btnViewLog.setEnabled(true);
-        
         JTableHeader head = tblUpdates.getTableHeader();
         head.setUpdateTableInRealTime(true);
         ColumnSortListener listen = new ColumnSortListener(tblUpdates);
@@ -314,52 +267,7 @@ public class UpdateInfoPanel extends JPanel{
             }
         }
     }
-    
-    protected void doShowCommandLog() {
-        // begin visual stuff --------------
-        JPanel toReturn = new JPanel();
-        toReturn.setLayout(new BorderLayout());
-        JScrollPane pane = new JScrollPane();
-        pane.setBorder(BorderFactory.createEmptyBorder(10,10,0,10));
-        JTextArea area = new JTextArea();
-        //accessibility stuff..
-        AccessibleContext context = toReturn.getAccessibleContext();
-        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_ShowComandLog"));
-        
-        context = area.getAccessibleContext();
-        context.setAccessibleDescription(NbBundle.getBundle(UpdateInfoPanel.class).getString("ACSD_ShowCommandLog.area"));
-        
-        area.setLineWrap(false);
-        if (buff != null) {
-            area.setText(buff.toString());
-        }
-        area.setEditable(false);
-        javax.swing.KeyStroke enter = javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER, 0);
-        javax.swing.text.Keymap map = area.getKeymap();
-        map.removeKeyStrokeBinding(enter);
-        
-        pane.setPreferredSize(new Dimension(400, 100));
-        pane.setViewportView(area);
-        toReturn.add(pane, BorderLayout.CENTER);
-        // - end visual stuff -------------------
-        String title = NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.commandLogTitle"); // NOI18N
-        toReturn.setSize(new Dimension(450, 200));
-        toReturn.setMinimumSize(new Dimension(250, 100));
-        DialogDescriptor dd = new DialogDescriptor(toReturn, title);
-        JButton btClose = new JButton();
-        btClose.setText(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdateInfoPanel.closeButton")); // NOI18N
-        btClose.setMnemonic(NbBundle.getBundle(UpdateInfoPanel.class).getString("UpdatetInfoPanel.closeButton.mnemonic").charAt(0)); // NOI18N
-        btClose.setDefaultCapable(true);
-        dd.setValue(btClose);
-        Object[] options = { btClose };
-        dd.setOptions(options);
-        dd.setClosingOptions(options);
-        dd.setModal(true);
-        Dialog dial = DialogDisplayer.getDefault().createDialog(dd);
-        dial.show();
-        btnViewLog.setEnabled(true);
-    }
-    
+ 
     
     private class ColoringUpdateRenderer extends DefaultTableCellRenderer {
         
@@ -403,13 +311,6 @@ public class UpdateInfoPanel extends JPanel{
         public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
            // visualizer.close();
         }
-    }
-    
-    public class ViewLogActionListener implements java.awt.event.ActionListener {
-        
-        public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
-            btnViewLog.setEnabled(false);
-            doShowCommandLog();
-        }
-    }
+    }    
+
 }
