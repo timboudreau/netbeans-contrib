@@ -146,8 +146,8 @@ Microsystems, Inc. All Rights Reserved.
        <property name="javadoc.overview" location="doc/overview.html"/>
       </ant>
       <mkdir dir="javadoc/DD-API/arch"/>
-      <copy file="../www/doc/ddapi_architecture.html" todir="javadoc/DD-API/arch"/>
-      <copy file="../www/doc/dd_api_schema.jpg" todir="javadoc/DD-API/arch"/>
+      <copy file="doc/ddapi_architecture.html" todir="javadoc/DD-API/arch"/>
+      <copy file="doc/dd_api_schema.jpg" todir="javadoc/DD-API/arch"/>
       <copy file="doc/usage.html" todir="javadoc/DD-API/arch"/>
   </target>
   
