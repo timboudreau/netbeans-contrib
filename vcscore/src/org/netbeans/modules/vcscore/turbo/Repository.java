@@ -93,11 +93,18 @@ final class Repository {
         VcsFileSystem fsystem = (VcsFileSystem) fileObject.getAttribute(VcsAttributes.VCS_NATIVE_FS);
         if (fsystem != null) {
             CommandSupport engine;
-            boolean offLine = ((VcsFileSystem)fsystem).isOffLine();
+            boolean offLine = fsystem.isOffLine();
             if (offLine) {
-                engine = ((VcsFileSystem)fsystem).getCommandSupport(VcsCommand.NAME_REFRESH + VcsCommand.NAME_SUFFIX_OFFLINE);
+                engine = fsystem.getCommandSupport(VcsCommand.NAME_REFRESH + VcsCommand.NAME_SUFFIX_OFFLINE);
+                if (engine == null) {
+                    engine = fsystem.getCommandSupport(VcsCommand.NAME_REFRESH);
+                }
             } else {
-                engine = ((VcsFileSystem)fsystem).getCommandSupport(VcsCommand.NAME_REFRESH);
+                engine = fsystem.getCommandSupport(VcsCommand.NAME_REFRESH);
+            }
+            
+            if (engine == null) {
+                throw new IllegalStateException("Command "+VcsCommand.NAME_REFRESH+" is not defined in "+fsystem);
             }
 
             Command cmd = engine.createCommand();
