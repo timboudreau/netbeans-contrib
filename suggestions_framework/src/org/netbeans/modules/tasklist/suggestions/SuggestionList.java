@@ -203,7 +203,6 @@ final public class SuggestionList extends TaskList {
      *    on your search direction.
      * @return the next element following curr that is
      *    not a category node */
-     */
     public SuggestionImpl findNext(SuggestionImpl curr, 
                             boolean wrap) {
         currFound = false;
@@ -252,7 +251,6 @@ final public class SuggestionList extends TaskList {
      *    on your search direction.
      * @return the element preceding curr that is
      *    not a category node */
-     */
     public SuggestionImpl findPrev(SuggestionImpl curr, 
                             boolean wrap) {
         currFound = false;
