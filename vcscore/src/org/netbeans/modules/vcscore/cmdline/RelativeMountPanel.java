@@ -258,7 +258,8 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                         folderTreeNodes(node);
                     }
                 };
-                new Thread(treeBuild, "Mount Panel Tree Build").start();
+                //new Thread(treeBuild, "Mount Panel Tree Build").start();
+                RequestProcessor.postRequest(treeBuild);
             }
             public void treeWillCollapse(TreeExpansionEvent evt) {
             }
@@ -276,7 +277,8 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                     folderTreeNodes(root);
                 }
             };
-            new Thread(treeBuild, "Mount Panel Tree Build").start();
+            //new Thread(treeBuild, "Mount Panel Tree Build").start();
+            RequestProcessor.postRequest(treeBuild);
             DefaultTreeCellRenderer  def = new MyTreeCellRenderer();
             trRelMount.setCellRenderer(def);
             trRelMount.setModel(new DefaultTreeModel(root));
@@ -391,11 +393,11 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
         createTree(rootDir);
         //trRelMount.setSelectionModel(new MySelectionModel()); // because of not allowing to select local dirs
         trRelMount.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        new Thread(new Runnable() {
+        RequestProcessor.postRequest(new Runnable() {
             public void run() {
                 setInitSelect(relMount);
             }
-        }).start();
+        });
         txRelMount.setText(relMount);
     }
     
