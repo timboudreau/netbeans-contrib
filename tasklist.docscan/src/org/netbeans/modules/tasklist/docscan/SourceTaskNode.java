@@ -71,7 +71,9 @@ class SourceTaskNode extends SuggestionNode {
     }
 
     public Action[] getActions(boolean context) {
-        return new Action[0];
+        return new Action[] {
+            SystemAction.get(ShowSuggestionAction.class)
+        };
     }
 
 //     public String getDisplayName() {
