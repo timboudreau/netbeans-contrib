@@ -50,7 +50,7 @@ public class VersioningExplorer {
         //panel.setName(org.openide.util.NbBundle.getBundle(RevisionExplorer.class).getString("CTL_Explorer.title"));
         panel.setName(root.getDisplayName());
         panel.getExplorerManager().setRootContext(root);
-        panel.setIcon (org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/versioning/impl/versioningExplorer.gif"));
+        panel.setIcon (org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/versioning/impl/versioning.png"));
         initComponents();
     }
 

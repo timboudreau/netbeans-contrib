@@ -38,7 +38,7 @@ public class VcsOutputAction extends CallableSystemAction {
     }
     
     protected String iconResource() {     
-        return "org/netbeans/modules/vcscore/commands/commandOutputWindow.gif";
+        return "org/netbeans/modules/vcscore/commands/vcs_output.png";
     }
     
     /**

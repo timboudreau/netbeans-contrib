@@ -66,7 +66,7 @@ public class CommandOutputTopComponent extends TopComponent {
 //    private static final long serialVersionUID = -8901733341334731237L;
     
     private CommandOutputTopComponent() {        
-        setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));  //NOI18N        
+        setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/vcs_output.png"));  //NOI18N        
         initComponents();
         setName(NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.topName")); //NOI18N
         initPopupMenu();

@@ -80,7 +80,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
     * @return the action's icon location
     */
     protected String iconResource () {
-        return "org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"; // NOI18N
+        return "org/netbeans/modules/vcscore/grouping/vcs_groups.png"; // NOI18N
     }
 
     /**
@@ -112,7 +112,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
             initComponent();
             getAccessibleContext().setAccessibleDescription(
                 org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSD_AddVcsGroupAction.dialog"));
-            setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"));
+            setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/grouping/vcs_groups.png"));
         }
         
         public static synchronized GroupExplorerPanel getDefault() {

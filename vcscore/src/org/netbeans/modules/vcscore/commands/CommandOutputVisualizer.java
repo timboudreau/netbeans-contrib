@@ -175,7 +175,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
      * Open the component on the given workspace.
      */
     public void open() {
-        setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
+        setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/vcs_output.png"));
         CommandOutputTopComponent out = CommandOutputTopComponent.getInstance();
         out.addVisualizer(displayName, this, true);
         out.open();
