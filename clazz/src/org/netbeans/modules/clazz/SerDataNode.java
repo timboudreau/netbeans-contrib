@@ -32,11 +32,11 @@ final class SerDataNode extends ClassDataNode {
   static final long serialVersionUID = -2645179282674800246L;
 
   private static final String SER_BASE =
-    "com/netbeans/developer/modules/resources/class/ser";
+    "/com/netbeans/developer/modules/loaders/class/resources/ser";
   private static final String SER_MAIN_BASE =
-    "com/netbeans/developer/modules/resources/class/serMain";
+    "/com/netbeans/developer/modules/loaders/class/resources/serMain";
   private static final String SER_ERROR_BASE =
-    "com/netbeans/developer/modules/resources/class/serError";
+    "/com/netbeans/developer/modules/loaders/class/resources/serError";
 
   /** Constructs bean data node with asociated data object.
   */
@@ -76,6 +76,8 @@ final class SerDataNode extends ClassDataNode {
 
 /*
  * Log
+ *  5    src-jtulach1.4         3/22/99  Ian Formanek    Icons moved from 
+ *       modules/resources to this package
  *  4    src-jtulach1.3         2/25/99  Jaroslav Tulach Change of clipboard 
  *       management  
  *  3    src-jtulach1.2         1/20/99  David Simonek   icon managing repaired
