@@ -655,6 +655,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="exec">
 	  <value>${CDW_EXECUTE} -f status -l ${NUR}</value>
 	</property>
+        <property name="ignoreFail">
+            <value>true</value>
+        </property>
       </command>
       <command name="LIST_LOG_CMD">
 	<property name="exec">

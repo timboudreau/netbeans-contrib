@@ -26,6 +26,7 @@ import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 
 import org.netbeans.modules.vcs.profiles.list.AbstractListCommand;
+import org.openide.util.NbBundle;
 
 /**
  * List command for CVS.
@@ -356,7 +357,7 @@ public class CvsListCommand extends AbstractListCommand {
                         CommandDataOutputListener stderrListener, String errorRegex) {
 
         this.stdoutNRListener = stdoutNRListener;
-        this.stderrNRListener = stderrNRListener;
+        this.stderrNRListener = new ErrorMsgTranslator(stderrNRListener);;
         this.stdoutListener = stdoutListener;
         this.stderrListener = stderrListener;
         this.dataRegex = dataRegex;
@@ -391,5 +392,37 @@ public class CvsListCommand extends AbstractListCommand {
 
     public void outputData(String[] elements) {
         dataBuffer.append(elements[0]+"\n");
+    }
+    
+    private static final class ErrorMsgTranslator extends Object implements CommandOutputListener {
+        
+        private static final String NO_ROOT = "CVSROOT: No such file or directory"; // NOI18N
+        
+        private CommandOutputListener errorListener;
+        
+        public ErrorMsgTranslator(CommandOutputListener errorListener) {
+            this.errorListener = errorListener;
+        }
+        
+        public void outputLine(String line) {
+            int noRootIndex = line.indexOf(NO_ROOT);
+            if (noRootIndex > 0) {
+                String root = line.substring(0, noRootIndex);
+                int bracket = root.indexOf('[');
+                if (bracket > 0) {
+                    int lastBracket = VcsUtilities.getPairIndex(line, bracket + 1, '[', ']');
+                    if (lastBracket > 0) {
+                        root = root.substring(lastBracket + 2).trim();
+                    }
+                }
+                errorListener.outputLine(line); // write the original error
+                errorListener.outputLine("");   // blank line to make it more readable
+                String msg = NbBundle.getMessage(CvsListCommand.class, "ReposNotInitialized", root);
+                errorListener.outputLine(msg);  // The "translated" message
+            } else {
+                errorListener.outputLine(line);
+            }
+        }
+        
     }
 }
