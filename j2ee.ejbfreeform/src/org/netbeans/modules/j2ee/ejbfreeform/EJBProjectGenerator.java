@@ -129,6 +129,7 @@ public class EJBProjectGenerator {
         // TODO: ma154696: check NodeList length
         Element props = Util.findElement(parent, "properties", EJBProjectGenerator.NS_GENERAL); // NOI18N
         if (props == null) {
+            // create the <properties> element if it doesn't exist, which it should (#56344)
             props = doc.createElementNS(FreeformProjectType.NS_GENERAL, "properties");
             Util.appendChildElement(parent, props, rootElementsOrder);
         }
