@@ -165,13 +165,35 @@ public class VcsAction extends NodeAction implements ActionListener {
          */
     }
 
+    /*
+     * Whether the files should be locked in VCS. This command does not save the file contents.
+     * Executes the <code>VcsCommand.NAME_SHOULD_DO_LOCK</code> command, which should
+     * find out, whether the file is already locked.
+     * @param files the table pairs of file name and associated <code>FileObject</code>
+     * @return true if the command succeeds and therefore the file should be locked,
+     *         false otherwise
+     *
+    public static boolean shouldDoLock(Table files, VcsFileSystem fileSystem) {
+        VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_SHOULD_DO_LOCK);
+        if (cmd != null) {
+            VcsCommandExecutor[] execs = doCommand(files, cmd, null, fileSystem, null, null, null, null, false);
+            for (int i = 0; i < execs.length; i++) {
+                if (execs[i].getExitStatus() != VcsCommandExecutor.SUCCEEDED) return false;
+            }
+        }
+        return true;
+    }
+     */
+    
     /**
-     * Lock files in VCS.
+     * Lock files in VCS. This command does not save the file contents.
      * @param files the table pairs of file name and associated <code>FileObject</code>
      */
     public static void doLock(Table files, VcsFileSystem fileSystem) {
         VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_LOCK);
-        if (cmd != null) doCommand(files, cmd, null, fileSystem);
+        if (cmd != null) {
+            doCommand(files, cmd, null, fileSystem, null, null, null, null, false);
+        }
     }
     
     /**
@@ -219,9 +241,27 @@ public class VcsAction extends NodeAction implements ActionListener {
     public static VcsCommandExecutor[] doCommand(Table files, VcsCommand cmd, Hashtable additionalVars, VcsFileSystem fileSystem,
                                                  CommandOutputListener stdoutListener, CommandOutputListener stderrListener,
                                                  CommandDataOutputListener stdoutDataListener, CommandDataOutputListener stderrDataListener) {
+        return doCommand(files, cmd, additionalVars, fileSystem, stdoutListener, stderrListener, stdoutDataListener, stderrDataListener, true);
+    }
+    
+    /**
+     * Do a command on a set of files.
+     * @param files the table of pairs of files and file objects, to perform the command on
+     * @param cmd the command to perform
+     * @param additionalVars additional variables to FS variables, or null when no additional variables are needed
+     * @param fileSystem the VCS file system
+     * @param saveProcessingFiles whether save processing files prior command execution
+     * @return the command executors of all executed commands.
+     */
+    public static VcsCommandExecutor[] doCommand(Table files, VcsCommand cmd, Hashtable additionalVars, VcsFileSystem fileSystem,
+                                                 CommandOutputListener stdoutListener, CommandOutputListener stderrListener,
+                                                 CommandDataOutputListener stdoutDataListener, CommandDataOutputListener stderrDataListener,
+                                                 boolean saveProcessingFiles) {
         //System.out.println("doCommand("+files+", "+cmd+")");
         if (files.size() == 0) return new VcsCommandExecutor[0];
-        assureFilesSaved(files.values());
+        if (saveProcessingFiles) {
+            assureFilesSaved(files.values());
+        }
         if (VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER)) {
             files = createHierarchicalOrder(files);
         }
@@ -683,7 +723,7 @@ public class VcsAction extends NodeAction implements ActionListener {
     }
     
     protected void performCommand(final String cmdName, final Node[] nodes) {
-        //System.out.println("performCommand("+cmdName+")");// on "+nodes.length+" nodes.");
+        System.out.println("performCommand("+cmdName+")");// on "+nodes.length+" nodes.");
         /* should not be used any more:
         if (cmdName.equals("KILL_ALL_CMDS")) {
             killAllCommands();
