@@ -76,6 +76,11 @@ public class PvcsDatabaseSelectorPanel extends javax.swing.JPanel implements jav
             customDbTextField.setText(database);
             selectedDatabase = database;
         }
+        dbRadioButtonCustom.setMnemonic(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("LABEL_DatabaseLocation_Mnemonic").charAt(0));  // NOI18N
+        customDbBrowseButton.setMnemonic(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("LABEL_Browse_Mnemonic").charAt(0));  // NOI18N
+        dbRadioButtonGUI.setMnemonic(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("LABEL_SelectGUIDatabases_Mnemonic").charAt(0));  // NOI18N
+        dbRadioButtonSearch.setMnemonic(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("LABEL_SearchInFolder_Mnemonic").charAt(0));  // NOI18N
+        dbFolderBrowseButton.setMnemonic(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("LABEL_BrowseSubfolder_Mnemonic").charAt(0));  // NOI18N
     }
     
     /** This method is called from within the constructor to
@@ -99,63 +104,71 @@ public class PvcsDatabaseSelectorPanel extends javax.swing.JPanel implements jav
 
         setLayout(new java.awt.GridBagLayout());
 
+        dbRadioButtonCustom.setToolTipText(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_LABEL_DatabaseLocationA11yDesc"));
         dbRadioButtonCustom.setSelected(true);
         dbRadioButtonCustom.setText(org.openide.util.NbBundle.getMessage(PvcsDatabaseSelectorPanel.class, "LABEL_DatabaseLocation"));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         add(dbRadioButtonCustom, gridBagConstraints);
 
+        customDbTextField.setToolTipText(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_TEXTFIELD_DatabaseLocationA11yDesc"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 12);
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 12);
         add(customDbTextField, gridBagConstraints);
 
+        customDbBrowseButton.setToolTipText(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_LABEL_BrowseA11yDesc"));
         customDbBrowseButton.setText(org.openide.util.NbBundle.getMessage(PvcsDatabaseSelectorPanel.class, "LABEL_Browse"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
         add(customDbBrowseButton, gridBagConstraints);
 
+        dbRadioButtonGUI.setToolTipText(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_LABEL_SelectGUIDatabasesA11yDesc"));
         dbRadioButtonGUI.setText(org.openide.util.NbBundle.getMessage(PvcsDatabaseSelectorPanel.class, "LABEL_SelectGUIDatabases"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 12);
         add(dbRadioButtonGUI, gridBagConstraints);
 
+        dbRadioButtonSearch.setToolTipText(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_LABEL_SearchInFolderA11yDesc"));
         dbRadioButtonSearch.setText(org.openide.util.NbBundle.getMessage(PvcsDatabaseSelectorPanel.class, "LABEL_SearchInFolder"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 3;
-        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 12);
         add(dbRadioButtonSearch, gridBagConstraints);
 
+        dbFolderTextField.setToolTipText(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_TEXTFIELD_SearchInFolderA11yDesc"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 12);
         gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 30, 0, 12);
         add(dbFolderTextField, gridBagConstraints);
 
+        dbFolderBrowseButton.setToolTipText(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_LABEL_BrowseSubfolderA11yDesc"));
         dbFolderBrowseButton.setText(org.openide.util.NbBundle.getMessage(PvcsDatabaseSelectorPanel.class, "LABEL_Browse"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 4;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
         add(dbFolderBrowseButton, gridBagConstraints);
 
+        dbList.setToolTipText(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_LIST_DatabaseListA11yDesc"));
         dbScrollPane.setViewportView(dbList);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(5, 12, 11, 12);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 12, 11, 12);
         add(dbScrollPane, gridBagConstraints);
 
     }//GEN-END:initComponents
