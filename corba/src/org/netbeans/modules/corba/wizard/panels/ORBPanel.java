@@ -253,8 +253,21 @@ add(jPanel3, gridBagConstraints1);
   }
 
   private void rollBack () {
-      ORBPanel.this.orbs.setSelectedItem (defaultOrb);
-      ORBPanel.this.bindings.setSelectedItem (defaultBinding);
+    new Thread ( new Runnable () {
+      public void run () {
+        ORBPanel.this.filter = true;
+        try {
+          java.awt.EventQueue.invokeAndWait ( new Runnable () {
+              public void run () {
+                ORBPanel.this.orbs.setSelectedItem (defaultOrb);
+                ORBPanel.this.bindings.setSelectedItem (defaultBinding);
+              }});
+        }catch (InterruptedException ie){}
+        catch (java.lang.reflect.InvocationTargetException ite){}
+        finally {
+          ORBPanel.this.filter = false;
+        }
+      }}).start();
   }
 
 // Variables declaration - do not modify//GEN-BEGIN:variables

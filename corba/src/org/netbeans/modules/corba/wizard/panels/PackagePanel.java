@@ -250,6 +250,8 @@ private javax.swing.JTextField idlName;
         Node[] nodes = this.tree.getExplorerManager ().getSelectedNodes ();
         if (nodes == null || nodes.length != 1)
             return;
+        if (nodes[0] == this.root) // The repository node is selected, giving up
+          return;
         DataFolder pcg = (DataFolder) nodes[0].getCookie (DataFolder.class);
         FileObject folder = pcg.getPrimaryFile ();
         FileObject[] files = folder.getChildren();
