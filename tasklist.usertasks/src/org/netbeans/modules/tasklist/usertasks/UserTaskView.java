@@ -20,11 +20,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import org.openide.text.Annotation;
 import org.netbeans.api.tasklist.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.ImportAction;
+import org.netbeans.modules.tasklist.core.Task;
+import org.netbeans.modules.tasklist.core.TaskAnnotation;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskListener;
 import org.netbeans.modules.tasklist.core.TaskNode;
@@ -219,7 +222,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
             getCategoryColumn(false, 200),
             getDetailsColumn(false, 800),
             getFileColumn(false, 200),
-            getLineColumn(false, 200),
+            getLineColumn(false, 80),
             getCreatedColumn(false, 150),
             getEditedColumn(false, 150),
             getDueColumn(false, 150),
@@ -425,7 +428,44 @@ public class UserTaskView extends TaskListView implements TaskListener {
         UserTask root = (UserTask)tasklist.getRoot();
         return new UserTaskNode(root, root.getSubtasks());
     }
+
+    /** Show the given task. "Showing" means getting the editor to
+     * show the associated file position, and open up an area in the
+     * tasklist view where the details of the task can be fully read.
+     */
+    public void showTask(Task item, TaskAnnotation annotation) {
+        UserTask task = (UserTask)item;
+        UserTask prevTask = null;
+        if ((taskMarker != null) &&
+            (taskMarker.getTask() instanceof UserTask)) {
+            prevTask = (UserTask)taskMarker.getTask();
+        }
+        if (task.getAnnotation() != null) {
+            task.getAnnotation().detach();
+            task.setAnnotation(null);
+        }
+        super.showTask(item, annotation);
+        if (prevTask != null) {
+            if ((prevTask.getLine() != null) && (task.getAnnotation() == null)) {
+                TaskAnnotation anno = new TaskAnnotation(prevTask, false);
+                anno.attach(prevTask.getLine());
+                prevTask.setAnnotation(anno);                
+            }
+        }
+    }
+
+    protected void showList() {
+        super.showList();
+        UserTaskList utl = (UserTaskList) this.tasklist;
+        utl.showAnnotations((UserTask)utl.getRoot());
+    }
     
+    protected void hideList() {
+        super.hideList();
+        UserTaskList utl = (UserTaskList) this.tasklist;
+        utl.hideAnnotations((UserTask)utl.getRoot());
+    }
+
     public String toString() { 
         return "UserTaskView(" + title + ", " + category + ", " + tasklist + ")"; // NOI18N
     }

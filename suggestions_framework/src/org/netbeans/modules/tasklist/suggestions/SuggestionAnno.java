@@ -14,22 +14,22 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import org.netbeans.modules.tasklist.core.Task;
+import org.netbeans.modules.tasklist.core.TaskAnnotation;
 
-import org.openide.text.Annotation;
-
-class SuggestionAnno extends Annotation {
+class SuggestionAnno extends TaskAnnotation {
 
     SuggestionAnno(Task task) {
-        this.task = task;
+        super(task);
     }
-
-    private Task task = null;
 
     public String getAnnotationType () {
         return "Suggestion"; // NOI18N
     }
     
     public String getShortDescription () {
+        // Highlight task in Suggestions View as well, if possible
+        showTask();
+
         // Can I get the confirmation panel here? Check to see
         // if its instanceof String for example?
 

@@ -114,7 +114,7 @@ public abstract class TaskListView extends ExplorerPanel
     transient private ActionPerformer deletePerformer;
     
     /** Annotation showing the current position */
-    transient protected Annotation taskMarker = null;
+    transient protected TaskAnnotation taskMarker = null;
     
     /** Construct a new TaskListView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
@@ -167,12 +167,13 @@ public abstract class TaskListView extends ExplorerPanel
      * show the associated file position, and open up an area in the
      * tasklist view where the details of the task can be fully read.
      */
-    public void showTask(Task item, Annotation annotation) {
+    public void showTask(Task item, TaskAnnotation annotation) {
 	hideTask();
 	if (item == null) {
 	    return;
 	}
 
+        StatusDisplayer.getDefault().setStatusText(item.getSummary());
         Line l = item.getLine();
         if (l != null) {
             if (taskMarker == null) {
@@ -805,6 +806,7 @@ public abstract class TaskListView extends ExplorerPanel
      * area in the todolist view where the details of the todolist
      * item can be fully read.
      */
+    /*
     public void show(Task item, Annotation anno) {
 	if (listeners != null) {
 	    // Stash item so I can notify of deletion -- see TaskViewListener
@@ -817,8 +819,10 @@ public abstract class TaskListView extends ExplorerPanel
 	    }
 	}
     }
+    */
 
     /** Unshow the given task, if it's the one currently showing */
+    /*
     public void unshow(Task item) {
         if (item != unshowItem) {
             return;
@@ -834,6 +838,7 @@ public abstract class TaskListView extends ExplorerPanel
 	    }
 	}
     }
+    */
     
     /** Expand nodes and select the particular todo item, IF the todolist
      *  view is showing
@@ -1412,7 +1417,7 @@ public abstract class TaskListView extends ExplorerPanel
         }
         if (next != null) {
             if (next.getLine() != null) {
-                Annotation anno = getAnnotation(next);
+                TaskAnnotation anno = getAnnotation(next);
                 if (anno != null) {
                     showTask(next, anno);
                 }
@@ -1448,9 +1453,9 @@ public abstract class TaskListView extends ExplorerPanel
         }
         if (prev != null) {
             if (prev.getLine() != null) {
-                Annotation anno = getAnnotation(prev);
+                TaskAnnotation anno = getAnnotation(prev);
                 if (anno != null) {
-                    show(prev, anno);
+                    showTask(prev, anno);
                 }
             }
             select(prev);
@@ -1459,7 +1464,7 @@ public abstract class TaskListView extends ExplorerPanel
     }
 
     /** Return an editor annotation to use to show the given task */
-    protected Annotation getAnnotation(Task task) {
+    protected TaskAnnotation getAnnotation(Task task) {
         // Make sure the editor is here and providing the annotation type
         FileObject f = Repository.getDefault().getDefaultFileSystem().
             findResource("Editors/AnnotationTypes/TaskAnnotation.xml"); // NOI18N

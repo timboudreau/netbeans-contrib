@@ -21,6 +21,7 @@ Microsystems, Inc. All Rights Reserved.
             <folder name="TaskActions">
                 <file name="org-netbeans-modules-tasklist-editor-NewTaskEditorAction.instance"/>
             </folder>
+            <file name="TaskAnnotationNoHighlight.xml" url="TaskAnnotationNoHighlight.xml"/>
         </folder>
     </folder>
 

@@ -85,10 +85,6 @@ class SuggestionNode extends TaskNode {
         }
     }
 
-   /**
-       @todo Should "task has associated filepos" and "task is sourcescan task"
-         have separate icons?
-    */
     protected void updateIcon() {
         setIconBase("org/netbeans/modules/tasklist/suggestions/suggTask"); // NOI18N
     }

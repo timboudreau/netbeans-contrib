@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -34,29 +34,24 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.List;
 import org.openide.cookies.SourceCookie;
-import org.openide.cookies.EditorCookie;
 import org.openide.explorer.view.*;
 import org.openide.nodes.*;
 import org.openide.ErrorManager;
-import org.openide.cookies.LineCookie;
 import org.openide.loaders.DataObject;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.core.ConfPanel;
 
 /**
  * This class uses the PMD rule checker to provide rule violation
  * suggestions.
  * <p>
- * @todo Add more automatic fixers for rules. For example, add one
- *   to remove an unused method.
- *  Potentially easy: UnusedModifier, ImportFromSamePackage,
- *  DontImportJavaLang. 
+ * @todo Add more automatic fixers for rules. 
+ *  Potentially easy: UnusedModifier.
  * Other candidates: StringToString, StringInstantiation, ...
- * @todo Can I fix the "MustUseBraces" rules?
+ * MustUseBraces?
  * SimplyBooleanReturnsRule - is this for new Boolean ?
  * @todo Include javadoc sections in method and variable removals
  *   (be sure to show it in the preview dialog as well)
@@ -152,7 +147,7 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                 final RuleViolation violation = (RuleViolation)iterator.next();
                 try {
                     // Violation line numbers seem to be 0-based
-                    final Line line = getLine(dobj, violation.getLine());
+                    final Line line = TLUtils.getLineByNumber(dobj, violation.getLine());
                     
                     //System.out.println("Next violation = " + violation.getRule().getName() + " with description " + violation.getDescription() + " on line " + violation.getLine());
                     
@@ -166,9 +161,8 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                         fixable = true;
                         boolean comment = false;
                         action = new ImportPerformer(line, violation, comment);
-                    } else if ((rulename.equals("UnusedPrivateField") || // NOI18N
-                          rulename.equals("UnusedLocalVariable")) && // NOI18N
-                          isDeleteSafe(line)) { // only a check
+                    } else if (rulename.equals("UnusedLocalVariable") && // NOI18N
+                               isDeleteSafe(line)) { // only a check
                         fixable = true;
                         action = new SuggestionPerformer() {
                             public void perform(Suggestion s) {
@@ -189,7 +183,6 @@ public class ViolationProvider extends DocumentSuggestionProvider {
 
                                 StringBuffer sb = new StringBuffer(200);
                                 Line l = line;
-                                String text = l.getText();
                                 sb.append("<html>"); // NOI18N
                                 TLUtils.appendSurroundingLine(sb, l, -1);
                                 sb.append("<br>");
@@ -207,11 +200,18 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                             }
                         };
 
-                    } else if (rulename.equals("UnusedPrivateMethod")) {
+                    } else if (rulename.equals("UnusedPrivateField")) { // NOI18N
                         fixable = true;
                         boolean comment = false;
-                        action = new MethodRemovePerformer(line, violation, 
-                                                           comment);
+                        action = new RemovePerformer(true, 
+                                                     line, violation, 
+                                                     comment);
+                    } else if (rulename.equals("UnusedPrivateMethod")) { // NOI18N
+                        fixable = true;
+                        boolean comment = false;
+                        action = new RemovePerformer(false,
+                                                     line, violation, 
+                                                     comment);
                     } else {
                         action = null;
                     }
@@ -253,29 +253,6 @@ public class ViolationProvider extends DocumentSuggestionProvider {
             ErrorManager.getDefault().notify(e);
         }
         return tasks;
-    }
-    
-    /** Look up the Line object for a particular file:linenumber */
-    Line getLine(DataObject dataobject, int lineno) {
-        // Go to the given line
-        try {
-            LineCookie lc = (LineCookie)dataobject.getCookie(LineCookie.class);
-            if (lc != null) {
-                Line.Set ls = lc.getLineSet();
-                if (ls != null) {
-                    // XXX HACK
-                    // I'm subtracting 1 because empirically I've discovered
-                    // that the editor highlights whatever line I ask for plus 1
-                    Line l = ls.getCurrent(lineno-1);
-                    return l;
-                }
-            }
-        } catch (Exception e) {
-            ErrorManager.getDefault().
-                notify(ErrorManager.INFORMATIONAL, e);
-        }
-        return null;
-        
     }
     
     /**

@@ -21,25 +21,61 @@ import org.openide.text.Annotation;
  */
 public class TaskAnnotation extends Annotation {
 
+    /** Construct a new TaskAnnotation which shows both a gutter
+     * icon and a line highlight. */
     public TaskAnnotation(Task task) {
-        this.task = task;
+        this(task, true);
     }
 
-    private Task task = null;
+    /** Construct a new TaskAnnotation. 
+     * @param task The task to show the annotation for
+     * @param highlight When true, show a highlight for the task,
+     *   not just a gutter icon.
+     */
+    public TaskAnnotation(Task task, boolean highlight) {
+        this.task = task;
+        this.highlight = highlight;
+    }
 
     public String getAnnotationType () {
         // THE TYPE IS DEFINED IN THE TASKLIST EDITOR MODULE!
         // (because it registers an Editor action - New Task, to be
         // added to the editor glyph gutter/margin menu)
-        return "Task"; // NOI18N
+        if (highlight) {
+            return "Task"; // NOI18N
+        } else {
+            return "TaskNoHighlight"; // NOI18N
+        }
     }
     
     public String getShortDescription () {
         // Use details summary, if available
+        showTask();
+
         if (task.getDetails().length() > 0) {
             return task.getSummary() + "\n\n" + task.getDetails();
         } else {
             return task.getSummary();
         }
     }
+
+    /** Show the task for this annotation in its view */
+    protected void showTask() {
+        TaskList list = task.getList();
+        if (list == null) {
+            return;
+        }
+        TaskListView view = list.getView();
+        if ((view != null) && (view.isShowing())) {
+            view.select(task);
+        }
+    }
+
+    /** Return the task associated with this annotation */
+    public Task getTask() {
+        return task;
+    }
+
+    protected Task task = null;
+    private boolean highlight = false;
 }
