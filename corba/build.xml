@@ -15,6 +15,10 @@ Microsystems, Inc. All Rights Reserved.
 
 <project name="corba" default="netbeans" basedir=".">
 
+  <property name="nbroot" value="../../nb_all"/>
+  <property name="f4jroot" value=".."/>
+  <property name="nbext" value="${nbroot}/nbbuild"/>
+
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
@@ -28,6 +32,7 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot}/editor/netbeans/modules/editor.jar"/>
 	<pathelement location="${nbroot}/editor/netbeans/modules/ext/nb-editor.jar"/>
 	<pathelement location="compiletime/idlj.jar"/>
+	<pathelement location="compiletime/corbanscs.jar"/>
 	<pathelement location="release/lib/ext/corbaext.jar"/>
 	<pathelement location="release/lib/ext/idlcompilers.jar"/>
 	<pathelement location="${nbroot}/core/netbeans/lib/core.jar"/>
