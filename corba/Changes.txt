@@ -3,8 +3,8 @@
 --------------------------------------------------------------------------------
 
   module JAR:       corba.jar
-  module code name: 
-  dependencies:     NONE
+  module code name: com.netbeans.enterprise.modules.corba/1
+  dependencies:     com.netbeans.developer.modules.loaders.java/1
   lib/ext:          NONE
   modules/ext:      NONE
   
@@ -15,3 +15,16 @@
 
 --------------------------------------------------------------------------------
 
+-- Release --------------------------------------
+
+  Released version:          Beta 4 Public
+  Released build number:     382
+  Release type:              Public Entry, EAP Pro/Enterprise modules
+  StarTeam Label:            Gandalf-Build382c
+  Label Date:                26.8.1999 17:55:52
+  Release Date:              26.8.1999
+  
+  Specification-Version:     0.9
+  Implementation-Version:    0.9
+
+-------------------------------------------------
