@@ -18,10 +18,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 import org.netbeans.api.tasklist.Suggestion;
 import org.netbeans.api.tasklist.SuggestionPriority;
@@ -40,7 +42,6 @@ import org.openide.util.NbBundle;
 public class Task extends Suggestion implements Cloneable {
     /** Keys for the Bundle.properties */
     private static final String[] PRIORITIES_KEYS = {
-        "PriorityUndefined",
         "PriorityHigh",
         "PriorityMediumHigh",
         "PriorityMedium",
@@ -62,12 +63,34 @@ public class Task extends Suggestion implements Cloneable {
     /**
      * Returns names for priorities
      *
-     * @return [0] - undefined, [1] - low, ...
+     * @return [0] - high, [1] - medium-high, ...
      */
     public static String[] getPriorityNames() {
         return PRIORITIES;
     }
 
+    /**
+     * Finds a priority.
+     * @param n integer representation of a priority
+     * @return priority
+     */
+    public static SuggestionPriority getPriority(int n) {
+        switch (n) {
+            case 1:
+                return SuggestionPriority.HIGH;
+            case 2:
+                return SuggestionPriority.MEDIUM_HIGH;
+            case 3:
+                return SuggestionPriority.MEDIUM;
+            case 4:
+                return SuggestionPriority.MEDIUM_LOW;
+            case 5:
+                return SuggestionPriority.LOW;
+            default:
+                return SuggestionPriority.MEDIUM;
+        }
+    }
+    
     /** The subtask list has changed */
     public static final String PROP_CHILDREN_CHANGED = "children"; // NOI18N
     /** Some of this items attributes (such as its description - anything
@@ -718,6 +741,3 @@ public class Task extends Suggestion implements Cloneable {
         }
     }
 }
-
-
-

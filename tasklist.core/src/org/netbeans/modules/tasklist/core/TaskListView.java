@@ -287,7 +287,7 @@ public abstract class TaskListView extends ExplorerPanel
 
         // Select the root node, such that the empty tasklist has
         // a context menu - but only if there are no items in the list
-        if (!tasklist.getRoot().hasSubtasks()) {
+        /*if (!tasklist.getRoot().hasSubtasks()) {
             // See http://www.netbeans.org/issues/show_bug.cgi?id=27696
             Node[] sel = new Node[] { getExplorerManager().getRootContext() };
             try {
@@ -296,7 +296,7 @@ public abstract class TaskListView extends ExplorerPanel
                 ErrorManager.getDefault().notify(
                                            ErrorManager.INFORMATIONAL, e);
             }
-        }
+        }*/
     }
    
     protected void hideList() {

@@ -16,6 +16,7 @@ package org.netbeans.modules.tasklist.usertasks;
 import java.beans.PropertyEditorManager;
 import java.util.Date;
 import java.util.List;
+import org.netbeans.api.tasklist.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
@@ -129,13 +130,7 @@ class UserTaskNode extends TaskNode {
         if (item.getParent() == null) {
             // Create actions shown on an empty tasklist (e.g. only root
             // is there)
-            return new SystemAction[] {
-                SystemAction.get(NewTaskAction.class),
-                null,
-                SystemAction.get(PasteAction.class),
-                null,
-                SystemAction.get(ImportAction.class)
-            };
+            return new SystemAction[] {};
         } else {
             return new SystemAction[] {
                 SystemAction.get(NewTaskAction.class),
@@ -143,20 +138,11 @@ class UserTaskNode extends TaskNode {
                 SystemAction.get(ShowTaskAction.class),
                 SystemAction.get(GoToTaskAction.class),
                 null,
-                SystemAction.get(FilterAction.class),
-                null,
-                SystemAction.get(PurgeTasksAction.class),
-                null,
-                SystemAction.get(ExpandAllAction.class),
-                null,
                 SystemAction.get(CutAction.class),
                 SystemAction.get(CopyAction.class),
                 SystemAction.get(PasteAction.class),
                 null,
                 SystemAction.get(DeleteAction.class),
-                null,
-                SystemAction.get(ImportAction.class),
-                SystemAction.get(ExportAction.class),
                 null,
                 SystemAction.get(PropertiesAction.class),
             };
@@ -168,6 +154,8 @@ class UserTaskNode extends TaskNode {
     protected Sheet createSheet() {
         Sheet s = Sheet.createDefault();
         Set ss = s.get(Sheet.PROPERTIES);
+        if (item.getParent() == null)
+            return s;
         
         Set sse = Sheet.createExpertSet();
         s.put(sse);
@@ -181,7 +169,7 @@ class UserTaskNode extends TaskNode {
             ss.put(p);
             
             
-            p = new Reflection(item, Integer.TYPE, "getPriorityNumber", "setPriorityNumber"); // NOI18N
+            p = new Reflection(item, SuggestionPriority.class, "getPriority", "setPriority"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_PRIO);
             p.setPropertyEditorClass(PriorityPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Priority")); // NOI18N
@@ -243,6 +231,7 @@ class UserTaskNode extends TaskNode {
             
             p = new Reflection(item, String.class, "getCategory", "setCategory"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_CAT);
+            p.setPropertyEditorClass(CategoryPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Category")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "CategoryHint")); // NOI18N
             ss.put(p);

@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import org.netbeans.api.tasklist.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
 import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.FilterAction;
@@ -32,6 +33,7 @@ import org.netbeans.modules.tasklist.core.TaskListener;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.TaskListView.ColumnProperty;
 import org.openide.TopManager;
+import org.openide.actions.PasteAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.URLMapper;
 import org.openide.util.HelpCtx;
@@ -100,15 +102,23 @@ public class UserTaskView extends TaskListView implements TaskListener {
      */
     public HelpCtx getHelpCtx() {
         return getHelpCtx(
-        getExplorerManager().getSelectedNodes(),
-        getExplorerManager().getRootContext().getHelpCtx()
+            getExplorerManager().getSelectedNodes(),
+            getExplorerManager().getRootContext().getHelpCtx()
         );
     }
 
     /** Overrides superclass method. Gets actions for this top component. */
     public SystemAction[] getSystemActions() {
         SystemAction[] todoActions = new SystemAction[] {
-            SystemAction.get(NewTaskAction.class)
+            null,
+            SystemAction.get(PasteAction.class),
+            null,
+            SystemAction.get(FilterAction.class),
+            SystemAction.get(PurgeTasksAction.class),
+            SystemAction.get(ExpandAllAction.class),
+            null,
+            SystemAction.get(ImportAction.class),
+            SystemAction.get(ExportAction.class)
         };
         SystemAction[] sa = super.getSystemActions ();
         return SystemAction.linkActions (sa, todoActions);
@@ -200,9 +210,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
     static final String PROP_TASK_EDITED = "taskEdited"; // NOI18N
     static final String PROP_TASK_PERCENT = "taskPercent"; // NOI18N
     
-    /** Create the list of columns to be used in the view.
-        NOTE: The first column SHOULD be a tree column.
-    */
     protected ColumnProperty[] createColumns() {
         return new ColumnProperty[] {
             getMainColumn(800),
@@ -229,7 +236,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
         return new ColumnProperty(
 	    1, // UID -- never change (part of serialization
             PROP_TASK_PRIO,
-            Integer.TYPE,
+            SuggestionPriority.class,
             NbBundle.getMessage(UserTaskView.class, "Priority"), // NOI18N
             NbBundle.getMessage(UserTaskView.class, "PriorityHint"), // NOI18N
             true,
@@ -412,7 +419,6 @@ public class UserTaskView extends TaskListView implements TaskListener {
         return null;
     }
 
-    /** Create the root node to be used in this view */
     protected TaskNode createRootNode() {
         UserTask root = (UserTask)tasklist.getRoot();
         return new UserTaskNode(root, root.getSubtasks());

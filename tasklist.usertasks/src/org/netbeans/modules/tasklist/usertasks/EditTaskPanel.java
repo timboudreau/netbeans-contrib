@@ -33,6 +33,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.JList;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.openide.awt.Mnemonics;
@@ -51,6 +52,9 @@ import org.openide.util.NbBundle;
  * Panel used to enter/edit a user task.
  * Please read comment at the beginning of initA11y before editing
  * this file using the form builder.
+ *
+ * @author Tor Norbye
+ * @author Tim Lebedkov
  */
 
 class EditTaskPanel extends JPanel implements ActionListener {
@@ -59,6 +63,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private ComboBoxModel prioritiesModel = 
         new DefaultComboBoxModel(Task.getPriorityNames());
     private ComboBoxModel subtaskModel = null;
+    private ListCellRenderer priorityRenderer = new PriorityListCellRenderer();
     
     private static boolean appendDefault = Settings.getDefault().getAppend();
     
@@ -72,20 +77,15 @@ class EditTaskPanel extends JPanel implements ActionListener {
         initComponents();
         initA11y();
         
-        priorityComboBox.setSelectedIndex(3);
+        priorityComboBox.setSelectedIndex(2);
         
         format = new SimpleDateFormat();
         
         // Initialize the Categories list
-        Set categories = tlv.getCategories();
-        if ((categories != null) && (categories.size() > 0)) {
-            DefaultComboBoxModel model = new DefaultComboBoxModel();
+        String[] categories = tlv.getCategories();
+        if (categories.length > 0) {
+            DefaultComboBoxModel model = new DefaultComboBoxModel(categories);
             model.addElement(""); // Default to "nothing" -- make an option for default category?
-            Iterator it = categories.iterator();
-            while (it.hasNext()) {
-                String category = (String)it.next();
-                model.addElement(category);
-            }
             categoryCombo.setModel(model);
         }
 
@@ -106,11 +106,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
             if (item.getSummary() != null) {
                 descriptionTextField.setText(item.getSummary());
             }
-            int p = item.getPriorityNumber();
-            if (p < 0)
-                p = 0;
-            if (p > 5)
-                p = 5;
+            int p = item.getPriority().intValue() - 1;
             priorityComboBox.setSelectedIndex(p);
             if (item.getFilename() != null) {
                 fileTextField.setText(item.getFilename());
@@ -191,8 +187,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
         descLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "Brief_Description")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(descLabel, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -207,8 +203,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
     detailsLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "DetailsLabel")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(detailsLabel, gridBagConstraints);
 
     detailsTextArea.setRows(5);
@@ -226,8 +222,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
     subtaskLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "IsSubtaskOf")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(subtaskLabel, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -242,11 +238,18 @@ class EditTaskPanel extends JPanel implements ActionListener {
     prioLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "PriorityLabel")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(prioLabel, gridBagConstraints);
 
     priorityComboBox.setModel(prioritiesModel);
+    priorityComboBox.setRenderer(priorityRenderer);
+    priorityComboBox.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            EditTaskPanel.this.priorityComboBoxActionPerformed(evt);
+        }
+    });
+
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -266,8 +269,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
     categoryLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "CategoryLabel")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(categoryLabel, gridBagConstraints);
 
     categoryCombo.setEditable(true);
@@ -363,14 +366,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
     addLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "AddTo")); // NOI18N();
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(addLabel, gridBagConstraints);
 
     /*
     beginningToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
     */
-    addButtonGroup.add(beginningToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(beginningToggle, gridBagConstraints);
@@ -378,7 +380,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
     /*
     endToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N();
     */
-    addButtonGroup.add(endToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(endToggle, gridBagConstraints);
@@ -394,6 +395,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
     add(addSourceButton, gridBagConstraints);
 
     }//GEN-END:initComponents
+
+    private void priorityComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_priorityComboBoxActionPerformed
+        // I don't know why JComboBox does not use my renderer to draw 
+        // selected value
+        int sel = priorityComboBox.getSelectedIndex();
+        priorityComboBox.setForeground(PriorityListCellRenderer.COLORS[sel]);
+    }//GEN-LAST:event_priorityComboBoxActionPerformed
 
     /** Initialize accessibility settings on the panel */
     private void initA11y() {
@@ -542,8 +550,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JLabel lineLabel;
     private javax.swing.JLabel opt1Label;
     private javax.swing.JLabel subtaskLabel;
-    private javax.swing.ButtonGroup addButtonGroup;
     private javax.swing.JLabel descLabel;
+    private javax.swing.ButtonGroup addButtonGroup;
     private javax.swing.JComboBox subtaskCombo;
     private javax.swing.JRadioButton beginningToggle;
     private javax.swing.JRadioButton endToggle;
@@ -570,7 +578,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     }
     
     int getPrio() {
-        return priorityComboBox.getSelectedIndex();
+        return priorityComboBox.getSelectedIndex() + 1;
     }
     
     boolean hasAssociatedFilePos() {

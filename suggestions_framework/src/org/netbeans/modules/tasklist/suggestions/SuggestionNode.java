@@ -37,6 +37,7 @@ import org.openide.nodes.Sheet.Set;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import java.awt.datatransfer.Transferable;
+import org.netbeans.api.tasklist.SuggestionPriority;
 import org.openide.text.Line;
 
 
@@ -166,8 +167,8 @@ class SuggestionNode extends TaskNode {
             ss.put(p);
             
 
-            p = new Reflection(item, Integer.TYPE,
-                                               "getPriorityNumber", null); // NOI18N
+            p = new Reflection(item, SuggestionPriority.class, 
+                "getPriority", null); // NOI18N
             p.setName(SuggestionsView.PROP_SUGG_PRIO);
             p.setPropertyEditorClass(PriorityPropertyEditor.class);
             p.setDisplayName(NbBundle.getMessage(SuggestionNode.class, "Priority")); // NOI18N
