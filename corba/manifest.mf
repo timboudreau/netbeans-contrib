@@ -17,6 +17,7 @@ OpenIDE-Module-Long-Description: The CORBA module helps you write programs
   Repository Browser allows users to obtain interface definitions from a
   repository. Among other features, a GUI-based interactive POA Support and
   an Implementation Generator technology should be mentioned.
+Class-Path: docs/corba.jar
 
 Name: org/netbeans/modules/corba/IDLDataLoader.class
 OpenIDE-Module-Class: Loader
