@@ -17,7 +17,6 @@ package org.netbeans.modules.vcscore.search;
  * Once a filesystem implements this interface, it enables the Find by status  
  *  in the explorer
  * @author  mkleint
- * @version 
  */
 public interface VcsSearchTypeFileSystem {
 
