@@ -82,8 +82,10 @@ public class ImplGenerator implements PropertyChangeListener {
     // => it must be setuped to
 
     private boolean _M_open = true;
+    //private boolean _M_open = false;
 
-    CORBASupportSettings css;
+    //CORBASupportSettings css;
+    ORBSettings _M_settings;
 
     private boolean _M_listen = false;
 
@@ -91,18 +93,25 @@ public class ImplGenerator implements PropertyChangeListener {
 
         _M_ido = _do;
 
-        css = (CORBASupportSettings) CORBASupportSettings.findObject
-              (CORBASupportSettings.class, true);
+        CORBASupportSettings __css = (CORBASupportSettings) CORBASupportSettings.findObject
+	    (CORBASupportSettings.class, true);
 
-	IMPLBASE_IMPL_PREFIX = css.getActiveSetting ().getImplBasePrefix ();
-	IMPLBASE_IMPL_POSTFIX = css.getActiveSetting ().getImplBasePostfix ();
-	EXT_CLASS_PREFIX = css.getActiveSetting ().getExtClassPrefix ();
-	EXT_CLASS_POSTFIX = css.getActiveSetting ().getExtClassPostfix ();
-	TIE_IMPL_PREFIX = css.getActiveSetting ().getTiePrefix ();
-	TIE_IMPL_POSTFIX = css.getActiveSetting ().getTiePostfix ();
-	IMPL_INT_PREFIX = css.getActiveSetting ().getImplIntPrefix ();
-	IMPL_INT_POSTFIX = css.getActiveSetting ().getImplIntPostfix ();
-	TIE = css.getActiveSetting ().isTie ();
+	if (_M_ido.getOrbForCompilation () != null) {
+	    // user setuped ORB for compilation on this DO
+	    _M_settings = __css.getSettingByName (_M_ido.getOrbForCompilation ());
+	} else {
+	    _M_settings = __css.getActiveSetting ();
+	}
+
+	IMPLBASE_IMPL_PREFIX = _M_settings.getImplBasePrefix ();
+	IMPLBASE_IMPL_POSTFIX = _M_settings.getImplBasePostfix ();
+	EXT_CLASS_PREFIX = _M_settings.getExtClassPrefix ();
+	EXT_CLASS_POSTFIX = _M_settings.getExtClassPostfix ();
+	TIE_IMPL_PREFIX = _M_settings.getTiePrefix ();
+	TIE_IMPL_POSTFIX = _M_settings.getTiePostfix ();
+	IMPL_INT_PREFIX = _M_settings.getImplIntPrefix ();
+	IMPL_INT_POSTFIX = _M_settings.getImplIntPostfix ();
+	TIE = _M_settings.isTie ();
 
 	/*
 	  IMPLBASE_IMPL_PREFIX = "";
@@ -1439,6 +1448,30 @@ public class ImplGenerator implements PropertyChangeListener {
                             System.out.println ("element: " + tmp_element+ " : " + tmp_element.getName ()); // NOI18N
                         return tmp_element;
                     }
+		    // we need to check all childs
+		    // e.g.
+		    // typedef struct A {
+		    //   long value;
+		    // } Achild1, Achild2;
+		    //
+		    if (DEBUG)
+			System.out.println ("childs checking...");
+		    int last = element.getMember (i).getMembers ().size () - 1;
+		    for (int __j = 1; __j <= last; __j++) { 
+			if (DEBUG) {
+			    System.out.println 
+				("declarator element: " + // NOI18N
+				 (element.getMember (i).getMember (__j).getName ()));
+				 System.out.println ("name: " + name); // NOI18N
+			}
+			if (element.getMember (i).getMember (__j).getName ().equals (name)) {
+			    tmp_element = element.getMember (i).getMember (__j);
+			    if (DEBUG)
+				System.out.println ("element: " + tmp_element+ " : " + tmp_element.getName ()); // NOI18N
+			    return tmp_element;
+			}
+		    }
+		    // end of child's checks
                 }
                 if (element.getMember (i).getMember (0) instanceof DeclaratorElement) {
                     if (DEBUG) {
@@ -1446,7 +1479,7 @@ public class ImplGenerator implements PropertyChangeListener {
                                             ((TypeElement)element.getMember (i).getMember (0)).getName ()
                                             + ":" + ((DeclaratorElement)element.getMember (i).getMember (0)).getType ().ofDimension ()); // NOI18N
                     }
-
+		    
                     if (((TypeElement)element.getMember (i).getMember (0)).getName ().equals (name)) {
                         tmp_element = element.getMember (i).getMember (0);
                         if (DEBUG)
@@ -1454,22 +1487,22 @@ public class ImplGenerator implements PropertyChangeListener {
                         return tmp_element;
                     }
                 }
-                if ((element.getMember (i).getMembers ().size () > 1)
-                        && (element.getMember (i).getMember (element.getMember (i).getMembers ().size () - 1)
-                            instanceof DeclaratorElement)) {
-                    int last = element.getMember (i).getMembers ().size () - 1;
-                    if (DEBUG) {
-                        System.out.println ("last declarator element: " + // NOI18N
-                                            ((TypeElement)element.getMember (i).getMember (last)).getName ());
-                        System.out.println ("name: " + name); // NOI18N
-                    }
-                    if (((TypeElement)element.getMember (i).getMember (last)).getName ().equals (name)) {
-                        tmp_element = element.getMember (i).getMember (last);
-                        if (DEBUG)
-                            System.out.println ("element: " + tmp_element+ " : " + tmp_element.getName ()); // NOI18N
-                        return tmp_element;
-                    }
-                }
+		if ((element.getMember (i).getMembers ().size () > 1)
+		    && (element.getMember (i).getMember (element.getMember (i).getMembers ().size () - 1) 
+			instanceof DeclaratorElement)) {
+		    int last = element.getMember (i).getMembers ().size () - 1;
+		    if (DEBUG) {
+			System.out.println ("last declarator element: " + // NOI18N
+					    ((TypeElement)element.getMember (i).getMember (last)).getName ());
+			System.out.println ("name: " + name); // NOI18N
+		    }
+		    if (((TypeElement)element.getMember (i).getMember (last)).getName ().equals (name)) {
+			tmp_element = element.getMember (i).getMember (last);
+			if (DEBUG)
+			    System.out.println ("element: " + tmp_element+ " : " + tmp_element.getName ()); // NOI18N
+			return tmp_element;
+		    }
+		}
             }
             if (element.getMember (i) instanceof ExceptionElement) {
                 if (DEBUG)
@@ -1561,7 +1594,7 @@ public class ImplGenerator implements PropertyChangeListener {
         if ((type = hasTemplateParent (idl_type, mode, _package, _interface)) != null) {
             // idl_type is template type
             if (DEBUG)
-                System.out.println ("-- is type with template parent? YEEES"); // NOI18N
+                System.out.println ("-- is type with template parent? YEEES : " + type); // NOI18N
 
             if (DEBUG)
                 System.out.println ("-- has this template type array parent?"); // NOI18N
@@ -1654,9 +1687,13 @@ public class ImplGenerator implements PropertyChangeListener {
         else {
             element_for_type = tmp_element_for_type;
         }
-        if (DEBUG)
-            System.out.println ("element_for_type: " + element_for_type.getName () + " : " // NOI18N
-                                + element_for_type);
+        if (DEBUG) {
+	    try {
+		System.out.println ("element_for_type: " + element_for_type.getName () + " : " // NOI18N
+				    + element_for_type);
+	    } catch (Exception __ex) {
+	    }
+	}
         String full_name =""; // NOI18N
             if (_package.length() >0) 
                 full_name = _package + "."; // NOI18N
@@ -1981,15 +2018,18 @@ public class ImplGenerator implements PropertyChangeListener {
 
     }
 
-    /** generate ClassElement from InterfaceElement
-    */
-
     public void interface2java (InterfaceElement element)
 	throws SymbolNotFoundException, RecursiveInheritanceException, java.io.IOException {
         if (DEBUG)
             System.out.println ("interface2java: " + element.getName ()); // NOI18N
         if (DEBUG)
             System.out.println ("name: " + _M_ido.getPrimaryFile ().getName ()); // NOI18N
+
+	if (element.isAbstract ()) {
+	    if (DEBUG)
+		System.out.println ("abstract interface " + element.getName ());
+	    return;
+	}
 
 	RecursiveInheritanceChecker.check (element);
 
@@ -2097,7 +2137,7 @@ public class ImplGenerator implements PropertyChangeListener {
                     System.out.println ("new class: " + clazz.toString ()); // NOI18N
                 }
 
-		if (css.getActiveSetting ().getSynchro () != ORBSettingsBundle.SYNCHRO_DISABLED) {
+		if (_M_settings.getSynchro () != ORBSettingsBundle.SYNCHRO_DISABLED) {
 		    /*
 		      javax.swing.SwingUtilities.invokeLater (new Runnable () {
 		      public void run () {
@@ -2216,6 +2256,8 @@ public class ImplGenerator implements PropertyChangeListener {
             return;
         }
 
+	// status of _M_ido is equal to IDLDataObject.STATUS_OK
+	_M_src = _M_ido.getSources ();
         //Vector members = _M_src.getMembers ();     // update for working with modules :-))
         Vector members = this.getInterfaces (_M_src.getMembers ());
         for (int i=0; i<members.size (); i++) {
@@ -2301,17 +2343,17 @@ public class ImplGenerator implements PropertyChangeListener {
             //System.out.println ("css.getGeneration () : " + css.getGeneration ()); // NOI18N
         }
 
-	if (css.getActiveSetting ().getGeneration ().equals (ORBSettingsBundle.GEN_NOTHING)) {
+	if (_M_settings.getGeneration ().equals (ORBSettingsBundle.GEN_NOTHING)) {
 	    //System.out.println ("CORBASupport.GEN_NOTHING"); // NOI18N
 	    method.setBody ("\n"); // NOI18N
 	    return;
 	}
-	if (css.getActiveSetting ().getGeneration ().equals (ORBSettingsBundle.GEN_EXCEPTION)) {
+	if (_M_settings.getGeneration ().equals (ORBSettingsBundle.GEN_EXCEPTION)) {
 	    //System.out.println ("CORBASupport.GEN_EXCEPTION"); // NOI18N
 	    method.setBody ("\n  throw new UnsupportedOperationException ();\n"); // NOI18N
 	    return;
 	}
-	if (css.getActiveSetting ().getGeneration ().equals (ORBSettingsBundle.GEN_RETURN_NULL)) {
+	if (_M_settings.getGeneration ().equals (ORBSettingsBundle.GEN_RETURN_NULL)) {
             //System.out.println ("CORBASupport.GEN_RETURN_NULL"); // NOI18N
             method.setBody ("\n  return null;\n"); // NOI18N
             return;
@@ -2324,7 +2366,6 @@ public class ImplGenerator implements PropertyChangeListener {
 	if (DEBUG)
 	    System.out.println ("property change: " + __event.getPropertyName ());
 	if (__event.getPropertyName ().equals ("_M_status")) {
-	    _M_src = _M_ido.getSources ();
 	    RequestProcessor __processor = _M_ido.getGeneratorProcessor ();
 	    __processor.post (new Runnable () {
 		    public void run () {
