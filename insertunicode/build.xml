@@ -41,7 +41,8 @@ Microsystems, Inc. All Rights Reserved.
     <target name="nbm" depends="netbeans">
         <makenbm file="insertunicode.nbm"
                  topdir="."
-                 module="netbeans/modules/insertunicode.jar">
+                 module="netbeans/modules/insertunicode.jar"
+                 needsrestart="false">
             <license name="insertunicode-license.txt">
                 <text>For the module itself:</text>
                 <file location="${license.file}"/>
