@@ -121,6 +121,10 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
             }
             return component;
         }
+       
+        protected String preferredID(){
+            return "VcsGroupMenuAction_GroupExplorerPanel";
+        }
         
         private void initComponent() {
             Node root = null;
