@@ -987,6 +987,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //    System.out.println("VcsFileSystem.readObject():");
         //    thr.printStackTrace();
         //}
+        setExpertMode(isAcceptUserParams()); // to be compatible with 3.1
     }
 
 
