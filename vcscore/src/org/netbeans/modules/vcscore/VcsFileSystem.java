@@ -950,7 +950,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         synchronized (possibleFileStatusesMap) {
             statuses = new String[possibleFileStatusesMap.size()];
             int i = 0;
-            for(Iterator it = possibleFileStatusesMap.keySet().iterator(); it.hasNext(); i++) {
+            for(Iterator it = possibleFileStatusesMap.values().iterator(); it.hasNext(); i++) {
                 Object obj = it.next();
                 //System.out.println("getPossibleFileStatuses(): '"+obj+"', class = "+obj.getClass());
                 if (obj instanceof String) statuses[i] = (String) obj;
