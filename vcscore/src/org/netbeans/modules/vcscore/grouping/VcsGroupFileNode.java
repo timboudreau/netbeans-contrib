@@ -32,20 +32,22 @@ public class VcsGroupFileNode extends FilterNode {
 
     private DataShadow shadowObject;
     private MainVcsGroupNode main;
+    private Node originalNode;
     
-    public VcsGroupFileNode(DataShadow shadow) {
-        super (shadow.getNodeDelegate(), new FilterNode.Children(shadow.getNodeDelegate()));
+    public VcsGroupFileNode(DataShadow shadow, Node originalNode) {
+        super (originalNode, new FilterNode.Children(originalNode));
         // Or if you just want to copy all the children as plain FilterNode's
         // (or acc. to Node.cloneNode) you can use:
         // super (original);
         // If you wish to operate on the filter node, instead of / in addition to the original,
         // for basic node operations, you should use e.g.:
+        this.originalNode = originalNode;
         shadowObject = shadow;
         disableDelegation (DELEGATE_DESTROY | DELEGATE_SET_DISPLAY_NAME | DELEGATE_GET_DISPLAY_NAME 
            | DELEGATE_GET_ACTIONS // | DELEGATE_GET_CONTEXT_ACTIONS 
            | DELEGATE_GET_SHORT_DESCRIPTION | DELEGATE_SET_SHORT_DESCRIPTION);
          
-        Node originalNode = shadow.getOriginal().getNodeDelegate();
+//        Node originalNode = shadow.getOriginal().getNodeDelegate().cloneNode();
         setShortDescription(originalNode.getShortDescription());
         // Then you can customize some parts, e.g.:
         // super.setDisplayName (NbBundle.getMessage (VcsGroupFileNodeNode.class, "LBL_FilterNode_display_name_format", getDisplayName ());
@@ -61,18 +63,18 @@ public class VcsGroupFileNode extends FilterNode {
     public String getDisplayName() {
        VcsGroupSettings settings = (VcsGroupSettings)SharedClassObject.findObject(VcsGroupSettings.class, true);
        
-        Node origNode = shadowObject.getOriginal().getNodeDelegate();
+//        Node origNode = shadowObject.getOriginal().getNodeDelegate();
         if (settings.isShowLinks()) {
-            return origNode.getDisplayName() + " -> " + shadowObject.getOriginal().getPrimaryFile().getPackageName('/'); //NOI18N
+            return originalNode.getDisplayName() + " -> " + shadowObject.getOriginal().getPrimaryFile().getPackageName('/'); //NOI18N
         } else {
-            return origNode.getDisplayName();
+            return originalNode.getDisplayName();
         }
     }
 
     public Node cloneNode () {
         // Usually you will want to override this if you are subclassing.
         // Otherwise a filter of a filter is created, which works but is not ideal.
-        return new VcsGroupFileNode(shadowObject);
+        return new VcsGroupFileNode(shadowObject, originalNode);
     }
 
     // Often you will want to override this if you are subclassing.
@@ -90,7 +92,7 @@ public class VcsGroupFileNode extends FilterNode {
  */
     
     public org.openide.util.actions.SystemAction[] getActions() {
-        SystemAction[] actions = shadowObject.getOriginal().getNodeDelegate().getActions();
+        SystemAction[] actions = originalNode.getActions();
         return actions;
     }
     
