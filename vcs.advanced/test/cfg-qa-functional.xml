@@ -18,6 +18,7 @@ Microsystems, Inc. All Rights Reserved.
         <testset dir="qa-functional/src">
             <patternset>
 		<include name="complete/cvs_profile/Overall.class"/>
+		<include name="complete/cvs_profile/Branch.class"/>
             </patternset>
         </testset>
     </testbag>
