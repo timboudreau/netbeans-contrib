@@ -168,10 +168,11 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="STATUS_SCHEDULED_REMOVE" basic="false">
       <value>Locally Removed</value>
     </variable>
-    <variable name="ADJUST_CHARS" basic="false" unless="IS_WINNT">
+    <variable name="ADJUST_CHARS" basic="false" unless="IS_CMD-LINE_AND_WINDOWS">
+      <value if="BUILT-IN">\"</value>
       <value>\$`"\</value>
     </variable>
-    <variable name="ADJUST_VARS" basic="false" unless="IS_WINNT">
+    <variable name="ADJUST_VARS" basic="false" unless="IS_CMD-LINE_AND_WINDOWS">
       <value>"DESCRIPTION", "IGNORE"</value>
     </variable>
     <variable name="LOCAL_FILES_FILTERED_OUT" basic="false">
