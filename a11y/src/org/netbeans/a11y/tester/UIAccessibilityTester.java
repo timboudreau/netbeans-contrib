@@ -24,7 +24,7 @@ import javax.swing.SwingUtilities;
 public class UIAccessibilityTester extends javax.swing.JFrame {
     
     /** Version of UIAccessibilityTester. */
-    public String versionID = "2.0";
+    public String versionID = "2.1";
     
     
     private static UIAccessibilityTester instance;                                                                                                                                
@@ -141,8 +141,10 @@ public class UIAccessibilityTester extends javax.swing.JFrame {
     }//GEN-LAST:event_closeButtonActionPerformed
     
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        accPanel.setStatusText("Test canceled by user");
         threadInterrupt();
         runTestToggleButton.setSelected(false);
+        accPanel.enableAllCheckBoxes(true);
     }//GEN-LAST:event_cancelButtonActionPerformed
     
     private void runTestToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runTestToggleButtonActionPerformed
@@ -205,14 +207,14 @@ public class UIAccessibilityTester extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.ButtonGroup results;
-    private javax.swing.JPanel closePanel;
-    private javax.swing.JPanel uiTestPanel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton closeButton;
+    private javax.swing.JPanel closePanel;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.ButtonGroup results;
     private javax.swing.JToggleButton runTestToggleButton;
+    private javax.swing.JPanel uiTestPanel;
     // End of variables declaration//GEN-END:variables
     
 }

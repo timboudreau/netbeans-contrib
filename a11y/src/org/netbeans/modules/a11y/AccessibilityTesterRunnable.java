@@ -68,7 +68,8 @@ public class AccessibilityTesterRunnable implements Runnable, AWTEventListener {
             if ((awtEvent instanceof KeyEvent)&&(awtEvent.getID()==KeyEvent.KEY_RELEASED)&&(((KeyEvent)awtEvent).getKeyCode()==KeyEvent.VK_F11)&&(((KeyEvent)awtEvent).getModifiers()==KeyEvent.CTRL_MASK)) {
                 if (testedContainer==null) {
                     testedContainer=(Container)awtEvent.getSource();
-                    while (!((testedContainer instanceof Window)||(testedContainer instanceof JInternalFrame))) {
+//                    Hack for TopComponents while (!((testedContainer instanceof Window)||(testedContainer instanceof JInternalFrame))) {
+                    while (!((testedContainer instanceof Window)||(testedContainer instanceof JInternalFrame) || isTopComponentInIDE())) {                    
                         testedContainer = testedContainer.getParent();
                     }
                 } else {
@@ -78,6 +79,15 @@ public class AccessibilityTesterRunnable implements Runnable, AWTEventListener {
         }
     }
     
+    private boolean isTopComponentInIDE(){
+        try{
+            Class c = Class.forName("org.openide.windows.TopComponent");
+            return c.isInstance(testedContainer);
+        }catch(ClassNotFoundException exc){
+            exc.printStackTrace(System.out);            
+            return false;
+        }
+    }
     
     public void run() {
         if(usingDispatcher) {
@@ -118,6 +128,9 @@ public class AccessibilityTesterRunnable implements Runnable, AWTEventListener {
             TestSettings testSettings = aPanel.getTests();
             testSettings.setWindowTitle(title);
             
+            // it seems like tests start so disbale all options
+            aPanel.enableAllCheckBoxes(false);
+            
             statusLog("Testing testedContainer " + title);
             
             AccessibilityTestRunner testRunner = new AccessibilityTestRunner(testedContainer, testSettings, aPanel);
@@ -136,6 +149,8 @@ public class AccessibilityTesterRunnable implements Runnable, AWTEventListener {
         } catch (Exception e) {
             e.printStackTrace(System.err);
             statusLog("Error : test canceled.");
+        }finally{
+            aPanel.enableAllCheckBoxes(true);
         }
         testedContainer=null;
         
@@ -162,6 +177,20 @@ public class AccessibilityTesterRunnable implements Runnable, AWTEventListener {
         
         if(testedContainer instanceof JInternalFrame){
             testedContainerTitle = ((JInternalFrame)testedContainer).getTitle();
+        }
+        
+        // hack for IDE testing, because if component is TopComponent - it hasn't set title, 
+        // but name of the component can get by getComponent() method
+        if(isTopComponentInIDE()){
+            try {
+//                Class c = Class.forName("org.openide.windows.TopComponent");
+//                java.lang.reflect.Method m = c.getDeclaredMethod("getDisplayName", new Class[] {});
+//                        
+//                testedContainerTitle = (String)m.invoke(testedContainer, new Object[] {} );
+                testedContainerTitle = ((java.awt.Component)testedContainer).getName();
+            } catch (Exception x) {
+                x.printStackTrace(System.out);
+            }
         }
         
         return testedContainerTitle;

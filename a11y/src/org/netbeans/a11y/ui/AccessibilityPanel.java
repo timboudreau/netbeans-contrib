@@ -810,6 +810,7 @@ public class AccessibilityPanel extends javax.swing.JPanel {
         settings.storeToXML = getReportTypeXML();
         
         settings.test_name = cbTestName.isSelected() && cbTestName.isEnabled();
+        
         return settings;
     }
     
@@ -977,6 +978,33 @@ public class AccessibilityPanel extends javax.swing.JPanel {
             statusLabel.setText(text);
         else
             System.err.println("It's impossible set status text, because status label is null and this isn't used as NetBeans module.");
+    }
+    
+    
+    public void enableAllCheckBoxes(boolean enable) {
+        accessDesc.setEnabled(enable);
+        accessName.setEnabled(enable);
+        cbTestName.setEnabled(enable);
+        implement.setEnabled(enable);
+        isFocusTraversable.setEnabled(enable);
+        labelForPointsTo.setEnabled(enable);
+        labelForSet.setEnabled(enable);
+        lfpt_JList.setEnabled(enable);
+        lfpt_JTabbedPane.setEnabled(enable);
+        lfpt_JTable.setEnabled(enable);
+        lfpt_JTextComponent.setEnabled(enable);
+        lfpt_JTree.setEnabled(enable);
+        mnemonics.setEnabled(enable);
+        mnemonicsAbstractButtons.setEnabled(enable);
+        mnemonicsDefault.setEnabled(enable);
+        mnemonicsJLabels.setEnabled(enable);
+        model.setEnabled(enable);
+        showingOnly_AP.setEnabled(enable);
+        showingOnly_IA.setEnabled(enable);
+        showingOnly_T.setEnabled(enable);
+        properties.setEnabled(enable);
+        traversal.setEnabled(enable);
+
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
