@@ -161,6 +161,8 @@ public class ViolationProvider extends DocumentSuggestionProvider {
             // I suspect PMD wasn't written with the intent of it being run
             // on incomplete or invalid classes. So we just swallow the
             // exceptions here
+        } catch (Error e) {
+            // Ditto. It throws some non-exceptions like TokenMgrError
         }
         Iterator iterator = ctx.getReport().iterator();
 
