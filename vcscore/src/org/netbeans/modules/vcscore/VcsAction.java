@@ -244,6 +244,12 @@ public class VcsAction extends NodeAction implements ActionListener {
                 vce = null;
                 break;
             }
+            if (CommandsPool.PREPROCESS_NEXT_FILE == preprocessStatus) {
+                Table singleFileTable = new Table();
+                Object singleFile = files.keys().nextElement();
+                singleFileTable.put(singleFile, files.get(singleFile));
+                setVariables(singleFileTable, vars, quoting);
+            }
             executors.add(vce);
             if (stdoutListener != null) vce.addOutputListener(stdoutListener);
             if (stderrListener != null) vce.addErrorOutputListener(stderrListener);
