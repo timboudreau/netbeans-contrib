@@ -24,6 +24,7 @@ import javax.swing.event.*;
 
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
  * The Save As dialog, that works on FileObjects. It is used to save configuration files.
@@ -251,9 +252,14 @@ public class ConfigSaveAsDialog extends javax.swing.JDialog {
             model.addElement(configName);
             String label = null;
             if (configExt.equalsIgnoreCase(VariableIO.CONFIG_FILE_EXT)) {
-                org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(dir, config);
-                if (doc != null) {
-                    label = VariableIO.getConfigurationLabel(doc);
+                String[] labelAndOS = VariableIO.getConfigurationLabelAndOS(dir, config);
+                if (labelAndOS != null) {
+                    String[] resourceBundles = null;
+                    if (labelAndOS.length > 3) {
+                        resourceBundles = new String[labelAndOS.length - 3];
+                        System.arraycopy(labelAndOS, 3, resourceBundles, 0, resourceBundles.length);
+                    }
+                    label = VcsUtilities.getBundleString(resourceBundles, label);
                 } else {
                     label = org.openide.util.NbBundle.getBundle(ConfigSaveAsDialog.class).getString("CTL_No_label_configured");
                 }

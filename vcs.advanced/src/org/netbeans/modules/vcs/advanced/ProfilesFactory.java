@@ -447,7 +447,15 @@ public final class ProfilesFactory extends Object {
                                 boolean commands, boolean globalCommands) {
             if (profileName == null) return ;
             if (profileName.endsWith(VariableIOCompat.CONFIG_FILE_EXT)) {
-                loadConfig();
+                Properties props = VariableIOCompat.readPredefinedProperties(profileRoot, profileName);
+                if (props == null) return ;
+                this.variables = new ConditionedVariables(VariableIOCompat.readVariables(props),
+                                                     Collections.EMPTY_MAP, Collections.EMPTY_MAP);
+                
+                //  TODO commands = (CommandsTree) UserCommandIOCompat.readUserCommands(props, variableMap);
+                
+                //profileCommandsByLabel.put(profileDisplayName, commands);
+                this.conditions = new Condition[0];
             } else {
                 //System.out.println("loadConfig("+profileName+"; "+os+", "+conditions+", "+variables+", "+commands+", "+globalCommands+")");
                 //long start = System.currentTimeMillis();
@@ -506,40 +514,6 @@ public final class ProfilesFactory extends Object {
                 //long end = System.currentTimeMillis();
                 //System.out.println("  loadConfig(,,,,) took "+(end - start)+" milliseconds.");
             }
-        }
-        
-        private void loadConfig() {
-            if (profileName == null) return ;
-            //System.out.println("loadConfig("+profileName+")");
-            //long start = System.currentTimeMillis();
-            if (profileName.endsWith(VariableIOCompat.CONFIG_FILE_EXT)) {
-                Properties props = VariableIOCompat.readPredefinedProperties(profileRoot, profileName);
-                if (props == null) return ;
-                variables = new ConditionedVariables(VariableIOCompat.readVariables(props),
-                                                     Collections.EMPTY_MAP, Collections.EMPTY_MAP);
-                
-                //  TODO commands = (CommandsTree) UserCommandIOCompat.readUserCommands(props, variableMap);
-                
-                //profileCommandsByLabel.put(profileDisplayName, commands);
-                conditions = new Condition[0];
-            } else {
-                org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(profileRoot, profileName);
-                if (doc == null) return ;
-                try {
-                    conditions = ConditionIO.readConditions(doc);
-                    variables = VariableIO.readVariables(doc);
-                    //profileVariablesByLabel.put(profileDisplayName, vars);
-                    //if (fileSystem != null) {
-                    commands = UserCommandIO.readCommands(doc, null); // variableMap
-                    globalCommands = UserCommandIO.readGlobalCommands(doc); // variableMap
-                    //    profileCommandsByLabel.put(profileDisplayName, commands);
-                    //}
-                } catch (org.w3c.dom.DOMException exc) {
-                    org.openide.ErrorManager.getDefault().notify(exc);
-                }
-            }
-            //long end = System.currentTimeMillis();
-            //System.out.println("  loadConfig() took "+(end - start)+" milliseconds.");
         }
         
         private void saveConfig() throws org.w3c.dom.DOMException, java.io.IOException {

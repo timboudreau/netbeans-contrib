@@ -200,69 +200,6 @@ public class VariableIO extends Object {
         return res;
     }
 
-    /** Open file and load configurations from it.
-     * @param configRoot the directory which contains properties.
-     * @param name the name of properties to read.
-     */
-    public static Document readPredefinedConfigurations(FileObject configRoot, final String name){
-        Document doc = null;
-        FileObject config = configRoot.getFileObject(name);
-        if (config == null) {
-            org.openide.ErrorManager.getDefault().notify(new FileNotFoundException("Problems while reading predefined properties.") {
-                public String getLocalizedMessage() {
-                    return g("EXC_Problems_while_reading_predefined_properties", name);
-                }
-            });
-            //E.err(g("EXC_Problems_while_reading_predefined_properties",name)); // NOI18N
-            return doc;
-        }
-        try {
-            DataObject dobj = DataObject.find(config);
-            if (dobj != null && dobj instanceof XMLDataObject) {
-                doc = ((XMLDataObject) dobj).getDocument();
-            }
-            //InputStream in = config.getInputStream();
-            //props.load(in);
-            //in.close();
-        } catch(DataObjectNotFoundException e) {
-            org.openide.ErrorManager.getDefault().notify(new DataObjectNotFoundException(config) {
-                public String getLocalizedMessage() {
-                    return g("EXC_Problems_while_reading_predefined_properties", name);
-                }
-            });
-        } catch(IOException e){
-            org.openide.ErrorManager.getDefault().notify(new IOException("Problems while reading predefined properties.") {
-                public String getLocalizedMessage() {
-                    return g("EXC_Problems_while_reading_predefined_properties", name);
-                }
-            });
-        } catch (org.xml.sax.SAXException sexc) {
-            org.openide.ErrorManager.getDefault().notify(new org.xml.sax.SAXException("Problems while reading predefined properties.", sexc) {
-                public String getLocalizedMessage() {
-                    return g("EXC_Problems_while_reading_predefined_properties", name);
-                }
-            });
-        }
-        return doc;
-    }
-
-    public static String getConfigurationLabel(Document doc) throws DOMException {
-        NodeList labelList = doc.getElementsByTagName(LABEL_TAG);
-        String label = "";
-        if (labelList.getLength() > 0) {
-            Node labelNode = labelList.item(0);
-            NodeList textList = labelNode.getChildNodes();
-            if (textList.getLength() > 0) {
-                Node subNode = textList.item(0);
-                if (subNode instanceof Text) {
-                    Text textNode = (Text) subNode;
-                    label = VcsUtilities.getBundleString(textNode.getData());
-                }
-            }
-        }
-        return label;
-    }
-    
     /** Get the label and OS info.
      * @return three items in String array: - label, which needs to be processed
      *                                        with VcsUtilities.getBundleString(),
