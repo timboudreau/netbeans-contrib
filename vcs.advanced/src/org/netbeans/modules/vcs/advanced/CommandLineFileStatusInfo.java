@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcs.advanced;
 
+import java.awt.Color;
 import java.awt.Image;
 import org.netbeans.api.vcs.FileStatusInfo;
 
@@ -21,13 +22,14 @@ import org.netbeans.api.vcs.FileStatusInfo;
  *
  * @author  Martin Entlicher
  */
-public class CommandLineFileStatusInfo extends FileStatusInfo {
+public class CommandLineFileStatusInfo extends FileStatusInfo implements javax.swing.colorchooser.ColorSelectionModel {
     
     private String displayName;
     private String shortDisplayName;
     private Image icon;
     private FileStatusInfo repInfo;
     private boolean isShortDisplayed = false;
+    private Color color;
     
     /**
      * Creates a new instance of CommandLineFileStatusInfo.
@@ -110,6 +112,22 @@ public class CommandLineFileStatusInfo extends FileStatusInfo {
      */
     public boolean represents(FileStatusInfo info) {
         return equals(info) || (repInfo != null && repInfo.equals(info));
+    }
+    
+    public Color getSelectedColor() {
+        return color;
+    }
+    
+    public void setSelectedColor(Color color) {
+        this.color = color;
+    }
+    
+    public void addChangeListener(javax.swing.event.ChangeListener listener) {
+        // Not used currently
+    }
+    
+    public void removeChangeListener(javax.swing.event.ChangeListener listener) {
+        // Not used currently
     }
     
 }

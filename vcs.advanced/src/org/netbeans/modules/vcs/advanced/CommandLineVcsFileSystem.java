@@ -87,6 +87,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public static final String VAR_POSSIBLE_FILE_STATUSES = "POSSIBLE_FILE_STATUSES"; // NOI18N
     public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED = "POSSIBLE_FILE_STATUSES_LOCALIZED"; // NOI18N
     public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT = "POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT"; // NOI18N
+    public static final String VAR_POSSIBLE_FILE_STATUS_COLORS = "POSSIBLE_FILE_STATUS_COLORS"; // NOI18N
     
     //public static final String VAR_POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD = "POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD"; // NOI18N
     public static final String VAR_GENERIC_STATUS_UP_TO_DATE = "GENERIC_STATUS_UP_TO_DATE"; // NOI18N
@@ -808,6 +809,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         }
         VcsConfigVariable varStatusesLclz = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES_LOCALIZED);
         VcsConfigVariable varStatusesLclzShort = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT);
+        VcsConfigVariable varStatusColors = (VcsConfigVariable) variablesByName.get (VAR_POSSIBLE_FILE_STATUS_COLORS);
         //VcsConfigVariable varStatusesMap = (VcsConfigVariable) variablesByName.get(VAR_POSSIBLE_FILE_STATUSES_MAP_TO_STANDARD);
         VcsConfigVariable varStatusUpToDate = (VcsConfigVariable) variablesByName.get (VAR_GENERIC_STATUS_UP_TO_DATE);
         VcsConfigVariable varStatusOutOfDate = (VcsConfigVariable) variablesByName.get (VAR_GENERIC_STATUS_OUT_OF_DATE);
@@ -820,6 +822,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         if (varStatusesLclz != null) statusesLclz = VcsUtilities.getQuotedStrings(varStatusesLclz.getValue());
         String[] statusesLclzShort = null;
         if (varStatusesLclzShort != null) statusesLclzShort = VcsUtilities.getQuotedStrings(varStatusesLclzShort.getValue());
+        String[] statusColors = null;
+        if (varStatusColors != null) statusColors = VcsUtilities.getQuotedStrings(varStatusColors.getValue());
         //String[] statusesMap = null;
         //if (varStatusesMap != null) statusesMap = VcsUtilities.getQuotedStrings(varStatusesMap.getValue());
         String[] iconResources = null;
@@ -845,6 +849,16 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             statusInfosByNames.put(statusInfos[i].getName(), statusInfos[i]);
         }
         } // end of definition of 'i'
+        if (statusColors != null) {
+            for (int i = 0; i < statusInfos.length && i < statusColors.length; i++) {
+                try {
+                    statusInfos[i].setSelectedColor(new Color(Integer.parseInt(statusColors[i], 16)));
+                } catch (NumberFormatException nfex) {
+                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
+                        NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_BadRGBColor", statusColors[i])));
+                }
+            }
+        }
         Map genericStatusTranslation = new HashMap();
         setGenericStatii(new VcsConfigVariable[] { varStatusUpToDate, varStatusOutOfDate, varStatusMissing, varStatusModified, varStatusLocal },
                          new FileStatusInfo[] { FileStatusInfo.UP_TO_DATE, FileStatusInfo.OUT_OF_DATE, FileStatusInfo.MISSING, FileStatusInfo.MODIFIED, FileStatusInfo.LOCAL },
