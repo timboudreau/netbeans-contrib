@@ -80,8 +80,7 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     }
     
     protected Identifier createName(Object data) {
-	//String fullName = Utilities.getClassName((ClassFile)data).replace('$', '.'); // NOI18N
-        String fullName = ((ClassFile)data).getName().getExternalName().replace('$', '.'); // NOI18N
+        String fullName = ((ClassFile)data).getName().getExternalName();
 	int lastDot = fullName.lastIndexOf('.');
 	return lastDot == -1 ? 
 	    Identifier.create(fullName) :
