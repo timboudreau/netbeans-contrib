@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 import javax.swing.JComponent;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
@@ -354,10 +355,12 @@ public abstract class GenericStub extends JellyTestCase {
     
     public void closeAllVCSOutputs() {
         closeAllWindows ("[");
+        closeAllWindows ("Diff: ");
+        closeVCSOutput ();
     }
     
     public void closeAllCVSOutputs() {
-        closeAllWindows ("[");
+        closeAllVCSOutputs ();
     }
     
     public void closeAllVCSGroups() {
@@ -366,6 +369,22 @@ public abstract class GenericStub extends JellyTestCase {
     
     public void closeAllVersionings() {
         closeAllWindows ("Versioning");
+    }
+    
+    public void closeVCSOutput () {
+        // !!! workaround for problem with closing VCS Output - it does not close any of its output tabs
+        JComponent c = TopComponentOperator.findTopComponent("VCS Output", 0);
+        if (c != null) {
+            JTabbedPane pane = JTabbedPaneOperator.findJTabbedPane(c, null, false, false, 0);
+            if (pane != null) {
+                JTextAreaOperator text = new JTextAreaOperator (new JComponentOperator ((JComponent) pane.getSelectedComponent ()));
+                text.clickForPopup();
+                JPopupMenuOperator menu = new JPopupMenuOperator ();
+                menu.pushMenu("Discard All Output Tabs");
+                text.waitComponentShowing(false);
+            }
+            closeAllWindows("VCS Output");
+        }
     }
     
     public void closeAllVCSWindows () {
