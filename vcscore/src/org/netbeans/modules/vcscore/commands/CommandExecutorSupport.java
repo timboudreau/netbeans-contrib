@@ -117,6 +117,38 @@ public class CommandExecutorSupport extends Object {
         }
     }
     
+    /** Perform the refresh of a folder.
+     * @param fileSystem the file system to use
+     * @param refreshPath the folder to refresh
+     * @param recursive whether to do the refresh recursively
+     */
+    public static void doRefresh(VcsFileSystem fileSystem, String refreshPath, boolean recursive) {
+        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
+        if (statusProvider == null) return ;
+        FileCacheProvider cache = fileSystem.getCacheProvider();
+        String dirName = ""; // NOI18N
+        if (cache == null || cache.isDir(refreshPath)) {
+            dirName = refreshPath;
+        }
+        else{
+            dirName = VcsUtilities.getDirNamePart(refreshPath);
+        }
+        if (recursive) {
+            VcsCommand listSub = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY);
+            Object execList = (listSub != null) ? listSub.getProperty(VcsCommand.PROPERTY_EXEC) : null;
+            if (execList != null && ((String) execList).trim().length() > 0) {
+                statusProvider.refreshDirRecursive(dirName);
+            } else {
+                RetrievingDialog rd = new RetrievingDialog(fileSystem, dirName, new javax.swing.JFrame(), false);
+                VcsUtilities.centerWindow(rd);
+                Thread t = new Thread(rd, "VCS Recursive Retrieving Thread - "+dirName); // NOI18N
+                t.start();
+            }
+        } else {
+            statusProvider.refreshDir(dirName); // NOI18N
+        }
+    }
+    
     private static void doRefresh(VcsFileSystem fileSystem, String exec, VcsCommand cmd, String dir, String file) {
         FileCacheProvider cache = fileSystem.getCacheProvider();
         FileStatusProvider statusProvider = fileSystem.getStatusProvider();
@@ -132,9 +164,11 @@ public class CommandExecutorSupport extends Object {
             if (!doRefreshParent && cache != null && cache.isDir(refreshPathFile)) refreshPath = refreshPathFile;
             String patternMatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED);
             String patternUnmatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED);
-            if (exec != null && (cache == null || !cache.isFile(refreshPathFile))
+            boolean rec = (exec != null && (cache == null || !cache.isFile(refreshPathFile))
                 && (patternMatch != null && patternMatch.length() > 0 && exec.indexOf(patternMatch) >= 0
-                    || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0)) {
+                    || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0));
+            doRefresh(fileSystem, refreshPath, rec);
+            /*
                 VcsCommand listSub = fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY);
                 Object execList = (listSub != null) ? listSub.getProperty(VcsCommand.PROPERTY_EXEC) : null;
                 if (execList != null && ((String) execList).trim().length() > 0) {
@@ -146,8 +180,9 @@ public class CommandExecutorSupport extends Object {
                     t.start();
                 }
             } else {
-                statusProvider.refreshDir(refreshPath); // NOI18N
+                statusProvider.refreshDir(refreshPath);
             }
+             */
         }
         if (!(doRefreshCurrent || doRefreshParent)) fileSystem.removeNumDoAutoRefresh(dir); //(String)vars.get("DIR")); // NOI18N
     }
