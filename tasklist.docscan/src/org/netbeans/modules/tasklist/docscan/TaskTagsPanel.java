@@ -207,16 +207,32 @@ public class TaskTagsPanel extends javax.swing.JPanel
 
         Mnemonics.setLocalizedText(addButton, NbBundle.getMessage(
                 TaskTagsPanel.class, "AddTag")); // NOI18N
+        addButton.setToolTipText (NbBundle.getMessage (
+            TaskTagsPanel.class, 
+            "HINT_AddTag"
+        ));
         Mnemonics.setLocalizedText(changeButton, NbBundle.getMessage(
                 TaskTagsPanel.class, "ChangeTag")); // NOI18N
+        changeButton.setToolTipText (NbBundle.getMessage (
+            TaskTagsPanel.class, 
+            "HINT_ChangeTag"
+        ));
         Mnemonics.setLocalizedText(deleteButton, NbBundle.getMessage(
                 TaskTagsPanel.class, "DeleteTag")); // NOI18N
 //        Mnemonics.setLocalizedText(nameLabel, NbBundle.getMessage(
 //                 TaskTagsPanel.class, "TagName")); // NOI18N
 //        Mnemonics.setLocalizedText(prioLabel, NbBundle.getMessage(
 //                 TaskTagsPanel.class, "TagPrio")); // NOI18N
+        deleteButton.setToolTipText (NbBundle.getMessage (
+            TaskTagsPanel.class, 
+            "HINT_DeleteTag"
+        ));
         Mnemonics.setLocalizedText(tagLabel, NbBundle.getMessage(
                 TaskTagsPanel.class, "TagList")); // NOI18N
+        tagLabel.setToolTipText (NbBundle.getMessage (
+            TaskTagsPanel.class, 
+            "HINT_TagList"
+        ));
 
 //        prioLabel.setLabelFor(prioCombo);
 //        tagLabel.setLabelFor(tokenList);
