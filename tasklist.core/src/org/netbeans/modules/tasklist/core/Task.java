@@ -104,6 +104,20 @@ public class Task extends Suggestion implements Cloneable {
         visitable = true;
     }
     
+    /**
+     * Returns indent level for this task. If parent == null returns 0
+     * @return indent level for this task
+     */
+    public int getLevel() {
+        Task t = getParent();
+        int level = 0;
+        while (t != null) {
+            level++;
+            t = t.getParent();
+        }
+        return level;
+    }
+    
     /** Set the description/summary of the task.
      * @param ndesc The new description text */    
     public void setSummary(String ndesc) {

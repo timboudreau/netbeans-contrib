@@ -20,6 +20,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import org.netbeans.modules.tasklist.core.ExpandAllAction;
+import org.netbeans.modules.tasklist.core.ExportAction;
+import org.netbeans.modules.tasklist.core.FilterAction;
+import org.netbeans.modules.tasklist.core.ImportAction;
 import org.netbeans.modules.tasklist.core.Task;
 
 
@@ -84,6 +88,13 @@ public class UserTaskView extends TaskListView implements TaskListener {
 	}
     }
 
+    public SystemAction[] getToolBarActions() {
+        return new SystemAction[] {
+            SystemAction.get(NewTaskAction.class),
+            SystemAction.get(FilterAction.class),
+        };
+    }
+    
     /** Ensures that even if no node is selected in the view,
      * some help specific to this view will still be available.
      */

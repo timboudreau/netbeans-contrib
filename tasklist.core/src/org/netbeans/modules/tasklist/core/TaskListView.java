@@ -37,9 +37,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import javax.swing.Action;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumnModel;
@@ -76,6 +78,7 @@ import org.openide.windows.WindowManager;
 
 import org.netbeans.core.output.NextOutJumpAction;
 import org.netbeans.core.output.PreviousOutJumpAction;
+import org.openide.util.Utilities;
 
 
 /** View showing the todo list items
@@ -150,6 +153,14 @@ public abstract class TaskListView extends ExplorerPanel
 	}
     }
 
+    /**
+     * Could be overridden to change actions for the toolbar.
+     * @return actions for the toolbar or null
+     */
+    public SystemAction[] getToolBarActions() {
+        return null;
+    }
+    
     public void changedTask(Task task) {
         // Part of fix for #27670
         // It leads to an exception after editing task's description
@@ -224,6 +235,13 @@ public abstract class TaskListView extends ExplorerPanel
         // the potential columns (the setProperties set)
         add(treeTable, BorderLayout.CENTER);  //NOI18N
 
+        SystemAction actions[] = getToolBarActions();
+        if (actions != null) {
+            JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
+            toolbar.setOrientation(JToolBar.VERTICAL);
+            add(toolbar, BorderLayout.WEST);
+        }
+        
 	// Populate the view
 	showList();
 
