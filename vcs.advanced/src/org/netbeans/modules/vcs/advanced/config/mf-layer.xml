@@ -102,7 +102,7 @@ Microsystems, Inc. All Rights Reserved.
         -->
         <folder name="entities">
             <folder name="NetBeans">
-                <file name="DTD_VCS_Configuration_1_0" url="nbrescurr:/org/netbeans/modules/vcs/advanced/config/vcs/config/configuration-1_0.dtd" />
+                <file name="DTD_VCS_Configuration_1_0" url="nbrescurr:/vcs/config/configuration-1_0.dtd" />
                 <file name="DTD_VCS_Advanced_FSSettings_1_0" url="nbrescurr:/org/netbeans/modules/vcs/advanced/projectsettings/fssettings-1_0.dtd" />
             </folder>
         </folder>

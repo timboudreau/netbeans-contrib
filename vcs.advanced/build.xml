@@ -46,8 +46,8 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="${binroot}/core/release/lib/ext/xerces.jar"/>
       </classpath>
     </javac>
-    <javac srcdir="src/org/netbeans/modules/vcs/advanced/config"
-        destdir="src/org/netbeans/modules/vcs/advanced/config"
+    <javac srcdir="stdprofiles"
+        destdir="stdprofiles"
         deprecation="${build.compiler.deprecation}" 
         debug="${build.compiler.debug}">
       <classpath>        
@@ -71,32 +71,32 @@ Microsystems, Inc. All Rights Reserved.
   -->
 
   <target name="jars" depends="compile">
-    <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-commands.xml">
+    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-commands.xml" absolutepath="true">
        <include name="vcs/commands/*.class"/>
        <include name="vcs/commands/*.java"/>
        <include name="vcs/commands/*.form"/>
        <include name="vcs/commands/*.properties"/>
     </makelayer>
-    <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-commands-passwd.xml">
+    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-commands-passwd.xml" absolutepath="true">
        <include name="vcs/commands/passwd/*.class"/>
        <include name="vcs/commands/passwd/*.java"/>
        <include name="vcs/commands/passwd/*.form"/>
        <include name="vcs/commands/passwd/*.properties"/>
     </makelayer>
-    <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config.xml">
+    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config.xml" absolutepath="true">
        <include name="vcs/config/*.*"/>
        <exclude name="vcs/config/*_ja.*"/>
        <exclude name="vcs/config/*_XX.*"/>
     </makelayer>
-    <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config_ja.xml">
+    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-config_ja.xml" absolutepath="true">
        <include name="vcs/config/*_ja.*"/>
     </makelayer>  
-    <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-list.xml">
+    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-list.xml" absolutepath="true">
        <include name="vcs/list/*.class"/>
        <include name="vcs/list/*.java"/>
        <include name="vcs/list/*.properties"/>
     </makelayer>
-    <makelayer topdir="src/org/netbeans/modules/vcs/advanced/config" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-resources.xml">
+    <makelayer topdir="stdprofiles" destfile="src/org/netbeans/modules/vcs/advanced/config/layer-includes-resources.xml" absolutepath="true">
        <include name="vcs/resources/*.*"/>
     </makelayer>
     <mkdir dir="netbeans/modules"/>
@@ -106,12 +106,16 @@ Microsystems, Inc. All Rights Reserved.
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
-	 excludes="org/netbeans/modules/vcs/advanced/config/vcs/config/*_XX.*,org/netbeans/modules/vcs/advanced/config/mf-layer_XX.xml" 
+	 excludes="org/netbeans/modules/vcs/advanced/config/mf-layer_XX.xml" 
          compress="false">
       <locale name="ja"/>
-      <fileset dir="src/">
-        <include name="org/netbeans/modules/vcs/advanced/config/**/*.java"/>
-        <include name="org/netbeans/modules/vcs/advanced/config/**/*.form"/>
+      <fileset dir="stdprofiles/" excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt">
+        <include name="**/*"/>
+	<exclude name="vcs/config/*_XX.*"/>
+      </fileset>
+      <fileset dir="stdprofiles/">
+        <include name="**/*.java"/>
+        <include name="**/*.form"/>
       </fileset>
     </locjar>
   </target>
@@ -137,6 +141,10 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
         <include name="org/netbeans/modules/vcs/advanced/config/layer-include*.xml"/>
+      </fileset>
+      <fileset dir="stdprofiles">
+        <include name="**/*.class"/>
+        <include name="**/*.jar"/>
       </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
