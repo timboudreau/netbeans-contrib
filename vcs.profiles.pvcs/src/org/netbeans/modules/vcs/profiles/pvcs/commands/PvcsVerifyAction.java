@@ -200,7 +200,6 @@ public class PvcsVerifyAction extends java.lang.Object implements VcsAdditionalC
         }
         String title = NbBundle.getBundle(PvcsVerifyAction.class).getString("VcsVerifyAction.title");
         DialogDescriptor dd = new DialogDescriptor(panel, title);
-        dd.setHelpCtx(new org.openide.util.HelpCtx(VerifyGroupPanel.class));
         dd.setModal(false);
         if (nothing) {
             panel.setDescription(NbBundle.getBundle(PvcsVerifyAction.class).getString("VcsVerifyAction.NoProblem"));
