@@ -583,6 +583,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="checkForModifications">
 	  <value>true</value>
 	</property>
+        <property name="refreshParentFolder">
+          <value>true</value>
+        </property>
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
@@ -858,6 +861,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="checkForModifications">
 	  <value>true</value>
 	</property>
+        <property name="refreshParentFolder">
+          <value>true</value>
+        </property>
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
@@ -1000,6 +1006,9 @@ Microsystems, Inc. All Rights Reserved.
           <value>SET_RELEVANT_MASKS</value>
 	</property>
         <property name="refreshParentFolder">
+          <value>true</value>
+        </property>
+        <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
         <property name="refreshRecursivelyPatternUnmatched">
@@ -1215,6 +1224,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="refreshParentFolder">
+          <value>true</value>
+        </property>
+        <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
         <property name="refreshRecursivelyPatternMatched">
