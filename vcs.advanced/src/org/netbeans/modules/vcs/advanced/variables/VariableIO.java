@@ -58,6 +58,13 @@ public class VariableIO extends Object {
     public static final String BOOLEAN_VARIABLE_TRUE = "true";
     public static final String BOOLEAN_VARIABLE_FALSE = "false";
     
+    /** The DTD for a configuration profile. */
+    public static final String PUBLIC_ID = "-//NetBeans//DTD VCS Configuration 1.0//EN"; // NOI18N
+    public static final String SYSTEM_ID = "http://www.netbeans.org/dtds/vcs-configuration-1_0.dtd"; // NOI18N
+    
+    /** Whether to validate XML files. Safer, but slows down. */
+    private static final boolean VALIDATE_XML = false;
+    
     private static LabelContentHandler labelContentHandler = null;
 
     /** Creates new VariableIO */
@@ -253,8 +260,10 @@ public class VariableIO extends Object {
         try {
             XMLReader reader = XMLUtil.createXMLReader();
             reader.setContentHandler(labelContentHandler);
+            reader.setEntityResolver(labelContentHandler);
             //System.out.println("   parsing...");
-            reader.parse(new InputSource(config.getInputStream()));
+            InputSource source = new InputSource(config.getInputStream());
+            reader.parse(source);
             //System.out.println("   parsing done.");
         } catch (SAXException exc) {
             //System.out.println("   parsing done. ("+exc.getMessage()+")");
@@ -444,7 +453,7 @@ public class VariableIO extends Object {
         }
     }
     
-    private static class LabelContentHandler extends Object implements ContentHandler {
+    private static class LabelContentHandler extends Object implements ContentHandler, EntityResolver {
         
         private String label;
         boolean readLabel = false;
@@ -500,6 +509,21 @@ public class VariableIO extends Object {
         
         public String getLabel() {
             return label;
+        }
+        
+        public InputSource resolveEntity(String pubid, String sysid) throws org.xml.sax.SAXException, java.io.IOException {
+            if (pubid.equals(PUBLIC_ID)) {
+                if (VALIDATE_XML) {
+                    // We certainly know where to get this from.
+                    return new InputSource("nbres:/org/netbeans/modules/vcs/advanced/config/vcs/config/configuration-1_0.dtd"); // NOI18N
+                } else {
+                    // Not validating, don't load any DTD! Significantly faster.
+                    return new InputSource(new java.io.ByteArrayInputStream(new byte[0]));
+                }
+            } else {
+                // Otherwise try the standard places.
+                return org.openide.xml.EntityCatalog.getDefault().resolveEntity(pubid, sysid);
+            }
         }
         
     }
