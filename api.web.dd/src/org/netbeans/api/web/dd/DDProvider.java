@@ -78,7 +78,12 @@ public final class DDProvider {
         ddMap.put(fo, webApp);
         return webApp;
     }
-    
+    /**
+     * Returns the root of deployment descriptor bean graph for java.io.File object.
+     *
+     * @param f File representing the web.xml file
+     * @return WebApp object - root of the deployment descriptor bean graph
+     */    
     public WebApp getDDRoot(File f) throws IOException, SAXException {
         return createWebApp(new FileInputStream(f), getVersion(new FileInputStream(f)));
     }
@@ -98,8 +103,11 @@ public final class DDProvider {
         fact.setValidating(false);
         try {
             javax.xml.parsers.SAXParser parser = fact.newSAXParser();
+            XMLReader reader = parser.getXMLReader();
+            reader.setContentHandler(new Handler());
+            reader.setEntityResolver(new DDResolver());
             try {
-                parser.parse(is,new Handler());
+                reader.parse(new InputSource(is));
             } catch (SAXException ex) {
                 is.close();
                 String message = ex.getMessage();
@@ -107,6 +115,7 @@ public final class DDProvider {
                     return message.substring(EXCEPTION_PREFIX.length());
                 else throw new SAXException(NbBundle.getMessage(DDProvider.class, "MSG_cannotParse"),ex);
             }
+            is.close();
             throw new SAXException(NbBundle.getMessage(DDProvider.class, "MSG_cannotFindRoot"));
         } catch(javax.xml.parsers.ParserConfigurationException ex) {
             throw new SAXException(NbBundle.getMessage(DDProvider.class, "MSG_parserProblem"),ex);
@@ -121,4 +130,22 @@ public final class DDProvider {
             }
         }
     }
+  
+    private static class DDResolver implements EntityResolver {
+        
+        public InputSource resolveEntity (String publicId, String systemId) {
+            if ("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN".equals(publicId)) { //NOI18N
+                  // return a special input source
+             return new InputSource("nbres:/org/netbeans/modules/web/dd/impl/resources/web-app_2_3.dtd"); //NOI18N
+            } else if ("-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN".equals(publicId)) { //NOI18N
+                  // return a special input source
+             return new InputSource("nbres:/org/netbeans/modules/web/dd/impl/resources/web-app_2_2.dtd"); //NOI18N
+            } else {
+                  // use the default behaviour
+            return null;
+            }
+        }
+    }
+ 
+
 }
