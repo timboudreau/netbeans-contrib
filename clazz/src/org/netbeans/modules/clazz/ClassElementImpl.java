@@ -272,7 +272,7 @@ final class ClassElementImpl extends MemberElementImpl
   * consisting of identifier - class element entries */
   private Map createInnersMap () {
     // obtain array of interfaces and inner classes
-    Class[] reflInners = ((Class)data).getClasses();
+    Class[] reflInners = ((Class)data).getDeclaredClasses();
     // create map
     ClassElement curCE = null;
     Map result = new HashMap(reflInners.length);
@@ -321,6 +321,7 @@ final class ClassElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  4    src-jtulach1.3         2/10/99  David Simonek   
 *  3    src-jtulach1.2         2/3/99   David Simonek   
 *  2    src-jtulach1.1         1/29/99  David Simonek   
 *  1    src-jtulach1.0         1/22/99  David Simonek   
