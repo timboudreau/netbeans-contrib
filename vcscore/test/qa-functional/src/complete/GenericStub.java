@@ -595,10 +595,7 @@ public abstract class GenericStub extends JellyTestCase {
         }
     }
     
-//    protected void
-    
-    protected void dumpDiffGraphicalGraphical (TopComponentOperator tco) {
-        new JComboBoxOperator (tco).selectItem("Graphical Diff Viewer");
+    protected void dumpDiffGraphical (TopComponentOperator tco) {
         JEditorPaneOperator p1 = new JEditorPaneOperator (tco, 0);
         JEditorPaneOperator p2 = new JEditorPaneOperator (tco, 1);
         out.println ("==== Text - Panel 1 ====");
@@ -611,6 +608,11 @@ public abstract class GenericStub extends JellyTestCase {
         dumpColors(sd1);
         out.println ("==== Colors - Panel 2 ====");
         dumpColors(sd2);
+    }
+    
+    protected void dumpDiffGraphicalGraphical (TopComponentOperator tco) {
+        new JComboBoxOperator (tco).selectItem("Graphical Diff Viewer");
+        dumpDiffGraphical (tco);
     }
     
     protected void dumpDiffGraphicalTextual (TopComponentOperator tco) {
