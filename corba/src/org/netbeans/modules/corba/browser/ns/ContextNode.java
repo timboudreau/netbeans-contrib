@@ -67,6 +67,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
     private CORBASupportSettings css;
 
     private static HashMap localNameServices;
+    private boolean valid;
     
     static {
         singletonInstance = null;
@@ -190,6 +191,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                                 SystemAction.get (org.netbeans.modules.corba.browser.ns.UnbindContext.class),
                             };
         this.getCookieSet().add (this);
+        this.valid = false;
     }
 
     public ContextNode (NamingContext nc) {
@@ -206,6 +208,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
 
 
     public void init () {
+        this.valid = true;
         if (DEBUG) {
             System.out.println ("ContextNode::init ()");
         }
@@ -298,6 +301,10 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
 
     public NamingContext getContext () {
         return context;
+    }
+    
+    public boolean isValid () {
+        return this.valid;
     }
 
     public ORB getORB () {
@@ -467,7 +474,9 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
 
 
     public void refresh () {
-        ((ContextChildren)getChildren ()).addNotify ();
+        Children children = this.getChildren();
+        if (children instanceof ContextChildren)
+            ((ContextChildren)children).addNotify ();
     }
 
 

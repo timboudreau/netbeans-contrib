@@ -35,7 +35,7 @@ Microsystems, Inc. All Rights Reserved.
     <tie-param value='-tie'/>
     <dir-param value='-outdir:'/>
     <package-param value='-package:'/>
-    <compiler value='java -classpath {repository} JavaORB.compiler.IdlCompiler {cpp_params} {params} {dir_param}{package_root} {package_param}{package} {files}'/>
+    <compiler value='java -classpath {filesystems} JavaORB.compiler.IdlCompiler {cpp_params} -poa {params} {dir_param}{package_root} {package_param}{package} {files}'/>
     <package-delimiter value='.'/>
     <error-expression value='^([^ ]+), Line ([0-9]+) : (.*)'/>
     <file-position value='1'/>

@@ -959,6 +959,19 @@ public class ImplGenerator implements PropertyChangeListener {
 	    System.out.println ("scope_name2list () -> " + __result);
 	return __result;
     }
+
+    private static String list2absolute_scope_name (List __name) {
+	Assertion.assert (__name != null);
+	StringBuffer __buf = new StringBuffer ();
+	// the name is in form [A, B, xxx] where A is module with module B which is module
+	// with interface xxx
+	Iterator __iter = __name.iterator ();
+	while (__iter.hasNext ()) {
+	    __buf.append ((String)__iter.next ());
+	}
+	return __buf.toString ();
+    }
+
     /*
       private static List findElementsByScopeName (List __name, List __from,
       List __lexical_cut) {
@@ -4647,21 +4660,27 @@ public class ImplGenerator implements PropertyChangeListener {
 	    //System.out.println ("c1");
 	    List __name = ImplGenerator.element2list_name (__element.getMember (0));
 	    Collections.reverse (__name);
-	    _S_symbol_table.add_element (__name, __element.getMember (0));
+	    if (_S_symbol_table.add_element (__name, __element.getMember (0)) != null)
+		throw new AlreadyDefinedSymbolException
+		    (ImplGenerator.list2absolute_scope_name (__name));
 	    Vector __t_members = __element.getMembers ();
 	    int __last = __t_members.size () - 1;
 	    for (int __i=1; __i<__t_members.size (); __i++) {
 		IDLElement __t_element = (IDLElement)__t_members.get (__i);
 		List __t_name = this.element2list_name (__t_element);
 		Collections.reverse (__t_name);
-		_S_symbol_table.add_element (__t_name, __t_element);
+		if (_S_symbol_table.add_element (__t_name, __t_element) != null)
+		    throw new AlreadyDefinedSymbolException
+			(ImplGenerator.list2absolute_scope_name (__t_name));
 	    }
 	}
 	if (ImplGenerator.is_declarator (__element.getMember (0))) {
 	    //System.out.println ("d1");
 	    List __name = this.element2list_name (__element.getMember (0));
 	    Collections.reverse (__name);
-	    _S_symbol_table.add_element (__name, __element.getMember (0));
+	    if (_S_symbol_table.add_element (__name, __element.getMember (0)) != null)
+		throw new AlreadyDefinedSymbolException
+		    (ImplGenerator.list2absolute_scope_name (__name));
 	}
 	IDLElement __last_element = __element.getMember
 	    (__element.getMembers ().size () - 1);
@@ -4683,17 +4702,21 @@ public class ImplGenerator implements PropertyChangeListener {
 		throw new SymbolNotFoundException (__p_element.getName ());
 	    List __name = this.element2list_name (__last_element);
 	    Collections.reverse (__name);
-	    
-	    _S_symbol_table.add_element (__name, __last_element);
+	    if (_S_symbol_table.add_element (__name, __last_element) != null)
+		throw new AlreadyDefinedSymbolException
+		    (ImplGenerator.list2absolute_scope_name (__name));
 	}
     }
 
-    private void generate_exception (IDLElement __element) {
+    private void generate_exception (IDLElement __element)
+	throws AlreadyDefinedSymbolException {
 	if (DEBUG)
 	    System.out.println ("generate_exception (" + __element + ");");
 	List __name = this.element2list_name (__element);
 	Collections.reverse (__name);
-	_S_symbol_table.add_element (__name, __element);
+	if (_S_symbol_table.add_element (__name, __element) != null)
+	    throw new AlreadyDefinedSymbolException
+		(ImplGenerator.list2absolute_scope_name (__name));
     }
 
     private void generate_interface (IDLElement __element) throws Exception {
@@ -4704,7 +4727,10 @@ public class ImplGenerator implements PropertyChangeListener {
 	Collections.reverse (__name);
 	InterfaceElement __interface = (InterfaceElement)__element;
 	this.check_interface_parents (__interface);
-	_S_symbol_table.add_element (__name, __element);
+	IDLElement __orig_element = null;
+	if ((__orig_element = _S_symbol_table.add_element (__name, __element)) != null)
+	    if (!(__orig_element instanceof InterfaceForwardElement))
+		throw new AlreadyDefinedSymbolException (list2absolute_scope_name (__name));
 	if (__interface.isAbstract ())
 	    return;
 	if (!__interface.getFileName ().equals (_M_file_name)) {
@@ -4890,7 +4916,11 @@ public class ImplGenerator implements PropertyChangeListener {
 	Collections.reverse (__name);
 	ValueElement __value = (ValueElement)__element;
 	this.check_value_parents (__value);
-	_S_symbol_table.add_element (__name, __element);
+	IDLElement __orig_element = null;
+	if ((__orig_element = _S_symbol_table.add_element (__name, __element)) != null)
+	    if (!(__orig_element instanceof ValueForwardElement))
+		throw new AlreadyDefinedSymbolException
+		    (ImplGenerator.list2absolute_scope_name (__name));
 	if (!__value.getFileName ().equals (_M_file_name)) {
 	    _M_working_class = null;
 	    // I have to generate all names inside interface into symbol table
@@ -4974,18 +5004,27 @@ public class ImplGenerator implements PropertyChangeListener {
 	Collections.reverse (__name);
 	ValueAbsElement __value = (ValueAbsElement)__element;
 	this.check_value_parents (__value);
-	_S_symbol_table.add_element (__name, __element);
+	IDLElement __orig_element = null;
+	if ((__orig_element = _S_symbol_table.add_element (__name, __element)) != null)
+	    if (!(__orig_element instanceof ValueForwardElement))
+		throw new AlreadyDefinedSymbolException
+		    (ImplGenerator.list2absolute_scope_name (__name));
 	//if (_M_working_class != null) {
 	//    this.generate_from_element (__element);
 	//}
     }
 
-    private void generate_valuebox (IDLElement __element) {
+    private void generate_valuebox (IDLElement __element)
+	throws AlreadyDefinedSymbolException {
 	if (DEBUG)
 	    System.out.println ("generate_valuebox (" + __element + ");");
 	List __name = this.element2list_name (__element);
 	Collections.reverse (__name);
-	_S_symbol_table.add_element (__name, __element);
+	IDLElement __orig_element = null;
+	if ((__orig_element = _S_symbol_table.add_element (__name, __element)) != null)
+	    if (!(__orig_element instanceof ValueForwardElement))
+		throw new AlreadyDefinedSymbolException
+		    (ImplGenerator.list2absolute_scope_name (__name));
     }
 
     private void generate_operation (IDLElement __element) throws Exception {
@@ -5013,7 +5052,9 @@ public class ImplGenerator implements PropertyChangeListener {
 	    System.out.println ("generate_forward_interface (" + __element + ");");
 	List __name = this.element2list_name (__element);
 	Collections.reverse (__name);
-	_S_symbol_table.add_element (__name, __element);
+	if (_S_symbol_table.add_element (__name, __element) != null)
+	    throw new AlreadyDefinedSymbolException
+		(ImplGenerator.list2absolute_scope_name (__name));
     }	
     
     private void generate_forward_value (IDLElement __element) throws Exception {
@@ -5021,7 +5062,9 @@ public class ImplGenerator implements PropertyChangeListener {
 	    System.out.println ("generate_forward_value (" + __element + ");");
 	List __name = this.element2list_name (__element);
 	Collections.reverse (__name);
-	_S_symbol_table.add_element (__name, __element);
+	if (_S_symbol_table.add_element (__name, __element) != null)
+	    throw new AlreadyDefinedSymbolException
+		(ImplGenerator.list2absolute_scope_name (__name));
     }	
     /*
       private void generate_value_factory (IDLElement __element) throws Exception {
@@ -5210,6 +5253,19 @@ public class ImplGenerator implements PropertyChangeListener {
 		TopManager.getDefault ().notify 
 		    (new NotifyDescriptor.Exception 
 			(__ex, MessageFormat.format (CORBASupport.CANNOT_SUPPORT,
+						     __arr)));
+		_M_exception_occured = true;
+	    }
+	    else {
+		__ex.printStackTrace ();
+		throw new RuntimeException (); 
+	    }
+	} catch (AlreadyDefinedSymbolException __ex) {
+	    if (!_M_run_testsuite) {
+		java.lang.Object[] __arr = new Object[] {__ex.getSymbolName ()};
+		TopManager.getDefault ().notify 
+		    (new NotifyDescriptor.Exception 
+			(__ex, MessageFormat.format (CORBASupport.ALREADY_DEFINED_SYMBOL,
 						     __arr)));
 		_M_exception_occured = true;
 	    }

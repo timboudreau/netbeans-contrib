@@ -15,6 +15,7 @@ package org.netbeans.modules.corba.idl.generator;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.netbeans.modules.corba.idl.src.IDLElement;
@@ -35,7 +36,8 @@ public class SymbolTable {
 	_M_symbols = new HashMap ();
     }
     
-    public IDLElement get_element (List __name) {
+    public IDLElement get_element (List __name_list) {
+	ArrayList __name = new ArrayList (__name_list);
 	if (DEBUG)
 	    System.out.println ("SymbolTable::get_element (" + __name + ");");
 	int __last = __name.size () - 1;
@@ -59,14 +61,20 @@ public class SymbolTable {
 	    __current_map = __t_map;
 	}
 	Object __retval = __current_map.get (__simple_name);
-	if (__retval instanceof IDLElement)
-	    return (IDLElement)__retval;
-	else
+	if (__retval != null) {
+	    if (__retval instanceof IDLElement)
+		return (IDLElement)__retval;
+	    else
+		return new IDLElement (0); // We get HashMap for module name
+	}
+	else {
 	    return null;
+	}
 	//return (IDLElement)__current_map.get (__simple_name);
     }
     
-    public IDLElement add_element (List __name, IDLElement __element) {
+    public IDLElement add_element (List __name_list, IDLElement __element) {
+	ArrayList __name = new ArrayList (__name_list);
 	if (DEBUG)
 	    System.out.println ("SymbolTable::add_element (" + __name + ", "
 				+ __element + ");");
@@ -96,9 +104,17 @@ public class SymbolTable {
 	    }
 	    __current_map = __tmp;
 	}
-	IDLElement __old = (IDLElement)__current_map.get (__simple_name);
+	Object __retval = __current_map.get (__simple_name);
 	__current_map.put (__simple_name, __element);
-	return __old;
+	if (__retval != null) {
+	    if (__retval instanceof IDLElement)
+		return (IDLElement)__retval;
+	    else
+		return new IDLElement (0); // We get HashMap for module name
+	}
+	else {
+	    return null;
+	}
     }
 
     public String toString () {

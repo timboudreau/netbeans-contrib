@@ -244,8 +244,8 @@ public class ORBPanel extends AbstractCORBAWizardPanel {
             this.css.getActiveSetting ().setServerBindingFromString (this.data.getDefaultServerBindingValue());
         this.css.setOrb ((String) this.orbs.getSelectedItem ());
         if (this.data != null){
-            this.data.setDefaultServerBindingValue(this.css.getActiveSetting().getClientBinding().getValue());
-            this.data.setDefaultClientBindingValue(this.css.getActiveSetting().getServerBinding().getValue());
+            this.data.setDefaultClientBindingValue(this.css.getActiveSetting().getClientBinding().getValue());
+            this.data.setDefaultServerBindingValue(this.css.getActiveSetting().getServerBinding().getValue());
         }
         List list = this.css.getActiveSetting ().getServerBindings ();
         this.bindings.removeAllItems();

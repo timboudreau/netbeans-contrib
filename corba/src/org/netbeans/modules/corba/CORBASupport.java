@@ -163,6 +163,9 @@ public class CORBASupport {
 
     public static final String CANNOT_INHERIT_FROM = CORBASupport.bundle.getString
 	("CTL_CANNOT_INHERIT_FROM");
+
+    public static final String ALREADY_DEFINED_SYMBOL = CORBASupport.bundle.getString
+	("CTL_ALREADY_DEFINED_SYMBOL");
     
     /** constant for idl extension */
     public static final String IDL_EXT = "idl"; // NOI18N

@@ -63,7 +63,7 @@ public final class IOREditorSupport extends DataEditorSupport implements OpenCoo
             if (iorData.getCookie (SaveCookie.class) == null) {
                 if (this.saveCookie == null)
                     this.saveCookie = new SaveSupport ();
-                iorData.getCookieSet().add (this.saveCookie);
+                iorData.getCookieSet0().add (this.saveCookie);
                 iorData.setModified (true);
             }
         }
@@ -71,7 +71,7 @@ public final class IOREditorSupport extends DataEditorSupport implements OpenCoo
         public void removeSaveCookie () {
             IORDataObject iorData = (IORDataObject) this.getDataObject();
             if (iorData.getCookie(SaveCookie.class) != null) {
-                iorData.getCookieSet().remove (this.saveCookie);
+                iorData.getCookieSet0().remove (this.saveCookie);
                 iorData.setModified (false);
             }
         }

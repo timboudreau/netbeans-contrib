@@ -17,7 +17,7 @@ Microsystems, Inc. All Rights Reserved.
 <!ENTITY corba23-poa SYSTEM "corba23-poa.ent">
 <!ENTITY corba23-generic-impl SYSTEM "corba23-generic-impl.ent">
 ]>
-<orb-settings name='JacORB 1.2.x' tag='jacorb12' supported='false'>
+<orb-settings name='JacORB 1.3.x' tag='jacorb12' supported='false'>
   
   &corba23-poa;
   &corba23-generic-impl;
@@ -25,8 +25,8 @@ Microsystems, Inc. All Rights Reserved.
   <java-template-code>
     <template-code name='ORB_PROPERTIES'><![CDATA[// setting system properties is necessary in order to use this ORB in JDK
       Properties props = System.getProperties ();
-      props.put ("org.omg.CORBA.ORBClass", "jacorb.orb.ORB");
-      props.put ("org.omg.CORBA.ORBSingletonClass", "jacorb.orb.ORB");
+      props.put ("org.omg.CORBA.ORBClass", "org.jacorb.orb.ORB");
+      props.put ("org.omg.CORBA.ORBSingletonClass", "org.jacorb.orb.ORB");
       System.setProperties (props);]]>
     </template-code>
   </java-template-code>
@@ -35,12 +35,12 @@ Microsystems, Inc. All Rights Reserved.
     <tie-param value=''/>
     <dir-param value='-d'/>
     <package-param value='-p'/>
-    <compiler value='java -classpath {filesystems} jacorb.idl.parser {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+    <compiler value='java -classpath {filesystems} org.jacorb.idl.parser {cpp_params} {params} {dir_param} {package_root} {package_param} {package} {files}'/>
     <package-delimiter value='.'/>
-    <error-expression value='^([^ ]+), line: ([0-9]+)\(([0-9]+)\)(.*)'/>
+    <error-expression value='^([^ ]+), line: ([0-9]+)\(([0-9]+)\): (.*)\n(.*)'/>
     <file-position value='1'/>
     <line-position value='2'/>
-    <column-position value='-1'/>
+    <column-position value='3'/>
     <message-position value='4'/>
     
   </idl-compiler-settings>

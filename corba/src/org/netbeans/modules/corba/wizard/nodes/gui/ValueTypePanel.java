@@ -21,67 +21,107 @@ import org.netbeans.modules.corba.wizard.nodes.utils.IdlUtilities;
  * @author  tzezula
  */
 public class ValueTypePanel extends ExPanel implements javax.swing.event.DocumentListener, ActionListener {
-
+    
     /** Creates new form ValueTypePanel */
     public ValueTypePanel() {
         initComponents();
-        this.custom.addActionListener (this);
-        this.abst.addActionListener (this);
-        this.truncatable.addActionListener (this);
-        this.base.getDocument().addDocumentListener (this);
-        this.name.getDocument().addDocumentListener (this);
-        this.supports.getDocument().addDocumentListener (this);
-        this.truncatable.setEnabled (false);
+        this.custom.addActionListener(this);
+        this.abst.addActionListener(this);
+        this.truncatable.addActionListener(this);
+        this.base.getDocument().addDocumentListener(this);
+        this.name.getDocument().addDocumentListener(this);
+        this.supports.getDocument().addDocumentListener(this);
+        this.truncatable.setEnabled(false);
     }
     
-    public boolean isAbstract () {
+    public boolean isAbstract() {
         return (this.abst.isEnabled() && this.abst.isSelected());
     }
     
-    public boolean isCustom () {
+    public boolean isCustom() {
         return (this.custom.isEnabled() && this.custom.isSelected());
     }
     
-    public boolean isTruncatable () {
+    public boolean isTruncatable() {
         return (this.truncatable.isEnabled() && this.truncatable.isSelected());
     }
     
-    public void setAbstract (boolean b) {
-        this.abst.setSelected (b);
+    public void setAbstract(boolean b) {
+        this.abst.setSelected(b);
+        if (b) {
+            this.abst.setEnabled(true);
+            this.truncatable.setSelected(false);
+            this.truncatable.setEnabled(false);
+            this.custom.setSelected(false);
+            this.custom.setEnabled(false);
+        }
+        else if (!this.truncatable.isSelected() && !this.custom.isSelected()) {
+            this.abst.setEnabled(true);
+            if (this.base.getText().length()>0)
+                this.truncatable.setEnabled(true);
+            this.custom.setEnabled(true);
+        }
     }
     
-    public void setTruncatable (boolean b) {
-        this.truncatable.setSelected (b);
+    public void setTruncatable(boolean b) {
+        if (this.base.getText().length()>0) {
+            this.truncatable.setSelected(b);
+            if (b) {
+                this.truncatable.setEnabled(true);
+                this.abst.setSelected(false);
+                this.abst.setEnabled(false);
+                this.custom.setSelected(false);
+                this.custom.setEnabled(false);
+            }
+            else if (!this.abst.isSelected() && !this.custom.isSelected()) {
+                this.abst.setEnabled(true);
+                this.truncatable.setEnabled(true);
+                this.custom.setEnabled(true);
+            }
+        }
     }
     
-    public void setCustom (boolean b) {
-        this.custom.setSelected (b);
+    public void setCustom(boolean b) {
+        this.custom.setSelected(b);
+        if (b) {
+            this.custom.setEnabled(true);
+            this.truncatable.setSelected(false);
+            this.truncatable.setEnabled(false);
+            this.abst.setSelected(false);
+            this.abst.setEnabled(false);
+        }
+        else if (!this.truncatable.isSelected() && !this.abst.isSelected()) {
+            this.custom.setEnabled(true);
+            if (this.base.getText().length()>0)
+                this.truncatable.setEnabled(true);
+            this.abst.setEnabled(true);
+        }
     }
     
-    public String getName () {
+    public String getName() {
         return this.name.getText().trim();
     }
     
-    public String getBase () {
+    public String getBase() {
         return this.base.getText().trim();
     }
     
-    public String getSupports () {
+    public String getSupports() {
         return this.supports.getText().trim();
     }
     
-    public void setName (String name) {
-        this.name.setText (name);
+    public void setName(String name) {
+        this.name.setText(name);
     }
     
-    public void setBase (String base) {
-        this.base.setText (base);
+    public void setBase(String base) {
+        this.base.setText(base);
     }
     
-    public void setSupports (String supports) {
-        this.supports.setText (supports);
+    public void setSupports(String supports) {
+        this.supports.setText(supports);
     }
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -200,68 +240,68 @@ public class ValueTypePanel extends ExPanel implements javax.swing.event.Documen
         add(truncatable, gridBagConstraints1);
         
     }//GEN-END:initComponents
-
+    
     public void changedUpdate(javax.swing.event.DocumentEvent event) {
-        checkState ();
-    }    
-
+        checkState();
+    }
+    
     public void removeUpdate(javax.swing.event.DocumentEvent event) {
-        checkState ();
+        checkState();
     }
     
     public void insertUpdate(javax.swing.event.DocumentEvent event) {
-        checkState ();
+        checkState();
     }
     
-    public void actionPerformed (ActionEvent event) {
+    public void actionPerformed(ActionEvent event) {
         checkState();
         java.lang.Object source = event.getSource();
         
         if (source == this.truncatable) {
             if (this.truncatable.isSelected()) {
-                this.abst.setEnabled (false);
-                this.custom.setEnabled (false);
+                this.abst.setEnabled(false);
+                this.custom.setEnabled(false);
             }
             else {
-                this.abst.setEnabled (true);
-                this.custom.setEnabled (true);
+                this.abst.setEnabled(true);
+                this.custom.setEnabled(true);
             }
         }
         if (source == this.abst) {
             if (this.abst.isSelected()) {
-                this.custom.setEnabled (false);
-                this.truncatable.setEnabled (false);
+                this.custom.setEnabled(false);
+                this.truncatable.setEnabled(false);
             }else {
-                this.custom.setEnabled (true);
+                this.custom.setEnabled(true);
                 if (this.base.getText().length()>0)
-                    this.truncatable.setEnabled (true);
+                    this.truncatable.setEnabled(true);
             }
         }
         if (source == this.custom) {
             if (this.custom.isSelected()) {
-                this.abst.setEnabled (false);
-                this.truncatable.setEnabled (false);
+                this.abst.setEnabled(false);
+                this.truncatable.setEnabled(false);
             }
             else {
-                this.abst.setEnabled (true);
+                this.abst.setEnabled(true);
                 if (this.base.getText().length()>0)
-                    this.truncatable.setEnabled (true);
+                    this.truncatable.setEnabled(true);
             }
         }
     }
     
-    private void checkState () {
+    private void checkState() {
         if (base.getText().length() > 0) {
             if (!this.truncatable.isEnabled() && !this.custom.isSelected() && !this.abst.isSelected())
-                this.truncatable.setEnabled (true);
+                this.truncatable.setEnabled(true);
         }
         else {
             if (this.truncatable.isEnabled())
-                this.truncatable.setEnabled (false);
+                this.truncatable.setEnabled(false);
             if (this.truncatable.isSelected()) {
-                this.truncatable.setSelected (false);
-                this.custom.setEnabled (true);
-                this.abst.setEnabled (true);
+                this.truncatable.setSelected(false);
+                this.custom.setEnabled(true);
+                this.abst.setEnabled(true);
             }
         }
         if (IdlUtilities.isValidIDLIdentifier(name.getText()))
@@ -281,7 +321,7 @@ public class ValueTypePanel extends ExPanel implements javax.swing.event.Documen
     private javax.swing.JCheckBox abst;
     private javax.swing.JCheckBox truncatable;
     // End of variables declaration//GEN-END:variables
-
-    private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle");    
-
+    
+    private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/nodes/gui/Bundle");
+    
 }

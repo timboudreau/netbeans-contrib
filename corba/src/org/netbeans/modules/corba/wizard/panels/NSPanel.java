@@ -310,7 +310,8 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
             else
                 this.newButton.setEnabled (false);
             this.bindButton.setEnabled (true);
-            this.refreshButton.setEnabled (true);
+            if (((org.netbeans.modules.corba.browser.ns.ContextNode)node[0]).isValid())
+                this.refreshButton.setEnabled (true);
         }
         else {
             this.contextName.setText(node[0].getParentNode().getName());

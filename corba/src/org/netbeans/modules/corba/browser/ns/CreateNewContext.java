@@ -38,7 +38,8 @@ public class CreateNewContext extends NodeAction {
     protected boolean enable (org.openide.nodes.Node[] nodes) {
         if (nodes == null || nodes.length != 1)
             return false;
-        return (nodes[0].getCookie (ContextNode.class) != null);
+        ContextNode ctxNode = (ContextNode) nodes[0].getCookie(ContextNode.class);
+        return (ctxNode != null && ctxNode.isValid());
     }
 
     public String getName() {

@@ -65,6 +65,10 @@ public class IORDataObject extends MultiDataObject implements FileChangeListener
         }
     }
 
+	public CookieSet getCookieSet0 () {
+		return this.getCookieSet();		
+	}
+
     public void fileDeleted(final org.openide.filesystems.FileEvent event) {
     }
     
