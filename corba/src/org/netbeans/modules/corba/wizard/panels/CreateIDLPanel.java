@@ -100,9 +100,8 @@ public class CreateIDLPanel extends AbstractIDLWizardPanel implements PropertyCh
     
     public void cleanUp () {
         if (this.root != null) {
-            Node[] nodes = this.root.getChildren().getNodes();
-            this.root.getChildren().remove (nodes);
-        }
+            ((org.netbeans.modules.corba.wizard.nodes.MutableChildren)this.root.getChildren()).removeAllKeys(true);
+	}
     }
 
     public boolean isValid () {
