@@ -3237,7 +3237,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return new String[0];
         }
         RepositoryFiles repo = RepositoryFiles.forFolder(folder);
-        Iterator it = repo.iterator();
+        repo.commitRemoved();  // #53079
+        Iterator it = repo.virtualsIterator();
         if (it.hasNext()) {
             ArrayList virtuals = new ArrayList(5);
             while (it.hasNext()) {
@@ -3299,7 +3300,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
 
         if (Turbo.implemented()) {
-            return childrenWithTurbo(name);
+            synchronized(RepositoryFiles.class) {  // #53079
+                return childrenWithTurbo(name);
+            }
         }
 
         // the old implementation
@@ -3991,8 +3994,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     ErrorManager.getDefault().log(ErrorManager.WARNING, "VCSFS root seems externally deleted. Path: " + name);  // NOI18N
                     return true; // FS root
                 }
-                RepositoryFiles repo = RepositoryFiles.forFolder(parent);
-                return repo.isFolder(fo.getNameExt());
+                synchronized(RepositoryFiles.class) {  // #53079
+                    RepositoryFiles repo = RepositoryFiles.forFolder(parent);
+                    return repo.isFolder(fo.getNameExt());
+                }
             }
 
         }

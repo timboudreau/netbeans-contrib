@@ -32,7 +32,6 @@ import java.io.*;
  * One prominent client is FileSystem impl that must
  * orchestrate with this class to provide stored
  * files as virtual FileObjects.
- *
  * @author Petr Kuzel
  */
 public final class RepositoryFiles {
@@ -41,6 +40,9 @@ public final class RepositoryFiles {
 
     public static final int FOLDER_MASK = 1;
     public static final int FILE_MASK = 0;
+
+    /** Keeps scheduled removals FileObject(folder), Set&lt;String> */
+    public static Map scheduledRemovals = new WeakHashMap();
 
     private RepositoryFiles(FileObject fo) {
         folder = fo;
@@ -96,6 +98,24 @@ public final class RepositoryFiles {
     public synchronized void removeFileObject(String fileName) {
         assert fileName.endsWith("/") == false;
 
+        Set scheduled = (Set) scheduledRemovals.get(folder);
+        if (scheduled == null) {
+            scheduled = new HashSet(2);
+            scheduledRemovals.put(folder, scheduled);
+        }
+        scheduled.add(fileName);
+    }
+
+    /**
+     * Must be called from FS.children to assure consistency see #53079.
+     * @thread call under RepositoryFiles.class lock
+     */
+    public synchronized void commitRemoved() {
+
+        Set scheduled = (Set) scheduledRemovals.get(folder);
+        if (scheduled == null) return;
+        scheduledRemovals.remove(folder);
+
         FileAttributeQuery faq = FileAttributeQuery.getDefault();
         FolderProperties fprops = (FolderProperties) faq.readAttribute(folder, FolderProperties.ID);
         if (fprops != null) {
@@ -105,7 +125,7 @@ public final class RepositoryFiles {
                 Iterator it = folderListing.iterator();
                 while (it.hasNext()) {
                     FolderEntry next = (FolderEntry) it.next();
-                    if (fileName.equals(next.getName()) == false) {
+                    if (scheduled.contains(next.getName()) == false) {
                         updated.add(next);
                     }
                 }
@@ -117,6 +137,7 @@ public final class RepositoryFiles {
 
     /**
      * Classify given (registered) file. For unregistered files it fails.
+     * @thread call under RepositoryFiles.class lock
      */
     public synchronized boolean isFolder(String fileName) {
 
@@ -145,8 +166,9 @@ public final class RepositoryFiles {
 
     /**
      * @return FolderEntry iterator of all known repository files
+     * @thread call under RepositoryFiles.class lock
      */
-    public synchronized Iterator iterator() {
+    public synchronized Iterator virtualsIterator() {
         FileAttributeQuery faq = FileAttributeQuery.getDefault();
         FolderProperties fprops = (FolderProperties) faq.readAttribute(folder, FolderProperties.ID);
         if (fprops == null || fprops.getFolderListing() == null) {
