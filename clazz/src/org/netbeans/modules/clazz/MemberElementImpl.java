@@ -16,6 +16,8 @@ package org.netbeans.modules.clazz;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.IOException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Modifier;
 
 import org.openide.src.MemberElement;
 import org.openide.src.SourceException;
@@ -24,8 +26,6 @@ import org.openide.src.ClassElement;
 import org.openide.src.SourceElement;
 import org.openide.util.Utilities;
 import org.openide.nodes.Node;
-import org.netbeans.modules.classfile.ClassFile;
-import org.netbeans.modules.classfile.Access;
 
 /** Implementation of the MemberElement.Impl for the class objects.
 *
@@ -50,16 +50,16 @@ public abstract class MemberElementImpl extends ElementImpl
     /** @return Modifiers for this element.
     */
     public int getModifiers () {
-        if (data instanceof ClassFile) {
+        if (data instanceof Class) {
             // Class doesn't implement Member interface...
             // and moreover we must throw away interface modifier if present
             try {
-                return ((ClassFile)data).getAccess() & (~Access.INTERFACE);
+                return ((Class)data).getModifiers() & (~Modifier.INTERFACE);
             } catch (Exception exc) {
                 return 0;
             }
         }
-        return ((org.netbeans.modules.classfile.Field)data).getAccess();
+        return ((Member)data).getModifiers();
     }
 
     /** Unsupported. Throws SourceException
@@ -79,7 +79,7 @@ public abstract class MemberElementImpl extends ElementImpl
     }
     
     protected Identifier createName(Object data) {
-	String name = ((org.netbeans.modules.classfile.Field)data).getName();
+	String name = ((Member)data).getName();
 	return Identifier.create(name);
     }
 
