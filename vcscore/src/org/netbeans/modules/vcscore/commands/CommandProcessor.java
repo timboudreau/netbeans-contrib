@@ -1208,7 +1208,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     public static String getExitStatusString(int exit) {
         String status;
         if (VcsCommandExecutor.SUCCEEDED == exit) {
-            status = org.openide.util.NbBundle.getBundle(CommandProcessor.class).getString("CommandExitStatus.success");
+            status = org.openide.util.NbBundle.getBundle(CommandProcessor.class).getString("CommandExitStatus.finished");
         } else if (VcsCommandExecutor.FAILED == exit) {
             status = org.openide.util.NbBundle.getBundle(CommandProcessor.class).getString("CommandExitStatus.failed");
         } else if (VcsCommandExecutor.INTERRUPTED == exit) {
