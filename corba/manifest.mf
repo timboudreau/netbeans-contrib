@@ -1,4 +1,5 @@
 OpenIDE-Module: org.netbeans.modules.corba/1
+OpenIDE-Module-Layer: org/netbeans/modules/corba/resources/mf-layer.xml
 OpenIDE-Module-Name: CORBA
 OpenIDE-Module-Install: org/netbeans/modules/corba/IDLModule.class
 OpenIDE-Module-Specification-Version: 1.2
@@ -19,3 +20,6 @@ Type: Environment
 Name: org/netbeans/modules/corba/browser/ir/IRRootNode.class
 OpenIDE-Module-Class: Node
 Type: Environment
+
+Name: org/netbeans/modules/corba/ioranalyzer/IORDataLoader.class
+OpenIDE-Module-Class: Loader
