@@ -126,6 +126,9 @@ PROMPT_FOR(ENCODING_G,"Encoding:", "", ACCESSIBILITY(DESCRIPTION_Default encodin
         <variable basic="false" name="NOAUTHCACHE">
             <value xml:space="preserve">$[? NOAUTHCACHE_U][--no-auth-cache ][$[? NOAUTHCACHE_G][--no-auth-cache ][]]</value>
         </variable>
+        <variable basic="false" name="NONINTERACTIVE">
+            <value xml:space="preserve">$[? NONINTERACTIVE_U][--non-interactive ][$[? NONINTERACTIVE_D][--non-interactive ][]]</value>
+        </variable>
         <variable basic="false" name="POSSIBLE_FILE_STATUSES">
             <value xml:space="preserve">"","A","C","D","G","I","M","R","X","?","!","~"</value>
         </variable>
@@ -249,7 +252,7 @@ PROMPT_FOR(ENCODING_G,"Encoding:", "", ACCESSIBILITY(DESCRIPTION_Default encodin
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} co ${REVISION}${QUIET}${NONRECURSIVE}${NOAUTHCACHE}${NONINTERACTIVE_U}${AUTH}${CONFIGDIR}${QURL_U} ${QPATHARG_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} co ${REVISION}${QUIET}${NONRECURSIVE}${NOAUTHCACHE}${NONINTERACTIVE}${AUTH}${CONFIGDIR}${QURL_U} ${QPATHARG_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Checkout,ACCESSIBILITY(DESCRIPTION_Dialog for svn checkout command))
@@ -289,7 +292,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} up ${REVISION}${NONRECURSIVE}${QUIET}${QDIFF3CMD}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} up ${REVISION}${NONRECURSIVE}${QUIET}${QDIFF3CMD}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Update,ACCESSIBILITY(DESCRIPTION_Dialog for svn update command))
@@ -341,7 +344,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} ci $[? EDITORCMD] [][-F ${QUOTE}${TEMPLATE_FILE}${QUOTE}] ${QUIET}${NONRECURSIVE}${TARGETS}${FORCELOG}${NOAUTHCACHE}${NONINTERACTIVE_U}${EDITORCMD}${ENCODING}${AUTH}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} ci $[? EDITORCMD] [][-F ${QUOTE}${TEMPLATE_FILE}${QUOTE}] ${QUIET}${NONRECURSIVE}${TARGETS}${FORCELOG}${NOAUTHCACHE}${NONINTERACTIVE}${EDITORCMD}${ENCODING}${AUTH}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Commit,ACCESSIBILITY(DESCRIPTION_Dialog for svn commit command))
@@ -425,7 +428,7 @@ ASK_FOR_EXPERT(NOAUTOPROPS, "No AutoProps", "false",ACCESSIBILITY(DESCRIPTION_Ch
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} cp ${FORCELOG}${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE}][]${REVISION}${QUIET}${NONRECURSIVE}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${EDITORCMD}${ENCODING}${CONFIGDIR}${QPATHARG} ${QDST_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} cp ${FORCELOG}${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE}][]${REVISION}${QUIET}${NONRECURSIVE}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${EDITORCMD}${ENCODING}${CONFIGDIR}${QPATHARG} ${QDST_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Copy,ACCESSIBILITY(DESCRIPTION_Dialog for svn copy command))
@@ -463,7 +466,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} mv ${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${REVISION}${QUIET}${FORCE}${AUTH}${NONRECURSIVE}${NOAUTHCACHE}${NONINTERACTIVE_U}${EDITORCMD}${ENCODING}${FORCELOG}${QPATHARG_U} ${QDST_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} mv ${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${REVISION}${QUIET}${FORCE}${AUTH}${NONRECURSIVE}${NOAUTHCACHE}${NONINTERACTIVE}${EDITORCMD}${ENCODING}${FORCELOG}${QPATHARG_U} ${QDST_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Move,ACCESSIBILITY(DESCRIPTION_Dialog for svn move command))
@@ -495,7 +498,7 @@ ASK_FOR_EXPERT(FORCELOG, Force-log, "",ACCESSIBILITY(DESCRIPTION_Check box for q
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} rm ${FORCE}${FORCELOG}${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${QUIET}${NONRECURSIVE}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${EDITORCMD}${ENCODING}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} rm ${FORCE}${FORCELOG}${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${QUIET}${NONRECURSIVE}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${EDITORCMD}${ENCODING}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Delete,ACCESSIBILITY(DESCRIPTION_Dialog for svn delete command))
@@ -536,7 +539,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} mkdir ${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${QUIET}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${EDITORCMD}${ENCODING}${FORCELOG}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} mkdir ${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${QUIET}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${EDITORCMD}${ENCODING}${FORCELOG}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Mkdir,ACCESSIBILITY(DESCRIPTION_Dialog for svn mkdir command))
@@ -579,7 +582,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} diff $[? EXTENSIONS][-x ${EXTENSIONS} ][]${NONRECURSIVE}${QDIFFCMD}${NODIFFDELETED}${NOTICEANCESTRY}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}$[? NREV][-r ${NREV}$[? MREV][:${MREV} ][ ]][$[? MREV][-r ${:MREV} ][]]$[? FORM][${QTARGET}][--old=${QTARGET1} --new=${QTARGET2}$[? QPATHSARG][ ${QPATHSARG}][]]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} diff $[? EXTENSIONS][-x ${EXTENSIONS} ][]${NONRECURSIVE}${QDIFFCMD}${NODIFFDELETED}${NOTICEANCESTRY}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}$[? NREV][-r ${NREV}$[? MREV][:${MREV} ][ ]][$[? MREV][-r ${:MREV} ][]]$[? FORM][${QTARGET}][--old=${QTARGET1} --new=${QTARGET2}$[? QPATHSARG][ ${QPATHSARG}][]]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Diff,ACCESSIBILITY(DESCRIPTION_Dialog for svn diff command))
@@ -616,7 +619,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} merge ${NONRECURSIVE}${QUIET}${FORCE}${DRYRUN}$[? DIFF3CMD][--diff3-cmd ${DIFF3CMD} ][]${IGNOREANCESTRY}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}$[? FORM][$[? NREV][-r ${NREV}$[? MREV][:${MREV} ][ ]][$[? MREV][-r ${:MREV} ][]]${QSOURCE} ][${QSOURCE1}$[? NREV][@${NREV}][] ${QSOURCE2}$[? MREV][@${MREV}][] ]${QWCPATH}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} merge ${NONRECURSIVE}${QUIET}${FORCE}${DRYRUN}$[? DIFF3CMD][--diff3-cmd ${DIFF3CMD} ][]${IGNOREANCESTRY}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}$[? FORM][$[? NREV][-r ${NREV}$[? MREV][:${MREV} ][ ]][$[? MREV][-r ${:MREV} ][]]${QSOURCE} ][${QSOURCE1}$[? NREV][@${NREV}][] ${QSOURCE2}$[? MREV][@${MREV}][] ]${QWCPATH}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Merge,ACCESSIBILITY(DESCRIPTION_Dialog for svn merge command))
@@ -729,7 +732,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} ls ${REVISION}${VERBOSE}${RECURSIVE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} ls ${REVISION}${VERBOSE}${RECURSIVE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN List,ACCESSIBILITY(DESCRIPTION_Dialog for svn list command))
@@ -759,7 +762,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} status ${SHOWUPDATES}${VERBOSE}${NONRECURSIVE}${QUIET}${NOIGNORE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} status ${SHOWUPDATES}${VERBOSE}${NONRECURSIVE}${QUIET}${NOIGNORE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Status,ACCESSIBILITY(DESCRIPTION_Dialog for svn status command))
@@ -816,7 +819,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} log ${REVISION}${QUIET}${VERBOSE}${TARGETS}${STOPONCOPY}${INCREMENTAL}${XML}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}$[? FORM][${QPATHARG_F1_U}][${QURL_U} ${QPATHARG_F2_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} log ${REVISION}${QUIET}${VERBOSE}${TARGETS}${STOPONCOPY}${INCREMENTAL}${XML}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}$[? FORM][${QPATHARG_F1_U}][${QURL_U} ${QPATHARG_F2_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Log,ACCESSIBILITY(DESCRIPTION_Dialog for svn log command))
@@ -851,7 +854,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} cat ${REVISION}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} cat ${REVISION}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QPATHARG_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Cat,ACCESSIBILITY(DESCRIPTION_Dialog for svn cat command))
@@ -882,7 +885,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} blame ${REVISION}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${STRICT}${QPATHARG_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} blame ${REVISION}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${STRICT}${QPATHARG_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Blame,ACCESSIBILITY(DESCRIPTION_Dialog for svn blame command))
@@ -928,7 +931,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} switch ${REVISION}${NONRECURSIVE}${QUIET} ${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}$[? FORM][${QURL_U}][--relocate ${QFROM} ${QTO}] ${QPATHARG_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} switch ${REVISION}${NONRECURSIVE}${QUIET} ${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}$[? FORM][${QURL_U}][--relocate ${QFROM} ${QTO}] ${QPATHARG_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Switch,ACCESSIBILITY(DESCRIPTION_Dialog for svn switch command))
@@ -973,7 +976,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pl ${VERBOSE}${RECURSIVE}${REVISION}${QUIET}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}$[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pl ${VERBOSE}${RECURSIVE}${REVISION}${QUIET}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}$[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Property List,ACCESSIBILITY(DESCRIPTION_Dialog for svn proplist command))
@@ -1001,7 +1004,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pg ${RECURSIVE}${REVISION}${STRICT}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pg ${RECURSIVE}${REVISION}${STRICT}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Property Get,ACCESSIBILITY(DESCRIPTION_Dialog for svn propget command))
@@ -1015,7 +1018,7 @@ ASK_FOR_EXPERT(STRICT, Strict, "false",ACCESSIBILITY(DESCRIPTION_Check box for s
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
 PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
-ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_U}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
+ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_D}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
 PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
@@ -1031,7 +1034,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} propset ${QUIET}${REVISION}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${ENCODING}${FORCE}${CONFIGDIR}${QPROPNAME} $[? VALUEFORM][${QPROPVALUE}][${-F QFILEARG} ] $[? FORM][--revprop ${REVISION}${TARGETS}${RECURSIVE}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} propset ${QUIET}${REVISION}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${ENCODING}${FORCE}${CONFIGDIR}${QPROPNAME} $[? VALUEFORM][${QPROPVALUE}][${-F QFILEARG} ] $[? FORM][--revprop ${REVISION}${TARGETS}${RECURSIVE}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Property Set,ACCESSIBILITY(DESCRIPTION_Dialog for svn propset command))
@@ -1076,7 +1079,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pe ${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${ENCODING}${EDITORCMD}${FORCE}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pe ${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${ENCODING}${EDITORCMD}${FORCE}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Property Edit,ACCESSIBILITY(DESCRIPTION_Dialog for svn propedit command))
@@ -1088,7 +1091,7 @@ PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTIO
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
 PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
-ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_U}_G",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
+ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_D}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
 ASK_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Check box for encoding argument;;MNEMONIC_E),"true", "")
 PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Check box for editor-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 ASK_FOR_EXPERT(FORCE, Force, "",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_F),"--force ", "")
@@ -1107,7 +1110,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pdel ${QUIET}${RECURSIVE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pdel ${QUIET}${RECURSIVE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Property Delete,ACCESSIBILITY(DESCRIPTION_Dialog for svn propdel command))
@@ -1191,7 +1194,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} ls ${REVISION}${VERBOSE}${RECURSIVE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QURL_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} ls ${REVISION}${VERBOSE}${RECURSIVE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QURL_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN List,ACCESSIBILITY(DESCRIPTION_Dialog for svn list command))
@@ -1221,7 +1224,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} cp ${FORCELOG}${MESSAGE} $[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${REVISION}${QUIET}${NONRECURSIVE}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${EDITORCMD}${ENCODING}${CONFIGDIR}${QSRC_U} ${QDST}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} cp ${FORCELOG}${MESSAGE} $[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${REVISION}${QUIET}${NONRECURSIVE}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${EDITORCMD}${ENCODING}${CONFIGDIR}${QSRC_U} ${QDST}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Copy,ACCESSIBILITY(DESCRIPTION_Dialog for svn copy command))
@@ -1253,7 +1256,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} mv ${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${REVISION}${QUIET}${FORCE}${NONRECURSIVE}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${EDITORCMD}${ENCODING}${FORCELOG}${CONFIGDIR}${QSRC_U} ${QDST_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} mv ${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${REVISION}${QUIET}${FORCE}${NONRECURSIVE}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${EDITORCMD}${ENCODING}${FORCELOG}${CONFIGDIR}${QSRC_U} ${QDST_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Move,ACCESSIBILITY(DESCRIPTION_Dialog for svn move command))
@@ -1283,7 +1286,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} rm ${FORCE}${FORCELOG}${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${QUIET}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${EDITORCMD}${ENCODING}${CONFIGDIR}${QURL_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} rm ${FORCE}${FORCELOG}${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${QUIET}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${EDITORCMD}${ENCODING}${CONFIGDIR}${QURL_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Delete,ACCESSIBILITY(DESCRIPTION_Dialog for svn delete command))
@@ -1321,7 +1324,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} mkdir ${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${QUIET}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${EDITORCMD}${ENCODING}${FORCELOG}${CONFIGDIR}${QURL_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} mkdir ${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${QUIET}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${EDITORCMD}${ENCODING}${FORCELOG}${CONFIGDIR}${QURL_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Mkdir,ACCESSIBILITY(DESCRIPTION_Dialog for svn mkdir command))
@@ -1361,7 +1364,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} diff $[? EXTENSIONS][-x ${EXTENSIONS} ][]${NONRECURSIVE}${QDIFFCMD}${NODIFFDELETED}${NOTICEANCESTRY}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}$[? NREV][-r ${NREV}$[? MREV][:${MREV} ][ ]][$[? MREV][-r ${:MREV} ][]]$[? FORM][${QTARGET}][--old=${QTARGET1} --new=${QTARGET2}$[? QPATHSARG][ ${QPATHSARG}][]]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} diff $[? EXTENSIONS][-x ${EXTENSIONS} ][]${NONRECURSIVE}${QDIFFCMD}${NODIFFDELETED}${NOTICEANCESTRY}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}$[? NREV][-r ${NREV}$[? MREV][:${MREV} ][ ]][$[? MREV][-r ${:MREV} ][]]$[? FORM][${QTARGET}][--old=${QTARGET1} --new=${QTARGET2}$[? QPATHSARG][ ${QPATHSARG}][]]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Diff,ACCESSIBILITY(DESCRIPTION_Dialog for svn diff command))
@@ -1398,7 +1401,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} merge ${NONRECURSIVE}${QUIET}${FORCE}${DRYRUN}$[? DIFF3CMD][--diff3-cmd ${DIFF3CMD} ][]${IGNOREANCESTRY}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}$[? FORM][$[? NREV][-r ${NREV}$[? MREV][:${MREV} ][ ]][$[? MREV][-r ${:MREV} ][]]${QSOURCE} ][${QSOURCE1}$[? NREV][@${NREV}][] ${QSOURCE2}$[? MREV][@${MREV}][] ]${QWCPATH}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} merge ${NONRECURSIVE}${QUIET}${FORCE}${DRYRUN}$[? DIFF3CMD][--diff3-cmd ${DIFF3CMD} ][]${IGNOREANCESTRY}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}$[? FORM][$[? NREV][-r ${NREV}$[? MREV][:${MREV} ][ ]][$[? MREV][-r ${:MREV} ][]]${QSOURCE} ][${QSOURCE1}$[? NREV][@${NREV}][] ${QSOURCE2}$[? MREV][@${MREV}][] ]${QWCPATH}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Merge,ACCESSIBILITY(DESCRIPTION_Dialog for svn merge command))
@@ -1439,7 +1442,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} import ${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${QUIET}${NONRECURSIVE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${FORCELOG}${EDITORCMD}${ENCODING}${CONFIGDIR}${AUTOPROPS}${NOAUTOPROPS}$[? IPATH][${QUOTE}${IPATH}${QUOTE} ][]${QURL_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} import ${MESSAGE}$[? MESSAGEFILE][-F ${MESSAGEFILE} ][]${QUIET}${NONRECURSIVE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${FORCELOG}${EDITORCMD}${ENCODING}${CONFIGDIR}${AUTOPROPS}${NOAUTOPROPS}$[? IPATH][${QUOTE}${IPATH}${QUOTE} ][]${QURL_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Import,ACCESSIBILITY(DESCRIPTION_Dialog for svn import command))
@@ -1469,7 +1472,7 @@ ASK_FOR_EXPERT(NOAUTOPROPS, No-auto-props, "false",ACCESSIBILITY(DESCRIPTION_Che
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} export ${REVISION}${QUIET}${FORCE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QURL_U}$[? IPATH1][${QUOTE}${IPATH1}${QUOTE} ][]$[? IPATH2][${QUOTE}${IPATH2}${QUOTE} ][]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} export ${REVISION}${QUIET}${FORCE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QURL_U}$[? IPATH1][${QUOTE}${IPATH1}${QUOTE} ][]$[? IPATH2][${QUOTE}${IPATH2}${QUOTE} ][]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Export,ACCESSIBILITY(DESCRIPTION_Dialog for svn export command))
@@ -1492,7 +1495,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
             </command>
             <command displayName="Blame" name="BLAME_R">
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} blame ${REVISION}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QURL_U} ${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} blame ${REVISION}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QURL_U} ${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Blame,ACCESSIBILITY(DESCRIPTION_Dialog for svn blame command))
@@ -1514,7 +1517,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} log ${REVISION}${QUIET}${VERBOSE}${TARGETS}${STOPONCOPY}${INCREMENTAL}${XML}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}$[? FORM][${QPATHARG_F1_U}][${QURL_U} ${QPATHARG_F2_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} log ${REVISION}${QUIET}${VERBOSE}${TARGETS}${STOPONCOPY}${INCREMENTAL}${XML}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}$[? FORM][${QPATHARG_F1_U}][${QURL_U} ${QPATHARG_F2_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Log,ACCESSIBILITY(DESCRIPTION_Dialog for svn log command))
@@ -1546,7 +1549,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, "Config-dir", "${CONFIGDIR_G}",ACCESSIBILITY(DESC
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} cat ${REVISION}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QURL_U}${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} cat ${REVISION}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QURL_U}${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Cat,ACCESSIBILITY(DESCRIPTION_Dialog for svn cat command))
@@ -1569,7 +1572,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pl ${VERBOSE}${RECURSIVE}${REVISION}${QUIET}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}$[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pl ${VERBOSE}${RECURSIVE}${REVISION}${QUIET}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}$[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Property List,ACCESSIBILITY(DESCRIPTION_Dialog for svn proplist command))
@@ -1595,7 +1598,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pg ${RECURSIVE}${REVISION}${STRICT}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pg ${RECURSIVE}${REVISION}${STRICT}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Property Get,ACCESSIBILITY(DESCRIPTION_Dialog for svn propget command))
@@ -1609,7 +1612,7 @@ ASK_FOR_EXPERT(STRICT, Strict, "true",ACCESSIBILITY(DESCRIPTION_Check box for st
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
 PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
-ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_U}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
+ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_D}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
 PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRIPTION_Text field for config-dir argument;;MNEMONIC_C),SELECTOR_DIR)
                     </value>
                 </property>
@@ -1622,7 +1625,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} propset ${QUIET}${REVISION}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${ENCODING}${FORCE}${CONFIGDIR}${QPROPNAME} $[? VALUEFORM][${QPROPVALUE}][${-F QFILEARG} ] $[? FORM][--revprop ${REVISION}${TARGETS}${RECURSIVE}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} propset ${QUIET}${REVISION}${TARGETS}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${ENCODING}${FORCE}${CONFIGDIR}${QPROPNAME} $[? VALUEFORM][${QPROPVALUE}][${-F QFILEARG} ] $[? FORM][--revprop ${REVISION}${TARGETS}${RECURSIVE}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Property Set,ACCESSIBILITY(DESCRIPTION_Dialog for svn propset command))
@@ -1664,7 +1667,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pe ${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${ENCODING}${EDITORCMD}${FORCE}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pe ${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${ENCODING}${EDITORCMD}${FORCE}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Property Edit,ACCESSIBILITY(DESCRIPTION_Dialog for svn propedit command))
@@ -1676,7 +1679,7 @@ PROMPT_FOR_EXPERT(REVISION_U, Revision, "${REVISION_G}",ACCESSIBILITY(DESCRIPTIO
 PROMPT_FOR_EXPERT(USER_U, Username, "${USER_G}",ACCESSIBILITY(DESCRIPTION_Text field for username argument;;MNEMONIC_U),,)
 PROMPT_FOR_PASSWORD_EXPERT(PWORD_U, Password, "${PWORD_G}",ACCESSIBILITY(DESCRIPTION_Text field for password argument;;MNEMONIC_W),,)
 ASK_FOR_EXPERT(NOAUTHCACHE_U, No-Auth-Cache, "${NOAUTHCACHE_G}",ACCESSIBILITY(DESCRIPTION_Check box for no-auth-cache argument;;MNEMONIC_N),"true", "")
-ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_U}_G",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
+ASK_FOR_EXPERT(NONINTERACTIVE_U, Non-Interactive, "${NONINTERACTIVE_D}",ACCESSIBILITY(DESCRIPTION_Check box for non-interactive argument;;MNEMONIC_I),"true", "")
 ASK_FOR_EXPERT(ENCODING_U, Encoding, "${ENCODING_G}",ACCESSIBILITY(DESCRIPTION_Check box for encoding argument;;MNEMONIC_E),"true", "")
 PROMPT_FOR_EXPERT(EDITORCMD_U, Editor Command, "${EDITORCMD_G}",ACCESSIBILITY(DESCRIPTION_Check box for editor-cmd argument;;MNEMONIC_D),SELECTOR_FILE)
 ASK_FOR_EXPERT(FORCE, Force, "",ACCESSIBILITY(DESCRIPTION_Check box for quiet argument;;MNEMONIC_F),"--force ", "")
@@ -1692,7 +1695,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
                     <value xml:space="preserve">true</value>
                 </property>
                 <property name="exec">
-                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pdel ${QUIET}${RECURSIVE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE_U}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
+                    <value xml:space="preserve">${PREFIX}${SVN_CMD} pdel ${QUIET}${RECURSIVE}${AUTH}${NOAUTHCACHE}${NONINTERACTIVE}${CONFIGDIR}${QPROPNAME} $[? FORM][--revprop ${REVISION}${QURL_U}][${QPATHARG_U}]${POSTFIX}</value>
                 </property>
                 <property name="inputDescriptor">
                     <value xml:space="preserve">LABEL(SVN Property Delete,ACCESSIBILITY(DESCRIPTION_Dialog for svn propdel command))
