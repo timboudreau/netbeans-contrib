@@ -84,7 +84,7 @@ public class SerNodeTest extends JellyTestCase {
         srcNode.copy();
         
         FolderNode dstNode = new FolderNode(testFSName + '|' + DST_PACKAGE.replace('.', '|'));
-        dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste") + '|' + Bundle.getString("org.openide.actions.Bundle", "CTL_Serialize"));
+        dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste") + '|' + Bundle.getString("org.openide.loaders.Bundle", "CTL_Serialize"));
         new NbDialogOperator(Bundle.getString("org.openide.loaders.Bundle", "SerializeBean_Title")).ok();
         
         new EventTool().waitNoEvent(1000);
