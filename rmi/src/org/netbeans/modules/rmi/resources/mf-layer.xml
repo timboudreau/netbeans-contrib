@@ -46,12 +46,14 @@ Microsystems, Inc. All Rights Reserved.
         <attr name="templateWizardURL" urlvalue="nbrescurrloc:/org/netbeans/modules/rmi/resources/ActivatableServer.html"/>
         <attr name="templateWizardDescResource" stringvalue="org/netbeans/modules/rmi/resources/ActivatableServer.html"/>
         <attr name="templatepattern" stringvalue="{1}{2}"/>
+        <attr name="usepattern" boolvalue="true"/>
         <attr name="template" boolvalue="true" />
       </file>
       
       <file name="ClearObject.group" url="templates/RMI/ClearObject.group.template">
         <attr name="templateWizardURL" urlvalue="nbrescurrloc:/org/netbeans/modules/rmi/resources/ClearObject.html"/>
         <attr name="templatepattern" stringvalue="{1}{2}"/>
+        <attr name="usepattern" boolvalue="true"/>
         <attr name="template" boolvalue="true" />
       </file>
       
@@ -70,6 +72,7 @@ Microsystems, Inc. All Rights Reserved.
         <attr name="templateWizardURL" urlvalue="nbrescurrloc:/org/netbeans/modules/rmi/resources/IIOPServer.html"/>
         <attr name="templateWizardDescResource" stringvalue="org/netbeans/modules/rmi/resources/IIOPServer.html"/>
         <attr name="templatepattern" stringvalue="{1}{2}"/>
+        <attr name="usepattern" boolvalue="true"/>
         <attr name="template" boolvalue="true" />
       </file>
       
@@ -112,6 +115,7 @@ Microsystems, Inc. All Rights Reserved.
       <file name="UnicastRemoteServer.group" url="templates/RMI/UnicastRemoteServer.group.template">
         <attr name="templateWizardURL" urlvalue="nbrescurrloc:/org/netbeans/modules/rmi/resources/UnicastServer.html"/>
         <attr name="templatepattern" stringvalue="{1}{2}"/>
+        <attr name="usepattern" boolvalue="true"/>
         <attr name="template" boolvalue="true" />
       </file>
       
