@@ -1,0 +1,236 @@
+<?xml version="1.0"?>
+<!DOCTYPE vcsconfiguration PUBLIC '-//NetBeans//DTD VCS Configuration 1.0//EN' 'http://www.netbeans.org/dtds/vcs-configuration-1_0.dtd'>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<configuration>
+    <label>ClearCase</label>
+    <variables>
+        <variable basic="false" name="RUN">
+            <value>cmd /X /C &quot;cd /D \&quot;${ROOTDIR}${PS}${MODULE}${PS}${DIR} \&quot;&amp;&amp; </value>
+        </variable>
+        <variable basic="false" name="ClearCaseCMD">
+            <value>cleartool</value>
+        </variable>
+        <variable basic="false" name="RUNW">
+            <value>cmd /X /C &quot;cd /D \&quot;${ROOTDIR}${PS}${MODULE} \&quot;&amp;&amp; </value>
+        </variable>
+        <variable basic="false" name="PS">
+            <value>${path.separator}</value>
+        </variable>
+        <variable basic="false" name="NUR">
+            <value>&quot;</value>
+        </variable>
+        <variable basic="false" name="CD">
+            <value>cd</value>
+        </variable>
+        <variable basic="false" name="MODULE">
+            <value></value>
+        </variable>
+    </variables>
+    <commands>
+        <command displayName="ClearCase" name="ROOT">
+            <command displayName="Refresh" name="LIST">
+                <property name="data.size.index">
+                    <value>-1</value>
+                </property>
+                <property name="data.locker.index">
+                    <value>-1</value>
+                </property>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.clearcase.list.ClearCaseListCommand.class ${RUN} ${ClearCaseCMD} ls ${NUR}</value>
+                </property>
+                <property name="data.date.index">
+                    <value>-1</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="data.attr.index">
+                    <value>-1</value>
+                </property>
+                <property name="data.time.index">
+                    <value>-1</value>
+                </property>
+                <property name="data.status.index">
+                    <value>1</value>
+                </property>
+                <property name="data.fileName.index">
+                    <value>0</value>
+                </property>
+                <property name="data.regex">
+                    <value>(.*$)</value>
+                </property>
+                <property name="error.regex">
+                    <value>(.*$)</value>
+                </property>
+            </command>
+            <command displayName="Refresh Recursively" name="LIST_SUB">
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+            </command>
+            <separator/>
+            <command displayName="Check In" name="CHECKIN">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} checkin -c \&quot;${REASON}\&quot; ${FILE} ${NUR}</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(Check In) PROMPT_FOR(REASON, &quot;Reason:&quot;) </value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Check Out Reserved" name="CHECKOUT RESERVED">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} checkout -c \&quot;${REASON}\&quot; ${FILE} ${NUR}</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(Check Out Reserved) PROMPT_FOR(REASON, &quot;Reason:&quot;) </value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Check Out Unreserved" name="CHECKOUT UNRESERVED">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} checkout -c \&quot;${REASON}\&quot; -unreserved ${FILE} ${NUR}</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(Check Out Unreserved) PROMPT_FOR(REASON, &quot;Reason:&quot;) </value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <separator/>
+            <command displayName="Undo Checkout" name="UNDO CHECKOUT">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} unco -keep ${FILE} ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Unreserve" name="UNRESERVE">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} unreserve ${FILE} ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Add To Source Control" name="ADD">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} mkelem -c \&quot;${REASON}\&quot; ${FILE} ${NUR}</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(Add To Source Control) PROMPT_FOR(REASON, &quot;Reason:&quot;) </value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+            <separator/>
+            <command displayName="Find Checkouts" name="FIND CHECKOUTS">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} lscheckout ${FILE} ${NUR}</value>
+                </property>
+                <property name="display">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="History" name="HISTORY">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} lshistory ${FILE} ${NUR}</value>
+                </property>
+                <property name="display">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Version Tree" name="VERSION TREE">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} lsvtree ${FILE} ${NUR}</value>
+                </property>
+                <property name="display">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+            </command>
+            <separator/>
+            <command displayName="Properties Of Version" name="PROPERTIES OF VERSION">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} describe ${FILE} ${NUR}</value>
+                </property>
+                <property name="display">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Compare With Previous Version" name="COMPARE WITH PREVIOUS">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} diff -g -predecessor ${FILE} ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+            </command>
+            <command displayName="Compare With..." name="COMPARE WITH">
+                <property name="exec">
+                    <value>${ClearCaseCMD} diff -g -predecessor ${CONVERSION_VAR_0}${PS}${CONVERSION_VAR_1} ${NUR}</value>
+                </property>
+                <property name="display">
+                    <value>true</value>
+                </property>
+                <property name="inputDescriptor">
+                    <value>LABEL(Compare With...) PROMPT_FOR(CONVERSION_VAR_0, &quot;Directory&quot;, &quot;&quot;) PROMPT_FOR(CONVERSION_VAR_1, &quot;File&quot;, &quot;&quot;) </value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+            </command>
+        </command>
+    </commands>
+</configuration>
