@@ -21,6 +21,7 @@ import org.openide.util.RequestProcessor;
 
 import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 /**
  * Node visualization of TaskList. It creates children
@@ -62,6 +63,16 @@ public final class TaskListNode extends AbstractNode {
         Node createNode(Object task);
     }
 
+    public void destroy() throws java.io.IOException {
+        // explicitly destroy all children, it's not done automatically
+        Enumeration en = getChildren().nodes();
+        while (en.hasMoreElements()) {
+            Node next = (Node) en.nextElement();
+            next.destroy();
+        }
+        super.destroy();
+    }    
+    
     static class TaskListChildren extends Children.Keys implements TaskListener, Runnable {
 
         private ObservableList list;
