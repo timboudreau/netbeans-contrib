@@ -48,6 +48,7 @@ import org.openide.util.Utilities;
 import org.openide.util.SharedClassObject;
 import org.openide.util.UserQuestionException;
 import org.openide.util.WeakListener;
+import org.openide.windows.InputOutput;
 
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
@@ -373,6 +374,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     /** The refresh request instead of the standard refreshing. */
     private transient VcsRefreshRequest refresher;
+    
+    /** The InputOutput used for display of VCS commands output */
+    private transient InputOutput cmdIO = null;
     
 //    private transient Hashtable revisionListsByName = null;
 
@@ -1237,15 +1241,25 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setZeroRefreshTime() {
         setVcsRefreshTime(0);
     }
+    
+    protected InputOutput getCommandsIO () {
+        if (cmdIO == null) {
+            cmdIO = TopManager.getDefault().getIO(
+                        NbBundle.getMessage(VcsFileSystem.class, "LBL_VCS_Output"),
+                        false);
+            cmdIO.setErrSeparated(false);
+        }
+        return cmdIO;
+    }
 
     /**
      * Clear the debug output.
      */
-    public void debugClear(){
-        if( getDebug() ){
-            try{
-                TopManager.getDefault().getStdOut().reset();
-            }catch (IOException e){}
+    public void debugClear() {
+        if (getDebug()) {
+            try {
+                getCommandsIO().getOut().reset();
+            } catch (IOException ioex) {}
         }
     }
 
@@ -1253,11 +1267,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     /**
      * Print a debug output. If the debug property is true, the message
      * is printed to the Output Window.
-     * @param msg the message to print out.
+     * @param msg The message to print out.
      */
-    public void debug(String msg){
-        if( getDebug() ){
-            TopManager.getDefault().getStdOut().println(msg);
+    public void debug(String msg) {
+        if (getDebug()) {
+            getCommandsIO().getOut().println(msg);
         }
     }
 
@@ -1266,8 +1280,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * The debug property is not considered.
      * @param msg the message to print out.
      */
-    public void debugErr(String msg){
-        TopManager.getDefault().getStdOut().println(msg);
+    public void debugErr(String msg) {
+        InputOutput out = getCommandsIO();
+        out.getErr().println(msg);
+        out.select();
     }
 
 
