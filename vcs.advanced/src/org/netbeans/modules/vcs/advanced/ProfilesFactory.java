@@ -94,6 +94,10 @@ public final class ProfilesFactory extends Object {
     
     private List profileNames;
     private List profileLabels;
+    // Whether labels are processed through VcsUtilities.getBundleString().
+    // This is not necessary to do until we're asked for them.
+    private boolean areLabelsResolved = false;
+    private Object labelsResolvedLock = new Object();
     private Map profileLabelsByName;
     private Map compatibleOSsByName;
     private Map uncompatibleOSsByName;
@@ -137,7 +141,7 @@ public final class ProfilesFactory extends Object {
                 profileNames.remove(i--);
                 continue;
             }
-            String label = VcsUtilities.getBundleString(labelAndOSs[0]);
+            String label = labelAndOSs[0];
             profileLabels.add(label);
             profileLabelsByName.put(name, label);
             compatibleOSsByName.put(name, (labelAndOSs[1] != null) ? parseOSs(labelAndOSs[1]) : Collections.EMPTY_SET);
@@ -168,12 +172,29 @@ public final class ProfilesFactory extends Object {
     }
     
     public synchronized String[] getProfilesDisplayNames() {
+        if (!areLabelsResolved) {
+            List resolvedLabels = new ArrayList();
+            for (Iterator it = profileLabels.iterator(); it.hasNext(); ) {
+                resolvedLabels.add(VcsUtilities.getBundleString((String) it.next()));
+            }
+            profileLabels = resolvedLabels;
+            for (Iterator it = profileLabelsByName.keySet().iterator(); it.hasNext(); ) {
+                Object key = it.next();
+                profileLabelsByName.put(key, VcsUtilities.getBundleString((String) profileLabelsByName.get(key)));
+            }
+            areLabelsResolved = true;
+        }
         String[] profiles = new String[profileLabels.size()];
         profileLabels.toArray(profiles);
         return profiles;
     }
     
     public synchronized String getProfileDisplayName(String profileName) {
+        if (!areLabelsResolved) {
+            String label = (String) profileLabelsByName.get(profileName);
+            label = VcsUtilities.getBundleString(label);
+            profileLabelsByName.put(profileName, label);
+        }
         return (String) profileLabelsByName.get(profileName);
     }
     
