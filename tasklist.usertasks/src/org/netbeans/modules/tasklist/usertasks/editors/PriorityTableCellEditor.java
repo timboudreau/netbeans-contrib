@@ -19,8 +19,8 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 
-import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
+import org.netbeans.modules.tasklist.usertasks.renderers.PriorityListCellRenderer;
 
 /**
  * TableCellEditor for SuggestionPriority
@@ -30,19 +30,23 @@ public class PriorityTableCellEditor extends DefaultCellEditor {
      * Creates a new instance of PriorityTableCellRenderer
      */
     public PriorityTableCellEditor() {
-        super(new JComboBox(UserTask.getPriorityNames()));
+        super(new JComboBox(new Integer[] {
+            new Integer(UserTask.HIGH),
+            new Integer(UserTask.MEDIUM_HIGH),
+            new Integer(UserTask.MEDIUM),
+            new Integer(UserTask.MEDIUM_LOW),
+            new Integer(UserTask.LOW),
+        }));
         ((JComboBox) editorComponent).setRenderer(new PriorityListCellRenderer());
     }
 
     public Component getTableCellEditorComponent(JTable table, Object value,
         boolean isSelected, int row, int column) {
-        int index = ((Integer) value).intValue() - 1;
-        ((JComboBox) editorComponent).setSelectedIndex(index);
+        ((JComboBox) editorComponent).setSelectedItem(value);
         return editorComponent;
     }
     
     public Object getCellEditorValue() { 
-        return new Integer(
-            ((JComboBox) editorComponent).getSelectedIndex() + 1);
+        return ((JComboBox) editorComponent).getSelectedItem();
     }
 }

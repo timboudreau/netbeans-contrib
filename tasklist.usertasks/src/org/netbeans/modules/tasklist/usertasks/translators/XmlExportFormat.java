@@ -132,7 +132,7 @@ public class XmlExportFormat implements ExportImportFormat {
         SaveFilePanel panel = 
             (SaveFilePanel) wd.getProperty(CHOOSE_FILE_PANEL_PROP);
         try {
-            UserTaskList list = (UserTaskList) UserTaskView.getCurrent().getList();
+            UserTaskList list = (UserTaskList) UserTaskView.getCurrent().getUserTaskList();
             Document doc = createXml(list);
             Transformer t = createTransformer();
             Source source = new DOMSource(doc);
@@ -223,6 +223,10 @@ public class XmlExportFormat implements ExportImportFormat {
 
         node.setAttribute("modified", // NOI18N
             dateToString(new Date(task.getLastEditedDate())));
+        
+        if (task.getCompletedDate() != 0)
+            node.setAttribute("completed", // NOI18N
+                dateToString(new Date(task.getCompletedDate())));
         
         if (task.getOwner().length() != 0)
             node.setAttribute("owner", task.getOwner()); // NOI18N

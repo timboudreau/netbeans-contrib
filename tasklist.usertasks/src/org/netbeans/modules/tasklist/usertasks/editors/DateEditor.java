@@ -79,7 +79,11 @@ implements ExPropertyEditor {
         if (val instanceof Date) {
             return format.format((Date) val);
         } else if (val instanceof Long) {
-            return format.format(new Date(((Long) val).longValue()));
+            long v = ((Long) val).longValue();
+            if (v == 0)
+                return "";
+            else
+                return format.format(new Date(v));
         } else {
             return ""; // NOI18N
         }

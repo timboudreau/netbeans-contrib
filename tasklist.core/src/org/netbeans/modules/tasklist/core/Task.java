@@ -78,14 +78,14 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     private boolean zombie = false;
 
     public Task() {
-        super(null, null, null);
+        super(null, null, null, null);
         parent = null;
         visitable = true;
         key = new Object();
     }
 
     public Task(String desc, Task parent) {
-        super(null, desc, null);
+        super(null, null, desc, null);
         this.parent = parent;
         visitable = true;
         key = new Object();

@@ -1,0 +1,105 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+/**
+ * iCal syntax
+ */
+
+options {
+    NODE_SCOPE_HOOK=true;
+    JAVA_UNICODE_ESCAPE = false;
+    CHOICE_AMBIGUITY_CHECK = 100;
+}
+
+PARSER_BEGIN(IcsParser)
+
+package org.netbeans.modules.tasklist.usertasks.ics.parser;
+
+public class IcsParser {
+    void jjtreeOpenNodeScope(Node n) {
+        ((SimpleNode) n).firstToken = getToken(1);
+    }
+
+    void jjtreeCloseNodeScope(Node n) {
+	((SimpleNode) n).lastToken = getToken(0);
+    }
+}
+
+PARSER_END(IcsParser)
+
+<*> TOKEN : {
+    <EOF>
+}
+
+TOKEN : {
+	<#HTAB : "\u0009">
+|	<#SPACE : "\u0020">
+|	<#DQUOTE : "\"">
+|	<#CR : "\r">
+|	<#LF : "\n"> 
+|	<#WSP : <SPACE> | <HTAB>>
+|	<IANA_TOKEN : (<ALPHA> | <DIGIT> | "-")+>
+|       <COMMA : ",">
+|       <COLON : ":"> : IN_VALUE
+|       <SEMICOLON : ";">
+|       <EQUALS : "=">
+|	<X_NAME : "X-" (<VENDORID> "-")? (<ALPHA> | <DIGIT> | "-")+>
+|	<CRLF : <CR> <LF>> 
+|       <QUOTED_STRING : <DQUOTE> (<QSAFE_CHAR>)* <DQUOTE>>
+|       <PARAM_TEXT : (<SAFE_CHAR>)+>
+|	<#ALPHA : ["\u0041"-"\u005a"] | ["\u0061"-"\u007a"] | ["A"-"Z"] | ["a"-"z"]>
+|	<#DIGIT : ["\u0030"-"\u0039"]>
+|	<#VENDORID : (<ALPHA> | <DIGIT>) (<ALPHA> | <DIGIT>) (<ALPHA> | <DIGIT>)+>
+|	<#NON_US_ASCII : ["\u0080"-"\u00f8"]>
+|	<#QSAFE_CHAR : <WSP> | "\u0021" | ["\u0023"-"\u007e"] | <NON_US_ASCII>>
+|	<#SAFE_CHAR : <WSP> | "\u0021" | ["\u0023"-"\u002b"] | ["\u002d"-"\u0039"] | ["\u003c"-"\u007e"] | <NON_US_ASCII>> 
+}
+
+<IN_VALUE> TOKEN :
+{
+        <VALUE : (<WSP> | ["\u0021"-"\u007e"] | <NON_US_ASCII>)*>  : DEFAULT
+}
+
+/******************************************
+ * ICS GRAMMAR STARTS HERE                *
+ ******************************************/
+Node File() : {}
+{
+	(<CRLF> | ContentLine())* <EOF>
+	{return jjtThis;}
+}
+
+void ContentLine() : {}
+{
+	(Name()) (";" Param())* ":" <VALUE>
+}
+
+void Name() : {}
+{
+	<X_NAME> | <IANA_TOKEN>
+}
+
+void Param() : {}
+{
+	ParamName() "=" (ParamValue() ("," ParamValue())*)?
+}
+
+void ParamName() : {}
+{
+	<IANA_TOKEN> | <X_NAME>
+}
+
+void ParamValue() : {}
+{
+	<PARAM_TEXT> | <QUOTED_STRING>
+}

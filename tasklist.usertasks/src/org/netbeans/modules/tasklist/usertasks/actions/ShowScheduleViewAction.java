@@ -28,7 +28,7 @@ public class ShowScheduleViewAction extends CallableSystemAction {
     public void performAction() {
         UserTaskView v = UserTaskView.getCurrent();
         ScheduleTopComponent tc = new ScheduleTopComponent(
-            v.getName(), v.getList());
+            v.getName(), v.getUserTaskList());
         tc.open();
         tc.requestActive();
     }

@@ -359,13 +359,11 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
                 }
             }
         }
-
+        
         if (suggestion == null) {
             SuggestionManager manager = SuggestionManager.getDefault();
-            SuggestionAgent agent = manager.createSuggestion(SourceTaskProvider.TYPE,
-                                         description,
-                                         null,
-                                         this);
+            SuggestionAgent agent = manager.createSuggestion(null,
+                SourceTaskProvider.TYPE, description, null, this);
 
             agent.setLine(line);
             if (matchTag != null) {

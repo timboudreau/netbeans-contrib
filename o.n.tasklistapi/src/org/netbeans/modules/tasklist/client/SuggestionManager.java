@@ -13,10 +13,12 @@
 
 package org.netbeans.modules.tasklist.client;
 
+import javax.swing.event.EventListenerList;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
-import org.netbeans.modules.tasklist.client.Suggestion;
 
 import java.util.List;
+import javax.swing.event.ChangeListener;
 
 /**
  * The SuggestionManager manages suggestions, suggestion providers,
@@ -76,7 +78,8 @@ import java.util.List;
  * @author Tor Norbye
  */
 abstract public class SuggestionManager {
-
+    protected EventListenerList listeners = new EventListenerList();
+        
     /** Construct a new SuggestionManager instance. */
     protected SuggestionManager() {
     }
@@ -85,6 +88,7 @@ abstract public class SuggestionManager {
      * Construct a new suggestion, of the given type, with the given
      * summary, and performing the designated action.
      *
+     * @param fo FileObject associated with this suggestion or null
      * @param type The type of this suggestion. This is a unique string
      *             id, which corresponds to the layer-declaration of a
      *             Suggestion Type which has a user description; you can
@@ -118,10 +122,9 @@ abstract public class SuggestionManager {
      *       of current practice (reporting it as several suggestions).
      *
      */
-    abstract public SuggestionAgent createSuggestion(String type,
-                                                String summary,
-                                                SuggestionPerformer action,
-                                                Object seed);
+    abstract public SuggestionAgent createSuggestion(
+        FileObject fo, String type, String summary, SuggestionPerformer action,
+        Object seed);
     
     /**
      * Return true iff the type of suggestion indicated by the
@@ -200,6 +203,32 @@ abstract public class SuggestionManager {
      */
     abstract public void register(String type, List add, List remove);
 
+    /**
+     * Adds a listener that will be notified each time new suggestions
+     * are registered or de-registered.
+     *
+     * @param l a listener
+     */
+    public void addChangeListener(ChangeListener l) {
+        listeners.add(ChangeListener.class, l);
+    }
+    
+    /**
+     * Removes a listener registered by addChangeListener
+     *
+     * @param l a listener registered through addChangeListener
+     */
+    public void removeChangeListener(ChangeListener l) {
+        listeners.remove(ChangeListener.class, l);
+    }
+    
+    /**
+     * Returns all currently available suggestions.
+     *
+     * @return suggestions
+     */
+    abstract public Suggestion[] getSuggestions();
+    
     /** Get the default Suggestion Manager.
      * <p>
      * @return the default instance from lookup

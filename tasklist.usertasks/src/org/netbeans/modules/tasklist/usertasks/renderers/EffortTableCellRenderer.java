@@ -11,7 +11,6 @@ import org.netbeans.modules.tasklist.usertasks.UserTask;
  */
 public class EffortTableCellRenderer extends DurationTableCellRenderer {
     private Font boldFont, normalFont;
-    private Color normalForeground;
     
     /**
      * Constructor

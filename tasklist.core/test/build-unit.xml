@@ -90,7 +90,7 @@ Microsystems, Inc. All Rights Reserved.
         <buildTests srcDir="unit/src">
             <classpath>
                 <pathelement location="../build/classes"/>
-                <pathelement location="../../../nbbuild/netbeans/ide5/modules/org-netbeans-tasklistapi.jar"/>
+                <pathelement location="../../../nbbuild/netbeans/ide5/modules/org-netbeans-modules-tasklist-api.jar"/>
                 <pathelement location="../../../nbbuild/netbeans/platform5/core/openide.jar"/>
             </classpath> 
         </buildTests>

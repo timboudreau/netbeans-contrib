@@ -66,7 +66,7 @@ public class ICalExportFormat implements ExportImportFormat {
     private static final String DATEFORMATZ = "yyyyMMdd'T'HHmmss'Z'"; // NOI18N
     
     // Format used when the timezone is specified separetly, e.g. with TZ:PST
-    private static final String DATEFORMAT = "yyyyMMdd'T'HHmmss"; // NOI18N
+    // private static final String DATEFORMAT = "yyyyMMdd'T'HHmmss"; // NOI18N
     
     /**
      * Constructor
@@ -78,7 +78,7 @@ public class ICalExportFormat implements ExportImportFormat {
         SaveFilePanel panel = 
             (SaveFilePanel) wd.getProperty(CHOOSE_FILE_PANEL_PROP);
         try {
-            UserTaskList list = (UserTaskList) UserTaskView.getCurrent().getList();
+            UserTaskList list = (UserTaskList) UserTaskView.getCurrent().getUserTaskList();
             FileOutputStream fos = new FileOutputStream(panel.getFile());
             try {
                 writeList(list, fos);
@@ -312,6 +312,10 @@ public class ICalExportFormat implements ExportImportFormat {
             writer.write("\r\n"); // NOI18N
         }
 
+        // completion date
+        writer.write("COMPLETED:"); // NOI18N
+        writer.write(sdf.format(new Date(task.getCompletedDate())));
+        writer.write("\r\n"); // NOI18N
 
         // URL
         URL url = task.getUrl();

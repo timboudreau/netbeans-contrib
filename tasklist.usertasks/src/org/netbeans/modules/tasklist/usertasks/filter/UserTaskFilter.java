@@ -36,6 +36,7 @@ public class UserTaskFilter extends Filter {
         UserTaskProperties.PROP_LINE_NUMBER,
         UserTaskProperties.PROP_CREATED_DATE,
         UserTaskProperties.PROP_LAST_EDITED_DATE,
+        UserTaskProperties.PROP_COMPLETED_DATE,
         UserTaskProperties.PROP_DUE_DATE,
         UserTaskProperties.PROP_DONE,
         UserTaskProperties.PROP_PERCENT_COMPLETE,
@@ -85,6 +86,8 @@ public class UserTaskFilter extends Filter {
         } else if (property.equals(UserTaskProperties.PROP_CREATED_DATE)) {
             return applyConditions(property, DateFilterCondition.createConditions());
         } else if (property.equals(UserTaskProperties.PROP_LAST_EDITED_DATE)) {
+            return applyConditions(property, DateFilterCondition.createConditions());
+        } else if (property.equals(UserTaskProperties.PROP_COMPLETED_DATE)) {
             return applyConditions(property, DateFilterCondition.createConditions());
         } else if (property.equals(UserTaskProperties.PROP_DUE_DATE)) {
             return applyConditions(property, DateFilterCondition.createConditions());

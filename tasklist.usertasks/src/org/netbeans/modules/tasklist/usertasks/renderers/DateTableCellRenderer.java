@@ -56,8 +56,13 @@ public class DateTableCellRenderer extends DefaultTableCellRenderer {
             row, column);
         if (value == null)
             setText(""); // NOI18N
-        else
-            setText(format.format(new Date(((Long) value).longValue())));
+        else {
+            long v = ((Long) value).longValue();
+            if (v == 0)
+                setText(""); // NOI18N
+            else
+                setText(format.format(new Date(v)));
+        }
         return this;
     }    
 }

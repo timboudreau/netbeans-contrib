@@ -285,8 +285,8 @@ public class CopyrightChecker extends DocumentSuggestionProvider {
             final int lineno = linenum;
 
             SuggestionManager manager = SuggestionManager.getDefault();
-            SuggestionAgent copyrightTask = manager.createSuggestion(TYPE,
-                description, null, this);
+            SuggestionAgent copyrightTask = manager.createSuggestion(
+                env.getFileObject(), TYPE, description, null, this);
             try {
                 DataObject dataObject = DataObject.find(env.getFileObject());
                 copyrightTask.setLine(TLUtils.getLineByNumber(dataObject, lineno));
@@ -324,8 +324,8 @@ public class CopyrightChecker extends DocumentSuggestionProvider {
 
             SuggestionPerformer action = new AddCopyrightPerformer(env);
             SuggestionManager manager = SuggestionManager.getDefault();
-            SuggestionAgent copyrightTask = manager.createSuggestion(TYPE,
-                warning, action, this);
+            SuggestionAgent copyrightTask = manager.createSuggestion(
+                env.getFileObject(), TYPE, warning, action, this);
             try {
                 DataObject dataObject = DataObject.find(env.getFileObject());
                 copyrightTask.setLine(TLUtils.getLineByNumber(dataObject, 1));

@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -51,6 +52,8 @@ import org.netbeans.modules.tasklist.usertasks.treetable.NodesTreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.SortingHeaderRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.openide.explorer.ExplorerManager;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
 
@@ -129,12 +132,12 @@ public class UserTasksTreeTable extends NodesTreeTable {
     private TreeTable.ColumnsConfig createDefaultColumnsConfig() {
         TreeTable.ColumnsConfig ret = new TreeTable.ColumnsConfig();
         ret.ascending = false;
-        ret.columnWidths = new int[] {18, 400, 60, 60, 60, 60, 80, 80, 80};
+        ret.columnWidths = new int[] {18, 18, 400, 60, 60, 60, 80, 80, 80};
         ret.sortedColumn = UserTaskTreeTableNode.PRIORITY;
         ret.columns = new int[] {
             UserTaskTreeTableNode.DONE,
-            UserTaskTreeTableNode.SUMMARY,
             UserTaskTreeTableNode.PRIORITY,
+            UserTaskTreeTableNode.SUMMARY,
             UserTaskTreeTableNode.CATEGORY,
             UserTaskTreeTableNode.OWNER,
             UserTaskTreeTableNode.PERCENT_COMPLETE,
@@ -161,30 +164,41 @@ public class UserTasksTreeTable extends NodesTreeTable {
 
     public void createDefaultColumnsFromModel() {
         super.createDefaultColumnsFromModel();
+        UTUtils.LOGGER.fine("creating columns"); // NOI18N
+        if (UTUtils.LOGGER.isLoggable(Level.FINE))
+            Thread.dumpStack();
+            
         TableColumnModel tcm = getColumnModel();
         if (tcm.getColumnCount() < 14)
             return;
         
-        tcm.getColumn(1).setCellRenderer(
-            new PriorityTableCellRenderer());
         SortingHeaderRenderer r = new SortingHeaderRenderer();
         r.setIcon(new ImageIcon(
+            UserTasksTreeTable.class.getResource("priority.gif"))); // NOI18N
+        tcm.getColumn(UserTaskTreeTableNode.PRIORITY).setHeaderRenderer(r);
+        tcm.getColumn(UserTaskTreeTableNode.PRIORITY).setCellRenderer(
+            new PriorityTableCellRenderer());
+        
+        r = new SortingHeaderRenderer();
+        r.setIcon(new ImageIcon(
             UserTasksTreeTable.class.getResource("checkbox.gif"))); // NOI18N
-        tcm.getColumn(2).setHeaderRenderer(r);
-        tcm.getColumn(2).setCellRenderer(
+        tcm.getColumn(UserTaskTreeTableNode.DONE).setHeaderRenderer(r);
+        tcm.getColumn(UserTaskTreeTableNode.DONE).setCellRenderer(
             new BooleanTableCellRenderer());
-        tcm.getColumn(2).setMinWidth(17);
-        tcm.getColumn(3).setCellRenderer(
+        tcm.getColumn(UserTaskTreeTableNode.DONE).setMinWidth(17);
+        tcm.getColumn(UserTaskTreeTableNode.PERCENT_COMPLETE).setCellRenderer(
             new PercentsTableCellRenderer());
         DurationTableCellRenderer dr = new DurationTableCellRenderer();
-        tcm.getColumn(5).setCellRenderer(dr);
-        tcm.getColumn(6).setCellRenderer(dr);
-        tcm.getColumn(9).setCellRenderer(
+        tcm.getColumn(UserTaskTreeTableNode.REMAINING_EFFORT).setCellRenderer(dr);
+        tcm.getColumn(UserTaskTreeTableNode.SPENT_TIME).setCellRenderer(dr);
+        tcm.getColumn(UserTaskTreeTableNode.LINE_NUMBER).setCellRenderer(
             new LineTableCellRenderer());
         DateTableCellRenderer dcr = new DateTableCellRenderer();
-        tcm.getColumn(11).setCellRenderer(dcr);
-        tcm.getColumn(12).setCellRenderer(dcr);
-        tcm.getColumn(13).setCellRenderer(dcr);
+        tcm.getColumn(UserTaskTreeTableNode.CREATED).setCellRenderer(dcr);
+        tcm.getColumn(UserTaskTreeTableNode.LAST_EDITED).setCellRenderer(dcr);
+        tcm.getColumn(UserTaskTreeTableNode.DUE_DATE).setCellRenderer(dcr);
+        tcm.getColumn(UserTaskTreeTableNode.COMPLETED_DATE)
+            .setCellRenderer(dcr);
         tcm.getColumn(UserTaskTreeTableNode.PERCENT_COMPLETE).
             setCellEditor(new PercentsTableCellEditor());
         
@@ -257,5 +271,26 @@ public class UserTasksTreeTable extends NodesTreeTable {
         }
         
         return null;
+    }
+
+    public String getToolTipText(java.awt.event.MouseEvent event) {
+        Point point = event.getPoint();
+        int row = rowAtPoint(point);
+        
+        String result = null;
+        if (row >= 0) {
+            Object node = getNodeForRow(row);
+
+            if (node instanceof UserTaskTreeTableNode) {
+                result = ((UserTaskTreeTableNode) node).getUserTask().getDetails();
+                if (result.length() == 0)
+                    result = null;
+            } else if (node instanceof UserTaskListTreeTableNode) {
+                FileObject fo = ((UserTaskListTreeTableNode) node).
+                    getUserTaskList().getFile();
+                result = FileUtil.getFileDisplayName(fo);
+            }
+        }
+        return result;
     }
 }

@@ -16,8 +16,6 @@ import org.openide.nodes.Node;
 import org.openide.text.Line;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.netbeans.modules.tasklist.usertasks.UserTask;
-import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 
 import org.openide.util.actions.CookieAction;
 

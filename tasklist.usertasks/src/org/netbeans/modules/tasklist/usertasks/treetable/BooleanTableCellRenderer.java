@@ -14,7 +14,6 @@
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
 import java.awt.Component;
-import java.awt.Insets;
 import java.awt.Rectangle;
 
 import javax.swing.JCheckBox;

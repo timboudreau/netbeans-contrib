@@ -36,8 +36,8 @@ import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
-import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.dependencies.DependenciesPanel;
+import org.netbeans.modules.tasklist.usertasks.renderers.PriorityListCellRenderer;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -114,7 +114,13 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     
     private SimpleDateFormat format;
     private ComboBoxModel prioritiesModel = 
-        new DefaultComboBoxModel(UserTask.getPriorityNames());
+        new DefaultComboBoxModel(new Integer[] {
+            new Integer(UserTask.HIGH),
+            new Integer(UserTask.MEDIUM_HIGH),
+            new Integer(UserTask.MEDIUM),
+            new Integer(UserTask.MEDIUM_LOW),
+            new Integer(UserTask.LOW),
+        });
     private ListCellRenderer priorityRenderer = new PriorityListCellRenderer();
     private DurationPanel durationPanel = new DurationPanel();
     private DependenciesPanel dp;
@@ -181,8 +187,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         if (item.getSummary() != null) {
             descriptionTextField.setText(item.getSummary());
         }
-        int p = item.getPriority() - 1;
-        priorityComboBox.setSelectedIndex(p);
+        priorityComboBox.setSelectedItem(new Integer(item.getPriority()));
         if (item.getLine() != null) {
             URL url = item.getUrl();
             if (url != null) {
@@ -235,6 +240,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         dp.fillPanel(item);
         
         jTextFieldOwner.setText(item.getOwner());
+        jLabelCompleted.setText(df.format(new Date(item.getCompletedDate())));
     }
     
     /**
@@ -249,7 +255,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             task.setCategory(""); // NOI18N
         else
             task.setCategory(categoryCombo.getSelectedItem().toString().trim());
-        task.setPriority(priorityComboBox.getSelectedIndex() + 1);
+        int p = ((Integer) priorityComboBox.getSelectedItem()).intValue();
+        task.setPriority(p);
         if (fileCheckBox.isSelected()) {
             try {
                 URL url = new URL(fileTextField.getText().trim());
@@ -467,6 +474,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         jRadioButtonComputeSpent = new javax.swing.JRadioButton();
         jRadioButtonSpent = new javax.swing.JRadioButton();
         durationPanelSpent = new org.netbeans.modules.tasklist.usertasks.DurationPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabelCompleted = new javax.swing.JLabel();
         jPanelDependencies = new javax.swing.JPanel();
 
         setLayout(new java.awt.BorderLayout());
@@ -752,7 +761,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     jLabel5.setText(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "CreatedLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 6;
+    gridBagConstraints.gridy = 5;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanel3.add(jLabel5, gridBagConstraints);
@@ -766,7 +775,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 6;
+    gridBagConstraints.gridy = 5;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanel3.add(jLabelCreated, gridBagConstraints);
@@ -911,6 +920,21 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanel3.add(jPanel7, gridBagConstraints);
+
+    org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("Completed"));
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 6;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel3.add(jLabel2, gridBagConstraints);
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 6;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel3.add(jLabelCompleted, gridBagConstraints);
 
     jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "TimeRelated"), jPanel3);
 
@@ -1091,8 +1115,10 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JTextField fileTextField;
     private javax.swing.JComboBox jComboBoxProgress;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabelCompleted;
     private javax.swing.JLabel jLabelCreated;
     private javax.swing.JLabel jLabelLastEdited;
     private javax.swing.JPanel jPanel1;

@@ -65,7 +65,8 @@ public class SuggestionList extends TaskList {
             category = (SuggestionImpl)categoryTasks.get(type);
         }
         if (create && (category == null)) {
-            category = new SuggestionImpl(type.getLocalizedName(),type, null, CATEGORY_NODE_SEED);
+            category = new SuggestionImpl(null,
+                type.getLocalizedName(),type, null, CATEGORY_NODE_SEED);
             category.setType(type.getName());
             category.setIcon(type.getIconImage());
             category.setVisitable(false);

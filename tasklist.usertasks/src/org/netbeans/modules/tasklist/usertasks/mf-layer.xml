@@ -88,10 +88,6 @@ Microsystems, Inc. All Rights Reserved.
 
     <folder name="TaskList">
         <folder name="usertasks">
-            <file name="columns.settings" url="columns.xml">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration"/>
-            </file>
-
             <file name="filters.settings" url="filter/usertasks_filters.xml">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.FilterRepository"/>
             </file>

@@ -20,7 +20,6 @@ import org.netbeans.modules.tasklist.core.TaskProperties;
 import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
 
-
 public class UserTaskProperties extends TaskProperties {
     public static final String PROPID_PRIORITY = "priority"; // NOI18N
     public static final String PROPID_SUMMARY = "summary"; // NOI18N
@@ -37,6 +36,7 @@ public class UserTaskProperties extends TaskProperties {
     public static final String PROPID_REMAINING_EFFORT = "remainingEffort"; // NOI18N
     public static final String PROPID_SPENT_TIME = "spentTime"; // NOI18N
     public static final String PROPID_OWNER = "owner"; // NOI18N
+    public static final String PROPID_COMPLETED_DATE = "completedDate"; // NOI18N
 
   public static SuggestionProperty PROP_SUMMARY = 
     new SuggestionProperty(PROPID_SUMMARY, String.class) { 
@@ -94,6 +94,13 @@ public class UserTaskProperties extends TaskProperties {
             }
         };
 
+    public static final SuggestionProperty PROP_COMPLETED_DATE =
+        new SuggestionProperty(PROPID_COMPLETED_DATE, Date.class) {
+        public Object getValue(Object obj) {
+            return new Date(((UserTask) obj).getCompletedDate());
+        }
+    };
+        
     public static final SuggestionProperty PROP_DUE_DATE =
         new SuggestionProperty(PROPID_DUE_DATE, Date.class) {
             public Object getValue(Object obj) {
@@ -154,6 +161,8 @@ public class UserTaskProperties extends TaskProperties {
             return PROP_CREATED_DATE;
         } else if (propID.equals(PROPID_LAST_EDITED_DATE)) {
             return PROP_LAST_EDITED_DATE;
+        } else if (propID.equals(PROPID_COMPLETED_DATE)) {
+            return PROP_COMPLETED_DATE;
         } else if (propID.equals(PROPID_DUE_DATE)) {
             return PROP_DUE_DATE;
         } else if (propID.equals(PROPID_DONE)) {

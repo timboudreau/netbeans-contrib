@@ -16,6 +16,7 @@ package org.netbeans.modules.tasklist.client;
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import org.openide.filesystems.FileObject;
 
 import org.openide.text.Line;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
@@ -99,8 +100,6 @@ import org.netbeans.modules.tasklist.client.SuggestionPriority;
  *
  * @author Tor Norbye
  */
-
-
 abstract public class Suggestion {
 
     /** Agent that can mutate this suggestion */
@@ -124,27 +123,6 @@ abstract public class Suggestion {
     public static final String PROP_VALID = "valid";
 
     private boolean valid;
-
-
-
-    /** Use {@link org.netbeans.modules.tasklist.client.SuggestionManager#createSuggestion} to create these.
-     * <p>
-     * NOTE: This constructor may not be called except by a
-     * SuggestionManager subclass; SuggestionManager implementations
-     * may refuse to add Suggestion instances not created by
-     * themselves. 
-     * @param type Type of the suggestion. See the class javadoc for a 
-     *    description of what this means.
-     * @param summary Summary to show for the suggestion
-     * @param action Action to perform when the suggestion should be fixed. May 
-     *    be null.
-     */
-    protected Suggestion(final String type, final String summary, final SuggestionPerformer action) {
-        this.type = type;
-        this.summary = summary;
-        this.action = action;
-        valid = true;
-    }
 
     // Attributes:
 
@@ -175,11 +153,56 @@ abstract public class Suggestion {
     private Line line = null;
     
     private SuggestionPerformer action = null;
+    
+    private FileObject fo;
+    
     //private TimeToLive ttl = TimeToLive.SESSION;
 
     // Note - if you add additional fields, remember to keep
     // Task.copyFrom in sync.
+    
+    /** 
+     * Use {@link org.netbeans.modules.tasklist.client.SuggestionManager#createSuggestion} 
+     * to create these.
+     * <p>
+     * NOTE: This constructor may not be called except by a
+     * SuggestionManager subclass; SuggestionManager implementations
+     * may refuse to add Suggestion instances not created by
+     * themselves. 
+     * 
+     * @param fo a FileObject this suggestion is associated with or null.
+     * @param type Type of the suggestion. See the class javadoc for a 
+     *    description of what this means.
+     * @param summary Summary to show for the suggestion
+     * @param action Action to perform when the suggestion should be fixed. May 
+     *    be null.
+     */
+    protected Suggestion(FileObject fo, final String type, 
+        final String summary, final SuggestionPerformer action) {
+        this.fo = fo;
+        this.type = type;
+        this.summary = summary;
+        this.action = action;
+        valid = true;
+    }
 
+    /**
+     * Returns the FileObject accociated with this suggestion
+     *
+     * @return FileObject associated with this suggestion or null
+     */
+    public FileObject getFileObject() {
+        return fo;
+    }
+    
+    /**
+     * Associate another FileObject with this suggestion.
+     *
+     * @param fo FileObject associated with this suggestion or null
+     */
+    protected void setFileObject(FileObject fo) {
+        this.fo = fo;
+    }
     
     /**
      * Set the summary of the task. This is a one-line description
@@ -211,7 +234,6 @@ abstract public class Suggestion {
         }
         return summary;
     }
-
 
     /**
      * Set the details of the task. This could be multiple lines
@@ -339,7 +361,6 @@ abstract public class Suggestion {
         return line;
     }
 
-    
     /**
      * Set the action to be performed when the task is executed.
      * <p>

@@ -126,7 +126,7 @@ public class ICalImportFormat implements ExportImportFormat {
         }
         
         UserTaskView view = (UserTaskView) provider;
-        UserTaskList utl = (UserTaskList) view.getList();
+        UserTaskList utl = (UserTaskList) view.getUserTaskList();
         
         InputStream is;
         try {
@@ -193,6 +193,11 @@ public class ICalImportFormat implements ExportImportFormat {
     /** Return most recently parsed value nextContentLine */
     private String getValue() {
         return vsb.toString();
+    }
+    
+    /** Return most recently parsed name nextContentLine */
+    private String getTagName() {
+        return nsb.toString();
     }
     
     /** Return most recently parsed value nextContentLine */
@@ -272,7 +277,7 @@ public class ICalImportFormat implements ExportImportFormat {
         boolean done = false;
         while (!done) {
             processContentLine();
-            name = getName();
+            name = getTagName();
             if (name == null) {
                 break;
             }
@@ -442,6 +447,8 @@ public class ICalImportFormat implements ExportImportFormat {
         String url = null;
         String lineNumber = null;
         
+        long completed = 0;
+            
         while (true) {
             processContentLine();
             String name = getParamName();
@@ -454,9 +461,9 @@ public class ICalImportFormat implements ExportImportFormat {
             String value = getValue();
             String param = getParam();
             
-            UTUtils.LOGGER.fine(name);
-            UTUtils.LOGGER.fine(value);
-            UTUtils.LOGGER.fine(param);
+            UTUtils.LOGGER.finer(name);
+            UTUtils.LOGGER.finer(value);
+            UTUtils.LOGGER.finer(param);
             
             if (name.equals("BEGIN")) { // NOI18N
                 if (writer == null) {
@@ -482,6 +489,12 @@ public class ICalImportFormat implements ExportImportFormat {
                 try {
                     Date edited = formatter.parse(value);
                     task.setLastEditedDate(edited.getTime());
+                } catch (ParseException e) {
+                    ErrorManager.getDefault().notify(e);
+                }
+            } else if (name.equals("COMPLETED")) { // NOI18N
+                try {
+                    completed = formatter.parse(value).getTime();
                 } catch (ParseException e) {
                     ErrorManager.getDefault().notify(e);
                 }
@@ -643,6 +656,8 @@ public class ICalImportFormat implements ExportImportFormat {
                 writer.write("\r\n"); // NOI18N
             }
         }
+        
+        task.setCompletedDate(completed);
         
         int lineno = 1;
         if (lineNumber != null) {
@@ -848,12 +863,12 @@ public class ICalImportFormat implements ExportImportFormat {
         } while (true);
         
         // Dependencies
-        UTUtils.LOGGER.fine("processing dependencies: " + dependencies.size()); // NOI18N
+        UTUtils.LOGGER.finer("processing dependencies: " + dependencies.size()); // NOI18N
         for (int i = 0; i < dependencies.size(); i++) {
             Dep d = (Dep) dependencies.get(i);
             UserTask ut = list.findItem(
                 list.getSubtasks().iterator(), d.dependsOn);
-            UTUtils.LOGGER.fine("found task " + ut); // NOI18N
+            UTUtils.LOGGER.finer("found task " + ut); // NOI18N
             if (ut != null) {
                 d.ut.getDependencies().add(new Dependency(ut, d.type));
             }

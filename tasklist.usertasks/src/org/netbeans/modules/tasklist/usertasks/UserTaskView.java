@@ -14,7 +14,6 @@
 package org.netbeans.modules.tasklist.usertasks;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.beans.PropertyChangeEvent;
@@ -36,11 +35,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
+import org.netbeans.modules.tasklist.core.util.RightSideBorder;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveDownAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveUpAction;
@@ -57,11 +58,17 @@ import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.treetable.ChooseColumnsPanel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
+import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
+import org.openide.NotifyDescriptor.Message;
 import org.openide.actions.FindAction;
 import org.openide.cookies.InstanceCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
@@ -78,12 +85,12 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 /** 
- * View showing the todo list items
+ * View showing the user tasks.
  *
  * @author Tor Norbye
  */
 public class UserTaskView extends TopComponent implements
-ExplorerManager.Provider, ExportImportProvider {    
+ExplorerManager.Provider, ExportImportProvider, FileChangeListener {    
     // List category
     private final static String USER_CATEGORY = "usertasks"; // NOI18N    
     
@@ -134,13 +141,18 @@ ExplorerManager.Provider, ExportImportProvider {
      * Returns the view with the default task list. The view will be opened if
      * it was not.
      *
-     * @return the default view
+     * @return the default view or null if an error occured
      */
     public static UserTaskView getDefault() {
 	if (defview == null) {
-	    defview = new UserTaskView();
-            defview.setList(UserTaskList.getDefault());
-            defview.showInMode();
+            try {
+                defview = new UserTaskView(
+                    UserTaskList.getDefault(), true);
+                defview.showInMode();
+            } catch (IOException ioe) {
+                DialogDisplayer.getDefault().notify(new Message(
+                    ioe, NotifyDescriptor.ERROR_MESSAGE));
+            }
 	}
 	return defview;
     }
@@ -151,7 +163,8 @@ ExplorerManager.Provider, ExportImportProvider {
      * @return current view
      */
     public static UserTaskView getCurrent() {
-        TopComponent activated = WindowManager.getDefault().getRegistry().getActivated();
+        TopComponent activated = WindowManager.getDefault().
+            getRegistry().getActivated();
         if (activated instanceof UserTaskView)
             return (UserTaskView) activated;
         else 
@@ -167,7 +180,7 @@ ExplorerManager.Provider, ExportImportProvider {
         while (it.hasNext()) {
             WeakReference wr = (WeakReference) it.next();
 	    UserTaskView tlv = (UserTaskView) wr.get();
-            if (tlv != null && tlv.getList().getFile() == file) 
+            if (tlv != null && tlv.getUserTaskList().getFile() == file) 
                 return tlv;
         }
         return null;
@@ -175,12 +188,12 @@ ExplorerManager.Provider, ExportImportProvider {
 
     private UserTasksTreeTable tt;
     private JScrollPane scrollPane;
-    private int viewId;
     private boolean initialized = false;
     private UserTaskList tasklist = null;
     private FilterRepository filters = null;
     private Filter activeFilter = null;
     private ExplorerManager manager;
+    private boolean default_;
     
     /** 
      * Construct a new UserTaskView.  
@@ -188,8 +201,6 @@ ExplorerManager.Provider, ExportImportProvider {
      * system when deserializing windows. 
      */
     public UserTaskView() {
-        this(NbBundle.getMessage(UserTaskView.class, "TaskViewName"), // NOI18N
-            new UserTaskList());
     }
 
     /**
@@ -199,30 +210,11 @@ ExplorerManager.Provider, ExportImportProvider {
      * @param category view's category. This value will be used as the name
      * for a subdirectory of "SystemFileSystem/TaskList/" for columns settings
      */
-    private UserTaskView(String title, UserTaskList tasklist) {
-        setIcon(ICON);
+    public UserTaskView(UserTaskList tasklist, boolean default_) {
+        this.default_ = default_;
         setList(tasklist);
         
-        init_();
-
-        this.viewId = nextViewId++;
-
-        synchronized (UserTaskView.class) {
-            views.add(new WeakReference(this));
-        }
-    }
-
-    /** 
-     * Construct a new UserTaskView showing a given list. Most work
-     * is deferred to componentOpened. NOTE: this is only for use by
-     * the window system when deserializing windows. Client code
-     * should not call it. I can't make it protected because then
-     * the window system wouldn't be able to get to this. But the
-     * code relies on readExternal getting called after this
-     * constructor to finalize construction of the window.
-     */
-    public UserTaskView(UserTaskList list) {
-	this(list.getFile().getNameExt(), list);              
+        init();
     }
 
     /**
@@ -268,7 +260,6 @@ ExplorerManager.Provider, ExportImportProvider {
      * and reads in sorting preferences etc. such that
      * we use the same preferences now.
      * @param objectInput object stream to read from
-     * @todo Use a more robust serialization format (not int uid based)
      * @throws IOException
      * @throws ClassNotFoundException  
      */
@@ -286,7 +277,6 @@ ExplorerManager.Provider, ExportImportProvider {
 
         int sortingColumn = objectInput.read();
         int sortAscendingInt = objectInput.read();
-        boolean ascending = (sortAscendingInt != 0);
         int numVisible = objectInput.read();
 
         // Account for conversion to unsigned byte in writeExternal
@@ -322,7 +312,6 @@ ExplorerManager.Provider, ExportImportProvider {
      * and reads in sorting preferences etc. such that
      * we use the same preferences now.
      * @param objectInput object stream to read from
-     * @todo Use a more robust serialization format (not int uid based)
      * @throws IOException
      * @throws ClassNotFoundException  
      */    
@@ -340,9 +329,9 @@ ExplorerManager.Provider, ExportImportProvider {
                 URL url = new URL(urlString);
                 FileObject fo = URLMapper.findFileObject(url);
                 if (fo != null) {
-                    UserTaskList utl = new UserTaskList();
-                    utl.readFile(fo);
+                    UserTaskList utl = UserTaskList.readDocument(fo);
                     setList(utl);
+                    init();
                 } else {
                     Runnable r = new Runnable() {
                         public void run() {
@@ -352,7 +341,9 @@ ExplorerManager.Provider, ExportImportProvider {
                     SwingUtilities.invokeLater(r);
                 }
             } else {
+                default_ = true;
                 setList(UserTaskList.getDefault());
+                init();
                 defview = this;
             }
         }
@@ -389,7 +380,10 @@ ExplorerManager.Provider, ExportImportProvider {
             
             TreeTable.ColumnsConfig cc = (TreeTable.ColumnsConfig) m.get("columns"); // NOI18N
             if (cc != null) {
+                UTUtils.LOGGER.fine("setting columns"); // NOI18N
                 tt.setColumnsConfig(cc);
+            } else {
+                UTUtils.LOGGER.fine("no columns found"); // NOI18N
             }
         }
     }
@@ -398,12 +392,13 @@ ExplorerManager.Provider, ExportImportProvider {
      * Write out relevant settings in the window (visible
      * columns, sorting order, etc.) such that they can
      * be reconstructed the next time the IDE is started.
-     * @todo Use a more robust serialization format (not int uid based)
      *
      * @param objectOutput Object stream to write to
      * @throws IOException  
      */    
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
+        UTUtils.LOGGER.fine(""); // NOI18N
+        
         // Don't call super.writeExternal.
         // Our parent is TopComponent.
         // TopComponent persists the name and tooltip text; we
@@ -429,8 +424,8 @@ ExplorerManager.Provider, ExportImportProvider {
         // Write out the UID of the currently selected task, or null if none
         objectOutput.writeObject(null); // Not yet implemented
 
-        UserTaskList tl = (UserTaskList)getList();
-        tl.save(); // Only does something if the todolist has changed...        
+        UserTaskList tl = (UserTaskList)getUserTaskList();
+        tl.save(); // Only does something if the list has changed...        
         
         // Here I should record a few things; in particular, sorting order, view
         // preferences, etc.
@@ -438,8 +433,9 @@ ExplorerManager.Provider, ExportImportProvider {
         // byte so we can do the right thing later without corrupting the userdir
         objectOutput.write(6); // SERIAL VERSION
 
-        FileObject fo = tl.getFile();
-        if (fo != null) {
+        if (!default_) {
+            FileObject fo = tl.getFile();
+        
             // Write out the name of the tasklist
             URL url = URLMapper.findURL(fo, URLMapper.EXTERNAL);
             String urlString = url.toExternalForm();
@@ -483,27 +479,31 @@ ExplorerManager.Provider, ExportImportProvider {
      *
      * @param list new tree
      */
-    public void setList(UserTaskList list) {
+    private void setList(UserTaskList list) {
         tasklist = list;
         if (tt != null) {
             tt.setTreeTableModel(
                 new UserTasksTreeTableModel(tasklist, tt.getSortingModel(), 
                 getFilter()));
         }
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                if (tasklist.getFile() != null) {
-                    setName(tasklist.getFile().getNameExt());
-                    setToolTipText(FileUtil.getFileDisplayName(tasklist.getFile()));
-                } else {
-                    setName(NbBundle.getMessage(UserTaskView.class, "TaskViewName")); // NOI18N
-                }
-            }
-        }); 
+        updateNameAndToolTip();
+    }
+    
+    /**
+     * Updates the name of this TC and the tooltip 
+     * corresponding to the FileObject.
+     */
+    private void updateNameAndToolTip() {
+        setToolTipText(FileUtil.getFileDisplayName(tasklist.getFile()));
+        if (!default_) {
+            setName(tasklist.getFile().getNameExt());
+        } else {
+            setName(NbBundle.getMessage(UserTaskView.class, "TaskViewName")); // NOI18N
+        }
     }
     
     public String toString() { 
-        return "UserTaskView(" + getName() + ", " + getList() + ")"; // NOI18N
+        return "UserTaskView(" + getName() + ", " + getUserTaskList() + ")"; // NOI18N
     }
     
     /** 
@@ -519,7 +519,8 @@ ExplorerManager.Provider, ExportImportProvider {
         // although TC.preferredId says that the return value of
         // preferredID must not be unique it does not seem to work
         // so viewId is used to identify the views
-        return "org.netbeans.modules.tasklist.usertasks.Window" + viewId; // NOI18N
+        // + viewId; 
+        return "org.netbeans.modules.tasklist.usertasks.Window";// NOI18N
     }    
 
     protected void setFiltered() {
@@ -532,7 +533,7 @@ ExplorerManager.Provider, ExportImportProvider {
         if (ttm instanceof UserTasksTreeTableModel) {
             ((UserTasksTreeTableModel) ttm).destroy();
         }
-        tt.setTreeTableModel(new UserTasksTreeTableModel((UserTaskList) getList(), 
+        tt.setTreeTableModel(new UserTasksTreeTableModel((UserTaskList) getUserTaskList(), 
             tt.getSortingModel(), getFilter()));
     }
 
@@ -591,7 +592,17 @@ ExplorerManager.Provider, ExportImportProvider {
     /**
      * Common part for all constructors
      */
-    private void init_() {
+    private void init() {
+        assert SwingUtilities.isEventDispatchThread();
+            
+        synchronized (UserTaskView.class) {
+            views.add(new WeakReference(this));
+        }
+        
+        tasklist.getFile().addFileChangeListener(this);
+        
+        setIcon(ICON);
+        
         manager = new ExplorerManager();
         ActionMap map = getActionMap();
         map.put(javax.swing.text.DefaultEditorKit.copyAction, 
@@ -616,54 +627,31 @@ ExplorerManager.Provider, ExportImportProvider {
         centerPanel.setLayout(new BorderLayout());
         
         tt = new UserTasksTreeTable(
-            getExplorerManager(), getList(), getFilter());
+            getExplorerManager(), getUserTaskList(), getFilter());
         
         scrollPane = new JScrollPane(tt,
             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
         
         ChooseColumnsPanel.installChooseColumnsButton(scrollPane);
         
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
-        JPanel toolbars = new JPanel();
-        toolbars.setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
-
-        SystemAction[] actions = getGlobalToolBarActions();
-        if (actions != null) {
-            JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
-            toolbar.setFloatable(false);
-            toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
-            toolbar.setOrientation(JToolBar.VERTICAL);
-            toolbars.add(toolbar);
-        }
-
-        actions = getToolBarActions();
-        if (actions != null) {
-            JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
-            toolbar.setFloatable(false);
-            toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
-            toolbar.setOrientation(JToolBar.VERTICAL);
-            toolbars.add(toolbar);
-        }
-
-
-        add(toolbars, BorderLayout.WEST);
+        SystemAction[] actions = getToolBarActions();
+        JToolBar toolbar = SystemAction.createToolbarPresenter(actions);
+        toolbar.setFloatable(false);
+        toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
+        toolbar.setOrientation(JToolBar.VERTICAL);
+        toolbar.setBorder(new RightSideBorder());
+        add(toolbar, BorderLayout.WEST);
 
         tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
     }
 
     public ExplorerManager getExplorerManager() {
         return manager;
-    }
-
-    /**
-     * Could be overriden to change actions on second toolbar row.
-     * @return
-     */
-    protected SystemAction[] getGlobalToolBarActions() {
-        return null;
     }
 
     /**
@@ -708,8 +696,6 @@ ExplorerManager.Provider, ExportImportProvider {
     
     /** 
      * Called when the object is opened. Add the GUI.
-     * @todo Trigger source listening on window getting VISIBLE instead
-     * of getting opened.
      */
     protected void componentOpened() {
         if (initialized) {
@@ -723,7 +709,7 @@ ExplorerManager.Provider, ExportImportProvider {
 
     /** Called when the window is closed. Cleans up. */
     protected void componentClosed() {
-        getList().destroy();
+        getUserTaskList().destroy();
         
  	Iterator it = views.iterator();
         while (it.hasNext()) {
@@ -762,7 +748,7 @@ ExplorerManager.Provider, ExportImportProvider {
      *
      * @return task list
      */
-    public UserTaskList getList() {
+    public UserTaskList getUserTaskList() {
         return this.tasklist;
     }
 
@@ -818,6 +804,34 @@ ExplorerManager.Provider, ExportImportProvider {
         if (tt != null) {
             tt.requestFocusInWindow();
         }
+    }
+
+    public void fileRenamed(org.openide.filesystems.FileRenameEvent fe) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                UserTaskView.this.updateNameAndToolTip();
+            }
+        });
+    }
+
+    public void fileAttributeChanged(org.openide.filesystems.FileAttributeEvent fe) {
+    }
+
+    public void fileFolderCreated(FileEvent fe) {
+    }
+
+    public void fileDeleted(FileEvent fe) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                UserTaskView.this.close();
+            }
+        });
+    }
+
+    public void fileDataCreated(FileEvent fe) {
+    }
+
+    public void fileChanged(FileEvent fe) {
     }
     
     /* check isSliding

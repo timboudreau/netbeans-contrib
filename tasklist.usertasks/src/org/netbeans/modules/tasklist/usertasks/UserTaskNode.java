@@ -29,7 +29,6 @@ import javax.swing.Action;
 import javax.swing.tree.TreePath;
 
 import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ImportAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ClearCompletedAction;
@@ -42,7 +41,6 @@ import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskListAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
-import org.netbeans.modules.tasklist.usertasks.actions.ShowScheduleViewAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.SingleLineCookie;
 import org.netbeans.modules.tasklist.usertasks.actions.StartCookie;
@@ -51,6 +49,7 @@ import org.netbeans.modules.tasklist.usertasks.actions.StopCookie;
 import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsPropertyEditor;
+import org.netbeans.modules.tasklist.usertasks.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.RemoveFilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
@@ -140,45 +139,6 @@ public final class UserTaskNode extends AbstractNode {
         }
     }
     
-    protected SystemAction[] createActions() {
-        return new SystemAction[] {
-            SystemAction.get(NewTaskAction.class),
-            SystemAction.get(NewTaskListAction.class),
-            //SystemAction.get(ShowScheduleViewAction.class),
-            null,
-            SystemAction.get(StartTaskAction.class),
-            SystemAction.get(PauseAction.class),
-            null,
-            SystemAction.get(ShowTaskAction.class),
-            SystemAction.get(GoToUserTaskAction.class),
-            null,
-            SystemAction.get(CutAction.class),
-            SystemAction.get(CopyAction.class),
-            SystemAction.get(PasteAction.class),
-            null,
-            SystemAction.get(DeleteAction.class),
-            null,
-            SystemAction.get(MoveUpAction.class),
-            SystemAction.get(MoveDownAction.class),
-            null,
-            SystemAction.get(FilterUserTaskAction.class),
-            SystemAction.get(RemoveFilterUserTaskAction.class),
-            null,
-            SystemAction.get(PurgeTasksAction.class),
-            SystemAction.get(ClearCompletedAction.class),
-            null,
-            SystemAction.get(ExpandAllUserTasksAction.class),
-            SystemAction.get(CollapseAllAction.class),
-            null,
-            SystemAction.get(ImportAction.class),
-            SystemAction.get(ExportAction.class),
-
-            // Property: node specific, but by convention last in menu
-            null,
-            SystemAction.get(PropertiesAction.class)
-        };
-    }
-
     public Action[] getActions(boolean empty) {
         if (empty) {
             return new SystemAction[] {
@@ -199,10 +159,44 @@ public final class UserTaskNode extends AbstractNode {
                 SystemAction.get(ExportAction.class),
             };
         } else {
-            return super.getActions(false);
+            return new SystemAction[] {
+                SystemAction.get(NewTaskAction.class),
+                SystemAction.get(NewTaskListAction.class),
+                //SystemAction.get(ShowScheduleViewAction.class),
+                null,
+                SystemAction.get(StartTaskAction.class),
+                SystemAction.get(PauseAction.class),
+                null,
+                SystemAction.get(ShowTaskAction.class),
+                SystemAction.get(GoToUserTaskAction.class),
+                null,
+                SystemAction.get(CutAction.class),
+                SystemAction.get(CopyAction.class),
+                SystemAction.get(PasteAction.class),
+                null,
+                SystemAction.get(DeleteAction.class),
+                null,
+                SystemAction.get(MoveUpAction.class),
+                SystemAction.get(MoveDownAction.class),
+                null,
+                SystemAction.get(FilterUserTaskAction.class),
+                SystemAction.get(RemoveFilterUserTaskAction.class),
+                null,
+                SystemAction.get(PurgeTasksAction.class),
+                SystemAction.get(ClearCompletedAction.class),
+                null,
+                SystemAction.get(ExpandAllUserTasksAction.class),
+                SystemAction.get(CollapseAllAction.class),
+                null,
+                SystemAction.get(ImportAction.class),
+                SystemAction.get(ExportAction.class),
+
+                // Property: node specific, but by convention last in menu
+                null,
+                SystemAction.get(PropertiesAction.class)
+            };
         }
     }
-
 
     protected Sheet createSheet() {
         Sheet s = Sheet.createDefault();
@@ -365,6 +359,14 @@ public final class UserTaskNode extends AbstractNode {
             p.setName("edited"); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_editedProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_editedProperty")); // NOI18N
+            p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
+            ss.put(p);
+
+            p = new PropertySupport.Reflection(item, Date.class, "getCompletedDate", null); // NOI18N
+            p.setPropertyEditorClass(DateEditor.class);
+            p.setName("completedDate"); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_completedDateProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_completedDateProperty")); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             ss.put(p);
 

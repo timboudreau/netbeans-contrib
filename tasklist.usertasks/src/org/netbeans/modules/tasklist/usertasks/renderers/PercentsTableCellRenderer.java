@@ -32,9 +32,6 @@ import org.openide.util.NbBundle;
  * PropertyEditor for done field.
  */
 public class PercentsTableCellRenderer extends JPanel implements TableCellRenderer {
-    private static final String COMPUTED =
-        NbBundle.getMessage(PercentsTableCellRenderer.class, "Computed"); // NOI18N
-    
     protected static Border noFocusBorder = new EmptyBorder(2, 2, 2, 2); 
     
     private JProgressBar progressBar;

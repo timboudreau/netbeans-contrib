@@ -26,7 +26,6 @@ import javax.swing.JList;
  * @author Tim Lebedkov
  */
 public class PriorityListCellRenderer extends DefaultListCellRenderer {
-
     private static final long serialVersionUID = 1;
 
     private static final String[] TAGS = SuggestionPriority.getPriorityNames();

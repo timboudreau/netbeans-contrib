@@ -7,7 +7,6 @@ import java.text.MessageFormat;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.Settings;
-import org.netbeans.modules.tasklist.usertasks.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
 
 import org.openide.util.NbBundle;
@@ -73,7 +72,6 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
 
     // workaround for a Swing bug (?)
     protected void paintComponent(java.awt.Graphics g) {
-        UTUtils.LOGGER.fine(getHeight() + ""); // NOI18N
         //g.setClip(oldClip.x, oldClip.y, 
         //    oldClip.width - 1, 
         //    oldClip.height - 1);

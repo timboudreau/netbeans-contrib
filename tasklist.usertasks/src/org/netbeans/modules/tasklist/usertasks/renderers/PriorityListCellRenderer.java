@@ -7,26 +7,29 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
-import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
+
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
-import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
+import javax.swing.JList;
 import org.netbeans.modules.tasklist.usertasks.UserTask;
 import org.openide.util.Utilities;
 
 /**
- * TableCellRenderer for priorities
+ * ListCellRenderer for priorities
  *
- * @author Petr Kuzel
+ * @author Tim Lebedkov
  */
-public final class PriorityTableCellRenderer extends DefaultTableCellRenderer {
+public class PriorityListCellRenderer extends DefaultListCellRenderer {
     private static final Image LOW = Utilities.loadImage(
         "org/netbeans/modules/tasklist/usertasks/renderers/low.gif"); // NOI18N
     private static final Image MEDIUM_LOW = Utilities.loadImage(
@@ -38,14 +41,28 @@ public final class PriorityTableCellRenderer extends DefaultTableCellRenderer {
     private static final Image MEDIUM = Utilities.loadImage(
         "org/netbeans/modules/tasklist/usertasks/renderers/empty.gif"); // NOI18N
     
+
     private static final long serialVersionUID = 1;
+
+    private static final String[] TAGS = SuggestionPriority.getPriorityNames();
+
+    /**
+     * Default colors for diferent priorities
+     * [0] - high, [1] - medium-high, ...
+     */
+    public static final Color[] COLORS = {
+        new Color(221, 0, 0),
+        new Color(255, 128, 0),
+        Color.black,
+        new Color(0, 187, 0),
+        new Color(0, 128, 0)
+    };
 
     private ImageIcon icon = new ImageIcon();
     
-    public Component getTableCellRendererComponent(JTable table, Object value, 
-        boolean isSelected, boolean cellHasFocus, int row, int col) {
-        super.getTableCellRendererComponent(table, value, isSelected, 
-            cellHasFocus, row, col);
+    public Component getListCellRendererComponent(JList list, Object value,
+                                                  int index, boolean isSelected, boolean cellHasFocus) {
+        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         if (value != null) {
             int prio = ((Integer) value).intValue();
             setText(UserTask.getPriorityNames()[prio - 1]);

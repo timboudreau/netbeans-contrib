@@ -222,7 +222,7 @@ public class NewTaskAction extends NodeAction {
         NewTaskAction nta = (NewTaskAction) NewTaskAction.get(NewTaskAction.class);
         nta.associate = associate;
         if (utl == null)
-            utl = UserTaskList.getDefault();
+            return;
         nta.utl = utl;
         nta.url = url;
         nta.lineNumber = lineNumber;
@@ -231,7 +231,7 @@ public class NewTaskAction extends NodeAction {
         // After the add - view the todo list as well!
         nta.utv = UserTaskView.getCurrent();
         if (nta.utv == null)
-            nta.utv = UserTaskView.getDefault();
+            return;
         
         nta.performTheAction();
     }

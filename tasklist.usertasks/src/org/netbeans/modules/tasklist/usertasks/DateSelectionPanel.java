@@ -50,11 +50,11 @@ public class DateSelectionPanel extends javax.swing.JPanel
     private GregorianCalendar       calendar;
     /**
      * A SimpleDateFormat I use for conversion to/from textual representation
-     * of date fields
+     * of date fields.
      */
     private SimpleDateFormat        format;
     /**
-     * The tablemodel behind the day-selection table (most of the 
+     * The tablemodel behind the day-selection table (most of the
      * &quot;logic&quot; resides inside this class....
      */
     private DateSelectionTableModel tablemodel;
@@ -63,12 +63,12 @@ public class DateSelectionPanel extends javax.swing.JPanel
      * day label to be centered, and todays date to be red....
      */
     private CalendarRenderer        renderer;
-    
-    /** Creates new form DateSelectionPanel */
+   
+    /** Creates new form DateSelectionPanel. */
     public DateSelectionPanel() {
         this(new Date());
     }
-    
+
     /**
      * Create a new DateSelectionPanel with the given date selected...
      *
@@ -95,7 +95,8 @@ public class DateSelectionPanel extends javax.swing.JPanel
         calendar.set(Calendar.MONTH,
         calendar.getActualMinimum(Calendar.MONTH));
         
-        int no = calendar.getActualMaximum(Calendar.MONTH) - calendar.getActualMinimum(Calendar.MONTH);
+        int no = calendar.getActualMaximum(Calendar.MONTH) - 
+            calendar.getActualMinimum(Calendar.MONTH);
         
         for (int ii = 0; ii <= no; ++ii) {
             monthNameCmb.insertItemAt(format.format(calendar.getTime()), ii);

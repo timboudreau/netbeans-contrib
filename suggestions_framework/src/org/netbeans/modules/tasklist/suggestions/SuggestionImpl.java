@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import java.awt.Image;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Utilities;
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.client.SuggestionPerformer;
@@ -23,12 +24,13 @@ import org.openide.nodes.Node;
 import org.openide.text.Line;
 import org.openide.text.DataEditorSupport;
 
-
 // XXX todo: fire property change whenever anything changes in the node...
 
-/** Class which represents a task in the
+/** 
+ * Class which represents a task in the
  * tasklist.
- * @author Tor Norbye */
+ * @author Tor Norbye 
+ */
 public class SuggestionImpl extends Task implements Node.Cookie {
 
     private Object seed = null;
@@ -37,9 +39,12 @@ public class SuggestionImpl extends Task implements Node.Cookie {
     protected SuggestionImpl() {
     }
 
-    public SuggestionImpl(String summary, SuggestionType stype,
-                          SuggestionPerformer action,
-                          Object data) {
+    /**
+     * @param fo FileObject associated with this suggestion or null
+     */
+    public SuggestionImpl(FileObject fo,
+        String summary, SuggestionType stype,
+        SuggestionPerformer action, Object data) {
         super(summary, null);
         this.seed = data;
         this.stype = stype;
@@ -49,9 +54,12 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         }
     }
 
-    /** Return the name of the file associated with this
+    /** 
+     * Return the name of the file associated with this
      * task, or the empty string if none.
-     * @return basename, or empty string */    
+     *
+     * @return basename, or empty string 
+     */    
     public String getFileBaseName() {
         Line l = getLine();
         if (l != null) {
@@ -63,7 +71,9 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         return "";
     }
     
-    /** Return line number associated with the task.
+    /** 
+     * Return line number associated with the task.
+     * 
      * @return Line number, or "0" if no particular line is
      * associated. Will always be 0 if there is no
      * associated file.
@@ -101,9 +111,6 @@ public class SuggestionImpl extends Task implements Node.Cookie {
 	return filename + ":" + line;
       }
     }
-	
-      
-  
 
     /** @return path/file:line location or null. */
     public Location getLocation() {
@@ -117,15 +124,20 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         return null;
     }
 
-    /** Generate a string summary of the task; only used
+    /** 
+     * Generate a string summary of the task; only used
      * for debugging. DO NOT depend on this format for anything!
      * Use generate() instead.
-     * @return summary string */    
+     * 
+     * @return summary string 
+     */    
     public String toString() {
         return "SuggestionImpl#" + System.identityHashCode(this) + /*(" + super.toString() + ")" */ "[\"" + getSummary() + "\", " + getFileBaseName() + ":" + getLineNumber() + /* ", " + stype + */ "]"; // NOI18N
     }
 
-    /** Create a node for this item */
+    /** 
+     * Create a node for this item 
+     */
     public Node [] createNode() {
         if (hasSubtasks()) {
             return new Node[] {new SuggestionNode(this, new SuggestionChildren(this))};
@@ -134,26 +146,29 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         }
     }
 
-    /** Create an identical copy of a task (a deep copy, e.g. the
-        list of subtasks will be cloned as well */
+    /** 
+     * Create an identical copy of a task (a deep copy, e.g. the
+     * list of subtasks will be cloned as well 
+     */
     protected Object clone() {
         SuggestionImpl t = new SuggestionImpl();
         t.copyFrom(this);
         return t;
     }
 
-    /** Copy all the fields in the given task into this object.
-        Should only be called on an object of the EXACT same type.
-        Thus, if you're implementing a subclass of Task, say
-        UserTask, you can implement copy assuming that the passed
-        in Task parameter is of type UserTask. When overriding,
-        remember to call super.copyFrom.
-        <p>
-        Make a deep copy - except when that doesn't make sense.
-        For example, you can share the same icon reference.
-        And in particular, the tasklist reference should be the same.
-        But the list of subitems should be unique. You get the idea.
-    */
+    /** 
+     * Copy all the fields in the given task into this object.
+     * Should only be called on an object of the EXACT same type.
+     * Thus, if you're implementing a subclass of Task, say
+     * UserTask, you can implement copy assuming that the passed
+     * in Task parameter is of type UserTask. When overriding,
+     * remember to call super.copyFrom.
+     * <p>
+     * Make a deep copy - except when that doesn't make sense.
+     * For example, you can share the same icon reference. 
+     * And in particular, the tasklist reference should be the same.  
+     * But the list of subitems should be unique. You get the idea.
+     */
     protected void copyFrom(SuggestionImpl from) {
         super.copyFrom(from);
 
@@ -178,8 +193,10 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         return getPriority().intValue();
     }
 
-    /** "Re"defined here to allow access in this package, not just
-     * the api package. Just calls super. */
+    /** 
+     * "Re"defined here to allow access in this package, not just
+     * the api package. Just calls super. 
+     */
     protected void setType(String type) {
         super.setType(type);
     }

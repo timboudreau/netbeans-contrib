@@ -84,6 +84,8 @@ public class TreeTable extends JTable {
      * Columns configuration
      */
     public static final class ColumnsConfig implements Serializable {
+        public static final long serialVersionUID = 2L;
+        
         /** 
          * Model indexes for visible columns
          */
@@ -118,9 +120,6 @@ public class TreeTable extends JTable {
     }
     
     private static final long serialVersionUID = 1;
-    
-    /** the TT that is being currently deserialized */
-    private static TreeTable currentDeserializing;
     
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
@@ -175,7 +174,6 @@ public class TreeTable extends JTable {
         this.sortingModel = new SortingModel();
         
         InputMap imp2 = getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        ActionMap am = getActionMap();
  	     
         // copied from TreeView which tried to fix #18292
         // by doing this

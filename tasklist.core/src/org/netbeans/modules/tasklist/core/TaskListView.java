@@ -179,7 +179,7 @@ public abstract class TaskListView extends TopComponent
      * for a subdirectory of "SystemFileSystem/TaskList/" for columns settings
      */
     protected TaskListView(String category, String title, Image icon,
-                        boolean persistent, ObservableList tasklist) {
+        boolean persistent, ObservableList tasklist) {
         init_();
 
         assert category != null : "category == null";
