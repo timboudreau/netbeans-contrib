@@ -1584,10 +1584,20 @@ public class VariableInputDialog extends javax.swing.JPanel {
             // Apply all actions to the copy of the original variables
             for (Iterator it = actionList.iterator(); it.hasNext(); ) {
                 ActionListener listener = (ActionListener) it.next();
-                listener.actionPerformed(null);
+                listener.actionPerformed(null);  // XXX probably modifies this.vars
             }
-            //Hashtable varsCopy = new Hashtable(vars);
-            cmd.setAdditionalVariables(vars);
+
+            // #53603 overwrite only visible vars, execution context defines rest
+            Hashtable dialogContext = new Hashtable();
+            Iterator it = componentsByVars.keySet().iterator();
+            while (it.hasNext()) {
+                String varName = (String) it.next();
+                Object value = vars.get(varName);
+                if (value != null) {
+                    dialogContext.put(varName, value);
+                }
+            }
+            cmd.setAdditionalVariables(dialogContext);
         } finally {
             // We have to reset the variables back!
             vars = origVars;
@@ -2863,8 +2873,16 @@ public class VariableInputDialog extends javax.swing.JPanel {
             if(cmdTask.getExitStatus() != 0)
                 return;            
             VcsDescribedTask descTask = (VcsDescribedTask)cmdTask;            
-            Hashtable varsAfterChange = new Hashtable(descTask.getVariables()); 
-            updateVariableValues(varsAfterChange, false, true);           
+            Hashtable varsAfterChange = new Hashtable(descTask.getVariables());
+            assert fillOnlyDefinedInvariant(varsAfterChange) : "Invalid AUTO_FILL_CMD " + cmd;  // NOI18N
+            updateVariableValues(varsAfterChange, false, true);
+        }
+
+        /** autofill tasks must not introduce new variables. */
+        private boolean fillOnlyDefinedInvariant(Hashtable varsAfterChange) {
+            Set allowedVaribleNames = componentsByVars.keySet();
+            Set testedVariableNames = varsAfterChange.keySet();
+            return allowedVaribleNames.containsAll(testedVariableNames);
         }
     }
    
