@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
+import java.util.Iterator;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -89,7 +90,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
     protected static BeanContextSupport _M_implementations = new BeanContextSupport ();
     //= new BeanContextSupport ();
-    protected static Vector _M_orb_names;
+    //protected static Vector _M_orb_names;
 
     /*
       public static String skels = CORBASupport.INHER;
@@ -318,7 +319,13 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	  loadImpl ();
 	  }
 	*/
-	return _M_orb_names;
+	Vector __names = new Vector ();
+	Iterator __iterator = _M_implementations.iterator ();
+	while (__iterator.hasNext ()) {
+	    __names.add (((ORBSettings)__iterator.next ()).getName ());
+	}
+	return __names;
+	//return _M_orb_names;
 	/*
 	  Vector __names = new Vector ();
 	  if (_M_implementations == null) {
@@ -1120,16 +1127,18 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     }
     
     //public synchronized void loadImpl () {
-    public void loadImpl () {
+    public BeanContextSupport loadImpl () {
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::loadImpl ()");
 
 	//if (_M_loaded)
 	//    return;
 
+	BeanContextSupport __context = new BeanContextSupport ();
+
 	_M_loaded = true;
-	if (_M_orb_names == null)
-	    _M_orb_names = new Vector (5);
+	//if (_M_orb_names == null)
+	//    _M_orb_names = new Vector (5);
 	/*
 	  TopManager tm = TopManager.getDefault ();
 	  
@@ -1156,8 +1165,9 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		    __orb_settings.loadImpl (files[__i]);
 		    if (__orb_settings.getProperties () != null) {
 			//we found impl file for this setting
-			_M_implementations.add (__orb_settings);
-			_M_orb_names.add (__orb_settings.getOrbName ());
+			//_M_implementations.add (__orb_settings);
+			__context.add (__orb_settings);
+			//_M_orb_names.add (__orb_settings.getOrbName ());
 		    }
 		} catch (PropertyNotFoundException __ex) {
 		} catch (IOException __ex) {
@@ -1167,17 +1177,21 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    }
 	}
 	else {	    
-	    TopManager.getDefault ().notify 
-		(new NotifyDescriptor.Message (CORBASupport.CANT_FIND_IMPLS));
+	    //TopManager.getDefault ().notify 
+	    //(new NotifyDescriptor.Message (CORBASupport.CANT_FIND_IMPLS));
 	    //System.out.println ("can't find system/CORBA directory");
 	}
-	if (DEBUG) {
-	    System.out.println ("----!!!!");
-	    java.lang.Object[] __beans = this.getBeans ();
-	    for (int __i = 0; __i < __beans.length; __i++) {
-		System.out.println (__i + " : " + __beans[__i]);
-	    }
-	}
+
+	return __context;
+	/*
+	  if (DEBUG) {
+	  System.out.println ("----!!!!");
+	  java.lang.Object[] __beans = this.getBeans ();
+	  for (int __i = 0; __i < __beans.length; __i++) {
+	  System.out.println (__i + " : " + __beans[__i]);
+	  }
+	  }
+	*/
     }
 
 
@@ -1237,8 +1251,10 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     public java.beans.beancontext.BeanContextChild getBeanContextProxy () {
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::getBeanContextProxy ()");
-	if (!_M_loaded)
-	    loadImpl ();
+	if (!_M_loaded) {
+	    //loadImpl ();
+	    this.setBeans (this.getBeans ());
+	}
         return _M_implementations;
     }
     
@@ -1255,32 +1271,75 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     public java.lang.Object[] getBeans () {
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::getBeans () -> " + _M_implementations);
+	if (_M_implementations == null)
+	    _M_implementations = new BeanContextSupport ();
 	return _M_implementations.toArray ();
     }
 
     public void setBeans (java.lang.Object[] beans) {
 	if (DEBUG)
-	    System.out.println ("CORBASupportSettings::setBeans (java.lang.Object[] beans)");
+	    System.out.println ("CORBASupportSettings::setBeans (" + beans + ");");
+
 	_M_implementations = new BeanContextSupport ();
 
-	for(int i = 0; i < beans.length; i++) {
+	BeanContextSupport __loaded_context = this.loadImpl ();
+	BeanContextSupport __serialized_context = new BeanContextSupport ();
+	for (int i = 0; i < beans.length; i++) {
 	    ORBSettings __setting = (ORBSettings)beans[i];
 	    if (__setting.getProperties () == null) {
 		__setting.loadProperties ();
 	    }
 	    // we have to check if we find impl file (load properties) for this setting
 	    if (__setting.getProperties () != null) {
-		_M_implementations.add (beans[i]);
+		//_M_implementations.add (beans[i]);
+		__serialized_context.add (beans[i]);
 	    }
 	}
+
+	Iterator __loaded_iterator = __loaded_context.iterator ();
+	while (__loaded_iterator.hasNext ()) {
+	    ORBSettings __loaded_setting = (ORBSettings)__loaded_iterator.next ();	    
+	    ORBSettings __serialized_setting = null;
+	    if ((__serialized_setting = this.findSettingByName 
+		 (__serialized_context, __loaded_setting.getName ())) != null) {
+		// we find serialized setting with same name
+		// so we add it because it can have some serialized state
+		// which loaded setting don't have
+		if (DEBUG) {
+		    System.out.println ("add serialized setting: " 
+					+ __serialized_setting.getName ());
+		}
+		_M_implementations.add (__serialized_setting);
+	    }
+	    else {
+		// we don't find serialized setting with same name as this loaded setting
+		// so we add this loaded setting
+		if (DEBUG) {
+		    System.out.println ("add loaded setting: " + __loaded_setting.getName ());
+		}
+		_M_implementations.add (__loaded_setting);
+	    }
+	}
+    }
+
+    public ORBSettings findSettingByName (BeanContextSupport __context, String __name) {
+	Iterator __iterator = __context.iterator ();
+	while (__iterator.hasNext ()) {
+	    ORBSettings __setting = (ORBSettings)__iterator.next ();
+	    if (__setting.getName ().equals (__name))
+		return __setting;
+	}
+	return null;
     }
 
     public ORBSettings getSettingByName (String __name) {
 	if (DEBUG) 
 	    System.out.println ("CORBASupportSettings::getSettingByName (" + __name + ")");
 	//Thread.dumpStack ();
-	if (!_M_loaded)
-	    loadImpl ();
+	if (!_M_loaded) {
+	    //loadImpl ();
+	    this.setBeans (this.getBeans ());
+	}
 	java.lang.Object[] __settings = getBeans ();
 	for (int __i = 0; __i < __settings.length; __i++) {
 	    ORBSettings __setting = (ORBSettings)__settings[__i];
@@ -1301,8 +1360,10 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	//if (DEBUG) 
 	//System.out.println ("CORBASupportSettings::getActiveSetting ()");
 	//Thread.dumpStack ();
-	if (!_M_loaded)
-	    loadImpl ();
+	if (!_M_loaded) {
+	    //loadImpl ();
+	    this.setBeans (this.getBeans ());
+	}
 	if (_M_orb_name_cache != null) {
 	    if (_M_orb_name_cache.equals (this.getOrb ()) && (_M_setting_cache != null)) {
 		if (DEBUG) {

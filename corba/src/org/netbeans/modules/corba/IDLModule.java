@@ -79,6 +79,7 @@ public class IDLModule extends ModuleInstall {
         CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
                                    (CORBASupportSettings.class, true);
         css.init ();
+	css.setBeans (css.getBeans ());
 
         installColoring ();
         if (DEBUG)

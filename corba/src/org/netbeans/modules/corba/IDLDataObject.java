@@ -812,7 +812,8 @@ public class IDLDataObject extends MultiDataObject {
 		ex.printStackTrace ();
         } finally {
 	    try {
-		__stream.close ();
+		if (__stream != null)
+		    __stream.close ();
 	    } catch (IOException __ex) {
 	    }
 	}
