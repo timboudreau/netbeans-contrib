@@ -51,9 +51,9 @@ public abstract class MemberElementImpl extends ElementImpl
     public int getModifiers () {
         if (data instanceof ClassFile) {
             // Class doesn't implement Member interface...
-            // and moreover we must throw away interface modifier if present
+            // and moreover we must throw away interface and acc_super modifiers if present
             try {
-                return ((ClassFile)data).getAccess() & (~Access.INTERFACE);
+                return ((ClassFile)data).getAccess() & (~Access.INTERFACE & ~Access.SYNCHRONIZED);
             } catch (Exception exc) {
                 return 0;
             }
