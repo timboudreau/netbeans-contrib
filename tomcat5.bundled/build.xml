@@ -61,24 +61,24 @@ Microsystems, Inc. All Rights Reserved.
 
   <target name="release" depends="init,jars">
     <mkdir dir="netbeans"/>
-    <unzip src="../../external/jakarta-tomcat-5.0.2.zip" dest="netbeans" />
+    <unzip src="../../external/jakarta-tomcat-5.0.5.zip" dest="netbeans" />
     <chmod perm="ugo+x">
-      <fileset dir="netbeans/jakarta-tomcat-5.0.2/bin">
+      <fileset dir="netbeans/jakarta-tomcat-5.0.5/bin">
         <include name="*.sh"/>
       </fileset>
     </chmod>
 
     <!-- XXX:compile extension
-    <copy file="${tc40_moduleroot}/netbeans/modules/ext/tomcat40-ide.jar" tofile="netbeans/jakarta-tomcat-5.0.2/lib/tomcat40-ide.jar"/>
+    <copy file="${tc40_moduleroot}/netbeans/modules/ext/tomcat40-ide.jar" tofile="netbeans/jakarta-tomcat-5.0.5/lib/tomcat40-ide.jar"/>
     -->
 
     <!-- XXX:copy IDE-README.txt
-    <copy file="torelease/IDE-README.txt" tofile="netbeans/jakarta-tomcat-5.0.2/IDE-README.txt" includeEmptyDirs="false"/> -->
+    <copy file="torelease/IDE-README.txt" tofile="netbeans/jakarta-tomcat-5.0.5/IDE-README.txt" includeEmptyDirs="false"/> -->
     <!-- copy dummy to empty directories -->
-    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.2/logs/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.2/temp/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.2/work/dummy" includeEmptyDirs="false"/>
-    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.2/common/classes/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.5/logs/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.5/temp/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.5/work/dummy" includeEmptyDirs="false"/>
+    <copy file="torelease/dummy" tofile="netbeans/jakarta-tomcat-5.0.5/common/classes/dummy" includeEmptyDirs="false"/>
   </target>
 
   <target name="netbeans" depends="jars,release" description="Builds the module">
