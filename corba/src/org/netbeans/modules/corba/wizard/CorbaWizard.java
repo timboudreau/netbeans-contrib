@@ -40,6 +40,7 @@ import org.netbeans.modules.projects.NewProjectAction;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import org.netbeans.modules.corba.IDLDataObject;
+import org.netbeans.modules.corba.CORBASupport;
 import org.netbeans.modules.corba.IDLNodeCookie;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
 
@@ -168,7 +169,10 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
             }catch (IOException ioe) {
                 // Handle Error Here
                 ioe.printStackTrace ();
-            } 
+            }
+            finally {
+                CorbaWizard.this.rollBack();
+            }
         }
 
         /** Finds the DataObject given by name in the hierarchy
@@ -318,23 +322,14 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
      *  @param PropertyChangeListener event
      */
     public void propertyChange(final PropertyChangeEvent event) {
-        if (event.getPropertyName().equals(DialogDescriptor.PROP_VALUE)){
-            CORBASupportSettings css = this.data.getSettings();
-            if (css != null) {
-                if (this.data.getDefaultServerBindingValue() != null)
-                    css.getActiveSetting().setServerBindingFromString(this.data.getDefaultServerBindingValue());
-                if (this.data.getDefaultClientBindingValue() != null)
-                    css.getActiveSetting().setClientBindingFromString (this.data.getDefaultClientBindingValue());
-                if (this.data.getDefaultOrbValue() != null)
-                    css.setOrb(this.data.getDefaultOrbValue());
-            }
-            
+        if (event.getPropertyName().equals(DialogDescriptor.PROP_VALUE)){  
             Object option = event.getNewValue();
             if (option == WizardDescriptor.FINISH_OPTION) {
                 WizardGenerator wg = this.new WizardGenerator ();
                 wg.start ();
             }
             else if (option == WizardDescriptor.CANCEL_OPTION) {
+                this.rollBack();
                 dialog.setVisible(false);
                 dialog.dispose ();
             }
@@ -350,6 +345,23 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
         ChangeEvent event = new ChangeEvent (this);
         for (int i=0; i<list.size(); i++)
             ((ChangeListener)list.get (i)).stateChanged (event);
+    }
+    
+    
+    private void rollBack () {
+        CORBASupportSettings css = this.data.getSettings();
+        if (css != null) {
+            if (this.data.getDefaultServerBindingValue() != null)
+                css.getActiveSetting().setServerBindingFromString(this.data.getDefaultServerBindingValue());
+            if (this.data.getDefaultClientBindingValue() != null)
+                css.getActiveSetting().setClientBindingFromString (this.data.getDefaultClientBindingValue());
+            if (this.data.getDefaultTie())
+                css.getActiveSetting().setSkeletons (CORBASupport.TIE);
+            else
+                css.getActiveSetting().setSkeletons (CORBASupport.INHER);
+            if (this.data.getDefaultOrbValue() != null)
+                css.setOrb(this.data.getDefaultOrbValue());
+            }
     }
 
   

@@ -36,9 +36,11 @@ public class CorbaWizardData extends Object {
     private Object idlSource;
     private DataFolder destinationPackage;
     private String name;
+    private boolean tie;
     private String defaultOrb;
     private String defaultClientBinding;
     private String defaultServerBinding;
+    private boolean defaultTie;
 
     /** Creates new CorbaWizardData */
     public CorbaWizardData() {
@@ -98,6 +100,14 @@ public class CorbaWizardData extends Object {
         this.name = name;
     }
     
+    public boolean getTie () {
+        return this.tie;
+    }
+    
+    public void setTie (boolean tie) {
+        this.tie = tie;
+    }
+    
     public void setDefaultOrbValue (String orb){
         this.defaultOrb = orb;
     }
@@ -110,6 +120,10 @@ public class CorbaWizardData extends Object {
         this.defaultClientBinding = value;
     }
     
+    public void setDefaultTie (boolean tie) {
+      this.defaultTie = tie;
+    }
+    
     public String getDefaultOrbValue () {
         return this.defaultOrb;
     }
@@ -120,6 +134,10 @@ public class CorbaWizardData extends Object {
     
     public String getDefaultClientBindingValue () {
         return this.defaultClientBinding;
+    }
+    
+    public boolean getDefaultTie () {
+        return this.defaultTie;
     }
   
 }
