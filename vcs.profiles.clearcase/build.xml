@@ -8,12 +8,13 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
 
 <project name="vcsgeneric/profiles/clearcase" default="netbeans" basedir=".">
+  <import file="../../../nbbuild/default.xml"/>
 
   <property name="nbroot1" value="../../.."/>
   <property name="nbext1" value="${nbroot1}/nbbuild"/>
@@ -26,20 +27,28 @@ Microsystems, Inc. All Rights Reserved.
   <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbroot1}/nbbuild/nbantext.jar"/>
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext1}/nbantext.jar"/>
   <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbext1}/nbantext.jar"/>
+  <taskdef name="createmodulexml" classname="org.netbeans.nbbuild.CreateModuleXML" classpath="${nb_all}/nbbuild/nbantext.jar"/>
 
-  <target name="compile">
+  <target name="init" depends="default.init">
+    <patternset id="vcsgeneric/profiles/clearcase.files">
+      <include name="${nb.modules.dir}/clearcase-profile.jar"/>
+    </patternset>
+    <path id="cp">
+      <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
+      <pathelement location="${openidex.dir}/${nb.modules.dir}/org-openidex-util.jar"/>
+      <pathelement location="${vcscore.dir}/${nb.modules.dir}/org-netbeans-modules-vcscore.jar"/>
+      <pathelement location="${vcsgeneric.dir}/${nb.modules.dir}/vcsgen.jar"/>
+      <pathelement location="${diff.dir}/${nb.modules.dir}/org-netbeans-modules-diff.jar"/>
+    </path>
+  </target>
+
+  <target name="compile" depends="init">
     <javac srcdir="src" 
         deprecation="${build.compiler.deprecation}" 
         debug="${build.compiler.debug}"
+        source="1.4"
         destdir="src">
-      <classpath>        
-        <fileset dir="${nbroot1}/openide/netbeans/lib">
-          <include name="openide*.jar" />
-        </fileset>
-	<pathelement location="${nbroot1}/openidex/netbeans/modules/org-openidex-util.jar"/>
-	<pathelement location="${nbroot1}/vcscore/netbeans/modules/org-netbeans-modules-vcscore.jar"/>
-	<pathelement location="${nbroot1}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
-      </classpath>
+      <classpath refID="cp"/>
     </javac>
   </target>
 
@@ -61,10 +70,10 @@ Microsystems, Inc. All Rights Reserved.
        <include name="org/netbeans/modules/vcs/profiles/clearcase/list/*.java"/>
        <include name="org/netbeans/modules/vcs/profiles/clearcase/list/*.properties"/>
     </makelayer>
-    <mkdir dir="netbeans/modules"/>
+    <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
-    <locjar jarfile="netbeans/modules/clearcase-profile.jar"
+    <locjar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/clearcase-profile.jar"
          manifest="manifest-subst.mf"
          basedir="src"
          excludesfile="${nbroot1}/nbbuild/standard-jar-excludes.txt"
@@ -75,20 +84,25 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*"/>
 	<exclude name="org/netbeans/modules/vcs/profiles/clearcase/config/*_XX.*"/>
       </fileset>
-      <fileset dir="src/">
-        <include name="**/*.java"/>
-        <include name="**/*.form"/>
-      </fileset>
     </locjar>
+    <createmodulexml xmldir="${netbeans.dest.dir}/${cluster.dir}/${nb.system.dir}/Modules">
+      <enabled dir="${netbeans.dest.dir}/${cluster.dir}">
+        <include name="${nb.modules.dir}/clearcase-profile.jar"/>
+      </enabled>
+    </createmodulexml>
   </target>
 
   <target name="netbeans" depends="jars">
-    <genlist targetname="nbm" outputfiledir="netbeans"/>
+    <genlist outputfiledir="${netbeans.dest.dir}/${cluster.dir}" module="${nb.modules.dir}/clearcase-profile.jar">
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="vcsgeneric/profiles/clearcase.files"/>
+      </fileset>
+    </genlist>
   </target>
 
   <target name="nbm" depends="netbeans">
     <makenbm file="clearcase-profile.nbm"
-             topdir="."
+             productdir="${netbeans.dest.dir}/${cluster.dir}"
              module="netbeans/modules/clearcase-profile.jar"
 	     homepage="http://vcsgeneric.${homepage.base}/"
 	     distribution="http://${dist.base}/clearcase-profile.nbm">
@@ -97,7 +111,7 @@ Microsystems, Inc. All Rights Reserved.
     </makenbm>
   </target>
 
-  <target name="clean">
+  <target name="clean" depends="init">
     <delete>
       <fileset dir="src">
         <include name="**/*.class"/>
