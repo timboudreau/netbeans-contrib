@@ -45,7 +45,7 @@ public class SfsMenuModel implements MenuTreeModel, TreeModel {
         return mapper;
     }
     
-    SfsMenuModel (FileObject fld) {
+    SfsMenuModel(FileObject fld) {
         this.root = fld;
     }
     
@@ -70,7 +70,7 @@ public class SfsMenuModel implements MenuTreeModel, TreeModel {
     public Object getChild(Object obj, int idx) {
         FileObject fo = tfo(obj);
         assert isFolder(fo);
-        return fo.getChildren()[idx];
+        return FolderSupport.getSortedChildren(fo)[idx];
     }
     
     public int getChildCount(Object obj) {
@@ -85,7 +85,7 @@ public class SfsMenuModel implements MenuTreeModel, TreeModel {
     public int getIndexOfChild(Object fld, Object child) {
         FileObject fo = tfo(fld);
         assert isFolder(fo);
-        return Arrays.asList(fo.getChildren()).indexOf(child);
+        return Arrays.asList(FolderSupport.getSortedChildren(fo)).indexOf(child);
     }
     
     public Object getRoot() {

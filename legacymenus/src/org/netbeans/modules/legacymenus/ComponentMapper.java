@@ -18,7 +18,9 @@
 
 package org.netbeans.modules.legacymenus;
 
+import java.awt.Component;
 import javax.swing.Action;
+import javax.swing.CellRendererPane;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -32,6 +34,9 @@ import org.openide.nodes.*;
 import org.openide.cookies.*;
 import org.openide.util.actions.*;
 import org.openide.actions.*;
+import org.openide.awt.JInlineMenu;
+import org.openide.util.Utilities;
+
 /**
  *
  * @author  Tim Boudreau
@@ -55,6 +60,7 @@ public class ComponentMapper extends MenuTreeModel.ComponentProvider {
         }
         if (o instanceof Action) {
             result = new JMenuItem ((Action) o);
+            prepareMenuItem ((JMenuItem) result, (Action) o);
         }
         if (o instanceof Presenter.Menu) {
             result = ((Presenter.Menu) o).getMenuPresenter();
@@ -64,11 +70,76 @@ public class ComponentMapper extends MenuTreeModel.ComponentProvider {
             result = new JMenuItem (orig.getPath());
         }
         
+        if (result instanceof JInlineMenu) {
+            
+//            System.err.println("GOT THE BASTARD: " + ((JInlineMenu) result).getText());
+//            result = dissectJInlineMenu((JInlineMenu) result);
+//            result.putClientProperty ("alwaysSync", Boolean.TRUE);
+        }
+        
         result.putClientProperty ("origin", orig); //NOI18N
+        return result;
+    }
+    
+    private void prepareMenuItem (JMenuItem jmi, Action a) {
+        String s = (String) a.getValue(Action.NAME);
+        if (s != null) {
+            prepareMenuItem (jmi, s);
+        }
+    }
+        
+    private void prepareMenuItem (JMenuItem jmi, String s) {
+        int mn = s.indexOf('&');
+        if (mn != -1) {
+            s = Utilities.replaceString(s, "&", "");
+            jmi.setText(s);
+            if (mn != s.length()-1) {
+                jmi.setMnemonic (s.charAt(mn));
+                jmi.setDisplayedMnemonicIndex(mn);
+            }
+        }
+    }
+    
+    private JMenu operacniStolek = new JMenu();
+    {
+        //So it thinks it's always on screen
+        new CellRendererPane().add (operacniStolek);
+    }
+    private JComponent dissectJInlineMenu (JInlineMenu menu) {
+        operacniStolek.add (menu);
+        menu.addNotify();
+        Component[] c = menu.getComponents();
+        JComponent result;
+        if (c.length == 1) {
+            System.err.println("I stuck in my thumb and pulled out a ..." + c[0]);
+            result = (JComponent) c[0];
+        } else {
+            JMenu jm = new JMenu();
+            jm.setText (menu.getText());
+            jm.setIcon (menu.getIcon());
+            jm.setDisplayedMnemonicIndex(menu.getDisplayedMnemonicIndex());
+            jm.setMnemonic(menu.getMnemonic());
+            
+            for (int i=0; i < c.length; i++) {
+                if (c[i] instanceof JInlineMenu) {
+                    System.err.println("I stuck in my thumb and pulled out a ... " + c[i]);
+                    jm.add (dissectJInlineMenu((JInlineMenu) c[i]));
+                } else {
+                    jm.add (c[i]);
+                }
+            }
+            result = jm;
+        }
+        
+        operacniStolek.remove(menu);
         return result;
     }
 
     public JComponent syncStateOf (Object node, JComponent proxy) {
+        if (proxy.getClass() == JMenu.class) {
+            //Always rebuild JInlineMenus
+            return createItemFor(node);
+        }
         return proxy;
     }
 
@@ -91,7 +162,7 @@ public class ComponentMapper extends MenuTreeModel.ComponentProvider {
             JMenu jmb = TreeMenuBar.createMenu (getModel(), fo);
             try {
                 DataObject dob = DataObject.find (fo);
-                jmb.setText (dob.getNodeDelegate().getDisplayName());
+                prepareMenuItem (jmb, dob.getNodeDelegate().getDisplayName());
             } catch (Exception e) {
                 jmb.setText (fo.getName()); //XXX
             }
