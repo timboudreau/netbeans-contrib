@@ -63,7 +63,7 @@ public class ConditionNode extends AbstractNode {
     
     public void setName(String name) {
         if (!name.equals(condition.getName())) {
-            //condition.setName(name);  TODO !!!
+            condition.setName(name);
             setDisplayName(name);
             // Necessary to refresh the "Name" property
             firePropertyChange(Node.PROP_NAME, null, name);
@@ -330,7 +330,7 @@ public class ConditionNode extends AbstractNode {
                 }
 
                 public void setValue(Object value) {
-                    //c.setName((String) value); TODO !!!
+                    var.setName((String) value);
                     VariableNode.this.fireNameChange(null, var.getName());
                     //cmd.fireChanged();
                 }

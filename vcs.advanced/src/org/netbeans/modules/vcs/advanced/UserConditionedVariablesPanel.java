@@ -147,24 +147,45 @@ public class UserConditionedVariablesPanel extends JPanel implements EnhancedCus
         accessoryRoot.addVariablePropertyChangeListener(this);
         varCh.add(new Node[] { basicRoot, accessoryRoot });
         // TODO handle the conditioned vars as well
-        Collection variables = ((ConditionedVariables) editor.getValue()).getUnconditionedVariables();
+        
+        ConditionedVariables cvars = (ConditionedVariables) editor.getValue();
+        Collection unconditionedVars = cvars.getUnconditionedVariables();
+        //Collection variables = ((ConditionedVariables) editor.getValue()).getUnconditionedVariables();
         boolean disableBasic = false;
-        for(Iterator it = variables.iterator(); it.hasNext(); ) {
+        for(Iterator it = unconditionedVars.iterator(); it.hasNext(); ) {
             VcsConfigVariable var = (VcsConfigVariable) it.next();
             String name = var.getName();
             if (isConfigInputDescriptorVar(var)) {
                 disableBasic = true;
             }
             if (var.isBasic()) {
-                basicChildren.add(new BasicVariableNode[] { new BasicVariableNode(var) });
+                basicChildren.add(new BasicVariableNode[] { new BasicVariableNode(var, true) });
             } else {
+                /*
                 if (name.indexOf(VcsFileSystem.VAR_ENVIRONMENT_PREFIX) == 0 ||
                     name.indexOf(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX) == 0 ||
                     "MODULE".equals(name)) {
                     filteredVariables.add(var);
                     continue;
                 }
-                accessoryChildren.add(new AccessoryVariableNode[] { new AccessoryVariableNode(var) });
+                 */
+                accessoryChildren.add(new AccessoryVariableNode[] { new AccessoryVariableNode(var, true) });
+            }
+        }
+        Map conditionsByVars = cvars.getConditionsByVariables();
+        Map varsByConditions = cvars.getVariablesByConditions();
+        for (Iterator it = conditionsByVars.keySet().iterator(); it.hasNext(); ) {
+            String varName = (String) it.next();
+            Condition[] conditions = (Condition[]) conditionsByVars.get(varName);
+            //VcsConfigVariable[] vars = new VcsConfigVariable[conditions.length]);
+            VcsConfigVariable var0 = (VcsConfigVariable) varsByConditions.get(conditions[0]);
+            if (isConfigInputDescriptorVar(var0)) {
+                disableBasic = true;
+            }
+            if (var0.isBasic()) {
+                basicChildren.add(new BasicVariableNode[] { new BasicVariableNode(varName, conditions, varsByConditions) });
+            } else {
+                accessoryChildren.add(new AccessoryVariableNode[] { new AccessoryVariableNode(varName, conditions, varsByConditions) });
             }
         }
         if (disableBasic) disableBasicVariables();

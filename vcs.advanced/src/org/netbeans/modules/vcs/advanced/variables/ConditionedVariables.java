@@ -27,7 +27,7 @@ import org.netbeans.modules.vcscore.VcsConfigVariable;
  *
  * @author  Martin Entlicher
  */
-public final class ConditionedVariables extends Object {
+public final class ConditionedVariables extends Object implements Cloneable {
     
     /** Collection of variables, that are not affected by any condition. */
     private Collection unconditionedVars;
@@ -209,5 +209,31 @@ public final class ConditionedVariables extends Object {
                                String[] negativeConditions) {
     }
      */
+    
+    public Object clone() {
+        Collection unconditionedVarsClone = new ArrayList(unconditionedVars.size());
+        for(Iterator it = unconditionedVars.iterator(); it.hasNext(); ) {
+            VcsConfigVariable var = (VcsConfigVariable) it.next();
+            unconditionedVarsClone.add (var.clone ());
+        }
+        
+        Map conditionsByVariablesClone = new HashMap();
+        Map varsByConditionsClone = new HashMap();
+        for(Iterator it = conditionsByVariables.keySet().iterator(); it.hasNext(); ) {
+            String name = (String) it.next();
+            Condition[] conditions = (Condition[]) conditionsByVariables.get(name);
+            Condition[] conditionsClone = new Condition[conditions.length];
+            for (int i = 0; i < conditions.length; i++) {
+                conditionsClone[i] = (Condition) conditions[i].clone();
+                VcsConfigVariable var = (VcsConfigVariable) varsByConditions.get(conditions[i]);
+                if (var != null) {
+                    varsByConditionsClone.put(conditionsClone[i], var.clone());
+                }
+            }
+            conditionsByVariablesClone.put(name, conditionsClone);
+        }
+        
+        return new ConditionedVariables(unconditionedVarsClone, conditionsByVariablesClone, varsByConditionsClone);
+    }
     
 }

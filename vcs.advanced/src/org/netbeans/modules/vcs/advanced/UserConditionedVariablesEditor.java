@@ -26,11 +26,10 @@ import org.netbeans.modules.vcscore.util.*;
  */
 //-------------------------------------------
 public class UserConditionedVariablesEditor implements PropertyEditor {
-    private Debug E=new Debug("UserConditionedVariablesEditor", true); // NOI18N
-    private Debug D=E;
 
     private PropertyChangeSupport changeSupport=null;
-    private Vector variables=new Vector(10);
+    //private Vector variables=new Vector(10);
+    private ConditionedVariables cvars;
 
     //-------------------------------------------
     public UserConditionedVariablesEditor(){
@@ -41,7 +40,7 @@ public class UserConditionedVariablesEditor implements PropertyEditor {
     //-------------------------------------------
     public String getAsText(){
         // null if the value can't be expressed as an editable string...
-        return ""+variables; // NOI18N
+        return cvars.toString(); // NOI18N
     }
 
     //-------------------------------------------
@@ -72,29 +71,20 @@ public class UserConditionedVariablesEditor implements PropertyEditor {
 
     //-------------------------------------------
     public Object getValue(){
-        D.deb("\ngetValue() = "+variables); // NOI18N
-        // TODO handle the conditioned variables as well
-        return new ConditionedVariables(variables, java.util.Collections.EMPTY_MAP,
-                                        java.util.Collections.EMPTY_MAP);
+        return cvars;
     }
 
     //-------------------------------------------
     public void setValue(Object value) {
         if (value == null) {
-            variables = new Vector(10);
+            cvars = new ConditionedVariables(new ArrayList(), new HashMap(), new HashMap());
         }
         if (!(value instanceof ConditionedVariables)){
             throw new IllegalArgumentException ();
         }
         // make local copy of value - deep copy using clone
-        variables=new Vector();
-        // TODO handle the conditioned variables as well
-        Collection vars = ((ConditionedVariables) value).getUnconditionedVariables();
-        for(Iterator it = vars.iterator(); it.hasNext(); ) {
-            VcsConfigVariable var = (VcsConfigVariable) it.next();
-            variables.add (var.clone ());
-        }
-        D.deb("\nsetValue() = "+variables); // NOI18N
+        cvars = (ConditionedVariables) value;
+        cvars = (ConditionedVariables) cvars.clone();
         changeSupport.firePropertyChange("",null,null); // NOI18N
     }
 
@@ -119,10 +109,3 @@ public class UserConditionedVariablesEditor implements PropertyEditor {
     }
 
 }
-
-/*
- * <<Log>>
- *  2    Gandalf   1.1         1/27/00  Martin Entlicher NOI18N
- *  1    Gandalf   1.0         11/24/99 Martin Entlicher 
- * $
- */

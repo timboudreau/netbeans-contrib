@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -17,11 +17,14 @@ import java.awt.datatransfer.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.beans.PropertyEditor;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Comparator;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.openide.*;
 import org.openide.nodes.*;
@@ -44,6 +47,8 @@ import org.openide.DialogDisplayer;
 public class AccessoryVariableNode extends AbstractNode {
 
     private VcsConfigVariable var = null;
+    private ConditionedString cs = null;
+    private IfUnlessCondition mainCondition = null;
     private Children.Array list = null;
     private PropertyChangeSupport variableChangeSupport = new PropertyChangeSupport(this);
 
@@ -69,10 +74,51 @@ public class AccessoryVariableNode extends AbstractNode {
     }
 
     public AccessoryVariableNode(VcsConfigVariable var) {
+        this(var, false);
+    }
+    
+    public AccessoryVariableNode(VcsConfigVariable var, boolean enableConditions) {
         super(Children.LEAF);
-        setShortDescription(NbBundle.getMessage(AccessoryVariableNode.class, "CTL_AccessoryVarDescription", var.getName()));
+        if (enableConditions) {
+            Map valuesByConditions = new HashMap();
+            valuesByConditions.put(null, var.getValue());
+            cs = new ConditionedString(var.getName(), valuesByConditions);
+        }
         init(null, var);
-        //list.add(new AccessoryVariableNode[] { this });
+    }
+    
+    public AccessoryVariableNode(String name, Condition[] conditions, Map varsByConditions) {
+        super(Children.LEAF);
+        Condition[] subConditions = conditions[0].getConditions();
+        Condition c = null;
+        for (int i = 0; i < subConditions.length; i++) {
+            if (conditions[0].isPositiveTest(subConditions[i])) {
+                c = subConditions[i];
+                break;
+            }
+        }
+        Map valuesByConditions = new HashMap();
+        VcsConfigVariable var = null;
+        for (int i = 0; i < conditions.length; i++) {
+            var = (VcsConfigVariable) varsByConditions.get(conditions[i]);
+            String value = var.getValue();
+            if (conditions[i].getVars().length == 0) {
+                // No condition is applied to the <value>
+                valuesByConditions.put(null, value);
+            } else {
+                valuesByConditions.put(conditions[i], value);
+            }
+        }
+        if (c == null && valuesByConditions.size() == 1) {
+            c = (Condition) valuesByConditions.keySet().iterator().next();
+            var.setValue((String) valuesByConditions.get(c));
+            valuesByConditions.remove(c);
+            valuesByConditions.put(null, var.getValue());
+        }
+        cs = new ConditionedString(var.getName(), valuesByConditions);
+        mainCondition = new IfUnlessCondition(c);
+        mainCondition.setConditionName(var.getName());
+        init(null, var);
     }
     
     /*
@@ -87,6 +133,9 @@ public class AccessoryVariableNode extends AbstractNode {
         this.var = var;
         this.list = list;
         setIconBase("org/netbeans/modules/vcs/advanced/variables/AccessoryVariables"); // NOI18N
+        if (var != null) {
+            setShortDescription(NbBundle.getMessage(AccessoryVariableNode.class, "CTL_AccessoryVarDescription", var.getName()));
+        }
     }
     
     public void setName(String name) {
@@ -255,21 +304,63 @@ public class AccessoryVariableNode extends AbstractNode {
                 //cmd.fireChanged();
             }
         });
-        set.put(new PropertySupport.ReadWrite("value", String.class, g("CTL_Value"), g("HINT_Value")) {
-            public Object getValue() {
-                return var.getValue();
-            }
-            
-            public void setValue(Object value) {
-                var.setValue((String) value);
-                if (VcsCustomizer.VAR_CONFIG_INPUT_DESCRIPTOR.equals(var.getName())) {
-                    ((AccessoryVariableNode) AccessoryVariableNode.this.getParentNode()).fireVariablePropertyChange(
-                        UserVariablesPanel.PROP_CONFIG_INPUT_DESCRIPTOR,
-                        Boolean.FALSE, UserVariablesPanel.isConfigInputDescriptorVar(var) ? Boolean.TRUE : Boolean.FALSE);
+        if (cs != null) {
+            set.put(new PropertySupport.ReadWrite("if", String.class, g("CTL_DefIf"), g("HINT_DefIf")) {
+                public Object getValue() {
+                    return mainCondition.getIf();
                 }
-                //cmd.fireChanged();
-            }
-        });
+                
+                public void setValue(Object value) {
+                    mainCondition.setIf((String) value);
+                }
+            });
+            set.put(new PropertySupport.ReadWrite("unless", String.class, g("CTL_DefIfNot"), g("HINT_DefIfNot")) {
+                public Object getValue() {
+                    return mainCondition.getUnless();
+                }
+                
+                public void setValue(Object value) {
+                    mainCondition.setUnless((String) value);
+                }
+            });
+        }
+        if (cs != null) {
+            set.put(new PropertySupport.ReadWrite("value", ConditionedString.class, g("CTL_Value"), g("HINT_Value")) {
+                public Object getValue() {
+                    return cs;
+                }
+
+                public void setValue(Object value) {
+                    cs = (ConditionedString) value;
+                    if (VcsCustomizer.VAR_CONFIG_INPUT_DESCRIPTOR.equals(var.getName())) {
+                        ((AccessoryVariableNode) AccessoryVariableNode.this.getParentNode()).fireVariablePropertyChange(
+                            UserVariablesPanel.PROP_CONFIG_INPUT_DESCRIPTOR,
+                            Boolean.FALSE, UserVariablesPanel.isConfigInputDescriptorVar(var) ? Boolean.TRUE : Boolean.FALSE);
+                    }
+                    //cmd.fireChanged();
+                }
+                
+                public PropertyEditor getPropertyEditor() {
+                    return new ConditionedString.ConditionedStringPropertyEditor();
+                }
+            });
+        } else {
+            set.put(new PropertySupport.ReadWrite("value", String.class, g("CTL_Value"), g("HINT_Value")) {
+                public Object getValue() {
+                    return var.getValue();
+                }
+                
+                public void setValue(Object value) {
+                    var.setValue((String) value);
+                    if (VcsCustomizer.VAR_CONFIG_INPUT_DESCRIPTOR.equals(var.getName())) {
+                        ((AccessoryVariableNode) AccessoryVariableNode.this.getParentNode()).fireVariablePropertyChange(
+                            UserVariablesPanel.PROP_CONFIG_INPUT_DESCRIPTOR,
+                            Boolean.FALSE, UserVariablesPanel.isConfigInputDescriptorVar(var) ? Boolean.TRUE : Boolean.FALSE);
+                    }
+                    //cmd.fireChanged();
+                }
+            });
+        }
     }
     
     /** Get the new types that can be created in this node.
