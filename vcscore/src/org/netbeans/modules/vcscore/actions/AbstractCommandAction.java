@@ -74,6 +74,17 @@ public class AbstractCommandAction extends NodeAction {
         }
     }
     
+    public void uninstall() {
+        removeNotify();
+        actionSet = null;
+        suppMap = null;
+    }
+    
+    protected boolean clearSharedData() {
+        uninstall();
+        return super.clearSharedData();
+    }
+    
     protected void performAction (Node[] nodes) {
     }
     

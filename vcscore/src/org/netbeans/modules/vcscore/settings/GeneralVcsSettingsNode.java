@@ -52,12 +52,15 @@ public class GeneralVcsSettingsNode extends AbstractNode {
             if (dobj != null && dobj instanceof DataFolder) {
                 DataFolder folder = (DataFolder)dobj;
                 java.util.Enumeration enum = folder.children();
+                getChildren().remove(getChildren().getNodes());
                 while (enum.hasMoreElements()) {
                     Object obj = enum.nextElement();
                     if (obj instanceof InstanceDataObject) {
                         InstanceDataObject ido = (InstanceDataObject)obj;
-                        InstanceCookie cook = (InstanceCookie)ido.getCookie(InstanceCookie.class);
-                        getChildren().add(new Node[] {ido.getNodeDelegate()});
+                        if (ido.isValid()) {
+                            InstanceCookie cook = (InstanceCookie)ido.getCookie(InstanceCookie.class);
+                            getChildren().add(new Node[] {ido.getNodeDelegate().cloneNode()});
+                        }
                     }
                 }
             }
