@@ -54,6 +54,8 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
 /**
+ * Wizard Iterator which provides a single panel for configuring the 
+ * project name.
  *
  * @author Timothy Boudreau
  */

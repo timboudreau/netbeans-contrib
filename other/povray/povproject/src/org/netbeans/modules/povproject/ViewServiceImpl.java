@@ -64,9 +64,15 @@ final class ViewServiceImpl implements ViewService {
     
     private FileObject imageForFile (FileObject file) {
         FileObject dir = project.getProjectDirectory();
-        assert file.getPath().startsWith(project.getProjectDirectory().getPath());
         
-        FileObject imagesDir = project.getProjectDirectory().getFileObject(PovProject.IMAGES_DIR);
+        //Sanity check
+        assert file.getPath().startsWith(
+                project.getProjectDirectory().getPath());
+        
+        FileObject imagesDir = 
+                project.getProjectDirectory().getFileObject(
+                PovProject.IMAGES_DIR);
+        
         if (imagesDir == null) {
             return null;
         }
@@ -85,7 +91,8 @@ final class ViewServiceImpl implements ViewService {
     public boolean isUpToDate(FileObject file) {
         FileObject image = imageForFile (file);
         if (image != null) {
-            return file.lastModified().getTime() <= image.lastModified().getTime();
+            return file.lastModified().getTime() <= 
+                image.lastModified().getTime();
         } else {
             return false;
         }

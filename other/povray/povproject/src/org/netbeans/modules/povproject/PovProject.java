@@ -59,25 +59,21 @@ public final class PovProject implements Project {
     public static final String KEY_VERSION = "nbpov.version";
     /** Current version */
     public static final int VALUE_VERSION = 1;
-    /** Project subdirectory where .pov & .inc files live */
-    public static final String SCENES_DIR = "scenes";
     /** Project subdirectory where output images live */
     public static final String IMAGES_DIR = "images";
     
     private final FileObject projectDir;
 
     //Stuff that lives in the lookup for outside code to use
-    private final MainFileProviderImpl mainFile;
-    private final RendererServiceImpl renderer;
-    private final ViewServiceImpl viewer;
+    private final MainFileProviderImpl mainFile = new MainFileProviderImpl();
+    private final RendererServiceImpl renderer = new RendererServiceImpl(this);
+    private final ViewServiceImpl viewer = new ViewServiceImpl(this);
+
     private final ProjectState state;
     
     public PovProject(FileObject projectDir, ProjectState state) {
         this.projectDir = projectDir;
         this.state = state;
-        mainFile = new MainFileProviderImpl();
-        renderer = new RendererServiceImpl(this);
-        viewer = new ViewServiceImpl(this);
     }
 
     public FileObject getProjectDirectory() {
@@ -116,11 +112,13 @@ public final class PovProject implements Project {
     }
 
     /**
-     * Finds and loads $PROJECT_ROOT/povproject/project.properties, where we
+     * Finds and loads $PROJECT_ROOT/pvproject/project.properties, where we
      * store configuration info. 
      */
     private Properties loadProperties() {
-        FileObject fob = projectDir.getFileObject(PovProjectFactory.PROJECT_DIR + "/" + PovProjectFactory.PROJECT_PROPFILE);
+        FileObject fob = projectDir.getFileObject(PovProjectFactory.PROJECT_DIR 
+                + "/" + PovProjectFactory.PROJECT_PROPFILE);
+        
         Properties result = new Properties();
         if (fob != null) {
             try {
@@ -135,7 +133,8 @@ public final class PovProject implements Project {
     /** Implementation of project system's ProjectInformation class */
     private final class Info implements ProjectInformation {
         public Icon getIcon() {
-            return new ImageIcon (Utilities.loadImage("org/netbeans/modules/povproject/resources/PovRayIcon.gif"));
+            return new ImageIcon (Utilities.loadImage(
+                    "org/netbeans/modules/povproject/resources/PovRayIcon.gif"));
         }
         
         public String getName() {
@@ -167,7 +166,12 @@ public final class PovProject implements Project {
     private final class MainFileProviderImpl implements MainFileProvider {
         private FileObject mainFile = null;
         boolean checked = false;
+        
         public FileObject getMainFile() {
+            //Try to look up the main file in the project properties
+            //the first time this is called;  no need to look it up every
+            //time, either it's there or it's not and when the user sets it
+            //we'll save it when the project is closed
             if (mainFile == null && !checked) {
                 checked = true;
                 Properties props = (Properties) getLookup().lookup(Properties.class);
@@ -183,13 +187,22 @@ public final class PovProject implements Project {
         }
 
         public void setMainFile(FileObject file) {
-            assert file != null && file.getPath().startsWith(getProjectDirectory().getPath()) : "Main file not under project";
+            //Sanity check
+            assert file != null && 
+                    file.getPath().startsWith(getProjectDirectory().getPath()) :
+                    "Main file not under project";
+            
+            boolean change = ((mainFile == null) != (file == null)) ||
+                    (mainFile != null && !mainFile.equals(file));
+            
             mainFile = file;
-            if (mainFile != null) {
+            if (change) {
                 state.markModified();
             }
         }
     }
+
+    
 
     /**
      * Action provider implementation that executes common project actions like

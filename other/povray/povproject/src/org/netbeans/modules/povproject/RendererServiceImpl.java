@@ -203,7 +203,7 @@ final class RendererServiceImpl implements RendererService {
     /**
      * Runnable which launches the povray process.
      */
-    private final class PovRunner implements Runnable, ActionListener {
+    private final class PovRunner implements Runnable {
         private final File sceneFile;
         private final String cmdline;
         private final String imagesFile;
@@ -230,10 +230,6 @@ final class RendererServiceImpl implements RendererService {
             //extensible (bad idea), this call must be moved out of the 
             //constructor.
             runningRenders.add (this);
-        }
-        
-        public void actionPerformed (ActionEvent ae) {
-            //XXX eventually handle a stop action here.
         }
         
         public void run() {

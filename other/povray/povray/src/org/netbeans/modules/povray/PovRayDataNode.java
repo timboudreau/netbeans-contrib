@@ -43,7 +43,9 @@ import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 
 
+
 /**
+ * A DataNode for POV-Ray files
  *
  * @author Timothy Boudreau
  */
@@ -54,44 +56,41 @@ public class PovRayDataNode extends DataNode {
         super (obj, Children.LEAF);
     }
     
+    public Image getIcon(int type) {
+        return Utilities.loadImage(
+            "org/netbeans/modules/povray/resources/povicon.gif"); //NOI18N
+    }
+    
     public Action[] getActions(boolean context) {
         Action[] result = new Action[] {
             SystemAction.get (EditAction.class),
-            new ViewImageAction((PovRayDataObject) getDataObject()),
+            new ViewImageAction (getDataObject()),
             SystemAction.get (CutAction.class),
             SystemAction.get (CopyAction.class),
             SystemAction.get (RenameAction.class),
             SystemAction.get (DeleteAction.class),
-            new SetMainFileAction((PovRayDataObject) getDataObject()),
+            new SetMainFileAction (getDataObject()),
         };
         return result;
     }
     
     public Action getPreferredAction() {
-        return (Action) getActions(true) [0];
-    }
-    
-    public Image getIcon(int type) {
-        return Utilities.loadImage("org/netbeans/modules/povray/resources/povicon.gif");
-    }
+        return SystemAction.get (EditAction.class);
+    } 
     
     public String getHtmlDisplayName() {
-        if (isMainFile()) {
-            return "<b>" + getDisplayName() + "</b>";
-        } else {
-            return null;
-        }
-    }
+        return isMainFile() ? "<b>" + getDisplayName() + "</b>" : null;
+    }    
     
     private boolean isMainFile() {
         FileObject file = getDataObject().getPrimaryFile();
         Project project = FileOwnerQuery.getOwner(file);
         if (project != null) {
-            MainFileProvider provider = (MainFileProvider) project.getLookup().lookup(MainFileProvider.class);
-            if (provider != null && provider.getMainFile() != null && provider.getMainFile().equals(file)) {
-                System.err.println("IsMainFile is true" );
-                return true;
-            }
+            MainFileProvider provider = (MainFileProvider) 
+                project.getLookup().lookup(MainFileProvider.class);
+            
+            return provider != null && provider.getMainFile() != null && 
+                provider.getMainFile().equals(file);
         }
         return false;
     }
@@ -104,10 +103,17 @@ public class PovRayDataNode extends DataNode {
         }
     }
     
+    private class NotifyMainChangedCookie implements Node.Cookie {
+        public void notifyNoLongerMain () {
+            fireDisplayNameChange ("<b>" + getDisplayName() + "</b>", 
+                getDisplayName());
+        }
+    }    
+    
     private final class SetMainFileAction extends AbstractAction {
-        private final PovRayDataObject obj;
+        private final DataObject obj;
         
-        public SetMainFileAction (PovRayDataObject obj) {
+        public SetMainFileAction (DataObject obj) {
             this.obj = obj;
             
             //Set a display name
@@ -139,7 +145,6 @@ public class PovRayDataNode extends DataNode {
                     ErrorManager.getDefault().notify (donfe);
                 }
             }
-            System.err.println("setMainFile to " + obj.getPrimaryFile().getPath());
         }
         
         public boolean isEnabled () {
@@ -153,11 +158,12 @@ public class PovRayDataNode extends DataNode {
     }
     
     private final class ViewImageAction extends AbstractAction {
-        private final PovRayDataObject obj;
+        private final DataObject obj;
         
-        public ViewImageAction (PovRayDataObject obj) {
+        public ViewImageAction (DataObject obj) {
             this.obj = obj;
-            putValue (Action.NAME, NbBundle.getMessage (PovRayDataNode.class, "ACTION_ViewImage"));
+            putValue (Action.NAME, NbBundle.getMessage (PovRayDataNode.class, 
+                    "ACTION_ViewImage"));
         }
         
         /**
@@ -181,14 +187,5 @@ public class PovRayDataNode extends DataNode {
             
             view.view(obj.getPrimaryFile());
         }
-    }
-    
-
-    private class NotifyMainChangedCookie implements Node.Cookie {
-        public void notifyNoLongerMain () {
-            fireDisplayNameChange ("<b>" + getDisplayName() + "</b>", 
-                getDisplayName());
-        }
-    }
-    
+    }    
 }

@@ -125,20 +125,34 @@ class PovrayLogicalView implements LogicalViewProvider {
         }
     }
     
+    /**
+     * An action which will appear on POV-Ray project nodes, which does two
+     * things:  Provides a submenu of all the available renderer settings,
+     * and shows a checkmark on the last-used setting.
+     */
     private static final class RenderAction extends AbstractAction implements Presenter.Popup {
         private final PovProject project;
         
         public RenderAction (PovProject project) {
             this.project = project;
+            //Set the display name of this action
             putValue (Action.NAME, NbBundle.getMessage(PovrayLogicalView.class,
                     "LBL_RenderProject"));
         }
         
         public JMenuItem getPopupPresenter() {
             JMenu result = new JMenu (this);
-            RendererService service = (RendererService) project.getLookup().lookup (RendererService.class);
+            RendererService service = (RendererService) 
+                project.getLookup().lookup (RendererService.class);
+            
+            //Get the names of the renderer settings available (localized
+            //names of e.g. 320x200.properties in the system filesystem - see
+            //layer.xml)
             String[] settings = service.getAvailableRendererSettings();
+            
+            //Get the name of the one the user last rendered with
             String preferred = service.getPreferredConfigurationName();
+            
             for (int i=0; i < settings.length; i++) {
                 JCheckBoxMenuItem item = new JCheckBoxMenuItem (this);
                 item.setText (settings[i]);
@@ -151,20 +165,32 @@ class PovrayLogicalView implements LogicalViewProvider {
         }
         
         public void actionPerformed (ActionEvent ae) {
+            //Find the menu item
             JMenuItem item = (JMenuItem) ae.getSource();
-            RendererService service = (RendererService) project.getLookup().lookup (RendererService.class);
-            MainFileProvider provider = (MainFileProvider) project.getLookup().lookup (MainFileProvider.class);
             
-            String target = ae.getSource() == this ? service.getAvailableRendererSettings() [0] : item.getText();
+            //Locate the main file for the project
+            MainFileProvider provider = (MainFileProvider) 
+                project.getLookup().lookup (MainFileProvider.class);
+            
+            //Convert FileObject -> File
             File scene = FileUtil.toFile (provider.getMainFile());
-            service.render(scene, service.getRendererSettings(target));
+            
+            //Find the renderer service
+            RendererService renderer = (RendererService) 
+                project.getLookup().lookup (RendererService.class);
+            
+            //The item's text came from getAvailableRendererSettings()
+            String target = item.getText();
+            
+            renderer.render(scene, renderer.getRendererSettings(target));
         }
         
         public boolean isEnabled() {
             //Just lookup whether Build is enabled - if it isn't, we don't have
             //a main file set, so we shouldn't be enabled either
             ActionProvider actions = 
-                (ActionProvider) project.getLookup().lookup (ActionProvider.class);
+                (ActionProvider) project.getLookup().lookup (
+                ActionProvider.class);
             
             return actions.isActionEnabled(
                     ActionProvider.COMMAND_BUILD,  project.getLookup());
