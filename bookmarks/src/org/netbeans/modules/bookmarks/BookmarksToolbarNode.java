@@ -264,7 +264,8 @@ public class BookmarksToolbarNode extends AbstractNode {
                     return new Node[0];
                 }
                 if (data instanceof Bookmark) {
-                    String absName = con.getAbsoluteContextName() + "/" + name;
+                    String absName = con.getAbsoluteContextName() + "/" + name; // NOI18N
+                    absName = absName.substring(1);
                     return new Node[] { new BookmarksNode((Bookmark)data, absName) };
                 }
             } catch (ContextException ne) {

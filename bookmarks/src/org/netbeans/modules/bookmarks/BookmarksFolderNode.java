@@ -69,7 +69,7 @@ public class BookmarksFolderNode extends AbstractNode {
      * by BookmarksHandle.
      */
     public Node.Handle getHandle() {
-        return new BookmarksFolderHandle(context.getAbsoluteContextName(), deletable);
+        return new BookmarksFolderHandle(context.getAbsoluteContextName().substring(1), deletable);
     }
 
     /** Overriden to enable renaming */
@@ -206,23 +206,22 @@ public class BookmarksFolderNode extends AbstractNode {
                         return NbBundle.getMessage(BookmarksToolbarNode.class, "LBL_PasteType");
                     }
                     public Transferable paste() throws IOException {
-                        try {
-                            Context targetFolder = Context.getDefault().createSubcontext(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
-                            String safeName = BookmarkServiceImpl.findUnusedName(targetFolder, b.getName());
+//                        try {
+                            String safeName = BookmarkServiceImpl.findUnusedName(context, b.getName());
                             
                             // following line will save the bookmark to the system file system
-                            targetFolder.putObject(safeName, b);
+                            context.putObject(safeName, b);
                                 
                             if (whereToDelete != null) {
                                 // if this is the move operation:
                                 
                             }
                             return ExTransferable.EMPTY;
-                        } catch (ContextException x) {
-                            IOException ioe =  new IOException();
-                            ErrorManager.getDefault().annotate(ioe, x);
-                            throw ioe;
-                        }
+//                        } catch (ContextException x) {
+//                            IOException ioe =  new IOException();
+//                            ErrorManager.getDefault().annotate(ioe, x);
+//                            throw ioe;
+//                        }
                     }
                 });
             }
@@ -319,7 +318,8 @@ public class BookmarksFolderNode extends AbstractNode {
             if (context != null) {
                 Object data = context.getObject(name, null);
                 if (data instanceof Bookmark) {
-                    String absName = context.getAbsoluteContextName() + "/" + name;
+                    String absName = context.getAbsoluteContextName() + "/" + name; // NOI18N
+                    absName = absName.substring(1);
                     return new Node[] { new BookmarksNode((Bookmark)data, absName) };
                 }
                 Context sub = context.getSubcontext(name);
@@ -347,15 +347,15 @@ public class BookmarksFolderNode extends AbstractNode {
             String[] items = (String[])context.getOrderedNames().toArray(new String[0]);
             if (items.length != perm.length) {
                 StringBuffer sb = new StringBuffer();
-                sb.append("Items[");
+                sb.append("Items["); // NOI18N
                 for (int i = 0; i < items.length; i++) {
-                    sb.append(" " + items[i]);
+                    sb.append(" " + items[i]); // NOI18N
                 }
-                sb.append("] Perm[");
+                sb.append("] Perm["); // NOI18N
                 for (int i = 0; i < perm.length; i++) {
-                    sb.append(" " + perm[i]);
+                    sb.append(" " + perm[i]);// NOI18N
                 }
-                sb.append("]");
+                sb.append("]");// NOI18N
                 throw new IllegalArgumentException(sb.toString());
             }
             String[] nue = new String[perm.length];

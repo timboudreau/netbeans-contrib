@@ -79,7 +79,16 @@ public class BookmarksNode extends AbstractNode {
         
     /** Overriding to also delete the bookmark from its context. */
     public void destroy() throws IOException {
-        Context.getDefault().putObject(path, null);
+        int lastSlash = path.lastIndexOf('/');
+        if (lastSlash >= 0) {
+            Context c = Context.getDefault().getSubcontext(path.substring(0, lastSlash));
+            if (c != null) {
+                c.putObject(path.substring(lastSlash+1), null);
+            }
+        } else {
+            Context.getDefault().putObject(path, null);
+        }
+        
         super.destroy();
     }
 

@@ -182,16 +182,27 @@ public class BookmarkServiceImpl extends BookmarkService {
         return null;
     }
     
-    /**
-     * This method scans the BOOKMARKS_ACTIONS folder and tries to
-     * delete unused bookmarks. The unused bookmarks are those that
-     * are not present in the BOOKMARKS_FOLDER or BOOKMARKS_TOOLBAR folder.
-     * On the other hand
-     * it calls ensureAllActionsAreInActions() to make sure that all
-     * actions in the BOOKMARKS_FOLDER and BOOKMARKS_TOOLBAR 
-     * are also in BOOKMARKS_ACTIONS.
+    /** The meat of this method is in checkActionsFolderNow. This
+     * one is here only for replanning for a bit later.
      */
     private void checkActionsFolder() {
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                checkActionsFolderNow();
+            }
+        });
+    }
+    
+    /**
+     * This method scans the BOOKMARKS_ACTIONS folder and tries to
+     * delete unused actions. The unused actions are those that
+     * do not reference the original bookmark in the BOOKMARKS_FOLDER or BOOKMARKS_TOOLBAR folder.
+     * On the other hand
+     * it calls ensureAllBookmarksAreInActions() to make sure that all
+     * bookmarks in the BOOKMARKS_FOLDER and BOOKMARKS_TOOLBAR 
+     * have action in BOOKMARKS_ACTIONS.
+     */
+    private void checkActionsFolderNow() {
         try {
             Context con1 = Context.getDefault().createSubcontext(BOOKMARKS_FOLDER);
             Context con2 = Context.getDefault().createSubcontext(BOOKMARKS_TOOLBAR);
@@ -210,21 +221,20 @@ public class BookmarkServiceImpl extends BookmarkService {
             while (it.hasNext()) {
                 String name = (String)it.next();
                 Object obj = con3.getObject(name, null);
-                if (obj instanceof Action) {
+                if (obj instanceof BookmarkActionImpl) {
                     
-                    if ( ( ! checkBookmarkAction((Action)obj, con1)) && 
-                        ( ! checkBookmarkAction((Action)obj, con2)) ) {
+                    if ( ! checkBookmarkAction((BookmarkActionImpl)obj)) {
                         toDelete.add(name);
                     }
                 }
             }
-            // delete unused bookmarks
+            // delete unused actions
             for (Iterator i = toDelete.iterator(); i.hasNext();) {
-                con3.putObject(null, (String)i.next());
+                con3.putObject((String)i.next(), null);
             }
             // create new items in the Actions/Bookmarks folder
-            ensureAllActionsAreInActions(con1);
-            ensureAllActionsAreInActions(con2);
+            ensureAllBookmarksHaveActions(con1);
+            ensureAllBookmarksHaveActions(con2);
             // after the action has been updated force the reload
             // of active shortcuts
             refreshShortcutsFolder();
@@ -235,25 +245,21 @@ public class BookmarkServiceImpl extends BookmarkService {
     
     /**
      * Tries to find given action in the bookmarks folders.
-     * @returns true if the given action a is found in the context con
-     *      (the search is performed recursively)
+     * @returns true if the given action a is found
      */
-    private boolean checkBookmarkAction(Action a, Context con) {
-        Iterator it = con.getOrderedNames().iterator();
-        while (it.hasNext()) {
-            String name = (String)it.next();
-            Object obj = con.getObject(name, null);
-            if (obj != null && obj.equals(a)) {
-                return true;
-            }
-            Context c = con.getSubcontext(name);
+    private boolean checkBookmarkAction(BookmarkActionImpl a) {
+        String path = a.getPath();
+        Object obj = null;
+        int lastSlash = path.lastIndexOf('/');
+        if (lastSlash >= 0) {
+            Context c = Context.getDefault().getSubcontext(path.substring(0, lastSlash));
             if (c != null) {
-                if (checkBookmarkAction(a, c)) {
-                    return true;
-                }
+                obj = c.getObject(path.substring(lastSlash+1), null);
             }
+        } else {
+            obj = Context.getDefault().getObject(path, null);
         }
-        return false;
+        return obj instanceof Bookmark;
     }
     
     /**
@@ -262,30 +268,56 @@ public class BookmarkServiceImpl extends BookmarkService {
      * actions are also in BOOKMARKS_ACTIONS folder. If the action
      * is not there it is added (to the BOOKMARKS_ACTIONS folder).
      */
-    private void ensureAllActionsAreInActions(Context con) {
-        try {
-            Iterator it = con.getOrderedNames().iterator();
-            while (it.hasNext()) {
-                String name = (String)it.next();
-                Object obj = con.getObject(name, null);
-                if (obj instanceof Action) {
-                    Action a = (Action)obj;
-                    Context targetFolder = Context.getDefault().createSubcontext(BOOKMARKS_ACTIONS);
-                    if (! checkBookmarkAction(a, targetFolder)) {
-                        // the following will save the bookmark to the actions folder
-                        // to be usable for shortcuts
+    private void ensureAllBookmarksHaveActions(Context con) {
+        Iterator it = con.getBindingNames().iterator();
+        while (it.hasNext()) {
+            String name = (String)it.next();
+            Object obj = con.getObject(name, null);
+            if (obj instanceof Bookmark) {
+                Bookmark b = (Bookmark)obj;
+                if (! isThereActionForBookmark(b)) {
+                    // the following will save the bookmark to the actions folder
+                    // to be usable for shortcuts
+                    try {
+                        Context targetFolder = Context.getDefault().createSubcontext(BOOKMARKS_ACTIONS);
                         String safeName = findUnusedName(targetFolder, name);
-                        targetFolder.putObject(safeName, a);
+                        String path1 = con.getAbsoluteContextName() + "/" + name;  // NOI18N
+                        path1 = path1.substring(1);
+                        targetFolder.putObject(safeName, new BookmarkActionImpl(path1, b));
+                    } catch (ContextException ne) {
+                        ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
                     }
                 }
-                Context c = con.getSubcontext(name);
-                if (c != null) {
-                    ensureAllActionsAreInActions(c);
+            }
+        }
+        
+        Iterator it2 = con.getSubcontextNames().iterator();
+        while (it2.hasNext()) {
+            String name = (String)it2.next();
+            Context c = con.getSubcontext(name);
+            if (c != null) {
+                ensureAllBookmarksHaveActions(c);
+            }
+        }
+    }
+    
+    private boolean isThereActionForBookmark(Bookmark b) {
+        try {
+            Context targetFolder = Context.getDefault().createSubcontext(BOOKMARKS_ACTIONS);
+            Iterator it = targetFolder.getOrderedObjects().iterator();
+            while (it.hasNext()) {
+                Object obj = it.next();
+                if (obj instanceof BookmarkActionImpl) {
+                    BookmarkActionImpl bai = (BookmarkActionImpl)obj;
+                    if (b.equals(bai.getBookmark())) {
+                        return true;
+                    }
                 }
             }
         } catch (ContextException ne) {
             ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
         }
+        return false;
     }
     
     /**

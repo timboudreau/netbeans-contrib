@@ -38,6 +38,12 @@ public class MenuFromFolder implements Runnable {
      */
     private Listener listener;
     
+    /**
+     * We hold a reference to the context for preventing
+     * the garbage collection.
+     */
+    private Context context;
+    
     /** 
      * Cache for the created menu.
      */
@@ -116,24 +122,24 @@ public class MenuFromFolder implements Runnable {
      * Adds objects from the context with path to the list arr.
      */
     private void scanContext(String path, ArrayList arr) throws ContextException {
-        Context con = Context.getDefault().createSubcontext(path);
+        context = Context.getDefault().createSubcontext(path);
         if (!listenersAttached) {
-            ContextListener l1 = getContextListener(con);
-            con.addContextListener(l1);
+            ContextListener l1 = getContextListener(context);
+            context.addContextListener(l1);
         }
-        Iterator it = con.getOrderedNames().iterator();
+        Iterator it = context.getOrderedNames().iterator();
         while (it.hasNext()) {
             String n = (String)it.next();
-            Object obj = con.getObject(n, null);
+            Object obj = context.getObject(n, null);
             if (obj instanceof Presenter.Menu) {
                 Presenter.Menu m = (Presenter.Menu)obj;
                 arr.add(m.getMenuPresenter());
                 continue;
             }
             //
-            Context c = con.getSubcontext(n);
+            Context c = context.getSubcontext(n);
             if (c != null) {
-                MenuFromFolder mff = new MenuFromFolder(path+"/"+n);
+                MenuFromFolder mff = new MenuFromFolder(path + "/" + n);
                 arr.add(mff.getMenu());
                 continue;
             }
