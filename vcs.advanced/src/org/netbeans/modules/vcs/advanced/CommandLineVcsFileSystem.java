@@ -31,7 +31,7 @@ import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
 
 import org.netbeans.modules.vcs.*;
-//import org.netbeans.modules.vcs.cmdline.*;
+import org.netbeans.modules.vcs.cmdline.UserCommand;
 import org.netbeans.modules.vcs.util.*;
 
 /** Generic command line VCS filesystem.
@@ -50,6 +50,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private Hashtable additionalPossibleFileStatusesTable = null;
     private Vector localFilesFilteredOut = null;
     private boolean localFileFilterCaseSensitive = DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE;
+    private Vector docCleanupRemoveItems = null;
 
     static final long serialVersionUID =-1017235664394970926L;
     //-------------------------------------------
@@ -101,6 +102,31 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      */
     public void filePromptDocumentCleanup(javax.swing.JTextArea ta, int promptNum, Object docIdentif) {
         // Let the document unchanged by default
+        javax.swing.text.Document doc = ta.getDocument();
+        if (docIdentif instanceof UserCommand) {
+            UserCommand cmd = (UserCommand) docIdentif;
+            if (docCleanupRemoveItems != null) {
+                for(int i = 0; i < docCleanupRemoveItems.size(); i++) {
+                    CommandLineVcsFileSystem.DocCleanupRemoveItem item = (CommandLineVcsFileSystem.DocCleanupRemoveItem) docCleanupRemoveItems.get(i);
+                    if (cmd.getName().equals(item.getCmdName()) && promptNum == item.getOrder()) {
+                        String lineBegin = item.getLineBegin();
+                        for(int line = 0; line < ta.getLineCount(); line++) {
+                            try {
+                                int begin = ta.getLineStartOffset(line);
+                                int end = ta.getLineEndOffset(line);
+                                String lineStr = doc.getText(begin, end - begin);
+                                if (lineStr.regionMatches(0, lineBegin, 0, lineBegin.length())) {
+                                    doc.remove(begin, end - begin);
+                                    line--;
+                                }
+                            } catch (javax.swing.text.BadLocationException exc) {
+                                org.openide.TopManager.getDefault().notifyException(exc);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public void propertyChange (PropertyChangeEvent evt) {
@@ -150,10 +176,31 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         } else localFilesFilteredOut = null;
     }
     
+    private void setDocumentCleanupFromVars() {
+        VcsConfigVariable docCleanupRemove;
+        docCleanupRemoveItems = null;
+        for(int i = 1; (docCleanupRemove = (VcsConfigVariable) variablesByName.get("DOCUMENT_CLEANUP_REMOVE"+i)) != null; i++) {
+            String[] removeWhat = MiscStuff.getQuotedStrings(docCleanupRemove.getValue());
+            if (removeWhat.length < 3) continue;
+            int order = 0;
+            try {
+                order = Integer.parseInt(removeWhat[1]);
+                order--;
+            } catch (NumberFormatException exc) {
+                org.openide.TopManager.getDefault().notifyException(exc);
+                continue;
+            }
+            CommandLineVcsFileSystem.DocCleanupRemoveItem item = new CommandLineVcsFileSystem.DocCleanupRemoveItem(removeWhat[0], order, removeWhat[2]);
+            if (docCleanupRemoveItems == null) docCleanupRemoveItems = new Vector();
+            docCleanupRemoveItems.add(item);
+        }
+    }
+    
     public void setVariables(Vector variables){
         super.setVariables(variables);
         setPossibleFileStatusesFromVars();
         setLocalFileFilterFromVars();
+        setDocumentCleanupFromVars();
     }
 
     public FilenameFilter getLocalFileFilter() {
@@ -172,6 +219,38 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         ("org.netbeans.modules.vcs.cmdline.BundleCVS").getString (s);
 }
     */
+    
+    private class DocCleanupRemoveItem implements Serializable {
+        
+        private String cmdName;
+        private int order;
+        private String lineBegin;
+        
+        static final long serialVersionUID =-1259352637936409072L;
+        /**
+         * Create new cleanup remove item.
+         * @param cmdName The name of the command.
+         * @param order the order of JTextArea in the VariableInputDialog.
+         * @param lineBegin the beginning of lines which will be removed.
+         */
+        public DocCleanupRemoveItem(String cmdName, int order, String lineBegin) {
+            this.cmdName = cmdName;
+            this.order = order;
+            this.lineBegin = lineBegin;
+        }
+        
+        public String getCmdName() {
+            return cmdName;
+        }
+        
+        public int getOrder() {
+            return order;
+        }
+        
+        public String getLineBegin() {
+            return lineBegin;
+        }
+    }
 }
 
 /*
