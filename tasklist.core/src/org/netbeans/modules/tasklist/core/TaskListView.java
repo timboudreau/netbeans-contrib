@@ -1502,8 +1502,6 @@ public abstract class TaskListView extends ExplorerPanel
         super.requestFocus();
         if (treeTable != null) {
             treeTable.getTable().requestFocus();
-        } else {
-            treeTable.requestFocus();
         }
     }
 }
