@@ -24,26 +24,25 @@ Microsystems, Inc. All Rights Reserved.
             dest="${new-nb}"
             cvsRoot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
             compressionlevel="3" 
-            package="diff editor libs xml autoupdate java/srcmodel java/arch debuggercore/oldapi debuggercore/arch"
+            package="nbbuild diff editor libs xml autoupdate java/srcmodel java/arch debuggercore/oldapi debuggercore/arch"
         />
         <cvs 
             dest="${new-nb}"
             cvsRoot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
             compressionlevel="3" 
             tag="winsys_29836"
-            package="nbbuild openide core"
+            package="openide core"
         />
     </target>
     
     <target name="old-co" description="Checkouts the sources for the old version" >
-    <!--
         <cvs 
             dest="${old-nb}"
             tag="release35"
             cvsRoot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
             compressionlevel="3" 
             package="nbbuild openide core libs xml autoupdate java/srcmodel java/arch debuggercore/oldapi debuggercore/arch"
-        /> -->
+        />
         <patch patchfile="patch35.diff" dir="${old-nb}" strip="0" />
     </target>
     
@@ -90,7 +89,7 @@ Microsystems, Inc. All Rights Reserved.
     
     <target name="compile">
           <ant dir="${new-nb}/nbbuild" >
-            <param name="modules=diff" />
+            <property name="modules=diff" />
           </ant>
           <ant dir="${new-nb}/diff" />
     	  <ant dir="." />
@@ -119,7 +118,7 @@ Microsystems, Inc. All Rights Reserved.
         </java>    
     </target>
     
-    <target name="all" depends="api-list, diff" />
+    <target name="all" depends="new-co, old-co, new-javadoc, old-javadoc, api-list, diff" />
 
     <target name="clean" >
         <delete dir="diff" />
