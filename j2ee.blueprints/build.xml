@@ -14,5 +14,26 @@ Microsystems, Inc. All Rights Reserved.
 <project basedir="." default="netbeans" name="j2ee/blueprints">
 
     <import file="../../nbbuild/templates/projectized.xml"/>
+    <property name="extnl" location="../../nbbuild/external"/>
+    <target name="jar" depends="init,compile,jar-prep,extra-solutions,jar-no-module-deps,jar-with-module-deps"/>
+    
+    <target name="extra-solutions">
+    <property name="examples" location="${build.classes.dir}/org/netbeans/modules/j2ee/blueprints"/>
+        <taskdef name="unscramble" classname="org.netbeans.nbbuild.Unscramble" classpath="${extnl}/scrambler.jar"/>
+        <unscramble logfile="${extnl}/unscrambling.log">
+            <binary clear="../external/blueprints-solutions-catalog.zip" scrambled="../external/blueprints-solutions-catalog.zip.scrambled" license="../external/blueprints-license.txt"/>
+        </unscramble>
 
+        <unzip dest="${examples}" src="../external/blueprints-solutions-catalog.zip" >
+        </unzip>
+    </target>    
+
+    
+     <target name="scramble" depends="init,netbeans" description="create scrambled archive.">
+       <taskdef name="scramble" classname="org.netbeans.nbbuild.Scramble" classpath="${extnl}/scrambler.jar"/>
+       <scramble>
+           <binary clear="../external/blueprints-solutions-catalog.zip" scrambled="../external/blueprints-solutions-catalog.zip.scrambled" license="../external/blueprints-license.txt"/>
+       </scramble>
+        
+    </target> 
 </project>
