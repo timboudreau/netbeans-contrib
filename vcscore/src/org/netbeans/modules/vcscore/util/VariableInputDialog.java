@@ -18,6 +18,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
+import javax.swing.JTextField;
 import javax.swing.event.*;
 
 import org.openide.DialogDisplayer;
@@ -32,7 +33,9 @@ import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.commands.*;
+import org.netbeans.spi.vcs.VcsCommandsProvider;
 
 /**
  * Dialog that enables users to set variable values before running the command.
@@ -108,13 +111,25 @@ public class VariableInputDialog extends javax.swing.JPanel {
      *  that disabled them as values. */
     private HashMap disabledComponents = new HashMap();
     private java.awt.Component firstFocusedComponent;
+    /**
+     * The name of the variable, that contains pairs of variables and commands.
+     * When the variables listed here change their value, the corresponding command
+     * is executed to fill values of remaining variables. This can be used to automatically
+     * fill in VCS configuartion, when it can be obtained from local configuration files.
+     */
+    public static final String VAR_AUTO_FILL = "AUTO_FILL_VARS";
+    private HashMap autoFillVars = new HashMap();
+    private Vector varTextFields = new Vector ();
+    private Vector varVariables = new Vector ();
+    private volatile org.openide.util.RequestProcessor.Task autoFillTask;
+    private volatile String lastCommandName;
     
     static final long serialVersionUID = 8363935602008486018L;
     
     /** Creates new form VariableInputDialog. This JPanel should be used
      * with DialogDescriptor to get the whole dialog.
      * @param files the files to get the input for
-     * @param actionListener the listener to OK and Cancel buttons
+     * @param inputDescriptor the input descriptor
      * @param expert the expert mode
      */
     public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor, boolean expert) {
@@ -124,15 +139,16 @@ public class VariableInputDialog extends javax.swing.JPanel {
     /** Creates new form VariableInputDialog. This JPanel should be used
      * with DialogDescriptor to get the whole dialog.
      * @param files the files to get the input for
-     * @param actionListener the listener to OK and Cancel buttons
+     * @param inputDescriptor the input descriptor
      * @param expert the expert mode
      * @param vars the filesystem variables
      */
-    public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor, boolean expert, Hashtable vars) {
+    public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor, boolean expert, Hashtable vars) {      
         initComponents();
         this.inputDescriptor = inputDescriptor;
         this.expert = expert;
-        this.vars = vars;
+        this.vars = vars;            
+        setAutoFillVars(inputDescriptor.getAutoFillVars());
         firstFocusedComponent = initComponentsFromDescriptor(inputDescriptor, variablePanel);
         currentHistory = historySize;
         //System.out.println("currentHistory = "+currentHistory);
@@ -144,6 +160,37 @@ public class VariableInputDialog extends javax.swing.JPanel {
             setA11y(this, inputDescriptor);
         }
     }
+     
+    private void setAutoFillVars(String autoFillVarsStr) {
+        if(autoFillVarsStr == null || autoFillVarsStr.length() == 0 )
+            return;
+        String[] varsCmds = VcsUtilities.getQuotedStrings(autoFillVarsStr);
+        autoFillVars = new HashMap();
+        for (int i = 0; (i + 1) < varsCmds.length; i += 2) {
+            autoFillVars.put(varsCmds[i], varsCmds[i+1]);
+        }
+        
+    }
+    
+    private void doAutofill(){  //todo -try to run only command for certain value - not always for all
+        for (Iterator it = autoFillVars.values().iterator(); it.hasNext(); ) {
+                String cmd = (String) it.next();
+                autoFillVariables(cmd);
+            }
+    }
+    
+    private void autoFillVariables(String cmdName) {        
+        VcsCommandsProvider provider = executionContext.getCommandsProvider();
+        VcsDescribedCommand cmd = (VcsDescribedCommand)provider.createCommand(cmdName);
+        if (cmd == null) return ;
+        if (autoFillTask != null && cmdName.equals(lastCommandName)) {
+            autoFillTask.schedule(100);
+        } else {
+            lastCommandName = cmdName;
+            autoFillTask = org.openide.util.RequestProcessor.postRequest(new AutoFillRunner(cmd), 100);
+        }
+    }
+    
     
     private void setMnemonics() {
         prevButton.setMnemonic(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.prevButton.mnemonic").charAt(0));
@@ -215,6 +262,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * always regenerated by the Form Editor.
      */
     private void initComponents() {//GEN-BEGIN:initComponents
+        java.awt.GridBagConstraints gridBagConstraints;
+
         navigationPanel = new javax.swing.JPanel();
         prevButton = new javax.swing.JButton();
         nextButton = new javax.swing.JButton();
@@ -229,140 +278,131 @@ public class VariableInputDialog extends javax.swing.JPanel {
         pushPanel2 = new javax.swing.JPanel();
         promptEachSeparator = new javax.swing.JSeparator();
         promptEachCheckBox = new javax.swing.JCheckBox();
-        
+
         setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints1;
-        
+
         navigationPanel.setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints2;
-        
+
         prevButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.prevButton.text"));
         prevButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 prevButtonActionPerformed(evt);
             }
         });
-        
-        gridBagConstraints2 = new java.awt.GridBagConstraints();
-        gridBagConstraints2.insets = new java.awt.Insets(0, 0, 0, 5);
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-        navigationPanel.add(prevButton, gridBagConstraints2);
-        
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
+        navigationPanel.add(prevButton, gridBagConstraints);
+
         nextButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.nextButton.text"));
         nextButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nextButtonActionPerformed(evt);
             }
         });
-        
-        gridBagConstraints2 = new java.awt.GridBagConstraints();
-        gridBagConstraints2.insets = new java.awt.Insets(0, 0, 0, 5);
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-        navigationPanel.add(nextButton, gridBagConstraints2);
-        
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
+        navigationPanel.add(nextButton, gridBagConstraints);
+
         asDefaultButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.text"));
         asDefaultButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 asDefaultButtonActionPerformed(evt);
             }
         });
-        
-        gridBagConstraints2 = new java.awt.GridBagConstraints();
-        gridBagConstraints2.insets = new java.awt.Insets(0, 0, 0, 5);
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-        navigationPanel.add(asDefaultButton, gridBagConstraints2);
-        
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
+        navigationPanel.add(asDefaultButton, gridBagConstraints);
+
         getDefaultButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("getDefaultButton.text"));
         getDefaultButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 getDefaultButtonActionPerformed(evt);
             }
         });
-        
-        gridBagConstraints2 = new java.awt.GridBagConstraints();
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints2.weightx = 1.0;
-        navigationPanel.add(getDefaultButton, gridBagConstraints2);
-        
-        gridBagConstraints1 = new java.awt.GridBagConstraints();
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.insets = new java.awt.Insets(12, 12, 0, 12);
-        gridBagConstraints1.weightx = 1.0;
-        add(navigationPanel, gridBagConstraints1);
-        
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        navigationPanel.add(getDefaultButton, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
+        add(navigationPanel, gridBagConstraints);
+
         variableTabbedPane.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
         jPanel1.setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints3;
-        
+
         variablePanel.setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints4;
-        
-        gridBagConstraints4 = new java.awt.GridBagConstraints();
-        gridBagConstraints4.gridy = 100;
-        gridBagConstraints4.fill = java.awt.GridBagConstraints.VERTICAL;
-        gridBagConstraints4.anchor = java.awt.GridBagConstraints.SOUTH;
-        gridBagConstraints4.weightx = 0.0;
-        gridBagConstraints4.weighty = 1.0;
-        variablePanel.add(pushPanel1, gridBagConstraints4);
-        
-        gridBagConstraints3 = new java.awt.GridBagConstraints();
-        gridBagConstraints3.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints3.insets = new java.awt.Insets(12, 12, 12, 12);
-        gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints3.weightx = 1.0;
-        gridBagConstraints3.weighty = 1.0;
-        jPanel1.add(variablePanel, gridBagConstraints3);
-        
-        variableTabbedPane.addTab("jPanel1", jPanel1);
-        
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 100;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
+        gridBagConstraints.weighty = 1.0;
+        variablePanel.add(pushPanel1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        jPanel1.add(variablePanel, gridBagConstraints);
+
+        variableTabbedPane.addTab("jPanel1", null, jPanel1, "");
+
         jPanel2.setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints5;
-        
+
         globalInputPanel.setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints6;
-        
+
         pushPanel2.setLayout(new java.awt.GridBagLayout());
-        java.awt.GridBagConstraints gridBagConstraints7;
-        
-        gridBagConstraints6 = new java.awt.GridBagConstraints();
-        gridBagConstraints6.gridy = 100;
-        gridBagConstraints6.fill = java.awt.GridBagConstraints.VERTICAL;
-        gridBagConstraints6.anchor = java.awt.GridBagConstraints.SOUTH;
-        gridBagConstraints6.weightx = 0.0;
-        gridBagConstraints6.weighty = 1.0;
-        globalInputPanel.add(pushPanel2, gridBagConstraints6);
-        
-        gridBagConstraints5 = new java.awt.GridBagConstraints();
-        gridBagConstraints5.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints5.insets = new java.awt.Insets(12, 12, 12, 12);
-        gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints5.weightx = 1.0;
-        gridBagConstraints5.weighty = 1.0;
-        jPanel2.add(globalInputPanel, gridBagConstraints5);
-        
-        variableTabbedPane.addTab("jPanel2", jPanel2);
-        
-        gridBagConstraints1 = new java.awt.GridBagConstraints();
-        gridBagConstraints1.gridy = 1;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints1.insets = new java.awt.Insets(12, 12, 0, 12);
-        gridBagConstraints1.weightx = 1.0;
-        gridBagConstraints1.weighty = 1.0;
-        add(variableTabbedPane, gridBagConstraints1);
-        
-        gridBagConstraints1 = new java.awt.GridBagConstraints();
-        gridBagConstraints1.gridy = 4;
-        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.insets = new java.awt.Insets(5, 12, 0, 12);
-        add(promptEachSeparator, gridBagConstraints1);
-        
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 100;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
+        gridBagConstraints.weighty = 1.0;
+        globalInputPanel.add(pushPanel2, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        jPanel2.add(globalInputPanel, gridBagConstraints);
+
+        variableTabbedPane.addTab("jPanel2", null, jPanel2, "");
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
+        add(variableTabbedPane, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 12);
+        add(promptEachSeparator, gridBagConstraints);
+
         promptEachCheckBox.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.promptEachCheckBox.text"));
-        gridBagConstraints1 = new java.awt.GridBagConstraints();
-        gridBagConstraints1.gridy = 5;
-        gridBagConstraints1.insets = new java.awt.Insets(0, 12, 0, 12);
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        add(promptEachCheckBox, gridBagConstraints1);
-        
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 12);
+        add(promptEachCheckBox, gridBagConstraints);
+
     }//GEN-END:initComponents
 
     private void getDefaultButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getDefaultButtonActionPerformed
@@ -408,20 +448,20 @@ public class VariableInputDialog extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel navigationPanel;
-    private javax.swing.JButton prevButton;
-    private javax.swing.JButton nextButton;
     private javax.swing.JButton asDefaultButton;
     private javax.swing.JButton getDefaultButton;
-    private javax.swing.JTabbedPane variableTabbedPane;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel variablePanel;
-    private javax.swing.JPanel pushPanel1;
-    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel globalInputPanel;
-    private javax.swing.JPanel pushPanel2;
-    private javax.swing.JSeparator promptEachSeparator;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel navigationPanel;
+    private javax.swing.JButton nextButton;
+    private javax.swing.JButton prevButton;
     private javax.swing.JCheckBox promptEachCheckBox;
+    private javax.swing.JSeparator promptEachSeparator;
+    private javax.swing.JPanel pushPanel1;
+    private javax.swing.JPanel pushPanel2;
+    private javax.swing.JPanel variablePanel;
+    private javax.swing.JTabbedPane variableTabbedPane;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -957,6 +997,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
             new javax.swing.JPasswordField(TEXTFIELD_COLUMNS) :
             new javax.swing.JTextField(TEXTFIELD_COLUMNS);
         mainComponent_ptr[0] = field;
+        varTextFields.addElement(field);
+        varVariables.addElement(component.getVariable());
         if (varLabel != null && varLabel.length() > 0) {
             String varLabelExpanded = Variables.expand(vars, varLabel, false);
             javax.swing.JLabel label = new javax.swing.JLabel(varLabelExpanded);
@@ -1011,6 +1053,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         field.addFocusListener(l = new FocusListener() {
             public void focusGained(FocusEvent fevt) {}
             public void focusLost(FocusEvent fevt) {
+                doAutofill();
                 Object oldValue = component.getValue();
                 component.setValue(field.getText());
                 firePropertyChange(PROP_VAR_CHANGED + component.getVariable(), oldValue, component.getValue());
@@ -2007,6 +2050,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             this.userPromptLabelTexts[i] = labelStr;
             javax.swing.JLabel label = new javax.swing.JLabel(labelStr+":");
             javax.swing.JTextField field = new javax.swing.JTextField(TEXTFIELD_COLUMNS);
+            varTextFields.addElement(field);
             field.setText((String) varLabels.get(labelStr));
             java.awt.GridBagConstraints gridBagConstraints1 = new java.awt.GridBagConstraints ();
             java.awt.GridBagConstraints gridBagConstraints2 = new java.awt.GridBagConstraints ();
@@ -2180,8 +2224,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             //System.out.println("  name = '"+evt.getPropertyName()+"', value = '"+evt.getNewValue()+"'");
             String propName = evt.getPropertyName();
             boolean multievent = false;
-            if (vars != null && (propName.startsWith(PROP_VAR_CHANGED) || (multievent = propName.equals(PROP_VARIABLES_CHANGED)))) {
-                
+            if (vars != null && (propName.startsWith(PROP_VAR_CHANGED) || (multievent = propName.equals(PROP_VARIABLES_CHANGED)))) {                
                 if (multievent) {
                     Collection changedProps = (Collection) evt.getNewValue();
                     for (Iterator it = changedProps.iterator(); it.hasNext(); ) {
@@ -2219,4 +2262,41 @@ public class VariableInputDialog extends javax.swing.JPanel {
     private interface HistoryListener {
         public void changeHistory(int index1, int index2);
     }
+    
+    private class AutoFillRunner extends Object implements Runnable {
+        
+        private VcsDescribedCommand cmd;
+        
+        public AutoFillRunner(VcsDescribedCommand cmd) {
+            this.cmd = cmd;
+        }
+        
+        public void run() {           
+            HashMap varsOrig = new HashMap(vars);            
+            cmd.setAdditionalVariables(varsOrig);
+            //set actual values
+            for (int i=0; i < varTextFields.size(); i++){
+                String varName = (String) varVariables.get(i);                
+                JTextField tf = (JTextField)varTextFields.get(i);
+                String actValue = tf.getText();
+                varsOrig.put(varName,actValue);                
+            }                  
+            CommandTask cmdTask = cmd.execute();
+            cmdTask.waitFinished();
+            if(cmdTask.getExitStatus() != 0)
+                return;
+            
+            VcsDescribedTask descTask = (VcsDescribedTask)cmdTask;            
+            Map varsAfterChange = descTask.getVariables();            
+            for (int i=0; i < varTextFields.size(); i++){
+                String varName = (String) varVariables.get(i);
+                String newValue = (String) varsAfterChange.get(varName);               
+                JTextField tf = (JTextField)varTextFields.get(i);
+                tf.setText(newValue);
+            }
+            
+          
+        }
+    }
+   
 }

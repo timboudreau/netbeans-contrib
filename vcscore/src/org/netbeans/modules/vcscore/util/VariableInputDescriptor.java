@@ -36,8 +36,17 @@ public class VariableInputDescriptor extends Object {
     public static final int INPUT_SELECT_COMBO_EDITABLE = 9;
     public static final int INPUT_TEXT = 11;
     public static final int INPUT_HELP_ID = 13;
+    public static final int INPUT_AUTOFILL = 14;
     
     public static final String INPUT_STR_LABEL = "LABEL";
+    /**
+     * The name of the variable, that contains pairs of variables and commands.
+     * When the variables listed here change their value, the corresponding command
+     * is executed to fill values of remaining variables. This can be used to automatically
+     * fill in VCS configuartion, when it can be obtained from local configuration files.
+     */
+    public static final String INPUT_STR_AUTOFILL = "AUTO_FILL_VARS";
+    
     public static final String INPUT_STR_HELP_ID = "HELP_ID";
     public static final String INPUT_STR_PROMPT_FIELD = "PROMPT_FOR";
     public static final String INPUT_STR_PROMPT_AREA = "PROMPT_FOR_FILE";
@@ -86,6 +95,7 @@ public class VariableInputDescriptor extends Object {
     private String a11yName = null;
     private String a11yDescription = null;
     private String helpID;
+    private String autoFillVars;
     private ArrayList components = new ArrayList();
     
     /** Creates new VariableInputDescriptor */
@@ -106,6 +116,7 @@ public class VariableInputDescriptor extends Object {
                     inputMap.put(INPUT_STR_SELECT_COMBO_EDITABLE, new Integer(INPUT_SELECT_COMBO_EDITABLE));
                     inputMap.put(INPUT_STR_GLOBAL_PARAMS, new Integer(INPUT_GLOBAL));
                     inputMap.put(INPUT_STR_TEXT, new Integer(INPUT_TEXT));
+                    inputMap.put(INPUT_STR_AUTOFILL, new Integer(INPUT_AUTOFILL));
                 }
             }
         }
@@ -154,6 +165,8 @@ public class VariableInputDescriptor extends Object {
                 descriptor.label = VcsUtilities.getBundleString(inputArgs[0]);
             } else if (inputId == INPUT_HELP_ID && inputArgs.length > 0) {
                 descriptor.helpID = inputArgs[0];
+            } else if(inputId == INPUT_AUTOFILL && inputArgs.length >0){
+                descriptor.autoFillVars = inputArgs[0];
             } else if (inputId == INPUT_ACCESSIBILITY && inputArgs.length > 0) {
                 VariableInputComponent testComponent = new VariableInputComponent(0, "", "");
                 setA11y(VcsUtilities.getBundleString(inputArg), testComponent);
@@ -211,6 +224,13 @@ public class VariableInputDescriptor extends Object {
         return helpID;
     }
     
+    /** 
+     * Get the string representation of the auto fill variables
+     */
+    public String getAutoFillVars(){
+        return autoFillVars;
+        
+    }
     /**
      * Get the array of components.
      * @return the array of components.
