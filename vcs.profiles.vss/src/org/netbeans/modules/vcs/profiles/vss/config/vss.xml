@@ -562,7 +562,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="inputDescriptor">
           <value>LABEL(ResourceMsg(VSS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VSS_CHECKOUT)))
                  VARIABLE_DEFAULTS(CHECKOUT_OPTIONS USER)
-                 IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_CHECKOUT_Rec), "$[? recursionBanned] [-l] [-R]", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CHECKOUT_Rec);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Rec_mnc)), "-R", "-R-")
+                 IF_VAR_EMPTY"recursionBanned"_ASK_FOR(RECURSIVE, ResourceMsg(COMMAND_VSS_CHECKOUT_Rec), "$[? recursionBanned] [-R-] [-R]", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CHECKOUT_Rec);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Rec_mnc)), "-R", "-R-")
                  PROMPT_FOR_EXPERT(CHECKOUT_OPTIONS, ResourceMsg(COMMAND_VSS_CHECKOUT_Options), "-GWA", ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_VSS_CHECKOUT_Options);;MNEMONIC_ResourceMsg(ACS_COMMAND_VSS_CHECKOUT_Options_mnc)))
           </value>
 	</property>
