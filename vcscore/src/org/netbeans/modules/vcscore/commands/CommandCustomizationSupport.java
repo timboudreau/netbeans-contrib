@@ -480,6 +480,7 @@ public class CommandCustomizationSupport extends Object {
                                            String notification,
                                            final CommandExecutionContext executionContext) {
         final String notification1 = Variables.expand(vce.getVariables(), notification, false);
+        if (notification1 == null || notification1.trim().length() == 0) return ;
         org.openide.util.RequestProcessor.postRequest(new Runnable() {
             public void run() {
                 NotifyDescriptor msg = new NotifyDescriptor.Message(notification1);
