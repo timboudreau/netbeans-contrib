@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.vcs.advanced.wizard.mount;
 
+import org.openide.loaders.TemplateWizard;
+
 /**
  *
  * @author  Martin Entlicher
@@ -24,6 +26,7 @@ public class ProfilePanel extends AbstractWizardPanel {
     /** Creates new form ProfilePanel */
     public ProfilePanel() {
         initComponents();
+        setName(org.openide.util.NbBundle.getMessage(AdvancedPanel.class, "CTL_ProfilePanel"));
     }
 
     /** This method is called from within the constructor to
@@ -41,10 +44,13 @@ public class ProfilePanel extends AbstractWizardPanel {
     }
 
     protected void readWizardSettings(MountWizardData data) {
-        javax.swing.JPanel profilePanel = data.getProfilePanel ();
-        profilePanel.setBorder (new javax.swing.border.EmptyBorder (new java.awt.Insets (0, 0, 0, 0)));
-        this.add (profilePanel);
-        initialized = true;
+        putClientProperty ("WizardPanel_contentSelectedIndex", new Integer (0)); // NOI18N
+        if (!initialized) {
+            javax.swing.JPanel profilePanel = data.getProfilePanel ();
+            profilePanel.setBorder (new javax.swing.border.EmptyBorder (new java.awt.Insets (0, 0, 0, 0)));
+            this.add (profilePanel);
+            initialized = true;
+        }
     }
 
     protected void storeWizardSettings(MountWizardData data) {

@@ -30,11 +30,12 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     private static MountWizardIterator instance;
     
     private WizardDescriptor.Panel[] panels;
-    private String[] names;
+    String[] names;
     private javax.swing.event.EventListenerList listenerList;
     private int currentIndex;
     //private int relativeIndex_;
     private MountWizardData data;
+    //private TemplateWizard 
 
     /** Creates new MountWizardIterator */
     public MountWizardIterator() {
@@ -79,7 +80,7 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     
     public void previousPanel() {
         currentIndex--;
-        setContentData();
+        //setContentData();
     }
     
     public void uninitialize(org.openide.loaders.TemplateWizard templateWizard) {
@@ -103,7 +104,7 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     
     public void nextPanel() {
         currentIndex++;
-        setContentData();
+        //setContentData();
     }
     
     public boolean hasPrevious() {
@@ -120,29 +121,30 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     
     private void setupPanels(TemplateWizard templateWizard) {
         this.panels = new WizardDescriptor.Panel[] {
-            //wizard.targetChooser(),
+            //templateWizard.targetChooser(),
             new ProfilePanel(),
             new AdvancedPanel(),
             new EnvironmentPanel(),
         };
+        java.awt.Component panel = templateWizard.templateChooser().getComponent();
         this.names = new String[] {
-            //"Choose Target !!",
+            panel.getName(),
             NbBundle.getMessage(MountWizardIterator.class, "CTL_ProfilePanel"),
             NbBundle.getMessage(MountWizardIterator.class, "CTL_AdvancedPanel"),
             NbBundle.getMessage(MountWizardIterator.class, "CTL_EnvironmentPanel")
         };
-        java.awt.Component panel = templateWizard.targetChooser().getComponent();
         //System.out.println("target chooser panel = "+panel);
-        if (panel instanceof javax.swing.JComponent) {
-            ((javax.swing.JComponent) panel).putClientProperty(
-            "WizardPanel_contentData", names);
-        }
+        //System.out.println(" panel is JComponent = "+(panel instanceof javax.swing.JComponent));
+        templateWizard.putProperty ("WizardPanel_contentData", names);
+        templateWizard.putProperty ("WizardPanel_contentSelectedIndex", new Integer (1)); // NOI18N
         this.currentIndex = 0;// = this.relativeIndex_ = 0;
     }
     
+    /*
     private void setContentData () {
         ((javax.swing.JPanel)this.panels[this.currentIndex]).putClientProperty (
             "WizardPanel_contentSelectedIndex", new Integer(this.currentIndex));
     }
+     */
     
 }

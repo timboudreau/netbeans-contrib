@@ -42,6 +42,7 @@ public abstract class AbstractWizardPanel extends javax.swing.JPanel implements 
         MountWizardIterator wizIter;
         wizIter = (MountWizardIterator) wizard.getIterator(wizard.getTemplate());
         MountWizardData mountData = wizIter.getData();
+        wizard.putProperty ("WizardPanel_contentData", wizIter.names);
         readWizardSettings (mountData);
     }
     
