@@ -179,7 +179,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         commandDataErrorOutputListener = null;
         if (success) {
             String path = (String) vars.get("DIR") + "/" + (String) vars.get("FILE");
-            path.replace(java.io.File.separatorChar, '/');
+            path = path.replace(java.io.File.separatorChar, '/');
             if (VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_CHECK_FOR_MODIFICATIONS)) {
                 //System.out.println(cmd.getName()+" finished successfully.");
                 fileSystem.checkForModifications(path);
