@@ -53,8 +53,6 @@ import org.openide.util.NbBundle;
  */
 public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     
-    private JPopupMenu menu;
-    private Object eventSource;
    // private JMenuItem kill;
     private ArrayList killActionListeners = new ArrayList();
     private JTextArea stdDataOutput;
@@ -106,39 +104,69 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     }
     
     protected void initPopupMenu() {
-        this.menu = new JPopupMenu();
-        JMenuItem discardTab = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N
-        discardTab.addActionListener( new java.awt.event.ActionListener() {
+        JPopupMenu menu = new JPopupMenu();
+        java.awt.event.ActionListener discardlistener = new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent event) {
                 CommandOutputTopComponent.getInstance().discard(AbstractOutputPanel.this);
             }
-        });
-        JMenuItem discardAll = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardAll"));//NOI18N
-        discardAll.addActionListener( new java.awt.event.ActionListener() {
+        };
+        java.awt.event.ActionListener discardAllListener = new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent event) {
                 CommandOutputTopComponent.getInstance().discardAll();
             }
-        });
-        JMenuItem save = new JMenuItem (NbBundle.getBundle (OutputPanel.class).getString("CMD_Save"));//NOI18N
-        save.addActionListener ( new java.awt.event.ActionListener () {
+        };
+        java.awt.event.ActionListener saveListener = new java.awt.event.ActionListener () {
            public void actionPerformed (java.awt.event.ActionEvent event) {
                saveToFile();
            }
-        });
+        };
+        JMenuItem discardTab = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N
+        discardTab.addActionListener(discardlistener);
+        JMenuItem discardAll = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardAll"));//NOI18N
+        discardAll.addActionListener(discardAllListener);
+        JMenuItem save = new JMenuItem (NbBundle.getBundle (OutputPanel.class).getString("CMD_Save"));//NOI18N
+        save.addActionListener (saveListener);
+        menu.add(save);
+        menu.addSeparator();
+        menu.add(discardTab);
+        menu.add(discardAll);
+        JPopupMenu viewMenu;
+        if (isViewTextLogEnabled()) {
+            viewMenu = new JPopupMenu();
+            JMenuItem viewText = new JMenuItem (NbBundle.getBundle (OutputPanel.class).getString("CMD_ViewText"));//NOI18N
+            viewText.addActionListener ( new java.awt.event.ActionListener () {
+               public void actionPerformed (java.awt.event.ActionEvent event) {
+                   viewTextLog();
+               }
+            });
+            discardTab = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N
+            discardTab.addActionListener(discardlistener);
+            discardAll = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardAll"));//NOI18N
+            discardAll.addActionListener(discardAllListener);
+            save = new JMenuItem (NbBundle.getBundle (OutputPanel.class).getString("CMD_Save"));//NOI18N
+            save.addActionListener (saveListener);
+            viewMenu.add(viewText);
+            viewMenu.add(save);
+            viewMenu.addSeparator();
+            viewMenu.add(discardTab);
+            viewMenu.add(discardAll);
+        } else {
+            viewMenu = menu;
+        }
         
-        this.menu.add(save);
-        this.menu.addSeparator();
-        this.menu.add(discardTab);
-        this.menu.add(discardAll);
-         
         if(getStdOutputArea() != null)
-            getStdOutputArea().add(menu);
+            getStdOutputArea().add(viewMenu);
         if(getErrOutputArea() != null)
             getErrOutputArea().add(menu);
         
-        PopupListener popupListener = new PopupListener();
+        PopupListener popupListener = new PopupListener(menu);
+        PopupListener popupListenerView = new PopupListener(viewMenu);
         getErrComponent().addMouseListener(popupListener);
-        getStdComponent().addMouseListener(popupListener);
+        getStdComponent().addMouseListener(popupListenerView);
+        JComponent c = getDataStdComponent();
+        if (c != null) c.addMouseListener(popupListener);
+        c = getDataErrComponent();
+        if (c != null) c.addMouseListener(popupListener);
         this.addMouseListener(popupListener);
         toolbar.addMouseListener(popupListener);
         scroll.addMouseListener(popupListener);
@@ -272,6 +300,45 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         }, 0);
     }
     
+    /**
+     * Whether the View Text action should be enabled.
+     */
+    protected boolean isViewTextLogEnabled() {
+        return false;
+    }
+    
+    private void viewTextLog() {
+        PropertyEditor editor = PropertyEditorManager.findEditor(String.class);
+        javax.swing.JTextArea outputArea = getStdOutputArea();
+        String value;
+        if (outputCollector != null) {
+            final StringBuffer buff = new StringBuffer();
+            outputCollector.addTextOutputListener(new TextOutputListener() {
+                public void outputLine(String line) {
+                    buff.append(line);
+                    buff.append(System.getProperty("line.separator"));
+                }
+            }, false);
+            value = buff.toString();
+        } else {
+            if (outputArea == null) {
+                value = "";
+            } else {
+                try {
+                    value = outputArea.getDocument().getText(0, outputArea.getDocument().getLength());
+                } catch (javax.swing.text.BadLocationException blex) {
+                    ErrorManager.getDefault().notify(blex);
+                    return ;
+                }
+            }
+        }
+        editor.setValue(value);
+        java.awt.Component c = editor.getCustomEditor();
+        DialogDescriptor dd = new DialogDescriptor(c, NbBundle.getBundle (OutputPanel.class).getString("CMD_TextOutput"));
+        DialogDisplayer ddisp = DialogDisplayer.getDefault();
+        ddisp.notify(dd);
+    }
+    
     public void addKillActionListener(java.awt.event.ActionListener l) {        
         btnStop.addActionListener(l);
         killActionListeners.add(l);
@@ -308,10 +375,16 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
        
     
     class PopupListener extends java.awt.event.MouseAdapter {
+        
+        private JPopupMenu menu;
+        
+        public PopupListener(JPopupMenu menu) {
+            this.menu = menu;
+        }
+        
         public void mousePressed(java.awt.event.MouseEvent event) {
             if ((event.getModifiers() & java.awt.event.MouseEvent.BUTTON3_MASK) == java.awt.event.MouseEvent.BUTTON3_MASK) {
-                AbstractOutputPanel.this.eventSource = event.getSource();
-                AbstractOutputPanel.this.menu.show((java.awt.Component)event.getSource(),event.getX(),event.getY());
+                menu.show((java.awt.Component)event.getSource(),event.getX(),event.getY());
             }
         }
     }
