@@ -764,6 +764,21 @@ public class CommandNode extends AbstractNode {
                                 return ConditionedObject.getConditionedPropertyEditor(valueClass);
                             }
                         }
+                        
+                        public boolean supportsDefaultValue() {
+                            return true;
+                        }
+
+                        public void restoreDefaultValue() {
+                            String propertyName = getName();
+                            Object old = getValue();
+                            cproperties.remove(propertyName);
+                            cmd.setProperty(propertyName, defaultValue);
+                            firePropertyChange(propertyName, old, defaultValue);
+                            if (VcsCommand.PROPERTY_INPUT_DESCRIPTOR.equals(propertyName)) {
+                                cmd.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED, null);
+                            }
+                        }
                 });
             }
         }
