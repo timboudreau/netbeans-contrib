@@ -41,6 +41,7 @@ import org.netbeans.modules.vcs.profiles.cvsprofiles.commands.passwd.StandardScr
 public class CvsLoginCheck implements VcsAdditionalCommand {
 
     private CommandExecutionContext context = null;
+    public static final String DEFAULT_PORT_STR = "2401";   // NOI18N
 
     public void setExecutionContext(CommandExecutionContext context) {
         this.context = context;
@@ -105,11 +106,15 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
         vars.clear(); // Not to unnecessarily update too many variables.
         vars.put("LOGGED_IN_TEXT", loggedInText);
         //System.out.println("CvsLoginCheck: putting LOGGED_IN_TEXT = '"+loggedInText+"'");
-        int port = 0;
+        int port = 0;        
         if (portStr != null) {
-            try {
-                port = Integer.parseInt(portStr);
-            } catch (NumberFormatException nfex) {}
+            if(portStr.equals(DEFAULT_PORT_STR))
+                port = 0;
+            else{
+                try {
+                    port = Integer.parseInt(portStr);
+                } catch (NumberFormatException nfex) {}
+            }
         }
         boolean validConnectString = true;
         pasFile.loadPassFile();
