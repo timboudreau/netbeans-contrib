@@ -342,7 +342,7 @@ err.log("Couldn't find current nodes...");
         workspace.addPropertyChangeListener(this);
         */
 
-        doRescanInAWT();
+        doRescanInAWT(false);
     }
 
     /** Cache tracking suggestions in recently visited files */
@@ -826,12 +826,15 @@ err.log("Couldn't find current nodes...");
             }
         }
 
-        doRescanInAWT();
+        doRescanInAWT(true);
 
     }
 
-    /** It sends asynchronously to AWT thread. */
-    private void doRescanInAWT() {
+    /**
+     * It sends asynchronously to AWT thread.
+     * @param delay if true schedule later acording to user settings otherwise do immediatelly
+     */
+    private void doRescanInAWT(final boolean delay) {
         if (pendingScan) {
             return;
         }
@@ -844,7 +847,7 @@ err.log("Couldn't find current nodes...");
                 // be processing views
                 try {
                     if (clientCount > 0) {
-                        findCurrentFile(true);
+                        findCurrentFile(delay);
                     }
                 } finally {
                     // XXX findCurrent file spawns a thread
