@@ -65,6 +65,8 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
        
     private java.awt.event.ActionListener closeWrapperListener = null;
     
+    private String displayName;
+    
     private static final long serialVersionUID = -8901790341334731237L;
     
     public CommandOutputVisualizer() {
@@ -138,6 +140,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
             new Object[] { commandName });
 
         final String finalName = commandName;
+        this.displayName = title;
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 setName(finalName);
@@ -187,7 +190,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
     public void open() {
         setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/commands/commandOutputWindow.gif"));
         CommandOutputTopComponent out = CommandOutputTopComponent.getInstance();
-        out.addVisualizer(getDisplayName(),this, true);
+        out.addVisualizer(displayName, this, true);
         out.open();
     }
 
