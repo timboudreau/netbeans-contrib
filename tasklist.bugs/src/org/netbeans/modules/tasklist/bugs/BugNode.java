@@ -78,8 +78,7 @@ class BugNode extends TaskNode {
             // Create actions shown on an empty tasklist (e.g. only root
             // is there)
             return new SystemAction[] {
-                SystemAction.get(RefreshAction.class),
-                null
+                SystemAction.get(RefreshAction.class)
             };
         } else {
             return new SystemAction[] {

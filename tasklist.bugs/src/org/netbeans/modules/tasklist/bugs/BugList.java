@@ -37,7 +37,7 @@ public class BugList extends TaskList { // XXX remove the publicness
     
     
     /** Creates a new instance of TaskList */
-    BugList() {
+    public BugList() {
 	IZBugEngine issuezilla = new IZBugEngine(this);
 	// Later, allow these puppies to be registered via Lookup
 	engines = new BugEngine[] { issuezilla };
@@ -50,7 +50,7 @@ public class BugList extends TaskList { // XXX remove the publicness
             tasklist = new BugList();
 
             // First time - try to fetch the contents from the web
-            tasklist.refresh();
+            // tasklist.refresh();
         }
         return tasklist;
     }
@@ -98,5 +98,9 @@ public class BugList extends TaskList { // XXX remove the publicness
         // Do in the background
 	BugEngine engine = bug.getEngine();
 	engine.viewBug(bug);
+    }
+
+    BugEngine getDefaultEngine() {
+        return engines[0];
     }
 }

@@ -27,24 +27,24 @@ public final class Bug extends Task {
     private BugEngine engine = null;
 
     // IMPORTANT: If you add additional fields, update copyFrom() as well
-    private String id;
-    private String synopsis;
-    private String summary = null;
+    private String id = "";
+    private String synopsis = "";
+    private String summary = "";
     private int priority;
-    private String type = null;
-    private String component = null;
-    private String subcomponent = null;
+    private String type = "";
+    private String component = "";
+    private String subcomponent = "";
     private Date created = null;
-    private String keywords = null;
-    private String assignedto = null;
-    private String reportedby = null;
-    private String status = null;
-    private String target = null;
+    private String keywords = "";
+    private String assignedto = "";
+    private String reportedby = "";
+    private String status = "";
+    private String target = "";
     private int votes = 0;
     // IMPORTANT: If you add additional fields, update copyFrom() as well
 
 
-    private Bug() {
+    public Bug() {
     }
 
     public Bug(String id,
@@ -85,6 +85,10 @@ public final class Bug extends Task {
     public int getPriorityNumber() {
         return priority;
     }
+
+    public void setPriorityNumber(int priority) {
+        this.priority = priority;
+    }
     
     /** Return the bug number
      * @return The bug number
@@ -92,6 +96,11 @@ public final class Bug extends Task {
     public String getId() {
         return id;
     }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     
     /** Return the description for the bug
      * @return Bug description.
@@ -100,20 +109,30 @@ public final class Bug extends Task {
         return synopsis;
     }
 
+    public void setSynopsis(String synopsis) {
+        this.synopsis = synopsis;
+    }
+
     /** Get the "summary" for the bug. This is just the
      * combination of the id and the synopsis.
      */
     public String getIdAndSynopsis() {
-        if (summary == null) {
+        if ((summary == null) || (summary == "")) {
             summary = id + ": " + synopsis; // NOI18N
         }
         return summary;
     }
+
+    // No setter - not really an attribute on its own; it's derived
+    // from id and synopsis
     
     
     /** Return the bug's component/category */
     public String getComponent() {
 	return component;
+    }
+    public void setComponent(String component) {
+	this.component = component;
     }
 
     
@@ -121,46 +140,74 @@ public final class Bug extends Task {
     public String getSubComponent() {
 	return subcomponent;
     }
+    public void setSubComponent(String subcomponent) {
+	this.subcomponent = subcomponent;
+    }
 
     
     /** Return the bug's creation date */
     public Date getCreated() {
 	return created;
     }
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
     
     /** Return keywords associated with the bug */
     public String getKeywords() {
 	return keywords;
+    }
+    public void setKeywords(String keywords) {
+	this.keywords = keywords;
     }
     
     /** Return the name of the person assigned to the bug */
     public String getAssignedTo() {
 	return assignedto;
     }
+    public void setAssignedTo(String assignedto) {
+	this.assignedto = assignedto;
+    }
 
     /** Return the name of the person who filed the bug */
     public String getReportedBy() {
 	return reportedby;
+    }
+    public void setReportedBy(String reportedby) {
+	this.reportedby = reportedby;
     }
     
     /** Return the current status of the bug */
     public String getStatus() {
 	return status;
     }
+    public void setStatus(String status) {
+	this.status = status;
+    }
     
     /** Return the target milestone for the bug */
     public String getTarget() {
 	return target;
+    }
+    public void setTarget(String target) {
+	this.target = target;
     }
     
     /** Return the type of bug: enhancement, bug, ... */
     public String getType() {
 	return type;
     }
+    public void setType(String type) {
+	this.type = type;
+    }
     
     /** Return the number of votes for the bug */
     public int getVotes() {
 	return votes;
+    }
+    public void setVotes(int votes) {
+	this.votes = votes;
     }
 
     // TODO: Issuezilla also provides: getResolution, getDescriptions,
