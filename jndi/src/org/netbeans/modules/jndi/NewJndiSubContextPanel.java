@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.JLabel;
 
 /** Panel for adding new subdirectory */
-class NewJndiSubContextPanel extends JPanel {
+final class NewJndiSubContextPanel extends JPanel {
   private JTextField name;    
 
   public NewJndiSubContextPanel() {

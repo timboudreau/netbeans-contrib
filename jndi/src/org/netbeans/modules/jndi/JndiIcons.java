@@ -13,65 +13,68 @@
 
 package com.netbeans.enterprise.modules.jndi;
 
-/*JNDI*/
-import javax.naming.*;
-import javax.naming.directory.*;
+import java.util.Hashtable;
+import javax.naming.NameClassPair;
 
+/** This class represents icon holder.
+* Its goal is to return proper icon for name
+*/
+abstract class JndiIcons extends Object {
 
-/*JDK*/
-import java.util.*;
+  public final static String ICON_BASE = "/com/netbeans/enterprise/modules/jndi/resources/";
 
+  private final static String[] defaultIcons = {"*","def",
+                                              JndiRootNode.NB_ROOT,"jndi",
+                                              "javax.naming.Context","folder",
+                                              "java.io.File","file"};
+  private static Hashtable icontable;
+  
 
+  private JndiIcons() {
+  }
+  
+  
+  //Returns Icon for string containig
+  public static String getIconName(String name) {
+    String iconname;
 
-public final class JndiIcons extends Object
-{
+    if (icontable == null) {
+      lazyInitialize();
+    }
+    iconname = (String) icontable.get(name);
+    if (iconname != null) {
+      return iconname;
+    } else {
+      return (String) icontable.get("*");
+    }
+  }
+  
+  //the same as above but for ClassNamePair    
+  public static String getIconName(NameClassPair name, boolean tree) {
 
-    public final static String ICON_BASE="/com/netbeans/enterprise/modules/jndi/resources/";
-
-    private final static String[] defaultIcons={"*","def",
-						JndiRootNode.NB_ROOT,"jndi",
-						"javax.naming.Context","folder",
-						"java.io.File","file"};
-    private static Hashtable icontable;
+    String iconname;
     
-
-    public JndiIcons()
-    {
+    if (icontable == null) {
+      lazyInitialize();
     }
     
-    
-    //Returns Icon for string containig
-    public static String getIconName(String name)
-    {
-	String iconname;
-	
-	
-	if (icontable==null) lazy_initialize();
-	iconname=(String)icontable.get(name);
-	if (iconname!=null) return iconname;
-	else return (String) icontable.get("*");	
+    if (name == null) {
+      return (String) icontable.get("*");
     }
     
-    //the same as above but for ClassNamePair    
-    public static String getIconName(NameClassPair name, boolean tree)
-    {
-	String iconname;
-	if (icontable==null) lazy_initialize();
-	if (name==null) return (String) icontable.get("*");
-	iconname=(String) icontable.get(name.getClassName());
-	if (iconname!=null) return iconname;
-	else return (String) icontable.get("*");
+    iconname = (String) icontable.get(name.getClassName());
+    if (iconname != null) {
+      return iconname;
+    } else {
+      return (String) icontable.get("*");
     }
-    
-    //lazy_initialization
-    private static void lazy_initialize()
-    {
-	icontable = new Hashtable();
-	for (int i=0;i<defaultIcons.length;i+=2)
-	{
-	    icontable.put(defaultIcons[i],defaultIcons[i+1]);
-	}
+  }
+  
+  //lazy_initialization
+  private static void lazyInitialize() {
+    icontable = new Hashtable();
+    for (int i=0; i < defaultIcons.length; i += 2) {
+      icontable.put(defaultIcons[i], defaultIcons[i+1]);
     }
-    
-    
+  }
 }

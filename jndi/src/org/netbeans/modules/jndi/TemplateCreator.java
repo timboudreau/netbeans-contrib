@@ -13,10 +13,9 @@
 
 package com.netbeans.enterprise.modules.jndi;
 
-import javax.naming.*;
+import javax.naming.NamingException;
 
-interface TemplateCreator
-{
-    //produces code for accessing object
-    String createTemplate() throws NamingException;
+interface TemplateCreator {
+  //produces code for accessing object
+  String createTemplate() throws NamingException;
 }

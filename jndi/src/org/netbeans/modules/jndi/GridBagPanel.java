@@ -13,38 +13,38 @@
 
 package com.netbeans.enterprise.modules.jndi;
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import javax.swing.JPanel;
 
 
 
-public class GridBagPanel extends JPanel
-{
-    public GridBagPanel()
-    {
-	this.setLayout(new GridBagLayout());
-    }
+/** Base class for handling GridBagLayout */
+class GridBagPanel extends JPanel {
+  
+  public GridBagPanel() {
+    this.setLayout(new GridBagLayout());
+  }
 
-    // GridBagLayout add version
-    protected void add (Component component, int x, int y, int width, int height, int top, int left, int bottom, int right)   
-    {
-	GridBagConstraints c = new GridBagConstraints();
-	c.gridx=x;
-	c.gridy=y;
-	c.gridwidth=width;
-	c.gridheight=height;
-	c.fill=GridBagConstraints.BOTH;
-	c.anchor=GridBagConstraints.NORTHWEST;
-	c.insets = new Insets(top,left,bottom,right);
-	((GridBagLayout)this.getLayout()).setConstraints(component,c);
-	this.add(component);
-    }
+  // GridBagLayout add version
+  protected void add (Component component, int x, int y, int width, int height, int top, int left, int bottom, int right) {
+    GridBagConstraints c = new GridBagConstraints();
+    c.gridx=x;
+    c.gridy=y;
+    c.gridwidth=width;
+    c.gridheight=height;
+    c.fill=GridBagConstraints.BOTH;
+    c.anchor=GridBagConstraints.NORTHWEST;
+    c.insets = new Insets(top,left,bottom,right);
+    ((GridBagLayout)this.getLayout()).setConstraints(component,c);
+    this.add(component);
+  }
     
-    protected void add (Component component, int x, int y, int width, int height)
-    {
-	add(component,x,y,width,height,0,0,0,0);
-    }    
-    
+  protected void add (Component component, int x, int y, int width, int height) {
+    add(component,x,y,width,height,0,0,0,0);
+  }
 }
 
 

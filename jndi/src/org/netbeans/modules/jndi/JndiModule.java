@@ -11,34 +11,25 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
+
 package com.netbeans.enterprise.modules.jndi;
 
+import com.netbeans.ide.modules.ModuleInstall;
 
-/*NetBeans*/
-import com.netbeans.ide.*;
-import com.netbeans.ide.modules.*;
+/*JNDI Module*/
+public final class JndiModule implements ModuleInstall {
+  public void installed() {
+  }
+
+  public void uninstalled() {
+  }
 
 
+  public void restored() {
+  }
 
-public class JndiModule implements ModuleInstall
-{
-	public void installed()
-	{
-	}
-	
-	public void uninstalled()
-	{
-	}
-	
-	
-	public void restored()
-	{
-	}
-	
-	
-	public boolean closing()
-	{
-		return true;
-	}
-	
+
+  public boolean closing()  {
+    return true;
+  }
 }

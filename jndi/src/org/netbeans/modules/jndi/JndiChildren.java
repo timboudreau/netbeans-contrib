@@ -13,90 +13,115 @@
 
 package com.netbeans.enterprise.modules.jndi;
 
-
-/*JNDI*/
+import java.util.Collection;
+import java.util.Vector;
 import javax.naming.*;
 import javax.naming.directory.*;
 
+import com.netbeans.ide.nodes.Children;
+import com.netbeans.ide.nodes.Node;
 
-/*NetBeans*/
-import com.netbeans.ide.*;
-import com.netbeans.ide.nodes.*;
+/** Children class for Directories in JNDI tree.
+*    It's responsible for lazy initialization as well
+*    it is an holder of Context and actual offset of node in Contxt
+*/
+final class JndiChildren extends Children.Keys {
+  
+  public final static String CONTEXT_CLASS_NAME = "javax.naming.Context";
 
-/*JDK*/
-import java.util.Collection;
-import java.util.Vector;
+  /** Class object for javax.naming.Context */
+  private static Class ctxClass;
 
-class JndiChildren extends Children.Keys
-{
-    public final static String CONTEXT_CLASS_NAME="javax.naming.Context";
+  private DirContext parentContext;	// Initial Directory context
+  private CompositeName offset;	// Offset in Initial Directory context
+  
+  
+  //Constructor takes the initial context as its parameter
+  public JndiChildren(DirContext parentContext) {
+    this.parentContext = parentContext;
+  }
+  
+  //Set actual offset in tree hierrarchy
+  //This method shold be immediatelly called after JndiChildren is created
+  public void setOffset(CompositeName offset) {
+    offset = offset;
+  }
+  
+  // Returns actual offset
+  public CompositeName getOffset() {
+    return offset;
+  }
+  
+  // Returns context
+  public DirContext getContext() {
+    return parentContext;
+  }
+  
+  
+  //Set context
+  public void setContext(DirContext context) {
+    parentContext = context;
+  }
+  
+  // this method creates keys and set them
+  public void prepareKeys() throws NamingException {
+    NamingEnumeration ne = parentContext.list(this.offset.toString());
+    if (ne == null) return;
+    Vector v = new Vector();
+    while (ne.hasMore()) {
+      v.add(ne.next());
+    }
+    this.setKeys(v);
+  }
+  
+  // creates Node for key
+  public Node[] createNodes(Object key) {
+    try {
+      if (key == null) {
+        return null;
+      }
+      if (! (key instanceof NameClassPair)) {
+        return null;
+      }
 
-    DirContext parent_context;	// Initial Directory context
-    CompositeName offset;	// Offset in Initial Directory context
-    
-    
-    //Constructor takes the initial context as its parameter
-    public JndiChildren(DirContext parent_context)
-    {
-	this.parent_context=parent_context;
+      NameClassPair np = (NameClassPair) key;
+      if (isContext(np.getClassName())) {
+        return new Node[] {new JndiNode(parentContext, ((CompositeName)offset.clone()), np.getName())};
+      } else {
+        return new Node[] {new JndiLeafNode(parentContext, ((CompositeName)offset.clone()), np.getName(), np.getClassName())};
+      }
+    } catch (NamingException ne) {
+      return new Node[0];
     }
-    
-    //Set actual offset in tree hierrarchy
-    //This method shold be immediatelly called after JndiChildren is created
-    public void setOffset(CompositeName offset)
-    {
-	this.offset=offset;
+  }
+
+  /** Heuristicaly decides whether specified class is a Context or not. */
+  static boolean isContext(String className) {
+    if (className.equals(CONTEXT_CLASS_NAME)) {
+      return true;
+    } else {
+      try {
+        Class clazz = Class.forName(className);
+        if (getCtxClass().isAssignableFrom(clazz)) {
+          return true;
+        }
+      } catch (ClassNotFoundException e) {
+        e.printStackTrace();
+        if (className.indexOf("com.gemstone.admin.internal.GNSAgent$") >= 0) {
+          return true;
+        }
+      }
     }
-    
-    // Returns actual offset
-    public CompositeName getOffset()
-    {
-	return this.offset;
+    return false;
+  }
+
+  /** @return Class object for javax.naming.Context */
+  static Class getCtxClass() throws ClassNotFoundException {
+    if (ctxClass == null) {
+      ctxClass = Class.forName(CONTEXT_CLASS_NAME);
     }
-    
-    // Returns context
-    public DirContext getContext()
-    {
-	return this.parent_context;
-    }
-    
-    
-    //Set context
-    public void setContext(DirContext context)
-    {
-	this.parent_context=context;
-    }
-    
-    // this method creates keys and set them
-    public void prepareKeys() throws NamingException
-    {
-	NamingEnumeration ne = parent_context.list(this.offset.toString());
-	if (ne==null) return;
-	Vector v = new Vector();
-	while (ne.hasMore())
-	  v.add(ne.next());
-	this.setKeys(v);
-    }
-    
-    // creates Node for key
-    public Node[] createNodes(Object key)
-    {
-	try
-	{
-	    if (key==null) return null;
-	    if (! (key instanceof NameClassPair)) return null;
-	    NameClassPair np = (NameClassPair) key;
-	    if (np.getClassName().indexOf("Context")>=0)
-		 {
-		     return new Node[] {new JndiNode(this.parent_context,((CompositeName)this.offset.clone()),np.getName())};
-		 }
-	    else 
-		{
-		    return new Node[] {new JndiLeafNode(this.parent_context,((CompositeName)this.offset.clone()),np.getName(),np.getClassName())};
-		}
-	}catch(NamingException ne){ return new Node[0];}
-    }
-    
+    return ctxClass;
+  }
 }
 
 

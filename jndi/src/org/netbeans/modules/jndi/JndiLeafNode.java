@@ -11,78 +11,65 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-/*NetBeans*/
 package com.netbeans.enterprise.modules.jndi;
 
-
-/*JNDI*/
-import javax.naming.*;
-import javax.naming.directory.*;
-
-
-/*NetBeans*/
-import com.netbeans.ide.*;
-import com.netbeans.ide.actions.*;
-import com.netbeans.ide.filesystems.*;
-import com.netbeans.ide.nodes.*;
-import com.netbeans.ide.util.actions.*;
-
-
-/*JDK*/
-import java.awt.datatransfer.*;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
+import javax.naming.NamingException;
+import javax.naming.CompositeName;
+import javax.naming.directory.DirContext;
 
+import com.netbeans.ide.TopManager;
+import com.netbeans.ide.actions.PropertiesAction;
+import com.netbeans.ide.actions.CopyAction;
+import com.netbeans.ide.nodes.AbstractNode;
+import com.netbeans.ide.nodes.Children;
+import com.netbeans.ide.util.actions.SystemAction;
 
-public class JndiLeafNode extends AbstractNode implements TemplateCreator
-{
-    protected DirContext ctx;
-    protected CompositeName offset;
-    protected SystemAction[] actions;
-    
-    public JndiLeafNode(DirContext ctx, CompositeName parent_offset, String name, String classname) throws NamingException
-    {
-	super(Children.LEAF);
-	setName(name);
-	this.ctx=ctx;
-	this.offset=(CompositeName)parent_offset.add(name);
-	setIconBase(JndiIcons.ICON_BASE+JndiIcons.getIconName(classname));
+/** This class is Leaf Node in JNDI tree eg. File...*/
+final class JndiLeafNode extends AbstractNode implements TemplateCreator {
+
+  protected DirContext ctx;
+  protected CompositeName offset;
+  protected SystemAction[] actions;
+  
+  public JndiLeafNode(DirContext ctx, CompositeName parentOffset, String name, String classname) throws NamingException {
+    super(Children.LEAF);
+    setName(name);
+    this.ctx = ctx;
+    this.offset = (CompositeName) parentOffset.add(name);
+    setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(classname));
+  }
+  
+  // Generates code for accessing object that is represented by this node
+  public String createTemplate() throws NamingException {
+    return JndiObjectCreator.getCode(ctx, offset);
+  }
+  
+  public boolean canCopy() {
+    return true;
+  }
+  
+  public SystemAction[] getActions() {
+    if (actions == null) {
+      actions = createActions();
     }
-    
-    // Generates code for accessing object that is represented by this node
-    public String createTemplate() throws NamingException
-    {
-	return JndiObjectCreator.getCode(this.ctx,this.offset);
+    return actions;
+  }
+  
+  
+  public Transferable clipboardCopy() throws IOException {
+    try {
+      return new StringSelection(this.createTemplate());
+    } catch(NamingException ne) {
+      TopManager.getDefault().notifyException(ne);
+      return null;
     }
-    
-    public boolean canCopy()
-    {
-	return true;
-    }
-    
-    public SystemAction[] getActions()
-    {
-	if (this.actions==null) 
-	    this.actions=createActions();
-	return this.actions;
-    }
-    
-    
-    public Transferable clipboardCopy() throws IOException
-    {
-	try
-	{
-	    return new StringSelection(this.createTemplate());
-	}catch(NamingException ne)
-	{
-	    TopManager.getDefault().notifyException(ne);
-	    return null;
-	}
-    }
-    
-    public SystemAction[] createActions()
-    {
-	return new SystemAction[] {SystemAction.get(CopyAction.class),
-				   SystemAction.get(PropertiesAction.class)};
-    }
-    
+  }
+  
+  public SystemAction[] createActions() {
+    return new SystemAction[] {SystemAction.get(CopyAction.class),
+                               SystemAction.get(PropertiesAction.class)};
+  }
 }

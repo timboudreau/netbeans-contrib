@@ -13,44 +13,37 @@
 
 package com.netbeans.enterprise.modules.jndi;
 
-import javax.swing.*;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
 
-class NewPropertyPanel extends GridBagPanel
-{
-    JTextField name;
-    JTextField value;
-    
-    
-    public NewPropertyPanel()
-    {
-	this.name = new JTextField(20);
-	this.value= new JTextField(20);
-	this.add(new JLabel("Property Name:"),1,1,2,1);
-	this.add(this.name,1,2,2,1);
-	this.add(new JLabel("Property Value:"),1,3,2,1);
-	this.add(this.value,1,4,2,1);
-    }
+final class NewPropertyPanel extends GridBagPanel {
 
+  private JTextField name;
+  private JTextField value;
+  
+  
+  public NewPropertyPanel() {
+    name = new JTextField(20);
+    value= new JTextField(20);
+    add(new JLabel("Property Name:"),1,1,2,1);
+    add(this.name,1,2,2,1);
+    add(new JLabel("Property Value:"),1,3,2,1);
+    add(this.value,1,4,2,1);
+  }
 
-    public String getName()
-    {
-	return this.name.getText();
-    }
+  public String getName() {
+    return name.getText();
+  }
 
-
-    public String getValue()
-    {
-	return this.value.getText();
-    }
-    
-    public void setName(String name)
-    {
-	this.name.setText(name);
-    }
-    
-    public void setValue(String value)
-    {
-	this.value.setText(value);
-    }
-
+  public String getValue() {
+    return value.getText();
+  }
+  
+  public void setName(String name) {
+    this.name.setText(name);
+  }
+  
+  public void setValue(String value) {
+    this.value.setText(value);
+  }
 }
