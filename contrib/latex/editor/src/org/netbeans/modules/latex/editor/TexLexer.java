@@ -264,7 +264,8 @@ import org.netbeans.spi.lexer.util.IntegerCache;
                     
                 case 9:
                     if (read != '$') {
-                        input.backup(1);
+                        if (!isEOF(read))
+                            input.backup(1);
                     }
                     
                     Token result;

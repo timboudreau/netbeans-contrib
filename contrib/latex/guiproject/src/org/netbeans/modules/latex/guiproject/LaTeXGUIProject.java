@@ -17,14 +17,21 @@ package org.netbeans.modules.latex.guiproject;
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import org.apache.tools.ant.module.api.AntProjectCookie;
+import org.apache.tools.ant.module.api.support.TargetLister;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.modules.latex.guiproject.ui.ProjectSettings;
@@ -43,6 +50,8 @@ import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -55,6 +64,9 @@ import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
+import org.openide.xml.XMLUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -68,13 +80,13 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
     
     private LaTeXSource source;
     
-    public static final String COMMAND_SHOW = "latex-show";
+    public static final String COMMAND_SHOW = "latex-show";//NOI18N
     
     private static final Image LaTeXGUIProjectIMAGE;
     private static final Icon LaTeXGUIProjectICON;
     
     static {
-        LaTeXGUIProjectIMAGE = org.openide.util.Utilities.loadImage("org/netbeans/modules/latex/guiproject/resources/latex_gui_project_icon.gif");
+        LaTeXGUIProjectIMAGE = org.openide.util.Utilities.loadImage("org/netbeans/modules/latex/guiproject/resources/latex_gui_project_icon.gif");//NOI18N
         LaTeXGUIProjectICON  = new ImageIcon(LaTeXGUIProjectIMAGE);
     }
     
@@ -84,32 +96,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
         this.masterFile = masterFile;
         source = new LaTeXSourceImpl(masterFile);
         source.addDocumentChangedListener(source.weakDocumentChangedListener(this, source));
-        lookup = Lookups.fixed(new Object[] {this, GenericSources.genericOnly(this), source});
-	
-//	assureParsed();
-    }
-    
-    private void assureParsed() {
-        RequestProcessor.getDefault().postRequest(new Runnable() {
-	    public void run() {
-	        LaTeXSource.Lock lock = null;
-		
-//                System.err.println("source=" + source);
-		try {
-//                    System.err.println("LaTeXGUIProject.assureParsed trying to obtain lock");
-		    lock = source.lock(true);
-//                    System.err.println("LaTeXGUIProject.assureParsed trying lock obtained=" + lock);
-		} finally {
-                    if (lock != null) {
-//                        System.err.println("LaTeXGUIProject.assureParsed unlock the lock");
-                        source.unlock(lock);
-//                        System.err.println("LaTeXGUIProject.assureParsed unlocking done");
-                    } else {
-//                        System.err.println("LaTeXGUIProject.assureParsed no unlocking (lock == null)");
-                    }
-		}
-	    }
-	});
+        lookup = Lookups.fixed(new Object[] {this, GenericSources.genericOnly(this), source, new LaTeXGUIProjectOpenedHookImpl(this)});
     }
     
     public Lookup getLookup() {
@@ -117,7 +104,7 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
     }
     
     public FileObject getProjectDirectory() {
-        return dir;//.getParent();
+        return dir;
     }
     
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -133,6 +120,10 @@ public class LaTeXGUIProject implements Project, ProjectInformation, LogicalView
     
     public String getName() {
         return masterFile.getNameExt();
+    }
+    
+    /*package private*/FileObject getMasterFile() {
+        return masterFile;
     }
     
     public Project getProject() {

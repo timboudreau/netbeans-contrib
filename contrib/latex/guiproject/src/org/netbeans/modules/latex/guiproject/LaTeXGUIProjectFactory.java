@@ -17,6 +17,7 @@ import java.io.File;
 
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
@@ -54,6 +55,8 @@ public class LaTeXGUIProjectFactory implements ProjectFactory {
     
     private FileObject getMasterFile(FileObject projectDirectory) {
 //        System.err.println("getMasterFile(" + projectDirectory + ")");
+        InputStream ins = null;
+        
         try {
             FileObject settings = projectDirectory.getFileObject("build-settings.properties");
             
@@ -63,7 +66,8 @@ public class LaTeXGUIProjectFactory implements ProjectFactory {
             
             EditableProperties p = new EditableProperties();
             
-            p.load(settings.getInputStream()); //TODO: close the stream.
+            ins = settings.getInputStream();
+            p.load(ins); //TODO: close the stream.
             String mainFileName = p.getProperty("mainfile");
             
             if (mainFileName == null)
@@ -86,6 +90,14 @@ public class LaTeXGUIProjectFactory implements ProjectFactory {
             return FileUtil.toFileObject(mainFile);
         } catch (IOException e) {
             return null;
+        } finally {
+            if (ins != null) {
+                try {
+                    ins.close();
+                } catch (IOException e) {
+                    //ignore?
+                }
+            }
         }
     }
     

@@ -33,6 +33,8 @@ import org.openide.filesystems.Repository;
  */
 public class CreateNewLaTeXProject {
     
+    private boolean debug = Boolean.getBoolean("netbeans.latex.guiproject.create.new.project");
+    
     /** Creates a new instance of CreateNewLaTeXProject */
     private CreateNewLaTeXProject() {
     }
@@ -48,8 +50,11 @@ public class CreateNewLaTeXProject {
     }
     
     public FileObject createProject(File metadataDir, File mainFile) throws IOException {
-        System.err.println("createProject(" + metadataDir + ", " + mainFile + ")");
-        System.err.println("mainFile.exists()=" + mainFile.exists());
+        if (debug) {
+            System.err.println("createProject(" + metadataDir + ", " + mainFile + ")");
+            System.err.println("mainFile.exists()=" + mainFile.exists());
+        }
+        
         if (!mainFile.exists()) {
             File parent = mainFile.getParentFile();
             
@@ -58,18 +63,29 @@ public class CreateNewLaTeXProject {
             /*refresh:*/
             
             FileObject toRefresh = null;
-            System.err.println("parent = " + parent );
+            
+            if (debug)
+                System.err.println("parent = " + parent );
+            
             while (parent != null && !parent.equals(parent.getParentFile()) && (toRefresh = FileUtil.toFileObject(parent)) == null) {
-                System.err.println("parent = " + parent );
-                System.err.println("FileUtil.toFileObject(parent)=" + FileUtil.toFileObject(parent));
+                if (debug) {
+                    System.err.println("parent = " + parent );
+                    System.err.println("FileUtil.toFileObject(parent)=" + FileUtil.toFileObject(parent));
+                }
+                
                 parent = parent.getParentFile();
-                System.err.println("parent = " + parent );
-                System.err.println("FileUtil.toFileObject(parent)=" + FileUtil.toFileObject(parent));
+                
+                if (debug) {
+                    System.err.println("parent = " + parent );
+                    System.err.println("FileUtil.toFileObject(parent)=" + FileUtil.toFileObject(parent));
+                }
             }
             
             if (toRefresh != null) {
-                System.err.println("refreshing:" + toRefresh);
-                System.out.println("refreshing:" + toRefresh);
+                if (debug) {
+                    System.err.println("refreshing:" + toRefresh);
+                    System.out.println("refreshing:" + toRefresh);
+                }
                 toRefresh.refresh();
             }
             
@@ -111,7 +127,7 @@ public class CreateNewLaTeXProject {
             ins = targetBuildSettings.getInputStream();
             ep.load(ins);
             ins.close();
-            ep.setProperty("mainfile", mainFile.getAbsolutePath());
+            ep.setProperty("mainfile", Utilities.findShortestName(metadataDir, mainFile));
             lock = targetBuildSettings.lock();
             out = targetBuildSettings.getOutputStream(lock);
             ep.store(out);

@@ -61,6 +61,13 @@ Contributor(s): Jan Lahoda
     
     <folder name="Templates">
         <folder name="Project">
+            <!--Put the LaTeX project behind Web and Standard project
+                (the projects should be sorted by importance, and LaTeX
+                 is less important than these two):
+              -->
+            <attr name="Web/LaTeX" boolvalue="true" />
+            <attr name="Standard/LaTeX" boolvalue="true" />
+            
             <folder name="LaTeX">
                 <file name="new-latex-project.xml">
                     <attr name="template" boolvalue="true" />

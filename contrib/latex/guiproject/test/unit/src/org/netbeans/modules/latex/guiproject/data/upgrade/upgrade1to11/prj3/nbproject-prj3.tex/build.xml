@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  -                          Sun Public License Notice
+  -
+  - The contents of this file are subject to the Sun Public License Version
+  - 1.0 (the "License"). You may not use this file except in compliance with
+  - the License. A copy of the License is available at http://www.sun.com/
+  -
+  - The Original Code is the LaTeX module.
+  - The Initial Developer of the Original Code is Jan Lahoda.
+  - Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+  - All Rights Reserved.
+  -
+  - Contributor(s): Jan Lahoda.
+  -->
+<project basedir="." default="build" name="my-project">
+
+    <!-- Properties
+         mainfile - file to compile
+      -->
+    
+    <!--import user defined properties-->  
+    <property file="build-settings.properties" />
+
+    <fail unless="mainfile">Property mainfile should be set and contain the mainfile to LaTeXize.</fail>
+    <fail unless="libs.latextasks.classpath">Property libs.latextasks.classpath should be set and contain the classpath for the LaTeX support tasks.</fail>
+
+    <fail unless="latex-command">Property latex-command should be set and contain the latex command.</fail>
+    <fail unless="latex-arguments">Property latex-arguments should be set and contain the latex extra arguments.</fail>
+
+    <fail unless="bibtex-command">Property bibtex-command should be set and contain the bibtex command.</fail>
+    <fail unless="bibtex-arguments">Property bibtex-arguments should be set and contain the bibtex extra arguments.</fail>
+
+    <fail unless="dvips-command">Property dvips-command should be set and contain the dvips command.</fail>
+    <fail unless="dvips-arguments">Property dvips-arguments should be set and contain the dvips extra arguments.</fail>
+
+    <fail unless="dvipdf-command">Property dvipdf-command should be set and contain the dvipdf command.</fail>
+    <fail unless="dvipdf-arguments">Property dvipdf-arguments should be set and contain the dvipdf extra arguments.</fail>
+
+<!--    <fail unless="default-target">Property default-target should be set and contain the default target to use.</fail>-->
+    
+    <taskdef name="latex" classname="org.netbeans.modules.latex.ant.tasks.LaTeXAntTask" classpath="${libs.latextasks.classpath}" />
+    <taskdef name="bibtex" classname="org.netbeans.modules.latex.ant.tasks.BiBTeXAntTask" classpath="${libs.latextasks.classpath}" />
+    <taskdef name="dvips" classname="org.netbeans.modules.latex.ant.tasks.DVIPSAntTask" classpath="${libs.latextasks.classpath}" />
+    <taskdef name="dvipdf" classname="org.netbeans.modules.latex.ant.tasks.DVIPDFAntTask" classpath="${libs.latextasks.classpath}" />
+    <taskdef name="xdvi" classname="org.netbeans.modules.latex.ant.tasks.XDVIAntTask" classpath="${libs.latextasks.classpath}" />
+    
+    <target name="build">
+        <antcall target="${default-build-target}" />
+    </target>
+    
+    <target name="show">
+        <antcall target="${default-show-target}" />
+    </target>
+    
+    <target name="latex2dvi">
+        <echo message="${mainfile}" />
+        <latex mainfile="${mainfile}" command="${latex-command}" arguments="${latex-arguments}" usespecials="${latex-use-source-specials}" specialscommand="${latex-source-specials-argument}">
+            <bibtex mainfile="${mainfile}" command="${bibtex-command}" arguments="${bibtex-arguments}" />
+        </latex>
+    </target>
+    
+    <target name="dvi2ps" depends="latex2dvi">
+        <dvips mainfile="${mainfile}" command="${dvips-command}" arguments="${dvips-arguments}" />
+    </target>
+
+    <target name="dvi2pdf" depends="latex2dvi">
+        <dvipdf mainfile="${mainfile}" command="${dvipdf-command}" arguments="${dvipdf-arguments}" />
+    </target>
+    
+    <target name="latex2ps" depends="latex2dvi,dvi2ps" />
+    
+    <target name="latex2pdf" depends="latex2dvi,dvi2pdf" />
+    
+    <target name="xdvi" depends="latex2dvi">
+        <property name="xdvi.editor.format" value="" />
+        <property name="xdvi.filename" value="" />
+        <property name="xdvi.linenumber" value="" />
+        
+        <xdvi mainfile="${mainfile}" editorformat="${xdvi.editor.format}" filename="${xdvi.filename}" line="${xdvi.linenumber}"/>
+    </target>
+    
+<!--    <target name="all" >
+        <antcall target="${default-target}" />
+    </target>-->
+
+    <target name="clean">
+    </target>
+
+    <target name="gv">
+        <!--nothing-->
+    </target>
+</project>

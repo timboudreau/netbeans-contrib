@@ -64,4 +64,18 @@
     nbproject/build-impl.xml file. 
 
     -->
+    
+    <target name="-outer-init">
+        <condition property="ext-binaries">
+	    <available file="external/ant-testutil.jar" />
+	</condition>
+    </target>
+    
+    <target name="-outer-ext-binaries-warning" depends="-outer-init" unless="ext-binaries">
+        <echo>The tests for the LaTeX Ant tasks require external/ant-testutil.jar package!</echo>
+    </target>
+    
+    <target name="test" depends="-outer-init,-outer-ext-binaries-warning" if="ext-binaries">
+        <ant target="ant-impl.test" />
+    </target>
 </project>

@@ -72,6 +72,8 @@ public class StructuralNode extends BeanNode implements PropertyChangeListener {
         return null;
     }
     
+//    protected boolean isOpeningPositionSupported
+    
     public void propertyChange(PropertyChangeEvent evt) {
         if (StructuralElement.SUB_ELEMENTS.equals(evt.getPropertyName())) {
             StructuralElement el = (StructuralElement) getBean();

@@ -93,6 +93,10 @@ public class UnitUtilities extends ProxyLookup {
         Assert.assertEquals(UnitUtilities.class, Lookup.getDefault().getClass());
     }
     
+    public static void initLookup() {
+        //currently nothing.
+    }
+    
     /**Copied from org.netbeans.api.project.
      * Create a scratch directory for tests.
      * Will be in /tmp or whatever, and will be empty.

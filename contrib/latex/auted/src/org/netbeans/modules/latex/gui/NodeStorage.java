@@ -14,10 +14,10 @@
  */
 package org.netbeans.modules.latex.gui;
 
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedOutputStream;
@@ -144,37 +144,37 @@ public class NodeStorage extends Node implements PropertyChangeListener {
         }
     }
     
-    public Rectangle getOuterDimension() {
-        Rectangle r = null;
+    public Rectangle2D getOuterDimension() {
+        Rectangle2D r = null;
         Iterator iter = getObjects().iterator();
         
         while (iter.hasNext()) {
-            Rectangle current = ((Node) iter.next()).getOuterDimension();
+            Rectangle2D current = ((Node) iter.next()).getOuterDimension();
             
             if (r == null) {
-                r = current;
+                r = new Rectangle2D.Double(current.getX(), current.getY(), current.getWidth(), current.getHeight());
             } else {
-                r = r.union(current);
+                Rectangle2D.union(r, current, r);
             }
         }
         
         if (r == null)
-            r = new Rectangle();
+            r = new Rectangle2D.Double();
         
         return r;
     }
     
     public void normalise() {
-        Rectangle rec = getOuterDimension();
+        Rectangle2D rec = getOuterDimension();
         int moveX = 0;
         int moveY = 0;
         
-        if (rec.x < 0) {
-            moveX = 1 - (int) (rec.x / UIProperties.getGridSize().getWidth());
+        if (rec.getX() < 0) {
+            moveX = 1 - (int) (rec.getX() / UIProperties.getGridSize().getWidth());
         }
         
-        if (rec.y < 0) {
-            moveY = 1 - (int) (rec.y / UIProperties.getGridSize().getHeight());
+        if (rec.getY() < 0) {
+            moveY = 1 - (int) (rec.getY() / UIProperties.getGridSize().getHeight());
         }
         
         Iterator it = objects.values().iterator();
@@ -194,7 +194,7 @@ public class NodeStorage extends Node implements PropertyChangeListener {
         rec = getOuterDimension();
         
         while (editor.hasNext()) {
-            ((JComponent) editor.next()).setSize(rec.width + rec.x, rec.height + rec.y);
+            ((JComponent) editor.next()).setSize((int) (rec.getWidth() + rec.getX()), (int) (rec.getHeight() + rec.getY()));
         }
     }
     
@@ -220,7 +220,7 @@ public class NodeStorage extends Node implements PropertyChangeListener {
     }
     
     public void outputVaucansonSource(PrintWriter out) {
-        Rectangle r = getOuterDimension();
+        Rectangle2D r = getOuterDimension();
         
         out.println("\\VCDraw{");
         out.print("\\begin{VCPicture}{(");

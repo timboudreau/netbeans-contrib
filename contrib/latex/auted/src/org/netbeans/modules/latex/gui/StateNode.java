@@ -158,7 +158,7 @@ public class StateNode extends PositionNode {
 //        }
     }
     
-    public Rectangle getOuterDimension() {
+    public Rectangle2D getOuterDimension() {
         Dimension grid = UIProperties.getGridSize();
         
         int xGrid = (int) grid.getWidth();

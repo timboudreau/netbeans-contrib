@@ -107,8 +107,8 @@ public class LaTeXAntTask extends Task implements TaskContainer {
             if (isUpToDate()) {
                 if (pass == 0) {
                     //The first pass is assured always, but there is no point in latexing...
-                    log("Up-to-date, first pass, no latexing", Project.MSG_VERBOSE);
-                    doLatex = false;
+                    log("Up-to-date mainfile, first pass, included files not checked, latexing forced.", Project.MSG_VERBOSE);
+                    doLatex = true;
                 } else {
                     if (forceReparse) {
                         log("Up-to-date, forceReparse == true.", Project.MSG_VERBOSE);
@@ -126,7 +126,7 @@ public class LaTeXAntTask extends Task implements TaskContainer {
                 File absoluteMainFile = Utilities.resolveFile(getProject(), mainFile);
                 
                 if (!absoluteMainFile.exists())
-                    log("!mainfile does not exist", Project.MSG_VERBOSE);
+                    throw new BuildException("Mainfile does not exist!");
                 
                 forceReparse = false;
                 

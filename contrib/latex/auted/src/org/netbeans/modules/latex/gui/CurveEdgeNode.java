@@ -15,14 +15,13 @@
 package org.netbeans.modules.latex.gui;
 
 import java.awt.BasicStroke;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.util.ResourceBundle;
@@ -106,8 +105,24 @@ public abstract class CurveEdgeNode extends EdgeNode {
         drawArrow(g, getTarget().getContourPoint(getTargetAngle()), getTargetAngle());
     }
     
-    public Rectangle getOuterDimension() {
-        return getCurve().getBounds();
+    public Rectangle2D getOuterDimension() {
+//        return getCurve().getBounds2D();
+        return getOuterDimensionLoop(getCurve(), 0);
+    }
+    
+    private Rectangle2D getOuterDimensionLoop(CubicCurve2D cc, int depth) {
+        if (depth >= 8) {
+            return cc.getBounds2D();
+        }
+        
+        Rectangle2D result = new Rectangle2D.Double();
+        CubicCurve2D left = new CubicCurve2D.Double();
+        CubicCurve2D right = new CubicCurve2D.Double();
+        
+        cc.subdivide(left, right);
+        Rectangle2D.union(getOuterDimensionLoop(left, depth + 1), getOuterDimensionLoop(right, depth + 1), result);
+        
+        return result;
     }
     
     public void outputVaucansonSource(PrintWriter out) {

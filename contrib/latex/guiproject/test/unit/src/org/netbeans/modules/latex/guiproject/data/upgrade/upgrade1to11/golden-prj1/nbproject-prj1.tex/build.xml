@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  -                          Sun Public License Notice
+  -
+  - The contents of this file are subject to the Sun Public License Version
+  - 1.0 (the "License"). You may not use this file except in compliance with
+  - the License. A copy of the License is available at http://www.sun.com/
+  -
+  - The Original Code is the LaTeX module.
+  - The Initial Developer of the Original Code is Jan Lahoda.
+  - Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+  - All Rights Reserved.
+  -
+  - Contributor(s): Jan Lahoda.
+  -->
+<project basedir="." default="build" name="my-project">
+    <!-- Properties
+         mainfile - file to compile
+      -->
+    <!--import user defined properties-->
+    <property file="build-settings.properties"/>
+    <fail unless="mainfile">Property mainfile should be set and contain the mainfile to LaTeXize.</fail>
+    <fail unless="libs.latextasks.classpath">Property libs.latextasks.classpath should be set and contain the classpath for the LaTeX support tasks.</fail>
+    <fail unless="latex-command">Property latex-command should be set and contain the latex command.</fail>
+    <fail unless="latex-arguments">Property latex-arguments should be set and contain the latex extra arguments.</fail>
+    <fail unless="bibtex-command">Property bibtex-command should be set and contain the bibtex command.</fail>
+    <fail unless="bibtex-arguments">Property bibtex-arguments should be set and contain the bibtex extra arguments.</fail>
+    <fail unless="dvips-command">Property dvips-command should be set and contain the dvips command.</fail>
+    <fail unless="dvips-arguments">Property dvips-arguments should be set and contain the dvips extra arguments.</fail>
+    <fail unless="dvipdf-command">Property dvipdf-command should be set and contain the dvipdf command.</fail>
+    <fail unless="dvipdf-arguments">Property dvipdf-arguments should be set and contain the dvipdf extra arguments.</fail>
+    <!--    <fail unless="default-target">Property default-target should be set and contain the default target to use.</fail>-->
+    <taskdef classname="org.netbeans.modules.latex.ant.tasks.LaTeXAntTask" classpath="${libs.latextasks.classpath}" name="latex"/>
+    <taskdef classname="org.netbeans.modules.latex.ant.tasks.BiBTeXAntTask" classpath="${libs.latextasks.classpath}" name="bibtex"/>
+    <taskdef classname="org.netbeans.modules.latex.ant.tasks.DVIPSAntTask" classpath="${libs.latextasks.classpath}" name="dvips"/>
+    <taskdef classname="org.netbeans.modules.latex.ant.tasks.DVIPDFAntTask" classpath="${libs.latextasks.classpath}" name="dvipdf"/>
+    <taskdef classname="org.netbeans.modules.latex.ant.tasks.XDVIAntTask" classpath="${libs.latextasks.classpath}" name="xdvi"/>
+    <target name="build">
+        <antcall target="${default-build-target}"/>
+    </target>
+    <target name="show">
+        <antcall target="${default-show-target}"/>
+    </target>
+    <target name="latex2dvi">
+        <echo message="${mainfile}"/>
+        <latex arguments="${latex-arguments}" command="${latex-command}" mainfile="${mainfile}" specialscommand="${latex-source-specials-argument}" usespecials="${latex-use-source-specials}">
+            <bibtex arguments="${bibtex-arguments}" command="${bibtex-command}" mainfile="${mainfile}"/>
+        </latex>
+    </target>
+    <target depends="latex2dvi" name="dvi2ps">
+        <dvips arguments="${dvips-arguments}" command="${dvips-command}" mainfile="${mainfile}"/>
+    </target>
+    <target depends="latex2dvi" name="dvi2pdf">
+        <dvipdf arguments="${dvipdf-arguments}" command="${dvipdf-command}" mainfile="${mainfile}"/>
+    </target>
+    <target depends="latex2dvi,dvi2ps" name="latex2ps"/>
+    <target depends="latex2dvi,dvi2pdf" name="latex2pdf"/>
+    <target depends="latex2dvi" name="xdvi">
+        <property name="xdvi.editor.format" value=""/>
+        <property name="xdvi.filename" value=""/>
+        <property name="xdvi.linenumber" value=""/>
+        <xdvi editorformat="${xdvi.editor.format}" filename="${xdvi.filename}" line="${xdvi.linenumber}" mainfile="${mainfile}"/>
+    </target>
+    <!--    <target name="all" >
+        <antcall target="${default-target}" />
+    </target>-->
+    <target name="clean"/>
+    <target depends="latex2ps" name="gv">
+        <gv mainfile="${mainfile}"/>
+    </target>
+    <taskdef classname="org.netbeans.modules.latex.ant.tasks.GVAntTask" classpath="${libs.latextasks.classpath}" name="gv"/>
+</project>

@@ -27,7 +27,7 @@ import org.apache.tools.ant.taskdefs.PumpStreamHandler;
  *
  * @author Jan Lahoda
  */
-public class LaTeXPumpStreamHandler extends PumpStreamHandler {
+/*package private*/ class LaTeXPumpStreamHandler extends PumpStreamHandler {
 
     private LaTeXCopyMaker output;
     private File baseDir;

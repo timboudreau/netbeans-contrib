@@ -218,7 +218,7 @@ public final class VauParserImpl {
         CharSequence seq = an.getFullText();
         
         if ("[{".indexOf(seq.charAt(0)) != (-1)) {
-            return seq.subSequence(1, seq.length() - 1);
+            return seq.subSequence(1, seq.length() - ("}]".indexOf(seq.charAt(seq.length() - 1)) != (-1) ? 1 : 0));
         }
         
         return seq;
@@ -394,9 +394,8 @@ public final class VauParserImpl {
                 return null;
             }
             
-            String position = command.getArgument(0).getFullText().toString().replaceFirst("\\[(.*)\\]", "$1");
-            
             try {
+                String position = command.getArgument(0).getFullText().toString().replaceFirst("\\[(.*)\\]", "$1");
                 double labelPosition = Double.parseDouble(position);
                 
                 node.setLabelPosition(labelPosition);
@@ -405,7 +404,7 @@ public final class VauParserImpl {
             }
             
             node.setOrientation(isLeft ? EdgeNode.LEFT : EdgeNode.RIGHT);
-            node.setName(command.getArgument(command.getArgumentCount() - 1).getText().toString());
+            node.setName(getFullTextForArgument(command.getArgument(command.getArgumentCount() - 1)).toString());
             node.setBorder(edgeBorder);
             
             LineStyle lstyle = (LineStyle) attributes.get(EdgeLineStyleParser.CURRENT_EDGE_LINE_STYLE);
@@ -454,15 +453,37 @@ public final class VauParserImpl {
         public void parseCommand(CommandNode command, NodeStorage storage, Collection errors, Map attributes) {
             String   commandString = command.getCommand().getCommand();
             int orientation = LoopEdgeNode.NORTH;
-            switch (commandString.charAt(commandString.length() - 1)) {
-                case 'N': orientation = LoopEdgeNode.NORTH; break;
-                case 'E': orientation = LoopEdgeNode.EAST; break;
-                case 'S': orientation = LoopEdgeNode.SOUTH; break;
-                case 'W': orientation = LoopEdgeNode.WEST; break;
+            
+            if (commandString.charAt(commandString.length() - 2) == 'p') {
+                switch (commandString.charAt(commandString.length() - 1)) {
+                    case 'N': orientation = LoopEdgeNode.NORTH; break;
+                    case 'E': orientation = LoopEdgeNode.EAST; break;
+                    case 'S': orientation = LoopEdgeNode.SOUTH; break;
+                    case 'W': orientation = LoopEdgeNode.WEST; break;
+                    
+                    default:
+                        errors.add(Utilities.getDefault().createError("Loop handler, should never happen.", command.getStartingPosition()));
+                }
+            } else {
+                String directionString = commandString.substring(commandString.length() - 2);
                 
-                default:
-                    errors.add(Utilities.getDefault().createError("Loop handler, should never happen.", command.getStartingPosition()));
+                if ("NE".equals(directionString)) {
+                    orientation = LoopEdgeNode.NORTHEAST;
+                }
+                
+                if ("SE".equals(directionString)) {
+                    orientation = LoopEdgeNode.SOUTHEAST;
+                }
+                
+                if ("NW".equals(directionString)) {
+                    orientation = LoopEdgeNode.NORTHWEST;
+                }
+                
+                if ("SW".equals(directionString)) {
+                    orientation = LoopEdgeNode.SOUTHWEST;
+                }
             }
+            
             Node     leftState     = storage.getObjectByID(command.getArgument(1).getText().toString());
             
             if (!(leftState instanceof StateNode))
@@ -470,7 +491,16 @@ public final class VauParserImpl {
             
             LoopEdgeNode lineEdge  = new LoopEdgeNode((StateNode) leftState);
             
-            lineEdge.setOrientation(orientation);
+            try {
+                String position = command.getArgument(0).getFullText().toString().replaceFirst("\\[(.*)\\]", "$1");
+                double labelPosition = Double.parseDouble(position);
+                
+                lineEdge.setLabelPosition(labelPosition);
+            } catch (NumberFormatException e) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            }
+
+            lineEdge.setDirection(orientation);
             lineEdge.setName(getFullTextForArgument(command.getArgument(2)).toString());
             
             storage.addObject(lineEdge, command.getStartingPosition(), errors);

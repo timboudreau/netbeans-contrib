@@ -72,12 +72,21 @@ Microsystems, Inc. All Rights Reserved.
 	</ant>
     </target>
     
-    <target name="clean-build">
+    <target name="clean-tests">
+        <ant dir="bibtex/test" target="realclean" />
+        <ant dir="core/test" target="realclean" />
+        <ant dir="project/test" target="realclean" />
+        <ant dir="guiproject/test" target="realclean" />
+        <ant dir="test" target="realclean" />
         <delete  dir="results" />
+    </target>
+    
+    <target name="clean-build">
+        <antcall target="clean-tests" />
         <antcall target="clean-modules" />
         <antcall target="build-modules" />
-        <antcall target="test-modules" />
         <antcall target="nbm-modules" />
+        <antcall target="test-modules" />
     </target>
 
 </project>

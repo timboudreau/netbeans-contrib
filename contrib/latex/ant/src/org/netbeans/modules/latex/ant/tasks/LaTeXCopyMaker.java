@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  *
  * @author Jan Lahoda
  */
-public class LaTeXCopyMaker extends Thread {
+/*package private*/ class LaTeXCopyMaker extends Thread {
     
     final PrintWriter os;
     final BufferedReader is;

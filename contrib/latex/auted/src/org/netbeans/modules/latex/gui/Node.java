@@ -14,22 +14,20 @@
  */
 package org.netbeans.modules.latex.gui;
 
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
-import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -110,7 +108,7 @@ public abstract class Node implements Serializable {
     }
     
     protected final void redrawMe() {
-        Rectangle dim = getOuterDimension();
+        Rectangle2D dim = getOuterDimension();
         
         redraw((int) dim.getX(), (int) dim.getY(), (int) dim.getWidth(), (int) dim.getHeight());
     }
@@ -130,7 +128,7 @@ public abstract class Node implements Serializable {
     
     public abstract void draw(Graphics2D g);
     
-    public abstract Rectangle getOuterDimension();
+    public abstract Rectangle2D getOuterDimension();
     
     protected String printDouble(double d) {
         NumberFormat n = NumberFormat.getNumberInstance(Locale.ENGLISH);

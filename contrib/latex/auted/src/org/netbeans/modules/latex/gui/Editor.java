@@ -21,7 +21,6 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -105,7 +104,7 @@ public class Editor extends JComponent implements PropertyChangeListener {
     }
     
     private void drawSelectionBoard(Graphics g, Node node) {
-        Rectangle envelop = node.getOuterDimension();
+        Rectangle2D envelop = node.getOuterDimension();
         
         Color old = g.getColor();
         g.setColor(Color.RED);
@@ -152,7 +151,7 @@ public class Editor extends JComponent implements PropertyChangeListener {
         if (storage == null)
             return new Dimension();
             
-        Rectangle outer = storage.getOuterDimension();
+        Rectangle2D outer = storage.getOuterDimension();
         
         return new Dimension((int) (outer.getWidth() + outer.getX()), (int) (outer.getHeight() + outer.getY()));
     }
@@ -713,7 +712,7 @@ public class Editor extends JComponent implements PropertyChangeListener {
                 
                 while (iter.hasNext()) {
                     Node node = (Node) iter.next();
-                    Rectangle r = node.getOuterDimension();
+                    Rectangle2D r = node.getOuterDimension();
                     
                     if (selector.contains(r.getX(), r.getY(), r.getWidth(), r.getHeight()))
                         Editor.this.selection.add(node);
