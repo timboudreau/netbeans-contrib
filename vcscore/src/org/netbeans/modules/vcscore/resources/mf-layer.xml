@@ -35,7 +35,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="Versioning">
             <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/openide/resources/actions/empty.gif" />
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle" />
-            <file name="org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance" /> 
+            <file name="org-netbeans-modules-vcscore-actions-OpenVersioningAction.instance" /> 
             <file name="org-netbeans-modules-vcscore-actions-VcsOutputAction.instance" />
             <attr name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance/org-netbeans-modules-vcscore-actions-VcsOutputAction.instance" boolvalue="true"/>          
         </folder>
@@ -51,7 +51,7 @@ Microsystems, Inc. All Rights Reserved.
   
   <folder name="Shortcuts">
       <file name="C-8.instance">
-          <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VersioningExplorerAction" />
+          <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.OpenVersioningAction" />
       </file>
       <file name="CS-8.instance">
           <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VersioningExplorerAction" />
