@@ -31,7 +31,7 @@ final class JndiDataType extends NewType {
 
   protected AbstractNode node;
   private Dialog dlg = null;
-  private JPanel panel;
+  private NewJndiRootPanel panel;
 
   // Constructor for JNDI root
   public JndiDataType(JndiRootNode node) {
@@ -59,33 +59,56 @@ final class JndiDataType extends NewType {
       // Ask for new initial context and context factory
       panel = new NewJndiRootPanel();
       descriptor = new DialogDescriptor(panel,
-        "New Jndi Context",
+        JndiRootNode.getString("TITLE_NewContext"),
         true,
         DialogDescriptor.OK_CANCEL_OPTION,
         DialogDescriptor.OK_OPTION,
         new ActionListener() {
           public void actionPerformed(ActionEvent event) {
             if (event.getSource() == DialogDescriptor.OK_OPTION) {
-              try {
-                ((JndiRootNode)node).addContext(
-                  ((NewJndiRootPanel)panel).getLabel(),
-                  ((NewJndiRootPanel)panel).getFactory(),
-                  ((NewJndiRootPanel)panel).getContext(),
-                  ((NewJndiRootPanel)panel).getAuthentification(),
-                  ((NewJndiRootPanel)panel).getPrincipal(),
-                  ((NewJndiRootPanel)panel).getCredentials(),
-                  ((NewJndiRootPanel)panel).getAditionalProperties()
-                );
-              } catch(NamingException ne) {
-                if (ne instanceof JndiException) {
-                  TopManager.getDefault().notify(new NotifyDescriptor.Message("Items Label, Factory, Context and root must be filled!",NotifyDescriptor.Message.ERROR_MESSAGE));
-                } else {
-                  JndiRootNode.notifyForeignException(ne);
+              // redispatch to a different thread
+              Runnable run = new Runnable() {
+                public void run() {
+                  try {
+                    ((JndiRootNode) node).addContext(
+                      panel.getLabel(),
+                      panel.getFactory(),
+                      panel.getContext(),
+                      panel.getAuthentification(),
+                      panel.getPrincipal(),
+                      panel.getCredentials(),
+                      panel.getAditionalProperties()
+                    );
+                  } catch (NamingException ne) {
+                    Throwable e;
+                    if (ne.getRootCause() != null) {
+                      e = ne.getRootCause();
+                    } else {
+                      e = ne;
+                    }
+                    e.printStackTrace();
+                    if (e instanceof JndiException) {
+                      TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getString("EXC_Items"), NotifyDescriptor.Message.ERROR_MESSAGE));
+                    } else {
+                      JndiRootNode.notifyForeignException(e);
+                    }
+                  }
                 }
+              };
+              // slow
+              Thread t = new Thread(run);
+              t.start();
+              try {
+                t.join(4000);
+              } catch (InterruptedException e)  {
+              }
+              if (t.isAlive()) {
+                t.interrupt();
+                // t.stop();?
               }
               dlg.setVisible(false);
               dlg.dispose();
-            } else if (event.getSource()==DialogDescriptor.CANCEL_OPTION) {
+            } else if (event.getSource() == DialogDescriptor.CANCEL_OPTION) {
               dlg.setVisible(false);
               dlg.dispose();
             }
@@ -98,8 +121,9 @@ final class JndiDataType extends NewType {
       
       // Ask for subcontext name
       // This is under construction
-      panel = new NewJndiSubContextPanel();
-      descriptor = new DialogDescriptor(panel,"New Jndi Directory",
+      final NewJndiSubContextPanel subCtxPanel = new NewJndiSubContextPanel();
+      descriptor = new DialogDescriptor(subCtxPanel,
+        JndiRootNode.getString("TITLE_NewJndiDirectory"),
         false,
         DialogDescriptor.OK_CANCEL_OPTION,
         DialogDescriptor.OK_OPTION,
@@ -109,10 +133,10 @@ final class JndiDataType extends NewType {
               JndiChildren cld = (JndiChildren) node.getChildren();
               DirContext context = cld.getContext();
               try {
-                Name nCtx = ((Name) cld.getOffset().clone()).add(panel.getName());
+                Name nCtx = ((Name) cld.getOffset().clone()).add(subCtxPanel.getName());
                 context.createSubcontext(nCtx);
                 cld.prepareKeys();
-              } catch(NamingException ne) {
+              } catch (NamingException ne) {
                 JndiRootNode.notifyForeignException(ne);
               }
               dlg.setVisible(false);

@@ -43,8 +43,8 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
   /* this two static constants are for testing only
   in final version only valid constructor will be NewJndiRootPanel(String[],String[])*/
 
-  public static final String[] factories = {"com.sun.jndi.fscontext.RefFSContextFactory","com.sun.jndi.cosnaming.CNCtxFactory","com.sun.jndi.rmi.registry.RegistryContextFactory","com.sun.jndi.nis.NISCtxFactory","com.sun.jndi.ldap.LdapCtxFactory"};
-  public static final String[] protocols = {"file://","iiop://","rmi://","nis://","ldap://"};
+  public static final String[] factories = {"com.sun.jndi.fscontext.RefFSContextFactory","com.sun.jndi.cosnaming.CNCtxFactory","com.sun.jndi.rmi.registry.RegistryContextFactory","com.sun.jndi.nis.NISCtxFactory","com.sun.jndi.ldap.LdapCtxFactory", "com.gemstone.naming.GsCtxFactory"};
+  public static final String[] protocols = {"file://","iiop://localhost:900","rmi://localhost:1099","nis://","ldap://", "gsj://localhost:10200"};
 
   String[] proto;
   JTextField label;
@@ -80,31 +80,31 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
     this.credentials= new JTextField(26);
     this.properties = new Vector();
 
-    this.add(new JLabel("Context Label:"),1,1,2,1,7,5,0,5);
-    this.add(this.label,3,1,2,1,7,0,0,5);
-    this.add(new JLabel("Jndi context factory:"),1,2,2,1,0,5,0,5);
-    this.add(this.factory,3,2,2,1,0,0,0,5);
-    this.add(new JLabel("Jndi initial context:"),1,3,2,1,0,5,0,5);
-    this.add(this.context,3,3,2,1,0,0,0,5);
-    this.add(new JLabel("Authentification:"),1,5,2,1,0,5,0,5);
+    this.add(new JLabel(JndiRootNode.getString("TXT_ContextLabel")),1,2,2,1,7,5,0,5);
+    this.add(this.label,3,2,2,1,7,0,0,5);
+    this.add(new JLabel(JndiRootNode.getString("TXT_Factory")),1,3,2,1,0,5,0,5);
+    this.add(this.factory,3,3,2,1,0,0,0,5);
+    this.add(new JLabel(JndiRootNode.getString("TXT_InitialContext")),1,4,2,1,0,5,0,5);
+    this.add(this.context,3,4,2,1,0,0,0,5);
+    this.add(new JLabel(JndiRootNode.getString("TXT_Auth")),1,5,2,1,0,5,0,5);
     this.add(this.authentification,3,5,2,1,0,0,0,5);
-    this.add(new JLabel("Principal:"),1,6,2,1,0,5,0,5);
+    this.add(new JLabel(JndiRootNode.getString("TXT_Principal")),1,6,2,1,0,5,0,5);
     this.add(this.principal,3,6,2,1,0,0,0,5);
-    this.add(new JLabel("Credentials:"),1,7,2,1,0,5,0,5);
+    this.add(new JLabel(JndiRootNode.getString("TXT_Credentials")),1,7,2,1,0,5,0,5);
     this.add(this.credentials,3,7,2,1,0,0,0,5);
-    this.add(new JLabel("Other properties:"),5,1,2,1,0,0,0,0);
+    this.add(new JLabel(JndiRootNode.getString("TXT_OtherProps")),5,1,2,1,0,0,0,0);
     list = new JList(this.properties);
     this.add(new JScrollPane(list),5,2,2,8);
     menu = new JPopupMenu();
-    JMenuItem item = new JMenuItem("Add property");
+    JMenuItem item = new JMenuItem(JndiRootNode.getString("TXT_Add"));
     item.setActionCommand("ADD");
     item.addActionListener (this);				
     menu.add(item);
-    item= new JMenuItem("Remove property");
+    item= new JMenuItem(JndiRootNode.getString("TXT_Rem"));
     item.setActionCommand("DEL");
     item.addActionListener(this);
     menu.add(item);
-    item = new JMenuItem("Change property");
+    item = new JMenuItem(JndiRootNode.getString("TXT_Change"));
     item.setActionCommand("CHANGE");
     item.addActionListener(this);
     menu.add(item);
@@ -156,10 +156,10 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
 
   public void itemStateChanged(ItemEvent event) {
 
-    if (event.getSource() == this.factory) {
-      int index = this.factory.getSelectedIndex();
+    if (event.getSource() == factory) {
+      int index = factory.getSelectedIndex();
       if (index != -1) {
-        this.context.setText(this.proto[index]);
+        context.setText(proto[index]);
       }
     }
   }
@@ -168,29 +168,32 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
     if (event.getActionCommand().equals("ADD")) {
       panel = new NewPropertyPanel();
       DialogDescriptor descriptor = new DialogDescriptor(panel,
-      "Add propertry",
-      true,
-      DialogDescriptor.OK_CANCEL_OPTION,
-      DialogDescriptor.OK_OPTION,
-      new ActionListener() {
-        public void actionPerformed(ActionEvent event) {
-          if (event.getSource() == DialogDescriptor.OK_OPTION) {
-            if (panel.getName().length()==0 || panel.getValue().length() == 0) {
-               TopManager.getDefault().notify(new NotifyDescriptor.Message("Items name and value must be filled!",NotifyDescriptor.Message.ERROR_MESSAGE));
-               return;
+        JndiRootNode.getString("TITLE_Add_property"),
+        true,
+        DialogDescriptor.OK_CANCEL_OPTION,
+        DialogDescriptor.OK_OPTION,
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            if (event.getSource() == DialogDescriptor.OK_OPTION) {
+              if ((panel.getName().length()==0) ||
+                  (panel.getValue().length() == 0)) {
+                TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
+                return;
+              }
+              String pr = panel.getName() + "=" + panel.getValue();
+              properties.add(pr);
+              list.setListData(properties);
+              dlg.setVisible(false);
+              dlg.dispose();
+            } else if (event.getSource() == DialogDescriptor.CANCEL_OPTION) {
+              dlg.setVisible(false);
+              dlg.dispose();
             }
-            String pr = panel.getName()+"="+panel.getValue();
-            properties.add(pr);
-            list.setListData(properties);
-            dlg.setVisible(false);
-            dlg.dispose();
-           } else if (event.getSource()==DialogDescriptor.CANCEL_OPTION) {
-            dlg.setVisible(false);
-            dlg.dispose();
           }
-        }});
-        dlg = TopManager.getDefault().createDialog(descriptor);
-        dlg.setVisible(true);
+        }
+      );
+      dlg = TopManager.getDefault().createDialog(descriptor);
+      dlg.setVisible(true);
     } else if (event.getActionCommand().equals("DEL")) {
       int index = NewJndiRootPanel.this.list.getSelectedIndex();
       if (index < 0) {
@@ -203,35 +206,37 @@ final class NewJndiRootPanel extends GridBagPanel implements ItemListener, Actio
       int index = list.getSelectedIndex();
       if (index < 0) {
         return;
-      }
-      StringTokenizer tk = new StringTokenizer((String)properties.elementAt(index),"=");
-      if (tk.countTokens()!=2) return;
+      } 
+      StringTokenizer tk = new StringTokenizer((String) properties.elementAt(index), "=");
+      if (tk.countTokens() != 2) return;
       panel.setName(tk.nextToken());
       panel.setValue(tk.nextToken());
       DialogDescriptor descriptor = new DialogDescriptor(panel,
-      "Change propertry",
-      true,
-      DialogDescriptor.OK_CANCEL_OPTION,
-      DialogDescriptor.OK_OPTION,
-      new ActionListener() {
-        public void actionPerformed(ActionEvent event) {
-          if (event.getSource()==DialogDescriptor.OK_OPTION) {
-            if (panel.getName().length()==0 || panel.getValue().length() == 0) {
-               TopManager.getDefault().notify(new NotifyDescriptor.Message("Items name and value must be filled!",NotifyDescriptor.Message.ERROR_MESSAGE));
-               return;
+        JndiRootNode.getString("TITLE_Change_property"),
+        true,  
+        DialogDescriptor.OK_CANCEL_OPTION,
+        DialogDescriptor.OK_OPTION,
+        new ActionListener() {
+          public void actionPerformed(ActionEvent event) {
+            if (event.getSource() == DialogDescriptor.OK_OPTION) {
+              if ((panel.getName().length() == 0) ||
+                  (panel.getValue().length() == 0)) {
+                TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getString("EXC_Params"),NotifyDescriptor.Message.ERROR_MESSAGE));
+                return;
+              }
+              properties.removeElementAt(list.getSelectedIndex());
+              String pr = panel.getName() + "=" + panel.getValue();
+              properties.add(pr);
+              list.setListData(properties);
+              dlg.setVisible(false);
+              dlg.dispose();
+            } else if (event.getSource() == DialogDescriptor.CANCEL_OPTION) {
+              dlg.setVisible(false);
+              dlg.dispose();
             }
-            properties.removeElementAt(list.getSelectedIndex());
-            String pr = panel.getName()+"="+panel.getValue();
-            properties.add(pr);
-            list.setListData(properties);
-            dlg.setVisible(false);
-            dlg.dispose();
-          } else if (event.getSource()==DialogDescriptor.CANCEL_OPTION) {
-            dlg.setVisible(false);
-            dlg.dispose();
           }
         }
-      });
+      );
       dlg = TopManager.getDefault().createDialog(descriptor);
       dlg.setVisible(true);
     }

@@ -82,7 +82,6 @@ final class JndiLeafNode extends AbstractNode implements TemplateCreator, Cookie
       SystemAction.get(CopyAction.class),
       null,
       SystemAction.get(PropertiesAction.class),
-      SystemAction.get(PropertiesAction.class),
     };
   }
 
