@@ -945,7 +945,7 @@ err.log("Couldn't find current nodes...");
     private class WindowSystemMonitor implements PropertyChangeListener, ComponentListener {
 
         /** Previous Set&lt;TopComponent> */
-        private Set openedSoFar = null;
+        private Set openedSoFar = Collections.EMPTY_SET;
 
         /**
          * Must be called before adding this listener to environment if in hope that
@@ -954,6 +954,19 @@ err.log("Couldn't find current nodes...");
         private void enableOpenCloseEvents() {
             List list = Arrays.asList(SuggestionsScanner.openedTopComponents());
             openedSoFar = new HashSet(list);
+
+            Iterator it = list.iterator();
+            while (it.hasNext()) {
+                TopComponent tc = (TopComponent) it.next();                
+                tc.addComponentListener(new ComponentAdapter() {
+                                          public void componentShown(ComponentEvent e) {
+                                           TopComponent tcomp = (TopComponent) e.getComponent();
+                                           tcomp.removeComponentListener(this);
+                                           handleTopComponentOpened(tcomp);
+                                          }
+                                        });
+
+            }
         }
 
         /** Reacts to changes */
@@ -964,7 +977,7 @@ err.log("Couldn't find current nodes...");
 
                 LOGGER.fine("EVENT opened top-components changed");
 
-                if (allOpenedClientsCount > 0) {
+//                if (allOpenedClientsCount > 0) {
                     // determine what components have been closed, window system does not
                     // provide any other listener to do it in more smart way
 
@@ -996,10 +1009,10 @@ err.log("Couldn't find current nodes...");
                     }
 
                     openedSoFar = actual;
-                } else {
-                    componentsChanged();
-                    openedSoFar = null;
-                }
+  //              } else {
+//                    componentsChanged();
+  //                  openedSoFar = null;
+//                }
             } else if (TopComponent.Registry.PROP_ACTIVATED.equals(prop)) {
                 LOGGER.fine("EVENT top-component activated");
                 if (clientCount >0 && current == null) {
