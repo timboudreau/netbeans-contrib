@@ -619,7 +619,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setCreateBackupFiles(boolean createBackupFiles) {
-        if (createBackupFiles != this.createBackupFiles.booleanValue()) {
+        if (this.createBackupFiles == null || createBackupFiles != this.createBackupFiles.booleanValue()) {
             this.createBackupFiles = createBackupFiles ? Boolean.TRUE : Boolean.FALSE;
             firePropertyChange(PROP_CREATE_BACKUP_FILES, null, this.createBackupFiles);
         }
@@ -634,7 +634,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setFilterBackupFiles(boolean filterBackupFiles) {
-        if (filterBackupFiles != this.filterBackupFiles.booleanValue()) {
+        if (this.filterBackupFiles == null || filterBackupFiles != this.filterBackupFiles.booleanValue()) {
             this.filterBackupFiles = filterBackupFiles ? Boolean.TRUE : Boolean.FALSE;
             firePropertyChange(PROP_FILTER_BACKUP_FILES, null, this.filterBackupFiles);
         }
@@ -1635,7 +1635,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     protected void setCreateRuntimeCommands(boolean createRuntimeCommands) {
-        if (createRuntimeCommands != this.createRuntimeCommands.booleanValue()) {
+        if (this.createRuntimeCommands == null || createRuntimeCommands != this.createRuntimeCommands.booleanValue()) {
             this.createRuntimeCommands = createRuntimeCommands ? Boolean.TRUE : Boolean.FALSE;
             if (attr instanceof VcsAttributes) {
                 ((VcsAttributes) attr).setRuntimeCommandsProvider(
@@ -1650,7 +1650,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     protected void setCreateVersioningSystem(boolean createVersioningSystem) {
-        if (createVersioningSystem != this.createVersioningSystem.booleanValue()) {
+        if (this.createVersioningSystem == null || createVersioningSystem != this.createVersioningSystem.booleanValue()) {
             this.createVersioningSystem = createVersioningSystem ? Boolean.TRUE : Boolean.FALSE;
             firePropertyChange(PROP_CREATE_VERSIONING_EXPLORER, null, this.createVersioningSystem);
         }
