@@ -31,6 +31,8 @@ import org.openide.loaders.DataObject;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileSystem;
 import org.openide.TopManager;
+import org.openide.loaders.DataFolder;
+import org.openidex.util.Utilities2;
 
 import org.netbeans.modules.java.settings.JavaSettings;
 import org.netbeans.modules.java.settings.ExternalCompilerSettings;
@@ -59,6 +61,7 @@ public class IDLModule extends ModuleInstall {
             System.out.println ("CORBA Support Module installing...");
         copyImpls ();
         copyTemplates ();
+        createAction();
 
         restored ();
         if (DEBUG)
@@ -80,6 +83,13 @@ public class IDLModule extends ModuleInstall {
         installColoring ();
         if (DEBUG)
             System.out.println ("CORBA Support Module restored...");
+    }
+    
+    /** Called when module is uninstalled
+     *  Removes CorbaWizardAction
+     */
+    public void uninstalled () {
+        removeAction();
     }
 
     private void installColoring () {
@@ -151,6 +161,31 @@ public class IDLModule extends ModuleInstall {
             );
         } catch (java.io.IOException e) {
             org.openide.TopManager.getDefault ().notifyException (e);
+        }
+    }
+    
+    
+    private void createAction () {
+        try {
+            DataFolder toolsFolder = DataFolder.create (TopManager.getDefault().getPlaces().folders().menus(), "Tools"); // NOI18N
+            if (toolsFolder != null) {
+                Utilities2.createAction(org.netbeans.modules.corba.wizard.CorbaWizardAction.class, toolsFolder, "UnmountFSAction", true, true, false, false); // NOI18N
+            }
+        } catch (Exception ex) {
+            if (Boolean.getBoolean ("netbeans.debug.exceptions")) ex.printStackTrace (); // NOI18N
+        }
+    }
+    
+    
+    private void removeAction () {
+        try {
+            DataFolder toolsFolder = DataFolder.create(TopManager.getDefault().getPlaces().folders().menus(),"Tools"); // No I18N
+            if (toolsFolder != null) {
+                Utilities2.removeAction (org.netbeans.modules.corba.wizard.CorbaWizardAction.class, toolsFolder);
+            }
+        }catch (Exception e) {
+            if (Boolean.getBoolean ("netbeans.debug.exceptions"))  // No I18N
+                e.printStackTrace();
         }
     }
 }
