@@ -72,7 +72,9 @@ public class StorageTest extends MDRTestCase {
             storage = factory.createStorage(new HashMap());
             storage.create (true, new Resolver());
             random = new Random(RAND_VAL);
-            doSingleTest(storage, "btree");
+            doSingleTest(storage, "btree", "test1");
+            
+            System.out.println("single test done");
             
             // memory storage, singlevalued index
             getLog().println();
@@ -80,32 +82,39 @@ public class StorageTest extends MDRTestCase {
             getLog().println("memory storage, singlevalued index");
             getLog().println("-------------------------------------------------");
             factory = new StorageFactoryImpl ();
-            storage = factory.createStorage(new HashMap());
-            storage.create (true, new Resolver());
+            Storage memStorage = factory.createStorage(new HashMap());
+            memStorage.create (true, new Resolver());
             random = new Random(RAND_VAL);
-            doSingleTest(storage, "memory");
+            doSingleTest(memStorage, "memory", "test2");
+            memStorage.close();
             
+            System.out.println("single test (memory) done");
+
             // btree storage, multivalued index
             getLog().println();
             getLog().println("*************************************************");
             getLog().println("btree storage, multivalued test");
             getLog().println("-------------------------------------------------");
             factory = new BtreeFactory();
-            storage = factory.createStorage(new HashMap());
-            storage.create (true, new Resolver());
+            // storage = factory.createStorage(new HashMap());
+            // storage.create (true, new Resolver());
             random = new Random(RAND_VAL);
-            doMultiTest(storage, "btree");
+            doMultiTest(storage, "btree", "test3");
 
+            System.out.println("multivalued test done");
+            
             // btree storage, several indexes
             getLog().println();
             getLog().println("*************************************************");
             getLog().println("btree storage, several indexes");
             getLog().println("-------------------------------------------------");
             factory = new BtreeFactory();
-            storage = factory.createStorage(new HashMap());
-            storage.create (true, new Resolver());
+            // storage = factory.createStorage(new HashMap());
+            // storage.create (true, new Resolver());
             random = new Random(RAND_VAL);
-            doSeveralIndexesTest(storage, "btree");
+            doSeveralIndexesTest(storage, "btree", "test4");
+            
+            System.out.println("several indexes test done");
             
             // btree storage, primary index
             getLog().println();
@@ -113,36 +122,27 @@ public class StorageTest extends MDRTestCase {
             getLog().println("btree storage, primary index");
             getLog().println("-------------------------------------------------");
             factory = new BtreeFactory();
-            storage = factory.createStorage(new HashMap());
-            storage.create (true, new Resolver());
+            // storage = factory.createStorage(new HashMap());
+            // storage.create (true, new Resolver());
             random = new Random(RAND_VAL);
-            doPrimaryIndexTest(storage, "btree");
+            doPrimaryIndexTest(storage, "btree", "test5");
             
-            /*
-            // memory storage, multivalued index
-            getLog().println();
-            getLog().println("*************************************************");
-            getLog().println("memory storage, multivalued test");
-            getLog().println("-------------------------------------------------");
-            factory = new StorageFactoryImpl ();
-            storage = factory.createStorage(new HashMap());
-            storage.create (true, new Resolver());
-            random = new Random(RAND_VAL);
-            doMultiTest(storage, "memory");
-             */
+            System.out.println("primary index test done");
+            
+            storage.close();
         } catch (Exception e) {
             e.printStackTrace ();
             fail (e.getMessage ());
         }
     }
     
-    public void doSingleTest(Storage storage, String info) throws StorageException {
+    public void doSingleTest(Storage storage, String info, String prefix) throws StorageException {
         final int KEYS_NUM = 10000;
         final int VALUES_NUM = 2000;
         final long OPS_NUM = 1000000;
         
         Storage.EntryType entryType = Storage.EntryType.MOFID;
-        SinglevaluedIndex index = storage.createSinglevaluedIndex("singleIndex", entryType, entryType);
+        SinglevaluedIndex index = storage.createSinglevaluedIndex(prefix + "singleIndex", entryType, entryType);
         MOFID[] keys = new MOFID[KEYS_NUM];
         MOFID[] values = new MOFID[VALUES_NUM];
         for (int x = 0; x < KEYS_NUM; x++) {
@@ -188,7 +188,7 @@ public class StorageTest extends MDRTestCase {
             m.print(getLog());
         }
         time = System.currentTimeMillis();
-        storage.close();
+        // storage.close();
         
         totalTime += System.currentTimeMillis() - time;
         getLog().println();
@@ -197,13 +197,13 @@ public class StorageTest extends MDRTestCase {
         getLog().println("#deletions: " + deletions);
     }
     
-    public void doMultiTest(Storage storage, String info) throws StorageException {
+    public void doMultiTest(Storage storage, String info, String prefix) throws StorageException {
         final int KEYS_NUM = 10000;
         final int VALUES_NUM = 2000;
         final long OPS_NUM = 1000000;
         
         Storage.EntryType entryType = Storage.EntryType.MOFID;
-        MultivaluedIndex index = storage.createMultivaluedIndex("multiIndex", entryType, entryType, false);
+        MultivaluedIndex index = storage.createMultivaluedIndex(prefix + "multiIndex", entryType, entryType, false);
         MOFID[] keys = new MOFID[KEYS_NUM];
         MOFID[] values = new MOFID[VALUES_NUM];
         for (int x = 0; x < KEYS_NUM; x++) {
@@ -239,7 +239,7 @@ public class StorageTest extends MDRTestCase {
             m.print(getLog());
         }
         time = System.currentTimeMillis();
-        storage.close();
+        // storage.close();
         
         totalTime += System.currentTimeMillis() - time;
         getLog().println();
@@ -248,7 +248,7 @@ public class StorageTest extends MDRTestCase {
         getLog().println("#deletions: " + deletions);
     }
 
-    public void doSeveralIndexesTest(Storage storage, String info) throws StorageException {
+    public void doSeveralIndexesTest(Storage storage, String info, String prefix) throws StorageException {
         final int KEYS_NUM = 10000;
         final int VALUES_NUM = 1000;
         final long OPS_NUM = 500000;
@@ -268,15 +268,15 @@ public class StorageTest extends MDRTestCase {
         for (int x = 0; x < INDEXES_NUM; x++) {
             if (random.nextBoolean()) {
                 // singlevalued index
-                indexes[x] = storage.createSinglevaluedIndex("index" + x, entryType, entryType);
+                indexes[x] = storage.createSinglevaluedIndex(prefix + "index" + x, entryType, entryType);
             } else {
                 // multivalued index
                 boolean unique = random.nextBoolean();
                 boolean ordered = random.nextBoolean();
                 if (ordered) {
-                    indexes[x] = storage.createMultivaluedOrderedIndex("index" + x, entryType, entryType, unique);
+                    indexes[x] = storage.createMultivaluedOrderedIndex(prefix + "index" + x, entryType, entryType, unique);
                 } else {
-                    indexes[x] = storage.createMultivaluedIndex("index" + x, entryType, entryType, unique);
+                    indexes[x] = storage.createMultivaluedIndex(prefix + "index" + x, entryType, entryType, unique);
                 }
             }
         } // for
@@ -319,7 +319,7 @@ public class StorageTest extends MDRTestCase {
                 }
             }
         }
-        storage.close();
+        // storage.close();
         totalTime = System.currentTimeMillis() - time;
         getLog().println();
         getLog().println(info + ", test time: " + totalTime);
@@ -327,7 +327,7 @@ public class StorageTest extends MDRTestCase {
         getLog().println("#deletions: " + deletions);
     }
     
-    public void doPrimaryIndexTest(Storage storage, String info) throws StorageException {
+    public void doPrimaryIndexTest(Storage storage, String info, String prefix) throws StorageException {
         final int ITEMS_NUM = 8000;
         final long OPS_NUM = 500000;
         
@@ -363,7 +363,7 @@ public class StorageTest extends MDRTestCase {
             m.print(getLog());
         }
         time = System.currentTimeMillis();
-        storage.close();
+        // storage.close();
         
         totalTime += System.currentTimeMillis() - time;
         getLog().println();
@@ -412,7 +412,7 @@ public class StorageTest extends MDRTestCase {
             TreeMetrics m = ((Btree) index).computeMetrics();
             m.print();
         }
-        storage.close();
+        // storage.close();
         
         totalTime += System.currentTimeMillis() - time;
         getLog().println();
@@ -450,7 +450,7 @@ public class StorageTest extends MDRTestCase {
                 coll.remove(random.nextInt(size));
             }
         }
-        storage.close();
+        // storage.close();
         getLog().println(info + ", test time: " + (System.currentTimeMillis() - time));
     }
      */
