@@ -16,6 +16,8 @@ package org.netbeans.modules.tasklist.docscan;
 import java.beans.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Collection;
 import java.util.regex.*;
 import java.io.IOException;
 
@@ -115,8 +117,39 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
             return;
         }
 
+        // merge found TODOs
+        // it has one drawback, final order depends on manager
+        // and is random until user select sorting e.g. by line
+        List duplicates = new ArrayList(4);
+        if (Boolean.getBoolean("netbeans.todo.merge")) {
+            if (showingTasks != null && newTasks != null) {
+                Iterator it = showingTasks.iterator();
+                while (it.hasNext()) {
+                    Suggestion next = (Suggestion) it.next();
+                    Iterator nit = newTasks.iterator();
+                    while(nit.hasNext()) {
+                        Suggestion nnext = (Suggestion) nit.next();
+                        // suppose they are equal if contains same summary and line number
+                        if (nnext.getSummary().equals(next.getSummary())) {
+                            if (nnext.getLine().getLineNumber() == next.getLine().getLineNumber()) {
+                                duplicates.add(next);
+                                it.remove();
+                                nit.remove();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         manager.register(TYPE, newTasks, showingTasks, request);
         showingTasks = newTasks;
+        if (Boolean.getBoolean("netbeans.todo.merge")) {
+            if (showingTasks != null) {
+                showingTasks.addAll(duplicates);
+            }
+        }
     }
 
     // Q: why it this one requestless?
