@@ -143,7 +143,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private /*static transient*/ String CONFIG_ROOT="vcs/config"; // NOI18N
     private FileObject CONFIG_ROOT_FO;
     private String configFileName = null;
-    private transient Hashtable commandsByName=null;
     private HashMap additionalPossibleFileStatusesMap = null;
     private transient HashMap additionalStatusIconMap = null;
     private Vector localFilesFilteredOut = null;
@@ -167,6 +166,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public CommandLineVcsFileSystem () {
         //D.deb("CommandLineVcsFileSystem()"); // NOI18N
         super ();
+        /*
+        if (attr instanceof VcsAttributes) {
+            ((VcsAttributes) attr).setCommandsProvider(new CommandLineCommandsProvider(this));
+        }
+         */
         //System.out.println("\nNEW CommandLineVcsFileSystem()\n");
         setConfigFO();
         //boolean status = readConfiguration (DEFAULT_CONFIG_NAME);
@@ -1143,11 +1147,42 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         if (!isCreateBackupFilesSet()) setCreateBackupFiles(true);
         if (!isFilterBackupFilesSet()) setFilterBackupFiles(true);
         setCreateVersioningSystem(true);
+        // We're deserializing the FS. There might be some necessary conversions in variable values:
+        convertVarValues();
     }
     
     private void writeObject(ObjectOutputStream out) throws IOException {
         /*if (configFileName == null) */saveCurrentConfig();
         out.defaultWriteObject();
+    }
+    
+    /**
+     * When we're deserializing the FS, there might be some necessary conversions in variable values.
+     * Perform the same converion, which is done in VariableIO.
+     */
+    private void convertVarValues() {
+        VcsConfigVariable var = (VcsConfigVariable) variablesByName.get("WRAPPER");
+        if (var != null) {
+            String value = var.getValue();
+            int classIndex = value.indexOf(".class");
+            if (classIndex > 0) {
+                int begin;
+                for (begin = classIndex; begin >= 0; begin--) {
+                    char c = value.charAt(begin);
+                    if (!Character.isJavaIdentifierPart(c) && c != '.') break;
+                }
+                begin++;
+                if (begin < classIndex) {
+                    String classNameOrig = value.substring(begin, classIndex);
+                    String classNameNew =
+                        org.netbeans.modules.vcs.advanced.commands.UserCommandIO.translateExecClass(classNameOrig);
+                    if (!classNameOrig.equals(classNameNew)) {
+                        value = value.substring(0, begin) + classNameNew + value.substring(classIndex);
+                    }
+                }
+            }
+            var.setValue(value);
+        }
     }
 
     private class DocCleanupRemoveItem implements Serializable {
