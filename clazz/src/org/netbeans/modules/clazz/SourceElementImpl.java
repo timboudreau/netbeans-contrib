@@ -105,8 +105,10 @@ final class SourceElementImpl extends MemberElementImpl
             data = resource;
             getPackage();
             ClassElement elem = getClassElement();
-            ClassElementImpl impl = (ClassElementImpl) elem.getCookie(org.openide.src.Element.Impl.class);
-            impl.initializeData();
+            if (elem!=null) {
+                ClassElementImpl impl = (ClassElementImpl) elem.getCookie(org.openide.src.Element.Impl.class);
+                impl.initializeData();
+            }
         } finally {
             repo.endTrans();
         }
@@ -137,10 +139,12 @@ final class SourceElementImpl extends MemberElementImpl
                 fireChange = true;
                 
                 ClassElement cls = getClassElement();
-                ClassElementImpl impl = (ClassElementImpl) cls.getCookie(org.openide.src.Element.Impl.class);
-                // System.out.println("cls impl: " + (impl != null));
-                if (impl != null) {
-                    impl.refreshData();
+                if (cls!=null) {
+                    ClassElementImpl impl = (ClassElementImpl) cls.getCookie(org.openide.src.Element.Impl.class);
+                    // System.out.println("cls impl: " + (impl != null));
+                    if (impl != null) {
+                        impl.refreshData();
+                    }
                 }
             }
         } finally {
