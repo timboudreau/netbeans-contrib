@@ -145,9 +145,6 @@ public class SuggestionNode extends TaskNode {
             return s;
         Set ss = s.get(Sheet.PROPERTIES);
         
-        Set sse = Sheet.createExpertSet();
-        s.put(sse);
-        
         try {
             PropertySupport.Reflection p;
             p = new Reflection(item, String.class, "getSummary", null /* Don't allow users to edit this "setDescription" */); // NOI18N

@@ -55,7 +55,7 @@ public class TaskListDataObject extends MultiDataObject implements OpenCookie {
                 view.showInMode();
             }
         } else {
-            // This view already exist, show it...
+            // This view already exists, show it...
             view.showInMode();
         }
     }   

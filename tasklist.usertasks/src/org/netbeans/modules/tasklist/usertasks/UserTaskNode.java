@@ -124,6 +124,7 @@ class UserTaskNode extends TaskNode {
             // is there)
             return new SystemAction[] {
                 SystemAction.get(NewTaskAction.class),
+                SystemAction.get(NewTaskListAction.class),
                 null,
                 SystemAction.get(PasteAction.class),
                 // "Global" actions (not node specific)
@@ -133,6 +134,7 @@ class UserTaskNode extends TaskNode {
         } else {
             return new SystemAction[] {
                 SystemAction.get(NewTaskAction.class),
+                SystemAction.get(NewTaskListAction.class),
                 null,
                 SystemAction.get(ShowTaskAction.class),
                 SystemAction.get(GoToTaskAction.class),
@@ -166,9 +168,6 @@ class UserTaskNode extends TaskNode {
         Set ss = s.get(Sheet.PROPERTIES);
         if (item.getParent() == null)
             return s;
-        
-        Set sse = Sheet.createExpertSet();
-        s.put(sse);
         
         try {
             PropertySupport.Reflection p;

@@ -49,6 +49,7 @@ import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
+import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 
@@ -424,6 +425,10 @@ public abstract class TaskListView extends ExplorerPanel
     protected void componentActivated() {
         super.componentActivated();
         installJumpActions(true);
+        RemoveFilterAction removeFilter = 
+            (RemoveFilterAction)SystemAction.get(RemoveFilterAction.class);
+        removeFilter.setCurrentView(this);
+        removeFilter.enable();
     }
     
     protected void componentDeactivated() {
@@ -444,7 +449,7 @@ public abstract class TaskListView extends ExplorerPanel
         //tasklist.getRoot();
         rootNode = createRootNode();
 
-        if (filter.hasConstraints()) {
+        if (getFilter().hasConstraints()) {
             // Create filtered view of the tasklist
             TaskNode.FilteredChildren children = 
                 new TaskNode.FilteredChildren(this, rootNode, filter);

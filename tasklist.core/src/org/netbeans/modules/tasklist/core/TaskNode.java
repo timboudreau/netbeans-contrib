@@ -193,9 +193,6 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
         Sheet s = Sheet.createDefault();
         Sheet.Set ss = s.get(Sheet.PROPERTIES);
         
-        Sheet.Set sse = Sheet.createExpertSet();
-        s.put(sse);
-        
         try {
             Node.Property p;
             p = new PropertySupport.Reflection(item, String.class, "getSummary", "setSummary"); // NOI18N

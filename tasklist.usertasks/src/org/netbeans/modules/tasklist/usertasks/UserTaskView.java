@@ -98,7 +98,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
             SystemAction.get(DeleteAction.class),
             SystemAction.get(GoToTaskAction.class),
             SystemAction.get(FilterAction.class),
-            new RemoveFilterAction(this)
+            SystemAction.get(RemoveFilterAction.class)
         };
     }
     
@@ -392,7 +392,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
 	return defview;
     }
 
-    private static ArrayList views = null; // leak???
+    private static ArrayList views = null; // leak??? YES! Remove in componentClosed!
     
     /** Return the currently active user task view, or the default
         one if none are active */
