@@ -7,75 +7,49 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
- */
-
-/*
- * BundleLookup.java
- *
- * Created on January 11, 2002, 1:09 PM
  */
 
 package org.netbeans.modules.jemmysupport.bundlelookup;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.Properties;
 import java.util.Enumeration;
-import java.util.ArrayList;
-import java.util.MissingResourceException;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 import javax.swing.table.DefaultTableModel;
 import org.netbeans.modules.jemmysupport.I18NSupport;
-import org.openide.ErrorManager;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.*;
+import org.netbeans.modules.jemmysupport.Utils;
 
-/** Class performing lookup through all .properties files in all mounted filesystems
+/** Class performing lookup through all Bundle.properties files in all packages
+ * found in NetBeans System ClassLoader.
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
- * @version 0.2
+ * @author Jiri.Skrivanek@sun.com
  */
 public class BundleLookup {
     
-    static Method compile;
-    static Method matcher;
-    static Method matches;
-    static final Integer CASE_SENSITIVE=new Integer(0);
-    static Integer CASE_INSENSITIVE;
+    /** Descendant of NetBeans System ClassLoader which enables to obtain package names. */
+    private static Utils.TestClassLoader testClassLoader;
+    /** Signal to stop searching from user. */
     static boolean run;
-    static {
-        try {
-            Class pattern=Class.forName("java.util.regex.Pattern"); // NOI18N
-            compile=pattern.getDeclaredMethod("compile", new Class[]{String.class,Integer.TYPE}); // NOI18N
-            matcher=pattern.getDeclaredMethod("matcher", new Class[]{Class.forName("java.lang.CharSequence")}); // NOI18N
-            CASE_INSENSITIVE=(Integer)pattern.getDeclaredField("CASE_INSENSITIVE").get(null); // NOI18N
-            matches=Class.forName("java.util.regex.Matcher").getDeclaredMethod("matches",null); // NOI18N
-        } catch (Exception e) {
-            ErrorManager.getDefault().notify(e);
-        }
-    }
     
     static class Regex extends Object {
-        Object regex;
+        Pattern regex;
         public Regex(String s, boolean cs, boolean sub) {
-            try {
-                if (sub)
-                    s=".*"+s+".*"; // NOI18N
-                if (cs)
-                    regex=compile.invoke(null, new Object[]{s, CASE_SENSITIVE});
-                else
-                    regex=compile.invoke(null, new Object[]{s, CASE_INSENSITIVE});
-            } catch (Exception e) {}
+            if (sub) {
+                s=".*"+s+".*"; // NOI18N
+            }
+            if (cs) {
+                regex = Pattern.compile(s);
+            } else {
+                regex = Pattern.compile(s, Pattern.CASE_INSENSITIVE);
+            }
         }
         public boolean equals(Object o) {
-            try {
-                Object m=matcher.invoke(regex, new Object[]{o});
-                return ((Boolean)matches.invoke(m, null)).booleanValue();
-            } catch (Exception e) {}
-            return false;
+            return regex.matcher((CharSequence)o).matches();
         }
     }
     static class Substring extends Object {
@@ -148,7 +122,8 @@ public class BundleLookup {
         return false;
     }
     
-    /** Method performing lookup through all .properties files in all mounted filesystems
+    /** Method performing lookup through all Bundle.properties files in all packages
+     * found in NetBeans System ClassLoader.
      * @param regexText boolean true if text is regular expression
      * @param regexBundle boolean true if bundle name is regular expression
      * @param table DefaultTableModel showing the results
@@ -161,54 +136,68 @@ public class BundleLookup {
     public static void lookupText(DefaultTableModel table, String text, boolean caseSensitiveText, boolean substringText, boolean regexText, String bundle, boolean caseSensitiveBundle, boolean substringBundle, boolean regexBundle) {
         if (tryI18NSearch(table, text)) return;
         run=true;
-        Enumeration filesystems=Repository.getDefault().getFileSystems();
-        FileObject fo;
-        ArrayList queue=new ArrayList();
         String name, key;
         Properties res;
         Enumeration keys;
-        FileObject ch[];
         Object _text=resolve(text, caseSensitiveText, substringText, regexText);
         Object _bundle=resolve(bundle, caseSensitiveBundle, substringBundle, regexBundle);
         
-        
-        while (filesystems.hasMoreElements()) {
-            fo=((FileSystem)filesystems.nextElement()).getRoot();
-            if (fo.isValid()) {
-                queue.add(fo);
-            }
-        }
-        while (run && !queue.isEmpty()) {
+        String[] packages = getPackages();
+        int i=0;
+        while (run && i<packages.length) {
             Thread.yield();
-            fo=(FileObject)queue.remove(0);
-            if ("properties".equalsIgnoreCase(fo.getExt())) { // NOI18N
-                name=fo.getPackageName('.');
-                try {
-                    if (_bundle.equals(name)) {
-                        res = new Properties();
-                        res.load(fo.getInputStream());
+            try {
+                if (_bundle.equals(packages[i])) {
+                    res = new Properties();
+                    // bundle fully qualified name (e.g. org.netbeans.core.Bundle)
+                    name = packages[i]+".Bundle";
+                    // get resource (e.g. org/netbeans/core/Bundle.properties)
+                    InputStream is = getTestClassLoader().getResourceAsStream(name.replace('.', '/')+".properties");  // NOI18N
+                    // find requested text within all properties
+                    if(is != null) {
+                        res.load(is);
                         keys = res.keys();
-                        while (keys.hasMoreElements()) {
-                            try {
-                                key = (String)keys.nextElement();
-                                if (_text.equals(res.getProperty(key))) {
-                                    table.addRow(new String[]{name, key, res.getProperty(key).replace('\n','/')});
-                                }
-                            } catch (ClassCastException cce) {}
+                        while(keys.hasMoreElements()) {
+                            key = (String)keys.nextElement();
+                            // if found add it to the result table
+                            if (_text.equals(res.getProperty(key))) {
+                                table.addRow(new String[]{name, key, res.getProperty(key).replace('\n','/')});
+                            }
                         }
                     }
-                } catch (FileNotFoundException fnfe) {
-                } catch (IOException ioe) {}
+                }
+            } catch (IOException ioe) {
+                // ignore
             }
-            ch=fo.getChildren();
-            for (int i=0;i<ch.length;i++) {
-                queue.add(ch[i]);
-            }
+            i++;
         }
     }
 
     /** stops search (if running) */    
     public static void stop() {
         run=false;
+    }
+
+    /** Gets all package names in NetBeans System ClassLoader.
+     * @return array of packages in dot notation (e.g. [org.netbeans.core, ...])
+     */
+    private static String[] getPackages() {
+        Package[] ps = getTestClassLoader().getPackages();
+        String[] packages = new String[ps.length];
+        for(int i=0;i<ps.length;i++) {
+            packages[i] = ps[i].getName();
+        }
+        return packages;
+    }
+    
+    /** Gets descendant of NetBeans System ClassLoader which enables to obtain
+     * package names currently loaded.
+     * @return instace of TestClassLoader
+     */
+    private static Utils.TestClassLoader getTestClassLoader() {
+        if(testClassLoader == null) {
+            testClassLoader = new Utils.TestClassLoader(new URL[0], Utils.getSystemClassLoader());
+        }
+        return testClassLoader;
     }
 }
