@@ -240,7 +240,11 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
      *
      */
     public Map getVariables() {
-        return executor.getVariables();
+        if (executor == null) {
+            return java.util.Collections.EMPTY_MAP;
+        } else {
+            return executor.getVariables();
+        }
     }
     
     /** Get the VcsCommand instance associated with this command.
@@ -248,7 +252,11 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
      *
      */
     public VcsCommand getVcsCommand() {
-        return executor.getCommand();
+        if (executor == null) { // in case we will spawn refresh
+            return cmd.getVcsCommand();
+        } else {
+            return executor.getCommand();
+        }
     }
     
     public synchronized RuntimeCommand getRuntimeCommand(CommandTaskInfo info) {
