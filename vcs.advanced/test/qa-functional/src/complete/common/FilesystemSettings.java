@@ -311,9 +311,18 @@ public class FilesystemSettings extends NbTestCase {
         PropertiesAction propertiesAction = new PropertiesAction();
         propertiesAction.perform(filesystemNode);
         PropertySheetOperator sheet = new PropertySheetOperator();
-        ComboBoxProperty filterBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Filter Backup Files");
-        ComboBoxProperty createBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Create Backup Files");
-        TextFieldProperty refreshTime = new TextFieldProperty(sheet.getPropertySheetTabOperator("Expert"), "Refresh Time For Local Files [ms]");
+        PropertySheetTabOperator expertTab;
+        try {
+            expertTab = sheet.getPropertySheetTabOperator("Expert");
+        } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+            api.getFilesystemsTab();
+            filesystemNode.select();
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: Can't find Expert property tab.");
+        }
+        ComboBoxProperty filterBackupFiles = new ComboBoxProperty(expertTab, "Filter Backup Files");
+        ComboBoxProperty createBackupFiles = new ComboBoxProperty(expertTab, "Create Backup Files");
+        TextFieldProperty refreshTime = new TextFieldProperty(expertTab, "Refresh Time For Local Files [ms]");
         filterBackupFiles.setValue("False");
         createBackupFiles.setValue("False");
         refreshTime.setValue("5000");
@@ -340,7 +349,15 @@ public class FilesystemSettings extends NbTestCase {
         }
         propertiesAction.perform(filesystemNode);
         sheet = new PropertySheetOperator();
-        createBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Create Backup Files");
+        try {
+            expertTab = sheet.getPropertySheetTabOperator("Expert");
+        } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+            api.getFilesystemsTab();
+            filesystemNode.select();
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: Can't find Expert property tab.");
+        }
+        createBackupFiles = new ComboBoxProperty(expertTab, "Create Backup Files");
         createBackupFiles.setValue("True");
         editor.insert("// The second added line.\n");
         editor.requestFocus();
@@ -354,7 +371,15 @@ public class FilesystemSettings extends NbTestCase {
         }
         propertiesAction.perform(filesystemNode);
         sheet = new PropertySheetOperator();
-        filterBackupFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Filter Backup Files");
+        try {
+            expertTab = sheet.getPropertySheetTabOperator("Expert");
+        } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+            api.getFilesystemsTab();
+            filesystemNode.select();
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: Can't find Expert property tab.");
+        }
+        filterBackupFiles = new ComboBoxProperty(expertTab, "Filter Backup Files");
         filterBackupFiles.setValue("True");
         sheet.close();
         APIController.sleep(10000);
@@ -382,7 +407,16 @@ public class FilesystemSettings extends NbTestCase {
         PropertiesAction propertiesAction = new PropertiesAction();
         propertiesAction.perform(filesystemNode);
         PropertySheetOperator sheet = new PropertySheetOperator();
-        TextFieldProperty refreshTime = new TextFieldProperty(sheet.getPropertySheetTabOperator("Expert"), "Refresh Time For Local Files [ms]");
+        PropertySheetTabOperator expertTab;
+        try {
+            expertTab = sheet.getPropertySheetTabOperator("Expert");
+        } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+            api.getFilesystemsTab();
+            filesystemNode.select();
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: Can't find Expert property tab.");
+        }
+        TextFieldProperty refreshTime = new TextFieldProperty(expertTab, "Refresh Time For Local Files [ms]");
         refreshTime.setValue("1000");
         sheet.close();
         createFile(workingDirectory + File.separator + "B_File.java", true);
@@ -438,7 +472,16 @@ public class FilesystemSettings extends NbTestCase {
         PropertiesAction propertiesAction = new PropertiesAction();
         propertiesAction.perform(filesystemNode);
         sheet = new PropertySheetOperator();
-        ComboBoxProperty hideShadowFiles = new ComboBoxProperty(sheet.getPropertySheetTabOperator("Expert"), "Hide Shadow Files");
+        PropertySheetTabOperator expertTab;
+        try {
+            expertTab = sheet.getPropertySheetTabOperator("Expert");
+        } catch (org.netbeans.jemmy.TimeoutExpiredException e) {
+            api.getFilesystemsTab();
+            filesystemNode.select();
+            new UnmountFSAction().perform(filesystemNode);
+            throw new Exception("Error: Can't find Expert property tab.");
+        }
+        ComboBoxProperty hideShadowFiles = new ComboBoxProperty(expertTab, "Hide Shadow Files");
         hideShadowFiles.setValue("True");
         sheet.close();
         filesystemNode.select();
