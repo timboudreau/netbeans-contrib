@@ -771,44 +771,50 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     
     private synchronized void executorStarterLoop() {
         do {
-            CommandTaskInfo cw;
-            do {
-                cw = null;
-                for (Iterator it = taskWaitQueue.iterator(); it.hasNext(); ) {
-                    CommandTaskInfo cwTest = (CommandTaskInfo) it.next();
-                    if (canRun(cwTest)) {
-                        //System.out.println("CommandProcessor: CAN RUN: "+cwTest.getTask().getName()+" ("+cwTest.getCommandID()+")");
-                        cw = cwTest;
-                        break;
-                    } else {
-                        //System.out.println("CommandProcessor: CAN NOT RUN: "+cwTest.getTask().getName()+" ("+cwTest.getCommandID()+")");
-                    }
-                }
-                if (cw != null) {
-                    taskWaitQueue.remove(cw);
-                    executorStarter(cw);
-                }
-            } while (cw != null);
-            Command cmd;
-            do {
-                cmd = null;
-                for (Iterator it = commandsToPreprocess.iterator(); it.hasNext(); ) {
-                    Command cmdTest = (Command) it.next();
-                    if (canPreprocess(cmdTest)) {
-                        cmd = cmdTest;
-                        //System.out.println("CommandProcessor: CAN Preprocess: "+cmd.getName());
-                        break;
-                    }
-                }
-                if (cmd != null) {
-                    commandsToPreprocess.remove(cmd);
-                    doPreprocess(cmd);
-                }
-            } while (cmd != null);
             try {
-                wait();
-            } catch (InterruptedException intrexc) {
-                // silently ignored
+                CommandTaskInfo cw;
+                do {
+                    cw = null;
+                    for (Iterator it = taskWaitQueue.iterator(); it.hasNext(); ) {
+                        CommandTaskInfo cwTest = (CommandTaskInfo) it.next();
+                        if (canRun(cwTest)) {
+                            //System.out.println("CommandProcessor: CAN RUN: "+cwTest.getTask().getName()+" ("+cwTest.getCommandID()+")");
+                            cw = cwTest;
+                            break;
+                        } else {
+                            //System.out.println("CommandProcessor: CAN NOT RUN: "+cwTest.getTask().getName()+" ("+cwTest.getCommandID()+")");
+                        }
+                    }
+                    if (cw != null) {
+                        taskWaitQueue.remove(cw);
+                        executorStarter(cw);
+                    }
+                } while (cw != null);
+                Command cmd;
+                do {
+                    cmd = null;
+                    for (Iterator it = commandsToPreprocess.iterator(); it.hasNext(); ) {
+                        Command cmdTest = (Command) it.next();
+                        if (canPreprocess(cmdTest)) {
+                            cmd = cmdTest;
+                            //System.out.println("CommandProcessor: CAN Preprocess: "+cmd.getName());
+                            break;
+                        }
+                    }
+                    if (cmd != null) {
+                        commandsToPreprocess.remove(cmd);
+                        doPreprocess(cmd);
+                    }
+                } while (cmd != null);
+                try {
+                    wait();
+                } catch (InterruptedException intrexc) {
+                    // silently ignored
+                }
+            } catch (ThreadDeath td) {
+                throw td;
+            } catch (Throwable th) {
+                ErrorManager.getDefault().notify(th);
             }
         } while(execStarterLoopRunning);
     }
