@@ -28,9 +28,8 @@ public class DocBookCatalog implements CatalogProvider {
     
     private static final Map/*<String,String>*/ PUBLIC_2_SYSTEM = new HashMap();
     static {
-        // XXX subst versions from some properties file...
-        PUBLIC_2_SYSTEM.put("-//Norman Walsh//DTD Slides XML V3.1.0//EN",
-                            "nbres:/org/netbeans/modules/docbook/lib/slides-3.1.0/schema/dtd/slides.dtd");
+        PUBLIC_2_SYSTEM.put("-//Norman Walsh//DTD Slides XML V" + Config.SLIDES_VERSION + "//EN",
+                            "nbres:/org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/schema/dtd/slides.dtd");
         // XXX slides-full.dtd
         // XXX DB articles, etc.
     }
@@ -38,9 +37,9 @@ public class DocBookCatalog implements CatalogProvider {
     private static final Map/*<String,String>*/ SYSTEM_2_SYSTEM = new HashMap();
     static {
         SYSTEM_2_SYSTEM.put("http://docbook.sourceforge.net/release/slides/current/",
-                            "nbres:/org/netbeans/modules/docbook/lib/slides-3.1.0/");
+                            "nbres:/org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/");
         SYSTEM_2_SYSTEM.put("http://docbook.sourceforge.net/release/xsl/current/",
-                            "nbres:/org/netbeans/modules/docbook/lib/docbook-xsl-1.61.2/");
+                            "nbres:/org/netbeans/modules/docbook/lib/docbook-xsl-" + Config.DOCBOOK_XSL_VERSION + "/");
     }
     
     public Class provideClass() throws IOException, ClassNotFoundException {

@@ -15,16 +15,15 @@ package org.netbeans.modules.docbook;
 
 import java.io.*;
 import java.net.URL;
-import java.security.CodeSource;
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.HtmlBrowser;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
@@ -33,8 +32,10 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 import org.openide.windows.*;
 import org.xml.sax.*;
-import org.xml.sax.InputSource;
 
+/**
+ * Converts a DocBook XML file (currently, Slides only) to HTML.
+ */
 public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHandler {
     
     private static final String XSL_SLIDES = "http://docbook.sourceforge.net/release/slides/current/xsl/xhtml/plain.xsl";
@@ -62,7 +63,7 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
         if (mime.equals(DocBookDataLoader.MIME_SLIDES)) {
             String name = fo.getName();
             InputOutput io = IOProvider.getDefault().getIO(NbBundle.getMessage(ToHtmlAction.class, "LBL_tab_db_conv"), false);
-            io.setFocusTaken(true);
+            io.select();
             err = io.getErr();
             try {
                 err.reset();
@@ -96,12 +97,11 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 tf.setURIResolver(new EntityResolver2URIResolver(resolver));
                 Transformer t = tf.newTransformer(style);
                 t.setParameter("output.indent", "yes");
-                /*XXX see below...
                 t.setParameter("graphics.dir", "graphics");
                 t.setParameter("script.dir", "browser");
-                 */
-                //t.setParameter("css.stylesheet", "stylesheet.css");
-                // Setting stylesheet does not actually work:
+                t.setParameter("css.stylesheet.dir", "browser");
+                // t.setParameter("css.stylesheet", "whatever.css");
+                // Information on changing stylesheet (requires Slides 3.2.0+):
                 // https://sourceforge.net/tracker/?func=detail&aid=758093&group_id=21935&atid=373747
                 saxpf.setValidating(true);
                 reader = saxpf.newSAXParser().getXMLReader();
@@ -114,12 +114,22 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 t.transform(source, result);
                 dummy.delete();
                 folder.refresh();
-                // XXX copy browser & graphics dirs
-                // XXX subst http://docbook.sourceforge.net/release/slides/browser/slides.css with slides.css & copy
+                String lib = "org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/";
+                copyDir(folder, "browser/", Config.BROWSER_FILES, lib + "browser/");
+                copyDir(folder, "graphics/", Config.GRAPHICS_FILES, lib + "graphics/");
+                /* To manually override stylesheet in Slides 3.1.0:
+                FileObject[] html = folder.getChildren();
+                for (int i = 0; i < html.length; i++) {
+                    if (html[i].hasExt("html")) {
+                        substInFile(html[i], "http://docbook.sourceforge.net/release/slides/browser/slides.css", "browser/slides.css");
+                    }
+                }
+                 */
                 FileObject index = folder.getFileObject("index.html");
                 if (index != null) {
                     HtmlBrowser.URLDisplayer.getDefault().showURL(index.getURL());
                 }
+                err.println("Done.");
             } catch (Exception e) {
                 e.printStackTrace(err);
             } finally {
@@ -129,6 +139,87 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
             assert false : mime;
         }
     }
+    
+    /**
+     * Copy some resource files to the output directory.
+     * @param folder the folder to copy things to
+     * @param prefix a prefix (/-separated) in that folder
+     * @param files a list of files (/-separated) to put in that folder, modified by prefix
+     * @param resourcePrefix a location in this JAR to get files from
+     */
+    private static void copyDir(FileObject folder, String prefix, String[] files, String resourcePrefix) throws IOException {
+        for (int i = 0; i < files.length; i++) {
+            String fname = prefix + files[i];
+            FileObject fo = FileUtil.createData(folder, fname);
+            FileLock l = fo.lock();
+            try {
+                OutputStream os = fo.getOutputStream(l);
+                try {
+                    String res = resourcePrefix + files[i];
+                    InputStream is = ToHtmlAction.class.getClassLoader().getResourceAsStream(res);
+                    assert is != null : res;
+                    try {
+                        FileUtil.copy(is, os);
+                    } finally {
+                        is.close();
+                    }
+                } finally {
+                    os.close();
+                }
+            } finally {
+                l.releaseLock();
+            }
+        }
+    }
+    
+    /**
+     * Do a substitution in a file.
+     * UTF-8 encoding is assumed.
+     * @param fo file to transform
+     * @param from initial string
+     * @param to its replacement
+     * /
+    private static void substInFile(FileObject fo, String from, String to) throws IOException {
+        StringBuffer b = new StringBuffer();
+        FileLock l = fo.lock();
+        try {
+            InputStream is = fo.getInputStream();
+            try {
+                Reader r = new InputStreamReader(is, "UTF-8");
+                char[] buf = new char[4096];
+                int i;
+                while ((i = r.read(buf)) != -1) {
+                    b.append(buf, 0, i);
+                }
+            } finally {
+                is.close();
+            }
+            int x = -1;
+            boolean changed = false;
+            while (true) {
+                x = b.indexOf(from, x + 1);
+                if (x == -1) {
+                    break;
+                }
+                changed = true;
+                b.replace(x, x + from.length(), to);
+                x = x + to.length();
+            }
+            if (changed) {
+                OutputStream os = fo.getOutputStream(l);
+                try {
+                    Writer w = new OutputStreamWriter(os, "UTF-8");
+                    w.write(b.toString());
+                    w.flush();
+                } finally {
+                    os.close();
+                }
+            }
+        } finally {
+            l.releaseLock();
+        }
+    }
+     */
     
     public String getName() {
         return NbBundle.getMessage(ToHtmlAction.class, "LBL_action");

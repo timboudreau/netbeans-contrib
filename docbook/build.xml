@@ -18,6 +18,26 @@ Microsystems, Inc. All Rights Reserved.
     <target name="external">
         <ant dir="external"/>
         <property file="external/versions.properties"/>
+        <property name="browser.dir" location="external/tmp/slides-${slides.version}/browser"/>
+        <fileset id="browser.files.list" dir="${browser.dir}">
+            <exclude name="**/ChangeLog"/>
+        </fileset>
+        <pathconvert property="browser.files" refid="browser.files.list" pathsep="," dirsep="/">
+            <map from="${browser.dir}${file.separator}" to=""/>
+        </pathconvert>
+        <property name="graphics.dir" location="external/tmp/slides-${slides.version}/graphics"/>
+        <fileset id="graphics.files.list" dir="${graphics.dir}">
+            <exclude name="**/ChangeLog"/>
+        </fileset>
+        <pathconvert property="graphics.files" refid="graphics.files.list" pathsep="," dirsep="/">
+            <map from="${graphics.dir}${file.separator}" to=""/>
+        </pathconvert>
+        <propertyfile file="external/tmp/config.properties" comment="org.netbeans.modules.docbook configuration">
+            <entry key="docbook-xsl.version" value="${docbook-xsl.version}"/>
+            <entry key="slides.version" value="${slides.version}"/>
+            <entry key="browser.files" value="${browser.files}"/>
+            <entry key="graphics.files" value="${graphics.files}"/>
+        </propertyfile>
     </target>
 
     <target name="compile">
@@ -40,9 +60,12 @@ Microsystems, Inc. All Rights Reserved.
                 <exclude name="**/.nbattrs"/>
             </fileset>
             <zipfileset prefix="org/netbeans/modules/docbook/lib" dir="external/tmp">
+                <include name="config.properties"/>
                 <include name="slides-${slides.version}/schema/dtd/slides.dtd"/>
                 <include name="slides-${slides.version}/schema/dtd/slides-full.dtd"/>
                 <include name="slides-${slides.version}/xsl/xhtml/"/>
+                <include name="slides-${slides.version}/browser/"/>
+                <include name="slides-${slides.version}/graphics/"/>
                 <include name="docbook-xsl-${docbook-xsl.version}/common/"/>
                 <include name="docbook-xsl-${docbook-xsl.version}/lib/"/>
                 <include name="docbook-xsl-${docbook-xsl.version}/xhtml/"/>
