@@ -1,9 +1,9 @@
 You'll need the smack library, available for download at
 http://www.jivesoftware.com/xmpp/smack/
+This code was developed and tested with smack version 1.3
 
 The library is available under modified Apache license, so it
 may be added later directly to the cvs.
 
-You'll need to repackage both smack.jar and smackx.jar
-as one smack-all-<version>.jar
-
+Download the library and copy the files smack.jar and smackx.jar
+to this directory.
