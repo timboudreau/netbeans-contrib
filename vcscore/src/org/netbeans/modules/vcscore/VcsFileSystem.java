@@ -2970,6 +2970,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
     
+    private static Object vsActionAccessLock = new Object();
+
     private class VcsFileSystemInfo extends FileSystemInfo {
         
         private VersioningSystem.Status status;
@@ -3002,6 +3004,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         
         public boolean canActOnVcsFileObjects() {
             return true;
+        }
+                
+        public SystemAction[] getRevisionActions(VcsFileObject fo, Set revisionItems) {
+            VcsRevisionAction action = (VcsRevisionAction) SystemAction.get(VcsRevisionAction.class);
+            synchronized (vsActionAccessLock) {
+                action.setFileSystem(VcsFileSystem.this);
+                action.setFileObject(fo);
+                action.setSelectedRevisionItems(revisionItems);
+            }
+            return new SystemAction[] { action };
         }
         
     }
@@ -3085,7 +3097,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         
         public java.io.InputStream inputStream(String name, String revision) throws java.io.FileNotFoundException {
-            System.out.println("VersioningVersions.inputStream("+name+", "+revision+")");
             return VcsFileSystem.this.inputStream(name);
         }
     }
