@@ -20,7 +20,6 @@ import org.netbeans.modules.tasklist.core.FilterAction;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
-import org.netbeans.spi.tasklist.LineSuggestionPerformer;
 
 import org.openide.ErrorManager;
 import org.openide.actions.PropertiesAction;
@@ -56,7 +55,7 @@ class SuggestionNode extends TaskNode {
 
     private void init(SuggestionImpl item) {
         this.item = item;
-        if (item.getAction() instanceof LineSuggestionPerformer) {
+        if (item.getAction() == null) {
             //setDefaultAction(SystemAction.get(GoToTaskAction.class));
             setDefaultAction(SystemAction.get(ShowSuggestionAction.class));
         } else if (item.getAction() != null) {
@@ -107,7 +106,7 @@ class SuggestionNode extends TaskNode {
 
             // TODO Add Delete action here as well
             
-            if (item.getAction() instanceof LineSuggestionPerformer) {
+            if (item.getAction() == null) {
                 return new SystemAction[] {
                     //SystemAction.get(GoToTaskAction.class),
                     SystemAction.get(ShowSuggestionAction.class),

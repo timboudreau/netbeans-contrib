@@ -23,7 +23,6 @@ import pmd.*;
 import pmd.config.ConfigUtils;
 import pmd.config.PMDOptionsSettings;
 import org.netbeans.api.tasklist.*;
-import org.netbeans.spi.tasklist.LineSuggestionPerformer;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;

@@ -465,6 +465,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             if ((document != null) &&
                 (provider instanceof DocumentSuggestionProvider)) {
                 ((DocumentSuggestionProvider)provider).docShown(document, dataobject);
+                ((DocumentSuggestionProvider)provider).rescan(document, dataobject);
             }
         } else {
             if (!allTypes) {
@@ -482,6 +483,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
             
             // Remove suggestions of this type
             if (provider instanceof DocumentSuggestionProvider) {
+                ((DocumentSuggestionProvider)provider).clear(document, dataobject);
                 ((DocumentSuggestionProvider)provider).docHidden(document, dataobject);
             }
             provider.notifyStop();

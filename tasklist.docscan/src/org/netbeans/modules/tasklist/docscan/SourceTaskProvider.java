@@ -15,7 +15,6 @@ package org.netbeans.modules.tasklist.docscan;
 
 import org.netbeans.api.tasklist.*;
 import org.netbeans.api.tasklist.DocumentSuggestionProvider;
-import org.netbeans.spi.tasklist.LineSuggestionPerformer;
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.*;
 
@@ -131,7 +130,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
 
         scanner.scan(doc, dobj, false, false);
         
-        SuggestionPerformer action = new LineSuggestionPerformer();
         ListIterator it = tasklist.getTasks().listIterator();
         List tasks = null;
         while (it.hasNext()) {
@@ -139,7 +137,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
             String summary = subtask.getSummary();
             Suggestion s = manager.createSuggestion(TYPE,
                 summary,
-                action);
+                null);
             s.setLine(subtask.getLine());
             s.setPriority(SuggestionPriority.NORMAL);
             if (tasks == null) {

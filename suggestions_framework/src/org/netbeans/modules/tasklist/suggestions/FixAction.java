@@ -28,7 +28,6 @@ import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
-import org.netbeans.spi.tasklist.LineSuggestionPerformer;
 import org.netbeans.modules.tasklist.core.*;
 
 /**
@@ -71,9 +70,7 @@ public class FixAction extends NodeAction {
             }
 
             SuggestionPerformer performer = item.getAction();
-            if ((performer == null) 
-                || ((performer instanceof LineSuggestionPerformer) && 
-                    node.length > 1)) {
+            if (performer == null) {
                 continue;
             }
             Object confirmation = performer.getConfirmation(item);
