@@ -75,13 +75,13 @@ Microsystems, Inc. All Rights Reserved.
       <value>vcs.list.CvsListCommand.class</value>
     </variable>
     <!-- BUILT-IN is true by default -->
-    <variable name="BUILT-IN" basic="true">
+    <variable name="BUILT-IN" basic="true" label="ResourceMsg(VAR_BuiltIn_true)" labelMnemonic="ResourceMsg(VAR_BuiltIn_true_Mnemonic)">
       <value>true</value>
     </variable>
     <variable name="SERVERTYPE_LOCAL" basic="false">
       <value>local</value>
     </variable>
-    <variable name="ENVIRONMENT_VAR_CVS_CLIENT_PORT" basic="true">
+    <variable name="ENVIRONMENT_VAR_CVS_CLIENT_PORT" basic="true" label="ResourceMsg(VAR_SERVER_Port)" labelMnemonic="ResourceMsg(VAR_SERVER_Port_Mnemonic)">
       <value>2401</value>
     </variable>
     <variable name="CVSROOT" basic="false">
