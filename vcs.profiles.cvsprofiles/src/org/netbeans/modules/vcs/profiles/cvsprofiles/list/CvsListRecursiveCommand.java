@@ -113,6 +113,7 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
             }
         }
         D.deb("rootDir = "+rootDir+", module = "+module+", dir = "+dir); // NOI18N
+        boolean rootPathEndsWithFileSeparator = false;
         if (dir.equals("")) { // NOI18N
             dir=rootDir;
             this.fsRootPathLength = rootDir.length();
@@ -121,6 +122,8 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
             }
             if (module != null && module.length() > 0) {
                 this.fsRootPathLength += (File.separator + module).length();
+            } else {
+                rootPathEndsWithFileSeparator = rootDir.endsWith(File.separator);
             }
         } else {
             if (wholeModule == null || wholeModule.length() == 0) {
@@ -130,11 +133,12 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
             }
             if (module == null || module.length() == 0) {
                 this.fsRootPathLength = rootDir.length();
+                rootPathEndsWithFileSeparator = rootDir.endsWith(File.separator);
             } else {
                 this.fsRootPathLength = (rootDir+File.separator+module).length();
             }
         }
-        this.fsRootPathLength++;
+        if (!rootPathEndsWithFileSeparator) this.fsRootPathLength++;
         if (module.length() > 0) this.relMount = "/"+module.replace('\\', '/');
         else relMount = "";
         if (dir.charAt(dir.length() - 1) == File.separatorChar)
