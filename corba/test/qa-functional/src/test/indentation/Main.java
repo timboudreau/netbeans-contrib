@@ -36,7 +36,10 @@ public class Main extends JellyTestCase {
         EditorWindowOperator ewo = new EditorWindowOperator ();
         EditorOperator eo = ewo.getEditor ("01");
         JEditorPaneOperator ep = eo.txtEditorPane();
+        Helper.sleep (5000);
+        ep.setText("");
         ep.clearText();
+        Helper.sleep (5000);
         ep.setCaretPosition(0);
         for (int a = 0; a < idl01.length; a ++) {
             for (int b = 0; b < idl01[a].length (); b ++)
