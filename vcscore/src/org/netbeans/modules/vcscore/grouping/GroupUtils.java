@@ -110,12 +110,14 @@ public class GroupUtils {
                 DataShadow shadow = findDOInGroups(dd);
                 if (shadow != null) {
                     if (!group.equals(shadow.getFolder())) {
-                    //TODO warning.. some files are already in groups
                         badGroup.add(shadow);
 //                        System.out.println("already in another group " + shadow.getOriginal().getName());
                     }
                 } else {
-                    okFiles.add(dd);
+                    if (!group.equals(shadow.getFolder())) {
+                        // add to only when not in the requested group already..
+                        okFiles.add(dd);
+                    }
                 }
                 
             }

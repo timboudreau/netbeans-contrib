@@ -236,8 +236,10 @@ public class AddToGroupAction extends NodeAction {
                 VcsGroupFileNode nd = (VcsGroupFileNode)actNodes[j];
                 DataShadow shadow = (DataShadow)nd.getCookie(DataShadow.class);
                 try {
-                    shadow.getOriginal().createShadow(group);
-                    shadow.delete();
+                    if (!group.equals(shadow.getFolder())) {
+                        shadow.getOriginal().createShadow(group);
+                        shadow.delete();
+                    }
                 } catch (IOException exc) {
                     NotifyDescriptor excMess = new NotifyDescriptor.Message(
                     NbBundle.getBundle(AddToGroupAction.class).getString("MoveToVcsGroupAction.movingError"),
