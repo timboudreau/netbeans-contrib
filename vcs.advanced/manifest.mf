@@ -11,5 +11,5 @@ OpenIDE-Module-Layer: org/netbeans/modules/vcs/advanced/config/mf-layer.xml
 Class-Path: ext/regexp.jar
 
 Name: org/netbeans/modules/vcs/advanced/CommandLineVcsFileSystem.class
-Display-Name: Generic Version Control System
+Display-Name: Generic VCS
 OpenIDE-Module-Class: Filesystem
