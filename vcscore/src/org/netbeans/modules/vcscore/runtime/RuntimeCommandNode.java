@@ -68,20 +68,20 @@ public class RuntimeCommandNode extends AbstractNode {
     }
     
     public Image getIcon(int type) {
-        Image icon = Utilities.loadImage("/org/netbeans/modules/vcscore/runtime/commandIcon.gif");
+        Image icon = Utilities.loadImage("org/netbeans/modules/vcscore/runtime/commandIcon.gif");
         Image badge = null;
         switch (state) {
             case STATE_RUNNING:
             case STATE_KILLED_BUT_RUNNING:
-                badge = Utilities.loadImage("/org/netbeans/modules/vcscore/runtime/badgeRunning.gif");
+                badge = Utilities.loadImage("org/netbeans/modules/vcscore/runtime/badgeRunning.gif");
                 break;
             case STATE_WAITING:
-                badge = Utilities.loadImage("/org/netbeans/modules/vcscore/runtime/badgeWaiting.gif");
+                badge = Utilities.loadImage("org/netbeans/modules/vcscore/runtime/badgeWaiting.gif");
                 break;
             case STATE_CANCELLED:
             case STATE_DONE:
                 if (command.getExitStatus() != RuntimeCommand.SUCCEEDED) {
-                    badge = Utilities.loadImage("/org/netbeans/modules/vcscore/runtime/badgeError.gif");
+                    badge = Utilities.loadImage("org/netbeans/modules/vcscore/runtime/badgeError.gif");
                 }
                 break;
         }

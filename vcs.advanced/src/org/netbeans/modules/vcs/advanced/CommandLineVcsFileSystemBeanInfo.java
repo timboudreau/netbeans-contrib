@@ -182,7 +182,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
     public java.awt.Image getIcon(int type) {
         switch (type) {
             case ICON_COLOR_16x16:
-                return Utilities.loadImage("/org/netbeans/modules/vcs/advanced/vcsGeneric.gif"); // NOI18N
+                return Utilities.loadImage("org/netbeans/modules/vcs/advanced/vcsGeneric.gif"); // NOI18N
         }
         return null;
     }

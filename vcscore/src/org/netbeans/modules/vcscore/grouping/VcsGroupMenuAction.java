@@ -139,7 +139,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         }
         panel.getAccessibleContext().setAccessibleDescription(
             org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSD_AddVcsGroupAction.dialog"));
-        panel.setIcon(org.openide.util.Utilities.loadImage("/org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"));
+        panel.setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"));
         panel.open(TopManager.getDefault().getWindowManager().getCurrentWorkspace());
         panel.requestFocus();
         

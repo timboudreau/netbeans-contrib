@@ -69,7 +69,7 @@ public class VcsSearchTypeBeanInfo extends SimpleBeanInfo {
     public java.awt.Image getIcon(int iconKind) {
         switch ( iconKind ) {
         case ICON_COLOR_16x16:
-            return Utilities.loadImage("/org/netbeans/modules/vcscore/search/find.gif"); // NOI18N
+            return Utilities.loadImage("org/netbeans/modules/vcscore/search/find.gif"); // NOI18N
         }
         return null;
     }
