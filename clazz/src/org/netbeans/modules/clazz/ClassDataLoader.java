@@ -55,6 +55,7 @@ public final class ClassDataLoader extends MultiFileLoader {
     
     protected synchronized SystemAction[] defaultActions() {
         return new SystemAction [] {
+            SystemAction.get(OpenAction.class),
             SystemAction.get(FileSystemAction.class),
             null,
             SystemAction.get(CutAction.class),

@@ -23,19 +23,24 @@ import java.io.ObjectStreamClass;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Modifier;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import javax.jmi.reflect.InvalidObjectException;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.queries.SourceForBinaryQuery;
 import org.netbeans.modules.classfile.ClassFile;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.ErrorManager;
+import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.InstanceCookie;
 import org.openide.cookies.SourceCookie;
+import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
@@ -55,6 +60,7 @@ import org.openide.src.SourceElement;
 import org.openide.src.Type;
 import org.openide.src.nodes.ElementNodeFactory;
 import org.openide.src.nodes.FilterFactory;
+import org.openide.util.NbBundle;
 
 /** This DataObject loads sourceless classes and provides a common framework
  * for presenting them in the IDE.
@@ -136,9 +142,11 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     }
     
     protected void initCookies() {
-        getCookieSet().add(new Class[] {
+        CookieSet cs = getCookieSet();
+        cs.add(new Class[] {
             SourceCookie.class, 
         }, this);
+        cs.add(OpenCookie.class,this);
     }
 
     /**
@@ -180,6 +188,9 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     public Cookie createCookie(Class desired) {
         if (desired == InstanceCookie.class) {
             return createInstanceSupport();
+        }
+        else if (OpenCookie.class.isAssignableFrom(desired)) {
+            return new OpenSourceCookie ();
         }
         return null;
     }
@@ -684,5 +695,55 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
             }
             
         }        
+    }
+
+    private class OpenSourceCookie implements OpenCookie {
+
+        public void open() {
+            try {
+                FileObject fo = getPrimaryFile();
+                FileObject binaryRoot = null;
+                String resourceName = null;
+                ClassPath cp = ClassPath.getClassPath (fo, ClassPath.COMPILE);
+                if (cp == null || (binaryRoot = cp.findOwnerRoot (fo))==null) {
+                    cp = ClassPath.getClassPath (fo, ClassPath.EXECUTE);
+                    if (cp != null) {
+                        binaryRoot = cp.findOwnerRoot (fo);
+                        resourceName = cp.getResourceName(fo,'/',false);  //NOI18N
+                    }
+                }
+                else if (binaryRoot != null) {
+                    resourceName = cp.getResourceName(fo,'/',false);  //NOI18N
+                }
+                FileObject[] sourceRoots = null;
+                if (binaryRoot != null) {
+                     sourceRoots = SourceForBinaryQuery.findSourceRoots (binaryRoot.getURL()).getRoots();
+                }
+                FileObject resource = null;
+                if (sourceRoots != null && sourceRoots.length>0) {
+                    cp = ClassPathSupport.createClassPath(sourceRoots);
+                    resource = cp.findResource (resourceName+ ".java"); //NOI18N
+                }
+                if (resource !=null ) {
+                    DataObject sourceFile = DataObject.find(resource);
+                    OpenCookie oc = (OpenCookie) sourceFile.getCookie(OpenCookie.class);
+                    if (oc != null) {
+                        oc.open();
+                    }
+                    else {
+                        ErrorManager.getDefault().log ("SourceFile: "+resource.getPath()+" has no OpenCookie"); //NOI18N
+                    }
+                }
+                else {
+                    StatusDisplayer.getDefault().setStatusText(MessageFormat.format(NbBundle.getMessage(ClassDataObject.class,"TXT_NoSources"),
+                        new Object[] {resourceName.replace('/','.')})); //NOI18N
+                }
+            } catch (FileStateInvalidException e) {
+                ErrorManager.getDefault().notify(e);
+            }
+            catch (DataObjectNotFoundException nf) {
+                ErrorManager.getDefault().notify(nf);
+            }
+        }
     }
 }
