@@ -2735,6 +2735,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onNonRecursiveDir">
 	  <value>true</value>
 	</property>
+	<property name="ignoreFail">
+	  <value>true</value>
+	</property>
       </command>
       <separator />
       <command name="LOGIN" displayName="ResourceMsg1(CVS_LOGIN, ${CVS_SERVER})" >
