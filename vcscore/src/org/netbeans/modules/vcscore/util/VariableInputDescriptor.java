@@ -59,7 +59,8 @@ public class VariableInputDescriptor extends Object {
     public static final String INPUT_STR_GLOBAL_PARAMS = "GLOBAL_PARAMS";
     public static final String INPUT_STR_GLOBAL_ALL_VARS = "ALL_VARIABLES";
     public static final String INPUT_IS_EXPERT = "_EXPERT";
-    
+    public static final String INPUT_IS_TRIVIAL = "_TRIVIAL";
+
     public static final String INPUT_STR_ENABLE = "ENABLE";
     public static final String INPUT_STR_DISABLE = "DISABLE";
     
@@ -156,6 +157,8 @@ public class VariableInputDescriptor extends Object {
             String inputStr = inputItems.substring(index, begin).trim();
             boolean expert = inputStr.endsWith(INPUT_IS_EXPERT);
             if (expert) inputStr = inputStr.substring(0, inputStr.length() - INPUT_IS_EXPERT.length());
+            boolean trivial = inputStr.endsWith(INPUT_IS_TRIVIAL);
+            if (trivial) inputStr = inputStr.substring(0, inputStr.length() - INPUT_IS_TRIVIAL.length());
             String[] varConditions = new String[2];
             inputStr = getVarConditions(inputStr, varConditions);
             int inputId = getInputId(inputStr);
@@ -176,6 +179,7 @@ public class VariableInputDescriptor extends Object {
             } else {
                 VariableInputComponent component = parseComponent(inputId, inputArgs, inputArg, resourceBundles);
                 component.setExpert(expert);
+                component.setTrivial(trivial);
                 component.setVarConditions(varConditions);
                 descriptor.components.add(component);
             }

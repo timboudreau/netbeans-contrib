@@ -600,7 +600,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
                              HashMap varsToEnableDisable,
                              java.awt.Component[] mainComponent_ptr) {
         if (VariableInputComponent.isVarConditionMatch(component.getVarConditions(), vars)) {
-            if (expert || !component.isExpert()) {
+            boolean visible = (component.isTrivial() && !expert);
+            visible = visible || (component.isExpert() && expert);
+            visible = visible || (component.isTrivial() == false && component.isExpert() == false);
+            if (visible) {
                 int componentId = component.getComponent();
                 switch (componentId) {
                     case VariableInputDescriptor.INPUT_PROMPT_FIELD:

@@ -26,6 +26,7 @@ public class VariableInputComponent extends Object {
 
     private int component;
     private boolean expert = false;
+    private boolean trivial;
     private String variable;
     private String label;
     private Character labelMnemonic;
@@ -103,9 +104,11 @@ public class VariableInputComponent extends Object {
     }
     
     public void setExpert(boolean expert) {
+        assert expert == false || trivial == false;
         this.expert = expert;
     }
-    
+
+    /** If true component is vible in expert mode only. */
     public boolean isExpert() {
         return expert;
     }
@@ -472,5 +475,14 @@ public class VariableInputComponent extends Object {
             items.append(VariableInputDescriptor.IF_VAR_NON_EMPTY_END);
         }
     }
-    
+
+    public void setTrivial(boolean trivial) {
+        assert expert == false || trivial == false;
+        this.trivial = trivial;
+    }
+
+    /** If true commonent can be displayed in trivial mode only. */
+    public boolean isTrivial() {
+        return trivial;
+    }
 }

@@ -1300,7 +1300,8 @@ public class CommandCustomizationSupport extends Object {
         }
     }
                             */
-    
+
+    /** Do not show if all options are for experts and I not in expert mode. */
     private static boolean showInputDescriptor(VariableInputDescriptor inputDescriptor, boolean isExpertMode, Map vars) {
         VariableInputComponent[] inputComponents = inputDescriptor.components();
         if (inputComponents.length == 0) return false;
