@@ -334,18 +334,15 @@ public class VcsUtilities {
             int pairedIndx = VcsUtilities.getPairIndex(str, charIndex + 1, p1, p2);
             while (pairedIndx >= index[0]) {
                 while(index[0] < str.length() && str.charAt(index[0]) != ',') {
-                    element += str.charAt(index[0]);
                     index[0]++;
                 }
-                element += str.charAt(index[0]);
-                index[0]++;
+                if (index[0] < str.length()) index[0]++;
                 while(index[0] < str.length() && Character.isWhitespace(str.charAt(index[0]))) {
-                    element += str.charAt(index[0]);
                     index[0]++;
                 }
                 int lastIndex = index[0];
                 element = VcsUtilities.getQuotedString(str, index);
-                element = str.substring(begin, lastIndex) + element;
+                element = str.substring(begin, lastIndex) + ((element != null) ? element : "");
                 if (quote && element.endsWith("\"")) element = element.substring(0, element.length() - 1);
             }
             if (pairedIndx > 0) {
