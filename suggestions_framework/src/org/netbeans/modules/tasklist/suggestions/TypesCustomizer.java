@@ -27,6 +27,7 @@ import javax.swing.JList;
 import javax.swing.JTextField;
 import org.netbeans.api.tasklist.SuggestionManager;
 import org.openide.util.NbBundle;
+import org.openide.awt.Mnemonics;
 
 /**
  * Panel used to customize which types are active, which are disabled,
@@ -47,6 +48,7 @@ public class TypesCustomizer extends javax.swing.JPanel
     /** Creates new form TypesCustomizer */
     public TypesCustomizer() {
         initComponents();
+        initA11y();
         populateLists();
         updateSensitivity();
         
@@ -142,27 +144,33 @@ public class TypesCustomizer extends javax.swing.JPanel
 
         activePanel.setLayout(new java.awt.BorderLayout(0, 6));
 
+        /*
         activeLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "ActiveTypes")); // NOI18N();
+        */
         activePanel.add(activeLabel, java.awt.BorderLayout.NORTH);
 
         activePanel.add(enabledList, java.awt.BorderLayout.CENTER);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         add(activePanel, gridBagConstraints);
 
         moveButtonPanel.setLayout(new java.awt.GridLayout(4, 1, 0, 6));
 
+        /*
         removeActiveButton.setText(">");
+        */
         moveButtonPanel.add(removeActiveButton);
 
         removeAllButton.setText(NbBundle.getMessage(TypesCustomizer.class, "RemoveType")); // NOI18N();
         moveButtonPanel.add(removeAllButton);
 
+        /*
         addActiveButton.setText("<");
+        */
         moveButtonPanel.add(addActiveButton);
 
         addAllButton.setText(NbBundle.getMessage(TypesCustomizer.class, "AddType")); // NOI18N();
@@ -172,7 +180,9 @@ public class TypesCustomizer extends javax.swing.JPanel
 
         disabledPanel.setLayout(new java.awt.BorderLayout(0, 6));
 
+        /*
         disabledLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "DisabledTypes")); // NOI18N();
+        */
         disabledPanel.add(disabledLabel, java.awt.BorderLayout.NORTH);
 
         disabledPanel.add(disabledList, java.awt.BorderLayout.CENTER);
@@ -180,14 +190,16 @@ public class TypesCustomizer extends javax.swing.JPanel
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         add(disabledPanel, gridBagConstraints);
 
         descPanel.setLayout(new java.awt.BorderLayout(0, 6));
 
+        /*
         jLabel1.setText(NbBundle.getMessage(TypesCustomizer.class, "TypeDesc")); // NOI18N();
+        */
         descPanel.add(jLabel1, java.awt.BorderLayout.NORTH);
 
         descTextArea.setLineWrap(true);
@@ -202,21 +214,25 @@ public class TypesCustomizer extends javax.swing.JPanel
 
         confPanel.setLayout(new java.awt.BorderLayout(0, 6));
 
+        /*
         confLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "NoConfirmation")); // NOI18N();
+        */
         confPanel.add(confLabel, java.awt.BorderLayout.NORTH);
 
         confPanel.add(confirmationList, java.awt.BorderLayout.CENTER);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
         add(confPanel, gridBagConstraints);
 
         confButtonPanel.setLayout(new java.awt.GridLayout(2, 1, 0, 6));
 
+        /*
         addConfButton.setText(NbBundle.getMessage(TypesCustomizer.class, "Add")); // NOI18N();
+        */
         confButtonPanel.add(addConfButton);
 
         removeConfButton.setText(NbBundle.getMessage(TypesCustomizer.class, "Remove")); // NOI18N();
@@ -236,7 +252,9 @@ public class TypesCustomizer extends javax.swing.JPanel
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         updatePanel.add(delayLabel, gridBagConstraints);
 
+        /*
         docShownCB.setText(NbBundle.getMessage(TypesCustomizer.class, "DocShown")); // NOI18N();
+        */
         docShownCB.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -248,7 +266,9 @@ public class TypesCustomizer extends javax.swing.JPanel
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         updatePanel.add(showDelayTF, gridBagConstraints);
 
+        /*
         docEditedCB.setText(NbBundle.getMessage(TypesCustomizer.class, "DocEdited")); // NOI18N();
+        */
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         updatePanel.add(docEditedCB, gridBagConstraints);
@@ -259,7 +279,9 @@ public class TypesCustomizer extends javax.swing.JPanel
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         updatePanel.add(editDelayTF, gridBagConstraints);
 
+        /*
         docSavedCB.setText(NbBundle.getMessage(TypesCustomizer.class, "DocSaved")); // NOI18N();
+        */
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         updatePanel.add(docSavedCB, gridBagConstraints);
@@ -276,6 +298,61 @@ public class TypesCustomizer extends javax.swing.JPanel
         add(updatePanel, gridBagConstraints);
 
     }//GEN-END:initComponents
+    
+    
+        /** Initialize accessibility settings on the panel */
+    private void initA11y() {
+        /*
+          I couldn't figure out how to use Mnemonics.setLocalizedText
+          to set labels and checkboxes with a mnemonic using the
+          form builder, so the closest I got was to use "/*" and "* /
+          as code pre-init/post-init blocks, such that I don't actually
+          execute the bundle lookup code - and then call it explicitly
+          below. (I wanted to keep the text on the components so that
+          I can see them when visually editing the GUI.
+        */
+
+        Mnemonics.setLocalizedText(activeLabel, NbBundle.getMessage(TypesCustomizer.class, "ActiveTypes")); // NOI18N
+        Mnemonics.setLocalizedText(removeActiveButton, NbBundle.getMessage(TypesCustomizer.class, "RemoveSingle")); // NOI18N
+        Mnemonics.setLocalizedText(addActiveButton, NbBundle.getMessage(TypesCustomizer.class, "AddSingle")); // NOI18N
+        Mnemonics.setLocalizedText(disabledLabel, NbBundle.getMessage(TypesCustomizer.class, "DisabledTypes")); // NOI18N
+        Mnemonics.setLocalizedText(jLabel1, NbBundle.getMessage(TypesCustomizer.class, "TypeDesc")); // NOI18N
+        Mnemonics.setLocalizedText(confLabel, NbBundle.getMessage(TypesCustomizer.class, "NoConfirmation")); // NOI18N
+        Mnemonics.setLocalizedText(addConfButton, NbBundle.getMessage(TypesCustomizer.class, "Add")); // NOI18N
+        Mnemonics.setLocalizedText(docShownCB, NbBundle.getMessage(TypesCustomizer.class, "DocShown")); // NOI18N
+        Mnemonics.setLocalizedText(docEditedCB, NbBundle.getMessage(TypesCustomizer.class, "DocEdited")); // NOI18N
+        Mnemonics.setLocalizedText(docSavedCB, NbBundle.getMessage(TypesCustomizer.class, "DocSaved")); // NOI18N
+        
+        this.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(TypesCustomizer.class, "ACSD_TypesCustomizer")); // NOI18N
+        enabledList.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(TypesCustomizer.class, "ACSD_Enabled")); // NOI18N
+        disabledList.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(TypesCustomizer.class, "ACSD_Disabled")); // NOI18N
+        descTextArea.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(TypesCustomizer.class, "ACSD_TypeDesc")); // NOI18N
+        confirmationList.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(TypesCustomizer.class, "ACSD_Conf")); // NOI18N
+        showDelayTF.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(TypesCustomizer.class, "ACSD_ShowDelay")); // NOI18N
+        editDelayTF.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(TypesCustomizer.class, "ACSD_EditDelay")); // NOI18N
+        saveDelayTF.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(TypesCustomizer.class, "ACSD_SaveDelay")); // NOI18N
+        addConfButton.getAccessibleContext().setAccessibleDescription(
+            NbBundle.getMessage(TypesCustomizer.class, "ACSD_AddConf")); // NOI18N
+        removeConfButton.getAccessibleContext().setAccessibleDescription(
+            NbBundle.getMessage(TypesCustomizer.class, "ACSD_RemConf")); // NOI18N
+        removeActiveButton.getAccessibleContext().setAccessibleDescription(
+            NbBundle.getMessage(TypesCustomizer.class, "ACSD_RemAct")); // NOI18N
+        removeAllButton.getAccessibleContext().setAccessibleDescription(
+            NbBundle.getMessage(TypesCustomizer.class, "ACSD_RemAll")); // NOI18N
+        addActiveButton.getAccessibleContext().setAccessibleDescription(
+            NbBundle.getMessage(TypesCustomizer.class, "ACSD_AddAct")); // NOI18N
+        addAllButton.getAccessibleContext().setAccessibleDescription(
+            NbBundle.getMessage(TypesCustomizer.class, "ACSD_AddAll")); // NOI18N
+        
+    }
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

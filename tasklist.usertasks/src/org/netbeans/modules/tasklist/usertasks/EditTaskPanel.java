@@ -156,9 +156,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private void initComponents() {//GEN-BEGIN:initComponents
         java.awt.GridBagConstraints gridBagConstraints;
 
-        prioGroup = new javax.swing.ButtonGroup();
-        appendGroup = new javax.swing.ButtonGroup();
-        buttonGroup1 = new javax.swing.ButtonGroup();
+        addButtonGroup = new javax.swing.ButtonGroup();
         descLabel = new javax.swing.JLabel();
         descriptionTextField = new javax.swing.JTextField();
         detailsLabel = new javax.swing.JLabel();
@@ -173,12 +171,10 @@ class EditTaskPanel extends JPanel implements ActionListener {
         categoryCombo = new javax.swing.JComboBox();
         opt2Label = new javax.swing.JLabel();
         fileCheckBox = new javax.swing.JCheckBox();
-        fileLabel = new javax.swing.JLabel();
         fileTextField = new javax.swing.JTextField();
         lineLabel = new javax.swing.JLabel();
         lineTextField = new javax.swing.JTextField();
         dueCheckBox = new javax.swing.JCheckBox();
-        dueLabel = new javax.swing.JLabel();
         dueDateTextField = new javax.swing.JTextField();
         dueDateBrowseButton = new javax.swing.JButton();
         addLabel = new javax.swing.JLabel();
@@ -190,14 +186,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
         setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(12, 12, 12, 12)));
         setPreferredSize(new java.awt.Dimension(400, 300));
-        /*
         descLabel.setLabelFor(descriptionTextField);
+        /*
         descLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "Brief_Description")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridwidth = 2;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(descLabel, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -207,14 +202,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(descriptionTextField, gridBagConstraints);
 
-    /*
     detailsLabel.setLabelFor(detailsTextArea);
+    /*
     detailsLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "DetailsLabel")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridwidth = 2;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
     add(detailsLabel, gridBagConstraints);
 
     detailsTextArea.setRows(5);
@@ -227,14 +221,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(detailsScrollPane, gridBagConstraints);
 
-    /*
     subtaskLabel.setLabelFor(subtaskCombo);
+    /*
     subtaskLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "IsSubtaskOf")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridwidth = 2;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(subtaskLabel, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -244,14 +237,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(subtaskCombo, gridBagConstraints);
 
-    /*
     prioLabel.setLabelFor(priorityComboBox);
+    /*
     prioLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "PriorityLabel")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridwidth = 2;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(prioLabel, gridBagConstraints);
 
     priorityComboBox.setModel(prioritiesModel);
@@ -269,14 +261,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 12, 0, 0);
     add(opt1Label, gridBagConstraints);
 
-    /*
     categoryLabel.setLabelFor(categoryCombo);
+    /*
     categoryLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "CategoryLabel")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridwidth = 2;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(categoryLabel, gridBagConstraints);
 
     categoryCombo.setEditable(true);
@@ -305,14 +296,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(fileCheckBox, gridBagConstraints);
 
-    /*
-    fileLabel.setLabelFor(fileTextField);
-    fileLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "FileName")); // NOI18N);
-    */
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(fileLabel, gridBagConstraints);
-
     fileTextField.setColumns(100);
     fileTextField.setEditable(false);
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -322,8 +305,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(fileTextField, gridBagConstraints);
 
-    /*
     lineLabel.setLabelFor(lineTextField);
+    /*
     lineLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "LineLabel")); // NOI18N);
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -355,14 +338,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(dueCheckBox, gridBagConstraints);
 
-    /*
-    dueLabel.setLabelFor(dueDateTextField);
-    dueLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "DueDateLabel")); // NOI18N);
-    */
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    add(dueLabel, gridBagConstraints);
-
     dueDateTextField.setEditable(false);
     dueDateTextField.setEnabled(false);
     gridBagConstraints = new java.awt.GridBagConstraints();
@@ -372,8 +347,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
     /*
     dueDateBrowseButton.setText("...");
-    dueDateBrowseButton.setEnabled(false);
     */
+    dueDateBrowseButton.setEnabled(false);
     dueDateBrowseButton.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
             EditTaskPanel.this.dueDateBrowseButtonActionPerformed(evt);
@@ -386,27 +361,24 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     add(dueDateBrowseButton, gridBagConstraints);
 
-    /*
     addLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "AddTo")); // NOI18N();
-    */
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridwidth = 2;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(addLabel, gridBagConstraints);
 
     /*
     beginningToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
-    buttonGroup1.add(beginningToggle);
     */
+    addButtonGroup.add(beginningToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(beginningToggle, gridBagConstraints);
 
     /*
     endToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N();
-    buttonGroup1.add(endToggle);
     */
+    addButtonGroup.add(endToggle);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(endToggle, gridBagConstraints);
@@ -433,25 +405,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
           execute the bundle lookup code - and then call it explicitly
           below. (I wanted to keep the text on the components so that
           I can see them when visually editing the GUI.
-
-          However, this doesn't only comment out the label setting,
-          but labelFor, enabled, etc. - so these are included below.
-
-          Be careful when editing attributes using the gui builder -
-          you may need to copy them down here.
-
         */
-        descLabel.setLabelFor(descriptionTextField);
-        detailsLabel.setLabelFor(detailsTextArea);
-        subtaskLabel.setLabelFor(subtaskCombo);
-        prioLabel.setLabelFor(priorityComboBox);
-        categoryLabel.setLabelFor(categoryCombo);
-        fileLabel.setLabelFor(fileTextField);
-        lineLabel.setLabelFor(lineTextField);
-        dueLabel.setLabelFor(dueDateTextField);
-        dueDateBrowseButton.setEnabled(false);
-        buttonGroup1.add(endToggle);
-        buttonGroup1.add(beginningToggle);
 
         Mnemonics.setLocalizedText(descLabel, NbBundle.getMessage(
                  EditTaskPanel.class, "Brief_Description")); // NOI18N
@@ -461,7 +415,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
                     EditTaskPanel.class, "IsSubtaskOf")); // NOI18N
         Mnemonics.setLocalizedText(prioLabel, NbBundle.getMessage(
                  EditTaskPanel.class, "PriorityLabel")); // NOI18N
-        Mnemonics.setLocalizedText(fileLabel, NbBundle.getMessage(
+        Mnemonics.setLocalizedText(fileCheckBox, NbBundle.getMessage(
                  EditTaskPanel.class, "AssociatedFile")); // NOI18N
         Mnemonics.setLocalizedText(categoryLabel, NbBundle.getMessage(
                      EditTaskPanel.class, "CategoryLabel")); // NOI18N
@@ -469,8 +423,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
                  EditTaskPanel.class, "LineLabel")); // NOI18N
         Mnemonics.setLocalizedText(dueCheckBox, NbBundle.getMessage(
                    EditTaskPanel.class, "DueDateCb")); // NOI18N
-        Mnemonics.setLocalizedText(dueLabel, NbBundle.getMessage(
-                EditTaskPanel.class, "DueDateLabel")); // NOI18N
         Mnemonics.setLocalizedText(addLabel, NbBundle.getMessage(
                 EditTaskPanel.class, "AddTo")); // NOI18N
         Mnemonics.setLocalizedText(dueDateBrowseButton, NbBundle.getMessage(
@@ -482,7 +434,41 @@ class EditTaskPanel extends JPanel implements ActionListener {
         Mnemonics.setLocalizedText(addSourceButton, NbBundle.getMessage(
                        EditTaskPanel.class, "AddToSource")); // NOI18N
 
-        //this.getAccessibleContext().setAccessibleDescription(getstr("ACSN_"));
+        this.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_NewTask")); // NOI18N
+        descriptionTextField.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_Brief_Description")); // NOI18N
+        detailsTextArea.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_Details")); // NOI18N
+        subtaskCombo.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_Subtasks")); // NOI18N
+        priorityComboBox.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_Priority")); // NOI18N
+        categoryCombo.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_Category")); // NOI18N
+        fileTextField.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_File")); // NOI18N
+
+        // We're using a checkbox to "label" the textfield - of course JCheckBox
+        // doesn't have a setLabelFor (since it is itself an input component)
+        // so we have to label the associated component ourselves
+        fileTextField.getAccessibleContext().setAccessibleName(fileCheckBox.getText());
+        dueDateTextField.getAccessibleContext().setAccessibleName(dueCheckBox.getText());
+
+        lineTextField.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_Line")); // NOI18N
+        dueDateTextField.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_Due")); // NOI18N
+        fileCheckBox.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_FileCb")); // NOI18N
+        dueCheckBox.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_DueCb")); // NOI18N
+        beginningToggle.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_Beginning")); // NOI18N
+        endToggle.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_End")); // NOI18N
+        addSourceButton.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_AddSource")); // NOI18N
 
         // Gotta set accessible name - no more that I've set label for?
         // gotta set accessible description "everywhere" ?
@@ -543,8 +529,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel categoryLabel;
     private javax.swing.JCheckBox fileCheckBox;
-    private javax.swing.JLabel dueLabel;
-    private javax.swing.ButtonGroup appendGroup;
     private javax.swing.JLabel addLabel;
     private javax.swing.JScrollPane detailsScrollPane;
     private javax.swing.JButton dueDateBrowseButton;
@@ -552,16 +536,14 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JComboBox priorityComboBox;
     private javax.swing.JTextArea detailsTextArea;
     private javax.swing.JTextField fileTextField;
-    private javax.swing.ButtonGroup prioGroup;
     private javax.swing.JCheckBox dueCheckBox;
     private javax.swing.JComboBox categoryCombo;
     private javax.swing.JLabel detailsLabel;
     private javax.swing.JLabel lineLabel;
     private javax.swing.JLabel opt1Label;
     private javax.swing.JLabel subtaskLabel;
+    private javax.swing.ButtonGroup addButtonGroup;
     private javax.swing.JLabel descLabel;
-    private javax.swing.JLabel fileLabel;
-    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JComboBox subtaskCombo;
     private javax.swing.JRadioButton beginningToggle;
     private javax.swing.JRadioButton endToggle;

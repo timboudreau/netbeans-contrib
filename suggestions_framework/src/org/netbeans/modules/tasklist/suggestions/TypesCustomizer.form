@@ -20,7 +20,7 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="activeLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/&#xa;">
               <ResourceString bundle="org/netbeans/modules/tasklist/suggestions/Bundle.properties" key="ActiveTypes" replaceFormat="NbBundle.getMessage(TypesCustomizer.class, &quot;{key}&quot;)); // NOI18N("/>
             </Property>
           </Properties>
@@ -54,7 +54,7 @@
       <SubComponents>
         <Component class="javax.swing.JButton" name="removeActiveButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="&gt;"/>
+            <Property name="text" type="java.lang.String" value="&gt;" preCode="/*" postCode="*/"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="removeAllButton">
@@ -66,7 +66,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="addActiveButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="&lt;"/>
+            <Property name="text" type="java.lang.String" value="&lt;" preCode="/*" postCode="*/"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="addAllButton">
@@ -91,7 +91,7 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="disabledLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
               <ResourceString bundle="org/netbeans/modules/tasklist/suggestions/Bundle.properties" key="DisabledTypes" replaceFormat="NbBundle.getMessage(TypesCustomizer.class, &quot;{key}&quot;)); // NOI18N("/>
             </Property>
           </Properties>
@@ -123,7 +123,7 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="jLabel1">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
               <ResourceString bundle="org/netbeans/modules/tasklist/suggestions/Bundle.properties" key="TypeDesc" replaceFormat="NbBundle.getMessage(TypesCustomizer.class, &quot;{key}&quot;)); // NOI18N("/>
             </Property>
           </Properties>
@@ -159,7 +159,7 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="confLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
               <ResourceString bundle="org/netbeans/modules/tasklist/suggestions/Bundle.properties" key="NoConfirmation" replaceFormat="NbBundle.getMessage(TypesCustomizer.class, &quot;{key}&quot;)); // NOI18N("/>
             </Property>
           </Properties>
@@ -193,7 +193,7 @@
       <SubComponents>
         <Component class="javax.swing.JButton" name="addConfButton">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
               <ResourceString bundle="org/netbeans/modules/tasklist/suggestions/Bundle.properties" key="Add" replaceFormat="NbBundle.getMessage(TypesCustomizer.class, &quot;{key}&quot;)); // NOI18N("/>
             </Property>
           </Properties>
@@ -242,7 +242,7 @@
         </Component>
         <Component class="javax.swing.JCheckBox" name="docShownCB">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
               <ResourceString bundle="org/netbeans/modules/tasklist/suggestions/Bundle.properties" key="DocShown" replaceFormat="NbBundle.getMessage(TypesCustomizer.class, &quot;{key}&quot;)); // NOI18N("/>
             </Property>
             <Property name="enabled" type="boolean" value="false"/>
@@ -266,7 +266,7 @@
         </Component>
         <Component class="javax.swing.JCheckBox" name="docEditedCB">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
               <ResourceString bundle="org/netbeans/modules/tasklist/suggestions/Bundle.properties" key="DocEdited" replaceFormat="NbBundle.getMessage(TypesCustomizer.class, &quot;{key}&quot;)); // NOI18N("/>
             </Property>
           </Properties>
@@ -289,7 +289,7 @@
         </Component>
         <Component class="javax.swing.JCheckBox" name="docSavedCB">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
               <ResourceString bundle="org/netbeans/modules/tasklist/suggestions/Bundle.properties" key="DocSaved" replaceFormat="NbBundle.getMessage(TypesCustomizer.class, &quot;{key}&quot;)); // NOI18N("/>
             </Property>
           </Properties>
