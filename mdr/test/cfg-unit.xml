@@ -18,6 +18,7 @@ Microsystems, Inc. All Rights Reserved.
         <testset dir="unit/src">
             <patternset>
                 <include name="org/netbeans/mdr/test/StorageTest.class"/>
+                <include name="org/netbeans/mdr/test/StorageWriteTest.class"/>
             </patternset>
         </testset>
     </testbag>
