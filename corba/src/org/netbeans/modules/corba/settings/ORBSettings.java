@@ -36,7 +36,7 @@ import org.openide.TopManager;
 import org.openide.filesystems.FileObject;
 import org.netbeans.modules.corba.*;
 
-public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
+public class ORBSettings implements java.io.Serializable {
 
     private static final boolean DEBUG = false;
     //private static final boolean DEBUG = true;
@@ -118,7 +118,7 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
 
     private String _M_orb_name;
 
-    private PropertyChangeSupport _M_property_change_support;
+    private transient PropertyChangeSupport _M_property_change_support;
 
     /** @return human presentable name */
     public String displayName() {
@@ -134,16 +134,16 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
         return _M_orb_name;
     }
 
-
-    public int compareTo (java.lang.Object __object) {
-	try {
-	    return this.getName ().compareTo (((ORBSettings)__object).getName ());
-	} catch (Exception __ex) {
-	    __ex.printStackTrace ();
-	}
-	return -1;
-    }
-
+    /*
+      public int compareTo (java.lang.Object __object) {
+      try {
+      return this.getName ().compareTo (((ORBSettings)__object).getName ());
+      } catch (Exception __ex) {
+      __ex.printStackTrace ();
+      }
+      return -1;
+      }
+    */
 
     public ORBSettings () {
         if (DEBUG)
@@ -346,15 +346,21 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setSkeletons (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_skeletons;
 	_M_skeletons = __value;
         firePropertyChange ("_M_skeletons", __old, _M_skeletons);
+	this.cacheThrow ();
     }
 
     public void setParams (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_params;
 	_M_params = __value;
         firePropertyChange ("_M_params", __old, _M_params);
+	this.cacheThrow ();
     }
 
     public String getParams () {
@@ -371,10 +377,13 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setClientBinding (ORBSettingsWrapper __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         ORBSettingsWrapper __old = _M_client_binding;
 	_M_client_binding = __value;
 	this.setJavaTemplateTable ();
         firePropertyChange ("_M_client_binding", __old, _M_client_binding);
+	this.cacheThrow ();
     }
 
     public void setClientBindingFromString (String __value) {
@@ -394,10 +403,13 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     public void setServerBinding (ORBSettingsWrapper __value) {
 	if (DEBUG)
 	    System.out.println ("ORBSettings::setServerBinding (" + __value + ")");
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	ORBSettingsWrapper __old = _M_server_binding;
 	_M_server_binding = __value;
 	this.setJavaTemplateTable ();
 	firePropertyChange ("_M_server_binding", __old, _M_server_binding);
+	this.cacheThrow ();
 	//public void setServerBinding (String __value) {
 	//_M_server_binding = __value;
         //String old = _server_binding;
@@ -425,6 +437,8 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setIdl (NbProcessDescriptor __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	NbProcessDescriptor __old = _M_idl;
 	_M_idl = __value;
         //System.out.println ("setIdl :-)");
@@ -436,13 +450,17 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
 
         //Thread.dumpStack ();
         firePropertyChange ("_M_idl", __old, _M_idl);
+	this.cacheThrow ();
     }
 
     public void setTieParam (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_tie_param;
 	_M_tie_param = __value;
         //_tie_param = s;
         firePropertyChange ("_M_tie_param", __old, _M_tie_param);
+	this.cacheThrow ();
     }
 
     public boolean isTie () {
@@ -470,9 +488,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     //}
 
     public void setPackageParam (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_package_param;
 	_M_package_param = __value;
         firePropertyChange ("_M_package_param", __old, _M_package_param);
+	this.cacheThrow ();
     }
 
     public String getPackageParam () {
@@ -484,9 +505,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setDirParam (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_dir_param;
 	_M_dir_param = __value;
         firePropertyChange ("_M_dir_param", __old, _M_dir_param);
+	this.cacheThrow ();
     }
 
     public String getDirParam () {
@@ -502,9 +526,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setPackageDelimiter (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_package_delimiter;
 	_M_package_delimiter = __value;
         firePropertyChange ("_M_package_delimiter", __old, _M_package_delimiter);
+	this.cacheThrow ();
     }
 
     public char delim () {
@@ -516,9 +543,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setErrorExpression (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_error_expression;
 	_M_error_expression = __value;
         firePropertyChange ("_M_error_expression", __old, _M_error_expression);
+	this.cacheThrow ();
     }
 
     public String expression () {
@@ -530,9 +560,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setFilePosition (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_file_position;
 	_M_file_position = __value;
         firePropertyChange ("_M_file_position", __old, _M_file_position);
+	this.cacheThrow ();
     }
 
     public int file () {
@@ -544,9 +577,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setLinePosition (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_line_position;
 	_M_line_position = __value;
         firePropertyChange ("_M_line_position", __old, _M_line_position);
+	this.cacheThrow ();
     }
 
     public int line () {
@@ -558,9 +594,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setColumnPosition (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_column_position;
 	_M_column_position = __value;
         firePropertyChange ("_M_column_position", __old, _M_column_position);
+	this.cacheThrow ();
     }
 
     public int column () {
@@ -572,9 +611,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setMessagePosition (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_message_position;
 	_M_message_position = __value;
         firePropertyChange ("_M_message_position", __old, _M_message_position);
+	this.cacheThrow ();
     }
 
     public int message () {
@@ -583,9 +625,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
 
 
     public void setImplBasePrefix (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_impl_prefix;
         _M_impl_prefix = __value;
 	firePropertyChange ("_M_impl_prefix", __old, _M_impl_prefix);
+	this.cacheThrow ();
     }
 
     public String getImplBasePrefix () {
@@ -593,9 +638,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setImplBasePostfix (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_impl_postfix;
         _M_impl_postfix = __value;
 	firePropertyChange ("_M_impl_postfix", __old, _M_impl_postfix);
+	this.cacheThrow ();
     }
 
     public String getImplBasePostfix () {
@@ -604,9 +652,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
 
 
     public void setExtClassPrefix (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_ext_class_prefix;
         _M_ext_class_prefix = __value;
 	firePropertyChange ("_M_ext_class_prefix", __old, _M_ext_class_prefix);
+	this.cacheThrow ();
     }
 
     public String getExtClassPrefix () {
@@ -614,9 +665,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setExtClassPostfix (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_ext_class_postfix;
         _M_ext_class_postfix = __value;
 	firePropertyChange ("_M_ext_class_postfix", __old, _M_ext_class_postfix);
+	this.cacheThrow ();
     }
 
     public String getExtClassPostfix () {
@@ -624,9 +678,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setTiePrefix (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_tie_prefix;
         _M_tie_prefix = __value;
 	firePropertyChange ("_M_tie_prefix", __old, _M_tie_prefix);
+	this.cacheThrow ();
     }
 
     public String getTiePrefix () {
@@ -634,9 +691,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setTiePostfix (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_tie_postfix;
         _M_tie_postfix = __value;
 	firePropertyChange ("_M_tie_postfix", __old, _M_tie_postfix);
+	this.cacheThrow ();
     }
 
     public String getTiePostfix () {
@@ -645,9 +705,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
 
 
     public void setImplIntPrefix (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_impl_int_prefix;
         _M_impl_int_prefix = __value;
 	firePropertyChange ("_M_impl_int_prefix", __old, _M_impl_int_prefix);
+	this.cacheThrow ();
     }
 
     public String getImplIntPrefix () {
@@ -655,9 +718,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     }
 
     public void setImplIntPostfix (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_impl_int_postfix;
         _M_impl_int_postfix = __value;
 	firePropertyChange ("_M_impl_int_postfix", __old, _M_impl_int_postfix);
+	this.cacheThrow ();
     }
 
     public String getImplIntPostfix () {
@@ -666,9 +732,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
 
 
     public void setReplaceableStringsTable (String __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
         String __old = _M_table;
 	_M_table = __value;
         firePropertyChange ("_M_table", __old, _M_table);
+	this.cacheThrow ();
     }
 
     public String getRaplaceableStringsTable () {
@@ -774,9 +843,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
 
 
     public void setHideGeneratedFiles (boolean __value) {
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	boolean __old = _M_hide_generated_files;
         _M_hide_generated_files = __value;
 	firePropertyChange ("_M_hide_generated_files", __old, _M_hide_generated_files);       
+	this.cacheThrow ();
     }
     /*
       public void setAdvancedOrbOptions (String orb) {
@@ -1193,15 +1265,18 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
     */
 
     public String getGeneration () {
-        //System.out.println ("getGeneration () -> " + generation);
+        //System.out.println ("ORBSettings::getGeneration () -> " + _M_generation + " for " + _M_orb_name);
         return _M_generation;
     }
 
     public void setGeneration (String __value) {
-        //System.out.println ("setGeneration (" + value + ");");
+        //System.out.println ("ORBSettings::setGeneration (" + __value + "); for " + _M_orb_name);
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_generation;
         _M_generation = __value;
 	firePropertyChange ("_M_generation", __old, _M_generation);
+	this.cacheThrow ();
     }
 
     public String getSynchro () {
@@ -1211,9 +1286,12 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
 
     public void setSynchro (String __value) {
         //System.out.println ("setSynchro (" + value + ");");
+	if (_M_property_change_support == null)
+	    _M_property_change_support = new PropertyChangeSupport (this);
 	String __old = _M_synchro;
         _M_synchro = __value;
 	firePropertyChange ("_M_synchro", __old, _M_synchro);
+	this.cacheThrow ();
     }
 
 
@@ -1290,6 +1368,13 @@ public class ORBSettings implements java.io.Serializable, java.lang.Comparable {
 	    System.out.println ("ORBSettings::getClientBindings () -> " + _M_client_bindings);
 	return _M_client_bindings;
     }
+
+    public void cacheThrow () {
+	CORBASupportSettings __css = (CORBASupportSettings)
+	    CORBASupportSettings.findObject (CORBASupportSettings.class, true);
+	__css.cacheThrow ();
+    }
+
 }
 
 

@@ -224,16 +224,15 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
       //deserealization = false;
       }
     */
-
-    public void writeExternal (ObjectOutput __out) throws IOException {
-	if (DEBUG)
-	    System.out.println ("CORBASupportSettings::writeExternal (" + __out + ")");
-	//_M_implementations.writeExternal (__out);
-	//((BeanContextSupport)_M_implementations).writeObject (__out);
-	super.writeExternal (__out);
-    }
-
-
+    /*
+      public void writeExternal (ObjectOutput __out) throws IOException {
+      if (DEBUG)
+      System.out.println ("CORBASupportSettings::writeExternal (" + __out + ")");
+      //_M_implementations.writeExternal (__out);
+      //((BeanContextSupport)_M_implementations).writeObject (__out);
+      super.writeExternal (__out);
+      }
+    */
     /*
       private void writeObject (java.io.ObjectOutputStream __out) throws IOException {
       if (DEBUG)
@@ -1073,9 +1072,14 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     }
 
 
+    //public synchronized void loadImpl () {
     public void loadImpl () {
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::loadImpl ()");
+
+	//if (_M_loaded)
+	//    return;
+
 	_M_loaded = true;
 	if (_M_orb_names == null)
 	    _M_orb_names = new Vector (5);
@@ -1176,12 +1180,12 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
 
     public Vector getNamingServiceChildren () {
-        //System.out.println ("getNamingServiceChildren");
+        //System.out.println ("getNamingServiceChildren: " + namingChildren);
         return namingChildren;
     }
 
     public void setNamingServiceChildren (Vector children) {
-        //System.out.println ("setNamingServiceChildren");
+        //System.out.println ("setNamingServiceChildren: " + children);
         namingChildren = children;
     }
 
@@ -1267,6 +1271,12 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	return null;
     }
 
+    public void cacheThrow () {
+	//System.out.println ("CCS::cacheThrow ()");
+	_M_orb_name_cache = null;
+	_M_setting_cache = null;
+    }
+
     public ORBSettings getActiveSetting () {
 	//if (DEBUG) 
 	//System.out.println ("CORBASupportSettings::getActiveSetting ()");
@@ -1275,8 +1285,10 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    loadImpl ();
 	if (_M_orb_name_cache != null) {
 	    if (_M_orb_name_cache.equals (this.getOrb ()) && (_M_setting_cache != null)) {
-		if (DEBUG)
+		if (DEBUG) {
 		    System.out.println ("cache hit");
+		    System.out.println ("orb: " + _M_orb_name_cache);
+		}
 		return _M_setting_cache;
 	    }
 	}
@@ -1290,9 +1302,10 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	for (int __i = 0; __i < __settings.length; __i++) {
 	    ORBSettings __setting = (ORBSettings)__settings[__i];
 	    String __name = __setting.getName ();
-	    //if (DEBUG)
-	    //System.out.println (__name + " X " + this.getOrb ());
+	    if (DEBUG)
+		System.out.println (__name + " X " + this.getOrb ());
 	    if (__name.equals (_M_orb_name_cache)) {
+		//System.out.println ("orb: " + this.getOrb ());
 		_M_setting_cache = __setting;
 		return __setting;
 	    }
