@@ -15,7 +15,6 @@ package org.netbeans.modules.tasklist.pmd;
 
 import net.sourceforge.pmd.RuleViolation;
 import pmd.*;
-import org.netbeans.api.tasklist.*;
 import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -34,6 +33,8 @@ import org.openide.src.*;
 
 
 import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.modules.tasklist.client.Suggestion;
+import org.netbeans.modules.tasklist.client.SuggestionPerformer;
 //import org.netbeans.modules.tasklist.core.ConfPanel;
 
 /**

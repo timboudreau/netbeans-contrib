@@ -13,7 +13,6 @@
 
 package org.netbeans.modules.tasklist.html;
 
-import org.netbeans.api.tasklist.*;
 
 import javax.swing.text.*;
 import javax.swing.event.*;
@@ -36,8 +35,11 @@ import org.netbeans.modules.html.*;
 import org.w3c.tidy.*;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
-import org.netbeans.spi.tasklist.SuggestionContext;
+import org.netbeans.modules.tasklist.client.Suggestion;
+import org.netbeans.modules.tasklist.client.SuggestionManager;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
+import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
+import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
 
 /**

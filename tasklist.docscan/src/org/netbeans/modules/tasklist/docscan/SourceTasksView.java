@@ -40,7 +40,7 @@ import org.openide.nodes.AbstractNode;
 
 import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.suggestions.*;
-import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 
 
 /**

@@ -15,7 +15,6 @@ package org.netbeans.modules.tasklist.pmd;
 
 import net.sourceforge.pmd.RuleViolation;
 import pmd.*;
-import org.netbeans.api.tasklist.*;
 import javax.swing.text.*;
 import javax.swing.event.*;
 import java.awt.*;
@@ -30,6 +29,8 @@ import org.openide.util.NbBundle;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.ConfPanel;
+import org.netbeans.modules.tasklist.client.Suggestion;
+import org.netbeans.modules.tasklist.client.SuggestionPerformer;
 
 /**
  * Perform import statement confirmation & removal

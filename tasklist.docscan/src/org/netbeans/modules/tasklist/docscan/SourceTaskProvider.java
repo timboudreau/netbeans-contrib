@@ -22,10 +22,11 @@ import java.io.IOException;
 import org.openide.ErrorManager;
 import org.openide.loaders.DataObject;
 
-import org.netbeans.api.tasklist.*;
 import org.netbeans.modules.tasklist.core.*;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
-import org.netbeans.spi.tasklist.SuggestionContext;
+import org.netbeans.modules.tasklist.client.Suggestion;
+import org.netbeans.modules.tasklist.client.SuggestionManager;
+import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
+import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
 // I was tempted to use BaseDocument here, since it has various
 // advantages such as utilities for computing line numbers, access
@@ -237,7 +238,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
                     }
                     
                     SuggestionManager manager = SuggestionManager.getDefault();
-                    Suggestion item = 
+                    Suggestion item =
                         manager.createSuggestion(SourceTaskProvider.TYPE,
                                                 description,
                                                 null,
@@ -323,7 +324,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
                 String description = text.subSequence(begin, nonwhite+1).toString();
 
                 SuggestionManager manager = SuggestionManager.getDefault();
-                Suggestion item = 
+                Suggestion item =
                     manager.createSuggestion(SourceTaskProvider.TYPE,
                                              description,
                                              null,

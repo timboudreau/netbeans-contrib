@@ -19,7 +19,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="Hidden">
             <file name="org-netbeans-spi-tasklist-SPIHoleImpl.instance">
                 <attr name="instanceOf" stringvalue="org.netbeans.apihole.tasklist.SPIHole"/>
-                <attr name="instanceCreate" methodvalue="org.netbeans.spi.tasklist.SPIHoleImpl.layerEntryPoint"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.tasklist.providers.SPIHoleImpl.layerEntryPoint"/>
             </file>
         </folder>
     </folder>

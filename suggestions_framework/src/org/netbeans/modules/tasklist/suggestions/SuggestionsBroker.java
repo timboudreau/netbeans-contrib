@@ -28,7 +28,7 @@ import org.openide.cookies.EditorCookie;
 import org.openide.util.RequestProcessor;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 
 import javax.swing.*;
 import javax.swing.Timer;

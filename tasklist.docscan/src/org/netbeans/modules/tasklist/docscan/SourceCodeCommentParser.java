@@ -16,7 +16,7 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import org.netbeans.spi.tasklist.SuggestionContext;
+import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
 import java.io.BufferedReader;
 import java.io.File;

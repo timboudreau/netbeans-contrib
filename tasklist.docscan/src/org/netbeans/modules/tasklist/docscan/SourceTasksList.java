@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 import org.netbeans.modules.tasklist.suggestions.SuggestionList;
 import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.api.tasklist.Suggestion;
+import org.netbeans.modules.tasklist.client.Suggestion;
 
 
 /**

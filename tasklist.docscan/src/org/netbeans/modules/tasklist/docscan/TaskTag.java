@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 
 
 /** Represents a tag in the user's source code that should be interpreted

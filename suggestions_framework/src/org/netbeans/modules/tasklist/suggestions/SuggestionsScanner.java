@@ -20,11 +20,11 @@ import org.openide.util.NbBundle;
 import org.openide.util.Lookup;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
-import org.netbeans.spi.tasklist.SuggestionContext;
-import org.netbeans.spi.tasklist.SuggestionProvider;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.modules.tasklist.providers.SuggestionContext;
+import org.netbeans.modules.tasklist.providers.SuggestionProvider;
+import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 import org.netbeans.apihole.tasklist.SPIHole;
-import org.netbeans.api.tasklist.SuggestionManager;
+import org.netbeans.modules.tasklist.client.SuggestionManager;
 
 import java.util.*;
 import java.lang.ref.WeakReference;

@@ -51,12 +51,11 @@ import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.util.RequestProcessor;
 
-import org.netbeans.api.tasklist.*;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
-import org.netbeans.spi.tasklist.SuggestionProvider;
-import org.netbeans.spi.tasklist.SuggestionContext;
+import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
+import org.netbeans.modules.tasklist.providers.SuggestionProvider;
+import org.netbeans.modules.tasklist.providers.SuggestionContext;
 import org.netbeans.apihole.tasklist.SPIHole;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
@@ -111,7 +110,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      *
      * @param id The String id of the Suggestion Type we're
      *    interested in. You may pass null to ask about any/all
-     *    Suggestion Types. See the {@link Suggestion} documentation
+     *    Suggestion Types. See the {@link org.netbeans.modules.tasklist.client.Suggestion} documentation
      for how Suggestion Types are registered and named.
      *
      * @return True iff the suggestions are observed by the user.
@@ -276,7 +275,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      * <p>
      *
      * @param id The String id of the Suggestion Type. See the
-     *    {@link Suggestion} documentation for how Suggestion Types
+     *    {@link org.netbeans.modules.tasklist.client.Suggestion} documentation for how Suggestion Types
      *    are registered and named.
      *
      * @return True iff the given suggestion type is enabled
@@ -291,7 +290,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      * <p>
      *
      * @param id The String id of the Suggestion Type. See the
-     *    {@link Suggestion} documentation for how Suggestion Types
+     *    {@link org.netbeans.modules.tasklist.client.Suggestion} documentation for how Suggestion Types
      *    are registered and named.
      * @param enabled True iff the suggestion type should be enabled
      * @param dontSave If true, don't save the registry file. Used for batch
@@ -382,7 +381,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      * re-enable it.
      *
      * @param type The Suggestion Type. See the
-     *    {@link Suggestion} documentation for how Suggestion Types
+     *    {@link org.netbeans.modules.tasklist.client.Suggestion} documentation for how Suggestion Types
      *    are registered and named.
      *
      * @return True iff the given suggestion type should have a
@@ -399,7 +398,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      * <p>
      *
      * @param type The Suggestion Type. See the
-     *    {@link Suggestion} documentation for how Suggestion Types
+     *    {@link org.netbeans.modules.tasklist.client.Suggestion} documentation for how Suggestion Types
      *    are registered and named.
      * @param write Write to disk the update iff true.
      * @param confirm True iff the suggestion type should have a confirmation

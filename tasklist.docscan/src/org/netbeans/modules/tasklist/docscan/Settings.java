@@ -14,7 +14,7 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.openide.options.SystemOption;
 import org.openide.util.NbBundle;
 

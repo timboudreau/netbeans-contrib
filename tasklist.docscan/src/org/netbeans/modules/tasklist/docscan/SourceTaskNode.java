@@ -32,8 +32,8 @@ import org.openide.loaders.DataObject;
 import org.openide.text.Line;
 import org.openide.text.DataEditorSupport;
 
-import org.netbeans.api.tasklist.SuggestionPriority;
-import org.netbeans.api.tasklist.Suggestion;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.Suggestion;
 
 import org.netbeans.modules.tasklist.suggestions.*;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;

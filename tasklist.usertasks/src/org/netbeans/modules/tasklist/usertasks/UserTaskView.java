@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import org.openide.text.Annotation;
-import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.ColumnProperty;
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
 import org.netbeans.modules.tasklist.core.ExportAction;

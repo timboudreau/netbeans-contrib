@@ -79,6 +79,24 @@ is the proper place.
 
       <change>
           <api name="general"/>
+          <summary>Repackaged to modules package</summary>
+          <version major="1" minor="5"/>
+          <date day="11" month="12" year="2003"/>
+          <author login="pkuzel"/>
+          <compatibility deletion="yes" addition="yes"/>
+          <description>
+              Repackaged from <code>org.netbeans.api|spi.tasklist</code>
+              <code>to org.netbeans.modules.tasklist.client|providers</code>
+              because the API does not match criteria on <code>org.netbeans.api</code>
+              package APIs (similar to <code>java.lang</code> :-).
+              <p>
+              Please adjust all you import statements and mf-layer files.
+              </p>
+          </description>
+      </change>
+
+      <change>
+          <api name="general"/>
           <summary>Framework separated to API and SPI part.</summary>
           <version major="1" minor="4"/>
           <date day="14" month="11" year="2003"/>

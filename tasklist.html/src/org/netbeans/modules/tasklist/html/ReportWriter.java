@@ -13,8 +13,6 @@
 
 package org.netbeans.modules.tasklist.html;
 
-import org.netbeans.api.tasklist.*;
-
 import javax.swing.text.*;
 import javax.swing.event.*;
 import java.awt.*;

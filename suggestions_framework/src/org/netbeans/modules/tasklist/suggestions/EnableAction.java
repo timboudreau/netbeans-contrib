@@ -45,7 +45,7 @@ import org.openide.awt.*;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.XMLDataObject;
-import org.netbeans.api.tasklist.SuggestionManager;
+import org.netbeans.modules.tasklist.client.SuggestionManager;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 

@@ -17,8 +17,8 @@ import org.openide.util.Lookup;
 import org.openide.util.LookupListener;
 import org.openide.util.LookupEvent;
 import org.openide.ErrorManager;
-import org.netbeans.spi.tasklist.SuggestionProvider;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
+import org.netbeans.modules.tasklist.providers.SuggestionProvider;
+import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 
 import java.util.*;
 import java.lang.ref.WeakReference;

@@ -27,9 +27,9 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.NbBundle;
 
-import org.netbeans.api.tasklist.*;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
-import org.netbeans.spi.tasklist.SuggestionContext;
+import org.netbeans.modules.tasklist.client.*;
+import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
+import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
 

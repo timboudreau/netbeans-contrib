@@ -22,7 +22,7 @@ import org.openide.explorer.propertysheet.ExPropertyEditor;
 import org.openide.explorer.propertysheet.PropertyEnv;
 import org.openide.nodes.Node;
 
-import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.Task;
 
 /**

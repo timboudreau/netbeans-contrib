@@ -24,7 +24,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 
 import org.openide.explorer.propertysheet.*;
-import org.netbeans.api.tasklist.*;
+import org.netbeans.modules.tasklist.client.Suggestion;
 
 import pmd.config.PMDOptionsSettings;
 import pmd.config.ui.RuleEditor;

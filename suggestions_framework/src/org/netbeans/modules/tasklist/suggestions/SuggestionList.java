@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import org.netbeans.api.tasklist.*;
 import org.netbeans.modules.tasklist.core.TaskList;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.core.TaskNode;
+import org.netbeans.modules.tasklist.client.SuggestionManager;
 
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;

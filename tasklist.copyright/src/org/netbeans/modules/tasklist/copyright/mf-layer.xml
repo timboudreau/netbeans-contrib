@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="Services">
         <folder name="SuggestionProviders">
             <file name="org-netbeans-modules-tasklist-copyright-CopyrightChecker.instance">
-                <attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.SuggestionProvider"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.tasklist.providers.SuggestionProvider"/>
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.copyright.CopyrightChecker"/>
             </file>
         </folder>

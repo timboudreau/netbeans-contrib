@@ -13,7 +13,7 @@
 
 package org.netbeans.apihole.tasklist;
 
-import org.netbeans.spi.tasklist.SuggestionContext;
+import org.netbeans.modules.tasklist.providers.SuggestionContext;
 import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
 

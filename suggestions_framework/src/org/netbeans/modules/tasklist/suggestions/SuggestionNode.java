@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Collections;
 
-import org.netbeans.api.tasklist.Suggestion;
+import org.netbeans.modules.tasklist.client.Suggestion;
 
 import org.netbeans.modules.tasklist.core.*;
 import org.openide.ErrorManager;
@@ -32,7 +32,7 @@ import org.openide.nodes.Sheet.Set;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import java.awt.datatransfer.Transferable;
-import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
@@ -176,7 +176,7 @@ public class SuggestionNode extends TaskNode {
             ss.put(p);
             
 
-            p = new Reflection(item, SuggestionPriority.class, 
+            p = new Reflection(item, SuggestionPriority.class,
                 "getPriority", null); // NOI18N
             p.setName(SuggestionsView.PROP_SUGG_PRIO);
             p.setPropertyEditorClass(PriorityPropertyEditor.class);

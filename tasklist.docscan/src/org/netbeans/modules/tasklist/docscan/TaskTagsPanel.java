@@ -33,7 +33,7 @@ import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.awt.Mnemonics;
 import org.openide.util.NbBundle;
 
-import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 

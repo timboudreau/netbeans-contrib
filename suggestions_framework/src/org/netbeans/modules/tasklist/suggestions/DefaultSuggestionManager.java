@@ -13,9 +13,9 @@
 
 package org.netbeans.modules.tasklist.suggestions;
 
-import org.netbeans.api.tasklist.SuggestionManager;
-import org.netbeans.api.tasklist.Suggestion;
-import org.netbeans.api.tasklist.SuggestionPerformer;
+import org.netbeans.modules.tasklist.client.SuggestionManager;
+import org.netbeans.modules.tasklist.client.Suggestion;
+import org.netbeans.modules.tasklist.client.SuggestionPerformer;
 
 import java.util.List;
 import java.util.ListIterator;

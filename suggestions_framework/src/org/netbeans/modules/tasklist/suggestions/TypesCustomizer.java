@@ -39,7 +39,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import org.netbeans.api.tasklist.SuggestionManager;
+import org.netbeans.modules.tasklist.client.SuggestionManager;
 import org.openide.util.NbBundle;
 import org.openide.awt.Mnemonics;
 

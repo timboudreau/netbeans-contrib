@@ -37,7 +37,7 @@ import org.netbeans.modules.html.*;
 import org.netbeans.api.diff.*;
 
 import org.netbeans.modules.tasklist.core.*;
-import org.netbeans.api.tasklist.*;
+import org.netbeans.modules.tasklist.client.Suggestion;
 
 import org.w3c.tidy.*;
 

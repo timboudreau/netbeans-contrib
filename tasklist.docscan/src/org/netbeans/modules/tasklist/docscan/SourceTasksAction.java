@@ -28,7 +28,7 @@ import org.openide.windows.Mode;
 import org.openide.windows.WindowManager;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.filesystems.*;
-import org.netbeans.api.tasklist.SuggestionManager;
+import org.netbeans.modules.tasklist.client.SuggestionManager;
 import org.netbeans.modules.tasklist.suggestions.SuggestionManagerImpl;
 import org.netbeans.modules.tasklist.suggestions.SuggestionList;
 import org.netbeans.modules.tasklist.suggestions.SuggestionsScanner;

@@ -20,7 +20,7 @@ import java.beans.PropertyEditorSupport;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 import org.netbeans.modules.tasklist.core.Task;
 

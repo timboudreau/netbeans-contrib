@@ -22,7 +22,6 @@ import net.sourceforge.pmd.RuleViolation;
 import pmd.*;
 import pmd.config.ConfigUtils;
 import pmd.config.PMDOptionsSettings;
-import org.netbeans.api.tasklist.*;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -45,8 +44,12 @@ import org.openide.util.Utilities;
 import org.openide.text.DataEditorSupport;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
-import org.netbeans.spi.tasklist.SuggestionContext;
+import org.netbeans.modules.tasklist.client.Suggestion;
+import org.netbeans.modules.tasklist.client.SuggestionManager;
+import org.netbeans.modules.tasklist.client.SuggestionPerformer;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
+import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
+import org.netbeans.modules.tasklist.providers.SuggestionContext;
 import org.openide.src.ClassElement;
 import org.openide.src.Identifier;
 

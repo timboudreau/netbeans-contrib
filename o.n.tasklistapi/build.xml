@@ -79,7 +79,8 @@ Microsystems, Inc. All Rights Reserved.
         <delete dir="javadoc"/>
     </target>
 
-    <target name="javadoc" description="Build Javadoc.">
+    <!-- Diabled as API leave official package -->
+    <target name="x-javadoc" description="Build Javadoc.">
         <ant dir="${nb_all}/nbbuild/javadoctools" antfile="template.xml" target="javadoc">
             <property name="javadoc.base" location="."/>
             <property name="javadoc.name" value="TasklistAPI"/>

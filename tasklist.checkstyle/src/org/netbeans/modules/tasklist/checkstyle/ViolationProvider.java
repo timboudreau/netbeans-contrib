@@ -13,7 +13,6 @@
 
 package org.netbeans.modules.tasklist.checkstyle;
 
-import org.netbeans.api.tasklist.*;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -42,8 +41,12 @@ import com.puppycrawl.tools.checkstyle.*;
 import com.puppycrawl.tools.checkstyle.api.*;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.spi.tasklist.DocumentSuggestionProvider;
-import org.netbeans.spi.tasklist.SuggestionContext;
+import org.netbeans.modules.tasklist.client.Suggestion;
+import org.netbeans.modules.tasklist.client.SuggestionManager;
+import org.netbeans.modules.tasklist.client.SuggestionPerformer;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
+import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
+import org.netbeans.modules.tasklist.providers.SuggestionContext;
 
 /**
  * This class uses the Checkstyle rule checker to provide rule violation

@@ -16,7 +16,7 @@ package org.netbeans.modules.tasklist.usertasks;
 import java.beans.PropertyEditorManager;
 import java.util.Date;
 import java.util.List;
-import org.netbeans.api.tasklist.SuggestionPriority;
+import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.GoToTaskAction;
 import org.netbeans.modules.tasklist.core.ExpandAllAction;
 import org.netbeans.modules.tasklist.core.ExportAction;

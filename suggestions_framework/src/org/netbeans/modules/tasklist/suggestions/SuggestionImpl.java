@@ -16,12 +16,11 @@ package org.netbeans.modules.tasklist.suggestions;
 import java.awt.Image;
 import org.openide.util.Utilities;
 import org.netbeans.modules.tasklist.core.Task;
+import org.netbeans.modules.tasklist.client.SuggestionPerformer;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.text.Line;
 import org.openide.text.DataEditorSupport;
-
-import org.netbeans.api.tasklist.*;
 
 
 // XXX todo: fire property change whenever anything changes in the node...
