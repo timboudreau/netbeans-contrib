@@ -42,7 +42,10 @@ public class AddVcsGroupAction extends NodeAction {
             try {
                 FileObject fo = rootFolder.getPrimaryFile();
                 String foldName = FileUtil.findFreeFolderName(fo, "group");//NOI18N
-                FileObject props = fo.createData(foldName, VcsGroupNode.PROPFILE_EXT);
+                FileObject props = fo.getFileObject(foldName, VcsGroupNode.PROPFILE_EXT);
+                if (props == null) {
+                    props = fo.createData(foldName, VcsGroupNode.PROPFILE_EXT);
+                }
                 PrintWriter writer = new PrintWriter(props.getOutputStream(props.lock()));
                 writer.println(VcsGroupNode.PROP_NAME + "=" + newName);//NOI18N
                 writer.close();
