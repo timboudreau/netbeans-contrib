@@ -37,9 +37,7 @@ import org.openide.nodes.Children;
 
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
-import org.netbeans.modules.vcscore.caching.VcsFSCache;
-import org.netbeans.modules.vcscore.caching.VcsCacheFile;
-import org.netbeans.modules.vcscore.caching.VcsCacheDir;
+import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
@@ -128,7 +126,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     //private Object advanced = null; // Not used any more, use commandsRoot instead
     private transient Node commandsRoot = null;
 
-    protected transient VcsFSCache cache = null;
+    protected transient FileCacheProvider cache = null;
+    protected transient FileStatusProvider statusProvider = null;
+    private int[] multiFilesAnnotationTypes = null;
+    private String annotationPattern = null;
 
     //private long cacheId = 0;
     //private String cacheRoot = null; // NOI18N
@@ -393,7 +394,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
          
-        if (isValid()) this.cache.refreshDirFromDiskCache(getFile(""));
+        if (isValid()) {
+            if (cache != null) {
+                cache.refreshDirFromDiskCache(getFile(""));
+            }
+        }
     }    
     
         
@@ -512,13 +517,22 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     */
 
 
-    //-------------------------------------------
-    public VcsFSCache getCache(){
+    /**
+     * Get the provider of the cache.
+     */
+    public FileCacheProvider getCacheProvider() {
         return cache;
+    }
+    
+    /**
+     * Get the provider of file status attributes.
+     */
+    public FileStatusProvider getStatusProvider() {
+        return statusProvider;
     }
 
     //-------------------------------------------
-    public void setCache(VcsFSCache cache) {
+    public void setCache(FileCacheProvider cache) {
         this.cache = cache;
     }
     
@@ -555,34 +569,20 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
      */
 
-    /*
-    //-------------------------------------------
-    protected String createNewCacheDir() {
-        String dir;
-        if (cacheId == 0) {
-            do {
-                cacheId = 10000 * (1 + Math.round (Math.random () * 8)) + Math.round (Math.random () * 1000);
-            } while (new File(cacheRoot+File.separator+cacheId).isDirectory ());
-        }
-        dir = cacheRoot+File.separator+cacheId;
-        createDir(dir);
-        return dir;
-    }
+    /**
+     * Perform some initialization job. This method is called both when a new instance
+     * of this class is created and after deserialization. Subclasses should call super.init().
      */
-
-    //-------------------------------------------
     protected void init() {
         D.deb ("init()"); // NOI18N
         if (unimportantNames == null) unimportantNames = new Vector();
         if (tempFiles == null) tempFiles = new Vector();
-        /*
-        if (cacheRoot == null) {
-            cacheRoot = System.getProperty("netbeans.user")+File.separator+
-                        "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
+        //cache = new VcsFSCache(this/*, createNewCacheDir ()*/);
+        cache = getVcsFactory().getFileCacheProvider();
+        statusProvider = getVcsFactory().getFileStatusProvider();
+        if (possibleFileStatusesMap == null && statusProvider != null) {
+            possibleFileStatusesMap = statusProvider.getPossibleFileStatusesTable();
         }
-         */
-        cache = new VcsFSCache(this/*, createNewCacheDir ()*/);
-        if (possibleFileStatusesMap == null) possibleFileStatusesMap = cache.getPossibleFileStatusesTable();
         errorDialog = new ErrorCommandDialog(null, new JFrame(), false);
         try {
             setInitRootDirectory(rootFile);
@@ -591,13 +591,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         } catch (IOException e) {
             // Could not set root directory
         }
+        if (multiFilesAnnotationTypes == null) {
+            multiFilesAnnotationTypes = RefreshCommandSupport.DEFAULT_MULTI_FILES_ANNOTATION_TYPES;
+        }
+        if (annotationPattern == null) {
+            annotationPattern = RefreshCommandSupport.DEFAULT_ANNOTATION_PATTERN;
+        }
         commandsPool = new CommandsPool(this);
     }
 
 
-    static final long serialVersionUID =8108342718973310275L;
+    private static final long serialVersionUID =8108342718973310275L;
 
-    //-------------------------------------------
+    /**
+     * Create a new VCS filesystem.
+     */
     public VcsFileSystem() {
         D.deb("VcsFileSystem()"); // NOI18N
         info = this;
@@ -612,7 +620,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
          */
         init();
-        possibleFileStatusesMap = cache.getPossibleFileStatusesTable();
+        //possibleFileStatusesMap = statusProvider.getPossibleFileStatusesTable();
         D.deb("constructor done.");
     }
 
@@ -667,7 +675,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         last_refreshTime = getCustomRefreshTime ();
         last_useUnixShell = useUnixShell;
         init();
-        cache.setLocalFilesAdd (localFilesOn);
+        //cache.setLocalFilesAdd (localFilesOn);
         ProjectChangeHack.restored();
         if (null == processUnimportantFiles) processUnimportantFiles = Boolean.FALSE;
         last_rootFile = new File(getFSRoot());
@@ -682,7 +690,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private void writeObject(ObjectOutputStream out) throws IOException {
         //D.deb("writeObject() - saving bean"); // NOI18N
         // cache is transient
-        out.writeBoolean (cache.isLocalFilesAdd ());
+        out.writeBoolean (true/*cache.isLocalFilesAdd ()*/); // for compatibility
         out.defaultWriteObject();
     }
 
@@ -715,6 +723,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         VcsConfigVariable var;
         for(int i = 0; i < len; i++) {
             var = (VcsConfigVariable) variables.get (i);
+            /*
             if(var.getName ().equalsIgnoreCase (LOCAL_FILES_ADD_VAR)) {
                 if(var.getValue ().equalsIgnoreCase (VAR_TRUE)) {
                     cache.setLocalFilesAdd (true);
@@ -723,6 +732,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     cache.setLocalFilesAdd (false);
                 }
             }
+             */
             if(var.getName ().equalsIgnoreCase (LOCK_FILES_ON)) {
                 if(var.getValue ().equalsIgnoreCase (VAR_TRUE)) {
                     setLockFilesOn (true);
@@ -1120,7 +1130,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             String file = (String) vars.get("FILE"); // NOI18N
             String path = (String) vars.get("DIR"); // NOI18N
             String filePath = (path.length() == 0) ? file : path.replace(((String) vars.get("PS")).charAt(0), '/')+"/"+file;
-            if (filePath != null && cache.isDir(filePath)) file = file + java.io.File.separator;
+            if (filePath != null && cache != null && cache.isDir(filePath)) file = file + java.io.File.separator;
             Table prompt = needPromptFor(exec, vars);
             if (reasonPrompt) {
                 if (prompt != null) {
@@ -1233,6 +1243,25 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                    });
         }
     }
+    
+    public String getAnnotationPattern() {
+        return annotationPattern;
+    }
+    
+    public void setAnnotationPattern(String annotationPattern) {
+        this.annotationPattern = annotationPattern;
+    }
+    
+    public int[] getMultiFileAnnotationTypes() {
+        return multiFilesAnnotationTypes;
+    }
+    
+    public void setMultiFileAnnotationTypes(int[] multiFileAnnotationTypes) {
+        if (multiFilesAnnotationTypes.length != RefreshCommandSupport.NUM_ELEMENTS) {
+            throw new IllegalArgumentException("Wrong length of the array ("+multiFileAnnotationTypes.length+" != "+RefreshCommandSupport.NUM_ELEMENTS+")");
+        }
+        this.multiFilesAnnotationTypes = multiFilesAnnotationTypes;
+    }
 
     //-------------------------------------------
     public FileSystem.Status getStatus(){
@@ -1240,8 +1269,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     public String getStatus(FileObject fo) {
-        String fullName = fo.getPackageNameExt('/','.');
-        String status = cache.getFileStatus(fullName).trim();
+        String status;
+        if (statusProvider != null) {
+            String fullName = fo.getPackageNameExt('/','.');
+            status = statusProvider.getFileStatus(fullName).trim();
+        } else status = "";
         return status;
     }
 
@@ -1250,13 +1282,21 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         Object[] oo = files.toArray();
         int len = oo.length;
         if (len == 0) return null;
-        if (len == 1) return cache.getFileStatus(((FileObject) oo[0]).getPackageNameExt('/', '.'));
-        else          return cache.getStatus(getImportantFiles(oo)).trim();
+        if (statusProvider != null) {
+            if (len == 1) return RefreshCommandSupport.getStatusAnnotation("", ((FileObject) oo[0]).getPackageNameExt('/', '.'),
+                                                                           "${"+RefreshCommandSupport.ANNOTATION_PATTERN_STATUS+"}", statusProvider);
+            else          return RefreshCommandSupport.getStatusAnnotation("", getImportantFiles(oo),
+                                                                           "${"+RefreshCommandSupport.ANNOTATION_PATTERN_STATUS+"}", statusProvider,
+                                                                           multiFilesAnnotationTypes);
+        } else return "";
     }
 
     public String getLocker(FileObject fo) {
-        String fullName = fo.getPackageNameExt('/','.');
-        String locker = cache.getFileLocker(fullName).trim();
+        String locker;
+        if (statusProvider != null) {
+            String fullName = fo.getPackageNameExt('/','.');
+            locker = statusProvider.getFileLocker(fullName).trim();
+        } else locker = "";
         return locker;
     }
 
@@ -1313,18 +1353,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return result;
         }
 
-        String status;
-        String locker;
-        if (len == 1) {
-            FileObject ff = (FileObject) oo[0];
-            fullName = ff.getPackageNameExt('/','.');
-            status = cache.getFileStatus(fullName).trim();
-            locker = cache.getFileLocker(fullName);
-        } else {
-            Vector importantFiles = getImportantFiles(oo);
-            status = cache.getStatus(importantFiles).trim();
-            locker = cache.getLocker(importantFiles);
+        if (statusProvider != null) {
+            if (len == 1) {
+                FileObject ff = (FileObject) oo[0];
+                fullName = ff.getPackageNameExt('/','.');
+                result = RefreshCommandSupport.getStatusAnnotation(name, fullName, annotationPattern, statusProvider);
+            } else {
+                ArrayList importantFiles = getImportantFiles(oo);
+                result = RefreshCommandSupport.getStatusAnnotation(name, importantFiles, annotationPattern, statusProvider, multiFilesAnnotationTypes);
+            }
         }
+        /*
         String trans = null;
         if (possibleFileStatusesMap != null) {
             synchronized (possibleFileStatusesMap) {
@@ -1342,9 +1381,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (locker != null && locker.length() > 0) {
             result += " ("+locker+")";  // NOI18N
         }
-
+         */
         //System.out.println("annotateName("+name+") -> result='"+result+"'");
-        D.deb("annotateName("+name+") -> result='"+result+"'"); // NOI18N
+        //D.deb("annotateName("+name+") -> result='"+result+"'"); // NOI18N
         return result;
     }
 
@@ -1353,28 +1392,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * Get the important files.
      * @return the Vector of important files as Strings
      */
-    private Vector/*VcsFile*/ getImportantFiles(Object[] oo){
+    private ArrayList/*VcsFile*/ getImportantFiles(Object[] oo){
         //D.deb("getImportantFiles()"); // NOI18N
-        Vector result=new Vector(3);
+        ArrayList result = new ArrayList();
         int len=oo.length;
 
         boolean processAll = isProcessUnimportantFiles();
-        for(int i=0;i<len;i++) {
-            FileObject ff=(FileObject)oo[i];
-            String fullName=ff.getPackageNameExt('/','.');
+        for(int i = 0; i < len; i++) {
+            FileObject ff = (FileObject) oo[i];
+            String fullName = ff.getPackageNameExt('/','.');
             if (processAll || isImportant(fullName)) {
-                result.addElement(fullName);
-                /*
-                String fileName=VcsUtilities.getFileNamePart(fullName);
-                VcsFile file=cache.getFile(fullName);
-                if( file==null ){
-                    D.deb("no such file '"+fullName+"'"); // NOI18N
-                    continue ;
-                }
-                //D.deb("fileName="+fileName); // NOI18N
-                //if( fileName.indexOf(".class")<0 ){ // NOI18N
-                result.addElement(file);
-                */
+                result.add(fullName);
             }
         }
         return result;
@@ -1492,8 +1520,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
   //      this.cache.refreshDir(this.getRelativeMountPoint());
          
         firePropertyChange("root", null, refreshRoot ()); // NOI18N
-        cache.setFSRoot(r.getAbsolutePath());
-        cache.setRelativeMountPoint(module);
+        if (cache != null) {
+            cache.setFSRoot(r.getAbsolutePath());
+            cache.setRelativeMountPoint(module);
+        }
     }
 
     //-------------------------------------------
@@ -1601,7 +1631,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return new String[0];
         }
 
-        if (cache.isDir(name)) {
+        if (cache != null && cache.isDir(name)) {
             vcsFiles = cache.getFilesAndSubdirs(name);
             //D.deb("vcsFiles=" + VcsUtilities.arrayToString(vcsFiles)); // NOI18N
             /*
@@ -1620,8 +1650,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (vcsFiles == null) files = getLocalFiles(name);
         else files = addLocalFiles(name, vcsFiles);
         //D.deb("children('"+name+"') = "+VcsUtilities.arrayToString(files));
-        VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
-        if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal()))) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
+        if (cache != null) {
+            VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
+            if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal()))) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
+        }
         //System.out.println("children = "+files);
         return files;
     }
@@ -1705,7 +1737,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (!b) {
             throw new IOException(MessageFormat.format (g("EXC_CannotCreateF"), errorParams)); // NOI18N
         }
-        cache.addFolder(name);
+        if (cache != null) cache.addFolder(name);
     }
 
     //-------------------------------------------
@@ -1741,8 +1773,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (!f.createNewFile ()) {
             throw new IOException(MessageFormat.format (g("EXC_DataAlreadyExist"), errorParams)); // NOI18N
         }
-        cache.addFile(name);
-        cache.setFileStatus(name, cache.localStatusStr);
+        if (cache != null) {
+            cache.addFile(name);
+        }
+        if (statusProvider != null) {
+            statusProvider.setFileStatus(name, statusProvider.getLocalFileStatus());
+        }
     }
 
     //-------------------------------------------
@@ -1759,7 +1795,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (!of.renameTo (nf)) {
             throw new IOException(g("EXC_CannotRename", oldName, getDisplayName (), newName)); // NOI18N
         }
-        cache.rename(oldName, newName);
+        if (cache != null) cache.rename(oldName, newName);
     }
 
     //-------------------------------------------
@@ -1781,7 +1817,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (!VcsUtilities.deleteRecursive(file)) {
             throw new IOException (g("EXC_CannotDelete", name, getDisplayName (), file.toString ())); // NOI18N
         }
-        cache.remove(name, wasDir);
+        if (cache != null) cache.remove(name, wasDir);
     }
 
     //-------------------------------------------
@@ -1806,8 +1842,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return true if the file is folder, false otherwise
      */
     public boolean folder (String name) {
-        boolean isFolder = cache.isDir(name);
-        if (!isFolder && !cache.isFile(name)) {
+        boolean isFolder;
+        if (cache != null) {
+            isFolder = cache.isDir(name);
+            if (!isFolder && !cache.isFile(name)) {
+                isFolder = getFile(name).isDirectory();
+            }
+        } else {
             isFolder = getFile(name).isDirectory();
         }
         //D.deb("folder('"+name+"') = "+isFolder);
@@ -1883,7 +1924,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     private void fileChanged(String name) {
         D.deb("fileChanged("+name+")");
-        cache.setFileModified(name);
+        if (statusProvider != null) statusProvider.setFileModified(name);
         statusChanged(name);
     }
 
@@ -1935,7 +1976,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         if (isCallEditFilesOn()) {
             if (!file.canWrite ()) {
-                VcsCacheFile vcsFile = (VcsCacheFile) cache.getFile (name);
+                VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
                 if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
                     Table files = new Table();
                     files.put(name, findResource(name));
@@ -1953,7 +1994,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                            //File f = getFile (name);
                            //if(f.canWrite ()) return;
                            if (isLockFilesOn ()) {
-                               VcsCacheFile vcsFile = (VcsCacheFile) cache.getFile (name);
+                               VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
                                // *.orig is a temporary file created by AbstractFileObject
                                // on saving every file to enable undo if saving fails
                                if (vcsFile==null || vcsFile.isLocal () || name.endsWith (".orig")) return; // NOI18N
@@ -1995,7 +2036,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (!isImportant(name)) return; // ignore unlocking of unimportant files
         D.deb("unlock('"+name+"')"); // NOI18N
         if(isLockFilesOn ()) {
-            VcsCacheFile vcsFile = (VcsCacheFile) cache.getFile (name);
+            VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
             if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
                 Table files = new Table();
                 files.put(name, findResource(name));
