@@ -839,23 +839,25 @@ final public class SuggestionManagerImpl extends SuggestionManager
             if (view != null) {
                 SuggestionList list = (SuggestionList)view.getList();
                 List tasks = list.getTasks();
-                it = tasks.iterator();
-                boolean headerWritten = false;
-                while (it.hasNext()) {
-                    SuggestionImpl s = (SuggestionImpl)it.next();
-                    if (s.isExpanded()) {
-                        // Expanded - write it out
-                        if (!headerWritten) {
-                            writer.write("  <expanded>\n"); // NOI18N
-                            headerWritten = true;
+                if (tasks != null) {
+                    it = tasks.iterator();
+                    boolean headerWritten = false;
+                    while (it.hasNext()) {
+                        SuggestionImpl s = (SuggestionImpl)it.next();
+                        if (s.isExpanded()) {
+                            // Expanded - write it out
+                            if (!headerWritten) {
+                                writer.write("  <expanded>\n"); // NOI18N
+                                headerWritten = true;
+                            }
+                            writer.write("    <type id=\""); // NOI18N
+                            writer.write(s.getSType().getName());
+                            writer.write("\"/>\n"); // NOI18N
                         }
-                        writer.write("    <type id=\""); // NOI18N
-                        writer.write(s.getSType().getName());
-                        writer.write("\"/>\n"); // NOI18N
                     }
-                }
-                if (headerWritten) {
-                    writer.write("  </expanded>\n"); // NOI18N
+                    if (headerWritten) {
+                        writer.write("  </expanded>\n"); // NOI18N
+                    }
                 }
             }
             
