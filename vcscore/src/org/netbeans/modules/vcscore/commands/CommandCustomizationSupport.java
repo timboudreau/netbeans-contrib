@@ -30,6 +30,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDescriptor;
@@ -830,9 +831,9 @@ public class CommandCustomizationSupport extends Object {
     }
     
     /** The table of FS and its global descriptor string. */
-    private static Hashtable globalInputStrs = new Hashtable();
+    private static Map globalInputStrs = Collections.synchronizedMap(new WeakHashMap());
     /** The table of FS and its parsed global descriptor */
-    private static Hashtable globalInputDescrs = new Hashtable();
+    private static Map globalInputDescrs = Collections.synchronizedMap(new WeakHashMap());
     
     private static final Object promptLock = new Object();
     
