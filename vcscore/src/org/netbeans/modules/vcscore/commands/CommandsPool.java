@@ -135,13 +135,14 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 }
             }
         };
-        if (createRuntimeCommands) {
-            runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
+/*        if (createRuntimeCommands) {
+            runtimeNode = RuntimeSupport.initRuntime(fileSystem);
             runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
             runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
         } else {
+ */
             runtimeNode = null;
-        }
+//        }
         fsDisplayPropertyChange = new FSDisplayPropertyChangeListener();
         fileSystem.addPropertyChangeListener(WeakListener.propertyChange(fsDisplayPropertyChange, fileSystem));
         /*
@@ -189,7 +190,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (runtimeNode == null) {
             VcsFileSystem fileSystem = getVcsFileSystem();
             if (fileSystem == null) return ;
-            runtimeNode = RuntimeSupport.initRuntime(fileSystem.getDisplayName());
+            runtimeNode = RuntimeSupport.initRuntime(fileSystem);
             runtimeNode.setNumOfFinishedCmdsToCollect(collectFinishedCmdsNum);
             runtimeNode.addPropertyChangeListener(runtimeNodePropertyChange);
             execStarterLoopStarted = false;
@@ -973,7 +974,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
             if (runtimeNode != null && VcsFileSystem.PROP_ROOT.equals(evt.getPropertyName())) {
                 VcsFileSystem fileSystem = getVcsFileSystem();
                 if (fileSystem == null) return ;
-                RuntimeSupport.updateRuntime(runtimeNode, fileSystem.getDisplayName());
+                RuntimeSupport.updateRuntime(runtimeNode, fileSystem);
             }
         }
     }

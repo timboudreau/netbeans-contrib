@@ -90,6 +90,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private static final int BADGE_ICON_SHIFT_Y = 8;
 
     public static final String VCS_PROVIDER_ATTRIBUTE = "VCS Provider";
+    public static final String VCS_FILESYSTEM_ICON_BASE = "VCS Icon Base";
 
     //public static final String PROP_ROOT = "root"; // NOI18N
     public static final String PROP_VARIABLES = "variables"; // NOI18N
@@ -1175,7 +1176,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void addNotify() {
         //System.out.println("fileSystemAdded("+this+")");
         //System.out.println("isOffLine() = "+isOffLine()+", auto refresh = "+getAutoRefresh()+", deserialized = "+deserialized);
-        if (Boolean.TRUE.equals(createRuntimeCommands)) commandsPool.setupRuntime();
+//        if (Boolean.TRUE.equals(createRuntimeCommands)) commandsPool.setupRuntime();
         if (!isOffLine()
             && (getAutoRefresh() == GeneralVcsSettings.AUTO_REFRESH_ON_MOUNT_AND_RESTART
             || (deserialized && getAutoRefresh() == GeneralVcsSettings.AUTO_REFRESH_ON_RESTART)
@@ -1242,7 +1243,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         this.createRuntimeCommands = new Boolean(createRuntimeCommands);
     }
     
-    protected boolean isCreateRuntimeCommands() {
+    public boolean isCreateRuntimeCommands() {
         return createRuntimeCommands.booleanValue();
     }
     
