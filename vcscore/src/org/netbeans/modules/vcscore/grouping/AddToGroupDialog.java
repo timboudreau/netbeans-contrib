@@ -65,37 +65,38 @@ public class AddToGroupDialog extends javax.swing.JPanel {
         spGroups = new javax.swing.JScrollPane();
         lstGroups = new javax.swing.JList();
         cbDontShow = new javax.swing.JCheckBox();
-
+        
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
-
+        
         lblGroups.setText(org.openide.util.NbBundle.getBundle(AddToGroupDialog.class).getString("AddToGroupDialog.lblGroup.text"));
         gridBagConstraints1 = new java.awt.GridBagConstraints();
-        gridBagConstraints1.insets = new java.awt.Insets(12, 12, 0, 12);
+        gridBagConstraints1.insets = new java.awt.Insets(12, 12, 0, 11);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(lblGroups, gridBagConstraints1);
-
+        
         spGroups.setPreferredSize(new java.awt.Dimension(360, 132));
         spGroups.setMinimumSize(new java.awt.Dimension(100, 50));
         spGroups.setViewportView(lstGroups);
-
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 1;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints1.insets = new java.awt.Insets(6, 12, 0, 12);
+        gridBagConstraints1.insets = new java.awt.Insets(2, 12, 0, 11);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints1.weightx = 0.5;
+        gridBagConstraints1.weightx = 1.0;
+        gridBagConstraints1.weighty = 1.0;
         add(spGroups, gridBagConstraints1);
-
+        
         cbDontShow.setText(org.openide.util.NbBundle.getBundle(AddToGroupDialog.class).getString("AddToGroupDialog.cbDontShow.text"));
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 2;
-        gridBagConstraints1.insets = new java.awt.Insets(6, 12, 12, 12);
+        gridBagConstraints1.insets = new java.awt.Insets(12, 12, 11, 11);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
         add(cbDontShow, gridBagConstraints1);
-
+        
     }//GEN-END:initComponents
 
 
