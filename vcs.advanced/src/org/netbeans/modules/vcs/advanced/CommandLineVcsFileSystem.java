@@ -296,11 +296,11 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 	  cachedAnnotatedFullName.equals(fullName) ){
 	return cachedAnnotatedResult;
       }
-      result=fileName+" "+cache.getFileStatus(fullName);
+      result=fileName+" ["+cache.getFileStatus(fullName)+"]";
     }
     else{
       Vector/*<VcsFile>*/ importantFiles=getImportantFiles(oo);
-      result=name+" "+cache.getStatus(importantFiles);
+      result=name+" ["+cache.getStatus(importantFiles)+"]";
     }
 
     cachedAnnotatedFullName=fullName;
@@ -454,35 +454,24 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     String[] localFiles=null;
     String[] files=null;
 
-    //Thread.dumpStack();
-    
-
     if( cache.isDir(name) ){
       vcsFiles=cache.getFilesAndSubdirs(name);
-      //D.deb("vcsFiles="+MiscStuff.arrayToString(vcsFiles));
-    }
+      D.deb("vcsFiles="+MiscStuff.arrayToString(vcsFiles));
 
-    File f = getFile (name);
-    if (f.isDirectory ()) {
-      localFiles=f.list();
-      //D.deb("localFiles="+MiscStuff.arrayToString(localFiles));
+      String p="";
+      try{
+	p=rootFile.getCanonicalPath();
+      }
+      catch (IOException e){
+	E.err(e,"getCanonicalPath() failed");
+      }
+      files=cache.dirsFirst(p+File.separator+name,vcsFiles);
+      D.deb("files="+MiscStuff.arrayToString(files));
+      return files;
     }
-    
-    files=MiscStuff.mergeArrays(vcsFiles,localFiles);
-    //D.deb("files="+MiscStuff.arrayToString(files));
-
-    String p="";
-    try{
-      p=rootFile.getCanonicalPath();
-    }
-    catch (IOException e){
-      E.err(e,"getCanonicalPath() failed");
-    }
-    String[] files2=cache.dirsFirst(p+File.separator+name,files);
-    D.deb("files2="+MiscStuff.arrayToString(files2));
-
-    return files2;
+    return new String[0];
   }
+
 
   //-------------------------------------------
   //
@@ -667,7 +656,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @param name name of the file
   */
   public void lock (String name) throws IOException {
-    D.deb("lock()");
+    D.deb("lock('"+name+"')");
   }
 
   /** Does nothing to unlock the file.
@@ -675,7 +664,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @param name name of the file
   */
   public void unlock (String name) {
-    D.deb("unlock()");
+    D.deb("unlock('"+name+"')");
   }
 
   //-------------------------------------------
@@ -741,6 +730,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  17   Gandalf   1.16        5/18/99  Michal Fadljevic 
  *  16   Gandalf   1.15        5/14/99  Michal Fadljevic 
  *  15   Gandalf   1.14        5/13/99  Michal Fadljevic 
  *  14   Gandalf   1.13        5/11/99  Michal Fadljevic 
