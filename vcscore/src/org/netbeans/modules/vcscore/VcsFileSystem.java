@@ -1519,6 +1519,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //cache = new VcsFSCache(this/*, createNewCacheDir ()*/);
         cache = getVcsFactory().getFileCacheProvider();
         statusProvider = getVcsFactory().getFileStatusProvider();
+        if (commandsProvider == null) {
+            commandsProvider = new DefaultVcsCommandsProvider(new CommandsTree(null));
+        }
         /*
         if (possibleFileStatusesMap == null) {
             if (statusProvider != null) {
