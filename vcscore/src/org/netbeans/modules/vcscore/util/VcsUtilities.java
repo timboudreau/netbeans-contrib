@@ -311,47 +311,80 @@ public class VcsUtilities {
 	else if (set != null) return false;
 	return true;
     }
-    
+
+    /** Get a string from a resource bundle. An arbitrary resource bundle can be
+     * specified to get an arbitrary key from.
+     * This method resolves all occurrences of
+     * "getBundle(<class name or path to the resource bundle>).getString(<key>[, <format param>, ...])"
+     * to the value of the key obtained from the resource bundle formatted with the optional parameters.
+     * @param str the string
+     * @return the resolved string.
+     */
     public static String getBundleString(String str) {
-        if (str.startsWith(GET_BUNDLE)) {
-            int startArgs = GET_BUNDLE.length();
-            int endArgs = VcsUtilities.getPairIndex(str, startArgs, '(', ')');
-            if (endArgs < 0) return str;
-            String args = str.substring(startArgs, endArgs);
-            String key = str.substring(endArgs);
-            startArgs = key.indexOf('(');
-            if (startArgs < 0) return str;
-            startArgs++;
-            endArgs = VcsUtilities.getPairIndex(key, startArgs, '(', ')');
-            if (endArgs < 0) return str;
-            key = key.substring(startArgs, endArgs);
-            Class clazz;
-            try {
-                String className = args;
-                if (className.endsWith(".class")) className = className.substring(0, className.length() - ".class".length());
-                clazz = Class.forName(className, false, org.openide.TopManager.getDefault().systemClassLoader());
-            } catch (ClassNotFoundException exc) {
-                clazz = null;
-                //exc.printStackTrace();
+        for (int index = str.indexOf(GET_BUNDLE); index >= 0; index = str.indexOf(GET_BUNDLE, index)) {
+            index += GET_BUNDLE.length();
+            int end = VcsUtilities.getPairIndex(str, index, '(', ')');
+            if (end < 0) {
+                //System.out.println("BAD key: "+str+" -- end bundle paranthesis missing");
+                continue;
             }
-            //System.out.println("clazz = "+clazz);
-            String bundleStr = str;
-            try {
-                if (clazz != null) {
-                    bundleStr = org.openide.util.NbBundle.getBundle(clazz).getString(key);
-                } else {
-                    bundleStr = org.openide.util.NbBundle.getBundle(args, java.util.Locale.getDefault(), org.openide.TopManager.getDefault().currentClassLoader()).getString(key);
-                }
-            } catch (final MissingResourceException missExc) {
-                org.openide.TopManager.getDefault().notifyException(new Exception() {
-                    public String getLocalizedMessage() {
-                        return "MissingResourceException:" + missExc.getMessage();
-                    }
-                });
+            String bundle = str.substring(index, end);
+            //String key = str.substring(end);
+            int startArg = str.indexOf('(', end);
+            if (startArg < 0) {
+                //System.out.println("BAD key: "+str+" -- start key paranthesis missing");
+                continue;
             }
-            return bundleStr;
+            startArg++;
+            int endArg = VcsUtilities.getPairIndex(str, startArg, '(', ')');
+            if (endArg < 0) {
+                //System.out.println("BAD key: "+str+" -- end key paranthesis missing");
+                continue;
+            }
+            String key = str.substring(startArg, endArg);
+            String replaced = getBundleString(bundle, key);
+            str = str.substring(0, index - GET_BUNDLE.length()) + replaced + str.substring(endArg + 1);
+            index = index - GET_BUNDLE.length() + replaced.length();
         }
         return str;
+    }
+    
+    private static String getBundleString(String bundle, String key) {
+        Class clazz;
+        try {
+            String className = bundle;
+            if (className.endsWith(".class")) className = className.substring(0, className.length() - ".class".length());
+            clazz = Class.forName(className, false, org.openide.TopManager.getDefault().systemClassLoader());
+        } catch (ClassNotFoundException exc) {
+            clazz = null;
+            //exc.printStackTrace();
+        }
+        String[] keyWithArgs = VcsUtilities.getQuotedStrings(key);
+        String[] args = null;
+        if (keyWithArgs.length > 0) {
+            key = keyWithArgs[0];
+            args = new String[keyWithArgs.length - 1];
+            System.arraycopy(keyWithArgs, 1, args, 0, keyWithArgs.length - 1);
+        }
+        //System.out.println("clazz = "+clazz);
+        String bundleStr = key;
+        try {
+            if (clazz != null) {
+                bundleStr = org.openide.util.NbBundle.getBundle(clazz).getString(key);
+            } else {
+                bundleStr = org.openide.util.NbBundle.getBundle(bundle, java.util.Locale.getDefault(), org.openide.TopManager.getDefault().currentClassLoader()).getString(key);
+            }
+            if (args != null) {
+                bundleStr = java.text.MessageFormat.format(bundleStr, args);
+            }
+        } catch (final MissingResourceException missExc) {
+            org.openide.TopManager.getDefault().notifyException(new Exception() {
+                public String getLocalizedMessage() {
+                    return "MissingResourceException:" + missExc.getMessage();
+                }
+            });
+        }
+        return bundleStr;
     }
 
     //-------------------------------------------
