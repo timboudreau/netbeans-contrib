@@ -459,7 +459,10 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         String exec;
         if (preferredExec != null) exec = preferredExec;
         else exec = (String) cmd.getProperty(VcsCommand.PROPERTY_EXEC);
-        if (exec != null) exec = exec.trim();
+        if (exec != null) {
+            exec = Variables.expand(vars, exec, true);
+            exec = exec.trim();
+        }
 
         StringTokenizer tokens = new StringTokenizer(exec);
         String first = tokens.nextToken();
