@@ -25,7 +25,6 @@ import org.openide.awt.JInlineMenu;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.nodes.*;
 import org.openide.util.actions.*;
-import org.openide.util.enum.*;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent.Registry;
@@ -112,10 +111,10 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
                 /* At present not allowed to construct actions for selected nodes on more filesystems - its safe behaviour
                  * If this restriction will be considered as right solution, then code of this method can be simplified
                  */
-            if (rListMap.size() == 0 || rListMap.size() > 1) return createMenu(EmptyEnumeration.EMPTY, popUp);
+            if (rListMap.size() == 0 || rListMap.size() > 1) return createMenu(org.openide.util.Enumerations.EMPTY, popUp);
             
             Iterator entrySetIt = rListMap.entrySet().iterator();
-            QueueEnumeration result = new QueueEnumeration();
+            LinkedList result = new LinkedList ();
             
             while (entrySetIt.hasNext()) {
                 Map.Entry entry = (Map.Entry)entrySetIt.next();
@@ -123,12 +122,12 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
                 Set itemSet = (Set) entry.getValue();
                 try {
                     VersioningFileSystem vs = (VersioningFileSystem) list.getFileObject().getFileSystem();
-                    result.put(vs.getRevisionActions(list.getFileObject(), itemSet));
+                    result.addAll (Arrays.asList (vs.getRevisionActions(list.getFileObject(), itemSet)));
                 } catch (FileStateInvalidException exc) {
                     continue;
                 }
             }
-            return createMenu(result, popUp);
+            return createMenu(Collections.enumeration (result), popUp);
         }
         return NONE;
     }
@@ -139,7 +138,7 @@ public class VSRevisionAction extends SystemAction implements Presenter.Menu, Pr
      *   into the menu if enabled and if not duplicated
      */
     private static JMenuItem[] createMenu (Enumeration en, boolean popUp) {
-        en = new RemoveDuplicatesEnumeration (en);
+        en = org.openide.util.Enumerations.removeDuplicates (en);
 
         ArrayList items = new ArrayList ();
         while (en.hasMoreElements ()) {

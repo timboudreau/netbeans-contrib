@@ -17,7 +17,6 @@ import java.io.*;
 import java.util.*;
 
 import org.openide.filesystems.FileObject;
-//import org.openide.util.enum.AlterEnumeration;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsFileSystem;

@@ -20,11 +20,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 
-import org.openide.util.enum.AlterEnumeration;
-import org.openide.util.enum.QueueEnumeration;
-import org.openide.util.enum.RemoveDuplicatesEnumeration;
-import org.openide.util.enum.SequenceEnumeration;
-
 /**
  *
  * @author  Martin Entlicher
@@ -35,7 +30,7 @@ import org.openide.util.enum.SequenceEnumeration;
 public final class OrderedSet extends AbstractSet {
 
     /** Queue of collections of elements. */
-    private QueueEnumeration queue = new QueueEnumeration();
+    private java.util.LinkedList queue = new java.util.LinkedList ();
     /** Objects stored in this set. */
     Object[] objects = null;
 
@@ -44,7 +39,7 @@ public final class OrderedSet extends AbstractSet {
     }
     
     public boolean add(Object obj) {
-        queue.put(Collections.singleton(obj));
+        queue.add (Collections.singleton(obj));
         return true;
     }
 
@@ -52,20 +47,24 @@ public final class OrderedSet extends AbstractSet {
      * Adds all of the elements in the specified collection to this collection.
      */
     public boolean addAll(Collection coll) {
-        queue.put(coll);
+        queue.add (coll);
         return true;
     }
     
     
     private Object[] getObjects() {
         if (objects == null) {
-            AlterEnumeration altered = new AlterEnumeration(queue) {
-                public Object alter(Object obj) {
+            class Col2Enum implements org.openide.util.Enumerations.Processor {
+                public Object process (Object obj, Collection toAdd) {
                     return Collections.enumeration((Collection) obj);
                 }
-            };
-            SequenceEnumeration sequenced = new SequenceEnumeration(altered);
-            Enumeration result = new RemoveDuplicatesEnumeration(sequenced);
+            }
+            
+            Enumeration altered = org.openide.util.Enumerations.convert (
+                Collections.enumeration (queue), new Col2Enum ()
+            );
+            Enumeration sequenced = org.openide.util.Enumerations.concat (altered);
+            Enumeration result = org.openide.util.Enumerations.removeDuplicates (sequenced);
             ArrayList objectList = new ArrayList();
             for (int i = 0; result.hasMoreElements(); i++) {
                 objectList.add(result.nextElement());

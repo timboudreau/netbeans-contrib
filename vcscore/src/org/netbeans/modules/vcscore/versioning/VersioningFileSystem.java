@@ -453,7 +453,7 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         public java.util.Enumeration attributes(String name) {
             HashMap attrs = (HashMap) files.get(name);
             if (attrs == null) {
-                return new org.openide.util.enum.EmptyEnumeration();
+                return org.openide.util.Enumerations.EMPTY;
             } else {
                 return Collections.enumeration(attrs.keySet());
             }

@@ -53,7 +53,6 @@ import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.actions.Presenter;
-import org.openide.util.enum.*;
 import org.openide.windows.TopComponent.Registry;
 import org.openide.windows.WindowManager;
 

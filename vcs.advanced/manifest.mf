@@ -4,7 +4,7 @@ OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/vcs/advanced/config/Bundl
 OpenIDE-Module-Specification-Version: 1.10
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Public-Packages: org.netbeans.modules.vcs.profiles.**, org.netbeans.modules.vcs.advanced.globalcommands.**, org.netbeans.modules.vcs.advanced.recognizer.**
-OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.20
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 4.37
 OpenIDE-Module-Module-Dependencies: 
   org.netbeans.modules.vcscore/1 = promotionD,
   org.netbeans.modules.diff/1 = promotionD,

@@ -23,9 +23,6 @@ import org.openide.filesystems.*;
 import org.openide.ErrorManager;
 
 import org.openide.util.RequestProcessor;
-import org.openide.util.enum.SequenceEnumeration;
-import org.openide.util.enum.SingletonEnumeration;
-import org.openide.util.enum.QueueEnumeration;
 
 /** Request for parsing of an filesystem. Can be stoped.
 * Copied from openide by Milos Kleint.. :) because the class is final and I need to rewrite it..
