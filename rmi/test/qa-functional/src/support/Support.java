@@ -225,7 +225,8 @@ public class Support {
  * @return FileObject
  */    
     public FileObject getFileObject(String filename) {
-        Repository repo = TopManager.getDefault().getRepository();
+        //Repository repo = TopManager.getDefault().getRepository();
+        Repository repo = Repository.getDefault();
         FileObject fo = repo.findResource(filename);
         return fo;
     }
@@ -282,7 +283,8 @@ public class Support {
  */    
     public boolean setExecutor(DataObject dataobject,Executor executor) {
         log(bundle.getString("Setting_executor..."));
-        try { ExecSupport.setExecutor(((MultiDataObject)dataobject).getPrimaryEntry(),executor);
+        try { //ExecSupport.setExecutor(((MultiDataObject)dataobject).getPrimaryEntry(),executor);
+            ExecutionSupport.setExecutor(((MultiDataObject)dataobject).getPrimaryEntry(),executor);
         }
         catch (Exception e) {
             exceptionlog(bundle.getString("Exception_during_setting_executor_") + executor.getName(), e);
@@ -295,7 +297,8 @@ public class Support {
     //GUI
     
     /** repository of IDE*/
-    static Repository repo = org.openide.TopManager.getDefault().getRepository();
+    //static Repository repo = org.openide.TopManager.getDefault().getRepository();
+    static Repository repo = Repository.getDefault();
 
     public static void mountDir(String dirName) throws IOException{
        org.openide.filesystems.FileSystem eXception  = repo.findFileSystem(dirName);
