@@ -33,4 +33,12 @@ public class InitParamDeclElement extends IDLElement  {
 	return _M_type;
     }
 
+    public String toString () {
+	try {
+	    return super.toString () + ": type = " + this.getType ().toString ();
+	} catch (Exception __ex) {
+	    return super.toString () + ": type = null";
+	}
+    }
+
 }

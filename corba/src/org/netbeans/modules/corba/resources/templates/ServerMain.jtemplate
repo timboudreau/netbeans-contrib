@@ -2,12 +2,15 @@
  * __NAME__.java  --  server side implementation
  *
  * Created on __DATE__, __TIME__ for __ORB_NAME__
- * with __SERVER_BINDING__ binding.
+ * with __SERVER_BINDING_NAME__ binding.
  */
 
 package Templates.CORBA;
 
 __SERVER_IMPORT__
+
+__SERVER_BINDING_IMPORT__
+
 /**
  *
  * @author  __USER__
@@ -24,12 +27,21 @@ public class ServerMain {
     */
     public static void main (String args[]) {
 
-        __SETTINGS_ORB_PROPERTIES__
-        __ORB_SERVER_INIT__
+	try {
+	    __ORB_PROPERTIES__
+	    __ORB_INIT__
+	    __POA_INIT__
 
-        __ORB_OBJECT_ACTIVATION__
-        __ORB_SERVER_BINDING__
-        __ORB_SERVER_RUN__
+	    __SERVANTS_INIT__
+	    __SERVANTS_ACTIVATION__
+
+	    __SERVER_BINDING__
+        
+	    __POA_ACTIVATION__
+	    __ORB_SERVER_RUN__
+	} catch (Exception ex) {
+	     ex.printStackTrace ();
+	}
     }
 
 }

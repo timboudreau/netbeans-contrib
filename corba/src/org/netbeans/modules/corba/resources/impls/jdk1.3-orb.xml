@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding='ISO-8859-1'?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<!DOCTYPE orb-settings PUBLIC "-//Forte for Java//DTD ORBSettings 1.0//EN" "ORBSettings.dtd"[
+<!ENTITY corba20-generic-impl SYSTEM "corba20-generic-impl.ent">
+]>
+<orb-settings name='JDK 1.3 ORB' tag='jdk13' supported='true'>
+  
+  &corba20-generic-impl;
+
+  <idl-compiler-settings>
+    <tie-param value='--tie'/>
+    <dir-param value='--directory'/>
+    <package-param value='--package'/>
+    <compiler value='java -classpath {classpath}{:}{library} org.netbeans.modules.corba.idl.compiler.jdk13.Compiler {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+    <package-delimiter value='.'/>
+    <error-expression value='^([^ ][^\n]+) \\(line ([0-9]+)\\): (.*)'/>
+    <file-position value='1'/>
+    <line-position value='2'/>
+    <column-position value='-1'/>
+    <message-position value='3'/>
+      
+  </idl-compiler-settings>
+
+  <impl-generator-settings>
+    
+    <tie-impl-prefix value=''/>
+    <tie-impl-postfix value='ImplTIE'/>
+    <impl-int-prefix value=''/>
+    <impl-int-postfix value='Operations'/>
+    
+  </impl-generator-settings>
+
+</orb-settings>

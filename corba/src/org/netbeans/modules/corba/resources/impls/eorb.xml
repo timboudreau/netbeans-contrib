@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding='ISO-8859-1'?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<!DOCTYPE orb-settings PUBLIC "-//Forte for Java//DTD ORBSettings 1.0//EN" "ORBSettings.dtd"[
+<!ENTITY corba23-poa SYSTEM "corba23-poa.ent">
+<!ENTITY corba23-generic-impl SYSTEM "corba23-generic-impl.ent">
+]>
+<orb-settings name='eORB 1.x' tag='eorb1' supported='false'>
+  
+  &corba23-poa;
+  &corba23-generic-impl;
+					    
+  <java-template-code>
+    <template-code name='ORB_PROPERTIES'>
+      <![CDATA[// setting system properties is necessary in order to use eORB in Java 1.2
+      Properties props = System.getProperties ();
+      props.put ("org.omg.CORBA.ORBClass", "com.vertel.eorb.CORBA.ORB");
+      props.put ("org.omg.CORBA.ORBSingletonClass", "com.vertel.eorb.CORBA.ORBSingleton");
+      System.setProperties (props);]]>
+    </template-code>
+  </java-template-code>
+
+  <idl-compiler-settings>
+    <tie-param value=''/>
+    <dir-param value='-d'/>
+    <package-param value='-p'/>
+    <compiler value='java -classpath {filesystems} com.vertel.idl.parser {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+    <package-delimiter value='.'/>
+    <error-expression value='^([^ ]+), line: ([0-9]+)\\(([0-9]+)\\)(.*)'/>
+    <file-position value='1'/>
+    <line-position value='2'/>
+    <column-position value='-1'/>
+    <message-position value='4'/>
+    
+  </idl-compiler-settings>
+  
+  
+</orb-settings>

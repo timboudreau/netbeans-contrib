@@ -16,6 +16,9 @@ package org.netbeans.modules.corba.settings;
 import java.beans.*;
 
 import java.util.Vector;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Iterator;
 
 import org.openide.util.NbBundle;
 
@@ -54,80 +57,7 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport {
 	//Thread.currentThread ().dumpStack ();
 	if (DEBUG)
 	    System.out.println ("ServerBindingPropertyEditor () ..."); // NOI18N
-	/*
-	  CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
-	  (CORBASupportSettings.class, true);
-	*/
-	// joke :-))
-	/*
-	  Node[] __nodes = TopManager.getDefault ().getWindowManager ().getRegistry ()
-	  .getActivated ().getActivatedNodes ();
-	  for (int i=0; i<__nodes.length; i++)
-	  if (DEBUG)
-	  System.out.println ("choice: " + __nodes[i]);
-	*/
-	//choices = css.getServerBindingsChoices ();
-	/*
-	  css.addPropertyChangeListener (this);
-	*/
-	//css.setServerBinding (choices[0]);
-	/*
-	  for (int i=0; i<choices.length; i++)
-	  if (DEBUG)
-	  System.out.println ("choice: " + choices[i]);
-	*/
     }
-
-
-    /*
-      public ServerBindingPropertyEditor (Object __settings) {
-      if (DEBUG)
-      System.out.println ("ServerBindingPropertyEditor (" + __settings + ") ...");
-      _M_settings = (ORBSettings)__settings;
-      }
-    */
-    /*
-      public void setValue (Object __settings) {
-      //Thread.currentThread ().dumpStack ();
-      if (DEBUG)
-      System.out.println 
-      ("ServerBindingPropertyEditor::setValue (" 
-      + __settings + " : " 
-      + ((ORBSettingsWrapper)__settings).getSettings ().getServerBindings () 
-      + ") ...");
-      _M_settings = (ORBSettingsWrapper)__settings;
-      String[] __tmp = new String[_M_settings.getSettings ().getServerBindings ().size ()];
-      try {
-      __tmp = (String[])_M_settings.getSettings ().getServerBindings ().toArray (__tmp);
-      } catch (Exception e) {
-      e.printStackTrace ();
-      }
-      setChoices (__tmp);
-      System.out.println ("OK1");
-      }
-
-
-      public Object getValue () {
-      System.out.println ("getValue () -> " + _M_settings);
-      return _M_settings;
-      }
-    */
-    /*
-      public void setTags (String[] s) {
-      if (DEBUG)
-      System.out.println ("ServerBindingPropertyEditor::setTags (" + choices + ")");
-      String[] old = choices;
-      choices = s;
-      //firePropertyChange ("choices", (Object)old, (Object)choices);
-      //CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
-      //	 (CORBASupportSettings.class, true);
-      //css.fireChangeChoices ();
-      }
-
-      public void setChoices (String[] s) {
-      setTags (s);
-      }
-    */
 
     /** @return names of the supported orbs*/
     public String[] getTags() {
@@ -135,10 +65,17 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport {
 	    if (DEBUG)
 		System.out.println ("ServerBindingPropertyEditor::getTags () -> " + _M_choices); // NOI18N
 	    _M_settings = (ORBSettingsWrapper)getValue ();
-	    String[] __choices 
-		= new String[_M_settings.getSettings ().getServerBindings ().size ()];
-	    __choices = (String[])_M_settings.getSettings ().getServerBindings ().toArray 
-		(__choices);
+	    List __bindings = _M_settings.getSettings ().getServerBindings ();
+	    String[] __choices = new String[__bindings.size ()];
+	    ORBBindingDescriptor __binding = null;
+	    for (int __i=0; __i<__bindings.size (); __i++) {
+		__binding = (ORBBindingDescriptor)__bindings.get (__i);
+		__choices[__i] = _M_settings.getSettings ().getLocalizedString
+		    (__binding.getName ());
+	    }
+		
+	    //__choices = (String[])_M_settings.getSettings ().getServerBindings ().toArray 
+	    //(__choices);
 	    _M_choices = __choices;
 	    return _M_choices;
 	} catch (Exception e) {
@@ -148,52 +85,20 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport {
 	return new String[] {""}; // NOI18N
     } 
 
-    /*
-      public void propertyChange (PropertyChangeEvent event) {
-      
-      if (event == null || event.getPropertyName () == null)
-      return;
-      
-      if (DEBUG)
-      System.out.println ("propertyChange in SBPE: " + event.getPropertyName ());
-      if (event.getPropertyName ().equals ("orb")) {
-      CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
-      (CORBASupportSettings.class, true);
-      //setChoices (css.getServerBindingsChoices ());
-      //css.setServerBinding (getTags ()[0]);
-      if (DEBUG) {
-      for (int i=0; i<_M_choices.length; i++)
-      System.out.println ("choice[" + i + "] in cb-editor: " + _M_choices[i]);
-      }
-      
-      }
-
-      }
-    */
-
-
     /** @return text for the current value */
     public String getAsText () {
 	try {
 	    ORBSettingsWrapper __tmp = (ORBSettingsWrapper)getValue ();
-	    if (DEBUG) {
-		System.out.println ("ServerBindingPropertyEditor::getAsText () -> " // NOI18N
-				    + __tmp.getSettings () 
-				    + __tmp.getSettings ().displayName () + " : " // NOI18N
-				    + __tmp.getValue ());
-	    }
-	    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
-		(CORBASupportSettings.class, true);
-	    java.lang.Object[] __beans = css.getBeans ();
-	    if (DEBUG) {
-		for (int __i = 0; __i < __beans.length; __i++) {
-		    System.out.println (__i + " : " + __beans[__i]); // NOI18N
-		}
-	    }
-	    return ((ORBSettingsWrapper)getValue ()).getValue ();
+	    //System.out.println ("__tmp: " + __tmp + " : " + System.identityHashCode (__tmp));
+	    ORBSettings __settings = __tmp.getSettings ();
+	    //System.out.println ("settings: " + __settings);
+	    //System.out.println ("settings: " + System.identityHashCode (__settings));
+
+	    return __settings.getLocalizedString (__tmp.getValue ());
+	    //return ((ORBSettingsWrapper)getValue ()).getValue ();
 	} catch (Exception __e) {
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-		__e.printStackTrace ();
+	    //if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
+	    //__e.printStackTrace ();
 	}
 	return ""; // NOI18N
     }
@@ -202,37 +107,34 @@ public class ServerBindingPropertyEditor extends PropertyEditorSupport {
     public void setAsText (String __value) {
 	if (DEBUG)
 	    System.out.println ("ServerBindingPropertyEditor::setAsText (" + __value + ")"); // NOI18N
+	_M_settings = (ORBSettingsWrapper)getValue ();
+	List __bindings = _M_settings.getSettings ().getServerBindings ();
+	List __localized_bindings = new LinkedList ();
+	Iterator __iterator = __bindings.iterator ();
+	ORBBindingDescriptor __binding = null;
+	ORBSettings __settings = _M_settings.getSettings ();
+	while (__iterator.hasNext ()) {
+	    __binding = (ORBBindingDescriptor)__iterator.next ();
+	    __localized_bindings.add (__settings.getLocalizedString (__binding.getName ()));
+	}
+	__binding = (ORBBindingDescriptor)__bindings.get
+	    (__localized_bindings.indexOf (__value));
+	String __not_locallized_value = __binding.getName ();
+	//System.out.println ("-> " + __not_locallized_value);
+	this.setValue (new ORBSettingsWrapper (__settings, __not_locallized_value));
         //((ORBSettingsWrapper)getValue ()).setValue (__value);
-	setValue (new ORBSettingsWrapper (((ORBSettingsWrapper)getValue ()).getSettings (), 
-					  __value));
+	/*
+	  this.setValue (new ORBSettingsWrapper (((ORBSettingsWrapper)this.getValue ()).getSettings (), 
+	  __value));
+	*/
     }
+
+    /*
+      public void setValue (Object __object) {
+      super.setValue (__object);
+      System.out.println ("set value: " + __object);
+      }
+    */
+
 }
-
-/*
- * <<Log>>
- *  14   Gandalf   1.13        3/7/00   Karel Gardas    naming service browser 
- *       bugfix
- *  13   Gandalf   1.12        11/4/99  Karel Gardas    - update from CVS
- *  12   Gandalf   1.11        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  11   Gandalf   1.10        10/1/99  Karel Gardas    updates from CVS
- *  10   Gandalf   1.9         8/3/99   Karel Gardas    
- *  9    Gandalf   1.8         7/10/99  Karel Gardas    
- *  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  7    Gandalf   1.6         5/28/99  Karel Gardas    
- *  6    Gandalf   1.5         5/28/99  Karel Gardas    
- *  5    Gandalf   1.4         5/22/99  Karel Gardas    fixed for reading 
- *       configuration from implementations files
- *  4    Gandalf   1.3         5/15/99  Karel Gardas    
- *  3    Gandalf   1.2         5/8/99   Karel Gardas    
- *  2    Gandalf   1.1         4/24/99  Karel Gardas    
- *  1    Gandalf   1.0         4/23/99  Karel Gardas    
- * $
- */
-
-
-
-
-
 

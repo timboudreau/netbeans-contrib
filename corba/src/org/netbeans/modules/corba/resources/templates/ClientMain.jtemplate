@@ -2,12 +2,15 @@
  * __NAME__.java  --  client side implementation 
  *
  * Created on __DATE__, __TIME__ for __ORB_NAME__
- * with __CLIENT_BINDING__ binding.
+ * with __CLIENT_BINDING_NAME__ binding.
  */
 
 package Templates.CORBA;
 
 __CLIENT_IMPORT__
+
+__CLIENT_BINDING_IMPORT__
+
 /**
  *
  * @author  __USER__
@@ -24,10 +27,16 @@ public class ClientMain {
     */
     public static void main (String args[]) {
 
-        __SETTINGS_ORB_PROPERTIES__
-        __ORB_CLIENT_INIT__
+	try {
+	    __ORB_PROPERTIES__
+	    __ORB_INIT__
 
-        __ORB_CLIENT_BINDING__
+	    __CLIENT_BINDING__
+	} catch (Exception ex) {
+	     ex.printStackTrace ();
+	}
     }
 
 }
+
+

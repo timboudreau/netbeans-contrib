@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding='ISO-8859-1'?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<!DOCTYPE orb-settings PUBLIC "-//Forte for Java//DTD ORBSettings 1.0//EN" "ORBSettings.dtd"[
+<!ENTITY corba23-poa SYSTEM "corba23-poa.ent">
+<!ENTITY corba23-generic-impl SYSTEM "corba23-generic-impl.ent">
+<!ENTITY orbacus4-generic SYSTEM "orbacus4-generic.ent">
+]>
+
+<orb-settings name='ORBacus for Java 4.x' tag='orbacus4u' supported='true'>
+  
+  &corba23-poa;
+  &corba23-generic-impl;
+  &orbacus4-generic;
+
+  <idl-compiler-settings>
+    <error-expression value='^([^ ]+):([0-9]+): (.*)'/>
+  </idl-compiler-settings>
+	
+</orb-settings>
+

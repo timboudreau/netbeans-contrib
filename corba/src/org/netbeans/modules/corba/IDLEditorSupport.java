@@ -192,6 +192,7 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
         if (DEBUG)
             System.out.println ("open ();"); // NOI18N
         IDLDataObject ido = (IDLDataObject)idl_file.getDataObject ();
+        //IDLDataObject ido = (IDLDataObject)entry.getDataObject ();
         if (ido != null) {
             //position = ido.getPositionRef ();
             line = ido.getLinePosition ();
@@ -338,6 +339,7 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
         prepareDocument ();
 
         DataObject obj = idl_file.getDataObject ();
+        //DataObject obj = entry.getDataObject ();
         Editor editor = new IDLEditor (obj, this);
         return editor;
     }
@@ -534,6 +536,10 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
     /** Cloneable top component to hold the editor kit.
     */
 
+    public MultiDataObject.Entry getEntry () {
+	return entry;
+    }
+
     public static class IDLEditor extends EditorSupport.Editor {
 
         protected transient MultiDataObject.Entry entry;
@@ -563,6 +569,8 @@ public class IDLEditorSupport extends EditorSupport implements EditCookie {
 
         private void initMe() {
             this.entry = propSupport.idl_file;
+            //this.entry = propSupport.entry;
+	    //this.entry = propSupport.getEntry ();
 
             // add to EditorSupport - patch for a bug in deserialization
             //propSupport.setRef(getReference());

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding='ISO-8859-1'?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<!DOCTYPE orb-settings PUBLIC "-//Forte for Java//DTD ORBSettings 1.0//EN" "ORBSettings.dtd"[
+<!ENTITY corba23-poa SYSTEM "corba23-poa.ent">
+<!ENTITY corba23-generic-impl SYSTEM "corba23-generic-impl.ent">
+]>
+<orb-settings name='VisiBroker for Java 4.0' tag='vb4' supported='true'>
+  
+  &corba23-poa;
+  &corba23-generic-impl;
+
+  <poa-settings>
+    <poa-policy name='Bind Support' mnemonic_character='B'>
+      <value name='BY_POA'>
+        <require-policy name='Lifespan' value='PERSISTENT'/>
+      </value>
+      <value name='BY_INSTANCE'>
+        <require-policy name='Lifespan' value='PERSISTENT'/>
+        <require-policy name='Servant Retention' value='RETAIN'/>
+      </value>
+      <value name='NONE'>
+      </value>
+      <prepare-code><![CDATA[Any _bsPolicyAny__$INDEX$__ = __ORB_VAR_NAME__.create_any();
+        com.inprise.vbroker.PortableServerExt.BindSupportPolicyValueHelper.insert(_bsPolicyAny__$INDEX$__, com.inprise.vbroker.PortableServerExt.BindSupportPolicyValue.__POLICY_VALUE__);]]>
+      </prepare-code>
+      <prepare-code-pattern value='Any _bsPolicyAny[0-9]+ = [:javastart:][:javapart:]*.create_any\(\);\n\s* com.inprise.vbroker.PortableServerExt.BindSupportPolicyValueHelper.insert\(_bsPolicyAny[0-9]+, com.inprise.vbroker.PortableServerExt.BindSupportPolicyValue.([:javastart:][:javapart:]*)\);\n'/>
+      <create-code><![CDATA[__ORB_VAR_NAME__.create_policy(com.inprise.vbroker.PortableServerExt.BIND_SUPPORT_POLICY_TYPE.value, _bsPolicyAny__$INDEX$__)]]></create-code>
+      <create-code-pattern value='[:javastart:][:javapart:]*.create_policy\(com.inprise.vbroker.PortableServerExt.BIND_SUPPORT_POLICY_TYPE.value, _bsPolicyAny[0-9]+\),?'/>
+    </poa-policy>
+  </poa-settings>
+
+  <java-template-code>
+    <template-code name='ORB_PROPERTIES'>
+      <![CDATA[// setting system properties is necessary to use this ORB in Java 1.2
+    Properties props = System.getProperties ();
+    props.put ("org.omg.CORBA.ORBClass", "com.inprise.vbroker.orb.ORB");
+    props.put ("org.omg.CORBA.ORBSingletonClass", "com.inprise.vbroker.orb.ORB");
+    System.setProperties (props);]]>
+    </template-code>
+  </java-template-code>
+
+  <server-binding name='Proprietary' template-tag='SERVER_BINDING'
+		local-tag='proprietary_binder'>
+    <code><![CDATA[// Binding to osagent is done automatically by POA]]>      
+    </code>
+  </server-binding>
+
+  <client-binding name='Proprietary' template-tag='CLIENT_BINDING'
+		local-tag='proprietary_binder'>
+    <code><![CDATA[// Visibroker for Java proprietary binder
+      // you must bind to your object implementation
+      // using code which looks like this:
+      // HelloWorld hello = HelloWorldHelper.bind (orb,"/MyPOA","ObjectID".getBytes());
+      // then you can invoke the method:  hello.say ()  etc.]]>    
+    </code>
+  </client-binding>
+
+  <idl-compiler-settings>
+    <tie-param value=''/>
+    <dir-param value='-root_dir'/>
+    <package-param value='-package'/>
+    <compiler value='idl2java {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+    <package-delimiter value='.'/>
+    <error-expression value='^([^ ]+): ([0-9]+):(.*)'/>
+    <file-position value='1'/>
+    <line-position value='2'/>
+    <column-position value='-1'/>
+    <message-position value='3'/>
+    
+  </idl-compiler-settings>
+    
+    
+</orb-settings>

@@ -1,0 +1,46 @@
+/*
+ *                 Sun Public License Notice
+ * 
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ * 
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+package org.netbeans.modules.corba.utils;
+
+
+/*
+ * @author Karel Gardas
+ */
+
+public class Assertion {
+
+    public static final boolean ENABLED = true;
+    //public static final boolean ENABLED = false;
+
+    public Assertion (boolean __test) {
+	if (!__test)
+	    throw new AssertionException ();
+    }
+
+    public Assertion (boolean __test, String __msg) {
+	if (!__test)
+	    throw new AssertionException (__msg);
+    }
+
+    public static void assert (boolean __test) {
+	if (!__test)
+	    throw new AssertionException ();
+    }
+
+    public static void assert (boolean __test, String __msg) {
+	if (!__test)
+	    throw new AssertionException (__msg);
+    }
+
+}

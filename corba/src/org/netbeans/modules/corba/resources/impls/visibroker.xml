@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding='ISO-8859-1'?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<!DOCTYPE orb-settings PUBLIC "-//Forte for Java//DTD ORBSettings 1.0//EN" "ORBSettings.dtd"[
+<!ENTITY corba20-generic-impl SYSTEM "corba20-generic-impl.ent">
+]>
+<orb-settings name='VisiBroker for Java 3.4' tag='visibroker34' supported='true'>
+  
+  &corba20-generic-impl;
+
+  <java-template-code>
+    
+    <template-code name='ORB_PROPERTIES'>
+      <![CDATA[// setting system properties is necessary for use with VisiBroker for Java in Java 1.2
+      Properties props = System.getProperties ();
+      props.put ("org.omg.CORBA.ORBClass", "com.visigenic.vbroker.orb.ORB");
+      props.put ("org.omg.CORBA.ORBSingletonClass", "com.visigenic.vbroker.orb.ORB");
+      System.setProperties (props);]]>
+    </template-code>
+    
+    <template-code name='POA_INIT'>
+      <![CDATA[BOA boa = ((com.visigenic.vbroker.orb.ORB)orb).BOA_init ();]]>
+    </template-code>
+
+    <template-code name='SERVANTS_ACTIVATION'>
+      <![CDATA[boa.obj_is_ready (/* add your object implementation here */);]]>
+    </template-code>
+
+    <template-code name='ORB_SERVER_RUN'>
+      <![CDATA[boa.impl_is_ready ();]]>
+    </template-code>
+
+
+  </java-template-code>
+
+
+  <server-binding name='Proprietary Binder' template-tag='SERVER_BINDING'>
+    <code>
+      <![CDATA[// server will use VisiBroker proprietary binder
+      // you must instantiate your implementation like this:
+      // HelloWorld hello = new HelloWorldImpl ("HelloWorld");
+      // in brackets is name which is after starting visible from implementation repository]]>
+    </code>
+  </server-binding>
+
+
+  <client-binding name='Proprietary Binder' template-tag='CLIENT_BINDING'>
+    <code>
+      <![CDATA[// client will use VisiBroker proprietary binder
+      // you must bind to your object implementation
+      // using code which looks like this:
+      // HelloWorld hello = HelloWorldHelper.bind (orb, "HelloWorld");
+      // then you can invoke the method:  hello.say ()  etc.]]>
+    </code>
+  </client-binding>
+
+
+  <idl-compiler-settings>
+
+    <tie-param value=''/>
+    <dir-param value='-root_dir'/>
+    <package-param value='-package'/>
+    <compiler value='idl2java {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+    <package-delimiter value='.'/>
+    <error-expression value='^"([^ ]+)":([0-9]+): (.*)'/>
+    <file-position value='1'/>
+    <line-position value='2'/>
+    <column-position value='-1'/>
+    <message-position value='3'/>
+    
+  </idl-compiler-settings>
+
+
+  <impl-generator-settings>
+
+    <impl-int-prefix value=''/>
+
+  </impl-generator-settings>
+
+
+</orb-settings>

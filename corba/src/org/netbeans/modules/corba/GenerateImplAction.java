@@ -18,6 +18,8 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.*;
 import org.openide.nodes.Node;
 
+import org.netbeans.modules.corba.utils.AssertionException;
+
 /** Actions for IDL Node.
 *
 * @author Karel Gardas
@@ -29,14 +31,14 @@ public class GenerateImplAction extends CookieAction {
     static final long serialVersionUID =7123829348277092914L;
 
     //private String name = NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
-    private String generate = NbBundle.getBundle (CORBASupport.class).getString
+    private String _M_generate = NbBundle.getBundle (CORBASupport.class).getString
                               ("ACT_GENERATE"); // NOI18N
-    private String update_and_generate = NbBundle.getBundle (CORBASupport.class).getString
-                                         ("ACT_UPDATE_AND_GENERATE"); // NOI18N
-    private String update = NbBundle.getBundle (CORBASupport.class).getString
+    private String _M_update_and_generate = NbBundle.getBundle 
+	(CORBASupport.class).getString ("ACT_UPDATE_AND_GENERATE"); // NOI18N
+    private String _M_update = NbBundle.getBundle (CORBASupport.class).getString
                             ("ACT_UPDATE"); // NOI18N
 
-    private String name;
+    private String _M_name = "uninitialized generate implementation action";
 
     /** @return set of needed cookies */
     protected Class[] cookieClasses () {
@@ -60,7 +62,7 @@ public class GenerateImplAction extends CookieAction {
     public String getName() {
         //return NbBundle.getBundle (CORBASupport.class).getString ("CTL_GenerateImpl");
         //System.out.println ("getName () -> " + name); // NOI18N
-        return name;
+        return _M_name;
     }
 
     /** Help context where to find more about the action.
@@ -80,20 +82,24 @@ public class GenerateImplAction extends CookieAction {
 
     protected boolean enable (Node[] activatedNodes) {
         //name = "Update Implementations"; // NOI18N
+	//System.out.println ("GenerateImplAction::enamble (" + activatedNodes + ");");
         try {
             IDLDataObject __ido = (IDLDataObject)activatedNodes[0].getCookie 
 		(IDLDataObject.class);
+	    if (__ido == null)
+		throw new AssertionException ("__ido == null");
 	    int __value = __ido.hasGeneratedImplementation ();
             if (__value == 0)
-                name = generate;
+                _M_name = _M_generate;
             if (__value == 1)
-                name = update_and_generate;
+                _M_name = _M_update_and_generate;
             if (__value == 2)
-                name = update;
+                _M_name = _M_update;
         } catch (Exception __ex) {
             //__ex.printStackTrace ();
             return false;
         }
+	//System.out.println ("-> true");
         return true;
     }
 

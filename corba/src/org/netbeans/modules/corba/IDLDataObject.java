@@ -19,11 +19,12 @@ import java.awt.Toolkit;
 import java.lang.reflect.InvocationTargetException;
 
 import java.util.Vector;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.Iterator;
 import java.util.Enumeration;
 import java.util.LinkedList;
+import java.util.ArrayList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,6 +58,7 @@ import org.openide.text.Line;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
+import org.openide.util.RequestProcessor.Task;
 
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
@@ -93,9 +95,9 @@ import org.netbeans.modules.corba.idl.src.TokenMgrError;
 
 import org.netbeans.modules.corba.idl.generator.ImplGenerator;
 
+import org.netbeans.modules.corba.utils.Pair;
+
 /** Object that provides main functionality for idl data loader.
-* This class is final only for performance reasons,
-* can be unfinaled if desired.
 *
 * @author Karel Gardas
 */
@@ -113,22 +115,24 @@ public class IDLDataObject extends MultiDataObject
     public static final int STATUS_PARSING = 2;
     public static final int STATUS_NOT_PARSED = 3;
 
-    private static final int STYLE_NOTHING = 0;
-    private static final int STYLE_FIRST_LEVEL = 1;
-    private static final int STYLE_FIRST_LEVEL_WITH_NESTED_TYPES = 2;
-    private static final int STYLE_ALL = 3;
+    public static final int STYLE_NOTHING = 0;
+    public static final int STYLE_FIRST_LEVEL = 1;
+    public static final int STYLE_FIRST_LEVEL_WITH_NESTED_TYPES = 2;
+    public static final int STYLE_ALL = 3;
 
     private static RequestProcessor _S_request_processor 
 	= new RequestProcessor ("CORBA - IDL Parser"); // NOI18N
     private static RequestProcessor _S_request_processor2 
 	= new RequestProcessor ("CORBA - Implementation Generator"); // NOI18N
 
+    private Task _M_generation_task;
+
     private int _M_status;
     private IDLElement _M_src;
 
     //private Vector idlConstructs;
     //private Vector idlInterfaces;
-    private Hashtable _M_possible_names;
+    private HashMap _M_possible_names;
     //private Object _M_possible_names_lock = new Object ();
     //private boolean _M_possible_names_lock;
 
@@ -364,7 +368,7 @@ public class IDLDataObject extends MultiDataObject
 
 	__job.add (__ec);
 
-        Vector __gens = this.getGeneratedFileObjects ();
+        ArrayList __gens = this.getGeneratedFileObjects ();
         //JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
         //JavaCompilerType jct = (JavaCompilerType)js.getCompiler ();
         JavaCompilerType __jct = (JavaCompilerType)TopManager.getDefault ().getServices
@@ -383,9 +387,9 @@ public class IDLDataObject extends MultiDataObject
         for (int __j = 0; __j < __gens.size (); __j++) {
             if (DEBUG)
                 System.out.println ("add compiler to job for " // NOI18N
-                                    + ((FileObject)__gens.elementAt (__j)).getName ());
+                                    + ((FileObject)__gens.get (__j)).getName ());
 
-            __package_name = ((FileObject)__gens.elementAt (__j)).getPackageNameExt ('/', '.');
+            __package_name = ((FileObject)__gens.get (__j)).getPackageNameExt ('/', '.');
 
             if (DEBUG)
                 System.out.println ("package name: " + __package_name); // NOI18N
@@ -404,60 +408,69 @@ public class IDLDataObject extends MultiDataObject
         Vector __type_members;
         Vector __tmp_members;
         Vector __members;
+	IDLElement __tmp_element;
+	IDLElement __tmp_element2;
         if (__element != null) {
             __members = __element.getMembers ();
             if (__style == STYLE_ALL) {
                 for (int __i = 0; __i < __members.size (); __i++) {
-                    if (__members.elementAt (__i) instanceof Identifier) {
+		    __tmp_element = (IDLElement)__members.elementAt (__i);
+                    if (__tmp_element instanceof Identifier) {
                         // identifier
-                        __constructs.add (((Identifier)__members.elementAt (__i)).getName ());
+                        __constructs.add (__tmp_element);
                     }
                     else {
                         // others
                         __constructs.addAll (this.getIdlConstructs 
-					     (__style, (IDLElement)__members.elementAt (__i)));
-                    }
-                }
-            }
+					     (__style, __tmp_element));
+		    }
+		}
+	    }
             if (__style == STYLE_NOTHING) {
             }
             if (__style == STYLE_FIRST_LEVEL) {
                 for (int __i = 0; __i < __members.size (); __i++) {
-                    if (__members.elementAt (__i) instanceof TypeElement) {
-                        __tmp_members = ((IDLElement)__members.elementAt (__i)).getMembers ();
+		    __tmp_element = (IDLElement)__members.elementAt (__i);
+                    if (__tmp_element instanceof TypeElement) {
+                        __tmp_members = __tmp_element.getMembers ();
                         for (int __j = 0; __j < __tmp_members.size (); __j++) {
-                            if (((IDLElement)__members.elementAt (__i)).getMember (__j) instanceof Identifier)
+			    __tmp_element2 = (IDLElement)__tmp_members.elementAt (__j);
+                            if (__tmp_element2 instanceof Identifier) {
+				/*
                                 // identifier
-                                __name = ((IDLElement)__members.elementAt (__i)).getMember (__j).getName ();
-                            else
+				__name = ((IDLElement)__members.elementAt (__i)).getMember (__j).getName ();
+				else
                                 // constructed type => struct, union, enum
                                 __name = ((TypeElement)__members.elementAt (__i)).getMember (__j).getName ();
-                            __constructs.add (__name);
-                        }
-                    }
+				*/
+				__constructs.add (__tmp_element2);
+			    }
+			}
+		    }
                     else {
-                        __name = ((IDLElement)__members.elementAt (__i)).getName ();
-                        __constructs.add (__name);
+                        //__name = ((IDLElement)__members.elementAt (__i)).getName ();
+                        __constructs.add (__tmp_element);
                     }
                 }
             }
             if (__style == STYLE_FIRST_LEVEL_WITH_NESTED_TYPES) {
                 for (int __i = 0; __i < __members.size (); __i++) {
-                    if (__members.elementAt (__i) instanceof TypeElement) {
+		    __tmp_element = (IDLElement)__members.elementAt (__i);
+                    if (__tmp_element instanceof TypeElement) {
                         __constructs.addAll 
 			    (this.getIdlConstructs 
-			     (STYLE_ALL, (TypeElement)__members.elementAt (__i)));
-                    }
-		    else if (__members.elementAt (__i) instanceof ValueBoxElement) {
-		        ValueBoxElement __box = (ValueBoxElement)__members.elementAt (__i);
+			     (STYLE_ALL, __tmp_element));
+		    }
+		    else if (__tmp_element instanceof ValueBoxElement) {
+		        ValueBoxElement __box = (ValueBoxElement)__tmp_element;
 			//System.out.println ("found value box element");
-			__constructs.add (__box.getName ());
+			__constructs.add (__box);
 			if (__box.getMembers ().size () > 1) {
 			    IDLElement __tmp = __box.getMember (1);
 			    //__tmp.dump ("|");
 			    if (ImplGenerator.is_constructed_type (__tmp)) {
 				//System.out.println ("which is constructed type");
-				__constructs.add (__tmp.getName ());
+				__constructs.add (__tmp);
 			    }
 			}
 			/*
@@ -467,15 +480,15 @@ public class IDLDataObject extends MultiDataObject
 			*/
 		    }
                     else {
-                        __name = ((IDLElement)__members.elementAt (__i)).getName ();
-                        __constructs.add (__name);
+                        //__name = ((IDLElement)__members.elementAt (__i)).getName ();
+                        __constructs.add (__members.elementAt (__i));
                     }
                 }
-
-            }
-        }
-        return __constructs;
+	    }
+	}
+	return __constructs;
     }
+
 
     private LinkedList getIdlConstructs (int __style) {
         if (DEBUG)
@@ -519,7 +532,7 @@ public class IDLDataObject extends MultiDataObject
         //return idl_constructs;
     }
 
-    private LinkedList getIdlInterfaces (int __style) {
+    public LinkedList getIdlInterfaces (int __style) {
         if (DEBUG)
             System.out.println ("IDLDataObject::getIdlInterfaces (" + __style + ");"); // NOI18N
         // wrapper
@@ -544,14 +557,15 @@ public class IDLDataObject extends MultiDataObject
                     System.out.println ("element: " + __element.getMembers ()); // NOI18N
                 for (int __i = 0; __i < __element.getMembers ().size (); __i++) {
                     if (__element.getMember (__i) instanceof InterfaceElement) {
-                        __name = __element.getMember (__i).getName ();
-                        __idl_interfaces.add (__name);
+                        //__name = __element.getMember (__i).getName ();
+                        //__idl_interfaces.add (__name);
+			__idl_interfaces.add (__element.getMember (__i));
                     }
                 }
                 if (DEBUG) {
 		    Iterator __iterator = __idl_interfaces.iterator ();
 		    while (__iterator.hasNext ()) {
-			System.out.println ("interface: " + (String)__iterator.next ()); // NOI18N
+			System.out.println ("interface: " + __iterator.next ()); // NOI18N
 		    }
 		    /*
 		      for (int __i = 0; __i < __idl_interfaces.size (); __i++)
@@ -568,8 +582,9 @@ public class IDLDataObject extends MultiDataObject
                     System.out.println ("element: " + __element.getMembers ()); // NOI18N
                 for (int __i = 0; __i < __element.getMembers ().size (); __i++) {
                     if (__element.getMember (__i) instanceof InterfaceElement) {
-                        __name = __element.getMember (__i).getName ();
-                        __idl_interfaces.add (__name);
+                        //__name = __element.getMember (__i).getName ();
+                        //__idl_interfaces.add (__name);
+			__idl_interfaces.add (__element.getMember (__i));
                     }
                     if (__element.getMember (__i) instanceof ModuleElement) {
                         LinkedList __nested = this.getIdlInterfaces 
@@ -582,7 +597,7 @@ public class IDLDataObject extends MultiDataObject
                 if (DEBUG) {
 		    Iterator __iterator = __idl_interfaces.iterator ();
 		    while (__iterator.hasNext ()) {
-			System.out.println ("interface: " + (String)__iterator.next ()); // NOI18N
+			System.out.println ("interface: " + __iterator.next ()); // NOI18N
 		    }
 		    /*
 		      for (int __i = 0; __i < __idl_interfaces.size (); __i++)
@@ -596,9 +611,9 @@ public class IDLDataObject extends MultiDataObject
         return __idl_interfaces;
     }
 
-    public Hashtable createPossibleNames (LinkedList __idl_constructs, 
+    public HashMap createPossibleNames (LinkedList __idl_constructs, 
 					  LinkedList __idl_interfaces) {
-        Hashtable __possible_names = new Hashtable ();
+        HashMap __possible_names = new HashMap ();
         if (DEBUG)
             System.out.println ("IDLDataObject.createPossibleNames () ..."); // NOI18N
         String __name;
@@ -609,7 +624,7 @@ public class IDLDataObject extends MultiDataObject
 	*/
 	Iterator __iterator = __idl_constructs.iterator ();
 	while (__iterator.hasNext ()) {
-	    __name = (String)__iterator.next (); 
+	    __name = ((IDLElement)__iterator.next ()).getName (); 
             if (__name != null && (!__name.equals (""))) { // NOI18N
                 __possible_names.put (__name + "Holder", ""); // NOI18N
                 __possible_names.put (__name + "Helper", ""); // NOI18N
@@ -623,7 +638,7 @@ public class IDLDataObject extends MultiDataObject
 	*/
 	__iterator = __idl_interfaces.iterator ();
 	while (__iterator.hasNext ()) {
-	    __name = (String)__iterator.next ();
+	    __name = ((IDLElement)__iterator.next ()).getName ();
             if (__name != null && (!__name.equals (""))) { // NOI18N
                 //
                 // now I comment *tie* names which classes are necesary to instantiate in server
@@ -741,31 +756,28 @@ public class IDLDataObject extends MultiDataObject
 	    (CORBASupportSettings.class, true);
 	if (!__css.getActiveSetting ().isTie ()) {
 	    // inheritance based skeletons
-	    __impl_prefix = __css.getActiveSetting ().getImplBasePrefix ();
-	    __impl_postfix = __css.getActiveSetting ().getImplBasePostfix ();
+	    __impl_prefix = __css.getActiveSetting ().getImplBaseImplPrefix ();
+	    __impl_postfix = __css.getActiveSetting ().getImplBaseImplPostfix ();
 	}
 	else {
 	    // tie based skeletons
-	    __impl_prefix = __css.getActiveSetting ().getTiePrefix ();
-	    __impl_postfix = __css.getActiveSetting ().getTiePostfix ();
+	    __impl_prefix = __css.getActiveSetting ().getTieImplPrefix ();
+	    __impl_postfix = __css.getActiveSetting ().getTieImplPostfix ();
 	}
         LinkedList __int_names = this.getIdlInterfaces (STYLE_ALL);
 	Iterator __iterator = __int_names.iterator ();
 	while (__iterator.hasNext ()) {
-	    __retval.add (__impl_prefix + (String)__iterator.next () + __impl_postfix);
+	    InterfaceElement __interface = (InterfaceElement)__iterator.next ();
+	    String __package = ImplGenerator.modules2package (__interface);
+	    __retval.add (new Pair 
+		(__package, __impl_prefix + __interface.getName () + __impl_postfix));
 	}
-        /*
-	  for (int i=0; i<int_names.size (); i++) {
-	  retval.add (impl_prefix + (String)int_names.elementAt (i) + impl_postfix);
-        }
-	*/
+
         return __retval;
     }
 
 
     public int hasGeneratedImplementation () {
-	//Thread.dumpStack ();
-	//try {
 	if (DEBUG)
 	    System.out.println ("IDLDataObject::hasGeneratedImplementation ();"); // NOI18N
 	int __retval = 0;
@@ -773,43 +785,48 @@ public class IDLDataObject extends MultiDataObject
 	if (DEBUG)
 	    System.out.println ("names: " + __names + " of size: " + __names.size ()); // NOI18N
 	FileObject __ifo_folder = this.getPrimaryFile ().getParent ();
-	/*
-	  for (int i=0; i<names.size (); i++) {
-	  if (ifo_folder.getFileObject ((String)names.elementAt (i), "java") != null) {
-	*/
-	Iterator __iterator = __names.iterator ();
-	boolean __first = true;
-	FileObject __file = null;
-	while (__iterator.hasNext ()) {
-	    if ((__file = __ifo_folder.getFileObject 
-		 ((String)__iterator.next (), "java")) != null) { // NOI18N
-		if (DEBUG)
-		    System.out.println ("find file: " + __file); // NOI18N
-		if (__retval == 0 && __first) {
-		    __retval = 2;
-		    __first = false;
-		    continue;
+	String __default_package = __ifo_folder.getPackageName ('.');
+	try {
+	    FileSystem __fs = __ifo_folder.getFileSystem ();
+	    Iterator __iterator = __names.iterator ();
+	    boolean __first = true;
+	    FileObject __file = null;
+	    while (__iterator.hasNext ()) {
+		Pair __pair = (Pair)__iterator.next ();
+		String __package = (String)__pair.first;
+		if (!__package.equals (""))
+		    __package = __package.substring (0, __package.length () - 1);
+		String __name = (String)__pair.second;
+		//System.out.println ("pair: " + __pair);
+		// use find on filesystem to find file object 
+		if ((__file = __fs.find (__default_package + "." + __package, // NOI18N
+					 __name, "java")) != null) { // NOI18N
+		    if (DEBUG)
+			System.out.println ("found file: " + __file); // NOI18N
+		    if (__retval == 0 && __first) {
+			__retval = 2;
+			__first = false;
+			continue;
+		    }
+		    if (__retval == 0) {
+			__retval = 1;
+			__first = false;
+			continue;
+		    }
 		}
-		if (__retval == 0) {
-		    __retval = 1;
+		else {
+		    if (__retval != 0)
+			__retval = 1;
 		    __first = false;
-		    continue;
 		}
 	    }
-	    else {
-		if (__retval != 0)
-		    __retval = 1;
-		__first = false;
-	    }
+	} catch (FileStateInvalidException __ex) {
 	}
 	if (DEBUG)
 	    System.out.println ("-> " + __retval); // NOI18N
 	return __retval;
-	//} catch (Exception __ex) {
-	//    __ex.printStackTrace ();
-	//}
-	//return 0;
     }
+
 
     public void update () {
         if (DEBUG)
@@ -897,7 +914,7 @@ public class IDLDataObject extends MultiDataObject
 	int __status;
         try {
 	    __stream = this.getPrimaryFile ().getInputStream ();
-            IDLParser __parser = new IDLParser (getPrimaryFile ().getInputStream ());
+            IDLParser __parser = new IDLParser (__stream);
 	    if (this.isTemplate ()) {
 		//System.out.println ("file: " + this.getPrimaryFile () + " is template.");
 		__parser.setTemplate (true);
@@ -1075,7 +1092,7 @@ public class IDLDataObject extends MultiDataObject
       }
     */
 
-    public synchronized Hashtable getPossibleNames () {
+    public synchronized HashMap getPossibleNames () {
 	while (this.getStatus () != STATUS_OK && this.getStatus () != STATUS_ERROR) {
 	    try {
 		//System.out.println (this + " IDLDataObject::getPossibleNames () -> wait ()");
@@ -1093,23 +1110,25 @@ public class IDLDataObject extends MultiDataObject
 	return null;	
     }
 
-    public Vector getGeneratedFileObjects () {
+    public ArrayList getGeneratedFileObjects () {
 	//System.out.println (this + " IDLDataObject::getGeneratedFileObjects ();");
-        Vector result = new Vector ();
-        Hashtable h = this.getPossibleNames ();
-        Enumeration enum = h.keys ();
-        FileObject folder = this.getPrimaryFile ().getParent ();
-	folder.refresh ();
-        FileObject gen_file;
-        while (enum.hasMoreElements ()) {
-            gen_file = folder.getFileObject ((String)enum.nextElement (), "java"); // NOI18N
+        ArrayList __result = new ArrayList ();
+        HashMap __possible_names = this.getPossibleNames ();
+        Set __keys = __possible_names.keySet ();
+        FileObject __folder = this.getPrimaryFile ().getParent ();
+	__folder.refresh ();
+        FileObject __gen_file;
+	Iterator __iterator = __keys.iterator ();
+        while (__iterator.hasNext ()) {
+	    String __name = (String)__iterator.next ();
+            __gen_file = __folder.getFileObject (__name, "java"); // NOI18N
             if (DEBUG)
-                if (gen_file != null)
-                    System.out.println ("add fo: " + gen_file.getName ()); // NOI18N
-            if (gen_file != null)
-                result.add (gen_file);
+                if (__gen_file != null)
+                    System.out.println ("add fo: " + __gen_file.getName ()); // NOI18N
+            if (__gen_file != null)
+                __result.add (__gen_file);
         }
-        return result;
+        return __result;
     }
 
     public void generateImplementation () {
@@ -1130,7 +1149,7 @@ public class IDLDataObject extends MultiDataObject
 	    if (!_M_generation) {
 		_M_generation = true;
 		//RequestProcessor.postRequest (new Runnable () {
-		_S_request_processor2.post (new Runnable () {
+		_M_generation_task = _S_request_processor2.post (new Runnable () {
 			public void run () {
 			    generator.generate ();
 			    _M_generation = false;
@@ -1250,7 +1269,15 @@ public class IDLDataObject extends MultiDataObject
 	return __result;
     }
 
+    public synchronized Task getGenerationTask () {
+	return _M_generation_task;
+    }
+
     public void propertyChange (PropertyChangeEvent __event) {
+	if (__event == null || __event.getPropertyName () == null) {
+	    //Thread.dumpStack ();
+	    return;
+	}
 	if (__event.getPropertyName ().equals ("_M_orb_name")) {
 	    //System.out.println ("changed default orb!");
 	    this.firePropertyChange ("_M_orb_for_compilation", _M_orb_for_compilation, 

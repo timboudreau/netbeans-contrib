@@ -1,0 +1,24 @@
+//
+// __NAME__.java
+//
+// Created on __DATE__, __TIME__
+// by __USER__
+//
+
+package CORBA.newtemplates;
+
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.ServantActivatorPOA;
+import org.omg.PortableServer.ForwardRequest;
+
+public class ServantActivator extends org.omg.PortableServer.ServantActivatorPOA {
+
+    public Servant incarnate (byte[] oid, POA adapter)
+        throws org.omg.PortableServer.ForwardRequest {
+    }
+
+    public void etherealize (byte[] oid, POA adapter, Servant serv, boolean cleanup_in_progress, boolean remaining_activations) {
+    }
+}
+

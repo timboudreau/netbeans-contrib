@@ -69,38 +69,22 @@ public class OrbPropertyEditor extends PropertyEditorSupport {
 
     /** @return text for the current value */
     public String getAsText () {
-        return (String) getValue();
+	//System.out.println ("OrbPropertyEditor::getAsText () -> " + this.getValue());
+        return (String)this.getValue();
     }
 
     /** @param text A text for the current value. */
-    public void setAsText (String text) {
-        setValue(text);
+    public void setAsText (String __value) {
+	String __tmp = __value;
+	//System.out.println ("OrbPropertyEditor::setAsText () <- " + __value);
+	//if (__value.endsWith (ORBSettingsBundle.CTL_UNSUPPORTED)) {
+	//   __tmp = __value.substring 
+	//	(0, __value.length () - (ORBSettingsBundle.CTL_UNSUPPORTED.length () + 1));
+	//}
+	//System.out.println ("OrbPropertyEditor::setAsText (): setValue () <- " + __tmp);
+        this.setValue (__tmp);
     }
 }
-
-/*
- * <<Log>>
- *  13   Gandalf   1.12        11/4/99  Karel Gardas    - update from CVS
- *  12   Gandalf   1.11        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
- *       Microsystems Copyright in File Comment
- *  11   Gandalf   1.10        10/1/99  Karel Gardas    updates from CVS
- *  10   Gandalf   1.9         8/3/99   Karel Gardas    
- *  9    Gandalf   1.8         7/10/99  Karel Gardas    
- *  8    Gandalf   1.7         6/9/99   Ian Formanek    ---- Package Change To 
- *       org.openide ----
- *  7    Gandalf   1.6         5/28/99  Karel Gardas    
- *  6    Gandalf   1.5         5/28/99  Karel Gardas    
- *  5    Gandalf   1.4         5/22/99  Karel Gardas    fixed for reading 
- *       configuration from implementations files
- *  4    Gandalf   1.3         5/15/99  Karel Gardas    
- *  3    Gandalf   1.2         5/8/99   Karel Gardas    
- *  2    Gandalf   1.1         4/24/99  Karel Gardas    
- *  1    Gandalf   1.0         4/23/99  Karel Gardas    
- * $
- */
-
-
-
 
 
 

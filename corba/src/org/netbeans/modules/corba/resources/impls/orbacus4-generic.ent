@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding='ISO-8859-1'?>
+
+<java-template-code>
+
+  <template-code name='ORB_PROPERTIES'>
+    <![CDATA[// setting system properties is necessary in order to use Orbacus in Java 1.2
+    Properties props = System.getProperties ();
+    props.put ("org.omg.CORBA.ORBClass", "com.ooc.CORBA.ORB");
+    props.put ("org.omg.CORBA.ORBSingletonClass", "com.ooc.CORBA.ORBSingleton");
+    System.setProperties (props);]]>
+  </template-code>
+  
+</java-template-code>
+
+
+<idl-compiler-settings>
+  
+  <tie-param value='--tie'/>
+  <dir-param value='--output-dir'/>
+  <package-param value='--package'/>
+  <compiler value='jidl {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+  <package-delimiter value='.'/>
+  <error-expression value='^([^ ]+):([0-9]+): (.*)'/>
+  <file-position value='1'/>
+  <line-position value='2'/>
+  <column-position value='-1'/>
+  <message-position value='3'/>
+
+</idl-compiler-settings>
+

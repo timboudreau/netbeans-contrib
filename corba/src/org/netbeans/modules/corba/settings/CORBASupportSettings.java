@@ -17,8 +17,11 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 
 import org.omg.CORBA.ORB;
+
+import org.xml.sax.SAXException;
 
 import org.openide.options.SystemOption;
 //import org.openide.options.ContextSystemOption;
@@ -64,114 +67,25 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     //private static final boolean PRODUCTION = false;
 
     static final long serialVersionUID = -2809668725556980488L;
-    /*
-      private String[] checkSections = {"CTL_NAME", "IMPORT", "SETTINGS_ORB_PROPERTIES",
-      "ORB_SERVER_INIT", "ORB_CLIENT_INIT", "ORB_SERVER_RUN",
-      "ORB_OBJECT_ACTIVATION", "DIR_PARAM",
-      "PACKAGE_PARAM", "COMPILER", "PACKAGE_DELIMITER",
-      "ERROR_EXPRESSION", "FILE_POSITION", "LINE_POSITION",
-      "COLUMN_POSITION", "MESSAGE_POSITION", "TIE_PARAM",
-      // added for implementation generator
-      "IMPLBASE_IMPL_PREFIX", "IMPLBASE_IMPL_POSTFIX",
-      "EXT_CLASS_PREFIX", "EXT_CLASS_POSTFIX",
-      "TIE_IMPL_PREFIX", "TIE_IMPL_POSTFIX",
-      "IMPL_INT_PREFIX", "IMPL_INT_POSTFIX"};
 
-      private String[] cbindings = {"NS", "IOR_FROM_FILE", "IOR_FROM_INPUT", "BINDER"};
-      
-      private String[] sbindings = {"NS", "IOR_TO_FILE", "IOR_TO_OUTPUT", "BINDER"};
-    */
+    private static String _M_orb_name;
 
-    /*
-      private Vector clientBindings;
-      
-      private Vector serverBindings;
-      
-      private Vector props;
-
-      private Vector names;
-    */
-
-    protected static String _M_orb_name;
+    private static String _M_orb_tag;
 
     // used in CORBASupportSettings::getActiveSetting ()
-    protected static String _M_orb_name_cache;
-    protected static ORBSettings _M_setting_cache;
+    private static String _M_orb_tag_cache;
+    private static ORBSettings _M_setting_cache;
 
-    protected static FullBeanContextSupport _M_implementations = new FullBeanContextSupport ();
-    //protected static BeanContextSupport _M_implementations = new BeanContextSupport ();
-    //= new BeanContextSupport ();
-    //protected static Vector _M_orb_names;
+    private static FullBeanContextSupport _S_implementations 
+	= new FullBeanContextSupport ();
 
-    /*
-      public static String skels = CORBASupport.INHER;
-
-      public static String params;
-
-      public static String _server_binding;
-
-      public static String _client_binding;
-
-
-      public static boolean _hide_generated_files = true;
-
-      public static String generation = CORBASupport.GEN_NOTHING;
-    
-      public static String synchro = CORBASupport.SYNCHRO_ON_UPDATE;
-    */
-    // advanced settings
-    /*
-      public static String _test;
-      
-      public static NbProcessDescriptor idl;
-      
-      public static String _tie_param;
-      
-      public static String _package_param;
-      
-      public static String _dir_param;
-      
-      public static String _orb_class;
-      
-      public static String _orb_singleton;
-      
-      public static String _orb_import;
-      
-      public static String _package_delimiter;
-      
-      public static String _error_expression;
-      
-      public static String _file_position;
-      
-      public static String _line_position;
-      
-      public static String _column_position;
-      
-      public static String _message_position;
-      
-      public static String _impl_prefix;
-      public static String _impl_postfix;
-      public static String _ext_class_prefix;
-      public static String _ext_class_postfix;
-      public static String _tie_prefix;
-      public static String _tie_postfix;
-      public static String _impl_int_prefix;
-      public static String _impl_int_postfix;
-      
-      private boolean _is_tie;
-
-      public static String _table = "USER="+System.getProperty("user.name")+"\n";
-      //      + "VERSION="+System.getProperty ("org.openide.major.version")+"\n";
-
-
-      String addition = "";
-    */
+    private static FullBeanContextSupport _S_loaded_context;
 
     private ORB _M_orb;
 
-    public static Vector namingChildren;
+    private static Vector _M_naming_children;
 
-    public static Vector IRChildren;
+    private static Vector _M_ir_children;
     
     private boolean _M_loaded = false;
     private boolean _M_in_init = false;
@@ -183,57 +97,34 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     }
 
     public CORBASupportSettings () {
-        //	setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
-        //addOption (getCORBASupportAdvancedSettings ());
         if (DEBUG) 
             System.out.println ("CORBASupportSettings () ..."); // NOI18N
-	    //Thread.dumpStack ();
-	//TopManager.getDefault ().getWindowManager ().addPropertyChangeListener (this);
     }
 
     public void init () {
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::init ();");
 	_M_in_init = true;
+	_M_naming_children = new Vector ();	
+	_M_ir_children = new Vector ();
 	/*
-	  //names = new Vector (5);
-	  initOrb ();
-	  props = new Vector (5);
-	  clientBindings = new Vector (5);
-	  serverBindings = new Vector (5);
-	*/
-	namingChildren = new Vector ();	
-	IRChildren = new Vector ();
-	//loadImpl ();
-	//addPropertyChangeListener (this);
-	//addOption (getCORBASupportAdvancedSettings ());
-	//      setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
-	//this.getCookieSet.add (UpdateCookie.class);
+	  if (DYNLOAD && !PRODUCTION) {
+	  this.setOrb ("ORBacus for Java 3.1.x"); // NOI18N
+	  }
 	  
-        // test for default settings
-        //setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
-        if (DYNLOAD && !PRODUCTION) {
-	    setOrb ("ORBacus for Java 3.1.x"); // NOI18N
-	    /*
-	      loadImpl ();
-	      setOrb ("ORBacus for Java 3.1.x");
-	      setClientBinding (CORBASupport.CLIENT_IOR_FROM_FILE);
-	      setServerBinding (CORBASupport.SERVER_IOR_TO_FILE);
-	      generation = CORBASupport.GEN_EXCEPTION;
-	    */
-        }
-
-        if (PRODUCTION) {
-            //loadImpl ();
-            setOrb ("JDK 1.2 ORB"); // NOI18N
-            //setClientBinding (CORBASupport.CLIENT_NS);
-            //setServerBinding (CORBASupport.SERVER_NS);
-        }
-
+	  if (PRODUCTION) {
+	  this.setOrb ("JDK 1.2 ORB"); // NOI18N
+	  }
+	*/
+	if (!_M_loaded)
+	    this.setBeans (this.getBeans ());
+	if (this.getActiveSetting () == null)
+	    this.setORBTag ("orbacus4u");
 	_M_in_init = false;
     }
     
     public void readExternal (ObjectInput __in) 
-	throws java.io.IOException, 
-	       java.lang.ClassNotFoundException {
+	throws java.io.IOException, java.lang.ClassNotFoundException {
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::readExternal (" + __in + ")"); // NOI18N
 	_M_in_init = true;
@@ -247,6 +138,13 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	_M_in_init = false;
 	//deserealization = false;
 	//this.setOrb (_M_orb_name);
+	/*
+	  if (this.getActiveSetting () != null) {
+	  if (DEBUG)
+	  System.out.println ("seting java template map after loading");
+	  this.getActiveSetting ().setJavaTemplateTable ();
+	  }
+	*/
     }
     
     
@@ -281,79 +179,29 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     public boolean isGlobal () {
         return false;
     }
-    /*
-      public void propertyChange (PropertyChangeEvent event) {
-      if (DEBUG)
-      System.out.println ("propertyChange: " + event.getPropertyName ());
-    */
-	/*
-        if (event.getPropertyName () != null) {
-            if (event.getPropertyName ().equals ("orb"))
-                setAdvancedOrbOptions ((String) event.getNewValue ());
-            if (event.getPropertyName ().equals ("_client_binding"))
-                setAdvancedClientBinding ((String) event.getNewValue ());
-            if (event.getPropertyName ().equals ("_server_binding"))
-                setAdvancedServerBinding ((String) event.getNewValue ());
-        }
-	*/
-    /*
-      }
-    */
 
-    /*    
-	  public void setAdvancedClientBinding (String binding) {
-	  
-	  if (DEBUG)
-	  System.out.println ("client binding: " + binding);
-	  //if (DEBUG)
-	  // System.out.println ("ctl_client_binding: " + getCtlClientBindingName ());
-	  //setJavaTemplateTable ();
-	  }
-    */
-    /*
-      public void setAdvancedServerBinding (String binding) {
-      
-      if (DEBUG)
-      System.out.println ("server binding: " + binding);
-      //if (DEBUG)
-      //	 System.out.println ("ctl_server_binding: " + getCtlServerBindingName ());
-      //setJavaTemplateTable ();
-      }
-    */
     
     public Vector getNames () {
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::getNames ()"); // NOI18N
-	/*
-	  if (_M_orb_names == null) {
-	  // lazy initialization
-	  loadImpl ();
-	  }
-	*/
+
 	Vector __names = new Vector ();
-	Iterator __iterator = _M_implementations.iterator ();
+	Iterator __iterator = _S_implementations.iterator ();
 	while (__iterator.hasNext ()) {
 	    __names.add (((ORBSettings)__iterator.next ()).getName ());
 	}
 	return __names;
-	//return _M_orb_names;
-	/*
-	  Vector __names = new Vector ();
-	  if (_M_implementations == null) {
-	  // lazy initialization
-	  loadImpl ();
-	  }
-	  for (int __i = 0; __i < _M_implementations.size (); __i++) {
-	  __names.add (((ORBSettings)_M_implementations.elementAt (__i)).getOrbName ());
-	  }
-	  return __names;
-	*/
     }
 
+
     public String getOrb () {
-        //loadImpl ();
+	if (DEBUG)
+	    System.out.println ("getOrb () -> " + _M_orb_name);
+	if (_M_orb_name == null)
+	    _M_orb_name = "";
         return _M_orb_name;
     }
+
 
     public void setOrb (String __value) {
 	if (DEBUG)
@@ -361,761 +209,56 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
         String __old = _M_orb_name;
 	_M_orb_name = __value;
 	//setJavaTemplateTable ();
-	ORBSettings __settings = this.getActiveSetting ();
-	if (__settings != null)
-	    __settings.setJavaTemplateTable ();
-	firePropertyChange ("_M_orb_name", __old, _M_orb_name); // NOI18N
-	this.cacheThrow ();
-
-	if (!_M_in_init) {
-	    boolean __orb_hide = this.getActiveSetting ().hideGeneratedFiles ();
-	    IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
-		(IDLDataLoader.class, true);
-	    boolean __old_hide = __loader.getHide ();
-	    //System.out.println ("__orb_hide: " + __orb_hide); // NOI18N
-	    //System.out.println ("__old_hide: " + __old_hide); // NOI18N
-	    //if (__old_hide != __orb_hide)
-	    __loader.setHide (__orb_hide);
-	}
-    }
-
-    /*
-
-      public String getOrbName () {
-        
-      String name = "";
-
-      if (orb.equals (CORBASupport.ORBIX))
-      name = "ORBIX";
-      if (orb.equals (CORBASupport.VISIBROKER))
-      name = "VISIBROKER";
-      if (orb.equals (CORBASupport.ORBACUS))
-      name = "ORBACUS";
-      if (orb.equals (CORBASupport.JAVAORB))
-      name = "JAVAORB";
-
-      return name;
-      }
-     
-      public String getCtlOrbName () {
-      return "CTL_" + getOrbName () + "_";
-      }
-
-    */
-
-    /*
-      public String getClientBindingName () {
-
-        String name = "";
-
-        if (_client_binding != null) {
-            if (_client_binding.equals (CORBASupport.CLIENT_NS))
-                name = "NS";
-            if (_client_binding.equals (CORBASupport.CLIENT_IOR_FROM_FILE))
-                name = "IOR_FROM_FILE";
-            if (_client_binding.equals (CORBASupport.CLIENT_IOR_FROM_INPUT))
-                name = "IOR_FROM_INPUT";
-            if (_client_binding.equals (CORBASupport.CLIENT_BINDER))
-                name = "BINDER";
-        }
-        return name;
-    }
-    */
-    /*
-      public String getCtlClientBindingName () {
-      return getCtlOrbName () + "CLIENT_" + getClientBindingName ();
-      }
-    */
-    /*
-    public String getServerBindingName () {
-
-        String name = "";
-
-        if (_server_binding != null) {
-            if (_server_binding.equals (CORBASupport.SERVER_NS))
-                name = "NS";
-            if (_server_binding.equals (CORBASupport.SERVER_IOR_TO_FILE))
-                name = "IOR_TO_FILE";
-            if (_server_binding.equals (CORBASupport.SERVER_IOR_TO_OUTPUT))
-                name = "IOR_TO_OUTPUT";
-            if (_server_binding.equals (CORBASupport.SERVER_BINDER))
-                name = "BINDER";
-        }
-        return name;
-    }
-    */
-    /*
-      public String getCtlServerBindingName () {
-      return getCtlOrbName () + "SERVER_" + getServerBindingName ();
-      }
-    */
-    /*
-    public String getSkels () {
-        return skels;
-    }
-
-    public void setSkels (String s) {
-        String old = skels;
-        skels = s;
-        firePropertyChange ("skels", old, skels);
-    }
-
-    public void setParams (String s) {
-        String old = params;
-        params = s;
-        firePropertyChange ("params", old, params);
-    }
-
-    public String getParams () {
-        return params;
-    }
-
-    public static String param () {
-        return params;
-    }
-
-
-    public String getClientBinding () {
-        return _client_binding;
-    }
-
-    public void setClientBinding (String s) {
-        String old = _client_binding;
-        _client_binding = s;
-        firePropertyChange ("_client_binding", old, _client_binding);
-    }
-
-    public String getServerBinding () {
-        return _server_binding;
-    }
-
-    public void setServerBinding (String s) {
-        String old = _server_binding;
-        _server_binding = s;
-        firePropertyChange ("_server_binding", old, _server_binding);
-    }
-
-
-    // advanced settings
-    public NbProcessDescriptor getIdl () {
-        return idl;
-    }
-
-    public static String idl () {
-        return idl.getProcessName ();
-    }
-
-    public void setIdl (NbProcessDescriptor s) {
-        //System.out.println ("setIdl :-)");
-        NbProcessDescriptor old = idl;
-        idl = s;
-        //System.out.println ("switch: " + idl.getClasspathSwitch ());
-        //int length = idl.getProcessArgs ().length;
-        //String[] params = idl.getProcessArgs ();
-        //for (int i=0; i<length; i++)
-        //	 System.out.println ("param[" + i + "]: " + params[i]);
-
-        //Thread.dumpStack ();
-        firePropertyChange ("idl", old, idl);
-    }
-
-    public void setTieParam (String s) {
-        String old = _tie_param;
-        _tie_param = s;
-        firePropertyChange ("_tie_param", old, _tie_param);
-    }
-
-    public boolean isTie () {
-
-        if (skels.equals (CORBASupport.TIE)) {
-            _is_tie = true;
-            if (DEBUG)
-                System.out.println ("is TIE");
-        }
-        else {
-            _is_tie = false;
-            if (DEBUG)
-                System.out.println ("isn't TIE");
-        }
-
-        return _is_tie;
-    }
-
-    public String getTieParam () {
-        return _tie_param;
-    }
-
-    //public static String tie_param () {
-    //   return _tie_param;
-    //}
-
-    public void setPackageParam (String s) {
-        String old = _package_param;
-        _package_param = s;
-        firePropertyChange ("_package_param", old, _package_param);
-    }
-
-    public String getPackageParam () {
-        return _package_param;
-    }
-
-    public static String package_param () {
-        return _package_param;
-    }
-
-    public void setDirParam (String s) {
-        String old = _dir_param;
-        _dir_param = s;
-        firePropertyChange ("_dir_param", old, _dir_param);
-    }
-
-    public String getDirParam () {
-        return _dir_param;
-    }
-
-    public static String dir_param () {
-        return _dir_param;
-    }
-
-    public String getPackageDelimiter () {
-        return _package_delimiter;
-    }
-
-    public void setPackageDelimiter (String s) {
-        String old = _package_delimiter;
-        _package_delimiter = s;
-        firePropertyChange ("_package_delimiter", old, _package_delimiter);
-    }
-
-    public char delim () {
-        return _package_delimiter.charAt (0);
-    }
-
-    public String getErrorExpression () {
-        return _error_expression;
-    }
-
-    public void setErrorExpression (String s) {
-        String old = _error_expression;
-        _error_expression = s;
-        firePropertyChange ("_error_expression", old, _error_expression);
-    }
-
-    public static String expression () {
-        return _error_expression;
-    }
-
-    public String getFilePosition () {
-        return _file_position;
-    }
-
-    public void setFilePosition (String s) {
-        String old = _file_position;
-        _file_position = s;
-        firePropertyChange ("_file_position", old, _file_position);
-    }
-
-    public int file () {
-        return new Integer(_file_position).intValue ();
-    }
-
-    public String getLinePosition () {
-        return _line_position;
-    }
-
-    public void setLinePosition (String s) {
-        String old = _line_position;
-        _line_position = s;
-        firePropertyChange ("_line_position", old, _line_position);
-    }
-
-    public int line () {
-        return new Integer(_line_position).intValue ();
-    }
-
-    public String getColumnPosition () {
-        return _column_position;
-    }
-
-    public void setColumnPosition (String s) {
-        String old = _column_position;
-        _column_position = s;
-        firePropertyChange ("_column_position", old, _column_position);
-    }
-
-    public int column () {
-        return new Integer(_column_position).intValue ();
-    }
-
-    public String getMessagePosition () {
-        return _message_position;
-    }
-
-    public void setMessagePosition (String s) {
-        String old = _message_position;
-        _message_position = s;
-        firePropertyChange ("_message_position", old, _message_position);
-    }
-
-    public int message () {
-        return new Integer(_message_position).intValue ();
-    }
-
-
-    public void setImplBasePrefix (String s) {
-        _impl_prefix = s;
-    }
-
-    public String getImplBasePrefix () {
-        return _impl_prefix;
-    }
-
-    public void setImplBasePostfix (String s) {
-        _impl_postfix = s;
-    }
-
-    public String getImplBasePostfix () {
-        return _impl_postfix;
-    }
-
-
-    public void setExtClassPrefix (String s) {
-        _ext_class_prefix = s;
-    }
-
-    public String getExtClassPrefix () {
-        return _ext_class_prefix;
-    }
-
-    public void setExtClassPostfix (String s) {
-        _ext_class_postfix = s;
-    }
-
-    public String getExtClassPostfix () {
-        return _ext_class_postfix;
-    }
-
-    public void setTiePrefix (String s) {
-        _tie_prefix = s;
-    }
-
-    public String getTiePrefix () {
-        return _tie_prefix;
-    }
-
-    public void setTiePostfix (String s) {
-        _tie_postfix = s;
-    }
-
-    public String getTiePostfix () {
-        return _tie_postfix;
-    }
-
-
-    public void setImplIntPrefix (String s) {
-        _impl_int_prefix = s;
-    }
-
-    public String getImplIntPrefix () {
-        return _impl_int_prefix;
-    }
-
-    public void setImplIntPostfix (String s) {
-        _impl_int_postfix = s;
-    }
-
-    public String getImplIntPostfix () {
-        return _impl_int_postfix;
-    }
-
-
-    public void setReplaceableStringsTable (String s) {
-        String old = _table;
-        _table = s;
-        firePropertyChange ("_table", old, _table);
-    }
-
-    public String getRaplaceableStringsTable () {
-        return _table;
-    }
-
-    public Properties getReplaceableStringsProps () {
-        Properties props = new Properties ();
-        try {
-            props.load (new StringBufferInputStream(_table));
-            //props.load (new StringReader (_table));
-        }
-        catch (IOException e) {
-        }
-        return props;
-    }
-
-    public void fireChangeChoices () {
-        firePropertyChange ("_client_binding", null, null);
-        firePropertyChange ("_server_binding", null, null);
-    }
-
-
-    public String[] getClientBindingsChoices () {
-
-        String[] choices;
-        choices = new String[1];
-        choices[0] = new String ("");
-        int index = -1;
-        int length = -1;
-
-        for (int i=0; i<getNames ().size (); i++) {
-            if (DEBUG)
-                System.out.println ("names[" + i + "] = " + getNames ().elementAt (i));
-            if (getNames ().elementAt (i).equals (orb)) {
-                index = i;
-                break;
-            }
-        }
-        if (index >= 0) {
-            length = ((Vector)clientBindings.elementAt (index)).size ();
-            choices = new String[length];
-            if (DEBUG) {
-                System.out.println ("index: " + index);
-                System.out.println ("orb: " + orb);
-                System.out.println ("length: " + length);
-                System.out.println ("bindings: " + (Vector)clientBindings.elementAt (index));
-            }
-        }
-        if (index >= 0)
-            for (int i=0; i<length; i++) {
-                choices[i] = (String)((Vector)clientBindings.elementAt (index)).elementAt (i);
-                if (DEBUG)
-                    System.out.println ("choice: " + choices[i]);
-            }
-
-        return choices;
-    }
-
-
-
-    public String[] getServerBindingsChoices () {
-
-        String[] choices;
-        choices = new String[1];
-        choices[0] = new String ("");
-        int index = -1;
-        int length = -1;
-
-        for (int i=0; i<getNames ().size (); i++) {
-            if (DEBUG)
-                System.out.println ("names[" + i + "] = " + getNames ().elementAt (i));
-            if (getNames ().elementAt (i).equals (orb)) {
-                index = i;
-                break;
-            }
-        }
-        if (index >= 0) {
-            length = ((Vector)serverBindings.elementAt (index)).size ();
-            choices = new String[length];
-            if (DEBUG) {
-                System.out.println ("index: " + index);
-                System.out.println ("orb: " + orb);
-                System.out.println ("length: " + length);
-                System.out.println ("bindings: " + (Vector)serverBindings.elementAt (index));
-            }
-        }
-        if (index >= 0)
-            for (int i=0; i<length; i++) {
-                choices[i] = (String)((Vector)serverBindings.elementAt (index)).elementAt (i);
-                if (DEBUG)
-                    System.out.println ("choice: " + choices[i]);
-            }
-
-        return choices;
-    }
-
-    public boolean hideGeneratedFiles () {
-        return _hide_generated_files;
-    }
-
-
-    public void setHideGeneratedFiles (boolean v) {
-        _hide_generated_files = v;
-    }
-
-    public void setAdvancedOrbOptions (String orb) {
-
-        if (DEBUG)
-            System.out.println ("orb: " + orb);
-
-        if (DEBUG)
-            System.out.println ("setAdvancedOptions :)");
-        JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
-
-        //ClientBindingPropertyEditor cbedit = (ClientBindingPropertyEditor)ClientBindingPropertyEditor.findObject (ClientBindingPropertyEditor.class, true);
-        //cbedit.setChoices (getChoices);
-
-        String old_tie = getTieParam ();
-        String old_dir = getDirParam ();
-        String old_package = getPackageParam ();
-        String old_expression = getErrorExpression ();
-        String old_file = getFilePosition ();
-        String old_line = getLinePosition ();
-        String old_column = getColumnPosition ();
-        String old_message = getMessagePosition ();
-
-        // added for generator
-        String old_implbase_impl_prefix = getImplBasePrefix ();
-        String old_implbase_impl_postfix = getImplBasePostfix ();
-        String old_ext_class_prefix = getExtClassPrefix ();
-        String old_ext_class_postfix = getExtClassPostfix ();
-        String old_tie_prefix = getTiePrefix ();
-        String old_tie_postfix = getTiePostfix ();
-        String old_impl_int_prefix = getImplIntPrefix ();
-        String old_impl_int_postfix = getImplIntPostfix ();
-
-
-
-        String new_expression = "";
-        String new_file = "";
-        String new_line = "";
-        String new_column = "";
-        String new_message = "";
-        String new_dir = "";
-        String new_package = "";
-        String new_tie = "";
-
-        // added for generator
-        String new_implbase_prefix;
-        String new_implbase_postfix;
-        String new_ext_class_prefix;
-        String new_ext_class_postfix;
-        String new_tie_prefix;
-        String new_tie_postfix;
-        String new_impl_int_prefix;
-        String new_impl_int_postfix;
-
-        NbProcessDescriptor old_idl = getIdl ();
-        NbProcessDescriptor new_idl = null;
-        String old_delimiter = getPackageDelimiter();
-        String new_delimiter = ".";
-
-        setJavaTemplateTable ();
-
-        int index = -1;
-
-        for (int i = 0; i<getNames ().size (); i++) {
-            if (getNames ().elementAt (i).equals (orb)) {
-                index = i;
-                break;
-            }
-        }
-
-        if (index == -1)
-            return;
-
-        new_tie = ((Properties)props.elementAt (index)).getProperty ("TIE_PARAM");
-        new_dir = ((Properties)props.elementAt (index)).getProperty ("DIR_PARAM");
-        new_package = ((Properties)props.elementAt (index)).getProperty ("PACKAGE_PARAM");
-
-        //String[] tmp1 = new String[] {NbProcessDescriptor.CP_REPOSITORY};
-        String[] tmp1 = new String[] {""};
-
-        //new_idl = new NbProcessDescriptor ( (String)((Properties)props.elementAt (index)).getProperty ("COMPILER"), NbProcessDescriptor.NO_SWITCH, tmp1);
-        String compiler = (String)((Properties)props.elementAt (index)).getProperty ("COMPILER");
-        if (DEBUG)
-            System.out.println ("compiler: " + compiler);
-
-        StringTokenizer st = new StringTokenizer (compiler);
-        //      String process = compiler.substring (0, compiler.indexOf (' '));
-        String process = st.nextToken ();
-        //      String args = compiler.substring (compiler.indexOf (' '), compiler.length () - 1);
-        String args = "";
-        while (st.hasMoreTokens ()) {
-            if (args.length () > 0)
-                args = args + " " + st.nextToken ();
-            else
-                args = st.nextToken ();
-        }
-        if (DEBUG) {
-            System.out.println ("process: " + process);
-            System.out.println ("args: " + args);
-        }
-        new_idl = new NbProcessDescriptor (process, args, "");
-        new_expression = ((Properties)props.elementAt (index)).getProperty ("ERROR_EXPRESSION");
-        new_file = ((Properties)props.elementAt (index)).getProperty ("FILE_POSITION");
-        new_line = ((Properties)props.elementAt (index)).getProperty ("LINE_POSITION");
-        new_column = ((Properties)props.elementAt (index)).getProperty ("COLUMN_POSITION");
-        new_message = ((Properties)props.elementAt (index)).getProperty ("MESSAGE_POSITION");
-        new_delimiter = ((Properties)props.elementAt (index)).getProperty ("PACKAGE_DELIMITER");
-
-        // added for generator
-        new_implbase_prefix = ((Properties)props.elementAt (index)).getProperty
-                              ("IMPLBASE_IMPL_PREFIX");
-        new_implbase_postfix = ((Properties)props.elementAt (index)).getProperty
-                               ("IMPLBASE_IMPL_POSTFIX");
-        new_ext_class_prefix = ((Properties)props.elementAt (index)).getProperty
-                               ("EXT_CLASS_PREFIX");
-        new_ext_class_postfix = ((Properties)props.elementAt (index)).getProperty
-                                ("EXT_CLASS_POSTFIX");
-        new_tie_prefix = ((Properties)props.elementAt (index)).getProperty
-                         ("TIE_IMPL_PREFIX");
-        new_tie_postfix = ((Properties)props.elementAt (index)).getProperty
-                          ("TIE_IMPL_POSTFIX");
-        new_impl_int_prefix = ((Properties)props.elementAt (index)).getProperty
-                              ("IMPL_INT_PREFIX");
-        new_impl_int_postfix = ((Properties)props.elementAt (index)).getProperty
-                               ("IMPL_INT_POSTFIX");
-
-        setTieParam (new_tie);
-        setDirParam (new_dir);
-        setPackageParam (new_package);
-        setIdl (new_idl);
-        setErrorExpression (new_expression);
-        setFilePosition (new_file);
-        setLinePosition (new_line);
-        setColumnPosition (new_column);
-        setMessagePosition (new_message);
-        setPackageDelimiter (new_delimiter);
-
-        // added for generator
-        setImplBasePrefix (new_implbase_prefix);
-        setImplBasePostfix (new_implbase_postfix);
-        setExtClassPrefix (new_ext_class_prefix);
-        setExtClassPostfix (new_ext_class_postfix);
-        setTiePrefix (new_tie_prefix);
-        setTiePostfix (new_tie_postfix);
-        setImplIntPrefix (new_impl_int_prefix);
-        setImplIntPostfix (new_impl_int_postfix);
-
-        if (DEBUG)
-            System.out.println ("setAdvancedOptions () - end!");
-
-    }
-    */
-
-    public void setJavaTemplateTable () {
-
-        int index = 0;
-
-        String tmp_property;
-
-	ORBSettings __setting = this.getActiveSetting ();
-	Properties __setting_properties = __setting.getReplaceableStringsProps ();
-
-        if (DEBUG)
-            System.out.println ("setJavaTemplateTable"); // NOI18N
-
-        JavaSettings js = (JavaSettings)JavaSettings.findObject (JavaSettings.class, true);
-        Properties p = js.getReplaceableStringsProps ();
-
-        if (_M_orb_name == null)
-            return;
-
-        try {
-            if (DEBUG) {
-                System.out.println ("orb: " + _M_orb_name); // NOI18N
-		System.out.println ("properties: " + __setting_properties); // NOI18N
+	/*
+	  ORBSettings __settings = this.getActiveSetting ();
+	  if (__settings != null)
+	  __settings.setJavaTemplateTable ();
+	*/
+	String __orb_name = this.getOrb ();
+	__orb_name = this.removeUnsupportedPostfix (__orb_name);
+	//if (__orb_name.endsWith (ORBSettingsBundle.CTL_UNSUPPORTED))
+	//__orb_name = this.getOrb ().substring 
+	//(0, this.getOrb ().length () 
+	//- (ORBSettingsBundle.CTL_UNSUPPORTED.length () + 1));
+	this.firePropertyChange ("_M_orb_name", __old, _M_orb_name); // NOI18N
+	if (this.getActiveSetting () != null) {
+	    if (!__orb_name.equals (this.getActiveSetting ().getOrbName ())) {
+		Iterator __iter = _S_implementations.iterator ();
+		while (__iter.hasNext ()) {
+		    ORBSettings __tmp = (ORBSettings)__iter.next ();
+		    if (__orb_name.equals (__tmp.getOrbName ())) {
+			this.setORBTag (__tmp.getORBTag ());
+			break;
+		    }
+		}
 	    }
-	    /*
-            for (int i = 0; i<getNames ().size (); i++) {
-                if (getNames ().elementAt (i).equals (orb)) {
-                    index = i;
-                    break;
-                }
-            }
-	    */
-            //if (DEBUG)
-            //   System.out.println ("props at position: " + props.elementAt (index)); // NOI18N
-
-            //if (DEBUG)
-            //   System.out.println (((Properties)props.elementAt (index)).getProperty
-            //     ("SETTINGS_ORB_PROPERTIES")); // NOI18N
-
-            //if (DEBUG)
-            //    System.out.println ("sett: " + ((Properties)props.elementAt (index)).getProperty
-            //			("SETTINGS_ORB_PROPERTIES")); // NOI18N
-            //if (DEBUG)
-            //    System.out.println ("cb: " + getClientBindingName ()); // NOI18N
-            //if (DEBUG)
-            //    System.out.println ("sb: " + getServerBindingName ()); // NOI18N
-
-            p.setProperty ("ORB_NAME", getOrb ()); // NOI18N
-
-            if (__setting.getServerBinding () != null)
-                p.setProperty ("SERVER_BINDING", __setting.getServerBinding ().getValue ()); // NOI18N
-            if (__setting.getClientBinding () != null)
-                p.setProperty ("CLIENT_BINDING", __setting.getClientBinding ().getValue ()); // NOI18N
-
-
-            p.setProperty ("SETTINGS_ORB_PROPERTIES", __setting_properties.getProperty
-                           ("SETTINGS_ORB_PROPERTIES")); // NOI18N
-            if (__setting_properties.getProperty
-		("IMPORT_" + __setting.getClientBindingName ()) != null) { // NOI18N
-                p.setProperty ("ORB_IMPORT",__setting_properties.getProperty
-                               ("IMPORT_" + __setting.getClientBindingName ())); // NOI18N
-            }
-            else {
-                if (__setting_properties.getProperty
-		    ("IMPORT_" + __setting.getServerBindingName ()) != null) { // NOI18N
-                    p.setProperty ("ORB_IMPORT",__setting_properties.getProperty
-                                   ("IMPORT_" + __setting.getServerBindingName ())); // NOI18N
-                }
-                else {
-                    p.setProperty ("ORB_IMPORT", __setting_properties.getProperty
-                                   ("IMPORT")); // NOI18N
-                }
-            }
-
-            p.setProperty ("ORB_SERVER_INIT", __setting_properties.getProperty
-                           ("ORB_SERVER_INIT")); // NOI18N
-            p.setProperty ("ORB_CLIENT_INIT", __setting_properties.getProperty
-                           ("ORB_CLIENT_INIT")); // NOI18N
-	    /*
-	      if (!getClientBindingName ().equals (""))
-	      if ((tmp_property = ((Properties)props.elementAt (index)).getProperty
-	      ("CLIENT_" + getClientBindingName ())) != null)
-	      p.setProperty ("ORB_CLIENT_BINDING", tmp_property);
-	      
-	      if (!getServerBindingName ().equals (""))
-	      if ((tmp_property = ((Properties)props.elementAt (index)).getProperty
-	      ("SERVER_" + getServerBindingName ())) != null)
-	      p.setProperty ("ORB_SERVER_BINDING", tmp_property);
-	    */
-            p.setProperty ("ORB_OBJECT_ACTIVATION", __setting_properties.getProperty
-                           ("ORB_OBJECT_ACTIVATION")); // NOI18N
-
-            p.setProperty ("ORB_SERVER_RUN", __setting_properties.getProperty
-                           ("ORB_SERVER_RUN")); // NOI18N
-
-            // added for implementation generator
-            /*
-            p.setProperty ("IMPL_PREFIX", ((Properties)props.elementAt (index)).getProperty 
-            ("IMPL_PREFIX"));
-
-            p.setProperty ("IMPL_POSTFIX", ((Properties)props.elementAt (index)).getProperty 
-            ("IMPL_POSTFIX"));
-
-            p.setProperty ("EXT_CLASS_PREFIX", ((Properties)props.elementAt (index)).getProperty 
-            ("EXT_CLASS_PREFIX"));
-
-            p.setProperty ("EXT_CLASS_POSTFIX", ((Properties)props.elementAt (index)).getProperty 
-            ("EXT_CLASS_POSTFIX"));
-            */
-        } catch (Exception e) {
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-		e.printStackTrace ();
-        }
-	
-
-        //js.setReplaceableStringsTable
-        ByteArrayOutputStream bs = new ByteArrayOutputStream ();
-        try {
-            p.store (bs, null);
-        } catch (IOException e) {
-            if (DEBUG)
-                System.out.println (e);
-        }
-        //if (DEBUG)
-        //	 System.out.println ("properties: " + bs.toString ()); // NOI18N
-        js.setReplaceableStringsTable (bs.toString ());
-
+	}
+	else {
+	    System.out.println ("getActiveSetting () -> " + this.getActiveSetting ());
+	    // this.getActiveSetting () == null => we have to set orb tag
+	    Iterator __iter = _S_implementations.iterator ();
+	    while (__iter.hasNext ()) {
+		ORBSettings __tmp = (ORBSettings)__iter.next ();
+		if (this.getOrb ().equals (__tmp.getOrbName ())) {
+		    this.setORBTag (__tmp.getORBTag ());
+		    break;
+		}
+	    }
+	}
+	/*
+	  this.cacheThrow ();
+	  
+	  if (!_M_in_init) {
+	  boolean __orb_hide = this.getActiveSetting ().hideGeneratedFiles ();
+	  IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
+	  (IDLDataLoader.class, true);
+	  boolean __old_hide = __loader.getHide ();
+	  //System.out.println ("__orb_hide: " + __orb_hide); // NOI18N
+	  //System.out.println ("__old_hide: " + __old_hide); // NOI18N
+	  //if (__old_hide != __orb_hide)
+	  __loader.setHide (__orb_hide);
+	  }
+	*/
     }
 
     
@@ -1124,8 +267,6 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	
 	Enumeration __folders 
 	    = __tm.getRepository ().getDefaultFileSystem ().getRoot ().getFolders (false);
-	//CORBASupportSettings settings = (CORBASupportSettings)CORBASupportSettings.findObject
-	//(CORBASupportSettings.class, true);
 	while (__folders.hasMoreElements ()) {
 	    FileObject __fo = (FileObject)__folders.nextElement ();
 	    if (DEBUG)
@@ -1137,8 +278,25 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	return null;
     }
     
+
+    private String debug_tag (int __value) {
+	switch (__value) {
+	case 0: return "-";
+	case 1: return "\\";
+	case 2: return "|";
+	case 3: return "/";
+	}
+	return "";
+    }
+
+
     //public synchronized void loadImpl () {
-    public BeanContext loadImpl () {
+    public synchronized BeanContext loadImpl () {
+	//boolean DEBUG=true;
+	boolean BSD_DEBUG=true;
+	int __position = 0;
+	String __prefix = "loading ";
+	String __postfix = "\r";
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::loadImpl ()"); // NOI18N
 
@@ -1148,44 +306,47 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	//BeanContextSupport __context = new BeanContextSupport ();
 	BeanContext __context = new FullBeanContextSupport ();
 
-	_M_loaded = true;
 	//if (_M_orb_names == null)
 	//    _M_orb_names = new Vector (5);
-	/*
-	  TopManager tm = TopManager.getDefault ();
-	  
-	  try {
-	  Enumeration folders 
-	  = tm.getRepository ().getDefaultFileSystem ().getRoot ().getFolders (false);
-	  CORBASupportSettings settings = (CORBASupportSettings)CORBASupportSettings.findObject
-	  (CORBASupportSettings.class, true);
-	  while (folders.hasMoreElements ()) {
-	  FileObject fo = (FileObject)folders.nextElement ();
-	  if (DEBUG)
-	  System.out.println (fo.getName ());
-	  if (fo.toString ().equals ("CORBA")) {
-	*/
 	FileObject __parent = CORBASupportSettings.findImplFolder ();
+	if (DEBUG)
+	    System.out.println ("__parent: " + __parent);
 	if (__parent != null) {
-	    FileObject[] files = __parent.getChildren ();
-	    for (int __i = 0; __i<files.length ; __i++) {
+	    _M_loaded = true;
+	    FileObject[] __files = __parent.getChildren ();
+	    for (int __i = 0; __i<__files.length ; __i++) {
+		if (!__files[__i].getExt ().equals ("xml"))
+		    continue;
 		if (DEBUG)
-		    System.out.println ("file: " + files[__i].toString ()); // NOI18N
-
+		    System.out.println ("file: " + __files[__i].toString ()); // NOI18N
+		if (BSD_DEBUG) {
+		    System.out.print (__prefix + this.debug_tag (__position)
+				      + __postfix);
+		    __position++;
+		    if (__position > 4)
+			__position = 0;
+		}
+		if (DEBUG)
+		    System.out.println ("loading...");
 		ORBSettings __orb_settings = new ORBSettings ();
 		try {
-		    __orb_settings.loadImpl (files[__i]);
-		    if (__orb_settings.getProperties () != null) {
-			//we found impl file for this setting
-			//_M_implementations.add (__orb_settings);
-			__context.add (__orb_settings);
-			//_M_orb_names.add (__orb_settings.getOrbName ());
-		    }
-		} catch (PropertyNotFoundException __ex) {
+		    //System.out.println ("before loading");
+		    __orb_settings.loadImpl (__files[__i]);
+		    //System.out.println ("after loading");
+		    //if (__orb_settings.getProperties () != null) {
+		    //we found impl file for this setting
+		    //_M_implementations.add (__orb_settings);
+		    __context.add (__orb_settings);
+		    //_M_orb_names.add (__orb_settings.getOrbName ());
+		    //}
+		} catch (SAXException __ex) {
+		    __ex.printStackTrace ();
+		} catch (FileNotFoundException __ex) {
+		    __ex.printStackTrace ();
 		} catch (IOException __ex) {
 		    TopManager.getDefault ().notifyException (__ex);
-		    //__ex.printStackTrace ();
-		}
+		    __ex.printStackTrace ();
+		} 
 	    }
 	}
 	else {    
@@ -1193,6 +354,12 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    //(new NotifyDescriptor.Message (CORBASupport.CANT_FIND_IMPLS));
 	    //System.out.println ("can't find system/CORBA directory"); // NOI18N
 	}
+
+	//if (!_M_loaded) // unsucesfull loading
+	//return null;
+
+	if (BSD_DEBUG)
+	    System.out.println (__prefix + "done.");
 
 	return __context;
 	/*
@@ -1209,7 +376,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
     public ORB getORB () {
         if (_M_orb == null)
-            initOrb ();
+            this.initOrb ();
         return _M_orb;
     }
 
@@ -1219,46 +386,33 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
 
     public Vector getNamingServiceChildren () {
-        //System.out.println ("getNamingServiceChildren: " + namingChildren); // NOI18N
-        return namingChildren;
+        //System.out.println ("getNamingServiceChildren: " + _M_naming_children); // NOI18N
+	if (_M_naming_children == null) {
+	    //System.out.println ("_M_naming_children == null");
+	    _M_naming_children = new Vector ();
+	}
+        return _M_naming_children;
     }
 
-    public void setNamingServiceChildren (Vector children) {
+    public void setNamingServiceChildren (Vector __children) {
         //System.out.println ("setNamingServiceChildren: " + children); // NOI18N
-        namingChildren = children;
+        _M_naming_children = __children;
     }
 
     public Vector getInterfaceRepositoryChildren () {
-        //System.out.println ("getInterfaceRepositoryChildren: " + IRChildren.size ()); // NOI18N
-        return IRChildren;
+        //System.out.println ("getInterfaceRepositoryChildren: " + _M_ir_children.size ()); // NOI18N
+	if (_M_ir_children == null) {
+	    //System.out.println ("_M_ir_children == null");
+	    _M_ir_children = new Vector ();
+	}
+        return _M_ir_children;
     }
 
-    public void setInterfaceRepositoryChildren (Vector children) {
+    public void setInterfaceRepositoryChildren (Vector __children) {
         //System.out.println ("setInterfaceRepositoryChildren: " + children.size ()); // NOI18N
-        IRChildren = children;
+        _M_ir_children = __children;
     }
 
-    /*
-    public String getGeneration () {
-        //System.out.println ("getGeneration () -> " + generation);
-        return generation;
-    }
-
-    public void setGeneration (String value) {
-        //System.out.println ("setGeneration (" + value + ");");
-        generation = value;
-    }
-
-    public String getSynchro () {
-        //System.out.println ("getSynchro () -> " + synchro);
-        return synchro;
-    }
-
-    public void setSynchro (String value) {
-        //System.out.println ("setSynchro (" + value + ");");
-        synchro = value;
-    }
-    */
 
     public java.beans.beancontext.BeanContextChild getBeanContextProxy () {
 	if (DEBUG)
@@ -1268,28 +422,29 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    //loadImpl ();
 	    this.setBeans (this.getBeans ());
 	}
-        return _M_implementations;
-    }
-    
-    public void addBean (java.lang.Object bean) {
-        _M_implementations.add (bean);
-        //__orb_names.add(bean);
-    }
-    
-    public void removeBean (java.lang.Object bean) {
-        _M_implementations.remove (bean);
-        //set.remove(bean);
+        return _S_implementations;
     }
 
+    
+    public void addBean (java.lang.Object __bean) {
+        _S_implementations.add (__bean);
+    }
+
+    
+    public void removeBean (java.lang.Object __bean) {
+        _S_implementations.remove (__bean);
+    }
+
+
     public java.lang.Object[] getBeans () {
-	if (DEBUG)
-	    System.out.println ("CORBASupportSettings::getBeans () -> " + _M_implementations); // NOI18N
-	if (_M_implementations == null) {
+	//if (DEBUG)
+	//System.out.println ("CORBASupportSettings::getBeans () -> " + _S_implementations); // NOI18N
+	if (_S_implementations == null) {
 	    //_M_implementations = new BeanContextSupport ();
-	    _M_implementations = new FullBeanContextSupport ();
+	    _S_implementations = new FullBeanContextSupport ();
 	}
 	//java.lang.Object[] __array = _M_implementations.toArray ();
-	return _M_implementations.toArray ();
+	return _S_implementations.toArray ();
 	//java.util.Arrays.sort (__array, new ORBSettingsComparator ());
 	//System.out.println ("after sort:");
 	//for (int __i=0; __i < __array.length; __i++)
@@ -1297,39 +452,75 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	//return __array;
     }
 
-    public void setBeans (java.lang.Object[] beans) {
+
+    public void setBeans (java.lang.Object[] __beans) {
+	//boolean DEBUG = true;
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::setBeans (" 
-				+ beans + ":" + beans.length + ");"); // NOI18N
+			    + __beans + ":" + __beans.length + ");"); // NOI18N
+	//Thread.dumpStack ();
 
 	//_M_implementations = new BeanContextSupport ();
 	//BeanContextSupport __tmp_implementations = new BeanContextSupport ();
-	_M_implementations = new FullBeanContextSupport ();
+	_S_implementations = new FullBeanContextSupport ();
 	FullBeanContextSupport __tmp_implementations = new FullBeanContextSupport ();
 	//FullBeanContextSupport __distinguish_implementations = new FullBeanContextSupport ();
 	
-	//BeanContextSupport __loaded_context = this.loadImpl ();
-	//BeanContextSupport __serialized_context = new BeanContextSupport ();
-	FullBeanContextSupport __loaded_context = (FullBeanContextSupport)this.loadImpl ();
-	FullBeanContextSupport __serialized_context = new FullBeanContextSupport ();
-	for (int i = 0; i < beans.length; i++) {
-	    ORBSettings __setting = (ORBSettings)beans[i];
-	    if (__setting.getProperties () == null) {
-		__setting.loadProperties ();
-	    }
-	    // we have to check if we find impl file (load properties) for this setting
-	    if (__setting.getProperties () != null) {
-		//_M_implementations.add (beans[i]);
-		__serialized_context.add (beans[i]);
+	//FullBeanContextSupport __loaded_context 
+	//= (FullBeanContextSupport)this.loadImpl ();
+	if (DEBUG)
+	    System.out.println ("_S_loaded_context: " + _S_loaded_context);
+	if (_S_loaded_context == null || _M_loaded == false) {
+	    synchronized (this) {
+		//Thread.dumpStack ();
+		_S_loaded_context = (FullBeanContextSupport)this.loadImpl ();
 	    }
 	}
+	FullBeanContextSupport __serialized_context = new FullBeanContextSupport ();
+	for (int i = 0; i < __beans.length; i++) {
+	    ORBSettings __setting = (ORBSettings)__beans[i];
+	    if (DEBUG)
+		System.out.println ("trying " + __setting.getName ());
+	    Iterator __iter = _S_loaded_context.iterator ();
+	    while (__iter.hasNext ()) {
+		ORBSettings __tmp = (ORBSettings)__iter.next ();
+		if (DEBUG)
+		    System.out.println ("comparing: " + __tmp.getORBTag ()
+					+ " with " + __setting.getORBTag ());
+		if (DEBUG)
+		    System.out.println ("comparing: " + __tmp.getOrbName ()
+					+ " with " + __setting.getOrbName ());
+		if (__tmp.getORBTag ().equals (__setting.getORBTag ())
+		    || __tmp.getOrbName ().equals (__setting.getOrbName ())) {
+		    if (DEBUG)
+			System.out.println ("RIGHT :-))");
+		    __serialized_context.add (__beans[i]);
+		    break;
+		}
+	    }
+	    /*
+	      if (__setting.getProperties () == null) {
+	      __setting.loadProperties ();
+	      }
+	    // we have to check if we find impl file (load properties) for this setting
+	    if (__setting.getProperties () != null) {
+	    __serialized_context.add (__beans[i]);
+	    }
+	    */
+	}
 
-	Iterator __loaded_iterator = __loaded_context.iterator ();
+	Iterator __loaded_iterator = _S_loaded_context.iterator ();
 	while (__loaded_iterator.hasNext ()) {
 	    ORBSettings __loaded_setting = (ORBSettings)__loaded_iterator.next ();	    
 	    ORBSettings __serialized_setting = null;
-	    if ((__serialized_setting = this.findSettingByName 
-		 (__serialized_context, __loaded_setting.getName ())) != null) {
+	    if (
+		/*((__serialized_setting = this.findSettingByTag 
+		  (__serialized_context, __loaded_setting.getORBTag ())) != null) */
+		//|| (
+		(__serialized_setting = this.findSettingByName 
+		 (__serialized_context, __loaded_setting.getName ())) != null)
+		//) 
+	    {
 		// we find serialized setting with same name
 		// so we add it because it can have some serialized state
 		// which loaded setting don't have
@@ -1338,27 +529,38 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 					+ __serialized_setting.getName ());
 		}
 		//_M_implementations.add (__serialized_setting);
-		// we must set transient _M_supported variable
-		if (__loaded_setting.isSupported ()) {
-		    __serialized_setting.setSupported (true);
-		    if (DEBUG) {
-			System.out.println (__serialized_setting.getName () + " is supported "
-					    + __serialized_setting.isSupported ());
-		    }
-		    //__serialized_setting.setSupported (__loaded_setting.getSupported ());
-		}
+
+		// _M_supported is transient variable so I have to set it from impl file
+		// I have to set all transient variables
+		__serialized_setting.setSupported (__loaded_setting.isSupported ());
+		__serialized_setting.setPOASettings (__loaded_setting.getPOASettings ());
+		__serialized_setting.setServerBindings 
+		    (__loaded_setting.getServerBindings ());
+		__serialized_setting.setClientBindings 
+		    (__loaded_setting.getClientBindings ());
+		__serialized_setting.setJavaTemplateCodeTable 
+		    (__loaded_setting.getJavaTemplateCodeTable ());
+		__serialized_setting.setIDLTemplateTable 
+		    (__loaded_setting.getIDLTemplateTable ());
+		__serialized_setting.setLocalBundle (__loaded_setting.getLocalBundle ());
+		
 		__tmp_implementations.add (__serialized_setting);
 	    }
 	    else {
 		// we don't find serialized setting with same name as this loaded setting
 		// so we add this loaded setting
 		if (DEBUG) {
-		    System.out.println ("add loaded setting: " + __loaded_setting.getName ()); // NOI18N
+		    System.out.println ("add loaded setting: "
+					+ __loaded_setting.getName ()); // NOI18N
 		}
-		//_M_implementations.add (__loaded_setting);
 		__tmp_implementations.add (__loaded_setting);
 	    }
 	}
+	//Iterator __iterator = __tmp_implementations.iterator ();
+	//while (__iterator.hasNext ()) {
+	//_M_implementations.add (__iterator.next ());
+	//}
+	//_M_implementations.addAll (__tmp_implementations);
 	// now we must distinguish between supported and unsupported orbs and sort same 
 	// implementions by name
 	BeanContext __supported_orbs = new FullBeanContextSupport ();
@@ -1382,29 +584,72 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	//__iterator = __distinguish_implementations.iterator ();
 	__iterator = __sorted_supported_orbs.iterator ();
 	while (__iterator.hasNext ()) {
-	    _M_implementations.add (__iterator.next ());
+	    _S_implementations.add (__iterator.next ());
 	}
 	__iterator = __sorted_unsupported_orbs.iterator ();
 	while (__iterator.hasNext ()) {
-	    _M_implementations.add (__iterator.next ());
+	    _S_implementations.add (__iterator.next ());
 	}
 	if (DEBUG) {
-	    __iterator = _M_implementations.iterator ();
+	    __iterator = _S_implementations.iterator ();
 	    while (__iterator.hasNext ()) {
 		System.out.println (((ORBSettings)__iterator.next ()).getName ());
 	    }
 	}
+
+	//System.out.println ("At the end of setBeans method");
+	//this.setORBTag (this.getORBTag ());
+	this.cacheThrow ();
+	if (_M_loaded && this.getActiveSetting () != null) {
+	    if (DEBUG)
+		System.out.println ("seting java template map after loading");
+	    this.getActiveSetting ().setJavaTemplateTable ();
+	}
     }
+
 
     public ORBSettings findSettingByName (BeanContext __context, String __name) {
 	Iterator __iterator = __context.iterator ();
+	String __tmp_name = null;
+	__tmp_name = this.removeUnsupportedPostfix (__name);
+	/*
+	  if (__name.endsWith (ORBSettingsBundle.CTL_UNSUPPORTED)) {
+	  __tmp_name = __name.substring 
+	  (0, __name.length () 
+	  - (ORBSettingsBundle.CTL_UNSUPPORTED.length () + 1));
+	  }
+	*/
+	String __orb_name = null;
 	while (__iterator.hasNext ()) {
 	    ORBSettings __setting = (ORBSettings)__iterator.next ();
-	    if (__setting.getName ().equals (__name))
+	    __orb_name = __setting.getName ();
+	    __orb_name = this.removeUnsupportedPostfix (__orb_name);
+	    /*
+	      if (__orb_name.endsWith (ORBSettingsBundle.CTL_UNSUPPORTED)) {
+	      __orb_name = __orb_name.substring 
+	      (0, __orb_name.length () 
+	      - (ORBSettingsBundle.CTL_UNSUPPORTED.length () + 1));
+	      }
+	    */
+	    if (__orb_name.equals (__tmp_name))
 		return __setting;
 	}
 	return null;
     }
+
+
+    public ORBSettings findSettingByTag (BeanContext __context, String __tag) {
+	if (DEBUG)
+	    System.out.println ("findSettingByTag () <- " + __tag);
+	Iterator __iterator = __context.iterator ();
+	while (__iterator.hasNext ()) {
+	    ORBSettings __setting = (ORBSettings)__iterator.next ();
+	    if (__setting.getORBTag ().equals (__tag))
+		return __setting;
+	}
+	return null;
+    }
+
 
     public ORBSettings getSettingByName (String __name) {
 	if (DEBUG) 
@@ -1414,21 +659,47 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    //loadImpl ();
 	    this.setBeans (this.getBeans ());
 	}
-	java.lang.Object[] __settings = getBeans ();
+	String __changed_name = this.removeUnsupportedPostfix (__name);
+	String __tmp_name = null;
+	java.lang.Object[] __settings = this.getBeans ();
 	for (int __i = 0; __i < __settings.length; __i++) {
 	    ORBSettings __setting = (ORBSettings)__settings[__i];
-	    if (__setting.getName ().equals (__name)) {
+	    __tmp_name = this.removeUnsupportedPostfix (__setting.getName ());
+	    if (__tmp_name.equals (__changed_name)) {
+		return __setting;
+	    }
+	}	
+	//return null;
+	// for future compatibility
+	return this.getSettingByTag (__name);
+    }
+
+
+    public ORBSettings getSettingByTag (String __tag) {
+	if (DEBUG) 
+	    System.out.println ("CORBASupportSettings::getSettingByTag (" + __tag + ")"); // NOI18N
+	//Thread.dumpStack ();
+	if (!_M_loaded) {
+	    //loadImpl ();
+	    this.setBeans (this.getBeans ());
+	}
+	java.lang.Object[] __settings = this.getBeans ();
+	for (int __i = 0; __i < __settings.length; __i++) {
+	    ORBSettings __setting = (ORBSettings)__settings[__i];
+	    if (__setting.getORBTag ().equals (__tag)) {
 		return __setting;
 	    }
 	}	
 	return null;
     }
 
+
     public void cacheThrow () {
 	//System.out.println ("CCS::cacheThrow ()"); // NOI18N
-	_M_orb_name_cache = null;
+	_M_orb_tag_cache = null;
 	_M_setting_cache = null;
     }
+
 
     public ORBSettings getActiveSetting () {
 	//if (DEBUG) 
@@ -1438,47 +709,103 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    //loadImpl ();
 	    this.setBeans (this.getBeans ());
 	}
-	if (_M_orb_name_cache != null) {
-	    if (_M_orb_name_cache.equals (this.getOrb ()) && (_M_setting_cache != null)) {
-		if (DEBUG) {
-		    System.out.println ("cache hit"); // NOI18N
-		    System.out.println ("orb: " + _M_orb_name_cache); // NOI18N
-		}
+	if (_M_orb_tag_cache != null) {
+	    if (_M_orb_tag_cache.equals (this.getORBTag ()) && (_M_setting_cache != null)) {
+		//if (DEBUG) {
+		//System.out.println ("cache hit"); // NOI18N
+		//System.out.println ("orb: " + _M_orb_tag_cache); // NOI18N
+		//}
 		return _M_setting_cache;
 	    }
 	}
 
-	_M_orb_name_cache = this.getOrb ();
+	_M_orb_tag_cache = this.getORBTag ();
 
-	if (DEBUG)
-	    System.out.println ("cache wasn't successfull"); // NOI18N
+	//if (DEBUG)
+	//System.out.println ("cache wasn't successfull"); // NOI18N
 
-	java.lang.Object[] __settings = getBeans ();
+	java.lang.Object[] __settings = this.getBeans ();
 	for (int __i = 0; __i < __settings.length; __i++) {
 	    ORBSettings __setting = (ORBSettings)__settings[__i];
-	    String __name = __setting.getName ();
-	    if (DEBUG)
-		System.out.println (__name + " X " + this.getOrb ()); // NOI18N
-	    if (__name.equals (_M_orb_name_cache)) {
+	    String __tag = __setting.getORBTag ();
+	    //if (DEBUG)
+	    //System.out.println (__name + " X " + this.getOrb ()); // NOI18N
+	    if (__tag.equals (_M_orb_tag_cache)) {
 		//System.out.println ("orb: " + this.getOrb ()); // NOI18N
 		_M_setting_cache = __setting;
 		return __setting;
 	    }
 	}	
-	//System.out.println ("orb: " + _M_orb_name_cache); // NOI18N
+	//System.out.println ("orb: " + _M_orb_tag_cache); // NOI18N
 	//Thread.dumpStack ();
 	return null;
     }
-    /*
-      public ORBSettings findORBSettingsByListener (PropertyChangeListener __listener) {
-      for (int __i = 0; __i < _M_implementations.size (); __i++) {
-      ORBSettings[] __settings = (ORBSettings[])_M_implementations.toArray ();
-      if (__settings[__i].hasListener (__listener))
-      return __settings[__i];
-      }
-      return null;
-      }
-    */
+
+
+    public void setORBTag (String __value) {
+	try {
+	if (DEBUG)
+	    System.out.println ("CORBASupportSettings::setORBTag (" + __value + ")"); // NOI18N
+        String __old = _M_orb_tag;
+	_M_orb_tag = __value;
+	//setJavaTemplateTable ();
+	ORBSettings __settings = this.getActiveSetting ();
+	if (__settings != null)
+	    __settings.setJavaTemplateTable ();
+	this.firePropertyChange ("_M_orb_tag", __old, _M_orb_tag); // NOI18N
+	this.cacheThrow ();
+
+	String __orb_name = this.getOrb ();
+	__orb_name = this.removeUnsupportedPostfix (__orb_name);
+	/*
+	  if (__orb_name.endsWith (ORBSettingsBundle.CTL_UNSUPPORTED))
+	  __orb_name = this.getOrb ().substring 
+	  (0, this.getOrb ().length () 
+	  - (ORBSettingsBundle.CTL_UNSUPPORTED.length () + 1));
+	*/
+	if (!__orb_name.equals (this.getActiveSetting ().getOrbName ())) {
+	    Iterator __iter = _S_implementations.iterator ();
+	    while (__iter.hasNext ()) {
+		ORBSettings __tmp = (ORBSettings)__iter.next ();
+		if (this.getORBTag ().equals (__tmp.getORBTag ())) {
+		    this.setOrb (__tmp.getOrbName ());
+		    break;
+		}
+	    }
+	}
+
+	if (!_M_in_init) {
+	    boolean __orb_hide = this.getActiveSetting ().hideGeneratedFiles ();
+	    IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
+		(IDLDataLoader.class, true);
+	    boolean __old_hide = __loader.getHide ();
+	    //System.out.println ("__orb_hide: " + __orb_hide); // NOI18N
+	    //System.out.println ("__old_hide: " + __old_hide); // NOI18N
+	    //if (__old_hide != __orb_hide)
+	    __loader.setHide (__orb_hide);
+	}
+
+	} catch (Exception __ex) {
+	    __ex.printStackTrace ();
+	}
+    }
+
+    public String getORBTag () {
+	return _M_orb_tag;
+    }
+
+    public String removeUnsupportedPostfix (String __name) {
+	String __tmp = __name;
+	//System.out.print ("nameWithoutUnsupportedPostfix () <- `" + __name + "'");
+	if (__name.endsWith (ORBSettingsBundle.CTL_UNSUPPORTED)) {
+	    __tmp = __name.substring 
+		(0, __name.length () 
+		 - (ORBSettingsBundle.CTL_UNSUPPORTED.length () + 1));
+	}
+	//System.out.println ("  -> `" + __tmp + "'");
+	return __tmp;
+    }
+
 }
 
 

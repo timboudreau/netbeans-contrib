@@ -42,6 +42,7 @@ public class ORBSettingsBeanInfo extends SimpleBeanInfo {
 
     // initialization of the array of descriptors
     static {
+	//System.out.println ("ORBSettingsBeanInfo::static....");
         try {
             desc = new PropertyDescriptor[] {
                        new PropertyDescriptor ("_M_skeletons", ORBSettings.class, // NOI18N
@@ -49,72 +50,125 @@ public class ORBSettingsBeanInfo extends SimpleBeanInfo {
                        /* new PropertyDescriptor ("orb", ORBSettings.class), */ // NOI18N
                        new PropertyDescriptor ("_M_params", ORBSettings.class, // NOI18N
                                                "getParams", "setParams"), // NOI18N
-                       new PropertyDescriptor ("_M_client_binding", ORBSettings.class, // NOI18N
-                                               "getClientBinding", "setClientBinding"), // NOI18N
-                       new PropertyDescriptor ("_M_server_binding", ORBSettings.class, // NOI18N
-                                               "getServerBinding", "setServerBinding"), // NOI18N
+                       new PropertyDescriptor ("_M_client_binding", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getClientBinding", // NOI18N
+					       "setClientBinding"), // NOI18N
+                       new PropertyDescriptor ("_M_server_binding", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getServerBinding", // NOI18N
+					       "setServerBinding"), // NOI18N
 
                        // advanced settings
 
-                       new PropertyDescriptor ("_M_package_param", ORBSettings.class, // NOI18N
-                                               "getPackageParam", "setPackageParam"), // NOI18N
-                       new PropertyDescriptor ("_M_dir_param", ORBSettings.class, // NOI18N
-                                               "getDirParam",	"setDirParam"), // NOI18N
-                       new PropertyDescriptor ("_M_package_delimiter", ORBSettings.class, // NOI18N
-                                               "getPackageDelimiter", "setPackageDelimiter"), // NOI18N
-                       new PropertyDescriptor ("_M__error_expression", ORBSettings.class, // NOI18N
-                                               "getErrorExpression", "setErrorExpression"), // NOI18N
-                       new PropertyDescriptor ("_M_file_position", ORBSettings.class, // NOI18N
-                                               "getFilePosition", "setFilePosition"), // NOI18N
-                       new PropertyDescriptor ("_M_line_position", ORBSettings.class, // NOI18N
-                                               "getLinePosition", "setLinePosition"), // NOI18N
-                       new PropertyDescriptor ("_M_column_position", ORBSettings.class, // NOI18N
-                                               "getColumnPosition", "setColumnPosition"), // NOI18N
-                       new PropertyDescriptor ("_M_message_position", ORBSettings.class, // NOI18N
-                                               "getMessagePosition", "setMessagePosition"), // NOI18N
-                       new PropertyDescriptor ("idl", ORBSettings.class), // NOI18N
+                       new PropertyDescriptor ("_M_package_param", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getPackageParam", // NOI18N
+					       "setPackageParam"), // NOI18N
+                       new PropertyDescriptor ("_M_dir_param", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getDirParam", "setDirParam"), // NOI18N
+                       new PropertyDescriptor ("_M_package_delimiter", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getPackageDelimiter", // NOI18N
+					       "setPackageDelimiter"), // NOI18N
+                       new PropertyDescriptor ("_M__error_expression", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getErrorExpression", // NOI18N
+					       "setErrorExpression"), // NOI18N
+                       new PropertyDescriptor ("_M_file_position", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getFilePosition", // NOI18N
+					       "setFilePosition"), // NOI18N
+                       new PropertyDescriptor ("_M_line_position", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getLinePosition", // NOI18N
+					       "setLinePosition"), // NOI18N
+                       new PropertyDescriptor ("_M_column_position", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getColumnPosition", // NOI18N
+					       "setColumnPosition"), // NOI18N
+                       new PropertyDescriptor ("_M_message_position", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getMessagePosition", // NOI18N
+					       "setMessagePosition"), // NOI18N
+                       new PropertyDescriptor ("idl", ORBSettings.class, // NOI18N
+					       "getIdl", "setIdl"), // NOI18N
                        new PropertyDescriptor ("_M_table", ORBSettings.class, // NOI18N
-                                               "getRaplaceableStringsTable", // NOI18N
+                                               "getReplaceableStringsTable", // NOI18N
 					       "setReplaceableStringsTable"), // NOI18N
                        new PropertyDescriptor ("_M_tie_param", ORBSettings.class, // NOI18N
                                                "getTieParam", "setTieParam"), // NOI18N
-                       new PropertyDescriptor ("_M_impl_prefix", ORBSettings.class, // NOI18N
-                                               "getImplBasePrefix", "setImplBasePrefix"), // NOI18N
-                       new PropertyDescriptor ("_M_impl_postfix", ORBSettings.class, // NOI18N
-                                               "getImplBasePostfix", "setImplBasePostfix"), // NOI18N
-                       new PropertyDescriptor ("_M_ext_class_prefix", ORBSettings.class, // NOI18N
-                                               "getExtClassPrefix", "setExtClassPrefix"), // NOI18N
-                       new PropertyDescriptor ("_M_ext_class_postfix", ORBSettings.class, // NOI18N
-                                               "getExtClassPostfix", "setExtClassPostfix"), // NOI18N
-                       new PropertyDescriptor ("_M_tie_prefix", ORBSettings.class, // NOI18N
-                                               "getTiePrefix", "setTiePrefix"), // NOI18N
-                       new PropertyDescriptor ("_M_tie_postfix", ORBSettings.class, // NOI18N
-                                               "getTiePostfix", "setTiePostfix"), // NOI18N
-                       new PropertyDescriptor ("_M_impl_int_prefix", ORBSettings.class, // NOI18N
-                                               "getImplIntPrefix", "setImplIntPrefix"), // NOI18N
-                       new PropertyDescriptor ("_M_impl_int_postfix", ORBSettings.class, // NOI18N
-                                               "getImplIntPostfix", "setImplIntPostfix"), // NOI18N
-                       /* new PropertyDescriptor ("namingChildren", ORBSettings.class,
-			  "getNamingServiceChildren", "setNamingServiceChildren"), */ // NOI18N
-                       new PropertyDescriptor ("_M_hide_generated_files", ORBSettings.class, // NOI18N
-                                               "hideGeneratedFiles", "setHideGeneratedFiles"), // NOI18N
-                       /* new PropertyDescriptor ("IRChildren", ORBSettings.class,
-			  "getInterfaceRepositoryChildren",
-			  "setInterfaceRepositoryChildren"), */ // NOI18N
-
+                       new PropertyDescriptor ("_M_implbase_impl_prefix", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getImplBaseImplPrefix", // NOI18N
+					       "setImplBaseImplPrefix"), // NOI18N
+                       new PropertyDescriptor ("_M_implbase_impl_postfix", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getImplBaseImplPostfix", // NOI18N
+					       "setImplBaseImplPostfix"), // NOI18N
+                       new PropertyDescriptor ("_M_ext_class_prefix", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getExtClassPrefix", // NOI18N
+					       "setExtClassPrefix"), // NOI18N
+                       new PropertyDescriptor ("_M_ext_class_postfix", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getExtClassPostfix", // NOI18N
+					       "setExtClassPostfix"), // NOI18N
+                       new PropertyDescriptor ("_M_tie_impl_prefix", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getTieImplPrefix", // NOI18N
+					       "setTieImplPrefix"), // NOI18N
+                       new PropertyDescriptor ("_M_tie_impl_postfix", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getTieImplPostfix", // NOI18N
+					       "setTieImplPostfix"), // NOI18N
+                       new PropertyDescriptor ("_M_impl_int_prefix", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getImplIntPrefix", // NOI18N
+					       "setImplIntPrefix"), // NOI18N
+                       new PropertyDescriptor ("_M_impl_int_postfix", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "getImplIntPostfix", // NOI18N
+					       "setImplIntPostfix"), // NOI18N
+                       new PropertyDescriptor ("_M_hide_generated_files", // NOI18N
+					       ORBSettings.class, // NOI18N
+                                               "hideGeneratedFiles", // NOI18N
+					       "setHideGeneratedFiles"), // NOI18N
                        new PropertyDescriptor ("_M_generation", ORBSettings.class, // NOI18N
                                                "getGeneration", "setGeneration"), // NOI18N
                        new PropertyDescriptor ("_M_synchro", ORBSettings.class, // NOI18N
-                                               "getSynchro", "setSynchro") // NOI18N
+                                               "getSynchro", "setSynchro"), // NOI18N
+		       
+		       // added for new implgenerator 
 
-                   };
+                       new PropertyDescriptor ("_M_delegation", ORBSettings.class, // NOI18N
+                                               "getDelegation", "setDelegation"), // NOI18N
+                       new PropertyDescriptor ("_M_use_guarded_blocks", // NOI18N 
+					       ORBSettings.class, // NOI18N
+                                               "getUseGuardedBlocks", // NOI18N
+					       "setUseGuardedBlocks"), // NOI18N
+		       new PropertyDescriptor ("_M_value_impl_prefix", // NOI18N
+					       ORBSettings.class,
+					       "getValueImplPrefix", // NOI18N
+					       "setValueImplPrefix"),
+		       new PropertyDescriptor ("_M_value_impl_postfix", // NOI18N
+					       ORBSettings.class,
+					       "getValueImplPostfix", // NOI18N
+					       "setValueImplPostfix"),
+		       new PropertyDescriptor ("_M_valuefactory_impl_prefix", // NOI18N
+					       ORBSettings.class,
+					       "getValueFactoryImplPrefix", // NOI18N
+					       "setValueFactoryImplPrefix"),
+		       new PropertyDescriptor ("_M_valuefactory_impl_postfix", // NOI18N
+					       ORBSettings.class,
+					       "getValueFactoryImplPostfix", // NOI18N
+					       "setValueFactoryImplPostfix")
+			   };
 
             desc[0].setDisplayName (ORBSettingsBundle.PROP_SKELS);
             desc[0].setShortDescription (ORBSettingsBundle.HINT_SKELS);
             desc[0].setPropertyEditorClass (SkelPropertyEditor.class);
-            //desc[1].setDisplayName (CORBASupport.bundle.getString ("PROP_ORB"));
-            //desc[1].setShortDescription (CORBASupport.bundle.getString ("HINT_ORB"));
-            //desc[1].setPropertyEditorClass (OrbPropertyEditor.class);
             desc[1].setDisplayName (ORBSettingsBundle.PROP_PARAMS);
             desc[1].setShortDescription (ORBSettingsBundle.HINT_PARAMS);
             desc[2].setDisplayName (ORBSettingsBundle.PROP_CLIENT_BINDING);
@@ -123,6 +177,7 @@ public class ORBSettingsBeanInfo extends SimpleBeanInfo {
             desc[3].setDisplayName (ORBSettingsBundle.PROP_SERVER_BINDING);
             desc[3].setShortDescription (ORBSettingsBundle.HINT_SERVER_BINDING);
             desc[3].setPropertyEditorClass (ServerBindingPropertyEditor.class);
+
             // advanced settings
 
             desc[4].setDisplayName (ORBSettingsBundle.PROP_PACKAGE_PARAM);
@@ -213,10 +268,30 @@ public class ORBSettingsBeanInfo extends SimpleBeanInfo {
             desc[25].setDisplayName (ORBSettingsBundle.PROP_SYNCHRO);
             desc[25].setShortDescription (ORBSettingsBundle.HINT_SYNCHRO);
             desc[25].setPropertyEditorClass (SynchronizationPropertyEditor.class);
+            desc[26].setDisplayName (ORBSettingsBundle.PROP_DELEGATION);
+            desc[26].setShortDescription (ORBSettingsBundle.HINT_DELEGATION);
+            desc[26].setPropertyEditorClass (DelegationPropertyEditor.class);
+            desc[27].setDisplayName (ORBSettingsBundle.PROP_USE_GUARDED_BLOCKS);
+            desc[27].setShortDescription (ORBSettingsBundle.HINT_USE_GUARDED_BLOCKS);
+            //desc[27].setPropertyEditorClass (SynchronizationPropertyEditor.class);
+
+
+	    desc[28].setDisplayName (ORBSettingsBundle.PROP_VALUE_IMPL_PREFIX);
+	    desc[28].setShortDescription (ORBSettingsBundle.HINT_VALUE_IMPL_PREFIX);
+	    desc[28].setExpert (true);
+	    desc[29].setDisplayName (ORBSettingsBundle.PROP_VALUE_IMPL_POSTFIX);
+	    desc[29].setShortDescription (ORBSettingsBundle.HINT_VALUE_IMPL_POSTFIX);
+	    desc[29].setExpert (true);
+	    desc[30].setDisplayName (ORBSettingsBundle.PROP_VALUEFACTORY_IMPL_PREFIX);
+	    desc[30].setShortDescription (ORBSettingsBundle.HINT_VALUEFACTORY_IMPL_PREFIX);
+	    desc[30].setExpert (true);
+	    desc[31].setDisplayName (ORBSettingsBundle.PROP_VALUEFACTORY_IMPL_POSTFIX);
+	    desc[31].setShortDescription (ORBSettingsBundle.HINT_VALUEFACTORY_IMPL_POSTFIX);
+	    desc[31].setExpert (true);
         } catch (IntrospectionException ex) {
             //throw new InternalError ();
-	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
-		ex.printStackTrace ();
+	    //if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
+	    ex.printStackTrace ();
         }
     }
 
@@ -243,6 +318,7 @@ public class ORBSettingsBeanInfo extends SimpleBeanInfo {
      * @return array of properties
      */
     public PropertyDescriptor[] getPropertyDescriptors () {
+	//System.out.println ("ORBSettingsBeanInfo::getPropertyDescriptors () -> " + desc);
         return desc;
     }
 }

@@ -1,0 +1,26 @@
+//
+// __NAME__.java
+//
+// Created on __DATE__, __TIME__
+// by __USER__
+//
+
+package CORBA.newtemplates;
+
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.ServantLocatorPOA;
+import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
+import org.omg.PortableServer.ForwardRequest;
+
+public class ServantLocator extends org.omg.PortableServer.ServantLocatorPOA {
+
+    public Servant preinvoke(byte[] oid, POA adapter, String operation, CookieHolder the_cookie)
+	throws ForwardRequest {
+    }
+
+    public void postinvoke(byte[] oid, POA adapter, String operation, Object the_cookie, Servant the_servant) {
+    }	
+
+}
+

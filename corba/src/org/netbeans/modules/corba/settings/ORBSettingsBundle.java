@@ -178,20 +178,42 @@ public class ORBSettingsBundle {
 	("PROP_IMPLINT_POSTFIX"); // NOI18N
     public static final String HINT_IMPLINT_POSTFIX = ORBSettingsBundle.bundle.getString
 	("HINT_IMPLINT_POSTFIX"); // NOI18N
-    /*
-      public static final String = ORBSettingsBundle.bundle.getString
-      (""); // NOI18N
-      public static final String = ORBSettingsBundle.bundle.getString
-      (""); // NOI18N
-      public static final String = ORBSettingsBundle.bundle.getString
-      (""); // NOI18N
-      public static final String = ORBSettingsBundle.bundle.getString
-      (""); // NOI18N
-      public static final String = ORBSettingsBundle.bundle.getString
-      (""); // NOI18N
-      public static final String = ORBSettingsBundle.bundle.getString
-      (""); // NOI18N
-    */
+    public static final String PROP_VALUE_IMPL_PREFIX = ORBSettingsBundle.bundle.getString
+	("PROP_VALUE_IMPL_PREFIX"); // NOI18N
+    public static final String HINT_VALUE_IMPL_PREFIX = ORBSettingsBundle.bundle.getString
+	("HINT_VALUE_IMPL_PREFIX"); // NOI18N
+    public static final String PROP_VALUE_IMPL_POSTFIX = ORBSettingsBundle.bundle.getString
+	("PROP_VALUE_IMPL_POSTFIX"); // NOI18N
+    public static final String HINT_VALUE_IMPL_POSTFIX = ORBSettingsBundle.bundle.getString
+	("HINT_VALUE_IMPL_POSTFIX"); // NOI18N
+    public static final String PROP_VALUEFACTORY_IMPL_PREFIX 
+	= ORBSettingsBundle.bundle.getString ("PROP_VALUEFACTORY_IMPL_PREFIX"); // NOI18N
+    public static final String HINT_VALUEFACTORY_IMPL_PREFIX
+	= ORBSettingsBundle.bundle.getString ("HINT_VALUEFACTORY_IMPL_PREFIX"); // NOI18N
+    public static final String PROP_VALUEFACTORY_IMPL_POSTFIX
+	= ORBSettingsBundle.bundle.getString ("PROP_VALUEFACTORY_IMPL_POSTFIX"); // NOI18N
+    public static final String HINT_VALUEFACTORY_IMPL_POSTFIX
+	= ORBSettingsBundle.bundle.getString ("HINT_VALUEFACTORY_IMPL_POSTFIX"); // NOI18N
+    
+    // added for new impl generator
+    public static final String PROP_DELEGATION = ORBSettingsBundle.bundle.getString
+	("PROP_DELEGATION"); // NOI18N
+    public static final String HINT_DELEGATION = ORBSettingsBundle.bundle.getString
+	("HINT_DELEGATION"); // NOI18N
+    public static final String DELEGATION_STATIC = ORBSettingsBundle.bundle.getString
+	("DELEGATION_STATIC"); // NOI18N
+    public static final String DELEGATION_VIRTUAL = ORBSettingsBundle.bundle.getString
+	("DELEGATION_VIRTUAL"); // NOI18N
+    public static final String DELEGATION_NONE = ORBSettingsBundle.bundle.getString
+	("DELEGATION_NONE"); // NOI18N
+    
+    public static final String PROP_USE_GUARDED_BLOCKS = ORBSettingsBundle.bundle.getString
+	("PROP_USE_GUARDED_BLOCKS"); // NOI18N
+    public static final String HINT_USE_GUARDED_BLOCKS = ORBSettingsBundle.bundle.getString
+	("HINT_USE_GUARDED_BLOCKS"); // NOI18N
 
+
+    public static final String CTL_UNSUPPORTED = ORBSettingsBundle.bundle.getString
+	("CTL_UNSUPPORTED");
 }
 

@@ -16,6 +16,7 @@ package org.netbeans.modules.corba.idl.src;
 import java.util.Vector;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 public class IDLParserTokenManager implements IDLParserConstants
 {

@@ -63,8 +63,8 @@ public class StartPanel extends javax.swing.JPanel {
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
         
-        jLabel1.setLabelFor(port);
         jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_Port"));
+        jLabel1.setLabelFor(port);
         
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
@@ -86,8 +86,8 @@ public class StartPanel extends javax.swing.JPanel {
         add(port, gridBagConstraints1);
         
         
+        jLabel2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/browser/ns/Bundle").getString("CTL_LabelName"));
         jLabel2.setLabelFor(name);
-        jLabel2.setText("Name:");
         
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;

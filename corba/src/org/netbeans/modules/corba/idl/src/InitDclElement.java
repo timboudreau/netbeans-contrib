@@ -13,14 +13,28 @@
 
 package org.netbeans.modules.corba.idl.src;
 
+import java.util.ArrayList;
+
 public class InitDclElement extends IDLElement {
+
+    ArrayList _M_parameters;
 
     public InitDclElement(int id) {
         super(id);
+	_M_parameters = new ArrayList ();
     }
 
     public InitDclElement(IDLParser p, int id) {
         super(p, id);
+	_M_parameters = new ArrayList ();
+    }
+
+    public void setParams (ArrayList __params) {
+	_M_parameters = __params;
+    }
+
+    public ArrayList getParams () {
+	return _M_parameters;
     }
 
 }

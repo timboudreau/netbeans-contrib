@@ -52,11 +52,14 @@ public class ContextChildren extends Children.Keys implements AsyncTarget {
     public void addNotify () {
         if (DEBUG)
             System.out.println ("addNotify ()");
+	//Thread.dumpStack ();
         synchronized (this) {
             this.state = TRANSIENT;
         }
-        this.waitNode = new org.netbeans.modules.corba.browser.ir.nodes.WaitNode ();
-        this.add ( new Node[] { this.waitNode});
+	if (waitNode == null) {
+	    this.waitNode = new org.netbeans.modules.corba.browser.ir.nodes.WaitNode ();
+	    this.add ( new Node[] { this.waitNode});
+	}
         org.netbeans.modules.corba.browser.ir.IRRootNode.getDefault().performAsync (this);
     }
 
@@ -149,13 +152,16 @@ public class ContextChildren extends Children.Keys implements AsyncTarget {
     
     
     public void preinvoke () {
+	//System.out.println ("preinvoke");
     }
     
     public void invoke () {
-            createKeys ();
+	//System.out.println ("invoke");
+	createKeys ();
     }
     
     public void postinvoke () {
+	//System.out.println ("postinvoke");
         if (this.waitNode != null) {
             remove ( new Node[] {this.waitNode});
             this.waitNode = null;

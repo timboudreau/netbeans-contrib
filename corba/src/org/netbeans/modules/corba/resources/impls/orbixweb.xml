@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding='ISO-8859-1'?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<!DOCTYPE orb-settings PUBLIC "-//Forte for Java//DTD ORBSettings 1.0//EN" "ORBSettings.dtd"[
+<!ENTITY corba20-generic-impl SYSTEM "corba20-generic-impl.ent">
+]>
+<orb-settings name='OrbixWeb 3.2' tag='orbixweb32' supported='true'>
+  
+  &corba20-generic-impl;
+
+  <java-template-code>
+
+    <!--
+    
+  <template-code name='SERVER_IMPORT'>
+    <![CDATA[import IE.Iona.OrbixWeb._OrbixWeb;
+    import IE.Iona.OrbixWeb._CORBA;
+    
+    import org.omg.CORBA.ORB;
+    import org.omg.CORBA.ORBPackage.InvalidName;
+    import org.omg.CORBA.SystemException;
+    
+    import java.util.Properties;]]>
+  </template-code>
+    
+    
+  <template-code name='CLIENT_IMPORT'>
+    <![CDATA[import IE.Iona.OrbixWeb._OrbixWeb;
+    import IE.Iona.OrbixWeb._CORBA;
+    
+    import org.omg.CORBA.ORB;
+    import org.omg.CORBA.ORBPackage.InvalidName;
+    import org.omg.CORBA.SystemException;
+    
+    import java.util.Properties;]]>
+  </template-code>
+    -->
+
+  <template-code name='ORB_PROPERTIES'>
+    <![CDATA[// setting system properties is necessary to use OrbixWeb in Java 1.2
+      Properties props = System.getProperties ();
+      props.put ("org.omg.CORBA.ORBClass", "IE.Iona.OrbixWeb.CORBA.ORB");
+      props.put ("org.omg.CORBA.ORBSingletonClass", "IE.Iona.OrbixWeb.CORBA.singletonORB");
+      System.setProperties (props);]]>
+  </template-code>
+
+  </java-template-code>
+
+
+  <server-binding name='Proprietary Binder' template-tag='SERVER_BINDING'>
+    <import>
+      <![CDATA[import IE.Iona.OrbixWeb._OrbixWeb;
+      import IE.Iona.OrbixWeb._CORBA;]]>
+    </import>
+    <code>
+      <![CDATA[//OrbixWeb proprietary server binder
+      // to _CORBA.Orbix.impl_is_ready (); -- insert server name
+      // (object implemenattion name) between bracket - for example:
+      // _CORBA.Orbix.impl_is_ready ("HelloWorld");
+      try {
+      _CORBA.Orbix.impl_is_ready ("<server name>");
+      } catch (SystemException e) {
+      e.printStackTrace ();
+      }]]>
+    </code>
+  </server-binding>
+
+
+  <client-binding name='Proprietary Binder' template-tag='CLIENT_BINDING'>
+    <import>
+      <![CDATA[import IE.Iona.OrbixWeb._OrbixWeb;
+      import IE.Iona.OrbixWeb._CORBA;]]>
+    </import>
+    <code>
+      <![CDATA[//OrbixWeb Client binder binding
+      try {
+      // use <class> <name> = <class>Helper.bind (":<name>", args[0]);
+      // args[0] is name of host where server run.
+      } catch (SystemException e) {
+        e.printStackTrace ();
+      }]]>
+    </code>
+  </client-binding>
+
+
+  <idl-compiler-settings>
+    <tie-param value=''/>
+    <dir-param value='-jO'/>
+    <package-param value='-jP'/>
+    <compiler value='java -classpath {classpath}{:}{library} org.netbeans.modules.corba.idl.compiler.orbix32.Compiler {params} {dir_param} {package_root} {package_param} {package} {files}'/>
+    <package-delimiter value='.'/>
+    <error-expression value='^([^ ]+):([0-9]+):(.*)'/>
+    <file-position value='1'/>
+    <line-position value='2'/>
+    <column-position value='-1'/>
+    <message-position value='3'/>
+    
+  </idl-compiler-settings>
+
+</orb-settings>

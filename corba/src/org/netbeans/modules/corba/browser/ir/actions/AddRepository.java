@@ -60,7 +60,7 @@ public class AddRepository extends NodeAction {
         IRRootNode node = (IRRootNode)tmp_node.getCookie (IRRootNode.class);
         AddRepositoryPanel p = new AddRepositoryPanel ();
         DialogDescriptor dd = new DialogDescriptor
-            (p, "CORBA Panel", true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION,
+            (p, Util.getLocalizedString ("TITLE_CORBAPanel"), true, DialogDescriptor.OK_CANCEL_OPTION, DialogDescriptor.OK_OPTION,
              DialogDescriptor.BOTTOM_ALIGN, null, null);
         TopManager.getDefault ().createDialog (dd).show ();
         if (dd.getValue () == DialogDescriptor.OK_OPTION) {

@@ -1,0 +1,17 @@
+//
+// __NAME__.java
+//
+// Created on __DATE__, __TIME__
+// by __USER__
+//
+
+package CORBA.newtemplates;
+
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.AdapterActivatorPOA;
+
+public class AdapterActivator extends org.omg.PortableServer.AdapterActivatorPOA {
+
+    public boolean unknown_adapter (org.omg.PortableServer.POA parent, String name) {
+    }
+}

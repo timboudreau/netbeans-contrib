@@ -28,12 +28,12 @@ public class Sun13Wrapper extends AbstractWrapper {
     }
     
     public void run () {
-        
+        //System.out.println ("Sun13Wrapper::run ()");
         Properties properties = new Properties();
         try {
             Class.forName ("com.sun.corba.se.internal.POA.POAORB");
             properties.put ("org.omg.CORBA.ORBClass","com.sun.corba.se.internal.POA.POAORB");
-        }catch (ClassNotFoundException cnfe) {
+        } catch (ClassNotFoundException cnfe) {
             properties.put ("org.omg.CORBA.ORBClass","com.sun.corba.se.internal.iiop.ORB");
         }
         

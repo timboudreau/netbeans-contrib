@@ -15,12 +15,13 @@ package org.netbeans.modules.corba.settings;
 
 public class ORBSettingsWrapper implements java.io.Serializable {
 
+    public static final long serialVersionUID = -173181041826475252L;
+
     private static final boolean DEBUG = false;
     //private static final boolean DEBUG = true;
     
-    protected ORBSettings _M_settings;
-    protected String _M_value;
-
+    private ORBSettings _M_settings;
+    private String _M_value;
     
     public ORBSettingsWrapper () {
 	if (DEBUG)
@@ -32,7 +33,7 @@ public class ORBSettingsWrapper implements java.io.Serializable {
 	    System.out.println ("ORBSettingsWrapper::ORBSettingsWrapper (" + __settings + ")"); // NOI18N
 	_M_settings = __settings;
 	if (_M_settings.getServerBindings ().size () > 0)
-	    _M_value = (String)_M_settings.getServerBindings ().elementAt (0);
+	    _M_value = (String)_M_settings.getServerBindings ().get (0);
 	else
 	    _M_value = ""; // NOI18N
     }
@@ -79,6 +80,10 @@ public class ORBSettingsWrapper implements java.io.Serializable {
 	if (DEBUG)
 	    System.out.println (__return);
 	return __return;
+    }
+
+    public String toString () {
+	return _M_value;
     }
 }
 

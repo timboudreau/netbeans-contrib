@@ -62,6 +62,8 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
     private transient CORBASupportSettings _M_css;
     public static final String IDL_EXTENSION = "idl"; // NOI18N
     
+    private static final String JAVA_EXTENSION = "java"; // NOI18N
+
     protected transient int fi_counter = 0;
     
     protected transient HashMap _M_folders;
@@ -314,6 +316,11 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 	    }
 	    return __fo;
 	}
+	
+	if (!__ext.equals (IDLDataLoader.JAVA_EXTENSION)) {
+	    // __for isn't java
+	    return null;
+	}
 
 	if (_M_css == null)
 	    _M_css = (CORBASupportSettings)
@@ -394,12 +401,11 @@ public class IDLDataLoader extends MultiFileLoader implements FileChangeListener
 		}
 	    }
 	}
-/*	
-	else {
-	    System.out.println ("settings == null");
-	}
-*/
-    
+	/*
+	  else {
+	  System.out.println ("settings == null for: " + __fo);
+	  }
+	*/
 	if (DEBUG) {
 	    // profiling hack
 	    //long __time_at_end = System.currentTimeMillis ();

@@ -30,11 +30,14 @@ import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileSystem;
 import org.openide.TopManager;
 import org.openide.loaders.DataFolder;
+import org.openide.loaders.XMLDataObject;
 import org.openidex.util.Utilities2;
+import org.openide.src.nodes.FilterFactory;
 
 import org.netbeans.modules.java.settings.JavaSettings;
 
 import org.netbeans.modules.corba.settings.*;
+import org.netbeans.modules.corba.poasupport.POAExplorerFactory;
 
 
 /**
@@ -49,6 +52,14 @@ public class IDLModule extends ModuleInstall {
     private static final boolean DEBUG = false;
     //private static final boolean DEBUG = true;
 
+    private transient FilterFactory factory = null;
+
+    private static final String PUBLIC_ID = "-//Forte for Java//DTD ORBSettings 1.0//EN"; // NOI18N
+    private static final String PATH = "org/netbeans/modules/corba/resources/impls/ORBSettings.dtd"; // NOI18N
+
+    static {
+	XMLDataObject.registerCatalogEntry (PUBLIC_ID, PATH, IDLModule.class.getClassLoader ());
+    }
     /** Module installed for the first time. */
     public void installed() {
         if (DEBUG)
@@ -57,7 +68,7 @@ public class IDLModule extends ModuleInstall {
 //        copyTemplates ();   Removed by XML Transparent FS
 //        createAction();     Removed by XML Transparent FS
 
-        restored ();
+        this.restored ();
         if (DEBUG)
             System.out.println ("CORBA Support Module installed :)"); // NOI18N
     }
@@ -70,10 +81,13 @@ public class IDLModule extends ModuleInstall {
         if (DEBUG)
             System.out.println ("restoring editor support ..."); // NOI18N
 
-        CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
-                                   (CORBASupportSettings.class, true);
-        css.init ();
-	css.setBeans (css.getBeans ());
+
+        CORBASupportSettings __css = (CORBASupportSettings) CORBASupportSettings.findObject
+	    (CORBASupportSettings.class, true);
+        __css.init ();
+        invokeDynamic( "org.netbeans.modules.java.JavaDataObject", // NOI18N
+                       "addExplorerFilterFactory", // NOI18N
+                       factory = new POAExplorerFactory() );
 
         if (DEBUG)
             System.out.println ("CORBA Support Module restored..."); // NOI18N
@@ -84,6 +98,9 @@ public class IDLModule extends ModuleInstall {
      */
     public void uninstalled () {
         removeAction();
+        invokeDynamic( "org.netbeans.modules.java.JavaDataObject", // NOI18N
+                       "removeExplorerFilterFactory", // NOI18N
+                       factory );
     }
 
     private String getClasspath(String[] classpathItems) {
@@ -97,7 +114,7 @@ public class IDLModule extends ModuleInstall {
 
     // -----------------------------------------------------------------------------
     // Private methods
-
+    /*
     private void copyTemplates () {
         try {
             org.openide.filesystems.FileUtil.extractJar (
@@ -131,7 +148,7 @@ public class IDLModule extends ModuleInstall {
             if (Boolean.getBoolean ("netbeans.debug.exceptions")) ex.printStackTrace (); // NOI18N
         }
     }
-    
+    */    
     
     private void removeAction () {
         try {
@@ -142,6 +159,30 @@ public class IDLModule extends ModuleInstall {
         }catch (Exception e) {
             if (Boolean.getBoolean ("netbeans.debug.exceptions"))  // NOI18N
                 e.printStackTrace();
+        }
+    }
+
+    private void invokeDynamic( String className, String methodName, FilterFactory factory ) {
+
+        try {
+            Class dataObject = TopManager.getDefault().systemClassLoader().loadClass( className );
+
+            if ( dataObject == null )
+                return;
+
+            Method method = dataObject.getDeclaredMethod( methodName, new Class[] { FilterFactory.class }  );
+            if ( method == null )
+                return;
+
+            method.invoke( null, new Object[] { factory } );
+        }
+        catch ( java.lang.ClassNotFoundException e ) {
+        }
+        catch ( java.lang.NoSuchMethodException e ) {
+        }
+        catch ( java.lang.IllegalAccessException e ) {
+        }
+        catch ( java.lang.reflect.InvocationTargetException e ) {
         }
     }
 }

@@ -17,21 +17,42 @@ Microsystems, Inc. All Rights Reserved.
 <filesystem>
   <folder name="Templates">
     <folder name="CORBA">
-      <file name="ClientMain.java" url="templates/ClientMain.jtemplate">
-	<attr name = "template" boolvalue="true"/>
-      </file>
+      <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/CORBA.html"/>
       <file name="Empty.idl" url="templates/Empty.itemplate">
-	<attr name = "template" boolvalue="true"/>
-      </file>
-      <file name="ServerMain.java" url="templates/ServerMain.jtemplate">
-	<attr name = "template" boolvalue="true"/>
+	<attr name="template" boolvalue="true"/>
+	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/Empty.html"/>
       </file>
       <file name="Simple.idl" url="templates/Simple.itemplate">
-	<attr name = "template" boolvalue="true"/>
+	<attr name="template" boolvalue="true"/>
+	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/Simple.html"/>
       </file>
+      <file name="ServerMain.java" url="templates/ServerMain.jtemplate">
+	<attr name="template" boolvalue="true"/>
+	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ServerMain.html"/>
+      </file>
+      <file name="ClientMain.java" url="templates/ClientMain.jtemplate">
+	<attr name="template" boolvalue="true"/>
+	<attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ClientMain.html"/>
+      </file>
+      
+      <folder name="POA">
+	<file name="AdapterActivator.java" url="templates/AdapterActivator.jtemplate">
+	  <attr name="template" boolvalue="true"/>
+	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ClientMain.html"/>
+	</file>
+	<file name="ServantActivator.java" url="templates/ServantActivator.jtemplate">
+	  <attr name="template" boolvalue="true"/>
+	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ClientMain.html"/>
+	</file>
+	<file name="ServantLocator.java" url="templates/ServantLocator.jtemplate">
+	  <attr name="template" boolvalue="true"/>
+	  <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/corba/resources/ClientMain.html"/>
+	</file>
+      </folder>
     </folder>
   </folder>
   <folder name="CORBA">
+<!--
     <file name="j2ee-orb.properties" url="impls/j2ee-orb.properties">
     </file>
     <file name="jacorb.properties" url="impls/jacorb.properties">
@@ -58,12 +79,61 @@ Microsystems, Inc. All Rights Reserved.
     </file>
     <file name="visibroker4.properties" url="impls/visibroker4.properties">
     </file>
+-->
+<!-- Bundles -->
+    <file name="Bundle.properties" url="impls/Bundle.properties">
+    </file>
 <!--
+    <file name="Bundle_cs.properties" url="impls/Bundle_cs.properties">
+    </file>
+-->
+<!-- Various entities -->
+    <file name="corba20-generic-impl.ent" url="impls/corba20-generic-impl.ent">
+    </file>
+    <file name="corba23-poa.ent" url="impls/corba23-poa.ent">
+    </file>
+    <file name="corba23-generic-impl.ent" url="impls/corba23-generic-impl.ent">
+    </file>
+    <file name="corba24-poa.ent" url="impls/corba24-poa.ent">
+    </file>
+    <file name="orbacus4-generic.ent" url="impls/orbacus4-generic.ent">
+    </file>
+    <file name="orbacus3-generic.ent" url="impls/orbacus3-generic.ent">
+    </file>
+<!-- Settings -->
+    <file name="jdk1.2-orb.xml" url="impls/jdk1.2-orb.xml">
+    </file>
+    <file name="jdk1.3-orb.xml" url="impls/jdk1.3-orb.xml">
+    </file>
+    <file name="j2ee-orb.xml" url="impls/j2ee-orb.xml">
+    </file>
     <file name="orbacus4.xml" url="impls/orbacus4.xml">
+    </file>
+    <file name="orbacus4-for-windows.xml" url="impls/orbacus4-for-windows.xml">
+    </file>
+    <file name="orbacus.xml" url="impls/orbacus.xml">
+    </file>
+    <file name="orbacus-for-windows.xml" url="impls/orbacus-for-windows.xml">
+    </file>
+    <file name="orbix2000.xml" url="impls/orbix2000.xml">
+    </file>
+    <file name="orbixweb.xml" url="impls/orbixweb.xml">
+    </file>
+    <file name="visibroker4.xml" url="impls/visibroker4.xml">
+    </file>
+    <file name="visibroker.xml" url="impls/visibroker.xml">
+    </file>
+    <file name="jacorb.xml" url="impls/jacorb.xml">
+    </file>
+    <file name="javaorb.xml" url="impls/javaorb.xml">
+    </file>
+    <file name="eorb.xml" url="impls/eorb.xml">
+    </file>
+    <file name="openorb.xml" url="impls/openorb.xml">
     </file>
     <file name="ORBSettings.dtd" url="impls/ORBSettings.dtd">
     </file>
--->
+    
   </folder>
   <folder name="Menu">
     <folder name="Tools">
@@ -71,4 +141,3 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
   </folder>
 </filesystem>
-

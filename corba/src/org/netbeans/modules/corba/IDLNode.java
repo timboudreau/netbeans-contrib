@@ -31,6 +31,7 @@ import org.openide.filesystems.FileUtil;
 
 import org.netbeans.modules.corba.idl.node.*;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
+import org.netbeans.modules.corba.settings.ORBSettings;
 import org.netbeans.modules.corba.settings.OrbPropertyEditor;
 
 /**
@@ -123,12 +124,13 @@ public class IDLNode extends DataNode {
 					       ) {
 		public Object getValue() {
 		    String __setuped = getIDLDataObject().getOrbForCompilation ();
-		    if (__setuped != null)
-			return new String (__setuped);
+		    CORBASupportSettings __css 
+			= (CORBASupportSettings) CORBASupportSettings.findObject
+			(CORBASupportSettings.class, true);
+		    ORBSettings __settings = __css.getSettingByName (__setuped);
+		    if (__setuped != null && __settings != null)
+			return new String (__settings.getName ());
 		    else {
-			CORBASupportSettings __css 
-			    = (CORBASupportSettings) CORBASupportSettings.findObject
-			    (CORBASupportSettings.class, true);
 			return new String (__css.getActiveSetting ().getName ());
 		    }
 		}
@@ -136,7 +138,12 @@ public class IDLNode extends DataNode {
 		public void setValue (Object __value) {
 		    if (__value instanceof String) {
 			try {
-			    getIDLDataObject().setOrbForCompilation ((String)__value);
+			    String __name = (String)__value;
+			    CORBASupportSettings __css = (CORBASupportSettings)
+				CORBASupportSettings.findObject
+				(CORBASupportSettings.class, true);
+			    ORBSettings __setting = __css.getSettingByName (__name);
+			    getIDLDataObject().setOrbForCompilation (__setting.getORBTag ());
 			    return;
 			}
 			catch (java.io.IOException __ex) {

@@ -57,7 +57,8 @@ public class UnbindObject extends NodeAction {
             } catch (Exception e) {
                 if (DEBUG)
                     e.printStackTrace ();
-                TopManager.getDefault ().notify (new NotifyDescriptor.Message (e.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
+                TopManager.getDefault ().notify (new NotifyDescriptor.Exception
+                                                 ((java.lang.Throwable) e));
             }
         }
     }

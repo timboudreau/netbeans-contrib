@@ -15,12 +15,14 @@ package org.netbeans.modules.corba.wizard.panels;
 
 
 import java.util.Vector;
+import java.util.List;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.netbeans.modules.corba.wizard.CorbaWizardData;
 import org.netbeans.modules.corba.settings.CORBASupportSettings;
 import org.netbeans.modules.corba.settings.ORBSettingsWrapper;
 import org.netbeans.modules.corba.settings.ORBSettingsBundle;
+import org.netbeans.modules.corba.settings.ORBBindingDescriptor;
 import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 
@@ -60,9 +62,9 @@ public class ORBPanel extends AbstractWizardPanel {
                 this.orbs.addItem (names.elementAt(i));
             }
             
-            Vector list = this.css.getActiveSetting ().getServerBindings ();
+            List list = this.css.getActiveSetting ().getServerBindings ();
             for (int i=0; i< list.size(); i++) {
-                this.bindings.addItem (list.elementAt(i));
+                this.bindings.addItem (((ORBBindingDescriptor)list.get(i)).getName ());
             }
             
             String value = this.css.getActiveSetting ().getName ();
@@ -298,10 +300,10 @@ public class ORBPanel extends AbstractWizardPanel {
             this.data.setDefaultClientBindingValue(this.css.getActiveSetting().getServerBinding().getValue());
             this.data.setDefaultTie(this.css.getActiveSetting().isTie());
         }
-        Vector list = this.css.getActiveSetting ().getServerBindings ();
+        List list = this.css.getActiveSetting ().getServerBindings ();
         this.bindings.removeAllItems();
         for ( int i=0; i< list.size(); i++) {
-            this.bindings.addItem (list.elementAt(i));
+            this.bindings.addItem (((ORBBindingDescriptor)list.get(i)).getName ());
         }
         this.css.getActiveSetting().setSkeletons (ORBSettingsBundle.INHER);
         this.tie.setSelected (false);

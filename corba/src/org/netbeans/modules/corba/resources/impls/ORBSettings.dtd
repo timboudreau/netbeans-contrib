@@ -1,0 +1,360 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<!--
+    Typical usage:
+
+    <?xml version="1.0"?>
+
+    <!DOCTYPE orb-settings SYSTEM "ORBSettings.dtd">
+
+    <orb-settings>
+    ...
+    </orb-settings>
+-->
+
+  <!ELEMENT policies-header EMPTY>
+  <!ATTLIST policies-header
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT get-root-poa-pattern EMPTY>
+  <!ATTLIST get-root-poa-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT servant-class EMPTY>
+  <!ATTLIST servant-class
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT orb-settings (client-binding|server-binding|local-bundle|poa-settings|java-template-code|idl-template-code|impl-generator-settings|idl-compiler-settings)*>
+  <!ATTLIST orb-settings
+    supported CDATA #IMPLIED
+    tag CDATA #IMPLIED
+    name CDATA #IMPLIED
+  >
+
+  <!ELEMENT poa-settings (set-poa-activator|unrecognized-policy|section-init-servants|section-activate-poas|poa-policy|poa-activator-pattern|policies-footer|servant-class|poa-pattern|root-poa-init|create-servant-instance|servant-instance-pattern|policies-declaration-pattern|policies-header|create-poa|root-poa-pattern|policies-declaration|set-servant-manager|default-servant-pattern|servant-manager-pattern|policies-separator|servant-pattern|policies-header-pattern|policies-footer-pattern|set-default-servant|get-root-poa-pattern|activate-poa|section-init-poas|activate-servant-with-user-id|get-poa-manager|activate-servant-with-system-id|default-default-servant-var-name|default-poa-activator-var-name|default-poa-name|default-poa-var-name|default-servant-id|default-servant-id-var-name|default-servant-var-name|default-servant-manager-var-name)*>
+
+  <!ELEMENT poa-activator-pattern EMPTY>
+  <!ATTLIST poa-activator-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT compiler EMPTY>
+  <!ATTLIST compiler
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT import (#PCDATA)>
+
+  <!ELEMENT section-init-poas EMPTY>
+  <!ATTLIST section-init-poas
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT tie-impl-prefix EMPTY>
+  <!ATTLIST tie-impl-prefix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT ext-class-prefix EMPTY>
+  <!ATTLIST ext-class-prefix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT code (#PCDATA)>
+
+  <!ELEMENT root-poa-init EMPTY>
+  <!ATTLIST root-poa-init
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT create-servant-instance EMPTY>
+  <!ATTLIST create-servant-instance
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT file-position EMPTY>
+  <!ATTLIST file-position
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT idl-template-code (template-code)*>
+
+  <!ELEMENT message-position EMPTY>
+  <!ATTLIST message-position
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT policies-footer EMPTY>
+  <!ATTLIST policies-footer
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT line-position EMPTY>
+  <!ATTLIST line-position
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT impl-int-postfix EMPTY>
+  <!ATTLIST impl-int-postfix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT tie-impl-postfix EMPTY>
+  <!ATTLIST tie-impl-postfix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT package-param EMPTY>
+  <!ATTLIST package-param
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT tie-param EMPTY>
+  <!ATTLIST tie-param
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT disable-action EMPTY>
+  <!ATTLIST disable-action
+    name CDATA #IMPLIED
+  >
+
+  <!ELEMENT error-expression EMPTY>
+  <!ATTLIST error-expression
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT prepare-code-pattern EMPTY>
+  <!ATTLIST prepare-code-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT activate-poa EMPTY>
+  <!ATTLIST activate-poa
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT poa-policy (prepare-code|create-code-pattern|prepare-code-pattern|create-code|value)*>
+  <!ATTLIST poa-policy
+    name CDATA #IMPLIED
+    mnemonic_character CDATA #IMPLIED
+  >
+
+  <!ELEMENT implbase-impl-prefix EMPTY>
+  <!ATTLIST implbase-impl-prefix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT value-impl-prefix EMPTY>
+  <!ATTLIST value-impl-prefix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT value-impl-postfix EMPTY>
+  <!ATTLIST value-impl-postfix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT valuefactory-impl-prefix EMPTY>
+  <!ATTLIST valuefactory-impl-prefix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT valuefactory-impl-postfix EMPTY>
+  <!ATTLIST valuefactory-impl-postfix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT require-policy EMPTY>
+  <!ATTLIST require-policy
+    name CDATA #IMPLIED
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT section-init-servants EMPTY>
+  <!ATTLIST section-init-servants
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT create-code-pattern EMPTY>
+  <!ATTLIST create-code-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT policies-separator EMPTY>
+  <!ATTLIST policies-separator
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT template-code (#PCDATA)>
+  <!ATTLIST template-code
+    name CDATA #IMPLIED
+  >
+
+  <!ELEMENT ext-class-postfix EMPTY>
+  <!ATTLIST ext-class-postfix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT policies-header-pattern EMPTY>
+  <!ATTLIST policies-header-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT policies-declaration EMPTY>
+  <!ATTLIST policies-declaration
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT idl-compiler-settings (compiler|package-delimiter|dir-param|column-position|line-position|file-position|error-expression|message-position|package-param|tie-param)*>
+
+  <!ELEMENT policies-footer-pattern EMPTY>
+  <!ATTLIST policies-footer-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT policies-declaration-pattern EMPTY>
+  <!ATTLIST policies-declaration-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT dir-param EMPTY>
+  <!ATTLIST dir-param
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT section-activate-poas EMPTY>
+  <!ATTLIST section-activate-poas
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT impl-generator-settings (ext-class-postfix|implbase-impl-prefix|impl-int-postfix|implbase-impl-postfix|tie-impl-postfix|tie-impl-prefix|impl-int-prefix|ext-class-prefix|value-impl-prefix|value-impl-postfix|valuefactory-impl-prefix|valuefactory-impl-postfix)*>
+
+  <!ELEMENT column-position EMPTY>
+  <!ATTLIST column-position
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT prepare-code (#PCDATA)>
+
+  <!ELEMENT client-binding (import|code)*>
+  <!ATTLIST client-binding
+    name CDATA #IMPLIED
+    template-tag CDATA #IMPLIED
+    local-tag CDATA #IMPLIED
+  >
+
+  <!ELEMENT set-default-servant EMPTY>
+  <!ATTLIST set-default-servant
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT impl-int-prefix EMPTY>
+  <!ATTLIST impl-int-prefix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT package-delimiter EMPTY>
+  <!ATTLIST package-delimiter
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT create-code (#PCDATA)>
+
+  <!ELEMENT set-poa-activator EMPTY>
+  <!ATTLIST set-poa-activator
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT create-poa EMPTY>
+  <!ATTLIST create-poa
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT servant-instance-pattern EMPTY>
+  <!ATTLIST servant-instance-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT unrecognized-policy EMPTY>
+  <!ATTLIST unrecognized-policy
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT value (require-policy|disable-action|conflicts-with-policy)*>
+  <!ATTLIST value
+    name CDATA #IMPLIED
+  >
+
+  <!ELEMENT servant-pattern EMPTY>
+  <!ATTLIST servant-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT java-template-code (template-code)*>
+
+  <!ELEMENT conflicts-with-policy EMPTY>
+  <!ATTLIST conflicts-with-policy
+    name CDATA #IMPLIED
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT activate-servant-with-system-id EMPTY>
+  <!ATTLIST activate-servant-with-system-id
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT set-servant-manager EMPTY>
+  <!ATTLIST set-servant-manager
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT activate-servant-with-user-id EMPTY>
+  <!ATTLIST activate-servant-with-user-id
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT servant-manager-pattern EMPTY>
+  <!ATTLIST servant-manager-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT server-binding (import|code)*>
+  <!ATTLIST server-binding
+    name CDATA #IMPLIED
+    template-tag CDATA #IMPLIED
+    local-tag CDATA #IMPLIED
+  >
+
+  <!ELEMENT local-bundle EMPTY>
+  <!ATTLIST local-bundle
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT root-poa-pattern EMPTY>
+  <!ATTLIST root-poa-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT implbase-impl-postfix EMPTY>
+  <!ATTLIST implbase-impl-postfix
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT default-servant-pattern EMPTY>
+  <!ATTLIST default-servant-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT poa-pattern EMPTY>
+  <!ATTLIST poa-pattern
+    value CDATA #IMPLIED
+  >
+
+  <!ELEMENT get-poa-manager EMPTY>
+  <!ATTLIST get-poa-manager
+    value CDATA #IMPLIED
+  >

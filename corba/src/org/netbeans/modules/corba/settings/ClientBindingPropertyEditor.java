@@ -13,6 +13,10 @@
 
 package org.netbeans.modules.corba.settings;
 
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Iterator;
+
 import java.beans.*;
 
 import org.openide.util.NbBundle;
@@ -31,16 +35,7 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
     //public static final boolean DEBUG = true;
     public static final boolean DEBUG = false;
 
-
-    /** array of orbs */
-    /*
-    private static final String[] choices = {CORBASupport.CLIENT_NS, 
-    		   CORBASupport.CLIENT_IOR_FROM_FILE, 
-    		   CORBASupport.CLIENT_IOR_FROM_INPUT,
-    		   CORBASupport.CLIENT_BINDER};
-    */
-
-    private static String[] _M_choices = {""}; // NOI18N
+    private String[] _M_choices = {""}; // NOI18N
 
     private ORBSettingsWrapper _M_settings;
 
@@ -68,10 +63,15 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
 	    if (DEBUG)
 		System.out.println ("ClientBindingPropertyEditor::getTags () -> " + _M_choices); // NOI18N
 	    _M_settings = (ORBSettingsWrapper)getValue ();
-	    String[] __choices 
-		= new String[_M_settings.getSettings ().getClientBindings ().size ()];
-	    __choices = (String[])_M_settings.getSettings ().getClientBindings ().toArray 
-		(__choices);
+	    List __bindings = _M_settings.getSettings ().getClientBindings ();
+	    String[] __choices = new String[__bindings.size ()];
+	    ORBBindingDescriptor __binding = null;
+	    for (int __i=0; __i<__bindings.size (); __i++) {
+		__binding = (ORBBindingDescriptor)__bindings.get (__i);
+		__choices[__i] = _M_settings.getSettings ().getLocalizedString 
+		    (__binding.getName ());
+	    }
+		
 	    _M_choices = __choices;
 	    return _M_choices;
 	} catch (Exception e) {
@@ -124,21 +124,9 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
     public String getAsText () {
 	try {
 	    ORBSettingsWrapper __tmp = (ORBSettingsWrapper)getValue ();
-	    if (DEBUG) {
-		System.out.println ("ClientBindingPropertyEditor::getAsText () -> " // NOI18N
-				    + __tmp.getSettings () 
-				    + __tmp.getSettings ().displayName () + " : " // NOI18N
-				    + __tmp.getValue ());
-	    }
-	    CORBASupportSettings css = (CORBASupportSettings) CORBASupportSettings.findObject
-		(CORBASupportSettings.class, true);
-	    java.lang.Object[] __beans = css.getBeans ();
-	    if (DEBUG) {
-		for (int __i = 0; __i < __beans.length; __i++) {
-		    System.out.println (__i + " : " + __beans[__i]); // NOI18N
-		}
-	    }
-	    return ((ORBSettingsWrapper)getValue ()).getValue ();
+	    ORBSettings __settings = __tmp.getSettings ();
+
+	    return __settings.getLocalizedString (__tmp.getValue ());
 	} catch (Exception __e) {
 	    if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
 		__e.printStackTrace ();
@@ -151,9 +139,25 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
     public void setAsText (String __value) {
 	if (DEBUG)
 	    System.out.println ("ClientBindingPropertyEditor::setAsText (" + __value + ")"); // NOI18N
+	_M_settings = (ORBSettingsWrapper)getValue ();
+	List __bindings = _M_settings.getSettings ().getClientBindings ();
+	List __localized_bindings = new LinkedList ();
+	Iterator __iterator = __bindings.iterator ();
+	ORBBindingDescriptor __binding = null;
+	ORBSettings __settings = _M_settings.getSettings ();
+	while (__iterator.hasNext ()) {
+	    __binding = (ORBBindingDescriptor)__iterator.next ();
+	    __localized_bindings.add (__settings.getLocalizedString (__binding.getName ()));
+	}
+	__binding = (ORBBindingDescriptor)__bindings.get
+	    (__localized_bindings.indexOf (__value));
+	String __not_locallized_value = __binding.getName ();
+	if (DEBUG)
+	    System.out.println ("-> " + __not_locallized_value);
+	this.setValue (new ORBSettingsWrapper (__settings, __not_locallized_value));
         //((ORBSettingsWrapper)getValue ()).setValue (__value);
-	setValue (new ORBSettingsWrapper (((ORBSettingsWrapper)getValue ()).getSettings (), 
-					  __value));
+	//setValue (new ORBSettingsWrapper (((ORBSettingsWrapper)getValue ()).getSettings (), 
+	//__value));
     }
 }
 
