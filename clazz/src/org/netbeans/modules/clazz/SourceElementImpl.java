@@ -99,7 +99,7 @@ final class SourceElementImpl extends MemberElementImpl
         repo.beginTrans(false);
         try {
             Resource resource = model.getResource(fo);
-            if (!resource.isValid()) {
+            if (resource == null || !resource.isValid()) {
                 return;
             }
             data = resource;
@@ -239,19 +239,21 @@ final class SourceElementImpl extends MemberElementImpl
     */
     public ClassElement getClass (Identifier name) {
         ClassElement el = getClassElement();
-        String srcName = name.getSourceName();
-        String fullName = name.getFullName();
-        Identifier idEl = el.getName();
-        String srcEl = idEl.getSourceName();
-        String fullEl = idEl.getFullName();
-        
-        if (srcEl.equals(srcName)) {
-            if (srcName.equals(fullName) || fullEl.equals(fullName))
+        if (el != null) {
+            String srcName = name.getSourceName();
+            String fullName = name.getFullName();
+            Identifier idEl = el.getName();
+            String srcEl = idEl.getSourceName();
+            String fullEl = idEl.getFullName();
+
+            if (srcEl.equals(srcName)) {
+                if (srcName.equals(fullName) || fullEl.equals(fullName))
+                    return el;
+                else
+                    return null;
+            } else if (fullEl.equals(fullName)) {
                 return el;
-            else
-                return null;
-        } else if (fullEl.equals(fullName)) {
-            return el;
+            }
         }
         return null;
     }
