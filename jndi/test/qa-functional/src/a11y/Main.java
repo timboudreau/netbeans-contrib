@@ -36,6 +36,7 @@ public class Main extends org.netbeans.junit.NbTestCase {
     }
     
     public void testA11Y (Component comp, boolean close) throws Exception {
+        new org.netbeans.jemmy.EventTool().waitNoEvent(1000);
         TestSettings ts = new TestSettings ();
         ts.setDefaultSettings();
         if (close)

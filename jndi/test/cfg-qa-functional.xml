@@ -17,20 +17,7 @@ Microsystems, Inc. All Rights Reserved.
     <testbag testattribs="stable,validation" executor="ide" name="testbag_JNDI" resultsprocessor="qa-functional">
         <testset dir="qa-functional/src">
             <patternset>
-		<include name="a11y/Main.class"/>
-		<include name="basic/JNDITest/JNDITest.class"/>
-            </patternset>
-        </testset>
-    </testbag>
-    
-    <testbag testattribs="stable,validation" executor="ide" name="testbag_Providers" resultsprocessor="qa-functional">
-        <testset dir="qa-functional/src">
-            <patternset>
-		<include name="providers/CNSTest/CNSTest.class"/>
-		<include name="providers/LDAPTest/LDAPTest.class"/>
-		<include name="providers/NISTest/NISTest.class"/>
-		<include name="providers/RefFSTest/RefFSTest.class"/>
-		<include name="providers/RegistryTest/RegistryTest.class"/>
+                <include name="suite/Validation.class"/>
             </patternset>
         </testset>
     </testbag>
