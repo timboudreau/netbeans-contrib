@@ -42,7 +42,7 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor showDeadFiles = null;
         PropertyDescriptor showMessages = null;
         PropertyDescriptor messageLength = null;
-        PropertyDescriptor showUnimportantFiles = null;
+        //PropertyDescriptor showUnimportantFiles = null;
         //PropertyDescriptor showLocalFiles = null;  -- makes problems, since every file is initially local
         PropertyDescriptor ignoredGarbageFiles = null;
         
@@ -59,11 +59,13 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
                           (VcsVersioningSystem.PROP_MESSAGE_LENGTH, VcsVersioningSystem.class, "getMessageLength", "setMessageLength"); // NOI18N
             messageLength.setDisplayName      (NbBundle.getMessage(VcsVersioningSystem.class, "PROP_messageLength")); //NOI18N
             messageLength.setShortDescription (NbBundle.getMessage(VcsVersioningSystem.class, "HINT_messageLength")); //NOI18N
+            /* makes problems when it's not in synch with "Process All Files" property on VcsFileSystem (issue #32902)
             showUnimportantFiles = new PropertyDescriptor
                           (VcsVersioningSystem.PROP_SHOW_UNIMPORTANT_FILES, VcsVersioningSystem.class, "isShowUnimportantFiles", "setShowUnimportantFiles"); // NOI18N
             showUnimportantFiles.setDisplayName(NbBundle.getMessage(VcsVersioningSystem.class, "PROP_showUnimportantFiles"));
             showUnimportantFiles.setShortDescription(NbBundle.getMessage(VcsVersioningSystem.class, "HINT_showUnimportantFiles"));
             showUnimportantFiles.setExpert(true);
+             */
             /*  makes problems, since every file is initially local
             showLocalFiles = new PropertyDescriptor
                           (VcsVersioningSystem.PROP_SHOW_LOCAL_FILES, VcsVersioningSystem.class, "isShowLocalFiles", "setShowLocalFiles"); // NOI18N
@@ -77,7 +79,7 @@ public class VcsVersioningSystemBeanInfo extends SimpleBeanInfo {
             ignoredGarbageFiles.setShortDescription(NbBundle.getMessage(VcsVersioningSystem.class, "HINT_ignoredGarbageFiles"));
             ignoredGarbageFiles.setExpert(true);
             
-            properties = new PropertyDescriptor[] { showDeadFiles, showMessages, messageLength, showUnimportantFiles, ignoredGarbageFiles };
+            properties = new PropertyDescriptor[] { showDeadFiles, showMessages, messageLength, ignoredGarbageFiles };
         } catch (IntrospectionException ex) {
            ErrorManager.getDefault().notify(ex);
         }

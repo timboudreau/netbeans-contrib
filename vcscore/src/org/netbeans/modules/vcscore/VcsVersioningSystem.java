@@ -735,6 +735,9 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                 if (newValue == null) return ; // Filter out events from myself, since I listen on this also!
                 VcsVersioningSystem.this.firePropertyChange(VcsVersioningSystem.this.PROP_DISPLAY_NAME, null, null);
             }
+            if (VcsFileSystem.PROP_PROCESS_UNIMPORTANT_FILES.equals(propName)) {
+                setShowUnimportantFiles(fileSystem.isProcessUnimportantFiles());
+            }
         }
 
         private void heyDoRefreshFolderRecursive(FileObject fo) {
