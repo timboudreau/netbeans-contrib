@@ -58,7 +58,7 @@ public class IRRepositoryNode extends IRContainerNode implements Node.Cookie, Re
             String code = generateHead(indent);
             Contained[] contained = container.contents (DefinitionKind.dk_all, true);
             for (int i=0 ; i < contained.length; i++){
-                switch (contained[i].describe().kind.value()){
+                switch (contained[i].def_kind().value()){
                 case DefinitionKind._dk_Interface:
                     code = code + IRInterfaceDefNode.createGeneratorFor(contained[i]).generateSelf(indent);
                     break;
