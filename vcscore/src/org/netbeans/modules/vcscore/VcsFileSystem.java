@@ -45,6 +45,7 @@ import org.openide.util.WeakListener;
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
 import org.netbeans.modules.vcscore.cache.CacheHandlerEvent;
 import org.netbeans.modules.vcscore.cache.CacheFile;
+import org.netbeans.modules.vcscore.cache.CacheDir;
 import org.netbeans.modules.vcscore.cache.CacheReference;
 import org.netbeans.modules.vcscore.caching.*;
 import org.netbeans.modules.vcscore.util.*;
@@ -63,6 +64,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                                                                           AbstractFileSystem.List, AbstractFileSystem.Info,
                                                                           AbstractFileSystem.Change, FileSystem.Status,
                                                                           CacheHandlerListener, Serializable {
+                                                                              
+    public static interface IgnoreListSupport {
+        
+        public ArrayList createInitialIgnoreList ();
+        public ArrayList createIgnoreList (org.openide.filesystems.FileObject file, ArrayList parentIgnoreList);
+    }
+                                                                                                                                                           
+                                                                              
     private Debug E=new Debug("VcsFileSystem", false); // NOI18N
     private Debug D=E;
     
@@ -281,6 +290,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private Collection notModifiableStatuses = Collections.EMPTY_SET;
     
     private Boolean createRuntimeCommands = Boolean.TRUE;
+    
+    private transient IgnoreListSupport ignoreListSupport = null;
 
     public boolean isLockFilesOn () {
         return lockFilesOn && isEnabledLockFiles();
@@ -749,9 +760,52 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      * @return Reference to FileObject
      */
     protected java.lang.ref.Reference createReference(FileObject fo) {
-        if (cache != null) {
-            return cache.createReference(fo);
-        } else return super.createReference(fo);
+	if (cache != null) {
+            java.lang.ref.Reference ref = cache.createReference(fo);
+            IgnoreListSupport ignSupport = this.getIgnoreListSupport();
+            if (ignSupport != null) {
+                String path = fo.getPackageNameExt('/','.');
+                if (cache.isDir (path)) {
+                    CacheDir dir = cache.getDir(path);
+                    FileObject parent = fo.getParent();
+                    ArrayList ignorelist = null;
+                    if (fo == null)
+                        ignorelist = ignSupport.createIgnoreList (fo, ignSupport.createInitialIgnoreList());
+                    else {
+                        CacheDir pd = cache.getDir(parent.getPackageNameExt('/','.'));
+                        if (pd != null) {
+                            ArrayList parentIgnoreList = pd.getIgnoreList();
+                            if (parentIgnoreList == null) {
+                                // Parent is a root of FS
+                                ignorelist = ignSupport.createIgnoreList (fo, ignSupport.createInitialIgnoreList());
+                            } else {
+                                // Parent is a package in FS
+                                ignorelist = ignSupport.createIgnoreList (fo,parentIgnoreList);
+                            }
+                        }
+                        else {
+                            // If called for root of file system
+                            ignorelist = ignSupport.createIgnoreList (fo, ignSupport.createInitialIgnoreList());
+                        }
+                    }
+                    dir.setIgnoreList (ignorelist);
+                }
+                else {
+                    FileObject parent = fo.getParent();
+                    if (parent != null) {
+                        CacheDir dir = cache.getDir (parent.getPackageNameExt('/','.'));
+                        if (dir != null) {
+                            if (dir.isIgnored(fo.getNameExt())) {
+                                CacheReference cr = (CacheReference) ref;
+                                cr.markUnimportant ();
+                            }
+                        }
+                    }
+                }
+            }
+	    return ref;
+	}
+	else return super.createReference(fo);
     }
 
     /**
@@ -1547,6 +1601,13 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 FileObject ff = (FileObject) oo[0];
                 String fullName = ff.getPackageNameExt('/','.');
                 result = RefreshCommandSupport.getStatusAnnotation(name, fullName, annotationPattern, statusProvider);
+                FileObject parent = ff.getParent();
+                if (parent != null && cache!=null) {
+                    CacheDir dir = this.cache.getDir (parent.getPackageNameExt('/','.'));
+                    if (dir != null && dir.isIgnored (ff.getNameExt())) {
+                        return RefreshCommandSupport.getStatusAnnotation(name,fullName, annotationPattern);
+                    }
+                }
             } else {
                 oo = VcsUtilities.reorderFileObjects(files).toArray();
                 ArrayList importantFiles = getImportantFiles(oo);
@@ -2488,6 +2549,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     public String getBundleProperty(String s, Object obj) {
         return g(s, obj);
+    }
+    
+    public IgnoreListSupport getIgnoreListSupport () {
+        return this.ignoreListSupport;
+    }
+    
+    public void setIgnoreListSupport (IgnoreListSupport support) {
+        this.ignoreListSupport = support;
     }
 
     //-------------------------------------------
