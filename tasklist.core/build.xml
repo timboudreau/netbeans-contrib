@@ -112,8 +112,12 @@ Microsystems, Inc. All Rights Reserved.
       <mkdir dir="netbeans/modules/autoload/docs"/>
       <mkdir dir="../javahelp/org/netbeans/modules/tasklist/help/JavaHelpSearch"/>
       <jhindexer basedir="../javahelp/org/netbeans/modules/tasklist/help"
-                 db="../javahelp/org/netbeans/modules/tasklist/help/JavaHelpSearch"
-                 jhall="${nbroot}/nbbuild/external/jhall-1.1.2_02.jar">
+                 db="../javahelp/org/netbeans/modules/tasklist/help/JavaHelpSearch">
+        <classpath>
+          <fileset dir="../../nbbuild/external">
+            <include name="jhall*.jar"/>
+          </fileset>
+        </classpath>
         <include name="**/*.html"/>
         <exclude name="JavaHelpSearch/"/>
       </jhindexer>
