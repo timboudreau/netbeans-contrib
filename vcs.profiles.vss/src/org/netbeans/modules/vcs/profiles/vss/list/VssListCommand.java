@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.io.*;
 
+import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
@@ -107,25 +108,47 @@ public class VssListCommand extends AbstractListCommand {
     }
     
     private boolean runCommand(Hashtable vars, String cmdName, final boolean[] errMatch) throws InterruptedException {
-        VcsCommand cmd = fileSystem.getCommand(cmdName);
-        VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
-        ec.addDataOutputListener(this);
-        if (errMatch != null && errMatch.length > 0) {
-            ec.addDataErrorOutputListener(new CommandDataOutputListener() {
-                public void outputData(String[] data) {
-                    if (data != null) errMatch[0] = true;
+        String workingDirPath = "${ROOTDIR}${PS}${MODULE}${PS}${DIR}"; // NOI18N
+        workingDirPath = Variables.expand(vars, workingDirPath, false);
+        File workingDir = new File(workingDirPath);
+        File tmpEmptyDir = null;
+        if (!workingDir.exists()) {
+            File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+            String tmpDirName = "refresh"; // NOI18N
+            for (int i = 0; ; i++) {
+                tmpEmptyDir = new File(tmpDir, tmpDirName + i);
+                if (!tmpEmptyDir.exists()) {
+                    tmpEmptyDir.mkdir();
+                    break;
                 }
-            });
+            }
+            vars.put("EMPTY_REFRESH_FOLDER", tmpEmptyDir.getAbsolutePath());
         }
-        fileSystem.getCommandsPool().preprocessCommand(ec, vars, fileSystem);
-        fileSystem.getCommandsPool().startExecutor(ec);
         try {
-            fileSystem.getCommandsPool().waitToFinish(ec);
-        } catch (InterruptedException iexc) {
-            fileSystem.getCommandsPool().kill(ec);
-            throw iexc;
+            VcsCommand cmd = fileSystem.getCommand(cmdName);
+            VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+            ec.addDataOutputListener(this);
+            if (errMatch != null && errMatch.length > 0) {
+                ec.addDataErrorOutputListener(new CommandDataOutputListener() {
+                    public void outputData(String[] data) {
+                        if (data != null) errMatch[0] = true;
+                    }
+                });
+            }
+            fileSystem.getCommandsPool().preprocessCommand(ec, vars, fileSystem);
+            fileSystem.getCommandsPool().startExecutor(ec);
+            try {
+                fileSystem.getCommandsPool().waitToFinish(ec);
+            } catch (InterruptedException iexc) {
+                fileSystem.getCommandsPool().kill(ec);
+                throw iexc;
+            }
+            return (ec.getExitStatus() == VcsCommandExecutor.SUCCEEDED);
+        } finally {
+            if (tmpEmptyDir != null) {
+                tmpEmptyDir.delete();
+            }
         }
-        return (ec.getExitStatus() == VcsCommandExecutor.SUCCEEDED);
     }
     
     /**
