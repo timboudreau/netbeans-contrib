@@ -108,7 +108,7 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         
         private static GroupExplorerPanel component;
         
-        public GroupExplorerPanel() {
+        private GroupExplorerPanel() {
             initComponent();
             getAccessibleContext().setAccessibleDescription(
                 org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "ACSD_AddVcsGroupAction.dialog"));
@@ -128,9 +128,13 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         
         private void initComponent() {
             Node root = null;
-            String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
+            final String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
             setName(modeName);
-            setToolTipText(modeName);
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    setToolTipText(modeName);
+                }
+            });
             
             root = GroupUtils.getMainVcsGroupNodeInstance();
             GroupUtils.getDefaultGroupInstance(); // here just to make sure the default is created.
