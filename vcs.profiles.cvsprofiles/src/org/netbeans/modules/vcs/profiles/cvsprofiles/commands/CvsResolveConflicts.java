@@ -13,25 +13,32 @@
 
 package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+//import java.awt.event.ActionEvent;
+//import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.VetoableChangeListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Hashtable;
 
 import org.openide.filesystems.FileObject;
+import org.openide.util.Lookup;
 
 import org.netbeans.api.diff.Difference;
-import org.netbeans.modules.merge.builtin.visualizer.GraphicalMergeVisualizer;
+import org.netbeans.api.diff.StreamSource;
+import org.netbeans.spi.diff.MergeVisualizer;
+//import org.netbeans.modules.merge.builtin.visualizer.GraphicalMergeVisualizer;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
@@ -56,6 +63,8 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
     private static final String CHANGE_DELIMETER = "======="; // NOI18N
 
     private VcsFileSystem fileSystem = null;
+    private String leftFileRev = null;
+    private String rightFileRev = null;
 
     public void setFileSystem(VcsFileSystem fileSystem) {
         this.fileSystem = fileSystem;
@@ -71,13 +80,24 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
             CvsFileSystem cvsFileSystem = (CvsFileSystem) fileSystem;
          */
         Collection files = ExecuteCommand.createProcessingFiles(fileSystem, vars);
+        MergeVisualizer merge = null;
         for (Iterator it = files.iterator(); it.hasNext(); ) {
             String fileName = (String) it.next();
             File file = fileSystem.getFile(fileName);
             if (file != null) {
                 FileObject fo = fileSystem.findResource(fileName);
+                if (merge == null) {
+                    merge = (MergeVisualizer) Lookup.getDefault().lookup(MergeVisualizer.class);
+                    if (merge == null) {
+                        org.openide.TopManager.getDefault().notify(
+                            new org.openide.NotifyDescriptor.Message(
+                                org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, 
+                                                                     "Merge.noMergeAvailable")));
+                        return false;
+                    }
+                }
                 try {
-                    handleMergeFor(file, (fo == null) ? "text/plain" : fo.getMIMEType());
+                    handleMergeFor(file, (fo == null) ? "text/plain" : fo.getMIMEType(), merge);
                 } catch (IOException ioex) {
                     org.openide.TopManager.getDefault().notifyException(ioex);
                 }
@@ -86,28 +106,49 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         return true;
     }
     
-    private void handleMergeFor(final File file, String mimeType) throws IOException {
+    private void handleMergeFor(final File file, String mimeType, MergeVisualizer merge) throws IOException {
         File f1 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
         File f2 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
-        final File f3 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
+        File f3 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
         
         Difference[] diffs = copyParts(true, file, f1, true);
+        if (diffs.length == 0) {
+            org.openide.TopManager.getDefault ().notify (new org.openide.NotifyDescriptor.Message(
+                org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "NoConflictsInFile", file)));
+            return ;
+        }
         copyParts(false, file, f2, false);
-        GraphicalMergeVisualizer merge = new GraphicalMergeVisualizer();
+        //GraphicalMergeVisualizer merge = new GraphicalMergeVisualizer();
         java.awt.Component c;
-        c = merge.createView(diffs, file.getName(), file.getAbsolutePath(),
-                             new FileReader(f1), file.getName(), file.getAbsolutePath(),
-                             new FileReader(f2), file.getName(), file.getAbsolutePath(),
-                             new FileWriter(f3), mimeType, new ActionListener() {
-                                 public void actionPerformed(ActionEvent evt) {
+        if (leftFileRev == null || leftFileRev.equals(file.getName())) {
+            leftFileRev = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleWorkingFile");
+        } else {
+            leftFileRev = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleRevision", leftFileRev);
+        }
+        if (rightFileRev == null || rightFileRev.equals(file.getName())) {
+            rightFileRev = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleWorkingFile");
+        } else {
+            rightFileRev = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleRevision", rightFileRev);
+        }
+        String resultTitle = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Merge.titleResult");
+        c = merge.createView(diffs, StreamSource.createSource(file.getName(), leftFileRev, mimeType, f1),
+                             StreamSource.createSource(file.getName(), rightFileRev, mimeType, f2),
+                             /*file.getName(), resultTitle,*/
+                             new MergeResultWriterInfo(f1, f2, f3, file, mimeType)/*, new VetoableChangeListener() {
+                                 public void vetoableChange(PropertyChangeEvent evt) {
                                      if ("OK".equals(evt.getActionCommand())) {
                                          try {
                                             org.openide.filesystems.FileUtil.copy(
                                                 new FileInputStream(f3), new FileOutputStream(file));
-                                         } catch (IOException ioex) {}
+                                         } catch (IOException ioex) {
+                                             org.openide.TopManager.getDefault().notify(new org.openide.NotifyDescriptor.Message(
+                                                 org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class,
+                                                                                      "Merge.problemsSave",
+                                                                                      ioex.getLocalizedMessage())));
+                                         }
                                      }
                                  }
-                             });
+                             }*/);
     }
     
     /**
@@ -131,6 +172,9 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
             while ((line = r.readLine()) != null) {
                 if (line.startsWith(CHANGE_LEFT)) {
                     if (generateDiffs) {
+                        if (leftFileRev == null) {
+                            leftFileRev = line.substring(CHANGE_LEFT.length()).trim();
+                        }
                         if (isChangeLeft) {
                             f1l2 = i - 1;
                             diffList.add((f1l1 > f1l2) ? new Difference(Difference.ADD, f1l1 - 1, 0, f2l1, f2l2) :
@@ -145,6 +189,9 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                     continue;
                 } else if (line.startsWith(CHANGE_RIGHT)) {
                     if (generateDiffs) {
+                        if (rightFileRev == null) {
+                            rightFileRev = line.substring(CHANGE_RIGHT.length()).trim();
+                        }
                         if (isChangeRight) {
                             f2l2 = j - 1;
                             diffList.add((f1l1 > f1l2) ? new Difference(Difference.ADD, f1l1 - 1, 0, f2l1, f2l2) :
@@ -202,6 +249,72 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
             return (Difference[]) diffList.toArray(new Difference[diffList.size()]);
         } else {
             return null;
+        }
+    }
+    
+    private static class MergeResultWriterInfo extends StreamSource {
+        
+        private File tempf1, tempf2, tempf3, outputFile;
+        private String mimeType;
+        
+        public MergeResultWriterInfo(File tempf1, File tempf2, File tempf3,
+                                     File outputFile, String mimeType) {
+            this.tempf1 = tempf1;
+            this.tempf2 = tempf2;
+            this.tempf3 = tempf3;
+            this.outputFile = outputFile;
+            this.mimeType = mimeType;
+        }
+        
+        public String getName() {
+            return outputFile.getName();
+        }
+        
+        public String getTitle() {
+            return org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Merge.titleResult");
+        }
+        
+        public String getMIMEType() {
+            return mimeType;
+        }
+        
+        public Reader createReader() throws IOException {
+            throw new IOException("No reader of merge result"); // NOI18N
+        }
+        
+        /**
+         * Create a writer, that writes to the source.
+         * @param conflicts The list of conflicts remaining in the source.
+         *                  Can be <code>null</code> if there are no conflicts.
+         * @return The writer or <code>null</code>, when no writer can be created.
+         */
+        public Writer createWriter(Difference[] conflicts) throws IOException {
+            if (conflicts == null) {
+                return new FileWriter(outputFile);
+            } else {
+                return new MergeConflictFileWriter(outputFile, conflicts);
+            }
+        }
+        
+        /**
+         * This method is called when the visual merging process is finished.
+         * All possible writting processes are finished before this method is called.
+         */
+        public void notifyClosed() {
+            tempf1.delete();
+            tempf2.delete();
+            tempf3.delete();
+        }
+        
+    }
+    
+    private static class MergeConflictFileWriter extends FileWriter {
+        
+        private Difference[] conflicts;
+        
+        public MergeConflictFileWriter(File file, Difference[] conflicts) throws IOException {
+            super(file);
+            this.conflicts = conflicts;
         }
     }
 }
