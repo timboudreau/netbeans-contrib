@@ -38,6 +38,25 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
   </folder>
 
+  <folder name="Toolbars">
+     <folder name="Versioning">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle"/>
+            <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-UpdateCommandAction.instance/org-netbeans-modules-vcscore-actions-CommitCommandAction.instance"/>
+            <file name="org-netbeans-modules-vcscore-actions-UpdateCommandAction.instance" />
+            <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-CommitCommandAction.instance/org-netbeans-modules-vcscore-actions-AddCommandAction.instance"/>
+            <file name="org-netbeans-modules-vcscore-actions-CommitCommandAction.instance" />
+            <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-AddCommandAction.instance/org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance"/>
+            <file name="org-netbeans-modules-vcscore-actions-AddCommandAction.instance" />
+            <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance/org-netbeans-modules-vcscore-actions-DiffCommandAction.instance"/>
+            <file name="org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance" />
+            <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-DiffCommandAction.instance/org-netbeans-modules-vcscore-actions-HistoryCommandAction.instance"/>
+            <file name="org-netbeans-modules-vcscore-actions-DiffCommandAction.instance" />
+            <file name="org-netbeans-modules-vcscore-actions-HistoryCommandAction.instance" />
+
+        </folder>
+  </folder>
+
+
   <folder name="Templates">
      <folder name="Mount">
        <folder name="VCS">
