@@ -517,6 +517,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                                 int end = ta.getLineEndOffset(line);
                                 String lineStr = doc.getText(begin, end - begin);
                                 if (lineStr.regionMatches(0, lineBegin, 0, lineBegin.length())) {
+                                    if (end > doc.getLength()) end = doc.getLength();
                                     doc.remove(begin, end - begin);
                                     line--;
                                 }
