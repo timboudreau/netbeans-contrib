@@ -100,7 +100,6 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
     Class ourClass = null;
     try {
       ourClass = instanceSupport.instanceClass();
-      //isExecutable = instanceSupport.isExecutable();
     } catch (IOException ex) {
       return;
     } catch (ClassNotFoundException ex) {
@@ -108,8 +107,9 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
     }
     CookieSet cs = getCookieSet();
     cs.add(instanceSupport);
-    //if (isExecutable)
-    cs.add(execSupport);
+    if (!(this instanceof SerDataObject)) {
+      cs.add(execSupport);
+    }
     cs.add(new SourceSupport(ourClass));
   }
 
@@ -532,6 +532,8 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  28   Gandalf   1.27        1/18/00  David Simonek   Execution now correctly 
+ *       disabled for ser data nodes
  *  27   Gandalf   1.26        1/13/00  David Simonek   i18n
  *  26   Gandalf   1.25        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment

@@ -209,15 +209,17 @@ class ClassDataNode extends DataNode implements Runnable {
                return new Boolean (obj.isJavaBean());
              }
            });
-    // execution property set, if possible
-    ExecSupport es = (ExecSupport)getCookie(ExecSupport.class);
-    if (es != null) {
-      Sheet.Set exps = new Sheet.Set();
-      exps.setName(EXECUTION_SET_NAME);
-      exps.setDisplayName(bundle.getString ("PROP_executionSetName"));
-      exps.setShortDescription(bundle.getString ("HINT_executionSetName"));
-      es.addProperties (exps);
-      s.put(exps);
+    // execution property set, if possible (not for ser objects)
+    if (!(this instanceof SerDataNode)) {
+      ExecSupport es = (ExecSupport)getCookie(ExecSupport.class);
+      if (es != null) {
+        Sheet.Set exps = new Sheet.Set();
+        exps.setName(EXECUTION_SET_NAME);
+        exps.setDisplayName(bundle.getString ("PROP_executionSetName"));
+        exps.setShortDescription(bundle.getString ("HINT_executionSetName"));
+        es.addProperties (exps);
+        s.put(exps);
+      }
     }
 
     return s;
@@ -266,6 +268,8 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  28   Gandalf   1.27        1/18/00  David Simonek   Execution now correctly 
+ *       disabled for ser data nodes
  *  27   Gandalf   1.26        1/13/00  David Simonek   i18n
  *  26   Gandalf   1.25        1/5/00   David Simonek   
  *  25   Gandalf   1.24        10/29/99 Jesse Glick     Using undeprecated 
