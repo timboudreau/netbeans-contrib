@@ -25,9 +25,13 @@ import java.text.MessageFormat;
 import java.util.*;
 
 /**
+ * The "Number of Tramps" metric class.  A tramp is traditionally defined
+ * as an unused parameter in a method.  For Java, this definition has 
+ * been enhanced to ignore unused parameters for methods whose signature
+ * is either defined by an interface or a superclass.  In those cases,
+ * the class author does not control the method's definition.
  *
  * @author  tball
- * @version 
  */
 public class NTMetric extends AbstractMetric {
 
