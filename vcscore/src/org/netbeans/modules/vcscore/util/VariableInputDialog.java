@@ -192,7 +192,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
      */
     public VariableInputDialog(String[] files, VariableInputDescriptor inputDescriptor,
                                boolean expert, Hashtable vars, boolean rapidVariablesAssignment) {
-        this(files, inputDescriptor, expert, vars, rapidVariablesAssignment, false);
+        this(files, inputDescriptor, expert, vars, rapidVariablesAssignment, true);
     }
     
     /** Creates new form VariableInputDialog. This JPanel should be used
@@ -221,6 +221,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
         this.dynamicVarChanges = dynamicVarChanges;
         if(inputDescriptor != null)
             setAutoFillVars(inputDescriptor.getAutoFillVars());
+        if (dynamicVarChanges) {
+            addPropertyChangeListener(new VariableChangesListener(vars));
+        }
         firstFocusedComponent = initComponentsFromDescriptor(inputDescriptor, variablePanel);
         currentHistory = historySize;
         //System.out.println("currentHistory = "+currentHistory);
@@ -582,6 +585,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         boolean enable = ((Boolean) varsToEnableDisable.get(variables)).booleanValue();
                         enableComponents(variables, enable, components[i].getVariable());
                     }
+                    String varName = components[i].getVariable();
+                    firePropertyChange(PROP_VAR_CHANGED + varName, vars.get(varName), components[i].getValue());
                 }
             }
         }
@@ -928,12 +933,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 }
             }
         }
-        for (Iterator it = awtSelectorsByConditions.keySet().iterator(); it.hasNext(); ) {
-            String[] selectorVarConditions = (String[]) it.next();
-            java.awt.Component selectorComponent = (Component) awtSelectorsByConditions.get(selectorVarConditions);
-            if(!disabledComponents.containsKey(selectorComponent))
-                selectorComponent.setEnabled(VariableInputComponent.isVarConditionMatch(selectorVarConditions, vars)); 
-        }
+        enableSelectors(vars);
         if (resetVars) this.vars = vars;
         for (Iterator it = eventsToAdjust.iterator(); it.hasNext(); ) {
             PropertyChangeEvent evt = (PropertyChangeEvent) it.next();
@@ -945,6 +945,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
         }
         if (propertyChangeEvents.size() > 0) {
             firePropertyChange(PROP_VARIABLES_CHANGED, null, propertyChangeEvents);
+        }
+    }
+    
+    private void enableSelectors(Hashtable vars) {
+        for (Iterator it = awtSelectorsByConditions.keySet().iterator(); it.hasNext(); ) {
+            String[] selectorVarConditions = (String[]) it.next();
+            java.awt.Component selectorComponent = (Component) awtSelectorsByConditions.get(selectorVarConditions);
+            if(!disabledComponents.containsKey(selectorComponent))
+                selectorComponent.setEnabled(VariableInputComponent.isVarConditionMatch(selectorVarConditions, vars)); 
         }
     }
     
@@ -1254,7 +1263,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
             }
             if (awtComponent != null) {
                 if (dynamicVarChanges) {
-                    awtSelectorsByConditions.put(component.getSelectorVarConditions(), awtComponent);
+                    String[] varConditions = component.getSelectorVarConditions();
+                    if (varConditions[0] != null || varConditions[1] != null) {
+                        awtSelectorsByConditions.put(varConditions, awtComponent);
+                    }
                 }
                 componentList.add(awtComponent);
             }
@@ -2467,6 +2479,26 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 }
             });
         }
+    }
+    
+    private class VariableChangesListener extends Object implements PropertyChangeListener {
+        
+        private Hashtable vars; // The current map of variables modified in the dialog
+        
+        public VariableChangesListener(Hashtable vars) {
+            this.vars = new Hashtable(vars);
+        }
+        
+        public void propertyChange(PropertyChangeEvent evt) {
+            String propName = evt.getPropertyName();
+            if (propName.startsWith(PROP_VAR_CHANGED)) {
+                propName = propName.substring(PROP_VAR_CHANGED.length());
+                String value = (String) evt.getNewValue();
+                vars.put(propName, value);
+                enableSelectors(vars);
+            }
+        }
+        
     }
     
     /**
