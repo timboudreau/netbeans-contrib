@@ -107,6 +107,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     /** The map of disabled components as keys and a set of variables
      *  that disabled them as values. */
     private HashMap disabledComponents = new HashMap();
+    private java.awt.Component firstFocusedComponent;
     
     static final long serialVersionUID = 8363935602008486018L;
     
@@ -132,7 +133,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         this.inputDescriptor = inputDescriptor;
         this.expert = expert;
         this.vars = vars;
-        initComponentsFromDescriptor(inputDescriptor, variablePanel);
+        firstFocusedComponent = initComponentsFromDescriptor(inputDescriptor, variablePanel);
         currentHistory = historySize;
         //System.out.println("currentHistory = "+currentHistory);
         prevButton.setEnabled(currentHistory > 0);
@@ -199,6 +200,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
      */
     public VariableInputDescriptor getGlobalInputDescriptor() {
         return this.globalDescriptor;
+    }
+
+    /**
+     * Get the component, that should have the initial focus in this dialog.
+     */
+    public java.awt.Component getInitialFocusedComponent() {
+        return firstFocusedComponent;
     }
 
     /** This method is called from within the constructor to
@@ -420,18 +428,24 @@ public class VariableInputDialog extends javax.swing.JPanel {
      * Initialize variable input components from a variable input descriptor.
      * @param inputDescriptor the variable input descriptor
      * @param inputPanel the panel on which are the components created
+     * @return The first component, that should be set as the initial focused component.
      */
-    private void initComponentsFromDescriptor(VariableInputDescriptor inputDescriptor,
-                                              javax.swing.JPanel inputPanel) {
+    private java.awt.Component initComponentsFromDescriptor(VariableInputDescriptor inputDescriptor,
+                                                            javax.swing.JPanel inputPanel) {
         int gridy = 0;
+        java.awt.Component firstComponent = null;
         if (inputDescriptor != null) {
+            java.awt.Component[] mainComponent_ptr = new java.awt.Component[1];
             VariableInputComponent[] components = inputDescriptor.components();
             if (components.length > 0) historySize = Integer.MAX_VALUE;
             HashMap varsToEnableDisable = new HashMap();
             HashMap[] componentVars = new HashMap[components.length];
             for (int i = 0; i < components.length; i++) {
                 gridy = addComponent(components[i], gridy, inputPanel, 0,
-                                     varsToEnableDisable);
+                                     varsToEnableDisable, mainComponent_ptr);
+                if (i == 0) {
+                    firstComponent = mainComponent_ptr[0];
+                }
                 historySize = Math.min(historySize, components[i].getHistorySize());
                 if (varsToEnableDisable.size() > 0) {
                     componentVars[i] = varsToEnableDisable;
@@ -450,49 +464,55 @@ public class VariableInputDialog extends javax.swing.JPanel {
             }
         }
         labelOffset = gridy;
+        return firstComponent;
     }
     
     private int addComponent(final VariableInputComponent component, int gridy,
                              javax.swing.JPanel inputPanel, int leftInset,
-                             HashMap varsToEnableDisable) {
+                             HashMap varsToEnableDisable,
+                             java.awt.Component[] mainComponent_ptr) {
         if (VariableInputComponent.isVarConditionMatch(component.getVarConditions(), vars)) {
             if (expert || !component.isExpert()) {
                 int componentId = component.getComponent();
                 switch (componentId) {
                     case VariableInputDescriptor.INPUT_PROMPT_FIELD:
-                        addVarPromptField(component, gridy, inputPanel, leftInset, false);
+                        addVarPromptField(component, gridy, inputPanel, leftInset,
+                                          false, mainComponent_ptr);
                         gridy++;
                         break;
                     case VariableInputDescriptor.INPUT_PROMPT_PASSWD:
-                        addVarPromptField(component, gridy, inputPanel, leftInset, true);
+                        addVarPromptField(component, gridy, inputPanel, leftInset,
+                                          true, mainComponent_ptr);
                         gridy++;
                         break;
                     case VariableInputDescriptor.INPUT_PROMPT_AREA:
                         addVarPromptArea(component, gridy, promptAreaNum++,
-                                         inputPanel, leftInset);
+                                         inputPanel, leftInset, mainComponent_ptr);
                         gridy += 2;
                         break;
                     case VariableInputDescriptor.INPUT_ASK:
                         addAskChBox(component, gridy, inputPanel, leftInset,
-                                    varsToEnableDisable);
+                                    varsToEnableDisable, mainComponent_ptr);
                         gridy++;
                         break;
                     case VariableInputDescriptor.INPUT_SELECT_RADIO:
                         gridy = addSelectRadio(component, gridy, inputPanel,
-                                               leftInset, varsToEnableDisable);
+                                               leftInset, varsToEnableDisable,
+                                               mainComponent_ptr);
                         break;
                     case VariableInputDescriptor.INPUT_SELECT_COMBO:
                         addSelectCombo(component, gridy, inputPanel, leftInset,
-                                       false, varsToEnableDisable);
+                                       false, varsToEnableDisable, mainComponent_ptr);
                         gridy++;
                         break;
                     case VariableInputDescriptor.INPUT_SELECT_COMBO_EDITABLE:
                         addSelectCombo(component, gridy, inputPanel, leftInset,
-                                       true, varsToEnableDisable);
+                                       true, varsToEnableDisable, mainComponent_ptr);
                         gridy++;
                         break;
                     case VariableInputDescriptor.INPUT_TEXT:
-                        addTextComponent(component, gridy, inputPanel, leftInset);
+                        addTextComponent(component, gridy, inputPanel, leftInset,
+                                         mainComponent_ptr);
                         gridy++;
                         break;
                     case VariableInputDescriptor.INPUT_GLOBAL:
@@ -928,12 +948,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     private void addVarPromptField(final VariableInputComponent component,
                                    int gridy, javax.swing.JPanel variablePanel,
-                                   int leftInset, boolean password) {
+                                   int leftInset, boolean password,
+                                   java.awt.Component[] mainComponent_ptr) {
         String varLabel = component.getLabel();
         ArrayList componentList = new ArrayList();
         final javax.swing.JTextField field = (password) ? 
             new javax.swing.JPasswordField(TEXTFIELD_COLUMNS) :
             new javax.swing.JTextField(TEXTFIELD_COLUMNS);
+        mainComponent_ptr[0] = field;
         if (varLabel != null && varLabel.length() > 0) {
             String varLabelExpanded = Variables.expand(vars, varLabel, false);
             javax.swing.JLabel label = new javax.swing.JLabel(varLabelExpanded);
@@ -1273,10 +1295,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     private void addAskChBox(final VariableInputComponent component, int gridy,
                              javax.swing.JPanel variablePanel, int leftInset,
-                             HashMap varsToEnableDisable) {
+                             HashMap varsToEnableDisable,
+                             java.awt.Component[] mainComponent_ptr) {
         String label = component.getLabel();
         String labelExpanded = Variables.expand(vars, label, false);
         final javax.swing.JCheckBox chbox = new javax.swing.JCheckBox(" "+labelExpanded);
+        mainComponent_ptr[0] = chbox;
         if (!label.equals(labelExpanded)) {
             addPropertyChangeListener(new TextUpdateListener(chbox, " "+label));
         }
@@ -1377,7 +1401,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
 
     private void addVarPromptArea(final VariableInputComponent component, int gridy,
-                                  final int promptAreaNum, javax.swing.JPanel variablePanel, int leftInset) {
+                                  final int promptAreaNum, javax.swing.JPanel variablePanel,
+                                  int leftInset, java.awt.Component[] mainComponent_ptr) {
         String message = component.getLabel();
         String messageExpanded = Variables.expand(vars, message, false);
         javax.swing.JLabel label = new javax.swing.JLabel(messageExpanded);
@@ -1387,6 +1412,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         java.awt.Dimension dimension = component.getDimension();
         if (dimension == null) dimension = new java.awt.Dimension(TEXTAREA_ROWS, TEXTAREA_COLUMNS);
         final javax.swing.JTextArea area = new javax.swing.JTextArea(dimension.width, dimension.height);
+        mainComponent_ptr[0] = area;
         label.setLabelFor(area);
         if (component.getLabelMnemonic() != null) {
             label.setDisplayedMnemonic(component.getLabelMnemonic().charValue());
@@ -1475,7 +1501,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
 
     private int addSelectRadio(final VariableInputComponent component, int gridy,
                                javax.swing.JPanel variablePanel, int leftInset,
-                               HashMap varsToEnableDisable) {
+                               HashMap varsToEnableDisable,
+                               java.awt.Component[] mainComponent_ptr) {
         ArrayList componentList = new ArrayList();
         String message = component.getLabel();
         if (message != null && message.length() > 0) {
@@ -1508,8 +1535,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
                                    variablePanel, leftInset, defValue,
                                    varsToEnableDisable);
         }
+        boolean setMainComponent = true;
         for (Enumeration enum = group.getElements(); enum.hasMoreElements(); ) {
-            componentList.add(enum.nextElement());
+            java.awt.Component c = (java.awt.Component) enum.nextElement();
+            if (setMainComponent) {
+                mainComponent_ptr[0] = c;
+                setMainComponent = false;
+            }
+            componentList.add(c);
         }
         awtComponentsByVars.put(component.getVariable(), componentList.toArray(new java.awt.Component[0]));
         componentsByVars.put(component.getVariable(), component);
@@ -1590,7 +1623,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 inset = leftInset + DEFAULT_INDENT;
             }
             gridy = addComponent(subComponents[i], gridy, variablePanel, inset,
-                                 varsToEnableDisable);
+                                 varsToEnableDisable, new java.awt.Component[1]);
             componentVarsList.add(subComponents[i].getVariable());
         }
         String value = component.getValue();
@@ -1738,7 +1771,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
 
     private void addSelectCombo(final VariableInputComponent component, int gridy,
                                 javax.swing.JPanel variablePanel, int leftInset,
-                                final boolean editable, HashMap varsToEnableDisable) {
+                                final boolean editable, HashMap varsToEnableDisable,
+                                java.awt.Component[] mainComponent_ptr) {
         ArrayList componentList = new ArrayList();
         String message = component.getLabel();
         final VariableInputComponent[] subComponents = component.subComponents();
@@ -1756,6 +1790,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             //System.out.println("SELECT_COMBO["+i+"]: ENABLE("+VcsUtilities.arrayToString(varsEnabled[i])+"), DISABLE("+VcsUtilities.arrayToString(varsDisabled[i])+")");
         }
         final javax.swing.JComboBox comboBox = new javax.swing.JComboBox(labels);
+        mainComponent_ptr[0] = comboBox;
         comboBox.setEditable(editable);
         if (editable) { // Change the preferred size, so that it looks more like other text fields.
             comboBox.setPreferredSize(new javax.swing.JTextField().getPreferredSize());
@@ -1882,7 +1917,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
     
     private void addTextComponent(VariableInputComponent component, int gridy,
-                                  javax.swing.JPanel variablePanel, int leftInset) {
+                                  javax.swing.JPanel variablePanel, int leftInset,
+                                  java.awt.Component[] mainComponent_ptr) {
         String varsStr = component.getVariable();
         String value = component.getValue();
         //System.out.println("addTextComponent(): varsStr = '"+varsStr+"', value = '"+value+"'");
@@ -1895,6 +1931,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         component.setValue(valueExpanded);
         //System.out.println("  valueExpanded = '"+valueExpanded+"'");
         final javax.swing.JTextArea textArea = new javax.swing.JTextArea(valueExpanded);
+        mainComponent_ptr[0] = textArea;
         if (value != null && !value.equals(valueExpanded)) {
             addPropertyChangeListener(new TextUpdateListener(textArea, value));
         }

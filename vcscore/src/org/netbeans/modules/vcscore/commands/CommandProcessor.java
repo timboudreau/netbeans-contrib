@@ -401,12 +401,16 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             ActionListener actionL = null;
             java.lang.reflect.Method addActionListenerMethod = null;
             java.lang.reflect.Method getDisplayNameMethod = null;
+            java.lang.reflect.Method getInitialFocusedComponentMethod = null;
             if (cust instanceof ActionListener) actionL = (ActionListener) cust;
             try {
                 addActionListenerMethod = cust.getClass().getMethod("addActionListener", new Class[] { ActionListener.class });
             } catch (Exception ex) {}
             try {
                 getDisplayNameMethod = cust.getClass().getMethod("getDisplayTitle",null);
+            } catch (Exception ex) {}
+            try {
+                getInitialFocusedComponentMethod = cust.getClass().getMethod("getInitialFocusedComponent", null);
             } catch (Exception ex) {}
             String displayName = null;
             if (getDisplayNameMethod != null) {
@@ -420,32 +424,51 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             dlg = new DialogDescriptor(cust, displayName,
                                        true, DialogDescriptor.OK_CANCEL_OPTION,
                                        DialogDescriptor.OK_OPTION, actionL);
-            if (addActionListenerMethod == null) {
-                status = NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dlg));
-            } else {
-                dlg.setClosingOptions(new Object[] { NotifyDescriptor.CANCEL_OPTION });
-                final Dialog dialog = DialogDisplayer.getDefault().createDialog(dlg);
+            final Dialog dialog = DialogDisplayer.getDefault().createDialog(dlg);
+            if (getInitialFocusedComponentMethod != null) {
+                java.awt.Component initialFocusedComponent = null;
                 try {
-                    final boolean [] statusContainer = new boolean[1];
-                    addActionListenerMethod.invoke(cust, new Object[] { new ActionListener() {
-                        public void actionPerformed(ActionEvent evt) {
-                            if (evt.getID() == ActionEvent.ACTION_PERFORMED) {
-                                if (NotifyDescriptor.OK_OPTION.equals(evt.getSource())) {
-                                    statusContainer[0] = true;
-                                    dialog.dispose();
-                                } else if (NotifyDescriptor.CANCEL_OPTION.equals(evt.getSource())) {
-                                    statusContainer[0] = false;
-                                    dialog.dispose();
-                                }
-                            }
-                        }
-                    }});
-                    dialog.setVisible(true);
-                    status = statusContainer[0];
+                    initialFocusedComponent = (java.awt.Component) getInitialFocusedComponentMethod.invoke(cust, null);
                 } catch (Exception ex) {
-                    status = NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dlg));
+                    //status = NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dlg));
+                    ErrorManager.getDefault().notify(ex);
+                }
+                if (initialFocusedComponent != null) {
+                    dialog.setFocusTraversalPolicy(
+                        new InitialComponentFocusTraversalPolicy(dialog.getFocusTraversalPolicy(),
+                            					 initialFocusedComponent));
                 }
             }
+            final boolean [] statusContainer = new boolean[1];
+            ActionListener actionListener = new ActionListener() {
+                public void actionPerformed(ActionEvent evt) {
+                    if (evt.getID() == ActionEvent.ACTION_PERFORMED) {
+                        if (NotifyDescriptor.OK_OPTION.equals(evt.getSource())) {
+                            statusContainer[0] = true;
+                            dialog.dispose();
+                        } else if (NotifyDescriptor.CANCEL_OPTION.equals(evt.getSource())) {
+                            statusContainer[0] = false;
+                            dialog.dispose();
+                        }
+                    }
+                }
+            };
+            if (addActionListenerMethod == null) {
+                //status = NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dlg));
+                dlg.setButtonListener(actionListener);
+            } else {
+                dlg.setClosingOptions(new Object[] { NotifyDescriptor.CANCEL_OPTION });
+                
+                try {
+                    //final boolean [] statusContainer = new boolean[1];
+                    addActionListenerMethod.invoke(cust, new Object[] { actionListener });
+                } catch (Exception ex) {
+                    //status = NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dlg));
+                    ErrorManager.getDefault().notify(ex);
+                }
+            }
+            dialog.setVisible(true);
+            status = statusContainer[0];
         } else {
             //PropertyPanel panel = new PropertyPanel(
             //beanNode.getPropertySets();
@@ -1169,6 +1192,45 @@ public class CommandProcessor extends Object /*implements CommandListener */{
     //private static String  g(String s, Object obj, Object obj2) {
     //    return org.openide.util.NbBundle.getMessage(CommandProcessor.class, s, obj, obj2);
     //}
+    
+    private static class InitialComponentFocusTraversalPolicy extends java.awt.FocusTraversalPolicy {
+        
+        private java.awt.FocusTraversalPolicy origPolicy;
+        private java.awt.Component initialComponent;
+        
+        public InitialComponentFocusTraversalPolicy(java.awt.FocusTraversalPolicy origPolicy, java.awt.Component initialComponent) {
+            if (origPolicy == null) {
+                origPolicy = new java.awt.ContainerOrderFocusTraversalPolicy();
+            }
+            this.origPolicy = origPolicy;
+            this.initialComponent = initialComponent;
+        }
+        
+        public Component getComponentAfter(java.awt.Container focusCycleRoot, Component aComponent) {
+            return origPolicy.getComponentAfter(focusCycleRoot, aComponent);
+        }
+        
+        public Component getComponentBefore(java.awt.Container focusCycleRoot, Component aComponent) {
+            return origPolicy.getComponentBefore(focusCycleRoot, aComponent);
+        }
+        
+        public Component getDefaultComponent(java.awt.Container focusCycleRoot) {
+            return origPolicy.getDefaultComponent(focusCycleRoot);
+        }
+        
+        public Component getFirstComponent(java.awt.Container focusCycleRoot) {
+            return origPolicy.getFirstComponent(focusCycleRoot);
+        }
+        
+        public Component getLastComponent(java.awt.Container focusCycleRoot) {
+            return origPolicy.getLastComponent(focusCycleRoot);
+        }
+        
+        public Component getInitialComponent(java.awt.Window window) {
+            return initialComponent;
+        }
+        
+    }
 
 }
 

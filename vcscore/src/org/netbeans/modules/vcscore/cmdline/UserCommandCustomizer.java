@@ -118,6 +118,13 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
     }
     
     /**
+     * Get the component, that should have the initial focus in this dialog.
+     */
+    public java.awt.Component getInitialFocusedComponent() {
+        return dlg.getInitialFocusedComponent();
+    }
+
+    /**
      * To update the dialog's content.
      */
     public void run() {
