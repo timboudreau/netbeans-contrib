@@ -176,7 +176,14 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
         transferEnvironment();
         PrintStream pout = new PrintStream(stdout);
         PrintStream perr = (stderr == stdout) ? pout : new PrintStream(stderr);
-        boolean success = CVSCommand.processCommand(args, null, localDir, pout, perr);
+        String portStr = (String) vars.get("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
+        int port = 0;
+        if (portStr != null) {
+            try {
+                port = Integer.parseInt(portStr);
+            } catch (NumberFormatException nfe) {}
+        }
+        boolean success = CVSCommand.processCommand(args, null, localDir, port, pout, perr);
         try {
             stdout.close();
             stderr.close();
