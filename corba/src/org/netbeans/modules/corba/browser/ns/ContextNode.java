@@ -97,9 +97,6 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             System.out.println ("ContextNode::init ()");
         }
         ((ContextChildren)getChildren ()).setContextNode (this);
-        css = (CORBASupportSettings) CORBASupportSettings.findObject
-              (CORBASupportSettings.class, true);
-        orb = css.getORB ();
         contexts = new Vector ();
 
         if (context != null)
@@ -129,6 +126,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
     public void restore () {
         if (DEBUG)
             System.out.println ("load from storage :-))");
+        if (css == null)
+            lazyInit();
         naming_children = css.getNamingServiceChildren ();
         if (DEBUG)
             System.out.println ("no of naming children: " + naming_children.size ());
@@ -181,6 +180,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
     }
 
     public ORB getORB () {
+        if (orb == null)
+            lazyInit();
         return orb;
     }
 
@@ -209,6 +210,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             BufferedReader in =
                 new BufferedReader(new InputStreamReader(uc.openStream ()));
             ref = in.readLine();
+            if (orb == null)
+                lazyInit();
             org.omg.CORBA.Object o = orb.string_to_object (ref);
             nc = NamingContextHelper.narrow (o);
             if (nc == null)
@@ -224,6 +227,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
         }
 
         if (!ior.equals ("")) {
+            if (orb == null)
+                lazyInit();
             org.omg.CORBA.Object o = orb.string_to_object (ior);
             nc = NamingContextHelper.narrow (o);
             if (nc == null)
@@ -242,10 +247,6 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             contexts.addElement (cn);
             if (root() && loaded ()) {
                 naming_children.addElement (new NamingServiceChild (name, kind, url, ior));
-                if (DEBUG) {
-                    System.out.println ("no of naming children in CORBASupportSettings: "
-                                        + css.getNamingServiceChildren ().size ());
-                }
             }
         }
         else {
@@ -310,6 +311,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                 else {
                     // is root
                     ((ContextNode)getParentNode ()).getContexts ().remove (this);
+                    if (css == null)
+                        lazyInit();
                     for (int i=0; i<css.getNamingServiceChildren ().size (); i++) {
                         NamingServiceChild child
                         = (NamingServiceChild)css.getNamingServiceChildren ().elementAt (i);
@@ -352,6 +355,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
             BufferedReader in =
                 new BufferedReader(new InputStreamReader(uc.openStream ()));
             ref = in.readLine();
+            if (orb == null)
+                lazyInit();
             obj = orb.string_to_object (ref);
             if (obj == null)
                 System.out.println ("can't bind to object");
@@ -364,6 +369,8 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
         }
 
         if (!ior.equals ("")) {
+            if (orb == null)
+                lazyInit();
             obj = orb.string_to_object (ior);
             if (obj == null)
                 System.out.println ("can't bind to object");
@@ -404,11 +411,19 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                 });
         ss.put (new PropertySupport.ReadOnly ("IOR", String.class, "IOR", "IOR of Context") {
                     public java.lang.Object getValue () {
+                        if (orb == null)
+                            lazyInit();
                         return context != null ? orb.object_to_string (context) : "unknown";
                     }
                 });
 
         return s;
+    }
+    
+    private void lazyInit () {
+        css = (CORBASupportSettings) CORBASupportSettings.findObject
+              (CORBASupportSettings.class, true);
+        orb = css.getORB ();
     }
 }
 

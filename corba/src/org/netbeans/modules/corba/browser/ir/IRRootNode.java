@@ -69,12 +69,6 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
         if (DEBUG) {
             System.out.println ("IRRootNode::init ()");
         }
-        css = (CORBASupportSettings) CORBASupportSettings.findObject
-              (CORBASupportSettings.class, true);
-        orb = css.getORB ();
-        if (DEBUG){
-            System.out.println(orb);
-        }
         repositories = new Vector ();
         setIconBase (ICON_BASE_ROOT);
         setDisplayName (getName ());
@@ -90,6 +84,8 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
     public void restore () {
         if (DEBUG)
             System.out.println ("load from storage :-))");
+        if (css == null)
+            lazyInit();
         Vector tmp_repositories = css.getInterfaceRepositoryChildren ();
 
         for (int i=0; i<tmp_repositories.size (); i++) {
@@ -108,6 +104,8 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
         _loaded = true;
         if (DEBUG)
             System.out.println ("on end of restore - loaded?: " + loaded ());
+        if (css == null)
+            lazyInit();
         css.setInterfaceRepositoryChildren (repositories);
     }
 
@@ -137,12 +135,16 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
                 new BufferedReader(new InputStreamReader(uc.openStream ()));
             ref = in.readLine();
             in.close();
+            if (orb == null)
+                lazyInit();
             org.omg.CORBA.Object o = orb.string_to_object (ref);
             rep = ContainerHelper.narrow (o);
             if (rep == null)
                 throw new RuntimeException();
         }
         if (!ior.equals ("")) {
+            if (orb == null)
+                lazyInit();
             org.omg.CORBA.Object o = orb.string_to_object (ior);
             rep = ContainerHelper.narrow (o);
             if (rep == null)
@@ -181,6 +183,8 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
                 new BufferedReader(new InputStreamReader(uc.openStream ()));
             ref = in.readLine();
             in.close();
+            if (orb == null)
+                lazyInit();
             org.omg.CORBA.Object o = orb.string_to_object (ref);
             rep = ContainerHelper.narrow (o);
             if (rep == null)
@@ -188,6 +192,8 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
         }
 
         if (!ior.equals ("")) {
+            if (orb == null)
+                lazyInit();
             org.omg.CORBA.Object o = orb.string_to_object (ior);
             rep = ContainerHelper.narrow (o);
             if (rep == null)
@@ -225,6 +231,8 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
     }
 
     public ORB getORB () {
+        if (orb == null)
+            lazyInit();
         return orb;
     }
 
@@ -234,6 +242,12 @@ public class IRRootNode extends AbstractNode implements Node.Cookie {
 
     public void refresh () {
         ((IRRootNodeChildren)getChildren ()).addNotify ();
+    }
+    
+    private void lazyInit () {
+        css = (CORBASupportSettings) CORBASupportSettings.findObject
+              (CORBASupportSettings.class, true);
+        orb = css.getORB ();
     }
 
 }
