@@ -13,8 +13,7 @@
 /*
  * EventFilter.java
  *
- * Created on February 3, 2003, 12:59 PM
- */
+ * Created on February 3, 2003, 12:59 PM */
 
 package org.netbeans.modules.uidiagnostics;
 import java.awt.Component;

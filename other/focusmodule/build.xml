@@ -19,15 +19,15 @@ Microsystems, Inc. All Rights Reserved.
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
   <property name="license.file" value="../nbbuild/standard-nbm-license.txt"/>
 
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../nbbuild/nbantext.jar"/>
-  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../nbbuild/nbantext.jar"/>
-  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="../nbbuild/nbantext.jar"/>
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../nbbuild/nbantext.jar"/>
+  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../../nbbuild/nbantext.jar"/>
+  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="../../nbbuild/nbantext.jar"/>
 
   <target name="uidiagnostics_compile">
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <classpath>
-	<pathelement location="../openide/openide-13javac-workaround.jar"/>
-        <fileset dir="../openide/netbeans/lib">
+	<pathelement location="../../openide/openide-13javac-workaround.jar"/>
+        <fileset dir="../../openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
       </classpath>
@@ -42,7 +42,7 @@ Microsystems, Inc. All Rights Reserved.
     <locjar jarfile="netbeans/modules/uidiagnostics.jar"
             manifest="manifest-subst.mf"
             basedir="src"
-	    excludesfile="../nbbuild/standard-jar-excludes.txt"
+	    excludesfile="../../nbbuild/standard-jar-excludes.txt"
 	    compress="false">
       <locale name="ja"/>
     </locjar>
