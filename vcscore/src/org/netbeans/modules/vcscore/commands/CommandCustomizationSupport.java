@@ -904,9 +904,9 @@ public class CommandCustomizationSupport extends Object {
                 final Hashtable userParamsVarNames = new Hashtable(); // Variable names of prompt for additional parameters
                 final Hashtable userParamsIndexes = new Hashtable();
 
-                Boolean ctrlDown = (Boolean)vars.get(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION);
-                boolean expertCondition = /*fileSystem.isExpertMode() || */(ctrlDown != null && ctrlDown.booleanValue() == true);
-                boolean acceptUserParams = fileSystem.isAcceptUserParams() || (ctrlDown != null && ctrlDown.booleanValue() == true);
+                String ctrlDown = (String) vars.get(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION);
+                boolean expertCondition = /*fileSystem.isExpertMode() || */(ctrlDown != null && ctrlDown.length() > 0);
+                boolean acceptUserParams = fileSystem.isAcceptUserParams() || (ctrlDown != null && ctrlDown.length() > 0);
                 Table userParamsPromptLabels;
                 if (exec == null) {
                     userParamsPromptLabels = new Table();
@@ -1139,9 +1139,9 @@ public class CommandCustomizationSupport extends Object {
                 Hashtable userParamsVarNames = new Hashtable(); // Variable names of prompt for additional parameters
                 Hashtable userParamsIndexes = new Hashtable();
 
-                Boolean ctrlDown = (Boolean)vars.get(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION);
-                boolean expertCondition = /*fileSystem.isExpertMode() ||*/ (ctrlDown != null && ctrlDown.booleanValue() == true);
-                boolean acceptUserParams = fileSystem.isAcceptUserParams() || (ctrlDown != null && ctrlDown.booleanValue() == true);
+                String ctrlDown = (String) vars.get(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION);
+                boolean expertCondition = /*fileSystem.isExpertMode() ||*/ (ctrlDown != null && ctrlDown.length() > 0);
+                boolean acceptUserParams = fileSystem.isAcceptUserParams() || (ctrlDown != null && ctrlDown.length() > 0);
                 Table userParamsPromptLabels = needPromptForUserParams(fileSystem, exec, vars, userParamsVarNames,
                                                                        userParamsIndexes, cmd, acceptUserParams);
                 /*

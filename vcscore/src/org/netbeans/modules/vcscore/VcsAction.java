@@ -556,7 +556,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         if (!fileSystem.isExpertMode()) {
             if (CTRL_Down) {
-                map.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE);
+                map.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE.toString());
             }
         }
         VcsAction.doCommand(files, cmd, map, fileSystem);
@@ -1515,7 +1515,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
         } else if (files.size() > 0) {
             if (isExpert && !fileSystem.isExpertMode()) {
                 if (additionalVars == null) additionalVars = new Hashtable();
-                additionalVars.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE);
+                additionalVars.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE.toString());
             }
             doCommand(files, cmd, additionalVars, fileSystem);
         }

@@ -451,7 +451,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (additionalVars != null) vars.putAll(additionalVars);
         setVariablesFromCommandInterfaces(cmd, vars);
         if (cmd.isExpertMode()) {
-            vars.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE);
+            vars.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE.toString());
         }
         if (files != null && files.size() > 1) {
             forEachFile = new boolean[] { true };
