@@ -16,7 +16,6 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import org.openide.TopManager;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 
@@ -28,6 +27,7 @@ import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.DialogDisplayer;
 
 /**
  * This class checks for modified files (running "echo n | cvs unedit .."),
@@ -128,13 +128,13 @@ public class CvsUnedit extends Object implements VcsAdditionalCommand {
     }
     
     private void notifyOfNoChanges() {
-        TopManager.getDefault().notify(new NotifyDescriptor.Message(
+        DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
             NbBundle.getMessage(CvsUnedit.class, "MSG_UneditNoChanges")));
     }
     
     private boolean warnOfModifiedFiles(ArrayList modifiedFiles) {
         String[] files = (String[]) modifiedFiles.toArray(new String[0]);
-        return NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(
+        return NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(
             new NotifyDescriptor.Confirmation(
                 NbBundle.getMessage(CvsUnedit.class,
                                     "MSG_UneditModifiedFilesConfirmation", // NOI18N

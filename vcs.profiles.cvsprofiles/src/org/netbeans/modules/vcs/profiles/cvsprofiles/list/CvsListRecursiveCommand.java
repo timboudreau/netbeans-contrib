@@ -161,7 +161,7 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
                 if (pattern.match(line)) return true;
             }
         } catch (RESyntaxException exc) {
-            org.openide.TopManager.getDefault().notifyException(exc);
+            org.openide.ErrorManager.getDefault().notify(exc);
         }
         return false;
     }

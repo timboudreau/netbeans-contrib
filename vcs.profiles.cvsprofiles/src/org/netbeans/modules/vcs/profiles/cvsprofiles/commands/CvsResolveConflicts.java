@@ -44,6 +44,7 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.cmdline.*;
+import org.openide.DialogDisplayer;
 
 /**
  * This class is used to resolve merge conflicts in a graphical way using a merge visualizer.
@@ -89,7 +90,7 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                 if (merge == null) {
                     merge = (MergeVisualizer) Lookup.getDefault().lookup(MergeVisualizer.class);
                     if (merge == null) {
-                        org.openide.TopManager.getDefault().notify(
+                        DialogDisplayer.getDefault().notify(
                             new org.openide.NotifyDescriptor.Message(
                                 org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, 
                                                                      "Merge.noMergeAvailable")));
@@ -99,7 +100,7 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                 try {
                     handleMergeFor(file, fo, merge);
                 } catch (IOException ioex) {
-                    org.openide.TopManager.getDefault().notifyException(ioex);
+                    org.openide.ErrorManager.getDefault().notify(ioex);
                 }
             }
         }
@@ -114,7 +115,7 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         
         Difference[] diffs = copyParts(true, file, f1, true);
         if (diffs.length == 0) {
-            org.openide.TopManager.getDefault ().notify (new org.openide.NotifyDescriptor.Message(
+            DialogDisplayer.getDefault ().notify (new org.openide.NotifyDescriptor.Message(
                 org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "NoConflictsInFile", file)));
             return ;
         }

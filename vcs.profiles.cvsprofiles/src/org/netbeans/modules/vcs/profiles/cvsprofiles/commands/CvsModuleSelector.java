@@ -25,6 +25,7 @@ import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
+import org.openide.DialogDisplayer;
 
 /**
  * The selector of CVS modules
@@ -136,7 +137,7 @@ public class CvsModuleSelector implements VcsAdditionalCommand, CommandDataOutpu
         final CvsModuleSelectorDialog panel = new CvsModuleSelectorDialog (this, args);
         panel.calledAsCommand(isCommand);  // if run as command -> is called from CvsAction - disable some stuff
         final DialogDescriptor dd = new DialogDescriptor (panel, NbBundle.getBundle(CvsModuleSelector.class).getString ("CvsModuleSelectorDialog.title"));
-        final Dialog fdlg = TopManager.getDefault().createDialog (dd);
+        final Dialog fdlg = DialogDisplayer.getDefault().createDialog (dd);
         VcsUtilities.centerWindow(fdlg);
         
         Thread showThread = new Thread() {

@@ -17,7 +17,6 @@ import java.lang.reflect.*;
 import java.io.*;
 import java.util.*;
 
-import org.openide.TopManager;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -31,6 +30,7 @@ import org.netbeans.modules.vcscore.cmdline.ExecuteCommand;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.util.Table;
+import org.openide.ErrorManager;
 
 /**
  * The cvs commit command wrapper. This class ensures, that only files, that should
@@ -161,7 +161,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
     private static String createCatExec() {
         String cat = "";
         //if (org.openide.util.Utilities.isWindows()) {
-        FileSystem fs = org.openide.TopManager.getDefault().getRepository().getDefaultFileSystem();
+        FileSystem fs = org.openide.filesystems.Repository.getDefault().getDefaultFileSystem();
         FileObject root = fs.getRoot();
         java.io.File rootFile = FileUtil.toFile(root);
         if (rootFile == null || rootFile.getAbsolutePath().indexOf(' ') >= 0) {
@@ -536,14 +536,14 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             writer = new BufferedWriter(new FileWriter(outputFile));
             writer.write(buffer);
         } catch (IOException ioexc) {
-            TopManager.getDefault().notifyException(ioexc);
+            ErrorManager.getDefault().notify(ioexc);
             return null;
         } finally {
             if (writer != null) {
                 try {
                     writer.close();
                 } catch (IOException ioexc) {
-                    TopManager.getDefault().notifyException(ioexc);
+                    ErrorManager.getDefault().notify(ioexc);
                 }
             }
         }

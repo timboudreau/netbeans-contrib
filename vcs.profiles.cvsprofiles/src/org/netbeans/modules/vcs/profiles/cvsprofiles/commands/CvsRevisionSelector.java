@@ -20,6 +20,8 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.openide.DialogDisplayer;
+
 //import org.netbeans.modules.vcs.cmdline.exec.*;
 
 /**
@@ -108,7 +110,7 @@ public class CvsRevisionSelector extends Object implements VcsAdditionalCommand 
             revisions.insertElementAt("HEAD", 0); // NOI18N
             crc.setRevisions(revisions);
             org.openide.DialogDescriptor dd = new org.openide.DialogDescriptor(crc, cmdName);
-            success = org.openide.NotifyDescriptor.OK_OPTION.equals(org.openide.TopManager.getDefault().notify(dd));
+            success = org.openide.NotifyDescriptor.OK_OPTION.equals(DialogDisplayer.getDefault().notify(dd));
         } else return false;
         if (success) {
             String revision = crc.getRevision();

@@ -18,6 +18,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.*;
 import java.util.*;
 import java.awt.event.KeyEvent;
+import org.openide.DialogDisplayer;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -223,7 +224,7 @@ public class CvsBranchFrame extends javax.swing.JFrame {
         if (revision1.length() == 0) revision1 = null;
         if (revision2.length() == 0) revision2 = null;
         if (!branches.doDiff(revision1, revision2)) {
-            org.openide.TopManager.getDefault ().notify (new org.openide.NotifyDescriptor.Message(/*java.text.MessageFormat.format (*/
+            DialogDisplayer.getDefault ().notify (new org.openide.NotifyDescriptor.Message(/*java.text.MessageFormat.format (*/
                 org.openide.util.NbBundle.getBundle(CvsBranchFrame.class).getString("CvsBranchFrame.diffCommandFailed")/*, new Object[] { file } )*/));
         }
 

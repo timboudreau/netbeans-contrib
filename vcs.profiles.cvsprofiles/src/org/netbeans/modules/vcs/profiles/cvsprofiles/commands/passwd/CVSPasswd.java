@@ -33,6 +33,8 @@ import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 
 /** The purpose of this class is to handle everything around pserver authentication 
  * and the .cvspass file stuff. It finds, reads and writes to the file. If the configuration is not found in the file,
@@ -180,7 +182,7 @@ public class CVSPasswd extends Object {
       } catch (IOException exc) {
         javax.swing.SwingUtilities.invokeLater(new Runnable () {
            public void run () {
-              TopManager.getDefault ().notify (new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(CVSPasswd.class).getString("CVSPasswd.errorWritingPass")));
+              DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(CVSPasswd.class).getString("CVSPasswd.errorWritingPass")));
            }
          });
          D.deb(".cvspass writing error:" +passFile.getAbsolutePath());
@@ -386,7 +388,7 @@ public class CVSPasswd extends Object {
             if (!ok) {
               javax.swing.SwingUtilities.invokeLater(new Runnable () {
                   public void run () {
-                    TopManager.getDefault ().notify (new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(CVSPasswd.class).getString("CVSPasswd.wrongPassword")));
+                    DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(CVSPasswd.class).getString("CVSPasswd.wrongPassword")));
                   }
               });
             }   

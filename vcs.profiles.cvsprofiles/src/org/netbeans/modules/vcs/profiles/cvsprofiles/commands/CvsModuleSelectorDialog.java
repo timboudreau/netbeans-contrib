@@ -21,6 +21,7 @@ import org.openide.*;
 
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.util.*;
+import org.openide.DialogDisplayer;
 
 
 /**
@@ -303,7 +304,7 @@ public class CvsModuleSelectorDialog extends javax.swing.JPanel {
             javax.swing.SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     NotifyDescriptor nd = new NotifyDescriptor.Message(org.openide.util.NbBundle.getBundle(CvsModuleSelectorDialog.class).getString("CvsModuleSelectorDialog.noModules"));
-                    TopManager.getDefault().notify(nd);
+                    DialogDisplayer.getDefault().notify(nd);
                 }
             });
             rbCheckoutModule.setEnabled(false);

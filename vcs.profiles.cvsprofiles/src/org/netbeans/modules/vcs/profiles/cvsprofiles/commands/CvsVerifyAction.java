@@ -28,7 +28,6 @@ import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
 import org.openide.DialogDescriptor;
-import org.openide.TopManager;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -49,6 +48,7 @@ import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.grouping.GroupUtils;
 import org.netbeans.modules.vcscore.ui.*;
 import org.netbeans.modules.vcscore.util.Table;
+import org.openide.DialogDisplayer;
 
 /**
  * The verification of CVS files in a group.
@@ -233,7 +233,7 @@ public class CvsVerifyAction extends java.lang.Object implements VcsAdditionalCo
                 }
             });
         }
-        final Dialog dial = TopManager.getDefault().createDialog(dd);
+        final Dialog dial = DialogDisplayer.getDefault().createDialog(dd);
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 dial.show();
