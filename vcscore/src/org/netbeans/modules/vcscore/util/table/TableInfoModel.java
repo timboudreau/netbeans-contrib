@@ -63,7 +63,7 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
       }
       
       public Object getValueAt(int row, int column) {
-          //          if (row < 0 || row >= getRowCount()) return "";
+          if (row < 0 || row >= getRowCount()) return "";
           Integer columnInt = new Integer(column);
           Object info = list.get(row);
           Method getter = (Method)columnValueSetters.get(columnInt);
