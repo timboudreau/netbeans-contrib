@@ -3974,6 +3974,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //return new java.util.Date (getFile (name).lastModified ());
     }
 
+    // Detect cycles that casued #53453
+    private ThreadLocal justRefreshing = new ThreadLocal();
+
     /** Test if the file is folder or contains data.
      * @param name name of the file
      * @return true if the file is folder, false otherwise
@@ -3999,10 +4002,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                         return repo.isFolder(fo.getNameExt());
                     }
                 } catch (IllegalStateException ex) {
-                    ErrorManager.getDefault().annotate(ex, "Probably externaly deleted file, invalidating..."); // NOI18N
-                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
-                    parent.refresh();
-                    return false;  // for invalid file actual value doe snot matter
+                    try {
+                        if (justRefreshing.get() == null) {
+                            justRefreshing.set(Boolean.TRUE);
+                            ErrorManager.getDefault().annotate(ex, "Probably externaly deleted file, invalidating..."); // NOI18N
+                            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+                            parent.refresh();  // calls to folder
+                        }
+                    } finally {
+                        justRefreshing.set(null);
+                    }
+                    return false;  // for invalid file actual value does not matter
                 }
             }
 
