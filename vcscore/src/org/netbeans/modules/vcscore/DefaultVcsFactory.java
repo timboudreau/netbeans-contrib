@@ -22,6 +22,9 @@ import org.openide.nodes.Node;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.caching.FileStatusProvider;
+import org.netbeans.modules.vcscore.caching.FileCacheProvider;
+import org.netbeans.modules.vcscore.caching.VcsFSCache;
 
 import org.netbeans.modules.vcscore.cmdline.CommandLineVcsDirReader;
 import org.netbeans.modules.vcscore.cmdline.CommandLineVcsDirReaderRecursive;
@@ -43,12 +46,24 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
         this.fileSystem = fileSystem;
     }
 
-    /*
-    public VcsAdvancedCustomizer getVcsAdvancedCustomizer() {
-        return null;
-    }
+    /**
+     * Get the provider of the VCS status information. The default provider
+     * is the filesystem cache if implements <code>FileStatusProvider</code> or null otherwise.
      */
-    
+    public FileStatusProvider getFileStatusProvider() {
+        Object cache = fileSystem.getCacheProvider();
+        if (cache instanceof FileStatusProvider) return (FileStatusProvider) cache;
+        else return null;
+    }
+
+    /**
+     * Get the provider of the VCS cache. The default provider
+     * is <code>VcsFSCache</code>.
+     */
+    public FileCacheProvider getFileCacheProvider() {
+        return new VcsFSCache(fileSystem);
+    }
+
     /**
      * Get the VCS directory reader.
      * @return an instance of <code>CommandLineVcsDirReader</code> or null when can not be created.
