@@ -23,22 +23,9 @@ Microsystems, Inc. All Rights Reserved.
       <include name="${nb.modules/eager.dir}/tomcat5-bundled.jar"/>
       <include name="${tomcat.filename}/**"/>
     </patternset>
-    <path id="cp">
-        <pathelement location="${tomcatint/tomcat5.dir}/${nb.modules.dir}/tomcat40.jar"/>
-        <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
-        <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
-    </path>
   </target>
 
-  <target name="compile" depends="init">
-    <!-- PENDING: code needs to be isolated from plugin
-    <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
-      <classpath refID="cp"/>
-    </javac>
-    -->
-  </target>
-
-  <target name="jars" depends="compile">
+  <target name="jars" depends="init">
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules/eager.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
@@ -56,17 +43,13 @@ Microsystems, Inc. All Rights Reserved.
     <!-- monitor -->
     <copy file="${schema2beans/rt.dir}/${nb.modules.dir}/org-netbeans-modules-schema2beans.jar" 
           tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.24/common/lib/schema2beans.jar"/>
-    <copy file="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/ext/httpmonitor.jar"
+    <copy file="${monitor.dir}/${nb.modules.dir}/ext/httpmonitor.jar"
           tofile="${netbeans.dest.dir}/${cluster.dir}/jakarta-tomcat-5.0.24/common/lib/httpmonitor.jar"/>
     <chmod perm="ugo+x">
       <fileset dir="${netbeans.dest.dir}/${cluster.dir}/${tomcat.filename}/bin">
         <include name="*.sh"/>
       </fileset>
     </chmod>
-
-    <!-- XXX:compile extension
-    <copy file="${tc40_moduleroot}/netbeans/modules/ext/tomcat40-ide.jar" tofile="netbeans/${tomcat.filename}/lib/tomcat40-ide.jar"/>
-    -->
 
     <!-- XXX:copy IDE-README.txt
     <copy file="torelease/IDE-README.txt" tofile="netbeans/${tomcat.filename}/IDE-README.txt" includeEmptyDirs="false"/> -->
@@ -110,13 +93,6 @@ Microsystems, Inc. All Rights Reserved.
             <patternset refID="tomcatint/tomcat5/bundled.files"/>
           </fileset>
         </delete>
-<!--
-        <delete>
-            <fileset dir="src">
-                <include name="**/*.class"/>
-            </fileset>
-        </delete>        
--->
   </target>
 
 
