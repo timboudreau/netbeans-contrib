@@ -63,6 +63,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     
     private String browseRoot = null;
     
+    private Hashtable envVariables = new Hashtable();
+    private Hashtable envVariablesRemoved = new Hashtable();
+    
+    private int numCreations = 0;
+    
     //private static transient FileLock configSaveLock = FileLock.NONE;
 
     static final long serialVersionUID = -8801742771957370172L;
@@ -70,32 +75,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     public VcsCustomizer () {
         changeSupport = new PropertyChangeSupport (this);
         initComponents ();
-        removeEnterFromKeymap ();
-
-        //Configuration tab
-        saveAsButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.saveAsButton.mnemonic").charAt (0));
-        removeConfigButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.removeConfigButton.mnemonic").charAt (0));
-        jLabel2.setDisplayedMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.jLabel2.mnemonic").charAt (0));
-        jLabel2.setLabelFor (rootDirTextField);
-        browseButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.browseButton.mnemonic").charAt (0));
-        relMountLabel.setDisplayedMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountLabel.mnemonic").charAt (0));
-        relMountLabel.setLabelFor (relMountTextField);
-        relMountButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountButton.mnemonic").charAt (0));
-        jLabel4.setDisplayedMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.jLabel4.mnemonic").charAt (0));
-        jLabel4.setLabelFor (refreshTextField);
-        //Advanced tab
-        varButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.varButton.mnemonic").charAt (0));
-        cmdButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.cmdButton.mnemonic").charAt (0));
-        advancedModeCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.advancedModeCheckBox.mnemonic").charAt (0));
-        offLineCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.offLineCheckBox.mnemonic").charAt (0));
-        editCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.editCheckBox.mnemonic").charAt (0));
-        promptEditCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.promptEditCheckBox.mnemonic").charAt (0));
-        lockCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.lockCheckBox.mnemonic").charAt (0));
-        promptLockCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.promptLockCheckBox.mnemonic").charAt (0));
-        debugCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.debugCheckBox.mnemonic").charAt (0));
-
-        linkLabel.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
-        HelpCtx.setHelpIDString (this, VcsCustomizer.class.getName ());
+        postInitComponents();
     }
 
     /** This method is called from within the constructor to
@@ -138,6 +118,16 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        environmentPanel = new javax.swing.JPanel();
+        userEnvLabel = new javax.swing.JLabel();
+        envScrollPane = new javax.swing.JScrollPane();
+        envTable = new javax.swing.JTable();
+        actionPanel = new javax.swing.JPanel();
+        insertEnvButton = new javax.swing.JButton();
+        deleteEnvButton = new javax.swing.JButton();
+        systemEnvLabel = new javax.swing.JLabel();
+        systemEnvScrollPane = new javax.swing.JScrollPane();
+        systemEnvTable = new javax.swing.JTable();
         
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
@@ -318,6 +308,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints4 = new java.awt.GridBagConstraints();
         gridBagConstraints4.gridx = 1;
         gridBagConstraints4.gridy = 2;
+        gridBagConstraints4.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints4.insets = new java.awt.Insets(0, 0, 5, 5);
         gridBagConstraints4.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints4.weightx = 1.0;
@@ -551,6 +542,128 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         jTabbedPane1.addTab("Advanced", advancedPanel);
         
+        environmentPanel.setLayout(new java.awt.GridBagLayout());
+        java.awt.GridBagConstraints gridBagConstraints7;
+        
+        userEnvLabel.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("userEnvLabel.text"));
+        gridBagConstraints7 = new java.awt.GridBagConstraints();
+        gridBagConstraints7.insets = new java.awt.Insets(12, 12, 0, 12);
+        gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
+        environmentPanel.add(userEnvLabel, gridBagConstraints7);
+        
+        envScrollPane.setPreferredSize(new java.awt.Dimension(10, 10));
+        envTable.setModel(new javax.swing.table.DefaultTableModel(
+        new Object [][] {
+            {null, null},
+            {null, null},
+            {null, null}
+        },
+        new String [] {
+            "Variable Name", "Variable Value"
+        }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, true
+            };
+            
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        envTable.setPreferredScrollableViewportSize(new java.awt.Dimension(0, 0));
+        envScrollPane.setViewportView(envTable);
+        
+        gridBagConstraints7 = new java.awt.GridBagConstraints();
+        gridBagConstraints7.gridy = 1;
+        gridBagConstraints7.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints7.insets = new java.awt.Insets(12, 12, 12, 12);
+        gridBagConstraints7.weightx = 1.0;
+        gridBagConstraints7.weighty = 1.0;
+        environmentPanel.add(envScrollPane, gridBagConstraints7);
+        
+        actionPanel.setLayout(new java.awt.GridBagLayout());
+        java.awt.GridBagConstraints gridBagConstraints8;
+        
+        insertEnvButton.setText(org.openide.util.NbBundle.getMessage(VcsCustomizer.class, "LBL_InsertEnv"));
+        insertEnvButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                insertEnvButtonActionPerformed(evt);
+            }
+        });
+        
+        gridBagConstraints8 = new java.awt.GridBagConstraints();
+        gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        actionPanel.add(insertEnvButton, gridBagConstraints8);
+        
+        deleteEnvButton.setText(org.openide.util.NbBundle.getMessage(VcsCustomizer.class, "LBL_DeleteEnv"));
+        deleteEnvButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteEnvButtonActionPerformed(evt);
+            }
+        });
+        
+        gridBagConstraints8 = new java.awt.GridBagConstraints();
+        gridBagConstraints8.gridy = 1;
+        gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints8.insets = new java.awt.Insets(5, 0, 0, 0);
+        actionPanel.add(deleteEnvButton, gridBagConstraints8);
+        
+        gridBagConstraints7 = new java.awt.GridBagConstraints();
+        gridBagConstraints7.gridy = 1;
+        gridBagConstraints7.insets = new java.awt.Insets(12, 0, 12, 12);
+        gridBagConstraints7.anchor = java.awt.GridBagConstraints.NORTH;
+        environmentPanel.add(actionPanel, gridBagConstraints7);
+        
+        systemEnvLabel.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("systemEnvLabel.text"));
+        systemEnvLabel.setAlignmentX(0.5F);
+        gridBagConstraints7 = new java.awt.GridBagConstraints();
+        gridBagConstraints7.gridy = 2;
+        gridBagConstraints7.gridwidth = 2;
+        gridBagConstraints7.insets = new java.awt.Insets(0, 12, 12, 12);
+        gridBagConstraints7.anchor = java.awt.GridBagConstraints.WEST;
+        environmentPanel.add(systemEnvLabel, gridBagConstraints7);
+        
+        systemEnvScrollPane.setPreferredSize(new java.awt.Dimension(32, 32));
+        systemEnvTable.setModel(new javax.swing.table.DefaultTableModel(
+        new Object [][] {
+            {null, null, null},
+            {null, null, null},
+            {null, null, null},
+            {null, null, null}
+        },
+        new String [] {
+            "Variable Name", "Variable Value", "Use in VCS"
+        }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, true
+            };
+            
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+            
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        systemEnvTable.setPreferredScrollableViewportSize(new java.awt.Dimension(0, 0));
+        systemEnvScrollPane.setViewportView(systemEnvTable);
+        
+        gridBagConstraints7 = new java.awt.GridBagConstraints();
+        gridBagConstraints7.gridy = 3;
+        gridBagConstraints7.gridwidth = 2;
+        gridBagConstraints7.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints7.insets = new java.awt.Insets(0, 12, 12, 12);
+        gridBagConstraints7.weightx = 1.0;
+        gridBagConstraints7.weighty = 1.0;
+        environmentPanel.add(systemEnvScrollPane, gridBagConstraints7);
+        
+        jTabbedPane1.addTab("Environment", environmentPanel);
+        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints1.weightx = 1.0;
@@ -559,6 +672,55 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
     }//GEN-END:initComponents
 
+    private void deleteEnvButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteEnvButtonActionPerformed
+        // Add your handling code here:
+        int row = envTable.getSelectedRow();
+        if (row < 0) return ;
+        String name = (String) envTableModel.getValueAt(row, 0);
+        NotifyDescriptor nd = new NotifyDescriptor.Confirmation(NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarDeleteConfirm", name));
+        if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(nd))) {
+            ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).removeRow(row);
+            Vector vars = fileSystem.getVariables();
+            VcsConfigVariable var = (VcsConfigVariable) envVariables.remove(name);
+            vars.remove(var);
+            fileSystem.setVariables(vars);
+        }
+    }//GEN-LAST:event_deleteEnvButtonActionPerformed
+
+    private void insertEnvButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertEnvButtonActionPerformed
+        // Add your handling code here:
+        NotifyDescriptor.InputLine nd = new NotifyDescriptor.InputLine(NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarName"), "");
+        if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(nd))) {
+            String name = (String) nd.getInputText();
+            if (envVariables.containsKey(name)) {
+                selectEnvVar(name);
+                return ;
+            }
+            ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).addRow(new String[] { name, "" });
+            Vector vars = fileSystem.getVariables();
+            VcsConfigVariable var = new VcsConfigVariable(VcsFileSystem.VAR_ENVIRONMENT_PREFIX + name,
+                                           null, "", false, false, false, null);
+            vars.add(var);
+            fileSystem.setVariables(vars);
+            envVariables.put(name, var);
+            int row = envTableModel.getRowCount() - 1;
+            javax.swing.table.TableCellEditor editor = envTable.getCellEditor(row, 1);
+            editor.addCellEditorListener(new EnvCellEditorListener(name, row, 1));
+            envTable.clearSelection();
+            envTable.addRowSelectionInterval(row, row);
+            //envTable.getSelectionModel().setSelectionInterval(row, envTableModel.getRowCount());
+        }
+    }//GEN-LAST:event_insertEnvButtonActionPerformed
+
+    private void selectEnvVar(String name) {
+        for (int row = envTableModel.getRowCount(); row >= 0; row--) {
+            if (name.equals(envTable.getValueAt(row, 0))) {
+                envTable.setRowSelectionInterval(row, row);
+                break;
+            }
+        }
+    }
+    
     private void linkLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_linkLabelMouseReleased
         // Add your handling code here:
         try {
@@ -920,6 +1082,16 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JPanel environmentPanel;
+    private javax.swing.JLabel userEnvLabel;
+    private javax.swing.JScrollPane envScrollPane;
+    private javax.swing.JTable envTable;
+    private javax.swing.JPanel actionPanel;
+    private javax.swing.JButton insertEnvButton;
+    private javax.swing.JButton deleteEnvButton;
+    private javax.swing.JLabel systemEnvLabel;
+    private javax.swing.JScrollPane systemEnvScrollPane;
+    private javax.swing.JTable systemEnvTable;
     // End of variables declaration//GEN-END:variables
 
     private static final double ADVANCED_DLG_WIDTH_RELATIVE = 0.9;
@@ -941,7 +1113,53 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private Hashtable configAdvancedByLabel;
     private Hashtable configNamesByLabel;
     private boolean isRootNotSetDlg = true;
+    private TableSorter envTableModel;
+    private TableSorter systemEnvTableModel;
     
+    private void postInitComponents() {
+        removeEnterFromKeymap ();
+
+        //Configuration tab
+        saveAsButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.saveAsButton.mnemonic").charAt (0));
+        removeConfigButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.removeConfigButton.mnemonic").charAt (0));
+        jLabel2.setDisplayedMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.jLabel2.mnemonic").charAt (0));
+        jLabel2.setLabelFor (rootDirTextField);
+        browseButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.browseButton.mnemonic").charAt (0));
+        relMountLabel.setDisplayedMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountLabel.mnemonic").charAt (0));
+        relMountLabel.setLabelFor (relMountTextField);
+        relMountButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.relMountButton.mnemonic").charAt (0));
+        jLabel4.setDisplayedMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.jLabel4.mnemonic").charAt (0));
+        jLabel4.setLabelFor (refreshTextField);
+        //Advanced tab
+        varButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.varButton.mnemonic").charAt (0));
+        cmdButton.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.cmdButton.mnemonic").charAt (0));
+        advancedModeCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.advancedModeCheckBox.mnemonic").charAt (0));
+        offLineCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.offLineCheckBox.mnemonic").charAt (0));
+        editCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.editCheckBox.mnemonic").charAt (0));
+        promptEditCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.promptEditCheckBox.mnemonic").charAt (0));
+        lockCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.lockCheckBox.mnemonic").charAt (0));
+        promptLockCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.promptLockCheckBox.mnemonic").charAt (0));
+        debugCheckBox.setMnemonic (java.util.ResourceBundle.getBundle ("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.debugCheckBox.mnemonic").charAt (0));
+        jTabbedPane1.setTitleAt(0, NbBundle.getMessage(VcsCustomizer.class, "DLG_Tab_Configuration"));
+        jTabbedPane1.setTitleAt(1, NbBundle.getMessage(VcsCustomizer.class, "DLG_Tab_Advanced"));
+        jTabbedPane1.setTitleAt(2, NbBundle.getMessage(VcsCustomizer.class, "DLG_Tab_Environment"));
+        envTableModel = new TableSorter(envTable.getModel());
+        envTableModel.sortByColumn(0, true);
+        envTable.setModel(envTableModel);
+        ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).setColumnIdentifiers(new String[] { NbBundle.getMessage(VcsCustomizer.class, "LBL_VarNames"), NbBundle.getMessage(VcsCustomizer.class, "LBL_VarValues") });
+        envTableModel.addMouseListenerToHeaderInTable(envTable);
+        systemEnvTableModel = new TableSorter(systemEnvTable.getModel());
+        systemEnvTableModel.sortByColumn(0, true);
+        systemEnvTable.setModel(systemEnvTableModel);
+        ((javax.swing.table.DefaultTableModel) systemEnvTableModel.getModel()).setColumnIdentifiers(new String[] { NbBundle.getMessage(VcsCustomizer.class, "LBL_VarNames"), NbBundle.getMessage(VcsCustomizer.class, "LBL_VarValues"), NbBundle.getMessage(VcsCustomizer.class, "LBL_VarUsed") });
+        systemEnvTableModel.addMouseListenerToHeaderInTable(systemEnvTable);
+        //envTable.getCellEditor().addCellEditorListener(new CellEditorListener() {
+        //});
+
+        linkLabel.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+        HelpCtx.setHelpIDString (this, VcsCustomizer.class.getName ());
+    }
+
     private void setAutoFillVars(String autoFillVarsStr) {
         String[] varsCmds = VcsUtilities.getQuotedStrings(autoFillVarsStr);
         autoFillVars = new HashMap();
@@ -1077,6 +1295,16 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             varTextFields.remove (0);
             varButtons.remove(0);
         }
+        for (int i = envTableModel.getRowCount(); i > 0; ) {
+            ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).removeRow(--i);
+        }
+        for (int i = systemEnvTableModel.getRowCount(); i > 0; ) {
+            ((javax.swing.table.DefaultTableModel) systemEnvTableModel.getModel()).removeRow(--i);
+        }
+        //Vector envVariablesVector = new Vector();
+        //Vector envVariablesRemovedVector = new Vector();
+        envVariables.clear();
+        envVariablesRemoved.clear();
         Enumeration vars = fileSystem.getVariables ().elements ();
         while (vars.hasMoreElements ()) {
             VcsConfigVariable var = (VcsConfigVariable) vars.nextElement ();
@@ -1145,7 +1373,39 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 varButtons.add (button);
                 VcsUtilities.removeEnterFromKeymap(tf);
             }
+            if (var.getName().startsWith(VcsFileSystem.VAR_ENVIRONMENT_PREFIX)) {
+                String name = var.getName().substring(VcsFileSystem.VAR_ENVIRONMENT_PREFIX.length());
+                //Vector row = new Vector(2);
+                //row.add(name);
+                //row.add(var.getValue());
+                //envVariablesVector.add(row);
+                ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).addRow(new String[] { name, var.getValue() });
+                envVariables.put(name, var);
+                int row = envTableModel.getRowCount() - 1;
+                javax.swing.table.TableCellEditor editor = envTable.getCellEditor(row, 1);
+                editor.addCellEditorListener(new EnvCellEditorListener(name, row, 1));
+            }
+            if (var.getName().startsWith(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX)) {
+                String name = var.getName().substring(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX.length());
+                //envTableModel.addRow(new String[] { name, var.getValue() });
+                envVariablesRemoved.put(name, var);
+                //int row = envTableModel.getRowCount() - 1;
+                //javax.swing.table.TableCellEditor editor = envTable.getCellEditor(row, 1);
+                //editor.addCellEditorListener(new EnvCellEditorListener(name, row, 1));
+            }
         }
+        Map systemEnvVars = VcsUtilities.getSystemEnvVars();
+        int row = 0;
+        Set envVariablesRemovedSet = envVariablesRemoved.keySet();
+        for (Iterator envVars = systemEnvVars.keySet().iterator(); envVars.hasNext(); row++) {
+            String name = (String) envVars.next();
+            String value = (String) systemEnvVars.get(name);
+            ((javax.swing.table.DefaultTableModel) systemEnvTableModel.getModel()).addRow(new Object[] { name, value, new Boolean(!envVariablesRemovedSet.contains(name)) });
+            javax.swing.table.TableCellEditor editor = systemEnvTable.getCellEditor(row, 2);
+            editor.addCellEditorListener(new SystemEnvCellEditorListener(name, row, 2));
+        }
+        envTableModel.sortByColumn(0, true);
+        systemEnvTableModel.sortByColumn(0, true);
         java.awt.Component comp = this;
         while (comp!=null && !(comp instanceof java.awt.Window)) comp = comp.getParent ();
         if(comp!=null) {
@@ -1570,6 +1830,61 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 }
             });
             pool.startExecutor(executor);
+        }
+    }
+    
+    private class EnvCellEditorListener implements javax.swing.event.CellEditorListener {
+        
+        private String name;
+        private int row;
+        private int col;
+        
+        EnvCellEditorListener(String name, int row, int col) {
+            this.name = name;
+            this.row = row;
+            this.col = col;
+        }
+        
+        public void editingCanceled(javax.swing.event.ChangeEvent e) {
+        }
+        public void editingStopped(javax.swing.event.ChangeEvent e) {
+            VcsConfigVariable var = (VcsConfigVariable) envVariables.get(name);
+            if (var != null) {
+                var.setValue((String) envTable.getValueAt(row, col));
+            }
+        }
+    }
+
+    private class SystemEnvCellEditorListener implements javax.swing.event.CellEditorListener {
+        
+        private String name;
+        private int row;
+        private int col;
+        
+        SystemEnvCellEditorListener(String name, int row, int col) {
+            this.name = name;
+            this.row = row;
+            this.col = col;
+        }
+        
+        public void editingCanceled(javax.swing.event.ChangeEvent e) {
+        }
+        public void editingStopped(javax.swing.event.ChangeEvent e) {
+            Boolean remove = (Boolean) systemEnvTable.getValueAt(row, col);
+            Vector vars = fileSystem.getVariables();
+            if (Boolean.TRUE.equals(remove)) {
+                VcsConfigVariable var = (VcsConfigVariable) envVariablesRemoved.remove(name);
+                if (var == null) return ;
+                vars.remove(var);
+                envVariablesRemoved.remove(name);
+            } else {
+                if (envVariablesRemoved.containsKey(name)) return ;
+                VcsConfigVariable var = new VcsConfigVariable(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX + name,
+                                               null, "", false, false, false, null);
+                vars.add(var);
+                envVariablesRemoved.put(name, var);
+            }
+            fileSystem.setVariables(vars);
         }
     }
 
