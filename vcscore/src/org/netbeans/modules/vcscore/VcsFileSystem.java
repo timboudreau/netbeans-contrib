@@ -4033,9 +4033,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             getStatusChangeRequestProcessor().post(new Runnable() {
                 public void run() {
                     //System.out.println("refreshVersioning("+name+")");
-                    FileObject fo = versioningSystem.findExistingResource(name);
-                    //System.out.println("  resource = "+fo);
-                    if (fo != null) fo.refresh();
+                    if (versioningSystem != null) {
+                        FileObject fo = versioningSystem.findExistingResource(name);
+                        //System.out.println("  resource = "+fo);
+                        if (fo != null) fo.refresh();
+                    }
                 }
             });
         }
