@@ -214,7 +214,8 @@ public class JndiProvidersNode extends AbstractNode implements PropertyChangeLis
         FileSystem fs = repo.getDefaultFileSystem();
         FileObject fo = fs.getRoot().getFileObject("JNDI");
         if (fo == null)
-            TopManager.getDefault().getErrorManager().log(NbBundle.getBundle(JndiProvidersNode.class).getString ("ERR_CanNotOpenJNDIFolder"));
+//            TopManager.getDefault().getErrorManager().log(NbBundle.getBundle(JndiProvidersNode.class).getString ("ERR_CanNotOpenJNDIFolder"));
+            return;
         java.util.Enumeration files = fo.getData(false);
         while (files.hasMoreElements()){
             fo = (FileObject) files.nextElement();
