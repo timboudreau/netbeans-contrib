@@ -279,7 +279,7 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 }
             }
         }
-        initialize(); // Assure, that we're initialized.
+        boolean initialized = false; // Assume, that initialization was not called yet.
         for (Iterator objIt = objects.iterator(); objIt.hasNext(); ) {
             DataObject dobj = (DataObject) objIt.next();
             FileObject primary = dobj.getPrimaryFile();
@@ -287,6 +287,10 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
             if (primary.isFolder() || !fileSystem.equals(fs)) {
                 //System.out.println("VOIS.run(): ignoring primary = "+primary+" from "+fs);
                 continue;
+            }
+            if (!initialized) {
+                initialize(); // Assure, that we're initialized.
+                initialized = true;
             }
             //fileSystem.getCacheProvider().
             File primaryFile = FileUtil.toFile(primary);
