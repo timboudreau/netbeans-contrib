@@ -572,8 +572,6 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     private void initServerInstances() {
         String[] servInstIDs = Deployment.getDefault().getServerInstanceIDs();
         serverIDs = new ArrayList();
-        serverIDs.add("GENERIC"); // NOI18N
-        serverTypeComboBox.addItem(Deployment.getDefault().getServerDisplayName("GENERIC")); // NOI18N
         for (int i = 0; i < servInstIDs.length; i++) {
             J2eePlatform j2eePlat = Deployment.getDefault().getJ2eePlatform(servInstIDs[i]);
             String serverID = Deployment.getDefault().getServerID(servInstIDs[i]);
@@ -584,6 +582,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
                 serverTypeComboBox.addItem(servDisplayName);
             }
         }
+        serverIDs.add("GENERIC"); // NOI18N
+        serverTypeComboBox.addItem(Deployment.getDefault().getServerDisplayName("GENERIC")); // NOI18N
         if (serverIDs.size() > 0) {
             serverTypeComboBox.setSelectedIndex(0);
         } else {
