@@ -342,7 +342,7 @@ Microsystems, Inc. All Rights Reserved.
                  IF_VAR_NON_EMPTY"IS_WIN9X"_PROMPT_FOR(SHELL, "ResourceMsg(Unix_Shell):", "",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_Unix_Shell);;MNEMONIC_ResourceMsg(Unix_Shell_Mnemonic)),
                             SELECTOR_FILE)])
-             SELECT_RADIO(FILESYSTEM_PROPERTY_offLine, "", "", ["ResourceMsg(VAR_OFFLINE_Login, ${CVS_SERVER})", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_OFFLINE_Login);;MNEMONIC_ResourceMsg(VAR_OFFLINE_Login_Mnemonic))",
+             SELECT_RADIO(FILESYSTEM_PROPERTY_offLine, "ResourceMsg(CTL_LoginOFFLINE)", "", ["ResourceMsg(VAR_OFFLINE_Login, ${CVS_SERVER})", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_OFFLINE_Login);;MNEMONIC_ResourceMsg(VAR_OFFLINE_Login_Mnemonic))",
                                                                 PROMPT_FOR_PASSWORD(PASSWORD, "ResourceMsg(VAR_Password)", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_Password);;MNEMONIC_ResourceMsg(VAR_Password_Mnemonic))", SELECTOR_CMD_(ResourceMsg(LOGIN_Button))CONNECTION_LOGIN)
                                                                 TEXT(LOGGED_IN_TEXT, 1, 1, LINE_SINGLE)],
                                                                ["ResourceMsg(VAR_OFFLINE_MODE)", "true", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_OFFLINE_MODE);;MNEMONIC_ResourceMsg(VAR_OFFLINE_MODE_Mnemonic))"])
@@ -377,7 +377,7 @@ Microsystems, Inc. All Rights Reserved.
                  IF_VAR_NON_EMPTY"IS_WIN9X"_PROMPT_FOR(SHELL, "ResourceMsg(Unix_Shell):", "",
                             ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_Unix_Shell);;MNEMONIC_ResourceMsg(Unix_Shell_Mnemonic)),
                             SELECTOR_FILE)])
-             SELECT_RADIO(FILESYSTEM_PROPERTY_offLine, "", "", ["ResourceMsg(VAR_OFFLINE_Login, ${CVS_SERVER})", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_OFFLINE_Login);;MNEMONIC_ResourceMsg(VAR_OFFLINE_Login_Mnemonic))",
+             SELECT_RADIO(FILESYSTEM_PROPERTY_offLine, "ResourceMsg(CTL_LoginOFFLINE)", "", ["ResourceMsg(VAR_OFFLINE_Login, ${CVS_SERVER})", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_OFFLINE_Login);;MNEMONIC_ResourceMsg(VAR_OFFLINE_Login_Mnemonic))",
                                                                 PROMPT_FOR_PASSWORD(PASSWORD, "ResourceMsg(VAR_Password)", "", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_Password);;MNEMONIC_ResourceMsg(VAR_Password_Mnemonic))", SELECTOR_CMD_(ResourceMsg(LOGIN_Button))CONNECTION_LOGIN)
                                                                 TEXT(LOGGED_IN_TEXT, 1, 1, LINE_SINGLE)],
                                                                ["ResourceMsg(VAR_OFFLINE_MODE)", "true", "ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_VAR_OFFLINE_MODE);;MNEMONIC_ResourceMsg(VAR_OFFLINE_MODE_Mnemonic))"])
