@@ -60,7 +60,7 @@ public class GenerateImplAction extends CookieAction {
   * @return resource name
   */
   protected String iconResource () {
-    return "/org.openide/resources/actions/empty.gif"; // no icon
+    return "/org/openide/resources/actions/empty.gif"; // no icon
   }
 
   /**
@@ -79,6 +79,8 @@ public class GenerateImplAction extends CookieAction {
 
 /*
  * <<Log>>
+ *  5    Gandalf   1.4         6/9/99   Ian Formanek    Fixed resources for 
+ *       package change
  *  4    Gandalf   1.3         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
  *  3    Gandalf   1.2         5/28/99  Karel Gardas    
