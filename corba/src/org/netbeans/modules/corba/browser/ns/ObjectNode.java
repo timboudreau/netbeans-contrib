@@ -19,6 +19,7 @@ import org.omg.CosNaming.*;
 import java.io.*;
 import java.net.*;
 
+import org.openide.*;
 import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.util.*;
@@ -108,7 +109,7 @@ public class ObjectNode extends AbstractNode implements Node.Cookie {
             ((ContextNode)getParentNode ()).getContext ().unbind (context_name);
             ((ContextChildren)((ContextNode)getParentNode ()).getChildren ()).addNotify ();
         } catch (Exception e) {
-            e.printStackTrace ();
+            TopManager.getDefault().notify (new NotifyDescriptor.Message (e.toString(), NotifyDescriptor.Message.ERROR_MESSAGE));
         }
     }
 

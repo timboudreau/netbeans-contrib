@@ -90,7 +90,7 @@ public class IRUnionDefNode extends IRContainerNode {
                             int value = in.read_long();
                             String name = tc.member_name(value);
                             code = code +"case "+ name;
-                        }catch(Exception e){e.printStackTrace();};
+                        }catch(Exception e){org.openide.TopManager.getDefault().notifyException(e);};
                     }
                     else{
                         try{

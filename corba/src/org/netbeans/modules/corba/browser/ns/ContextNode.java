@@ -20,6 +20,7 @@ import java.io.*;
 import java.net.*;
 import java.util.Vector;
 
+import org.openide.*;
 import org.openide.nodes.*;
 import org.openide.util.actions.*;
 import org.openide.util.*;
@@ -335,7 +336,7 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace ();
+                org.openide.TopManager.getDefault().notify (new NotifyDescriptor.Message (e.toString(), NotifyDescriptor.Message.ERROR_MESSAGE));
             }
             ((ContextChildren)getChildren ()).addNotify ();
         }

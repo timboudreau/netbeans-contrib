@@ -180,7 +180,7 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                 } 
             }catch (IOException ioe) {
                 // Handle Error Here
-                ioe.printStackTrace ();
+                TopManager.getDefault().notifyException (ioe);
             }
             finally {
                 CorbaWizard.this.rollBack();

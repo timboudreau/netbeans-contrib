@@ -90,7 +90,7 @@ public class ContextChildren extends Children.Keys {
                         } catch (Exception e) {
                             if (DEBUG)
                                 System.out.println ("IOR: exception");
-                            e.printStackTrace ();
+                            org.openide.TopManager.getDefault().notify (new NotifyDescriptor.Message (e.toString(), NotifyDescriptor.Message.ERROR_MESSAGE));
                         }
                     }
                     else {
@@ -101,7 +101,7 @@ public class ContextChildren extends Children.Keys {
                             NamingContext tmp_context = NamingContextHelper.narrow (o);
                             keys.addElement (new ContextNode (tmp_context, binding.value));
                         } catch (Exception e) {
-                            e.printStackTrace ();
+                            org.openide.TopManager.getDefault().notify (new NotifyDescriptor.Message (e.toString(), NotifyDescriptor.Message.ERROR_MESSAGE));
                         }
 
                     }
