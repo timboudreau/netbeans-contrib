@@ -828,12 +828,16 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
     
     /**
-     * Remove a command listener.
+     * Lazily remove a command listener.
      */
-    public void removeCommandListener(CommandListener listener) {
-        synchronized (commandListeners) {
-            commandListeners.remove(listener);
-        }
+    public void removeCommandListener(final CommandListener listener) {
+        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                synchronized (commandListeners) {
+                    commandListeners.remove(listener);
+                }
+            }
+        });
     }
     
     /**
