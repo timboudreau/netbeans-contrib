@@ -61,8 +61,6 @@ public class CvsCommitVisualizer extends OutputVisualizer {
     private int exit = Integer.MIN_VALUE; // unset exit status
     private List outputInfosToShow; // cached information when the command is providing
     // output sooner then the GUI is created.
-    private List errorOutputToShow; // cached error output when the command is providing
-    // output sooner then the GUI is created.
     private Object outputAccessLock = new Object();
     private CommandOutputTextProcessor.TextOutput errOutput;
     private CommandOutputTextProcessor.TextOutput stdDataOutput;
@@ -251,7 +249,7 @@ public class CvsCommitVisualizer extends OutputVisualizer {
         //System.out.println("setExitStatus("+this.hashCode()+") ("+exit+"), cp = "+(contentPane != null));
         this.exit = exit;
         if (contentPane != null) { // Check whether we have the GUI created
-            if (outputInfosToShow != null || errorOutputToShow != null) {
+            if (outputInfosToShow != null) {
                 outputDone(); // show cached infos
             }
             if(exit == 0)
