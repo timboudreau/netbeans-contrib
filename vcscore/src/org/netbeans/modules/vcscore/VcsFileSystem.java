@@ -1000,19 +1000,30 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setRelativeMountPoint(final String module) throws PropertyVetoException, IOException {
         runAtomicAction(new FileSystem.AtomicAction() {
             public void run() throws IOException {
+                String moduleToSet = module;
+                if (moduleToSet.length() > 0) {
+                    moduleToSet = moduleToSet.replaceAll("/{2,}+", "/");
+                    moduleToSet = moduleToSet.replaceAll("\\\\{2,}+", "\\");
+                    if (moduleToSet.endsWith("/") || moduleToSet.endsWith("\\")) {
+                        moduleToSet = moduleToSet.substring(0, moduleToSet.length() - 1);
+                    }
+                    if (moduleToSet.startsWith("/") || moduleToSet.startsWith("\\")) {
+                        moduleToSet = moduleToSet.substring(1);
+                    }
+                }
                 synchronized (this) {
-                    //System.out.println("setRelativeMountPoint("+module+")");
+                    //System.out.println("setRelativeMountPoint('"+module+"' -> '"+moduleToSet+"')");
                     Hashtable vars = variablesByName;
                     String root = VcsFileSystem.this.getFSRoot();
                     VcsConfigVariable mod = (VcsConfigVariable) vars.get("MODULE");
-                    if (mod != null && module.equals(mod.getValue())) return ;
+                    if (mod != null && moduleToSet.equals(mod.getValue())) return ;
                     if (mod == null) {
-                        mod = new VcsConfigVariable("MODULE", "", module, false, false, false, null);
+                        mod = new VcsConfigVariable("MODULE", "", moduleToSet, false, false, false, null);
                         variables.add(mod);
                         variablesByName.put("MODULE", mod);
                     }
                     String oldModule = mod.getValue();
-                    mod.setValue(module);
+                    mod.setValue(moduleToSet);
                     try {
                         setRootDirectory(new File(root));
                     } catch (PropertyVetoException prop) {
