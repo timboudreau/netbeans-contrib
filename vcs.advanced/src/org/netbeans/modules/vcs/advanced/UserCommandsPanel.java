@@ -134,6 +134,7 @@ public class UserCommandsPanel extends JPanel implements ExplorerManager.Provide
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
         descriptionArea.setBackground(new javax.swing.JLabel().getBackground());
+        descriptionArea.setFocusable(false);
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 1.0;
         c.insets = new java.awt.Insets(0, 0, 11, 0);
