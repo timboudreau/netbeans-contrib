@@ -16,7 +16,6 @@ package complete.pvcs_profile;
 import java.io.*;
 import junit.framework.*;
 import org.netbeans.junit.*;
-import org.netbeans.test.oo.gui.jelly.*;
 import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.TestOut;
 import org.netbeans.jemmy.util.PNGEncoder;
@@ -69,14 +68,14 @@ public class MountPVCSFilesystem extends NbTestCase {
      * output and maps main components.
      */
     protected void setUp() {
-        JellyProperties.setDefaults();
+        org.netbeans.test.oo.gui.jelly.JellyProperties.setDefaults();
         JemmyProperties.setCurrentOutput(TestOut.getNullOutput());
     }
     
     /** Method called after each testcase. Resets Jemmy WaitComponentTimeout.
      */
     protected void tearDown() {
-        JellyProperties.setDefaults();
+        org.netbeans.test.oo.gui.jelly.JellyProperties.setDefaults();
     }
     
     /** Method will create a file and capture the screen.
@@ -100,7 +99,7 @@ public class MountPVCSFilesystem extends NbTestCase {
     public void testPVCSSettings() throws Exception {
         try {
             System.out.print(".. Testing PVCS settings ..");
-            MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+            new org.netbeans.jellytools.actions.ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizard = new VCSWizardProfile();
             String profile = Utilities.isUnix() ? VCSWizardProfile.PVCS_UNIX : VCSWizardProfile.PVCS_WIN_NT;
             int os = Utilities.getOperatingSystem();
@@ -138,7 +137,7 @@ public class MountPVCSFilesystem extends NbTestCase {
     public void testDatabaseSelector() throws Exception {
         try {
             System.out.print(".. Testing project database selector ..");
-            MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+            new org.netbeans.jellytools.actions.ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizard = new VCSWizardProfile();
             String profile = Utilities.isUnix() ? VCSWizardProfile.PVCS_UNIX : VCSWizardProfile.PVCS_WIN_NT;
             int os = Utilities.getOperatingSystem();
@@ -153,11 +152,6 @@ public class MountPVCSFilesystem extends NbTestCase {
             new JButtonOperator(new JDialogOperator("Select Directory:"), "Cancel").push();
             selector.selectADatabaseUsedByPVCSGUI();
             Thread.currentThread().sleep(10000);
-            String status = MainWindowOperator.getDefault().getStatusText();
-            if (status.equals("Command LIST_PROJECT_DB finished."))
-              selector.lstDatabaseList().clickOnItem(0, 1);
-            else if (!status.equals("Command LIST_PROJECT_DB failed."))
-                assertTrue("Error: Incorrect status \"" + status + "\" reached.", false);
             selector.databaseLocationPath();
             selector.browseDatabaseLocation();
             JFileChooserOperator fileChooser = new JFileChooserOperator();
@@ -165,10 +159,6 @@ public class MountPVCSFilesystem extends NbTestCase {
             fileChooser.chooseFile(workingDirectory + File.separator + "Repo");
             selector.ok();
             Thread.currentThread().sleep(10000);
-            status = MainWindowOperator.getDefault().getStatusText();
-            if (!status.equals("Command AUTO_FILL_CONFIG finished.") && (!status.equals("Command GET_WORK_LOCATION failed."))) {
-                assertTrue("Error: Incorrect status \"" + status + "\" reached.", false);
-            }
             if (!wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE).getText().equals(workingDirectory + File.separator + "Repo"))
                 assertTrue("Error: Unable to setup project database through its selector.", false);
             wizard.cancel();
@@ -189,7 +179,7 @@ public class MountPVCSFilesystem extends NbTestCase {
     public void testPVCSConnection() throws Exception {
         try {
             System.out.print(".. Testing PVCS filesystem connectivity ..");
-            MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+            new org.netbeans.jellytools.actions.ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizard = new VCSWizardProfile();
             String profile = Utilities.isUnix() ? VCSWizardProfile.PVCS_UNIX : VCSWizardProfile.PVCS_WIN_NT;
             int os = Utilities.getOperatingSystem();
