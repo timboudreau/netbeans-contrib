@@ -272,17 +272,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return file;
     }
 
-    protected void componentClosed() {
-        super.componentClosed();
-        if (background != null) background.interrupt();
-        Cache.store();
-        releaseWorkaround();
-        if (job != null) {
-            job.stopBroker();
-            job = null;
-        }
-    }
-
     private ColumnProperty createLineColumn(boolean visible, int width) {
         return new ColumnProperty(
                 LINE_COLUMN_UID, // UID -- never change (part of serialization
@@ -297,10 +286,27 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
 
-
     protected void componentOpened() {
         super.componentOpened();
         setNorthComponentVisible(true);
+        if (job == null) {
+            handleCurrentFile();
+        }
+    }
+
+
+    protected void componentClosed() {
+        super.componentClosed();
+        if (background != null) background.interrupt();
+        Cache.store();
+        releaseWorkaround();
+        if (job != null) {
+            job.stopBroker();
+            job = null;
+        }
+        // keep on mind that it's still alive, just invisible
+        // Until garbage collected it can be reopen at any time
+        // restoring all data from caches (fields).
     }
 
 
@@ -1063,6 +1069,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
     }
 
+    /** Switches to current file mode. */
     private void handleCurrentFile() {
         if (job != null) return;
         try {
