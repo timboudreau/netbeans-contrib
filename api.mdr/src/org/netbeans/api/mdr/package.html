@@ -1,0 +1,116 @@
+<!--
+   -                 Sun Public License Notice
+   -
+   - The contents of this file are subject to the Sun Public License
+   - Version 1.0 (the "License"). You may not use this file except in
+   - compliance with the License. A copy of the License is available at
+   - http://www.sun.com/
+   -
+   - The Original Code is NetBeans. The Initial Developer of the Original
+   - Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+   - Microsystems, Inc. All Rights Reserved.
+  -->
+                                                                                                                                                                            
+<html>
+<body>
+API classes and interfaces that serve as an entry point to a metadata repository.
+The fundamental classes in this regard are <a href="MDRManager.html">MDRManager</a>
+and <a href="MDRepository.html">MDRepository</a>.
+<p>MDRManager is used to access repositories (represented
+by instances of MDRepository, these can then be used
+to access instances of MOF metamodels (represented by javax.jmi.reflect.RefPackage instances
+corresponding to package proxies for outermost packages of the metamodels). MDRManager is
+a singleton. There can be several repositories in the system (accessible via MDRManager) and
+each repository may contain any number of instances of any number of metamodels.
+
+<h3>Creating Metamodel Instances</h3>
+Here is an example code showing how to create a new empty instance of MOF metamodel
+that can be used e.g. to load XMI files conforming to MOF:
+<p>
+<pre>
+    // get default repository
+    MDRepository repository = MDRManager.getDefault().getDefaultRepository();
+    // create a new instance of MOF metamodel - name it MyInstanceOfMOF
+    RefPackage mof = null;
+    try {
+        mof = repository.createExtent("MyInstanceOfMOF");
+    } catch (CreationFailedException e) {
+        // handle the failure - happens if extent (i.e. metamodel instance) named
+        // MyInstanceOfMOF already exists in the repository, or if some other fatal
+        // error occurs
+        ...
+    }
+    ...
+</pre>
+
+<h3>Accessing Metamodel Instances</h3>
+Instances of metamodels in the repository are also called extents. Following is
+an example code that retrieves a reference to an extent created in the first example
+from the repository:
+<p>
+<pre>
+    // get default repository
+    MDRepository repository = MDRManager.getDefault().getDefaultRepository();
+    // get an extent named MyInstanceOfMOF
+    RefPackage mof = repository.getExtent("MyInstanceOfMOF");
+    if (mof == null) {
+        // the previous call returned null - it means that an extent with a given
+        // name was not found
+        System.out.println("Extent named MyInstanceOfMOF not found in the repository.");
+        ...
+    }
+    ...
+</pre>
+
+<h3>Working with Transactions</h3>
+MDRepository interfaces supports transactional processing. Simple atomic per-repository
+transactions are assumed. Capability of real nested transactions is optional (see description
+of beginTrans and endTrans method of <a href="MDRepository.html">MDRepository</a> class for
+more information.
+<p>When working with transactions it is important to strictly enforce the following pattern:
+<ol>
+    <li>Start a transaction
+    <li>Start a try block
+    <li>Do the work
+    <li>Finalize the transaction in the finally clause of the try block
+</ol>
+When not using explicit transactions, it is assumed that all JMI calls
+are auto-commited.
+<p>It is essential to use transactions in multithreaded applications especially
+when iterating through the content of collections returned from JMI calls (since
+these collections are live) to avoid concurrent modifications. Here is an example code
+that iterates through all class proxies in a given extent and uses a read-only transaction
+to ensure that the collection is not modified by other thread during the iteration:
+<p>
+<pre>
+    // get the default repository
+    MDRepository repository = MDRManager.getDefault().getDefaultRepository();
+    // start a read-only transaction
+    repository.beginTrans(false);
+    try {
+        // get an extent named MyInstanceOfMOF (assuming that this extent was already created by
+        // other part of the application
+        RefPackage mof = repository.getExtent("MyInstanceOfMOF");
+        for (Iterator it = mof.refAllClasses(); it.hasNext();) {
+            RefClass clsProxy = (RefClass) it.next();
+            // print name of the class proxy meta-object
+            System.out.println(((MofClass) clsProxy.refMetaObject()).getName());
+        }
+    } finally {
+        // release the transaction
+        repository.endTrans();
+    }
+</pre>
+
+<h3>Other Use-Cases</h3>
+Please see <a href="../xmi/package-summary.html">MDR XMI API description</a> for more info 
+on how to load/save XMI files into/from repository extents.
+<p>Also for a more complete example of an application that uses MDR to load UML metamodel, 
+instantiate it in the repository, load an UML model from XMI to the instance of UML metamodel, 
+transform it to MOF (into an instance of MOF metamodel) and serialize it to XMI as an instance
+of MOF, please refer to the source code of the 
+<a href="http://mdr.netbeans.org/unbranded-source/browse/~checkout~/mdr/extras/uml2mof/src/org/netbeans/lib/jmi/uml2mof/Main.java?content-type=text/plain">Main class</a>
+of <a href="http://mdr.netbeans.org/uml2mof">UML2MOF tool</a>.
+</body>
+</html>
+
