@@ -313,9 +313,9 @@ public final class Outline extends JTable {
     }    
     
     public void tableChanged(TableModelEvent e) {
-        System.err.println("Table got tableChanged " + e);
+//        System.err.println("Table got tableChanged " + e);
         super.tableChanged(e);
-        System.err.println("row count is " + getRowCount());
+//        System.err.println("row count is " + getRowCount());
     }
     
     public void paint(Graphics g) {

@@ -188,8 +188,11 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
         if ("add".equals(b.getName())) {
             Node newNode = new Node();
             DefaultMutableTreeNode nd = new DefaultMutableTreeNode(newNode, true);
-            nd.setParent(n);
-            mdl.insertNodeInto(new DefaultMutableTreeNode(newNode, true), n, n.getChildCount());
+            n.add(nd);
+            
+            mdl.nodesWereInserted(n, new int[] {n.getChildCount()-1});
+            
+//            mdl.insertNodeInto(new DefaultMutableTreeNode(newNode, true), n, n.getChildCount());
             
         } else if ("remove".equals(b.getName())) {
             mdl.removeNodeFromParent(n);
@@ -238,15 +241,19 @@ public class TestOutlineDynamic extends JFrame implements ActionListener {
             //modifying the model - we can't do it while we're going
             for (int i=0; i < sels.length; i++) {
                 aNode = (DefaultMutableTreeNode) outline.getValueAt(sels[i], 0);
+                System.err.println("To delete user object class " + aNode.getUserObject().getClass() + " = " + aNode.getUserObject());
                 nodes.add (aNode);
                 indices[i] = parent.getIndex(aNode);
             }
+            
+            System.err.println("Will really remove indices " + Arrays.asList(Utilities.toObjectArray(indices)));
             
             for (int i=0; i < nodes.size(); i++) {
                 aNode = (DefaultMutableTreeNode) nodes.get(i);
                 if (aNode.getParent() != parent) {
                     System.err.println(aNode + " not child of " + parent + " but of " + aNode.getParent());
                 } else {
+                    System.err.println("REMOVING " + aNode + " from parent");
                     parent.remove(aNode);
                     nodes.add(aNode);
                 }

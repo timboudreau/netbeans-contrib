@@ -36,6 +36,23 @@ import javax.swing.tree.TreePath;
 /** Manages expanded/collapsed paths for the Outline.  Provides services similar
  * to those JTree implements inside its own class body.  Propagates changes
  * in expanded state to the layout cache.
+ * <p>
+ * Principally what this class does is manage the state of expanded paths which
+ * are not visible, or whose parents have been closed/opened.  Whereas the
+ * layout cache retains information only about what is visibly expanded, this
+ * class manages information about any path that has been expanded at some
+ * point in the lifetime of an Outline, so that for example, if A contains B
+ * contains C, and A and B and C are expanded, then the user collapses A,
+ * and later re&euml;expands A, B and C will retain their expanded state and
+ * appear as they did the last time A was expanded.
+ * <p>
+ * When nodes are removed, the OutlineModel must call removePath() for any
+ * defunct paths to avoid memory leaks by the TreePathSupport holding 
+ * references to defunct nodes and not allowing them to be garbage collected.
+ * <p>
+ * Its <code>addTreeWillExpandListener</code> code supports 
+ * <code>ExtTreeWillExpandListener</code>, so such a listener may be notified
+ * if some other listener vetos a pending expansion event.
  *
  * @author  Tim Boudreau
  */
