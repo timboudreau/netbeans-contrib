@@ -50,7 +50,7 @@ import org.netbeans.modules.vcs.advanced.variables.VariableIO;
  *
  * @author  Martin Entlicher
  */
-public class CommandLineVcsFileSystemInstance extends Object implements InstanceCookie {
+public class CommandLineVcsFileSystemInstance extends Object implements InstanceCookie.Of {
     
     public static final String SETTINGS_ROOT_ELEM = "fssettings";               // NOI18N
     public static final String FS_PROPERTIES_ELEM = "fsproperties";               // NOI18N
@@ -143,6 +143,10 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     
     public Class instanceClass() throws java.io.IOException, ClassNotFoundException {
         return CommandLineVcsFileSystem.class;
+    }
+    
+    public boolean instanceOf(Class clazz) {
+        return CommandLineVcsFileSystem.class.equals(clazz);
     }
     
     public String instanceName() {
