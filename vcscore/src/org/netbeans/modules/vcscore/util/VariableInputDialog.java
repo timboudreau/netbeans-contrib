@@ -13,11 +13,15 @@
 
 package org.netbeans.modules.vcscore.util;
 
-import java.util.*;
 import java.awt.event.*;
-import javax.swing.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
+import java.util.*;
+import javax.swing.event.*;
 
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 
 import org.netbeans.api.vcs.VcsManager;
@@ -28,8 +32,6 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.commands.*;
-import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 
 /**
  * Dialog that enables users to set variable values before running the command.
@@ -702,10 +704,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
     
     private void enableComponents(String[] vars, boolean enable) {
-        //System.out.println("enableComponents("+VcsUtilities.arrayToString(vars)+", "+enable+")");
+        //if (vars.length > 0) System.out.println("enableComponents("+VcsUtilities.arrayToString(vars)+", "+enable+")");
         for (int i = 0; i < vars.length; i++) {
             java.awt.Component[] components = (java.awt.Component[]) awtComponentsByVars.get(vars[i]);
-            //System.out.println(" component("+vars[i]+") = "+components);
+            //System.out.println(" components("+vars[i]+") = "+((components == null) ? "null" : java.util.Arrays.asList(components).toString()));
             if (components != null) {
                 for (int j = 0; j < components.length; j++) {
                     //System.out.println("  components["+j+"] = "+enable);
@@ -1284,7 +1286,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
     
     private int addRadioButton(final VariableInputComponent superComponent,
                                final VariableInputComponent component, int gridy,
-                               javax.swing.ButtonGroup group,
+                               final javax.swing.ButtonGroup group,
                                javax.swing.JPanel variablePanel, int leftInset,
                                String defValue, HashMap varsToEnableDisable) {
         String label = component.getLabel();
@@ -1321,6 +1323,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
                                  varsToEnableDisable);
             componentVarsList.add(subComponents[i].getVariable());
         }
+        String value = component.getValue();
+        if (value == null) value = "";
+        awtComponentsByVars.put(component.getVariable()+"/"+value, new java.awt.Component[] { button });
         final String[] componentVars = (String[]) componentVarsList.toArray(new String[0]);
         enableComponents(componentVars, false);
         final String[] varsEnabled = (String[]) component.getEnable().toArray(new String[0]);
@@ -1340,6 +1345,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 enableComponents(componentVars, button.isSelected());
                 enableComponents(varsEnabled, button.isSelected());
                 enableComponents(varsDisabled, !button.isSelected());
+            }
+        });
+        button.addPropertyChangeListener("enabled", new PropertyChangeListener() { // NOI18N
+            public void propertyChange(PropertyChangeEvent pchev) {
+                Enumeration enum = group.getElements();
+                for (int i = 0; enum.hasMoreElements(); i++) {
+                    javax.swing.JRadioButton radio = (javax.swing.JRadioButton) enum.nextElement();
+                    if (radio.isEnabled()) radio.doClick(); // <-- to trigger an action event
+                }
             }
         });
         button.addActionListener(new ActionListener() {
