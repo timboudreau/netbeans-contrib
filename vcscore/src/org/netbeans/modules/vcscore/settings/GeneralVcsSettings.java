@@ -26,13 +26,14 @@ import org.netbeans.modules.vcscore.registry.RecognizedFS;
  * @author  Milos Kleint, Martin Entlicher
  */
 public class GeneralVcsSettings extends SystemOption {
-    public static final String PROP_USE_GLOBAL         = "useGlobal"; // NOI18N
-    public static final String PROP_OFFLINE            = "offLine"; // NOI18N
-    public static final String PROP_AUTO_REFRESH       = "autoRefresh"; // NOI18N
-    public static final String PROP_HOME               = "home"; // NOI18N
-    public static final String PROP_HIDE_SHADOW_FILES  = "hideShadowFiles"; // NOI18N
-    public static final String PROP_DEFAULT_PROFILE    = "defaultProfile"; // NOI18N
-    public static final String PROP_RECOGNIZED_FS      = "recognizedFS"; // NOI18N
+    public static final String PROP_USE_GLOBAL            = "useGlobal"; // NOI18N
+    public static final String PROP_OFFLINE               = "offLine"; // NOI18N
+    public static final String PROP_AUTO_REFRESH          = "autoRefresh"; // NOI18N
+    public static final String PROP_HOME                  = "home"; // NOI18N
+    public static final String PROP_HIDE_SHADOW_FILES     = "hideShadowFiles"; // NOI18N
+    public static final String PROP_DEFAULT_PROFILE       = "defaultProfile"; // NOI18N
+    public static final String PROP_RECOGNIZED_FS         = "recognizedFS"; // NOI18N
+    public static final String PROP_ADVANCED_NOTIFICATION = "advancedNotification"; //NOI18N
     
     public static final int AUTO_REFRESH_NO_REFRESH = 0;
     public static final int AUTO_REFRESH_ON_DIR_OPEN = 1;
@@ -54,6 +55,7 @@ public class GeneralVcsSettings extends SystemOption {
         setHideShadowFiles(false);
         setOffLine(false);
         setUseGlobal(true);
+        setAdvancedNotification(true);
     }    
     
     /** Get human presentable name */
@@ -99,6 +101,20 @@ public class GeneralVcsSettings extends SystemOption {
      */
     public void setAutoRefresh(int newAutoRefresh) {
         putProperty(PROP_AUTO_REFRESH, new Integer(newAutoRefresh), true);
+    }
+    
+    /** Getter for advanced notification property.
+     * @return Value of advanced notification property.
+     */
+    public boolean isAdvancedNotification() {
+        return ((Boolean)getProperty(PROP_ADVANCED_NOTIFICATION)).booleanValue();
+    }
+    
+    /** Setter for advanced notification property.
+     * @param notifyAdv New value of advanced notification property.
+     */
+    public void setAdvancedNotification(boolean notifyAdv) {
+        putProperty(PROP_ADVANCED_NOTIFICATION, notifyAdv ? Boolean.TRUE : Boolean.FALSE, true);
     }
 
     public File getHome() {

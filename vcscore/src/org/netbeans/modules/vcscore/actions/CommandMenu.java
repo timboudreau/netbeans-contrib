@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.vcscore.actions;
 
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
@@ -24,9 +25,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextArea;
 import javax.swing.event.MenuKeyListener;
 
 import org.openide.awt.Actions;
@@ -43,6 +48,12 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 
 import org.netbeans.modules.vcscore.VcsFSCommandsAction;
 import org.netbeans.modules.vcscore.commands.CommandsTree;
+import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.util.NbBundle;
+import org.openide.util.SharedClassObject;
 
 /**
  * The menu with VCS commands constructed lazily.
@@ -65,7 +76,7 @@ public class CommandMenu extends JMenuPlus {
     private Map actionCommandMap;
     private boolean popupCreated = false;
     /** two elements: 1) whether CTRL was pressed, 2) expertMode */
-    private boolean[] CTRL_Down;
+    private boolean[] CTRL_Down;    
 
     /**
      * Creates a new instance of CommandMenu.
@@ -354,9 +365,10 @@ public class CommandMenu extends JMenuPlus {
         private boolean[] CTRL_Down;
         private Map actionCommandMap;
         private Map filesWithMessages;
+        private GeneralVcsSettings settings;
         
         public CommandActionListener(boolean[] CTRL_Down, Map actionCommandMap,
-                                     Map filesWithMessages) {
+        Map filesWithMessages) {
             this.CTRL_Down = CTRL_Down;
             this.actionCommandMap = actionCommandMap;
             this.filesWithMessages = filesWithMessages;
@@ -370,6 +382,7 @@ public class CommandMenu extends JMenuPlus {
             Object source = e.getSource();
             if (source instanceof JMenuItem) undoAdvanceSign((JMenuItem) source);
             final String cmdName = e.getActionCommand();
+            String cmdDisplayName;
             final CommandSupport[] cmdSupports;
             if (actionCommandMap != null) {
                 Object cmd = actionCommandMap.get(cmdName);
@@ -378,9 +391,21 @@ public class CommandMenu extends JMenuPlus {
                 } else {
                     cmdSupports = new CommandSupport[] { (CommandSupport) cmd };
                 }
+                cmdDisplayName = Actions.cutAmpersand(cmdSupports[0].getDisplayName());
             } else {
                 cmdSupports = null;
+                cmdDisplayName = cmdName;
             }
+            settings = (GeneralVcsSettings)SharedClassObject.findObject(GeneralVcsSettings.class, true);
+            if(!expertMode && settings.isAdvancedNotification()){
+                if(showFirstTimerDialog(cmdDisplayName))
+                    invokeCommand(cmdSupports, cmdName, changeExpertMode, expertMode);
+            }else
+                invokeCommand(cmdSupports, cmdName, changeExpertMode, expertMode);         
+            
+        }
+        
+        private void invokeCommand(final CommandSupport[] cmdSupports, final String cmdName, final boolean changeExpertMode, final boolean expertMode){
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
                     for (Iterator it = filesWithMessages.keySet().iterator(); it.hasNext(); ) {
@@ -433,8 +458,73 @@ public class CommandMenu extends JMenuPlus {
             });
         }
         
+        
+        /**
+         * Shows the warning About Default Switches
+         * dialog and gives the possibility to cancel the command.
+         * @return Should we proceed executing a CVS command
+         */
+        private static boolean showFirstTimerDialog(String commandName) {
+            JPanel panel = new JPanel();
+            JLabel label1 = new JLabel();
+            JTextArea textArea = new JTextArea();
+            textArea.setEditable(false);
+            textArea.setLineWrap(true);
+            textArea.setWrapStyleWord(true);
+            final JCheckBox box = new JCheckBox();
+            panel.setLayout(new java.awt.GridBagLayout());
+            StringBuffer buff = new StringBuffer();
+            buff.append(NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer1.text")); //NOI18N
+            buff.append("\n\n");
+            buff.append(NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer2.text")); //NOI18N
+            textArea.setText(buff.toString());
+            textArea.setBackground(label1.getBackground());
+            textArea.setRows(6);
+            textArea.setColumns(50);
+            
+            GridBagConstraints gridBagConstraints1;
+            gridBagConstraints1 = new java.awt.GridBagConstraints();
+            gridBagConstraints1.gridx = 0;
+            gridBagConstraints1.gridy = 0;
+            gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;//HORIZONTAL;
+            gridBagConstraints1.insets = new java.awt.Insets(12, 12, 0, 11);
+            gridBagConstraints1.weighty = 1.0;
+            panel.add(textArea, gridBagConstraints1);
+            
+            Actions.setMenuText(box, NbBundle.getMessage(CommandMenu.class, "CommandMenu.firstTimerBox"), true); //NOI18N
+            box.setSelected(false);
+            gridBagConstraints1 = new java.awt.GridBagConstraints();
+            gridBagConstraints1.gridx = 0;
+            gridBagConstraints1.gridy = 4;
+            gridBagConstraints1.insets = new java.awt.Insets(12, 12, 0, 11);
+            gridBagConstraints1.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+            gridBagConstraints1.weightx = 1.0;
+            gridBagConstraints1.weighty = 0.0;
+            panel.add(box, gridBagConstraints1);
+            
+            String title = NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer.title"); //NOI18N            
+            DialogDescriptor dd;
+            if (commandName != null) {
+                Object[] options = new Object[] { commandName, NotifyDescriptor.CANCEL_OPTION };
+                dd = new DialogDescriptor(panel, title, true, options, commandName,
+                DialogDescriptor.DEFAULT_ALIGN, null, null);
+            } else {
+                dd = new DialogDescriptor(panel, title, true,
+                NotifyDescriptor.OK_CANCEL_OPTION,
+                NotifyDescriptor.OK_OPTION, null);
+            }
+            final DialogDescriptor ddFin = dd;
+            Object retValue = DialogDisplayer.getDefault().notify(ddFin);
+            // Assure, that one of the buttons was pressed. If not, do nothing.
+            if (commandName == null && !NotifyDescriptor.OK_OPTION.equals(retValue) ||
+            commandName != null && !commandName.equals(retValue)) return false;
+            if (box.isSelected()) {
+                GeneralVcsSettings settings = (GeneralVcsSettings)SharedClassObject.findObject(GeneralVcsSettings.class, true);
+                settings.setAdvancedNotification(false);
+            }
+            return true;
+        }
     }
-    
     private static class CtrlMenuKeyListener implements javax.swing.event.MenuKeyListener {
         
         private boolean[] CTRL_Down;
