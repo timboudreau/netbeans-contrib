@@ -437,13 +437,13 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     }
 
 
-    public ORB getORB () {
+    public synchronized ORB getORB () {
         if (_M_orb == null)
             this.initOrb ();
         return _M_orb;
     }
 
-    public void initOrb () {
+    private void initOrb () {
 	String __orb_class = System.getProperty ("org.omg.CORBA.ORBClass");
 	String __orb_singleton = System.getProperty ("org.omg.CORBA.ORBSingletonClass");
 	boolean __set_property = false;
