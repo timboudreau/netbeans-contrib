@@ -196,6 +196,7 @@ public class MountingWizard extends JellyTestCase {
         } catch (Exception e) {
             long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
+            try { new NbFrameOperator("Options").close(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
             try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
             org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
             throw e;
@@ -322,15 +323,23 @@ public class MountingWizard extends JellyTestCase {
             PropertySheetOperator sheet = new PropertySheetOperator(commandEditor);
             Property property = new Property(sheet, "Exec");
             property.setValue(executionString);
+            Thread.sleep(1000);
+            if (!new Property(sheet, "Exec").getValue().equals(executionString))
+                throw new Exception("Error: Unable to set execution string.");
             property = new Property(sheet, "Data Regex");
             property.setValue("^(.*) (.*$)");
+            Thread.sleep(1000);
+            if (!new Property(sheet, "Data Regex").getValue().equals("^(.*) (.*$)"))
+                throw new Exception("Error: Unable to set data regex property.");
             commandEditor.ok();
             wizardAdvanced.finish();
             Thread.sleep(2000);
             Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), "CVS " + getWorkDirPath());
             filesystemNode.expand();
-            new OpenAction().perform(new Node(filesystemNode, "A_File"));
+            Thread.sleep(3000);
             new Action(null, "CVS|Refresh").perform(new Node(filesystemNode, "A_File"));
+            Thread.sleep(2000);
+            new OpenAction().perform(new Node(filesystemNode, "A_File"));
             EditorOperator editor = new EditorOperator("A_File");
             java.awt.Robot robot = new java.awt.Robot();
             robot.keyPress(32);
@@ -506,7 +515,7 @@ public class MountingWizard extends JellyTestCase {
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
             wizardProfile.setProfile(Utilities.isUnix() ? VCSWizardProfile.PVCS_UNIX : VCSWizardProfile.PVCS_WIN_NT);
-            Thread.sleep(5000);
+            Thread.sleep(10000);
             new File(getWorkDirPath()).mkdirs();
             wizardProfile.setPVCSWorkfilesLocation(getWorkDirPath());
             wizardProfile.next();
@@ -578,6 +587,7 @@ public class MountingWizard extends JellyTestCase {
             new org.netbeans.jellytools.actions.Action(VERSIONING_MENU + "|" + PVCS_SET_PASSWORD, PVCS_SET_PASSWORD).perform(filesystemNode);
             new NbDialogOperator("Password").cancel();
             OutputWindowOperator outputWindow = new OutputWindowOperator();
+            outputWindow.selectPage("Versioning");
             String output = outputWindow.getText();
             if (output.indexOf("Command Set Password finished.") == -1)
                 throw new Exception("Error: Print Command Output property does not work.");
