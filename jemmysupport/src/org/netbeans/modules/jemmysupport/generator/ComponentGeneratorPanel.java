@@ -41,7 +41,8 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     private static java.awt.Dialog dialog;
     private static ComponentGeneratorPanel panel;
     private String packageName;
-    private String directory;
+    // data folder where to place generated sources
+    private DataFolder targetDataFolder;
     private Thread thread;
     private java.util.Properties props;
     
@@ -301,7 +302,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
             thread.interrupt();
         }
         helpLabel.setText(NbBundle.getMessage(ComponentGeneratorPanel.class, "LBL_Help")); // NOI18N
-        thread = new Thread(new ComponentGeneratorRunnable(directory, packageName, this, props, screenShot.isSelected(), showEditor.isSelected(), mergeConflicts.isSelected()));
+        thread = new Thread(new ComponentGeneratorRunnable(targetDataFolder, packageName, this, props, screenShot.isSelected(), showEditor.isSelected(), mergeConflicts.isSelected()));
         thread.start();
     }//GEN-LAST:event_startButtonActionPerformed
 
@@ -348,7 +349,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
                     if ((df != null) && (!df.getPrimaryFile().getFileSystem().isReadOnly())) {
                         startButton.setEnabled(true);
                         packageName = df.getPrimaryFile().getPackageName('.');
-                        directory = org.openide.filesystems.FileUtil.toFile(df.getPrimaryFile()).getAbsolutePath();
+                        targetDataFolder = df;
                     }
                 } catch (org.openide.filesystems.FileStateInvalidException e) {}
             }

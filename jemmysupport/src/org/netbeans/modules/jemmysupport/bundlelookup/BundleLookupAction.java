@@ -71,7 +71,7 @@ public class BundleLookupAction extends NodeAction {
      * @return String path to action icon
      */    
     protected String iconResource() {
-       return "/org/netbeans/modules/jemmysupport/bundlelookup/BundleLookupAction.gif"; // NOI18N
+       return "org/netbeans/modules/jemmysupport/bundlelookup/BundleLookupAction.gif"; // NOI18N
     }
     
     /** method returning action Help Context

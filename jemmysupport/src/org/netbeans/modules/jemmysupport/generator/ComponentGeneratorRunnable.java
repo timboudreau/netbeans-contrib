@@ -1,11 +1,11 @@
 /*
  *                 Sun Public License Notice
- * 
+ *
  * The contents of this file are subject to the Sun Public License
  * Version 1.0 (the "License"). You may not use this file except in
  * compliance with the License. A copy of the License is available at
  * http://www.sun.com/
- * 
+ *
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -13,43 +13,38 @@
 
 package org.netbeans.modules.jemmysupport.generator;
 
-/*
- * ComponentGeneratorRunnable.java
- *
- * Created on February 7, 2002, 4:41 PM
- */
-import java.util.ArrayList;
-import java.awt.event.AWTEventListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.awt.*;
-import javax.swing.JLabel;
-import javax.swing.JInternalFrame;
-import java.io.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.AWTEventListener;
 import java.awt.event.FocusEvent;
-import java.util.Properties;
-
-import org.netbeans.jemmy.ComponentChooser;
-import org.netbeans.jemmy.operators.*;
-import org.netbeans.jemmy.util.PNGEncoder;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.VetoableChangeListener;
+import java.io.*;
+import java.util.Properties;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+import javax.swing.JLabel;
 import javax.swing.border.Border;
 import org.netbeans.api.diff.Difference;
 import org.netbeans.api.diff.StreamSource;
-import org.netbeans.spi.diff.DiffProvider;
-import org.netbeans.spi.diff.MergeVisualizer;
-import org.netbeans.modules.merge.builtin.visualizer.GraphicalMergeVisualizer;
+import org.netbeans.core.NbMainExplorer;
+import org.netbeans.jemmy.util.PNGEncoder;
 import org.netbeans.modules.merge.builtin.visualizer.MergeDialogComponent;
 import org.netbeans.modules.merge.builtin.visualizer.MergePanel;
+import org.netbeans.spi.diff.DiffProvider;
+import org.netbeans.spi.diff.MergeVisualizer;
 import org.openide.ErrorManager;
+import org.openide.cookies.EditorCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+
 
 /** class observing CTRL-F12 key and launching ComponentGenerator
  * @author <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
@@ -57,8 +52,8 @@ import org.openide.util.NbBundle;
  */
 public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     
-    String directory;
     String packageName;
+    DataFolder targetDataFolder;
     JLabel help;
     Component window,focused;
     ComponentGenerator gen;
@@ -72,30 +67,30 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     /** Creates new ComponentGeneratorRunnable
      * @param screenShot boolean true when create screen shot
      * @param showEditor boolean true when show components editor
-     * @param directory String destination directory
+     * @param targetDataFolder target data folder
      * @param packageName String package name
      * @param panel ComponentGeneratorPanel
      * @param properties CompoenentGenerator configuration properties */
-    public ComponentGeneratorRunnable(String directory, String packageName, ComponentGeneratorPanel panel, Properties properties, boolean screenShot, boolean showEditor, boolean merge) {
-        this.directory = directory;
+    public ComponentGeneratorRunnable(DataFolder targetDataFolder, String packageName, ComponentGeneratorPanel panel, Properties properties, boolean screenShot, boolean showEditor, boolean merge) {
+        this.targetDataFolder = targetDataFolder;
         this.packageName = packageName;
         help = panel.getHelpLabel();
-
+        
         GeneratorProvider prov = (GeneratorProvider)Lookup.getDefault().lookup(GeneratorProvider.class);
         if (prov==null) {
             gen = new ComponentGenerator(properties);
         } else {
             gen = prov.getInstance(properties);
         }
-
-//        gen=new org.netbeans.modules.testtools.generator.JellyComponentGenerator(properties);
+        
+        //        gen=new org.netbeans.modules.testtools.generator.JellyComponentGenerator(properties);
         
         this.panel = panel;
         this.screenShot = screenShot;
         this.showEditor = showEditor;
         this.merge = merge;
     }
-
+    
     static JComponent getJComponent(Component c) {
         if (c instanceof JComponent) return (JComponent)c;
         if (c instanceof JFrame) return ((JFrame)c).getRootPane();
@@ -105,8 +100,8 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     
     /** called when event is dispatched
      * @param aWTEvent aWTEvent
-     */    
-    public synchronized void eventDispatched(java.awt.AWTEvent aWTEvent) {
+     */
+    public synchronized void eventDispatched(AWTEvent aWTEvent) {
         try {
             if (aWTEvent instanceof FocusEvent) {
                 if (aWTEvent.getID()==FocusEvent.FOCUS_GAINED) {
@@ -130,8 +125,8 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                 }
             }
         } catch (Exception e) {}
-    }    
-
+    }
+    
     void removeFocus() {
         if (focused!=null) try {
             JComponent rootPane=getJComponent(focused);
@@ -142,24 +137,56 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
             focused=null;
         }
     }
-
+    
     private static final String oldLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_OldComponent"); // NOI18N
     private static final String newLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_NewComponent"); // NOI18N
     private static final String resultLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_ResultOfMerge"); // NOI18N
     
-    static void mergeConflicts(File f, String s) throws IOException {
+    void mergeConflicts(File f, ComponentGenerator gen, final FileObject fo) throws IOException {
         StreamSource s1=new ComponentSource(f, oldLabel);
-        StreamSource s2=new ComponentSource(f.getName(), s, newLabel);
+        StreamSource s2=new ComponentSource(f.getName(), gen.getComponentCode(), newLabel);
         StreamSource s3=new ComponentSource(f, resultLabel);
         DiffProvider diff=(DiffProvider)Lookup.getDefault().lookup(DiffProvider.class);
         MergeVisualizer merge=(MergeVisualizer)Lookup.getDefault().lookup(MergeVisualizer.class);
         Component c=merge.createView(diff.computeDiff(s1.createReader(), s2.createReader()), s1, s2, s3);
-        if (c instanceof MergeDialogComponent)
+        if (c instanceof MergeDialogComponent) {
             ((MergeDialogComponent)c).getSelectedMergePanel().firePropertyChange(MergePanel.PROP_CAN_BE_SAVED,false,true);
+            // add listener to open result of merging
+            ((MergeDialogComponent)c).addVetoableChangeListener(new VetoableChangeListener() {
+                public void vetoableChange(PropertyChangeEvent propertyChangeEvent) {
+                    if (MergeDialogComponent.PROP_PANEL_SAVE.equals(propertyChangeEvent.getPropertyName())) {
+                        // after merged file is saved, open it in editor
+                        openInEditor(fo);
+                    }
+                    else if (MergeDialogComponent.PROP_ALL_CLOSED.equals(propertyChangeEvent.getPropertyName())) {
+                        // remove listener when merge dialog is closed
+                        ((MergeDialogComponent)propertyChangeEvent.getSource()).removeVetoableChangeListener(this);
+                    }
+                }
+            });
+        }
+    }
+
+    /** Opens given FileObject in source editor and selects node in explorer. 
+     * It is expected that FileObject is java DataObject and has EditorCookie.
+     * @param fo FileObject to be opened in source editor. It should be java
+     * DataObject
+     */
+    private void openInEditor(FileObject fo) {
+        try {
+            DataObject dob = DataObject.find(fo);
+            // selects node in explorer
+            NbMainExplorer.RepositoryTab.getDefaultRepositoryTab().doSelectNode(dob);
+            // open in editor
+            ((EditorCookie)dob.getCookie(EditorCookie.class)).open();
+        } catch (Exception e) {
+            help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Exception")+e.getMessage()); // NOI18N
+            ErrorManager.getDefault().notify(e);
+        }
     }
     
     /** method implementing Runnable interface
-     */    
+     */
     public void run() {
         try {
             PrintStream out;
@@ -180,6 +207,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                     if (screenShot) {
                         shot = new Robot().createScreenCapture(new Rectangle(window.getLocationOnScreen(),window.getSize()));
                     }
+                    String directory = FileUtil.toFile(targetDataFolder.getPrimaryFile()).getAbsolutePath();
                     if (!merge) {
                         int i=2;
                         String name = gen.getClassName();
@@ -192,17 +220,23 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                     if ((!showEditor)||(ComponentsEditorPanel.showDialog(gen))) {
                         file=new File(directory+"/"+gen.getClassName()+".java"); // NOI18N
                         if (merge && file.exists()) {
-                            mergeConflicts(file, gen.getComponentCode());
+                            FileObject fo = targetDataFolder.getPrimaryFile().getFileObject(gen.getClassName()+".java"); // NOI18N
+                            mergeConflicts(file, gen, fo);
                         } else {
-                            out=new PrintStream(new FileOutputStream(file));
+                            FileObject fo = targetDataFolder.getPrimaryFile().createData(gen.getClassName()+".java");
+                            out = new PrintStream(fo.getOutputStream(fo.lock()));
+                            // write generated source to a stream
                             out.println(gen.getComponentCode());
                             out.close();
+                            // open FileObject representing generated source code
+                            // in source editor
+                            openInEditor(fo);
                         }
-
                         if (screenShot) {
                             new PNGEncoder(new FileOutputStream(directory+"/"+gen.getClassName()+".png")).encode(shot); // NOI18N
+                            // refresh target data folder
+                            targetDataFolder.getPrimaryFile().refresh();
                         }
-
                         help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Finished")+gen.getClassName()); // NOI18N
                     } else {
                         help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Canceled")); // NOI18N
@@ -269,9 +303,9 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
         
         public void notifyClosed() {
         }
-    
+        
     }
-
+    
     private static final String leftLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_Left"); // NOI18N
     private static final String delimiter = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_Delimiter"); // NOI18N
     private static final String rightLabel = NbBundle.getMessage(ComponentGeneratorRunnable.class, "LBL_Right"); // NOI18N
