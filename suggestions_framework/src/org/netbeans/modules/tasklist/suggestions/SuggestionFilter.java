@@ -84,7 +84,7 @@ public class SuggestionFilter extends Filter {
     }
     
     public Object getProperty(Object obj, int property) {
-        Suggestion s = (Suggestion) obj;
+        SuggestionImpl s = (SuggestionImpl) obj;
         switch (property) {
             case 0:
                 // SuggestionsRoot
@@ -97,10 +97,10 @@ public class SuggestionFilter extends Filter {
                 return s.getPriority();
             case 3:
                 // File
-                return ""; // TODO
+                return s.getFileBaseName();
             case 4:
                 // Line
-                return new Integer(0); // TODO
+                return new Integer(s.getLineNumber());
             case 5:
                 // Category
                 return s.getType();

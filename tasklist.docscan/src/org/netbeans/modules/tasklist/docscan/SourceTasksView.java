@@ -1158,7 +1158,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     public org.netbeans.modules.tasklist.core.filter.Filter getFilter() {
         if (filter == null) {
-            filter = new SuggestionFilter("Simple"); // NOI18N
+            filter = new SourceTasksFilter("TODOs"); // NOI18N
         }
         return filter;
     }
