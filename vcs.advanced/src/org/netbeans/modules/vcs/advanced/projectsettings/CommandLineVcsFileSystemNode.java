@@ -64,7 +64,8 @@ public class CommandLineVcsFileSystemNode extends AbstractNode {
     }
     
     private void updateState() {
-        boolean wasSet = false;
+        boolean wasSetDisplayName = false;
+        boolean wasSetSystemName = false;
         try {
             Document doc = obj.getDocument();
             Element rootElem = doc.getDocumentElement();
@@ -78,51 +79,67 @@ public class CommandLineVcsFileSystemNode extends AbstractNode {
                     Node nameAttr = propertyAttrs.getNamedItem(CommandLineVcsFileSystemInstance.PROPERTY_NAME_ATTR);
                     if (nameAttr == null) continue;
                     String name = nameAttr.getNodeValue();
-                    if ("displayName".equals(name)) {
-                        String value = "";
-                        
-                        NodeList valueList = property.getChildNodes();
-                        int m = valueList.getLength();
-                        for (int j = 0; j < m; j++) {
-                            Node valueNode = valueList.item(j);
-                            if (CommandLineVcsFileSystemInstance.PROPERTY_VALUE_TAG.equals(valueNode.getNodeName())) {
-                                NodeList textList = valueNode.getChildNodes();
-                                for (int itl = 0; itl < textList.getLength(); itl++) {
-                                    Node subNode = textList.item(itl);
-                                    if (subNode instanceof Text) {
-                                        Text textNode = (Text) subNode;
-                                        value += textNode.getData();
-                                    }
-                                    if (subNode instanceof EntityReference) {
-                                        EntityReference entityNode = (EntityReference) subNode;
-                                        NodeList entityList = entityNode.getChildNodes();
-                                        for (int iel = 0; iel < entityList.getLength(); iel++) {
-                                            Node entitySubNode = entityList.item(iel);
-                                            if (entitySubNode instanceof Text) {
-                                                Text textEntityNode = (Text) entitySubNode;
-                                                value += textEntityNode.getData();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
+                    if ("displayName".equals(name)) { // NOI18N
+                        String value = getPropertyValue(property);
                         setDisplayName(value);
-                        wasSet = true;
-                        break;
+                        wasSetDisplayName = true;
+                        if (wasSetDisplayName && wasSetSystemName) break;
+                    }
+                    if ("systemName".equals(name)) { // NOI18N
+                        String value = getPropertyValue(property);
+                        setName(value);
+                        wasSetSystemName = true;
+                        if (wasSetDisplayName && wasSetSystemName) break;
                     }
                 }
             }
         } catch (java.io.IOException ioex) {
         } catch (SAXException sex) {}
-        if (!wasSet) {
+        if (!wasSetDisplayName) {
             try {
                 FileSystem instFS = (FileSystem) ic.instanceCreate();
                 setDisplayName(instFS.getDisplayName());
             } catch (java.io.IOException ioex) {
             } catch (ClassNotFoundException cnfex) {}
         }
+        if (!wasSetSystemName) {
+            try {
+                FileSystem instFS = (FileSystem) ic.instanceCreate();
+                setName(instFS.getSystemName());
+            } catch (java.io.IOException ioex) {
+            } catch (ClassNotFoundException cnfex) {}
+        }
+    }
+
+    private String getPropertyValue(Node property) {
+        String value = ""; // NOI18N
+        NodeList valueList = property.getChildNodes();
+        int m = valueList.getLength();
+        for (int j = 0; j < m; j++) {
+            Node valueNode = valueList.item(j);
+            if (CommandLineVcsFileSystemInstance.PROPERTY_VALUE_TAG.equals(valueNode.getNodeName())) {
+                NodeList textList = valueNode.getChildNodes();
+                for (int itl = 0; itl < textList.getLength(); itl++) {
+                    Node subNode = textList.item(itl);
+                    if (subNode instanceof Text) {
+                        Text textNode = (Text) subNode;
+                        value += textNode.getData();
+                    }
+                    if (subNode instanceof EntityReference) {
+                        EntityReference entityNode = (EntityReference) subNode;
+                        NodeList entityList = entityNode.getChildNodes();
+                        for (int iel = 0; iel < entityList.getLength(); iel++) {
+                            Node entitySubNode = entityList.item(iel);
+                            if (entitySubNode instanceof Text) {
+                                Text textEntityNode = (Text) entitySubNode;
+                                value += textEntityNode.getData();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return value;
     }
     
     /** try to register PropertyChangeListener to instance to fire its changes.*/
