@@ -28,6 +28,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <indexitem text=" "/>
 <indexitem text="-C-"/>
+<indexitem text="changing POA policies" target="changepol"></indexitem> 
 <indexitem text="client class" target="concepts_basics"></indexitem>
 <indexitem text="client-side files" target="concepts_files"></indexitem>
 <indexitem text="client-side lookup" target="setup_nsbrowser"></indexitem>
@@ -50,6 +51,7 @@ Microsystems, Inc. All Rights Reserved.
 <indexitem text=" "/>
 <indexitem text="-D-"/>
 <indexitem text="debugging" target="debugger_intro"></indexitem>
+<indexitem text="displaying POA properties" target="displayprop"></indexitem>
 
 <indexitem text=" "/>
 <indexitem text="-E-"/>
@@ -132,6 +134,7 @@ Microsystems, Inc. All Rights Reserved.
 
 <indexitem text=" "/>
 <indexitem text="-R-"/>
+<indexitem text="registering a POA activator" target="regpoactivator"></indexitem>
 <indexitem text="resolve() method" target="completing_client"></indexitem>
 <indexitem text="runtime classes of ORBS" target="setup_accessruntime"></indexitem>
 
