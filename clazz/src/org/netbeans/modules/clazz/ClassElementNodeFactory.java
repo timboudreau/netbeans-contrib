@@ -93,31 +93,30 @@ final class ClassElementNodeFactory extends DefaultFactory {
   * @return ElementNode
   */
   public Node createClassNode (final ClassElement element) {
-    ClassElementNode n =
-      new ClassElementNode(element, tree ? Children.LEAF : createClassChildren(element), false);
-    CookieSet cs = n.getCookieSet ();
-    cs.add (new ElementCookie () {
-      public Node getElementsParent () {
-        ClassElementNode nn = new ClassElementNode (element, createClassChildren(element), false);
-        CookieSet css = nn.getCookieSet ();
-        css.add ((FilterCookie) nn.getChildren ());
-        return nn;
-      }
-    });
-    n.setActions(getDefaultActions());
-    if (tree)
+    ClassChildren ch = new ClassChildren(this, element);
+  
+    ClassElementNode n = new ClassElementNode(element, ch, false);
+    
+    
+    if (tree) {
+      CookieSet css = n.getCookieSet ();
+      css.add ((FilterCookie) n.getChildren ());
       n.setElementFormat(new ElementFormat (
         NbBundle.getBundle (ClassElementNodeFactory.class).getString("CTL_Class_name_format")
       ));
+      
+      // filter out inner classes
+      ClassElementFilter cel = new ClassElementFilter ();
+      cel.setOrder (new int[] {
+        ClassElementFilter.CONSTRUCTOR + ClassElementFilter.METHOD,
+        ClassElementFilter.FIELD,
+      });
+      ch.setFilter (cel);
+    }
+    
+    n.setActions(getDefaultActions());
+    
     return n;
-  }
-
-  /** Method which creates children for class node.
-  * @param element class element
-  * @return children for the class element
-  */
-  protected Children createClassChildren(ClassElement element) {
-    return new ClassChildren(getInstance(), element);
   }
 
   /** Convenience method for obtaining default actions of nodes */
@@ -141,6 +140,7 @@ final class ClassElementNodeFactory extends DefaultFactory {
 
 /*
 * Log
+*  5    src-jtulach1.4         5/16/99  Jaroslav Tulach New hiearchy.
 *  4    src-jtulach1.3         4/2/99   Jan Jancura     ObjectBrowser support II.
 *  3    src-jtulach1.2         4/1/99   Ian Formanek    Rollback to make it 
 *       compilable
