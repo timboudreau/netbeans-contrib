@@ -38,8 +38,8 @@ import com.netbeans.enterprise.modules.corba.*;
  
 public class ImplGenerator {
 
-  public static final boolean DEBUG = true;
-  //private static final boolean DEBUG = false;
+  //public static final boolean DEBUG = true;
+  private static final boolean DEBUG = false;
 
 
   private IDLElement src;
@@ -178,7 +178,7 @@ public class ImplGenerator {
   }
 
   
-  public Type JavaTypeToHolder (Type type) {
+  public Type JavaTypeToHolder (Type type) throws UnknownTypeException {
 
     if (DEBUG)
       System.out.println ("ImplGenerator::JavaTypeToHolder (" + type + ");");
@@ -212,7 +212,7 @@ public class ImplGenerator {
 
     if (DEBUG)
       System.out.println ("error unknown type!!!");
-    throw new java.lang.NullPointerException ();
+    throw new UnknownTypeException (type.getSourceString ());
   }
 
   public boolean isAbsoluteScopeType (IDLType type) {
@@ -581,18 +581,17 @@ public class ImplGenerator {
       
       IDLType res_type = result.getType ();
       Vector dim = result.getType ().ofDimension ();
-      if ((java_type = type2java (res_type)) != null) {
-	//if (dim != null) {
-	for (int i=0; i<dim.size (); i++) {
-	  if (DEBUG)
-	    System.out.println ("!!!!!!!!!!!!! " + i + "  !!!!!!!!!!!!!!!!!!!");
-	  java_type = Type.createArray (java_type);
-	}
-	//}
-	return java_type;
+      if ((java_type = type2java (res_type)) == null) {
+	java_type = hasSimpleParent (res_type, from);
+	if (java_type == null)  // we are at the top of type tree
+	  return null;
       }
-      else 
-	return hasSimpleParent (res_type, from);
+      for (int i=0; i<dim.size (); i++) {
+	if (DEBUG)
+	  System.out.println ("!!!!!!!!!!!!! " + i + "  !!!!!!!!!!!!!!!!!!!");
+	java_type = Type.createArray (java_type);
+      }
+      return java_type;
     }
     else {
       return null;
@@ -1021,7 +1020,106 @@ public class ImplGenerator {
     return null;
   }
 
+
+  public IDLElement getTopParentTypeElement (IDLElement type, IDLElement from) {
+    if (from == null || type == null)
+      return null;
+    if (DEBUG)
+      System.out.println ("ImplGenerator::getTopParentType (" + type.getName () + ", " 
+			  + from + ");");
+
+    if (type instanceof TypeElement) {
+      TypeElement type_element = (TypeElement)type;
+      if (type_element.getType ().getType() == IDLType.STRUCT
+	|| type_element.getType ().getType() == IDLType.UNION
+	|| type_element.getType ().getType() == IDLType.ENUM) {
+	if (DEBUG)
+	  System.out.println ("-- top parent type found");
+	return type;
+      }
+    }
+
+
+    if (type instanceof InterfaceElement) {
+      if (DEBUG)
+	System.out.println ("-- top parent interface found");
+      
+      return type;
+    }
+    
+    IDLElement parent = findElementByName (((TypeElement)type).getType ().getName (), from);
+    IDLElement tmp_element;
+    if (parent != null) {
+      if (parent instanceof TypeElement || parent instanceof InterfaceElement) {
+	if ((tmp_element = getTopParentTypeElement (parent, from)) != null)
+	  return tmp_element;
+	else
+	  return parent;
+      }
+      else
+	return type;
+    }
+    return null;
+  }
    
+
+  public int getArrayDimensionOfType (IDLElement type, IDLElement from, int counter) {
+    if (from == null || type == null)
+      return 0;
+    if (DEBUG)
+      System.out.println ("ImplGenerator::getArrayDimensionOfType (" + type.getName () + ", " 
+			  + from + ", " + counter + ");");
+
+    if (type instanceof TypeElement) {
+      TypeElement type_element = (TypeElement)type;
+      if (type_element.getType ().getType() == IDLType.STRUCT
+	  || type_element.getType ().getType() == IDLType.UNION
+	  || type_element.getType ().getType() == IDLType.ENUM) {
+	if (DEBUG)
+	  System.out.println ("-- top parent type found");
+	return counter;
+      }
+    }
+
+    if (type instanceof InterfaceElement) {
+      if (DEBUG)
+	System.out.println ("-- top parent interface found");
+
+      return counter;
+    }
+
+    if (type instanceof DeclaratorElement) {
+      if (DEBUG)
+	System.out.println ("declarator element!");
+      DeclaratorElement de = (DeclaratorElement)type;
+      counter = counter + de.getDimension ().size ();
+      if (DEBUG)
+	System.out.println ("counter: " + counter);
+      
+    }
+    
+    TypeElement type_element = (TypeElement)type;
+    IDLElement parent;
+    if (type_element.getType ().getType () != IDLType.SEQUENCE) {
+      parent = findElementByName (type_element.getType ().getName (), from);
+    }
+    else {
+      // sequence
+      parent = findElementByName (type_element.getType ().ofType ().getName (), from);
+    }
+    //IDLElement tmp_element;
+    if (parent != null) {
+      if (parent instanceof TypeElement)
+	return getArrayDimensionOfType (parent, from, counter);
+      if (parent instanceof InterfaceElement)
+	return getArrayDimensionOfType (parent, from, counter);
+
+    }
+    //return 0;
+    return counter;
+  }
+   
+
   public IDLElement findModule (String name, IDLElement from) {
     if (DEBUG)
       System.out.println ("ImplGenerator::findModule (" + name + ", " + from.getName () + ":"
@@ -1315,6 +1413,8 @@ public class ImplGenerator {
     String type_name;
     Type type = null;
     IDLType tmp_type;
+    int dim = 0;
+
     if (DEBUG)
       System.out.println ("-- is simple type?");
     if ((type = isSimpleType (idl_type, _interface)) != null) {
@@ -1323,10 +1423,13 @@ public class ImplGenerator {
 	return type;
       else {
 	//	if (type.isPrimitive ())
+	try {
 	  return JavaTypeToHolder (type);
-	  //else
-	  //return JavaTypeToHolder (Type.createClass (org.openide.src.Identifier.create (idl_type.getName ())));
-
+	} catch (UnknownTypeException e) {
+	  e.printStackTrace ();
+	}
+	//else
+	//return JavaTypeToHolder (Type.createClass (org.openide.src.Identifier.create (idl_type.getName ())));
       }
     }
     if (DEBUG)
@@ -1342,8 +1445,11 @@ public class ImplGenerator {
       }
       else {
 	// is array ???
-	if (type.isPrimitive ())
+	//if (type.isPrimitive ())
+	try {
 	  return JavaTypeToHolder (type);
+	} catch (UnknownTypeException e) {
+	}
 	//else
 	//  return JavaTypeToHolder (Type.createClass (org.openide.src.Identifier.create 
 	//					     (idl_type.getName ())));
@@ -1360,22 +1466,31 @@ public class ImplGenerator {
       // idl_type is template type
       if (DEBUG)
 	System.out.println ("-- is type with template parent? YEEES");
+
+      if (DEBUG)
+	System.out.println ("-- has this template type array parent?");
+      IDLElement tmp_element_for_type = findElementByName (idl_type.getName (), _interface);
+      IDLElement element_for_type = null;
+      // here we must find top parent type of type
+      if (mode == Parameter.IN) {
+	//element_for_type = getTopParentTypeElement (tmp_element_for_type, _interface);
+	dim = getArrayDimensionOfType (tmp_element_for_type, _interface, 0);
+	
+	if (DEBUG)
+	  System.out.println ("dim: " + dim);
+	for (int i=0; i<dim; i++) {
+	  type = Type.createArray (type);
+	}
+      }
+      
       return type;
-      /*
-	if (mode == Parameter.IN) {
-	return type;
-	}
-	else {
-	return JavaTypeToHolder (type);
-	}
-      */
     }
     if (DEBUG)
       System.out.println ("-- is type with template parent? NOOOO");
 
-    if (DEBUG)
-      System.out.println ("cons: " + ctype2package (findElementByName (idl_type.getName (),
-								       _interface)));
+    //if (DEBUG)
+    //  System.out.println ("cons: " + ctype2package (findElementByName (idl_type.getName (),
+    //								       _interface)));
     
     if (DEBUG)
       System.out.println ("-- is type with absolute scope name");
@@ -1417,7 +1532,22 @@ public class ImplGenerator {
     if (DEBUG)
       System.out.println ("-- is type normal name");
     //Type tmp_type;
-    IDLElement element_for_type = findElementByName (idl_type.getName (), _interface);
+    IDLElement tmp_element_for_type = findElementByName (idl_type.getName (), _interface);
+    IDLElement element_for_type = null;
+    dim = getArrayDimensionOfType (tmp_element_for_type, _interface, 0);
+    if (DEBUG)
+      System.out.println ("dim: " + dim);
+    // here we must find top parent type of type
+    if (mode == Parameter.IN || dim == 0) {
+      element_for_type = getTopParentTypeElement (tmp_element_for_type, _interface);
+      if (element_for_type == null) {
+	// we don't find top level type
+	element_for_type = tmp_element_for_type;
+      }
+    }
+    else {
+      element_for_type = tmp_element_for_type;
+    }
     if (DEBUG)
       System.out.println ("element_for_type: " + element_for_type.getName () + " : " 
 			  + element_for_type);
@@ -1425,6 +1555,10 @@ public class ImplGenerator {
     if (mode != Parameter.IN)
       full_name = full_name + "Holder";
     type = Type.createClass (org.openide.src.Identifier.create (full_name));
+    for (int i=0; i<dim; i++) {
+      // creating array from type 
+      type = Type.createArray (type);
+    }
       
     return type;
 
@@ -1572,7 +1706,7 @@ public class ImplGenerator {
       //if (!existMethodInClass (clazz, geter))
       clazz.addMethod (geter); // now addMethod throws SourceExcetion
     } catch (SourceException e) {
-      e.printStackTrace ();
+      //e.printStackTrace ();
     }
       
     if (!attr.getReadOnly ()) {
@@ -1587,7 +1721,7 @@ public class ImplGenerator {
 	//if (!existMethodInClass (clazz, seter))
 	clazz.addMethod (seter); // now addMethod throws SourceExcetion
       } catch (SourceException e) {
-	e.printStackTrace ();
+	//e.printStackTrace ();
       }
     }
       
@@ -1644,7 +1778,7 @@ public class ImplGenerator {
       //if (!existMethodInClass (clazz, oper)) 
       clazz.addMethod (oper); // now addMethod throws SourceExcetion
     } catch (SourceException e) {
-      e.printStackTrace ();
+      //e.printStackTrace ();
     }
 
   }
@@ -1830,7 +1964,7 @@ public class ImplGenerator {
       printer.println (clazz.toString ());
       lock.releaseLock ();
     } catch (org.openide.src.SourceException e) {
-      e.printStackTrace ();
+      //e.printStackTrace ();
     } catch (java.io.IOException e) {
       e.printStackTrace ();
     }
