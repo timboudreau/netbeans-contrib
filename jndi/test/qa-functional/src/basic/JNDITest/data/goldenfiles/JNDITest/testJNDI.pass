@@ -1,0 +1,159 @@
+SystemOptionTest version 1.0.1
+IT MUST BE LOADED BY MODULE CLASSLOADER
+OTHERWISE REFERENCED MODULE CLASSES COULD NOT BE LOADED!
+========================================
+  systemOption = org.netbeans.modules.jndi.settings.JndiSystemOption
+  className = org.netbeans.modules.jndi.settings.JndiSystemOption
+  serializable = true
+bean info:
+  class = java.beans.GenericBeanInfo
+bean descriptor:
+  name = JndiSystemOption
+  displayName = JndiSystemOption
+  shortDescription = JndiSystemOption
+  hidden = false
+  customizer = java.beans.BeanDescriptor
+property:
+  name = initialContexts
+  type = java.util.ArrayList
+  getter = getInitialContexts
+  setter = setInitialContexts
+  displayName = Initial Contexts
+  shortDescription = Initial Contexts
+  hidden = true
+  editor = null
+property:
+  name = timeOut
+  type = int
+  getter = getTimeOut
+  setter = setTimeOut
+  displayName = Time Out
+  shortDescription = Timeout for connecting in milliseconds
+  hidden = false
+  editor = null
+additional bean infos:
+========================================
+
+Actions of node: JNDI
+Add
+&Properties
+
+Properties of node: JNDI
+
+Actions of node: Providers
+Add
+Refresh
+
+Properties of node: Providers
+
+Provider com.sun.jndi.cosnaming.CNCtxFactory initialization Ok.
+Actions of node: CNCtxFactory
+Test Provider
+Connect Using...
+&Delete
+&Properties
+
+Properties of node: CNCtxFactory
+ PropertySet: properties
+java.naming.factory.initial = com.sun.jndi.cosnaming.CNCtxFactory
+java.naming.provider.url = iiop://localhost:900
+HomePath = 
+java.naming.security.authentication = 
+java.naming.security.principal = 
+java.naming.security.credentials = 
+Additional = 
+
+Provider com.sun.jndi.ldap.LdapCtxFactory initialization Ok.
+Actions of node: LdapCtxFactory
+Test Provider
+Connect Using...
+&Delete
+&Properties
+
+Properties of node: LdapCtxFactory
+ PropertySet: properties
+java.naming.factory.initial = com.sun.jndi.ldap.LdapCtxFactory
+java.naming.provider.url = ldap://
+HomePath = 
+java.naming.security.authentication = 
+java.naming.security.principal = 
+java.naming.security.credentials = 
+Additional = 
+
+Provider com.sun.jndi.nis.NISCtxFactory initialization Ok.
+Actions of node: NISCtxFactory
+Test Provider
+Connect Using...
+&Delete
+&Properties
+
+Properties of node: NISCtxFactory
+ PropertySet: properties
+java.naming.factory.initial = com.sun.jndi.nis.NISCtxFactory
+java.naming.provider.url = nis://
+HomePath = 
+java.naming.security.authentication = 
+java.naming.security.principal = 
+java.naming.security.credentials = 
+Additional = 
+
+Provider com.sun.jndi.fscontext.RefFSContextFactory initialization Ok.
+Actions of node: RefFSContextFactory
+Test Provider
+Connect Using...
+&Delete
+&Properties
+
+Properties of node: RefFSContextFactory
+ PropertySet: properties
+java.naming.factory.initial = com.sun.jndi.fscontext.RefFSContextFactory
+java.naming.provider.url = file://
+HomePath = 
+java.naming.security.authentication = 
+java.naming.security.principal = 
+java.naming.security.credentials = 
+Additional = 
+
+Provider com.sun.jndi.rmi.registry.RegistryContextFactory initialization Ok.
+Actions of node: RegistryContextFactory
+Test Provider
+Connect Using...
+&Delete
+&Properties
+
+Properties of node: RegistryContextFactory
+ PropertySet: properties
+java.naming.factory.initial = com.sun.jndi.rmi.registry.RegistryContextFactory
+java.naming.provider.url = rmi://localhost:1099
+HomePath = 
+java.naming.security.authentication = 
+java.naming.security.principal = 
+java.naming.security.credentials = 
+Additional = 
+
+Adding new context
+Lookup copy code on node: TestNode
+/** Inserted by Jndi module */
+java.util.Properties jndiProperties = new java.util.Properties();
+jndiProperties.put("java.naming.provider.url","file:///");
+jndiProperties.put("java.naming.factory.initial","com.sun.jndi.fscontext.RefFSContextFactory");
+try {
+    javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);
+    javax.naming.Context jndiObject = (javax.naming.Context)jndiCtx.lookup("");
+} catch (javax.naming.NamingException ne) {
+    ne.printStackTrace();
+}
+
+Binding copy code on node: TestNode
+/** Inserted by Jndi module */
+java.util.Properties jndiProperties = new java.util.Properties();
+jndiProperties.put("java.naming.provider.url","file:///");
+jndiProperties.put("java.naming.factory.initial","com.sun.jndi.fscontext.RefFSContextFactory");
+try {
+    javax.naming.directory.DirContext jndiCtx = new javax.naming.directory.InitialDirContext(jndiProperties);
+    javax.naming.Context jndiObject = (javax.naming.Context)jndiCtx.lookup("");
+    jndiObject.bind("<Name>",<Object>);
+} catch (javax.naming.NamingException ne) {
+    ne.printStackTrace();
+}
+
