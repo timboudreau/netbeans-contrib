@@ -24,6 +24,9 @@ import org.openide.nodes.Children;
  */
 public final class JndiModule extends ModuleInstall {
 
+    // be compatible with build #501
+    static final long serialVersionUID = -2972992385602605979L;
+
     public void installed() {
     }
 
