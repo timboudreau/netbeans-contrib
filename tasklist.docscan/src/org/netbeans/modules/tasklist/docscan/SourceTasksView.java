@@ -670,7 +670,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
             button.getAccessibleContext().setAccessibleName(Util.getString("select-folder"));
             button.getAccessibleContext().setAccessibleDescription(Util.getString("selector_hint"));
-
+            // DBG button.setBorder(BorderFactory.createLineBorder(Color.GREEN));
             folderSelector = button;
         }
         return folderSelector;
@@ -687,7 +687,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         public Dimension getPreferredSize() {
             Dimension dim = getAllFiles().getPreferredSize();
-            return new Dimension(11, dim.height);
+            int HEURITICS_FOR_OCEAN_LF = 1;    // get botton aligned with Selected Folder button
+            return new Dimension(11, dim.height + HEURITICS_FOR_OCEAN_LF);
         }
     }
 
@@ -939,13 +940,23 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         toolbar.add(getCurrentFile());
         toolbar.add(getOpenedFiles());
         toolbar.add(getAllFiles());
-        toolbar.add(getFolderSelector());
-        toolbar.add(new JSeparator(JSeparator.VERTICAL));
+
+        JPanel wrapper = new JPanel();
+        wrapper.setLayout(new FlowLayout(FlowLayout.CENTER,0,0));
+        wrapper.add(getFolderSelector());
+        // DBG wrapper.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+        wrapper.setBorder(BorderFactory.createEmptyBorder(1,0,0,0));
+        toolbar.add(wrapper);
+        //JSeparator separator = new JSeparator(JSeparator.VERTICAL);  // Ocean L&F doe snot support vertical separators
+        JPanel separator = new JPanel();
+        toolbar.add(separator);
         toolbar.add(getGoto());
         toolbar.add(getRefresh());
-	toolbar.add(getFilterIconButton());
+        toolbar.add(getFilterIconButton());
         toolbar.add(getFilterCombo());
-        toolbar.add(new JSeparator(JSeparator.VERTICAL));
+        //JSeparator separator2 = new JSeparator(JSeparator.VERTICAL);  // Ocean L&F doe snot support vertical separators
+        JPanel separator2 = new JPanel();
+        toolbar.add(separator2);
 
         JPanel rightpanel = new JPanel();
         rightpanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 0));
@@ -1716,10 +1727,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             adjustHeightComponent(filterCombo);
             Dimension dim = filterCombo.getPreferredSize();
             dim.width = 150;
-	    filterCombo.setPreferredSize(dim);
+            filterCombo.setPreferredSize(dim);
 
             filterCombo.setToolTipText(Util.getString("choose-filter_hint") + " (f)");  // NOI18N
-
             filterCombo.getAccessibleContext().setAccessibleName(Util.getString("choose-filter"));
             filterCombo.getAccessibleContext().setAccessibleDescription(Util.getString("choose-filter_hint"));
 
