@@ -15,6 +15,24 @@
 
 --------------------------------------------------------------------------------
 
+-- Release --------------------------------------
+
+  Released version:          FCS + RC4
+  Released build number:     501
+  Release type:              FCS, RC4, EAP Pro/Enterprise modules
+  StarTeam Label:            Gandalf-Build501
+  Label Date:                20.3.2000 7:30:18
+  Release Date:              20.3.2000
+  
+  Specification-Version:     1.0
+  Implementation-Version:    1.0  
+
+-------------------------------------------------
+
+
+
+-------------------------------------------------
+
 Aug/31 USER CHANGE: Correctly provides FileSystemAction on its data objects
 
 -- Release --------------------------------------
