@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module-Name: LaTeX Ant user tasks integration
 OpenIDE-Module-Short-Description: Integrates the LaTeX ant user tasks in the IDE.
 OpenIDE-Module-Display-Category: LaTeX
-OpenIDE-Module-Specification-Version: 1.3.0.2.4
+OpenIDE-Module-Specification-Version: 1.3.0.2.5
 OpenIDE-Module: org.netbeans.modules.latex.antint/1
