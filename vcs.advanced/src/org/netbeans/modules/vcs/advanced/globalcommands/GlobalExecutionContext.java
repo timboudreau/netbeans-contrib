@@ -65,6 +65,7 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
     private String password = null;
     private String passwordDescription = null;
     private InputOutput cmdIO;
+    private String profileName;
     /**
      * Additional user parameters to the command. These are global parameters to all commands.
      * Parameters local to each command are stored in UserCommand.userParams.
@@ -89,6 +90,7 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
     
     /** Creates a new instance of GlobalExecutionContext */
     public GlobalExecutionContext(Profile profile) {
+        profileName = profile.getName();
         profileRef = new WeakReference(profile);
         profile.addPropertyChangeListener(WeakListener.propertyChange(this, profile));
         defaultVariables = getDefaultVariables();
@@ -260,6 +262,10 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
         } else {
             return new Vector();
         }
+    }
+    
+    public String getProfileName(){
+        return profileName;
     }
     
     public void setVariables(Vector variables) {

@@ -94,6 +94,7 @@ Microsystems, Inc. All Rights Reserved.
                 <package>org.netbeans.modules.vcscore.cmdline</package>
                 <package>org.netbeans.modules.vcscore.commands</package>
                 <package>org.netbeans.modules.vcscore.grouping</package>
+                <package>org.netbeans.modules.vcscore.registry</package>
                 <package>org.netbeans.modules.vcscore.runtime</package>
                 <package>org.netbeans.modules.vcscore.settings</package>
                 <package>org.netbeans.modules.vcscore.ui</package>

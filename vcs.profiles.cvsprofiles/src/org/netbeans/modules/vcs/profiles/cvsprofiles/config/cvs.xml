@@ -2833,7 +2833,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>$[? BUILT-IN-GLB][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}]
                                  [$[? IS_WIN9X] [${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}] 
                                  [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}]]
-          </value>  
+          </value>
 	</property>
 	<property name="display">
 	  <value>true</value>
@@ -2876,7 +2876,10 @@ Microsystems, Inc. All Rights Reserved.
         <property name="runOnMultipleFiles">
           <value>true</value>
         </property>
-      </command>
+        <property name="commandsAfterSuccess">
+          <value>GLOBAL_REGISTER</value>
+        </property>
+      </command>    
       <command name="AUTO_FILL_GLOBAL_CONFIG">
         <property name="exec">
           <value>vcs.commands.CvsAutoFillGlobalConfig.class</value>
@@ -2888,6 +2891,17 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
       </command>
+      <command name="GLOBAL_REGISTER">
+        <property name="exec">
+          <value>vcs.commands.CvsGlobalRegister.class</value>
+        </property>
+        <property name="executionPriority">
+          <value>1</value> <!-- HIGH PRIORITY -->
+        </property>
+        <property name="ignoreFail">
+          <value>true</value>
+        </property>
+      </command>      
       <command name="SELECTOR_MODULES">
         <property name="exec">
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsModuleSelector.class CHECKOUT_MODULES_S_CMD CHECKOUT_MODULES_C_CMD</value>
