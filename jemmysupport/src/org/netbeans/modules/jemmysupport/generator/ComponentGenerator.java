@@ -37,6 +37,7 @@ import org.netbeans.jemmy.JemmyProperties;
 import org.netbeans.jemmy.QueueTool;
 import org.netbeans.jemmy.TestOut;
 import org.netbeans.jemmy.operators.*;
+import org.netbeans.jemmy.util.NameComponentChooser;
 import org.netbeans.modules.jemmysupport.I18NSupport;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
@@ -58,6 +59,8 @@ public class ComponentGenerator {
     ComponentRecord _container;
     String _package;
     boolean _grabIcons = false;
+    // true when Component.getName() should be used for component identification
+    boolean _useComponentName = false;
     Robot robot = null;
     I18NSupport i18n;
         
@@ -203,9 +206,14 @@ public class ComponentGenerator {
         ComponentRecord _parent;
         ComponentOperator _componentOperator;
         DefaultMutableTreeNode _node = null;
+        // set only if _componentOperator.getName() != null and usage on names is allowed in ComponentGeneratorPanel
+        String _componentName = null;
         
         /** creates new record of component
          * @param icon Icon of component
+         * @param componentName name of component from Component.getName(). Not
+         * null only if Component.getName() != null and usage on names is 
+         * allowed in ComponentGeneratorPanel
          * @param componentOperator ComponentOperator of component
          * @param parent OperatorRecord of parent container
          * @param internalLabels String[] set of components internal labels used for internal logic generation
@@ -213,10 +221,11 @@ public class ComponentGenerator {
          * @param identification identification string
          * @param uniqueName generated unique name
          * @param index index used for component search inside container
-         * @param componentClass compoennt's real class name */        
-        public ComponentRecord( OperatorRecord operator, String identification, String uniqueName, int index, int absoluteIndex, String componentClass, String[] internalLabels, Icon icon, ComponentOperator componentOperator, ComponentRecord parent ) {
+         * @param componentClass component's real class name */        
+        public ComponentRecord( OperatorRecord operator, String componentName, String identification, String uniqueName, int index, int absoluteIndex, String componentClass, String[] internalLabels, Icon icon, ComponentOperator componentOperator, ComponentRecord parent ) {
             _icon = icon;
             _operator = operator;
+            _componentName = componentName;
             setIdentification(identification);
              _uniqueName = uniqueName;
             _index = index;
@@ -295,16 +304,45 @@ public class ComponentGenerator {
             return _parent==null? "this" : _parent.getUniqueName()+"()"; // NOI18N
         }
         
-        /** getter for source code of construcotr arguments
+        /** getter for source code of constructor arguments
          * @return String source code of constructor arguments */        
         public String getConstructorArgs() {
             String s=getParentGetter()+", "; // NOI18N
-            if (_identification!=null && _identification.length()>0) s+=getI18NIdentification()+", "; // NOI18N
+
+            // Use NameComponentChooser only if component name is not null. 
+            // It can be not null only if it is allowed in ComponentGeneratorPanel
+            // and of course it is set by programmer. 
+            if(_componentName != null) {
+                // use name chooser
+                s += "new NameComponentChooser(\""+_componentName+"\")"+", "; // NOI18N
+            } else  if (_identification != null && _identification.length() > 0) {
+                s+=getI18NIdentification()+", "; // NOI18N
+            }
+
             if (_index>0) s+=String.valueOf(_index);
             if (s.endsWith(", ")) return s.substring(0, s.length()-2); // NOI18N
             return s;
         }
 
+        /** If is requested to use component's name and the name is not null
+         * it returns new NameComponentChooser("componentName");. Otherwise
+         * it return result of {@link #getI18NIdentification} method which is
+         * title or caption of component.
+         * @return new NameComponentChooser("componentName"); if component name
+         * is not null and its usage is enabled, result of
+         * {@link #getI18NIdentification} method otherwise.
+         */        
+        public String topSuperArgs() {
+            // Use NameComponentChooser only if component name is not null. 
+            // It can be not null only if it is allowed in ComponentGeneratorPanel
+            // and of course it is set by programmer. 
+            if(_componentName != null) {
+                return "new NameComponentChooser(\""+_componentName+"\")"; // NOI18N
+            } else {
+                return getI18NIdentification();
+            }
+        }
+        
         public String getI18NIdentification() {
            if (_identification==null) {
                 return "null"; // NOI18N
@@ -464,6 +502,7 @@ public class ComponentGenerator {
             replace(sb, "__PARENTGETTER__", getParentGetter()); // NOI18N
             replace(sb, "__CONSTRUCTORARGS__", getConstructorArgs()); // NOI18N
             replace(sb, "__VISUALIZER__", getVisualizer()); // NOI18N
+            replace(sb, "__TOPSUPERARGS__", topSuperArgs()); // NOI18N
             return sb.toString();
         }
         
@@ -710,24 +749,37 @@ public class ComponentGenerator {
         return name+suffix+String.valueOf(i);
     }
 
-    int searchForIndex( ComponentOperator operator, ContainerOperator container, String identification ) {
+    int searchForIndex( ComponentOperator operator, ContainerOperator container, String identification, String componentName ) {
         Constructor c;
         Component component = operator.getSource();
         try {
-            if (identification!=null && identification.length()>0) {
+            if(componentName != null) {
+                // use component name for identification
+                c = operator.getClass().getConstructor( new Class[] { ContainerOperator.class, ComponentChooser.class, Integer.TYPE } );
+            } 
+            else if (identification!=null && identification.length()>0) {
+                // use getText or so for identification
                 c = operator.getClass().getConstructor( new Class[] { ContainerOperator.class, String.class, Integer.TYPE } );
             } else {
+                // use only index for identification
                 c = operator.getClass().getConstructor( new Class[] { ContainerOperator.class, Integer.TYPE } );
             }
         } catch (NoSuchMethodException e2) {
+            e2.printStackTrace();
             return -1;
         }
         try {
             int i=0;
             while (true) {
-                if (identification!=null && identification.length()>0) {
+                if(componentName != null) {
+                    // use component name for identification
+                    operator = (ComponentOperator) c.newInstance(new Object[] { container, new NameComponentChooser(componentName), new Integer(i)});
+                } 
+                else if (identification!=null && identification.length()>0) {
+                    // use getText or so for identification
                     operator = (ComponentOperator) c.newInstance(new Object[] { container, identification, new Integer(i)});
                 } else {
+                    // use only index for identification
                     operator = (ComponentOperator) c.newInstance(new Object[] { container, new Integer(i)});
                 }
                 if (component==operator.getSource()) return i;
@@ -792,30 +844,40 @@ public class ComponentGenerator {
                 ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
             }
         }
+        String componentName = null;
+        // set componentName only if its usage is allowed by check box in ComponentGeneratorPanel
+        if(_useComponentName) {
+            // it can be null here - it is handled in ComponentRecord
+            componentName = componentOperator.getName();
+            // we don't want to use "", "  " as component name
+            if(componentName != null && componentName.trim().length() == 0) {
+                componentName = null;
+            }
+        }
         if (componentOperator.getSource()!=containerOperator.getSource()) {
             if (isTopComponent(componentOperator.getSource())) return null;
             int index;
             if (parentComponent==null) {
-                index = searchForIndex( componentOperator, containerOperator, identification );
+                index = searchForIndex( componentOperator, containerOperator, identification, componentName);
             } else {
-                index = searchForIndex( componentOperator, (ContainerOperator)parentComponent.getComponentOperator(), identification );
+                index = searchForIndex( componentOperator, (ContainerOperator)parentComponent.getComponentOperator(), identification, componentName);
             }
             if (index>=0) {
                 int absoluteIndex;
                 if (identification == null) {
                     absoluteIndex = index;
                 } else if (parentComponent==null) {
-                    absoluteIndex = searchForIndex( componentOperator, containerOperator, null );
+                    absoluteIndex = searchForIndex( componentOperator, containerOperator, null, null);
                 } else {
-                    absoluteIndex = searchForIndex( componentOperator, (ContainerOperator)parentComponent.getComponentOperator(), null );
+                    absoluteIndex = searchForIndex( componentOperator, (ContainerOperator)parentComponent.getComponentOperator(), null, null);
                 }
-                ComponentRecord record = new ComponentRecord( operatorRecord, identification, uniqueName, index, absoluteIndex, className, operatorRecord.getInternalRecursion()?getInternalLabels(componentOperator.getSource()):null, icon, componentOperator, parentComponent);
+                ComponentRecord record = new ComponentRecord(operatorRecord, componentName, identification, uniqueName, index, absoluteIndex, className, operatorRecord.getInternalRecursion()?getInternalLabels(componentOperator.getSource()):null, icon, componentOperator, parentComponent);
                 componentNames.add(uniqueName);
                 components.add(record);
                 return record;
             }
         } else {
-            _container = new ComponentRecord( operatorRecord, identification, uniqueName, 0, 0, className, null, icon, componentOperator, null );
+            _container = new ComponentRecord(operatorRecord, componentName, identification, uniqueName, 0, 0, className, null, icon, componentOperator, null );
         }
         return null;
     }
@@ -827,11 +889,15 @@ public class ComponentGenerator {
     /** grabs given visible container identified by ContainerOperator
      * @param _grabIcons boolean true when grab icons of components
      * @param _container Container to grab
-     * @param _package String package name of generated source code */    
-    public void grabComponents( Container _container, String _package, boolean _grabIcons ) {
+     * @param _package String package name of generated source code 
+     * @param _useComponentName true when Component.getName() should be used
+     * for component identification (set on ComponentGeneratorPanel)
+     */
+    public void grabComponents( Container _container, String _package, boolean _grabIcons, boolean _useComponentName ) {
         ContainerOperator container = (ContainerOperator)createOperator(_container);
         this._package = _package;
         this._grabIcons = _grabIcons;
+        this._useComponentName = _useComponentName;
         components = new ArrayList();
         componentNames = new HashSet();
         ArrayList queue = new ArrayList();

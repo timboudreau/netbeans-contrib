@@ -61,6 +61,8 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     boolean screenShot;
     boolean showEditor;
     boolean merge;
+    // true when Component.getName() should be used to identify component
+    boolean useComponentName;
     static final Border focusedBorder=BorderFactory.createLineBorder(Color.red, 1);
     Border lastBorder;
     
@@ -71,7 +73,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
      * @param packageName String package name
      * @param panel ComponentGeneratorPanel
      * @param properties CompoenentGenerator configuration properties */
-    public ComponentGeneratorRunnable(DataFolder targetDataFolder, String packageName, ComponentGeneratorPanel panel, Properties properties, boolean screenShot, boolean showEditor, boolean merge) {
+    public ComponentGeneratorRunnable(DataFolder targetDataFolder, String packageName, ComponentGeneratorPanel panel, Properties properties, boolean screenShot, boolean showEditor, boolean merge, boolean useComponentName) {
         this.targetDataFolder = targetDataFolder;
         this.packageName = packageName;
         help = panel.getHelpLabel();
@@ -89,6 +91,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
         this.screenShot = screenShot;
         this.showEditor = showEditor;
         this.merge = merge;
+        this.useComponentName = useComponentName;
     }
     
     static JComponent getJComponent(Component c) {
@@ -202,7 +205,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                 help.setText(NbBundle.getMessage(ComponentGeneratorRunnable.class, "MSG_Processing")); // NOI18N
                 removeFocus();
                 try {
-                    gen.grabComponents((Container)window, packageName, showEditor);
+                    gen.grabComponents((Container)window, packageName, showEditor, useComponentName);
                     BufferedImage shot=null;
                     if (screenShot) {
                         shot = new Robot().createScreenCapture(new Rectangle(window.getLocationOnScreen(),window.getSize()));
