@@ -592,6 +592,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         return false;
     }
     
+    private org.openide.nodes.Node tryToFindDefaultCommands() {
+        if (config == null) return null;
+        ProfilesCache cache = new ProfilesCache(CONFIG_ROOT_FO);
+        return (org.openide.nodes.Node) cache.getProfileCommands(config);
+    }
+    
     private void loadCurrentConfig() {
         //System.out.println("loadCurrentConfig() configFileName = "+configFileName);
         org.openide.nodes.Node commands = null;
@@ -603,6 +609,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             } catch (org.w3c.dom.DOMException exc) {
                 org.openide.TopManager.getDefault().notifyException(exc);
             }
+            if (commands == null) {
+                commands = tryToFindDefaultCommands();
+            }
+            if (commands == null) return ;
             this.setCommands(commands);
         }
     }
