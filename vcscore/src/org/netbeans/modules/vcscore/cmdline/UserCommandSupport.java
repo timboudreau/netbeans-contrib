@@ -378,13 +378,15 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         //isCommandCustomized = true;
         Table files = getFilesToActOn(cmd);
         //System.out.println("\ndoCustomization("+doCreateCustomizer+", "+cmd.getVcsCommand()+"), files = "+files);
-        if (files.size() == 0) return null; // There is nothing to customize!
-                                            // Just in case sb. executes a command
-                                            // which is somehow already customized
-                                            // e.g.:
+        if (files.size() == 0) {
+            // In case, that sb. executes a command, that is either partially customized
+            // or does not need any files. No variables will be set from files then.
+            // This will happen when e.g.:
             // VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(logCmd, vars);
             // fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
-        if (VcsCommandIO.getBooleanPropertyAssumeDefault(this.cmd, VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER)) {
+            files = null;
+        }
+        if (files != null && VcsCommandIO.getBooleanPropertyAssumeDefault(this.cmd, VcsCommand.PROPERTY_NEEDS_HIERARCHICAL_ORDER)) {
             files = createHierarchicalOrder(files);
         }
         boolean cmdCanRunOnMultipleFiles = VcsCommandIO.getBooleanPropertyAssumeDefault(this.cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES);
@@ -392,8 +394,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         VariableValueAdjustment valueAdjustment = fileSystem.getVarValueAdjustment();
         FileCacheProvider cacheProvider = fileSystem.getCacheProvider();
         Object obj = doCustomization(doCreateCustomizer, null, cmd, files, cacheProvider,
-                               valueAdjustment, cmdCanRunOnMultipleFiles,
-                               cmdCanRunOnMultipleFilesInFolder);
+                                     valueAdjustment, cmdCanRunOnMultipleFiles,
+                                     cmdCanRunOnMultipleFilesInFolder);
         //System.out.println("AFTER doCustomization("+doCreateCustomizer+", "+cmd.getVcsCommand()+"), files = "+files+", MODULE = "+cmd.getAdditionalVariables().get("MODULE")+", DIR = "+cmd.getAdditionalVariables().get("DIR"));
         return obj;
     }
@@ -413,7 +415,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         if (cmd.isExpertMode() && !fileSystem.isExpertMode()) {
             vars.put(VcsFileSystem.VAR_CTRL_DOWN_IN_ACTION, Boolean.TRUE);
         }
-        if (files.size() > 1) {
+        if (files != null && files.size() > 1) {
             forEachFile = new boolean[] { true };
         }
         return doCustomization(doCreateCustomizer, customizer, cmd, files, cacheProvider,
@@ -432,9 +434,14 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         //System.out.println("\ndoCustomization("+doCreateCustomizer+", "+customizer+", "+cmd+", "+files+", "+forEachFile+", "+cmdCanRunOnMultipleFiles+", "+cmdCanRunOnMultipleFilesInFolder+")");
         //Object customizer = null;
         VcsCommand vcsCmd = cmd.getVcsCommand();
-        Table subFiles = setupRestrictedFileMap(files, vars, vcsCmd);
-        setVariables(subFiles, vars, QUOTING, valueAdjustment, cacheProvider,
-                     fileSystem.getRelativeMountPoint(), true);
+        Table subFiles;
+        if (files != null) {
+            subFiles = setupRestrictedFileMap(files, vars, vcsCmd);
+            setVariables(subFiles, vars, QUOTING, valueAdjustment, cacheProvider,
+                         fileSystem.getRelativeMountPoint(), true);
+        } else {
+            subFiles = null;
+        }
         //System.out.println("subFiles = "+subFiles+", files = "+files+", MODULE = "+vars.get("MODULE")+", DIR = "+vars.get("DIR"));
         //Hashtable vars = fileSystem.getVariablesAsHashtable();
         //System.out.println("\nVARS for cmd = "+cmd+" ARE:"+vars+"\n");
@@ -452,7 +459,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         cmd.setPreferredExec(newExec);
         cmd.setAdditionalVariables(vars);
         //System.out.println("subFiles = "+subFiles+", files = "+files+", MODULE = "+cmd.getAdditionalVariables().get("MODULE")+", DIR = "+cmd.getAdditionalVariables().get("DIR"));
-        if (finalCustomizer == null) {
+        if (finalCustomizer == null && files != null) {
             VcsDescribedCommand lastCmd = cmd;
             if (!cmdCanRunOnMultipleFiles || cmdCanRunOnMultipleFilesInFolder) {
                 lastCmd = createNextCustomizedCommand(cmd, subFiles, cacheProvider,
@@ -584,6 +591,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                     fileSystem.setPromptForVarsForEachFile(forEachFile[0]);
                 }
                 //System.out.println("\n!!close listener: isPromptForEachFile = "+isPromptForEachFile);
+                if (files == null) return ;
                 if (isPromptForEachFile) {
                     Object singleFile = files.keys().nextElement();
                     Table subFiles = new Table();
