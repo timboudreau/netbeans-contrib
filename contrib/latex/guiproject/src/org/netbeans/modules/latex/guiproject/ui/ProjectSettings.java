@@ -39,12 +39,15 @@ import org.openide.filesystems.FileObject;
  */
 public class ProjectSettings {
     
-    private String latexCommand;
-    private String sourceSpecialsCommand;
-    private boolean useSourceSpecials;
-    private String[] arguments;
+    private String   latexCommand;
+    private String   sourceSpecialsCommand;
+    private boolean  useSourceSpecials;
+    private String[] latexArguments;
     
-    private boolean modified;
+    private String   bibtexCommand;
+    private String[] bibtexArguments;
+    
+    private boolean  modified;
     
     private LaTeXGUIProject project;
     
@@ -54,28 +57,34 @@ public class ProjectSettings {
         load();
     }
     
+    private String[] parseArguments(String arguments) {
+        if (arguments != null)
+            return arguments.split(" ");
+        else
+            return new String[0];
+    }
+    
+    private String getProperty(EditableProperties p, String name, String def) {
+        String value = p.getProperty(name);
+        
+        if (value == null)
+            return def;
+        else
+            return value;
+    }
+    
     private void loadFrom(InputStream ins) throws IOException {
         EditableProperties p = new EditableProperties();
         
         p.load(ins);
         
-        latexCommand = p.getProperty("latex-command");
+        latexCommand = getProperty(p, "latex-command", "latex");
+        useSourceSpecials = Boolean.valueOf(getProperty(p, "latex-use-source-specials", "false")).booleanValue();
+        sourceSpecialsCommand = getProperty(p, "latex-source-specials-argument", "");
+        latexArguments = parseArguments(p.getProperty("latex-arguments"));
         
-        if (latexCommand == null)
-            latexCommand = "latex";
-        
-        useSourceSpecials = Boolean.valueOf(p.getProperty("latex-use-source-specials")).booleanValue();
-        sourceSpecialsCommand = p.getProperty("latex-source-specials-argument");
-        
-        if (sourceSpecialsCommand == null)
-            sourceSpecialsCommand = "";
-        
-        String argumentsString = p.getProperty("latex-arguments");
-        
-        if (argumentsString != null)
-            arguments = argumentsString.split(" ");
-        else
-            arguments = new String[0];
+        bibtexCommand = getProperty(p, "bibtex-command", "bibtex");
+        bibtexArguments = parseArguments(p.getProperty("bibtex-arguments"));
     }
     
     private void load() {
@@ -87,7 +96,19 @@ public class ProjectSettings {
             ErrorManager.getDefault().notify(e);
         }
     }
-        private void save() {
+    
+    private String toPlainString(String[] arguments) {
+        StringBuffer argumentsString = new StringBuffer();
+        
+        for (int cntr = 0; cntr < arguments.length; cntr++) {
+            argumentsString.append(arguments[cntr]);
+            argumentsString.append(' ');
+        }
+        
+        return argumentsString.toString();
+    }
+    
+    private void save() {
         FileObject settings = project.getProjectDirectory().getFileObject("build-settings.properties");
         FileLock lock = null;
         
@@ -99,14 +120,10 @@ public class ProjectSettings {
             p.setProperty("latex-command", latexCommand);
             p.setProperty("latex-use-source-specials", Boolean.toString(useSourceSpecials));
             p.setProperty("latex-source-specials-argument", sourceSpecialsCommand);
+            p.setProperty("latex-arguments", toPlainString(latexArguments));
             
-            StringBuffer argumentsString = new StringBuffer();
-            
-            for (int cntr = 0; cntr < arguments.length; cntr++) {
-                argumentsString.append(arguments[cntr]);
-                argumentsString.append(' ');
-            }
-            p.setProperty("latex-arguments", argumentsString.toString());
+            p.setProperty("bibtex-command", bibtexCommand);
+            p.setProperty("bibtex-arguments", toPlainString(bibtexArguments));
             
             lock = settings.lock();
             
@@ -140,6 +157,15 @@ public class ProjectSettings {
         this.modified = true;
     }
     
+    public String getBiBTeXCommand() {
+        return bibtexCommand;
+    }
+    
+    public void setBiBTeXCommand(String bibtexCommand) {
+        this.bibtexCommand = bibtexCommand;
+        this.modified = true;
+    }
+    
     public String getSourceSpecialsCommand() {
         return sourceSpecialsCommand;
     }
@@ -158,12 +184,21 @@ public class ProjectSettings {
         this.modified = true;
     }
     
-    public String[] getArguments() {
-        return arguments;
+    public String[] getLaTeXArguments() {
+        return latexArguments;
     }
     
-    public void setArguments(String[] arguments) {
-        this.arguments = arguments;
+    public void setLaTeXArguments(String[] arguments) {
+        this.latexArguments = latexArguments;
+        this.modified = true;
+    }
+    
+    public String[] getBiBTeXArguments() {
+        return bibtexArguments;
+    }
+    
+    public void setBiBTeXArguments(String[] arguments) {
+        this.bibtexArguments = bibtexArguments;
         this.modified = true;
     }
     

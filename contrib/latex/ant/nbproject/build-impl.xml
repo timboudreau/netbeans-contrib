@@ -44,6 +44,15 @@ is divided into following sections:
     </target>
     <target name="-do-init" depends="-pre-init,-init-private,-init-user,-init-project,-init-macrodef-property">
         <available property="manifest.available" file="${manifest.file}"/>
+        <condition property="manifest.available+main.class">
+            <and>
+                <isset property="manifest.available"/>
+                <isset property="main.class"/>
+                <not>
+                    <equals trim="true" arg2="" arg1="${main.class}"/>
+                </not>
+            </and>
+        </condition>
         <available file="${test.src.dir}" property="have.tests"/>
         <condition property="netbeans.home+have.tests">
             <and>
@@ -53,6 +62,12 @@ is divided into following sections:
         </condition>
         <condition property="no.javadoc.preview">
             <isfalse value="${javadoc.preview}"/>
+        </condition>
+        <property value="" name="run.jvmargs"/>
+        <condition property="no.deps">
+            <and>
+                <istrue value="${no.dependencies}"/>
+            </and>
         </condition>
     </target>
     <target name="-post-init">
@@ -148,9 +163,14 @@ is divided into following sections:
                     <jvmarg value="-Xnoagent"/>
                     <jvmarg value="-Djava.compiler=none"/>
                     <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
+                    <jvmarg line="${run.jvmargs}"/>
                     <classpath>
                         <path path="@{classpath}"/>
                     </classpath>
+                    <syspropertyset>
+                        <propertyref prefix="run-sys-prop."/>
+                        <mapper to="*" from="run-sys-prop.*" type="glob"/>
+                    </syspropertyset>
                     <arg line="@{args}"/>
                 </java>
             </sequential>
@@ -162,21 +182,33 @@ is divided into following sections:
             <element name="customize" optional="true"/>
             <sequential>
                 <java classname="@{classname}" fork="true">
+                    <jvmarg line="${run.jvmargs}"/>
                     <classpath>
                         <path path="${run.classpath}"/>
                     </classpath>
+                    <syspropertyset>
+                        <propertyref prefix="run-sys-prop."/>
+                        <mapper to="*" from="run-sys-prop.*" type="glob"/>
+                    </syspropertyset>
                     <customize/>
                 </java>
             </sequential>
         </macrodef>
     </target>
-    <target name="init" depends="-pre-init,-init-private,-init-user,-init-project,-do-init,-post-init,-init-check,-init-macrodef-property,-init-macrodef-javac,-init-macrodef-junit,-init-macrodef-nbjpda,-init-macrodef-debug,-init-macrodef-java"/>
+    <target name="-init-presetdef-jar">
+        <presetdef name="jar" uri="http://www.netbeans.org/ns/j2se-project/1">
+            <jar compress="${jar.compress}" jarfile="${dist.jar}">
+                <fileset xmlns="http://www.netbeans.org/ns/j2se-project/1" dir="${build.classes.dir}"/>
+            </jar>
+        </presetdef>
+    </target>
+    <target name="init" depends="-pre-init,-init-private,-init-user,-init-project,-do-init,-post-init,-init-check,-init-macrodef-property,-init-macrodef-javac,-init-macrodef-junit,-init-macrodef-nbjpda,-init-macrodef-debug,-init-macrodef-java,-init-presetdef-jar"/>
     <!--
     ===================
     COMPILATION SECTION
     ===================
     -->
-    <target name="deps-jar" depends="init" unless="no.dependencies"/>
+    <target name="deps-jar" depends="init" unless="no.deps"/>
     <target name="-pre-pre-compile" depends="init,deps-jar">
         <mkdir dir="${build.classes.dir}"/>
     </target>
@@ -217,29 +249,32 @@ is divided into following sections:
     JAR BUILDING SECTION
     ====================
     -->
+    <target name="-pre-pre-jar" depends="init">
+        <dirname file="${dist.jar}" property="dist.jar.dir"/>
+        <mkdir dir="${dist.jar.dir}"/>
+    </target>
     <target name="-pre-jar">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target name="-do-jar-without-manifest" depends="init,compile,-pre-jar" unless="manifest.available">
-        <dirname file="${dist.jar}" property="dist.jar.dir"/>
-        <mkdir dir="${dist.jar.dir}"/>
-        <jar compress="${jar.compress}" jarfile="${dist.jar}">
-            <fileset dir="${build.classes.dir}"/>
-        </jar>
+    <target name="-do-jar-without-manifest" depends="init,compile,-pre-pre-jar,-pre-jar" unless="manifest.available">
+        <j2seproject:jar xmlns:j2seproject="http://www.netbeans.org/ns/j2se-project/1"/>
     </target>
-    <target name="-do-jar-with-manifest" depends="init,compile,-pre-jar" if="manifest.available">
-        <dirname file="${dist.jar}" property="dist.jar.dir"/>
-        <mkdir dir="${dist.jar.dir}"/>
-        <jar compress="${jar.compress}" jarfile="${dist.jar}" manifest="${manifest.file}">
-            <fileset dir="${build.classes.dir}"/>
-        </jar>
+    <target name="-do-jar-with-manifest" depends="init,compile,-pre-pre-jar,-pre-jar" if="manifest.available" unless="manifest.available+main.class">
+        <j2seproject:jar xmlns:j2seproject="http://www.netbeans.org/ns/j2se-project/1" manifest="${manifest.file}"/>
+    </target>
+    <target name="-do-jar-with-mainclass" depends="init,compile,-pre-pre-jar,-pre-jar" if="manifest.available+main.class">
+        <j2seproject:jar xmlns:j2seproject="http://www.netbeans.org/ns/j2se-project/1" manifest="${manifest.file}">
+            <manifest xmlns="http://www.netbeans.org/ns/j2se-project/1">
+                <attribute value="${main.class}" name="Main-Class"/>
+            </manifest>
+        </j2seproject:jar>
     </target>
     <target name="-post-jar">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target name="jar" depends="init,compile,-pre-jar,-do-jar-with-manifest,-do-jar-without-manifest,-post-jar" description="Build JAR."/>
+    <target name="jar" depends="init,compile,-pre-jar,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-post-jar" description="Build JAR."/>
     <!--
     =================
     EXECUTION SECTION
@@ -394,11 +429,34 @@ is divided into following sections:
     </target>
     <target name="debug-fix-test" if="netbeans.home" depends="init,-pre-debug-fix,-do-debug-fix-test"/>
     <!--
+    =========================
+    APPLET EXECUTION SECTION
+    =========================
+    -->
+    <target name="run-applet" depends="init,compile-single">
+        <fail unless="applet.url">Must select one file in the IDE or set applet.url</fail>
+        <j2seproject:java xmlns:j2seproject="http://www.netbeans.org/ns/j2se-project/1" classname="sun.applet.AppletViewer">
+            <customize>
+                <arg line="${applet.url}"/>
+            </customize>
+        </j2seproject:java>
+    </target>
+    <!--
+    =========================
+    APPLET DEBUGGING  SECTION
+    =========================
+    -->
+    <target name="-debug-start-debuggee-applet" if="netbeans.home" depends="init,compile-single">
+        <fail unless="applet.url">Must select one file in the IDE or set applet.url</fail>
+        <j2seproject:debug xmlns:j2seproject="http://www.netbeans.org/ns/j2se-project/1" args="${applet.url}" classname="sun.applet.AppletViewer"/>
+    </target>
+    <target name="debug-applet" if="netbeans.home" depends="init,compile-single,-debug-start-debugger,-debug-start-debuggee-applet"/>
+    <!--
     ===============
     CLEANUP SECTION
     ===============
     -->
-    <target name="deps-clean" depends="init" unless="no.dependencies"/>
+    <target name="deps-clean" depends="init" unless="no.deps"/>
     <target name="-do-clean" depends="init">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>

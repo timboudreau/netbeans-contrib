@@ -15,5 +15,39 @@ Microsystems, Inc. All Rights Reserved.
 <project name="latex/test" default="netbeans" basedir=".">
 
     <import file="../nbbuild/templates/projectized.xml"/>
+    
+    <target name="clean-modules">
+        <ant dir="ant" target="clean" />
+        <ant dir="auted" target="clean" />
+        <ant dir="bibtex" target="clean" />
+        <ant dir="branding" target="clean" />
+        <ant dir="core" target="clean" />
+        <ant dir="editor" target="clean" />
+        <ant dir="guiproject" target="clean" />
+        <ant dir="loaders" target="clean" />
+        <ant dir="model" target="clean" />
+        <ant dir="nexplorer" target="clean" />
+        <ant dir="project" target="clean" />
+        <ant dir="ui" target="clean" />
+    </target>
+    
+    <target name="build-modules">
+	<ant dir="../nbbuild" target="all-latex/auted" />
+	<ant dir="../nbbuild" target="all-latex/bibtex" />
+	<ant dir="../nbbuild" target="all-latex/branding" />
+	<ant dir="../nbbuild" target="all-latex/core" />
+	<ant dir="../nbbuild" target="all-latex/editor" />
+	<ant dir="../nbbuild" target="all-latex/guiproject" />
+	<ant dir="../nbbuild" target="all-latex/loaders" />
+	<ant dir="../nbbuild" target="all-latex/model" />
+	<ant dir="../nbbuild" target="all-latex/nexplorer" />
+	<ant dir="../nbbuild" target="all-latex/project" />
+	<ant dir="../nbbuild" target="all-latex/ui" />
+    </target>
+    
+    <target name="test-modules">
+        <ant dir="bibtex/test" />
+        <ant dir="test" />
+    </target>
 
 </project>

@@ -39,7 +39,8 @@ public class LaTeXAntTask extends Task implements TaskContainer {
     private String  command   = "latex";
     private String  arguments = "";
     private boolean printLog = false;
-    private String  specials = null;
+    private boolean useSpecials = true;
+    private String  specialsCommand = "-src-specials";
     
     private List innerTasks;
     
@@ -64,11 +65,15 @@ public class LaTeXAntTask extends Task implements TaskContainer {
         printLog = log;
     }
     
-    public void setSpecials(String specials) {
-        if (specials == null || specials.length() == 0)
+    public void setUsespecials(boolean useSpecials) {
+        this.useSpecials = useSpecials;
+    }
+    
+    public void setSpecialsCommand(String specialsCommand) {
+        if (specialsCommand == null || specialsCommand.length() == 0)
             return ;
 
-        this.specials = specials;
+        this.specialsCommand = specialsCommand;
     }
     
     private boolean isUpToDate() {
@@ -130,8 +135,8 @@ public class LaTeXAntTask extends Task implements TaskContainer {
                 cmdLine.setExecutable(command);
                 cmdLine.addArguments(Commandline.translateCommandline(arguments));
                 
-                if (specials != null) {
-                    cmdLine.addArguments(new String[] {"-src-specials=" + specials});
+                if (useSpecials) {
+                    cmdLine.addArguments(new String[] {specialsCommand});
                 }
                 
                 cmdLine.addArguments(new String[] {new File(mainFile).getName()});
