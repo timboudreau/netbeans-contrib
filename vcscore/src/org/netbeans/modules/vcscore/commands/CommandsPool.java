@@ -258,7 +258,12 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 break;
         }
         TopManager.getDefault().setStatusText(message);
-        fileSystem.debug(message);
+        if (exit != VcsCommandExecutor.SUCCEEDED) {
+            fileSystem.debugErr(message);
+            printErrorOutput(vce);
+        } else {
+            fileSystem.debug(message);
+        }
         VcsCommandVisualizer visualizer = vce.getVisualizer();
         if (visualizer != null) {
             visualizer.setExitStatus(exit);
@@ -268,6 +273,25 @@ public class CommandsPool extends Object /*implements CommandListener */{
         if (outputVisualizer != null) {
             outputVisualizer.setExitStatus(exit);
         }
+    }
+    
+    private void printErrorOutput(VcsCommandExecutor vce) {
+        fileSystem.debugErr(g("MSG_Check_whole_output"));
+        CommandsPool.CommandOutputCollector collector = (CommandsPool.CommandOutputCollector) outputContainers.get(vce);
+        //boolean isErrorOutput = false;
+        if (collector != null) {
+            collector.addErrorOutputListener(new CommandOutputListener() {
+                public void outputLine(String line) {
+                    //isErrorOutput = true;
+                    fileSystem.debugErr(line);
+                }
+            });
+        }
+        /*
+        if (!isErrorOutput) {
+            fileSystem.debugErr(g("MSG_No_error_output"));
+        }
+         */
     }
     
     /**
