@@ -140,7 +140,6 @@ public class SourceTaskProvider extends DocumentSuggestionProvider {
                 null,
                 this);
             s.setLine(subtask.getLine());
-            s.setPriority(SuggestionPriority.NORMAL);
             if (tasks == null) {
                 tasks = new ArrayList(tasklist.getTasks().size());
             }

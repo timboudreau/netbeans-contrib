@@ -209,7 +209,6 @@ public class TidySuggester extends DocumentSuggestionProvider
             Line l = TLUtils.getLineByNumber(parseObject, line);
             s.setLine(l);
         }
-        s.setPriority(SuggestionPriority.NORMAL);
         if (parseTasks == null) {
             parseTasks = new ArrayList(30);
         }

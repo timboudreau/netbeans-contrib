@@ -48,13 +48,7 @@ import org.netbeans.modules.tasklist.core.TLUtils;
 import org.netbeans.modules.tasklist.core.ConfPanel;
 
 /**
- * This class uses the PMD rule checker to provide rule violation
- * suggestions.
- * <p>
- * @todo Add more automatic fixers for rules. For example, add one
- *   to remove an unused method.
- * @todo Include javadoc sections in method and variable removals
- *   (be sure to show it in the preview dialog as well)
+ * Perform import statement confirmation & removal
  * <p>
  * @author Tor Norbye
  */
@@ -65,11 +59,10 @@ public class ImportPerformer implements SuggestionPerformer {
     private RuleViolation violation;
     private boolean comment;
 
-    ImportPerformer(Line line, RuleViolation violation, 
+    ImportPerformer(Line line, RuleViolation violation,
                     boolean comment) {
         this.line = line;
         this.violation = violation;
-        this.comment = comment;
     }
 
     public void perform(Suggestion s) {
@@ -95,6 +88,7 @@ public class ImportPerformer implements SuggestionPerformer {
         String afterDesc = null;
         String beforeDesc = null;
         if (comment) {
+            // TODO - something special if DontImportJavaLang
             beforeDesc = NbBundle.getMessage(ImportPerformer.class,
                                 "ImportConfirmationBefore"); // NOI18N
             afterDesc = 
@@ -122,8 +116,24 @@ public class ImportPerformer implements SuggestionPerformer {
             sb.append("</html>"); // NOI18N
             afterContents = sb.toString();
         } else {
-            beforeDesc = NbBundle.getMessage(ImportPerformer.class,
-                                "ImportConfirmation"); // NOI18N
+            String rulename = violation.getRule().getName();
+            if (rulename.equals("UnusedImports")) { // NOI18N
+                beforeDesc = NbBundle.getMessage(ImportPerformer.class,
+                                "ImportConfirmationUnused"); // NOI18N
+            } else if (rulename.equals("ImportFromSamePackage")) { // NOI18N
+                beforeDesc = NbBundle.getMessage(ImportPerformer.class,
+                                "ImportConfirmationSame"); // NOI18N
+            } else if (rulename.equals("DontImportJavaLang")) { // NOI18N
+                beforeDesc = NbBundle.getMessage(ImportPerformer.class,
+                                "ImportConfirmationLang"); // NOI18N
+            } else if (rulename.equals("DuplicateImports")) { // NOI18N
+                beforeDesc = NbBundle.getMessage(ImportPerformer.class,
+                                "ImportConfirmationDuplicate"); // NOI18N
+            } else {
+                beforeDesc = NbBundle.getMessage(ImportPerformer.class,
+                                "ImportConfirmationOther"); // NOI18N
+            }
+
             Line l = line;
             String text = l.getText();
             sb.append("<html>"); // NOI18N

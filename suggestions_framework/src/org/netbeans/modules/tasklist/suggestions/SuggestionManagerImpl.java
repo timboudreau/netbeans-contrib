@@ -1650,6 +1650,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 */
 
+    /** List of suggestions restored from the cache that we must delete
+        when leaving this document */
+    private List docSuggestions = null;
+    
     /**
      * The given document has been edited or saved, and a time interval
      * (by default around 2 seconds I think) has passed without any
@@ -1668,17 +1672,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
      */
     public void rescan(final Document document,
                        final DataObject dataobject) {
-        if (cache != null) {
-            List suggestions = cache.lookup(document);
-            if (suggestions != null) {
-                // Get rid of tasks from list
-                if (suggestions.size() > 0) {
-                    register(null, null, suggestions, getList(), true);
-                    cache.remove(document);
-                }
-            }
+        if ((docSuggestions != null) && (docSuggestions.size() > 0)) {
+            register(null, null, docSuggestions, getList(), true);
+            docSuggestions = null;
         }
-
+        
 /*
     XXX What happens if right after scheduling the request
     processor the user closes the window - now document references
@@ -1758,6 +1756,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 cache.remove(document);
             }
         }
+        docSuggestions = null;
         List providers = getDocProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
@@ -1774,6 +1773,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
      * and push it into the suggestion cache.
      */
     private void stuffCache(Document document, DataObject dataobject) {
+        // XXX Performance: if docSuggestions != null, we should be able
+        // to just reuse it, since the document must not have been edited!
+        
         SuggestionList tasklist = getList();
         if (tasklist.getTasks() == null) {
             return;
@@ -2235,9 +2237,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
             // as default instead of scanOnShow as is the case now.
             // The semantics of the flag need to change before we
             // check it here; it's always true. Make it user selectable.)
-            List suggestions = cache.lookup(document);
-            if (suggestions != null) {
-                register(null, suggestions, null, getList(), true);
+            docSuggestions = cache.lookup(document);
+            if (docSuggestions != null) {
+                register(null, docSuggestions, null, getList(), true);
                 // TODO Consider putting the above on a runtimer - but
                 // a much shorter runtimer (0.1 seconds or something like
                 // that) such that the editor gets a chance to draw itself
@@ -2246,7 +2248,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                 // Also wipe out the cache items since we will replace them
                 // when docHidden is called, or when docEdited is called,
                 // etc.
-                cache.remove(document);
+                //cache.remove(document);
                 return;
             }
         }

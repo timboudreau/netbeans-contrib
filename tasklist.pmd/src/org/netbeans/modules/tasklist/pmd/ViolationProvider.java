@@ -53,6 +53,11 @@ import org.netbeans.modules.tasklist.core.ConfPanel;
  * <p>
  * @todo Add more automatic fixers for rules. For example, add one
  *   to remove an unused method.
+ *  Potentially easy: UnusedModifier, ImportFromSamePackage,
+ *  DontImportJavaLang. 
+ * Other candidates: StringToString, StringInstantiation, ...
+ * @todo Can I fix the "MustUseBraces" rules?
+ * SimplyBooleanReturnsRule - is this for new Boolean ?
  * @todo Include javadoc sections in method and variable removals
  *   (be sure to show it in the preview dialog as well)
  * <p>
@@ -177,12 +182,14 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                     
                     boolean fixable = false;
                     SuggestionPerformer action = null;
-                    
                     String rulename = violation.getRule().getName();
                     if (rulename.equals("UnusedImports") || // NOI18N
-                    rulename.equals("DuplicateImports")) { // NOI18N
+                        rulename.equals("ImportFromSamePackage") || // NOI18N
+                        rulename.equals("DontImportJavaLang") || // NOI18N
+                        rulename.equals("DuplicateImports")) { // NOI18N
                         fixable = true;
-                        action = new ImportPerformer(line, violation, false);
+                        boolean comment = false;
+                        action = new ImportPerformer(line, violation, comment);
                     } else if ((rulename.equals("UnusedPrivateField") || // NOI18N
                           rulename.equals("UnusedLocalVariable")) && // NOI18N
                           isDeleteSafe(line)) { // only a check
@@ -223,6 +230,14 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                                       filename, linenumber, getBottomPanel(ruleDesc, ruleExample));
                             }
                         };
+
+                        /* In progress
+                    } else if (rulename.equals("UnusedPrivateMethod")) {
+                        fixable = true;
+                        boolean comment = false;
+                        action = new MethodRemovePerformer(line, violation, 
+                                                           comment);
+                        */
                     } else {
                         action = null;
                     }
@@ -234,7 +249,19 @@ public class ViolationProvider extends DocumentSuggestionProvider {
                         action,
                         this);
                     // XXX Is there a priority for each rule?
-                    s.setPriority(SuggestionPriority.NORMAL);
+
+                    // Make sure PMD's rule range is still the same
+                    // as ours. If not, we've gotta scale it
+                    // JDK14: assert Rule.LOWEST_PRIORITY == 5;
+                    switch (violation.getRule().getPriority()) {
+                    case 1: s.setPriority(SuggestionPriority.HIGH); break;
+                    case 2: s.setPriority(SuggestionPriority.MEDIUM_HIGH); break;
+                    case 3: s.setPriority(SuggestionPriority.MEDIUM); break;
+                    case 4: s.setPriority(SuggestionPriority.MEDIUM_LOW); break;
+                    case 5: s.setPriority(SuggestionPriority.LOW); break;
+                    default: s.setPriority(SuggestionPriority.MEDIUM); break;
+                    }
+
                     s.setLine(line);
                     if (fixable) {
                         s.setIcon(taskIcon);

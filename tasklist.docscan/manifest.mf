@@ -1,11 +1,11 @@
-OpenIDE-Module-Specification-Version: 0.8.29
+OpenIDE-Module-Specification-Version: 0.8.31
 OpenIDE-Module: org.netbeans.modules.tasklist.docscan/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/docscan/Bundle.properties
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.35
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/docscan/mf-layer.xml
 OpenIDE-Module-Package-Dependencies: org.apache.regexp[RE]
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/1 > 0.8.29, org.netbeans.api.tasklist/1 > 0.8.25
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/1 > 0.8.29, org.netbeans.api.tasklist/1 > 0.8.31
 
 Name: org/netbeans/modules/tasklist/docscan/ScanTasksAction.class
 OpenIDE-Module-Class: Action

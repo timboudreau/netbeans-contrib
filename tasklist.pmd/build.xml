@@ -34,7 +34,7 @@ Microsystems, Inc. All Rights Reserved.
     <property file="build.properties"/>
     <property name="netbeans.home" location="../../nbbuild/netbeans"/>
     <property name="pmdmod" value="${netbeans.home}/modules/pmd.jar"/>
-    <property name="pmdlib" value="${netbeans.home}/modules/ext/pmd-1.02.jar"/>
+    <property name="pmdlib" value="${netbeans.home}/modules/ext/pmd-1.03.jar"/>
 
     <target name="compile">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
