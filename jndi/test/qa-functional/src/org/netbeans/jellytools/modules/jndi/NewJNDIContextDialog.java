@@ -404,13 +404,13 @@ public class NewJNDIContextDialog extends NbDialogOperator {
     /** clicks on "Add..." JButton
      */
     public void add() {
-        btAdd().push();
+        btAdd().pushNoBlock();
     }
 
     /** clicks on "Edit... " JButton
      */
     public void edit() {
-        btEdit().push();
+        btEdit().pushNoBlock();
     }
 
     /** clicks on "Remove" JButton
