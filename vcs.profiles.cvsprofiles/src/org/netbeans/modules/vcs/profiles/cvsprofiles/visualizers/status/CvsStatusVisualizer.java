@@ -188,7 +188,8 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
     public void stdOutputLine(String line) {  
         debug("output:"+line);
         if (readingTags) {
-            if (line.startsWith(NO_TAGS)) {                
+            if (line.startsWith(NO_TAGS)) {
+                readingTags = false;
                 return;
             }
 
@@ -204,7 +205,11 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
                 }
                 statusInformation.addExistingTag(tag, rev);
             }
-            else {                
+            else {
+                if (line.trim().length() == 0) {
+                    // an empty line, we've finished reading tags
+                    readingTags = false;
+                }
                 return;
             }
         }
