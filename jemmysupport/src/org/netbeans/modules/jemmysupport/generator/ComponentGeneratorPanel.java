@@ -65,15 +65,16 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
 
     void loadProperties() {
         props = new java.util.Properties();
+/*
         try {
             props.load( org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().findResource("jemmysupport/ComponentGenerator.properties").getInputStream());
         } catch (Exception e1) {
-            try {
-                props.load( this.getClass().getClassLoader().getResourceAsStream("org/netbeans/modules/jemmysupport/generator/ComponentGenerator.properties"));
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new java.lang.reflect.UndeclaredThrowableException(e, "Properties file not loaded!");
-            }
+*/
+        try {
+            props.load( this.getClass().getClassLoader().getResourceAsStream("org/netbeans/modules/jemmysupport/generator/ComponentGenerator.properties"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new java.lang.reflect.UndeclaredThrowableException(e, "Properties file not loaded!");
         }
     }
     
@@ -109,7 +110,6 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         stopButton = new javax.swing.JButton();
         startButton = new javax.swing.JButton();
         closeButton = new javax.swing.JButton();
-        customizeButton = new javax.swing.JButton();
         screenShot = new javax.swing.JCheckBox();
         showEditor = new javax.swing.JCheckBox();
 
@@ -133,7 +133,6 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 0, 4);
         add(packagesPanel, gridBagConstraints);
 
-        selectLabel.setForeground(java.awt.Color.black);
         selectLabel.setText("Select destination package:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -144,7 +143,6 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         add(selectLabel, gridBagConstraints);
 
         helpLabel.setFont(new java.awt.Font("Dialog", 2, 12));
-        helpLabel.setForeground(java.awt.Color.black);
         helpLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         helpLabel.setText("Use Ctrl-F12 key to grab current focused component (Frame, Dialog).");
         helpLabel.setEnabled(false);
@@ -206,20 +204,6 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.insets = new java.awt.Insets(4, 4, 4, 4);
         add(closeButton, gridBagConstraints);
 
-        customizeButton.setFont(new java.awt.Font("Dialog", 3, 10));
-        customizeButton.setText("Customize Settings");
-        customizeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customizeButtonActionPerformed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(4, 4, 0, 4);
-        add(customizeButton, gridBagConstraints);
-
         screenShot.setSelected(true);
         screenShot.setText("add screenshot");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -234,17 +218,11 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 4);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 4, 4);
         add(showEditor, gridBagConstraints);
 
     }//GEN-END:initComponents
-
-    private void customizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customizeButtonActionPerformed
-        if (GeneratorPropertiesEditor.EditProperties(props)) {
-            saveProperties();
-        }
-    }//GEN-LAST:event_customizeButtonActionPerformed
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
         stopButtonActionPerformed(evt);
@@ -261,7 +239,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         helpLabel.setEnabled(false);
         packagesTreeView.setEnabled(true);
         startButton.setEnabled(true);
-        customizeButton.setEnabled(true);
+//        customizeButton.setEnabled(true);
         screenShot.setEnabled(true);
         showEditor.setEnabled(true);
     }//GEN-LAST:event_stopButtonActionPerformed
@@ -270,7 +248,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
         packagesTreeView.setEnabled(false);
         startButton.setEnabled(false);
         stopButton.setEnabled(true);
-        customizeButton.setEnabled(false);
+//        customizeButton.setEnabled(false);
         screenShot.setEnabled(false);
         showEditor.setEnabled(false);
         helpLabel.setEnabled(true);
@@ -345,7 +323,6 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     private org.openide.explorer.view.BeanTreeView packagesTreeView;
     private javax.swing.JLabel selectLabel;
     private org.openide.explorer.ExplorerPanel packagesPanel;
-    private javax.swing.JButton customizeButton;
     private javax.swing.JButton stopButton;
     private javax.swing.JCheckBox showEditor;
     private javax.swing.JButton closeButton;

@@ -57,7 +57,8 @@ public class ComponentGenerator {
     String[] defaultTopCode;
     
     Hashtable operators = new Hashtable();
-    Hashtable components;
+    HashSet componentNames;
+    ArrayList components;
     int maxComponentCodeLength = 0;
     ComponentRecord _container;
     String _package;
@@ -178,6 +179,14 @@ public class ComponentGenerator {
         public String getOperatorClass() {
             return _operatorClass;
         }
+        
+        public boolean getInternalRecursion() {
+            if (_internalLogicCode==null) return false;
+            for (int i=0; i<_internalLogicCode.length; i++)
+                if (_internalLogicCode[i]!=null && _internalLogicCode[i].length()>0)
+                    return true;
+            return false;
+        }
     }
     /** class holding all informations about single component
      */    
@@ -297,6 +306,14 @@ public class ComponentGenerator {
             return _parent==null? "this" : _parent.getUniqueName()+"()";
         }
         
+        public String getConstructorArgs() {
+            String s=getParentGetter()+", ";
+            if (!_identification.equals("null")) s+=_identification+", ";
+            if (_index>0) s+=getIndex();
+            if (s.endsWith(", ")) return s.substring(0, s.length()-2);
+            return s;
+        }
+        
         /** returns formated component code with given index, formating means replacing keywords with real values
          * @param i index into component's code set
          * @return formated component code
@@ -345,6 +362,7 @@ public class ComponentGenerator {
          * @return formated component code
          */        
         public String getInternalLogicCode(int i) {
+            if (_internalLabels==null) return "";
             StringBuffer sb=new StringBuffer();
             for (int j=0;j<_internalLabels.length;j++) {
                 sb.append(formate(_operator.getInternalLogicCode(i),getInternalLabels(j)));
@@ -382,7 +400,8 @@ public class ComponentGenerator {
          * __INTERNALLABEL__ - internal label real text
          * __SHORTLABEL__    - internal label text converted to Java identifier
          * __PARENTGETTER__  - code returning parent container operator
-         * __BIGLABEL__      - upper case version of short label</pre>
+         * __BIGLABEL__      - upper case version of short label
+         * __CONSTRUCTORARGS__ - component constructor arguments code</pre>
          * @return formated string
          * @param internalLabel real internal label text
          * @param s string to be formated
@@ -403,6 +422,7 @@ public class ComponentGenerator {
             replace(sb, "__SHORTLABEL__", toJavaID(internalLabel));
             replace(sb, "__BIGLABEL__", toBigJavaID(internalLabel));
             replace(sb, "__PARENTGETTER__", getParentGetter());
+            replace(sb, "__CONSTRUCTORARGS__", getConstructorArgs());
             return sb.toString();
         }
         
@@ -588,9 +608,9 @@ public class ComponentGenerator {
             name = operatorRecord.getInstancePrefix()+name;
         }
         String suffix = operatorRecord.getInstanceSuffix();
-        if (!components.containsKey(name+suffix)) return name+suffix;
+        if (!componentNames.contains(name+suffix)) return name+suffix;
         int i=2;
-        while (components.containsKey(name+suffix+String.valueOf(i))) {
+        while (componentNames.contains(name+suffix+String.valueOf(i))) {
             i++;
         }
         return name+suffix+String.valueOf(i);
@@ -599,21 +619,19 @@ public class ComponentGenerator {
     int searchForIndex( ComponentOperator operator, ContainerOperator container, String identification ) {
         Constructor c;
         Component component = operator.getSource();
-        boolean standardConstructor = true;
         try {
-            c = operator.getClass().getConstructor( new Class[] { ContainerOperator.class, String.class, Integer.TYPE } );
-        } catch (NoSuchMethodException e1) {
-            standardConstructor = false;
-            try {
+            if (identification!=null) {
+                c = operator.getClass().getConstructor( new Class[] { ContainerOperator.class, String.class, Integer.TYPE } );
+            } else {
                 c = operator.getClass().getConstructor( new Class[] { ContainerOperator.class, Integer.TYPE } );
-            } catch (NoSuchMethodException e2) {
-                return -1;
             }
+        } catch (NoSuchMethodException e2) {
+            return -1;
         }
         try {
             int i=0;
             while (true) {
-                if (standardConstructor) {
+                if (identification!=null) {
                     operator = (ComponentOperator) c.newInstance(new Object[] { container, identification, new Integer(i)});
                 } else {
                     operator = (ComponentOperator) c.newInstance(new Object[] { container, new Integer(i)});
@@ -631,7 +649,7 @@ public class ComponentGenerator {
     String[] getInternalLabels( Component component ) {
         ArrayList s=new ArrayList();
         ArrayList a=new ArrayList();
-/*        AccessibleContext c=component.getAccessibleContext();
+        AccessibleContext c=component.getAccessibleContext();
         s.add(c);
         while (s.size()>0) {
             c=(AccessibleContext)s.remove(0);
@@ -644,7 +662,7 @@ public class ComponentGenerator {
                 }
             }
         }
-*/        return (String[])a.toArray(new String[a.size()]);
+        return (String[])a.toArray(new String[a.size()]);
     }
     
     ComponentRecord addComponent( ComponentOperator componentOperator, ContainerOperator containerOperator, ComponentRecord parentComponent ) {
@@ -680,8 +698,9 @@ public class ComponentGenerator {
                 index = searchForIndex( componentOperator, (ContainerOperator)parentComponent.getComponentOperator(), identification );
             }
             if (index>=0) {
-                ComponentRecord record = new ComponentRecord( operatorRecord, identification, uniqueName, index, className, getInternalLabels(componentOperator.getSource()), icon, componentOperator, parentComponent);
-                components.put( uniqueName, record);
+                ComponentRecord record = new ComponentRecord( operatorRecord, identification, uniqueName, index, className, operatorRecord.getInternalRecursion()?getInternalLabels(componentOperator.getSource()):null, icon, componentOperator, parentComponent);
+                componentNames.add(uniqueName);
+                components.add(record);
                 return record;
             }
         } else {
@@ -698,7 +717,8 @@ public class ComponentGenerator {
         ContainerOperator container = (ContainerOperator)Operator.createOperator(_container);
         this._package = _package;
         this._grabIcons = _grabIcons;
-        components = new Hashtable();
+        components = new ArrayList();
+        componentNames = new HashSet();
         ArrayList queue = new ArrayList();
         ArrayList parentQueue = new ArrayList();
         _container = null;
@@ -730,11 +750,10 @@ public class ComponentGenerator {
      * @return String generated source code
      */    
     public String getComponentCode(int i) {
-        Iterator it = components.values().iterator();
         StringBuffer sb = new StringBuffer();
         ComponentRecord rec;
-        while (it.hasNext()) {
-            rec=(ComponentRecord)it.next();
+        for (int j=0; j<components.size(); j++) {
+            rec=(ComponentRecord)components.get(j);
             sb.append(rec.getComponentCode(i));
             sb.append(rec.getInternalLogicCode(i));
         }
@@ -759,10 +778,9 @@ public class ComponentGenerator {
      * @return string representation of this last grab
      */    
     public String toString() {
-        Iterator i = components.values().iterator();
         StringBuffer sb = new StringBuffer();
-        while (i.hasNext()) {
-            sb.append(i.next());
+        for (int j=0; j<components.size(); j++) {
+            sb.append(components.get(j));
         }
         return sb.toString();
     }
@@ -786,14 +804,13 @@ public class ComponentGenerator {
     }
     
     TreeNode getRootNode() {
-        Iterator it=components.values().iterator();
-        while (it.hasNext()) {
-            ((ComponentRecord)it.next()).getNode();
+        for (int i=0; i<components.size(); i++) {
+            ((ComponentRecord)components.get(i)).getNode();
         }
         return _container.getNode();
     }
     
     Collection getNodes() {
-        return components.values();
+        return components;
     }
 }

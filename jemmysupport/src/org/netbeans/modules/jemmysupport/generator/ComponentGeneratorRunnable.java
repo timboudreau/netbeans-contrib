@@ -45,7 +45,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     String directory;
     String packageName;
     JLabel help;
-    Container window;
+    Component window;
     ComponentGenerator gen;
     ComponentGeneratorPanel panel;
     boolean screenShot;
@@ -73,7 +73,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
     public void eventDispatched(java.awt.AWTEvent aWTEvent) {
         if ((aWTEvent instanceof KeyEvent)&&(aWTEvent.getID()==KeyEvent.KEY_RELEASED)&&(((KeyEvent)aWTEvent).getKeyCode()==KeyEvent.VK_F12)&&(((KeyEvent)aWTEvent).getModifiers()==KeyEvent.CTRL_MASK)) {
             if (window==null) {
-                window=(Container)aWTEvent.getSource();
+                window=(Component)aWTEvent.getSource();
                 while (!((window instanceof Window)||(window instanceof JInternalFrame))) {
                     window = window.getParent();
                 }
@@ -98,7 +98,7 @@ public class ComponentGeneratorRunnable implements Runnable, AWTEventListener {
                 }
                 help.setText("Please wait, processing ...");
                 try {
-                    gen.grabComponents(window, packageName, showEditor);
+                    gen.grabComponents((Container)window, packageName, showEditor);
                     BufferedImage shot=null;
                     if (screenShot) {
                         shot = new Robot().createScreenCapture(new Rectangle(window.getLocationOnScreen(),window.getSize()));
