@@ -151,6 +151,27 @@ public class EJBProjectGenerator {
         helper.putPrimaryConfigurationData(data, true);
     }
     
+    public static void putServerInstanceID(AntProjectHelper helper, String instanceID) {
+        Element data = helper.getPrimaryConfigurationData(true);
+        Document doc = data.getOwnerDocument();
+        putProperty(doc, data, EjbJarProjectProperties.J2EE_SERVER_INSTANCE, instanceID);
+        helper.putPrimaryConfigurationData(data, true);
+    }
+    
+    public static void putServerID(AntProjectHelper helper, String serverID) {
+        Element data = helper.getPrimaryConfigurationData(true);
+        Document doc = data.getOwnerDocument();
+        putProperty(doc, data, EjbJarProjectProperties.J2EE_SERVER_TYPE, serverID);
+        helper.putPrimaryConfigurationData(data, true);
+    }
+    
+    public static void putJ2EELevel(AntProjectHelper helper, String j2eeLevel) {
+        Element data = helper.getPrimaryConfigurationData(true);
+        Document doc = data.getOwnerDocument();
+        putProperty(doc, data, EjbJarProjectProperties.J2EE_PLATFORM, j2eeLevel);
+        helper.putPrimaryConfigurationData(data, true);
+    }
+    
     private static List/*<String>*/ getSourceFolders(Document doc, Element parent, String type) {
         // TODO: ma154696: add check if parent element's name is folder (or better refactor method interface)
         List result = new ArrayList();

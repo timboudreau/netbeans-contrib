@@ -123,6 +123,8 @@ public class EJBLocationsWizardPanel implements WizardDescriptor.Panel {
         
         wizardDescriptor.putProperty(NewEJBFreeformProjectWizardIterator.PROP_EJB_SOURCE_FOLDERS, component.getEJBSrcFolder());
         wizardDescriptor.putProperty(NewEJBFreeformProjectWizardIterator.PROP_EJB_RESOURCE_FOLDERS, component.getResourcesFolder());
+        wizardDescriptor.putProperty(NewEJBFreeformProjectWizardIterator.SERVER_INSTANCE_ID, component.getSelectedServerInstanceID());
+        wizardDescriptor.putProperty(NewEJBFreeformProjectWizardIterator.J2EE_LEVEL, component.getSelectedJ2eeSpec());
         wizardDescriptor.putProperty("NewProjectWizard_Title", null); // NOI18N
     }
 

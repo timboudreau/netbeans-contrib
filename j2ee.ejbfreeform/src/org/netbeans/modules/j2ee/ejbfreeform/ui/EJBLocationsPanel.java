@@ -51,7 +51,7 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
 
     private AntProjectHelper projectHelper;
 
-    private java.util.List serverInstanceIDs;
+    private java.util.List serverIDs;
 
     private static final String J2EE_SPEC_14_LABEL = NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_0"); //NOI18N
 
@@ -291,7 +291,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
 
     private void serverTypeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_serverTypeComboBoxActionPerformed
         String prevSelectedItem = (String)j2eeSpecComboBox.getSelectedItem();
-        String servInsID = (String)serverInstanceIDs.get(serverTypeComboBox.getSelectedIndex());
+        String serverID = (String)serverIDs.get(serverTypeComboBox.getSelectedIndex());
+        String servInsID = getServerInstanceID(serverID);
         J2eePlatform j2eePlatform = Deployment.getDefault().getJ2eePlatform(servInsID);
         Set supportedVersions = j2eePlatform.getSupportedSpecVersions();
         j2eeSpecComboBox.removeAllItems();
@@ -486,18 +487,18 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     
     private void initServerInstances() {
         String[] servInstIDs = Deployment.getDefault().getServerInstanceIDs();
-        serverInstanceIDs = new ArrayList();
+        serverIDs = new ArrayList();
         for (int i = 0; i < servInstIDs.length; i++) {
             J2eePlatform j2eePlat = Deployment.getDefault().getJ2eePlatform(servInstIDs[i]);
             String serverID = Deployment.getDefault().getServerID(servInstIDs[i]);
             String servDisplayName = Deployment.getDefault().getServerDisplayName(serverID);
-            if (servDisplayName != null
+            if (servDisplayName != null && !serverIDs.contains(serverID)
                 && j2eePlat != null && j2eePlat.getSupportedModuleTypes().contains(J2eeModule.EJB)) {
-                serverInstanceIDs.add(servInstIDs[i]);
+                serverIDs.add(serverID);
                 serverTypeComboBox.addItem(servDisplayName);
             }
         }
-        if (serverInstanceIDs.size() > 0) {
+        if (serverIDs.size() > 0) {
             serverTypeComboBox.setSelectedIndex(0);
         } else {
             serverTypeComboBox.setEnabled(false);
@@ -505,10 +506,35 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         }
     }
     
-    public String getSelectedServerInstanceID() {
-        int idx = serverTypeComboBox.getSelectedIndex();
-        return idx == -1 ? null 
-                         : (String)serverInstanceIDs.get(idx);
+    /**
+     * Returns ID of first found instance of server with given server ID,
+     * @param serverID ID of server
+     * @return ID of server instance 
+     */
+    private String getServerInstanceID(String serverID) {
+        if (serverID == null) {
+            return null;
+        }
+        String[] servInstIDs = Deployment.getDefault().getServerInstanceIDs();
+        for (int i = 0; i < servInstIDs.length; i++) {
+            if (serverID == Deployment.getDefault().getServerID(servInstIDs[i]));
+            return (String) servInstIDs[i];
+        }
+        return null;
     }
     
+    public String getSelectedServerInstanceID() {
+        int idx = serverTypeComboBox.getSelectedIndex();
+        if (idx == -1) {
+            return null;
+        }
+        String serverID = (String) serverIDs.get(idx);
+        return getServerInstanceID(serverID);
+    }
+    
+    public String getSelectedJ2eeSpec() {
+        Object item = j2eeSpecComboBox.getSelectedItem();
+        return item == null ? null: item.equals(J2EE_SPEC_14_LABEL) ? J2eeModule.J2EE_14 : J2eeModule.J2EE_13;
+    }
+
 }
