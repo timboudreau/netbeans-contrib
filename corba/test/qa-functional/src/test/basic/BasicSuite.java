@@ -24,6 +24,7 @@ public class BasicSuite {
         suite.addTest (test.nsbrowser.Main.suite ());
         suite.addTest (test.idlwizard.Main.suite ());
         suite.addTest (test.poasupport.Main.suite ());
+        suite.addTest (test.indentation.Main.suite ());
         return suite;
     }
     
