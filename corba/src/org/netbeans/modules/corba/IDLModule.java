@@ -58,9 +58,9 @@ public class IDLModule extends ModuleInstall {
     public void installed() {
         if (DEBUG)
             System.out.println ("CORBA Support Module installing..."); // NOI18N
-        copyImpls ();
-        copyTemplates ();
-        createAction();
+//        copyImpls ();       Removed by XML Transparent FS
+//        copyTemplates ();   Removed by XML Transparent FS
+//        createAction();     Removed by XML Transparent FS
 
         restored ();
         if (DEBUG)
