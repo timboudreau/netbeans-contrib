@@ -1551,7 +1551,7 @@ public class ImplGenerator implements PropertyChangeListener {
 				       ObjectFilter[] __filter,
 				       ParentsExecutor[] __executor,
 				       boolean __recursive)
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, CannotInheritFromException {
 	//boolean DEBUG=true;
 	Assertion.assert (__element != null && __filter.length == __executor.length);
 	if (DEBUG)
@@ -1575,6 +1575,8 @@ public class ImplGenerator implements PropertyChangeListener {
 		IDLElement __tmp = __parent;
 		__parent = this.resolve_typedef (__tmp);
 		__name_of_parent = __parent.getName ();
+                if (__parent == __element)
+                    throw new CannotInheritFromException (__name_of_parent);
 		if (DEBUG)
 		    System.out.println ("parent: " + __parent);
 		if (__filter[__i].is (__parent)) {
@@ -1614,35 +1616,35 @@ public class ImplGenerator implements PropertyChangeListener {
 
     private ArrayList generic_parents (IDLElement __element, ObjectFilter __filter,
 				       ParentsExecutor __executor, boolean __recursive)
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, CannotInheritFromException {
 	return this.generic_parents (__element, new ObjectFilter[] {__filter},
 				     new ParentsExecutor[] {__executor}, __recursive);
     }
 
 
     private ArrayList all_concrete_parents (InterfaceElement __interface)
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, CannotInheritFromException {
 	return this.generic_parents (__interface, new ConcreteInterfaceFilter (),
 				     new InterfaceParentsExecutor (), true);
     }
 
 
     private ArrayList all_abstract_parents (InterfaceElement __interface) 
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, CannotInheritFromException {
 	return this.generic_parents (__interface, new AbstractInterfaceFilter (),
 				     new InterfaceParentsExecutor (), true);
     }
 
 
     private ArrayList abstract_parents (InterfaceElement __interface) 
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, CannotInheritFromException {
 	return this.generic_parents (__interface, new AbstractInterfaceFilter (),
 				     new InterfaceParentsExecutor (), false);
     }
 
     
     private ArrayList all_parents_and_supported_interfaces (ValueElement __value) 
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, CannotInheritFromException {
 	return this.generic_parents (__value, 
 				     new ObjectFilter[] {
 					 new ValueFilter (), 
@@ -1655,7 +1657,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
 
     private ArrayList directly_implemented_interfaces (InterfaceElement __interface)
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, CannotInheritFromException {
 	ArrayList __abstract_parents = this.abstract_parents (__interface);
 	Iterator __iterator = __abstract_parents.iterator ();
 	ArrayList __result = new ArrayList ();
@@ -1675,7 +1677,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
     
     private ArrayList all_implemented_interfaces (InterfaceElement __interface)
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, CannotInheritFromException {
 	ArrayList __abstract_parents = this.all_abstract_parents (__interface);
 	ArrayList __concrete_parents = this.all_concrete_parents (__interface);
 	ArrayList __result = new ArrayList ();
@@ -1717,7 +1719,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
 
     private ArrayList directly_implemented_methods (InterfaceElement __interface) 
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, CannotInheritFromException {
 	ArrayList __result = new ArrayList ();
 	
 	if (__interface.isAbstract ())
@@ -1739,7 +1741,7 @@ public class ImplGenerator implements PropertyChangeListener {
 
 
     private ArrayList all_implemented_methods (InterfaceElement __interface) 
-	throws SymbolNotFoundException {
+	throws SymbolNotFoundException, CannotInheritFromException {
 	
 	if (__interface.isAbstract ())
 	    return new ArrayList ();
@@ -2364,6 +2366,8 @@ public class ImplGenerator implements PropertyChangeListener {
 			    (__interface, new ConcreteInterfaceFilter (), 
 			     new InterfaceParentsExecutor (), false);
 		    } catch (SymbolNotFoundException __ex) {
+			__ex.printStackTrace ();
+		    } catch (CannotInheritFromException __ex) {
 			__ex.printStackTrace ();
 		    }
 		    while (__iter.hasNext ()) {
