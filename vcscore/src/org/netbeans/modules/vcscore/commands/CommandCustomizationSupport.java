@@ -546,6 +546,7 @@ public class CommandCustomizationSupport extends Object {
         textLabel.setForeground(java.awt.Color.black);
         panel.add(textLabel, BorderLayout.CENTER);
         if (checkBox != null) panel.add(checkBox, BorderLayout.SOUTH);
+        panel.getAccessibleContext().setAccessibleDescription(g("DLG_Notification_acsd"));
         return panel;
     }
     
@@ -560,6 +561,8 @@ public class CommandCustomizationSupport extends Object {
                 JCheckBox checkBox;
                 if (executionContext != null) {
                     checkBox = new JCheckBox(g("DLG_DoNotNotify"));
+                    checkBox.setMnemonic(g("DLG_DoNotNotify_mnc").charAt(0));
+                    checkBox.getAccessibleContext().setAccessibleDescription(g("DLG_DoNotNotify_acsd"));
                 } else checkBox = null;
                 msg.setMessage(createNotificationDesign(notification1, checkBox));
                 DialogDisplayer.getDefault().notify(msg);
