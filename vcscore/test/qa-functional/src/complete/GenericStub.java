@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.StyleConstants.ColorConstants;
@@ -50,6 +51,7 @@ import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import util.History;
 
+
 /**
  * GenericStub is abstract class providing generic vcs functionality
  *
@@ -69,7 +71,8 @@ public abstract class GenericStub extends JellyTestCase {
     
     public static String DEFAULT_GROUP = "<Default Group>";
 
-    protected ExplorerOperator exp;
+    protected RepositoryTabOperator repository;
+    protected RuntimeTabOperator runtime;
     protected VCSGroupsFrameOperator vgf;
     protected VersioningFrameOperator vfo;
     protected History history;
@@ -192,19 +195,19 @@ public abstract class GenericStub extends JellyTestCase {
         }
         
         public Node genericNode() {
-            return new Node (exp.repositoryTab ().tree (), node ());
+            return new Node (repository.tree (), node ());
         }
 
         public CVSFileNode cvsNode () {
-            return new CVSFileNode (exp.repositoryTab ().tree (), node ());
+            return new CVSFileNode (repository.tree (), node ());
         }
 
         public PVCSFileNode pvcsNode () {
-            return new PVCSFileNode (exp.repositoryTab ().tree (), node ());
+            return new PVCSFileNode (repository.tree (), node ());
         }
         
         public JCVSFileNode jcvsNode () {
-            return new JCVSFileNode (exp.repositoryTab ().tree (), node ());
+            return new JCVSFileNode (repository.tree (), node ());
         }
 
         public CVSFileNode cvsVersioningNode () {
@@ -271,14 +274,14 @@ public abstract class GenericStub extends JellyTestCase {
         }
         
         public void waitStatus(String status, boolean exact) {
-            waitNodeStatus (exp.repositoryTab().tree (), node (), status, exact);
+            waitNodeStatus (repository.tree (), node (), status, exact);
         }
 
         public void waitLock(boolean lock) {
             String ano = null;
             for (int a = 0; a < 30; a ++) {
                 sleep (1000);
-                Node n = new Node (exp.repositoryTab ().tree (), node());
+                Node n = new Node (repository.tree (), node());
                 ano = n.getText();
                 int i = ano.lastIndexOf('('), j = ano.lastIndexOf(')');
                 if (lock  &&  i >= 0  &&  j >= 0)
@@ -293,7 +296,7 @@ public abstract class GenericStub extends JellyTestCase {
             String ano = null;
             for (int a = 0; a < 30; a ++) {
                 sleep (1000);
-                Node n = new Node (exp.repositoryTab ().tree (), node());
+                Node n = new Node (repository.tree (), node());
                 ano = n.getText();
                 int i = ano.lastIndexOf('('), j = ano.lastIndexOf(')');
                 if (version == null  &&  i < 0  &&  j < 0)
@@ -420,7 +423,8 @@ public abstract class GenericStub extends JellyTestCase {
     protected abstract void createStructure ();
     
     protected void setUp() throws Exception {
-        exp = new ExplorerOperator();
+        repository = new RepositoryTabOperator ();
+        runtime = RuntimeTabOperator.invoke ();
         out = getRef();
         info = getLog();
         if (!"configure".equals (getName ())) {
@@ -437,7 +441,7 @@ public abstract class GenericStub extends JellyTestCase {
         else
             info.println ("No History");
         if ("configure".equals (getName ()))
-            Dumper.dumpComponent(exp.repositoryTab().tree ().getSource(), getLog ("repository"));
+            Dumper.dumpComponent(repository.tree ().getSource(), getLog ("repository"));
     }    
     protected void findFS () {
         String nRoot = nRootPrefix + clientDirectory;
@@ -500,7 +504,7 @@ public abstract class GenericStub extends JellyTestCase {
         createStructure();
         if (!DEBUG) {
             closeAllProperties();
-            FilesystemHistoryNode cvshistorynode = new FilesystemHistoryNode(exp.runtimeTab().tree(), root.node ());
+            FilesystemHistoryNode cvshistorynode = new FilesystemHistoryNode(runtime.tree(), root.node ());
             cvshistorynode.properties();
             PropertySheetOperator pso = new PropertySheetOperator(PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, root.node ());
             PropertySheetTabOperator pst = pso.getPropertySheetTabOperator("Properties");
@@ -565,9 +569,13 @@ public abstract class GenericStub extends JellyTestCase {
     }
     
     public static void viewOutput (RuntimeCommand rc) {
-        org.openide.nodes.Node n = rc.getNodeDelegate();
-        SystemAction sa = n.getDefaultAction();
-        sa.actionPerformed(new ActionEvent (n, 0, ""));
+        final org.openide.nodes.Node n = rc.getNodeDelegate();
+        final SystemAction sa = n.getDefaultAction();
+        SwingUtilities.invokeLater (new Runnable () {
+            public void run () {
+                sa.actionPerformed(new ActionEvent (n, 0, ""));
+            }
+        });
     }
     
     public static Color annoWhite = new Color (254, 254, 254);

@@ -337,8 +337,8 @@ public class JellyGroup extends CVSStub {
         Text2.cvsGroupNode (TEST_GROUP);
         Text3.cvsGroupNode (TEST_GROUP);
         
-        new FilesystemNode(exp.repositoryTab().tree(), root.node ()).unmount();
-        new Node (exp.repositoryTab ().tree (), "").waitChildNotPresent(root.node ());
+        new FilesystemNode(repository.tree(), root.node ()).unmount();
+        new Node (repository.tree (), "").waitChildNotPresent(root.node ());
         
         Text1.cvsGroupNode (TEST_GROUP, " (Broken link)");
         Text2.cvsGroupNode (TEST_GROUP, " (Broken link)");

@@ -662,7 +662,7 @@ public class AdditionalCommands extends PVCSStub {
     
     public void testSetPassword () {
         closeAllVCSWindows();
-        new PropertiesAction ().perform (new Node (exp.repositoryTab().tree (), root.node ()));
+        new PropertiesAction ().perform (new Node (repository.tree (), root.node ()));
         PropertySheetOperator pso = new PropertySheetOperator (root.node ());
         PropertySheetTabOperator psto = new PropertySheetTabOperator (pso, "Expert");
         Property prop = new Property (psto, "Commands");
@@ -704,8 +704,8 @@ public class AdditionalCommands extends PVCSStub {
     }
     
     public void testUnmount() {
-        new FilesystemNode(exp.repositoryTab().tree(), root.node ()).unmount();
-        new Node (exp.repositoryTab().tree (), "").waitChildNotPresent(root.node ());
+        new FilesystemNode(repository.tree(), root.node ()).unmount();
+        new Node (repository.tree (), "").waitChildNotPresent(root.node ());
     }
 
 }

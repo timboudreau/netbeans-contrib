@@ -246,7 +246,7 @@ public abstract class PVCSStub extends GenericStub {
     }
     
     protected void deleteFile (GenericNode node) {
-        new DeleteAction ().perform (new Node (exp.repositoryTab().tree (), node.node ()));
+        new DeleteAction ().perform (new Node (repository.tree (), node.node ()));
         NbDialogOperator dia = new NbDialogOperator ("Confirm Object Deletion");
         dia.yes ();
         dia.waitClosed ();

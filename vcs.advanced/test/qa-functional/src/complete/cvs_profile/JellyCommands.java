@@ -129,7 +129,7 @@ public class JellyCommands extends CVSStub {
         dia.yes ();
         dia.waitClosed();
         releaseNode.waitHistory ("Release");
-//        Helper.waitNoNode (exp.repositoryTab ().tree (), root.node (), releaseNode.name()); // fails due to bug #28223
+//        Helper.waitNoNode (repository.tree (), root.node (), releaseNode.name()); // fails due to bug #28223
         for (int a = 0; a < 60; a ++) {
             sleep (1000);
             if (!new File (releaseFileNode1.file ()).exists()  &&  !new File (releaseFileNode2.file ()).exists()) {
@@ -497,8 +497,8 @@ public class JellyCommands extends CVSStub {
     }
     
     public void testUnmount() {
-        new FilesystemNode(exp.repositoryTab().tree(), root.node ()).unmount();
-        new Node (exp.repositoryTab().tree(), "").waitChildNotPresent(root.node ());
+        new FilesystemNode(repository.tree(), root.node ()).unmount();
+        new Node (repository.tree(), "").waitChildNotPresent(root.node ());
     }
 
 }

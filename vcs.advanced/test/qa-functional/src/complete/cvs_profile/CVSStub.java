@@ -136,7 +136,6 @@ public abstract class CVSStub extends GenericStub {
         assertTrue("Add folder command failed", history.waitCommand("Add", node.history ()));
         node.waitStatus (null);
     }
-
     protected void addFile (GenericNode node, String desc) {
         node.cvsNode ().cVSAdd();
         CVSAddFileAdvDialog add = new CVSAddFileAdvDialog ();

@@ -106,8 +106,8 @@ public class StubAllTogether extends PVCSStub {
     }
     
     public void testUnmount() {
-        new FilesystemNode(exp.repositoryTab().tree(), root.node ()).unmount();
-        new Node (exp.repositoryTab().tree (), "").waitChildNotPresent(root.node ());
+        new FilesystemNode(repository.tree(), root.node ()).unmount();
+        new Node (repository.tree (), "").waitChildNotPresent(root.node ());
     }
     
     public void testCreateProject () {

@@ -86,8 +86,8 @@ public class JellyBranch extends CVSStub {
     }
 
     public void testUnmount() {
-        new FilesystemNode(exp.repositoryTab().tree(), root.node ()).unmount();
-        new Node (exp.repositoryTab ().tree (), "").waitChildNotPresent(root.node ());
+        new FilesystemNode(repository.tree(), root.node ()).unmount();
+        new Node (repository.tree (), "").waitChildNotPresent(root.node ());
     }
     
     public void testInit() {
@@ -106,7 +106,7 @@ public class JellyBranch extends CVSStub {
         root.waitHistory ("Check Out");
         
         // workaround - probably jelly issue - if not used, popup menu does not work in versioning frame
-        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("CHECKOUT_COMMAND");
+        VCSCommandsOutputOperator voo = new VCSCommandsOutputOperator ("Check Out");
         closeAllVCSWindows();
         
         InitDir.waitStatus(null);
@@ -131,7 +131,7 @@ public class JellyBranch extends CVSStub {
         SubFile.waitStatus("Local");
         
 /* commented due to issue #27582 - failure of add command
-        new CVSFileNode(exp.repositoryTab().tree(), nDirectory).cVSAdd();
+        new CVSFileNode(repository.tree(), nDirectory).cVSAdd();
         CVSAddFolderAdvDialog add = new CVSAddFolderAdvDialog();
         add.setFileDescription("Initial state");
         add.addAllLocalFilesInFolderContents();
