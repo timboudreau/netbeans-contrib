@@ -35,19 +35,20 @@ public class VcsCommandIO extends Object {
     
     private static void initDefaultPropertyValues() {
         defaultPropertyValues = new HashMap();
+        defaultPropertyValues.put(VcsCommand.PROPERTY_CONCURRENT_EXECUTION, new Integer(VcsCommand.EXEC_CONCURRENT_ALL));
         defaultPropertyValues.put(VcsCommand.PROPERTY_ON_FILE, new Boolean(true));
         defaultPropertyValues.put(VcsCommand.PROPERTY_ON_DIR, new Boolean(true));
         defaultPropertyValues.put(VcsCommand.PROPERTY_ON_ROOT, new Boolean(true));
-        defaultPropertyValues.put(VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS, new Boolean(false));
-        defaultPropertyValues.put(VcsCommand.PROPERTY_CHANGING_REVISION, new Boolean(false));
-        defaultPropertyValues.put(VcsCommand.PROPERTY_CONCURRENT_EXECUTION, new Integer(VcsCommand.EXEC_CONCURRENT_ALL));
-        defaultPropertyValues.put(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, new Boolean(false));
-        defaultPropertyValues.put(VcsCommand.PROPERTY_HIDDEN, new Boolean(false));
-        defaultPropertyValues.put(VcsCommand.PROPERTY_NUM_REVISIONS, new Integer(0));
-        defaultPropertyValues.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, new Boolean(false));
         defaultPropertyValues.put(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, new Boolean(false));
         defaultPropertyValues.put(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_PROCESS_ALL_FILES, new Boolean(false));
         defaultPropertyValues.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_IGNORE_FAIL, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_NUM_REVISIONS, new Integer(0));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_CHANGING_REVISION, new Boolean(false));
+        defaultPropertyValues.put(VcsCommand.PROPERTY_HIDDEN, new Boolean(false));
     }
     
     /**
