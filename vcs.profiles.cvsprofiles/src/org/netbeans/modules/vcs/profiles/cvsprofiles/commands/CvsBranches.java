@@ -222,7 +222,7 @@ public class CvsBranches implements VcsAdditionalCommand, RevisionListener {
     public void stateChanged(javax.swing.event.ChangeEvent ev) {//int whatChanged, org.openide.filesystems.FileObject fo, Object info) {
         RevisionEvent event = (RevisionEvent) ev;
         String name = event.getFilePath();
-        if (name.equals(this.filePath)) {//fo.getNameExt().equals(this.file)) {
+        if (name != null && name.equals(this.filePath)) {//fo.getNameExt().equals(this.file)) {
             this.performWork();
             this.computeBranchesPositions();
             this.branchFrame.refresh (this.logInfo);
