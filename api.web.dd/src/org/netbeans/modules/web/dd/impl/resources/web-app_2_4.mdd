@@ -75,13 +75,13 @@
                     else return values[0];
                 }
                 public void setDistributable(boolean value) {
-                    if (value) setDistributable(new boolean[]{true});
-                    else setDistributable(new boolean[]{});
+                    if (value) setDistributable(new EmptyType[]{new EmptyType()});
+                    else setDistributable(new EmptyType[]{});
                 }
                 public boolean isDistributable() {
-                    boolean[] values = getDistributable();
+                    EmptyType[] values = getDistributable();
                     if (values==null || values.length==0) return false;
-                    else return values[0];
+                    else return true;
                 }
                 public void setLocaleEncodingMappingList(org.netbeans.api.web.dd.LocaleEncodingMappingList value) {
                     if (value==null) setLocaleEncodingMappingList(new org.netbeans.api.web.dd.LocaleEncodingMappingList[]{});
@@ -93,15 +93,6 @@
                     else return values[0];
                 }
             </user-code>
-	</meta-element>
-	<meta-element>
-		<dtd-name>emptyType</dtd-name>
-		<namespace>http://java.sun.com/xml/ns/j2ee</namespace>
-		<bean-name>EmptyType</bean-name>
-                <implements> 
-                    org.netbeans.api.web.dd.EmptyType
-                </implements>
-                <wrapper-class>boolean</wrapper-class>
 	</meta-element>
 	<meta-element>
             <dtd-name>param-valueType</dtd-name>
