@@ -107,10 +107,10 @@ public class TextReport extends AccessibilityTester.ReportGenerator{
         if(!hs.isEmpty()){
             out.println("\n Components with potential mnemonics conflict:");
 
-            Enumeration enum = hs.keys();
+            Enumeration enumer = hs.keys();
         
-            while(enum.hasMoreElements()) {
-                String key = (String)enum.nextElement();
+            while(enumer.hasMoreElements()) {
+                String key = (String)enumer.nextElement();
                 char k = (char) Integer.parseInt(key);
                 out.println(" - components with mnemonic '"+k+"' :");
                 printComponents((HashSet)hs.get(key),out, testSettings.AP_mnemonics);

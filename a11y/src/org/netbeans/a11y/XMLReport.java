@@ -76,10 +76,10 @@ public class XMLReport extends AccessibilityTester.ReportGenerator{
         if(!hs.isEmpty()){
             out.println("\t <potentialmnemonicsconflict>");
 
-            Enumeration enum = hs.keys();
+            Enumeration enumer = hs.keys();
         
-            while(enum.hasMoreElements()) {
-                String key = (String)enum.nextElement();
+            while(enumer.hasMoreElements()) {
+                String key = (String)enumer.nextElement();
                 char k = (char) Integer.parseInt(key);
                 printComponents((HashSet)hs.get(key),out,"mnemonicconflict mnemonic=\""+k+"\"", testSettings.AP_mnemonics);
             }
