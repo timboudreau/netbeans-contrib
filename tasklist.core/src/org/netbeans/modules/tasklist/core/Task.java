@@ -43,12 +43,10 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     /**
      * Some of this items attributes (such as its description - anything
      * except the subtask list) has changed
+     *
+     * @deprecated Suggestion provides specialized properties
      */
-    public static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
-
-
-    /** @deprecated it forces cloning */
-    private ObservableList list;
+    static final String PROP_ATTRS_CHANGED = "attrs"; // NOI18N
 
     /** Set&lt;TaskListener> */  // replacement for above attribute
     private Set listeners = new HashSet(2);
@@ -77,7 +75,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     public Task() {
         super(null, null, null);
         parent = null;
-	    list = null;
         visitable = true;
         key = new Object();
     }
@@ -85,7 +82,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     public Task(String desc, Task parent) {
         super(null, desc, null);
         this.parent = parent;
-    	list = null;
         visitable = true;
         key = new Object();
     }
@@ -323,7 +319,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         }
         int pos = subtasks.indexOf(after);
         subtasks.add(pos+1, subtask);
-    	subtask.list = list;
         fireAddedTask(subtask);
     }
 
@@ -339,8 +334,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
             subtasks = new LinkedList();
         }
         subtasks.add(position, subtask);
-    	subtask.list = list;
-        
         fireAddedTask(subtask);
     }
 
@@ -357,7 +350,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         ListIterator it = tasks.listIterator();
         while (it.hasNext()) {
             Task task = (Task)it.next();
-            task.list = list;
             task.parent = this;
         }
 
@@ -381,7 +373,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     * of the beginning.
     */
     public void addSubtask(Task subtask, boolean append) {
-    	subtask.list = list;
         subtask.parent = this;
         if (subtasks == null) {
             subtasks = new LinkedList();
@@ -434,6 +425,18 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     public final Task getParent() {
         return parent;
     }
+
+
+    /** Traverse to root task (or self)*/
+    public final Task getRoot() {
+        Task parent = getParent();
+        if (parent != null) {
+            return parent.getRoot();
+        } else {
+            return this;
+        }
+    }
+
 
     /** Determines whether given task lies in this context. */
     public final boolean isParentOf(Task task) {
@@ -550,22 +553,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
     }
 
     /**
-     * Set the list this task is contained in.
-     * @deprecated Task should not have knowledge of its list
-     */
-    public void setList(ObservableList list) { // XXX remove publicness
-        this.list = list;
-    }
-
-    /**
-     * Get the list this task is contained in.
-     * @deprecated Task should not have knowledge of its list, list have know of its members
-     */
-    public ObservableList getList() {
-        return list;
-    }
-
-    /**
      * Counts all subtasks of this task recursively.
      *
      * @return number of subtasks
@@ -606,7 +593,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
      */
     public Task cloneTask() {
         Task clone = (Task) clone();
-        clone.list = null;
         clone.parent = null;
         return clone;
     }
@@ -640,7 +626,6 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         But the list of subitems should be unique. You get the idea.
     */
     protected void copyFrom(Task from) {
-        list = from.list;
         visitable = from.visitable;
         zombie = from.zombie;
 

@@ -157,7 +157,7 @@ public class TaskTest extends TestCase {
         final Task c2 = new Task("Child 2", null);
 
         ObservableList list = new TaskList();
-        task.setList(list);
+        task = list.getRoot();
 
         final boolean tlCallbacks[] = new boolean[2];
         
@@ -207,14 +207,15 @@ public class TaskTest extends TestCase {
     public void testAddSubtasks() {
         System.out.println("testAddSubtasks");
         
-        final Task task = new Task("Root", null);
+        Task task = new Task("Root", null);
         final Task c1 = new Task("Child 1", null);
         final Task c2 = new Task("Child 2", null);
 
         ObservableList list = new TaskList();
-        task.setList(list);
+        task = list.getRoot();
+        final Task root = task;
 
-        final boolean tlCallbacks[]  = new boolean[2];        
+        final boolean tlCallbacks[]  = new boolean[2];
         list.addTaskListener(new TaskListener() {
             public void selectedTask(Task t) {
                 System.out.println("selectedTask:" + t);
@@ -235,7 +236,7 @@ public class TaskTest extends TestCase {
 
             public void structureChanged(Task t) {
                 System.out.println("structureChangedTask:" + t);
-                if (t == task) tlCallbacks[0] = true;
+                if (t == root) tlCallbacks[0] = true;
             }
         });
 
@@ -266,7 +267,7 @@ public class TaskTest extends TestCase {
         final Task c2 = new Task("Child 2", null);
 
         ObservableList list = new TaskList();
-        task.setList(list);
+        task.getRoot();
 
         List l = new ArrayList();
         l.add(c1);

@@ -197,7 +197,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         setDueDate(item.getDueDate());
 
         // Initialize the Categories list
-        String[] categories = ((UserTaskList) item.getList()).getCategories();
+        String[] categories = UserTaskList.getCategories(item);
         if (categories.length > 0) {
             DefaultComboBoxModel model = new DefaultComboBoxModel(categories);
             categoryCombo.setModel(model);

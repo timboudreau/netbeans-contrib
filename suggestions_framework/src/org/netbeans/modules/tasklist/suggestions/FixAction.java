@@ -224,7 +224,6 @@ public final class FixAction extends NodeAction {
                 fixingStarted = true;
                 manager.setFixing(true);
             }
-            SuggestionList sList = (SuggestionList)item.getList();
             if (item.isZombie()) {
                 // It looks like this item has already been removed. This
                 // is due to a race condition, where you double click on
@@ -257,7 +256,7 @@ public final class FixAction extends NodeAction {
                 //   - have the same details
                 //
                 int matches = 0;
-                Iterator it = sList.getRoot().subtasksIterator();
+                Iterator it = item.getParent().subtasksIterator();
                 SuggestionImpl match = null;
                 boolean exact = false;
                 while (it.hasNext()) {
@@ -311,10 +310,11 @@ public final class FixAction extends NodeAction {
             }
             performer.perform(item);
             
-            // Remove suggestion when we've performed it
-            List itemList = new ArrayList(1);
-            itemList.add(item);
-            manager.register(item.getSType().getName(), null, itemList, sList, true);
+            // XXX Remove suggestion when we've performed it
+            // INSTED action is reponsible for marking suggestion as invalid
+//            List itemList = new ArrayList(1);
+//            itemList.add(item);
+//            manager.register(item.getSType().getName(), null, itemList, sList, true);
         }
         } finally {
             if (fixingStarted) {

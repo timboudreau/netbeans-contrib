@@ -36,6 +36,7 @@ public interface SuggestionPerformer {
      * you have to be able to adjust the file position if the user edits
      * the document in the mean time.)
      * <p>
+     * Do not forget to adjust suggestion (in)validity.
      *
      * @param suggestion The suggestion to be performed
      */

@@ -57,7 +57,6 @@ public class TaskList implements ObservableList, TaskListener {
     /** Creates a new instance of TaskList with a specified root */
     public TaskList(Task root) { // Must this be public?
         this.root = root;
-        root.setList(this);
         root.addTaskListener(this);
     }
 
@@ -83,7 +82,6 @@ public class TaskList implements ObservableList, TaskListener {
             root.setSummary(NbBundle.getMessage(TaskList.class,
                     "Description")); // NOI18N
             root.addTaskListener(this);
-            root.setList(this);  // TODO why does task know about its list?
         }
         return root;
     }

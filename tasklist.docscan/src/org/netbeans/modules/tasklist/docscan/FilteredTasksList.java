@@ -59,7 +59,6 @@ final class FilteredTasksList implements ObservableList {
     public Task getRoot() {
         if (root == null) {
             root = new Task();  // see identity trick in fireStructureChanged
-            root.setList(this);
             refreshSnapshot();
         }
         return root;

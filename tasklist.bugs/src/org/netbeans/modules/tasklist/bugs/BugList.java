@@ -74,8 +74,7 @@ public class BugList extends TaskList { // XXX remove the publicness
             root = new Bug(NbBundle.getMessage(BugList.class, 
                                                "Summary"), "", 0, // NOI18N
 			   "", "", "", null, "", "", "", "", "", 0); // NOI18N
-	    root.setList(this);
-	}
+	    }
         return root;
     }
 
