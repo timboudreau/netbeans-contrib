@@ -432,7 +432,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
             
             if (message != null) {
-                executionContext.debugErr(message);
+               // executionContext.debugErr(message);
                 printErrorOutput(executionContext);
             }
             if (executionContext.isCommandNotification()) {
