@@ -822,6 +822,12 @@ public class CommandExecutorSupport extends Object {
                     } else return false;
                 } else {
                     if (inputDescriptor != null && showInputDescriptor(inputDescriptor, true, vars)) {
+                        VariableInputComponent[] components = inputDescriptor.components();
+                        for (int i = 0; i < components.length; i++) {
+                            String var = components[i].getVariable();
+                            String value = components[i].getDefaultValue();
+                            if (value != null) vars.put(var, value);
+                        }
                         String globalInputStr = (String) vars.get(GLOBAL_INPUT_DESCRIPTOR);
                         String globalInputStrStored = (String) globalInputStrs.get(fileSystem);
                         if (globalInputStr != null) {
@@ -839,7 +845,7 @@ public class CommandExecutorSupport extends Object {
                                 globalInputDescriptor = (VariableInputDescriptor) globalInputDescrs.get(fileSystem);
                             }
                             //dlg.setGlobalInput(globalInputDescriptor);
-                            VariableInputComponent[] components = globalInputDescriptor.components();
+                            components = globalInputDescriptor.components();
                             for (int i = 0; i < components.length; i++) {
                                 String var = components[i].getVariable();
                                 String value = components[i].getDefaultValue();
