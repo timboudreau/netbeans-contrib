@@ -1299,7 +1299,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>false</value>
 	</property>
 	<property name="data.regex">
-	  <value>(^[0-9]+(,[0-9]+|)[d][0-9]+$)|(^[0-9]+(,[0-9]+|)[c][0-9]+(,[0-9]+|)$)|(^[0-9]+[a][0-9]+(,[0-9]+|)$)|(^Diffing.*)|(^Against.*)</value>
+	  <value>(.*$)</value>
 	</property>
 	<property name="error.regex">
 	  <value>(.*$)</value>
@@ -1402,7 +1402,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} diff -DU ${CMD_DIFF_OPTIONS} ${OPTIONS} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
         </property>
 	<property name="data.regex">
-	  <value>(^[0-9]+(,[0-9]+|)[d][0-9]+$)|(^[0-9]+(,[0-9]+|)[c][0-9]+(,[0-9]+|)$)|(^[0-9]+[a][0-9]+(,[0-9]+|)$)|(^Diffing.*)|(^Against.*)</value>
+	  <value>(.*$)</value>
 	</property>
 	<property name="error.regex">
 	  <value>(.*$)</value>
@@ -1419,7 +1419,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} diff -DU -V${REVISION1}$[? REVISION2] [~${REVISION2}] [] ${OPTIONS} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
         </property>
 	<property name="data.regex">
-	  <value>(^[0-9]+(,[0-9]+|)[d][0-9]+$)|(^[0-9]+(,[0-9]+|)[c][0-9]+(,[0-9]+|)$)|(^[0-9]+[a][0-9]+(,[0-9]+|)$)|(^Diffing.*)|(^Against.*)</value>
+	  <value>(.*$)</value>
 	</property>
 	<property name="error.regex">
 	  <value>(.*$)</value>
