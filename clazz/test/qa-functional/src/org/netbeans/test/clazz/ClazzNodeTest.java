@@ -112,7 +112,7 @@ public class ClazzNodeTest extends JellyTestCase {
         srcNode.copy();
         
         FolderNode dstNode = new FolderNode(testFSName + '|' + DST_PACKAGE.replace('.', '|'));
-        dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste") + '|' + Bundle.getString("org.openide.loaders.Bundle", "CTL_Serialize"));
+        dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste") + '|' + Bundle.getStringTrimmed("org.openide.loaders.Bundle", "CTL_Serialize"));
         new NbDialogOperator(Bundle.getString("org.openide.loaders.Bundle", "SerializeBean_Title")).ok();
         
         new EventTool().waitNoEvent(1000);
@@ -127,9 +127,7 @@ public class ClazzNodeTest extends JellyTestCase {
         srcNode.copy();
         
         FolderNode dstNode = new FolderNode(testFSName + '|' + DST_PACKAGE.replace('.', '|'));
-//        dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste") + '|' + Bundle.getString("org.openide.loaders.Bundle", "PT_instance"));
-// I would say the character '&' is missing in the value for the 'PT_instance' key - org.openide.loaders.Bundle file
-        dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste") + '|' + "Default instance");
+        dstNode.performPopupActionNoBlock(Bundle.getStringTrimmed("org.openide.actions.Bundle", "Paste") + '|' + Bundle.getStringTrimmed("org.openide.loaders.Bundle", "PT_instance"));
         
         new EventTool().waitNoEvent(1000);
         System.out.println("XXX ->" + DST_PACKAGE.replace('.', '/') + '/' + SRC_PACKAGE.replace('.', '-') + '-' + NAME_TEST_FILE + ".instance"); //NOI18N
