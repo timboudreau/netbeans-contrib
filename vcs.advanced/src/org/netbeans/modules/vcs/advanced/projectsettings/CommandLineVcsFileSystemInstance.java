@@ -136,9 +136,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 new PropertyDescriptor("hideShadowFiles", CommandLineVcsFileSystem.class, "isHideShadowFiles", "setHideShadowFiles"),
                 new PropertyDescriptor("showDeadFiles", CommandLineVcsFileSystem.class, "isShowDeadFiles", "setShowDeadFiles"),
                 new PropertyDescriptor("commandNotification", CommandLineVcsFileSystem.class, "isCommandNotification", "setCommandNotification"),
-                new PropertyDescriptor("ignoredGarbageFiles", CommandLineVcsFileSystem.class, "getIgnoredGarbageFiles", "setIgnoredGarbageFiles"),
                 new PropertyDescriptor("createBackupFiles", CommandLineVcsFileSystem.class, "isCreateBackupFiles", "setCreateBackupFiles"),
-                new PropertyDescriptor("filterBackupFiles", CommandLineVcsFileSystem.class, "isFilterBackupFiles", "setFilterBackupFiles"),
                 // Stuff from CommandLineVcsFileSystem
                 new PropertyDescriptor("config", CommandLineVcsFileSystem.class, "getConfig", "setConfig"),
                 new PropertyDescriptor("configFileName", CommandLineVcsFileSystem.class, "getConfigFileName", "setConfigFileName"),
