@@ -99,7 +99,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
     private ArrayList commandsFinished;
     private int numRunningListCommands;
     
-    private ThreadGroup group;
+    //private ThreadGroup group;
+    private CommandsThreadsPool threadsPool;
     
     /** Whether to collect the whole output of commands. */
     private boolean collectOutput = true;
@@ -122,7 +123,8 @@ public class CommandsPool extends Object /*implements CommandListener */{
         outputContainers = new Hashtable();
         outputVisualizers = new Hashtable();
         numRunningListCommands = 0;
-        group = new ThreadGroup("VCS Commands Group");
+        threadsPool = new CommandsThreadsPool();
+        //group = new ThreadGroup("VCS Commands Group");
         //executorStarterLoop();
     }
     
@@ -448,62 +450,32 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
     
     private synchronized void executorStarter(final VcsCommandWrapper cw) {
-        VcsCommandExecutor vce = cw.getExecutor();
-        final Thread t = new Thread(group, vce, "VCS Command \""+vce.getCommand().getName()+"\" Execution Thread");
-        cw.setRunningThread(t);
         commandsRunning.add(cw);
-        if (isListCommand(vce.getCommand())) numRunningListCommands++;
-        commandStarted(cw);
-        t.start();
-        //System.out.println("startExecutor, thread started.");
-        new Thread(group, "VCS Command \""+vce.getCommand().getName()+"\" Execution Waiter") {
+        threadsPool.processCommand(new Runnable() {
             public void run() {
-                //System.out.println("startExecutor.Waiter: thread checking ...");
-                while (t.isAlive()) {
-                    //System.out.println("startExecutor.Waiter: thread is Alive");
-                    try {
-                        t.join();
-                    } catch (InterruptedException exc) {
-                        // Ignore
-                    }
+                VcsCommandExecutor vce;
+                synchronized (CommandsPool.this) {
+                    vce = cw.getExecutor();
+                    cw.setRunningThread(Thread.currentThread());
+                    if (isListCommand(vce.getCommand())) numRunningListCommands++;
+                    commandStarted(cw);
+                }
+                Error err = null;
+                try {
+                    vce.run();
+                } catch (RuntimeException rexc) {
+                    TopManager.getDefault().notifyException(rexc);
+                } catch (ThreadDeath tderr) {
+                    err = tderr;
+                } catch (Throwable t) {
+                    TopManager.getDefault().notifyException(t);
                 }
                 commandDone(cw);
+                if (err != null) throw err;
             }
-        }.start();
+        });
     }
     
-    /*
-    private void executorStarterLoop() {
-        new Thread(group, new Runnable() {
-            public void run() {
-                do {
-                    VcsCommandExecutor vce;
-                    do {
-                        vce = null;
-                        synchronized (CommandsPool.this) {
-                            for (Iterator it = commandsWaitQueue.iterator(); it.hasNext(); ) {
-                                vce = (VcsCommandExecutor) it.next();
-                                if (canRun(vce)) break;
-                            }
-                            if (vce != null) {
-                                commandsWaitQueue.remove(vce);
-                                executorStarter(vce);
-                            }
-                        }
-                    } while (vce != null);
-                    synchronized (CommandsPool.this) {
-                        try {
-                            wait();
-                        } catch (InterruptedException intrexc) {
-                            // silently ignored
-                        }
-                    }
-                } while(execStarterLoopRunning);
-            }
-        }, "VCS Command Executor Starter Loop").start();
-        execStarterLoopStarted = true;
-    }
-     */
     private synchronized void executorStarterLoop() {
         do {
             VcsCommandWrapper cw;
@@ -530,7 +502,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
     }
     
     private void runExecutorStarterLoop() {
-        Thread starterLoopThread = new Thread(group, new Runnable() {
+        Thread starterLoopThread = new Thread(threadsPool.getThreadGroup(), new Runnable() {
             public void run() {
                 executorStarterLoop();
             }
@@ -940,15 +912,17 @@ public class CommandsPool extends Object /*implements CommandListener */{
     public void waitToFinish(VcsCommandExecutor vce) throws InterruptedException {
         VcsCommandWrapper cw = (VcsCommandWrapper) commandsWrappers.get(vce);
         if (cw == null) return ;
-        Thread t;
+        //Thread t;
         synchronized (this) {
-            while (commandsToRun.contains(cw) || commandsWaitQueue.contains(cw)) {
+            while (commandsToRun.contains(cw) || commandsWaitQueue.contains(cw) ||
+                   commandsRunning.contains(cw)) {
                 //try {
                 wait();
                 //} catch (InterruptedException iexc) {}
             }
-            t = cw.getRunningThread();
+            //t = cw.getRunningThread();
         }
+        /*
         if (t != null) {
             if (t.isAlive()) {
                 //try {
@@ -958,6 +932,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
                 //}
             }
         }
+         */
     }
     
     /**
