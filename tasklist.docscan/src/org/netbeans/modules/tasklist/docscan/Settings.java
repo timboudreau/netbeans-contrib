@@ -34,7 +34,8 @@ public class Settings extends SystemOption {
 	PROP_SCAN_SOURCES	= "scanSources",	//NOI18N
 	PROP_SCAN_SKIP  	= "skipComments",	//NOI18N
 	PROP_SCAN_DELAY		= "scanDelay",		//NOI18N
-	PROP_SCAN_TAGS		= "taskTags";		//NOI18N
+	PROP_SCAN_TAGS		= "taskTags",		//NOI18N
+	PROP_SCAN_COPYRIGHT    	= "scanCopyright";	//NOI18N
     
     /** Return the signleton cppSettings */
     public static Settings getDefault() {
@@ -176,4 +177,24 @@ public class Settings extends SystemOption {
 	putProperty(PROP_SCAN_TAGS, tags, true);
 	//firePropertyChange(PROP_SCAN_TAGS, null, b);	
     }
+
+    /**
+     * @return The copyright to insert when fixing missing
+     * copyright problems.
+     */
+    public String getScanCopyright() {
+        String c = (String)getProperty(PROP_SCAN_COPYRIGHT);
+	return c;
+    }
+
+    /** Sets the scanCopyright type
+     * @param copyright The copyright to insert when fixing missing
+     * copyright problems.
+     */
+    public void setScanCopyright(String copyright) {
+	putProperty(PROP_SCAN_COPYRIGHT, copyright, true);
+	//Done above: firePropertyChange(PROP_SCAN_COPYRIGHT, null, copyright);
+    }
+
+
 }
