@@ -26,23 +26,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JViewport;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.*;
@@ -104,6 +92,20 @@ public class ETable extends JTable {
      *
      */
     private int quickFilterColumn = -1;
+
+    // Search text field related variables:
+    /** */
+    private String maxPrefix;
+    /** */
+    int SEARCH_FIELD_PREFERRED_SIZE = 160;
+    /** */
+    int SEARCH_FIELD_SPACE = 3;
+    /** */
+    final private JTextField searchTextField = new SearchTextField();
+    /** */
+    final private int heightOfTextField = searchTextField.getPreferredSize().height;
+            
+    
     
     /**
      * If the table data model is changed we reset (and then recompute)
@@ -297,8 +299,13 @@ public class ETable extends JTable {
             if(!getShowHorizontalLines()) {
                 setShowHorizontalLines(true);
             }
-            Border border = BorderFactory.createLineBorder
-                    (UIManager.getColor("Table.borderAllEditable"));
+            Color colorBorderAllEditable = UIManager.getColor("Table.borderAllEditable");
+            Border border = null;
+            if (colorBorderAllEditable != null) {
+                border = BorderFactory.createLineBorder(colorBorderAllEditable);
+            } else {
+                border = BorderFactory.createLineBorder(Color.GRAY);
+            }
             Border filler = BorderFactory.createLineBorder(getBackground());
             CompoundBorder compound = new CompoundBorder(border, filler);
             setBorder(new CompoundBorder(compound, border));
@@ -309,6 +316,9 @@ public class ETable extends JTable {
         Color c = UIManager.getColor("Table.defaultGrid");
         if (c != null) {
             setGridColor(c);
+        }
+        if (isFullyNonEditable()) {
+            setupSearch();
         }
     }
     
@@ -328,8 +338,11 @@ public class ETable extends JTable {
             editing = FULLY_NONEDITABLE;
             if(getShowHorizontalLines())
                 setShowHorizontalLines(false);
-            setBorder(BorderFactory.createLineBorder
-                    (UIManager.getColor("Table.border")));
+            Color lineBorderColor = UIManager.getColor("Table.border");
+            if (lineBorderColor == null) {
+                lineBorderColor = Color.GRAY;
+            }
+            setBorder(BorderFactory.createLineBorder(lineBorderColor));
             Color c = UIManager.getColor("Table.noneditableGrid");
             if (c != null) {
                 setGridColor(c);
@@ -339,7 +352,13 @@ public class ETable extends JTable {
             setBorder( null );
             if(!getShowHorizontalLines())
                 setShowHorizontalLines(true);
-            setGridColor(UIManager.getColor("Table.defaultGrid"));
+            Color defaultGridColor = UIManager.getColor("Table.defaultGrid");
+            if (defaultGridColor != null) {
+                setGridColor(defaultGridColor);
+            }
+        }
+        if (isFullyNonEditable()) {
+            setupSearch();
         }
     }
     
@@ -349,7 +368,7 @@ public class ETable extends JTable {
      * @return  true if the the table is fully editable.
      * @see #setFullyEditable
      */
-    public boolean getFullyEditable() {
+    public boolean isFullyEditable() {
         return editing == FULLY_EDITABLE;
     }
     
@@ -359,7 +378,7 @@ public class ETable extends JTable {
      * @return  true if the the table is fully non-editable.
      * @see #setFullyNonEditable
      */
-    public boolean getFullyNonEditable() {
+    public boolean isFullyNonEditable() {
         return editing == FULLY_NONEDITABLE;
     }
     
@@ -555,6 +574,11 @@ public class ETable extends JTable {
      */
     protected void configureEnclosingScrollPane() {
         super.configureEnclosingScrollPane();
+        
+        if (isFullyNonEditable()) {
+            setupSearch();
+        }
+        
         Container p = getParent();
         if (p instanceof JViewport) {
             Container gp = p.getParent();
@@ -781,7 +805,255 @@ public class ETable extends JTable {
             etcm.writeSettings(p, propertyPrefix);
         }
     }
+    
+    /** searchTextField manages focus because it handles VK_TAB key */
+    private class SearchTextField extends JTextField {
+        public boolean isManagingFocus() {
+            return true;
+        }
+        
+        public void processKeyEvent(KeyEvent ke) {
+            //override the default handling so that
+            //the parent will never receive the escape key and
+            //close a modal dialog
+            if (ke.getKeyCode() == ke.VK_ESCAPE) {
+                removeSearchField();
+                // bugfix #32909, reqest focus when search field is removed
+                SwingUtilities.invokeLater(new Runnable() {
+                    //additional bugfix - do focus change later or removing
+                    //the component while it's focused will cause focus to
+                    //get transferred to the next component in the
+                    //parent focusTraversalPolicy *after* our request
+                    //focus completes, so focus goes into a black hole - Tim
+                    public void run() {
+                        ETable.this.requestFocus();
+                    }
+                });
+            } else {
+                super.processKeyEvent(ke);
+            }
+        }
+    }
+    
+    private List doSearch(String prefix) {
+        List results = new ArrayList();
+        
+        // do search forward the selected index
+        int rows[] = getSelectedRows();
+        int startIndex = (rows == null || rows.length == 0) ? 0 : rows[0];
+        
+        int size = getRowCount();
+        if ( (size == 0) || (getColumnCount() == 0)) {
+            // Empty table; cannot match anything.
+            return results;
+        }
+        
+        while (startIndex < size) {
+            Object val = getValueAt(startIndex, 0);
+            String s = null;
+            if (val != null) {
+                s = val.toString();    
+            }   
+            if ((s != null) && (s.toUpperCase().startsWith(prefix.toUpperCase()))) {
+                results.add(new Integer(startIndex));
+            }
+            
+            // initialize prefix
+            if (maxPrefix == null) {
+                maxPrefix = s;
+            }
 
+            maxPrefix = findMaxPrefix(maxPrefix, s);
+            
+            startIndex++;
+        }
+        
+        return results;
+    }
+    
+    private static String findMaxPrefix(String str1, String str2) {
+        int i = 0;
+        while (str1.regionMatches(true, 0, str2, 0, i)) {
+            i++;
+        }
+        i--;
+        if (i >= 0) {
+            return str1.substring(0, i);    
+        }
+        return null;
+    }
+    
+    private void setupSearch() {
+        // Remove the default key listeners
+        KeyListener keyListeners[] = (KeyListener[]) (getListeners(KeyListener.class));
+        for (int i = 0; i < keyListeners.length; i++) {
+            removeKeyListener(keyListeners[i]);
+        }
+        // Add new key listeners
+        addKeyListener(new KeyAdapter() {
+            private boolean armed = false;
+            public void keyPressed(KeyEvent e) {
+                int modifiers = e.getModifiers();
+                int keyCode = e.getKeyCode();
+                if ((modifiers > 0 && modifiers != KeyEvent.SHIFT_MASK) || e.isActionKey())
+                    return ;
+                char c = e.getKeyChar();
+                if (!Character.isISOControl(c) && keyCode != KeyEvent.VK_SHIFT && keyCode != KeyEvent.VK_ESCAPE) {
+                    armed = true;
+                    e.consume();
+                }
+            }
+            public void keyTyped(KeyEvent e) {
+                if (armed) {
+                    final KeyStroke stroke = KeyStroke.getKeyStrokeForEvent(e);
+                    searchTextField.setText(String.valueOf(stroke.getKeyChar()));
+                    
+                    displaySearchField();
+                    e.consume();
+                    armed = false;
+                }
+            }
+        });
+        // Create a the "multi-event" listener for the text field. Instead of
+        // adding separate instances of each needed listener, we're using a
+        // class which implements them all. This approach is used in order
+        // to avoid the creation of 4 instances which takes some time
+        SearchFieldListener searchFieldListener = new SearchFieldListener();
+        searchTextField.addKeyListener(searchFieldListener);
+        searchTextField.addFocusListener(searchFieldListener);
+        searchTextField.getDocument().addDocumentListener(searchFieldListener);
+    }
+    
+    private class SearchFieldListener extends KeyAdapter
+            implements DocumentListener, FocusListener {
+        
+        /** The last search results */
+        private List results = new ArrayList();
+        /** The last selected index from the search results. */
+        private int currentSelectionIndex;
+        
+        /**
+         * Default constructor.
+         */
+        SearchFieldListener() {
+        }
+        
+        public void changedUpdate(DocumentEvent e) {
+            searchForRow();
+        }
+        
+        public void insertUpdate(DocumentEvent e) {
+            searchForRow();
+        }
+        
+        public void removeUpdate(DocumentEvent e) {
+            searchForRow();
+        }
+        
+        public void keyPressed(KeyEvent e) {
+            int keyCode = e.getKeyCode();
+            if (keyCode == KeyEvent.VK_ESCAPE) {
+                removeSearchField();
+                ETable.this.requestFocus();
+            } else if (keyCode == KeyEvent.VK_UP) {
+                currentSelectionIndex--;
+                displaySearchResult();
+                // Stop processing the event here. Otherwise it's dispatched
+                // to the table too (which scrolls)
+                e.consume();
+            } else if (keyCode == KeyEvent.VK_DOWN) {
+                currentSelectionIndex++;
+                displaySearchResult();
+                // Stop processing the event here. Otherwise it's dispatched
+                // to the table too (which scrolls)
+                e.consume();
+            } else if (keyCode == KeyEvent.VK_TAB) {
+                if (maxPrefix != null)
+                    searchTextField.setText(maxPrefix);
+                e.consume();
+            } else if (keyCode == KeyEvent.VK_ENTER) {
+                removeSearchField();
+                
+                // TODO: do something on hitting enter???
+                e.consume();
+                ETable.this.requestFocus();
+            }
+        }
+        
+        /** Searches for a row. */
+        private void searchForRow() {
+            currentSelectionIndex = 0;
+            results.clear();
+            maxPrefix = null;
+            String text = searchTextField.getText().toUpperCase();
+            if (text.length() > 0) {
+                results = doSearch(text);
+                displaySearchResult();
+            }
+        }
+        
+        private void displaySearchResult() {
+            int sz = results.size();
+            if (sz > 0) {
+                currentSelectionIndex = ((Integer)results.get(0)).intValue();
+                setRowSelectionInterval(currentSelectionIndex, currentSelectionIndex);
+            } else {
+                clearSelection();
+            }
+        }
+        
+        public void focusGained(FocusEvent e) {
+            // Do nothing
+        }
+        
+        public void focusLost(FocusEvent e) {
+            removeSearchField();
+        }
+    }
+    
+    private void displaySearchField() {
+        if (!searchTextField.isDisplayable()) {
+            searchTextField.setFont(ETable.this.getFont());
+            add(searchTextField);
+            doLayout();
+            searchTextField.repaint();
+            // bugfix #28501, avoid the chars duplicated on jdk1.3
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    searchTextField.requestFocus();
+                }
+            });
+        }
+    }
+    
+    public void doLayout() {
+        super.doLayout();
+        Rectangle visibleRect = getVisibleRect();
+        if (searchTextField.isDisplayable()) {
+            int width = Math.min(
+                    getPreferredSize().width - SEARCH_FIELD_SPACE * 2,
+                    SEARCH_FIELD_PREFERRED_SIZE - SEARCH_FIELD_SPACE);
+            
+            searchTextField.setBounds(
+                    Math.max(SEARCH_FIELD_SPACE,
+                    visibleRect.x + visibleRect.width - width),
+                    visibleRect.y + SEARCH_FIELD_SPACE,
+                    Math.min(visibleRect.width, width) - SEARCH_FIELD_SPACE,
+                    heightOfTextField);
+        }
+    }
+    
+    /**
+     * Removes the search field from the table.
+     */
+    private void removeSearchField() {
+        if (searchTextField.isDisplayable()) {
+            remove(searchTextField);
+            Rectangle r = searchTextField.getBounds();
+            this.repaint(r);
+        }
+    }
+    
     /**
      * Item to the collection when doing the sorting of table rows.
      */

@@ -32,7 +32,7 @@ public class TestJFrame extends javax.swing.JFrame {
     public TestJFrame() {
         initComponents();
 //        eTable1.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-//        eTable1.setFullyNonEditable(true);
+        eTable1.setFullyNonEditable(true);
     }
     
     /** This method is called from within the constructor to
@@ -53,22 +53,36 @@ public class TestJFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         eTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"a", "x", "tttttttt", new Integer(5)},
-                {"a", "y", "ggggggggg", new Integer(10)},
-                {"b", "z", "nnnnnnnn", new Integer(7)},
-                {"b", "w", "mmmmmm", new Integer(1)},
-                {"c", "m", "kkkkkkkkkk", new Integer(10000)},
-                {"c", "n", "kkkkk", new Integer(4)}
+                {"a", "x", "tttttttt", new Integer(5), "aaaaab"},
+                {"a2", "y", "ggggggggg", new Integer(10), "aaaaaa"},
+                {"b", "z", "nnnnnnnn", new Integer(7), "aaaaaa"},
+                {"b3", "w", "mmmmmm", new Integer(1), "aaaaab"},
+                {"c", "m", "kkkkkkkkkk", new Integer(10000), "aaaaab"},
+                {"c2", "n", "kkkkk", new Integer(4), "aaaaab"},
+                {"d", "df", "wwwwwwww", new Integer(17), "aaaaaccc"},
+                {"d3", "f", "ggggggggggggg", new Integer(13), "aaaaac"},
+                {"e", "mm", "hhhhhhhhhhhh", new Integer(2), "aaaaac"},
+                {"e2", "mg", "qqqqqqqqqqq", new Integer(8), "aaaaad"},
+                {"f", "q", "ffffffffffffff", new Integer(23), "aaaaa"},
+                {"f2", "dfg", "nnnnnnnnnnnn", new Integer(100), "aaaaa"},
+                {"g", "dfg", "mmmmmmmmmmm", new Integer(57), "aaaaa"},
+                {"g2", "fg", "qqqqqqqqq", new Integer(3), "aaaaa"},
+                {"h", "xb", "nnnnnnnnnnn", new Integer(123), "aaaaa"},
+                {"h2", "sdf", "asdfasdf", new Integer(321), "aaaaa"},
+                {"i", "g", "fads", new Integer(42), "aaaaarrrr"},
+                {"i2", "mn", "asdf", new Integer(72), "aaaaa"},
+                {"j", "we", "asdfdsafafsdfsd", new Integer(88), "aaaaaaaaa"},
+                {"j2", "kl", "asdfasdfafsdasdfasd", new Integer(99), "aaaaa"}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Title 1", "Title 2", "Title 3", "Title 4", "Title 5"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Integer.class
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Integer.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -83,7 +97,7 @@ public class TestJFrame extends javax.swing.JFrame {
 
         getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        jPanel1.setLayout(new java.awt.GridLayout());
+        jPanel1.setLayout(new java.awt.GridLayout(1, 0));
 
         jPanel1.add(jTextField1);
 
