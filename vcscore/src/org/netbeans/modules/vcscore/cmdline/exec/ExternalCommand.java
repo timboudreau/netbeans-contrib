@@ -340,8 +340,9 @@ public class ExternalCommand implements TextInput {
             } catch (IOException e){
                 org.openide.ErrorManager.getDefault().notify(ErrorManager.USER,
                     org.openide.ErrorManager.getDefault().annotate(e,
-                        g("EXT_CMD_RuntimeExc", VcsUtilities.array2string(commandArr))));
+                        g("EXT_CMD_RuntimeExc", VcsUtilities.array2string(commandArr), e.getLocalizedMessage())));
                 stderrNextLine(g("EXT_CMD_RuntimeFailed", command)); // NOI18N
+                stderrNextLine(g("EXT_CMD_RuntimeFailedReason", e.getLocalizedMessage())); // NOI18N
                 setExitStatus(VcsCommandExecutor.FAILED);
                 return getExitStatus();
             }
