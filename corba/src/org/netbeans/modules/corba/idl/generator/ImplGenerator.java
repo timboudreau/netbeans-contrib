@@ -4475,7 +4475,20 @@ public class ImplGenerator implements PropertyChangeListener {
 	}
 	if (_M_settings.getGeneration ().equals (ORBSettingsBundle.GEN_RETURN_NULL)) {
             //System.out.println ("CORBASupport.GEN_RETURN_NULL"); // NOI18N
-            method.setBody ("\n  return null;\n"); // NOI18N
+            Type type = method.getReturn();
+            if (type.isPrimitive()) {
+                if (type == Type.VOID)
+                    method.setBody("\n");
+                else if (type == Type.BOOLEAN)
+                    method.setBody("\n  return false;\n"); // NOI18N
+                else if (type == Type.CHAR)
+                    method.setBody("\n  return '\\u0000';\n"); // NOI18N
+                else    
+                    method.setBody("\n  return 0;\n"); // NOI18N
+            }
+            else {
+                method.setBody ("\n  return null;\n"); // NOI18N
+            }
             return;
 	}
 
