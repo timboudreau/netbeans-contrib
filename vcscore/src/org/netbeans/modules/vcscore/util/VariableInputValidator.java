@@ -74,9 +74,9 @@ public class VariableInputValidator extends Object {
     
     private void validateFile(VariableInputComponent component) {
         java.io.File file = new java.io.File(component.getValue());
-        if (file.isAbsolute() && !file.exists()) {
+        if (!file.isAbsolute() || !file.exists()) {
             valid = false;
-            message = g("VariableInputValidator.FileDoesNotExist", component.getLabel(), file.getAbsolutePath());
+            message = g("VariableInputValidator.FileDoesNotExist", component.getLabel(), file.getPath());
             variable = component.getVariable();
         } else {
             valid = true;
@@ -85,9 +85,9 @@ public class VariableInputValidator extends Object {
     
     private void validateFolder(VariableInputComponent component) {
         java.io.File file = new java.io.File(component.getValue());
-        if (file.isAbsolute() && !file.isDirectory()) {
+        if (!file.isAbsolute() || !file.isDirectory()) {
             valid = false;
-            message = g("VariableInputValidator.FolderDoesNotExist", component.getLabel(), file.getAbsolutePath());
+            message = g("VariableInputValidator.FolderDoesNotExist", component.getLabel(), file.getPath());
             variable = component.getVariable();
         } else {
             valid = true;
