@@ -36,6 +36,11 @@ public class SuggestionsBrokerTest extends TestCase {
         return suite;
     }
 
+    protected void setUp() throws Exception {
+        super.setUp();
+        TrackingProvider.installSuggestionProviders();
+    }
+
     public void testLifecycle() {
         SuggestionsBroker broker = SuggestionsBroker.getDefault();
         TestEnv env = new TestEnv();
@@ -80,4 +85,5 @@ public class SuggestionsBrokerTest extends TestCase {
             tclCount--;
         }
     }
+
 }

@@ -159,12 +159,6 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
                 provider.notifyPrepare();
             }
             prepared = true;
-
-            // The window system doesn't generate TopComponent.componentShowing
-            // when the view is opened (or, it may generate it before the
-            // componentOpened call). This will be a no-op in that case,
-            // since running=true will already be the case.
-            dispatchRun();
         }
     }
 

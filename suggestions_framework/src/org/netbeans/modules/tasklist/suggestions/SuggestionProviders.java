@@ -40,6 +40,9 @@ public final class SuggestionProviders {
     // keep default (until client exists)
     private static Reference instance;
 
+    // package private so tests can change
+    static Lookup lookup = Lookup.getDefault();
+
     private SuggestionProviders() {
         // lazy init
     }
@@ -71,7 +74,7 @@ public final class SuggestionProviders {
             providers = new ArrayList(20);
             Lookup.Template template =
                     new Lookup.Template(SuggestionProvider.class);
-            Lookup.Result result = Lookup.getDefault().lookup(template);
+            Lookup.Result result = lookup.lookup(template);
             result.addLookupListener(new LookupListener() {
                 public void resultChanged(LookupEvent ev) {
                     invalidateCaches();
