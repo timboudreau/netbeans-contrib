@@ -58,7 +58,7 @@ final class FilteredTasksList implements ObservableList {
      */
     public Task getRoot() {
         if (root == null) {
-            root = new Task();  // see identity trick in notifyStructureChanged
+            root = new Task();  // see identity trick in fireStructureChanged
             root.setList(this);
             refreshSnapshot();
         }
@@ -101,7 +101,7 @@ final class FilteredTasksList implements ObservableList {
         handler = null;
     }
 
-    public void notifyStructureChanged(Task task) {
+    private void fireStructureChanged(Task task) {
 //        if (silent) return;  // the event comes from root.updatedStructure
 
         Task context = (peer.getRoot() == task) ? root : task;
@@ -237,7 +237,7 @@ final class FilteredTasksList implements ObservableList {
             } finally {
                 silent = false;
             }
-            notifyStructureChanged(t);
+            fireStructureChanged(t);
         }
     }
 

@@ -26,7 +26,7 @@ public interface ObservableList {
      * root task is a client provided
      * top level tasks holder.
      *
-     * Proper impl shoudl be that toplevel
+     * Proper impl should be that toplevel
      * holder is impl issue and clients
      * use mutation methods using writeable
      * tasklist interface
@@ -43,8 +43,4 @@ public interface ObservableList {
      */
     void removeTaskListener(TaskListener l);
 
-    /**
-     * Dispatch structureChanged event.
-     */
-    void notifyStructureChanged(Task task);
 }

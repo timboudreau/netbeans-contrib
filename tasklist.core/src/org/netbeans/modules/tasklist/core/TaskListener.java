@@ -20,6 +20,8 @@ import java.util.EventListener;
  * updates the editor
  *
  * @author Tor Norbye
+ * @todo selectedTask and warpedTask events have -NO- related attribute in Task nor TaskList.
+ *       These should be probably removed.
  */
 public interface TaskListener extends EventListener {
 
@@ -29,10 +31,9 @@ public interface TaskListener extends EventListener {
     void selectedTask(Task t);
 
     /** Called to indicate that a particular task has been "warped to".
-	Do what you can to "warp to" this task. Typically means show
-        associated fileposition in the editor.
-     * @deprecated should be removed to split the model from the view
-    */
+	 * Do what you can to "warp to" this task. Typically means show
+     *   associated fileposition in the editor.
+     */
     void warpedTask(Task t);
 
     /** 
@@ -55,7 +56,7 @@ public interface TaskListener extends EventListener {
     /**
      * A task has been changed (some properties has been changed).
      *
-     * @param a task that has changed
+     * @param t task that has changed
      */
     void changedTask(Task t);
 

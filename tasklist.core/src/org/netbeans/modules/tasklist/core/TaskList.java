@@ -279,7 +279,7 @@ public class TaskList implements ObservableList, TaskListener {
     }
 
     /** Fire TaskListener.structureChanged */
-    public void notifyStructureChanged(Task task) {
+    protected final void fireStructureChanged(Task task) {
         if (listeners != null) {
             int n = listeners.size();
             for (int i = 0; i < n; i++) {
@@ -367,7 +367,7 @@ public class TaskList implements ObservableList, TaskListener {
     }
 
     public void structureChanged(Task task) {
-        notifyStructureChanged(task);
+        fireStructureChanged(task);
     }
 
 //    ///* For debugging purposes:
