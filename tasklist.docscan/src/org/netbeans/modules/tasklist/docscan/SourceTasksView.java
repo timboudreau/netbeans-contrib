@@ -171,12 +171,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         inputMap.put(selectFolder, selectFolder);
         getActionMap().put(selectFolder, new DelegateAction(getFolderSelector()));
 
-        // toggle according to All vs Current file
-        if (job != null) {
-            putClientProperty("PersistenceType", "OnlyOpened"); // NOI18N
-        } else {
-            putClientProperty("PersistenceType", "Never"); // NOI18N
-        }
+        putClientProperty("PersistenceType", "OnlyOpened"); // NOI18N
     }
 
     protected TaskNode createRootNode() {
@@ -314,7 +309,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         // skip call to super.writeExternal
         // write bool snapshot flag
 
-        objectOutput.writeInt(1);  // version
+        // version 2 format appends
+        // recentFiles
+        objectOutput.writeInt(2);  // version
 
         // Super method is driven by a private
         // filed passed in contructor and it denies
@@ -342,6 +339,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 //                objectOutput.writeInt(prio);
 //            }
         }
+
+        ArrayList recent = recentFolders;
+        if (selectedFolder != null) {
+            recent = new ArrayList(recentFolders);
+            addRecent(recent, selectedFolder);
+        }
+        objectOutput.writeObject(recent);
     }
 
     public void readExternal(ObjectInput objectInput) throws IOException, ClassNotFoundException {
@@ -351,13 +355,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         super.setIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"));  // NOI18N
 
         int version = objectInput.readInt();
-        if (version == 1) {
+        if (version == 1 || version == 2) {
             // read writeExternal
             //super.readExternal(objectInput);
 
             boolean snapshot = objectInput.readBoolean();
-            if (snapshot) {
-                // read cache
+    //        if (snapshot) {
+    //            // read cache
     //            int size = objectInput.readInt();
     //            Children.Array tasks = new Children.Array();
     //            for (int i = 0; i<size; i++) {
@@ -368,12 +372,16 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     //                tasks.add(new Node[] {new SourceTaskNode(summary, file, line, prio)});
     //            }
     //            getExplorerManager().setRootContext(new AbstractNode(tasks));
-            } else {
+    //        } else {
                 // XXX defer to isShowing
                 job = SuggestionsBroker.getDefault().startBroker();
                 this.category = CATEGORY;
                 registerTaskListView(this);
                 setModel(createFilteredList(job.getSuggestionsList()));
+     //       }
+
+            if (version == 2) {
+                recentFolders = (ArrayList) objectInput.readObject();
             }
         }
 
@@ -540,7 +548,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             button.setToolTipText(Util.getString("selector_hint") + " (S)"); // NOI18N
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    if (recentFolders.size() > 0) {
+                    if (recentFolders.size() > 0 || selectedFolder != null) {
                         showFolderSelectorPopup();
                     } else {
                         handleSelectFolder();
@@ -580,7 +588,19 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         Iterator it = recentFolders.iterator();
         int i = 1;
-        if (it.hasNext()) popup.addSeparator();
+        if (it.hasNext() || selectedFolder != null) popup.addSeparator();
+
+        if (selectedFolder != null) {
+            JMenuItem item = new JMenuItem("0 " + createLabel(selectedFolder));
+            item.setMnemonic(KeyEvent.VK_0);
+            item.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (getAllFiles().isSelected()) return;
+                    handleAllFiles();
+                }
+            });
+            popup.add(item);
+        }
 
         int[] mnemonics = new int[] {0, KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4, KeyEvent.VK_5};
         while (it.hasNext()) {
@@ -942,7 +962,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         allFilesButton.setToolTipText(Util.getMessage("see-folder-hint2", createLabel(selectedFolder)) + " (s)"); // NOI18N
         ((JToggleButton)allFilesButton).setSelected(true);
 
-        putClientProperty("PersistenceType", "Never"); // NOI18N
         treeTable.setProperties(createColumns());
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
         TaskList list;
@@ -1011,7 +1030,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             if (background != null) handleStop();
             background = null;
             job = SuggestionsBroker.getDefault().startBroker();
-            putClientProperty("PersistenceType", "OnlyOpened");  // NOI18N
             treeTable.setProperties(createColumns());
             treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
             setModel(createFilteredList(job.getSuggestionsList()));
@@ -1072,6 +1090,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private void updateRecent(FileObject fo) {
+        addRecent(recentFolders, fo);
+    }
+
+    private void addRecent(java.util.List recentFolders, FileObject fo) {
         if (fo == null) return;
         if (recentFolders.contains(fo) == false) {
             if (recentFolders.size() == RECENT_ITEMS_COUNT) {
