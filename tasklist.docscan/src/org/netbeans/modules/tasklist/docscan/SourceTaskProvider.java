@@ -278,13 +278,7 @@ public class SourceTaskProvider extends DocumentSuggestionProvider
     private List scanAll(Document doc, DataObject dobj) {
         ArrayList newTasks = new ArrayList();
  
-      	String text = null;
-	try {
-	    text = doc.getText(0, doc.getLength());
-	} catch (BadLocationException e) {
-            e.printStackTrace();
-            return null;
-	}
+      	String text = DocumentUtil.extractString(doc);
 
         TaskTag matchTag = null;
         try {

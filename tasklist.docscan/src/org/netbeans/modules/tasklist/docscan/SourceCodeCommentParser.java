@@ -84,6 +84,9 @@ public class SourceCodeCommentParser {
      * Set the document to parse
      * @param doc the document to parse
      * @throws java.io.IOException if anything goes wrong...
+     *
+     * XXX not used however the idea is smart, do we really need
+     * Document interface from the framework?
      */
     public void setDocument(File f) throws IOException {
         parser.setDocument(f);
@@ -140,7 +143,7 @@ public class SourceCodeCommentParser {
          * @throws javax.swing.text.BadLocationException when....
          */
         public void setDocument(Document doc) throws BadLocationException {
-            String text = doc.getText(0, doc.getLength());
+            String text = DocumentUtil.extractString(doc);
             this.doc = new BufferedReader(new StringReader(text));
             lineno = 0;
             rest = null;
