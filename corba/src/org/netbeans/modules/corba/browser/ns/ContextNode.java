@@ -147,7 +147,7 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
 		ContextNode.this.bind_new_context (name, __kind, "",ior, false);
                 localNameServices.put (new Short (port), wrapper);
             }catch (Exception se) {
-                TopManager.getDefault().notify (new NotifyDescriptor.Message (se.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
+                TopManager.getDefault().notify (new NotifyDescriptor.Message (se.toString (), NotifyDescriptor.Message.ERROR_MESSAGE));
             }
 	}
 	
@@ -310,7 +310,7 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
     }
 
     public void bind_new_context (String name, String kind, String url, String ior)
-    throws java.net.MalformedURLException, java.io.IOException,
+    throws InvalidIORException,
                 org.omg.CosNaming.NamingContextPackage.NotFound,
                 org.omg.CosNaming.NamingContextPackage.CannotProceed,
                 org.omg.CosNaming.NamingContextPackage.InvalidName,
@@ -319,35 +319,30 @@ public class ContextNode extends NamingServiceNode implements Node.Cookie, FromI
     }
     
     public void bind_new_context (String name, String kind, String url, String ior, boolean persistent)
-    throws java.net.MalformedURLException, java.io.IOException,
-                org.omg.CosNaming.NamingContextPackage.NotFound,
-                org.omg.CosNaming.NamingContextPackage.CannotProceed,
-                org.omg.CosNaming.NamingContextPackage.InvalidName,
+    throws InvalidIORException,
+        org.omg.CosNaming.NamingContextPackage.NotFound,
+        org.omg.CosNaming.NamingContextPackage.CannotProceed,
+        org.omg.CosNaming.NamingContextPackage.InvalidName,
         org.omg.CosNaming.NamingContextPackage.AlreadyBound {
         NamingContext nc = null;
         if (DEBUG)
             System.out.println ("ContextNode::bind_new_context ();");
         if (!url.equals ("")) {
-            //try {
-            URL uc = new URL (url);
-            String ref;
-            //FileInputStream file = new FileInputStream(refFile);
-            BufferedReader in =
-                new BufferedReader(new InputStreamReader(uc.openStream ()));
-            ref = in.readLine();
-            org.omg.CORBA.Object o = this.getORB().string_to_object (ref);
-            nc = NamingContextHelper.narrow (o);
-            if (nc == null) {
-                TopManager.getDefault().notify ( new NotifyDescriptor.Message (this.getLocalizedString("CTL_CantBind"),NotifyDescriptor.Message.ERROR_MESSAGE));
-			}
-            //setName (name);
-            //setKind ("");
-            //((ContextChildren)getChildren ()).setContext (context);
-            //((ContextChildren)getChildren ()).addNotify ();
-            //file.close();
-            //} catch (Exception e) {
-            //e.printStackTrace ();
-            //}
+            try {
+                URL uc = new URL (url);
+                String ref;
+                BufferedReader in = new BufferedReader(new InputStreamReader(uc.openStream ()));
+                ref = in.readLine();
+                if (ref == null) {
+                    throw new InvalidIORException (this.getLocalizedString("CTL_URLContentEmpty"));
+                }
+                org.omg.CORBA.Object o = this.getORB().string_to_object (ref);
+                nc = NamingContextHelper.narrow (o);
+                if (nc == null) 
+                    throw new InvalidIORException (this.getLocalizedString("CTL_URLContentInvalid"));
+            } catch (IOException ioe) {
+                throw new InvalidIORException (ioe);
+            }
         }
 
         else if (!ior.equals ("")) { 
