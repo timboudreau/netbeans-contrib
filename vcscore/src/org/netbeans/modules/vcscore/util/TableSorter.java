@@ -47,6 +47,8 @@ public class TableSorter extends TableMap {
     int             indexes[];
     Vector          sortingColumns = new Vector();
     boolean         ascending = true;
+    int             sortedColumn = -1;
+    boolean         keepSortedOnChanges = true;
     int             compares;
 
     private static final long serialVersionUID = 6824746536363157563L;
@@ -187,6 +189,9 @@ public class TableSorter extends TableMap {
         for (int row = 0; row < rowCount; row++) {
             indexes[row] = row;
         }
+        if (keepSortedOnChanges && sortedColumn >= 0) {
+            sortByColumn(sortedColumn, ascending);
+        }
     }
 
     public void tableChanged(TableModelEvent e) {
@@ -299,6 +304,7 @@ public class TableSorter extends TableMap {
 
     public void sortByColumn(int column, boolean ascending) {
         this.ascending = ascending;
+        this.sortedColumn = column;
         sortingColumns.removeAllElements();
         sortingColumns.addElement(new Integer(column));
         sort(this);
