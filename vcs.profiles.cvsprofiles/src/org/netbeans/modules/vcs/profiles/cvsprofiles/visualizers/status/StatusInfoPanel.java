@@ -530,7 +530,7 @@ final class StatusInfoPanel extends JPanel {
           return;
       statusInfo = info;
       txFileName.setText(info.getFile().getName());      
-      txStatus.setText(info.getStatusString());
+      txStatus.setText(info.getStatusLC());
       String work = info.getWorkingRevision();
       txWorkRev.setText(work);
       String repo = info.getRepositoryRevision();

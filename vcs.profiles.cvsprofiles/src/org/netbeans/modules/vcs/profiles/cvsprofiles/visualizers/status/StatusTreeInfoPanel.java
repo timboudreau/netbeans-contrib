@@ -296,7 +296,7 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
               if (userObj != null) {
                  if (userObj instanceof StatusInformation) { //is statusInfo
                       StatusInformation info = (StatusInformation)userObj;
-                      String status = info.getStatusString();                      
+                      String status = info.getStatusLC();                      
                       label.setText(info.getFile().getName() + "  [" + status + "]"); // NOI18N
                   }
               }

@@ -278,12 +278,13 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         statusInformation.setFile(file);
 
         String status = new String(line.substring(statusIndex + 8).trim());        
-        String statusLC;
-        if(infoMap != null)
-            statusLC = ((FileStatusInfo)infoMap.get(status)).getDisplayName();
-        else
-            statusLC = status;        
-        statusInformation.setStatus(statusLC);
+        if(infoMap != null) {
+            FileStatusInfo fsInfo = (FileStatusInfo) infoMap.get(status);
+            if (fsInfo != null) {
+                statusInformation.setStatusLC(fsInfo.getDisplayName());
+            }
+        }
+        statusInformation.setStatus(status);
     }
 
     private boolean assertNotNull() {

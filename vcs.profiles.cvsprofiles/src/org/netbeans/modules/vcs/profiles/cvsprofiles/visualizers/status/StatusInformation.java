@@ -81,6 +81,7 @@ public final class StatusInformation extends FileInfoContainer {
  
     private File file;
     private String status;
+    private String statusLC;
     private String workingRevision;
     private String repositoryRevision;
     private String repositoryFileName;
@@ -122,34 +123,47 @@ public final class StatusInformation extends FileInfoContainer {
     public String getStatus() {
         return status;
     }
+    
+    private static String findSharedStatus(String status) {
+        if (UP_TO_DATE.equals(status)) return UP_TO_DATE;
+        if (ADDED.equals(status)) return ADDED;
+        if (REMOVED.equals(status)) return REMOVED;
+        if (MODIFIED.equals(status)) return MODIFIED;
+        if (NEEDS_CHECKOUT.equals(status)) return NEEDS_CHECKOUT;
+        if (NEEDS_PATCH.equals(status)) return NEEDS_PATCH;
+        if (NEEDS_MERGE.equals(status)) return NEEDS_MERGE;
+        if (HAS_CONFLICTS.equals(status)) return HAS_CONFLICTS;
+        if (UNKNOWN.equals(status)) return UNKNOWN;
+        return status.trim();
+    }
 
     /**
      * Setter for property status.
      * @param status New value of property status.
      */
     public void setStatus(String status) {
-        this.status = status;
-    }
-
-    /**
-     * Returns the status as a String.
-     * The String returned are definitely the static-final-instances.
-     */
-    public String getStatusString() {
-        if (status == null) {
-            return null;
+        this.status = findSharedStatus(status);
+        if (statusLC == null) {
+            statusLC = status;
         }
-
-        return status.toString();
     }
 
     /**
-     * Sets the status by the specified string.
-     
-    public void setStatusString(String statusString) {
-        setStatus(FileStatus.getStatusForString(statusString));
+     * Getter for property status localized.
+     * @return Value of property status localized.
+     */
+    public String getStatusLC() {
+        return statusLC;
     }
-*/
+
+    /**
+     * Setter for property status localized.
+     * @param status New value of property status localized.
+     */
+    public void setStatusLC(String statusLC) {
+        this.statusLC = statusLC;
+    }
+
     /**
      * Getter for property workingRevision.
      * @return Value of property workingRevision.
@@ -309,7 +323,7 @@ public final class StatusInformation extends FileInfoContainer {
         buf.append((file != null) ? file.getAbsolutePath()
                    : "null"); //NOI18N
         buf.append("\nStatus is: "); //NOI18N
-        buf.append(getStatusString());
+        buf.append(getStatus());
         buf.append("\nWorking revision: "); //NOI18N
         buf.append(workingRevision);
         buf.append("\nRepository revision: "); //NOI18N
