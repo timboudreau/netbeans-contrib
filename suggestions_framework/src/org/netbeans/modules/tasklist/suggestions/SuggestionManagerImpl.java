@@ -720,8 +720,10 @@ final public class SuggestionManagerImpl extends SuggestionManager
     public final void scan(DataObject.Container[] folders, SuggestionList list, ScanProgress monitor) {
         try {
             progressMonitor = monitor;
+            monitor.scanStarted();
             scan(folders, list, true);
         } finally {
+            monitor.scanFinished();
             progressMonitor = null;
         }
     }
@@ -733,14 +735,18 @@ final public class SuggestionManagerImpl extends SuggestionManager
 	boolean recursive) {
         // package-private instead of private for the benefit of the testsuite
         for (int i = 0; i < folders.length; i++) {
+            if (Thread.interrupted()) return;
             DataObject.Container folder = folders[i];
-            scan(folder, recursive, list);
+            scanFolder(folder, recursive, list);
         }
     }
     
-    private void scan(DataObject.Container folder, boolean recursive, SuggestionList list) {
+    private void scanFolder(DataObject.Container folder, boolean recursive, SuggestionList list) {
         DataObject[] children = folder.getChildren();
         for (int i = 0; i < children.length; i++) {
+
+            if (Thread.currentThread().isInterrupted()) return;
+
             DataObject f = children[i];
             if (f instanceof DataObject.Container) {
 		if (!recursive) {
@@ -763,7 +769,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     progressMonitor.folderEntered(f.getPrimaryFile());
                 }
 
-                scan((DataObject.Container)f, true, list); // recurse!
+                scanFolder((DataObject.Container)f, true, list); // recurse!
                 if (progressMonitor != null) {
                     progressMonitor.folderScanned(f.getPrimaryFile());
                 }
@@ -791,7 +797,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
                                            f.getPrimaryFile().getNameExt()));
                 }
 
-                scan(list, env);
+                scanLeaf(list, env);
                 if (progressMonitor != null) {
                     progressMonitor.fileScanned(f.getPrimaryFile());
                 }
@@ -799,10 +805,11 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
     }
 
-    void scan(SuggestionList list, SuggestionContext env) {
+    private void scanLeaf(SuggestionList list, SuggestionContext env) {
         List providers = getProviders();
         ListIterator it = providers.listIterator();
         while (it.hasNext()) {
+            if (Thread.currentThread().isInterrupted()) return;
             SuggestionProvider provider = (SuggestionProvider)it.next();
             if (((unfiltered == null) ||
             (unfiltered == provider)) &&
@@ -2187,12 +2194,17 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
     /**
-     * Scan methods can emmit progress callbacks
+     * Handles scan method emmited progress callbacks.
+     * Implementation can interrupt scanning thread
+     * (current thread) by standard thread interruption
+     * methods.
      */
     public interface ScanProgress {
+        void scanStarted();
         void folderEntered(FileObject folder);
         void fileScanned(FileObject file);
         void folderScanned(FileObject folder);
+        void scanFinished();
     }
 
 }

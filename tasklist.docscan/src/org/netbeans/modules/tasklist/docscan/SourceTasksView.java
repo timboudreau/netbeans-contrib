@@ -24,19 +24,24 @@ import org.netbeans.api.tasklist.SuggestionPriority;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
+import org.openide.filesystems.FileObject;
+import org.openide.awt.StatusDisplayer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.io.ObjectOutput;
 import java.io.IOException;
 import java.io.ObjectInput;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * View containing only source tasks (TODOs).
  *
  * @author Petr Kuzel
  */
-final class SourceTasksView extends TaskListView {
+final class SourceTasksView extends TaskListView implements SourceTasksAction.ScanProgressMonitor {
 
     final static String CATEGORY = "sourcetasks"; // NOI18N
 
@@ -52,6 +57,7 @@ final class SourceTasksView extends TaskListView {
     static final String PROP_SUGG_FILE = "suggFile"; // NOI18N
     static final String PROP_SUGG_LINE = "suggLine"; // NOI18N
     static final String PROP_SUGG_CAT = "suggCat"; // NOI18N
+
 
     /**
      * Construct a Scaned tasks view with the given window title, and the given
@@ -79,6 +85,7 @@ final class SourceTasksView extends TaskListView {
         SuggestionImpl root = (SuggestionImpl) tasklist.getRoot();
         return new SuggestionNode(root, root.getSubtasks());
     }
+
 
     protected ColumnProperty[] createColumns() {
         // No point allowing other attributes of the task since that's
@@ -175,16 +182,6 @@ final class SourceTasksView extends TaskListView {
         };
     }
 
-//    protected Component createNorthComponent() {
-//        JPanel panel = new JPanel();
-//        panel.setLayout(new FlowLayout());
-//        panel.add(new JButton("A"));
-//        panel.add(new JButton("B"));
-//        panel.add(new JButton("C"));
-//        panel.add(new JLabel("Status"));
-//        return panel;
-//    }
-
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
         // TODO super.writeExternal(objectOutput);
     }
@@ -196,4 +193,167 @@ final class SourceTasksView extends TaskListView {
     public String toString() {
         return "SourceTasksView@" + hashCode();
     }
+
+    // North component ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    private JProgressBar progress;
+    private JButton stop;
+    private JLabel  status;
+    private JComponent refresh;
+
+    private JProgressBar getProgress() {
+        if (progress == null) {
+            progress = new JProgressBar();
+            progress.setMinimum(0);
+        }
+        return progress;
+    }
+
+    private JButton getStop() {
+        if (stop == null) {
+            stop = new JButton("stop");
+            stop.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    stop.setText("Stopping...");
+                    handleStop();
+                }
+            });
+        }
+        return stop;
+    }
+
+    private JLabel getStatus() {
+        if (status == null) {
+            status = new JLabel();
+        }
+        return status;
+    }
+
+    private JComponent getRefresh() {
+        if (refresh == null) {
+            JButton button = new JButton("Refresh");
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    handleRefresh();
+                }
+            });
+            refresh = button;
+        }
+        return refresh;
+    }
+
+    private void handleRefresh() {
+        this.getList().clear();
+        SourceTasksAction.scanTasksAsync(this);
+    }
+
+    protected Component createNorthComponent() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        panel.add(getRefresh());
+        panel.add(getStatus());
+        panel.add(getProgress());
+        panel.add(getStop());
+        return panel;
+    }
+
+
+    // Monitor impl ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    private boolean interrupt = false;
+    private int realFolders = 0;
+    private int estimatedFolders = -1;
+
+    public void estimate(int estimate) {
+        estimatedFolders = estimate;
+        realFolders = 0;
+    }
+
+    public void scanStarted() {
+        if (estimatedFolders > 0) {
+            JProgressBar bar = getProgress();
+            bar.setMaximum(estimatedFolders);
+            bar.setVisible(true);
+
+            JButton stop = getStop();
+            stop.setText("Stop");
+            stop.setVisible(true);
+
+            getRefresh().setEnabled(false);
+        }
+        interrupt = false;
+    }
+
+    public void folderEntered(FileObject folder) {
+        if (interrupt) {
+            Thread.currentThread().interrupt();
+            return;
+        }
+
+        if (estimatedFolders >0) {
+            realFolders++;
+            getProgress().setValue(realFolders);
+        }
+        getStatus().setText("Scanning " + folder.getPath());
+        handlePendingAWTEvents();
+    }
+
+    public void fileScanned(FileObject fo) {
+        if (interrupt) {
+            Thread.currentThread().interrupt();
+            return;
+        }
+        handlePendingAWTEvents();
+    }
+
+    public void folderScanned(FileObject fo) {
+        if (interrupt) {
+            Thread.currentThread().interrupt();
+            return;
+        }
+        handlePendingAWTEvents();
+    }
+
+    public void scanFinished() {
+        estimatedFolders = -1;
+        getProgress().setVisible(false);
+        getStop().setVisible(false);
+        getRefresh().setEnabled(true);
+    }
+
+    public void statistics(int todos) {
+        String text = NbBundle.getMessage(ScanSuggestionsAction.class,
+                                               "ScanDone", new Integer(todos)); // NOI18N
+        getStatus().setText(text);
+    }
+
+    private void handleStop() {
+        interrupt = true;
+    }
+
+
+    private static long lastUISync = System.currentTimeMillis();
+
+    /**
+     * Gives up CPU until all known AWT events get dispatched.
+     */
+    public static void handlePendingAWTEvents() {
+        if (SwingUtilities.isEventDispatchThread()) return;
+
+        long now = System.currentTimeMillis();
+        if (now - lastUISync < 103) return;
+
+        lastUISync = now;
+
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                public void run() {
+                    // nothing no deadlock can occure
+                }
+            });
+        } catch (InterruptedException ignore) {
+        } catch (InvocationTargetException ignore) {
+        }
+    }
+
 }

@@ -28,6 +28,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.*;
 import org.netbeans.api.tasklist.SuggestionManager;
+import org.netbeans.modules.tasklist.core.TaskList;
 import org.netbeans.modules.tasklist.suggestions.SuggestionManagerImpl;
 import org.netbeans.modules.tasklist.suggestions.SuggestionList;
 import org.netbeans.modules.tasklist.suggestions.ScanSuggestionsAction;
@@ -38,8 +39,6 @@ import org.netbeans.modules.tasklist.suggestions.ScanSuggestionsAction;
  * @author Petr Kuzel
  */
 public class SourceTasksAction extends CallableSystemAction {
-
-    private static long lastUISync = System.currentTimeMillis();
 
     protected boolean asynchronous() {
         return false;
@@ -60,6 +59,18 @@ public class SourceTasksAction extends CallableSystemAction {
         );
 
         view.showInMode();
+        scanTasksAsync(view);
+    }
+
+    /**
+     * Scans for tasks in asyncronous threads (a scanner
+     * thread and AWT thread).
+     *
+     * @param view requestor
+     */
+    public static void scanTasksAsync(final SourceTasksView view) {
+
+        final SuggestionList list = (SuggestionList) view.getList();
 
         RequestProcessor.getDefault().post(
             new Runnable() {
@@ -80,15 +91,13 @@ public class SourceTasksAction extends CallableSystemAction {
                         } catch (InvocationTargetException e) {
                             ErrorManager.getDefault().notify(e);
                         }
-                        scanProjectSuggestions(list);
-                        Integer count = new Integer(list.size());
-                        StatusDisplayer.getDefault ().setStatusText(
-                           NbBundle.getMessage(ScanSuggestionsAction.class,
-                                               "ScanDone", count)); // NOI18N
+                        scanProjectSuggestions(list, view);
+
                     } finally {
                         SwingUtilities.invokeLater(
                             new Runnable() {
                                 public void run() {
+                                    view.statistics(list.size());
                                     view.setCursor(null);
                                 }
                             }
@@ -99,7 +108,7 @@ public class SourceTasksAction extends CallableSystemAction {
         );
     }
 
-    static void scanProjectSuggestions(SuggestionList list) {
+    static void scanProjectSuggestions(final SuggestionList list, final ScanProgressMonitor view) {
         // FIXME access project root
         Repository repository = Repository.getDefault();
         Enumeration en = repository.fileSystems();
@@ -130,24 +139,8 @@ public class SourceTasksAction extends CallableSystemAction {
             SuggestionManager.getDefault();
 
         final int estimatedFolders = allFolders + 1;
-        manager.scan(projectFolders, list, new SuggestionManagerImpl.ScanProgress() {
-
-            int realFolders = 0;
-
-            public void folderEntered(FileObject folder) {
-                realFolders++;
-                StatusDisplayer.getDefault ().setStatusText("" + realFolders + "/" + estimatedFolders + ": scanning " + folder.getPath());
-                handlePendingAWTEvents();
-            }
-
-            public void fileScanned(FileObject fo) {
-                handlePendingAWTEvents();
-            }
-
-            public void folderScanned(FileObject fo) {
-                handlePendingAWTEvents();
-            }
-        });
+        view.estimate(estimatedFolders);
+        manager.scan(projectFolders, list, view);
 
     }
 
@@ -167,27 +160,6 @@ public class SourceTasksAction extends CallableSystemAction {
         return count;
     }
 
-    /**
-     * Gives up CPU until all known AWT events get dispatched.
-     */
-    public static void handlePendingAWTEvents() {
-        if (SwingUtilities.isEventDispatchThread()) return;
-
-        long now = System.currentTimeMillis();
-        if (now - lastUISync < 103) return;
-
-        lastUISync = now;
-
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    // nothing no deadlock can occure
-                }
-            });
-        } catch (InterruptedException ignore) {
-        } catch (InvocationTargetException ignore) {
-        }
-    }
 
 
     public String getName() {
@@ -196,6 +168,22 @@ public class SourceTasksAction extends CallableSystemAction {
 
     public HelpCtx getHelpCtx() {
         return new HelpCtx(SourceTasksAction.class);
+    }
+
+    public static interface ScanProgressMonitor extends SuggestionManagerImpl.ScanProgress {
+        /**
+         * Predics how many folders will be scanned.
+         * @thread AWT
+         * @param folders estimate.
+         */
+        void estimate(int folders);
+
+        /**
+         * Returns number of found todos
+         * @thread AWT
+         * @param todos found
+         */
+        void statistics(int todos);
     }
 
 
