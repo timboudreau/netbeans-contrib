@@ -164,11 +164,15 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public static final int EXEC_CONCURRENT_ALL = 0;
     /** Serial execution of commands is guaranteed on each file.
-     * That means that two commands of this name will not run on a single file at the same time.
+     * That means that two arbitrary commands will not run on a single file at the same time.
+     * If <code>EXEC_SERIAL_OF_COMMAND</code> property is included, then only this command
+     * will not be permitted to run on a single file at the same time.
      */
     public static final int EXEC_SERIAL_ON_FILE = 1;
     /** Serial execution of commands is guaranteed in each package.
-     * That means that two commands of this name will not run inside a single package at the same time.
+     * That means that two arbitrary commands will not run inside a single package at the same time.
+     * If <code>EXEC_SERIAL_OF_COMMAND</code> property is included, then only this command
+     * will not be permitted to run inside a single package at the same time.
      */
     public static final int EXEC_SERIAL_ON_PACKAGE = 2;
     /** Serial execution of commands of this name.
