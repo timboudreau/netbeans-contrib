@@ -37,7 +37,7 @@ import org.openide.util.NbBundle;
  * Created on December 21, 2003, 11:16 AM
  * @author  Richard Gregor
  */
-public class AbstractOutputPanel extends javax.swing.JPanel {
+public abstract class AbstractOutputPanel extends javax.swing.JPanel {
     private boolean errEnabled = false;
     private JPopupMenu menu;
     private Object eventSource;
@@ -142,24 +142,8 @@ public class AbstractOutputPanel extends javax.swing.JPanel {
         }
         
         
-    }
-    
-    /**
-     *Return true in case command finished with some std output
-     *
-     */
-    protected boolean isStdOutput(){
-        return true;
-    }
-    
-    /**
-     *Return true in case command finished with some err output
-     *
-     */
-    protected boolean isErrOutput(){
-        return true;
-    }
-    
+    }    
+       
     
     class PopupListener extends java.awt.event.MouseAdapter {
         public void mousePressed(java.awt.event.MouseEvent event) {
@@ -304,16 +288,7 @@ public class AbstractOutputPanel extends javax.swing.JPanel {
     private void setStandardContent(){
         scroll.setViewportView(getStdComponent());       
     }
-    
-   protected JComponent getErrComponent(){
-      return null; 
-   }
-    
-   protected JComponent getStdComponent(){
-       return null;
-   }
 
-      
     public javax.swing.JTextArea getStdOutputArea(){
         if(getStdComponent() instanceof javax.swing.JTextArea)
             return (JTextArea)getStdComponent();
@@ -332,6 +307,25 @@ public class AbstractOutputPanel extends javax.swing.JPanel {
     protected JPanel getOutputPanel() {
         return this;
     }
+    
+    /**
+     *Return true in case command finished with some std output
+     *
+     */
+    protected abstract boolean isStdOutput();
+    
+    /**
+     *Return true in case command finished with some err output
+     *
+     */
+    protected abstract boolean isErrOutput();
+    
+    
+    protected abstract JComponent getErrComponent();
+    
+    protected abstract JComponent getStdComponent();
+    
+      
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton btnErr;
