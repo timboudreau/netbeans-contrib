@@ -28,16 +28,9 @@ Microsystems, Inc. All Rights Reserved.
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
 
   <target name="prepare-lib">
+    <ant dir="../jemmy/" target="jar"/>
     <mkdir dir="netbeans/lib/ext"/>
-    <copy file="${binroot}/jemmy/jemmy.jar" tofile="netbeans/lib/ext/jemmy.jar" filtering="off"/>
-<!--
-    <ant dir="../jemmy/"/>
-    <locjar jarfile="netbeans/lib/ext/jemmy.jar"
-         basedir="${jemmydir}/classes"
-	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
-	 compress="false">
-    </locjar>
--->
+    <copy file="../jemmy/jemmy.jar" tofile="netbeans/lib/ext/jemmy.jar" filtering="off"/>
   </target>
 
   <target name="compile" depends="prepare-lib">
@@ -79,6 +72,10 @@ Microsystems, Inc. All Rights Reserved.
       <license file="${license.file}"/>
 <!--      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/> -->
     </makenbm>
+  </target>
+
+  <target name="realclean" depends="clean">
+    <ant dir="../jemmy/" target="clean"/>
   </target>
 
   <target name="clean">
