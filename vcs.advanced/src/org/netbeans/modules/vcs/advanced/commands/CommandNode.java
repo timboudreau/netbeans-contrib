@@ -94,6 +94,7 @@ public class CommandNode extends AbstractNode {
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_INPUT_DESCRIPTOR, String.class);
         //propertyClassTypes.put(VcsCommand.PROPERTY_NOT_ON_ROOT, Boolean.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_ON_DIR, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_ON_NON_RECURSIVE_DIR, Boolean.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_ON_FILE, Boolean.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_ON_ROOT, Boolean.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES, Boolean.TYPE);
