@@ -45,11 +45,11 @@ public class ComponentPaintFilter implements Filter {
         }
         boolean result = c.getClass() == clazz;
         if (subs) {
-            result = clazz.isAssignableFrom(clazz);
+            result |= clazz.isAssignableFrom(clazz);
         }
         if (anc) {
             Object o = SwingUtilities.getAncestorOfClass(clazz, c);
-            result = o != null;
+            result |= o != null;
         }
         return result;
     }    
