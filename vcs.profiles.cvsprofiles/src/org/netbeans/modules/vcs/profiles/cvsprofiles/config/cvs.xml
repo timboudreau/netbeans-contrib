@@ -1424,9 +1424,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUNCDW} $[? FILE] [${CD} ${QFILE};] [] ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${QUOTE}${IGNORE}${QUOTE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}$[? DIR] [$[? MODULE] [${MODULE}${PS}${DIR}${PS}${FILE}] [${DIR}${PS}${FILE}]] [$[? MODULE] [${MODULE}${PS}${FILE}] [${FILE}]]${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} $[? DO_CHECKOUT] [&amp;&amp; ${CD} ..&amp;&amp; mv ${QUOTE}${FILE}${QUOTE} ${QUOTE}${FILE}_copy${QUOTE}&amp;&amp; ${CD} ${QUOTE}${ROOTDIR}${QUOTE}&amp;&amp; ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${MODPATH}${QUOTE}] [] ${NUR}</value>
-	  <value if="IS_WINNT">${RUNCDW} $[? FILE] [${CD} ${QFILE}&amp;&amp;] [] ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${QUOTE}${IGNORE}${QUOTE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}$[? DIR_\/] [$[? MODULE_\/] [${MODULE_\/}/${DIR_\/}/${FILE}] [${DIR_\/}/${FILE}]] [$[? MODULE] [${MODULE_\/}/${FILE}] [${FILE}]]${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} $[? DO_CHECKOUT] [&amp;&amp; ${CD} ..&amp;&amp; rename ${QFILE} ${QUOTE}${FILE}_copy${QUOTE}&amp;&amp; ${CD} ${QUOTE}${ROOTDIR}${PS}.${QUOTE}&amp;&amp; ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${MODPATH}${QUOTE}] [] ${NUR}</value>
-	  <value if="IS_WIN9X">${RUNCDW} $[? FILE] [${CD} ${QFILE};] [] ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${QUOTE}${IGNORE}${QUOTE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}$[? DIR] [$[? MODULE] [${MODULE}${PS}${DIR}${PS}${FILE}] [${DIR}${PS}${FILE}]] [$[? MODULE] [${MODULE}${PS}${FILE}] [${FILE}]]${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} $[? DO_CHECKOUT] [&amp;&amp; ${CD} ..&amp;&amp; mv ${QUOTE}${FILE}${QUOTE} ${QUOTE}${FILE}_copy${QUOTE}&amp;&amp; ${CD} ${QUOTE}${ROOTDIR_\/}${QUOTE}&amp;&amp; ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${MODPATH}${QUOTE}] [] ${NUR}</value>
+          <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${WORKDIR}$[? FILE] [${PS}${FILE}][]${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${QUOTE}${IGNORE}${QUOTE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}$[? DIR] [$[? MODULE] [${MODULE_\/}/${DIR_\/}/${FILE}] [${DIR_\/}/${FILE}]] [$[? MODULE] [${MODULE_\/}/${FILE}] [${FILE}]]${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG}</value>
+	  <value>${RUNCDW} $[? FILE] [${CD} ${QFILE}&amp;&amp;] [] ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${QUOTE}${IGNORE}${QUOTE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}$[? DIR] [$[? MODULE] [${MODULE_\/}/${DIR_\/}/${FILE}] [${DIR_\/}/${FILE}]] [$[? MODULE] [${MODULE_\/}/${FILE}] [${FILE}]]${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_IMPORT_Label), ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_IMPORT_Label)))
@@ -1456,6 +1455,32 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+        <property name="notificationSuccessMsg">
+          <value>$[? DO_CHECKOUT] [] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_IMPORT_Success, ${FILE})]</value>
+        </property>
+        <property name="notificationFailMsg">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_IMPORT_Fail, ${FILE})</value>
+        </property>
+        <property name="commandsAfterSuccess">
+          <value>$[? DO_CHECKOUT] [MOVE_AND_CHECKOUT_IMPORTED][]</value>
+        </property>
+      </command>
+      <command name="MOVE_AND_CHECKOUT_IMPORTED">
+	<property name="exec">
+          <value>${RUNCDW} $[? FILE] [] [${CD} ..&amp;&amp;] mv ${QUOTE}${FILE}${QUOTE} ${QUOTE}${FILE}_copy${QUOTE} ${NUR}</value>
+          <value if="IS_WINNT">${RUNCDW} $[? FILE] [] [${CD} ..&amp;&amp;] rename ${QUOTE}${FILE}${QUOTE} ${QUOTE}${FILE}_copy${QUOTE} ${NUR}</value>
+        </property>
+        <property name="notificationFailMsg">
+          <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_MOVE_IMPORTED_Fail, ${FILE})</value>
+        </property>
+        <property name="commandsAfterSuccess">
+          <value>CHECKOUT_IMPORTED</value>
+        </property>
+      </command>
+      <command name="CHECKOUT_IMPORTED">
+	<property name="exec">
+          <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${CHECKOUT_OPTIONS} ${QUOTE}${MODPATH}${QUOTE} ${NUR}</value>
+        </property>
         <property name="refreshParentFolder">
           <value>true</value>
         </property>
@@ -1463,10 +1488,10 @@ Microsystems, Inc. All Rights Reserved.
           <value>checkout</value>
         </property>
         <property name="notificationSuccessMsg">
-          <value>$[? DO_CHECKOUT] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_IMPORT_AND_CHECKOUT_Success, ${FILE})] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_IMPORT_Success, ${FILE})]</value>
+          <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_IMPORT_AND_CHECKOUT_Success, ${FILE})</value>
         </property>
         <property name="notificationFailMsg">
-          <value>$[? DO_CHECKOUT] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_IMPORT_AND_CHECKOUT_Fail, ${FILE})] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_IMPORT_Fail, ${FILE})]</value>
+          <value>getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(NOTIFICATION_IMPORT_Success_AND_CHECKOUT_Fail, ${FILE})</value>
         </property>
       </command>
       <command name="CHECKOUT_COMMAND">
