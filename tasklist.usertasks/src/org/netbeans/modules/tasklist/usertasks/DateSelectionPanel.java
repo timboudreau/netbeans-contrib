@@ -93,7 +93,7 @@ public class DateSelectionPanel extends javax.swing.JPanel {
         monthNameCmb.setSelectedIndex(curr);
         calendar.setTime(date);
         tablemodel.setMonth(calendar.get(calendar.MONTH));
-        tablemodel.setYear(calendar.get(calendar.MONTH));
+        tablemodel.setYear(calendar.get(calendar.YEAR));
         tablemodel.setSelectedDay(calendar.get(calendar.DAY_OF_MONTH));
     }
     
@@ -543,5 +543,4 @@ public class DateSelectionPanel extends javax.swing.JPanel {
 //            }
 //        });
 //    }
-//    
 }
