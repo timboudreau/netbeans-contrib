@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
-<!-- The contents of this file is completely irrelevant. Only its sole -->
-<!-- presence is important for the convertors API -->
+<!-- The contents of this file is unimportant. The format of the -->
+<!-- settings file is determined by the code and not checked against -->
+<!-- this DTD. Moreover, because of the possibility to extend filters by -->
+<!-- other modules, the final grammar cannot be expressed in a DTD -->
+<!-- without knowing the extensions. -->
