@@ -36,7 +36,6 @@ public class IRRepositoryNode extends IRContainerNode implements Node.Cookie, Re
         = "org/netbeans/modules/corba/browser/ir/resources/ir-root";
     private SystemAction[] actions;
     private org.omg.CORBA.Container repository;
-    private String name;
   
     private static class RepositoryCodeGenerator implements GenerateSupport {
         private org.omg.CORBA.Container container;

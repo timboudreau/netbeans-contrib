@@ -68,10 +68,13 @@ public class IRAttributeDefNode extends IRLeafNode {
     }
   
     public String getDisplayName(){
-        if (_attribute != null)
-            return _attribute.name();
-        else
-            return "";
+        if (this.name == null) {
+            if (_attribute != null)
+                this.name = _attribute.name();
+            else
+                this.name = "";
+        }
+        return this.name;
     }
   
     public String getName(){

@@ -79,10 +79,13 @@ public class IRExceptionDefNode extends IRContainerNode {
   
   
     public String getDisplayName(){
-        if (_exception != null)
-            return _exception.name();
-        else 
-            return "";
+        if (this.name == null) {
+            if (_exception != null)
+               this.name = _exception.name();
+            else 
+                this.name = "";
+        }
+        return this.name;
     }
   
   

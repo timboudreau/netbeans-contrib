@@ -120,10 +120,13 @@ public class IRInterfaceDefNode extends IRContainerNode {
     }
 
     public String getDisplayName () {
-        if (_interface != null)
-            return _interface.name ();
-        else 
-            return "";
+        if (this.name == null) {
+            if (_interface != null)
+                this.name = _interface.name ();
+            else 
+                this.name = "";
+        }
+        return this.name;
     }
 
     public String getName () {

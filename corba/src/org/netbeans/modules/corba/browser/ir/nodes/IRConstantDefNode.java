@@ -121,14 +121,17 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
     }
 
     public String getDisplayName () {
-        if (_constant != null)
-            return _constant.name ();
-        else 
-            return "";
+        if (this.name == null) {
+            if (_constant != null)
+                this.name = _constant.name ();
+            else 
+                this.name = "";
+        }
+        return this.name;
     }
 
     public String getName () {
-        return _constant.name ();
+        return this.getDisplayName ();
     }
   
     public SystemAction getDefaultAction () {

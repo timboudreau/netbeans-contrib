@@ -105,10 +105,13 @@ public class IROperationDefNode extends IRLeafNode {
   
   
     public String getDisplayName(){
-        if (_operation != null)
-            return _operation.name();
-        else
-            return "";
+        if (this.name == null) {
+            if (_operation != null)
+                this.name = _operation.name();
+            else
+                this.name = "";
+        }
+        return this.name;
     }
   
   

@@ -48,7 +48,7 @@ public class StructChildren extends Children.Keys implements Refreshable {
             setKeys (new java.lang.Object[0]);
             java.awt.EventQueue.invokeLater ( new Runnable () {
                 public void run () {
-                    TopManager.getDefault().notify(new NotifyDescriptor.Exception(e));
+                    TopManager.getDefault().notify(new NotifyDescriptor.Message (e.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
                 }});
         }
     }
@@ -56,7 +56,15 @@ public class StructChildren extends Children.Keys implements Refreshable {
     public Node[] createNodes(java.lang.Object key){
         if (key != null){
             if (key instanceof IRTypeCodeKey){
-                return new Node[]{new IRPrimitiveNode(((IRTypeCodeKey)key).type,((IRTypeCodeKey)key).name)};
+                try {
+                    return new Node[]{new IRPrimitiveNode(((IRTypeCodeKey)key).type,((IRTypeCodeKey)key).name)};
+                }catch (final Throwable t) {
+                    java.awt.EventQueue.invokeLater ( new Runnable () {
+                        public void run () {
+                            TopManager.getDefault().notify ( new NotifyDescriptor.Message (t.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
+                        }});
+                    return new Node[0];
+                }
             }
         }
         return new Node[] { new IRUnknownTypeNode()};

@@ -74,11 +74,14 @@ public class IRStructDefNode extends IRContainerNode {
         setIconBase(STRUCT_ICON_BASE);
     }
   
-    public String getDisplayName(){
+    public String getDisplayName() {
+        if (this.name == null) {
         if (_struct != null)
-            return _struct.name();
+            this.name = _struct.name();
         else
-            return "";
+            this.name = "";
+        }
+        return this.name;
     }
   
   

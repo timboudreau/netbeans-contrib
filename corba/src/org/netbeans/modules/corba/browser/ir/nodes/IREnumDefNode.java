@@ -73,11 +73,14 @@ public class IREnumDefNode extends IRContainerNode {
     }
   
     public String getDisplayName(){
-        if ( _enum != null){
-            return this._enum.name();
+        if (this.name == null) {
+            if ( _enum != null){
+                this.name = this._enum.name();
+            }
+            else
+                this.name = "";
         }
-        else
-            return "";
+        return this.name;
     }
   
     public Sheet createSheet(){

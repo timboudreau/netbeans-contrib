@@ -24,7 +24,6 @@ public class IRPrimitiveNode extends IRLeafNode {
   
     private static final String PRIMITIVE_ICON_BASE=
         "org/netbeans/modules/corba/idl/node/declarator";
-    private String name;
     private TypeCode tc;
   
     private static class PrimitiveCodeGenerator implements GenerateSupport {

@@ -99,14 +99,17 @@ public class IRModuleDefNode extends IRContainerNode {
     }
 
     public String getDisplayName () {
-        if (_module != null)
-            return _module.name ();
-        else 
-            return "";
+        if (this.name == null) {
+            if (_module != null)
+                this.name = _module.name ();
+            else 
+                this.name = "";
+        }
+        return this.name;
     }
 
     public String getName () {
-        return _module.name ();
+        return this.getDisplayName ();
     }
 
     public SystemAction getDefaultAction () {

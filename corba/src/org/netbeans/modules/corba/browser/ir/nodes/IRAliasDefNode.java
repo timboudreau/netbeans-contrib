@@ -79,11 +79,15 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
     }
   
     public String getDisplayName(){
-        if (this._alias != null){
-            return this._alias.name();
+
+        if (this.name == null) {
+            if (this._alias != null) {
+                this.name = this._alias.name();
+            }
+            else
+                this.name = "";
         }
-        else
-            return "";
+        return this.name;
     }
   
     public Sheet createSheet(){

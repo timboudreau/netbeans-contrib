@@ -45,7 +45,7 @@ public class EnumChildren extends Children.Keys implements Refreshable {
             setKeys (new java.lang.Object[0]);
             java.awt.EventQueue.invokeLater ( new Runnable () {
                 public void run () {
-                    TopManager.getDefault().notify ( new NotifyDescriptor.Exception (e));
+                    TopManager.getDefault().notify ( new NotifyDescriptor.Message (e.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
                 }});
         }
     }

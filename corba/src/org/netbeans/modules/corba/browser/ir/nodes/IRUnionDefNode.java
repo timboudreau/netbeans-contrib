@@ -130,10 +130,13 @@ public class IRUnionDefNode extends IRContainerNode {
     }
   
     public String getDisplayName(){
-        if (_union != null)
-            return _union.name();
-        else
-            return "";
+	if (this.name == null) {
+    	    if (_union != null)
+        	this.name = _union.name();
+    	    else
+        	this.name = "";
+	}
+	return this.name;
     }
   
   

@@ -26,7 +26,6 @@ import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
  */
 public class EnumEntryNode extends IRLeafNode {
 
-    private String name;
     private static final String ENUM_ENTRY_ICON_BASE =
         "org/netbeans/modules/corba/idl/node/declarator";
   
