@@ -31,27 +31,27 @@
     </target>
 
     <target depends="compile" name="ejbs">
-        <exec dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/packager" failonerror="true">
+        <exec vmlauncher="false" dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/packager" failonerror="true">
             <arg value="-ejbJar"/>
             <arg value="src"/>
             <arg value="org/netbeans/modules/zeroadmin/ConfigStorage.class:org/netbeans/modules/zeroadmin/ConfigStorageBean.class:org/netbeans/modules/zeroadmin/ConfigStorageHome.class"/>
             <arg value="ConfigStorage.xml"/>
             <arg value="c.jar"/>
         </exec>
-        <exec dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/packager" failonerror="true">
+        <exec vmlauncher="false" dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/packager" failonerror="true">
             <arg value="-enterpriseArchive"/>
             <arg path="c.jar"/>
             <arg value="ConfigStorage"/>
             <arg path="c.ear"/>
         </exec>
-        <exec dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/packager" failonerror="true">
+        <exec vmlauncher="false" dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/packager" failonerror="true">
             <arg value="-setRuntime"/>
             <arg path="c.ear"/>
             <arg path="sun-j2ee-ri.xml"/>
             <arg value="-o"/>
             <arg value="c1.ear"/>
         </exec>
-        <exec dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/deploytool" failonerror="true">
+        <exec vmlauncher="false" dir="${nb_all}/openidex/zeroadmin" executable="${j2ee.home}/bin/deploytool" failonerror="true">
             <arg line="-deploy c1.ear localhost cs.jar"/>
         </exec>
         <unjar dest="src" src="cs.jar"/>

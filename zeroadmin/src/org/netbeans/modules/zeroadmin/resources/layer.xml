@@ -8,6 +8,9 @@
             <file name="org-netbeans-modules-zeroadmin-actions-ResetConfigAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.zeroadmin.actions.ResetConfigAction"/>
             </file>
+            <file name="org-netbeans-modules-zeroadmin-actions-RefreshConfigAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.zeroadmin.actions.RefreshConfigAction"/>
+            </file>
             <file name="org-netbeans-modules-zeroadmin-actions-SaveOperatorConfigAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.zeroadmin.actions.SaveOperatorConfigAction"/>
             </file>

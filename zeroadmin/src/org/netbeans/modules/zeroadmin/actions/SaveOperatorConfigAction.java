@@ -42,7 +42,7 @@ public class SaveOperatorConfigAction extends CallableSystemAction {
             org.netbeans.core.projects.XMLSettingsHandler.saveOptions();
             
             XMLBufferFileSystem bufFs = new XMLBufferFileSystem();
-            ZeroAdminModule.copy(z.writableLayer.getRoot(), bufFs.getRoot());
+            ZeroAdminModule.copy(z.writableLayer.getRoot(), bufFs.getRoot(), true);
             bufFs.waitFinished();
             z.storage.saveOperatorData(bufFs.getBuffer());
         } catch (Exception re) {
