@@ -84,7 +84,7 @@ public class CommandOutputTopComponent extends TopComponent {
 
     public boolean isFocusable() {
         // #54284 ctrl + BS handling
-        return tabPane == null || tabPaneRemoved || tabPane.getTabCount() > 0;
+        return tabPane == null || tabPaneRemoved || tabPane.getTabCount() == 0;
     }
 
     protected String preferredID(){
