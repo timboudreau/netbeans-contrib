@@ -182,6 +182,9 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     public synchronized void activate(FileSystem fileSystem, FileSystemCache cache,
                                       String fsRootPath,
                                       FileObjectExistence foExistence) {
+
+        assert Turbo.implemented() == false;
+
         this.fileSystem = fileSystem;
         this.cache = cache;
         this.fsRootPath = fsRootPath;
