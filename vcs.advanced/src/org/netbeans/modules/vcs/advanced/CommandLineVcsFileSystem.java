@@ -872,6 +872,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setIgnoreListSupport(new GenericIgnoreListSupport());
         if (!isCreateBackupFilesSet()) setCreateBackupFiles(true);
         if (!isFilterBackupFilesSet()) setFilterBackupFiles(true);
+        setCreateVersioningSystem(true);
     }
     
     private void writeObject(ObjectOutputStream out) throws IOException {
