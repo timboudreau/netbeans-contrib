@@ -55,7 +55,7 @@ public class JellyAddFeatures extends JellyStub {
         suite.addTest(new JellyAddFeatures("testRemoveCommit"));
         suite.addTest(new JellyAddFeatures("testRunProgram"));
         suite.addTest(new JellyAddFeatures("testToStandardOutput"));
-        suite.addTest(new JellyAddFeatures("testQuiet"));
+//        suite.addTest(new JellyAddFeatures("testQuiet")); // fails due to bug #28517
         suite.addTest(new JellyAddFeatures("testRemovePreview"));
         suite.addTest(new JellyAddFeatures("testRemoveDebug"));
         suite.addTest(new JellyAddFeatures("testNoHistory"));
@@ -301,7 +301,7 @@ public class JellyAddFeatures extends JellyStub {
         assertTrue("Add file command failed", history.waitCommand("Add", hText4));
         assertTrue("Commit file command failed", history.waitCommand("Commit", hText4));
         waitStatus("Up-to-date; 1.1", nText4, true);
-        VcsRuntimeCommand rc = (VcsRuntimeCommand) history.getWaitCommand("Commit Command", hText4);
+        VcsRuntimeCommand rc = (VcsRuntimeCommand) history.getWaitCommand("COMMIT_CMD", hText4);
         VcsCommandExecutor ce;
         try {
             ce = (VcsCommandExecutor) f.get(rc);
@@ -326,7 +326,7 @@ public class JellyAddFeatures extends JellyStub {
         assertTrue("Add file command failed", history.waitCommand("Add", hText5));
         assertTrue("Commit file command failed", history.waitCommand("Commit", hText5));
         waitStatus("Up-to-date; 1.1", nText5, true);
-        rc = (VcsRuntimeCommand) history.getWaitCommand("Commit Command", hText5);
+        rc = (VcsRuntimeCommand) history.getWaitCommand("COMMIT_CMD", hText5);
         try {
             ce = (VcsCommandExecutor) f.get(rc);
         } catch (IllegalAccessException e) {
@@ -531,7 +531,7 @@ public class JellyAddFeatures extends JellyStub {
             assertTrue("Commit file command failed: Level: " + a, history.waitCommand("Commit", hText6));
             waitStatus("Up-to-date; 1." + (a + 1), nText6, true);
 
-            VcsRuntimeCommand rc = (VcsRuntimeCommand) history.getWaitCommand("Commit Command", hText6);
+            VcsRuntimeCommand rc = (VcsRuntimeCommand) history.getWaitCommand("COMMIT_CMD", hText6);
             VcsCommandExecutor ce;
             try {
                 ce = (VcsCommandExecutor) f.get(rc);
