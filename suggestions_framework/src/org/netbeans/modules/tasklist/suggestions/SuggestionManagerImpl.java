@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.Collection;
 import java.util.HashMap;
+import java.lang.reflect.InvocationTargetException;
 import javax.swing.JEditorPane;
 import javax.swing.Timer;
 import javax.swing.SwingUtilities;
@@ -45,6 +46,7 @@ import javax.swing.text.StyledDocument;
 
 import org.openide.util.Lookup;
 import org.openide.ErrorManager;
+import org.openide.filesystems.FileObject;
 import org.openide.util.RequestProcessor;
 
 import org.netbeans.api.tasklist.*;
@@ -85,6 +87,9 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
     /** Cache tracking suggestions in recently visited files */
     private SuggestionCache cache = null;
+
+    /** Optional progress monitor */
+    private ScanProgress progressMonitor;
 
     /** Create nnew SuggestionManagerImpl.  Public because it needs to be
      * instantiated via lookup, but DON'T go creating instances of this class!
@@ -706,11 +711,25 @@ final public class SuggestionManagerImpl extends SuggestionManager
     }
 
 
+    /**
+     * Scans recursively for suggestions notifing given progress monitor.
+     * @param folders
+     * @param list
+     * @param monitor
+     */
+    public final void scan(DataObject.Container[] folders, SuggestionList list, ScanProgress monitor) {
+        try {
+            progressMonitor = monitor;
+            scan(folders, list, true);
+        } finally {
+            progressMonitor = null;
+        }
+    }
 
     /** Iterate over the folder recursively (optional) and scan all files.
         We skip CVS and SCCS folders intentionally. Would be nice if
         the filesystem hid these things from us. */
-    void scan(DataObject.Container[] folders, SuggestionList list,
+    public final void scan(DataObject.Container[] folders, SuggestionList list,
 	boolean recursive) {
         // package-private instead of private for the benefit of the testsuite
         for (int i = 0; i < folders.length; i++) {
@@ -734,12 +753,21 @@ final public class SuggestionManagerImpl extends SuggestionManager
                     continue;
                 }
 
-                StatusDisplayer.getDefault ().setStatusText(
-                   NbBundle.getMessage(ScanSuggestionsAction.class,
-                                    "ScanningFolder",  // NOI18N
-                                       f.getPrimaryFile().getNameExt()));
+                if (progressMonitor == null) {
+                    // XXX stil strange that possibly backgournd process writes directly to UI
+                    StatusDisplayer.getDefault ().setStatusText(
+                       NbBundle.getMessage(ScanSuggestionsAction.class,
+                                        "ScanningFolder",  // NOI18N
+                                           f.getPrimaryFile().getNameExt()));
+                } else {
+                    progressMonitor.folderEntered(f.getPrimaryFile());
+                }
 
                 scan((DataObject.Container)f, true, list); // recurse!
+                if (progressMonitor != null) {
+                    progressMonitor.folderScanned(f.getPrimaryFile());
+                }
+
             } else {
                 // Get document, and I do mean now!
 
@@ -755,16 +783,22 @@ final public class SuggestionManagerImpl extends SuggestionManager
 
                 SuggestionContext env = SPIHole.createSuggestionContext(f);
 
-                StatusDisplayer.getDefault ().setStatusText(
-                   NbBundle.getMessage(ScanSuggestionsAction.class,
-                                       "ScanningFile", // NOI18N
-                                       f.getPrimaryFile().getNameExt()));
+                if (progressMonitor == null) {
+                    // XXX stil strange that possibly backgournd process writes directly to UI
+                    StatusDisplayer.getDefault ().setStatusText(
+                       NbBundle.getMessage(ScanSuggestionsAction.class,
+                                           "ScanningFile", // NOI18N
+                                           f.getPrimaryFile().getNameExt()));
+                }
 
                 scan(list, env);
+                if (progressMonitor != null) {
+                    progressMonitor.fileScanned(f.getPrimaryFile());
+                }
             }
         }
     }
-    
+
     void scan(SuggestionList list, SuggestionContext env) {
         List providers = getProviders();
         ListIterator it = providers.listIterator();
@@ -865,12 +899,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         }
     }
     
-    /** Number of tasks we allow before for a type before dropping
-     * the task into a sublevel with a category task containing the
-     * tasks of that type.
-     */
-    private static final int MAX_INLINE = 4;
-    
+
     // Consult super for correct javadoc
     public void register(String type, List add, List remove, Object request) {
         //System.out.println("register(" + type + ", " + add +
@@ -1027,7 +1056,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
         int remnum = (removeList != null) ? removeList.size() : 0;
         // Assume no stupidity like overlaps in tasks between the lists
         int newSize = currnum + addnum - remnum;
-        if ((newSize > MAX_INLINE) && (unfilteredType == null)) {
+        if ((newSize > tasklist.getGroupTreshold()) && (unfilteredType == null)) {
             // TODO - show the first MAX_INLINE-1 "inlined", followed by the
             // category node? Or hide all below the category node? For now,
             // doing the latter since it's a lot easier.
@@ -2156,7 +2185,14 @@ final public class SuggestionManagerImpl extends SuggestionManager
             }
         }
     }
-    
-    
+
+    /**
+     * Scan methods can emmit progress callbacks
+     */
+    public interface ScanProgress {
+        void folderEntered(FileObject folder);
+        void fileScanned(FileObject file);
+        void folderScanned(FileObject folder);
+    }
 
 }

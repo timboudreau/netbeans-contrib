@@ -119,7 +119,8 @@ public abstract class TaskListView extends ExplorerPanel
     transient private JPanel centerPanel;
     transient private Component northCmp;
     transient private boolean northCmpCreated;
-    
+    transient private Component miniStatus;
+
     /** Construct a new TaskListView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
 	system when deserializing windows. Client code should not call
@@ -164,16 +165,17 @@ public abstract class TaskListView extends ExplorerPanel
 
     /**
      * Updates the label showing the number of filtered tasks
+     * @param filtered true means that filter is applied and filter status is required
      */
-    public void updateFilterCount() {
-        if (!isNorthComponentVisible()) {
-            return;
+    public void updateFilterCount(boolean filtered) {
+        JLabel filterLabel = (JLabel) getMiniStatus();
+        if (filtered == false) {
+            filterLabel.setText("");
         }
         
         int all = TLUtils.getChildrenCountRecursively(rootNode);
         int shown = TLUtils.getChildrenCountRecursively(
             getExplorerManager().getExploredContext());
-        JLabel filterLabel = (JLabel) getNorthComponent();
         filterLabel.setText(NbBundle.getMessage(TaskListView.class,
             "FilterCount", new Integer(shown), new Integer(all))); // NOI18N
     }
@@ -228,7 +230,18 @@ public abstract class TaskListView extends ExplorerPanel
     protected Component createNorthComponent() {
         return new JLabel();
     }
-    
+
+    protected Component getMiniStatus() {
+        if (miniStatus == null) {
+            miniStatus = createMiniStatus();
+        }
+        return miniStatus;
+    }
+
+    private JLabel createMiniStatus() {
+        return new JLabel();
+    }
+
     /**
      * Override default ExplorerPanel behaviour.
      * It was set by explorer manager with setName to "Explorer[<root name>]"
@@ -330,7 +343,8 @@ public abstract class TaskListView extends ExplorerPanel
         
         FileSystem fs = Repository.getDefault().getDefaultFileSystem();
         FileObject fo = fs.findResource("TaskList/" + category + "/columns.settings"); // NOI18N
-        
+        assert fo != null : "Missing config TaskList/" + category + "/columns.settings";  // NOI18N
+
         try {
             DataObject dobj = DataObject.find(fo);
             InstanceCookie ic = (InstanceCookie) dobj.getCookie(InstanceCookie.class);
@@ -344,8 +358,10 @@ public abstract class TaskListView extends ExplorerPanel
         }
         return cc;
     }
-    
-    /** Called when the object is opened. Add the GUI. 
+
+
+
+    /** Called when the object is opened. Add the GUI.
 	@todo Trigger source listening on window getting VISIBLE instead
               of getting opened.
      */    
@@ -384,7 +400,6 @@ public abstract class TaskListView extends ExplorerPanel
 	// Populate the view
 	showList();
         
-        installJumpActions(true);
     }
 
     /**
@@ -1171,11 +1186,10 @@ public abstract class TaskListView extends ExplorerPanel
         }
         if (filter != null && showStatusBar && filter.hasConstraints()) {
             setRoot();
-            setNorthComponentVisible(true);
-            updateFilterCount();
+            updateFilterCount(true);
             //expandAll(); // [PENDING] Make this optional?
         } else {
-            setNorthComponentVisible(false);
+            updateFilterCount(false);
             setRoot();
         }
     }
@@ -1379,8 +1393,9 @@ public abstract class TaskListView extends ExplorerPanel
         hideTask();
         
         // Stop listening for node activation
-        getExplorerManager().removePropertyChangeListener(this);	    
-        
+        getExplorerManager().removePropertyChangeListener(this);
+
+        // XXX issue #37367
         // Remove jump actions
         // Cannot do this, because componentHidden can be called
         // after another TaskListView is shown (for example when you
@@ -1391,7 +1406,10 @@ public abstract class TaskListView extends ExplorerPanel
 
     protected void componentShowing() {
         // Listen for node activation
-        getExplorerManager().addPropertyChangeListener(this);	    
+        getExplorerManager().addPropertyChangeListener(this);
+
+        // XXX issue #37367
+        // installJumpActions(true);
     }
 
     public void propertyChange(PropertyChangeEvent ev) {

@@ -37,6 +37,7 @@ Microsystems, Inc. All Rights Reserved.
                 <pathelement path="../core/src"/>
                 <!-- usertasks -->
                 <pathelement path="../usertasks/src"/>
+                <pathelement path="../suggestions/src"/>
                 <pathelement location="../../editor/netbeans/modules/ext/nb-editor.jar"/>
                <pathelement location="../../editor/netbeans/modules/editor.jar"/>
             </classpath>

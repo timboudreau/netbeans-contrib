@@ -39,14 +39,27 @@ import org.openide.util.NbBundle;
 
 public class SuggestionList extends TaskList {
 
+    /** Number of tasks we allow before for a type before dropping
+     * the task into a sublevel with a category task containing the
+     * tasks of that type.
+     */
+    private static final int MAX_INLINE = 4;
+
+    private final int groupTreshold;
+
     /** Construct a new SuggestionManager instance. */
     public SuggestionList() {
-        super(new SuggestionImpl(
-              NbBundle.getMessage(SuggestionList.class, 
-                                   "SuggestionsRoot"), null, null, 
-              null)); // NOI18N
+        this(MAX_INLINE);
     }
-    
+
+    public SuggestionList(int groupTreshold) {
+        super(new SuggestionImpl(
+              NbBundle.getMessage(SuggestionList.class,
+                                   "SuggestionsRoot"), null, null,
+              null)); // NOI18N
+        this.groupTreshold = groupTreshold;
+
+    }
 
     synchronized SuggestionImpl getCategoryTask(SuggestionType type,
                                                 boolean create) {
@@ -191,6 +204,15 @@ public class SuggestionList extends TaskList {
                 manager.setExpandedType(type, false);
             }
         }
+    }
+
+    /**
+     * Gets number of items then displays inlined once
+     * exceeded it's grouped (by category).
+     * @return
+     */
+    final int getGroupTreshold() {
+        return groupTreshold;
     }
 
 }

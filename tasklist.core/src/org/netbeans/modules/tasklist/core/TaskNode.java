@@ -548,14 +548,14 @@ public class TaskNode extends AbstractNode implements PropertyChangeListener {
         public void filterChildrenAdded(NodeMemberEvent ev) {
             super.filterChildrenAdded(ev);
             if (view != null) {
-                view.updateFilterCount();
+                view.updateFilterCount(true);
             }
         }
 
         public void filterChildrenRemoved(NodeMemberEvent ev) {
             super.filterChildrenRemoved(ev);
             if (view != null) {
-                view.updateFilterCount();
+                view.updateFilterCount(true);
             }
         }
     }    
