@@ -259,14 +259,14 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         public VersioningVersions() {
             fileSystem.addRevisionListener(new RevisionListener() {
                 public void stateChanged(javax.swing.event.ChangeEvent ev) {
-                    System.out.println("revision state changed:"+ev);
+                    //System.out.println("revision state changed:"+ev);
                     if (!(ev instanceof RevisionEvent)) return ;
                     RevisionEvent event = (RevisionEvent) ev;
                     String name = event.getFilePath();
-                    System.out.println("  name = "+name);
+                    //System.out.println("  name = "+name);
                     //public void revisionsChanged(int whatChanged, FileObject fo, Object info) {
                     RevisionList oldList = (RevisionList) revisionListsByName.get(name);
-                    System.out.println("old List = "+oldList);
+                    //System.out.println("old List = "+oldList);
                     if (oldList != null) {
                         RevisionList newList = createRevisionList(name);
                         ArrayList workNew = new ArrayList(newList);

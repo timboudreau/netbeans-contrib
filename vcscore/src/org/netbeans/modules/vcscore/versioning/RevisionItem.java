@@ -157,7 +157,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     }
     
     public void setCurrent(boolean current) {
-        System.out.println("RevisionItem("+revision+"): current = "+this.current+", setCurrent("+current+")");
+        //System.out.println("RevisionItem("+revision+"): current = "+this.current+", setCurrent("+current+")");
         if (current != this.current) {
             this.current = current;
             firePropertyChange(PROP_CURRENT_REVISION, new Boolean(!current), new Boolean(current));
