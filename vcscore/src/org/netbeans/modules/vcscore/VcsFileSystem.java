@@ -2013,15 +2013,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return result;
     }
 
-    public String getQuoting() {
-        VcsConfigVariable quotingVar = (VcsConfigVariable) variablesByName.get(VAR_QUOTING);
-        String quoting = null;
-        if (quotingVar != null) quoting = quotingVar.getValue();
-        if (quoting == null) quoting = DEFAULT_QUOTING_VALUE;
-        return quoting;
-    }
-
-
     //-------------------------------------------
     public void setPassword(String password){
         if (this.password == null && password != null ||
@@ -2057,47 +2048,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public String getPasswordDescription() {
         return null;
-    }
-
-    private void createTempPromptFiles(Hashtable promptFile) {
-        for(Enumeration enum = promptFile.keys(); enum.hasMoreElements(); ) {
-            String key = (String) enum.nextElement();
-            String fileName = (String) promptFile.get(key);
-            try {
-                File file = File.createTempFile(FILE_PROMPT_PREFIX, null);
-                file.deleteOnExit(); // automatically delete the file when JVM goes down
-                tempFiles.add(file);
-                promptFile.put(key, file.getAbsolutePath());
-                if (fileName.length() > 0) {
-                    File fileOrig = new File(fileName);
-                    if (fileOrig.exists() && fileOrig.canRead()) {
-                        try {
-                            FileWriter writer = new FileWriter(file);
-                            FileReader reader = new FileReader(fileOrig);
-                            char[] buf = new char[500];
-                            int len = 0;
-                            while((len = reader.read(buf)) > 0) writer.write(buf, 0, len);
-                            reader.close();
-                            writer.close();
-                        } catch (FileNotFoundException exc) {
-                            ErrorManager.getDefault().notify(exc);
-                        }
-                    }
-                }
-            } catch (IOException exc) {
-                ErrorManager.getDefault().notify(exc);
-            }
-        }
-    }
-
-    public void removeTempFiles() {
-        for(Enumeration enum = tempFiles.elements(); enum.hasMoreElements(); ) {
-            File file = (File) enum.nextElement();
-            //File file = new File(name);
-            boolean success = file.delete();
-        }
-        tempFiles.removeAllElements();
-        // TODO: should be called when the last VCS command finished
     }
 
     /**
@@ -2178,27 +2128,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             status = statusProvider.getFileStatus(fullName).trim();
         } else status = "";
         return status;
-    }
-
-    /**
-     * Get the status of a DataObject. When the DataObject consists of more than
-     * file, the result may be some composition of these states.
-     */
-    public String getStatus(DataObject dobj) {
-        Set files = dobj.files();
-        Object[] oo = files.toArray();
-        int len = oo.length;
-        if (len == 0) return null;
-        if (statusProvider != null) {
-            for (int i = 0; i < len; i++) {
-                oo[i] = convertForeignFileObjectToMyFileObject((FileObject) oo[i]);
-            }
-            if (len == 1) return RefreshCommandSupport.getStatusAnnotation("", ((FileObject) oo[0]).getPath(),
-                                                                           "${"+RefreshCommandSupport.ANNOTATION_PATTERN_STATUS+"}", statusProvider);
-            else          return RefreshCommandSupport.getStatusAnnotation("", getImportantFiles(oo),
-                                                                           "${"+RefreshCommandSupport.ANNOTATION_PATTERN_STATUS+"}", statusProvider,
-                                                                           multiFilesAnnotationTypes);
-        } else return "";
     }
 
     /**
@@ -2351,24 +2280,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return locker;
     }
 
-    /**
-     * Get the annotate icon for a single file. It does not have to be represented by a FileObject.
-     */
-    Image annotateIcon(Image icon, int iconType, String fullName) {
-        if (statusProvider != null) {
-            FileStatusInfo status = statusProvider.getFileStatusInfo(fullName);
-            if (status != null) {
-                Image img = status.getIcon();//(Image) statusIconMap.get(status);
-                //System.out.println("annotateIcon: status = "+status+" => img = "+img);
-                if (img == null) img = statusIconDefault;
-                if (img != null) {
-                    icon = org.openide.util.Utilities.mergeImages(icon, img, BADGE_ICON_SHIFT_X, BADGE_ICON_SHIFT_Y);
-                }
-            }
-        }
-        return icon;
-    }
-
     //-------------------------------------------
     public Image annotateIcon(Image icon, int iconType, Set files) {
         /*
@@ -2427,19 +2338,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return icon;
     }
 
-    /**
-     * Get the annotate name for a single file. It does not have to be represented by a FileObject.
-     */
-    String annotateName(String fullName, String displayName) {
-        String result;
-        if (statusProvider != null) {
-            result = RefreshCommandSupport.getStatusAnnotation(displayName, fullName, annotationPattern, statusProvider);
-        } else {
-            result = displayName;
-        }
-        return result;
-    }
-
     public String annotateNameHtml (String name, java.util.Set files) {
         String result = name;
         if (result == null)
@@ -2473,42 +2371,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return result;
     }
 
-    /** Annotate a single file. It can annotate only files represented by a FileObject.
-     * @params fullName The full path to the file.
-     * @return the annotation string
-     */
-    public String annotateName(String fullName) {
-        FileObject fo = findResource(fullName);
-        if (fo == null) throw new IllegalArgumentException(fullName);
-        HashSet hset = new HashSet(1);
-        hset.add(fo);
-        String ext = fo.getExt();
-        String name = fo.getName();
-        if (ext != null && ext.length() > 0) name += "."+ext;
-        return annotateName(name, Collections.synchronizedSet(hset));
-    }
-
     /** Find the file object from a file path.
      * @param fullName the full path to the file
      * @return the file object of that file
      */
     public FileObject findFileObject(String fullName) {
         return findResource(fullName);
-    }
-
-    /** Annotate the Data Object file.
-     * @params fullName The full path to the file.
-     * @return the annotation string
-     */
-    public String annotateDOName(String fullName) throws org.openide.loaders.DataObjectNotFoundException {
-        FileObject fo = findResource(fullName);
-        if (fo == null) throw new IllegalArgumentException(fullName);
-        //try {
-        DataObject dobj = DataObject.find(fo);
-        //} catch (org.openide.loaders.DataObjectNotFoundException exc) {
-        //    throw new org.openide.loaders.DataObjectNotFoundException(exc.getFileObject());
-        //}
-        return annotateName(fo.getName(), dobj.files());
     }
 
     /** Annotate the set of files with additional version control attributes.
@@ -3081,7 +2949,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return files;
     }
 
-    boolean areOnlyHiddenFiles(String[] files) {
+    private boolean areOnlyHiddenFiles(String[] files) {
         ArrayList fileList = new ArrayList(Arrays.asList(files));
         fileList.remove(".nbintdb"); // NOI18N
         fileList.remove(".nbattrs"); // NOI18N
@@ -3093,7 +2961,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return fileList.size() == 0;
     }
 
-    String[] filterDeadFilesOut(String name, String[] vcsFiles) {
+    private String[] filterDeadFilesOut(String name, String[] vcsFiles) {
         if (vcsFiles == null) return null;
         FileStatusProvider statusProvider = getStatusProvider();
         if (statusProvider == null) return vcsFiles;
@@ -3201,41 +3069,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             }
         }
         return (String[]) filtered.toArray(new String[0]);
-    }
-
-    /**
-     * Remove scheduling attributes for files scheduled for ADD, but not present any more.
-     * @param packageName the name of the package
-     * @param files the array of all files in this package
-     */
-    private void cleanupNonExistingAddedFiles(String packageName, String[] files) {
-        ArrayList filtered = new ArrayList(Arrays.asList(files));
-        boolean emptyPackage = (packageName.length() == 0);
-        HashMap addedFilesNotPresentAnyMore = new HashMap();
-        for (int i = 0; i < files.length; i++) {
-            String fileName = (emptyPackage) ? files[i] : (packageName + "/" + files[i]);
-            Set[] scheduled = (Set[]) attr.readAttribute(fileName, VcsAttributes.VCS_SCHEDULED_FILES_ATTR);
-            if (scheduled != null && scheduled[1] != null) {
-                for (Iterator it = scheduled[1].iterator(); it.hasNext(); ) {
-                    String secFile = (String) it.next();
-                    if (!emptyPackage && secFile.startsWith(packageName) ||
-                        emptyPackage && secFile.indexOf('/') < 0) {
-                        //System.out.println("removing '"+secFile.substring(packageName.length() + 1)+"'");
-                        String nameOnly = (emptyPackage) ? secFile : secFile.substring(packageName.length() + 1);
-                        if (!filtered.contains(nameOnly)) {
-                            addedFilesNotPresentAnyMore.put(secFile, fileName);
-                        }
-                    }
-                }
-            }
-        }
-        if (addedFilesNotPresentAnyMore.size() > 0) {
-            for (Iterator secIt = addedFilesNotPresentAnyMore.keySet().iterator(); secIt.hasNext(); ) {
-                String secFile = (String) secIt.next();
-                String primaryFile = (String) addedFilesNotPresentAnyMore.get(secFile);
-                removeScheduledFromPrimary(secFile, primaryFile, 1);
-            }
-        }
     }
 
     /**
@@ -4306,21 +4139,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             setCommands (commands);
         }
         return (CommandSupport) commandsByName.get(name);
-    }
-
-    /**
-     * Get the list of all command names.
-     * @return The list of all command names.
-     */
-    public String[] getCommandNames() {
-        if (commandsByName == null) {
-            CommandsTree commands = getCommands();
-            if (commands == null) return new String[0];
-            setCommands (commands);
-        }
-        synchronized (commandsByName) {
-            return (String[]) commandsByName.keySet().toArray(new String[commandsByName.size()]);
-        }
     }
 
     private void addCmdActionsToSupporter() {
