@@ -52,7 +52,7 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
     }
     
     public boolean hasNext() {
-        return currentIndex < names.length - 1;
+        return currentIndex < panels.length - 1;
     }
     
     public void initialize(org.openide.loaders.TemplateWizard templateWizard) {
