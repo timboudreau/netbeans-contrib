@@ -32,7 +32,8 @@ Microsystems, Inc. All Rights Reserved.
     </target>
   
     <target name="compile" depends="init">
-        <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4">
+        <mkdir dir="build/classes"/>
+        <javac srcdir="src" destdir="build/classes" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}" source="1.4">
             <classpath refID="cp"/>
         </javac>
     </target>
@@ -45,9 +46,10 @@ Microsystems, Inc. All Rights Reserved.
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
         <jar jarfile="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}/tasklist-usertasks.jar"
              manifest="manifest-subst.mf"
-             basedir="src"
+             basedir="build/classes"
 	     excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
 	     compress="false">
+             <fileset dir="src"/>
         </jar>
     </target>
 
@@ -77,7 +79,7 @@ Microsystems, Inc. All Rights Reserved.
  
     <target name="clean" depends="init">
         <delete>
-            <fileset dir="src">
+            <fileset dir="build/classes">
                 <include name="**/*.class"/>
             </fileset>
             <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
