@@ -21,7 +21,10 @@ import java.util.List;
 import java.beans.BeanInfo;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.EventListener;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.openide.filesystems.FileObject;
 
@@ -120,15 +123,27 @@ public abstract class CommandSupport extends Object implements Cloneable {
     final Command createCommand(InvocationHandler handler) {
         Class[] implementedClasses;
         if (commandClasses != null) {
-            implementedClasses = new Class[DEFAULT_IMPLEMENTED_CLASSES.length + commandClasses.length];
-            System.arraycopy(DEFAULT_IMPLEMENTED_CLASSES, 0, implementedClasses, 0, DEFAULT_IMPLEMENTED_CLASSES.length);
-            System.arraycopy(commandClasses, 0, implementedClasses, DEFAULT_IMPLEMENTED_CLASSES.length, commandClasses.length);
+            List classes = Arrays.asList(DEFAULT_IMPLEMENTED_CLASSES);
+            List newClasses = new LinkedList(Arrays.asList(commandClasses));
+            newClasses.removeAll(classes);
+            newClasses.addAll(0, classes);
+            //implementedClasses = new Class[DEFAULT_IMPLEMENTED_CLASSES.length + commandClasses.length];
+            //System.arraycopy(DEFAULT_IMPLEMENTED_CLASSES, 0, implementedClasses, 0, DEFAULT_IMPLEMENTED_CLASSES.length);
+            //System.arraycopy(commandClasses, 0, implementedClasses, DEFAULT_IMPLEMENTED_CLASSES.length, commandClasses.length);
+            implementedClasses = (Class[]) newClasses.toArray(new Class[newClasses.size()]);
         } else {
-            implementedClasses = new Class[DEFAULT_IMPLEMENTED_CLASSES.length + 1];
-            System.arraycopy(DEFAULT_IMPLEMENTED_CLASSES, 0, implementedClasses, 0, DEFAULT_IMPLEMENTED_CLASSES.length);
-            implementedClasses[DEFAULT_IMPLEMENTED_CLASSES.length] = commandClass;
+            int i;
+            for (i = 0; i < DEFAULT_IMPLEMENTED_CLASSES.length; i++) {
+                if (DEFAULT_IMPLEMENTED_CLASSES[i].equals(commandClass)) break;
+            }
+            if (i < DEFAULT_IMPLEMENTED_CLASSES.length) {
+                implementedClasses = DEFAULT_IMPLEMENTED_CLASSES;
+            } else {
+                implementedClasses = new Class[DEFAULT_IMPLEMENTED_CLASSES.length + 1];
+                System.arraycopy(DEFAULT_IMPLEMENTED_CLASSES, 0, implementedClasses, 0, DEFAULT_IMPLEMENTED_CLASSES.length);
+                implementedClasses[DEFAULT_IMPLEMENTED_CLASSES.length] = commandClass;
+            }
         }
-        //System.out.println("Creating command of name "+getName()+", impl. classes:");
         Command command =
             (Command) Proxy.newProxyInstance(getClass().getClassLoader(),
                                              implementedClasses, handler);
