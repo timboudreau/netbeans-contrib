@@ -37,7 +37,6 @@ import org.netbeans.api.lexer.TokenId;
 import org.netbeans.editor.Coloring;
 import org.netbeans.editor.Settings;
 import org.netbeans.editor.SettingsNames;
-import org.netbeans.editor.ext.html.WeakHashSet;
 import org.netbeans.modules.latex.model.Queue;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
