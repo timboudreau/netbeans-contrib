@@ -336,6 +336,9 @@ public class SFile {
         sb.append("\u0001T\n");
         sb.append("\u0001I 1\n");
         sb.append(fileContents);
+        if (!fileContents.endsWith("\n")) {
+            sb.append("\n");
+        }
         sb.append("\u0001E 1\n");
         
         writeSFile(sb);
@@ -451,6 +454,13 @@ public class SFile {
 
     private void writeSFile(StringBuffer sb) throws IOException {
         byte[] sFileContents = sb.toString().getBytes();
+        if (sFile.exists()) {
+            sFile.delete();
+        }
+        File sccsDir = sFile.getParentFile();
+        if (!sccsDir.exists()) {
+            sccsDir.mkdir();
+        }
         OutputStream sFileOut = new BufferedOutputStream(
                 new FileOutputStream(sFile));
         sFileOut.write(1);
