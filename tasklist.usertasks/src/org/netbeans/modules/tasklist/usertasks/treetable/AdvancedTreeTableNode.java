@@ -265,9 +265,8 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
             int index;
             if (getComparator() != null) {
                 index = Arrays.binarySearch(children, cn, getComparator());
-                assert index < 0;
-                
-                index = -(index + 1);
+                if (index < 0)
+                    index = -(index + 1);
             } else {
                 index = -1;
                 Iterator it = getChildrenObjectsIterator();

@@ -127,6 +127,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private ListCellRenderer priorityRenderer = new PriorityListCellRenderer();
     private DurationPanel durationPanel = new DurationPanel();
     private DependenciesPanel dp;
+    //private com.toedter.calendar.JDateChooser dueChooser = 
+    //    new com.toedter.calendar.JDateChooser();
     
     /** 
      * Creates new form NewTodoItemPanel.
@@ -498,6 +500,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         durationPanelSpent = new org.netbeans.modules.tasklist.usertasks.DurationPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabelCompleted = new javax.swing.JLabel();
+        jPanelDue = new javax.swing.JPanel();
         jPanelDependencies = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -963,6 +966,11 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanel3.add(jLabelCompleted, gridBagConstraints);
 
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 3;
+    gridBagConstraints.gridy = 0;
+    jPanel3.add(jPanelDue, gridBagConstraints);
+
     jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "TimeRelated"), jPanel3);
 
     jPanelDependencies.setLayout(new java.awt.BorderLayout());
@@ -1190,6 +1198,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanelDependencies;
+    private javax.swing.JPanel jPanelDue;
     private javax.swing.JPanel jPanelEffort;
     private javax.swing.JPanel jPanelGeneral;
     private javax.swing.JRadioButton jRadioButtonComputeEffort;
