@@ -16,6 +16,8 @@ package org.netbeans.modules.jndi;
 import java.util.Hashtable;
 import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
+import org.netbeans.modules.jndi.spi.NbInitialContextFactoryBuilder;
+import javax.naming.spi.NamingManager;
 
 /** This class extends InitialDirContext with methods for timeout handling
  * 
@@ -23,6 +25,15 @@ import javax.naming.directory.InitialDirContext;
  */
 final class JndiDirContext extends InitialDirContext {
 
+    // Set the NbInitialContextFactoryBuilder as default
+    // factory builder.
+    static {
+	try {
+          NamingManager.setInitialContextFactoryBuilder ( new NbInitialContextFactoryBuilder());
+	}catch (NamingException namingException) {
+	  // Give it up.
+	}
+    }
 
 
     /** Environment used for InitialContext*/

@@ -207,7 +207,7 @@ final class JndiDataType extends NewType {
                                           }
                                           
                                           private void checkContextValidity (Hashtable env) throws Exception {
-                                              Class.forName((String)env.get (javax.naming.Context.INITIAL_CONTEXT_FACTORY));
+                                              Class.forName((String)env.get (javax.naming.Context.INITIAL_CONTEXT_FACTORY), true, TopManager.getDefault().currentClassLoader());
                                               JndiDirContext ctx = new JndiDirContext (env);
                                               ctx.checkContext ();
                                           }

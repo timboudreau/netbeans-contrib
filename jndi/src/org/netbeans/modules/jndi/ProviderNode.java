@@ -63,7 +63,7 @@ public class ProviderNode extends AbstractNode implements Cookie{
         else label = name.substring (index+1);
         this.setName (label);
         try{
-            Class.forName(name);
+            Class.forName(name, true, TopManager.getDefault().currentClassLoader());
             this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DRIVER));
         }catch (ClassNotFoundException cnf){
             this.setIconBase (JndiIcons.ICON_BASE + JndiIcons.getIconName(ProviderNode.DISABLED_DRIVER));
@@ -182,7 +182,7 @@ public class ProviderNode extends AbstractNode implements Cookie{
      */
     public void testProvider () {
         try{
-            Class.forName(this.name);
+            Class.forName(this.name, true, TopManager.getDefault().currentClassLoader());
             TopManager.getDefault().notify( new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("MSG_CLASS_FOUND"), NotifyDescriptor.Message.INFORMATION_MESSAGE));
         }catch(ClassNotFoundException cnfe){
             TopManager.getDefault().notify(new NotifyDescriptor.Message(JndiRootNode.getLocalizedString("MSG_CLASS_NOT_FOUND"), NotifyDescriptor.Message.INFORMATION_MESSAGE));
