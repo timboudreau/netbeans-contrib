@@ -839,6 +839,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
             //System.out.println("  VAR '"+varName+"' = '"+varValue+"'");
             inComponent.setValue(varValue);
             if (components != null) {
+                String unexpandedVarValue = varValue;
                 for (int i = 0; i < components.length; i++) {
                     java.awt.Component component = components[i];
                     if (component instanceof javax.swing.JTextArea) {
@@ -849,6 +850,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         if (inComponent.isExpandableDefaultValue()) {
                             // Not to persistently store the expanded value!
                             pcev.setPropagationId(inComponent.getDefaultValue());
+                        } else if (!unexpandedVarValue.equals(varValue)) {
+                            pcev.setPropagationId(unexpandedVarValue);
                         }
                         propertyChangeEvents.add(pcev);
                     } else if (component instanceof javax.swing.text.JTextComponent) {
@@ -863,6 +866,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
                             //varValue = inComponent.getDefaultValue(); 
                             // Not to persistently store the expanded value!
                             pcev.setPropagationId(inComponent.getDefaultValue());
+                        } else if (!unexpandedVarValue.equals(varValue)) {
+                            pcev.setPropagationId(unexpandedVarValue);
                         }
                         // setText does not fire anything, we need to do that later.
                         propertyChangeEvents.add(pcev);
