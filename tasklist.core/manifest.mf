@@ -2,7 +2,7 @@ OpenIDE-Module-Specification-Version: 0.8.10
 OpenIDE-Module: org.netbeans.modules.tasklist.core/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/core/Bundle.properties
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
-OpenIDE-Module-IDE-Dependencies: IDE/1 > 2.23
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.17
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.javahelp/1 > 1.0, org.netbeans.api.tasklist/1 > 0.8.10
 OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/core/mf-layer.xml

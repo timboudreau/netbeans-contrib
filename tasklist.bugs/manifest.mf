@@ -2,6 +2,6 @@ OpenIDE-Module-Specification-Version: 0.6.12
 OpenIDE-Module: org.netbeans.modules.tasklist.bugs/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/bugs/Bundle.properties
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
-OpenIDE-Module-IDE-Dependencies: IDE/1 > 2.23
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.17
 OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tasklist.core/1 > 0.8.9, org.netbeans.api.tasklist/1 > 0.8.9
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/bugs/mf-layer.xml
