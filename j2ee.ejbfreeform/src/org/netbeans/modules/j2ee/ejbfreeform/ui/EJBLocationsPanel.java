@@ -444,7 +444,7 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         }
         
         public int getPreferredPosition() {
-            return 250; // before Java sources panel
+            return 40; // before Java sources panel
         }
     }
     
