@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!ELEMENT SourceTasksFilter ANY>
+<!ATTLIST SourceTasksFilter 
+          allTrue CDATA #REQUIRED
+          name CDATA #REQUIRED>

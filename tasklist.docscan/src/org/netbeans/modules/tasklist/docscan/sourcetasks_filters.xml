@@ -17,4 +17,6 @@ Microsystems, Inc. All Rights Reserved.
     "http://tasklist.netbeans.org/dtd/filters-1_0.dtd">
 
 <Filters active="-1">
+    <SourceTasksFilter allTrue="true" dtd_public_id="-//NetBeans org.netbeans.modules.tasklist//DTD SourceTasksFilter 1.0//EN" name="Default Filter"/>
+    
 </Filters>

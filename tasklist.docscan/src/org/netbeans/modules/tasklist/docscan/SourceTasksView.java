@@ -1490,7 +1490,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     public org.netbeans.modules.tasklist.core.filter.Filter createFilter() {
-        return new SourceTasksFilter("TODOs"); // NOI18N
+      return new SourceTasksFilter(NbBundle.getMessage(SourceTaskNode.class, "new-filter-name"));
     }
 
     public AccessibleContext getAccessibleContext() {
