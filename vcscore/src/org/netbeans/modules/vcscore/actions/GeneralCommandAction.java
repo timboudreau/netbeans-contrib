@@ -93,6 +93,13 @@ public class GeneralCommandAction extends NodeAction {
     
     
     /**
+     * @return false to run in AWT thread.
+     */
+    protected boolean asynchronous() {
+        return false;
+    }
+    
+    /**
      * This method doesn't extract the fileobjects from the activated nodes itself, but rather
      * consults delegates to  a list of supporters.
      */

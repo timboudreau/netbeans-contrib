@@ -37,10 +37,11 @@ public abstract class CommandActionSupporter {
     
     /**
      * GeneralCommandAction tells the supporter during the performsAction(Node[] nodes) method to perform the action on the specified FileObjects.
+     * This is called from GeneralCommandAction in AWT thread.
+     * RequestProcessor needs to be used to leave the AWT thread if necessary.
      * @param action The action that initiated this request.
      * @param fileObjects Array of fileObjects extracted from the Activated nodes.
      */
-    
     public abstract void performAction(GeneralCommandAction action, FileObject[] fileObjects);
     
     /**
