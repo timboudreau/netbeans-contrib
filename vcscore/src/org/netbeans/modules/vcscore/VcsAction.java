@@ -74,6 +74,10 @@ public class VcsAction extends NodeAction implements ActionListener {
     }
     
     public void setSelectedFileObjects(Collection fos) {
+        if (fos == null) {
+            this.selectedFileObjects = null;
+            return ;
+        }
         /*System.out.println("setSelectedFileObjects():");
         for (Iterator it = fos.iterator(); it.hasNext(); ) {
             System.out.println("  "+it.next());
