@@ -96,6 +96,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                                (VcsFileSystem.PROP_PROCESS_UNIMPORTANT_FILES, CommandLineVcsFileSystem.class, "isProcessUnimportantFiles", "setProcessUnimportantFiles"); // NOI18N
             annotationPattern = new PropertyDescriptor
                                (VcsFileSystem.PROP_ANNOTATION_PATTERN, CommandLineVcsFileSystem.class, "getAnnotationPattern", "setAnnotationPattern"); // NOI18N
+            annotationPattern.setPropertyEditorClass(CommandLineAnnotPatternEditor.class);
             autoRefresh = new PropertyDescriptor
                                (GeneralVcsSettings.PROP_AUTO_REFRESH, CommandLineVcsFileSystem.class, "getAutoRefresh", "setAutoRefresh"); // NOI18N
             autoRefresh.setPropertyEditorClass(RefreshModePropertyEditor.class);
