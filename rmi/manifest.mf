@@ -2,9 +2,9 @@ OpenIDE-Module: org.netbeans.modules.rmi/1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/rmi/Bundle.properties
 OpenIDE-Module-Install: org/netbeans/modules/rmi/RMIModule.class
 OpenIDE-Module-Layer: org/netbeans/modules/rmi/resources/mf-layer.xml
-OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.14
-OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1 > 1.6, org.netbeans.modules.debugger.core/3, org.netbeans.modules.debugger.jpda/1 > 1.11, org.openide.deprecated > 1.0, org.openide.src > 1.0
-OpenIDE-Module-Requires: org.openide.util.HttpServer$Impl, org.netbeans.api.javahelp.Help, org.openide.TopManager, dataloader.group
+OpenIDE-Module-IDE-Dependencies: IDE/1 > 3.17
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.java/1 > 1.6, org.netbeans.modules.debugger.core/3, org.netbeans.modules.debugger.jpda/1 > 1.11, org.openide.deprecated > 1.0, org.openide.src > 1.0, org.openide.compiler > 1.0, org.openide.execution > 1.0
+OpenIDE-Module-Requires: org.openide.util.HttpServer$Impl, org.netbeans.api.javahelp.Help, org.openide.TopManager, dataloader.group, org.openide.compiler.CompilationEngine, org.openide.execution.ExecutionEngine
 OpenIDE-Module-Specification-Version: 1.7
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 Class-Path: docs/rmi.jar

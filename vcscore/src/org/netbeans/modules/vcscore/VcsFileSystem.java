@@ -2666,7 +2666,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (scheduled != null && scheduled[0] != null) {
                 String filePath = (String) ff.getAttribute(VcsAttributes.VCS_SCHEDULING_MASTER_FILE_NAME_ATTR);
                 if (filePath != null) {
-                    File currentFile = org.openide.execution.NbClassPath.toFile(ff);
+                    File currentFile = FileUtil.toFile(ff);
                     if (currentFile != null && !filePath.equals(currentFile.getAbsolutePath())) {
                         // the file was moved/copied/renamed to another location.
                         // Delete all it's scheduling attributes, because they are out-of-date
