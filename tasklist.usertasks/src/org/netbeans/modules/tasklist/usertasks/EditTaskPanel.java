@@ -253,7 +253,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
             }
         } else {
             task.setFilename(null);
-            task.setLine(null);
+            task.setLineNumber(0);
         }
         
         task.setDueDate(getDueDate());

@@ -51,7 +51,6 @@ import org.openide.nodes.Node;
  * @author Tor Norbye
  */
 public class UserTaskView extends TaskListView implements TaskListener {
-
     private static final long serialVersionUID = 1;
 
     private static final Logger LOGGER = TLUtils.getLogger(UserTaskView.class);
@@ -133,7 +132,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     public void componentActivated() {
         super.componentActivated();
 
-        // it's strange I'd expect live listener bassed solution
+        // it's strange I'd expect live listener based solution
         Iterator it = getModel().getTasks().iterator();
         while (it.hasNext()) {
             UserTask next = (UserTask) it.next();
@@ -487,7 +486,7 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     protected Node createRootNode() {
-        return new TaskListNode(getModel());
+        return new UserTaskListNode(getModel());
     }
 
     /** Show the given task. "Showing" means getting the editor to

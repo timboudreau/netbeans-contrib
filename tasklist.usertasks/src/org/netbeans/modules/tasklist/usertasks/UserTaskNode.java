@@ -218,15 +218,15 @@ final class UserTaskNode extends TaskNode {
             p = new Reflection(item, SuggestionPriority.class, "getPriority", "setPriority"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_PRIO);
             p.setPropertyEditorClass(PriorityPropertyEditor.class);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Priority")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "PriorityHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_priorityProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_priorityProperty")); // NOI18N
             ss.put(p);
             
             
             p = new Reflection(item, Boolean.TYPE, "isDone", "setDone"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_DONE);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Done")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "DoneHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_doneProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_doneProperty")); // NOI18N
             ss.put(p);
             
 
@@ -250,81 +250,81 @@ final class UserTaskNode extends TaskNode {
             };
             p.setName(UserTaskView.PROP_TASK_PERCENT);
             p.setPropertyEditorClass(PercentsPropertyEditor.class);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Percent")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "PercentHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_percentCompleteProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_percentCompleteProperty")); // NOI18N
             ss.put(p);
             
             p = new Reflection(item, Integer.TYPE, "getEffort", null);
             p.setName("effort");
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Effort2")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "EffortHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_effortProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_effortProperty")); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE);
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
             p = new Reflection(item, Integer.TYPE, "getRemainingEffort", null);
             p.setName("remainingEffort");
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "RemainingEffort")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "RemainingEffortHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_remainingEffortProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_remainingEffortProperty")); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE);
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
             p = new Reflection(item, Integer.TYPE, "getSpentTime", null);
             p.setName("spentTime");
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "SpentTime")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "SpentTimeHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_spentTimeProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_spentTimeProperty")); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE);
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
             p = new Reflection(item, String.class, "getDetails", "setDetails"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_DETAILS);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Details")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "DetailsHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_detailsProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_detailsProperty")); // NOI18N
             ss.put(p);
             
             p = new Reflection(item, String.class, "getFileBaseName", "setFileBaseName"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_FILE);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "File")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "FileHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_filenameProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_filenameProperty")); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE);
             ss.put(p);
 
             p = new Reflection(item, Integer.TYPE, "getLineNumber", "setLineNumber"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_LINE);
             p.setPropertyEditorClass(LineNumberPropertyEditor.class);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Line")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "LineHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_lineProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_lineProperty")); // NOI18N
             ss.put(p);
             
             p = new Reflection(item, String.class, "getCategory", "setCategory"); // NOI18N
             p.setName(UserTaskView.PROP_TASK_CAT);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Category")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "CategoryHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_categoryProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_categoryProperty")); // NOI18N
             p.setValue("canEditAsText", Boolean.TRUE); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE);
             ss.put(p);
 
             p = new Reflection(item, Date.class, "getCreatedDate", null /* readonly*/); // NOI18N
             p.setName(UserTaskView.PROP_TASK_CREATED);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Created")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "CreatedHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_createdProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_createdProperty")); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE);
             ss.put(p);
 
             p = new Reflection(item, Date.class, "getLastEditedDate", null /* readonly*/); // NOI18N
             p.setName(UserTaskView.PROP_TASK_EDITED);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Edited")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "EditedHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_editedProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_editedProperty")); // NOI18N
             p.setValue("suppressCustomEditor", Boolean.TRUE);
             ss.put(p);
 
 
             p = new Reflection(item, Date.class, "getDueDate", "setDueDate"); // NOI18N            
             p.setName(UserTaskView.PROP_TASK_DUE);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "Due")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "DueHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_dueDateProperty")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_dueDateProperty")); // NOI18N
             ss.put(p);
         } catch (NoSuchMethodException nsme) {
             ErrorManager.getDefault().notify(nsme);

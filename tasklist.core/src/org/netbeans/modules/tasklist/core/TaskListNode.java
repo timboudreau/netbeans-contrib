@@ -29,7 +29,7 @@ import java.util.Enumeration;
  * 
  * @author Petr Kuzel
  */
-public final class TaskListNode extends AbstractNode {
+public class TaskListNode extends AbstractNode {
 
     /**
      * Creates plain tasklist node. Properties that cannot

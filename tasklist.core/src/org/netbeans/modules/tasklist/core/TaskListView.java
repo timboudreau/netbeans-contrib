@@ -600,7 +600,9 @@ public abstract class TaskListView extends TopComponent
 
     private void setRoot() {
         rootNode = createRootNode();
-	rootNode.setDisplayName(getMainColumn(-1).getDisplayName());
+	// TODO: usertasks module sets the display name of the root node to
+        // "Task List"
+        // rootNode.setDisplayName(getMainColumn(-1).getDisplayName());
 
         LOGGER.fine("root created " + rootNode);
 
@@ -1007,6 +1009,9 @@ for (int i = 0; i < columns.length; i++) {
             if (tlv.isShowing()) {
                 return tlv;
             }
+            
+            // TODO: it seems to be a bad idea to return the first non-null
+            // component here
             if (first == null) {
                 first = tlv;
             }
@@ -1134,7 +1139,7 @@ for (int i = 0; i < columns.length; i++) {
         return (TaskList) getModel();
     }
 
-    protected ObservableList getModel() {
+    public ObservableList getModel() {
         return tasklist;
     }
 
