@@ -16,6 +16,7 @@ package org.netbeans.modules.remotefs.ftpclient;
 import org.netbeans.modules.remotefs.core.RemoteClient;
 import org.netbeans.modules.remotefs.core.LogInfo;
 import org.netbeans.modules.remotefs.core.RemoteFileAttributes;
+import org.netbeans.modules.remotefs.core.RemoteFileName;
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -87,9 +88,9 @@ public class FTPClient implements RemoteClient  {
 
   //***************************************************************************
   /** Compare this login information.
-   * @return 0 if login information are equal;
-   *         1 if login information refer to the same resource but can't be uses to login;
-   *        -1 if login information are different
+   * @return 0 if login informations are equal;
+   *         1 if login informations refer to the same resource but can't be uses to login;
+   *        -1 if login informations are different
    * @param loginfo
    */
   public int compare(LogInfo loginfo) {
@@ -151,8 +152,8 @@ public class FTPClient implements RemoteClient  {
 
   //***************************************************************************
   /** Sets Log to FileDescriptor. In this case, log outputstream is automatically set during connecting
-   * @param logFD
-   */
+   * @param logfile 
+   * @throws IOException  */
   public void setLog (File logfile) throws IOException {
     if (!logfile.exists()) {
         logfile.createNewFile();
@@ -201,7 +202,14 @@ public class FTPClient implements RemoteClient  {
      if (serversystem!=null)  return serversystem.toUpperCase().startsWith("UNIX TYPE: L8");
      return false;
   }
-  
+
+  //***************************************************************************
+  /** Get server root filename
+   * @return root */  
+  public RemoteFileName getRoot() {
+      return FTPFileName.getRoot();
+  }
+
   //***************************************************************************
   /** Connects to host
    * @throws IOException if any error occured
@@ -416,27 +424,16 @@ public class FTPClient implements RemoteClient  {
  
   //***************************************************************************
   /** Get file from server.
-   * @param accesspath
    * @param what
    * @param where
    * @throws IOException
    */
-  public synchronized void get(String accesspath, String what, File where) throws IOException {
-    throw new Error("Not implemented yet");
-  }
-  
-  //***************************************************************************
-  /** Get file from server.
-   * @param what
-   * @param where
-   * @throws IOException
-   */
-  public synchronized void get(String what, File where) throws IOException {
+  public synchronized void get(RemoteFileName what, File where) throws IOException {
    int count = 0;
     while (count++ < 2) {
       try { 
           // open data connection
-          Socket datasocket = openData("RETR "+what);
+          Socket datasocket = openData("RETR "+((FTPFileName)what).getFullName());
           // open streams
           InputStream datain = datasocket.getInputStream();
           OutputStream fileout = new FileOutputStream(where);
@@ -465,29 +462,18 @@ public class FTPClient implements RemoteClient  {
     }
   }
  
-  /***************************************************************************
-  //** Put file to server
-   * @param what
-   * @param accesspath
-   * @param where
-   * @throws IOException
-   */
-  public synchronized void put(File what, String accesspath, String where) throws IOException {
-    throw new Error("Not implemented yet");
-  }
-  
   //***************************************************************************
   /** Put file to server
    * @param what
    * @param where
    * @throws IOException
    */
-  public synchronized void put(File what,  String where) throws IOException {
+  public synchronized void put(File what, RemoteFileName where) throws IOException {
     int count = 0;
     while (count++ < 2) {
       try { 
           // open data connection
-          Socket datasocket = openData("STOR "+where);
+          Socket datasocket = openData("STOR "+((FTPFileName)where).getFullName());
           // open streams
           InputStream filein = new FileInputStream(what);
           OutputStream dataout = datasocket.getOutputStream();
@@ -517,6 +503,7 @@ public class FTPClient implements RemoteClient  {
   //***************************************************************************
   /** Get file list of directory
     */
+  /*
   private synchronized String[] dir(String directory) throws IOException {
     StringBuffer sbuffer = new StringBuffer();
     int count = 0;
@@ -554,11 +541,12 @@ public class FTPClient implements RemoteClient  {
           list[counttoken++]=stoken.nextToken();
     return list;
   }	
-   
+  */
+  
   //***************************************************************************
   /* Parse list obtained from server for file attributes
    */
-  private FTPFileAttributes[] parseList(StringTokenizer stoken) {
+  private FTPFileAttributes[] parseList(StringTokenizer stoken, String name) {
     //TODO - soft links, /dev dir, dir with spaces
     StringTokenizer line;
     FTPFileAttributes attrib[] = null;
@@ -610,7 +598,7 @@ public class FTPClient implements RemoteClient  {
                     break;
             case 7: if (!at.setDate(month,day,word)) error = true; 
                     break;
-            case 8: at.setName(word); 
+            case 8: at.setName(new FTPFileName(name,word)); 
                     if ((word.equals(".") || word.equals("..")) && count <= 2) 
                         skip = true;
                     break;
@@ -676,28 +664,17 @@ public class FTPClient implements RemoteClient  {
   
   //***************************************************************************
   /** Return list of files in directory
-   * @param accesspath
-   * @param dirname
-   * @throws IOException
-   * @return
-   */
-  public synchronized RemoteFileAttributes[] list(String accesspath, String dirname) throws IOException {
-    throw new Error("Not implemented yet");
-  }
-
-  //***************************************************************************
-  /** Return list of files in directory
    * @param directory
    * @throws IOException
    * @return
    */
-  public synchronized RemoteFileAttributes[] list(String directory) throws IOException {
+  public synchronized RemoteFileAttributes[] list(RemoteFileName directory) throws IOException {
     StringBuffer sbuffer = new StringBuffer();
     int count = 0;
     if (!isConnected()) return new RemoteFileAttributes[0];
     while (count++ < 2) {
       try { 
-            Socket datasocket = openData(directory==null?"LIST":"LIST "+directory);
+            Socket datasocket = openData(directory==null?"LIST":"LIST "+((FTPFileName)directory).getFullName());
             // open stream
             InputStreamReader datain = new InputStreamReader(datasocket.getInputStream());
 
@@ -718,39 +695,28 @@ public class FTPClient implements RemoteClient  {
       }  
     }
     StringTokenizer stoken = new StringTokenizer(sbuffer.toString(),"\r\n");
-    return parseList(stoken);
+    return parseList(stoken, ((FTPFileName)directory).getFullName());
   }	
   
-  //***************************************************************************
-  /** Rename file
-   * @param fromaccesspath
-   * @param fromname
-   * @param toaccesspath
-   * @param toname
-   * @throws IOException
-   */
-  public synchronized void rename(String fromaccesspath, String fromname, String toaccesspath, String toname) throws IOException {
-    throw new Error("Not implemented yet");
-  }
- 
   //***************************************************************************
   /** Rename file
    * @param from
    * @param to
    * @throws IOException
    */
-  public synchronized void rename(String from, String to) throws IOException {
+  public synchronized void rename(RemoteFileName from,String to) throws IOException {
+    FTPFileName newname = new FTPFileName(((FTPFileName)from).getDirectory(),to);
     int count = 0;
     while (count++ < 2) {
       try { 
-        processSimpleCommand("RNFR "+from,3,false);
-        processSimpleCommand("RNTO "+to,2,false); 	
+        processSimpleCommand("RNFR "+from.getFullName(),3,false);
+        processSimpleCommand("RNTO "+newname.getFullName(),2,false); 	
         break;
       }
       catch (IOException se) {
         if (reconn!=null && count < 2 && connLostException(se))
           if (reconn.notifyReconnect(se.toString())) reconnect();
-          else return;
+          else return; 
         else throw se;
       }  
     }
@@ -761,37 +727,17 @@ public class FTPClient implements RemoteClient  {
    * @param path
    * @throws IOException
    */
-  public void delete(String path) throws IOException {
-    processSimpleCommand("DELE "+path,true);
-  }
- 
-  //***************************************************************************
-  /** Delete directory
-   * @param accesspath
-   * @param name
-   * @throws IOException
-   */
-  public void delete(String accesspath, String name) throws IOException {
-    throw new Error("Not implemented yet");
+  public void delete(RemoteFileName path) throws IOException {
+    processSimpleCommand("DELE "+((FTPFileName)path).getFullName(),true);
   }
  
   //***************************************************************************
   /** Make directory
-   * @param path
-   * @throws IOException
-   */
-  public void mkdir(String path) throws IOException {
-    processSimpleCommand("MKD "+path,true);
-  } 
-  
-  //***************************************************************************
-  /** Make directory
-   * @param accesspath
    * @param name
    * @throws IOException
    */
-  public void mkdir(String accesspath, String name) throws IOException {
-    throw new Error("Not implemented yet");
+  public void mkdir(RemoteFileName name) throws IOException {
+    processSimpleCommand("MKD " + name.getFullName(),true);
   } 
   
   //***************************************************************************
@@ -799,20 +745,10 @@ public class FTPClient implements RemoteClient  {
    * @param path
    * @throws IOException
    */
-  public void rmdir(String path) throws IOException {
-    processSimpleCommand("RMD "+path,true);
+  public void rmdir(RemoteFileName path) throws IOException {
+    processSimpleCommand("RMD "+((FTPFileName)path).getFullName(),true);
   } 
   
-  //***************************************************************************
-  /** Remove directory
-   * @param accesspath
-   * @param name
-   * @throws IOException
-   */
-  public void rmdir(String accesspath, String name) throws IOException {
-    throw new Error("Not implemented yet");
-  } 
-
   //***************************************************************************
   /** Print working directory
    * @throws IOException
@@ -878,4 +814,6 @@ public class FTPClient implements RemoteClient  {
     }  
     catch(IOException e) { }
   }
+  
+  
 }
