@@ -13,6 +13,7 @@
 
 package org.netbeans.mdr.test;
 
+import java.io.IOException;
 import java.util.*;
 
 import junit.extensions.*;
@@ -94,6 +95,28 @@ public class StorageTest extends MDRTestCase {
             storage.create (true, new Resolver());
             random = new Random(RAND_VAL);
             doMultiTest(storage, "btree");
+
+            // btree storage, several indexes
+            getLog().println();
+            getLog().println("*************************************************");
+            getLog().println("btree storage, several indexes");
+            getLog().println("-------------------------------------------------");
+            factory = new BtreeFactory();
+            storage = factory.createStorage(new HashMap());
+            storage.create (true, new Resolver());
+            random = new Random(RAND_VAL);
+            doSeveralIndexesTest(storage, "btree");
+            
+            // btree storage, primary index
+            getLog().println();
+            getLog().println("*************************************************");
+            getLog().println("btree storage, primary index");
+            getLog().println("-------------------------------------------------");
+            factory = new BtreeFactory();
+            storage = factory.createStorage(new HashMap());
+            storage.create (true, new Resolver());
+            random = new Random(RAND_VAL);
+            doPrimaryIndexTest(storage, "btree");
             
             /*
             // memory storage, multivalued index
@@ -143,7 +166,7 @@ public class StorageTest extends MDRTestCase {
         getLog().println("initial insertions time: " + totalTime);        
         if (index instanceof Btree) {
             TreeMetrics m = ((Btree) index).computeMetrics();
-            m.print();
+            m.print(getLog());
         }
         time = System.currentTimeMillis();
         
@@ -162,7 +185,7 @@ public class StorageTest extends MDRTestCase {
         totalTime += System.currentTimeMillis() - time;        
         if (index instanceof Btree) {
             TreeMetrics m = ((Btree) index).computeMetrics();
-            m.print();
+            m.print(getLog());
         }
         time = System.currentTimeMillis();
         storage.close();
@@ -213,7 +236,7 @@ public class StorageTest extends MDRTestCase {
         
         if (index instanceof Btree) {
             TreeMetrics m = ((Btree) index).computeMetrics();
-            m.print();
+            m.print(getLog());
         }
         time = System.currentTimeMillis();
         storage.close();
@@ -225,6 +248,130 @@ public class StorageTest extends MDRTestCase {
         getLog().println("#deletions: " + deletions);
     }
 
+    public void doSeveralIndexesTest(Storage storage, String info) throws StorageException {
+        final int KEYS_NUM = 10000;
+        final int VALUES_NUM = 1000;
+        final long OPS_NUM = 500000;
+        final int INDEXES_NUM = 50;
+        
+        MOFID[] keys = new MOFID[KEYS_NUM];
+        MOFID[] values = new MOFID[VALUES_NUM];
+        for (int x = 0; x < KEYS_NUM; x++) {
+            keys[x] = generateMOFID();
+        }
+        for (int x = 0; x < VALUES_NUM; x++) {
+            values[x] = generateMOFID();
+        }
+
+        Index[] indexes = new Index[INDEXES_NUM];
+        Storage.EntryType entryType = Storage.EntryType.MOFID;
+        for (int x = 0; x < INDEXES_NUM; x++) {
+            if (random.nextBoolean()) {
+                // singlevalued index
+                indexes[x] = storage.createSinglevaluedIndex("index" + x, entryType, entryType);
+            } else {
+                // multivalued index
+                boolean unique = random.nextBoolean();
+                boolean ordered = random.nextBoolean();
+                if (ordered) {
+                    indexes[x] = storage.createMultivaluedOrderedIndex("index" + x, entryType, entryType, unique);
+                } else {
+                    indexes[x] = storage.createMultivaluedIndex("index" + x, entryType, entryType, unique);
+                }
+            }
+        } // for
+
+        long time = System.currentTimeMillis();
+        long totalTime = 0;
+        long insertions = 0;
+        long deletions = 0;
+        
+        for (long x = 0; x < OPS_NUM; x++) {
+            MOFID key = keys[random.nextInt(KEYS_NUM)];
+            MOFID value = values[random.nextInt(VALUES_NUM)];
+            Index index = indexes[random.nextInt(INDEXES_NUM)];
+            if (index instanceof MultivaluedIndex) {
+                boolean remove = random.nextBoolean();
+                MultivaluedIndex multi = (MultivaluedIndex)index;
+                List list; 
+                if (multi instanceof MultivaluedOrderedIndex) {
+                    list = (List)multi.getItems(key);
+                } else {
+                    list = (List)multi.getItems(key);
+                }
+                boolean contained = list.contains(value);
+                int size = list.size();
+                if ((size > 0 && remove) || (multi.isUnique() && contained)) {
+                    list.remove(random.nextInt(size));
+                    deletions++;
+                } else {
+                    list.add(random.nextInt(size + 1), value);
+                    insertions++;
+                }
+            } else {
+                SinglevaluedIndex single = (SinglevaluedIndex)index;
+                if (single.getIfExists(key) != null) {
+                    single.remove(key);
+                    deletions++;
+                } else {
+                    single.add(key, value);
+                    insertions++;
+                }
+            }
+        }
+        storage.close();
+        totalTime = System.currentTimeMillis() - time;
+        getLog().println();
+        getLog().println(info + ", test time: " + totalTime);
+        getLog().println("#insertions: " + insertions);
+        getLog().println("#deletions: " + deletions);
+    }
+    
+    public void doPrimaryIndexTest(Storage storage, String info) throws StorageException {
+        final int ITEMS_NUM = 8000;
+        final long OPS_NUM = 500000;
+        
+        SinglevaluedIndex index = storage.getPrimaryIndex();
+        MOFID[] keys = new MOFID[ITEMS_NUM];
+        PrimaryItem[] values = new PrimaryItem[ITEMS_NUM];
+        for (int x = 0; x < ITEMS_NUM; x++) {
+            keys[x] = generateMOFID();
+            values[x] = new PrimaryItem();
+        }
+        
+        long time = System.currentTimeMillis();
+        long totalTime = 0;
+        long insertions = 0;
+        long deletions = 0;
+        
+        for (long x = 0; x < OPS_NUM; x++) {
+            int pos = random.nextInt(ITEMS_NUM);
+            MOFID key = keys[pos];
+            PrimaryItem value = values[pos];
+            Object val = index.getIfExists(key);
+            if (val == null) {
+                insertions++;
+                index.put(key, value);
+            } else {
+                deletions++;
+                index.remove(key);
+            }
+        }
+        totalTime = System.currentTimeMillis() - time;        
+        if (index instanceof Btree) {
+            TreeMetrics m = ((Btree) index).computeMetrics();
+            m.print(getLog());
+        }
+        time = System.currentTimeMillis();
+        storage.close();
+        
+        totalTime += System.currentTimeMillis() - time;
+        getLog().println();
+        getLog().println(info + ", test time: " + totalTime);
+        getLog().println("#insertions: " + insertions);
+        getLog().println("#deletions: " + deletions);
+    }
+    
     /*
     public void doTest3(Storage storage, String info) throws StorageException {
         final int KEYS_NUM = 100;
@@ -340,6 +487,43 @@ public class StorageTest extends MDRTestCase {
         public Object resolve(String storageID, Object key) {
             getLog().println("resolve object called");
             return new Object();
+        }
+        
+    }
+    
+    private static class PrimaryItem implements Streamable {
+        
+        private byte[] data;
+        
+        PrimaryItem() {
+            int length = StorageTest.random.nextInt(256);
+            data = new byte[length];
+            for (int x = 0; x < length; x++) {
+                data[x] = (byte)StorageTest.random.nextInt(256);
+            }
+        }
+        
+        public void read(java.io.InputStream is) throws StorageException {
+            try {
+                int length = is.read();
+                data = new byte[length];
+                for (int x = 0; x < length; x++) {
+                    data[x] = (byte)is.read();
+                }
+            } catch (IOException e) {
+                throw new StorageIOException(e);
+            }
+        }
+
+        public void write(java.io.OutputStream os) throws StorageException {
+            try {
+                os.write(data.length);
+                for (int x = 0; x < data.length; x++) {
+                    os.write(data[x]);
+                }
+            } catch (IOException e) {
+                throw new StorageIOException(e);
+            }
         }
         
     }
