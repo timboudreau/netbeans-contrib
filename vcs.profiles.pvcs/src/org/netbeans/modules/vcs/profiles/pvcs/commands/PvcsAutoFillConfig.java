@@ -16,18 +16,22 @@ package org.netbeans.modules.vcs.profiles.pvcs.commands;
 import java.io.File;
 import java.util.Hashtable;
 
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
+
 import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.util.Table;
+import org.netbeans.spi.vcs.commands.CommandSupport;
 
 /**
  * Automatic fill of configuration for PVCS
  * @author  Martin Entlicher
  */
 public class PvcsAutoFillConfig extends Object implements VcsAdditionalCommand,
-                                                          CommandDataOutputListener {
+                                                          RegexOutputListener {
     
     private static final String ERROR = " [Error]"; // NOI18N
     
@@ -52,26 +56,27 @@ public class PvcsAutoFillConfig extends Object implements VcsAdditionalCommand,
             stderrNRListener.outputLine("A get work location command name expected as an argument.");
             return false;
         }
-        VcsCommand cmd = fileSystem.getCommand(args[0]);
-        if (cmd == null) {
+        CommandSupport cmdSupp = fileSystem.getCommandSupport(args[0]);
+        if (cmdSupp == null) {
             stderrNRListener.outputLine("Unknown command '"+args[0]+"'.");
             return false;
         }
         String projectDB = (String) vars.get("PROJECT_DB");
         if (projectDB == null || projectDB.length() == 0) return true;
-        Table dummyFiles = new Table();
-        dummyFiles.put("foo.txt", null);
         work = null;
         failed = false;
-        VcsCommandExecutor[] execs = VcsAction.doCommand(dummyFiles, cmd, null, fileSystem,
-                                                         null, null, this, null);
+        Command cmd = cmdSupp.createCommand();
+        ((RegexOutputCommand) cmd).addRegexOutputListener(this);
+        CommandTask task = cmd.execute();
         try {
-            for (int i = 0; i < execs.length; i++) {
-                fileSystem.getCommandsPool().waitToFinish(execs[i]);
-            }
-        } catch (InterruptedException intrEx) {
+            task.waitFinished(0);
+        } catch (InterruptedException iex) {
+            task.stop();
+            Thread.currentThread().interrupt();
+            return false;
         }
-        if (failed || execs.length == 0 || execs[0].getExitStatus() != VcsCommandExecutor.SUCCEEDED) work = null;
+        failed = failed || (task.getExitStatus() != CommandTask.STATUS_SUCCEEDED);
+        if (failed) work = null;
         if (work != null) {
             try {
                 fileSystem.setRootDirectory(new java.io.File(work));
@@ -96,7 +101,7 @@ public class PvcsAutoFillConfig extends Object implements VcsAdditionalCommand,
      * This method is called, with elements of the output data.
      * @param elements the elements of output data.
      */
-    public void outputData(String[] elements) {
+    public void outputMatchedGroups(String[] elements) {
         if (elements[0] == null || elements[0].length() == 0) return ;
         if (elements[0].indexOf(ERROR) >= 0) {
             failed = true;
