@@ -1,0 +1,179 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Forte for Java - UserView</title>
+<link rel="StyleSheet" href="Forte.css" type="text/css" title="Forte-Sun Style"></head><body> 
+
+
+
+
+
+<h1>Forte for Java: CORBA Support<br> 
+User View</h1>
+
+
+
+
+<b>Version:</b> <i>0.1</i><br>
+
+
+
+
+<b>Author:</b> <i><a href="mailto:Karel.Gardas@sun.com">Karel Gardas</a>,<a href="mailto:Tomas.Zezula@sun.com">Tomas Zezula</a>, Sun Microsystems/NetBeans</i><br>
+
+
+
+
+
+<br>
+
+
+
+
+
+<dl><dt><b>Abstract:</b>
+</dt><dd>This document state how the user will work with the  Support module.  Show how to get to the main features. </dd></dl>
+
+
+
+
+
+<dl><dt><b>Document History:</b>
+	</dt><dd>[08/14/2000] : version 0.1 : {First version of the document}  </dd><dd><br>
+
+</dd></dl>
+
+
+
+
+<dl><dt><b>Contents:</b></dt>
+<dd>6. <a href="#6"> CORBA Naming System Browser</a> </dd>
+<dd>6.1 <a href="#6.1">Code Generation</a></dd>
+<dd>6.2 <a href="#6.2">Object Properties</a></dd>
+<dd>6.3 <a href="#6.3">Manipulation Functions</a></dd>
+<dd>7. <a href="#7">CORBA Interface Repository Browser</a></dd>
+<dd>7.1 <a href="#7.1">Code Generation</a></dd>
+<dd>7.2 <a href="#7.2">Object Properties</a></dd>
+<dd>8. <a href="#8">CORBA Wizard</a></dd>
+<dd>8.1 <a href="#8.1">Choosing Destination Package</a></dd>
+<dd>8.2 <a href="#8.2">Choosing Type of CORBA Application</a></dd>
+<dd>8.3 <a href="#8.3">Choosing ORB Implementation</a></dd>
+<dd>8.4 <a href="#8.4">Specifying IDL</a></dd>
+<dd>8.4.1 <a href="#8.4.1">Creating IDL</a></dd>
+<dd>8.4.2 <a href="#8.4.2">Importing IDL</a></dd>
+<dd>8.5 <a href="#8.5">Finishing CORBA Wizard</a></dd>
+</dl>
+
+
+
+
+
+<h2><a name="6">6. CORBA Naming System Browser</a></h2>
+
+   CORBA
+ Naming System Browser allows user to add new naming context, browse them,
+ and  generate code usable in developing server or client that use Naming
+ Service as bind method.  
+
+<h3><a name="6.1">6.1 Code Generation</a></h3> &nbsp;&nbsp;
+ &nbsp; User is able to generate lookup code to Clipboard from each Object in&nbsp;
+ the &nbsp; directory context hierarchy or binding code from Context objects by&nbsp;
+ selecting &nbsp; the desired node and choosing the copy action from pop up menu.&nbsp;
+ If the node represents NamingContext, than the user is able to copy binding&nbsp;
+ code, else if the node represents bound object the access code for this&nbsp;
+ object. After pasting the code to the instance of server or client template&nbsp;
+ user obtains fully functional code for manipulating with objects in Naming&nbsp;
+ Service.<br>
+ 
+<h4><a name="6.2">6.2 Object Properties</a></h4> &nbsp; &nbsp; Browser also
+ offers to user possibility to display detailed information&nbsp; about object
+ by selecting the corresponding node and choosing Properties&nbsp; action form
+ pop up menu. In these properties user can see the IOR (Inter operable&nbsp; Object
+ Reference) of the object, id (name displayed in browser) of object&nbsp; and
+ kind of object.<br>
+<h4><a name="6.3">6.3 Manipulation Function</a></h4>
+
+
+ &nbsp;&nbsp; CORBA Naming System Browser has also functions for creating new Naming
+ Contexts, binding new Objects or Contexts and unbinding them. These functions
+ can be accessed from&nbsp; pop up menu. <br>
+ &nbsp;&nbsp; When action for creating new context is activated the dialog appears. In this dialog user fills id and kind of new context.<br>
+ &nbsp; &nbsp; By activating bind new Object or Context action similar dialog appears.
+ In this dialog user fills id, kind and IOR or URL of resource containing
+ the IOR.<br>
+<br>
+<br>
+<h2><a name="7"> 7. CORBA Interface Repository Browser</a></h2>
+CORBA Interface Repository Browser allows user to add new interface repositories,&nbsp;
+ browse them, explore metadata contained in them and generate IDL (Interface&nbsp;
+ Definition Laguage) from them. The interface repository browser is also&nbsp;
+ used by CORBA Wizard to allow user import IDL definition directly from IR.<br>
+<h2></h2>
+<h4><a name="7.1">7.1 Code Generation</a></h4>
+<h4> </h4>
+ &nbsp;&nbsp; User is able to generate IDL source code for Interface Repository mounted
+ in&nbsp; the browser or for its reasonable part. The code generation action is
+ not allowed on nodes that can not be generated separately and must be generated
+ only as a member of some container, e.g. attribute or operation. The code
+ is generated into Clipboard and than can be pasted to target idl file. The
+ Copy Code action can be started by selected desired node and choosing the
+ action from pop up menu.<br>
+<br>
+<h4><a name="7.2">7.2 Object Properties</a></h4> &nbsp; &nbsp; &nbsp; Browser also
+ offers to user posibility to explore properties of objects&nbsp; in Interface
+ Repository. The properties contains for example RepositoryId&nbsp; of IDL type,
+ name, version and proprietary information that depends on kind&nbsp; of selected
+ object, for example&nbsp; for interface these information are: base&nbsp; interfaces.<br>
+<br>
+<h2><a name="8"> 8. CORBA Wizard</a></h2> &nbsp; &nbsp; CORBA Wizard helps
+ user to develop complete CORBA application. It leads&nbsp; user through all stages
+ of development of CORBA application, namely creating&nbsp; or importing IDL,
+ generating implementation files, creating of server and&nbsp; or client. <br>
+<br>
+<h4><a name="8.1">8.1 Choosing Destination Package</a></h4>
+ &nbsp;&nbsp; The first panel that appears in the CORBA Wizard lets user to select
+ destination package in mounted file systems and specify the name of IDL
+ file. From the name of IDL file will be also derived the names of client
+ and server. If the specified IDL file already exists in the destination
+ package the next button is disabled.<br>
+<br>
+<h4><a name="8.2">8.2 Choosing Type of CORBA Application</a></h4>
+ &nbsp;&nbsp; In the second panel user chooses which part of CORBA application would
+ like to create. If he wants to import IDL file or create it. If he wants
+ to generate implementation files, create client and or server.<br>
+<br>
+<h4><a name="8.3">8.3 Choosing ORB Implementation</a></h4>
+ &nbsp;&nbsp; The third panel lets user to specify which ORB Implementation and binding
+ method he would like to use. It also lets him specify if he wants to generate
+ inheriance based or tie based implementation files.<br>
+
+<h4><a name="8.4">8.4 Specifying IDL</a></h4>
+ &nbsp;&nbsp; The fourth panel is for creating ir importing IDL, its version depends on the value of Create IDL item in the second panel.<br>
+<br>
+<h4><a name="8.4.1">8.4.1 Creating IDL</a></h4>
+ &nbsp; This panel allows user to create IDL file using writable tree. The new
+ IDL entries are added by selecting parent container in tree and pressing
+ button that represents the desired data type in dynamic button panel. After
+ the buton is clicked the dialog appers, in this dialog user fills information
+ about IDL entity.<br>
+<br>
+<h4><a name="8.4.2">8.4.2 Importing IDL</a></h4>
+ &nbsp;&nbsp; This panel is design to import IDL either from file or from Interface Repository.<br>
+<br>
+<br>
+<h4><a name="8.5">8.5 Importing IDL</a></h4>
+ &nbsp; &nbsp; &nbsp; The last panel informs user about finishing of CORBA Wizard steps,
+ by pressing the Finish button wizard generates requested source code.<br>
+</body>
+</html>
