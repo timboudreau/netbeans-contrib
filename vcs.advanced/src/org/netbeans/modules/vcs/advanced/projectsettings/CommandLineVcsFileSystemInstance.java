@@ -20,6 +20,8 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,6 +41,8 @@ import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileChangeListener;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
@@ -60,6 +64,11 @@ import org.netbeans.modules.vcs.advanced.variables.VariableIO;
  */
 public class CommandLineVcsFileSystemInstance extends Object implements InstanceCookie.Of, FileChangeListener {
     
+    /**
+     * The FS Settings file extension.
+     */
+    public static final String SETTINGS_EXT = "xml"; // NOI18N
+    
     public static final String SETTINGS_ROOT_ELEM = "fssettings";               // NOI18N
     public static final String FS_PROPERTIES_ELEM = "fsproperties";               // NOI18N
     public static final String FS_PROPERTY_ELEM = "property";               // NOI18N
@@ -78,12 +87,12 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     private FileObject fo;
     /** The number of how many changes to the settings file should be ignored.
      *  Increased by save task, decreesed by the file change listener */
-    private int numIgnoredFileChanges = 0;
+    //private int numIgnoredFileChanges = 0;
     private Document doc;
     private InstanceContent ic;
     private FSPropertyChangeListener fsPropertyChangeListener;
-    private long timeIgnoreFileChange = 0L;
-    private static final int FILE_MODIFICATION_TIME_RANGE = 5000;
+    //private long timeIgnoreFileChange = 0L;
+    //private static final int FILE_MODIFICATION_TIME_RANGE = 500;
 
     static {
         try {
@@ -208,7 +217,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     public void setInstance(CommandLineVcsFileSystem fs) {
         CommandLineVcsFileSystem oldFs = (CommandLineVcsFileSystem) weakFsInstance.get();
         if (oldFs == fs) return ;
-        numIgnoredFileChanges = 0;
+        //numIgnoredFileChanges = 0;
         weakFsInstance = new WeakReference(fs);
         if (fs != null) {
             fsPropertyChangeListener = new FSPropertyChangeListener(fo);
@@ -221,11 +230,54 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         }
     }
     
+    public static DataObject createVcsInstanceDataObject(
+        FileObject folder, CommandLineVcsFileSystem fs, String settingsName) throws IOException {
+
+        return Creator.createVcsInstanceDataObject(folder, fs, settingsName);
+    }
+        
+    private static DataObject storeVcsSettings(
+        FileObject folder, CommandLineVcsFileSystem fs, String settingsName) throws IOException {
+
+            FileObject fo;
+            fo = folder.createData(settingsName, SETTINGS_EXT);
+            Document doc = createEmptyFSPropertiesDocument();
+            try {
+                writeFSProperties(fs, doc);
+            } catch (org.w3c.dom.DOMException dExc) {
+                TopManager.getDefault().notifyException(dExc);
+            }
+            FileLock lock = fo.lock();
+            OutputStream out = fo.getOutputStream(lock);
+            try {
+                org.openide.xml.XMLUtil.write(doc, out, null);
+            } finally {
+                out.close();
+                lock.releaseLock();
+            }
+            try {
+                DataObject myXMLDataObject = DataObject.find(fo);
+                //((CommandLineVcsFileSystemInstance) myXMLDataObject.getCookie(org.openide.cookies.InstanceCookie.Of.class)).setInstance(this);
+                org.openide.util.Lookup instanceLookup = org.openide.loaders.Environment.find(myXMLDataObject);
+                CommandLineVcsFileSystemInstance myInstance =
+                    (CommandLineVcsFileSystemInstance) instanceLookup.lookup(org.openide.cookies.InstanceCookie.class);
+                //myInstance.setIgnoreSubsequentFileChange(System.currentTimeMillis());
+                myInstance.setInstance(fs);
+                //firePropertyChange("writeAllProperties", null, null);
+                //System.out.println("createInstanceDataObject() = "+myXMLDataObject);
+                return myXMLDataObject;
+            } catch (DataObjectNotFoundException donfExc) {
+                throw new IOException(donfExc.getLocalizedMessage());
+            }
+    }
+    
     /** Ignore FileObject changes done right after this time.
-     */
+     *
     public void setIgnoreSubsequentFileChange(long time) {
         this.timeIgnoreFileChange = time + FILE_MODIFICATION_TIME_RANGE;
+        System.out.println("timeIgnoreFileChange = "+timeIgnoreFileChange);
     }
+     */
     
     private final Object MODULE_LST_LOCK = new Object();
     /** due to asynchronous firing of PROP_ENABLED from ModuleInfo implementation in core. */
@@ -573,6 +625,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
     
     public void fileChanged(org.openide.filesystems.FileEvent fileEvent) {
         //System.out.println("fileChanged("+fileEvent.getFile()+"), numIgnoredFileChanges = "+numIgnoredFileChanges);
+        /*
         if (numIgnoredFileChanges > 0) {
             numIgnoredFileChanges--;
             //System.out.println("  IGNORED.");
@@ -580,12 +633,17 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         }
         if (timeIgnoreFileChange > 0) {
             if (fileEvent.getFile().lastModified().getTime() <= timeIgnoreFileChange) {
-                //System.out.println("  IGNORED - time");
+                System.out.println("  IGNORED - time: "+fileEvent.getFile().lastModified().getTime()+" <= "+timeIgnoreFileChange);
                 return ;
             } else {
-                //System.out.println("  Time Expired.");
+                System.out.println("  Time Expired.");
                 timeIgnoreFileChange = 0L;
             }
+        }
+         */
+        if (Creator.isFiredFromMe (fileEvent) ||  getSaver().isFiredFromMe (fileEvent)) {
+            //System.out.println("  IGNORED.");
+            return;
         }
         //System.out.println("  NOT IGNORED.");
         setInstance(null);
@@ -649,6 +707,8 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 public void run() {
                     try {
                         if (fo == null) return ;
+                        getSaver().save(fo);
+                        /*
                         fo.getFileSystem().runAtomicAction(new org.openide.filesystems.FileSystem.AtomicAction() {
                             public void run() throws java.io.IOException {
                                 CommandLineVcsFileSystem fs = (CommandLineVcsFileSystem) weakFsInstance.get();
@@ -675,6 +735,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                                 }
                             }
                         });
+                         */
                     } catch (java.io.IOException ioExc) {
                         TopManager.getDefault().getErrorManager().notify(ioExc);
                     }
@@ -694,6 +755,117 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
             });
             return task;
         }
+        
+    }
+    
+    private static class Creator implements org.openide.filesystems.FileSystem.AtomicAction {
+        
+        private static final Creator me = new Creator();
+        
+        private FileObject folder = null;
+        private CommandLineVcsFileSystem fs = null;
+        private String settingsName = null;
+        private DataObject result = null;
+
+        private Creator() {
+        }
+        
+        /** Executed when it is guaranteed that no events about changes
+         * in filesystems will be notified.
+         *
+         * @exception IOException if there is an error during execution
+         */
+        public void run() throws IOException {
+            result = storeVcsSettings(folder, fs, settingsName);
+        }
+        
+        public static DataObject createVcsInstanceDataObject(
+            FileObject folder, CommandLineVcsFileSystem fs, String settingsName) throws IOException {
+
+            synchronized (me) {
+                me.folder = folder;
+                me.fs = fs;            
+                me.settingsName = settingsName;
+                
+                folder.getFileSystem().runAtomicAction(me);
+                
+                me.folder = null;
+                me.fs = null;            
+                me.settingsName = null;
+                DataObject result = me.result;
+                me.result = null;
+                return result;
+            }
+        }
+        
+        /** is file event originated by this Creator? */
+        public static boolean isFiredFromMe (org.openide.filesystems.FileEvent fe)  {
+            return fe.firedFrom(me);
+        }        
+
+    }
+    
+    private final Saver saver = new Saver (this);
+    /** get the Saver support */
+    private Saver getSaver() {
+        return saver;
+    }
+    
+    /** Support for storing instances allowing identify the origin of file events 
+     * fired as a consequence of this storing.
+     */
+    private static class Saver implements org.openide.filesystems.FileSystem.AtomicAction {
+        
+        private CommandLineVcsFileSystemInstance vfsInstance;
+        private FileObject fo = null;
+        
+        private Saver(CommandLineVcsFileSystemInstance vfsInstance) {
+            this.vfsInstance = vfsInstance;
+        }
+        
+        /** Executed when it is guaranteed that no events about changes
+         * in filesystems will be notified.
+         *
+         * @exception IOException if there is an error during execution
+         */
+        public void run() throws IOException {
+            CommandLineVcsFileSystem fs = (CommandLineVcsFileSystem) vfsInstance.weakFsInstance.get();
+            if (fs != null) {
+                Document doc = createEmptyFSPropertiesDocument();
+                writeFSProperties(fs, doc);
+                FileLock lock = null;
+                java.io.OutputStream out = null;
+                try {
+                    lock = fo.lock();
+                    out = fo.getOutputStream(lock);
+                    XMLUtil.write(doc, out, null);
+                    //System.out.println("  written to "+fo+", File = "+org.openide.filesystems.FileUtil.toFile(fo));
+                } finally {
+                    try {
+                        if (out != null) {
+                            //numIgnoredFileChanges++;
+                            //System.out.println("  numIgnoredFileChanges = "+numIgnoredFileChanges);
+                            out.close();
+                        }
+                    } catch (java.io.IOException ioexc) {}
+                    if (lock != null) lock.releaseLock();
+                }
+            }
+        }
+        
+        /** write down buffer to file
+         */
+        public void save (FileObject fo) throws IOException {
+            synchronized (this) {
+                this.fo = fo;
+                fo.getFileSystem().runAtomicAction(this);
+                this.fo = null;
+            }
+        }
+        /** is file event originated by this Saver? */
+        public boolean isFiredFromMe (org.openide.filesystems.FileEvent fe)  {
+            return fe.firedFrom(this);
+        }        
         
     }
     

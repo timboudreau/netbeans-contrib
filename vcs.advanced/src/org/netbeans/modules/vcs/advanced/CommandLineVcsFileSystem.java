@@ -59,11 +59,6 @@ import org.netbeans.modules.vcs.advanced.projectsettings.CommandLineVcsFileSyste
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends VcsFileSystem implements java.beans.PropertyChangeListener {
 
-    /**
-     * The FS Settings file extension.
-     */
-    public static final String SETTINGS_EXT = "xml"; // NOI18N
-    
     public static final String PROP_SHORT_FILE_STATUSES = "shortFileStatuses"; // NOI18N
     public static final String PROP_CONFIG = "config"; // NOI18N
     public static final String PROP_CONFIG_ROOT = "configRoot"; // NOI18N
@@ -1048,6 +1043,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         String settingsName = createNewFSSettingsName(folderFO);
         FileObject fo = null;
         try {
+            return CommandLineVcsFileSystemInstance.createVcsInstanceDataObject(folderFO, this, settingsName);
+        } catch (IOException ioex) {
+            return null;
+        }
+        /*
+        try {
             fo = folderFO.createData(settingsName, SETTINGS_EXT);
             org.w3c.dom.Document doc = CommandLineVcsFileSystemInstance.createEmptyFSPropertiesDocument();
             try {
@@ -1083,6 +1084,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             }
         }
         return null;
+         */
     }
     
     // Capabilities setters/getters
