@@ -7,23 +7,29 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.tasklist.usertasks;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
+import java.text.ParseException;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.core.TaskNode;
+import org.openide.DialogDescriptor;
 import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
 import org.openide.TopManager;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerPanel;
@@ -37,6 +43,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private ExplorerPanel explorerPanel;
     private BeanTreeView treeView;
     private Task parent = null;
+    private SimpleDateFormat format;
     
     private static boolean appendDefault = Settings.getDefault().getAppend();
     
@@ -48,6 +55,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         // Create a new item with the given suggested parent
         this.parent = parent;
         initComponents();
+        format = new SimpleDateFormat();
         
         // Initialize the Categories list
         Set categories = tlv.getCategories();
@@ -109,13 +117,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
             }
         }
         
-        // Trond: I removed this test since the user now may change the
-        // "subtask of" field.
-//        if ((parent == null) || (item != null)) {
-//                remove(subTaskCheckBox);
-//                remove(subtaskPanel);
-//        }
-
         if (item != null) {
             if (item.getSummary() != null) {
                 descriptionTextField.setText(item.getSummary());
@@ -136,6 +137,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
             }
             subTaskCheckBox.setSelected((item.getParent() != null) && 
                                         (item.getParent().getParent() != null));
+            setDueDate(item.getDueDate());
         }
         
         addSourceButton.addActionListener(this);
@@ -189,6 +191,9 @@ class EditTaskPanel extends JPanel implements ActionListener {
         fileTextField = new javax.swing.JTextField();
         lineLabel = new javax.swing.JLabel();
         lineTextField = new javax.swing.JTextField();
+        dueCheckBox = new javax.swing.JCheckBox();
+        dueDateTextField = new javax.swing.JTextField();
+        dueDateBrowseButton = new javax.swing.JButton();
         addLabel = new javax.swing.JLabel();
         beginningToggle = new javax.swing.JRadioButton();
         endToggle = new javax.swing.JRadioButton();
@@ -201,22 +206,22 @@ class EditTaskPanel extends JPanel implements ActionListener {
         descLabel.setLabelFor(descriptionTextField);
         descLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "Brief_Description")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 12);
     add(descLabel, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.weightx = 1.0;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(descriptionTextField, gridBagConstraints);
 
     detailsLabel.setLabelFor(detailsScrollPane);
     detailsLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "DetailsLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(detailsLabel, gridBagConstraints);
 
     detailsTextArea.setRows(5);
@@ -225,14 +230,14 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.weighty = 1.0;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(detailsScrollPane, gridBagConstraints);
 
     subTaskCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "SubtaskOf")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(subTaskCheckBox, gridBagConstraints);
 
     subtaskPanel.setLayout(new java.awt.BorderLayout());
@@ -240,16 +245,16 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.weightx = 1.0;
     gridBagConstraints.weighty = 1.0;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(subtaskPanel, gridBagConstraints);
 
     prioLabel.setLabelFor(priorityTextField);
     prioLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "PriorityLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(prioLabel, gridBagConstraints);
 
     priorityTextField.setColumns(20);
@@ -272,15 +277,15 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
     add(opt1Label, gridBagConstraints);
 
     categoryLabel.setLabelFor(categoryCombo);
     categoryLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "CategoryLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(categoryLabel, gridBagConstraints);
 
     categoryCombo.setEditable(true);
@@ -291,43 +296,76 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
     add(opt2Label, gridBagConstraints);
 
     fileCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "AssociatedFile")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(fileCheckBox, gridBagConstraints);
 
     fileTextField.setColumns(100);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = 7;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.weightx = 0.7;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(fileTextField, gridBagConstraints);
 
     lineLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "LineLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+    gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
     add(lineLabel, gridBagConstraints);
 
     lineTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.weightx = 0.5;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(lineTextField, gridBagConstraints);
+
+    dueCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "DueLabel")); // NOI18N();
+    dueCheckBox.addItemListener(new java.awt.event.ItemListener() {
+        public void itemStateChanged(java.awt.event.ItemEvent evt) {
+            dueCheckBoxItemStateChanged(evt);
+        }
+    });
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    add(dueCheckBox, gridBagConstraints);
+
+    dueDateTextField.setEditable(false);
+    dueDateTextField.setEnabled(false);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridwidth = 8;
+    gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    add(dueDateTextField, gridBagConstraints);
+
+    dueDateBrowseButton.setText("...");
+    dueDateBrowseButton.setEnabled(false);
+    dueDateBrowseButton.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            dueDateBrowseButtonActionPerformed(evt);
+        }
+    });
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    add(dueDateBrowseButton, gridBagConstraints);
 
     addLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "AddTo")); // NOI18N();
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(addLabel, gridBagConstraints);
 
     beginningToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
@@ -346,12 +384,50 @@ class EditTaskPanel extends JPanel implements ActionListener {
     addSourceButton.setText(NbBundle.getMessage(EditTaskPanel.class, "AddToSource")); // NOI18N();
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
     gridBagConstraints.weightx = 1.0;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(addSourceButton, gridBagConstraints);
 
     }//GEN-END:initComponents
+
+    /**
+     * Callback function to enable / disable the due-date fields
+     * @param evt the callback event
+     */
+    private void dueCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_dueCheckBoxItemStateChanged
+        if (evt.getID() == evt.ITEM_STATE_CHANGED) {
+            boolean enable = false;
+            if (evt.getStateChange() == evt.SELECTED) {
+                enable = true;
+            }
+            dueDateBrowseButton.setEnabled(enable);
+            dueDateTextField.setEnabled(enable);
+            dueDateTextField.setEditable(enable);
+        }
+    }//GEN-LAST:event_dueCheckBoxItemStateChanged
+
+    private void dueDateBrowseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dueDateBrowseButtonActionPerformed
+        if (evt.getID() == evt.ACTION_PERFORMED) {
+            DateSelectionPanel pnl = new DateSelectionPanel();
+            String title = NbBundle.getMessage(EditTaskPanel.class, "SelectDateLabel");
+            DialogDescriptor d = new DialogDescriptor(pnl, title);
+            d.setModal(true);
+            d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
+            d.setOptionType(NotifyDescriptor.OK_CANCEL_OPTION);
+            Dialog dlg = TopManager.getDefault().createDialog(d);
+            dlg.pack();
+            dlg.show();
+            
+            if (d.getValue() == NotifyDescriptor.OK_OPTION) {
+                Date due = pnl.getDate();
+                if (due != null) {
+                    SimpleDateFormat format = new SimpleDateFormat();
+                    dueDateTextField.setText(format.format(due));
+                }
+            }
+        }
+    }//GEN-LAST:event_dueDateBrowseButtonActionPerformed
     
     // TODO prioGroup is unused; get rid of it 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -362,10 +438,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JLabel addLabel;
     private javax.swing.JButton minusButton;
     private javax.swing.JScrollPane detailsScrollPane;
+    private javax.swing.JButton dueDateBrowseButton;
+    private javax.swing.JTextField dueDateTextField;
     private javax.swing.JCheckBox subTaskCheckBox;
     private javax.swing.JTextArea detailsTextArea;
     private javax.swing.JTextField fileTextField;
     private javax.swing.ButtonGroup prioGroup;
+    private javax.swing.JCheckBox dueCheckBox;
     private javax.swing.JComboBox categoryCombo;
     private javax.swing.JLabel detailsLabel;
     private javax.swing.JLabel lineLabel;
@@ -434,6 +513,51 @@ class EditTaskPanel extends JPanel implements ActionListener {
     
     void setLineNumber(int lineno) {
         lineTextField.setText(Integer.toString(lineno));
+    }
+    
+    /**
+     * get the due date
+     * @return the due date or null
+     */
+    Date getDueDate() {
+        Date ret;
+        if (dueCheckBox.isSelected()) {
+            try {
+                ret = format.parse(dueDateTextField.getText());
+            } catch (ParseException e) {
+                ret = null;
+            }
+        } else {
+            ret = null;
+        }
+        return ret;
+    }
+    
+    /**
+     * Set the due date field
+     * @param d the due date
+     */
+    void setDueDate(Date d) {
+        String s = null;
+        
+        if (d != null) {
+            s = format.format(d);
+        }
+
+        if (s != null) {
+            dueDateTextField.setText(s);
+            dueCheckBox.setSelected(true);
+            dueDateBrowseButton.setEnabled(true);
+            dueDateTextField.setEnabled(true);
+            dueDateTextField.setEditable(true);
+        } else {
+            dueDateTextField.setText("");
+            dueDateBrowseButton.setEnabled(false);
+            dueDateTextField.setEnabled(false);
+            dueCheckBox.setSelected(false);            
+            dueDateTextField.setEditable(false);
+        }
+        
     }
     
     // TODO - preserve this setting from run to run! (Unless you change
