@@ -747,7 +747,7 @@ public class CommandCustomizationSupport extends Object {
                         if (description == null) {
                             nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password")); // NOI18N
                         } else {
-                            nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("MSG_Password"), description); // NOI18N
+                            nd = new NotifyDescriptorInputPassword (g("MSG_Password"), g("TITL_Password"), description); // NOI18N
                         }
                         if (NotifyDescriptor.OK_OPTION.equals (DialogDisplayer.getDefault ().notify (nd))) {
                             password = nd.getInputText ();
