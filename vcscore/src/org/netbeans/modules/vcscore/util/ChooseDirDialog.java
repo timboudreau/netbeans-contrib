@@ -39,9 +39,16 @@ public class ChooseDirDialog extends JDialog {
 
     //-------------------------------------------
     static final long serialVersionUID =3391153941140021894L;
-    public ChooseDirDialog(Frame owner, File initialDir){
-        super( owner, "", true ); // NOI18N
-        setTitle( g("CTL_Select_directory") ); // NOI18N
+    
+    public ChooseDirDialog(Dialog owner, File initialDir) {
+        super(owner, g("CTL_Select_directory"), true);
+        this.initialDir=initialDir;
+        initComponents();
+        pack();
+    }
+    
+    public ChooseDirDialog(Frame owner, File initialDir) {
+        super(owner, g("CTL_Select_directory"), true); // NOI18N
         this.initialDir=initialDir;
         initComponents();
         pack();

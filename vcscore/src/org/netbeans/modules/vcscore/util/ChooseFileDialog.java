@@ -53,9 +53,17 @@ public class ChooseFileDialog extends JDialog {
 
     //-------------------------------------------
     static final long serialVersionUID =-4725583654994487624L;
+    
     public ChooseFileDialog(Frame owner, File initialDir, boolean propFileFilter) {
-        super(owner, "", true); // NOI18N
-        setTitle( g("CTL_Select_file") ); // NOI18N
+        super(owner, g("CTL_Select_file"), true); // NOI18N
+        this.initialDir = initialDir;
+        this.propFileFilter = propFileFilter;
+        initComponents();
+        pack();
+    }
+
+    public ChooseFileDialog(Dialog owner, File initialDir, boolean propFileFilter) {
+        super(owner, g("CTL_Select_file"), true); // NOI18N
         this.initialDir = initialDir;
         this.propFileFilter = propFileFilter;
         initComponents();
