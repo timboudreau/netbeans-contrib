@@ -494,6 +494,16 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     }
 
+    public String getToolTipText() {
+        int mode = getMode();
+        switch(mode) {
+            case CURRENT_FILE_MODE: return Util.getString("win-tt-c");
+            case OPENED_FILES_MODE: return Util.getString("win-tt-o");
+            case SELECTED_FOLDER_MODE: return Util.getString("win-tt-f");
+        }
+        return null;
+    }
+
     public String toString() {
         return "SourceTasksView@" + hashCode();
     }
@@ -1195,6 +1205,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         getRefresh().setEnabled(false);
         getTable().requestFocusInWindow();
 
+        putClientProperty(JComponent.TOOL_TIP_TEXT_KEY, getToolTipText());
     }
 
     /** User clicked selected folder, restore from cache or ask for context */
@@ -1277,6 +1288,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         } else {
             getMiniStatus().setText(Util.getMessage("restored", createLabel(selectedFolder)));
         }
+
+        putClientProperty(JComponent.TOOL_TIP_TEXT_KEY, getToolTipText());
     }
 
     private void handleRefresh() {
@@ -1383,6 +1396,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             getRefresh().setEnabled(false);
             getTable().requestFocusInWindow();
             updateMiniStatus();
+            putClientProperty(JComponent.TOOL_TIP_TEXT_KEY, getToolTipText());
         }
     }
 
