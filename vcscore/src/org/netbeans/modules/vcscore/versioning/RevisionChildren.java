@@ -38,7 +38,7 @@ public abstract class RevisionChildren extends Children.Keys implements ChangeLi
      * @param list the RevisionList, can be null
      */
     public RevisionChildren(RevisionList list) {
-        changeListenerToList = WeakListener.change (this, this);
+        changeListenerToList = WeakListeners.change (this, this);
         if (list != null) list.addChangeListener(changeListenerToList);
         this.list = list;
         stateChanged (null);

@@ -19,10 +19,8 @@ import java.util.*;
 import java.beans.*;
 import java.text.*;
 
-import org.openide.NotifyDescriptor;
 import org.openide.util.*;
 
-import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 
 /** Single user defined command.
@@ -623,18 +621,4 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
         setPropertiesFromFields();
     }
     
-    static String g(String s) {
-        return NbBundle.getBundle
-               ("org.netbeans.modules.vcscore.cmdline.Bundle").getString (s);
-    }
-    static String g(String s, Object obj) {
-        return MessageFormat.format (g(s), new Object[] { obj });
-    }
-    static String g(String s, Object obj1, Object obj2) {
-        return MessageFormat.format (g(s), new Object[] { obj1, obj2 });
-    }
-    static String g(String s, Object obj1, Object obj2, Object obj3) {
-        return MessageFormat.format (g(s), new Object[] { obj1, obj2, obj3 });
-    }
-        
 }

@@ -35,7 +35,7 @@ import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 import org.openide.util.WeakSet;
 import org.openide.util.actions.Presenter;
 import org.openide.util.actions.SystemAction;
@@ -96,7 +96,7 @@ public class VcsGlobalCommandsAction extends SystemAction implements Presenter.M
     private synchronized CommandsTree getGlobalCommands() {
         if (globalCommands == null) {
             Lookup.Result globalProvidersRes = Lookup.getDefault().lookup(new Lookup.Template(VcsCommandsProvider.class));
-            LookupListener providersLookupListener = (LookupListener) WeakListener.create(LookupListener.class, this, globalProvidersRes);
+            LookupListener providersLookupListener = (LookupListener) WeakListeners.create(LookupListener.class, this, globalProvidersRes);
             globalProvidersRes.addLookupListener(providersLookupListener);
             VcsCommandsProvider[] globalProviders = (VcsCommandsProvider[]) globalProvidersRes.allInstances().toArray(new VcsCommandsProvider[0]);
             globalCommands = getCommandsFromProviders(globalProviders);
@@ -142,7 +142,7 @@ public class VcsGlobalCommandsAction extends SystemAction implements Presenter.M
         for (int i = 0; i < providers.length; i++) {
             if (providers[i] instanceof CommandsTree.Provider) {
                 if (!listenedProviders.contains(providers[i])) {
-                    ((CommandsTree.Provider) providers[i]).addPropertyChangeListener(WeakListener.propertyChange(this, providers[i]));
+                    ((CommandsTree.Provider) providers[i]).addPropertyChangeListener(WeakListeners.propertyChange(this, providers[i]));
                     listenedProviders.add(providers[i]);
                 }
                 CommandsTree providerCommands = ((CommandsTree.Provider) providers[i]).getCommands();
