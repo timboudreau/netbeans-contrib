@@ -616,7 +616,12 @@ public class VcsUtilities {
         FileObject primary = null;
         DataObject lastData = null;
         for (Iterator it = fos.iterator(); it.hasNext(); ) {
-            FileObject fo = (FileObject) it.next();
+            Object obj = it.next();
+            if (!(obj instanceof FileObject)) {
+                list.add(obj);
+                continue;
+            }
+            FileObject fo = (FileObject) obj;
             DataObject data = null;
             try {
                 data = DataObject.find(fo);
