@@ -388,7 +388,8 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
         ORBSettingsWrapper __old = _M_client_binding;
 	_M_client_binding = __value;
-	this.setJavaTemplateTable ();
+        if (this ==((CORBASupportSettings)org.openide.options.SystemOption.findObject (CORBASupportSettings.class, true)).getActiveSetting())
+	    this.setJavaTemplateTable ();
         firePropertyChange ("_M_client_binding", __old, _M_client_binding);
 	this.cacheThrow ();
     }
@@ -414,7 +415,8 @@ public class ORBSettings implements java.io.Serializable {
 	    _M_property_change_support = new PropertyChangeSupport (this);
 	ORBSettingsWrapper __old = _M_server_binding;
 	_M_server_binding = __value;
-	this.setJavaTemplateTable ();
+        if (this == ((CORBASupportSettings)org.openide.options.SystemOption.findObject (CORBASupportSettings.class, true)).getActiveSetting())
+	    this.setJavaTemplateTable ();
 	firePropertyChange ("_M_server_binding", __old, _M_server_binding);
 	this.cacheThrow ();
 	//public void setServerBinding (String __value) {
