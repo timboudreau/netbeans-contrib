@@ -1181,6 +1181,9 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "",ACCESSIBILITY(DESCRIPTION_Text fie
                 <property name="runOnMultipleFiles">
                     <value xml:space="preserve">true</value>
                 </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Ignored"</value>
+                </property>
             </command>
             <command displayName="Refresh Recursively" name="LIST_SUB">
                 <property name="exec">
@@ -1191,6 +1194,9 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "",ACCESSIBILITY(DESCRIPTION_Text fie
                 </property>
                 <property name="onRoot">
                     <value xml:space="preserve">true</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Ignored"</value>
                 </property>
             </command>
         </command>
