@@ -50,6 +50,8 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
     private static final String AGAINST_ENG = "Against:"; // NOI18N
     private static final String AGAINST_LOC = org.openide.util.NbBundle.getBundle(VssListRecursive.class).getString("VSS_ProjectAgainst"); // NOI18N
     
+    private static final int LINE_LENGTH = 79;
+    
     private String dir = null; // The local dir being refreshed.
     private String relDir = null;
     private CommandOutputListener stdoutNRListener = null;
@@ -231,6 +233,7 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         if (!errMatch[0]) {
             flushLastFile();
             try {
+                projectPathContinued = null;
                 runCommand(vars, args[1], errMatch, new CommandDataOutputListener() {
                     public void outputData(String[] elements) {
                         statusOutputData(elements);
@@ -475,6 +478,10 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
                 projectPathContinued = null;
             } else {
                 projectPathContinued = folder;
+                if (line.length() < LINE_LENGTH) {
+                    // If the line is broken sooner, it's most probably at a space!
+                    projectPathContinued += " ";
+                }
                 return ;
             }
             folder = folder.replace(File.separatorChar, '/');
@@ -555,8 +562,24 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
     private void statusOutputData(String[] elements) {
         if (elements[0] == null) return;
         String file = elements[0].trim();
-        if (file.startsWith(PROJECT_PATH)) { // Listing of a folder from "dir" will follow
-            String folder = file.substring(PROJECT_PATH.length(), file.length() - 1);
+        if (projectPathContinued != null || file.startsWith(PROJECT_PATH)) { // Listing of a folder from "dir" will follow
+            String folder;
+            if (projectPathContinued != null) {
+                folder = projectPathContinued + file;
+            } else {
+                folder = file.substring(PROJECT_PATH.length());
+            }
+            if (folder.endsWith(":")) {
+                folder = folder.substring(0, folder.length() - 1);
+                projectPathContinued = null;
+            } else {
+                projectPathContinued = folder;
+                if (file.length() < LINE_LENGTH) {
+                    // If the line is broken sooner, it's most probably at a space!
+                    projectPathContinued += " ";
+                }
+                return ;
+            }
             folder = folder.replace(File.separatorChar, '/');
             if (folder.startsWith(relDir)) {
                 folder = folder.substring(relDir.length());
