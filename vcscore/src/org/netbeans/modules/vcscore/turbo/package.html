@@ -79,8 +79,8 @@ following client code (filesystem and commands) conversions
      simplified implementation
   <li>VcsFileSystem.getRealStatus() used in search, it also implements CacheHandlerListener
      to perform refresh
-  <li>cvsprofiles.list package STATUS_DEAD management, where should it be defined? Also VcsFilesystem.List.children().
-  <li>vcscore.commans package STATUS_IGNORED management, where should it be defined?
+  <li>VcsFilesystem.List.children() support for filtering out DEAD and scheduled files.
+      InList context we cannot use FileObject keyed access. Try parent, path tuble key.
   <li>VcsFactory.getStatusProvider() and getCacheProvider() replacements not investigated yet
   <li>RefreshCommandSupport in VCSFileSystem annotation and cvscore.cmdline formatting
 </ul>

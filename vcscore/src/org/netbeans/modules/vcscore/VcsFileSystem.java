@@ -2952,7 +2952,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         if (isHideShadowFiles() == false) { // show shadow files
             if (isShowDeadFiles() == false) {
-                // TODO hide dead files, where is defined dead status?
+                // TODO hide dead files, here we need to access status by non-fileobject
                 //files = filterDeadFilesOut(name,files);
             }
             if (files != null) {
@@ -3055,7 +3055,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         for (int i = 0; i < n; i++) {
             String file = (name.length() > 0) ? (name + "/" + (String) files.get(i)) : (String) files.get(i);
             if (cacheProvider != null && !cacheProvider.isFile(file)) continue;
-            if (VcsCacheFile.STATUS_DEAD.equals(statusProvider.getFileStatus(file))) {
+            if (Statuses.STATUS_DEAD.equals(statusProvider.getFileStatus(file))) {
                 files.remove(i--);
                 n--;
             }

@@ -617,32 +617,6 @@ public class CommandCustomizationSupport extends Object {
         return files;
     }
     
-    private static void deleteUnimportantFiles(VcsFileSystem fileSystem, Collection processedFiles) {
-        FileStatusProvider statusProvider = fileSystem.getStatusProvider();
-        String localFileStatus = (statusProvider != null) ? statusProvider.getLocalFileStatus() : null;
-        String ignoredFileStatus = org.netbeans.modules.vcscore.caching.VcsCacheFile.STATUS_IGNORED;
-        for (Iterator filesIt = getAllFilesAssociatedWith(fileSystem, processedFiles).iterator(); filesIt.hasNext(); ) {
-            org.openide.filesystems.FileObject fo = (org.openide.filesystems.FileObject) filesIt.next();
-            String name = fo.getPath();
-            if (!fileSystem.isImportant(name)) {
-                if (statusProvider != null) {
-                    String status = statusProvider.getFileStatus(name);
-                    // Do not delete unimportant files, that are version controled.
-                    if (!(localFileStatus.equals(status) || ignoredFileStatus.equals(status))) continue;
-                }
-                if (fo != null) {
-                    try {
-                        fo.delete(fo.lock());
-                    } catch (java.io.IOException ioexc) {}
-                } else {
-                    try {
-                        fileSystem.delete(name);
-                    } catch (java.io.IOException ioexc) {}
-                }
-            }
-        }
-    }
-    
     /**
      * Find out which additional user parameters prompt the use for.
      * @return The table of parameter labels for the user to input, one for each parameter

@@ -92,6 +92,7 @@ public final class TurboUtil {
         FileObject folder = fileSystem.findResource(path);    // "" denotes root
         assert folder.isFolder();
 
+        // TODO set [local] and [ignored] statuses overhere
         FileObject[] localCandidates = folder.getChildren();
         Iterator it = rawData.iterator();
         while (it.hasNext()) {

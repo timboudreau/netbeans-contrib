@@ -20,6 +20,7 @@ import java.text.*;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.turbo.Statuses;
 import org.netbeans.modules.vcscore.caching.VcsCacheFile;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
@@ -212,7 +213,7 @@ public class CvsListCommand extends AbstractListCommand {
             if (statuses == null) {
                 statuses = new String[7];
                 statuses[0] = fileName;
-                statuses[1] = VcsCacheFile.STATUS_DEAD;
+                statuses[1] = Statuses.STATUS_DEAD;
                 filesByName.put(fileName, statuses);
             }
             pos = eolIndex;
