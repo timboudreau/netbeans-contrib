@@ -38,11 +38,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private BeanTreeView treeView;
     private Task parent = null;
     
+    private static boolean appendDefault = Settings.getDefault().getAppend();
+    
     /** Creates new form NewTodoItemPanel.
         @param parent A possible suggestion for a parent 
         @param item Item to edit. If null, create new.
      */
-    EditTaskPanel(UserTaskList tlv, UserTask parent, UserTask item) {
+    EditTaskPanel(UserTaskList tlv, UserTask parent, UserTask item, boolean editing) {
         // Create a new item with the given suggested parent
         this.parent = parent;
         initComponents();
@@ -142,7 +144,20 @@ class EditTaskPanel extends JPanel implements ActionListener {
         
         descriptionTextField.requestDefaultFocus();
         descriptionTextField.requestFocus();
-        
+
+        if (editing) {
+            remove(addLabel);
+            remove(beginningToggle);
+            remove(endToggle);
+            remove(addSourceButton);
+        } else {
+            boolean append = appendDefault;
+            if (append) {
+                endToggle.setSelected(true);
+            } else {
+                beginningToggle.setSelected(true);
+            }
+        }
     }
     
     /** This method is called from within the constructor to
@@ -154,6 +169,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
         java.awt.GridBagConstraints gridBagConstraints;
 
         prioGroup = new javax.swing.ButtonGroup();
+        appendGroup = new javax.swing.ButtonGroup();
         descLabel = new javax.swing.JLabel();
         descriptionTextField = new javax.swing.JTextField();
         detailsLabel = new javax.swing.JLabel();
@@ -173,6 +189,9 @@ class EditTaskPanel extends JPanel implements ActionListener {
         fileTextField = new javax.swing.JTextField();
         lineLabel = new javax.swing.JLabel();
         lineTextField = new javax.swing.JTextField();
+        addLabel = new javax.swing.JLabel();
+        beginningToggle = new javax.swing.JRadioButton();
+        endToggle = new javax.swing.JRadioButton();
         addSourceButton = new javax.swing.JButton();
 
         setLayout(new java.awt.GridBagLayout());
@@ -182,22 +201,22 @@ class EditTaskPanel extends JPanel implements ActionListener {
         descLabel.setLabelFor(descriptionTextField);
         descLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "Brief_Description")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 12);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(descLabel, gridBagConstraints);
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.weightx = 1.0;
     gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.weightx = 1.0;
     add(descriptionTextField, gridBagConstraints);
 
     detailsLabel.setLabelFor(detailsScrollPane);
     detailsLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "DetailsLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(detailsLabel, gridBagConstraints);
 
     detailsTextArea.setRows(5);
@@ -206,14 +225,14 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-    gridBagConstraints.weighty = 1.0;
     gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.weighty = 1.0;
     add(detailsScrollPane, gridBagConstraints);
 
     subTaskCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "SubtaskOf")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(subTaskCheckBox, gridBagConstraints);
 
     subtaskPanel.setLayout(new java.awt.BorderLayout());
@@ -221,16 +240,16 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     gridBagConstraints.weightx = 1.0;
     gridBagConstraints.weighty = 1.0;
-    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
     add(subtaskPanel, gridBagConstraints);
 
     prioLabel.setLabelFor(priorityTextField);
     prioLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "PriorityLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(prioLabel, gridBagConstraints);
 
     priorityTextField.setColumns(20);
@@ -253,15 +272,15 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(opt1Label, gridBagConstraints);
 
     categoryLabel.setLabelFor(categoryCombo);
     categoryLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "CategoryLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(categoryLabel, gridBagConstraints);
 
     categoryCombo.setEditable(true);
@@ -272,44 +291,64 @@ class EditTaskPanel extends JPanel implements ActionListener {
 
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(opt2Label, gridBagConstraints);
 
     fileCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "AssociatedFile")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     add(fileCheckBox, gridBagConstraints);
 
     fileTextField.setColumns(100);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = 7;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.weightx = 0.7;
     gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.weightx = 0.7;
     add(fileTextField, gridBagConstraints);
 
     lineLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "LineLabel")); // NOI18N);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
     gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 12);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
     add(lineLabel, gridBagConstraints);
 
     lineTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
     gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-    gridBagConstraints.weightx = 0.5;
     gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.weightx = 0.5;
     add(lineTextField, gridBagConstraints);
+
+    addLabel.setText(NbBundle.getMessage(EditTaskPanel.class, "AddTo")); // NOI18N();
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    add(addLabel, gridBagConstraints);
+
+    beginningToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
+    appendGroup.add(beginningToggle);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    add(beginningToggle, gridBagConstraints);
+
+    endToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N();
+    appendGroup.add(endToggle);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    add(endToggle, gridBagConstraints);
 
     addSourceButton.setText(NbBundle.getMessage(EditTaskPanel.class, "AddToSource")); // NOI18N();
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+    gridBagConstraints.weightx = 1.0;
     add(addSourceButton, gridBagConstraints);
 
     }//GEN-END:initComponents
@@ -319,6 +358,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JLabel categoryLabel;
     private javax.swing.JPanel subtaskPanel;
     private javax.swing.JCheckBox fileCheckBox;
+    private javax.swing.ButtonGroup appendGroup;
+    private javax.swing.JLabel addLabel;
     private javax.swing.JButton minusButton;
     private javax.swing.JScrollPane detailsScrollPane;
     private javax.swing.JCheckBox subTaskCheckBox;
@@ -332,6 +373,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JLabel descLabel;
     private javax.swing.JButton plusButton;
     private javax.swing.JTextField priorityTextField;
+    private javax.swing.JRadioButton beginningToggle;
+    private javax.swing.JRadioButton endToggle;
     private javax.swing.JTextField lineTextField;
     private javax.swing.JTextField descriptionTextField;
     private javax.swing.JLabel opt2Label;
@@ -391,6 +434,13 @@ class EditTaskPanel extends JPanel implements ActionListener {
     
     void setLineNumber(int lineno) {
         lineTextField.setText(Integer.toString(lineno));
+    }
+    
+    // TODO - preserve this setting from run to run! (Unless you change
+    // the default!)
+    boolean getAppend() {
+        appendDefault = endToggle.isSelected();
+        return appendDefault;
     }
 
     Task getParentItem() {
