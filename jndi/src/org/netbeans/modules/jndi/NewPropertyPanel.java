@@ -15,6 +15,7 @@ package org.netbeans.modules.jndi;
 
 import javax.swing.JTextField;
 import javax.swing.JLabel;
+import org.openide.util.NbBundle;
 
 /** Property panel for specifying additional properties
  *
@@ -30,9 +31,9 @@ final class NewPropertyPanel extends GridBagPanel {
     public NewPropertyPanel() {
         name = new JTextField(20);
         value= new JTextField(20);
-        add(new JLabel("Property Name:"),1,1,1,1,8,8,8,8);
+        add(new JLabel(NbBundle.getBundle(NewPropertyPanel.class).getString("TXT_PropertyName")),1,1,1,1,8,8,8,8);
         add(this.name,2,1,2,1,8,0,8,8);
-        add(new JLabel("Property Value:"),1,2,1,1,0,8,8,8);
+        add(new JLabel(NbBundle.getBundle(NewPropertyPanel.class).getString("TXT_PropertyValue")),1,2,1,1,0,8,8,8);
         add(this.value,2,2,2,1,0,0,8,8);
     }
 
