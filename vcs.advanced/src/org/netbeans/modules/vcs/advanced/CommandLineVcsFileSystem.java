@@ -168,6 +168,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private Set compatibleOSs = null;
     private Set uncompatibleOSs = null;
     private transient boolean doInitialCheckout = false; // whether to do an initial checkout after the FS is mounted
+    private transient boolean isFSAdded = false; // Whether the filesystem is added into the repository
     private transient PropertyChangeListener sharedPasswordChangeListener;
     private Object sharedPasswordKey = null;
 
@@ -222,7 +223,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                     "system"+File.separator+"vcs"+File.separator+"cache"; // NOI18N
         cachePath = createNewCacheDir();
         //System.out.println("  cachePath = "+cachePath);
-        setCreateVersioningSystem(true);
+        // Be conservative, create the VersioningFS only when REVISION_LIST command is defined.
+        setCreateVersioningSystem(false);
         try {
             setRootDirectory(getRootDirectory(), true);
         } catch (PropertyVetoException vetoExc) {
@@ -441,7 +443,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     /**
      * Notification, that the filesystem is being added to the repository
      */
-    public void addNotify() {
+    protected void notifyFSAdded() {
         if (this.doInitialCheckout) {
             Table files = new Table();
             files.put("", findResource(""));
@@ -450,17 +452,19 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 VcsAction.doCommand(files, cmd, null, this);
             }
         }
-        super.addNotify();
+        super.notifyFSAdded();
+        this.isFSAdded = true;
     }    
     
-    public void removeNotify() {
+    public void notifyFSRemoved() {
         File dir = new File (cachePath);
         if(dir.exists () && dir.isDirectory () && dir.canWrite ()) {
             if(!VcsUtilities.deleteRecursive(dir)) {
                 // Ignored. Let it be, when I can not remove it.
             }
         }
-        super.removeNotify();
+        super.notifyFSRemoved();
+        this.isFSAdded = false;
     }
     
     public boolean readConfigurationCompat (String configFileName) {
@@ -500,6 +504,21 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         D.deb("readConfiguration() done"); // NOI18N
         setConfig(label);
         return true;
+    }
+    
+    public void setCommands(CommandsTree root) {
+        boolean isCreateVFS = isCreateVersioningSystem();
+        boolean isExistsVFS = getVersioningFileSystem() != null;
+        super.setCommands(root);
+        boolean shouldBeCreatedVFS = getCommandSupport(VcsCommand.NAME_REVISION_LIST) != null;
+        if (isCreateVFS != shouldBeCreatedVFS) {
+            setCreateVersioningSystem(shouldBeCreatedVFS);
+            if (isExistsVFS && !shouldBeCreatedVFS) {
+                removeVersioningFileSystem();
+            } else if (!isExistsVFS && isFSAdded && shouldBeCreatedVFS) {
+                createVersioningFileSystem();
+            }
+        }
     }
 
     /**
@@ -1242,7 +1261,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setIgnoreListSupport(new GenericIgnoreListSupport());
         if (!isCreateBackupFilesSet()) setCreateBackupFiles(true);
         if (!isFilterBackupFilesSet()) setFilterBackupFiles(true);
-        setCreateVersioningSystem(true);
+        // Be conservative, create the VersioningFS only when REVISION_LIST command is defined.
+        setCreateVersioningSystem(false);
         // We're deserializing the FS. There might be some necessary conversions in variable values:
         convertVarValues();
     }
