@@ -98,10 +98,12 @@ public class AdditionalCommands extends PVCSStub {
         
         test.mkdirs();
         another.mkdirs ();
-        refresh (root);
+        root.pvcsNode ().pVCSRefresh ();
+        history.waitCommand ("Refresh", root.history ());
         test.waitStatus ("Local");
         createProject (test);
-        refresh (test);
+        test.pvcsNode ().pVCSRefresh ();
+        history.waitCommand ("Refresh", test.history ());
         another.waitStatus ("Local");
         createProject (another);
 

@@ -111,7 +111,8 @@ public class StubAllTogether extends PVCSStub {
 
     public void testCreateProject () {
         another.mkdirs ();
-        refresh (root);
+        root.pvcsNode ().pVCSRefresh ();
+        history.waitCommand ("Refresh", root.history ());
         test.waitStatus ("Local");
         createProject (test);
         another.waitStatus ("Local");

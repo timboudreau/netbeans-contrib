@@ -111,7 +111,7 @@ public abstract class PVCSStub extends GenericStub {
     }
     
     protected void prepareClient () {
-//        root.waitHistory ("Refresh");
+        history.waitCommand("Refresh", root.history ());
         root.pvcsNode().pVCSCreateProjectDatabase();
         root.waitHistory("Create Project Database");
     }
