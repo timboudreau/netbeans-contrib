@@ -441,7 +441,8 @@ public class VariableInputDescriptor extends Object {
             if (begin > 0) {
                 int end = inputArgs[3].lastIndexOf(INPUT_STR_ARG_CLOSE);
                 if (end < 0) end = inputArgs[3].length();
-                setA11y(inputArgs[3].substring(begin + 1, end), component);
+                setA11y(VcsUtilities.getBundleString(resourceBundles, inputArgs[3].substring(begin + 1, end)),
+                        component);
             }
             argNum = 4;
         } else {
