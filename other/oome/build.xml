@@ -8,7 +8,7 @@ compliance with the License. A copy of the License is available at
 http://www.sun.com/
 
 The Original Code is NetBeans. The Initial Developer of the Original
-Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
@@ -39,7 +39,7 @@ Microsystems, Inc. All Rights Reserved.
     </copy>
     
     <echo message="Building Insane"/>
-    <javac srcdir="tmp_insanesrc" destdir="tmp_insanesrc" deprecation="${build.compiler.deprecation}" debug="true" verbose="true">
+    <javac srcdir="tmp_insanesrc" destdir="src" deprecation="${build.compiler.deprecation}" debug="true" verbose="true">
     </javac>
   </target>
   
