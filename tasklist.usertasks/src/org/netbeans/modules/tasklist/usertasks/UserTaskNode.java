@@ -16,6 +16,8 @@ package org.netbeans.modules.tasklist.usertasks;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditorManager;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -100,13 +102,29 @@ class UserTaskNode extends TaskNode {
     // Leaf
     UserTaskNode(UserTask item) {
         super(item);
+        init();
     } 
 
     // Non-leaf/parent
     UserTaskNode(UserTask item, List subtasks) {
         super(item, subtasks);
+        init();
     }
 
+    /**
+     * Common part of both constructors
+     */
+    private void init() {
+        item.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent e) {
+                String n = e.getPropertyName();
+                if (n == "started" || n == "spentTimeComputed") {
+                    fireCookieChange();
+                }
+            }
+        });
+    }
+    
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):
     public Node cloneNode () {
 	UserTask uitem = (UserTask)item;
@@ -384,6 +402,19 @@ class UserTaskNode extends TaskNode {
         return null;
     }
 
+    public org.openide.nodes.Node.Cookie getCookie(Class type) {
+	UserTask uitem = (UserTask) item;
+        if (type == StartCookie.class) {
+            if (uitem.isStarted() || uitem.getParent() == null ||
+            uitem.isSpentTimeComputed())
+                return null;
+            else
+                return new StartCookie(uitem);
+        } else {
+            return super.getCookie(type);
+        }
+    }
+    
     /**
      * Paste type for a pasted task
      */
