@@ -29,8 +29,8 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="jars" depends="compile">
-        <mkdir dir="netbeans/modules/autoload"/>
-        <jar jarfile="netbeans/modules/${project}.jar"
+        <mkdir dir="netbeans/modules/eager"/>
+        <jar jarfile="netbeans/modules/eager/${project}.jar"
              manifest="manifest.mf"
              basedir="src"
 	     excludesfile="${nb_all}/nbbuild/standard-jar-excludes.txt"
@@ -41,14 +41,14 @@ Microsystems, Inc. All Rights Reserved.
     
     <target name="reload" depends="jars">
         <mkdir dir="reload"/>
-        <copy file="netbeans/modules/autoload/${project}.jar" tofile="reload/${project}.jar"/>
+        <copy file="netbeans/modules/eager/${project}.jar" tofile="reload/${project}.jar"/>
         <nbinstaller module="reload/${project}.jar" action="reinstall"/>
     </target>
  
     <target name="nbm" depends="netbeans">
         <makenbm file="${project}.nbm"
                  topdir="."
-                 module="netbeans/modules/autoload/${project}.jar"
+                 module="netbeans/modules/eager/${project}.jar"
                  needsrestart="false"
                  distribution="http://${dist.base}/${project}.nbm">
             <license file="${license.file}"/>
