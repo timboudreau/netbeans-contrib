@@ -63,6 +63,12 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
     </folder>
 
+    <folder name="Shortcuts">
+        <file name="C-8.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.docscan.SourceTasksAction"/>
+        </file>
+    </folder>
+
     <folder name="TaskList">
         <folder name="sourcetasks">
             <file name="columns.settings" url="sourcetasks_columns.xml">
