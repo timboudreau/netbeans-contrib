@@ -27,9 +27,18 @@ import org.openide.DialogDisplayer;
  *
  * @author  builder
  */
-public class AddVcsGroupAction extends NodeAction {
+public class AddVcsGroupAction extends NodeAction implements Runnable {
 
     private static final long serialVersionUID = -3385132838696775732L;
+    
+    private String newName;
+    
+    /**
+     * @return false to run in AWT thread.
+     */
+    protected boolean asynchronous() {
+        return false;
+    }
     
     protected void performAction (Node[] nodes) {
         // do work based on the current node selection, e.g.:
@@ -39,7 +48,15 @@ public class AddVcsGroupAction extends NodeAction {
         Object retValue = DialogDisplayer.getDefault().notify(line);
         if (!retValue.equals(DialogDescriptor.OK_OPTION)) return;
         
-        String newName = line.getInputText();
+        this.newName = line.getInputText();
+        org.openide.util.RequestProcessor.getDefault().post(this);
+    }
+
+    /**
+     * Perform the actual addition.
+     */
+    public void run() {
+        if (newName != null) return ;
         DataFolder rootFolder = GroupUtils.getMainVcsGroupFolder();
         if (rootFolder != null) {
             try {
@@ -54,13 +71,13 @@ public class AddVcsGroupAction extends NodeAction {
                 writer.close();
                 FileObject group = rootFolder.getPrimaryFile().createFolder(foldName);
             } catch (IOException exc) {
-                System.out.println("error TODO - show messgae");
+                ErrorManager.getDefault().notify(exc);
             }
         }
              
         // ...
     }
-
+    
     protected boolean enable (Node[] nodes) {
         // e.g.:
         return true;

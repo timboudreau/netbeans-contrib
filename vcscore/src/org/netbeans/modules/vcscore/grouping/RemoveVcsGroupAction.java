@@ -36,9 +36,11 @@ import org.openide.filesystems.*;
  *
  * @author  builder
  */
-public class RemoveVcsGroupAction extends NodeAction {
+public class RemoveVcsGroupAction extends NodeAction implements Runnable {
 
     private static final long serialVersionUID = 2854875989517967757L;
+    
+    private DataFolder group; // The group to be removed.
     
     protected void performAction (Node[] nodes) {
         // do work based on the current node selection, e.g.:
@@ -137,6 +139,13 @@ public class RemoveVcsGroupAction extends NodeAction {
         }
     }    
 
+    /**
+     * @return false to run in AWT thread.
+     */
+    protected boolean asynchronous() {
+        return false;
+    }
+    
     public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
         String groupName = actionEvent.getActionCommand();
         Node grFolder = GroupUtils.getMainVcsGroupNodeInstance();
@@ -160,14 +169,24 @@ public class RemoveVcsGroupAction extends NodeAction {
             return;
         }
         if (retValue.equals(NotifyDescriptor.YES_OPTION)) {
-            try {
-                group.delete();
-            } catch (IOException exc) {
-                NotifyDescriptor excMess = new NotifyDescriptor.Message(
-                   NbBundle.getBundle(RemoveVcsGroupAction.class).getString("RemoveVcsGroupAction.removingError"), //NOI18N
-                   NotifyDescriptor.ERROR_MESSAGE);
-                DialogDisplayer.getDefault().notify(excMess);
-            }
+            this.group = group;
+            // Remove asynchronously so that AWT is not blocked:
+            org.openide.util.RequestProcessor.getDefault().post(this);
+        }
+    }
+    
+    /**
+     * Perform the actual delete of the group.
+     */
+    public void run() {
+        if (group == null) return ;
+        try {
+            group.delete();
+        } catch (IOException exc) {
+            NotifyDescriptor excMess = new NotifyDescriptor.Message(
+               NbBundle.getBundle(RemoveVcsGroupAction.class).getString("RemoveVcsGroupAction.removingError"), //NOI18N
+               NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notify(excMess);
         }
     }
     

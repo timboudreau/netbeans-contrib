@@ -41,15 +41,18 @@ public class KillRunningCommandAction extends NodeAction {
         return g("CTL_Kill_Running_Command_Action"); // NOI18N
     }
 
+    /**
+     * @return false to run in AWT thread.
+     */
+    protected boolean asynchronous() {
+        return false;
+    }
+    
     public void performAction(Node[] nodes) {
         for (int i = 0; i < nodes.length; i++) {
             final RuntimeCommand comm = (RuntimeCommand) nodes[i].getCookie(RuntimeCommand.class);
             if (comm != null) {
-                javax.swing.SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        comm.killCommand();
-                    }
-                });
+                comm.killCommand();
             }
         }
     }

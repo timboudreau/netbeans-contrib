@@ -43,11 +43,12 @@ import org.netbeans.modules.vcscore.versioning.RevisionItem;
  *
  * @author  Martin Entlicher
  */
-public class VcsRevisionAction extends NodeAction implements ActionListener {
+public class VcsRevisionAction extends NodeAction implements ActionListener, Runnable {
 
     protected WeakReference fileSystem = new WeakReference(null);
     protected WeakReference fileObject = new WeakReference(null);
     protected Collection selectedRevisionItems = null;
+    private String commandName;
 
     private static final long serialVersionUID = 8803248742536265293L;
     
@@ -96,6 +97,13 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
         return NbBundle.getMessage(VcsRevisionAction.class, "CTL_Revision_Action"); // NOI18N
     }
 
+    /**
+     * @return false to run in AWT thread.
+     */
+    protected boolean asynchronous() {
+        return false;
+    }
+    
     //-------------------------------------------
     public void performAction(Node[] nodes){
         //D.deb("performAction()"); // NOI18N
@@ -237,31 +245,31 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
     
     public void actionPerformed(final java.awt.event.ActionEvent e){
         //D.deb("actionPerformed("+e+")"); // NOI18N
-        String cmd = e.getActionCommand();
+        this.commandName = e.getActionCommand();
         //D.deb("cmd="+cmd); // NOI18N
-        //Node[] nodes = getActivatedNodes();
+        org.openide.util.RequestProcessor.getDefault().post(this);
+    }
+    
+    private String getBranch(RevisionItem[] items) {
+        String branchTag = "";
+        for (int i = 0; i < items.length; i++) {
+            if (items[0] != null && items[0].isBranch()) {
+                String[] tags = items[0].getTagNames();
+                if (tags.length > 0) branchTag = tags[0];
+            }
+        }
+        return branchTag;
+    }
+    
+    /**
+     * Actually perform the action.
+     */
+    public void run() {
+        if (this.commandName == null) return ;
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
         FileObject fo = (FileObject) this.fileObject.get();
         if (fileSystem == null || fo == null) return ;
         RevisionItem[] items = (RevisionItem[]) selectedRevisionItems.toArray(new RevisionItem[0]);
-        /*
-        if (nodes.length == 0) {
-            //E.err("internal error nodes.length<1 TODO");
-            return ;
-        } else {
-            for (int i = 0; i < nodes.length; i++) {
-                if (nodes[i] instanceof RevisionNode) {
-                    VcsFileSystem nodeFS = (VcsFileSystem) ((RevisionNode) nodes[i]).getFileSystem();
-                    FileObject nodeFO = ((RevisionNode) nodes[i]).getFileObject();
-                    if (fileSystem == null) fileSystem = nodeFS;
-                    else if (fileSystem != nodeFS) return ;
-                    if (fo == null) fo = nodeFO;
-                    else if (fo != nodeFO) return ;
-                }
-            }
-            if (fileSystem == null) return ;
-        }
-         */
         Table files = new Table();
         String mimeType = fo.getMIMEType();
         String fileName = fo.getPackageNameExt('/', '.');
@@ -279,18 +287,7 @@ public class VcsRevisionAction extends NodeAction implements ActionListener {
         //D.deb("files="+files); // NOI18N
 
         //doCommand (files, cmd, fileSystem);
-        VcsAction.doCommand(files, fileSystem.getCommand(cmd), additionalVars, fileSystem);
-    }
-    
-    private String getBranch(RevisionItem[] items) {
-        String branchTag = "";
-        for (int i = 0; i < items.length; i++) {
-            if (items[0] != null && items[0].isBranch()) {
-                String[] tags = items[0].getTagNames();
-                if (tags.length > 0) branchTag = tags[0];
-            }
-        }
-        return branchTag;
+        VcsAction.doCommand(files, fileSystem.getCommand(commandName), additionalVars, fileSystem);
     }
     
 }

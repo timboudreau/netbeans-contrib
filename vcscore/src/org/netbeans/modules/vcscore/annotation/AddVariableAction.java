@@ -52,6 +52,13 @@ public class AddVariableAction extends NodeAction {
         return null;
     }
     
+    /**
+     * @return false to run in AWT thread.
+     */
+    protected boolean asynchronous() {
+        return false;
+    }
+    
     protected void performAction(org.openide.nodes.Node[] node) {
     }
     

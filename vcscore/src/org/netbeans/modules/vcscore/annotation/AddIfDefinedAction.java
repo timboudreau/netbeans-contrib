@@ -54,6 +54,13 @@ public class AddIfDefinedAction extends NodeAction {
     protected void performAction(org.openide.nodes.Node[] node) {
     }
     
+    /**
+     * @return false to run in AWT thread.
+     */
+    protected boolean asynchronous() {
+        return false;
+    }
+    
     public void actionPerformed(java.awt.event.ActionEvent actionEvent) {
         Node[] actNodes = getActivatedNodes();
         for (int i = 0; i < actNodes.length; i++) {

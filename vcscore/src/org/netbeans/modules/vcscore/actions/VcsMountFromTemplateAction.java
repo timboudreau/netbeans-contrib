@@ -135,6 +135,13 @@ public class VcsMountFromTemplateAction extends NodeAction {
         return standardWizard;
     }
     
+    /**
+     * @return false to run in AWT thread.
+     */
+    protected boolean asynchronous() {
+        return false;
+    }
+    
     protected void performAction (Node[] activatedNodes) {
         try {
             Node n = activatedNodes.length == 1 ? activatedNodes[0] : null;

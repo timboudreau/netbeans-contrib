@@ -50,6 +50,13 @@ public class AddTextAction extends NodeAction {
         return null;
     }
     
+    /**
+     * @return false to run in AWT thread.
+     */
+    protected boolean asynchronous() {
+        return false;
+    }
+    
     protected void performAction(org.openide.nodes.Node[] node) {
         Node[] actNodes = getActivatedNodes();
         for (int i = 0; i < actNodes.length; i++) {
