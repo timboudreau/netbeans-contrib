@@ -688,6 +688,10 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                 VcsVersioningSystem.this.firePropertyChange(VcsVersioningSystem.this.PROP_ROOT, null, fo);
                 return;
             }
+            if (VcsFileSystem.PROP_DISPLAY_NAME.equals(propName)) {
+                if (newValue == null) return ; // Filter out events from myself, since I listen on this also!
+                VcsVersioningSystem.this.firePropertyChange(VcsVersioningSystem.this.PROP_DISPLAY_NAME, null, null);
+            }
         }
 
         private void heyDoRefreshFolderRecursive(FileObject fo) {
