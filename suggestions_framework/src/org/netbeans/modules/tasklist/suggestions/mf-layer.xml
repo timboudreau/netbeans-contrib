@@ -86,6 +86,11 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration"/>
             </file>
         </folder>
+        <folder name="suggestionsscan">
+            <file name="columns.settings" url="scancolumns.xml">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration"/>
+            </file>
+        </folder>
     </folder>
 </filesystem>
 

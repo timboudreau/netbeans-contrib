@@ -19,6 +19,7 @@ Microsystems, Inc. All Rights Reserved.
 <columns>
     <column property="taskDesc" width="800"/>
     <column property="suggPrio" width="100"/>
+    <column property="suggFile" width="150"/>
     <column property="suggLine" width="50"/>
     <column property="suggCat" width="150"/>
 </columns>
