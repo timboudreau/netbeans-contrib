@@ -734,7 +734,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //ec.setTimeout(cmd.getTimeout());
         ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT),
                     VcsCommandIO.getBooleanProperty(cmd, UserCommand.PROPERTY_INPUT_REPEAT));
-        ec.setEnv(executionContext.getEnvironmentVars());
+        String dynamicEnv = (String) getVariables().get("DYNAMIC_ENVIRONMENT_VARS");
+        if (dynamicEnv != null && dynamicEnv.length() > 0) {
+            ec.setEnv(getEnvironmentFromVars(getVariables()));
+        } else {
+            ec.setEnv(executionContext.getEnvironmentVars());
+        }
         //D.deb(cmd.getName()+".getInput()='"+cmd.getInput()+"'"); // NOI18N
 
         for (Iterator it = textOutputListeners.iterator(); it.hasNext(); ) {
@@ -750,6 +755,14 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         for (Iterator it = immediateErrorListeners.iterator(); it.hasNext(); ) {
             ec.addImmediateTextErrorListener((TextOutputListener) it.next());
         }
+    }
+    
+    private static String[] getEnvironmentFromVars(Hashtable vars) {
+        Map systemEnv = VcsUtilities.getSystemEnvVars();
+        Map env = VcsUtilities.addEnvVars(systemEnv, vars,
+                                          VcsFileSystem.VAR_ENVIRONMENT_PREFIX,
+                                          VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX);
+        return VcsUtilities.getEnvString(env);
     }
     
     protected void printOutput(String line) {
