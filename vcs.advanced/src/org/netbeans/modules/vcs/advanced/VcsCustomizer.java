@@ -102,12 +102,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         linkLabel = new javax.swing.JLabel();
         advancedPanel = new javax.swing.JPanel();
         advancedModeCheckBox = new javax.swing.JCheckBox();
-        debugCheckBox = new javax.swing.JCheckBox();
+        offLineCheckBox = new javax.swing.JCheckBox();
         editCheckBox = new javax.swing.JCheckBox();
         promptEditCheckBox = new javax.swing.JCheckBox();
         lockCheckBox = new javax.swing.JCheckBox();
         promptLockCheckBox = new javax.swing.JCheckBox();
-        offLineCheckBox = new javax.swing.JCheckBox();
+        debugCheckBox = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         cmdButton = new javax.swing.JButton();
         varButton = new javax.swing.JButton();
@@ -189,7 +189,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         rootDirTextField.setColumns(15);
         rootDirTextField.setText(".");
-        rootDirTextField.setPreferredSize(new java.awt.Dimension(165, 21));
         rootDirTextField.setNextFocusableComponent(browseButton);
         rootDirTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -281,7 +280,6 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         
         refreshTextField.setColumns(8);
         refreshTextField.setText("0");
-        refreshTextField.setPreferredSize(new java.awt.Dimension(88, 21));
         refreshTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 refreshTextFieldActionPerformed(evt);
@@ -374,21 +372,21 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6.weightx = 1.0;
         advancedPanel.add(advancedModeCheckBox, gridBagConstraints6);
         
-        debugCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.debugCheckBox.text"));
-        debugCheckBox.addActionListener(new java.awt.event.ActionListener() {
+        offLineCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.offLineCheckBox.text"));
+        offLineCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                debugCheckBoxActionPerformed(evt);
+                offLineCheckBoxActionPerformed(evt);
             }
         });
         
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
-        gridBagConstraints6.gridy = 6;
+        gridBagConstraints6.gridy = 1;
         gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints6.insets = new java.awt.Insets(0, 0, 0, 11);
-        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 0, 12, 11);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints6.weightx = 1.0;
-        advancedPanel.add(debugCheckBox, gridBagConstraints6);
+        advancedPanel.add(offLineCheckBox, gridBagConstraints6);
         
         editCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.editCheckBox.text"));
         editCheckBox.addActionListener(new java.awt.event.ActionListener() {
@@ -454,21 +452,21 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints6.weightx = 1.0;
         advancedPanel.add(promptLockCheckBox, gridBagConstraints6);
         
-        offLineCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.offLineCheckBox.text"));
-        offLineCheckBox.addActionListener(new java.awt.event.ActionListener() {
+        debugCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.debugCheckBox.text"));
+        debugCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                offLineCheckBoxActionPerformed(evt);
+                debugCheckBoxActionPerformed(evt);
             }
         });
         
         gridBagConstraints6 = new java.awt.GridBagConstraints();
         gridBagConstraints6.gridx = 1;
-        gridBagConstraints6.gridy = 1;
+        gridBagConstraints6.gridy = 6;
         gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints6.insets = new java.awt.Insets(0, 0, 12, 11);
-        gridBagConstraints6.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints6.insets = new java.awt.Insets(0, 0, 0, 11);
+        gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints6.weightx = 1.0;
-        advancedPanel.add(offLineCheckBox, gridBagConstraints6);
+        advancedPanel.add(debugCheckBox, gridBagConstraints6);
         
         jPanel2.setLayout(new java.awt.GridLayout(1, 0, 5, 0));
         
@@ -880,12 +878,12 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private javax.swing.JLabel linkLabel;
     private javax.swing.JPanel advancedPanel;
     private javax.swing.JCheckBox advancedModeCheckBox;
-    private javax.swing.JCheckBox debugCheckBox;
+    private javax.swing.JCheckBox offLineCheckBox;
     private javax.swing.JCheckBox editCheckBox;
     private javax.swing.JCheckBox promptEditCheckBox;
     private javax.swing.JCheckBox lockCheckBox;
     private javax.swing.JCheckBox promptLockCheckBox;
-    private javax.swing.JCheckBox offLineCheckBox;
+    private javax.swing.JCheckBox debugCheckBox;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JButton cmdButton;
     private javax.swing.JButton varButton;
