@@ -40,6 +40,7 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
 	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
 	<pathelement location="${nbroot}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
+        <pathelement location="${nbroot}/diff/netbeans/modules/diff.jar"/>
       </classpath>
     </javac>
   </target>
