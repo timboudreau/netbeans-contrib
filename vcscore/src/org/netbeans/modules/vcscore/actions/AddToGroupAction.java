@@ -122,7 +122,10 @@ public class AddToGroupAction extends NodeAction {
             }
         }
         if (!hasAny) {
-            menu.add(createItem("default", GroupUtils.getDefaultGroupInstance().getDisplayName()));
+            VcsGroupNode def = GroupUtils.getDefaultGroupInstance();
+            if (def != null) {
+                menu.add(createItem("default", def.getDisplayName()));
+            }
         }
 /*        JMenuItem[] menus = new JMenuItem[1];
         menus[0] = menu;
