@@ -1264,7 +1264,35 @@ err.log("Couldn't find current nodes...");
          * @return tc or <code>null</code> for non-editor selected topcomponent
          */
         public TopComponent findActiveEditor() {
+            if (SwingUtilities.isEventDispatchThread()) {
+                return findActiveEditorAWT();
+            } else {
+                final TopComponent [] retval = new TopComponent[1];
+                Runnable doIt = new Runnable() { public void run() {
+                            retval[0] = findActiveEditorAWT();
+                }};
 
+                try {
+                    SwingUtilities.invokeAndWait(doIt);
+                    return retval[0];
+                } catch (InterruptedException ex) {
+                    return null;
+                } catch (java.lang.reflect.InvocationTargetException ite) {
+                    ErrorManager.getDefault().notify(ite);
+                    return null;
+                }
+            }
+        }
+
+            
+        /**
+         * Locates active editor topComponent. Must be run in AWT
+         * thread.
+         * @return tc or <code>null</code> for non-editor selected topcomponent
+         */
+        private TopComponent findActiveEditorAWT() {
+            assert SwingUtilities.isEventDispatchThread() : "This method must be run in the AWT thread"; // NOI18N
+            
             Mode mode = WindowManager.getDefault().findMode(CloneableEditorSupport.EDITOR_MODE);
             if (mode == null) {
                 // The editor window was probablyjust closed
