@@ -39,6 +39,7 @@ import org.netbeans.modules.vcscore.util.VariableInputDescriptor;
 import org.netbeans.modules.vcscore.util.VariableInputComponent;
 import org.netbeans.modules.vcscore.util.VariableInputDialog;
 import org.netbeans.modules.vcscore.util.VariableInputFormatException;
+import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.util.Table;
 import org.netbeans.modules.vcscore.util.NotifyDescriptorInputPassword;
@@ -87,17 +88,27 @@ public class CommandExecutorSupport extends Object {
      * @param paths the files paths delimited by double File.separator
      * @return the number of important files
      */
-    private static int numImportant(VcsFileSystem fileSystem, String paths) {
+    private static int numImportant(VcsFileSystem fileSystem, String paths, String ps) {
         if (paths == null) return 0; // Just for robustness
         int num = 0;
-        String delim = java.io.File.separator + java.io.File.separator;
+        String delim;
+        if (ps != null) {
+            delim = ps+ps;
+        } else {
+            delim = java.io.File.separator + java.io.File.separator;
+        }
+        VariableValueAdjustment varValueAdjust = fileSystem.getVarValueAdjustment();
         int begin = 0;
         int end = paths.indexOf(delim);
-        while (end > 0) {
+        if (end < 0) end = paths.length();
+        while (true) {
             String path = paths.substring(begin, end);
+            path = varValueAdjust.revertAdjustedVarValue(path);
             if (fileSystem.isImportant(path)) num++;
             begin = end + delim.length();
+            if (begin > paths.length()) break;
             end = paths.indexOf(delim, begin);
+            if (end < 0) end = paths.length();
         }
         return num;
     }
@@ -117,7 +128,7 @@ public class CommandExecutorSupport extends Object {
         boolean confirmed = false;
         if (fileSystem.isImportant(fullName)) {
             String numFiles = (String) vars.get("NUM_FILES");
-            vars.put("NUM_FILES", ""+numImportant(fileSystem, paths));
+            vars.put("NUM_FILES", ""+numImportant(fileSystem, paths, (String) vars.get("PS")));
             confirmation = Variables.expand(vars, confirmation, true);
             PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
             confirmation = cmdPerf.process(confirmation);
@@ -144,7 +155,7 @@ public class CommandExecutorSupport extends Object {
         }
         // Ask for the confirmation again, if the preprocessing was done, but there is an important file
         if (!(askForEachFile != null && askForEachFile[0])) {
-            int numImp = numImportant(fileSystem, paths);
+            int numImp = numImportant(fileSystem, paths, (String) vars.get("PS"));
             if (!confirmed && numImp > 0) {
                 String numFiles = (String) vars.get("NUM_FILES");
                 vars.put("NUM_FILES", ""+numImp);
