@@ -28,7 +28,7 @@ import java.util.List;
  * client of Turbo. It uses package private FileProperties
  * attribute.
  *
- * TODO add support for DISK and REFRESH levels
+ * TODO add support for DISK and REFRESH levels, current impl looks like DISK_OR_REFRESH
  *
  * @author Petr Kuzel
  */

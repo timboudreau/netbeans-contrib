@@ -84,9 +84,10 @@ public final class Turbo {
     }
 
     /**
-     * Populate cache by given attributes.
+     * Populate cache by given attributes. Makes them immutable.
      */
     public static void setMeta(FileObject fileObject, FileProperties status) {
+        status.freeze();
         Memory.put(fileObject, status);
         Disk.put(fileObject, status);
     }

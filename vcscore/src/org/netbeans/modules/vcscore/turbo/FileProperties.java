@@ -15,8 +15,11 @@ package org.netbeans.modules.vcscore.turbo;
 
 /**
  * Additional FileObject metadata for versioned files.
+ * The object is treated as immutable. One initializing
+ * the object should invoke {@link #freeze} to assure it.
+ *
  * TODO Copied from PersistentData no meaning of certain fields known.
- * TODO maintain modified status or remove setters
+ *
  *
  * @author Petr Kuzel
  */
@@ -38,8 +41,10 @@ public final class FileProperties {
     // XXX it's not writen to disc layer
     private IgnoreList ignoreList;
 
+    private boolean canUpdate = true;
+
     /** Clients must access using {@link IgnoreList#forFolder}.*/
-    public IgnoreList getIgnoreList() {
+    IgnoreList getIgnoreList() {
         return ignoreList;
     }
 
@@ -52,6 +57,7 @@ public final class FileProperties {
     }
 
     public void setStatus(String status) {
+        assert canUpdate;
         this.status = status;
     }
 
@@ -64,6 +70,7 @@ public final class FileProperties {
     }
 
     public void setRetrieval(long retrieval) {
+        assert canUpdate;
         this.retrieval = retrieval;
     }
 
@@ -72,6 +79,7 @@ public final class FileProperties {
     }
 
     public void setName(String name) {
+        assert canUpdate;
         this.name = name;
     }
 
@@ -80,6 +88,7 @@ public final class FileProperties {
     }
 
     public void setRevision(String revision) {
+        assert canUpdate;
         this.revision = revision;
     }
 
@@ -88,6 +97,7 @@ public final class FileProperties {
     }
 
     public void setSticky(String sticky) {
+        assert canUpdate;
         this.sticky = sticky;
     }
 
@@ -96,6 +106,7 @@ public final class FileProperties {
     }
 
     public void setAttr(String attr) {
+        assert canUpdate;
         this.attr = attr;
     }
 
@@ -104,6 +115,7 @@ public final class FileProperties {
     }
 
     public void setDate(String date) {
+        assert canUpdate;
         this.date = date;
     }
 
@@ -112,6 +124,7 @@ public final class FileProperties {
     }
 
     public void setTime(String time) {
+        assert canUpdate;
         this.time = time;
     }
 
@@ -120,6 +133,7 @@ public final class FileProperties {
     }
 
     public void setSize(int size) {
+        assert canUpdate;
         this.size = size;
     }
 
@@ -132,4 +146,10 @@ public final class FileProperties {
         return Statuses.getLocalStatus().equals(status);
     }
 
+    /**
+     * Make object immutable, all setters throw exception.
+     */
+    public void freeze() {
+        canUpdate = false;
+    }
 }

@@ -25,7 +25,7 @@ They are responsible for:
 
 It works over {@link FileSystem} it's exected that we do not need
 to store FilePropeties for non FileObjects. Depending on figuring
-out FileSystem implementors contract memory lyer can use absolute
+out FileSystem implementors contract memory layer can use absolute
 path addressing too.
 
 <p>
@@ -57,9 +57,9 @@ following client code conversions (it obviously excludes cache and caching packa
      simplified implementation
   <li>VcsFileSystem.getRealStatus() used in search, it also implements CacheHandlerListener
      to perform refresh and distribute events to FileStatusListeners to update annotations
-  <li>VcsFileSystem.Info implementation takes String arguments. Why? Can I onvert to fileObject.
+  <li>VcsFileSystem.Info implementation takes String arguments. Why? Can I convert to fileObject.
   <li>cvsprofiles.list package STATUS_DEAD management, where should it be defined? Also VcsFilesystem.List.children().
-  <li>vcscore.commans package STATUS_IGNORED namagenet, where should it be defined?
+  <li>vcscore.commans package STATUS_IGNORED management, where should it be defined?
   <li>VcsFactory.getStatusProvider() and getCacheProvider() replacements not investigated yet
   <li>RefreshCommandSupport in VCSFileSystem annotation and cvscore.cmdline formatting
 </ul>
