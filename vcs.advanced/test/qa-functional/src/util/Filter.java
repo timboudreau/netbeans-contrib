@@ -67,7 +67,7 @@ public class Filter {
                 str = str.substring(0, i);
         }
         for (int a = 0; a < replaceFrom.size (); a ++)
-            str = Helper.replaceAll(str, (String) replaceFrom.get (a), (String) replaceTo.get (a));
+            str = replaceAll(str, (String) replaceFrom.get (a), (String) replaceTo.get (a));
         for (int a = 0; a < betweenBefore.size (); a ++) {
             String bef = (String) betweenBefore.get (a);
             String aft = (String) betweenAfter.get (a);
@@ -79,6 +79,18 @@ public class Filter {
             if (i2 < 0)
                 continue;
             str = str.substring (0, i1) + str.substring (i2);
+        }
+        return str;
+    }
+    
+    public static String replaceAll(String str, String from, String to) {
+        if ("".equals (from)  ||  to.startsWith(from))
+            return str;
+        for (;;) {
+            int index = str.indexOf(from);
+            if (index < 0)
+                break;
+            str = str.substring(0, index) + to + str.substring(index + from.length());
         }
         return str;
     }
