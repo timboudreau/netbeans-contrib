@@ -480,7 +480,9 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             String file = checkPatterns(confirmedPatterns, messages[i]);
             if (file != null) {
                 if (!file.startsWith(rootDir)) {
+                    //System.out.println("Searching for a unique file '"+file+"' among "+java.util.Arrays.asList(selectedFiles)+" ...");
                     file = uniqueFilePath(file, selectedFiles);
+                    //System.out.println("  Unique file = '"+file+"'");
                 }
                 if (file != null) {
                     file = file.substring(rootDir.length()).replace(File.separatorChar, '/');
@@ -493,7 +495,8 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
                 continue;
             }
             patternItems.clear();
-            file = getUnambigousFile(messages[i], rootDir, selectedFiles, patternItems);
+            file = getUnambiguousFile(messages[i], rootDir, selectedFiles, patternItems);
+            //System.out.println("  file = '"+file+"', patternItems = "+patternItems);
             if (file == null) {
                 String msg = reduceBigMessage(messages[i]) + "\n\n" +
                              NbBundle.getMessage(ConfirmationCommand.class, "MSG_Ambiguous");
@@ -540,12 +543,13 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
     /**
      * Get the file relative to rootDir.
      */
-    private static String getUnambigousFile(String message, String rootDir,
-                                            String[] selectedFiles, List patternItems) {
+    private static String getUnambiguousFile(String message, String rootDir,
+                                             String[] selectedFiles, List patternItems) {
         int begin = 0;
         int fileIndex;
         String file = null;
         int rdl = rootDir.length();
+        //System.out.println("getUnambiguousFile("+message+")");
         while((fileIndex = message.indexOf(rootDir, begin)) >= 0) {
             String rfile = retrieveFile(message.substring(fileIndex), getEndChar(message, fileIndex));
             patternItems.add(message.substring(begin, fileIndex));
@@ -555,6 +559,7 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             if (file == null) {
                 file = rfile;
             } else {
+                //System.out.println("MULTILPLE DIFFERENT FILES found: "+file+" <> "+rfile);
                 if (!file.equals(rfile)) return null;
             }
         }
@@ -595,6 +600,7 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
         int n = patterns.size();
         for (int i = 0; i < n; i++) {
             String[] pattern = (String[]) patterns.get(i);
+            //System.out.println("Checking pattern: "+java.util.Arrays.asList(pattern)+"\n in message = '"+message+"'");
             if (!message.startsWith(pattern[0])) continue;
             int l = pattern.length - 1;
             if (!message.endsWith(pattern[l])) continue;
@@ -604,9 +610,18 @@ public class ConfirmationCommand extends Object implements VcsAdditionalCommand 
             if (l == 0) {
                 int beginIndex = message.indexOf(pattern[pattern.length - 2]);
                 int endIndex = message.length() - pattern[pattern.length - 1].length();
-                return message.substring(beginIndex, endIndex).trim();
+                String fileName = message.substring(beginIndex, endIndex).trim();
+                if (pattern.length == 2 && pattern[0].length() == 0) {
+                    int sentenceEnd = fileName.lastIndexOf(". ");
+                    if (sentenceEnd > 0) {
+                        fileName = fileName.substring(sentenceEnd + 2).trim();
+                    }
+                }
+                //System.out.println("  returning file '"+fileName+"'");
+                return fileName;
             }
         }
+        //System.out.println("  returning NOTHING.");
         return null;
     }
     
