@@ -98,7 +98,7 @@ public class IZBugEngine implements BugEngine { // XXX remove the publicness
     public void doRefresh(BugQuery inQuery) {
         TaskListView v = TaskListView.getCurrent();
         BugsView view = null;
-        if (v instanceof TaskListView) {
+        if (v instanceof BugsView) {
             view = (BugsView)v;
             view.setCursor(Utilities.createProgressCursor(view));
         }
