@@ -155,7 +155,10 @@ public class ImplFinder implements PropertyChangeListener {
                                         String baseName = iids[j].getName();
                                         if (baseName != null && baseName.startsWith(delPrefix) && baseName.endsWith(delPostfix)) {
                                             implName = baseName.substring(delPrefix.length(), baseName.length() - delPostfix.length());
-                                            ret.add(iids[j].getQualifier() + "." + tiePrefix + implName + tiePostfix);
+                                            pkgName = iids[j].getQualifier();
+                                            if (pkgName != null && pkgName.length() > 0)
+                                                pkgName += ".";
+                                            ret.add(pkgName + tiePrefix + implName + tiePostfix);
                                             continue;
                                         }
                                     }
@@ -168,7 +171,7 @@ public class ImplFinder implements PropertyChangeListener {
                             SourceElement source = ((JavaDataObject)dobj).getSource();
                             if (source != null) {
                                 ClassElement ce = source.getClass(Identifier.create(fo.getName()));
-                                if (ce.isInterface())
+                                if (ce == null || ce.isInterface())
                                     break;
                                 if (inheritsFrom(ce, "org.omg.PortableServer.ServantActivatorPOA") ||
                                 inheritsFrom(ce, "org.omg.PortableServer.ServantLocatorPOA"))
@@ -184,7 +187,7 @@ public class ImplFinder implements PropertyChangeListener {
                             SourceElement source = ((JavaDataObject)dobj).getSource();
                             if (source != null) {
                                 ClassElement ce = source.getClass(Identifier.create(fo.getName()));
-                                if (ce.isInterface())
+                                if (ce == null || ce.isInterface())
                                     break;
                                 if (inheritsFrom(ce, "org.omg.PortableServer.AdapterActivatorPOA"))
                                     if (source.getPackage() != null)
