@@ -1,4 +1,8 @@
+<?xml version="1.0"?>
 <updates>
+    <update version="1.23">
+        <change>Experimental tab for suggestions in all opened projects.</change>
+    </update>
 
     <update version="1.22">
     <change>Assert in "Scan Directory for Suggestions" action fixed.</change>

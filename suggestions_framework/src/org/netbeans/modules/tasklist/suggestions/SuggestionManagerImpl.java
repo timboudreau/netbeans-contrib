@@ -103,7 +103,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
     // it's the second role, live list of suggestions
 
     /** Called when the Suggestions View is opened */
-    void dispatchPrepare() {
+    public void dispatchPrepare() {
         if (!prepared) {
             List providers = getProviders();
             ListIterator it = providers.listIterator();
@@ -130,7 +130,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      * @todo If a filter was in effect when we left the window, we should
      * NOT notify the filtered-out SuggestionProviders!
      */
-    void dispatchRun() {
+    public void dispatchRun() {
         if (!running) {
             if (!prepared) {
                 dispatchPrepare();
@@ -161,7 +161,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
 
     // FIXME should be called on last view/client stop
     /** Called when the Suggestions View is hidden */
-    void dispatchStop() {
+    public void dispatchStop() {
         if (running) {
             List providers = getProviders();
             ListIterator it = providers.listIterator();
@@ -188,7 +188,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
     }
 
     /** Called when the Suggestions View is closed */
-    void notifyViewClosed() {
+    public void notifyViewClosed() {
         if (prepared) {
             if (running) {
                 dispatchStop();
@@ -366,7 +366,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      * @param type SuggestionType to be shown, or
      *     null if the view should not be filtered (e.g. show all)
      */
-    void notifyFiltered(SuggestionList tasklist, SuggestionType type) {
+    public void notifyFiltered(SuggestionList tasklist, SuggestionType type) {
         SuggestionType prevFilterType = getUnfilteredType();
         setUnfilteredType(type);
 
@@ -501,12 +501,12 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
 
 
 
-    boolean isExpandedType(SuggestionType type) {
+    public boolean isExpandedType(SuggestionType type) {
         return ManagerSettings.getDefault().isExpandedType(type);
     }
 
 
-    void setExpandedType(SuggestionType type, boolean expanded) {
+    public void setExpandedType(SuggestionType type, boolean expanded) {
         ManagerSettings.getDefault().setExpandedType(type, expanded);
     }
 

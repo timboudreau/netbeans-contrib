@@ -63,17 +63,17 @@ public class UserTaskListTest extends NbTestCase {
 
     /** This is just a dummy place holder test */
     public void testUserTaskList() throws Exception {
-        UserTaskList list = (UserTaskList)openList("tasklist.ics");
+        UserTaskList list = (UserTaskList)openList("tasklist.ics"); // NOI18N
         List subtasks = list.getSubtasks();
-        assertTrue("Not all tasks in the list found: found " + subtasks.size() +
-                   " elements",
+        assertTrue("Not all tasks in the list found: found " + subtasks.size() + // NOI18N
+                   " elements", // NOI18N
                    subtasks.size() == 1);
         ListIterator it = subtasks.listIterator();
         while (it.hasNext()) {
             UserTask task = (UserTask)it.next();
-            assertTrue("Wrong description: " + task.getSummary(),
-                       task.getSummary().equals("This is a test task"));
-            assertTrue("Wrong isDone",
+            assertTrue("Wrong description: " + task.getSummary(), // NOI18N
+                       task.getSummary().equals("This is a test task")); // NOI18N
+            assertTrue("Wrong isDone", // NOI18N
                        !task.isDone());
         }
     }
@@ -81,7 +81,7 @@ public class UserTaskListTest extends NbTestCase {
 
    /** Test the import/export feature */
     public void testSimpleICalImportExport() throws Exception {
-        String contents = "BEGIN:VCALENDAR\r\nPRODID:-//NetBeans tasklist//NONSGML 1.0//EN\r\nVERSION:2.0\r\n\r\nBEGIN:VTODO\r\nUID:nb1031618664570.1@proto/192.129.100.100\r\nCREATED:20020910T004424Z\r\nSUMMARY:This is a test task\r\nPERCENT-COMPLETE:0\r\nEND:VTODO\r\n\r\nEND:VCALENDAR\r\n";
+        String contents = "BEGIN:VCALENDAR\r\nPRODID:-//NetBeans tasklist//NONSGML 1.0//EN\r\nVERSION:2.0\r\n\r\nBEGIN:VTODO\r\nUID:nb1031618664570.1@proto/192.129.100.100\r\nCREATED:20020910T004424Z\r\nSUMMARY:This is a test task\r\nPERCENT-COMPLETE:0\r\nEND:VTODO\r\n\r\nEND:VCALENDAR\r\n"; // NOI18N
         ByteArrayInputStream reader = new ByteArrayInputStream(contents.getBytes()); 
 
         ICalImportFormat io = new ICalImportFormat();
@@ -95,17 +95,17 @@ public class UserTaskListTest extends NbTestCase {
 
         // Check that the list we read in is indeed correct
         List subtasks = list.getSubtasks();
-        assertTrue("Not all tasks in the list found: found " + subtasks.size() +
-                   " elements",
+        assertTrue("Not all tasks in the list found: found " + subtasks.size() + // NOI18N
+                   " elements", // NOI18N
                    subtasks.size() == 1);        
         ListIterator it = subtasks.listIterator();
         while (it.hasNext()) {
             UserTask task = (UserTask)it.next();
-            assertTrue("Wrong description: " + task.getSummary(),
-                       task.getSummary().equals("This is a test task"));
-            assertTrue("Wrong isDone",
+            assertTrue("Wrong description: " + task.getSummary(), // NOI18N
+                       task.getSummary().equals("This is a test task")); // NOI18N
+            assertTrue("Wrong isDone", // NOI18N
                        !task.isDone());
-            assertEquals("Wrong Percent Complete", 0, task.getPercentComplete());
+            assertEquals("Wrong Percent Complete", 0, task.getPercentComplete()); // NOI18N
         }
 
         // Write the list back out
@@ -118,7 +118,7 @@ public class UserTaskListTest extends NbTestCase {
             throw e;
         }
         
-        String result =new String(out.toByteArray(), "utf8");  // XXX we do not know the encoding
+        String result =new String(out.toByteArray(), "utf8");  // NOI18N XXX we do not know the encoding
 
         /* Uncomment to log the two strings if you want to diff them etc.
         try {

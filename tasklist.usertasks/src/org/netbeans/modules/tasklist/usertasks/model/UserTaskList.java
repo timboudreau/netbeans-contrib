@@ -236,7 +236,7 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
         if (fo.isValid()) {
             long m = System.currentTimeMillis();
             UserTaskList ret = readDocument(fo.getInputStream());
-            UTUtils.LOGGER.fine("File " + fo + " read in " + 
+            UTUtils.LOGGER.fine("File " + fo + " read in " + // NOI18N
                 (System.currentTimeMillis() - m) + "ms"); // NOI18N
             ret.file = fo;
             return ret;

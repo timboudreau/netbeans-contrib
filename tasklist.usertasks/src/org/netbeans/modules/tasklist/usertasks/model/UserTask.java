@@ -1731,7 +1731,7 @@ ObjectList.Owner {
     public void setCompletedDate(long completed) {
         long old = this.completedDate;
         this.completedDate = completed;
-        firePropertyChange("completedDate", new Long(old), new Long(completed));
+        firePropertyChange("completedDate", new Long(old), new Long(completed)); // NOI18N
     }
     
     /**

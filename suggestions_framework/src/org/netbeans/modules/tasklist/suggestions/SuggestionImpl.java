@@ -32,7 +32,6 @@ import org.openide.text.DataEditorSupport;
  * @author Tor Norbye 
  */
 public class SuggestionImpl extends Task implements Node.Cookie {
-
     private Object seed = null;
     private SuggestionType stype = null;
 
@@ -46,6 +45,7 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         String summary, SuggestionType stype,
         SuggestionPerformer action, Object data) {
         super(summary, null);
+        setFileObject(fo);
         this.seed = data;
         this.stype = stype;
         setAction(action);
@@ -63,7 +63,7 @@ public class SuggestionImpl extends Task implements Node.Cookie {
     public String getFileBaseName() {
         Line l = getLine();
         if (l != null) {
-            DataObject dobj = (DataObject) l.getLookup().lookup(DataObject.class);;
+            DataObject dobj = (DataObject) l.getLookup().lookup(DataObject.class);
             if (dobj != null) {
                 return dobj.getPrimaryFile().getNameExt();
             }
@@ -116,7 +116,7 @@ public class SuggestionImpl extends Task implements Node.Cookie {
     public Location getLocation() {
         Line l = getLine();
         if (l != null) {
-            DataObject dobj = (DataObject) l.getLookup().lookup(DataObject.class);;
+            DataObject dobj = (DataObject) l.getLookup().lookup(DataObject.class);
             if (dobj != null) {
                 return new Location(dobj.getPrimaryFile().getPath(),l.getLineNumber()); 
             }
@@ -201,7 +201,7 @@ public class SuggestionImpl extends Task implements Node.Cookie {
         super.setType(type);
     }
 
-    SuggestionType getSType() {
+    public SuggestionType getSType() {
         return stype;
     }
     

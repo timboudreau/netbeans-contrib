@@ -72,7 +72,7 @@ final public class SuggestionType {
     }
 
     /** Gets Image which represents the icon. */
-    Image getIconImage() {
+    public Image getIconImage() {
         if ((img == null) && (icon != null)) {
             img = Toolkit.getDefaultToolkit().getImage(icon);
         }
@@ -80,7 +80,7 @@ final public class SuggestionType {
     }
 
     /** Return the name of the Suggestion type - localized. */
-    String getLocalizedName() {
+    public String getLocalizedName() {
         if (localizedName == null) {
             ResourceBundle rb = NbBundle.getBundle(bundle);
             localizedName = rb.getString(key);

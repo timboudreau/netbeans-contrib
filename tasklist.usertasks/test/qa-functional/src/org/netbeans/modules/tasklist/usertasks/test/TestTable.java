@@ -62,20 +62,20 @@ public class TestTable extends JellyTestCase {
      * Test the "Show Task" dialog
      */
     public void testShowTask() {
-        Node n = FilesTabOperator.invoke().getProjectNode("SampleApp");
+        Node n = FilesTabOperator.invoke().getProjectNode("SampleApp"); // NOI18N
 
-        Node buildXml = new Node(n, "build.xml"); 
+        Node buildXml = new Node(n, "build.xml"); // NOI18N
         buildXml.select(); 
         new OpenAction().perform(buildXml);
         
-        TopComponentOperator tc = openIcsFile("test10.ics");
+        TopComponentOperator tc = openIcsFile("test10.ics"); // NOI18N
         
         JTableOperator t = new JTableOperator(tc, 0);
         t.waitHasFocus();
         assertEquals(0, t.getSelectedRow());
         t.selectCell(1, 0);
         
-        Action ea = new Action(null, "Expand All");
+        Action ea = new Action(null, "Expand All"); // NOI18N
         ea.performPopup(t);
         t.selectCell(1, 0);
         
@@ -84,9 +84,9 @@ public class TestTable extends JellyTestCase {
         new EventTool().waitNoEvent(1500);
 
         JPopupMenuOperator pm = new JPopupMenuOperator();
-        pm.pushMenuNoBlock("Show Task");
+        pm.pushMenuNoBlock("Show Task"); // NOI18N
         
-        new NbDialogOperator("Show Task").close();
+        new NbDialogOperator("Show Task").close(); // NOI18N
     }
 
     /**
@@ -125,21 +125,21 @@ public class TestTable extends JellyTestCase {
      * see description for the test 13
      */
     public void testCategoryInplace() {
-        TopComponentOperator tc = openIcsFile("test13.ics");
+        TopComponentOperator tc = openIcsFile("test13.ics"); // NOI18N
         
         JTableOperator t = new JTableOperator(tc, 0);
         t.waitHasFocus();
         t.selectCell(1, 0);
         
-        Action ea = new Action(null, "Expand All");
+        Action ea = new Action(null, "Expand All"); // NOI18N
         ea.performPopup(t);
         t.selectCell(3, 3);
         t.editCellAt(3, 3);
         TableCellEditor ed = t.getCellEditor();
         JComboBox cb = ((JComboBox) ((DefaultCellEditor) ed).getComponent());
         assertEquals(2, cb.getItemCount());
-        assertEquals(cb.getItemAt(0), "CatA");
-        assertEquals(cb.getItemAt(1), "CatB");
+        assertEquals(cb.getItemAt(0), "CatA"); // NOI18N
+        assertEquals(cb.getItemAt(1), "CatB"); // NOI18N
     }
 
     /**
@@ -149,9 +149,9 @@ public class TestTable extends JellyTestCase {
      * @return opened TC
      */
     private TopComponentOperator openIcsFile(String name) {
-        Node n = FilesTabOperator.invoke().getProjectNode("SampleApp");
+        Node n = FilesTabOperator.invoke().getProjectNode("SampleApp"); // NOI18N
 
-        Node data = new Node(n, "ics|" + name); 
+        Node data = new Node(n, "ics|" + name); // NOI18N
         data.select(); 
         new OpenAction().perform(data);
         

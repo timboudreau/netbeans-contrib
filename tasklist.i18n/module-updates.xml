@@ -1,6 +1,8 @@
+<?xml version="1.0"?>
 <updates>
     <update version="1.??.????? (NetBeans 4.1)">
         <change>Copyright checker separated from Source Tasks module.</change>
+        <change>Scanning not internationalized strings in all open projects.</change>
     </update>
 </updates>
 

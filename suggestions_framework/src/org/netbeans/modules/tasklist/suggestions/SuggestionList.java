@@ -200,7 +200,7 @@ public class SuggestionList extends TaskList {
 
 
     /** Return the set of category tasks (SuggestionImpl objects) */
-    Collection getCategoryTasks() {
+    public Collection getCategoryTasks() {
         if (categoryTasks != null) {
             return categoryTasks.values();
         }

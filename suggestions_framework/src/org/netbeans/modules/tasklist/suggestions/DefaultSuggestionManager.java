@@ -94,6 +94,7 @@ public class DefaultSuggestionManager extends SuggestionManager {
      * Must be over written, does nothing.
      */
     public void register(String type, List add, List remove) {
+        System.out.println("adding suggestions" + add.size());
         suggestions.addAll(add);
         suggestions.removeAll(remove);
         fireChange();

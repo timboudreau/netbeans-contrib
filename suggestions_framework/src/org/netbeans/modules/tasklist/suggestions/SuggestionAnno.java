@@ -17,13 +17,13 @@ import org.netbeans.modules.tasklist.core.Task;
 import org.netbeans.modules.tasklist.core.TaskAnnotation;
 import org.netbeans.modules.tasklist.core.TaskSelector;
 
-class SuggestionAnno extends TaskAnnotation {
+public class SuggestionAnno extends TaskAnnotation {
 
     SuggestionAnno(Task task) {
         super(task);
     }
 
-    SuggestionAnno(Task task, TaskSelector view) {
+    public SuggestionAnno(Task task, TaskSelector view) {
         super(task, view);
     }
 
