@@ -26,8 +26,7 @@ import java.util.LinkedList;
 import java.util.Iterator;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.SoftBevelBorder;
+import javax.swing.border.Border;
 
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -520,7 +519,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-        panel.setBorder(new SoftBevelBorder(BevelBorder.RAISED));  // XXX BorderFactory does not support it
+        Border verysoftbevelborder = BorderFactory.createMatteBorder(0,0,1,0,panel.getBackground().darker().darker());
+        panel.setBorder(verysoftbevelborder);
 
         panel.add(toolbar, BorderLayout.WEST);
         panel.add(getMiniStatus(), BorderLayout.CENTER);
