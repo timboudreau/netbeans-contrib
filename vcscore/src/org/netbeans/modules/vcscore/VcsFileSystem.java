@@ -2758,14 +2758,17 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             throw new IOException(g("EXC_RootNotExist", r.toString ())); // NOI18N
         }
 
+        File root;
+        String module;
+        synchronized (this) {
+            module = getRelativeMountPoint();
+            root = new File(r, module);
+        }
+        if (!forceToSet && rootFile.equals(root)) return ;
         // Provide a possibility to veto the change of the root.
         fireVetoableChange (PROP_ROOT, getRoot(), null);
-        //Hashtable vars = getVariablesAsHashtable();
+        String name = computeSystemName (root);
         synchronized (this) {
-            String module = getRelativeMountPoint();
-            File root = new File(r, module);
-            if (!forceToSet && rootFile.equals(root)) return ;
-            String name = computeSystemName (root);
             /* Ignoring other filesystems' names => it is possible to mount VCS filesystem with the same name.
             Enumeration en = TopManager.getDefault ().getRepository ().fileSystems ();
             while (en.hasMoreElements ()) {
