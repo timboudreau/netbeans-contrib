@@ -19,10 +19,16 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="Versioning">
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
       <file name="org-netbeans-modules-vcscore-actions-VcsMountAction.instance" />
-      <attr name="org-netbeans-modules-vcscore-actions-VcsMountAction.instance/org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" boolvalue="true"/>
+      <attr name="org-netbeans-modules-vcscore-actions-VcsMountAction.instance/vcs-explorer-sep-1[javax-swing-JSeparator].instance" boolvalue="true"/>
+      <file name="vcs-explorer-sep-1[javax-swing-JSeparator].instance" />
+      <attr name="vcs-explorer-sep-1[javax-swing-JSeparator].instance/org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance" boolvalue="true"/>
+      <file name="org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance" />
+      <attr name="org-netbeans-modules-vcscore-actions-VersioningExplorerAction.instance/vcs-explorer-sep-2[javax-swing-JSeparator].instance" boolvalue="true"/>
+      <file name="vcs-explorer-sep-2[javax-swing-JSeparator].instance" />
+      <attr name="vcs-explorer-sep-2[javax-swing-JSeparator].instance/org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" boolvalue="true"/>
       <file name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" />
-       <attr name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance/org-netbeans-modules-vcscore-actions-VcsSettingsAction.instance" boolvalue="true"/>
-       <file name="org-netbeans-modules-vcscore-actions-VcsSettingsAction.instance" />
+      <attr name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance/org-netbeans-modules-vcscore-actions-VcsSettingsAction.instance" boolvalue="true"/>
+      <file name="org-netbeans-modules-vcscore-actions-VcsSettingsAction.instance" />
     </folder>
   </folder>
 
