@@ -38,7 +38,7 @@ public class Table extends AbstractMap {
         Object old = null;
         for(Iterator it = entries.iterator(); it.hasNext(); ) {
             Entry e = (Entry) it.next();
-            if (e.getKey() == key) {
+            if (e.getKey() == key || (key != null && key.equals(e.getKey()))) {
                 old = e.getValue();
                 e.setValue(value);
                 set = true;
