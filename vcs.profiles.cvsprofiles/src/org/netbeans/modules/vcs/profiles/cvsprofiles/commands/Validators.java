@@ -82,11 +82,20 @@ public final class Validators {
                 } else if (ret.indexOf(path) == -1) {
                     ret = path + ": " + ret;
                 }
+                ret = translate(ret, path.trim());
             } catch (InterruptedException e) {
                 ret = path + ": " + e.getLocalizedMessage();
             }
         }
         return ret;
+    }
+    
+    private static String translate(String desc, String program) {
+        // Translate a strange Windows error message:
+        if (desc.startsWith("CreateProcess:") && desc.endsWith("error=2")) {
+            return getString("CMDNotFound", program);
+        }
+        return desc;
     }
 
     private static String getString(String key) {
