@@ -279,6 +279,12 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public static final String PROPERTY_HIDDEN = "hidden";
     /**
+     * An expression, which if expands to an empty string, the command will appear
+     * on the actions popup menu. If the expanded expression is non empty,
+     * the command will not appear on the popup menu.
+     */
+    public static final String PROPERTY_HIDDEN_TEST_EXPRESSION = "hiddenTestExpression";
+    /**
      * A string property, that can contain a list of file status attributes. If non empty,
      * the command menu item will be disabled on files whose status is one of the listed
      * status attributes in this property value.

@@ -816,9 +816,10 @@ public class VcsAction extends NodeAction implements ActionListener {
      */
     private static JMenuItem createItem(VcsCommand cmd, boolean expertMode,
                                         List switchableList, String advancedOptionsSign,
-                                        ActionListener listener) {
+                                        ActionListener listener, Hashtable variables) {
         JMenuItem item = null;
         String label = cmd.getDisplayName();
+        label = Variables.expand(variables, label, false);
         //if (label.indexOf('$') >= 0) {
         //    Variables v = new Variables();
         //    label = v.expandFast(vars, label, true);
@@ -921,8 +922,9 @@ public class VcsAction extends NodeAction implements ActionListener {
             if (cmd == null) {
                 return null;
             } else {
+                VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
                 menu = getCommandMenuItem(cmd, onFile, onDir, onRoot,
-                                          (VcsFileSystem) this.fileSystem.get(),
+                                          fileSystem, fileSystem.getVariablesAsHashtable(),
                                           switchableList, advancedOptionsSign, this);
                 if (menu != null) {
                     if (inMenu) {
@@ -942,15 +944,19 @@ public class VcsAction extends NodeAction implements ActionListener {
     private static JMenuItem getCommandMenuItem(VcsCommand cmd, boolean onFile,
                                                 boolean onDir, boolean onRoot,
                                                 VcsFileSystem fileSystem,
+                                                Hashtable variables,
                                                 List switchableList,
                                                 String advancedOptionsSign,
                                                 ActionListener listener) {
         JMenuItem menu;
+        String hiddenTestExpression;
         if (cmd.getDisplayName() == null
             || onDir && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_DIR)
             || onFile && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_FILE)
             || onRoot && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_ROOT)
-            || VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)) {
+            || VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)
+            || ((hiddenTestExpression = (String) cmd.getProperty(VcsCommand.PROPERTY_HIDDEN_TEST_EXPRESSION)) != null
+                && Variables.expand(variables, hiddenTestExpression, false).trim().length() > 0)) {
             menu = null;
         } else {
             //VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
@@ -965,7 +971,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 menu = null;
             } else {
                 menu = createItem(cmd, fileSystem.isExpertMode(), switchableList,
-                                  advancedOptionsSign, listener);
+                                  advancedOptionsSign, listener, variables);
             }
         }
         return menu;
@@ -1481,6 +1487,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         private void createPopup() {
             boolean wasSeparator = false;
             boolean wasNullCommand = false;
+            Hashtable variables = fileSystem.getVariablesAsHashtable();
             Children children = commandRoot.getChildren();
             for (Enumeration subnodes = children.nodes(); subnodes.hasMoreElements(); ) {
                 Node child = (Node) subnodes.nextElement();
@@ -1497,7 +1504,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 wasNullCommand = false;
                 //System.out.println("VcsAction.addMenu(): cmd = "+cmd.getName());
                 JMenuItem cmdMenu = getCommandMenuItem(cmd, onFile, onDir, onRoot,
-                                                       fileSystem, switchableList,
+                                                       fileSystem, variables, switchableList,
                                                        advancedOptionsSign, listener);
                 if (cmdMenu == null) continue;
                 boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
