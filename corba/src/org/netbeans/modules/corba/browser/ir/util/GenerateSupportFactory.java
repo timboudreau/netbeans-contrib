@@ -18,4 +18,5 @@ import org.omg.CORBA.*;
 
 public interface GenerateSupportFactory {
     public GenerateSupport createGenerator();
+    public String getRepositoryId();
 }

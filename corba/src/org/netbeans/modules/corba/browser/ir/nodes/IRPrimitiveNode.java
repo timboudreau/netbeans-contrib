@@ -21,84 +21,88 @@ import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
 
 public class IRPrimitiveNode extends IRLeafNode {
-
-    private static final String PRIMITIVE_ICON_BASE=
-        "org/netbeans/modules/corba/idl/node/declarator";
-    private String name;
+  
+  private static final String PRIMITIVE_ICON_BASE=
+    "org/netbeans/modules/corba/idl/node/declarator";
+  private String name;
+  private TypeCode tc;
+  
+  private static class PrimitiveCodeGenerator implements GenerateSupport {
     private TypeCode tc;
-
-    private static class PrimitiveCodeGenerator implements GenerateSupport {
-        private TypeCode tc;
-        private String name;
-
-        public PrimitiveCodeGenerator (String name, TypeCode tc){
-            this.tc = tc;
-            this.name = name;
-        }
-
-        public String generateHead(int indent){
-            return "";
-        }
-
-        public String generateSelf (int indent){
-            String code = "";
-            for (int i=0; i<indent; i++)
-                code =code + "  ";
-            StringHolder dimension = new StringHolder();
-            code = code + Util.typeCode2TypeString(tc, dimension) + " " + name + ((dimension.value==null)?"":dimension.value)+";\n";
-            return code;
-        }
-
-        public String generateTail (int indent){
-            return "";
-        }
-
+    private String name;
+    
+    public PrimitiveCodeGenerator (String name, TypeCode tc){
+      this.tc = tc;
+      this.name = name;
     }
-
-    /** Creates new IRPrimitiveNode */
-    public IRPrimitiveNode(TypeCode tc, String name) {
-        this.name = name;
-        this.tc = tc;
-        this.setIconBase(PRIMITIVE_ICON_BASE);
+    
+    public String generateHead(int indent){
+      return "";
     }
-
-    public String getName(){
-        return this.name;
+    
+    public String generateSelf (int indent){
+      String code = "";
+      for (int i=0; i<indent; i++)
+        code =code + "  ";
+      StringHolder dimension = new StringHolder();
+      code = code + Util.typeCode2TypeString(tc, dimension) + " " + name + ((dimension.value==null)?"":dimension.value)+";\n";
+      return code;
     }
-
-    public String getDisplayName(){
-        return this.name;
+    
+    public String generateTail (int indent){
+      return "";
     }
+    
+  }
 
-    public Sheet createSheet(){
-        Sheet s = Sheet.createDefault();
-        Sheet.Set ss = s.get( Sheet.PROPERTIES);
-        ss.put ( new PropertySupport.ReadOnly ( Util.getLocalizedString("TITLE_Name"), String.class, Util.getLocalizedString("TITLE_Name"), Util.getLocalizedString("TIP_PrimitiveName")){
-                     public java.lang.Object getValue() {
-                         return name;
-                     }
-                 });
-        ss.put ( new PropertySupport.ReadOnly ( Util.getLocalizedString("TITLE_Type"), String.class, Util.getLocalizedString("TITLE_Type"), Util.getLocalizedString("TIP_PrimitiveType")){
-                     public java.lang.Object getValue() {
-                         return Util.typeCode2TypeString(tc, new StringHolder());
-                     }
-                 });
-        ss.put ( new PropertySupport.ReadOnly ( Util.getLocalizedString("TITLE_Dimension"), String.class, Util.getLocalizedString("TITLE_Dimension"), Util.getLocalizedString("TIP_PrimitiveDimension")){
-                     public java.lang.Object getValue() {
-                         StringHolder holder = new StringHolder();
-                         Util.typeCode2TypeString (tc, holder);
-                         return (holder.value==null)?"":holder.value;
-                     }
-                 });
-        return s;
-    }
-
-    // This node has only the generator for instance,
-    // because the generation is handled by its paarent
-    public GenerateSupport createGenerator (){
-        if (this.generator == null)
-            this.generator = new PrimitiveCodeGenerator (this.name, this.tc);
-        return this.generator;
-    }
-
+  /** Creates new IRPrimitiveNode */
+  public IRPrimitiveNode(TypeCode tc, String name) {
+    this.name = name;
+    this.tc = tc;
+    this.setIconBase(PRIMITIVE_ICON_BASE);
+  }
+  
+  public String getName(){
+    return this.name;
+  }
+  
+  public String getDisplayName(){
+    return this.name;
+  }
+  
+  public Sheet createSheet(){
+    Sheet s = Sheet.createDefault();
+    Sheet.Set ss = s.get( Sheet.PROPERTIES);
+    ss.put ( new PropertySupport.ReadOnly ( Util.getLocalizedString("TITLE_Name"), String.class, Util.getLocalizedString("TITLE_Name"), Util.getLocalizedString("TIP_PrimitiveName")){ 
+      public java.lang.Object getValue() {
+        return name;
+      }
+    });
+    ss.put ( new PropertySupport.ReadOnly ( Util.getLocalizedString("TITLE_Type"), String.class, Util.getLocalizedString("TITLE_Type"), Util.getLocalizedString("TIP_PrimitiveType")){
+      public java.lang.Object getValue() {
+        return Util.typeCode2TypeString(tc, new StringHolder());
+      }
+    });
+    ss.put ( new PropertySupport.ReadOnly ( Util.getLocalizedString("TITLE_Dimension"), String.class, Util.getLocalizedString("TITLE_Dimension"), Util.getLocalizedString("TIP_PrimitiveDimension")){
+      public java.lang.Object getValue() {
+        StringHolder holder = new StringHolder();
+        Util.typeCode2TypeString (tc, holder);
+        return (holder.value==null)?"":holder.value;
+      }
+    });
+    return s;
+  }
+  
+  public String getRepositoryId () {
+    return Util.getLocalizedString("MSG_PrimitiveType");
+  }
+  
+  // This node has only the generator for instance,
+  // because the generation is handled by its paarent
+  public GenerateSupport createGenerator (){
+    if (this.generator == null)
+      this.generator = new PrimitiveCodeGenerator (this.name, this.tc);
+    return this.generator;
+  }
+  
 }

@@ -19,109 +19,113 @@ import org.openide.nodes.PropertySupport;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
-/**
+/** 
  *
  * @author  Tomas Zezula
  * @version 
  */
 public class IRExceptionDefNode extends IRContainerNode {
 
+  private ExceptionDef _exception;
+  private static final String EXCEPTION_ICON_BASE =
+    "org/netbeans/modules/corba/idl/node/exception";
+  
+  private static class ExceptionCodeGenerator implements GenerateSupport {
     private ExceptionDef _exception;
-    private static final String EXCEPTION_ICON_BASE =
-        "org/netbeans/modules/corba/idl/node/exception";
-
-    private static class ExceptionCodeGenerator implements GenerateSupport {
-        private ExceptionDef _exception;
-
-        public ExceptionCodeGenerator (ExceptionDef exception){
-            this._exception = exception;
-        }
-
-        public String generateHead (int indent){
-            String code = "";
-            for (int i=0; i<indent; i++)
-                code = code + "  ";
-            code = code + "exception " + _exception.name() + " {\n";
-            return code;
-        }
-
-        public String generateSelf (int indent){
-            String code = generateHead(indent);
-            String fill = "";
-            for (int i=0; i<=indent; i++)
-                fill = fill + "  ";
-            StructMember[] members = _exception.members();
-            StringHolder dimension = new StringHolder();
-            for (int i = 0; i < members.length; i++){
-                dimension.value = null;
-                code = code + fill + Util.typeCode2TypeString ( members[i].type, dimension) + " "+members[i].name+((dimension.value==null)?"":dimension.value)+";\n";
-            }
-            code = code + generateTail (indent);
-            return code;
-        }
-
-        public String generateTail (int indent){
-            String code = "";
-            for (int i=0; i<indent; i++)
-                code = code + "  ";
-            code = code + "}; // Exception " + _exception.name() + "\n\n";
-            return code;
-        }
-
+    
+    public ExceptionCodeGenerator (ExceptionDef exception){
+      this._exception = exception;
     }
-
-    /** Creates new IRExceptionDefNode */
-    public IRExceptionDefNode(Contained value) {
-        super(new ExceptionChildren(ExceptionDefHelper.narrow(value)));
-        _exception = ExceptionDefHelper.narrow(value);
-        setIconBase(EXCEPTION_ICON_BASE);
+    
+    public String generateHead (int indent){
+      String code = "";
+      for (int i=0; i<indent; i++)
+        code = code + "  ";
+      code = code + "exception " + _exception.name() + " {\n";
+      return code;	
     }
-
-
-    public String getDisplayName(){
-        if (_exception != null)
-            return _exception.name();
-        else
-            return "";
+    
+    public String generateSelf (int indent){
+     String code = generateHead(indent);
+     String fill = "";
+     for (int i=0; i<=indent; i++)
+      fill = fill + "  ";
+     StructMember[] members = _exception.members();
+     StringHolder dimension = new StringHolder();
+     for (int i = 0; i < members.length; i++){
+       dimension.value = null;
+       code = code + fill + Util.typeCode2TypeString ( members[i].type, dimension) + " "+members[i].name+((dimension.value==null)?"":dimension.value)+";\n";
+     }
+    code = code + generateTail (indent);
+     return code;
     }
-
-
-    public String getName(){
-        return this.getDisplayName();
+    
+    public String generateTail (int indent){
+      String code = "";
+      for (int i=0; i<indent; i++)
+        code = code + "  ";
+      code = code + "}; // Exception " + _exception.name() + "\n\n";
+      return code;
     }
-
-    public Sheet createSheet (){
-        Sheet s = Sheet.createDefault();
-        Sheet.Set ss = s.get(Sheet.PROPERTIES);
-        ss.put ( new PropertySupport.ReadOnly(Util.getLocalizedString("TITLE_Name"),String.class,Util.getLocalizedString("TITLE_Name"),Util.getLocalizedString("TIP_ExceptionName")){
-                     public java.lang.Object getValue(){
-                         return _exception.name();
-                     }
-                 });
-        ss.put ( new PropertySupport.ReadOnly(Util.getLocalizedString("TITLE_Id"),String.class,Util.getLocalizedString("TITLE_Id"),Util.getLocalizedString("TIP_ExceptionId")){
-                     public java.lang.Object getValue(){
-                         return _exception.id();
-                     }
-                 });
-        ss.put ( new PropertySupport.ReadOnly(Util.getLocalizedString("TITLE_Version"),String.class,Util.getLocalizedString("TITLE_Version"),Util.getLocalizedString("TIP_ExceptionVersion")){
-                     public java.lang.Object getValue(){
-                         return _exception.version();
-                     }
-                 });
-        return s;
-    }
-
-    public GenerateSupport createGenerator () {
-        if (this.generator == null)
-            this.generator = new ExceptionCodeGenerator (_exception);
-        return this.generator;
-    }
-
-    public static GenerateSupport createGeneratorFor (Contained type){
-        ExceptionDef exception = ExceptionDefHelper.narrow (type);
-        if (exception == null)
-            return null;
-        return new ExceptionCodeGenerator (exception);
-    }
-
+    
+  }
+  
+  /** Creates new IRExceptionDefNode */
+  public IRExceptionDefNode(Contained value) {
+    super(new ExceptionChildren(ExceptionDefHelper.narrow(value)));
+    _exception = ExceptionDefHelper.narrow(value);
+    setIconBase(EXCEPTION_ICON_BASE);
+  }
+  
+  
+  public String getDisplayName(){
+    if (_exception != null)
+      return _exception.name();
+    else 
+      return "";
+  }
+  
+  
+  public String getName(){
+    return this.getDisplayName();
+  }
+  
+  public Sheet createSheet (){
+    Sheet s = Sheet.createDefault();
+    Sheet.Set ss = s.get(Sheet.PROPERTIES);
+    ss.put ( new PropertySupport.ReadOnly(Util.getLocalizedString("TITLE_Name"),String.class,Util.getLocalizedString("TITLE_Name"),Util.getLocalizedString("TIP_ExceptionName")){
+      public java.lang.Object getValue(){
+        return _exception.name();
+      }
+    });
+    ss.put ( new PropertySupport.ReadOnly(Util.getLocalizedString("TITLE_Id"),String.class,Util.getLocalizedString("TITLE_Id"),Util.getLocalizedString("TIP_ExceptionId")){
+      public java.lang.Object getValue(){
+        return _exception.id();
+      }
+    });
+    ss.put ( new PropertySupport.ReadOnly(Util.getLocalizedString("TITLE_Version"),String.class,Util.getLocalizedString("TITLE_Version"),Util.getLocalizedString("TIP_ExceptionVersion")){
+      public java.lang.Object getValue(){
+        return _exception.version();
+      }
+    });
+    return s;
+  }
+  
+  public String getRepositoryId () {
+    return this._exception.id();
+  }
+  
+  public GenerateSupport createGenerator () {
+    if (this.generator == null)
+      this.generator = new ExceptionCodeGenerator (_exception);
+    return this.generator;
+  }
+  
+  public static GenerateSupport createGeneratorFor (Contained type){
+    ExceptionDef exception = ExceptionDefHelper.narrow (type);
+    if (exception == null)
+      return null;
+    return new ExceptionCodeGenerator (exception);
+  }
+  
 }
