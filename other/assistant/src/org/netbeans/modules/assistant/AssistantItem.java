@@ -16,7 +16,7 @@ package org.netbeans.modules.assistant;
 import java.net.*;
 import javax.swing.tree.*;
 /*
- * AssistantID.java
+ * AssistantItem.java
  *
  * Created on October 11, 2002, 1:52 PM
  *

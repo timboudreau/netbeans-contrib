@@ -51,6 +51,10 @@ public class ToolboxComponent extends TopComponent{
         component = null;
     }
     
+    public HelpCtx getHelpCtx(){
+        return new HelpCtx("toolbox");
+    }
+    
     private void initAccessibility(){
         getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ToolboxComponent.class, "ACS_Toolbox_DESC")); // NOI18N
     }

@@ -51,42 +51,8 @@ public interface AssistantModel {
     /**
      * Gets the current URL
      */
-    public URL getCurrentURL();
-    
-    /**
-     * Adds new link into porper section
-     *
-     *@param id The id to set as reference
-     */
-    public void addLink(AssistantID id);
-    
-    /**
-     * Removes link from section
-     *
-     *@param id The id to remove
-     *@return true if id was removed, false if id doesn't exist
-     */
-    public boolean removeLink(AssistantID id);
-    
-    /**
-     * Adds new section into Assistant
-     *
-     *@param section The section to add
-     */
-    public void addSection(AssistantSection section);
-    
-    /**
-     * Removes section from Assistant
-     *
-     *@param section The section to remove
-     */
-    public void removeSection(AssistantSection section);
-    
-    /**
-     * Returns all section in Assistant
-     *
-     */
-    public Vector getSections();
+    public URL getCurrentURL();     
+
     
     /**
      * Adds a listener for the AssistantModelEvent posted after the model has

@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.assistant;
 
+import org.netbeans.modules.assistant.tests.*;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.*;
@@ -56,34 +57,14 @@ public class AssistantComponent extends TopComponent{
     }
     
     private AssistantModel getModel(){
-        AssistantSection[] sections = new AssistantSection[3];
-        sections[0] = new AssistantSection("IDE Navigator");
-        sections[1] = new AssistantSection("Dynamic Help");
-        sections[2] = new AssistantSection("Description");        
-        java.net.URL url = null;
-        java.net.URL url1 = null;
-        java.net.URL url2 = null;
-        java.net.URL url3 = null;
-        java.net.URL descURL = null;
-        try{
-            url = getClass().getResource("/org/netbeans/modules/assistant/pages/DefaultContent.html");
-            url1 = getClass().getResource("/org/netbeans/modules/assistant/pages/DefaultContent1.html");
-            url2 = getClass().getResource("/org/netbeans/modules/assistant/pages/DefaultContent2.html");
-            url3 = getClass().getResource("/org/netbeans/modules/assistant/pages/DefaultContent3.html");
-            descURL = getClass().getResource("/org/netbeans/modules/assistant/pages/DefaultDescription.html");                        
-        }catch(Exception e){
-            ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
-        }
-        sections[0].add(new javax.swing.tree.DefaultMutableTreeNode(new AssistantItem("test1","TestOne",url3)));
-        sections[0].add(new javax.swing.tree.DefaultMutableTreeNode(new AssistantItem("test2","TestTwo",url1)));
-        sections[1].add(new javax.swing.tree.DefaultMutableTreeNode(new AssistantItem("test3","TestThree",url2)));
-        AssistantItem item = new AssistantItem("desc", "text of description", descURL,AssistantItem.DESCRIPTION);
-        sections[2].add(new javax.swing.tree.DefaultMutableTreeNode(item));
+       return TestModel.getModel();         
         
-        model = new DefaultAssistantModel(sections);
-        return model;
     }
     
+    public HelpCtx getHelpCtx(){
+        return new HelpCtx("assistant");
+    }
+
     private void initAccessibility(){
         getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(AssistantComponent.class, "ACS_Assistant_DESC")); // NOI18N
     }

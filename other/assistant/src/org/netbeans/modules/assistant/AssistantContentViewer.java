@@ -78,8 +78,23 @@ public class AssistantContentViewer extends TopComponent implements AssistantMod
      *
      */
     public void idChanged(AssistantModelEvent e) {
+        debug("id changed");
+    }
+    
+    /** Tells the listener that the current URL has changed.
+     *
+     * @param e The event
+     *
+     */
+    public void urlChanged(AssistantModelEvent e) {
+        debug("set page:"+e.getURL());
         setPage(e.getURL());
     }
     
+    private boolean debug = false;
+    private void debug(String msg){
+        if(debug)
+            System.err.println("AssistantContentViewer: "+msg);
+    }
 }
 

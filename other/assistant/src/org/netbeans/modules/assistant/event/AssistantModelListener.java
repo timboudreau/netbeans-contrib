@@ -28,4 +28,11 @@ public interface AssistantModelListener extends java.util.EventListener {
      * @param e The event
      */
     public void idChanged(AssistantModelEvent e);
+    
+    /**
+     *Tells the listener that the current URL has changed.
+     *
+     *@param e The event
+     */
+    public void urlChanged(AssistantModelEvent e);
 }

@@ -14,9 +14,12 @@
 
 package org.netbeans.modules.assistant;
 
+import org.openide.windows.*;
+
 import org.netbeans.modules.assistant.event.*;
 import java.beans.*;
 import java.util.*;
+import java.io.*;
 import javax.swing.event.*;
 import java.net.*;
 
@@ -27,23 +30,31 @@ import java.net.*;
  *
  * @author  Richard Gregor
  */
-public class DefaultAssistantModel implements AssistantModel{
+public class DefaultAssistantModel implements AssistantModel, PropertyChangeListener{
     private Vector sections = null; 
     protected EventListenerList listenerList = new EventListenerList();
     private static AssistantModel model;
     private AssistantContentViewer contentViewer;
+    private AssistantID currentID;
+    
+    /*
+     * Registry contains all registered IDs - assistant contents
+     * Key is ID name, value is AssistantID
+     *
+     */
+    private HashSet registry;
     
     public DefaultAssistantModel(){
         this(null);
-    }
+    } 
     
-    public DefaultAssistantModel(AssistantSection[] section){
-        this.sections = new Vector();
-        if(section != null){
-            for(int i = 0; i < section.length; i++)
-                sections.addElement(section[i]);
+    public DefaultAssistantModel(AssistantContext ctx){
+        registry = new HashSet();
+        if(ctx != null){
+            registry.add(ctx);
         }
         contentViewer = AssistantContentViewer.createComp();
+        TopComponent.getRegistry().addPropertyChangeListener(this);
     }
     
     public static AssistantModel getModel(){
@@ -55,18 +66,40 @@ public class DefaultAssistantModel implements AssistantModel{
     
     /**
      * Sets the current ID
-     * AssistantModelListeners are notified
+     * AssistantModelListeners are notified. This should cause change of assistant content.
      *
      * @param id the ID used to set
      */
     public void setCurrentID(AssistantID id){
+        this.currentID = id;
+        fireIDChanged(this,id);
     }
-    
+    /**
+     * Sets the current ID
+     * AssistantModelListeners are notified. This should cause change of assistant content.
+     *
+     * @param id the ID used to set
+     */
+    public void setCurrentID(String idName){
+        if(idName.equals("assistant"))
+            return;
+        for(Iterator it = registry.iterator();it.hasNext();){
+            AssistantContext ctx = (AssistantContext)it.next();
+            for(Enumeration en = ctx.getIDs();en.hasMoreElements();){
+                AssistantID id = (AssistantID)en.nextElement();
+                if(id.getName().equals(idName)){
+                    setCurrentID(id);
+                    return;
+                }
+            }
+        }
+    }
+        
     /**
      * Gets the current ID
      */
     public AssistantID getCurrentID(){
-        return null;
+        return currentID;
     }
     
     /**
@@ -76,6 +109,7 @@ public class DefaultAssistantModel implements AssistantModel{
      * @param url the URL used to set
      */
     public void setCurrentURL(URL url){
+        debug("set url: "+url);
         fireURLChanged(this, url);   
         contentViewer.open();
         contentViewer.requestFocus();
@@ -87,55 +121,15 @@ public class DefaultAssistantModel implements AssistantModel{
      */
     public URL getCurrentURL(){
         return null;
-    }
+    }        
     
     /**
-     * Adds new link into porper section
+     * Registry the assistant's items with this model
      *
-     *@param id The id to set as reference
+     *@param xmlFile The xml file definig assistant structure according to assistant-1_0.dtd 
      */
-    public void addLink(AssistantID id){
+    public void registry(File xmlFile){
     }
-    
-    /**
-     * Removes link from section
-     *
-     *@param id The id to remove
-     *@return true if id was removed, false if id doesn't exist
-     */
-    public boolean removeLink(AssistantID id){
-        return false;
-    }
-    
-    /**
-     * Adds new section into Assistant
-     *
-     *@param section The section to add
-     */
-    public void addSection(AssistantSection section){
-        if(sections == null)
-            sections = new Vector();
-        sections.addElement(section);
-    }
-    
-    /**
-     * Removes section from Assistant
-     *
-     *@param section The section to remove
-     */
-    public void removeSection(AssistantSection section){
-        if(sections != null)
-            sections.removeElement(section);
-    }
-    
-    /**
-     * Returns all section in Assistant
-     *
-     */
-    public Vector getSections(){
-        return sections;
-    }
-    
     /**
      * Adds a listener for the AssistantModelEvent posted after the model has
      * changed.
@@ -182,8 +176,43 @@ public class DefaultAssistantModel implements AssistantModel{
 		if (e == null) {
 		    e = new AssistantModelEvent(source, null, url);
 		}		
+		((AssistantModelListener)listeners[i+1]).urlChanged(e);
+	    }	       
+	}
+    }
+    
+    protected void fireIDChanged(Object source, AssistantID id) {
+	Object[] listeners = listenerList.getListenerList();
+	AssistantModelEvent e = null;
+
+	for (int i = listeners.length - 2; i >= 0; i -= 2) {
+	    if (listeners[i] == AssistantModelListener.class) {
+		if (e == null) {
+		    e = new AssistantModelEvent(source, id, null);
+		}		
 		((AssistantModelListener)listeners[i+1]).idChanged(e);
 	    }	       
+	}
+    }
+    
+    /** This method gets called when a bound property is changed.
+     * @param evt A PropertyChangeEvent object describing the event source
+     *   	and the property that has changed.
+     *
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        TopComponent.Registry registry = (TopComponent.Registry)evt.getSource();
+        TopComponent comp = registry.getActivated();
+        if(comp != null){
+            debug("id: "+comp.getHelpCtx().getHelpID());
+            setCurrentID(comp.getHelpCtx().getHelpID());
+        }
+    }
+
+    private static final boolean debug = false;
+    private static void debug(String msg) {
+	if (debug) {
+	    System.err.println("DefaultAssistantModel: "+msg);
 	}
     }
 }

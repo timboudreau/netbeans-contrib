@@ -14,6 +14,7 @@
 package org.netbeans.modules.assistant;
 
 import org.netbeans.modules.assistant.ui.*;
+import org.netbeans.modules.assistant.event.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -34,7 +35,7 @@ import org.openide.util.*;
  *Created on May 27, 2002, 6:14 PM
  */
 
-public class AssistantView extends javax.swing.JPanel implements TreeSelectionListener{
+public class AssistantView extends javax.swing.JPanel implements TreeSelectionListener, AssistantModelListener{
     private ResourceBundle bundle;
     private JButton button;
     private String page = null;
@@ -47,9 +48,11 @@ public class AssistantView extends javax.swing.JPanel implements TreeSelectionLi
     
     public AssistantView(AssistantModel model) {
         this.model = model;
+        model.addAssistantModelListener(this);
         setLayout(new BorderLayout());
         rootNode = new DefaultMutableTreeNode();
         tree = new JTree(loadData());
+        expandTree();
         tree.addTreeSelectionListener(this);
         tree.setRootVisible(false);  
         tree.putClientProperty("JTree.lineStyle", "None");
@@ -66,17 +69,43 @@ public class AssistantView extends javax.swing.JPanel implements TreeSelectionLi
         add(search,BorderLayout.SOUTH);
         setMinimumSize(new java.awt.Dimension(170,240));
         setPreferredSize(new java.awt.Dimension(170,240));               
-       // initListeners();
+
         
     }
-    private DefaultMutableTreeNode loadData(){
+    private DefaultMutableTreeNode loadData(){ 
+        debug("load data");
         if (rootNode == null)
-            return rootNode;        
-        Vector sections = model.getSections();        
-        for(Enumeration en = sections.elements();en.hasMoreElements();)
-            rootNode.add((AssistantSection)en.nextElement());
+            return rootNode;
+        rootNode.removeAllChildren();
+        AssistantID id = model.getCurrentID();
+        if(id == null)
+            return rootNode;
+        Enumeration sections = id.getSections();
+        if(sections == null)
+            return rootNode;
+        while(sections.hasMoreElements())
+                rootNode.add((AssistantSection)sections.nextElement());
+        if(tree != null){ 
+            ((DefaultTreeModel)tree.getModel()).reload();
+            expandTree();
+        }
         return rootNode;
-    }         
+    }
+    
+    private void expandTree(){
+        if(rootNode == null)
+            return;
+        DefaultMutableTreeNode node = null;
+        Enumeration nodes = rootNode.children();
+        while(nodes.hasMoreElements()){
+            node = (DefaultMutableTreeNode)nodes.nextElement();
+            if(node.getChildCount() > 0){
+                DefaultMutableTreeNode child = (DefaultMutableTreeNode)node.getFirstChild();
+                TreePath path = new TreePath(child.getPath());
+                tree.makeVisible(path);
+            }
+        }
+    }       
               
     /**
      * Called whenever the value of the selection changes.
@@ -86,6 +115,8 @@ public class AssistantView extends javax.swing.JPanel implements TreeSelectionLi
     public void valueChanged(TreeSelectionEvent e) {
         debug("value changed");
         TreePath selectedTreePath = e.getNewLeadSelectionPath();
+        if(selectedTreePath == null)
+            return;
         Object obj = selectedTreePath.getLastPathComponent();
         if (obj != null){
             if(obj instanceof DefaultMutableTreeNode){
@@ -96,15 +127,36 @@ public class AssistantView extends javax.swing.JPanel implements TreeSelectionLi
                     debug("item");
                     AssistantItem item = (AssistantItem)object;
                     if(item != null){
+                        debug("item url: "+item.getURL());
                         URL newURL = item.getURL();
                         if((newURL != null)&& (model != null)){
-                            debug("item:"+item);
+                            debug("item:"+item);                            
                             model.setCurrentURL(item.getURL());
+                            
                         }
                     }
                 }
             }
         }
+    }      
+    
+    /** Tells the listener that the current ID in the AssistantModel has
+     * changed.
+     *
+     * @param e The event
+     *
+     */
+    public void idChanged(AssistantModelEvent e) {
+        loadData();
+    }
+    
+    /** Tells the listener that the current URL has changed.
+     *
+     * @param e The event
+     *
+     */
+    public void urlChanged(AssistantModelEvent e) {
+       //ignore
     }
     
     private boolean debug = false;
@@ -112,5 +164,4 @@ public class AssistantView extends javax.swing.JPanel implements TreeSelectionLi
         if(debug)
             System.err.println("View: "+msg);
     }
-    
 }
