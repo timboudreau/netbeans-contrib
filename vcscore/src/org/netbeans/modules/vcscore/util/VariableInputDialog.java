@@ -969,6 +969,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
         area.setBorder(new javax.swing.border.BevelBorder(javax.swing.border.BevelBorder.LOWERED));
         variablePanel.add(label, gridBagConstraints1);
         variablePanel.add(scrollArea, gridBagConstraints2);
+        if (variablePanel.isAncestorOf(pushPanel1)) {
+            variablePanel.remove(pushPanel1);
+        } else if (variablePanel.isAncestorOf(pushPanel2)) {
+            variablePanel.remove(pushPanel2);
+        }
         //fileLabels.addElement(label);
         //areas.addElement(area);
         //VcsUtilities.removeEnterFromKeymap(field);
