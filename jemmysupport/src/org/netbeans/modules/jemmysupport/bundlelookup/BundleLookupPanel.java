@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -389,7 +389,7 @@ public class BundleLookupPanel extends TopComponent  {
 
         filterPanel.setLayout(new java.awt.GridBagLayout());
 
-        filterPanel.setBorder(new javax.swing.border.LineBorder((java.awt.Color) javax.swing.UIManager.getDefaults().get("Button.darkShadow")));
+        filterPanel.setBorder(new javax.swing.border.LineBorder(javax.swing.UIManager.getDefaults().getColor("Button.darkShadow")));
         BundleFilter.setLabelFor(BundleTextField);
         BundleFilter.setText(org.openide.util.NbBundle.getMessage(BundleLookupPanel.class, "LBL_ResourceBundle"));
         BundleFilter.setToolTipText(org.openide.util.NbBundle.getMessage(BundleLookupPanel.class, "TTT_BundleText"));
@@ -582,24 +582,24 @@ public class BundleLookupPanel extends TopComponent  {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel ResultsLabel;
-    private javax.swing.JLabel BundleFilter;
-    private javax.swing.JCheckBox BundleSubstringCheck;
     private javax.swing.JCheckBox BundleCaseCheck;
-    private javax.swing.JScrollPane ScrollPane;
-    private javax.swing.JButton StopButton;
-    private javax.swing.JPanel filterPanel;
-    private javax.swing.JCheckBox TextCaseCheck;
-    private javax.swing.JTextField SearchTextField;
-    private javax.swing.JCheckBox TextSubstringCheck;
-    private javax.swing.JLabel SearchTextLabel;
-    private javax.swing.JButton SearchButton;
+    private javax.swing.JLabel BundleFilter;
     private javax.swing.JCheckBox BundleRegCheck;
-    private javax.swing.JTable ResultTable;
+    private javax.swing.JCheckBox BundleSubstringCheck;
     private javax.swing.JTextField BundleTextField;
-    private javax.swing.JCheckBox UseFilterCheck;
+    private javax.swing.JTable ResultTable;
+    private javax.swing.JLabel ResultsLabel;
+    private javax.swing.JScrollPane ScrollPane;
+    private javax.swing.JButton SearchButton;
+    private javax.swing.JTextField SearchTextField;
+    private javax.swing.JLabel SearchTextLabel;
     private javax.swing.JLabel StatusLabel;
+    private javax.swing.JButton StopButton;
+    private javax.swing.JCheckBox TextCaseCheck;
     private javax.swing.JCheckBox TextRegCheck;
+    private javax.swing.JCheckBox TextSubstringCheck;
+    private javax.swing.JCheckBox UseFilterCheck;
+    private javax.swing.JPanel filterPanel;
     // End of variables declaration//GEN-END:variables
                        
     /** opens panel
@@ -608,6 +608,7 @@ public class BundleLookupPanel extends TopComponent  {
         if (panel==null)
             panel=new BundleLookupPanel();
         panel.open();
+        panel.requestActive();
         if (text!=null && panel.SearchButton.isVisible()) {
             panel.SearchTextField.setText(text);
             panel.SearchButtonActionPerformed(null);
@@ -619,6 +620,12 @@ public class BundleLookupPanel extends TopComponent  {
      */    
     public static void main(String args[]) {
         BundleLookupPanel.openPanel(null);
+    }
+    
+    /** Persistence type of TopComponent instance. TopComponent is persistent only when
+     * it is opened in Mode. */
+    public int getPersistenceType() {
+        return PERSISTENCE_ONLY_OPENED;
     }
     
 }

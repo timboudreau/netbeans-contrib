@@ -214,8 +214,8 @@
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="ResultTableMouseClicked"/>
           </Events>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="ResultTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);&#xa;"/>
             <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value=""/>
+            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="ResultTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);&#xa;"/>
           </AuxValues>
         </Component>
       </SubComponents>

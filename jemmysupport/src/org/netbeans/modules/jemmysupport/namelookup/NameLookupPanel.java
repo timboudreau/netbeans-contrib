@@ -7,42 +7,59 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.jemmysupport.namelookup;
 
-import java.awt.Toolkit;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import org.openide.ErrorManager;
+import javax.swing.JPanel;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
 
 /** Panel for Component name lookup.
  * @author Jiri.Skrivanek@sun.com 
  */
-public class NameLookupPanel extends TopComponent implements PropertyChangeListener {
+public class NameLookupPanel extends JPanel implements PropertyChangeListener {
     
     static NameLookupPanel panel=null;
     private NameLookup nameLookup;
+    // dialog to show panel
+    private static java.awt.Dialog dialog;
     
     /** Creates new NameLookupPanel. */
     public NameLookupPanel() {
         super();
-        setName(NbBundle.getMessage(NameLookupPanel.class, "Title")); // NOI18N
-        try {
-            setIcon(Toolkit.getDefaultToolkit().getImage(
-            getClass().getResource("/org/netbeans/modules/jemmysupport/namelookup/NameLookupAction.gif"))); // NOI18N
-        } catch (Exception e){
-            ErrorManager.getDefault().notify(e);
-        }
         initComponents();
         nameLookup = new NameLookup();
         nameLookup.setShowFullName(cbFullName.isSelected());
     }
+
+
+    /** creates ans shows Name Lookup dialog
+     */    
+    public static void showDialog(){
+        if (dialog==null) {
+            panel = new NameLookupPanel();
+            dialog = DialogDisplayer.getDefault().createDialog(
+                new DialogDescriptor(panel, 
+                                     NbBundle.getMessage(NameLookupPanel.class, "Title"), 
+                                     false, 
+                                     new Object[] {DialogDescriptor.CLOSED_OPTION}, 
+                                     null, 
+                                     DialogDescriptor.BOTTOM_ALIGN, 
+                                     new HelpCtx(NameLookupPanel.class), 
+                                     null
+                )
+             );
+        }
+        dialog.show();
+    }
+    
     
     /** Starts name lookup and register itself to listen component changes.
      * @see NameLookup
@@ -88,7 +105,8 @@ public class NameLookupPanel extends TopComponent implements PropertyChangeListe
 
         setLayout(new java.awt.GridBagLayout());
 
-        setPreferredSize(new java.awt.Dimension(600, 220));
+        setMinimumSize(new java.awt.Dimension(320, 150));
+        setPreferredSize(new java.awt.Dimension(600, 150));
         getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(NameLookupPanel.class, "Title"));
         getAccessibleContext().setAccessibleDescription("N/A");
         lblName.setText(org.openide.util.NbBundle.getMessage(NameLookupPanel.class, "LBL_MoveMouse"));
@@ -120,7 +138,7 @@ public class NameLookupPanel extends TopComponent implements PropertyChangeListe
 
         classPanel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 102, 102)));
         classPanel.setPreferredSize(new java.awt.Dimension(600, 76));
-        lblClass.setBackground((java.awt.Color) javax.swing.UIManager.getDefaults().get("Button.highlight"));
+        lblClass.setBackground(javax.swing.UIManager.getDefaults().getColor("Button.highlight"));
         lblClass.setToolTipText(NbBundle.getMessage(NameLookupPanel.class, "TTT_ClassName"));
         lblClass.setMinimumSize(new java.awt.Dimension(200, 16));
         lblClass.setName("lblClass");
@@ -222,14 +240,6 @@ public class NameLookupPanel extends TopComponent implements PropertyChangeListe
     private javax.swing.JTextField txtOperator;
     // End of variables declaration//GEN-END:variables
     
-    /** opens panel */
-    public static void openPanel() {
-        if (panel == null) {
-            panel = new NameLookupPanel();
-        }
-        panel.open();
-    }
-    
     /** If component has changed in name lookup, change values of labels
      * and text fields in the panel.
      * @param evt event
@@ -247,11 +257,10 @@ public class NameLookupPanel extends TopComponent implements PropertyChangeListe
         }
     }
 
-    /** opens panel for debugging purposes
+    /** opens dialog for debugging purposes
      * @param args command line argument
      */
     public static void main(String args[]) {
-        NameLookupPanel.openPanel();
+        NameLookupPanel.showDialog();
     }
-    
 }
