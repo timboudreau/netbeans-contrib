@@ -1958,9 +1958,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             moduleSlashes = m.replace(File.separatorChar, '/');
         } else moduleSlashes = m;
         int i = rDirSlashes.lastIndexOf(moduleSlashes);
-        if (i <= 0) return rDir;
-        if (chRDir) return rDir.substring(0, i-1).replace('/', File.separatorChar);
-        else return rDir.substring(0, i-1); // I have to remove the slash also.
+        if (i > 0) {
+            if (chRDir) rDir = rDir.substring(0, i-1).replace('/', File.separatorChar);
+            else rDir = rDir.substring(0, i-1); // I have to remove the slash also.
+        }
+        if (org.openide.util.Utilities.isWindows() && rDir.length() == 2 &&
+            Character.isLetter(rDir.charAt(0)) && ':' == rDir.charAt(1)) {
+            rDir += "\\"; // A special case for C:\
+        }
+        return rDir;
     }
 
 
