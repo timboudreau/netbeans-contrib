@@ -17,7 +17,6 @@ import java.beans.*;
 
 import org.openide.actions.PropertiesAction;
 import org.openide.actions.ToolsAction;
-import org.openide.cookies.ElementCookie;
 import org.openide.cookies.FilterCookie;
 import org.openide.nodes.Node;
 import org.openide.nodes.AbstractNode;
@@ -184,25 +183,3 @@ final class ClassElementNodeFactory extends DefaultFactory {
     }
 
 }
-
-/*
-* Log
-*  12   src-jtulach1.11        1/13/00  David Simonek   i18n
-*  11   src-jtulach1.10        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
-*       Microsystems Copyright in File Comment
-*  10   src-jtulach1.9         7/9/99   Petr Hrebejk    Factory chaining fixed
-*  9    src-jtulach1.8         7/8/99   Jan Jancura     Special icons for Object 
-*       Br.
-*  8    src-jtulach1.7         6/28/99  Petr Hamernik   new hierarchy under 
-*       ClassChildren
-*  7    src-jtulach1.6         6/9/99   Ian Formanek    ToolsAction
-*  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
-*       org.openide ----
-*  5    src-jtulach1.4         5/16/99  Jaroslav Tulach New hiearchy.
-*  4    src-jtulach1.3         4/2/99   Jan Jancura     ObjectBrowser support II.
-*  3    src-jtulach1.2         4/1/99   Ian Formanek    Rollback to make it 
-*       compilable
-*  2    src-jtulach1.1         4/1/99   Jan Jancura     Object browser support
-*  1    src-jtulach1.0         3/26/99  David Simonek   
-* $
-*/

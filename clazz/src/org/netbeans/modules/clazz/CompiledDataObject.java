@@ -20,14 +20,12 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.beans.*;
 import java.io.*;
-import java.lang.reflect.*;
-import java.util.Enumeration;
 import java.util.StringTokenizer;
-import java.util.Vector;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.text.MessageFormat;
+import java.util.Iterator;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 
@@ -156,7 +154,7 @@ public class CompiledDataObject extends ClassDataObject {
                                       new MessageFormat(bundle.getString("MSG_SerExists")).
                                       format(new Object[] { name, f.getName() }));
             nd.setOptions(new Object[] { rewriteStr, renameStr, cancelStr });
-            String retStr = (String)TopManager.getDefault().notify(nd);
+            String retStr = (String)DialogDisplayer.getDefault().notify(nd);
             if (cancelStr.equals(retStr)) // user cancelled the dialog
                 throw new UserCancelException();
             if (renameStr.equals(retStr))
@@ -179,7 +177,7 @@ public class CompiledDataObject extends ClassDataObject {
 
     // innerclasses .......................................................
     
-    private static class ExecSupport extends org.openide.loaders.ExecSupport {
+    private static class ExecSupport extends org.openide.loaders.ExecutionSupport {
         ExecSupport(MultiDataObject.Entry en) {
             super(en);
         }
@@ -189,10 +187,11 @@ public class CompiledDataObject extends ClassDataObject {
          * service from the java module.
          */
         protected Executor defaultExecutor() {
-            Enumeration servs = org.openide.TopManager.getDefault().getServices().
-                services(Executor.class);
-            while (servs.hasMoreElements()) {
-                Object o = servs.nextElement();
+            Lookup.Result servs = Lookup.getDefault().lookup(new Lookup.Template(Executor.class));
+            Iterator servsIt = servs.allInstances().iterator();
+
+            while (servsIt.hasNext()) {
+                Object o = servsIt.next();
                 if (o.getClass().getName().startsWith(
                     "org.netbeans.modules.java.JavaProcessExecutor" // NOI18N
                     )) {

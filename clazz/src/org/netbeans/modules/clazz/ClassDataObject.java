@@ -56,7 +56,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.openide.cookies.SourceCookie;
-import org.openide.cookies.ElementCookie;
 import org.openide.cookies.InstanceCookie;
 import org.openide.ErrorManager;
 
@@ -77,7 +76,7 @@ import java.lang.ref.WeakReference;
  * @author sdedic
  * @version 1.0
  */
-public class ClassDataObject extends MultiDataObject implements Factory, SourceCookie, ElementCookie {
+public class ClassDataObject extends MultiDataObject implements Factory, SourceCookie {
     public static final String PROP_CLASS_LOADING_ERROR = "classLoadingError"; // NOI18N
     /**
      * Holds an exception that occured during an attempt to create the class.
@@ -280,33 +279,6 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
     */
     public HelpCtx getHelpCtx () {
         return new HelpCtx (ClassDataObject.class);
-    }
-
-    // implementation of ElementCookie ..........................................
-
-    /**
-     * Get the alternate node representation.
-     * @return the node
-     * @see org.openide.loaders.DataObject#getNodeDelegate
-    */
-    public Node getElementsParent () {
-        SourceElement ourClass = getSource();
-        if (ourClass == null)
-            return null;
-        ElementNodeFactory cef = getBrowserFactory();
-        final SourceChildren sourceChildren = new SourceChildren (cef);
-        SourceElementFilter sourceElementFilter = new SourceElementFilter();
-        sourceElementFilter.setAllClasses (true);
-        sourceChildren.setFilter (sourceElementFilter);
-        sourceChildren.setElement(ourClass);
-
-        AbstractNode alteranteParent = new AbstractNode (sourceChildren) {
-            {
-                getCookieSet().add(sourceChildren);
-            }
-        };
-
-        return alteranteParent;
     }
 
     // DataObject implementation .............................................
@@ -527,10 +499,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
             perms.add(new java.util.PropertyPermission("*", "read")); // NOI18N
             perms.setReadOnly();
 
-            org.openide.execution.NbClassLoader loader = 
-                new org.openide.execution.NbClassLoader(
-                    new org.openide.filesystems.FileSystem[] {},
-                    org.openide.TopManager.getDefault().currentClassLoader());
+            org.openide.execution.NbClassLoader loader = new org.openide.execution.NbClassLoader();
             loader.setDefaultPermissions(perms);
             return loader;
         }
