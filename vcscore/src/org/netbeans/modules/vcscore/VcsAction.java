@@ -285,11 +285,15 @@ public class VcsAction extends NodeAction implements ActionListener {
     /**
      * Lock files in VCS. This command does not save the file contents.
      * @param files the table pairs of file name and associated <code>FileObject</code>
+     * @return The array of command executors if the lock command was found.
+     *         Otherwise <code>null</code> is returned.
      */
-    public static void doLock(Table files, VcsFileSystem fileSystem) {
+    public static VcsCommandExecutor[] doLock(Table files, VcsFileSystem fileSystem) {
         VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_LOCK);
         if (cmd != null) {
-            doCommand(files, cmd, null, fileSystem, null, null, null, null, false);
+            return doCommand(files, cmd, null, fileSystem, null, null, null, null, false);
+        } else {
+            return null;
         }
     }
     
@@ -305,8 +309,10 @@ public class VcsAction extends NodeAction implements ActionListener {
     /**
      * Prepare for edit files in VCS. This command does not save the file contents.
      * @param files the table pairs of file name and associated <code>FileObject</code>
+     * @return The array of command executors if the edit command was found.
+     *         Otherwise <code>null</code> is returned.
      */
-    public static void doEdit(Table files, VcsFileSystem fileSystem) {
+    public static VcsCommandExecutor[] doEdit(Table files, VcsFileSystem fileSystem) {
         VcsCommand cmd = fileSystem.getCommand(VcsCommand.NAME_EDIT);
         if (cmd != null) {
             // Because the EDIT command is executed for read-only files,
@@ -323,6 +329,9 @@ public class VcsAction extends NodeAction implements ActionListener {
                 }
             }
              */
+            return executors;
+        } else {
+            return null;
         }
     }
 

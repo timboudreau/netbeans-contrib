@@ -3578,6 +3578,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         return true;
     }
+    
+    /** Table of files to be locked (java.io.File) and the array of LOCK command executors */
+    private Map lockCommandExecutors = new HashMap();
+    /** Table of files to be edited (java.io.File) and the array of EDIT command executors */
+    private Map editCommandExecutors = new HashMap();
 
     /** Run the LOCK command to lock the file.
      *
@@ -3589,31 +3594,62 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         final String name = name_;
         //final VcsFileSystem current = this;
         final File file = getFile (name);
+        final String filePath = file.getAbsolutePath().intern();
         if (!file.exists()) return; // Ignore the lock when the file does not exist.
         if (isReadOnly()) { // I'm on a read-only filesystem => can not lock
             throw new IOException ("Cannot Lock "+name); // NOI18N
         }
         if (isCallEditFilesOn()) {
-            if (!file.canWrite ()) {
-                VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
-                if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
-                    if (isPromptForEditOn()) {
-                        VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
-                        String message;
-                        if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
-                        else message = g("MSG_EditFileCh");
-                        throw (UserQuestionException) TopManager.getDefault().getErrorManager().annotate(
-                            new UserQuestionException(message) {
-                                public void confirmed() {
-                                    Table files = new Table();
-                                    files.put(name, findResource(name));
-                                    VcsAction.doEdit (files, VcsFileSystem.this);
+            synchronized (editCommandExecutors) {
+                VcsCommandExecutor[] executors = (VcsCommandExecutor[]) editCommandExecutors.get(filePath);
+                if (executors != null) {
+                    int i;
+                    for (i = 0; i < executors.length; i++) {
+                        if (getCommandsPool().isRunning(executors[i])) break;
+                    }
+                    if (i == executors.length) editCommandExecutors.remove(filePath);
+                }
+                if (!file.canWrite ()) {
+                    VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
+                    if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
+                        if (isPromptForEditOn()) {
+                            VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_EDIT);
+                            String message;
+                            if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
+                            else message = g("MSG_EditFileCh");
+                            throw (UserQuestionException) TopManager.getDefault().getErrorManager().annotate(
+                                new UserQuestionException(message) {
+                                    public void confirmed() {
+                                        synchronized (editCommandExecutors) {
+                                            VcsCommandExecutor[] executors = (VcsCommandExecutor[]) editCommandExecutors.get(filePath);
+                                            if (executors != null) {
+                                                int i;
+                                                for (i = 0; i < executors.length; i++) {
+                                                    if (getCommandsPool().isRunning(executors[i])) break;
+                                                }
+                                                if (i == executors.length) editCommandExecutors.remove(filePath);
+                                            }
+                                            if (!editCommandExecutors.containsKey(filePath)) {
+                                                Table files = new Table();
+                                                files.put(name, findResource(name));
+                                                VcsCommandExecutor[] execs = VcsAction.doEdit (files, VcsFileSystem.this);
+                                                if (execs != null) {
+                                                    editCommandExecutors.put(filePath, execs);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }, g("EXC_CannotDeleteReadOnly", file.toString()));
+                        } else {
+                            if (!editCommandExecutors.containsKey(filePath)) {
+                                Table files = new Table();
+                                files.put(name, findResource(name));
+                                VcsCommandExecutor[] execs = VcsAction.doEdit(files, VcsFileSystem.this);
+                                if (execs != null) {
+                                    editCommandExecutors.put(filePath, execs);
                                 }
-                            }, g("EXC_CannotDeleteReadOnly", file.toString()));
-                    } else {
-                        Table files = new Table();
-                        files.put(name, findResource(name));
-                        VcsAction.doEdit (files, VcsFileSystem.this);
+                            }
+                        }
                     }
                 }
             }
@@ -3623,23 +3659,51 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             // *.orig is a temporary file created by AbstractFileObject
             // on saving every file to enable undo if saving fails
             if (vcsFile==null || vcsFile.isLocal () || name.endsWith (".orig")) return; // NOI18N
-            else if (shouldLock(name)) {
-                if (isPromptForLockOn ()) {
-                    VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
-                    String message;
-                    if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
-                    else message = g("MSG_LockFileCh");
-                    throw new UserQuestionException(message) {
-                        public void confirmed() {
+            synchronized (lockCommandExecutors) {
+                VcsCommandExecutor[] executors = (VcsCommandExecutor[]) lockCommandExecutors.get(filePath);
+                int i;
+                for (i = 0; i < executors.length; i++) {
+                    if (getCommandsPool().isRunning(executors[i])) break;
+                }
+                if (i == executors.length) lockCommandExecutors.remove(filePath);
+                if (shouldLock(name)) {
+                    if (isPromptForLockOn ()) {
+                        VcsConfigVariable msgVar = (VcsConfigVariable) variablesByName.get(Variables.MSG_PROMPT_FOR_AUTO_LOCK);
+                        String message;
+                        if (msgVar != null && msgVar.getValue().length() > 0) message = msgVar.getValue();
+                        else message = g("MSG_LockFileCh");
+                        throw new UserQuestionException(message) {
+                            public void confirmed() {
+                                synchronized (lockCommandExecutors) {
+                                    VcsCommandExecutor[] executors = (VcsCommandExecutor[]) lockCommandExecutors.get(filePath);
+                                    if (executors != null) {
+                                        int i;
+                                        for (i = 0; i < executors.length; i++) {
+                                            if (getCommandsPool().isRunning(executors[i])) break;
+                                        }
+                                        if (i == executors.length) lockCommandExecutors.remove(filePath);
+                                    }
+                                    if (!lockCommandExecutors.containsKey(filePath)) {
+                                        Table files = new Table();
+                                        files.put(name, findResource(name));
+                                        VcsCommandExecutor[] execs = VcsAction.doLock(files, VcsFileSystem.this);
+                                        if (execs != null) {
+                                            lockCommandExecutors.put(filePath, execs);
+                                        }
+                                    }
+                                }
+                            }
+                        };
+                    } else {
+                        if (!lockCommandExecutors.containsKey(filePath)) {
                             Table files = new Table();
                             files.put(name, findResource(name));
-                            VcsAction.doLock (files, VcsFileSystem.this);
+                            VcsCommandExecutor[] execs = VcsAction.doLock(files, VcsFileSystem.this);
+                            if (execs != null) {
+                                lockCommandExecutors.put(filePath, execs);
+                            }
                         }
-                    };
-                } else {
-                    Table files = new Table();
-                    files.put(name, findResource(name));
-                    VcsAction.doLock (files, VcsFileSystem.this);
+                    }
                 }
             }
         }
