@@ -101,15 +101,18 @@ public class ComponentGeneratorTest extends JellyTestCase {
         gen.start();
         gen.verifyStatus("Use CTRL-F12");
         JFrameOperator testFrame=new JFrameOperator(TestPanel.showFrame());
-        Robot r=new Robot();
-        r.keyPress(KeyEvent.VK_CONTROL);
-        r.keyPress(KeyEvent.VK_F12);
-        r.keyRelease(KeyEvent.VK_F12);
-        r.keyRelease(KeyEvent.VK_CONTROL);
-        gen.verifyStatus("Finished:");
-        gen.stop();
-        gen.close();
-        testFrame.close();
+        try {
+            Robot r=new Robot();
+            r.keyPress(KeyEvent.VK_CONTROL);
+            r.keyPress(KeyEvent.VK_F12);
+            r.keyRelease(KeyEvent.VK_F12);
+            r.keyRelease(KeyEvent.VK_CONTROL);
+            gen.verifyStatus("Finished:");
+            gen.stop();
+            gen.close();
+        } finally {
+            testFrame.close();
+        }
         FilesystemNode fsnode=new FilesystemNode(exp.repositoryTab().tree(), "ComponentGeneratorTest");
         fsnode.refreshFolder();
         new Node(fsnode, "TestFrame").select();
@@ -147,15 +150,18 @@ public class ComponentGeneratorTest extends JellyTestCase {
         gen.start();
         gen.verifyStatus("Use CTRL-F12");
         JDialogOperator testDialog=new JDialogOperator(TestPanel.showDialog());
-        Robot r=new Robot();
-        r.keyPress(KeyEvent.VK_CONTROL);
-        r.keyPress(KeyEvent.VK_F12);
-        r.keyRelease(KeyEvent.VK_F12);
-        r.keyRelease(KeyEvent.VK_CONTROL);
-        gen.verifyStatus("Finished:");
-        gen.stop();
-        gen.close();
-        testDialog.close();
+        try {
+            Robot r=new Robot();
+            r.keyPress(KeyEvent.VK_CONTROL);
+            r.keyPress(KeyEvent.VK_F12);
+            r.keyRelease(KeyEvent.VK_F12);
+            r.keyRelease(KeyEvent.VK_CONTROL);
+            gen.verifyStatus("Finished:");
+            gen.stop();
+            gen.close();
+        } finally {
+            testDialog.close();
+        }
         FilesystemNode fsnode=new FilesystemNode(exp.repositoryTab().tree(), "ComponentGeneratorTest");
         fsnode.refreshFolder();
         new Node(fsnode, "TestDialog").select();
@@ -194,20 +200,24 @@ public class ComponentGeneratorTest extends JellyTestCase {
         gen.start();
         gen.verifyStatus("Use CTRL-F12");
         JFrameOperator testFrame=new JFrameOperator(TestPanel.showFrame());
-        Robot r=new Robot();
-        r.keyPress(KeyEvent.VK_CONTROL);
-        r.keyPress(KeyEvent.VK_F12);
-        r.keyRelease(KeyEvent.VK_F12);
-        r.keyRelease(KeyEvent.VK_CONTROL);
-        ComponentsEditorOperator editor = new ComponentsEditorOperator();
-        new Node(editor.treeComponentsTree(), "").select();
-        new StringProperty(editor.propertySheet(), "shortName").setStringValue("TestFrameModified");
-        editor.verify();
-        editor.ok();
-        gen.verifyStatus("Finished:");
-        gen.stop();
-        gen.close();
-        testFrame.close();
+        try {
+            Robot r=new Robot();
+            r.keyPress(KeyEvent.VK_CONTROL);
+            r.keyPress(KeyEvent.VK_F12);
+            r.keyRelease(KeyEvent.VK_F12);
+            r.keyRelease(KeyEvent.VK_CONTROL);
+            ComponentsEditorOperator editor = new ComponentsEditorOperator();
+            new Node(editor.treeComponentsTree(), "").select();
+            Thread.sleep(1000);
+            new StringProperty(editor.propertySheet(), "shortName").setStringValue("TestFrameModified");
+            editor.verify();
+            editor.ok();
+            gen.verifyStatus("Finished:");
+            gen.stop();
+            gen.close();
+        } finally {
+            testFrame.close();
+        }
         FilesystemNode fsnode=new FilesystemNode(exp.repositoryTab().tree(), "ComponentGeneratorTest");
         fsnode.refreshFolder();
         new Node(fsnode, "TestFrameModified").select();

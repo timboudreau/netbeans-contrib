@@ -72,7 +72,8 @@ public class ResourceBundleLookupTest extends JellyTestCase {
         
         op.checkCaseSensitiveText(false);
         op.checkSubstringText(false);
-        op.checkRegularExpressionText(false);
+        if (op.cbRegularExpressionText().isEnabled())
+            op.checkRegularExpressionText(false);
         op.search();
         op.verifyStatus("Found 2 keys.");
         op.close();
@@ -88,7 +89,8 @@ public class ResourceBundleLookupTest extends JellyTestCase {
         
         op.checkCaseSensitiveText(true);
         op.checkSubstringText(true);
-        op.checkRegularExpressionText(false);
+        if (op.cbRegularExpressionText().isEnabled())
+            op.checkRegularExpressionText(false);
         op.search();
         op.verifyStatus("Found 2 keys.");
         op.close();
@@ -104,7 +106,8 @@ public class ResourceBundleLookupTest extends JellyTestCase {
         
         op.checkCaseSensitiveText(false);
         op.checkSubstringText(true);
-        op.checkRegularExpressionText(false);
+        if (op.cbRegularExpressionText().isEnabled())
+            op.checkRegularExpressionText(false);
         op.search();
         op.verifyStatus("Found 4 keys.");
         op.close();
@@ -114,6 +117,7 @@ public class ResourceBundleLookupTest extends JellyTestCase {
      */
     public void testSearch4() throws Exception {
         ResourceBundleLookupOperator op=ResourceBundleLookupOperator.invoke();
+        if (!op.cbRegularExpressionText().isEnabled()) return;
         op.setSearchedText("te[s]t.alue");
         op.checkUseResourceBundleFilter(true);
         op.setFilterText("org.netbeans.modules.jemmysupport.bundlelookup.data");
@@ -130,6 +134,7 @@ public class ResourceBundleLookupTest extends JellyTestCase {
      */
     public void testSearch5() throws Exception {
         ResourceBundleLookupOperator op=ResourceBundleLookupOperator.invoke();
+        if (!op.cbRegularExpressionText().isEnabled()) return;
         op.setSearchedText("te[s]t.alue");
         op.checkUseResourceBundleFilter(true);
         op.setFilterText("org.netbeans.modules.jemmysupport.bundlelookup.data");
@@ -146,6 +151,7 @@ public class ResourceBundleLookupTest extends JellyTestCase {
      */
     public void testSearch6() throws Exception {
         ResourceBundleLookupOperator op=ResourceBundleLookupOperator.invoke();
+        if (!op.cbRegularExpressionText().isEnabled()) return;
         op.setSearchedText("te[s]t.alue");
         op.checkUseResourceBundleFilter(true);
         op.setFilterText("org.netbeans.modules.jemmysupport.bundlelookup.data");
