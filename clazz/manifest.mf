@@ -4,6 +4,10 @@ OpenIDE-Module-Display-Category: Java
 OpenIDE-Module-Install: org/netbeans/modules/clazz/ClassModule.class
 OpenIDE-Module-Specification-Version: 1.6
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
+OpenIDE-Module-Short-Description: Supports work with Java class files without source.
+OpenIDE-Module-Long-Description: The Sourceless Java Classes module enables you to 
+  work with class files that are without their corresponding source files. It also 
+  supports serialized JavaBeans components.
 
 Name: org/netbeans/modules/clazz/ClassDataLoader.class
 OpenIDE-Module-Class: Loader
