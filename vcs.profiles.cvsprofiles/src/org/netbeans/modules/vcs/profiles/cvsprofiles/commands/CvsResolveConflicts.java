@@ -311,7 +311,10 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                 if (reader != null) reader.close();
                 if (writer != null) writer.close();
             }
-            backup.renameTo(entries);
+            if (!backup.renameTo(entries)) {
+                entries.delete();
+                backup.renameTo(entries);
+            }
         } finally {
             if (backup.exists()) backup.delete();
         }
@@ -423,6 +426,7 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
                     // The Entries will not be repaired at worse
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioex);
                 }
+                fileToRepairEntriesOf = null;
             }
         }
         
