@@ -11,8 +11,8 @@
    - Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
    - Microsystems, Inc. All Rights Reserved.
   -->
-<?xml-stylesheet type="text/xml" href="../../../../nbbuild/javadoctools/apichanges.xsl"?>
-<!DOCTYPE apichanges PUBLIC "-//NetBeans//DTD API changes list 1.0//EN" "../../../../nbbuild/javadoctools/apichanges.dtd">
+<?xml-stylesheet type="text/xml" href="../../../../../nbbuild/javadoctools/apichanges.xsl"?>
+<!DOCTYPE apichanges PUBLIC "-//NetBeans//DTD API changes list 1.0//EN" "../../../../../nbbuild/javadoctools/apichanges.dtd">
 
 <!--
 
@@ -82,6 +82,19 @@ is the proper place.
 <!-- ACTUAL CHANGES BEGIN HERE: -->
 
   <changes>
+      <change>
+          <api name="events"/>
+          <summary>API and SPI finalized.</summary>
+          <version major="1" minor="1"/>
+          <date day="28" month="1" year="2005"/>
+          <author login="mmatula"/>
+          <compatibility modification="yes" />
+          <description>VetoChangeException added to allow vetoable "preChange" events. The exception can be thrown from MDRPreChangeListener.plannedChange().
+          </description>
+          <class package="org.netbeans.api.mdr.events" name="VetoChangeException"/>
+          <class package="org.netbeans.api.mdr.events" name="MDRPreChangeListener"/>
+          <issue number="51937"/>
+      </change>
       <change>
           <api name="xmi"/>
           <summary>Deprecated API removed.</summary>

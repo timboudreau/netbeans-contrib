@@ -28,12 +28,11 @@
         </question>
 -->
 <answer id="arch-overall">
-    There are two kinds of API/SPI classes exposed by MDR:
+    There are two kinds of API classes exposed by MDR:
     <ul>
         <li>The reflective JMI API and JMI interfaces generated for
             MOF metamodel. These are located in javax.jmi package.</li>
-        <li>Proprietary MDR API/SPI classes exposing additional functionality not standardized
-            by JMI (even notifications mechanism, concept of a repository, JMI mapper, etc.)</li>
+        <li>Proprietary <api name="MDRAPI" category="stable" group="java"  type="export" url="http://www.netbeans.org/download/dev/javadoc/MDRAPI"/> classes exposing additional functionality not standardized by JMI (even notifications mechanism, concept of a repository, JMI mapper, etc.)</li>
     </ul>
     By MDR a new kind of API is introduced - JMI interfaces generated from a given metamodel.
     Since it is expected that the number of NetBeans modules that will use MOF metamodels
@@ -42,92 +41,6 @@
     where custom implementations of those metamodels should be and
     some other concepts like naming of metamodels and repositories. Suggested target
     package for metamodel specific JMI interfaces is org.netbeans.jmi.
-    <p/>
-    Regarding the <api name="MDRAPI" category="devel" group="java"  type="export" url="http://www.netbeans.org/download/dev/javadoc/MdrAPIs"/>
-    and <api name="MDRSPI" category="devel" group="java"  type="export" url="http://www.netbeans.org/download/dev/javadoc/MdrAPIs"/>
-    as previously said, API and SPI is currently mixed in subpackages of org.netbeans.api.
-    Thus I included the following table that walks through the individual interfaces and suggests their
-    final locations:
-    <table>
-        <thead>
-            <tr>
-            <th>Location</th>
-            <th>Interfaces</th>
-            <th>Note</th>
-            </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td><code>org.netbeans.api.mdr</code></td>
-            <td><code>MDRManager, MDRepository, MDRObject</code></td>
-            <td>These interfaces are primarily an API (although one may still want to
-                provide a different implementation of MDRManager or MDRepository, it
-                is not encouraged and the much more frequent scenario will be that people
-                will use these interfaces as an API.</td>
-        </tr>
-        <tr>
-            <td><code>org.netbeans.api.mdr.events</code></td>
-            <td><code>AssociationEvent, AttributeEvent, ExtentEvent, InstanceEvent, TransactionEvent,
-                MDRChangeEvent, MDRChangeSource</code></td>
-            <td>Again, these are cleanly and API (note that MDRChangeListener and
-                MDRPreChangeListener that are currently present in org.netbeans.api.mdr.events
-                package are missing from this list. It is because they will probably be moved to
-                org.netbeans.spi.mdr.events. Also we are planning to make the pre-change
-                events vetoable, so a new exception will be introduced into this package.
-                The exception will be named VetoChangeException and will extend
-                javax.jmi.reflect.ConstraintViolationException.</td>
-        </tr>
-        <tr>
-            <td><code>org.netbeans.spi.mdr.events</code></td>
-            <td><code>MDRChangeListener, MDRPreChangeListener</code></td>
-            <td>These interfaces should be moved from org.netbeans.api.mdr.events,
-                since they are clearly an SPI rather than API.</td>
-        </tr>
-        <tr>
-            <td><code>org.netbeans.api.jmi</code></td>
-            <td><code>JMIMapper</code></td>
-            <td>They may exist several implementations of this class. We currently
-                have two - one that generates java files and the other one that
-                generates class files. But I think that the primary usage of this
-                class is a usage as an API.</td>
-        </tr>
-        <tr>
-            <td><code>org.netbeans.spi.jmi</code></td>
-            <td><code>JMIStreamFactory</code></td>
-            <td>&nbsp;</td>
-        </tr>
-        <tr>
-            <td><code>org.netbeans.api.xmi</code></td>
-            <td><code>XMIReaderFactory, XMIReader, XMIInputConfig,
-                XMIWriterFactory, XMIWriter, XMIOutputConfig, DTDProducer</code></td>
-            <td>These are again primarily the API classes. Alghough they could be
-                implemented by third parties and they implementations could replace
-                ours using XML layer, this scenario is not encouraged. The DTDProducer
-                class should be moved from org.netbeans.api.mdr, since it is an XMI
-                specific interface.</td>
-        </tr>
-        <tr>
-            <td><code>org.netbeans.spi.xmi</code></td>
-            <td><code>XMIReferenceProvider, XMIReferenceResolver</code></td>
-            <td>These classes should be moved from org.netbeans.api.xmi, since they
-                are an SPI rather than API.</td>
-        </tr>
-        <tr>
-            <td><code>org.netbeans.api.xmi.sax</code></td>
-            <td><code>XMIConsumerFactory, XMIConsumer,
-                XMIProducerFactory, XMIProducer</code></td>
-            <td>&nbsp;</td>
-        </tr>
-        </tbody>
-    </table>
-    Things to consider by Architecture Review Commitee:
-    <ul>
-        <li>Is the separation of SPI and API suggested in the table above correct?</li>
-        <li>Would it be better to move org.netbeans.api.mdr.events classes directly to org.netbeans.api.mdr
-            package and forget about additional events subpackage.</li>
-        <li>Is it a good idea to separate mdr, jmi and xmi API/SPI? Or should it all be
-            under mdr?</li>
-    </ul>
 </answer>
 
 
@@ -166,8 +79,7 @@ Since MDR is mostly an implementation of JMI standard, it can be tested using th
         </question>
 -->
 <answer id="arch-time">
-Most of the work is already done. Ideally the module should be approved by
-Arch. Rev. Commitee by the Promo D feature freeze.
+The work is done. MDR was released as part of NB 4.0.
 </answer>
 
 
@@ -183,6 +95,7 @@ Arch. Rev. Commitee by the Promo D feature freeze.
 <answer id="arch-usecases">
 The MDR should be used for data-integration accross different modules in the IDE.
     An example usecase can be found at <a href="http://mdr.netbeans.org/example.html">http://mdr.netbeans.org/example.html</a>.
+Basic usecases can also be found in the overview of individual API packages in javadoc.
 </answer>
 
 
@@ -214,7 +127,7 @@ See answer to the use-cases question.
         </question>
 -->
 <answer id="compat-i18n">
-Not yet.
+Yes.
 </answer>
 
 
@@ -347,10 +260,6 @@ There are no known dependencies on any platform. The module is pure Java.
         </question>
 -->
 <answer id="deploy-dependencies">
-    OpenIDE-Module-Module-Dependencies:  org.netbeans.modules.mdr/1
-    <p/>
-    or
-    <p/>
     OpenIDE-Module-Module-Dependencies: org.netbeans.api.mdr/1
     OpenIDE-Module-Requires: org.netbeans.api.mdr.MDRManager
 </answer>
@@ -420,7 +329,7 @@ Yes.
         </question>
 -->
 <answer id="deploy-packages">
-Not yet. I expect to have these restrictions in by the official release.
+Yes.
 </answer>
 
 
@@ -491,7 +400,7 @@ No.
         </question>
 -->
 <answer id="exec-introspection">
-I don't think so, although I am not absolutely sure I understand the question.
+Implementation of JMI objects are expected to be subclasses of MDR handler classes.
 </answer>
 
 

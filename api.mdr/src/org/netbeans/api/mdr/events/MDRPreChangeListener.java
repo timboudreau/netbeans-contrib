@@ -37,7 +37,7 @@ public interface MDRPreChangeListener extends MDRChangeListener {
      * not affect the events dispatching (i.e. it should be ignored by the event source).
      * @param e Object describing the planned change.
      */    
-    public void plannedChange(MDRChangeEvent e);
+    public void plannedChange(MDRChangeEvent e) throws VetoChangeException;
     
     /** This method gets called if a planned change (which was already announced
      * by calling {@link #plannedChange} was cancelled (e.g. the operation that was
