@@ -34,6 +34,7 @@ import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
+import org.openide.windows.Workspace;
 
 /**
  * The cvs update visualizer.
@@ -95,6 +96,14 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         }
         output.put("",contentPane);//TODO - what's right name?        
         return output;
+    }
+    
+    
+    public void open(){
+        CommandOutputTopComponent out = CommandOutputTopComponent.getInstance();
+        getOutputPanels();
+        out.addVisualizer(NbBundle.getMessage(this.getClass(),"CvsUpdateVisualizer.update"),contentPane, true);
+        out.open();        
     }
     
     /**

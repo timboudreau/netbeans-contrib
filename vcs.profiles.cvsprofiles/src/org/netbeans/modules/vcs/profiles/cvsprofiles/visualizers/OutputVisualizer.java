@@ -55,15 +55,12 @@ import org.netbeans.spi.vcs.VcsCommandsProvider;
 
 public abstract class OutputVisualizer implements VcsCommandVisualizer {
     
-    //private static RequestProcessor outputDisplayRequestProcessor;        
     private Map outputMap;
     private ArrayList closeListeners = new ArrayList();
     private CommandTask task;
-    private VcsCommandsProvider cmdProvider;
-    //private VcsCommandExecutor vce;
+    private VcsCommandsProvider cmdProvider;    
     protected Collection files;
-    protected File rootDir;
-    //protected String actFilePath;
+    protected File rootDir;   
     private java.awt.event.ActionListener killListener = null;
     private int exit;
     private Vector vcsTopComponents;
@@ -286,13 +283,13 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
         /**
          * Open the component on the given workspace.
          */
-        public void open(Workspace workspace) {
+        public void open(Workspace workspace) {    
             if (exit != 0)
                 return;
             this.initComponents();
-            Mode mode = WindowManager.getDefault().findMode(this);
+            Mode mode = WindowManager.getDefault().findMode(this);            
             if (mode == null) {
-                mode = WindowManager.getDefault().findMode(getMode()); // NOI18N
+                mode = WindowManager.getDefault().findMode(getMode()); // NOI18N              
                 if (mode != null)
                     mode.dockInto(this);
             }
