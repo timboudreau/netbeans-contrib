@@ -174,6 +174,25 @@ public final class SourceElementImpl extends MemberElementImpl
     }
   }
 
+  /** Lock the underlaing document to have exclusive access to it and could make changes
+  * on this SourceElement.
+  *
+  * @param run the action to run
+  */
+  public void runAtomic (Runnable run) {
+    run.run();
+  }
+
+  /** Executes given runnable in "user mode" does not allowing any modifications
+  * to parts of text marked as guarded. The actions should be run as "atomic" so
+  * either happen all at once or none at all (if a guarded block should be modified).
+  *
+  * @param run the action to run
+  */
+  public void runAtomicAsUser (Runnable run) {
+    run.run();
+  }
+  
   public Object readResolve() {
     return new SourceElement(this);
   }
@@ -181,6 +200,8 @@ public final class SourceElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  7    src-jtulach1.6         7/8/99   Petr Hamernik   runAtomic simple 
+*       implementation
 *  6    src-jtulach1.5         6/9/99   Ian Formanek    ---- Package Change To 
 *       org.openide ----
 *  5    src-jtulach1.4         4/1/99   Jan Jancura     Object browser support
