@@ -149,6 +149,23 @@ public class VcsUtilities {
         return new String(sb);
     }
 
+    /*
+    public static String arrayToQuotedStrings(String []sa) {
+        if (sa == null) {
+            return ""; // NOI18N
+        }
+        StringBuffer sb = new StringBuffer();
+        for(int i=0; i < sa.length; i++) {
+            if (sa[i] == null) sb.append(""); // NOI18N
+            else sb.append("\"" + sa[i] + "\""); // NOI18N
+            if (i < sa.length-1) {
+                sb.append(" "); // NOI18N
+            }
+        }
+        return new String(sb);
+    }
+     */
+
     //MK-------------------------------------------
     public static String arrayToQuotedString(String []sa, boolean unixShell){
         if(sa==null){
@@ -508,8 +525,48 @@ public class VcsUtilities {
     
     /**
      * Add environment variables from the variables table.
+     * @param envVars the map of environment variables. The additional variables will be
+     * added to it.
+     * @param vars the table of variables from which the additional environment variables
+     *        will be added to <code>envVars</code>. Only variables with a given prefix
+     *        will be added.
+     * @param varEnvPrefix the prefix of variables, which are considered as environmental
+     * @return the map of all environment variables
      */
     public static Map addEnvVars(Map envVars, Hashtable vars, String varEnvPrefix) {
+        for (Enumeration enum = vars.keys(); enum.hasMoreElements(); ) {
+            String key = (String) enum.nextElement();
+            if (key.startsWith(varEnvPrefix)) {
+                String value = (String) vars.get(key);
+                if (value != null) {
+                    envVars.put(key.substring(varEnvPrefix.length()), value);
+                }
+            }
+        }
+        return envVars;
+    }
+    
+    /**
+     * Add environment variables from the variables table and remove any variables denoted
+     * with a remove prefix from the environment.
+     * @param envVars the map of environment variables. The additional variables will be
+     * added to it.
+     * @param vars the table of variables from which the additional environment variables
+     *        will be added to <code>envVars</code>. Only variables with a given prefix
+     *        will be added.
+     * @param varEnvPrefix the prefix of variables, which are considered as environmental
+     * @param varEnvRemovePrefix the prefix of variables, which will be removed from the
+              environment.
+     * @return the map of all environment variables
+     */
+    public static Map addEnvVars(Map envVars, Hashtable vars, String varEnvPrefix,
+                                 String varEnvRemovePrefix) {
+        for (Enumeration enum = vars.keys(); enum.hasMoreElements(); ) {
+            String key = (String) enum.nextElement();
+            if (key.startsWith(varEnvRemovePrefix)) {
+                envVars.remove(key.substring(varEnvRemovePrefix.length()));
+            }
+        }
         for (Enumeration enum = vars.keys(); enum.hasMoreElements(); ) {
             String key = (String) enum.nextElement();
             if (key.startsWith(varEnvPrefix)) {
