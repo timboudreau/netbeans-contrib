@@ -1568,6 +1568,9 @@ Microsystems, Inc. All Rights Reserved.
       <property name="concurrentExec">
         <value>-1</value> <!-- EXEC_SERIAL_INERT -->
       </property>
+      <property name="ignoreFail">
+	<value>true</value>
+      </property>
     </command>
     <command name="PROJECT_DATABASE_SELECTOR">
       <property name="exec">
@@ -1616,6 +1619,9 @@ Microsystems, Inc. All Rights Reserved.
       </run>
       <property name="concurrentExec">
         <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
+      </property>
+      <property name="ignoreFail">
+	<value>true</value>
       </property>
     </command>
   </commands>
