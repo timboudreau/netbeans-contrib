@@ -66,8 +66,10 @@ public class RemoteStorageTest extends NbTestCase {
      */
     public void testConfigReset() throws Exception {
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CREATE_WORKSPACE));
+        Thread.sleep(5000);
         ResetConfigAction action = (ResetConfigAction)SharedClassObject.findObject(ResetConfigAction.class, true);
         action.performAction();
+        Thread.sleep(5000);
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NULL));
     }
 
@@ -85,15 +87,22 @@ public class RemoteStorageTest extends NbTestCase {
      */
     public void testConfigRefresh() throws Exception {
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CREATE_WORKSPACE));
+        Thread.sleep(5000);
         SaveOperatorConfigAction action1 = (SaveOperatorConfigAction)SharedClassObject.findObject(SaveOperatorConfigAction.class, true);
         action1.performAction();
+        Thread.sleep(5000);
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.DELETE_WORKSPACE));
+        Thread.sleep(5000);
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NULL));
+        Thread.sleep(5000);
         RefreshConfigAction action2 = (RefreshConfigAction)SharedClassObject.findObject(RefreshConfigAction.class, true);
         action2.performAction();
+        Thread.sleep(5000);
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NOT_NULL));
+        Thread.sleep(5000);
         // just cleanup at the very end:
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.DELETE_WORKSPACE));
+        Thread.sleep(5000);
         java.awt.EventQueue.invokeAndWait(new TestRunnable(TestRunnable.CHECK_NULL));
     }
     

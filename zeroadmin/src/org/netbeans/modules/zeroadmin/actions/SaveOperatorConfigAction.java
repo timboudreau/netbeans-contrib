@@ -34,21 +34,29 @@ public class SaveOperatorConfigAction extends CallableSystemAction {
      */
     public void performAction() {
         try {
-            ZeroAdminProjectManager z = (ZeroAdminProjectManager)Lookup.getDefault()
+            final ZeroAdminProjectManager z = (ZeroAdminProjectManager)Lookup.getDefault()
                 .lookup(TrivialProjectManager.class);
 
             if ((z == null) || (z.writableLayer == null) || (z.storage == null)) {
                 throw new IllegalStateException("ZeroAdminProjectManager not initialized");
             }
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    try {
             
-            // force the core to save pending stuff:
-            org.netbeans.core.windows.PersistenceManager.getDefault ().writeXMLWaiting ();
-            org.netbeans.core.projects.XMLSettingsHandler.saveOptions();
-            
-            XMLBufferFileSystem bufFs = new XMLBufferFileSystem();
-            ZeroAdminProjectManager.copy(z.writableLayer.getRoot(), bufFs.getRoot(), true);
-            bufFs.waitFinished();
-            z.storage.saveOperatorData(bufFs.getBuffer());
+                        // force the core to save pending stuff:
+                        org.netbeans.core.windows.PersistenceManager.getDefault ().writeXMLWaiting ();
+                        org.netbeans.core.projects.XMLSettingsHandler.saveOptions();
+
+                        XMLBufferFileSystem bufFs = new XMLBufferFileSystem();
+                        ZeroAdminProjectManager.copy(z.writableLayer.getRoot(), bufFs.getRoot(), true);
+                        bufFs.waitFinished();
+                        z.storage.saveOperatorData(bufFs.getBuffer());
+                    } catch (Exception re) {
+                        ErrorManager.getDefault().notify(re);
+                    }
+                }
+            });
         } catch (Exception re) {
             ErrorManager.getDefault().notify(re);
         }
