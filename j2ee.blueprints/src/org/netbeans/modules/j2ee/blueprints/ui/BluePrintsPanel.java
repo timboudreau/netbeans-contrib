@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -44,7 +43,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLEditorKit;
@@ -53,7 +51,6 @@ import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Category;
 import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Demo;
 import org.netbeans.modules.j2ee.blueprints.catalog.demoxmlparser.Example;
 import org.openide.ErrorManager;
-import org.openide.awt.HtmlBrowser;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 import org.openide.filesystems.FileObject;
@@ -75,32 +72,11 @@ import javax.swing.Action;
  * @author Richard Gregor
  */
 public class BluePrintsPanel extends javax.swing.JPanel {
-    private static final String UI_RESOURCES_URL = 
-        "/org/netbeans/modules/j2ee/blueprints/ui/resources"; // NOI18N
-    private static final String ICON_CATEGORY = 
-        UI_RESOURCES_URL + "/category.gif"; // NOI18N
-    private static final String ICON_ARTICLE = 
-        UI_RESOURCES_URL + "/article.gif"; // NOI18N
-    private static ResourceBundle bundle = ResourceBundle.getBundle(
-        "org/netbeans/modules/j2ee/blueprints/ui/Bundle"); // NOI18N
-    private static final String CATALOG_RESOURCES_URL = 
-        "/org/netbeans/modules/j2ee/blueprints/catalog/resources"; // NOI18N
     
-    private HtmlBrowser.URLDisplayer displayer = HtmlBrowser.URLDisplayer.getDefault();
-    private static final String OPEN_SAMPLE_ACTION = 
-        "org-netbeans-modules-project-ui-WelcomeScreenHack/" + // NOI18N
-        "org-netbeans-modules-project-ui-NewSample.instance";  // NOI18N
-    private URL url;
-    private SolutionsCatalog solutionsCatalog = SolutionsCatalog.getInstance();
-   
     /** Creates new form TitlePanel */
     public BluePrintsPanel() {
         initComponents();
-        TABS.put(TAB_CATEGORY, categoryScroll);
-        TABS.put(TAB_SOLUTION, solutionBrowser);
-        TABS.put(TAB_DESIGN, designBrowser);
-        TABS.put(TAB_EXAMPLE, examplePnl);
-        tabbedPnl.removeAll();
+        initTabs();
         initComboBox();
     }
     
@@ -123,13 +99,10 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         forwardBtn = new javax.swing.JButton();
         entryCbx = new javax.swing.JComboBox();
         tabbedPnl = new javax.swing.JTabbedPane();
-        categoryScroll = new javax.swing.JScrollPane();
-        categoryText = new javax.swing.JTextPane();
-        solutionBrowser = new HtmlBrowser(false, false);
-        designBrowser = new HtmlBrowser(false, false);
-        examplePnl = new javax.swing.JPanel();
-        launchExampleText = new javax.swing.JTextPane();
-        installBtn = new javax.swing.JButton();
+        categoryPnl = new CategoryTab(this);
+        solutionPnl = new SolutionTab(this);
+        designPnl = new DesignTab(this);
+        examplePnl = new ExampleTab(this);
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -235,43 +208,11 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         add(toolbarPanel, gridBagConstraints);
 
         tabbedPnl.setFont(new java.awt.Font("Dialog", 0, 12));
-        categoryText.setEditable(false);
-        categoryText.setEditorKit(new HTMLEditorKit());
-        categoryText.setMargin(new java.awt.Insets(12, 12, 12, 12));
-        categoryScroll.setViewportView(categoryText);
+        tabbedPnl.addTab(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("categoryPnl"), categoryPnl);
 
-        tabbedPnl.addTab(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("categoryPnl"), categoryScroll);
+        tabbedPnl.addTab(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("solutionPnl"), solutionPnl);
 
-        tabbedPnl.addTab(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("solutionPnl"), solutionBrowser);
-
-        tabbedPnl.addTab(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("designPnl"), designBrowser);
-
-        examplePnl.setLayout(new java.awt.GridBagLayout());
-
-        examplePnl.setBackground(new java.awt.Color(255, 255, 255));
-        launchExampleText.setEditable(false);
-        launchExampleText.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("launchExampleText"));
-        launchExampleText.setMargin(new java.awt.Insets(12, 12, 12, 12));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 7, 0);
-        examplePnl.add(launchExampleText, gridBagConstraints);
-
-        installBtn.setFont(new java.awt.Font("Dialog", 0, 12));
-        installBtn.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("launchBtn"));
-        installBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                installBtnActionPerformed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
-        examplePnl.add(installBtn, gridBagConstraints);
+        tabbedPnl.addTab(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("designPnl"), designPnl);
 
         tabbedPnl.addTab(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("examplePnl"), examplePnl);
 
@@ -303,24 +244,17 @@ public class BluePrintsPanel extends javax.swing.JPanel {
             }
         }
     }//GEN-LAST:event_entryCbxItemStateChanged
-
-    private void installBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_installBtnActionPerformed
-        installExample();
-    }//GEN-LAST:event_installBtnActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backBtn;
-    private javax.swing.JScrollPane categoryScroll;
-    private javax.swing.JTextPane categoryText;
-    private javax.swing.JPanel designBrowser;
+    private javax.swing.JPanel categoryPnl;
+    private javax.swing.JPanel designPnl;
     private javax.swing.JComboBox entryCbx;
     private javax.swing.JPanel examplePnl;
     private javax.swing.JButton forwardBtn;
-    private javax.swing.JButton installBtn;
     private javax.swing.JPopupMenu jPopupMenu1;
-    private javax.swing.JTextPane launchExampleText;
-    private javax.swing.JPanel solutionBrowser;
+    private javax.swing.JPanel solutionPnl;
     private javax.swing.JLabel sunLogoLbl;
     private javax.swing.JTabbedPane tabbedPnl;
     private javax.swing.JLabel titleLbl;
@@ -330,8 +264,16 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     private javax.swing.JPanel toolbarPanel;
     // End of variables declaration//GEN-END:variables
 
-    private BrowseHistory history = new BrowseHistory();
-    private BrowseHistoryToken historyToken = new BrowseHistoryToken();
+    private static final String UI_RESOURCES_URL = 
+        "/org/netbeans/modules/j2ee/blueprints/ui/resources"; // NOI18N
+    private static final String ICON_CATEGORY = 
+        UI_RESOURCES_URL + "/category.gif"; // NOI18N
+    private static final String ICON_ARTICLE = 
+        UI_RESOURCES_URL + "/article.gif"; // NOI18N
+    private static ResourceBundle bundle = ResourceBundle.getBundle(
+        "org/netbeans/modules/j2ee/blueprints/ui/Bundle"); // NOI18N
+    static final String CATALOG_RESOURCES_URL = 
+        "/org/netbeans/modules/j2ee/blueprints/catalog/resources"; // NOI18N
     
     public static final String TAB_CATEGORY = "categoryPnl"; // NOI18N
     public static final String TAB_SOLUTION = "solutionPnl"; // NOI18N
@@ -339,19 +281,13 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     public static final String TAB_EXAMPLE  = "examplePnl";  // NOI18N
     public final HashMap TABS = new HashMap();
     
+    private SolutionsCatalog solutionsCatalog = SolutionsCatalog.getInstance();
+    private BrowseHistory history = new BrowseHistory();
+    private BrowseHistoryToken historyToken = new BrowseHistoryToken();
+    
     // True if a change in the combo box should not trigger events.
     private boolean navigating = false;
     private int lastSelectedIndex = -1;
-    private Timer scrollTimer = null;
-
-    // Special constants that allow us to preselect a template in the new 
-    // project wizard
-    private static final String BUNDLE_PROPERTY_PREFIX = 
-        "Blueprints"; // NOI18N
-    private static final String PRESELECT_CATEGORY = 
-        "PRESELECT_CATEGORY"; // NOI18N
-    private static final String PRESELECT_TEMPLATE =
-        "PRESELECT_TEMPLATE"; // NOI18N
 
     public Category getSelectedCategory() {
         Object entry = entryCbx.getSelectedItem();
@@ -369,6 +305,39 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     public Example getSelectedArticle() {
         Object entry = entryCbx.getSelectedItem();
         return (entry instanceof Example) ? (Example)entry : null;
+    }
+    
+    /**
+     * @return the path of the example, without the .zip ending
+     */
+    public String getExamplePath() {
+        String result = null;
+        Example example = getSelectedArticle();
+        if(example != null) {
+            // Guess the name of the zip from the <path> element
+            // (not always accurate, but this is the best we can do)
+            String[] paths = example.getPath();
+            if(paths.length > 0) {
+                result = paths[0];
+                if(result.indexOf('.') != -1) {
+                    // there's a filename in the path. Strip it.
+                    result = result.substring(0, result.lastIndexOf('/'));
+                }
+                if(result.indexOf('/') != -1) {
+                    // Strip all slashes before the example path
+                    result = result.substring(result.lastIndexOf('/') + 1);
+                }
+            }
+        }
+        return result;
+    }
+
+    private void initTabs() {
+        TABS.put(TAB_CATEGORY, categoryPnl);
+        TABS.put(TAB_SOLUTION, solutionPnl);
+        TABS.put(TAB_DESIGN, designPnl);
+        TABS.put(TAB_EXAMPLE, examplePnl);
+        tabbedPnl.removeAll();
     }
     
     private void initComboBox() {
@@ -436,91 +405,17 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     private int getScrollPosition() {
         int result = 0;
         Component selectedTab = tabbedPnl.getSelectedComponent();
-        if(selectedTab == categoryScroll) {
-            result = categoryScroll.getVerticalScrollBar().getValue();
-        }
-        else if(selectedTab == solutionBrowser) {
-            result = getBrowserScrollPosition((HtmlBrowser)solutionBrowser);
-        }
-        else if(selectedTab == designBrowser) {
-            result = getBrowserScrollPosition((HtmlBrowser)designBrowser);
-        }
-        else if(selectedTab == examplePnl) {
-            result = 0;
+        if(selectedTab != null) {
+            result = ((BluePrintsTabPanel)selectedTab).getScrollPosition();
         }
         return result;
     }
     
-    private void scrollTo(final int position) {
-        // It takes a bit for the page to load.  This timer will periodically
-        // check if enough of the page has loaded that we can scroll to the
-        // desired position.
-        if(this.scrollTimer != null) {
-            this.scrollTimer.stop();
+    private void scrollTo(int position) {
+        Component selectedTab = tabbedPnl.getSelectedComponent();
+        if(selectedTab != null) {
+            ((BluePrintsTabPanel)selectedTab).setScrollPosition(position);
         }
-        this.scrollTimer = new Timer(100,
-            new ActionListener() {
-                int timeout = 50;
-                public void actionPerformed(ActionEvent e) {
-                    boolean done = false;
-                    Component selectedTab = tabbedPnl.getSelectedComponent();
-                    if(selectedTab == categoryScroll) {
-                        categoryScroll.getVerticalScrollBar().setValue(
-                            position);
-                        done = true;
-                    }
-                    else if(selectedTab == solutionBrowser) {
-                        done = setBrowserScrollPosition(
-                            (HtmlBrowser)solutionBrowser, position);
-                    }
-                    else if(selectedTab == designBrowser) {
-                        done = setBrowserScrollPosition(
-                            (HtmlBrowser)designBrowser, position);
-                    }
-                    else if(selectedTab == examplePnl) {
-                        // cannot scroll this tab
-                        done = true;
-                    }
-                    timeout--;
-                    if(timeout <= 0) done = true;
-                    if(done) {
-                        scrollTimer.stop();
-                        scrollTimer = null;
-                    }
-                }
-            }
-        );
-        this.scrollTimer.start();
-    }
-    
-    private int getBrowserScrollPosition(HtmlBrowser browser) {
-        int result = 0;
-        // If this browser has a scroll pane, use it to determine
-        // the current position.
-        Component c = browser.getComponent(0);
-        if(c instanceof JScrollPane) {
-            JScrollPane pane = (JScrollPane)c;
-            result = pane.getVerticalScrollBar().getValue();
-        }
-        return result;
-    }
-    
-    private boolean setBrowserScrollPosition(HtmlBrowser browser, 
-        int position) 
-    {
-        boolean result = false;
-        // If this browser has a scroll pane, use it to set
-        // the current position.
-        Component c = browser.getComponent(0);
-        if(c instanceof JScrollPane) {
-            JScrollPane pane = (JScrollPane)c;
-            JScrollBar bar = pane.getVerticalScrollBar();
-            if(position <= bar.getMaximum()) {
-                bar.setValue(position);
-                result = true;
-            }
-        }
-        return result;
     }
     
     private void navigateTo(BrowseHistoryToken token) {
@@ -589,19 +484,23 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         // and the other panels are visible when an example is selected.
         if(example == null) {
             tabbedPnl.removeAll();
-            tabbedPnl.addTab(bundle.getString(TAB_CATEGORY), categoryScroll); 
+            tabbedPnl.addTab(bundle.getString(TAB_CATEGORY), 
+                (Component)TABS.get(TAB_CATEGORY)); 
         }
         else {
             tabbedPnl.removeAll();
-            tabbedPnl.addTab(bundle.getString(TAB_SOLUTION), solutionBrowser); 
-            tabbedPnl.addTab(bundle.getString(TAB_DESIGN), designBrowser);
-            tabbedPnl.addTab(bundle.getString(TAB_EXAMPLE), examplePnl);   
+            tabbedPnl.addTab(bundle.getString(TAB_SOLUTION), 
+                (Component)TABS.get(TAB_SOLUTION)); 
+            tabbedPnl.addTab(bundle.getString(TAB_DESIGN), 
+                (Component)TABS.get(TAB_DESIGN)); 
+            tabbedPnl.addTab(bundle.getString(TAB_EXAMPLE), 
+                (Component)TABS.get(TAB_EXAMPLE)); 
         }
         
         updateCategoryTab();
         updateSolutionTab();
         updateDesignTab();
-        updateExamplesTab();
+        updateExampleTab();
     }
     
     private void selectTab(String tab) {
@@ -609,26 +508,11 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     }
     
     private void updateCategoryTab() {
-        Category category = getSelectedCategory();
-        Example example = getSelectedArticle();
-        if(example == null) {
-            categoryText.setText(
-                "<h1><font face=\"Dialog\">" + category.getName(0) // NOI18N
-                + "</font></h1>" + "<font face=\"Dialog\">"        // NOI18N
-                + category.getDescription(0) + "</font>"           // NOI18N
-            );
-        }
+        ((BluePrintsTabPanel)categoryPnl).updateTab();
     }
     
     private void updateSolutionTab() {
-        Category category = getSelectedCategory();
-        Example example = getSelectedArticle();
-        if(example != null) {
-            String articleURLString = CATALOG_RESOURCES_URL 
-                + "/web/" + example.getDoc(0); // NOI18N
-            URL articleURL = getClass().getResource(articleURLString);
-            ((HtmlBrowser)solutionBrowser).setURL(articleURL);
-        }
+        ((BluePrintsTabPanel)solutionPnl).updateTab();
     }
     
     private void updateDesignTab() {
@@ -636,18 +520,13 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         Example example = getSelectedArticle();
         if(example != null) {
             if(example.getDesigndoc().length == 0) {
-                tabbedPnl.remove(designBrowser);
-            }
-            else {
-                String designURLString = CATALOG_RESOURCES_URL
-                    + "/web/" + example.getDesigndoc(0); // NOI18N
-                URL designURL = getClass().getResource(designURLString);
-                ((HtmlBrowser)designBrowser).setURL(designURL);
+                tabbedPnl.remove(designPnl);
             }
         }
+        ((BluePrintsTabPanel)designPnl).updateTab();
     }
     
-    private void updateExamplesTab() {
+    public void updateExampleTab() {
         Category category = getSelectedCategory();
         Example example = getSelectedArticle();
         String examplePath = getExamplePath();
@@ -656,85 +535,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
                 tabbedPnl.remove(examplePnl);
             }
         }
-    }
-    
-    private void installExample() {
-        performAction(OPEN_SAMPLE_ACTION, "");
-    }
-    
-    private String getExamplePath() {
-        String result = null;
-        Example example = getSelectedArticle();
-        if(example != null) {
-            // Guess the name of the zip from the <path> element
-            // (not always accurate, but this is the best we can do)
-            String[] paths = example.getPath();
-            if(paths.length > 0) {
-                result = paths[0];
-                if(result.indexOf('.') != -1) {
-                    // there's a filename in the path. Strip it.
-                    result = result.substring(0, result.lastIndexOf('/'));
-                }
-                if(result.indexOf('/') != -1) {
-                    // Strip all slashes before the example path
-                    result = result.substring(result.lastIndexOf('/') + 1);
-                }
-            }
-        }
-        return result;
-    }
-    
-    private void showURL(String s) {
-        URL url;
-        try {
-            url = new URL(NbBundle.getMessage(getClass(),s));
-            displayer.showURL(url);
-        } catch (java.net.MalformedURLException ex) {
-            ErrorManager.getDefault().notify(ex);
-        }
-    }
-    
-    private Action findAction (String key) {
-        FileObject fo = 
-            Repository.getDefault().getDefaultFileSystem().findResource(key);
-        
-        if (fo != null && fo.isValid()) {
-            try {
-                DataObject dob = DataObject.find (fo);
-                InstanceCookie ic = 
-                    (InstanceCookie) dob.getCookie(InstanceCookie.class);
-                
-                if (ic != null) {
-                    Object instance = ic.instanceCreate();
-                    if (instance instanceof Action) {
-                        return (Action) instance;
-                    }
-                }
-            } catch (Exception e) {
-                ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
-                return null;
-            }
-        }
-        return null;
-    }
-    
-    private boolean performAction(String key, String command) {
-        Action a = findAction (key);
-        if (a == null) {
-            return false;
-        }
-        a.putValue(PRESELECT_CATEGORY, BUNDLE_PROPERTY_PREFIX + "/" // NOI18N
-            + getSelectedCategory().getId(0));
-        a.putValue(PRESELECT_TEMPLATE, getExamplePath());
-        ActionEvent ae = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, 
-            command);
-        try {
-            a.actionPerformed(ae);
-            return true;
-        } catch (Exception e) {
-            ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
-            return false;
-        }
+        ((BluePrintsTabPanel)examplePnl).updateTab();
     }
     
     /**
@@ -813,5 +614,3 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         }
     }
 }
-
-
