@@ -88,7 +88,6 @@ All Rights Reserved.
     </target>
 
     <path id="cp">
-        <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
         <pathelement location="${nb_all}/openide/registry/netbeans/modules/org-netbeans-modules-registry.jar"/>
     </path>

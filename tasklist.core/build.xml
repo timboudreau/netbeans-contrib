@@ -23,7 +23,6 @@ Microsystems, Inc. All Rights Reserved.
         <include name="${nb.modules/autoload/docs.dir}/tasklist-manual.zip"/>
       </patternset>
       <path id="cp">
-        <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
         <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
         <pathelement location="${core/settings.dir}/${nb.modules.dir}/org-netbeans-modules-settings.jar"/>

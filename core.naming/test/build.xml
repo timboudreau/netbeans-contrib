@@ -192,7 +192,6 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using jars classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against jars -->
 	<path id="compiletest.classpath">        
-	    	<pathelement location="../../../openide/openide-13javac-workaround.jar"/>
 	    	<pathelement location="../netbeans/modules/autoload/naming.jar"/>
 	    	<fileset dir="../../../openide/netbeans/lib">
                     <include name="openide*.jar"/>
@@ -206,7 +205,6 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using srcs classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against sources -->
     	<path id="compiletest.classpath">        
-	        <pathelement location="../../../openide/openide-13javac-workaround.jar"/>
 	        <pathelement location="../src"/>
 	        <fileset dir="../../../openide/netbeans/lib">
                     <include name="openide*.jar"/>
@@ -220,7 +218,6 @@ Microsystems, Inc. All Rights Reserved.
         <echo message="Using IDE classpath for compilation."/>
     	<!-- this classpath will be used for compiling tests against installed IDE -->
     	<path id="compiletest.classpath">        
-    		<pathelement location="${xtest.home}/lib/openide-13javac-workaround.jar"/>
 	        <pathelement location="${netbeans.home}/modules/autoload/naming.jar"/>
 	        <fileset dir="${netbeans.home}/lib">
                     <include name="openide*.jar"/>

@@ -34,7 +34,6 @@ Microsystems, Inc. All Rights Reserved.
   <target name="compile">
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <classpath>        
-	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>
         <pathelement location="${nbroot}/openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
 	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
@@ -138,7 +137,6 @@ Microsystems, Inc. All Rights Reserved.
         <pathelement location="src"/>
       </sourcepath>
       <classpath>
-	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
         <!--<pathelement location="${nbroot}/openide/netbeans/lib/openide.jar"/>-->
         <fileset dir="${nbroot}/openide/netbeans/lib">
           <include name="openide*.jar" />

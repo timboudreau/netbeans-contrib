@@ -24,7 +24,6 @@ Microsystems, Inc. All Rights Reserved.
       <include name="${tomcat.filename}"/>
     </patternset>
     <path id="cp">
-        <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
         <pathelement location="${tomcatint/tomcat5.dir}/${nb.modules.dir}/tomcat40.jar"/>
         <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
         <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>

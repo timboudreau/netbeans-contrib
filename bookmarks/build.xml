@@ -29,7 +29,6 @@
         <javac destdir="src" srcdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
             <classpath>
                 <!-- Whatever you need, based on your dependencies. -->
-                <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
                 <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
                 <fileset dir="${nb_all}/openide">
                     <include name="registry/netbeans/modules/org-netbeans-modules-registry.jar"/>
