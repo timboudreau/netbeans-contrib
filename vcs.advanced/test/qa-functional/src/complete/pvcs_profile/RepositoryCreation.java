@@ -238,7 +238,7 @@ public class RepositoryCreation extends NbTestCase {
         addCommand.checkKeepTheRevisionLocked(true);
         addCommand.checkFloatLabelWithTheTipRevision(true);
         addCommand.ok();
-        MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
+        Thread.sleep(10000);
         new Action(VERSIONING_MENU + "|" + REFRESH, REFRESH).perform(C_FileNode);
         Thread.currentThread().sleep(2000);
         MainWindowOperator.getDefault().waitStatusText("Command Refresh finished.");
