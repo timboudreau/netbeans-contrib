@@ -13,11 +13,15 @@
 
 package org.netbeans.modules.vcscore.objectintegrity;
 
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
+import javax.swing.AbstractButton;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 /**
@@ -50,12 +54,14 @@ public class ObjectIntegrityPanel extends javax.swing.JPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
+        descriptionLabel.setLabelFor(filesTable);
         descriptionLabel.setText(org.openide.util.NbBundle.getBundle(ObjectIntegrityPanel.class).getString("LBL.descriptionLabel.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 11, 11);
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(descriptionLabel, gridBagConstraints);
+        descriptionLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ObjectIntegrityPanel.class, "LBL.descriptionLabel.a11yDescription"));
 
         filesTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -87,11 +93,12 @@ public class ObjectIntegrityPanel extends javax.swing.JPanel {
         gridBagConstraints.gridy = 1;
         gridBagConstraints.gridheight = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 11, 11);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 11, 11);
         add(jScrollPane1, gridBagConstraints);
 
+        selectAllButton.setMnemonic(org.openide.util.NbBundle.getMessage(ObjectIntegrityPanel.class, "LBL.selectAllButton.mnemonic").charAt(0));
         selectAllButton.setText(org.openide.util.NbBundle.getBundle(ObjectIntegrityPanel.class).getString("LBL.selectAllButton.text"));
         selectAllButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -102,10 +109,12 @@ public class ObjectIntegrityPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 11, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 11, 11);
         add(selectAllButton, gridBagConstraints);
+        selectAllButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ObjectIntegrityPanel.class, "LBL.selectAllButton.a11yDescription"));
 
+        deselectAllButton.setMnemonic(org.openide.util.NbBundle.getMessage(ObjectIntegrityPanel.class, "LBL.deselectAllButton.mnemonic").charAt(0));
         deselectAllButton.setText(org.openide.util.NbBundle.getBundle(ObjectIntegrityPanel.class).getString("LBL.deselectAllButton.text"));
         deselectAllButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -116,17 +125,20 @@ public class ObjectIntegrityPanel extends javax.swing.JPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 11, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 11, 11);
         add(deselectAllButton, gridBagConstraints);
+        deselectAllButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ObjectIntegrityPanel.class, "LBL.deselectAllButton.a11yDescription"));
 
+        doNotShowCheckBox.setMnemonic(org.openide.util.NbBundle.getMessage(ObjectIntegrityPanel.class, "LBL.doNotShowCheckBox.mnemonic").charAt(0));
         doNotShowCheckBox.setText(org.openide.util.NbBundle.getBundle(ObjectIntegrityPanel.class).getString("LBL.doNotShowCheckBox.text"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 11, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 11, 11);
         add(doNotShowCheckBox, gridBagConstraints);
+        doNotShowCheckBox.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ObjectIntegrityPanel.class, "LBL.doNotShowCheckBox.a11yDescription"));
 
     }//GEN-END:initComponents
 
@@ -152,11 +164,11 @@ public class ObjectIntegrityPanel extends javax.swing.JPanel {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel descriptionLabel;
     private javax.swing.JButton deselectAllButton;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JCheckBox doNotShowCheckBox;
     private javax.swing.JTable filesTable;
-    private javax.swing.JLabel descriptionLabel;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton selectAllButton;
     // End of variables declaration//GEN-END:variables
     
@@ -176,7 +188,33 @@ public class ObjectIntegrityPanel extends javax.swing.JPanel {
         model.setColumnCount(0);
         model.addColumn(columnNames[0], willAdd);
         model.addColumn(columnNames[1], filePaths);
-        filesTable.getColumnModel().getColumn(0).setPreferredWidth(10);
+        setColumnWidth();
+    }
+    
+    private void setColumnWidth() {
+        TableColumn firstColumn = filesTable.getColumnModel().getColumn(0);
+        TableCellRenderer firstHeaderRenderer = firstColumn.getHeaderRenderer();
+        if (firstHeaderRenderer == null) {
+            firstHeaderRenderer = filesTable.getTableHeader().getDefaultRenderer();
+        }
+        TableCellRenderer firstColumnRenderer = firstColumn.getCellRenderer();
+        if (firstColumnRenderer == null) {
+            firstColumnRenderer = filesTable.getDefaultRenderer(filesTable.getColumnClass(0));
+        }
+        Component hc = firstHeaderRenderer.getTableCellRendererComponent(filesTable, firstColumn.getHeaderValue(),
+                                                              false, true, 0, 0);
+        Component cc = firstColumnRenderer.getTableCellRendererComponent(filesTable, Boolean.TRUE,
+                                                              true, true, 0, 0);
+        int hcw = hc.getPreferredSize().width;
+        if (hc instanceof AbstractButton) {
+            hcw += ((AbstractButton) hc).getMargin().left + ((AbstractButton) hc).getMargin().right;
+        }
+        int ccw = cc.getPreferredSize().width;
+        if (cc instanceof AbstractButton) {
+            ccw += ((AbstractButton) cc).getMargin().left + ((AbstractButton) cc).getMargin().right;
+        }
+        int maxFirstWidth = Math.max(hcw, ccw) + 6;
+        firstColumn.setMaxWidth(maxFirstWidth);
     }
     
     /**
@@ -199,17 +237,15 @@ public class ObjectIntegrityPanel extends javax.swing.JPanel {
      */
     public String[] getIgnoredFilePaths() {
         if (doNotShowCheckBox.isSelected()) {
-            Vector data = ((DefaultTableModel) filesTable.getModel()).getDataVector();
-            Vector willAdd = (Vector) data.get(0);
-            Vector filePaths = (Vector) data.get(1);
-            int n = filePaths.size();
-            ArrayList pathsToAdd = new ArrayList(n);
+            TableModel model = filesTable.getModel();
+            int n = model.getRowCount();
+            ArrayList pathsToIgnore = new ArrayList(n);
             for (int i = 0; i < n; i++) {
-                if (!((Boolean) willAdd.get(i)).booleanValue()) {
-                    pathsToAdd.add(filePaths.get(i));
+                if (!((Boolean) model.getValueAt(i, 0)).booleanValue()) {
+                    pathsToIgnore.add(model.getValueAt(i, 1));
                 }
             }
-            return (String[]) pathsToAdd.toArray(new String[pathsToAdd.size()]);
+            return (String[]) pathsToIgnore.toArray(new String[pathsToIgnore.size()]);
         } else {
             return new String[0];
         }

@@ -17,8 +17,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -101,6 +104,8 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
     private Map filesMap = new HashMap();
     /** The set of names of primary files, that are local. They might become non-local later. */
     private Set primaryLocalFiles = new HashSet();
+    /** The set of names of secondary files, that are local, but ignored. */
+    private Set ignoredSecondaryLocalFiles = Collections.synchronizedSet(new HashSet());
     
     private static final long serialVersionUID = 7128452018671390570L;
     /** Creates a new instance of VcsObjectIntegritySupport.
@@ -246,7 +251,10 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 FileObject fo = (FileObject) fileIt.next();
                 String filePath = fo.getPath();
                 fs = (FileSystem) fo.getAttribute(VcsAttributes.VCS_NATIVE_FS);
-                if (fo.isFolder() || !fileSystem.equals(fs) || !foImportantness.isImportant(filePath)) {
+                if (fo.isFolder() || !fileSystem.equals(fs) ||
+                    !foImportantness.isImportant(filePath) ||
+                    ignoredSecondaryLocalFiles.contains(filePath)) {
+                        
                     filesToRemove.add(filePath);
                     continue;
                 }
@@ -290,6 +298,30 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
         synchronized (objectsWithLocalFiles) {
             return Collections.unmodifiableMap(new HashMap(objectsWithLocalFiles));
         }
+    }
+    
+    public void addIgnoredFiles(String[] ignoredFilePaths) {
+        ignoredSecondaryLocalFiles.addAll(Arrays.asList(ignoredFilePaths));
+        //System.out.println("ignoredSecondaryLocalFiles = "+ignoredSecondaryLocalFiles);
+        boolean changed = false;
+        synchronized (objectsWithLocalFiles) {
+            for (int i = 0; i < ignoredFilePaths.length; i++) {
+                String primary = (String) filesMap.remove(ignoredFilePaths[i]);
+                if (primary != null) {
+                    // It was a local secondary file, so it needs to be removed.
+                    Set localSec = (Set) objectsWithLocalFiles.get(primary);
+                    if (localSec != null) {
+                        //System.out.println("    removing secondary: "+path);
+                        localSec.remove(ignoredFilePaths[i]);
+                        if (localSec.size() == 0) {
+                            objectsWithLocalFiles.remove(primary);
+                        }
+                        changed = true;
+                    }
+                }
+            }
+        }
+        if (changed) firePropertyChange();
     }
     
     /**
@@ -450,6 +482,13 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 }
             }
             if (changed) firePropertyChange();
+        }
+    }
+    
+    private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
+        in.defaultReadObject();
+        if (ignoredSecondaryLocalFiles == null) {
+            ignoredSecondaryLocalFiles = Collections.synchronizedSet(new HashSet());
         }
     }
     

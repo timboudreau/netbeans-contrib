@@ -213,14 +213,23 @@ public class ObjectIntegrityCommandSupport extends CommandSupport implements jav
             String command = e.getActionCommand();
             if (options[0].equals(command)) { // Add
                 String[] filePaths = integrityPanel.getSelectedFilePaths();
-                VcsObjectIntegritySupport vcsOIS = cmd.getObjectIntegritySupport();
-                FileObject[] files = new FileObject[filePaths.length];
-                for (int i = 0; i < filePaths.length; i++) {
-                    files[i] = vcsOIS.findFileObject(filePaths[i]);
+                if (filePaths.length == 0) {
+                    cmd.setFilesToAdd(null);
+                } else {
+                    VcsObjectIntegritySupport vcsOIS = cmd.getObjectIntegritySupport();
+                    FileObject[] files = new FileObject[filePaths.length];
+                    for (int i = 0; i < filePaths.length; i++) {
+                        files[i] = vcsOIS.findFileObject(filePaths[i]);
+                    }
+                    cmd.setFilesToAdd(files);
                 }
-                cmd.setFilesToAdd(files);
             } else if (options[1].equals(command)) { // Skip
                 cmd.setFilesToAdd(null);
+            }
+            String[] ignoredFiles = integrityPanel.getIgnoredFilePaths();
+            if (ignoredFiles.length > 0) {
+                VcsObjectIntegritySupport vcsOIS = cmd.getObjectIntegritySupport();
+                vcsOIS.addIgnoredFiles(ignoredFiles);
             }
         }
         
