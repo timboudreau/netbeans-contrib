@@ -45,7 +45,7 @@ public class ComponentGeneratorPanel extends javax.swing.JPanel implements java.
     private Thread thread;
     private java.util.Properties props;
     // "<default package>"
-    private static final String DEFAULT_PACKAGE_LABEL = NbBundle.getBundle("org/netbeans/spi/java/project/support/ui/Bundle").getString("LBL_DefaultPackage");
+    private static final String DEFAULT_PACKAGE_LABEL = NbBundle.getBundle("org.netbeans.modules.java.project.Bundle").getString("LBL_DefaultPackage");
 
     
     /** creates ans shows Component Generator dialog
