@@ -20,9 +20,6 @@ import org.netbeans.modules.vcscore.caching.StatusFormat;
  * The object is treated as immutable. One initializing
  * the object should invoke {@link #freeze} to assure it.
  *
- * TODO Copied from PersistentData no meaning of certain fields known.
- *
- *
  * @author Petr Kuzel
  */
 public final class FileProperties {
@@ -40,7 +37,7 @@ public final class FileProperties {
     private String attr = ""; // NOI18N
     private String date = ""; // NOI18N
     private String time = ""; // NOI18N
-    private int    size = 0;
+    private long    size = 0;
     private String locker;
 
     // XXX it's not writen to disc layer
@@ -81,9 +78,19 @@ public final class FileProperties {
     /** Constructs from StatusFormatElements. */
     FileProperties(String[] elements) {
         status = elements[StatusFormat.ELEMENT_INDEX_STATUS];
-        retrieval = System.currentTimeMillis();
         name = elements[StatusFormat.ELEMENT_INDEX_FILE_NAME];
-        // TODO others
+        locker = elements[StatusFormat.ELEMENT_INDEX_LOCKER];
+        attr = elements[StatusFormat.ELEMENT_INDEX_ATTR];
+        revision = elements[StatusFormat.ELEMENT_INDEX_REVISION];
+        try {
+            size = Long.parseLong(elements[StatusFormat.ELEMENT_INDEX_SIZE]);
+        } catch (NumberFormatException ex) {
+            size = 0;
+        }
+        sticky = elements[StatusFormat.ELEMENT_INDEX_STICKY];
+        time = elements[StatusFormat.ELEMENT_INDEX_TIME];
+        date = elements[StatusFormat.ELEMENT_INDEX_DATE];
+        retrieval = System.currentTimeMillis();
     }
 
     /** Clients must access using {@link IgnoreList#forFolder}.*/
@@ -148,6 +155,7 @@ public final class FileProperties {
         this.sticky = sticky;
     }
 
+    /** VCS specific additonal attributes (e.g CVS -kb) */
     public String getAttr() {
         return attr;
     }
@@ -175,7 +183,7 @@ public final class FileProperties {
         this.time = time;
     }
 
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 
@@ -183,7 +191,7 @@ public final class FileProperties {
         return "" + size;
     }
 
-    public void setSize(int size) {
+    public void setSize(long size) {
         assert canUpdate;
         this.size = size;
     }
@@ -204,7 +212,7 @@ public final class FileProperties {
         canUpdate = false;
     }
 
-    /** Who holds lock on the file. */
+    /** What user holds lock on the file. */
     public String getLocker() {
         return locker;
     }
@@ -235,10 +243,15 @@ public final class FileProperties {
     /** Converts to format accepted by StatusFormat */
     public String[] toElements() {
         String[] elements = new String[StatusFormat.NUM_ELEMENTS];
-
         elements[StatusFormat.ELEMENT_INDEX_FILE_NAME] = getName();
         elements[StatusFormat.ELEMENT_INDEX_STATUS] = getStatus();
-        // TODO others
+        elements[StatusFormat.ELEMENT_INDEX_LOCKER] = getLocker();
+        elements[StatusFormat.ELEMENT_INDEX_ATTR] = getAttr();
+        elements[StatusFormat.ELEMENT_INDEX_REVISION] = getRevision();
+        elements[StatusFormat.ELEMENT_INDEX_SIZE] = getSizeAsString();
+        elements[StatusFormat.ELEMENT_INDEX_STICKY] = getSticky();
+        elements[StatusFormat.ELEMENT_INDEX_TIME] = getTime();
+        elements[StatusFormat.ELEMENT_INDEX_DATE] = getDate();
 
         return elements;
     }
@@ -248,4 +261,3 @@ public final class FileProperties {
     }
 
 }
-

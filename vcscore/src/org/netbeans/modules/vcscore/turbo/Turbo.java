@@ -33,6 +33,16 @@ public final class Turbo {
 
     private static volatile boolean justFiring = false;
 
+    private static boolean ENABLED;
+
+    static {
+        ENABLED = Boolean.getBoolean("netbeans.experimental.useVcsTurbo"); // NOI18N
+        if (ENABLED) {
+            System.out.println("Thank you for testing netbeans.experimental.useVcsTurbo!"); // NOI18N
+            System.out.println("  It's an experimental VCS repository status cache."); // NOI18N
+        }
+    }
+
     private Turbo() {
     }
 
@@ -50,12 +60,16 @@ public final class Turbo {
         if (fileObject == null) return null;
 
         if (SwingUtilities.isEventDispatchThread()) {
+            Statistics.request();
             FileProperties fprops = Memory.get(fileObject);
-            if (fprops != null) return fprops;
-            prepareMeta(fileObject);
+            if (fprops != null) {
+                Statistics.memoryHit();
+                return fprops;
+            }
+            Disk.prepareMeta(fileObject);
             return null;
         } else {
-            FileProperties fprops = getCachedMeta(fileObject);
+            FileProperties fprops = getCachedMeta(fileObject);  // it does statistics
             if (fprops != null) {
                 return fprops;
             } else {
@@ -91,6 +105,11 @@ public final class Turbo {
      */
     public static void prepareMeta(FileObject fileObject) {
         if (fileObject == null) return;
+        Statistics.request();
+        if (Memory.get(fileObject) != null) {
+            Statistics.memoryHit();
+            return;
+        }
         Disk.prepareMeta(fileObject);
     }
 
@@ -103,13 +122,18 @@ public final class Turbo {
     public static FileProperties getCachedMeta(FileObject fileObject) {
         if (fileObject == null) return null;
 
+        Statistics.request();
         FileProperties fprops = Memory.get(fileObject);
-        if (fprops != null) return fprops;
+        if (fprops != null) {
+            Statistics.memoryHit();
+            return fprops;
+        }
 
         assert SwingUtilities.isEventDispatchThread() == false;
 
         fprops = Disk.get(fileObject);
         if (fprops != null) {
+            Statistics.diskHit();
             Memory.put(fileObject, fprops);
             return fprops;
         }
@@ -195,7 +219,7 @@ public final class Turbo {
      * @deprecated client's code should use Turbo unconditionally...
      */
     public static boolean implemented() {
-        return false;
+        return ENABLED;
     }
 
     /**
@@ -207,6 +231,16 @@ public final class Turbo {
      */
     public static Turbo singleton() {
         return SINGLETON;
+    }
+
+    /**
+     * Notifies turbo tha t it's not needed anymore.
+     * It comes on IDE shutdown.
+     */
+    public static void shutdown() {
+        Statistics.shutdown();
+        System.out.println("Thank you for testing netbeans.experimental.useVcsTurbo!"); // NOI18N
+        System.out.println("  Statistics goes to " + Statistics.logPath()); // NOI18N
     }
 
 }

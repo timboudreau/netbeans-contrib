@@ -1273,7 +1273,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
             FileProperties fprops = Turbo.getMeta(fo);
             if (fprops != null) {
                 vars.put("CACHED_ATTR", fprops.getAttr());
-                vars.put("CACHED_SIZE", Integer.toString(fprops.getSize()));
+                vars.put("CACHED_SIZE", Long.toString(fprops.getSize()));
                 vars.put("CACHED_ISLOCAL", fprops.isLocal() ? "true" : "");
             }
         } else // the old implementation

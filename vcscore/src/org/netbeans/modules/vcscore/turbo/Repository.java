@@ -45,7 +45,7 @@ final class Repository {
     public static FileProperties get(FileObject fileObject) {
         if (refresh(fileObject)) {
             // it was loaded by dirReaderListener
-            FileProperties fprops = Turbo.getCachedMeta(fileObject);
+            FileProperties fprops = Memory.get(fileObject);
             return fprops;
         } else {
             return null;
