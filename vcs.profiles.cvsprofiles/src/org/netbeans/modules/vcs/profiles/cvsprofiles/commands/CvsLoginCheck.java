@@ -20,7 +20,6 @@ import javax.swing.SwingUtilities;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.util.HelpCtx;
 
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
@@ -90,6 +89,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
                 null/*new HelpCtx(CvsLoginProgressPanel.class)*/, null);
             dialog = DialogDisplayer.getDefault().createDialog(dialogDescr);
             loginPanel.connectingTo((String) vars.get("CVS_SERVER"));
+            dialog.pack();
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     dialog.show();
@@ -101,7 +101,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
         boolean builtIn = "true".equals(vars.get("BUILT-IN"));
         StringBuffer message = new StringBuffer();
         boolean loggedIn = false;
-        CVSPasswd pasFile = new CVSPasswd((String)null);
+        CVSPasswd pasFile = new CVSPasswd(null);
         Object loggedInText = context.getVariablesAsHashtable().get("LOGGED_IN_TEXT");
         vars.clear(); // Not to unnecessarily update too many variables.
         vars.put("LOGGED_IN_TEXT", loggedInText);
@@ -131,7 +131,7 @@ public class CvsLoginCheck implements VcsAdditionalCommand {
                     String scrambledPassword = StandardScrambler.getInstance().scramble(password);
                     entry.setEntry(connectStr+" "+scrambledPassword);
                     if (port > 0) entry.getCVSRoot().setPort(port);
-                    loggedIn = pasFile.checkServer(entry);
+                    loggedIn = CVSPasswd.checkServer(entry);
                     if (loggedIn) {
                         pasFile.add(connectStr, port, password);
                         pasFile.savePassFile();
