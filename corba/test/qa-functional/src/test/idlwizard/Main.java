@@ -107,8 +107,11 @@ public class Main extends JellyTestCase {
             String command = str ();
             String node = str ();
             out.println ("COMMAND: " + command + "    NODE: " + node);
+            getLog ().println ("COMMAND: " + command + "    NODE: " + node);
+            ev.waitNoEvent(1000);
             new Node (dis.tree (), node).select ();
             ev.waitNoEvent(1000);
+            getLog ().println ("SELECTED: " + dis.tree ().getSelectionPath ());
             if (command.indexOf('_') < 0) {
                 String str = (String) hash.get (command);
                 if (str == null)
