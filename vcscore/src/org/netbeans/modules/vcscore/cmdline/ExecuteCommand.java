@@ -289,7 +289,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         E.deb("runCommand: "+exec); // NOI18N
 
         exec = Variables.expand(vars,exec, true);
-
+        preferredExec = exec;
         ExternalCommand ec = new ExternalCommand(exec);
         //ec.setTimeout(cmd.getTimeout());
         ec.setInput((String) cmd.getProperty(UserCommand.PROPERTY_INPUT));
