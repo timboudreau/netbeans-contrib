@@ -111,7 +111,7 @@ public class SourceTasksAction extends CallableSystemAction {
                         );
                     }
                 }
-            }
+            }, 53, Thread.MIN_PRIORITY    //
         );
     }
 

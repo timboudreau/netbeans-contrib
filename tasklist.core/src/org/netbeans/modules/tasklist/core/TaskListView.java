@@ -507,6 +507,16 @@ public abstract class TaskListView extends TopComponent
         setRoot();
     }
 
+    /**
+     * Start showing new tasklist.
+     */
+    protected final void showList(TaskList list) {
+        if (list == tasklist) return;
+        hideList();
+        tasklist = list;
+        showList();
+    }
+
     private void setRoot() {
         //tasklist.getRoot();
         rootNode = createRootNode();
@@ -1132,6 +1142,7 @@ for (int i = 0; i < columns.length; i++) {
         return tasklist;
     }
 
+
     /** Pulled straight out of TreeTableView in openide
      Except don't cache rowComparator, and don't case
      to VisualizerNode, cast to Node
@@ -1231,6 +1242,15 @@ for (int i = 0; i < columns.length; i++) {
             filter = new Filter(null, true, new ArrayList(), false);
         }
         return filter;
+    }
+
+    /** Tests if any real filter is applied. */
+    protected final boolean isFiltered() {
+        if (filter == null) {
+            return false;
+        } else {
+            return filter.hasConstraints();
+        }
     }
 
     /** Set the filter to be used in this view.

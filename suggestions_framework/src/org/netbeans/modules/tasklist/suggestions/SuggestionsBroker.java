@@ -104,18 +104,21 @@ public final class SuggestionsBroker {
          * @return
          */
         public SuggestionList getSuggestionsList() {
-            return getSuggestionsList();
+            return getSuggestionListImpl();
         }
 
     }
 
     final SuggestionList getSuggestionsList() {
+        return getSuggestionListImpl();
+    }
+
+    private SuggestionList getSuggestionListImpl() {
         if (list == null) {
             list = new SuggestionList();
         }
         return list;
     }
-
     /*
      * Code related to Document scanning. It listens to the source editor and
      * tracks document opens and closes, as well as "current document" changes.

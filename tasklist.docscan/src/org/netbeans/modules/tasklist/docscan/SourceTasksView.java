@@ -28,11 +28,9 @@ import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.filesystems.FileObject;
 
-import org.netbeans.modules.tasklist.core.TaskListView;
-import org.netbeans.modules.tasklist.core.ColumnProperty;
-import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.modules.tasklist.core.TaskList;
+import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
+import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.suggestions.*;
 import org.netbeans.api.tasklist.SuggestionPriority;
 
@@ -59,6 +57,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     static final String PROP_SUGG_LINE = "suggLine"; // NOI18N
     static final String PROP_SUGG_CAT = "suggCat"; // NOI18N
 
+    // current job or null if snapshot
+    private SuggestionsBroker.Job job;
 
     /**
      * Construct a Scaned tasks view with the given window title, and the given
@@ -173,13 +173,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         setNorthComponentVisible(true);
     }
 
-    public SystemAction[] getToolBarActions() {
-        return new SystemAction[] {
-            SystemAction.get(FilterSourceTasksAction.class),
-            SystemAction.get(RemoveFilterAction.class)
-        };
-    }
-
     public void writeExternal(ObjectOutput objectOutput) throws IOException {
         // TODO super.writeExternal(objectOutput);
     }
@@ -231,7 +224,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private JComponent getRefresh() {
         if (refresh == null) {
-            JButton button = new JButton("Refresh");
+            Image image = Utilities.loadImage("org/netbeans/modules/tasklist/docscan/refresh.gif");
+            JButton button = new JButton(new ImageIcon(image));
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     handleRefresh();
@@ -273,29 +267,122 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         SourceTasksAction.scanTasksAsync(this);
     }
 
-    private void handlePrev() {
-        prevTask();
+    private JToggleButton allFilesButton;
+    private ButtonGroup group = new ButtonGroup();;
+
+    private JToggleButton getAllFiles() {
+        if (allFilesButton == null) {
+            JToggleButton button = new JToggleButton("All Files");
+            group.add(button);
+            button.setSelected(true);
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    handleAllFiles();
+                }
+            });
+            allFilesButton = button;
+        }
+        return allFilesButton;
     }
 
-    private void handleNext() {
-        nextTask();
+    private JComponent currentFile;
+
+    private JComponent getCurrentFile() {
+        if (currentFile == null) {
+            JToggleButton button = new JToggleButton("Current File");
+            group.add(button);
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    handleCurrentFile();
+                }
+            });
+            currentFile = button;
+        }
+        return currentFile;
+    }
+
+    private Component gotoPresenter;
+
+    private Component getGoto() {
+        if (gotoPresenter == null) {
+            GoToTaskAction gotoAction = (GoToTaskAction) SystemAction.get(GoToTaskAction.class);
+            gotoPresenter = gotoAction.getToolbarPresenter();
+        }
+        return gotoPresenter;
+    }
+
+    private JButton filterButton;
+
+    private JButton getFilterMenu() {
+        if (filterButton == null) {
+            Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/core/filter.png"));
+            filterButton = new JButton(icon);
+            filterButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JPopupMenu popup = new JPopupMenu();
+                    ButtonGroup group = new ButtonGroup();
+
+                    JRadioButtonMenuItem activate = new JRadioButtonMenuItem("Activate Filter");
+                    activate.setSelected(isFiltered());
+                    group.add(activate);
+                    popup.add(activate);
+
+                    JRadioButtonMenuItem deactivate = new JRadioButtonMenuItem("Deactivate Filter");
+                    deactivate.setSelected(isFiltered() == false);
+                    group.add(deactivate);
+                    popup.add(deactivate);
+
+                    popup.add(new JSeparator());
+
+                    JMenuItem editFilter = new JMenuItem("Edit Filter");
+                    editFilter.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            SystemAction.get(FilterAction.class).actionPerformed(e);
+                        }
+                    });
+                    popup.add(editFilter);
+                    popup.show(filterButton, 0, filterButton.getHeight() - 2);
+                }
+            });
+        }
+        return filterButton;
     }
 
     protected Component createNorthComponent() {
-        JPanel leftpanel = new JPanel();
-        leftpanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        leftpanel.add(getPrev());
-        leftpanel.add(getNext());
-        leftpanel.add(getRefresh());
+//        JPanel leftpanel = new JPanel();
+//        leftpanel.setLayout(new FlowLayout(FlowLayout.LEFT, 12, 0));
+//        leftpanel.add(getAllFiles());
+//        leftpanel.add(getCurrentFile());
+//        leftpanel.add(new JSeparator(JSeparator.VERTICAL));
+//        leftpanel.add(getPrev());
+//        leftpanel.add(getNext());
+
+        JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+        toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
+        toolbar.setBorder(null);
+
+        toolbar.add(getAllFiles());
+        toolbar.add(getCurrentFile());
+        toolbar.add(new JSeparator(JSeparator.VERTICAL));
+
+        toolbar.add(getGoto());
+        toolbar.add(getRefresh());
+        toolbar.add(getFilterMenu());
+        toolbar.add(new JSeparator(JSeparator.VERTICAL));
+
+//        leftpanel.add(toolbar);
+//        leftpanel.add(new JSeparator(JSeparator.VERTICAL));
 
         JPanel rightpanel = new JPanel();
-        rightpanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        rightpanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         rightpanel.add(getProgress());
         rightpanel.add(getStop());
 
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
-        panel.add(leftpanel, BorderLayout.WEST);
+//        panel.add(leftpanel, BorderLayout.WEST);
+        panel.add(toolbar, BorderLayout.WEST);
         panel.add(getStatus(), BorderLayout.CENTER);
         panel.add(rightpanel, BorderLayout.EAST);
         return panel;
@@ -362,17 +449,46 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         estimatedFolders = -1;
         getProgress().setVisible(false);
         getStop().setVisible(false);
-        getRefresh().setEnabled(true);
+        getRefresh().setEnabled(getAllFiles().isSelected());
     }
 
     public void statistics(int todos) {
-        String text = NbBundle.getMessage(ScanSuggestionsAction.class,
-                                               "ScanDone", new Integer(todos)); // NOI18N
-        getStatus().setText(text);
+        if (getAllFiles().isSelected()) {
+            String text = NbBundle.getMessage(SourceTasksView.class,
+                                                   "TodoScanDone", new Integer(todos)); // NOI18N
+            getStatus().setText(text);
+        }
     }
 
     private void handleStop() {
         interrupt = true;
+    }
+
+    private void handleAllFiles() {
+        // scan for todos
+        if (job != null) {
+            job.stopBroker();
+        }
+        SuggestionList list = new SourceTasksList();
+        showList(list);
+        SourceTasksAction.scanTasksAsync(this);
+        getRefresh().setEnabled(true);
+    }
+
+    private void handleCurrentFile() {
+        handleStop();
+        job = SuggestionsBroker.getDefault().startBroker();
+        showList(job.getSuggestionsList());
+        getRefresh().setEnabled(false);
+        getStatus().setText("");
+    }
+
+    private void handlePrev() {
+        prevTask();
+    }
+
+    private void handleNext() {
+        nextTask();
     }
 
 
