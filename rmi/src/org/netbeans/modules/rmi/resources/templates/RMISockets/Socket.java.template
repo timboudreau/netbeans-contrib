@@ -22,7 +22,7 @@ public class Socket extends java.net.Socket {
         super();
     }
 
-    /** Creates new CustomSocket */
+    /** Creates new __NAME__ */
     public Socket(String host,int port) throws java.net.UnknownHostException, java.io.IOException {
         super(host, port);
     }
