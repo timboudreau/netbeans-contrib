@@ -480,7 +480,7 @@ public class CommandMenu extends JMenuPlus {
             buff.append(NbBundle.getBundle(CommandMenu.class).getString("CommandMenu.firstTimer2.text")); //NOI18N
             textArea.setText(buff.toString());
             textArea.setBackground(label1.getBackground());
-            textArea.setRows(6);
+            textArea.setRows(7);
             textArea.setColumns(50);
             
             GridBagConstraints gridBagConstraints1;
