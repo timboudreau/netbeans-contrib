@@ -24,13 +24,6 @@ import org.openide.util.NbBundle;
 */
 public class VcsGroupSettingsBeanInfo extends SimpleBeanInfo {
 
-    /** Icons for compiler settings objects. */
-    static Image icon;
-    static Image icon32;
-
-    static final java.util.ResourceBundle bundle =
-        NbBundle.getBundle(VcsGroupSettingsBeanInfo.class);
-
 
     /**
     * loads icons
@@ -42,11 +35,9 @@ public class VcsGroupSettingsBeanInfo extends SimpleBeanInfo {
     //TODO new ICONS
     public Image getIcon(int type) {
         if ((type == java.beans.BeanInfo.ICON_COLOR_16x16) || (type == java.beans.BeanInfo.ICON_MONO_16x16)) {
-            if (icon == null)
-                icon = loadImage("/org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"); // NOI18N
-            return icon;
+            return org.openide.util.Utilities.loadImage("/org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"); //NOI18N;
         } else {
-            return icon32;
+            return null;
         }
 
     }
@@ -56,6 +47,7 @@ public class VcsGroupSettingsBeanInfo extends SimpleBeanInfo {
     */
     public PropertyDescriptor[] getPropertyDescriptors () {
         try {
+           java.util.ResourceBundle bundle = NbBundle.getBundle(VcsGroupSettingsBeanInfo.class);
             
             PropertyDescriptor autoAddition = new PropertyDescriptor ("autoAddition", VcsGroupSettings.class); // NOI18N
             autoAddition.setDisplayName (bundle.getString("PROP_autoAddition")); // NOI18N
