@@ -1294,7 +1294,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         try {
             Node[] selected = op.select(Util.getString("sel_title"), Util.getString("sel-head"), content, new NodeAcceptor() {
                 public boolean acceptNodes(Node[] nodes) {
-                    return nodes.length == 1 && nodes[0] != content && nodes[0].getCookie(DataFolder.class) != null;
+                    return nodes.length == 1 && nodes[0] != content && nodes[0].getLookup().lookup(FileObject.class) != null;
                 }
             });
 
