@@ -67,7 +67,7 @@ public class Variables extends JellyTestCase {
             System.out.print(".. Testing variable editor ..");
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             wizardProfile.setProfile(VCSWizardProfile.EMPTY_UNIX);
             wizardProfile.next();
             VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();
@@ -99,7 +99,7 @@ public class Variables extends JellyTestCase {
             System.out.print(".. Testing accessory variable ..");
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             wizardProfile.setProfile(VCSWizardProfile.EMPTY_UNIX);
             wizardProfile.next();
             VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();
@@ -150,7 +150,7 @@ public class Variables extends JellyTestCase {
             System.out.print(".. Testing basic variable ..");
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             wizardProfile.setProfile(VCSWizardProfile.EMPTY_UNIX);
             wizardProfile.next();
             VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();
@@ -191,7 +191,7 @@ public class Variables extends JellyTestCase {
             System.out.print(".. Testing basic variable customization ..");
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             wizardProfile.setProfile(VCSWizardProfile.EMPTY_UNIX);
             wizardProfile.next();
             VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();

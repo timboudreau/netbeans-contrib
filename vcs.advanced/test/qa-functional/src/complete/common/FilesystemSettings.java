@@ -74,7 +74,7 @@ public class FilesystemSettings extends JellyTestCase {
         new ActionNoBlock(MOUNT_MENU, null).perform();
         VCSWizardProfile wizard = new VCSWizardProfile();
         wizard.setWorkingDirectory(workingDirectory);
-        wizard.checkOnlyCompatibleProfiles(false);
+//        wizard.checkOnlyCompatibleProfiles(false);
         wizard.setProfile(profile);
         Thread.sleep(1000);
         wizard.finish();

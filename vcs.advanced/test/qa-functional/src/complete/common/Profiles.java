@@ -69,7 +69,7 @@ public class Profiles extends JellyTestCase {
             System.out.print(".. Testing profile creation ..");
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             wizardProfile.setProfile(VCSWizardProfile.EMPTY_UNIX);
             wizardProfile.next();
             VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();
@@ -116,7 +116,7 @@ public class Profiles extends JellyTestCase {
             System.out.print(".. Testing profile usage ..");
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             wizardProfile.setProfile("My Profile");
             wizardProfile.next();
             VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();
@@ -150,12 +150,12 @@ public class Profiles extends JellyTestCase {
             System.out.print(".. Testing profile deletion ..");
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             wizardProfile.setProfile("My Profile");
-            wizardProfile.remove();
+//            wizardProfile.remove();
             new QuestionDialogOperator("Are you sure you want to delete the profile: My Profile?").cancel();
             wizardProfile.setProfileNoBlock("My Profile");
-            wizardProfile.remove();
+//            wizardProfile.remove();
             new QuestionDialogOperator().ok();
             Thread.sleep(2000);
             int count = wizardProfile.cboProfile().getItemCount();

@@ -91,7 +91,7 @@ public class Commands extends org.netbeans.jellytools.JellyTestCase {
             System.out.print(".. Testing command editor ..");
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             wizardProfile.setProfile(VCSWizardProfile.EMPTY_UNIX);
             wizardProfile.next();
             VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();
@@ -150,7 +150,7 @@ public class Commands extends org.netbeans.jellytools.JellyTestCase {
             new java.io.File(getWorkDirPath()).mkdirs();
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             wizardProfile.setProfile(VCSWizardProfile.EMPTY_UNIX);
             wizardProfile.setWorkingDirectory(getWorkDirPath());
             wizardProfile.next();
@@ -188,7 +188,7 @@ public class Commands extends org.netbeans.jellytools.JellyTestCase {
             new java.io.File(getWorkDirPath()).mkdirs();
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             wizardProfile.setProfile(VCSWizardProfile.EMPTY_UNIX);
             wizardProfile.setWorkingDirectory(getWorkDirPath());
             wizardProfile.next();
@@ -230,7 +230,7 @@ public class Commands extends org.netbeans.jellytools.JellyTestCase {
             new java.io.File(getWorkDirPath()).mkdirs();
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             String profile = VCSWizardProfile.EMPTY_UNIX;
             if (org.openide.util.Utilities.isWindows()) profile = VCSWizardProfile.EMPTY_WIN;
             wizardProfile.setProfile(profile);
@@ -271,7 +271,7 @@ public class Commands extends org.netbeans.jellytools.JellyTestCase {
             new java.io.File(getWorkDirPath()).mkdirs();
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             String profile = VCSWizardProfile.EMPTY_UNIX;
             if (org.openide.util.Utilities.isWindows()) profile = VCSWizardProfile.EMPTY_WIN;
             wizardProfile.setProfile(profile);
@@ -359,7 +359,7 @@ public class Commands extends org.netbeans.jellytools.JellyTestCase {
             new java.io.File(getWorkDirPath()).mkdirs();
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             String profile = VCSWizardProfile.EMPTY_UNIX;
             if (org.openide.util.Utilities.isWindows()) profile = VCSWizardProfile.EMPTY_WIN;
             wizardProfile.setProfile(profile);
@@ -419,7 +419,7 @@ public class Commands extends org.netbeans.jellytools.JellyTestCase {
             writer.close();
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             String profile = VCSWizardProfile.EMPTY_UNIX;
             if (org.openide.util.Utilities.isWindows()) profile = VCSWizardProfile.EMPTY_WIN;
             wizardProfile.setProfile(profile);
@@ -494,7 +494,7 @@ public class Commands extends org.netbeans.jellytools.JellyTestCase {
             new java.io.File(getWorkDirPath()).mkdirs();
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             String profile = VCSWizardProfile.EMPTY_UNIX;
             if (org.openide.util.Utilities.isWindows()) profile = VCSWizardProfile.EMPTY_WIN;
             wizardProfile.setProfile(profile);

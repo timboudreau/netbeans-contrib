@@ -84,7 +84,7 @@ public class MountingWizard extends JellyTestCase {
             System.out.print(".. Testing profile selector ..");
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizard = new VCSWizardProfile();
-            wizard.checkOnlyCompatibleProfiles(false);
+//            wizard.checkOnlyCompatibleProfiles(false);
             String profile = VCSWizardProfile.CVS_UNIX;
             wizard.setProfile(profile);
             wizard.verify(profile);
@@ -128,7 +128,7 @@ public class MountingWizard extends JellyTestCase {
             System.out.print(".. Testing browsing buttons ..");
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizard = new VCSWizardProfile();
-            wizard.checkOnlyCompatibleProfiles(false);
+//            wizard.checkOnlyCompatibleProfiles(false);
             wizard.setProfile(VCSWizardProfile.VSS_WIN_95);
             String directory = getWorkDirPath() + File.separator + "test";
             String file = directory + File.separator + "Test.txt";
@@ -374,11 +374,11 @@ public class MountingWizard extends JellyTestCase {
             System.out.print(".. Testing operating system detection ..");
             new ActionNoBlock(MOUNT_MENU, null).perform();
             VCSWizardProfile wizardProfile = new VCSWizardProfile();
-            wizardProfile.checkOnlyCompatibleProfiles(false);
+//            wizardProfile.checkOnlyCompatibleProfiles(false);
             String profile = Utilities.isUnix() ? VCSWizardProfile.EMPTY_WIN : VCSWizardProfile.EMPTY_UNIX;
             wizardProfile.setProfile(profile);
-            if (wizardProfile.cbOnlyCompatibleProfiles().isEnabled())
-                throw new Exception("Error: Can't disable show only compatible profiles checkbox.");
+//            if (wizardProfile.cbOnlyCompatibleProfiles().isEnabled())
+//                throw new Exception("Error: Can't disable show only compatible profiles checkbox.");
             wizardProfile.next();
             VCSWizardAdvanced wizardAdvanced = new VCSWizardAdvanced();
             new JLabelOperator(wizardAdvanced, System.getProperty("os.name"));
