@@ -238,6 +238,18 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         do {
             cacheId = 10000 * (1 + Math.round (Math.random () * 8)) + Math.round (Math.random () * 1000);
         } while (new File(cacheRoot+File.separator+cacheId).isDirectory ());
+        FileSystem dfs = TopManager.getDefault ().getRepository ().getDefaultFileSystem ();
+        FileObject vcs = dfs.findResource("vcs");
+        try {
+            if (vcs == null) {
+                vcs = dfs.getRoot().createFolder("vcs");
+            }
+            FileObject cache = vcs.getFileObject("cache");
+            if (cache == null) {
+                cache = vcs.createFolder("cache");
+            }
+        } catch (java.io.IOException exc) {
+        }
     }
 
     private String createNewCacheDir() {
