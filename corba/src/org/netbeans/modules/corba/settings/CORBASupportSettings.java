@@ -41,6 +41,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Iterator;
+import java.util.HashMap;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -95,6 +96,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     private boolean _M_in_init = false;
     //private boolean deserealization;
 
+    private HashMap _M_boston_names;
+
     /** @return human presentable name */
     public String displayName() {
         return CORBASupport.SETTINGS;
@@ -105,12 +108,30 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
             System.out.println ("CORBASupportSettings () ..."); // NOI18N
     }
 
+    private void init_boston_names_table () {
+	_M_boston_names = new HashMap ();
+	_M_boston_names.put ("J2EE ORB", "j2ee");
+	_M_boston_names.put ("JacORB Beta 1.0 (unsupported)", "jacorb12");
+	_M_boston_names.put ("JavaORB 1.2.x (unsupported)", "javaorb22");
+	_M_boston_names.put ("JDK 1.2 ORB", "jdk12");
+	_M_boston_names.put ("JDK 1.3 ORB", "jdk13");
+	_M_boston_names.put ("ORBacus for Java 3.x for Windows (unsupported)", "orbacus3w");
+	_M_boston_names.put ("ORBacus for Java 3.x (unsupported)", "orbacus3u");
+	_M_boston_names.put ("ORBacus for Java 4.x for Windows (unsupported)", "orbacus4w");
+	_M_boston_names.put ("ORBacus for Java 4.x (unsupported)", "orbacus4u");
+	_M_boston_names.put ("Orbix 2000 for Java 1.x", "orbix20004j");
+	_M_boston_names.put ("OrbixWeb 3.2", "orbixweb32");
+	_M_boston_names.put ("VisiBroker for Java 3.4", "visibroker34");
+	_M_boston_names.put ("VisiBroker for Java 4.0", "vb4");
+    }
+
     public void init () {
 	if (DEBUG)
 	    System.out.println ("CORBASupportSettings::init ();");
 	_M_in_init = true;
 	_M_naming_children = new Vector ();	
 	_M_ir_children = new Vector ();
+	this.init_boston_names_table ();
 	/*
 	  if (DYNLOAD && !PRODUCTION) {
 	  this.setOrb ("ORBacus for Java 3.1.x"); // NOI18N
@@ -523,7 +544,24 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 
 	//_M_implementations = new BeanContextSupport ();
 	//BeanContextSupport __tmp_implementations = new BeanContextSupport ();
-	_S_implementations = new FullBeanContextSupport ();
+	if (_S_implementations == null) {
+	    _S_implementations = new FullBeanContextSupport ();
+	}
+	else {
+	    ArrayList __tmp = new ArrayList ();
+	    __tmp.addAll (_S_implementations);
+	    if (DEBUG)
+		System.out.println ("beans for remove: " + __tmp.size ());
+	    Iterator __tmp_iter = __tmp.iterator ();
+	    while (__tmp_iter.hasNext ()) {
+		ORBSettings __s = (ORBSettings)__tmp_iter.next ();
+		if (DEBUG)
+		    System.out.println ("removing: " + __s.getOrbName ());
+		_S_implementations.remove (__s);
+	    }
+	    //if (__tmp.size () > 0)
+	    //_S_implementations.removeAll (__tmp);
+	}
 	FullBeanContextSupport __tmp_implementations = new FullBeanContextSupport ();
 	//FullBeanContextSupport __distinguish_implementations = new FullBeanContextSupport ();
 	
@@ -538,51 +576,47 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	    }
 	}
 	FullBeanContextSupport __serialized_context = new FullBeanContextSupport ();
+	// At the first we have to filter deserialized settings and keep only those
+	// for which we have (loaded) settings
 	for (int i = 0; i < __beans.length; i++) {
 	    ORBSettings __setting = (ORBSettings)__beans[i];
 	    if (DEBUG)
 		System.out.println ("trying " + __setting.getName ());
-	    //if (DEBUG)
-	    //System.out.println (__setting);
 	    Iterator __iter = _S_loaded_context.iterator ();
 	    while (__iter.hasNext ()) {
 		ORBSettings __tmp = (ORBSettings)__iter.next ();
 		String __t_tag = __tmp.getORBTag ();
-		String __t_name = this.removeUnsupportedPostfix (__tmp.getOrbName ());
 		String __s_tag = __setting.getORBTag ();
-		String __s_name = this.removeUnsupportedPostfix (__setting.getOrbName ());
+		if (__s_tag == null) {
+		    // it looks like old boston setting
+		    __s_tag = (String)_M_boston_names.get (__setting.getOrbName ());
+		    System.out.println ("boston tag: " + __s_tag);
+		    __setting.setORBTag (__s_tag);
+		    __setting.setBostonSettings (true);
+		}
 		if (DEBUG)
 		    System.out.println ("comparing: " + __t_tag	+ " with " + __s_tag);
-		if (DEBUG)
-		    System.out.println ("comparing: " + __t_name + " with " + __s_name);
-		if (__t_tag.equals (__s_tag) || __t_name.equals (__s_name)) {
+		if (__t_tag.equals (__s_tag)) {
 		    if (DEBUG)
 			System.out.println ("RIGHT :-))");
 		    __serialized_context.add (__beans[i]);
 		    break;
 		}
 	    }
-	    /*
-	      if (__setting.getProperties () == null) {
-	      __setting.loadProperties ();
-	      }
-	    // we have to check if we find impl file (load properties) for this setting
-	    if (__setting.getProperties () != null) {
-	    __serialized_context.add (__beans[i]);
-	    }
-	    */
 	}
 
+	// now we will try to find serialized settings to selected loaded settings
 	Iterator __loaded_iterator = _S_loaded_context.iterator ();
 	while (__loaded_iterator.hasNext ()) {
 	    ORBSettings __loaded_setting = (ORBSettings)__loaded_iterator.next ();	    
 	    ORBSettings __serialized_setting = null;
-	    if (
-		/*((__serialized_setting = this.findSettingByTag 
-		  (__serialized_context, __loaded_setting.getORBTag ())) != null) */
+	    if ((__serialized_setting = this.findSettingByTag 
+		 (__serialized_context, __loaded_setting.getORBTag ())) != null)
 		//|| (
-		(__serialized_setting = this.findSettingByName 
-		 (__serialized_context, __loaded_setting.getOrbName ())) != null)
+		/*
+		  (__serialized_setting = this.findSettingByName 
+		  (__serialized_context, __loaded_setting.getOrbName ())) != null)
+		*/
 		//) 
 	    {
 		// we find serialized setting with same name
@@ -610,7 +644,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		__serialized_setting.setJavaTemplateCodePatchTable 
 		    (__loaded_setting.getJavaTemplateCodePatchTable ());
 		__serialized_setting.setLocalBundle (__loaded_setting.getLocalBundle ());
-		if (__serialized_setting.getORBTag () == null) {
+		if (__serialized_setting.isBostonSettings ()) {
 		    // this seems like old boston project
 		    if (DEBUG)
 			System.out.println ("old project for "
@@ -703,6 +737,9 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	//System.out.println ("At the end of setBeans method");
 	//this.setORBTag (this.getORBTag ());
 	if (__boston_project) {
+	    // the tag is usually set to jdk13 and it's wrong
+	    // because boston project has no tag
+	    this.setORBTag ((String)_M_boston_names.get (this.getOrb ()));
 	    if (DEBUG) {
 		System.out.println ("Boston project hack for changing name");
 		System.out.println ("tag: " + this.getORBTag ());

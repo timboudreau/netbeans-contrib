@@ -16,7 +16,7 @@ Microsystems, Inc. All Rights Reserved.
 <!DOCTYPE orb-settings PUBLIC "-//Forte for Java//DTD ORBSettings 1.0//EN" "ORBSettings.dtd"[
 <!ENTITY corba20-generic-impl SYSTEM "corba20-generic-impl.ent">
 ]>
-<orb-settings name='VisiBroker for Java 3.4' tag='visibroker34' supported='true'>
+<orb-settings name='VisiBroker 3.4 for Java' tag='visibroker34' supported='true'>
   
   &corba20-generic-impl;
 

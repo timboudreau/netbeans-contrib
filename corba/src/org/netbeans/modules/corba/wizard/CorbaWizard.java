@@ -207,14 +207,7 @@ public class CorbaWizard extends Object implements PropertyChangeListener, Wizar
                                     else if (wr.getType().equals(NAMING)) {
                                         CosNamingDetails dtls = (CosNamingDetails)bindingDetail.get(wr.getValue());
                                         Vector names = new Vector ();
-                                        Node tmp_node;
-                                        if (dtls.node instanceof ObjectNode) {
-                                            ObjectNode on = (ObjectNode)dtls.node;
-                                            names.add (on.getName ());
-                                            names.add (on.getKind ());
-                                            tmp_node = on.getParentNode ();
-                                        }
-                                        else tmp_node = dtls.node;
+                                        Node tmp_node = dtls.node;
                                         while (tmp_node.getParentNode () != null) {
                                             ContextNode cn = (ContextNode)tmp_node.getCookie (ContextNode.class);
                                             tmp_node = tmp_node.getParentNode ();

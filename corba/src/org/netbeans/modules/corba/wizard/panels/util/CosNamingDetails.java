@@ -26,18 +26,14 @@ public class CosNamingDetails extends Object {
     public String kind;
     
     
+    /** Creates new CosNamingDetails */
     public CosNamingDetails () {
     }
 
-    /** Creates new CosNamingDetails */
     public CosNamingDetails(Node node, String name, String kind) {
         this.node = node;
         this.name = name;
         this.kind = kind;
     }
     
-    public CosNamingDetails (Node node) {
-        this.node = node;
-    }
-
 }

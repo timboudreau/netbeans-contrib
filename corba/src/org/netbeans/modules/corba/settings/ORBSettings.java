@@ -191,6 +191,9 @@ public class ORBSettings implements java.io.Serializable {
     private String _M_orb_name; // transient for better I18N process
     private String _M_orb_tag; // tag which identifies ORB settings after deseerialization
 
+    // It'll be set to true if this.getORBTag () == null in CORBASupportSettings::setBeans
+    private transient boolean _M_boston_settings = false;
+
     private transient PropertyChangeSupport _M_property_change_support;
 
     private transient boolean _M_supported = false;
@@ -1637,6 +1640,13 @@ public class ORBSettings implements java.io.Serializable {
 	return _M_find_method;
     }
 
+    public boolean isBostonSettings () {
+	return _M_boston_settings;
+    }
+
+    public void setBostonSettings (boolean __value) {
+	_M_boston_settings = __value;
+    }
 
     public String toString () {
 	StringBuffer __buf = new StringBuffer ();

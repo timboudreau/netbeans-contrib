@@ -138,7 +138,7 @@ public class BindingDetailsPanel extends AbstractCORBAWizardPanel implements jav
         else if (type.equals(FILE))
             detail = new FilePanel();
         else if (type.equals(NAMING)) {
-            detail = new NSPanel((wizardData.getGenerate() & CorbaWizardData.SERVER) == CorbaWizardData.SERVER);
+            detail = new NSPanel();
             gridBagConstraints.weighty = 1.0;
             maximizeReminder = false;
         }

@@ -17,7 +17,7 @@ Microsystems, Inc. All Rights Reserved.
 <!ENTITY corba23-poa SYSTEM "corba23-poa.ent">
 <!ENTITY corba23-generic-impl SYSTEM "corba23-generic-impl.ent">
 ]>
-<orb-settings name='VisiBroker for Java 4.0' tag='vb4' supported='true'>
+<orb-settings name='VisiBroker 4.x for Java' tag='vb4' supported='true'>
   
   &corba23-poa;
   &corba23-generic-impl;

@@ -63,6 +63,9 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
 	    if (DEBUG)
 		System.out.println ("ClientBindingPropertyEditor::getTags () -> " + _M_choices); // NOI18N
 	    _M_settings = (ORBSettingsWrapper)getValue ();
+	    if (DEBUG)
+		System.out.println ("_M_settings: "
+				    + _M_settings.getSettings ().hashCode ());
 	    List __bindings = _M_settings.getSettings ().getClientBindings ();
 	    String[] __choices = new String[__bindings.size ()];
 	    ORBBindingDescriptor __binding = null;
@@ -140,6 +143,8 @@ public class ClientBindingPropertyEditor extends PropertyEditorSupport {
 	if (DEBUG)
 	    System.out.println ("ClientBindingPropertyEditor::setAsText (" + __value + ")"); // NOI18N
 	_M_settings = (ORBSettingsWrapper)getValue ();
+	if (DEBUG)
+	    System.out.println ("_M_settings: " + _M_settings.getSettings ().hashCode ());
 	List __bindings = _M_settings.getSettings ().getClientBindings ();
 	List __localized_bindings = new LinkedList ();
 	Iterator __iterator = __bindings.iterator ();

@@ -15,6 +15,7 @@ package org.netbeans.modules.corba.wizard.panels;
 
 import java.beans.VetoableChangeListener;
 import java.beans.PropertyChangeListener;
+import java.awt.event.*;
 import org.openide.explorer.*;
 import org.openide.explorer.view.*;
 import org.openide.*;
@@ -29,18 +30,10 @@ import org.netbeans.modules.corba.wizard.panels.util.CosNamingDetails;
 public class NSPanel extends BindingDetail implements PropertyChangeListener, VetoableChangeListener, javax.swing.event.DocumentListener {
     
     BeanTreeView bt;
-    private boolean server;
     
     /** Creates new form NSPanel */
     public NSPanel() {
-        this(true);
-    }
-    
-    public NSPanel(boolean isServer) {
-        server = isServer;
         initComponents();
-        if (server)
-            initServerComponents();
         this.bt = new BeanTreeView();
         this.bt.setPopupAllowed (false);
         this.bt.setDefaultActionAllowed (false);
@@ -54,8 +47,7 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
         this.contextName.setEditable (false);
         this.newButton.setEnabled (false);
         this.bindButton.setEnabled (false);
-        if (server)
-            this.name.getDocument().addDocumentListener (this);
+        this.name.getDocument().addDocumentListener (this);
     }
     
     
@@ -67,12 +59,10 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
                     if (nsd.node != null && (nsd.node instanceof org.netbeans.modules.corba.browser.ns.ContextNode ||
                     nsd.node instanceof org.netbeans.modules.corba.browser.ns.ObjectNode))
                         this.explorer.getExplorerManager().setSelectedNodes(new Node[]{nsd.node});
-                    if (server) {
                         if (nsd.name != null)
                             this.name.setText (nsd.name);
                         if (nsd.kind != null)
                             this.kind.setText (nsd.kind);
-                    }
                 }
             }
         }
@@ -84,12 +74,13 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
         CosNamingDetails nsDetails = new CosNamingDetails ();
         ExplorerManager manager = this.explorer.getExplorerManager();
         Node[] nodes = manager.getSelectedNodes();
-        if (nodes != null && nodes.length == 1 && (( server && nodes[0] instanceof org.netbeans.modules.corba.browser.ns.ContextNode) || (!server && nodes[0] instanceof org.netbeans.modules.corba.browser.ns.ObjectNode)))
-            nsDetails.node = nodes[0];
-        if (server) {
-            nsDetails.name = this.name.getText();
-            nsDetails.kind = this.kind.getText();
-        }
+        if (nodes != null && nodes.length == 1)
+            if (nodes[0] instanceof org.netbeans.modules.corba.browser.ns.ContextNode)
+                nsDetails.node = nodes[0];
+            else if (nodes[0] instanceof org.netbeans.modules.corba.browser.ns.ObjectNode)
+                nsDetails.node = nodes[0].getParentNode();
+        nsDetails.name = this.name.getText();
+        nsDetails.kind = this.kind.getText();
         return nsDetails;
     }
     
@@ -107,10 +98,10 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
             return false;
         if (nodes.length != 1)
             return false;
-        if (server && this.name.getText().length() == 0)
+        if (this.name.getText().length() == 0)
             return false;
-        return ((server && ((nodes[0] instanceof org.netbeans.modules.corba.browser.ns.ContextNode) && nodes[0] != org.netbeans.modules.corba.browser.ns.ContextNode.getDefault())) ||
-        (!server && nodes[0] instanceof org.netbeans.modules.corba.browser.ns.ObjectNode));
+        return (nodes[0] instanceof org.netbeans.modules.corba.browser.ns.ContextNode && nodes[0] != org.netbeans.modules.corba.browser.ns.ContextNode.getDefault()) ||
+        (nodes[0] instanceof org.netbeans.modules.corba.browser.ns.ObjectNode);
     }
     
     /** This method is called from within the constructor to
@@ -122,18 +113,23 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
         explorer = new org.openide.explorer.ExplorerPanel();
         bindButton = new javax.swing.JButton();
         newButton = new javax.swing.JButton();
+        refreshButton = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         contextName = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        name = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        kind = new javax.swing.JTextField();
+        
         setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
+        
         setPreferredSize(new java.awt.Dimension(500, 340));
-        
-        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 0;
         gridBagConstraints1.gridwidth = 2;
-        gridBagConstraints1.gridheight = 2;
+        gridBagConstraints1.gridheight = 3;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints1.insets = new java.awt.Insets(12, 12, 0, 6);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -141,14 +137,12 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
         gridBagConstraints1.weighty = 1.0;
         add(explorer, gridBagConstraints1);
         
-        
         bindButton.setText(bundle.getString("TXT_BindContext"));
         bindButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bindContext(evt);
             }
-        }
-        );
+        });
         
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 2;
@@ -158,68 +152,112 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(bindButton, gridBagConstraints1);
         
-        
         newButton.setText(bundle.getString("TXT_NewContext"));
         newButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 newContext(evt);
             }
-        }
-        );
+        });
         
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 2;
         gridBagConstraints1.gridy = 1;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints1.insets = new java.awt.Insets(6, 6, 0, 12);
+        gridBagConstraints1.insets = new java.awt.Insets(6, 6, 6, 12);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(newButton, gridBagConstraints1);
         
+        refreshButton.setText(bundle.getString("TXT_IRRefresh"));
+        refreshButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshButtonActionPerformed(evt);
+            }
+        });
+        
+        gridBagConstraints1 = new java.awt.GridBagConstraints();
+        gridBagConstraints1.gridx = 2;
+        gridBagConstraints1.gridy = 2;
+        gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.insets = new java.awt.Insets(6, 6, 0, 12);
+        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        add(refreshButton, gridBagConstraints1);
         
         jLabel3.setText(bundle.getString("TXT_NamingContext"));
         jLabel3.setLabelFor(contextName);
-        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 2;
+        gridBagConstraints1.gridy = 3;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints1.insets = new java.awt.Insets(12, 12, 0, 6);
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(jLabel3, gridBagConstraints1);
         
-        
-        
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
-        gridBagConstraints1.gridy = 2;
-        gridBagConstraints1.gridwidth = 0;
+        gridBagConstraints1.gridy = 3;
+        gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints1.insets = new java.awt.Insets(12, 6, 0, 12);
+        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints1.weightx = 1.0;
         add(contextName, gridBagConstraints1);
         
+        jLabel2.setText(bundle.getString("TXT_NSName"));
+        gridBagConstraints1 = new java.awt.GridBagConstraints();
+        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.insets = new java.awt.Insets(12, 12, 0, 6);
+        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        add(jLabel2, gridBagConstraints1);
+        
+        gridBagConstraints1 = new java.awt.GridBagConstraints();
+        gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.insets = new java.awt.Insets(12, 6, 0, 12);
+        add(name, gridBagConstraints1);
+        
+        jLabel4.setText(bundle.getString("TXT_NSKind"));
+        gridBagConstraints1 = new java.awt.GridBagConstraints();
+        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.insets = new java.awt.Insets(12, 12, 0, 6);
+        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        add(jLabel4, gridBagConstraints1);
+        
+        gridBagConstraints1 = new java.awt.GridBagConstraints();
+        gridBagConstraints1.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints1.insets = new java.awt.Insets(12, 6, 0, 12);
+        add(kind, gridBagConstraints1);
+        
     }//GEN-END:initComponents
+
+    private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
+        Node[] nodes = this.explorer.getExplorerManager().getSelectedNodes();
+        SystemAction action = SystemAction.get (org.netbeans.modules.corba.browser.ns.RefreshAction.class);
+        ActionEvent event = new ActionEvent (nodes,0,"");
+        action.actionPerformed (event);
+    }//GEN-LAST:event_refreshButtonActionPerformed
     
-    private void initServerComponents() {
+/*    private void initServerComponents() {
         jLabel2 = new javax.swing.JLabel();
         name = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         kind = new javax.swing.JTextField();
-        
+ 
         jLabel2.setText(bundle.getString("TXT_NSName"));
         java.awt.GridBagConstraints gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 6);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(jLabel2, gridBagConstraints);
-        
+ 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(12, 6, 0, 12);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(name, gridBagConstraints);
-        
+ 
         jLabel4.setText(bundle.getString("TXT_NSKind"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -228,7 +266,7 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 6);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(jLabel4, gridBagConstraints);
-        
+ 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
@@ -237,7 +275,7 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
         gridBagConstraints.insets = new java.awt.Insets(12, 6, 0, 12);
         add(kind, gridBagConstraints);
     }
-    
+ */
     private void bindContext(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bindContext
         // Add your handling code here:
         Node[] nodes = this.explorer.getExplorerManager().getSelectedNodes();
@@ -265,18 +303,23 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
         Node[] node = (Node[])newValue;
         if (node.length != 1)
             return;
-        this.contextName.setText(((Node[])newValue)[0].getName());
         if (node[0] instanceof org.netbeans.modules.corba.browser.ns.ContextNode) {
+            this.contextName.setText(node[0].getName());
             if (node[0] != org.netbeans.modules.corba.browser.ns.ContextNode.getDefault())
                 this.newButton.setEnabled (true);
             else
                 this.newButton.setEnabled (false);
             this.bindButton.setEnabled (true);
+            this.refreshButton.setEnabled (true);
         }
         else {
+            this.contextName.setText(node[0].getParentNode().getName());
+            this.name.setText(node[0].getName());
+            this.kind.setText(((org.netbeans.modules.corba.browser.ns.ObjectNode)node[0]).getKind());
             this.newButton.setEnabled (false);
             this.bindButton.setEnabled (false);
-        }
+            this.refreshButton.setEnabled (false);
+      }
         this.fireChange (this);
     }
     
@@ -305,14 +348,14 @@ public class NSPanel extends BindingDetail implements PropertyChangeListener, Ve
     private org.openide.explorer.ExplorerPanel explorer;
     private javax.swing.JButton bindButton;
     private javax.swing.JButton newButton;
+    private javax.swing.JButton refreshButton;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JTextField contextName;
-    // End of variables declaration//GEN-END:variables
-    
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField name;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JTextField kind;
+    // End of variables declaration//GEN-END:variables
     
     private static final java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/corba/wizard/panels/Bundle");
 }

@@ -17,7 +17,7 @@ Microsystems, Inc. All Rights Reserved.
 <!ENTITY corba23-poa SYSTEM "corba23-poa.ent">
 <!ENTITY corba23-generic-impl SYSTEM "corba23-generic-impl.ent">
 ]>
-<orb-settings name='Orbix 2000 for Java 1.x' tag='orbix20004j' supported='true'>
+<orb-settings name='Orbix 2000 1.x for Java' tag='orbix20004j' supported='true'>
   
   &corba23-poa;
   &corba23-generic-impl;
