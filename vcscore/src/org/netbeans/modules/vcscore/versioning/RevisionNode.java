@@ -20,6 +20,8 @@ import java.util.Hashtable;
 import java.util.Enumeration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.openide.nodes.*;
 import org.openide.actions.*;
@@ -162,6 +164,14 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
         if (item != null) {
             propertiesSet = set;
             createProperties(item, set);
+            String[] propNames = item.getAdditionalPropertiesSetNames();
+            for (int i = 0; i < propNames.length; i++) {
+                Sheet.Set addSet = new Sheet.Set();
+                addSet.setName(propNames[i]);
+                addSet.setDisplayName(propNames[i]);
+                createAdditionalProperties(item.getAdditionalPropertiesSets()[i], addSet);
+                sheet.put(addSet);
+            }
         }
         return sheet;
     }
@@ -228,6 +238,20 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
         for(Enumeration enum = additional.keys(); enum.hasMoreElements(); ) {
             final String name = (String) enum.nextElement();
             final String value = (String) additional.get(name);
+            set.put(new PropertySupport.ReadOnly(
+                        "additional_"+name, String.class, name, ""
+                        ) {
+                            public Object getValue() {
+                                return value;
+                            }
+                    });
+        }
+    }
+    
+    private void createAdditionalProperties(Map properties, Sheet.Set set) {
+        for(Iterator it = properties.keySet().iterator(); it.hasNext(); ) {
+            final String name = (String) it.next();
+            final String value = (String) properties.get(name);
             set.put(new PropertySupport.ReadOnly(
                         "additional_"+name, String.class, name, ""
                         ) {

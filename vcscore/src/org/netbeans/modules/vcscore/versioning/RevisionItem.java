@@ -48,6 +48,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     //private RevisionItem next;
     private boolean current;
     private Hashtable additionalProperties;
+    private ArrayList additionalPropertiesSets;
     private transient EventListenerList listeners = null;
 
     /** Creates new RevisionItem */
@@ -63,6 +64,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         //next = null;
         current = false;
         additionalProperties = new Hashtable();
+        additionalPropertiesSets = new ArrayList();
         displayName = revision;
     }
 
@@ -190,6 +192,27 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     
     public Hashtable getAdditionalProperties() {
         return additionalProperties;
+    }
+    
+    public void addAdditionalPropertiesSet(String name, Map properties) {
+        additionalPropertiesSets.add(name);
+        additionalPropertiesSets.add(properties);
+    }
+    
+    public String[] getAdditionalPropertiesSetNames() {
+        ArrayList names = new ArrayList();
+        for (int i = 0; i < additionalPropertiesSets.size(); i += 2) {
+            names.add(additionalPropertiesSets.get(i));
+        }
+        return (String[]) names.toArray(new String[0]);
+    }
+    
+    public Map[] getAdditionalPropertiesSets() {
+        ArrayList sets = new ArrayList();
+        for (int i = 1; i < additionalPropertiesSets.size(); i += 2) {
+            sets.add(additionalPropertiesSets.get(i));
+        }
+        return (Map[]) sets.toArray(new Map[0]);
     }
     
     protected abstract RevisionItem getNextItem();
