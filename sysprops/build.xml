@@ -12,33 +12,53 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<!-- ToDo: WRITE ME -->
-<project name="java" default="nbm" basedir=".">
+<project name="sysprops" default="netbeans" basedir=".">
+
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM"/>
+
   <target name="compile">
-    <javac srcdir="src"
-           destdir="src"
-           classpath="../openide/netbeans/lib/openide.jar:../openidex/netbeans/modules/openidex.jar:../core/release/lib/ext/regexp.jar:release/lib/ext/javac.jar:release/modules/patches/java-gj.jar"/>
+    <javac srcdir="src" destdir="src">
+      <classpath>
+        <pathelement location="../openide/netbeans/lib/openide.jar"/>
+      </classpath>
+    </javac>
   </target>
-  <target name="tojar">
-    <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar"/>
-    <tojar srcdir="src"
-           unpackeddir="tojar"/>
-  </target>
-  <target name="jars" depends="compile,tojar">
+
+  <target name="jars" depends="compile">
     <mkdir dir="netbeans/modules"/>
-    <jar jarfile="netbeans/modules/java.jar"
-         manifest="manifest.mf"
+    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+    <copyfile src="manifest.mf" dest="manifest-subst.mf" filtering="on"/>
+    <jar jarfile="netbeans/modules/sysprops.jar"
+         manifest="manifest-subst.mf"
          basedir="src"
-	 excludesfile="../nbbuild/standard-jar-excludes.txt"
-	 compress="false"/>
+         excludesfile="../nbbuild/standard-jar-excludes.txt"
+         compress="false"/>
   </target>
-  <target name="release">
-    <copydir src="release"
-             dest="netbeans"/>
+
+  <target name="netbeans" depends="jars"/>
+
+  <target name="nbm" depends="netbeans">
+    <makenbm file="sysprops.nbm"
+             topdir="."
+	     manifest="manifest-subst.mf"
+	     homepage="http://sysprops.netbeans.org/"
+	     distribution="http://www.netbeans.org/downloads/nbms/40/sysprops.nbm">
+      <license file="../nbbuild/standard-nbm-license.txt"/>
+      <description>
+        View and edit Java system properties from the IDE's VM.
+      </description>
+      <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
+    </makenbm>
   </target>
-  <target name="nbm" depends="jars,release">
-    <zip zipfile="java.nbm"
-         includes="netbeans/"
-	 basedir="."/>
+
+  <target name="clean">
+    <delete dir="src">
+      <include name="**/*.class"/>
+    </delete>
+    <delete file="manifest-subst.mf"/>
+    <deltree dir="netbeans"/>
+    <delete file="sysprops.nbm"/>
+    <deltree dir="Info"/>
   </target>
+
 </project>
