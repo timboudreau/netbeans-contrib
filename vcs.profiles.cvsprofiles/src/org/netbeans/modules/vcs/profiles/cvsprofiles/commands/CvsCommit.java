@@ -41,7 +41,7 @@ import org.openide.ErrorManager;
  */
 public class CvsCommit extends Object implements VcsAdditionalCommand {
 
-    private static final String WIN_CAT_NAME = "wincat";
+    private static final String WIN_CAT_NAME = ".nbcicat";
     private static final String WIN_CAT_EXT = "bat";
     private static final String WIN_CAT_FOLDER = "vcs";
     private static final String WIN_CAT_CONTENT = "@echo off\ntype %1\n";
