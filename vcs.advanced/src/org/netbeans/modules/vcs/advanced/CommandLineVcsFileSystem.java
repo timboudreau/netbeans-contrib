@@ -52,33 +52,42 @@ import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends VcsFileSystem implements java.beans.PropertyChangeListener {
     
-    public static final String VAR_LOCAL_FILES_FILTERED_OUT = "LOCAL_FILES_FILTERED_OUT";
-    public static final String VAR_LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE = "LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE";
-    public static final String VAR_POSSIBLE_FILE_STATUSES = "POSSIBLE_FILE_STATUSES";
-    public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED = "POSSIBLE_FILE_STATUSES_LOCALIZED";
-    public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT = "POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT";
-    public static final String VAR_NOT_MODIFIABLE_FILE_STATUSES = "NOT_MODIFIABLE_FILE_STATUSES";
-    public static final String VAR_ICONS_FOR_FILE_STATUSES = "ICONS_FOR_FILE_STATUSES";
+    public static final String PROP_SHORT_FILE_STATUSES = "shortFileStatuses"; // NOI18N
+    public static final String PROP_CONFIG = "config"; // NOI18N
+    public static final String PROP_CONFIG_ROOT = "configRoot"; // NOI18N
+    public static final String PROP_CONFIG_ROOT_FO = "configRootFO"; // NOI18N
+    public static final String PROP_CONFIG_FILE_NAME = "configFileName"; // NOI18N
+    public static final String PROP_ADDITIONAL_POSSIBLE_FILE_STATUSES_MAP = "additionalPossibleFileStatusesMap"; // NOI18N
+    public static final String PROP_LOCAL_FILES_FILTERED_OUT = "localFilesFilteredOut"; // NOI18N
+    public static final String PROP_DOC_CLEANUP_REMOVE_ITEM = "docCleanupRemoveItems"; // NOI18N
+    public static final String PROP_COMPATIBLE_OS = "compatibleOSs"; // NOI18N
+    public static final String PROP_UNCOMPATIBLE_OS = "uncompatibleOSs"; // NOI18N
+    
+    public static final String VAR_LOCAL_FILES_FILTERED_OUT = "LOCAL_FILES_FILTERED_OUT"; // NOI18N
+    public static final String VAR_LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE = "LOCAL_FILES_FILTERED_OUT_CASE_SENSITIVE"; // NOI18N
+    public static final String VAR_POSSIBLE_FILE_STATUSES = "POSSIBLE_FILE_STATUSES"; // NOI18N
+    public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED = "POSSIBLE_FILE_STATUSES_LOCALIZED"; // NOI18N
+    public static final String VAR_POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT = "POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT"; // NOI18N
+    public static final String VAR_NOT_MODIFIABLE_FILE_STATUSES = "NOT_MODIFIABLE_FILE_STATUSES"; // NOI18N
+    public static final String VAR_ICONS_FOR_FILE_STATUSES = "ICONS_FOR_FILE_STATUSES"; // NOI18N
     
     /**
      * The name of a variable, which contains the parent ignore list for
      * CREATE_FOLDER_IGNORE_LIST command.
      */
-    public static final String VAR_PARENT_IGNORE_LIST = "PARENT_IGNORE_LIST";
+    public static final String VAR_PARENT_IGNORE_LIST = "PARENT_IGNORE_LIST"; // NOI18N
     
     /**
      * This command is executed to get the initial ignore list.
      * It's supposed to return the ignored files on its data output.
      */
-    public static final String CMD_CREATE_INITIAL_IGNORE_LIST = "CREATE_INITIAL_IGNORE_LIST";
+    public static final String CMD_CREATE_INITIAL_IGNORE_LIST = "CREATE_INITIAL_IGNORE_LIST"; // NOI18N
     /**
      * This command is executed to get the ignore list on each folder.
      * It gets the parent ignore list in PARENT_IGNORE_LIST variable.
      * It's supposed to return the ignored files on its data output.
      */
-    public static final String CMD_CREATE_FOLDER_IGNORE_LIST = "CREATE_FOLDER_IGNORE_LIST";
-    
-    public static final String PROP_SHORT_FILE_STATUSES = "shortFileStatuses";
+    public static final String CMD_CREATE_FOLDER_IGNORE_LIST = "CREATE_FOLDER_IGNORE_LIST"; // NOI18N
     
     private static final boolean DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE = true;
     
@@ -101,7 +110,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private Vector localFilesFilteredOut = null;
     private boolean localFileFilterCaseSensitive = DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE;
     private Vector docCleanupRemoveItems = null;
-    private static final String CACHE_FILE_NAME = "vcs.cache";
+    private static final String CACHE_FILE_NAME = "vcs.cache"; // NOI18N
     private String cacheRoot;
     private String cachePath;
     private long cacheId = 0;
@@ -156,14 +165,17 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     
     public void setConfigRoot(String s) {
         CONFIG_ROOT = s;
+        firePropertyChange(PROP_CONFIG_ROOT, null, s);
     }
 
     public void setConfig(String label) {
         this.config = label;
+        firePropertyChange(PROP_CONFIG, null, label);
     }
     
     public void setConfigFileName(String configFileName) {
         this.configFileName = configFileName;
+        firePropertyChange(PROP_CONFIG_FILE_NAME, null, configFileName);
     }
 
     private void setConfigFO() {
@@ -177,6 +189,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             });
         }
         CONFIG_ROOT_FO = fo;
+        firePropertyChange(PROP_CONFIG_ROOT_FO, null, fo);
     }
 
     /**
@@ -422,6 +435,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             this.shortFileStatuses = shortFileStatuses;
             setPossibleFileStatusesFromVars();
             refreshStatusOfExistingFiles();
+            firePropertyChange(PROP_SHORT_FILE_STATUSES, new Boolean(!shortFileStatuses), new Boolean(shortFileStatuses));
         }
     }
     
@@ -460,6 +474,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             }
             possibleFileStatusesMap.putAll(additionalPossibleFileStatusesMap);
         }
+        firePropertyChange(PROP_ADDITIONAL_POSSIBLE_FILE_STATUSES_MAP, null, additionalPossibleFileStatusesMap);
     }
     
     private void setBadgeIconsFromVars() {
@@ -515,6 +530,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             String[] files = VcsUtilities.getQuotedStrings(qfiles);
             localFilesFilteredOut = new Vector(Arrays.asList(files));
         } else localFilesFilteredOut = null;
+        firePropertyChange(PROP_LOCAL_FILES_FILTERED_OUT, null, localFilesFilteredOut);
     }
     
     private void setDocumentCleanupFromVars() {
@@ -535,6 +551,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             if (docCleanupRemoveItems == null) docCleanupRemoveItems = new Vector();
             docCleanupRemoveItems.add(item);
         }
+        firePropertyChange(PROP_DOC_CLEANUP_REMOVE_ITEM, null, docCleanupRemoveItems);
     }
     
     private void setAdditionalParamsLabels() {
@@ -688,6 +705,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      */
     public void setCompatibleOSs(java.util.Set compatibleOSs) {
         this.compatibleOSs = compatibleOSs;
+        firePropertyChange(PROP_COMPATIBLE_OS, null, compatibleOSs);
     }
     
     /** Getter for property uncompatibleOSs.
@@ -702,6 +720,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      */
     public void setUncompatibleOSs(java.util.Set uncompatibleOSs) {
         this.uncompatibleOSs = uncompatibleOSs;
+        firePropertyChange(PROP_UNCOMPATIBLE_OS, null, uncompatibleOSs);
     }
     
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
