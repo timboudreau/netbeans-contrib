@@ -22,6 +22,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.TopManager;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.util.NbBundle;
+import org.openide.util.HelpCtx;
 
 import org.netbeans.modules.vcscore.VcsAction;
 import org.netbeans.modules.vcscore.VcsFileSystem;
@@ -92,7 +93,8 @@ public class PvcsProjectSelector extends Object implements VcsAdditionalCommand,
         panel.initTree("/", new String[] { project }, false, this);
         RelativeMountDialog dialog =
             new RelativeMountDialog(panel, NbBundle.getMessage(PvcsProjectSelector.class,
-                                                               "ProjectSelectorTitle"));
+                                                               "ProjectSelectorTitle"),
+                                    new HelpCtx(PvcsProjectSelector.class));
         if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(dialog))) {
             stdoutDataListener.outputData(new String[] { "/" + panel.getRelMount() });
         }

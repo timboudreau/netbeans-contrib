@@ -18,6 +18,7 @@ import java.util.Hashtable;
 import org.openide.DialogDescriptor;
 import org.openide.NotifyDescriptor;
 import org.openide.TopManager;
+import org.openide.util.HelpCtx;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.*;
@@ -59,7 +60,14 @@ public class PvcsProjectDatabaseSelector extends Object implements VcsAdditional
                         CommandDataOutputListener stdoutListener, String dataRegex,
                         CommandDataOutputListener stderrListener, String errorRegex) {
         PvcsDatabaseSelectorPanel panel = new PvcsDatabaseSelectorPanel(fileSystem, args, (String) vars.get("PROJECT_DB"));
-        if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(new DialogDescriptor(panel, panel.getName())))) {
+        if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(
+            new DialogDescriptor(panel, panel.getName(), true,
+                                 DialogDescriptor.OK_CANCEL_OPTION,
+                                 DialogDescriptor.OK_OPTION,
+                                 DialogDescriptor.DEFAULT_ALIGN,
+                                 new HelpCtx(PvcsProjectDatabaseSelector.class),
+                                 null)))) {
+                
             String dbLocation = panel.getSelectedDatabase();
             if (dbLocation != null) {
                 stdoutListener.outputData(new String[] { dbLocation });
