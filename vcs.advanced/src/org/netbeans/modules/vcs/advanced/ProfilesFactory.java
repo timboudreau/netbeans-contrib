@@ -265,6 +265,7 @@ public final class ProfilesFactory extends Object {
      * Add a new profile.
      */
     public synchronized Profile addProfile(String name, String displayName,
+                                           String[] resourceBundles,
                                            Set compatibleOSs, Set uncompatibleOSs,
                                            ConditionedVariables variables,
                                            ConditionedCommands commands) throws IOException {
@@ -276,6 +277,7 @@ public final class ProfilesFactory extends Object {
         profileNames.add(name);
         profileLabels.add(displayName);
         profileLabelsByName.put(name, displayName);
+        resourceBundlesByName.put(name, resourceBundles);
         compatibleOSsByName.put(name, compatibleOSs);
         uncompatibleOSsByName.put(name, uncompatibleOSs);
         Profile profile = new ProfilesFactory.ProfileImpl(profileFile, variables, commands);
@@ -328,6 +330,12 @@ public final class ProfilesFactory extends Object {
             if (this.globalCommands != null) globalCommands = false;
             if (conditions || variables || commands || globalCommands) {
                 loadConfig(true, conditions, variables, commands, globalCommands);
+            }
+        }
+        
+        public String[] getResourceBundles() {
+            synchronized (ProfilesFactory.this) {
+                return (String[]) resourceBundlesByName.get(profileName);
             }
         }
         
@@ -525,7 +533,7 @@ public final class ProfilesFactory extends Object {
             if (conditions != null) {
                 ConditionIO.writeConditions(doc, conditions);
             }
-            VariableIO.writeVariables(doc, profileDisplayName, variables,
+            VariableIO.writeVariables(doc, profileDisplayName, getResourceBundles(), variables,
                                       (Set) compatibleOSsByName.get(profileName),
                                       (Set) uncompatibleOSsByName.get(profileName));
             UserCommandIO.writeCommands(doc, commands);

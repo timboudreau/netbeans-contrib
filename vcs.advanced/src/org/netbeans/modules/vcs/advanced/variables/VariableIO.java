@@ -549,17 +549,26 @@ public class VariableIO extends Object {
      * and localDir are false.
      */
     public static void writeVariables(Document doc, String label, ConditionedVariables vars) throws DOMException {
-        writeVariables(doc, label, vars, null, null);
+        writeVariables(doc, label, null, vars, null, null);
     }
     
     /** Write list of VCS variables to the document.
      * If there is only value specified, label is empty string and basic, localFile
      * and localDir are false.
      */
-    public static void writeVariables(Document doc, String label, ConditionedVariables vars,
+    public static void writeVariables(Document doc, String label,
+                                      String[] resourceBundles, ConditionedVariables vars,
                                       Set compatibleOSs, Set uncompatibleOSs) throws DOMException {
         Element rootElem = doc.getDocumentElement(); //doc.createElement(CONFIG_ROOT_ELEM);
         //doc.appendChild(rootElem);
+        if (resourceBundles != null) {
+            for (int i = 0; i < resourceBundles.length; i++) {
+                Element rbNode = doc.createElement(RESOURCE_BUNDLE_TAG);
+                Text rbText = doc.createTextNode(resourceBundles[i]);
+                rbNode.appendChild(rbText);
+                rootElem.appendChild(rbNode);
+            }
+        }
         Element labelNode = doc.createElement(LABEL_TAG);
         Text labelText = doc.createTextNode(label);
         labelNode.appendChild(labelText);

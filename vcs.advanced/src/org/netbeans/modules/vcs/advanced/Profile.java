@@ -58,6 +58,12 @@ public abstract class Profile extends Object {
                                boolean commands, boolean globalCommands) {
         // The default implementation does nothing.
     }
+    
+    /**
+     * Get the list of resource bundle files that are used to retrieve
+     * the localized messages.
+     */
+    public abstract String[] getResourceBundles();
 
     public abstract Set getCompatibleOSs();
 
