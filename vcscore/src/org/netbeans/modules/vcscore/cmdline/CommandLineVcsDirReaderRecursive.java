@@ -34,8 +34,6 @@ import org.netbeans.modules.vcscore.commands.*;
  * @author  Martin Entlicher
  */
 public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
-    private Debug E=new Debug("CommandLineVcsDirReaderRecursive", true); // NOI18N
-    private Debug D=E;
 
     private String path = null;
 
@@ -55,13 +53,11 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
             dir = commonParent + Variables.expand(vars, "${PS}", false) + dir;
         }
         this.path = dir.replace (java.io.File.separatorChar, '/');
-        //D.deb ("DIR="+(String)vars.get("DIR")); // NOI18N
         //dir = new VcsDir();
         //dir = new VcsCacheDir(fileSystem.getCacheIdStr(), fileSystem.getFile(path));
         //dir.setPath (path);
         //dir.setName(VcsUtilities.getFileNamePart(path));
         //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
-        //D.deb("DIR="+(String)vars.get("DIR")); // NOI18N
     }
 
     /**
@@ -112,8 +108,6 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
      * @param args the arguments
      */
     protected void runClass(String exec, String className, String[] args) {
-        E.deb("runClass: "+className); // NOI18N
-        E.deb("Creating new CvsListCommand"); // NOI18N
         boolean success = true;
         Class listClass = null;
         try {
@@ -126,7 +120,6 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
                              "ERR_ClassNotFound", className)); // NOI18N
             success = false;
         }
-        E.deb(listClass+" loaded"); // NOI18N
         VcsListRecursiveCommand listCommand = null;
         try {
             listCommand = (VcsListRecursiveCommand) listClass.newInstance();
@@ -143,7 +136,6 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
                              "LIST_SUB: "+"ERR_IllegalAccessOnClass", listClass)); // NOI18N
             success = false;
         }
-        E.deb("VcsListCommand created."); // NOI18N
         VcsDirContainer filesByName = new VcsDirContainer(path);
         UserCommand listSub = (UserCommand) getCommand();
         if (success) {
@@ -251,7 +243,6 @@ public class CommandLineVcsDirReaderRecursive extends ExecuteCommand {
                 listener.readDirFinishedRecursive(path, rawData, getExitStatus() == VcsCommandExecutor.SUCCEEDED);
                 // After refresh I should ensure, that the next automatic refresh will work if something happens in numbering
                 getFileSystem().removeNumDoAutoRefresh(dir); // NOI18N
-                //D.deb("run(LIST) '"+dir.name+"' finished"); // NOI18N
             }
         }
     }

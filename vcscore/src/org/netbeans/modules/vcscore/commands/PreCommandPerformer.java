@@ -40,9 +40,6 @@ import org.openide.ErrorManager;
  */
 public class PreCommandPerformer extends Object /*implements CommandDataOutputListener */{
 
-    private Debug E=new Debug("PreCommandPerformer", true); // NOI18N
-    private Debug D=E;
-
     //private static final String PRE_COMMAND = "{PRE_COMMAND";
     /**
      * Insert the output of the command instead of this keyword.
@@ -140,7 +137,6 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
     
     /** @return the list of commands to run for the output */
     private ArrayList findPreCommands(String exec) {
-        //D.deb("findPreCommands("+exec+")");
         ArrayList commands = new ArrayList();
         String[] outputs = { INSERT_OUTPUT, INSERT_ERROR, FILE_OUTPUT };
         for (int out = 0; out < outputs.length; out++) {
@@ -444,7 +440,6 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
 
     /*
     private String insertOutput(String exec, int begin, int index, int which) {
-        D.deb("insertOutput("+exec+", "+begin+", "+index+", "+which+")");
         int end = VcsUtilities.getPairIndex(exec, index, '(', ')');
         if (end < 0) return exec;
         int finalEnd = VcsUtilities.getPairIndex(exec, index, '{', '}');
@@ -483,7 +478,6 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
                 }
             }
         }
-        D.deb("insertion = '"+insertion+"'");
         return exec.substring(0, begin)+insertion.toString()+exec.substring(finalEnd+1);
     }
      */

@@ -40,8 +40,6 @@ import org.netbeans.modules.vcscore.cmdline.VcsListCommand;
  */
 //-------------------------------------------
 public class CommandLineVcsDirReader extends ExecuteCommand {
-    private Debug E=new Debug("CommandLineVcsDirReader", true); // NOI18N
-    private Debug D=E;
 
     private String path;
 
@@ -58,7 +56,6 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
         //super("VCS-DirReader-"+((String)vars.get("DIR"))); // NOI18N
         this.listener = listener;
         path = (String)vars.get("DIR"); // NOI18N
-        D.deb ("DIR="+(String)vars.get("DIR")); // NOI18N
         //System.out.println("CommandLineVcsDirReader(): DIR="+(String)vars.get("DIR")); // NOI18N
         //dir = new VcsCacheDir();
         path = path.replace (java.io.File.separatorChar, '/');
@@ -76,7 +73,6 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
         //dir.setPath (path);
         //dir.setName (VcsUtilities.getFileNamePart (path));
         //if (path.length() == 0) vars.put("DIR", "."); // NOI18N
-        D.deb ("DIR="+(String)vars.get("DIR")); // NOI18N
         //this.exec = (String) list.getProperty(VcsCommand.PROPERTY_EXEC);
     }
 
@@ -135,8 +131,6 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
      * @param args the arguments
      */
     protected void runClass(String exec, String className, String[] args) {
-        E.deb("runClass: "+className); // NOI18N
-        E.deb("Creating new CvsListCommand"); // NOI18N
         classRunning = true;
         boolean success = true;
         Class listClass = null;
@@ -155,7 +149,6 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
             }
             success = false;
         }
-        E.deb(listClass+" loaded"); // NOI18N
         VcsListCommand listCommand = null;
         if (success) {
             try {
@@ -174,7 +167,6 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
                 success = false;
             }
         }
-        E.deb("VcsListCommand created."); // NOI18N
         Hashtable filesByName = new Hashtable();
         UserCommand list = (UserCommand) getCommand();
         if (success) {
@@ -232,14 +224,12 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
         }
         //if (!shouldFail) {
         //String[] elements = new String[2];
-        //D.deb("adding to dir="+dir); // NOI18N
         //File parent = new File(dir.getAbsolutePath());
         for(Enumeration e = filesByName.keys(); e.hasMoreElements() ;) {
             String fileName = (String) e.nextElement();
             String[] elements = (String[]) filesByName.get(fileName);
             //elements[0] = fileName;
             //elements[1] = fileStatus;
-            E.deb("Processing: "+fileName+"|"+elements); // NOI18N
             //fileSystem.debug("stdout: "+VcsUtilities.arrayToString(elements)); // NOI18N
             elements = translateElements(elements, list);
             rawData.add(elements);
@@ -262,7 +252,6 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
             listener.readDirFinished(dir, rawData, getExitStatus() == VcsCommandExecutor.SUCCEEDED);
             // After refresh I should ensure, that the next automatic refresh will work if something happens in numbering
             getFileSystem().removeNumDoAutoRefresh(dir); // NOI18N
-            //D.deb("run(LIST) '"+dir.name+"' finished"); // NOI18N
         }
     }
 

@@ -37,8 +37,6 @@ import org.openide.ErrorManager;
  */
 //-------------------------------------------
 public class ExternalCommand implements TextInput {
-    private Debug E=new Debug("ExternalCommand",true); // NOI18N
-    private Debug D=new Debug("ExternalCommand",true); // NOI18N
 
     //public static final int SUCCESS=0;
     //public static final int FAILED=1;
@@ -307,10 +305,8 @@ public class ExternalCommand implements TextInput {
      * Executes the external command.
      */
     public int exec(){
-        //D.deb("exec()"); // NOI18N
         Process proc=null;
         OutputGrabber output = null;
-        WatchDog watchDog = null;
 
         synchronized (outputGrabbers) {
             if (outputRequestProcessor == null) {
@@ -319,7 +315,6 @@ public class ExternalCommand implements TextInput {
             }
         }
         try{
-            //D.deb("Thread.currentThread()="+Thread.currentThread()); // NOI18N
             String[] commandArr = null;
             try {
                 if (scommand != null) {
@@ -328,7 +323,6 @@ public class ExternalCommand implements TextInput {
                     proc = Runtime.getRuntime().exec(commandArr, envp, scommand.getWorking());
                 } else {
                     commandArr = parseParameters(command);
-                    //D.deb("commandArr="+VcsUtilities.arrayToString(commandArr)); // NOI18N
                     if (envp == null) {
                         proc = Runtime.getRuntime().exec(commandArr);
                         //System.out.println("exec("+VcsUtilities.array2string(commandArr)+")");
@@ -338,7 +332,6 @@ public class ExternalCommand implements TextInput {
                     }
                 }
             } catch (IOException e){
-                //E.err("Runtime.exec failed."); // NOI18N
                 org.openide.ErrorManager.getDefault().notify(
                     org.openide.ErrorManager.getDefault().annotate(e,
                         g("EXT_CMD_RuntimeExc", VcsUtilities.array2string(commandArr))));
@@ -352,13 +345,11 @@ public class ExternalCommand implements TextInput {
             //if (timeoutMilis > 0) {
             //    watchDog.start();
             //}
-            //D.deb("New WatchDog with timeout = "+timeoutMilis); // NOI18N
 
             SafeRunnable inputRepeater = null;
             OutputStream os = proc.getOutputStream();
             if (inputData != null) {
                 try{
-                    //D.deb("stdin>>"+inputData); // NOI18N
                     //System.out.println("stdin>>"+inputData);
                     if (inputRepeat) {
                         inputRepeater = new InputRepeater(os, inputData);
@@ -368,7 +359,7 @@ public class ExternalCommand implements TextInput {
                     }
                 }
                 catch(IOException e){
-                    E.err(e,"writeBytes("+inputData+") failed"); // NOI18N
+                    ErrorManager.getDefault().notify(e);
                 }
             }
             if (!inputRepeat) {
@@ -393,7 +384,6 @@ public class ExternalCommand implements TextInput {
                     // silently ignore, will be a broken pipe
                 }
             }
-            //D.deb("process exit="+exit); // NOI18N
             output.doStop();
             try {
                 output.waitToFinish();
@@ -406,10 +396,7 @@ public class ExternalCommand implements TextInput {
             proc.destroy();
             setExitStatus(VcsCommandExecutor.INTERRUPTED);
         } finally {
-            D.deb("Processing command output"); // NOI18N
             //processCommandOutput();
-            D.deb("watchDog.cancel()"); // NOI18N
-            if (watchDog != null) watchDog.cancel();
             if (output != null) { // if exec() throws an exception, output == null !
                 output.doStop();
                 boolean finished = false;
@@ -425,7 +412,6 @@ public class ExternalCommand implements TextInput {
             }
         }
 
-        D.deb("exec() -> "+getExitStatus()); // NOI18N
         return getExitStatus();
     }
 
@@ -724,7 +710,6 @@ public class ExternalCommand implements TextInput {
             try {
                 pattern = Pattern.compile(regex);
             } catch(PatternSyntaxException e) {
-                //E.err(e,"RE failed regexp"); // NOI18N
                 throw new BadRegexException("Bad regexp.", e); // NOI18N
             }
 
@@ -745,7 +730,6 @@ public class ExternalCommand implements TextInput {
             try {
                 pattern = Pattern.compile(regex);
             } catch(PatternSyntaxException e) {
-                //E.err(e,"RE failed regexp"); // NOI18N
                 throw new BadRegexException("Bad regexp.", e); // NOI18N
             }
             stdErrDataListeners.add(l);
@@ -849,15 +833,27 @@ public class ExternalCommand implements TextInput {
         synchronized(stdOutDataLock) {
             int n = stdOutDataListeners.size();
             for (int i = 0; i < n; i++) {
-                Pattern pattern = (Pattern) stdOutRegexps.get(i);
-                String[] sa = matchToStringArray(pattern, line);
-                if (sa != null && sa.length > 0) ((RegexOutputListener) stdOutDataListeners.get(i)).outputMatchedGroups(sa);
+                try {
+                    Pattern pattern = (Pattern) stdOutRegexps.get(i);
+                    String[] sa = matchToStringArray(pattern, line);
+                    if (sa != null && sa.length > 0) ((RegexOutputListener) stdOutDataListeners.get(i)).outputMatchedGroups(sa);
+                } catch (ThreadDeath td) {
+                    throw td;
+                } catch (Throwable th) {
+                    ErrorManager.getDefault().notify(th);
+                }
             }
         }
         synchronized(stdOutLock) {
             Iterator it = stdOutListeners.iterator();
             while(it.hasNext()) {
-                ((TextOutputListener) it.next()).outputLine(line);
+                try {
+                    ((TextOutputListener) it.next()).outputLine(line);
+                } catch (ThreadDeath td) {
+                    throw td;
+                } catch (Throwable th) {
+                    ErrorManager.getDefault().notify(th);
+                }
             }
         }
     }
@@ -867,15 +863,27 @@ public class ExternalCommand implements TextInput {
         synchronized(stdErrDataLock) {
             int n = stdErrDataListeners.size();
             for (int i = 0; i < n; i++) {
-                Pattern pattern = (Pattern) stdErrRegexps.get(i);
-                String[] sa = matchToStringArray(pattern, line);
-                if (sa != null && sa.length > 0) ((RegexOutputListener) stdErrDataListeners.get(i)).outputMatchedGroups(sa);
+                try {
+                    Pattern pattern = (Pattern) stdErrRegexps.get(i);
+                    String[] sa = matchToStringArray(pattern, line);
+                    if (sa != null && sa.length > 0) ((RegexOutputListener) stdErrDataListeners.get(i)).outputMatchedGroups(sa);
+                } catch (ThreadDeath td) {
+                    throw td;
+                } catch (Throwable th) {
+                    ErrorManager.getDefault().notify(th);
+                }
             }
         }
         synchronized(stdErrLock) {
             Iterator it = stdErrListeners.iterator();
             while(it.hasNext()) {
-                ((TextOutputListener) it.next()).outputLine(line);
+                try {
+                    ((TextOutputListener) it.next()).outputLine(line);
+                } catch (ThreadDeath td) {
+                    throw td;
+                } catch (Throwable th) {
+                    ErrorManager.getDefault().notify(th);
+                }
             }
         }
     }

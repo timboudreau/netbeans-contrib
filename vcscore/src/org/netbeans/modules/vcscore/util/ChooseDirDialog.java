@@ -29,8 +29,6 @@ import org.openide.util.*;
  */
 //-------------------------------------------
 public class ChooseDirDialog extends JDialog {
-    private Debug E=new Debug("ChooseDirDialog", false); // NOI18N
-    private Debug D=E;
 
     private JFileChooser chooser=null ;
     private File initialDir=null;
@@ -130,7 +128,6 @@ public class ChooseDirDialog extends JDialog {
         try{
             path=selectedDir.getCanonicalPath();
         }catch (IOException e){
-            E.err(e,"getSelectedDir()"); // NOI18N
             path=null;
         }
         return path;

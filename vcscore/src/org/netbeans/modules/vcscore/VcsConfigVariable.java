@@ -29,8 +29,6 @@ import org.netbeans.modules.vcscore.util.*;
  */
 
 public class VcsConfigVariable extends Object implements Cloneable, Serializable, Comparable {
-    private static Debug E=new Debug("VcsConfigVariable", true); // NOI18N
-    private static Debug D=E;
 
     /**
      * The variable name.
@@ -184,13 +182,10 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
      * @return new sorted vector of commands or variables
      */
     public static Vector sortVariables(Vector variables) {
-        //D.deb("sortCommands ()"); // NOI18N
         Vector sorted;
-        //D.deb("commands = "+ commands); // NOI18N
         if (variables == null) return variables;
         Object[] vars = null;
         vars = (Object[]) variables.toArray();
-        //D.deb("Doing sort ..."); // NOI18N
         java.util.Arrays.sort(vars, new Comparator() {
                                   public int compare(Object o1, Object o2) {
                                       if (o1 instanceof VcsConfigVariable)
@@ -201,12 +196,10 @@ public class VcsConfigVariable extends Object implements Cloneable, Serializable
                                       return false;
                                   }
                               });
-        //D.deb("Sort finished."); // NOI18N
         sorted = new Vector();
         for(int i = 0; i < vars.length; i++) {
             sorted.addElement(vars[i]);
         }
-        //D.deb("sorted vector = "+sorted); // NOI18N
         return sorted;
     }
 

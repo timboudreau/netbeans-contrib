@@ -31,8 +31,6 @@ import org.netbeans.modules.vcscore.util.*;
 
 //-------------------------------------------
 public class Variables {
-    private static final Debug E=new Debug("Variables", true); // NOI18N
-    private static final Debug D=E;
 
     /**
      * Automatically set context-specific variables.
@@ -177,7 +175,6 @@ public class Variables {
      * @return String with all variables expanded
      *
     public static String expand_OLD(Hashtable tab, String cmd, boolean warnUndefVars) {
-        D.deb ("expand ("+tab+","+cmd+")"); // NOI18N
         String cmd_cond = ""; // NOI18N
         //this.warnUndefVars = warnUndefVars;
         boolean expanded = false;
@@ -188,14 +185,11 @@ public class Variables {
                 cmd = cmd_cond;
             }
             expanded = true;
-            //D.deb ("after expandConditional ("+tab+","+cmd+")"); // NOI18N
             while(needFurtherExpansion(cmd) == true) {
-                //D.deb("needFurtherExpansion cmd='"+cmd+"'"); // NOI18N
                 cmd = expandOnce(tab, cmd, warnUndefVars);
                 expanded = false;
             }
         } while(!expanded);
-        D.deb ("after expansion ("+tab+","+cmd+")"); // NOI18N
         cmd = org.openide.util.Utilities.replaceString(cmd, "\\${", "${");
         cmd = org.openide.util.Utilities.replaceString(cmd, "\\$[", "$[");
         return cmd;
@@ -278,15 +272,11 @@ public class Variables {
         char replC2 = (char) -1;
         if (value == null) {
             int r = name.lastIndexOf(REPLACE);
-            //D.deb("getReplaceVarValue('"+name+"'): r = "+r); // NOI18N
             if (r > 0 && name.length() == (r + 3)) {
                 value = (String) tab.get(name.substring(0, r));
-                //D.deb("getReplaceVarValue(): value of '"+name.substring(0, r)+"' = '"+value+"'"); // NOI18N
-                //D.deb("length = "+name.length()); // NOI18N
                 if (value != null) {
                     replC1 = name.charAt(r+1);
                     replC2 = name.charAt(r+2);
-                    //D.deb("c1 = "+c1+", c2 = "+c2); // NOI18N
                     //value = value.replace(c1, c2);
                 }
             }
@@ -299,7 +289,9 @@ public class Variables {
                 if (var != null) var = var.trim();
                 String svalue = expandVariable(tab, var, warnUndefVars);
                 if (svalue == null) {
-                    //if (warnUndefVars) E.deb("Variable undefined '"+var+"'."); // NOI18N
+                    if (warnUndefVars) {
+                        ErrorManager.getDefault().log("Variable undefined '"+var+"'.");
+                    }
                     return null;
                 }
                 if (begin == 0) value = svalue;
@@ -356,7 +348,6 @@ public class Variables {
         
         // first
         int firstBegin = cmd.indexOf("[", end + 1); // NOI18N
-        //D.deb("firstBegin="+firstBegin); // NOI18N
         if (firstBegin < 0) {
             return null;
         }
@@ -365,15 +356,12 @@ public class Variables {
         if (firstEnd < 0) {
             return null;
         }
-        //D.deb("firstEnd="+firstEnd); // NOI18N
         String first = cmd.substring(firstBegin + 1, firstEnd);
-        //D.deb ("first="+first); // NOI18N
         
         //index = firstEnd;
         
         // second
         int secondBegin=cmd.indexOf("[", firstEnd); // NOI18N
-        //D.deb("secondBegin="+secondBegin); // NOI18N
         if (secondBegin < 0) {
             return null;
         }
@@ -383,9 +371,7 @@ public class Variables {
         if (secondEnd < 0) {
             return null;
         }
-        //D.deb("secondEnd="+secondEnd); // NOI18N
         String second = cmd.substring(secondBegin+1, secondEnd);
-        //D.deb ("second="+second); // NOI18N
         expandEnd[0] = secondEnd;
         
         String result;
@@ -404,18 +390,15 @@ public class Variables {
      * @return String with variables expanded
      */
     public static String expandFast(Hashtable tab, String cmd, boolean warnUndefVars) {
-        D.deb ("expandFast ("+cmd+")"); // NOI18N
         String cmd_cond = ""; // NOI18N
         //this.warnUndefVars = warnUndefVars;
         boolean expanded = false;
         cmd_cond = expandConditional (tab, cmd, warnUndefVars);
         cmd = expandOnce(tab, cmd_cond, warnUndefVars);
-        D.deb ("after expansion ("+cmd+")"); // NOI18N
         return VcsUtilities.replaceBackslashDollars( cmd );
     }
 
     public static String expandConditional (Hashtable tab, String cmd, boolean warnUndefVars) {
-        //D.deb ("expandConditional (..)"); // NOI18N
         int index = 0;
         int size = cmd.length();
         int begin = 0;
@@ -424,13 +407,11 @@ public class Variables {
         StringBuffer result = new StringBuffer(size+20);
         while(true) {
             begin = cmd.indexOf("$[?", index); // NOI18N
-            //D.deb("begin="+begin); // NOI18N
             if (begin < 0) {
                 result.append(cmd.substring(index));
                 break;
             }
             result.append(cmd.substring(index,begin));
-            //D.deb ("pre="+result); // NOI18N
 
             int fake = cmd.indexOf("\\$[?", index); // NOI18N
             if (fake >= 0 && fake + 1 == begin) {
@@ -444,17 +425,15 @@ public class Variables {
                 index = begin + 1;
                 continue;
             }
-            //D.deb("end="+end); // NOI18N
             String var = cmd.substring(begin+3, end).trim();
             String value = getVarValue(tab, var); //(String)tab.get(var);
-            //D.deb("var="+var+", value="+value); // NOI18N
 
             if (value == null) {
                 if (warnUndefVars) {
-                    //E.err("Variable undefined '"+var+"'. Expanding it to an empty string."); // NOI18N
+                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Variable undefined '"+var+"'. Expanding it to an empty string.");
                 }
                 if (var.indexOf("$[?") >= 0) { // NOI18N
-                    E.err("Missing closing bracket ']' ?"); // NOI18N
+                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Missing closing bracket ']' ?");
                 }
             }
             index = end + 1;
@@ -463,7 +442,6 @@ public class Variables {
 
             // first
             int firstBegin = cmd.indexOf("[", index); // NOI18N
-            //D.deb("firstBegin="+firstBegin); // NOI18N
             if (firstBegin < 0) {
                 result.append(cmd.substring(index));
                 break;
@@ -482,15 +460,12 @@ public class Variables {
                 index = firstBegin+1;
                 continue;
             }
-            //D.deb("firstEnd="+firstEnd); // NOI18N
             String first = cmd.substring(firstBegin + 1, firstEnd);
-            //D.deb ("first="+first); // NOI18N
 
             index = firstEnd;
 
             // second
             int secondBegin=cmd.indexOf("[", index); // NOI18N
-            //D.deb("secondBegin="+secondBegin); // NOI18N
             if (secondBegin < 0) {
                 result.append(cmd.substring(index));
                 break;
@@ -509,9 +484,7 @@ public class Variables {
                 index = secondBegin + 1;
                 continue;
             }
-            //D.deb("secondEnd="+secondEnd); // NOI18N
             String second = cmd.substring(secondBegin+1, secondEnd);
-            //D.deb ("second="+second); // NOI18N
             index = secondEnd + 1;
 
             if (value == null || value.equals ("")) { // NOI18N
@@ -525,7 +498,6 @@ public class Variables {
 
     //-------------------------------------------
     public static boolean needFurtherExpansion(String cmd) {
-        //D.deb ("needFurtherExpansion("+cmd+")"); // NOI18N
         int begin = cmd.indexOf("${"); // NOI18N
         int fake = cmd.indexOf("\\${"); // NOI18N
         if (begin < 0) {
@@ -550,7 +522,6 @@ public class Variables {
      * @return String with all variables expanded
      */
     public static String expandOnce(Hashtable tab, String cmd, boolean warnUndefVars) {
-        //D.deb ("expandOnce (..)"); // NOI18N
         int index=0;
         int size=cmd.length();
         int begin=0,end=0,nextBegin=0;
@@ -558,7 +529,6 @@ public class Variables {
 
         while(true){
             begin=cmd.indexOf("${",index); // NOI18N
-            //D.deb("begin="+begin); // NOI18N
             if( begin<0 ){
                 result.append(cmd.substring(index));
                 break;
@@ -576,21 +546,19 @@ public class Variables {
                 index=begin+1;
                 continue;
             }
-            //D.deb("end="+end); // NOI18N
 
             String var=cmd.substring(begin+2,end);
             String value=getVarValue(tab, var);
             //String value=(String)tab.get(var);
-            //D.deb("var="+var+", value="+value); // NOI18N
 
             if( value != null ){
                 result.append(value);
             } else {
                 if (warnUndefVars) {
-                    //E.err("Variable undefined '"+var+"'. Expanding it to an empty string."); // NOI18N
+                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Variable undefined '"+var+"'. Expanding it to an empty string.");
                 }
                 if( var.indexOf("${")>=0 ){ // NOI18N
-                    //E.err("Missing closing bracket '}' ?"); // NOI18N
+                    ErrorManager.getDefault().log("Missing closing bracket '}' ?");
                     // cvs commit has enclosed variable ${FILE} => do not warn of this case
                 }
             }
@@ -609,7 +577,6 @@ public class Variables {
      * @return String with all known variables expanded
      */
     public static String expandKnownOnly(Hashtable tab, String cmd) {
-        //D.deb ("expandOnce (..)"); // NOI18N
         int index=0;
         int size=cmd.length();
         int begin=0,end=0,nextBegin=0;
@@ -617,7 +584,6 @@ public class Variables {
 
         while(true){
             begin=cmd.indexOf("${",index); // NOI18N
-            //D.deb("begin="+begin); // NOI18N
             if( begin<0 ){
                 result.append(cmd.substring(index));
                 break;
@@ -638,12 +604,10 @@ public class Variables {
                 index=begin+1;
                 continue;
             }
-            //D.deb("end="+end); // NOI18N
 
             String var=cmd.substring(begin+2,end);
             String value=getVarValue(tab, var);
             //String value=(String)tab.get(var);
-            //D.deb("var="+var+", value="+value); // NOI18N
 
             if( value != null ){
                 result.append(value);
@@ -668,15 +632,11 @@ public class Variables {
         String value = (String) tab.get(name);
         if (value == null) {
             int r = name.lastIndexOf(REPLACE);
-            //D.deb("getReplaceVarValue('"+name+"'): r = "+r); // NOI18N
             if (r > 0) {
                 value = (String) tab.get(name.substring(0, r));
-                //D.deb("getReplaceVarValue(): value of '"+name.substring(0, r)+"' = '"+value+"'"); // NOI18N
-                //D.deb("length = "+name.length()); // NOI18N
                 if (value != null && name.length() >= r+3) {
                     char c1 = name.charAt(r+1);
                     char c2 = name.charAt(r+2);
-                    //D.deb("c1 = "+c1+", c2 = "+c2); // NOI18N
                     value = value.replace(c1, c2);
                 }
             }
@@ -699,7 +659,6 @@ public class Variables {
                 if (var != null) var = var.trim();
                 String svalue = getReplaceVarValue(tab, var);
                 if (svalue == null) {
-                    //if (warnUndefVars) E.deb("Variable undefined '"+var+"'."); // NOI18N
                     return null;
                 }
                 if (begin == 0) value = svalue;

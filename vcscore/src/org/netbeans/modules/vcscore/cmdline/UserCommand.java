@@ -22,7 +22,6 @@ import java.text.*;
 import org.openide.NotifyDescriptor;
 import org.openide.util.*;
 
-import org.netbeans.modules.vcscore.util.Debug;
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 
@@ -31,8 +30,6 @@ import org.netbeans.modules.vcscore.commands.VcsCommand;
  * @author Michal Fadljevic, Pavel Buzek, Martin Entlicher
  */
 public class UserCommand extends Object implements VcsCommand, Serializable, Cloneable, Comparable {
-    private static Debug E=new Debug("UserCommand", true); // NOI18N
-    private static Debug D=E;
 
     /**
      * The name of the command which refresh a file.

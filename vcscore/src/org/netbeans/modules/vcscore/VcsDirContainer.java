@@ -16,7 +16,6 @@ package org.netbeans.modules.vcscore;
 import java.util.*;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
-import org.netbeans.modules.vcscore.util.Debug;
 
 /**
  * Container for objects belonging to directories.
@@ -26,7 +25,6 @@ import org.netbeans.modules.vcscore.util.Debug;
  * @version 
  */
 public class VcsDirContainer extends Object {
-    private Debug D = new Debug("VcsDirContainer", true); // NOI18N
 
     private Vector subdirs = new Vector();
     //private Vector elements = new Vector();
@@ -157,7 +155,6 @@ public class VcsDirContainer extends Object {
         if (this.path.length() > 0) {
             index = path.indexOf(this.path);
             if (index < 0) {
-                D.deb("addSubdirRecursive("+path+"): indexOf("+this.path+") = "+index+" => RETURN null !!!"); // NOI18N
                 return null;
             }
             index += this.path.length() + 1; // have to cross the path delimeter
@@ -166,16 +163,13 @@ public class VcsDirContainer extends Object {
         }
         int index2 = path.indexOf('/', index);
         if (index2 < 0) index2 = path.length();
-        //D.deb("index = "+index+", index2 = "+index2);
         if (index2 < index) return this;
         String next = path.substring(index, index2);
-        //D.deb("next = "+next);
         String subPath = (this.path.length() > 0) ? this.path+"/"+next : next; // NOI18N
         VcsDirContainer subdir = this.getDirContainer(next);
         if (subdir == null) {
-            D.deb("addSubdirRecursive("+path+"): creating subdir "+subPath+" under "+this.path); // NOI18N
             subdir = this.addSubdir(subPath);
-        } else D.deb("addSubdirRecursive("+path+"): exist subdir "+subPath+" under "+this.path); // NOI18N
+        }
         return subdir.addSubdirRecursive(path);
     }
     //public Vector getSubdirs() {
@@ -219,21 +213,17 @@ public class VcsDirContainer extends Object {
      * return the container of the given path or null when not found
      */
     public VcsDirContainer getContainerWithPath(String path) {
-        D.deb("getContainerWithPath("+path+")"); // NOI18N
         VcsDirContainer container = this;
         if (path.length() == 0) return container;
         String rootPath = container.getPath();
-        //D.deb("parentPath = "+parentPath+", rootPath = "+rootPath);
         if (rootPath.length() > 0 && path.indexOf(rootPath) < 0) return null;
         if (path.length() > 0 && path.equals(rootPath)) return this;
-        D.deb("getContainerWithPath: rootPath = '"+rootPath+"'"); // NOI18N
         int index = rootPath.length();
         if (index > 0) index++; // we have to cross the file separator
         int indexSep = path.indexOf('/', index);
         if (indexSep < 0) indexSep = path.length();
         while (indexSep >= 0 && container != null) {
             String name = path.substring(index, indexSep);
-            //D.deb("name = "+name);
             container = container.getDirContainer(name);
             index = indexSep + 1;
             if (index >= path.length()) indexSep = -1;
@@ -242,7 +232,6 @@ public class VcsDirContainer extends Object {
                 if (indexSep < 0) indexSep = path.length();
             }
         }
-        D.deb("getContainerWithPath("+path+") returning "+((container == null) ? null : container.getPath())); // NOI18N
         return container;
     }
 
@@ -252,29 +241,8 @@ public class VcsDirContainer extends Object {
      * @return the parent directory container, or null when not found
      */
     public VcsDirContainer getParent(String path) {
-        //org.netbeans.modules.vcs.util.Debug D =
-        //  new org.netbeans.modules.vcs.util.Debug("VcsDirContainer", true); // NOI18N
-        //D.deb("getParent("+path+")");
         String parentPath = VcsUtilities.getDirNamePart(path);
         VcsDirContainer container = getContainerWithPath(parentPath);
-        D.deb("getParent("+path+") returning "+((container == null) ? null : container.getPath())); // NOI18N
         return container;
-        /*
-        String rootPath = container.getPath();
-        //D.deb("parentPath = "+parentPath+", rootPath = "+rootPath);
-        if (rootPath.length() > 0 && parentPath.indexOf(rootPath) < 0) return null;
-        int index = rootPath.length();
-        if (index > 0) index++; // we have to cross the file separator
-        int indexSep = path.indexOf('/', index);
-        while (indexSep >= 0 && container != null) {
-          String name = parentPath.substring(index, indexSep);
-          //D.deb("name = "+name);
-          container = container.getDirContainer(name);
-          index = indexSep + 1;
-          indexSep = path.indexOf('/', index);
-    }
-        //D.deb("getParent returning "+((container == null) ? null : container.getPath()));
-        return container;
-        */
     }
 }

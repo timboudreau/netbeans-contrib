@@ -29,7 +29,6 @@ import org.openide.util.*;
  */
 //-------------------------------------------
 public class ChooseFileDialog extends JDialog {
-    private Debug E=new Debug("ChooseFileDialog", false); // NOI18N
 
     private JFileChooser chooser = null ;
     private File initialDir = null;
@@ -141,7 +140,6 @@ public class ChooseFileDialog extends JDialog {
         try {
             path = selectedFile.getCanonicalPath ();
         } catch (IOException e){
-            E.err(e,"getSelectedFile()"); // NOI18N
             path = null;
         }
         return path;

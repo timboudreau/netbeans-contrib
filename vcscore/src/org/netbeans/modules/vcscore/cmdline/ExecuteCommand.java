@@ -55,8 +55,6 @@ import org.netbeans.modules.vcscore.util.*;
  */
 //-------------------------------------------
 public class ExecuteCommand extends Object implements VcsCommandExecutor {
-    private Debug E=new Debug("ExecuteCommand", true); // NOI18N
-    private Debug D=E;
         
     public static final String DEFAULT_REGEX = "^(.*$)"; // Match the whole line by default.
     public static final String STATUS_USE_REG_EXP_PARSE_OUTPUT = "REG_EXP_PARSE_OUTPUT"; // Use the output of the parsing as the status
@@ -183,7 +181,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             try {
                 regExps[i] = Pattern.compile(substitutions[2*i]);
             } catch(PatternSyntaxException e) {
-                //E.err(e,"RE failed regexp"); // NOI18N
                 ErrorManager.getDefault().notify(
                     ErrorManager.getDefault().annotate(e,
                         NbBundle.getMessage(ExecuteCommand.class, "MSG_BadRegExpInStatusSubstitution", substitutions[2*i])));
@@ -630,8 +627,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      * Execute a command-line command.
      */
     protected void runCommand(String[] execs) {
-        //E.deb("runCommand: "+exec); // NOI18N
-
         //exec = Variables.expand(vars,exec, true);
         preferredExec = preferredExecExpanded = VcsUtilities.array2stringNl(execs);
         StringBuffer[] globalDataOutputWhole = null;
@@ -642,7 +637,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             setupExternalCommand(ec);
             StringBuffer[] globalDataOutput = addRegexListeners(ec, globalRegexs);
 
-            //E.deb("ec="+ec); // NOI18N
             int status = ec.exec();
             if (status != exitStatus) {
                 if (exitStatus == VcsCommandExecutor.SUCCEEDED ||
@@ -672,8 +666,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 printGlobalErrorDataOutput(globalDataOutputWhole[1].toString(), globalRegexs[1]);
             }
         }
-        E.deb("Command exited with exit status = "+exitStatus); // NOI18N
-        //D.deb("errorContainer = "+errorContainer); // NOI18N
         switch (exitStatus) {
         case VcsCommandExecutor.SUCCEEDED:
             commandFinished(preferredExecExpanded, true);
@@ -688,7 +680,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             break;
         }
 
-        D.deb("run("+cmd.getName()+") finished"); // NOI18N
     }
     
     /**
@@ -702,7 +693,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         setupExternalCommand(ec);
         StringBuffer[] globalDataOutput = addRegexListeners(ec, globalRegexs);
 
-        //E.deb("ec="+ec); // NOI18N
         int status = ec.exec();
         exitStatus = status;
         if (globalDataOutput != null) {
@@ -727,7 +717,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             break;
         }
 
-        D.deb("run("+cmd.getName()+") finished"); // NOI18N
     }
     
     private void setupExternalCommand(ExternalCommand ec) {
@@ -741,7 +730,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         } else {
             ec.setEnv(executionContext.getEnvironmentVars());
         }
-        //D.deb(cmd.getName()+".getInput()='"+cmd.getInput()+"'"); // NOI18N
 
         for (Iterator it = textOutputListeners.iterator(); it.hasNext(); ) {
             ec.addTextOutputListener((TextOutputListener) it.next());
@@ -809,7 +797,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
      */
     protected void runClass(String exec, String className, String[] args) {
 
-        E.deb("runClass: "+className); // NOI18N
         boolean success = true;
         Class execClass = null;
         preferredExec = preferredExecExpanded = exec;
@@ -828,7 +815,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         }
         VcsAdditionalCommand execCommand = null;
         if (success) {
-            D.deb(execClass+" loaded"); // NOI18N
             try {
                 execCommand = (VcsAdditionalCommand) execClass.newInstance();
             } catch (InstantiationException e) {
@@ -850,7 +836,6 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             }
         }
         if (success) {
-            E.deb("VcsAdditionalCommand created."); // NOI18N
             ExecuteCommand.setAdditionalParams(execCommand, fileSystem, executionContext);
             String dataRegex = (String) cmd.getProperty(UserCommand.PROPERTY_DATA_REGEX);
             String errorRegex = (String) cmd.getProperty(UserCommand.PROPERTY_ERROR_REGEX);

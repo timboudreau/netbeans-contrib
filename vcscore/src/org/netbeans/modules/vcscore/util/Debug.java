@@ -16,7 +16,7 @@ package org.netbeans.modules.vcscore.util;
 import java.io.*;
 
 /** Debugging class.
- * 
+ * @deprecated Use ErrorManager instead.
  * @author Michal Fadljevic
  */
 //-------------------------------------------
