@@ -258,7 +258,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CREATE_PROJECT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT)">
         <property name="exec">
-          <value>${RUN} pcli CreateProject ${PRIDPP} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
+          <value>${RUN} pcli CreateProject ${PRIDPP} ${QFILE} ${NUR}</value>
         </property>
         <property name="onFile">
           <value>false</value>
@@ -279,7 +279,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUNR} pcli Put ${PRIDPP} ${FORCE_PUT} $[? CHECK_IN_OUT] [$[? CHECK_IN_OUT_LOCK] [-l${QUOTE}${LOCK_DESCRIPTION}${QUOTE}] [-u]] [] $[? ASSIGN_REVISION] [-r${ASSIGN_REVISION}] [] $[? ASSIGN_VERSION] [-v${QUOTE}${ASSIGN_VERSION}${QUOTE}] [] $[? FLOATING_LABEL] [-fv] [] ${START_BRANCH} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
+	  <value>${RUNR} pcli Put ${PRIDPP} ${FORCE_PUT} $[? CHECK_IN_OUT] [$[? CHECK_IN_OUT_LOCK] [-l${QUOTE}${LOCK_DESCRIPTION}${QUOTE}] [-u]] [] $[? ASSIGN_REVISION] [-r${ASSIGN_REVISION}] [] $[? ASSIGN_VERSION] [-v${QUOTE}${ASSIGN_VERSION}${QUOTE}] [] $[? FLOATING_LABEL] [-fv] [] ${START_BRANCH} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -ym ${QFILES} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKIN),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKIN)))
@@ -300,6 +300,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>false</value>
 	</property>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
+        </property>
 	<property name="displayInteractive">
 	  <value>true</value>
 	</property>
@@ -342,7 +345,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUNW} pcli Get ${PRIDPP} ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} $[? FILE] [${QUOTE}${FILE}${QUOTE}] [.]  ${NUR}</value>
+	  <value>${RUNW} pcli Get ${PRIDPP} ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} $[? FILE] [${QFILES}] [.]  ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
@@ -367,6 +370,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
+        </property>
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
         </property>
@@ -401,7 +407,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="exec">
-          <value>${RUN} pcli AddFiles ${PRIDPP} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${NUR}</value>
+          <value>${RUNR} pcli AddFiles ${PRIDPP} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${QMPATHS} ${NUR}</value>
         </property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_ADD)))
@@ -421,6 +427,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>false</value>
 	</property>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
+        </property>
 	<property name="input">
 	  <value></value>
 	</property>
@@ -559,7 +568,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUNR} pcli vdel ${PRIDPP} $[? REMOVE_WHAT] [-r$[? REVISION - REVISION_OPERATION_IDENT] [${REVISION}] []] [$[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] []] ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
+	  <value>${RUNR} pcli vdel ${PRIDPP} $[? REMOVE_WHAT] [-r$[? REVISION - REVISION_OPERATION_IDENT] [${REVISION}] []] [$[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] []] ${QFILES} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_REMOVE)))
@@ -577,6 +586,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>false</value>
 	</property>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
+        </property>
 	<property name="input">
 	  <value></value>
 	</property>
@@ -656,7 +668,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} pcli Lock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] ${RECURSIVE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
+	  <value>${RUN} pcli Lock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] ${RECURSIVE} ${QFILES} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_LOCK)))
@@ -667,6 +679,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
+        </property>
 	<property name="input">
 	  <value></value>
 	</property>
@@ -700,7 +715,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUN} pcli Unlock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] $[? USER] [-u${QUOTE}${USER}${QUOTE}] [] ${RECURSIVE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
+	  <value>${RUN} pcli Unlock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] $[? USER] [-u${QUOTE}${USER}${QUOTE}] [] ${RECURSIVE} ${QFILES} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_UNLOCK),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_UNLOCK)))
@@ -712,6 +727,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
+        </property>
 	<property name="displayInteractive">
 	  <value>true</value>
 	</property>
@@ -743,7 +761,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUNR} pcli vlog ${PRIDPP} ${REPORT_TYPE} $[? REVISION] [-r${REVISION}] [] $[? AUTHORS] [-a${AUTHORS}] [] $[? LOCKERS] [-l${LOCKERS}] [] $[? OWNERS] [-o${OWNERS}] [] $[? DATE_FROM] [-ds${QUOTE}${DATE_FROM}${QUOTE}] [] $[? DATE_TO] [-de${QUOTE}${DATE_TO}${QUOTE}] [] ${RECURSIVE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
+	  <value>${RUNR} pcli vlog ${PRIDPP} ${REPORT_TYPE} $[? REVISION] [-r${REVISION}] [] $[? AUTHORS] [-a${AUTHORS}] [] $[? LOCKERS] [-l${LOCKERS}] [] $[? OWNERS] [-o${OWNERS}] [] $[? DATE_FROM] [-ds${QUOTE}${DATE_FROM}${QUOTE}] [] $[? DATE_TO] [-de${QUOTE}${DATE_TO}${QUOTE}] [] ${RECURSIVE} ${QFILES} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_STATUS),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_STATUS)))
@@ -768,6 +786,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="onRoot">
 	  <value>true</value>
 	</property>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
+        </property>
 	<property name="display">
 	  <value>true</value>
 	</property>
