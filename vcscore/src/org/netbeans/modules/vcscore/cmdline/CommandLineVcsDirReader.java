@@ -464,7 +464,7 @@ public class CommandLineVcsDirReader implements VcsCommandExecutor {
         if(shouldFail) {
             //errDlg.putCommandOut(container.getMessages());
             //errDlg.showDialog();
-            fileSystem.setPassword(null);
+            //fileSystem.setPassword(null);
             //fileSystem.debug(g("ERR_LISTFailed")); // NOI18N
             //D.deb("failed reading of dir="+dir); // NOI18N
             /*
