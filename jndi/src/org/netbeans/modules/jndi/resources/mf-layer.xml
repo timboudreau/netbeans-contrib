@@ -34,6 +34,19 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="SystemFileSystem.icon" urlValue="nbres:/org/netbeans/modules/jndi/resources/jndi.gif"/>
                 <attr name="SystemFileSystem.layer" stringValue="project"/>
             </file>
+
+	    <folder name="JavaHelp">
+            	<attr name="org-netbeans-modules-usersguide-above-regular.txt/org-netbeans-modules-jndi-helpset.xml" boolvalue="true"/>
+            	<file name="org-netbeans-modules-jndi-helpset.xml">
+                	<![CDATA[<?xml version="1.0"?>
+                    		<!DOCTYPE helpsetref PUBLIC
+                    		"-//NetBeans//DTD JavaHelp Help Set Reference 1.0//EN"
+                    		"http://www.netbeans.org/dtds/helpsetref-1_0.dtd">
+                    		<helpsetref url="nbdocs:/org/netbeans/modules/jndi/docs/jndi.hs"/>
+                	]]>
+            	</file>
+            	<attr name="org-netbeans-modules-jndi-helpset.xml/org-netbeans-modules-usersguide-below-regular.txt" boolvalue="true"/>
+            </folder>
         </folder>
 
         <folder name="UI">
@@ -48,4 +61,22 @@ SystemFileSystem
                 </folder>
             </folder>
         </folder>
+
+	<folder name="Menu">
+    	    <folder name="Help">
+        	<folder name="HelpShortcuts">
+            	    <attr name="org-netbeans-modules-usersguide-sep.instance/org-netbeans-modules-jndi-mainpage.xml" boolvalue="true"/>
+            	    <file name="org-netbeans-modules-jndi-mainpage.xml">
+                	<![CDATA[<?xml version="1.0"?>
+                	    <!DOCTYPE helpctx PUBLIC
+                    	    "-//NetBeans//DTD Help Context 1.0//EN"
+                    	    "http://www.netbeans.org/dtds/helpcontext-1_0.dtd">
+                    	    <helpctx id="jndi_intro"/>
+                	]]>
+                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jndi.Bundle"/>
+            	    </file>
+            	    <attr name="org-netbeans-modules-jndi-mainpage.xml/org-netbeans-modules-usersguide-lower-sep.instance" boolvalue="true"/>
+        	</folder>
+            </folder>
+  	</folder>
 </filesystem>
