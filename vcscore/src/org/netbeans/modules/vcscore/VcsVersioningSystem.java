@@ -232,8 +232,10 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
                         synchronized (oldList) {
                             ArrayList workOld = new ArrayList(oldList);
                             workNew.removeAll(oldList);
+                            //System.out.println("ADDING new revisions: "+workNew);
                             oldList.addAll(workNew); // add all new revisions
                             workOld.removeAll(newList);
+                            //System.out.println("ADDING new revisions: "+workNew);
                             oldList.removeAll(workOld); // remove all old revisions (some VCS may perhaps allow removing revisions)
                             FileStatusProvider status = getFileStatusProvider();
                             if (status != null) {
@@ -243,11 +245,7 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
                                     item.setCurrent(revision.equals(item.getRevision()));
                                 }
                             }
-                            //oldList.clear();
-                            //oldList.addAll(newList);
                         }
-                    //} else {
-                    //    revisionListsByName.put(name, newList);
                     }
                 }
             });
@@ -259,7 +257,7 @@ class VcsVersioningSystem extends AbstractVersioningSystem implements CacheHandl
                 //org.openide.util.RequestProcessor.postRequest(new Runnable() {
                 //    public void run() {
                 list = createRevisionList(name);
-                revisionListsByName.put(name, list);
+                if (list != null) revisionListsByName.put(name, list);
                         //versioningSystem.fireRevisionChange(name);
                 //    }
                 //});
