@@ -245,6 +245,10 @@ public class CvsCommitVisualizer extends OutputVisualizer {
         return false;
     }
     
+    public boolean doesDisplayError() {
+        return true;
+    }
+    
     public void setExitStatus(int exit) {
         debug("exit: "+exit);
         //System.out.println("setExitStatus("+this.hashCode()+") ("+exit+"), cp = "+(contentPane != null));

@@ -176,6 +176,10 @@ public class CvsLogVisualizer extends OutputVisualizer {
         return result;
     }    
   
+    public boolean doesDisplayError() {
+        return false;
+    }
+    
     /**
      * This method is called, with the output line.
      * @param line The output line.

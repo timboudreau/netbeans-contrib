@@ -260,6 +260,10 @@ public class CvsAddVisualizer extends OutputVisualizer {
         return false;
     }
     
+    public boolean doesDisplayError() {
+        return true;
+    }
+    
     public void setExitStatus(int exit) {
         if(!finishVisualizer){            
             return;     //don't exit parent visualizer is in use

@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -63,6 +63,11 @@ public interface VcsCommandVisualizer {
      *         false -- this component will be opened just before the command is started.
      */
     public abstract boolean openAfterCommandFinish();
+    
+    /**
+     * Whether this visualizer handles failed commands.
+     */
+    public abstract boolean doesDisplayError();
     
     /**
      * Receive a line of standard output of the visualized command.

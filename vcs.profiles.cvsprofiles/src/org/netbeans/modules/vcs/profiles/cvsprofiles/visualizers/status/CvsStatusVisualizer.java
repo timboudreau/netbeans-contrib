@@ -222,6 +222,10 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
     }
     
     
+    public boolean doesDisplayError() {
+        return false;
+    }
+    
     /**
      * This method is called, with the output line.
      * @param line The output line.

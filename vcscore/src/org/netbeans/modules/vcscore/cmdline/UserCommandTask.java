@@ -591,7 +591,8 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
             if (hasVisualizer((UserCommandTask) parentTask)) return ; // The parent visualizer should report the error.
             else ((UserCommandTask) parentTask).setPrintErrorOutput(false); // This task reports the error
         }
-        if(visualizerGUI == null && visualizerText == null){
+        if ((visualizerGUI == null || !visualizerGUI.doesDisplayError()) &&
+            (visualizerText == null || !visualizerText.doesDisplayError())) {
             SwingUtilities.invokeLater(new Runnable(){
                 public void run() {
                     CommandOutputTopComponent outputComponent = CommandOutputTopComponent.getInstance();
