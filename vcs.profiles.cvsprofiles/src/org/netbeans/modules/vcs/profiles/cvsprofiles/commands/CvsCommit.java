@@ -442,6 +442,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 relativePath = relativePath + "/" + (String) vars.get("PATH");
             } else {
                 relativePath = (String) vars.get("PATH");
+                if (".".equals(relativePath)) relativePath = null;
             }
             relativeToFSRoot = (String) vars.get("FILE");
         }
