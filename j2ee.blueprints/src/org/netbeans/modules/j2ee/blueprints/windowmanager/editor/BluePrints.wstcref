@@ -7,5 +7,5 @@
 <tc-ref version="2.0" id="BluePrints">
     <module name="org.netbeans.modules.j2ee.blueprints" />
     <tc-id id="BluePrints" />
-    <state opened="true" />
+    <state opened="false" />
 </tc-ref>
