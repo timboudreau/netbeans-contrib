@@ -112,9 +112,9 @@ public class TreeNodeMenu extends JMenu implements TreeModelListener {
         }
         
         public void stateChanged(ChangeEvent e) {
-            if (getModel().isSelected() && dirty()) {
+//            if (getModel().isSelected() && dirty()) {
                 updateFromModel();
-            }
+//            }
         }
     }
     
@@ -154,7 +154,7 @@ public class TreeNodeMenu extends JMenu implements TreeModelListener {
             nodes.remove(childNode);
             if (comp == null) {
                 comp = provider.createItemFor(childNode);
-                System.out.println("Installing for " + childNode + " " + comp);
+//                System.out.println("Installing for " + childNode + " " + comp);
                 install (comp, childNode);
             } else {
                 JComponent newComp = provider.syncStateOf(childNode, comp);
@@ -187,11 +187,16 @@ public class TreeNodeMenu extends JMenu implements TreeModelListener {
     }
     
     private void replace (JComponent old, JComponent nue, Object child) {
+        if (old == nue) return;
+    
         int idx = Arrays.asList(getComponents()).indexOf(old);
-        remove (idx);
+        if (idx >= 0) {
+            remove (idx);
+        }
         componentsToItems.remove(old);
+        
         mdl.getComponentProvider().dispose (old, child);
-        add (nue, idx);
+        add (nue, Math.max(0, idx));
         itemsToComponents.put(child, nue);
         componentsToItems.put(nue, child);
     }

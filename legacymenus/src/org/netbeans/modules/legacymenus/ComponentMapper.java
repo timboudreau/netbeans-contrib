@@ -26,6 +26,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
+import org.openide.awt.Actions;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
 import org.netbeans.swing.menus.spi.*;
@@ -72,9 +73,40 @@ public class ComponentMapper extends MenuTreeModel.ComponentProvider {
         
         if (result instanceof JInlineMenu) {
             
-//            System.err.println("GOT THE BASTARD: " + ((JInlineMenu) result).getText());
-//            result = dissectJInlineMenu((JInlineMenu) result);
-//            result.putClientProperty ("alwaysSync", Boolean.TRUE);
+            System.err.println("GOT THE BASTARD: " + ((JInlineMenu) result).getText());
+            result = dissectJInlineMenu((JInlineMenu) result);
+            result.putClientProperty ("alwaysSync", Boolean.TRUE);
+        }
+        
+        if (result instanceof Actions.SubMenu) {
+            System.err.println("Got an Actions.SubMenu");
+            final Actions.SubMenu am = (Actions.SubMenu) result;
+            result.addNotify();
+            String ui = am.getUIClassID();
+            if ("MenuItemUI".equals(ui)) {
+                System.err.println("It thinks it is a Menu Item");
+                result = new JMenuItem ();
+                ((JMenuItem)result).setIcon (am.getIcon());
+                ((JMenuItem)result).setText (am.getText());
+                ((JMenuItem)result).setMnemonic(am.getMnemonic());
+                ((JMenuItem)result).setDisplayedMnemonicIndex(am.getDisplayedMnemonicIndex());
+                ((JMenuItem)result).setEnabled(am.isEnabled());
+            } else if ("MenuUI".equals(ui)) {
+                System.err.println("It thinks it is a Menu");
+                result = new JMenu();
+                ((JMenu)result).setText(am.getText());
+                ((JMenu)result).setIcon(am.getIcon());
+                ((JMenu)result).setMnemonic(am.getMnemonic());
+                ((JMenu)result).setDisplayedMnemonicIndex(am.getDisplayedMnemonicIndex());
+                ((JMenu)result).setEnabled(am.isEnabled());
+                Component[] c = am.getComponents();
+                for (int i=0; i < c.length; i++) {
+                    System.err.println("  installing " + c[i]);
+                    ((JMenu)result).add(c[i]);
+                }
+            }
+            result.putClientProperty ("alwaysSync", Boolean.TRUE);
+            am.removeNotify();
         }
         
         result.putClientProperty ("origin", orig); //NOI18N

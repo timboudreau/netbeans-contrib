@@ -57,7 +57,7 @@ public class TreeMenuBar extends JMenuBar {
         lis = new Lis();
         StateListener state = new StateListener();
         addHierarchyListener (state);
-        System.err.println("Created a TreeMenuBar");
+//        System.err.println("Created a TreeMenuBar");
     }
     
     public static JMenu createMenu (MenuTreeModel model, Object menuNode) {
@@ -65,13 +65,13 @@ public class TreeMenuBar extends JMenuBar {
     }
     
     private static MenuTreeModel findDefaultModel() {
-        System.err.println("Finding default model");
+//        System.err.println("Finding default model");
         MenuTreeModel result = null;
         
         String modelClass = System.getProperty (
             "org.netbeans.swing.menus.MenuTreeModel"); //NOI18N
         
-        System.err.println("System property is " + modelClass);
+//        System.err.println("System property is " + modelClass);
         boolean failed = modelClass == null;
         if (!failed) {
             try {
@@ -103,18 +103,18 @@ public class TreeMenuBar extends JMenuBar {
         public void hierarchyChanged(HierarchyEvent e) {
             if (e.getChanged() == TreeMenuBar.this) {
                 if ((e.getChangeFlags() & HierarchyEvent.DISPLAYABILITY_CHANGED) != 0) {
-                    System.out.println("Got displayability change on menu bar - " + isDisplayable());
+//                    System.out.println("Got displayability change on menu bar - " + isDisplayable());
                     setListeningToModel (isDisplayable());
                     if (isDisplayable() && getComponentCount() == 0) {
-                        System.err.println("Update from model for showing changed");
+//                        System.err.println("Update from model for showing changed");
                         updateFromModel();
                     }
                 }
                 if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
-                    System.err.println("Got showing change on menu bar - " + isShowing());
+//                    System.err.println("Got showing change on menu bar - " + isShowing());
                     setListeningToModel (isShowing());
                     if (isShowing() && getComponentCount() == 0) {
-                        System.err.println("Update from model for showing changed");
+//                        System.err.println("Update from model for showing changed");
                         updateFromModel();
                     }
                 }
@@ -215,14 +215,14 @@ public class TreeMenuBar extends JMenuBar {
     }
     
     private void install (JComponent comp, Object child) {
-        System.err.println("Installing " + child + " as " + comp);
+//        System.err.println("Installing " + child + " as " + comp);
         itemsToComponents.put (child, comp);
         componentsToItems.put (comp, child);
         add(comp);
     }
     
     private void uninstall (JComponent comp, Object child) {
-        System.err.println("Uninstalling " + child + " as " + comp);
+//        System.err.println("Uninstalling " + child + " as " + comp);
         itemsToComponents.remove (child);
         componentsToItems.remove(comp);
         remove (comp);
