@@ -3994,9 +3994,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     ErrorManager.getDefault().log(ErrorManager.WARNING, "VCSFS root seems externally deleted. Path: " + name);  // NOI18N
                     return true; // FS root
                 }
-                synchronized(RepositoryFiles.class) {  // #53079
-                    RepositoryFiles repo = RepositoryFiles.forFolder(parent);
-                    return repo.isFolder(fo.getNameExt());
+                try {
+                    synchronized(RepositoryFiles.class) {  // #53079
+                        RepositoryFiles repo = RepositoryFiles.forFolder(parent);
+                        return repo.isFolder(fo.getNameExt());
+                    }
+                } catch (IllegalStateException ex) {
+                    ErrorManager.getDefault().annotate(ex, "Probably externaly deleted file, invalidating..."); // NOI18N
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+                    parent.refresh();
+                    return false;  // for invalid file actual value doe snot matter
                 }
             }
 

@@ -138,8 +138,10 @@ public final class RepositoryFiles {
     /**
      * Classify given (registered) file. For unregistered files it fails.
      * @thread call under RepositoryFiles.class lock
+     * @throws IllegalStateException if given file is not tracked in virtual files
+     * it probbaly means that it's uncatched external removal (e.g. empty folder pruning on cvs checkout)
      */
-    public synchronized boolean isFolder(String fileName) {
+    public synchronized boolean isFolder(String fileName) throws IllegalStateException {
 
         FileAttributeQuery faq = FileAttributeQuery.getDefault();
         FolderProperties fprops = (FolderProperties) faq.readAttribute(folder, FolderProperties.ID);
@@ -160,8 +162,7 @@ public final class RepositoryFiles {
             }
         }
 
-        assert false : "Cannot determine folder flag for " + folder + "/" + fileName;
-        return false;
+        throw new IllegalStateException("Cannot determine folder flag for " + folder.getPath() + "/" + fileName);
     }
 
     /**
