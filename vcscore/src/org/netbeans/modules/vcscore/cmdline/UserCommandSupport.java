@@ -263,7 +263,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
         listeners = getListeners(RegexErrorListener.class, command);
         if (listeners != null) {
             for (int i = 0; i < listeners.length; i++) {
-                ec.addRegexOutputListener((RegexErrorListener) listeners[i]);
+                ec.addRegexErrorListener((RegexErrorListener) listeners[i]);
             }
         }
         listeners = getListeners(FileReaderListener.class, command);
