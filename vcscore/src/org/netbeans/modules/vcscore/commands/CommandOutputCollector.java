@@ -459,17 +459,46 @@ public final class CommandOutputCollector extends Object implements CommandProce
             }
         }
     }
-    
-    private String encodeElements(String[] elements) {
-        String line = "";
+
+    // >>> inlined org.openide.util.Utilities.replaceString(elements[i], "/", " // ")
+    private static final char REPLACE_FROM = '/'; // NOI18N
+    private static final String REPLACE_TO = " // "; // NOI18N
+    // <<< inlined org.openide.util.Utilities.replaceString(elements[i], "/", " // ")
+
+    private static final String SEPARATOR = " / "; // NOI18N
+    private static final String NULL_SEPARATOR = " /null/ "; // NOI18N
+
+    private final StringBuffer sharedBuffer = new StringBuffer(301); // NOI18N
+
+    // profiler reported that this method produced a lot of String garbage
+    // so I inlined all string manipulation methods. Cc.
+    private synchronized String encodeElements(String[] elements) {
+        sharedBuffer.setLength(0);
         for (int i = 0; i < elements.length; i++) {
             if (elements[i] != null) {
-                line += org.openide.util.Utilities.replaceString(elements[i], "/", " // ") + " / ";
+                // >>> inlined org.openide.util.Utilities.replaceString(elements[i], "/", " // ")
+                int index = 0;
+                String original = elements[i];
+                while (true) {
+                    int pos = original.indexOf (REPLACE_FROM, index);
+                    if (pos == -1) {
+                        sharedBuffer.append (original.substring (index));
+                        break;
+                    }
+                    sharedBuffer.append (original.substring (index, pos));
+                    sharedBuffer.append (REPLACE_TO);
+                    index = pos + 1;
+                    if (index == original.length ()) {
+                        break;
+                    }
+                }
+                // <<< inlined org.openide.util.Utilities.replaceString(elements[i], "/", " // ")
+                sharedBuffer.append(SEPARATOR);
             } else {
-                line += " /null/ ";
+                sharedBuffer.append(NULL_SEPARATOR);
             }
         }
-        return line;
+        return sharedBuffer.toString();
     }
     
     private String[] decodeElements(String line) {
