@@ -19,6 +19,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorManager;
+import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.JComponent;
@@ -28,8 +31,14 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.netbeans.modules.vcscore.commands.CommandOutputCollector;
 import org.netbeans.modules.vcscore.commands.CommandOutputTopComponent;
+import org.netbeans.modules.vcscore.commands.RegexErrorListener;
+import org.netbeans.modules.vcscore.commands.RegexOutputListener;
 import org.netbeans.modules.vcscore.commands.SaveToFilePanel;
+import org.netbeans.modules.vcscore.commands.TextErrorListener;
+import org.netbeans.modules.vcscore.commands.TextOutputListener;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -49,7 +58,8 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
    // private JMenuItem kill;
     private ArrayList killActionListeners = new ArrayList();
     private JTextArea stdDataOutput;
-    private JTextArea errDataOutput;    
+    private JTextArea errDataOutput;
+    private CommandOutputCollector outputCollector;
     
     /** Creates new form OutputPanel */
     public AbstractOutputPanel() {
@@ -81,6 +91,20 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         setStandardContent();
     }
     
+    /**
+     * Set the output collector.
+     */
+    public void setOutputCollector(CommandOutputCollector outputCollector) {
+        this.outputCollector = outputCollector;
+    }
+    
+    /**
+     * Get the output collector.
+     */
+    protected CommandOutputCollector getOutputCollector() {
+        return outputCollector;
+    }
+    
     protected void initPopupMenu() {
         this.menu = new JPopupMenu();
         JMenuItem discardTab = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N
@@ -100,7 +124,7 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
            public void actionPerformed (java.awt.event.ActionEvent event) {
                saveToFile();
            }
-        });        
+        });
         
         this.menu.add(save);
         this.menu.addSeparator();
@@ -160,26 +184,78 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                 try {
                     writer = new java.io.BufferedWriter(new java.io.FileWriter(finFile));
                     if (finPnl.includeStdOut()) {
-                        javax.swing.JTextArea outputArea = getStdOutputArea();
-                        if (outputArea != null) {
+                        if (outputCollector != null) {
+                            final java.io.BufferedWriter fwriter = writer;
+                            outputCollector.addTextOutputListener(new TextOutputListener() {
+                                public void outputLine(String line) {
+                                    try {
+                                        fwriter.write(line);
+                                        fwriter.newLine();
+                                    } catch (IOException ioex) {
+                                    }
+                                }
+                            }, false);
+                        } else {
+                            javax.swing.JTextArea outputArea = getStdOutputArea();
+                            if (outputArea != null) {
+                                writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
+                                writer.newLine();
+                            }
+                        }
+                    }
+                    if (finPnl.includeStdErr()) {
+                        if (outputCollector != null) {
+                            final java.io.BufferedWriter fwriter = writer;
+                            outputCollector.addTextErrorListener(new TextErrorListener() {
+                                public void outputLine(String line) {
+                                    try {
+                                        fwriter.write(line);
+                                        fwriter.newLine();
+                                    } catch (IOException ioex) {
+                                    }
+                                }
+                            }, false);
+                        } else {
+                            javax.swing.JTextArea outputArea = getErrOutputArea();
                             writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
                             writer.newLine();
                         }
                     }
-                    if (finPnl.includeStdErr()) {
-                        javax.swing.JTextArea outputArea = getErrOutputArea();
-                        writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
-                        writer.newLine();
-                    }
                     if (finPnl.includeDatOut()) {
-                        javax.swing.JTextArea outputArea = getDataStdOutputArea();
-                        writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
-                        writer.newLine();
+                        if (outputCollector != null) {
+                            final java.io.BufferedWriter fwriter = writer;
+                            outputCollector.addRegexOutputListener(new RegexOutputListener() {
+                                public void outputMatchedGroups(String[] elements) {
+                                    try {
+                                        fwriter.write(VcsUtilities.arrayToString(elements));
+                                        fwriter.newLine();
+                                    } catch (IOException ioex) {
+                                    }
+                                }
+                            }, false);
+                        } else {
+                            javax.swing.JTextArea outputArea = getDataStdOutputArea();
+                            writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
+                            writer.newLine();
+                        }
                     }
                     if (finPnl.includeDatErr()) {
-                        javax.swing.JTextArea outputArea = getDataErrOutputArea();
-                        writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
-                        writer.newLine();
+                        if (outputCollector != null) {
+                            final java.io.BufferedWriter fwriter = writer;
+                            outputCollector.addRegexErrorListener(new RegexErrorListener() {
+                                public void outputMatchedGroups(String[] elements) {
+                                    try {
+                                        fwriter.write(VcsUtilities.arrayToString(elements));
+                                        fwriter.newLine();
+                                    } catch (IOException ioex) {
+                                    }
+                                }
+                            }, false);
+                        } else {
+                            javax.swing.JTextArea outputArea = getDataErrOutputArea();
+                            writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
+                            writer.newLine();
+                        }
                     }
                 } catch (Exception exc) {
                    ErrorManager.getDefault().notify(

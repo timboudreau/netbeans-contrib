@@ -78,6 +78,7 @@ public class CvsCommitVisualizer extends OutputVisualizer {
         output = new HashMap();
         contentPane = new CommitInfoPanel(this);
         contentPane.setVcsTask(getVcsTask());
+        contentPane.setOutputCollector(getOutputCollector());
         contentPane.showStartCommand();
         //System.out.println("getOutputPanel("+this.hashCode()+"), exit = "+exit);
         if (exit != Integer.MIN_VALUE) {

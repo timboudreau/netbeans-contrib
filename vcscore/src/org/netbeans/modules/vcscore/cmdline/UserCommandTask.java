@@ -289,6 +289,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         //final CommandOutputVisualizer outputVisualizer = new CommandOutputVisualizer(this);
         outputVisualizer.setVcsTask(this);
         outputVisualizer.setPossibleFileStatusInfoMap(cmdSupport.getExecutionContext().getPossibleFileStatusInfoMap());
+        outputVisualizer.setOutputCollector(outputCollector);
         outputCollector.addTextOutputListener(new TextOutputListener() {
             public void outputLine(String line) {
                 outputVisualizer.stdOutputLine(line);

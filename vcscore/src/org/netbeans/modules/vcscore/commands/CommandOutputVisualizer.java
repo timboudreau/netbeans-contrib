@@ -130,6 +130,10 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
         });
     }
     
+    public void setOutputCollector(CommandOutputCollector outputCollector) {
+        outputPanel.setOutputCollector(outputCollector);
+    }
+    
     public void setPossibleFileStatusInfoMap(java.util.Map infoMap) {
         // Left unimplemented, we do not care about possible statii here.
     }

@@ -255,26 +255,75 @@ public class CommandOutputCollector extends Object implements CommandProcessList
     /**
      * Add the listener to the standard output of the command. The listeners are removed
      * when the command finishes.
+     * The output is passed to the listener asynchronously.
      */
     public void addTextOutputListener(TextOutputListener l) {
         addOutputListenerLazily(0, l);
     }
     
     /**
+     * Add the listener to the standard output of the command. The listeners are removed
+     * when the command finishes.
+     * @param asynch When <code>true</code>, the output is passed to the listener asynchronously.
+     *               When <code>false</code>, the listener gets available output
+     *               immediately during the addition.
+     */
+    public void addTextOutputListener(TextOutputListener l, boolean asynch) {
+        if (asynch) {
+            addOutputListenerLazily(0, l);
+        } else {
+            addOutputListener(0, l);
+        }
+    }
+    
+    /**
      * Add the listener to the error output of the command. The listeners are removed
      * when the command finishes.
+     * The output is passed to the listener asynchronously.
      */
     public void addTextErrorListener(TextOutputListener l) {
         addOutputListenerLazily(1, l);
     }
     
     /**
+     * Add the listener to the error output of the command. The listeners are removed
+     * when the command finishes.
+     * @param asynch When <code>true</code>, the output is passed to the listener asynchronously.
+     *               When <code>false</code>, the listener gets available output
+     *               immediately during the addition.
+     */
+    public void addTextErrorListener(TextOutputListener l, boolean asynch) {
+        if (asynch) {
+            addOutputListenerLazily(1, l);
+        } else {
+            addOutputListener(1, l);
+        }
+    }
+    
+    /**
      * Add the listener to the data output of the command. This output may contain
      * a parsed information from its standard output or some other data provided
      * by this command. The listeners are removed when the command finishes.
+     * The output is passed to the listener asynchronously.
      */
     public void addRegexOutputListener(RegexOutputListener l) {
         addOutputListenerLazily(2, l);
+    }
+    
+    /**
+     * Add the listener to the data output of the command. This output may contain
+     * a parsed information from its standard output or some other data provided
+     * by this command. The listeners are removed when the command finishes.
+     * @param asynch When <code>true</code>, the output is passed to the listener asynchronously.
+     *               When <code>false</code>, the listener gets available output
+     *               immediately during the addition.
+     */
+    public void addRegexOutputListener(RegexOutputListener l, boolean asynch) {
+        if (asynch) {
+            addOutputListenerLazily(2, l);
+        } else {
+            addOutputListener(2, l);
+        }
     }
     
     /**
@@ -282,9 +331,27 @@ public class CommandOutputCollector extends Object implements CommandProcessList
      * a parsed information from its error output or some other data provided
      * by this command. If there are some data given to this listener, the command
      * is supposed to fail. The listeners are removed when the command finishes.
+     * The output is passed to the listener asynchronously.
      */
     public synchronized void addRegexErrorListener(RegexOutputListener l) {
         addOutputListenerLazily(3, l);
+    }
+    
+    /**
+     * Add the listener to the data error output of the command. This output may contain
+     * a parsed information from its error output or some other data provided
+     * by this command. If there are some data given to this listener, the command
+     * is supposed to fail. The listeners are removed when the command finishes.
+     * @param asynch When <code>true</code>, the output is passed to the listener asynchronously.
+     *               When <code>false</code>, the listener gets available output
+     *               immediately during the addition.
+     */
+    public void addRegexErrorListener(RegexOutputListener l, boolean asynch) {
+        if (asynch) {
+            addOutputListenerLazily(3, l);
+        } else {
+            addOutputListener(3, l);
+        }
     }
     
     private File createOutputFile(int outputId) {

@@ -82,14 +82,15 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
     
     /** Creates new CvsUpdateVisualizer */
     public CvsUpdateVisualizer() {
-        super();        
+        super();
     }
 
     public Map getOutputPanels() {
         debug("getOutputPanel");
         output = new HashMap();
-        contentPane = new UpdateInfoPanel(this); 
-        contentPane.setVcsTask(getVcsTask());        
+        contentPane = new UpdateInfoPanel(this);
+        contentPane.setVcsTask(getVcsTask());
+        contentPane.setOutputCollector(getOutputCollector());
         contentPane.showStartCommand();
         //System.out.println("getOutputPanel("+this.hashCode()+"), exit = "+exit);
         if (exit != Integer.MIN_VALUE) {

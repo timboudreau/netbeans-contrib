@@ -37,6 +37,12 @@ public interface VcsCommandVisualizer {
     public void setVcsTask(VcsDescribedTask task);
     
     /**
+     * After instatiation this method is called with the collector of output,
+     * that can be used for various purposes in the visualizer.
+     */
+    public void setOutputCollector(CommandOutputCollector outputCollector);
+    
+    /**
      * After instatiation this method is called with the map of all possible
      * file statuses. The map contains raw file status strings as keys
      * and appropriate {@link org.netbeans.api.vcs.FileStatusInfo} objects

@@ -39,6 +39,7 @@ import org.openide.windows.Workspace;
 
 import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.modules.vcscore.Variables;
+import org.netbeans.modules.vcscore.commands.CommandOutputCollector;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
 import org.netbeans.modules.vcscore.commands.ProvidedCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
@@ -66,6 +67,7 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
     private Vector vcsTopComponents;
     private boolean opened = false;
     protected String commandName ;
+    private CommandOutputCollector outputCollector;
     
     private static final long serialVersionUID = -8901790321334731232L;
     
@@ -154,6 +156,14 @@ public abstract class OutputVisualizer implements VcsCommandVisualizer {
 
         setName(commandName);
         setDisplayName(title);*/
+    }
+    
+    public void setOutputCollector(CommandOutputCollector outputCollector) {
+        this.outputCollector = outputCollector;
+    }
+    
+    protected CommandOutputCollector getOutputCollector() {
+        return outputCollector;
     }
     
     public void setPossibleFileStatusInfoMap(java.util.Map infoMap) {
