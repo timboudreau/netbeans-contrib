@@ -77,6 +77,10 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
         setDisplayName(item.getDisplayName());
         init(list, item);
     }
+
+    public org.openide.util.HelpCtx getHelpCtx() {
+        return new org.openide.util.HelpCtx(this.getClass());
+    }
     
     private void init(RevisionList list, RevisionItem item) {
         this.list = list;

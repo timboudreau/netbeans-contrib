@@ -192,34 +192,10 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
                                                org.netbeans.modules.vcs.advanced.VcsCustomizer.class);
         bd.setValue(VcsFileSystem.VCS_PROVIDER_ATTRIBUTE, new Boolean(true));
         bd.setValue(VcsFileSystem.VCS_FILESYSTEM_ICON_BASE, "/org/netbeans/modules/vcs/advanced/vcsGeneric"); // NOI18N
+        bd.setValue ("helpID", CommandLineVcsFileSystem.class.getName ()); // NOI18N
         
         return bd;
     }
 
 }
 
-/*
-* <<Log>>
-*  18   Gandalf   1.17        1/27/00  Martin Entlicher Locking property added.
-*  17   Gandalf   1.16        11/24/99 Martin Entlicher 
-*  16   Gandalf   1.15        10/25/99 Pavel Buzek     copyright
-*  15   Gandalf   1.14        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
-*       Microsystems Copyright in File Comment
-*  14   Gandalf   1.13        9/30/99  Pavel Buzek     
-*  13   Gandalf   1.12        9/8/99   Pavel Buzek     class model changed, 
-*       customization improved, several bugs fixed
-*  12   Gandalf   1.11        8/31/99  Pavel Buzek     
-*  11   Gandalf   1.10        8/7/99   Ian Formanek    Icon for VCS Filesystem
-*  10   Gandalf   1.9         6/9/99   Ian Formanek    ---- Package Change To 
-*       org.openide ----
-*  9    Gandalf   1.8         5/19/99  Michal Fadljevic 
-*  8    Gandalf   1.7         5/14/99  Michal Fadljevic 
-*  7    Gandalf   1.6         5/4/99   Michal Fadljevic 
-*  6    Gandalf   1.5         5/4/99   Michal Fadljevic 
-*  5    Gandalf   1.4         4/30/99  Michal Fadljevic 
-*  4    Gandalf   1.3         4/29/99  Michal Fadljevic 
-*  3    Gandalf   1.2         4/26/99  Michal Fadljevic 
-*  2    Gandalf   1.1         4/21/99  Michal Fadljevic 
-*  1    Gandalf   1.0         4/15/99  Michal Fadljevic 
-* $
-*/

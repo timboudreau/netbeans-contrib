@@ -103,4 +103,8 @@ public class RuntimeCommandNode extends AbstractNode {
         return org.openide.util.NbBundle.getBundle(RuntimeCommandNode.class).getString(name);
     }
 
+    public org.openide.util.HelpCtx getHelpCtx() {
+        return new org.openide.util.HelpCtx(this.getClass());
+    }
+    
 }

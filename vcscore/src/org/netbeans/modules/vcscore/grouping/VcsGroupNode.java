@@ -167,11 +167,10 @@ public class VcsGroupNode extends AbstractNode {
         return toReturn;
     }
     
-    public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
-        // When you have help, change to:
-        // return new HelpCtx (VcsGroup.class);
+    public org.openide.util.HelpCtx getHelpCtx() {
+        return new org.openide.util.HelpCtx(this.getClass());
     }
+
 
 
     // RECOMMENDED - handle cloning specially (so as not to invoke the overhead of FilterNode):
