@@ -280,7 +280,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="DebuggerType">
     	    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.rmi.Bundle"/>
     	    <!--<attr name="SystemFileSystem.icon" urlvalue="nbres:/org/netbeans/modules/rmi/resources/RMIDebugger.gif"/> -->
-	    <file name="RMIDebugger.settings" URL="RMIDebugger.settings">
+	    <file name="RMIDebugger.settings" url="RMIDebugger.settings">
 	        <attr name="template" boolvalue="true"/>
 	    </file>
 	</folder>
