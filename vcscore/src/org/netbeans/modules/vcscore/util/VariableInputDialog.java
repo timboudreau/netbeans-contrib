@@ -149,6 +149,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
     public void setCmdName(String cmdDisplayName) {
         if (cmdDisplayName != null) {
             variableTabbedPane.setTitleAt(0, cmdDisplayName);
+            jPanel1.getAccessibleContext().setAccessibleName(cmdDisplayName);
+            jPanel1.getAccessibleContext().setAccessibleDescription(cmdDisplayName);
         }
     }
     
@@ -631,6 +633,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
         if (globalLabel != null) {
             if (expert) {
                 variableTabbedPane.setTitleAt(1, globalLabel);
+                jPanel2.getAccessibleContext().setAccessibleName(globalLabel);
+                jPanel2.getAccessibleContext().setAccessibleDescription(globalLabel);
             } else {
                 removeGlobalInputTab();
                 //variableTabbedPane.removeTabAt(1);
