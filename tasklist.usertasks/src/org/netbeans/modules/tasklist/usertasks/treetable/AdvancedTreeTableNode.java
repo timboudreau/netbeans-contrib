@@ -85,13 +85,15 @@ public abstract class AdvancedTreeTableNode extends AbstractTreeTableNode {
             loadUnfilteredChildren();
         }
         
+        assert unfilteredChildren != null;
+        
         // filtering
         FilterIntf filter = getFilter();
         if (filter != null) {
             ArrayList fc = new ArrayList();
-            for (int j = 0; j < children.length; j++) {
+            for (int j = 0; j < unfilteredChildren.length; j++) {
                 if (filter.accept(unfilteredChildren[j])) {
-                    fc.add(children[j]);
+                    fc.add(unfilteredChildren[j]);
                 }
             }
             children = (TreeTableNode[]) fc.toArray(

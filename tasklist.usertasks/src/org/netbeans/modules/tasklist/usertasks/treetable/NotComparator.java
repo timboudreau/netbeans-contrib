@@ -17,8 +17,6 @@ import java.util.Comparator;
 
 /**
  * Inverts results of another Comparator
- *
- * @author  Tim Lebedkov
  */
 public class NotComparator implements Comparator {
     private Comparator c;

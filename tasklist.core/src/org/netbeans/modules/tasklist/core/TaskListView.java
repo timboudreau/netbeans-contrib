@@ -1295,12 +1295,12 @@ for (int i = 0; i < columns.length; i++) {
      * @param filter The filter to be set, or null, to remove filtering.
      */
     public void setFilter(Filter filter) {         
-      if (filter == null || getFilters().contains(filter)) {
-        getFilters().setActive(filter);  
-      } 
+        if (filter == null || getFilters().contains(filter)) {
+            getFilters().setActive(filter);  
+        } 
 
-      this.activeFilter = filter;
-      setFiltered();
+        this.activeFilter = filter;
+        setFiltered();
     }
 
     /**
