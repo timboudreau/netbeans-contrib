@@ -422,7 +422,6 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   }
 
   public static void addExplorerFilterFactory( FilterFactory factory ) {
-    System.out.println( "Registering explorer factory" );
     addFactory( explorerFactories, factory );
   }
 
@@ -435,7 +434,6 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
   }
 
   public static void addBrowserFilterFactory( FilterFactory factory ) { 
-    System.out.println( "Registering browser factory" );
     addFactory( browserFactories, factory );
   }
 
@@ -447,12 +445,12 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
     return (ElementNodeFactory)browserFactories.get( browserFactories.size() - 1 ); 
   }
 
-  private static void addFactory( List factories, FilterFactory factory ) {
+  private static synchronized void addFactory( List factories, FilterFactory factory ) {
     factory.attachTo( (ElementNodeFactory)factories.get( factories.size() - 1 ) );
     factories.add( factory );
   }
 
-  private static void removeFactory( List factories, FilterFactory factory ) {
+  private static synchronized void removeFactory( List factories, FilterFactory factory ) {
     int index = factories.indexOf( factory );
 
     if ( index <= 0 )
@@ -528,6 +526,8 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  22   Gandalf   1.21        7/9/99   Petr Hrebejk    Add/emove mehods made 
+ *       synchronized
  *  21   Gandalf   1.20        6/28/99  Petr Hrebejk    Multiple node factories 
  *       added
  *  20   Gandalf   1.19        6/24/99  Jesse Glick     Gosh-honest HelpID's.
