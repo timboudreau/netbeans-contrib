@@ -1,0 +1,11 @@
+This module provides integration with the Checkstyle library,
+available from checkstyle.sf.net.
+
+Due to licensing issues, those bits are not hosted here,
+so you'll need to download it yourself, and locate
+checkstyle-all-3.1.jar inside the installation, then
+place it into the "tasklist/external" directory.
+You should also place the checkstyle configuration
+file you want to use, for example
+  checkstyle-3.1/contrib/examples/conf/BlochEffectiveJava.xml
+into external and name it "checkstyle.xml".
