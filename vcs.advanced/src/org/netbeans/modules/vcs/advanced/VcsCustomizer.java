@@ -1093,7 +1093,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 configCombo.removeItemAt(0);
                 selectedIndex--;
                 promptForConfigComboChange = false;
-                changeSupport.firePropertyChange(new PropertyChangeEvent(this,PROP_PROFILE_SELECTION_CHANGED, null, null));
+                if (changeSupport != null) {
+                    changeSupport.firePropertyChange(new PropertyChangeEvent(this,PROP_PROFILE_SELECTION_CHANGED, null, null));
+                }
             }
 
             if (oldSelectedLabel == null) {
@@ -1125,7 +1127,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 String profileName = (String) profileNamesForLabels.get(selectedLabel);
                 loadConfig(profileName, selectedLabel);
                 oldSelectedLabel = selectedLabel;
-                changeSupport.firePropertyChange(new PropertyChangeEvent(this,PROP_PROFILE_SELECTION_CHANGED, null, selectedLabel));
+                if (changeSupport != null) {
+                    changeSupport.firePropertyChange(new PropertyChangeEvent(this,PROP_PROFILE_SELECTION_CHANGED, null, selectedLabel));
+                }
             } else {
                 if (oldSelectedLabel == null) {
                     configCombo.setSelectedIndex(0);
@@ -2075,8 +2079,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     private void updateFinishableState(Hashtable variables){        
         String isFinishEnabled = (String)variables.get("IS_FINISH_ENABLED");    //NOI18N        
         if((isFinishEnabled != null)&&(isFinishEnabled.length() > 0)){            
-            isFinishEnabled = Variables.expand(variables, isFinishEnabled, false);       
-            changeSupport.firePropertyChange(new PropertyChangeEvent(this,PROP_IS_FINISH_ENABLED_CHANGED,null,isFinishEnabled));
+            isFinishEnabled = Variables.expand(variables, isFinishEnabled, false);
+            if (changeSupport != null) {
+                changeSupport.firePropertyChange(new PropertyChangeEvent(this,PROP_IS_FINISH_ENABLED_CHANGED,null,isFinishEnabled));
+            }
         }
     }
     /**
