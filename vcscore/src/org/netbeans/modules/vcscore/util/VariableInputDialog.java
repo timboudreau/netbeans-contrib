@@ -408,7 +408,8 @@ public class VariableInputDialog extends javax.swing.JDialog {
     private String getSelectorText(String commandName, String oldText) {
         VcsCommand cmd = fileSystem.getCommand(commandName);
         //OutputContainer container = new OutputContainer(cmd);
-        VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+        Hashtable varsCopy = new Hashtable(vars);
+        VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, varsCopy);
         //ec.setErrorNoRegexListener(container);
         //ec.setOutputNoRegexListener(container);
         //ec.setErrorContainer(container);
@@ -425,7 +426,7 @@ public class VariableInputDialog extends javax.swing.JDialog {
             }
         });
         CommandsPool pool = fileSystem.getCommandsPool();
-        int preprocessStatus = pool.preprocessCommand(ec, vars);
+        int preprocessStatus = pool.preprocessCommand(ec, varsCopy);
         if (preprocessStatus != CommandsPool.PREPROCESS_DONE) return null;
         pool.startExecutor(ec);
         pool.waitToFinish(ec);
