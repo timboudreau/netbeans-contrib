@@ -64,18 +64,18 @@ public class VcsRuntimeCommand extends RuntimeCommand {
     }
     
     private void createProperties(final Sheet.Set set) {
-        set.put(new PropertySupport.ReadOnly("name", String.class, g("CTL_Name"), "") {
+        set.put(new PropertySupport.ReadOnly("name", String.class, g("CTL_Name"), g("HINT_Name")) {
                         public Object getValue() {
                             //System.out.println("getName: cmd = "+cmd);
                             return executor.getCommand().getName();
                         }
                 });
-        set.put(new PropertySupport.ReadOnly("exec", String.class, g("CTL_Exec"), "") {
+        set.put(new PropertySupport.ReadOnly("exec", String.class, g("CTL_Exec"), g("HINT_Exec")) {
                         public Object getValue() {
                             return executor.getExec();
                         }
                 });
-        set.put(new PropertySupport.ReadOnly("files", String.class, g("CTL_Files"), "") {
+        set.put(new PropertySupport.ReadOnly("files", String.class, g("CTL_Files"), g("HINT_Files")) {
                         public Object getValue() {
                             String[] files = (String[]) executor.getFiles().toArray(new String[0]);
                             for (int i = 0; i < files.length; i++) {
@@ -84,7 +84,7 @@ public class VcsRuntimeCommand extends RuntimeCommand {
                             return VcsUtilities.array2stringNl(files);
                         }
                 });
-        set.put(new PropertySupport.ReadOnly("status", String.class, g("CTL_Status"), "") {
+        set.put(new PropertySupport.ReadOnly("status", String.class, g("CTL_Status"), g("HINT_Status")) {
                         public Object getValue() {
                             if (pool.isWaiting(executor)) return g("CTL_Status_Waiting");
                             if (pool.isRunning(executor)) {
