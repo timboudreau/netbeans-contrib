@@ -2447,11 +2447,8 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>10</value>
         </property>
-        <property name="notificationSuccessMsg">
-          <value>$[? BRANCH_TAG] [ResourceMsg1(NOTIFICATION_ADD_BRANCH_Success, ${TAG_NAME})] [ResourceMsg1(NOTIFICATION_ADD_TAG_Success, ${TAG_NAME})]</value>
-	</property>
-        <property name="notificationFailMsg">
-          <value>$[? BRANCH_TAG] [ResourceMsg1(NOTIFICATION_ADD_BRANCH_Fail, ${TAG_NAME})] [ResourceMsg1(NOTIFICATION_ADD_TAG_Fail, ${TAG_NAME})]</value>
+        <property name="display">
+          <value>true</value>
 	</property>
       </command>
       <command name="REMOVE_TAG" displayName="ResourceMsg1(CVS_REMOVE_TAG)">
@@ -2489,11 +2486,8 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>10</value>
         </property>
-        <property name="notificationSuccessMsg">
-          <value>ResourceMsg1(NOTIFICATION_REMOVE_TAG_Success, ${TAG_NAME})</value>
-	</property>
-        <property name="notificationFailMsg">
-          <value>ResourceMsg1(NOTIFICATION_REMOVE_TAG_Fail, ${TAG_NAME})</value>
+        <property name="display">
+          <value>true</value>
 	</property>
       </command>
       <command name="BRANCHES" displayName="ResourceMsg1(CVS_VIEW_BRANCHES)">
