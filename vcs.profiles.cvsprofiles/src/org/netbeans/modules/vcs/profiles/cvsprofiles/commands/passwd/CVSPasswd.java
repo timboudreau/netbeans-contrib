@@ -26,6 +26,8 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.api.vcs.commands.Command;
+import org.netbeans.api.vcs.commands.CommandTask;
 import org.netbeans.lib.cvsclient.CVSRoot;
 
 import org.openide.filesystems.*;
@@ -36,6 +38,7 @@ import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.commands.*;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.spi.vcs.commands.CommandSupport;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 
@@ -298,6 +301,7 @@ public class CVSPasswd extends Object {
         return new String(bytes);
     }
  */
+  
 
     /**
      * Check the login by running a command which will succeed when the right password is entered.
@@ -306,11 +310,32 @@ public class CVSPasswd extends Object {
      * @param message returns the error message
      * @return true when the login was successfull, false otherways
      */
-    public static boolean checkLogin(VcsFileSystem fs, StringBuffer message) throws UnknownHostException, IOException {
-        VcsCommand cmd = fs.getCommand("LOGIN_CHECK");
-        if (cmd == null) return true; // I have no way to check the login => believe that it is O.K.
+   // public static boolean checkLogin(VcsFileSystem fs, StringBuffer message) throws UnknownHostException, IOException {
+    public static boolean checkLogin(CommandExecutionContext context, StringBuffer message) throws UnknownHostException, IOException {
+        CommandSupport support = context.getCommandSupport("LOGIN_CHECK");
+         if (support == null) return true;
+        Command cmd = support.createCommand();
+        // I have no way to check the login => believe that it is O.K.
         //final ExecuteCommand es = new ExecuteCommand(fs, cmd, fs.getVariablesAsHashtable());
-        VcsCommandExecutor vce = fs.getVcsFactory().getCommandExecutor(cmd, fs.getVariablesAsHashtable());
+        TextOutputCommand txtCmd = (TextOutputCommand) cmd; 
+        final StringBuffer loginCommandOutput = new StringBuffer();
+        txtCmd.addTextErrorListener(new CommandOutputListener() {
+            public void outputLine(String element) {
+                if (element != null) {
+                    loginCommandOutput.delete(0, loginCommandOutput.length());
+                    loginCommandOutput.append(element+"\n");
+                }
+            }
+        });
+        txtCmd.addTextOutputListener(new CommandOutputListener() {
+            public void outputLine(String element) {
+                if (element != null) {
+                    loginCommandOutput.delete(0, loginCommandOutput.length());
+                    loginCommandOutput.append(element+"\n");
+                }
+            }
+        });
+    /*    VcsCommandExecutor vce = fs.getVcsFactory().getCommandExecutor(cmd, fs.getVariablesAsHashtable());
         final StringBuffer loginCommandOutput = new StringBuffer();
         vce.addErrorOutputListener(new CommandOutputListener() {
             public void outputLine(String element) {
@@ -327,17 +352,18 @@ public class CVSPasswd extends Object {
                     loginCommandOutput.append(element+"\n");
                 }
             }
-        });
-        fs.getCommandsPool().startExecutor(vce, fs);
+        });*/
+        
+        CommandTask task = cmd.execute();
         try {
-            fs.getCommandsPool().waitToFinish(vce);
+            task.waitFinished(0);
         } catch (InterruptedException iexc) {
-            fs.getCommandsPool().kill(vce);
+            task.stop();
             message.delete(0, message.length());
             message.append(iexc.getLocalizedMessage());
             return false;
         }
-        if (vce.getExitStatus() == VcsCommandExecutor.SUCCEEDED) return true;
+        if (task.getExitStatus() == CommandTask.STATUS_SUCCEEDED) return true;
         String output = loginCommandOutput.toString().trim();
         message.delete(0, message.length());
         message.append(output);

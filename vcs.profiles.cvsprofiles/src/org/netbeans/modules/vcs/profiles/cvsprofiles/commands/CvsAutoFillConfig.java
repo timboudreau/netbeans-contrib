@@ -61,10 +61,7 @@ public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
                         CommandDataOutputListener stderrListener, String errorRegex) {
         
         String dirName = (String) vars.get("ROOTDIR");
-        String relMount = (String) vars.get("MODULE");
-        if (relMount.length() > 0) {
-            dirName += File.separator + relMount;
-        }
+        
         File dirFile = lookForCVSRoot(dirName);
         if (!dirFile.exists()) dirFile = lookForCVSRoot((String) vars.get("ROOTDIR"));
         String serverType = null;

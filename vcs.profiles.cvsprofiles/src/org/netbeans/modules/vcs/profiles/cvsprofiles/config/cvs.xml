@@ -2864,9 +2864,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>$[? BUILT-IN-GLB][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}]
-                                 [$[? IS_WIN9X] [${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}] 
-                                 [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}]]
+	  <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}]
+                                 [$[? IS_WIN9X] [${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}] 
+                                 [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] [] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}]]
           </value>
 	</property>
 	<property name="display">
@@ -2874,13 +2874,30 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_Label)))
-                 AUTO_FILL_VARS("ROOTDIR,AUTO_FILL_GLOBAL_CONFIG")
+                 AUTO_FILL_VARS("ROOTDIR, AUTO_FILL_GLOBAL_CONFIG, SERVERTYPE, SET_GLOBAL_LOGIN_STATE, CVS_SERVER, SET_GLOBAL_LOGIN_STATE, CVS_USERNAME, SET_GLOBAL_LOGIN_STATE, CVS_REPOSITORY, SET_GLOBAL_LOGIN_STATE, ENVIRONMENT_VAR_CVS_CLIENT_PORT, SET_GLOBAL_LOGIN_STATE")
+                 
                  PROMPT_FOR(ROOTDIR, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INPUT_WORKING_DIR)", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_INPUT_WORKING_DIR);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(INPUT_WORKING_DIR_Mnemonic)),
                             SELECTOR_DIR)
-                 PROMPT_FOR(CVS_ROOT, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot):", "$[? CVS_ROOT] [${CVS_ROOT}] [${ENVIRONMENT_VAR_CVSROOT}]",
-                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_CVSRoot);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot_Mnemonic)))                 
-                 SELECT_RADIO(BUILT-IN-GLB, "", "true", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true)", "true", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_BuiltIn_true);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true_Mnemonic))"],
+                 <!--PROMPT_FOR(CVS_ROOT, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot):", "$[? CVS_ROOT] [${CVS_ROOT}] [${ENVIRONMENT_VAR_CVSROOT}]",
+                            ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_CVSRoot);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_CVSRoot_Mnemonic)))                 -->
+                 SELECT_COMBO_EDITABLE(SERVERTYPE, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Type):", "pserver",
+                                   ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_SERVER_Type);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Type_Mnemonic)),
+                                   [local, local, DISABLE(CVS_SERVER, ENVIRONMENT_VAR_CVS_CLIENT_PORT, CVS_USERNAME, ENVIRONMENT_VAR_CVS_RSH, BUILT-IN/true, FILESYSTEM_PROPERTY_offLine)],
+                                   [server, server, DISABLE(ENVIRONMENT_VAR_CVS_RSH, FILESYSTEM_PROPERTY_offLine)],
+                                   [pserver, pserver, ENABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, FILESYSTEM_PROPERTY_offLine), DISABLE(ENVIRONMENT_VAR_CVS_RSH)],
+                                   [ext, ext, ENABLE(ENVIRONMENT_VAR_CVS_RSH), DISABLE(ENVIRONMENT_VAR_CVS_CLIENT_PORT, BUILT-IN/true, FILESYSTEM_PROPERTY_offLine)])
+             PROMPT_FOR(CVS_SERVER, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Name):", "",
+                        ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_SERVER_Name);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Name_Mnemonic)))
+             PROMPT_FOR(ENVIRONMENT_VAR_CVS_CLIENT_PORT, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Port):", "2401",
+                        ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_SERVER_Port);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_SERVER_Port_Mnemonic)))
+             PROMPT_FOR(CVS_USERNAME, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_User):", "",
+                        ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_User);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_User_Mnemonic)))
+             PROMPT_FOR(CVS_REPOSITORY, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Repository):", "",
+                        ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_Repository);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Repository_Mnemonic)),
+                        SELECTOR_DIR)
+                        
+                 SELECT_RADIO(BUILT-IN, "", "true", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true)", "true", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_BuiltIn_true);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_true_Mnemonic))"],
                                             ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_false)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_BuiltIn_false);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_BuiltIn_false_Mnemonic))",
                  PROMPT_FOR(CVS_EXE, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_EXE):", "${CVS_EXE}",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_EXE);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_EXE_Mnemonic)),
@@ -2890,6 +2907,8 @@ Microsystems, Inc. All Rights Reserved.
                  IF_VAR_NON_EMPTY"IS_WIN9X"_PROMPT_FOR(SHELL, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(Unix_Shell):", "",
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_Unix_Shell);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(Unix_Shell_Mnemonic)),
                             SELECTOR_FILE)])
+                 PROMPT_FOR_PASSWORD(PASSWORD, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Password)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_Password);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Password_Mnemonic))", SELECTOR_CMD_(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(LOGIN_Button))CONNECTION_LOGIN)
+                                                                TEXT(LOGGED_IN_TEXT, 1, 1, LINE_SINGLE)
                  SELECT_RADIO(CO_ALL, "", ".", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_All)", ".", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_COMMAND_CHECKOUT_All);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_All_Mnemonic))"],
                                             ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Module)", "", "ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Module_mnc))",PROMPT_FOR(CO_MODULE, "", ${MPATHS_\/},SELECTOR_CMD_SELECTOR_MODULES)])                 
                  PROMPT_FOR(TAG, getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(COMMAND_CHECKOUT_Tag), "",ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACS_COMMAND_CHECKOUT_Tag_mnc)))
@@ -2913,10 +2932,29 @@ Microsystems, Inc. All Rights Reserved.
         <property name="commandsAfterSuccess">
           <value>GLOBAL_REGISTER</value>
         </property>
-      </command>    
+      </command> 
+      <command name="CONNECTION_LOGIN">
+        <property name="exec">
+          <value>vcs.commands.CvsLoginGlobalCheck.class -gui "${CVSROOT}" "${PASSWORD}"</value>
+        </property>
+        <property name="ignoreFail">
+          <value>true</value>
+        </property>
+      </command>
+      <command name="SET_GLOBAL_LOGIN_STATE">
+      <property name="exec">
+        <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.CvsLoggedInCVSpass.class</value>
+      </property>
+      <property name="executionPriority">
+        <value>1</value> <!-- HIGH PRIORITY -->
+      </property>
+      <property name="ignoreFail">
+        <value>true</value>
+      </property>
+    </command>   
       <command name="AUTO_FILL_GLOBAL_CONFIG">
         <property name="exec">
-          <value>vcs.commands.CvsAutoFillGlobalConfig.class</value>
+          <value>vcs.commands.CvsAutoFillConfig.class</value>
         </property>
         <property name="executionPriority">
           <value>1</value> <!-- HIGH PRIORITY -->
@@ -2946,17 +2984,17 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_MODULES_S_CMD">
         <property name="exec">
-          <value>$[? BUILT-IN-GLB][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} -f checkout -s ${NUR}]
-                                  [$[? IS_WIN9X][${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} -f checkout -s ${NUR}]
-                                  [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} -f checkout -s ${NUR}]] 
+          <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -s ${NUR}]
+                                  [$[? IS_WIN9X][${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -s ${NUR}]
+                                  [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -s ${NUR}]] 
           </value>
 	</property>
       </command>
       <command name="CHECKOUT_MODULES_C_CMD">
         <property name="exec">
-          <value>$[? BUILT-IN-GLB][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} -f checkout -c ${NUR}]
-                                 [$[? IS_WIN9X][${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} -f checkout -c ${NUR}]
-                                 [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} -f checkout -c ${NUR}]]
+          <value>$[? BUILT-IN][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}]
+                                 [$[? IS_WIN9X][${RUN} ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}]
+                                 [${RUN} ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} -f checkout -c ${NUR}]]
           </value>     
 	</property>
       </command>

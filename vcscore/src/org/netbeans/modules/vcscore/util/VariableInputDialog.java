@@ -23,6 +23,7 @@ import java.util.*;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.*;
+import javax.swing.text.JTextComponent;
 
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -303,16 +304,14 @@ public class VariableInputDialog extends javax.swing.JPanel {
         promptEachSeparator = new javax.swing.JSeparator();
         promptEachCheckBox = new javax.swing.JCheckBox();
 
+        FormListener formListener = new FormListener();
+
         setLayout(new java.awt.GridBagLayout());
 
         navigationPanel.setLayout(new java.awt.GridBagLayout());
 
         prevButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.prevButton.text"));
-        prevButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                prevButtonActionPerformed(evt);
-            }
-        });
+        prevButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -320,11 +319,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         navigationPanel.add(prevButton, gridBagConstraints);
 
         nextButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("VariableInputDialog.nextButton.text"));
-        nextButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nextButtonActionPerformed(evt);
-            }
-        });
+        nextButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -332,11 +327,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         navigationPanel.add(nextButton, gridBagConstraints);
 
         asDefaultButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("asDefaultButton.text"));
-        asDefaultButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                asDefaultButtonActionPerformed(evt);
-            }
-        });
+        asDefaultButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -344,11 +335,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
         navigationPanel.add(asDefaultButton, gridBagConstraints);
 
         getDefaultButton.setText(org.openide.util.NbBundle.getBundle(VariableInputDialog.class).getString("getDefaultButton.text"));
-        getDefaultButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                getDefaultButtonActionPerformed(evt);
-            }
-        });
+        getDefaultButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -427,6 +414,25 @@ public class VariableInputDialog extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 12);
         add(promptEachCheckBox, gridBagConstraints);
 
+    }
+
+    // Code for dispatching events from components to event handlers.
+
+    private class FormListener implements java.awt.event.ActionListener {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            if (evt.getSource() == prevButton) {
+                VariableInputDialog.this.prevButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == nextButton) {
+                VariableInputDialog.this.nextButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == asDefaultButton) {
+                VariableInputDialog.this.asDefaultButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == getDefaultButton) {
+                VariableInputDialog.this.getDefaultButtonActionPerformed(evt);
+            }
+        }
     }//GEN-END:initComponents
 
     private void getDefaultButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getDefaultButtonActionPerformed
@@ -2053,6 +2059,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
             gridBagConstraints1.insets = new java.awt.Insets(0, leftInset, 8, 8);
         }
         variablePanel.add(textArea, gridBagConstraints1);
+        varTextFields.addElement(textArea);
+        varVariables.addElement(component.getVariable());
         //componentList.add(textArea);
         awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { textArea });
         componentsByVars.put(component.getVariable(), component);
@@ -2390,14 +2398,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
         public AutoFillRunner(VcsDescribedCommand cmd) {
             this.cmd = cmd;
         }
-        
+     /*   
         public void run() {           
             HashMap varsOrig = new HashMap(vars);            
             cmd.setAdditionalVariables(varsOrig);
             //set actual values
             for (int i=0; i < varTextFields.size(); i++){
                 String varName = (String) varVariables.get(i);                
-                JTextField tf = (JTextField)varTextFields.get(i);
+             //   JTextField tf = (JTextField)varTextFields.get(i);
+                JTextComponent tf = (JTextComponent)varTextFields.get(i);
                 String actValue = tf.getText();
                 varsOrig.put(varName,actValue);                
             }                  
@@ -2411,11 +2420,34 @@ public class VariableInputDialog extends javax.swing.JPanel {
             for (int i=0; i < varTextFields.size(); i++){
                 String varName = (String) varVariables.get(i);
                 String newValue = (String) varsAfterChange.get(varName);               
-                JTextField tf = (JTextField)varTextFields.get(i);
+                //JTextField tf = (JTextField)varTextFields.get(i);
+                JTextComponent tf = (JTextComponent)varTextFields.get(i);
                 tf.setText(newValue);
             }
             
           
+        }*/
+        public void run() {                      
+            Hashtable origVars = vars;
+            try {
+                vars = new Hashtable(origVars);
+                // Apply all actions to the copy of the original variables
+                for (Iterator it = actionList.iterator(); it.hasNext(); ) {
+                    ActionListener listener = (ActionListener) it.next();
+                    listener.actionPerformed(null);
+            }            
+            cmd.setAdditionalVariables(vars);
+            } finally {
+                // We have to reset the variables back!
+                vars = origVars;
+            }           
+            CommandTask cmdTask = cmd.execute();
+            cmdTask.waitFinished();
+            if(cmdTask.getExitStatus() != 0)
+                return;            
+            VcsDescribedTask descTask = (VcsDescribedTask)cmdTask;            
+            Hashtable varsAfterChange = new Hashtable(descTask.getVariables()); 
+            updateVariableValues(varsAfterChange);           
         }
     }
    

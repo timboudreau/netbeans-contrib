@@ -43,7 +43,7 @@ public class CvsLoggedInCVSpass implements VcsAdditionalCommand {
         boolean loggedIn = false;
         CVSPasswd pasFile = new CVSPasswd((String)null);
         pasFile.loadPassFile();
-        //System.out.println("CvsLoggedInCVSpass: connectStr = '"+connectStr+"'");
+        System.out.println("CvsLoggedInCVSpass: connectStr = '"+connectStr+"'");
         //System.out.println("  pasFile = "+pasFile);
         //PasswdEntry entry = pasFile.find(connectStr);
         String portStr = (String) vars.get("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
