@@ -966,22 +966,34 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         String fileDir = "";
         String filePath;
         fileName.replace(java.io.File.separatorChar, '/');
-        int sepIndex = fileName.indexOf('/');
-        if (sepIndex < 0 || sepIndex == (fileName.length() - 1)) {
-            fileDir = findFileDir(fileName);
-            if (fileName.startsWith(fileDir + "/")) {
-                //System.out.println("fileName = "+fileName+", fileDir = "+fileDir+", substring("+(fileDir.length() + 1)+")");
-                fileName = fileName.substring(fileDir.length() + 1);
-            }
-            if (fileDir.length() == 0) {
-                filePath = fileName;
-            } else {
-                filePath = fileDir + "/" + fileName;
-            }
-        } else {
-            filePath = fileName;
+        String commonParent = (String) vars.get("COMMON_PARENT");
+        if (commonParent != null) {
+            filePath = commonParent + "/" + fileName;
             fileDir = VcsUtilities.getDirNamePart(filePath);
             fileName = VcsUtilities.getFileNamePart(filePath);
+        } else {
+            int sepIndex = fileName.indexOf('/');
+            if (sepIndex < 0 || sepIndex == (fileName.length() - 1)) {
+                fileDir = findFileDir(fileName);
+                if (fileName.startsWith(fileDir + "/")) {
+                    //System.out.println("fileName = "+fileName+", fileDir = "+fileDir+", substring("+(fileDir.length() + 1)+")");
+                    fileName = fileName.substring(fileDir.length() + 1);
+                }
+                if (fileDir.length() == 0) {
+                    filePath = fileName;
+                } else {
+                    filePath = fileDir + "/" + fileName;
+                }
+            } else {
+                fileDir = findFileDir(fileName);
+                if (fileDir.length() == 0) {
+                    filePath = fileName;
+                } else {
+                    filePath = fileDir + "/" + fileName;
+                }
+                fileDir = VcsUtilities.getDirNamePart(filePath);
+                fileName = VcsUtilities.getFileNamePart(filePath);
+            }
         }
         //System.out.println("readFileFinished("+fileDir+", [REMOVED:] "+fileName+")");
         for (Iterator it = new ArrayList(fileReaderListeners).iterator(); it.hasNext(); ) {
@@ -994,7 +1006,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         //System.out.println("flushRefreshInfo()");
         String name = null;
         String[] elements = mergeInfoElements();
-        //System.out.println("  merged elements = "+VcsUtilities.arrayToString(elements));
+        String commonParent = (String) vars.get("COMMON_PARENT");
+        //System.out.println("  merged elements = "+VcsUtilities.arrayToString(elements)+", commonParent = "+commonParent);
         for (; elements != null; elements = mergeInfoElements()) {
             if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
                 elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].trim().length() > 0) {
@@ -1003,24 +1016,36 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 String fileName = elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME];
                 String fileDir = "";
                 String filePath;
-                int sepIndex = fileName.indexOf('/');
-                if (sepIndex < 0 || sepIndex == (fileName.length() - 1)) {
-                    fileDir = findFileDir(fileName);
-                    if (fileName.startsWith(fileDir + "/")) {
-                        //System.out.println("fileName = "+fileName+", fileDir = "+fileDir+", substring("+(fileDir.length() + 1)+")");
-                        fileName = fileName.substring(fileDir.length() + 1);
-                        elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
-                    }
-                    if (fileDir.length() == 0) {
-                        filePath = fileName;
-                    } else {
-                        filePath = fileDir + "/" + fileName;
-                    }
-                } else {
-                    filePath = fileName;
+                if (commonParent != null) {
+                    filePath = commonParent + "/" + fileName;
                     fileDir = VcsUtilities.getDirNamePart(filePath);
                     fileName = VcsUtilities.getFileNamePart(filePath);
                     elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
+                } else {
+                    int sepIndex = fileName.indexOf('/');
+                    if (sepIndex < 0 || sepIndex == (fileName.length() - 1)) {
+                        fileDir = findFileDir(fileName);
+                        if (fileName.startsWith(fileDir + "/")) {
+                            //System.out.println("fileName = "+fileName+", fileDir = "+fileDir+", substring("+(fileDir.length() + 1)+")");
+                            fileName = fileName.substring(fileDir.length() + 1);
+                            elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
+                        }
+                        if (fileDir.length() == 0) {
+                            filePath = fileName;
+                        } else {
+                            filePath = fileDir + "/" + fileName;
+                        }
+                    } else {
+                        fileDir = findFileDir(fileName);
+                        if (fileDir.length() == 0) {
+                            filePath = fileName;
+                        } else {
+                            filePath = fileDir + "/" + fileName;
+                        }
+                        fileDir = VcsUtilities.getDirNamePart(filePath);
+                        fileName = VcsUtilities.getFileNamePart(filePath);
+                        elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
+                    }
                 }
                 if (substituteStatuses) {
                     elements = performStatusSubstitution(elements);
