@@ -13,96 +13,71 @@
 
 package org.netbeans.modules.tasklist.suggestions;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ResourceBundle;
 import java.util.Vector;
+import javax.swing.AbstractListModel;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.ListModel;
 import javax.swing.DefaultListModel;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JList;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import org.netbeans.api.tasklist.SuggestionManager;
+import org.netbeans.modules.tasklist.core.checklist.AbstractCheckListModel;
+import org.netbeans.modules.tasklist.core.checklist.CheckList;
 import org.openide.util.NbBundle;
 import org.openide.awt.Mnemonics;
 
 /**
  * Panel used to customize which types are active, which are disabled,
  * and which of the active ones get confirmations.
+ *
  * <p>
- * @todo Consider adding a "description" text area which lists a
- *   description of each suggestion type. This would require an API
- *   change such that suggestion types have a description, not just
- *   a localized name.
  * @todo Also consider adding a default priority assigned to suggestions
  *   of this type (if it's interesting to the user to see it, or edit it)
  * <p>
- * @author  Tor Norbye
+ *
+ * @author Tor Norbye
+ * @author Tim Lebedkov
  */
 public class TypesCustomizer extends javax.swing.JPanel 
-    implements ActionListener, ListSelectionListener {
-    
-    /** Creates new form TypesCustomizer */
+    implements ListSelectionListener {
+    /** 
+     * Creates new form TypesCustomizer 
+     */
     public TypesCustomizer() {
         initComponents();
         initA11y();
-        populateLists();
-        updateSensitivity();
         
-        SuggestionManagerImpl manager = 
-            (SuggestionManagerImpl)SuggestionManager.getDefault();
-        docShownCB.setSelected(manager.isScanOnShow());
-        docEditedCB.setSelected(manager.isScanOnEdit());
-        docSavedCB.setSelected(manager.isScanOnSave());
-        showDelayTF.setText(getDelay(manager.getShowScanDelay()));
-        editDelayTF.setText(getDelay(manager.getEditScanDelay()));
-        saveDelayTF.setText(getDelay(manager.getSaveScanDelay()));        
+        typesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        typesTable.setModel(new TypesCustomizer.SuggTypesTableModel());
+        TableColumnModel cm = typesTable.getColumnModel();
+        cm.getColumn(0).setPreferredWidth(50);
+        cm.getColumn(1).setPreferredWidth(50);
+        cm.getColumn(2).setPreferredWidth(300);
+        typesTable.getSelectionModel().addListSelectionListener(this);
+        typesTable.getSelectionModel().setSelectionInterval(0, 0);
     }
 
-    private DefaultListModel enabledModel = null;
-    private DefaultListModel disabledModel = null;
-    private DefaultListModel confirmModel = null;
-
-    
-    /** Populate the lists with the current types */
-    private void populateLists() {
-        Collection cl = SuggestionTypes.getTypes().getAllTypes();
-        Iterator it = cl.iterator();
-        SuggestionManagerImpl manager = 
-            (SuggestionManagerImpl)SuggestionManager.getDefault();
-        enabledModel = new DefaultListModel();
-        disabledModel = new DefaultListModel();
-        confirmModel = new DefaultListModel();
-        while (it.hasNext()) {
-            SuggestionType type = (SuggestionType)it.next();
-            if (manager.isEnabled(type.getName())) {
-                enabledModel.addElement(type.getLocalizedName());
-                if (!manager.isConfirm(type)) {
-                    confirmModel.addElement(type.getLocalizedName());
-                }
-            } else {
-                disabledModel.addElement(type.getLocalizedName());
-            }
-        }
-        disabledList.setModel(disabledModel);
-        enabledList.setModel(enabledModel);
-        confirmationList.setModel(confirmModel);
-        
-        addActiveButton.addActionListener(this);
-        removeActiveButton.addActionListener(this);
-        addAllButton.addActionListener(this);
-        removeAllButton.addActionListener(this);
-        removeConfButton.addActionListener(this);
-        addConfButton.addActionListener(this);
-        enabledList.addListSelectionListener(this);
-        disabledList.addListSelectionListener(this);
-        confirmationList.addListSelectionListener(this);
-    }
-    
-    /** This method is called from within the constructor to
+    /** 
+     * This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
@@ -110,197 +85,73 @@ public class TypesCustomizer extends javax.swing.JPanel
     private void initComponents() {//GEN-BEGIN:initComponents
         java.awt.GridBagConstraints gridBagConstraints;
 
-        activePanel = new javax.swing.JPanel();
         activeLabel = new javax.swing.JLabel();
-        enabledList = new javax.swing.JList();
-        moveButtonPanel = new javax.swing.JPanel();
-        removeActiveButton = new javax.swing.JButton();
-        removeAllButton = new javax.swing.JButton();
-        addActiveButton = new javax.swing.JButton();
-        addAllButton = new javax.swing.JButton();
-        disabledPanel = new javax.swing.JPanel();
-        disabledLabel = new javax.swing.JLabel();
-        disabledList = new javax.swing.JList();
-        descPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
         descTextArea = new javax.swing.JTextArea();
-        confPanel = new javax.swing.JPanel();
-        confLabel = new javax.swing.JLabel();
-        confirmationList = new javax.swing.JList();
-        confButtonPanel = new javax.swing.JPanel();
-        addConfButton = new javax.swing.JButton();
-        removeConfButton = new javax.swing.JButton();
-        updatePanel = new javax.swing.JPanel();
-        updateWhenLabel = new javax.swing.JLabel();
-        delayLabel = new javax.swing.JLabel();
-        docShownCB = new javax.swing.JCheckBox();
-        showDelayTF = new javax.swing.JTextField();
-        docEditedCB = new javax.swing.JCheckBox();
-        editDelayTF = new javax.swing.JTextField();
-        docSavedCB = new javax.swing.JCheckBox();
-        saveDelayTF = new javax.swing.JTextField();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        typesTable = new javax.swing.JTable();
 
         setLayout(new java.awt.GridBagLayout());
 
-        activePanel.setLayout(new java.awt.BorderLayout(0, 6));
-
+        setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(12, 12, 11, 11)));
+        activeLabel.setLabelFor(typesTable);
         /*
         activeLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "ActiveTypes")); // NOI18N();
         */
-        activePanel.add(activeLabel, java.awt.BorderLayout.NORTH);
-
-        activePanel.add(enabledList, java.awt.BorderLayout.CENTER);
-
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
-        add(activePanel, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        add(activeLabel, gridBagConstraints);
 
-        moveButtonPanel.setLayout(new java.awt.GridLayout(4, 1, 0, 6));
-
-        /*
-        removeActiveButton.setText(">");
-        */
-        moveButtonPanel.add(removeActiveButton);
-
-        removeAllButton.setText(NbBundle.getMessage(TypesCustomizer.class, "RemoveType")); // NOI18N();
-        moveButtonPanel.add(removeAllButton);
-
-        /*
-        addActiveButton.setText("<");
-        */
-        moveButtonPanel.add(addActiveButton);
-
-        addAllButton.setText(NbBundle.getMessage(TypesCustomizer.class, "AddType")); // NOI18N();
-        moveButtonPanel.add(addAllButton);
-
-        add(moveButtonPanel, new java.awt.GridBagConstraints());
-
-        disabledPanel.setLayout(new java.awt.BorderLayout(0, 6));
-
-        /*
-        disabledLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "DisabledTypes")); // NOI18N();
-        */
-        disabledPanel.add(disabledLabel, java.awt.BorderLayout.NORTH);
-
-        disabledPanel.add(disabledList, java.awt.BorderLayout.CENTER);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
-        add(disabledPanel, gridBagConstraints);
-
-        descPanel.setLayout(new java.awt.BorderLayout(0, 6));
-
+        jLabel1.setLabelFor(descTextArea);
         /*
         jLabel1.setText(NbBundle.getMessage(TypesCustomizer.class, "TypeDesc")); // NOI18N();
         */
-        descPanel.add(jLabel1, java.awt.BorderLayout.NORTH);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
+        add(jLabel1, gridBagConstraints);
 
+        descTextArea.setEditable(false);
         descTextArea.setLineWrap(true);
         descTextArea.setWrapStyleWord(true);
-        descPanel.add(descTextArea, java.awt.BorderLayout.CENTER);
+        descTextArea.setPreferredSize(new java.awt.Dimension(400, 100));
+        jScrollPane1.setViewportView(descTextArea);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
-        add(descPanel, gridBagConstraints);
-
-        confPanel.setLayout(new java.awt.BorderLayout(0, 6));
-
-        /*
-        confLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "NoConfirmation")); // NOI18N();
-        */
-        confPanel.add(confLabel, java.awt.BorderLayout.NORTH);
-
-        confPanel.add(confirmationList, java.awt.BorderLayout.CENTER);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
-        add(confPanel, gridBagConstraints);
+        add(jScrollPane1, gridBagConstraints);
 
-        confButtonPanel.setLayout(new java.awt.GridLayout(2, 1, 0, 6));
-
-        /*
-        addConfButton.setText(NbBundle.getMessage(TypesCustomizer.class, "Add")); // NOI18N();
-        */
-        confButtonPanel.add(addConfButton);
-
-        removeConfButton.setText(NbBundle.getMessage(TypesCustomizer.class, "Remove")); // NOI18N();
-        confButtonPanel.add(removeConfButton);
-
-        add(confButtonPanel, new java.awt.GridBagConstraints());
-
-        updatePanel.setLayout(new java.awt.GridBagLayout());
-
-        updateWhenLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "UpdateWhen")); // NOI18N();
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        updatePanel.add(updateWhenLabel, gridBagConstraints);
-
-        delayLabel.setText(NbBundle.getMessage(TypesCustomizer.class, "Delay")); // NOI18N();
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        updatePanel.add(delayLabel, gridBagConstraints);
-
-        /*
-        docShownCB.setText(NbBundle.getMessage(TypesCustomizer.class, "DocShown")); // NOI18N();
-        */
-        docShownCB.setEnabled(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        updatePanel.add(docShownCB, gridBagConstraints);
-
-        showDelayTF.setColumns(4);
-        showDelayTF.setText("0.5");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        updatePanel.add(showDelayTF, gridBagConstraints);
-
-        /*
-        docEditedCB.setText(NbBundle.getMessage(TypesCustomizer.class, "DocEdited")); // NOI18N();
-        */
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        updatePanel.add(docEditedCB, gridBagConstraints);
-
-        editDelayTF.setColumns(4);
-        editDelayTF.setText("1");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        updatePanel.add(editDelayTF, gridBagConstraints);
-
-        /*
-        docSavedCB.setText(NbBundle.getMessage(TypesCustomizer.class, "DocSaved")); // NOI18N();
-        */
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        updatePanel.add(docSavedCB, gridBagConstraints);
-
-        saveDelayTF.setColumns(4);
-        saveDelayTF.setText("0.5");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        updatePanel.add(saveDelayTF, gridBagConstraints);
+        typesTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane3.setViewportView(typesTable);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 11, 11);
-        add(updatePanel, gridBagConstraints);
+        gridBagConstraints.weighty = 1.0;
+        add(jScrollPane3, gridBagConstraints);
 
     }//GEN-END:initComponents
     
     
-        /** Initialize accessibility settings on the panel */
+    /** Initialize accessibility settings on the panel */
     private void initA11y() {
         /*
           I couldn't figure out how to use Mnemonics.setLocalizedText
@@ -313,256 +164,178 @@ public class TypesCustomizer extends javax.swing.JPanel
         */
 
         Mnemonics.setLocalizedText(activeLabel, NbBundle.getMessage(TypesCustomizer.class, "ActiveTypes")); // NOI18N
-        Mnemonics.setLocalizedText(removeActiveButton, NbBundle.getMessage(TypesCustomizer.class, "RemoveSingle")); // NOI18N
-        Mnemonics.setLocalizedText(addActiveButton, NbBundle.getMessage(TypesCustomizer.class, "AddSingle")); // NOI18N
-        Mnemonics.setLocalizedText(disabledLabel, NbBundle.getMessage(TypesCustomizer.class, "DisabledTypes")); // NOI18N
         Mnemonics.setLocalizedText(jLabel1, NbBundle.getMessage(TypesCustomizer.class, "TypeDesc")); // NOI18N
-        Mnemonics.setLocalizedText(confLabel, NbBundle.getMessage(TypesCustomizer.class, "NoConfirmation")); // NOI18N
-        Mnemonics.setLocalizedText(addConfButton, NbBundle.getMessage(TypesCustomizer.class, "Add")); // NOI18N
-        Mnemonics.setLocalizedText(docShownCB, NbBundle.getMessage(TypesCustomizer.class, "DocShown")); // NOI18N
-        Mnemonics.setLocalizedText(docEditedCB, NbBundle.getMessage(TypesCustomizer.class, "DocEdited")); // NOI18N
-        Mnemonics.setLocalizedText(docSavedCB, NbBundle.getMessage(TypesCustomizer.class, "DocSaved")); // NOI18N
         
         this.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(TypesCustomizer.class, "ACSD_TypesCustomizer")); // NOI18N
-        enabledList.getAccessibleContext().setAccessibleDescription(
+        typesTable.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(TypesCustomizer.class, "ACSD_Enabled")); // NOI18N
-        disabledList.getAccessibleContext().setAccessibleDescription(
-                NbBundle.getMessage(TypesCustomizer.class, "ACSD_Disabled")); // NOI18N
         descTextArea.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(TypesCustomizer.class, "ACSD_TypeDesc")); // NOI18N
-        confirmationList.getAccessibleContext().setAccessibleDescription(
-                NbBundle.getMessage(TypesCustomizer.class, "ACSD_Conf")); // NOI18N
-        showDelayTF.getAccessibleContext().setAccessibleDescription(
-                NbBundle.getMessage(TypesCustomizer.class, "ACSD_ShowDelay")); // NOI18N
-        editDelayTF.getAccessibleContext().setAccessibleDescription(
-                NbBundle.getMessage(TypesCustomizer.class, "ACSD_EditDelay")); // NOI18N
-        saveDelayTF.getAccessibleContext().setAccessibleDescription(
-                NbBundle.getMessage(TypesCustomizer.class, "ACSD_SaveDelay")); // NOI18N
-        addConfButton.getAccessibleContext().setAccessibleDescription(
-            NbBundle.getMessage(TypesCustomizer.class, "ACSD_AddConf")); // NOI18N
-        removeConfButton.getAccessibleContext().setAccessibleDescription(
-            NbBundle.getMessage(TypesCustomizer.class, "ACSD_RemConf")); // NOI18N
-        removeActiveButton.getAccessibleContext().setAccessibleDescription(
-            NbBundle.getMessage(TypesCustomizer.class, "ACSD_RemAct")); // NOI18N
-        removeAllButton.getAccessibleContext().setAccessibleDescription(
-            NbBundle.getMessage(TypesCustomizer.class, "ACSD_RemAll")); // NOI18N
-        addActiveButton.getAccessibleContext().setAccessibleDescription(
-            NbBundle.getMessage(TypesCustomizer.class, "ACSD_AddAct")); // NOI18N
-        addAllButton.getAccessibleContext().setAccessibleDescription(
-            NbBundle.getMessage(TypesCustomizer.class, "ACSD_AddAll")); // NOI18N
-        
     }
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel descPanel;
-    private javax.swing.JLabel confLabel;
-    private javax.swing.JTextField editDelayTF;
-    private javax.swing.JPanel updatePanel;
-    private javax.swing.JList disabledList;
-    private javax.swing.JPanel moveButtonPanel;
+    private javax.swing.JTable typesTable;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JTextField saveDelayTF;
-    private javax.swing.JLabel delayLabel;
-    private javax.swing.JButton addAllButton;
-    private javax.swing.JButton addActiveButton;
-    private javax.swing.JButton removeConfButton;
-    private javax.swing.JButton removeAllButton;
-    private javax.swing.JPanel disabledPanel;
     private javax.swing.JTextArea descTextArea;
-    private javax.swing.JLabel disabledLabel;
-    private javax.swing.JList enabledList;
-    private javax.swing.JTextField showDelayTF;
-    private javax.swing.JCheckBox docEditedCB;
     private javax.swing.JLabel activeLabel;
-    private javax.swing.JPanel confPanel;
-    private javax.swing.JLabel updateWhenLabel;
-    private javax.swing.JCheckBox docSavedCB;
-    private javax.swing.JCheckBox docShownCB;
-    private javax.swing.JButton addConfButton;
-    private javax.swing.JPanel confButtonPanel;
-    private javax.swing.JPanel activePanel;
-    private javax.swing.JButton removeActiveButton;
-    private javax.swing.JList confirmationList;
+    private javax.swing.JScrollPane jScrollPane3;
     // End of variables declaration//GEN-END:variables
     
-    /** Apply changes in the dialog */
-    void apply() {
-        ListModel model = enabledList.getModel();
-        int n = model.getSize();
-        SuggestionTypes types = SuggestionTypes.getTypes();
-        ArrayList enabled = new ArrayList(n);
-        for (int i = 0; i < n; i++) {
-            // TODO findTypeByDesc - this is horribly inefficient.
-            // Instead I should simply have my own listmodel which
-            // stores the SuggestionTypes directly - and toString()
-            // delivers what is shown in the GUI. Then getElementAt
-            // will return the type itself!
-            SuggestionType t = types.findTypeByDesc(
-                                     model.getElementAt(i).toString());
-            enabled.add(t);
-        }
-        
-        model = disabledList.getModel();
-        n = model.getSize();
-        ArrayList disabled = new ArrayList(n);
-        for (int i = 0; i < n; i++) {
-            SuggestionType t = types.findTypeByDesc(
-                                     model.getElementAt(i).toString());
-            disabled.add(t);
-        }
-        
-        model = confirmationList.getModel();
-        n = model.getSize();
-        ArrayList confirmation = new ArrayList(n);
-        for (int i = 0; i < n; i++) {
-            SuggestionType t = types.findTypeByDesc(
-                                     model.getElementAt(i).toString());
-            confirmation.add(t);
-        }
-
+    /** 
+     * Apply changes in the dialog 
+     */
+    public void apply() {
         SuggestionManagerImpl manager = 
             (SuggestionManagerImpl)SuggestionManager.getDefault();
-        boolean scanOnShow = docShownCB.isSelected();
-        manager.setScanOnShow(scanOnShow);
-        boolean scanOnEdit = docEditedCB.isSelected();
-        manager.setScanOnEdit(scanOnEdit);
-        boolean scanOnSave = docSavedCB.isSelected();
-        manager.setScanOnSave(scanOnSave);
-        int showDelay = getDelay(showDelayTF);
-        manager.setShowScanDelay(showDelay);
-        int editDelay = getDelay(editDelayTF);
-        manager.setEditScanDelay(editDelay);
-        int saveDelay = getDelay(saveDelayTF);
-        manager.setSaveScanDelay(saveDelay);
 
-        // Apply changes in the manager
-        manager.editTypes(enabled, disabled, confirmation);
+        SuggTypesTableModel model = (SuggTypesTableModel) typesTable.getModel();
+        model.save();
     }
    
-    private int getDelay(JTextField tf) {
-        String valStr = tf.getText().trim();
-        if (valStr.length() == 0) {
-            return -1; // will use default
-        }
-        //try {
-            float f = Float.parseFloat(valStr);
-        //} 
-        int delay = (int)(1000*f);
-        return delay;
-    }
-    
-    private String getDelay(int delay) {
-        float f = delay;
-        f /= 1000;
-        return Float.toString(f);
-    }
-    
-    private void updateSensitivity() {
-        int[] selected = enabledList.getSelectedIndices();
-        if ((selected == null) || (selected.length == 0)) {
-            removeActiveButton.setEnabled(false);
-            addConfButton.setEnabled(false);
-        } else {
-            removeActiveButton.setEnabled(true);
-            addConfButton.setEnabled(true);
-        }
-        selected = disabledList.getSelectedIndices();
-        if ((selected == null) || (selected.length == 0)) {
-            addActiveButton.setEnabled(false);
-        } else {
-            addActiveButton.setEnabled(true);
-        }
-        selected = confirmationList.getSelectedIndices();
-        if ((selected == null) || (selected.length == 0)) {
-            removeConfButton.setEnabled(false);
-        } else {
-            removeConfButton.setEnabled(true);
-        }
-    }
-    
-    public void actionPerformed(ActionEvent ev) {
-        if (ev.getSource() == addActiveButton) {
-            // Undisable
-            int[] selected = disabledList.getSelectedIndices();
-            Arrays.sort(selected);
-            for (int i = selected.length-1; i >= 0; i--) {
-                enabledModel.addElement(disabledModel.getElementAt(selected[i]));
-                disabledModel.removeElementAt(selected[i]);
-            }
-        } else if (ev.getSource() == addAllButton) {
-            // Undisable all
-            for (int i = disabledModel.getSize()-1; i >= 0; i--) {
-                enabledModel.addElement(disabledModel.getElementAt(i));
-                disabledModel.removeElementAt(i);
-            }
-        } else if (ev.getSource() == removeActiveButton) {
-            // Disable
-            int[] selected = enabledList.getSelectedIndices();
-            Arrays.sort(selected);
-            for (int i = selected.length-1; i >= 0; i--) {
-                disabledModel.addElement(enabledModel.getElementAt(selected[i]));
-                enabledModel.removeElementAt(selected[i]);
-            }
-        } else if (ev.getSource() == removeAllButton) {
-            // Disable all
-            for (int i = enabledModel.getSize()-1; i >= 0; i--) {
-                disabledModel.addElement(enabledModel.getElementAt(i));
-                enabledModel.removeElementAt(i);
-            }
-        } else if (ev.getSource() == removeConfButton) {
-            // Remove from no-confirmation
-            int[] selected = confirmationList.getSelectedIndices();
-            Arrays.sort(selected);
-            for (int i = selected.length-1; i >= 0; i--) {
-                confirmModel.removeElementAt(selected[i]);
-            }
-        } else if (ev.getSource() == addConfButton) {
-            // Add to no-confirmation
-            int[] selected = enabledList.getSelectedIndices();
-            for (int i = selected.length-1; i >= 0; i--) {
-                confirmModel.addElement(enabledModel.getElementAt(selected[i]));
-            }
-        }
-    }
-    
     public void valueChanged(javax.swing.event.ListSelectionEvent event) {
-        if (event.getValueIsAdjusting()) {
-            return;
+        int selected = typesTable.getSelectedRow();
+        if (selected < 0) {
+            descTextArea.setText("");
+        } else {
+            SuggTypesTableModel m = (SuggTypesTableModel) typesTable.getModel();
+            descTextArea.setText(m.getType(selected).getDescription());
         }
-        updateSensitivity();
-        JList list = (JList)event.getSource();
-
-        // Update the type description
-        if (list == enabledList) {
-            int[] selected = enabledList.getSelectedIndices();
-            if ((selected == null) || (selected.length != 1)) {
-                descTextArea.setText("");
-            } else {
-                String desc = enabledModel.getElementAt(selected[0]).toString();
-                SuggestionTypes types = SuggestionTypes.getTypes();
-                SuggestionType type = types.findTypeByDesc(desc);
-                descTextArea.setText(type.getDescription());
-            }
+    }
+    
+    /**
+     * TableModel for SuggestionTypes
+     */
+    private static class SuggTypesTableModel extends AbstractTableModel {
+        private static String[] columnNames;
+        
+        static {
+            ResourceBundle rb = NbBundle.getBundle(SuggTypesTableModel.class);
+            columnNames = new String[] {
+                rb.getString("Active"), 
+                rb.getString("Confirmation"), 
+                rb.getString("Name")
+            };
         }
         
-        if (list.getSelectedIndex() != -1) {
-            if (list == enabledList) {
-                // XXX TODO : set selection here
-                // docEditedCB.setSelected(x);
+        private SuggestionType[] types;
+        private boolean[] enabled;
+        private boolean[] confirm;
+        
+        /**
+         * Constructor. Creates TableModel for all registered SuggestionTypes.
+         */
+        public SuggTypesTableModel() {
+            Collection cl = SuggestionTypes.getTypes().getAllTypes();
+            Iterator it = cl.iterator();
+            SuggestionManagerImpl manager = 
+                (SuggestionManagerImpl) SuggestionManager.getDefault();
+            ArrayList types = new ArrayList();
+            while (it.hasNext()) {
+                types.add(it.next());
             }
             
-            if (list != enabledList) {
-                enabledList.clearSelection();
+            
+            this.types = (SuggestionType[]) types.toArray(
+                new SuggestionType[types.size()]);
+            this.enabled = new boolean[types.size()];
+            this.confirm = new boolean[types.size()];
+            for (int i = 0; i < types.size(); i++) {
+                SuggestionType type = (SuggestionType) types.get(i);
+                enabled[i] = manager.isEnabled(type.getName());
+                confirm[i] = manager.isConfirm(type);
             }
-            if (list != disabledList) {
-                disabledList.clearSelection();
+        }
+
+        /**
+         * Saves options.
+         */
+        public void save() {
+            SuggestionManagerImpl manager = 
+                (SuggestionManagerImpl) SuggestionManager.getDefault();
+            for (int i = 0; i < types.length; i++) {
+                manager.setEnabled(types[i].getName(), enabled[i], true);
+                manager.setConfirm(types[i], confirm[i], 
+                    i != types.length - 1);
             }
-            if (list != confirmationList) {
-                confirmationList.clearSelection();
+        }
+
+        /**
+         * Returns suggestion type for the specified row.
+         * @param index row number
+         * @return suggestion type
+         */
+        public SuggestionType getType(int index) {
+            return types[index];
+        }
+        
+        /**
+         * Returns "confirm before fix" property for the specified row.
+         * @param index row number
+         * @return true = confirm
+         */
+        public boolean getConfirmation(int index) {
+            return confirm[index];
+        }
+
+        /**
+         * Sets "confirm before fix" property for the specified row.
+         * @param index row number
+         * @param c true = confirm
+         */
+        public void setConfirmation(int index, boolean c) {
+            confirm[index] = c;
+            fireTableCellUpdated(index, 1);
+        }
+        
+        public int getRowCount() {
+            return types.length;
+        }
+
+        public int getColumnCount() {
+            return 3;
+        }
+
+        public String getColumnName(int columnIndex) {
+            return columnNames[columnIndex];
+        }
+
+        public Class getColumnClass(int columnIndex) {
+            if (columnIndex == 2)
+                return String.class;
+            else
+                return Boolean.class;
+        }
+
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return columnIndex != 2;
+        }
+
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    return enabled[rowIndex] ? Boolean.TRUE : Boolean.FALSE;
+                case 1:
+                    return confirm[rowIndex] ? Boolean.TRUE : Boolean.FALSE;
+                case 2:
+                    return types[rowIndex].getLocalizedName();
+            }
+            return null;
+        }
+
+        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+            switch (columnIndex) {
+                case 0:
+                    enabled[rowIndex] = ((Boolean) aValue).booleanValue();
+                    fireTableCellUpdated(rowIndex, columnIndex);
+                    break;
+                case 1:
+                    confirm[rowIndex] = ((Boolean) aValue).booleanValue();
+                    fireTableCellUpdated(rowIndex, columnIndex);
+                    break;
             }
         }
     }
-    
 }

@@ -104,12 +104,7 @@ class SuggestionNode extends TaskNode {
         if (item.getParent() == null) {
             // Create actions shown on an empty tasklist (e.g. only root
             // is there)
-            return new SystemAction[] {
-                SystemAction.get(FilterAction.class),
-                //SystemAction.get(EnableAction.class),
-                SystemAction.get(EditTypesAction.class),
-                null
-            };
+            return new SystemAction[] {};
         } else {
             ArrayList actions = new ArrayList(20);
             if (item.getAction() != null) {
@@ -127,14 +122,7 @@ class SuggestionNode extends TaskNode {
                 }
             }
             actions.add(null);
-            actions.add(SystemAction.get(ShowCategoryAction.class));
-            actions.add(SystemAction.get(FilterAction.class));
-            actions.add(null);
             actions.add(SystemAction.get(DisableAction.class));
-            actions.add(SystemAction.get(EditTypesAction.class));
-            //actions.add(SystemAction.get(EnableAction.class));
-            actions.add(null);
-            actions.add(SystemAction.get(ExportAction.class));
             actions.add(null);
             actions.add(SystemAction.get(PropertiesAction.class));
             return (SystemAction[])actions.toArray(

@@ -326,17 +326,6 @@ public abstract class TaskListView extends ExplorerPanel
         );
     }
 
-    /** Overrides superclass method. Gets actions for this top component. */
-    public SystemAction[] getSystemActions() {
-        SystemAction[] todoActions = new SystemAction[] {
-            // Doesn't seem like this ever gets used (explorer
-            // has its own ideas)
-            // SystemAction.get(NewTaskAction.class)
-        };
-        SystemAction[] sa = super.getSystemActions ();
-        return SystemAction.linkActions (sa, todoActions);
-    }
-    
     // Workaround - is this no longer necessary?
     protected static class MyTreeTable extends TreeTableView {
         MyTreeTable() {

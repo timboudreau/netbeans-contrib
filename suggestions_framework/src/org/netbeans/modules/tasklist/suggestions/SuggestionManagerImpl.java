@@ -462,7 +462,7 @@ final public class SuggestionManagerImpl extends SuggestionManager
      *    {@link Suggestion} documentation for how Suggestion Types
      *    are registered and named.
      * @param enabled True iff the suggestion type should be enabled
-     * @param batch If true, don't save the registry file. Used for batch
+     * @param dontSave If true, don't save the registry file. Used for batch
      *       updates where we call setEnabled repeatedly and plan to
      *       call writeTypeRegistry() at the end.
      */
