@@ -20,6 +20,7 @@ import org.openide.util.*;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
 import org.netbeans.modules.tasklist.suggestions.SuggestionManagerImpl;
 import org.netbeans.modules.tasklist.suggestions.SuggestionsScanner;
+import org.netbeans.modules.tasklist.suggestions.SuggestionsBroker;
 import org.netbeans.modules.tasklist.core.TaskListView;
 
 /**
@@ -46,15 +47,24 @@ public final class SourceTasksAction extends CallableSystemAction {
         if (tlview != null) {
             tlview.showInMode();
         } else {
-            final SourceTasksList list = new SourceTasksList();
-            final SourceTasksView view = new SourceTasksView(list);
+            if (openByDefaultAll()) {
+                final SourceTasksList list = new SourceTasksList();
+                final SourceTasksView view = new SourceTasksView(list);
 
-            view.showInMode();
-            RepaintManager.currentManager(view).paintDirtyRegions();
-            SourceTasksScanner.scanTasksAsync(view);  // delayed class loading
+                view.showInMode();
+                RepaintManager.currentManager(view).paintDirtyRegions();
+                SourceTasksScanner.scanTasksAsync(view);  // delayed class loading
+            } else {
+                TaskListView tlv = new SourceTasksView(SuggestionsBroker.getDefault().startBroker());
+                tlv.showInMode();
+            }
         }
     }
 
+    /** Access the setting defining action behaviour. */
+    private boolean openByDefaultAll() {
+        return false;
+    }
 
 
     public String getName() {

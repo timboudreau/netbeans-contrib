@@ -102,6 +102,22 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     /**
+     * Creates TODOs views for current file.
+     * @param job live tasklist monitoring current file
+     */
+    SourceTasksView(SuggestionsBroker.Job job) {
+        super(
+                CATEGORY,
+                "TODOs",
+                Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"), // NOI18N
+                true,
+                job.getSuggestionsList()
+        );
+        this.job = job;
+        init();
+    }
+
+    /**
      * Common initialization code shared by constructor and externalization
      */
     private void init() {
