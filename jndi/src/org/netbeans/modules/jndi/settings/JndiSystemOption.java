@@ -35,6 +35,8 @@ public class JndiSystemOption extends SystemOption {
     private static final long serialVersionUID = -4589004604197297781L;
 
     private static int timeOut;
+    
+    private transient ArrayList redProviders;
 
     /** Creates new JndiSystemOption */
     public JndiSystemOption() {
@@ -70,7 +72,7 @@ public class JndiSystemOption extends SystemOption {
     public void readExternal (java.io.ObjectInput in){
         try {
             timeOut = ((Integer)in.readObject()).intValue();
-            ArrayList redProviders = (ArrayList) in.readObject();
+            redProviders = (ArrayList) in.readObject();
             JndiRootNode node = JndiRootNode.getDefault();
             if ( node != null ) node.initStartContexts(redProviders);
         }catch (java.io.IOException ioe){timeOut=DEFAULT_TIMEOUT;}
@@ -107,5 +109,11 @@ public class JndiSystemOption extends SystemOption {
      */
     public final boolean isGlobal(){
         return false;
+    }
+    
+    /** Returns initial providers
+    */
+    public ArrayList getInitialContexts () {
+	return this.redProviders;
     }
 }

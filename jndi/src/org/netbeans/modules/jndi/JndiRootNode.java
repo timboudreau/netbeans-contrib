@@ -43,6 +43,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.netbeans.modules.jndi.utils.Refreshd;
+import org.netbeans.modules.jndi.settings.JndiSystemOption;
 
 /** Top Level JNDI Node
  *
@@ -78,6 +79,12 @@ public final class JndiRootNode extends AbstractNode{
         JndiProvidersNode drivers = new JndiProvidersNode();
         this.getChildren().add(new Node[] {drivers});
         this.jndinewtypes= new NewType[]{ new JndiDataType(this,drivers)};
+	JndiSystemOption option = (JndiSystemOption) JndiSystemOption.findObject (JndiSystemOption.class, true);
+	if (option != null) {
+	    java.util.ArrayList initialContexts = option.getInitialContexts();
+	    if (initialContexts != null)
+		this.initStartContexts (initialContexts);
+	}
     }
 
 
@@ -315,6 +322,13 @@ public final class JndiRootNode extends AbstractNode{
     /** Set up initial start contexts
     */
     public synchronized void initStartContexts(java.util.ArrayList nodes) {
+	Children.Array cld = (Children.Array) this.getChildren();
+        Node[] currentNodes = cld.getNodes();
+        if (currentNodes.length >1) {
+            Node[] filteredNodes = new Node[ currentNodes.length - 1];
+            System.arraycopy (currentNodes,1,filteredNodes,0,filteredNodes.length);
+            cld.remove (filteredNodes);
+        }
         if (nodes!=null){
             for (int i = 0; i < nodes.size(); i++) {
                 try{
