@@ -32,6 +32,7 @@ public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkLi
     private HtmlBrowser.URLDisplayer displayer = HtmlBrowser.URLDisplayer.getDefault();
     /** Timer to use for scrolling this tab */
     private Timer scrollTimer = null;
+    private JLabel statusBar;
     // html rendering pane
     protected JEditorPane html;
     
@@ -44,14 +45,23 @@ public class HtmlBrowserWithScrollPosition extends JPanel implements HyperlinkLi
         html.setEditable(false);
         html.addHyperlinkListener(this);
 
-        add(new JScrollPane(html), BorderLayout.CENTER); 
-		
+        add(new JScrollPane(html), BorderLayout.CENTER);
+        
+        statusBar = new JLabel(" "); // NOI18N
+        statusBar.setBackground(new java.awt.Color(80, 80, 80));
+        add(statusBar, BorderLayout.SOUTH);
+
 	}
 
     // override the method in HyperLinkListener
     public void hyperlinkUpdate(HyperlinkEvent e) {
-        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+        HyperlinkEvent.EventType type = e.getEventType();
+        if (type == HyperlinkEvent.EventType.ACTIVATED) {
             setURL(e.getURL());
+        } else if (type == HyperlinkEvent.EventType.ENTERED) {
+            statusBar.setText(e.getURL().toString());
+        } else if (type == HyperlinkEvent.EventType.EXITED) {
+            statusBar.setText(" "); // NOI18N
         }
     }
  
