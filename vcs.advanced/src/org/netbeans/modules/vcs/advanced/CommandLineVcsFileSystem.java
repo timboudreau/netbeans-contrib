@@ -82,6 +82,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
   private boolean ready=false;
 
+
+  public void setCustomRefreshTime (int time) {
+    setRefreshTime (time);
+  }
+  
+  public int getCustomRefreshTime () {
+    return getRefreshTime ();
+  }
   
   //-------------------------------------------
   public void setConfig(String label){
@@ -573,7 +581,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   public String[] children (String name) {
     D.deb("children('"+name+"')");
     String[] vcsFiles=null;
-    String[] localFiles=null;
     String[] files=null;
 
     if( !ready ){
@@ -842,6 +849,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  35   Gandalf   1.34        8/31/99  Pavel Buzek     
  *  34   Gandalf   1.33        8/7/99   Ian Formanek    Martin Entlicher's 
  *       improvements
  *  33   Gandalf   1.32        6/10/99  Michal Fadljevic 
