@@ -136,7 +136,7 @@ public final class HtmlDiff extends Object {
         BufferedReader buf = new BufferedReader (r);
         
         ArrayList arr = new ArrayList ();
-        int state = 0;
+        int state = -1;
         StringBuffer word = null;
         for (;;) {
             int ch = buf.read ();
@@ -150,35 +150,52 @@ public final class HtmlDiff extends Object {
                 } else {
                     arr.add (newWord (word.toString()));
                     word = null;
-                    state = 0;
+                    state = -1;
                     // fall thru
                 }
+            case -1: // undecided state
             case 0: // white line
                 if (!Character.isSpaceChar ((char)ch) && ch != '<' && ch != '\n') {
+                    if (state == 0) {
+                        // there was a while line
+                        arr.add (newSpace ());
+                    }
                     word = new StringBuffer ();
                     word.append ((char)ch);
                     state = 1;
+                    break;
                 }
                 if (ch == '<') {
+                    if (state == 0) {
+                        // there was a while line
+                        arr.add (newSpace ());
+                    }
                     state = 2;
                     word = new StringBuffer ();
                     word.append ('<');
+                    break;
                 }
                 if (ch == '\n') {
                     arr.add (newLine ());
+                    break;
                 }
+                // regular space
+                state = 0;
                 break;
-            case 2: // search for end of comment
+            case 2: // search for end of tag
                 word.append ((char)ch);
                 if (ch == '>') {
                     arr.add (newTag (word.toString()));
                     word = null;
-                    state = 0;
+                    state = -1;
                     break;
                 }
                 break;
             }
-            
+        }
+        
+        if (word != null) {
+            arr.add (newWord (word.toString()));
         }
         
         return arr;
@@ -245,6 +262,9 @@ public final class HtmlDiff extends Object {
     private static Item newLine () {
         return new Item (0, null);
     }
+    private static Item newSpace () {
+        return new Item (3, null);
+    }
     private static Item newWord (String string) {
         return new Item (1, string);
     }
@@ -272,6 +292,7 @@ public final class HtmlDiff extends Object {
          */
         public void printDiff (Writer w, int[] counter) throws IOException {
             switch (type) {
+                case 3:
                 case 0: break; // new line
                 case 1: 
                     w.write (value); 
@@ -293,6 +314,10 @@ public final class HtmlDiff extends Object {
                     w.write ('\n');
                     needsSpace = false;
                     break; // new line
+                case 3: 
+                    w.write (' ');
+                    needsSpace = false;
+                    break; // space
                 case 1: 
                     if (needsSpace) {
                         w.write (' ');
