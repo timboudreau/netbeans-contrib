@@ -11,3 +11,5 @@ OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/core/mf-layer.xml
 Class-Path: docs/tasklist-manual.zip
 OpenIDE-Module-Public-Packages: -
+
+
