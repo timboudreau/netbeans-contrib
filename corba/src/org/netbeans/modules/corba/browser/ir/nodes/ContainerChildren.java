@@ -133,7 +133,7 @@ public class ContainerChildren extends Children.Keys implements Refreshable {
                         nodes[0] = new IREnumDefNode(contained);
                         return nodes;
                     }
-                }catch(final Throwable t){
+                }catch(final Exception t){
                     java.awt.EventQueue.invokeLater ( new Runnable () {
                         public void run () {
                             TopManager.getDefault().notify ( new NotifyDescriptor.Message (t.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));

@@ -58,7 +58,7 @@ public class StructChildren extends Children.Keys implements Refreshable {
             if (key instanceof IRTypeCodeKey){
                 try {
                     return new Node[]{new IRPrimitiveNode(((IRTypeCodeKey)key).type,((IRTypeCodeKey)key).name)};
-                }catch (final Throwable t) {
+                }catch (final Exception t) {
                     java.awt.EventQueue.invokeLater ( new Runnable () {
                         public void run () {
                             TopManager.getDefault().notify ( new NotifyDescriptor.Message (t.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
