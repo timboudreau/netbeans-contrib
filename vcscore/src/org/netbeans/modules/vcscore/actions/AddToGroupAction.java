@@ -26,7 +26,6 @@ import javax.swing.event.*;
 import java.io.*;
 
 import org.openide.awt.Actions;
-import org.openide.awt.JInlineMenu;
 import org.openide.util.actions.*;
 import org.openide.util.SharedClassObject;
 import org.openide.filesystems.FileObject;
@@ -83,9 +82,7 @@ public class AddToGroupAction extends NodeAction {
     }
     
     public JMenuItem getPresenter(boolean isMenu){
-//        JInlineMenu inlineMenu = new JInlineMenu();
         String label;
-        //JMenu menu=new JMenuPlus(g("CvsClientAction.displayName")); // NOI18N
         if (adding) {
             label = NbBundle.getMessage(AddToGroupAction.class, "LBL_AddToGroupAction"); // NOI18N
         } else {
@@ -130,11 +127,6 @@ public class AddToGroupAction extends NodeAction {
                 menu.add(createItem("default", def.getDisplayName()));
             }
         }
-/*        JMenuItem[] menus = new JMenuItem[1];
-        menus[0] = menu;
-        inlineMenu.setMenuItems(menus);
-        return inlineMenu;
- */
         return menu;
     }
     

@@ -23,7 +23,6 @@ import java.io.*;
 import java.lang.ref.WeakReference;
 
 import org.openide.awt.Actions;
-import org.openide.awt.JInlineMenu;
 import org.openide.util.actions.*;
 import org.openide.filesystems.FileObject;
 import org.openide.*;

@@ -20,7 +20,6 @@ import org.openide.util.actions.SystemAction;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.explorer.*;
 import org.openide.nodes.*;
-//import org.openide.awt.JInlineMenu;
 import org.openide.awt.JMenuPlus;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

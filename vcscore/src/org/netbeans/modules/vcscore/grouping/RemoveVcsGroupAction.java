@@ -22,7 +22,6 @@ import javax.swing.event.*;
 import java.io.*;
 
 import org.openide.awt.Actions;
-import org.openide.awt.JInlineMenu;
 import org.openide.util.actions.*;
 import org.openide.filesystems.FileObject;
 import org.openide.*;
@@ -75,8 +74,6 @@ public class RemoveVcsGroupAction extends NodeAction {
     }
     
     public JMenuItem getPresenter(boolean isMenu){
-        JInlineMenu inlineMenu = new JInlineMenu();
-        //JMenu menu=new JMenuPlus(g("CvsClientAction.displayName")); // NOI18N
         JMenu menu=new JMenuPlus(NbBundle.getMessage(RemoveVcsGroupAction.class, "LBL_RemoveVcsGroupAction")); // NOI18N
         Actions.setMenuText (menu, NbBundle.getMessage(RemoveVcsGroupAction.class, "LBL_RemoveVcsGroupAction"), isMenu);// NOI18N
         if (isMenu) {
@@ -105,10 +102,7 @@ public class RemoveVcsGroupAction extends NodeAction {
                 }
             }
         }
-        JMenuItem[] menus = new JMenuItem[1];
-        menus[0] = menu;
-        inlineMenu.setMenuItems(menus);
-        return inlineMenu;
+        return menu;
     }
 
     //-------------------------------------------

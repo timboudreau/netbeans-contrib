@@ -24,7 +24,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import org.openide.awt.Actions;
-import org.openide.awt.JInlineMenu;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.SharedClassObject;
