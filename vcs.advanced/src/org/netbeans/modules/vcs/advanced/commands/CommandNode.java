@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
@@ -53,12 +54,15 @@ public class CommandNode extends AbstractNode {
     private static Table expert_propertyClassTypes = new Table();
     private static Table list_propertyClassTypes = new Table();
     private static Table stdlist_propertyClassTypes = new Table();
+    private static Table folder_std_propertyClassTypes = new Table();
+    private static Collection FOLDER_COMMAND_PROPERTIES;
     
     private static Collection stdlistCmdNames;
     
     private static Image[] SEPARATOR_ICONS = new Image[4];
     
     static {
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_LABEL_MNEMONIC, String.class);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_EXEC, String.class);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_CONFIRMATION_MSG, String.class);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_NOTIFICATION_SUCCESS_MSG, String.class);
@@ -121,6 +125,9 @@ public class CommandNode extends AbstractNode {
             VcsCommand.NAME_REFRESH, VcsCommand.NAME_REFRESH_OFFLINE,
             VcsCommand.NAME_REFRESH_RECURSIVELY, VcsCommand.NAME_REFRESH_RECURSIVELY_OFFLINE
         }));
+        folder_std_propertyClassTypes.put(VcsCommand.PROPERTY_LABEL_MNEMONIC, String.class);
+        FOLDER_COMMAND_PROPERTIES = new HashSet();
+        FOLDER_COMMAND_PROPERTIES.add(VcsCommand.PROPERTY_LABEL_MNEMONIC);
     }
 
     /** Creates new CommandNode */
@@ -327,14 +334,27 @@ public class CommandNode extends AbstractNode {
         return true;
     }
     
+    private static boolean isFolderCommand(VcsCommand cmd) {
+         String[] propertyNames = cmd.getPropertyNames();
+         if (propertyNames.length == 0) return true;
+         else {
+             for (int i = 0; i < propertyNames.length; i++) {
+                 if (!FOLDER_COMMAND_PROPERTIES.contains(propertyNames[i])) return false;
+             }
+         }
+         return true;
+    }
+    
     public Sheet createSheet() {
         Sheet sheet = Sheet.createDefault();
         Sheet.Set set = sheet.get(Sheet.PROPERTIES);
         if (cmd == null) set.put(new PropertySupport.Name(this));
         else {
             createStandardProperties(cmd, set);
-            sheet.put(createExpertProperties(cmd));
-            sheet.put(createListProperties(cmd));
+            if (!isFolderCommand(cmd)) {
+                sheet.put(createExpertProperties(cmd));
+                sheet.put(createListProperties(cmd));
+            }
         }
         return sheet;
     }
@@ -387,8 +407,9 @@ public class CommandNode extends AbstractNode {
                         //cmd.fireChanged();
                     }
                 });
-        String[] propertyNames = cmd.getPropertyNames();
-        if (propertyNames.length != 0) {
+        if (isFolderCommand(cmd)) {
+            addProperties(set, cmd, folder_std_propertyClassTypes, null);
+        } else {
             addProperties(set, cmd, stdandard_propertyClassTypes, null);
             //if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) ||
             //    VcsCommand.NAME_REFRESH_RECURSIVELY.equals(cmd.getName())) {
