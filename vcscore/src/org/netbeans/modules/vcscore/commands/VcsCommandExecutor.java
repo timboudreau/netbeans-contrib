@@ -16,13 +16,14 @@ package org.netbeans.modules.vcscore.commands;
 import java.util.Hashtable;
 import java.util.Collection;
 
+import org.netbeans.modules.vcscore.FileReaderListener;
+
 /**
  * The <code>VcsCommand</code> interface should be implemented by any class
  * whose instances are intended to be executed as version control commands.
  * Each command is executed in a separate thread.
  *
  * @author  Martin Entlicher
- * @version 
  */
 public interface VcsCommandExecutor extends Runnable {
 
@@ -119,5 +120,11 @@ public interface VcsCommandExecutor extends Runnable {
      */
     public void addDataErrorOutputListener(CommandDataOutputListener l);
 
+    /**
+     * Add a file reader listener, that gets the updated attributes of the
+     * processed file(s). The listeners should be released by the implementing class,
+     * when the command finishes.
+     */
+    public void addFileReaderListener(FileReaderListener l);
 }
 
