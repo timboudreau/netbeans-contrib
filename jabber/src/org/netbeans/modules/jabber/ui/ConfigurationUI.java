@@ -15,7 +15,9 @@
 
 package org.netbeans.modules.jabber.ui;
 
+import java.awt.Color;
 import java.awt.Dialog;
+import java.awt.Toolkit;
 import javax.swing.AbstractAction;
 import javax.swing.SwingUtilities;
 import org.jivesoftware.smack.AccountManager;
@@ -186,7 +188,7 @@ class ConfigurationUI extends javax.swing.JPanel {
         new ConfigurationUI(man).doShow();
     }
     
-    private void notifyState(final boolean disable, final String state) {
+    private void notifyState(final boolean disable, final String state, final boolean error) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 jidField.setEnabled(!disable);
@@ -195,6 +197,7 @@ class ConfigurationUI extends javax.swing.JPanel {
                 saveButton.setEnabled(!disable);
                 createButton.setEnabled(!disable);
                 messageLabel.setText(state);
+                messageLabel.setForeground(error ? Color.red : Color.black);
             }
         });
     }
@@ -202,19 +205,19 @@ class ConfigurationUI extends javax.swing.JPanel {
 
     private void doCreate(String jid, String pass) {
         try {
-            notifyState(true, "Connecting server");
+            notifyState(true, "Connecting server", false);
             String srv = StringUtils.parseServer(jid);
             String user = StringUtils.parseName(jid);
 
             XMPPConnection con = new XMPPConnection(srv);
 
-            notifyState(true, "Creating account");
+            notifyState(true, "Creating account", false);
 
             AccountManager acc = con.getAccountManager();
             acc.createAccount(user, pass);
-            notifyState(false, "Account created");
+            notifyState(false, "Account created", false);
         } catch (XMPPException e) {
-            notifyState(false, "Error:" + e.getLocalizedMessage());
+            notifyState(false, "Error:" + e.getLocalizedMessage(), true);
         }
     }
 
@@ -229,8 +232,15 @@ class ConfigurationUI extends javax.swing.JPanel {
             } else if (src == cancelButton) {
                 d.dispose();
             } else if (src == createButton) {
-                notifyState(true, " ");
-                RequestProcessor.getDefault().post(this);
+                String jid = jidField.getText();
+                int idx = jid.indexOf('@');
+                if (idx > 0 && idx < jid.length() - 1) {
+                    notifyState(true, " ", false);
+                    RequestProcessor.getDefault().post(this);
+                } else {
+                    notifyState(false, "Wrong JID, use <user>@<server>", true);
+                    Toolkit.getDefaultToolkit().beep();
+                }
             }
         }
         
