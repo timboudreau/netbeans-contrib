@@ -21,6 +21,7 @@ import java.lang.ref.SoftReference;
 import java.lang.reflect.*;
 
 import org.openide.src.*;
+import org.openide.util.Utilities;
 
 /** The implementation of the class element for
 * class objects. Presents data about the class -
@@ -71,6 +72,14 @@ public final class ClassElementImpl extends MemberElementImpl
             superClass = Identifier.create(sc == null ? "" : sc.getName()); // NOI18N
         }
         return superClass;
+    }
+    
+    protected Identifier createName(Object data) {
+	String fullName = Utilities.getClassName((Class)data).replace('$', '.'); // NOI18N
+	int lastDot = fullName.lastIndexOf('.');
+	return lastDot == -1 ? 
+	    Identifier.create(fullName) :
+	    Identifier.create(fullName, fullName.substring(lastDot + 1));
     }
 
     /** Not supported. Throws Source Exception */
@@ -300,9 +309,11 @@ public final class ClassElementImpl extends MemberElementImpl
         ClassElement curCE = null;
         Map result = new HashMap(reflInners.length);
         for (int i = 0; i < reflInners.length; i++) {
-            curCE = new ClassElement(new ClassElementImpl(reflInners[i]),
-                                     (ClassElement)element);
-            result.put(curCE.getName(), curCE);
+            if (!isAnonymousClass(reflInners[i])) {
+                curCE = new ClassElement(new ClassElementImpl(reflInners[i]),
+                                         (ClassElement)element);
+                result.put(curCE.getName(), curCE);
+            }
         }
         return result;
     }
@@ -369,31 +380,13 @@ public final class ClassElementImpl extends MemberElementImpl
         String name = member.getName();
         return name.indexOf('$') >= 0;
     }
+    
+    /** Determines whether the class is an anonymous one.
+     */
+    private static boolean isAnonymousClass (Class cl) {
+        String n = cl.getName();
+        int last = n.lastIndexOf('$');
+        return !(last == -1 || n.length() == last + 1 || Character.isJavaIdentifierStart(n.charAt(last + 1)));
+    }
 
 }
-
-/*
-* Log
-*  14   src-jtulach1.13        1/13/00  David Simonek   i18n
-*  13   src-jtulach1.12        1/5/00   David Simonek   #2642
-*  12   src-jtulach1.11        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
-*       Microsystems Copyright in File Comment
-*  11   src-jtulach1.10        8/9/99   Ian Formanek    Generated Serial Version 
-*       UID
-*  10   src-jtulach1.9         6/9/99   Petr Hrebejk    Empty JavaDoc 
-*       implementation added.
-*  9    src-jtulach1.8         6/9/99   Ian Formanek    ---- Package Change To 
-*       org.openide ----
-*  8    src-jtulach1.7         5/12/99  Petr Hamernik   ide.src.Identifier 
-*       updated
-*  7    src-jtulach1.6         3/31/99  David Simonek   setClassOrInterface now 
-*       throws SourceException
-*  6    src-jtulach1.5         3/26/99  David Simonek   properties, actions 
-*       completed, more robust now
-*  5    src-jtulach1.4         2/17/99  Petr Hamernik   serialization changed.
-*  4    src-jtulach1.3         2/10/99  David Simonek   
-*  3    src-jtulach1.2         2/3/99   David Simonek   
-*  2    src-jtulach1.1         1/29/99  David Simonek   
-*  1    src-jtulach1.0         1/22/99  David Simonek   
-* $
-*/
