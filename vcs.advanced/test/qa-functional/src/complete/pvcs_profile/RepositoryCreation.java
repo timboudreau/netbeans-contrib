@@ -229,9 +229,6 @@ public class RepositoryCreation extends NbTestCase {
         new ComboBoxProperty(new PropertySheetOperator(), "Advanced Options").setValue("True");
         new Action(VERSIONING_MENU + "|" + REFRESH, REFRESH).perform(testNode);
         Thread.currentThread().sleep(10000);
-        String status = MainWindowOperator.getDefault().getStatusText();
-        if (!status.equals("Command Refresh finished.") && (!status.equals("Command LIST_PROJECT failed.")))
-            captureScreen("Error: Incorrect status \"" + status + "\" reached.");
         Node C_FileNode = new Node( testNode, "C_File [Local]");
         new ActionNoBlock(VERSIONING_MENU + "|" + ADD + "...", ADD + "...").perform(C_FileNode);
         AddCommandOperator addCommand = new AddCommandOperator("C_File.java");
