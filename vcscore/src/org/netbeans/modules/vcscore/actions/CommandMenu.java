@@ -159,10 +159,6 @@ public class CommandMenu extends JMenuPlus {
             if (removeDisabled && cmd.getApplicableFiles(allFiles) == null) {
                 continue;
             }
-            JMenuItem cmdMenu = createItem(cmd, globalExpertMode, switchableList,
-                                           advancedOptionsSign, inMenu,
-                                           listener, actionCommandMap);
-            if (cmdMenu == null) continue;
             wasSeparator = false;
             JMenuItem item;
             if (children[i].hasChildren()) {
@@ -177,7 +173,7 @@ public class CommandMenu extends JMenuPlus {
                 if (addedDisplayNames.contains(displayName) && multiCommandsByDisplayName.containsKey(displayName)) {
                     continue;
                 }
-                item = cmdMenu;
+                //item = cmdMenu;
                 //                item.addMenuKeyListener(ctrlListener);
                 List cmdList = (List) multiCommandsByDisplayName.get(cmd.getDisplayName());
                 if (cmdList != null) {
@@ -186,6 +182,11 @@ public class CommandMenu extends JMenuPlus {
                                       switchableList, advancedOptionsSign, inMenu,
                                       listener, actionCommandMap);
                     addedDisplayNames.add(displayName);
+                } else {
+                    item = createItem(cmd, globalExpertMode, switchableList,
+                                      advancedOptionsSign, inMenu,
+                                      listener, actionCommandMap);
+                    if (item == null) continue;
                 }
                 add(item);
             }
@@ -263,12 +264,12 @@ public class CommandMenu extends JMenuPlus {
                                         List switchableList, String advancedOptionsSign,
                                         boolean inMenu, ActionListener listener,
                                         Map actionCommandMap) {
-        boolean hasExpert = expertMode && advancedOptionsSign != null;
+        boolean hasExpert = true;
         if (hasExpert) {
             for (int i = 0; i < cmds.length && hasExpert; i++) {
                 hasExpert = hasExpert && cmds[i].hasExpertMode();
             }
-            if (hasExpert) {
+            if (hasExpert && expertMode && advancedOptionsSign != null) {
                 label += advancedOptionsSign;
             }
         }
@@ -426,7 +427,7 @@ public class CommandMenu extends JMenuPlus {
         }
         public void menuKeyPressed(javax.swing.event.MenuKeyEvent p1) {
             boolean CTRL_IsDown = p1.getKeyCode() == javax.swing.event.MenuKeyEvent.VK_CONTROL;
-//            System.out.println("key pressed=" + newCTRL_Down);
+//            System.out.println("CTRL key pressed = "+CTRL_IsDown);
 //            System.out.println("is down=" + p1.isControlDown());
             if (CTRL_IsDown) {
                 changeCtrlSigns(CTRL_IsDown);
