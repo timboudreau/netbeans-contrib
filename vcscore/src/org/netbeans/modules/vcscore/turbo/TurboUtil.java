@@ -18,6 +18,7 @@ import org.netbeans.modules.vcscore.FileReaderListener;
 import org.netbeans.modules.vcscore.DirReaderListener;
 import org.netbeans.modules.vcscore.VcsDirContainer;
 import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
+import org.netbeans.modules.vcscore.caching.StatusFormat;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 import java.util.*;
@@ -95,9 +96,9 @@ public final class TurboUtil {
         Iterator it = rawData.iterator();
         while (it.hasNext()) {
             String[] next = (String[]) it.next();
-            String fileName = next[0]; // contains trailing '/' (or pathSeparator?) for dirs
-            String status = next[1];
-            String revision = next[3];
+            String fileName = next[StatusFormat.ELEMENT_INDEX_FILE_NAME]; // contains trailing '/' (or pathSeparator?) for dirs
+            String status = next[StatusFormat.ELEMENT_INDEX_STATUS];
+            String revision = next[StatusFormat.ELEMENT_INDEX_REVISION];
 
             FileObject fo = folder.getFileObject(fileName);
 

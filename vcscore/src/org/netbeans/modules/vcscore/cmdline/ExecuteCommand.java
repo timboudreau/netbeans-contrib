@@ -34,6 +34,7 @@ import org.netbeans.spi.vcs.commands.CommandSupport;
 import org.netbeans.modules.vcscore.cmdline.exec.*;
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
+import org.netbeans.modules.vcscore.caching.StatusFormat;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
@@ -1334,12 +1335,12 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         String[] elements = mergeInfoElements();
         //System.out.println("  merged elements = "+VcsUtilities.arrayToString(elements)+", commonParent = "+commonParent);
         for (; elements != null; elements = mergeInfoElements()) {
-            if (elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] != null &&
-                elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].trim().length() > 0) {
+            if (elements[StatusFormat.ELEMENT_INDEX_FILE_NAME] != null &&
+                elements[StatusFormat.ELEMENT_INDEX_FILE_NAME].trim().length() > 0) {
                 
-                elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = 
-                    elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].replace(java.io.File.separatorChar, '/');
-                String fileName = elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME];
+                elements[StatusFormat.ELEMENT_INDEX_FILE_NAME] =
+                    elements[StatusFormat.ELEMENT_INDEX_FILE_NAME].replace(java.io.File.separatorChar, '/');
+                String fileName = elements[StatusFormat.ELEMENT_INDEX_FILE_NAME];
                 String fileDir = "";
                 String filePath;
                 if (refreshFilesMustStartWith != null) {
@@ -1359,7 +1360,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                     filePath = refreshFilesBase + "/" + fileName;
                     fileDir = VcsUtilities.getDirNamePart(filePath);
                     fileName = VcsUtilities.getFileNamePart(filePath);
-                    elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
+                    elements[StatusFormat.ELEMENT_INDEX_FILE_NAME] = fileName;
                 } else {
                     int sepIndex = fileName.indexOf('/');
                     if (sepIndex < 0 || sepIndex == (fileName.length() - 1)) {
@@ -1383,7 +1384,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                         fileDir = VcsUtilities.getDirNamePart(filePath);
                         fileName = VcsUtilities.getFileNamePart(filePath);
                     }
-                    elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
+                    elements[StatusFormat.ELEMENT_INDEX_FILE_NAME] = fileName;
                 }
                 if (substituteStatuses) {
                     elements = performStatusSubstitution(elements);
@@ -1394,10 +1395,10 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                         continue;
                     }
                 }
-                fileName = elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME];
+                fileName = elements[StatusFormat.ELEMENT_INDEX_FILE_NAME];
                 if (!fileName.endsWith("/") && fileSystem.folder(fileDir+"/"+fileName)) {
                     fileName += "/";
-                    elements[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] = fileName;
+                    elements[StatusFormat.ELEMENT_INDEX_FILE_NAME] = fileName;
                 }
                 //correct the directory and files pair so that we can refresh them
                 //later at once.
@@ -1419,8 +1420,8 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 elements = elements1;
                 refreshInfoElements.remove(0);
             } else {
-                if (elements1[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] == null ||
-                    elements1[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME].trim().length() == 0) {
+                if (elements1[StatusFormat.ELEMENT_INDEX_FILE_NAME] == null ||
+                    elements1[StatusFormat.ELEMENT_INDEX_FILE_NAME].trim().length() == 0) {
                     elements = mergeElements(elements, elements1);
                     refreshInfoElements.remove(0);
                 } else {
@@ -1433,7 +1434,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     
     private String[] mergeElements(String[] e1, String[] e2) {
         for (int i = 0; i < e1.length && i < e2.length; i++) {
-            if (i == RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME) continue;
+            if (i == StatusFormat.ELEMENT_INDEX_FILE_NAME) continue;
             if (e1[i] == null || (e1[i].trim().length() == 0 && e2[i] != null && e2[i].trim().length() > 0)) {
                 e1[i] = e2[i];
             }
@@ -1442,7 +1443,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
     }
     
     private String[] performStatusSubstitution(String[] elements) {
-        String status = elements[RefreshCommandSupport.ELEMENT_INDEX_STATUS];
+        String status = elements[StatusFormat.ELEMENT_INDEX_STATUS];
         if (status == null) return elements;
         for (int i = 0; i < substituitionRegExps.length; i++) {
             Matcher matcher = substituitionRegExps[i].matcher(status);
@@ -1452,7 +1453,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
                 } else {
                     status = substituitionStatuses[i];
                 }
-                elements[RefreshCommandSupport.ELEMENT_INDEX_STATUS] = status;
+                elements[StatusFormat.ELEMENT_INDEX_STATUS] = status;
                 return elements;
             }
         }

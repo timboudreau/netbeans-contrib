@@ -2164,8 +2164,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     public void setMultiFileAnnotationTypes(int[] multiFileAnnotationTypes) {
-        if (multiFilesAnnotationTypes.length != RefreshCommandSupport.NUM_ELEMENTS) {
-            throw new IllegalArgumentException("Wrong length of the array ("+multiFileAnnotationTypes.length+" != "+RefreshCommandSupport.NUM_ELEMENTS+")");
+        if (multiFilesAnnotationTypes.length != StatusFormat.NUM_ELEMENTS) {
+            throw new IllegalArgumentException("Wrong length of the array ("+multiFileAnnotationTypes.length+" != "+StatusFormat.NUM_ELEMENTS+")");
         }
         int[] old = this.multiFilesAnnotationTypes;
         this.multiFilesAnnotationTypes = multiFilesAnnotationTypes;
@@ -3873,7 +3873,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
             if (Turbo.implemented()) {
                 if (!file.canWrite ()) {
-                    FileObject fo = getRoot().getFileObject(name_);
+                    FileObject fo = findResource(name_);
                     FileProperties fprops = Turbo.getCachedMeta(fo);
                     if (fprops != null && !fprops.isLocal () && !name.endsWith (".orig")) { // NOI18N
                         if (isPromptForEditOn()) {
@@ -4030,7 +4030,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         if (Turbo.implemented()) {
             if(isLockFilesOn ()) {
-                FileObject fo = getRoot().getFileObject(name);
+                FileObject fo = findResource(name);
                 FileProperties fprops = Turbo.getCachedMeta(fo);
                 if (fprops != null && !fprops.isLocal () && !name.endsWith (".orig")) { // NOI18N
                     CommandSupport cmd = getCommandSupport("UNLOCK");

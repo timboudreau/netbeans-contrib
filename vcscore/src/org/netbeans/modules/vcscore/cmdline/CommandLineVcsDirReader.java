@@ -21,6 +21,7 @@ import org.openide.util.*;
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.util.*;
 import org.netbeans.modules.vcscore.caching.RefreshCommandSupport;
+import org.netbeans.modules.vcscore.caching.StatusFormat;
 import org.netbeans.modules.vcscore.commands.*;
 
 /**
@@ -265,25 +266,25 @@ public class CommandLineVcsDirReader extends ExecuteCommand {
         if (removedIndex >= 0 && cmdElements.length > removedIndex && cmdElements[removedIndex] != null) {
             return new String[] { cmdElements[removedIndex] };
         }
-        int n = RefreshCommandSupport.NUM_ELEMENTS;
+        int n = StatusFormat.NUM_ELEMENTS;
         int[] index = new int[n];
-        index[RefreshCommandSupport.ELEMENT_INDEX_FILE_NAME] =
+        index[StatusFormat.ELEMENT_INDEX_FILE_NAME] =
             VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_FILE_NAME);
-        index[RefreshCommandSupport.ELEMENT_INDEX_STATUS] =
+        index[StatusFormat.ELEMENT_INDEX_STATUS] =
             VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_STATUS);
-        index[RefreshCommandSupport.ELEMENT_INDEX_LOCKER] =
+        index[StatusFormat.ELEMENT_INDEX_LOCKER] =
             VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_LOCKER);
-        index[RefreshCommandSupport.ELEMENT_INDEX_REVISION] =
+        index[StatusFormat.ELEMENT_INDEX_REVISION] =
             VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_REVISION);
-        index[RefreshCommandSupport.ELEMENT_INDEX_STICKY] =
+        index[StatusFormat.ELEMENT_INDEX_STICKY] =
             VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_STICKY);
-        index[RefreshCommandSupport.ELEMENT_INDEX_ATTR] =
+        index[StatusFormat.ELEMENT_INDEX_ATTR] =
             VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_ATTR);
-        index[RefreshCommandSupport.ELEMENT_INDEX_DATE] =
+        index[StatusFormat.ELEMENT_INDEX_DATE] =
             VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_DATE);
-        index[RefreshCommandSupport.ELEMENT_INDEX_TIME] =
+        index[StatusFormat.ELEMENT_INDEX_TIME] =
             VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_TIME);
-        index[RefreshCommandSupport.ELEMENT_INDEX_SIZE] =
+        index[StatusFormat.ELEMENT_INDEX_SIZE] =
             VcsCommandIO.getIntegerPropertyAssumeNegative(list, UserCommand.PROPERTY_LIST_INDEX_SIZE);
         String[] elements = new String[n];
         int cmdn = cmdElements.length;
