@@ -87,6 +87,15 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public static final String VAR_ICONS_FOR_FILE_STATUSES = "ICONS_FOR_FILE_STATUSES"; // NOI18N
     
     /**
+     * The name of a variable, that may contain the file name of file status disk cache.
+     * This name is relative to the given file's parent directory.
+     * <p>
+     * E.g. when DISK_CACHE_FILE_NAME=.status.cache, then the disk cache for all files
+     * in folder /home/john/src/ will be /home/john/src/.status.cache
+     */
+    public static final String VAR_DISK_CACHE_FILE_NAME = "DISK_CACHE_FILE_NAME"; // NOI18N
+
+    /**
      * The name of a variable, which contains the parent ignore list for
      * CREATE_FOLDER_IGNORE_LIST command.
      */
@@ -142,6 +151,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     private String cacheRoot;
     private String cachePath;
     private long cacheId = 0;
+    private String cacheFileName = null; // The cache file relative to the file's directory.
     private boolean shortFileStatuses = false;
     private Set compatibleOSs = null;
     private Set uncompatibleOSs = null;
@@ -192,13 +202,12 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * @param the set of FileObjects whose status was changed
      */
     protected void checkVirtualFiles(Set foSet) {
-        Set reloadFoSet = new HashSet();
+        //Set reloadFoSet = new HashSet();
         for (Iterator foIt = foSet.iterator(); foIt.hasNext(); ) {
             FileObject fo = (FileObject) foIt.next();
-            if (setVirtualDataLoader(fo)) {
-                reloadFoSet.add(fo);
-            }
+            setVirtualDataLoader(fo);
         }
+        /*
         for (Iterator foIt = reloadFoSet.iterator(); foIt.hasNext(); ) {
             FileObject fo = (FileObject) foIt.next();
             try {
@@ -207,6 +216,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             } catch (DataObjectNotFoundException de) {
             } catch (PropertyVetoException exc2) {}
         }
+         */
     }
     
     public VcsFactory getVcsFactory () {
@@ -338,6 +348,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
      * Get the full file path where cache information should be stored.
      */
     public String getCacheFileName(String path) {
+        if (cacheFileName != null) {
+            return getFile(path).getAbsolutePath() + File.separator + cacheFileName;
+        }
         return cachePath + File.separator + getRelativeMountPoint()
                + File.separator + path + File.separator + CACHE_FILE_NAME;
         /*
@@ -382,7 +395,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             createNewCacheId();
         }
         dir = cacheRoot+File.separator+cacheId;
-        createDir(dir);
+        //createDir(dir); - should not be necessary. The cache is created when needed.
         return dir;
     }
 
@@ -756,6 +769,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         setDocumentCleanupFromVars();
         setAdditionalParamsLabels();
         setSharedPassword();
+        setCacheFile();
     }
     
     private void setSharedPassword() {
@@ -802,6 +816,27 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             }
         } else {
             return null;
+        }
+    }
+    
+    private void setCacheFile() {
+        VcsConfigVariable var = (VcsConfigVariable) variablesByName.get(VAR_DISK_CACHE_FILE_NAME);
+        String newCacheFileName;
+        if (var != null) {
+            newCacheFileName = var.getValue();
+            if (newCacheFileName.length() == 0) newCacheFileName = null;
+        } else newCacheFileName = null;
+        if (cacheFileName == null && newCacheFileName != null ||
+            cacheFileName != null && !cacheFileName.equals(newCacheFileName)) {
+            
+            cacheFileName = newCacheFileName;
+            cacheFileNameChanged();
+        }
+    }
+    
+    private void cacheFileNameChanged() {
+        if (cache != null) {// && cache instanceof VcsFSCache) {
+            //((VcsFSCache) cache).destroyCache();
         }
     }
 
