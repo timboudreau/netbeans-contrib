@@ -13,18 +13,21 @@
 
 package org.netbeans.modules.jndi;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import javax.naming.NamingException;
 import javax.naming.Context;
+import org.openide.TopManager;
 import org.openide.nodes.*;
 import org.netbeans.modules.jndi.settings.JndiSystemOption;
 /**
  *
  * @author  Tomas Zezula
  */
-public class JndiRootNodeChildren extends Children.Keys {
+public class JndiRootNodeChildren extends Children.Keys implements PropertyChangeListener {
     
     private ArrayList contexts;
     private JndiSystemOption settings;
@@ -38,12 +41,14 @@ public class JndiRootNodeChildren extends Children.Keys {
     /** Called by IDE when the children are needed
      */
     public void addNotify () {
+        TopManager.getDefault().addPropertyChangeListener (this);
         this.update ();
     }
     
     /** Called by IDE when the children are disposing
      */
     public void removeNotify () {
+        TopManager.getDefault().removePropertyChangeListener (this);
         this.setKeys (new Object[0]);
     }
     
@@ -108,6 +113,17 @@ public class JndiRootNodeChildren extends Children.Keys {
         if (this.providersNode == null)
             this.providersNode = new JndiProvidersNode ();
         return this.providersNode;
+    }
+    
+    /** Called by TopManager when project changed.
+     *  @param PropertyChangeEvent event
+     */
+    public void propertyChange (PropertyChangeEvent event) {
+        if (TopManager.PROP_PLACES.equals (event.getPropertyName())) {
+            // Project has changed
+            this.settings = null;
+            this.update ();
+        }
     }
 
     /** Create nodes for a given key.
