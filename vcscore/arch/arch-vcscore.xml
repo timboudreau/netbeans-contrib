@@ -6,7 +6,7 @@
 <api-answers
   version="$Revision$" date="$date$"
   question-version="1.15"
-  module="vcscore"
+  module="VCS Core API"
   author="mentlicher@netbeans.org"
 >
 
@@ -250,7 +250,9 @@ for more information.<p>List of the main features:</p>
         </question>
 -->
 <answer id="deploy-packages">
-    All public packages are accessible, no restriction applied.
+    All public packages are accessible, no restriction applied. Vcscore module contains
+    <api name="VcsCore API" type="export" category="official" url="http://www.netbeans.org/download/dev/javadoc/VCSAPI/index.html" />.
+    VcsGeneric module can use semi-private API <api name="VcsCore Implementation API" type="export" category="friend" url=""/>.
 </answer>
 
 
@@ -778,7 +780,7 @@ for more information.<p>List of the main features:</p>
         </question>
 -->
 <answer id="deploy-dependencies">
-    Add folloeing line into the module's manifest:
+    Add following line into the module's manifest:
     <code>OpenIDE-Module-Module-Dependencies: org.netbeans.modules.vcscore/1 > @SPECIFICATION-VERSION@</code>
     where @SPECIFICATION-VERSION@ is the current specification version of the vcscore module.
 </answer>
