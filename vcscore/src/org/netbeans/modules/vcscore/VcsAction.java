@@ -378,7 +378,7 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
         }
         UserCommand ucmd = (UserCommand) cmd;
         CommandSupport cmdSupp = fileSystem.getCommandSupport(cmd.getName());
-        if (cmdSupp == null) {
+        if (cmdSupp == null || !cmd.equals(fileSystem.getCommand(cmd.getName()))) {
             cmdSupp = new UserCommandSupport(ucmd, fileSystem);
         }
         Command command = cmdSupp.createCommand();
