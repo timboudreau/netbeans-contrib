@@ -211,6 +211,7 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
             Object retVal = DialogDisplayer.getDefault().notify(descriptor);
             if (retVal.equals(NotifyDescriptor.OK_OPTION)) {
                 java.io.File init = new java.io.File(pnl.getFile());
+                if (!init.isAbsolute()) init = new java.io.File(System.getProperty("user.home"), init.getPath());
                 if (init.exists()) {
                     NotifyDescriptor mess = new NotifyDescriptor.Confirmation(
                     NbBundle.getMessage(SaveToFilePanel.class, "SaveToFile.fileExistsQuestion", init.getName()), //NOI18N
@@ -223,7 +224,7 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                     file = init;
                 } else {
                     java.io.File parent = init.getParentFile();
-                    if (!parent.exists()) parent.mkdirs();
+                    if (parent != null && !parent.exists()) parent.mkdirs();
                     file = init;
                 }
             } else {
