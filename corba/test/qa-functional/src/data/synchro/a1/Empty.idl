@@ -1,0 +1,6 @@
+module A {
+    interface C {
+    };
+};
+interface B : A::C {
+};

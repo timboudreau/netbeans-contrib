@@ -1,0 +1,6 @@
+interface A {
+void op () context ("A");
+};
+
+interface B : A {
+};

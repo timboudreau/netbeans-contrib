@@ -1,0 +1,14 @@
+interface A {
+    void op2 ();
+};
+valuetype B {
+    factory fac2 (in long l, in long l2);
+};
+interface C {
+    void op2 ();
+};
+interface D {
+    void op2 (in long l);
+};
+custom valuetype E supports D {
+};

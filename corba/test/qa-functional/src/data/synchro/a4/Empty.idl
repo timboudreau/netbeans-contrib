@@ -1,0 +1,4 @@
+interface A { void op (); };
+interface B : A { void op2 (); };
+valuetype C { void op3 (); };
+valuetype D : C supports B {};

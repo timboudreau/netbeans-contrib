@@ -1,0 +1,22 @@
+interface A {
+    void op1 ();
+};
+
+interface B : A {
+    void op2a ();
+};
+
+interface C : A {
+    void op2b ();
+};
+
+interface D : A {
+    void op2c ();
+};
+
+interface E : B, C, D {
+    void op3 ();
+};
+
+interface F : E {
+};

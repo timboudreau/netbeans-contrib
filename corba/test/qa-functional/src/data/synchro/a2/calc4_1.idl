@@ -1,0 +1,6 @@
+
+interface Calc {
+    long add( in long x );
+    long total(in long prev);
+};
+

@@ -1,0 +1,111 @@
+//
+// test1.idl
+//
+// Created on June 5, 1999, 2:07 PM
+// by kgardas
+//
+
+#ifndef __TEST1_IDL__
+#define __TEST1_IDL__
+
+//1typedef string blabol;
+
+enum colors {RED, GREEN, BLUE};
+
+typedef struct struct1 {
+  struct structin {
+    string value;
+  } he;
+  long long1;
+  string string1;
+} member_struct1;
+
+struct strx1 {
+  member_struct1 member_of_struct1;
+  long ha;
+};
+
+typedef sequence<member_struct1> struct1_sequence, asdbf12;
+
+const string MSG = "Hello World!!!";
+
+interface test1 {
+  void operace1 ();
+  readonly attribute string at1, at2,at3;
+  attribute string name2, namex;
+  struct struct2 {
+    long long2;
+    string string2;
+  };
+
+  string operace2 ();
+  string <10> operace3 ();
+  member_struct1 operace4 (in member_struct1 value);
+};
+
+
+const long MAX = 100 * 10;
+
+
+typedef octet Bytes[64];
+
+struct S { long len; };
+
+interface foo;
+
+union U switch (long) {
+  case 1: long x;
+  case 2: Bytes y;
+  case 3: string z;
+  case 4:
+  case 5: S w;
+  case 6: long array[ 10 ][ 20 ];
+  case 7: sequence<long> seq;
+ default: foo obj;
+};
+
+typedef union UT switch (long) {
+  case 1: long x;
+  case 2: Bytes y;
+  case 3: string z;
+  case 4:
+  case 5: S w;
+  case 6: long array[ 10 ][ 20 ];
+  case 7: sequence<long> seq;
+ default: foo obj;
+} test_union1;
+
+
+exception UnknownState {
+  string reason;
+  long value;
+};
+
+interface test2 : test1 {
+  exception BadList {
+    string reason;
+  }; 
+  typedef sequence <string> list_of_string;
+  //struct2 operace4 (in struct1 value);
+  string <10> tone1 (in list_of_string plist, inout member_struct1 arg2,
+                              out string name) raises (BadList)
+                              context ("xc1", "kc2");
+  void op3 (in member_struct1 val1, inout list_of_string args)
+            raises (BadList);
+};
+
+/*
+interface test3 : test2, test1 {
+  struct nested {
+    struct child {
+      long l1;
+      string str1;
+    } ch1, ch2;
+  };
+};
+
+interface foo : test3 {};
+*/
+//interface test4 : test3, test2, test1 {
+//};
+#endif

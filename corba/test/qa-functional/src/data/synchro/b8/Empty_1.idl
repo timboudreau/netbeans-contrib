@@ -1,0 +1,6 @@
+interface A {
+void op ();
+};
+interface B {
+void op ();
+};

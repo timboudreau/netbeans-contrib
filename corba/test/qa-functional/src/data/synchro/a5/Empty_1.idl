@@ -1,0 +1,6 @@
+interface A { void op1 (); };
+typedef A B;
+interface C : B { void op2 (); };
+typedef C D;
+typedef D E;
+interface F : E { void op3 (); };

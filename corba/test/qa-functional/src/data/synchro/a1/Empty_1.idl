@@ -1,0 +1,7 @@
+module A {
+    interface C {
+        void op ();
+    };
+};
+interface B : A::C {
+};

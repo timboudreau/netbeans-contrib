@@ -1,0 +1,18 @@
+
+// abstract, valuebox, truncatable
+
+valuetype D {
+    void opD ();
+};
+
+valuetype E : D {
+    void opE ();
+};
+
+valuetype F : truncatable D {
+    factory iii (in D dd);
+};
+
+interface X {
+    void opX (in F ff);
+};

@@ -1,0 +1,7 @@
+typedef sequence <string> strings0;
+typedef strings0 strings1[10];
+typedef strings1 strings2;
+typedef strings2 strings3[100];
+interface IO {
+  strings3 op (in strings3 A);
+};

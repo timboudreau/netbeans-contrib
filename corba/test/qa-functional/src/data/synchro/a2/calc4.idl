@@ -1,0 +1,6 @@
+
+interface Calc {
+    void add( in long x );
+    long total();
+};
+
