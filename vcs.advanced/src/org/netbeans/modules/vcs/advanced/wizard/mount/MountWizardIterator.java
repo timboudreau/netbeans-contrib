@@ -13,12 +13,24 @@
 
 package org.netbeans.modules.vcs.advanced.wizard.mount;
 
+import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.Vector;
 
+import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
 import org.openide.cookies.InstanceCookie;
 import org.openide.loaders.TemplateWizard;
 import org.openide.util.NbBundle;
+
+import org.netbeans.modules.vcscore.VcsConfigVariable;
+import org.netbeans.modules.vcscore.VcsFileSystem;
+import org.netbeans.modules.vcscore.util.VcsUtilities;
+
+import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 
 /**
  * The wizard iterator to mount the Generic VCS file system.
@@ -76,11 +88,70 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
         }
     }
     
+    private static Vector removeVar(String varName, Vector vars) {
+        for (int i = vars.size() - 1; i >= 0; i--) {
+            VcsConfigVariable var = (VcsConfigVariable) vars.get(i);
+            if (varName.equals(var.getName())) {
+                vars.remove(i);
+                break;
+            }
+        }
+        return vars;
+    }
+    
     public java.util.Set instantiate(org.openide.loaders.TemplateWizard templateWizard) throws java.io.IOException {
-        org.openide.loaders.DataObject dobj = data.getFileSystem().createInstanceDataObject(templateWizard.getTargetFolder());
-        //org.openide.loaders.DataObject dobj = templateWizard.getTemplate();
-        //dobj = dobj.createFromTemplate(templateWizard.getTargetFolder());
-        return Collections.singleton(dobj);
+        CommandLineVcsFileSystem fs = data.getFileSystem();
+        String multipleMountPointsStr = (String) fs.getVariablesAsHashtable().get("MULTIPLE_RELATIVE_MOUNT_POINTS");
+        //System.out.println("  multipleMountPointsStr = '"+multipleMountPointsStr+"'");
+        String[] multipleMountPoints = null;
+        if (multipleMountPointsStr != null) {
+            multipleMountPoints = VcsUtilities.getQuotedStrings(multipleMountPointsStr);
+            fs.setVariables(removeVar("MULTIPLE_RELATIVE_MOUNT_POINTS", fs.getVariables()));
+        }
+        if (multipleMountPoints == null || multipleMountPoints.length <= 1) {
+            org.openide.loaders.DataObject dobj = fs.createInstanceDataObject(templateWizard.getTargetFolder());
+            //org.openide.loaders.DataObject dobj = templateWizard.getTemplate();
+            //dobj = dobj.createFromTemplate(templateWizard.getTargetFolder());
+            return Collections.singleton(dobj);
+        } else {
+            Set dobjs = new LinkedHashSet();
+            dobjs.add(fs.createInstanceDataObject(templateWizard.getTargetFolder()));
+            java.io.File root = new java.io.File(VcsFileSystem.substractRootDir(fs.getRootDirectory().getAbsolutePath(), fs.getRelativeMountPoint()));
+            //System.out.println("  root = '"+root+"'");
+            for (int i = 1; i < multipleMountPoints.length; i++) {
+                CommandLineVcsFileSystem fs1 = new CommandLineVcsFileSystem();
+                fs1.readConfiguration(fs.getConfigFileName());
+                fs1.setConfigFileName(fs.getConfigFileName());
+                try {
+                    fs1.setRootDirectory(root);
+                } catch (PropertyVetoException pvex) {
+                    ErrorManager.getDefault().notify(pvex);
+                } catch (IOException ioex) {
+                    ErrorManager.getDefault().notify(ioex);
+                }
+                fs1.setVariables(deepClone(fs.getVariables()));
+                try {
+                    fs1.setRelativeMountPoint(multipleMountPoints[i]);
+                } catch (PropertyVetoException pvex) {
+                    ErrorManager.getDefault().notify(pvex);
+                } catch (IOException ioex) {
+                    ErrorManager.getDefault().notify(ioex);
+                }
+                //System.out.println("  rmnt set: root = '"+fs1.getRootDirectory()+"', rel mount = '"+fs1.getRelativeMountPoint()+"'");
+                dobjs.add(fs1.createInstanceDataObject(templateWizard.getTargetFolder()));
+            }
+            return dobjs;
+        }
+    }
+    
+    private static Vector deepClone(Vector v) {
+        int n = v.size();
+        Vector v1 = new Vector(n);
+        for (int i = 0; i < n; i++) {
+            VcsConfigVariable var = (VcsConfigVariable) v.get(i);
+            v1.add(var.clone());
+        }
+        return v1;
     }
     
     public void previousPanel() {

@@ -35,6 +35,7 @@ public class MountWizardData {
         if (instance instanceof CommandLineVcsFileSystem) {
             this.fileSystem = (CommandLineVcsFileSystem) instance;
             this.customizer = new VcsCustomizer();
+            customizer.setMultipleMountPoints(true);
             customizer.setObject(fileSystem);
         } else throw new IllegalArgumentException("Bad instance "+instance);
     }

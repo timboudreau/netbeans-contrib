@@ -22,13 +22,17 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.text.*;
 
-import org.openide.*;
-import org.openide.util.*;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
+import org.openide.awt.HtmlBrowser;
 import org.openide.filesystems.*;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.XMLDataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
+import org.openide.util.*;
 
 import org.netbeans.api.vcs.VcsManager;
 import org.netbeans.api.vcs.commands.Command;
@@ -48,9 +52,8 @@ import org.netbeans.modules.vcs.advanced.variables.Condition;
 import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
 import org.netbeans.modules.vcs.advanced.variables.VariableIOCompat;
-import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
-import org.openide.awt.HtmlBrowser;
+
+import org.netbeans.modules.vcs.profiles.commands.RelativeMountPointSelector;
 
 /** Customizer
  *
@@ -1111,12 +1114,23 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         String work = rootDirTextField.getText();
         String dir = work + File.separator + relMountTextField.getText();
         RelativeMountDialog mountDlg = new RelativeMountDialog();
-        mountDlg.setDir(work, relMountTextField.getText());
+        if (multipleMountPoints) {
+            mountDlg.setDir(work, RelativeMountPointSelector.getQuotedRelativeMountPoints(relMountTextField.getText()));
+        } else {
+            mountDlg.setDir(work, relMountTextField.getText());
+        }
         java.awt.Dialog dlg = DialogDisplayer.getDefault().createDialog(mountDlg);
         //VcsUtilities.centerWindow (mountDlg);
         //HelpCtx.setHelpIDString (dlg.getRootPane (), CvsCustomizer.class.getName ());
         dlg.setVisible(true);
-        String selected = mountDlg.getRelMount();
+        String selected;
+        if (multipleMountPoints) {
+            String[] relMounts = mountDlg.getRelMounts();
+            if (relMounts == null) return ; // Nothing selected
+            selected = VcsUtilities.arrayToQuotedStrings(relMounts);
+        } else {
+            selected = mountDlg.getRelMount();
+        }
         if (selected != null) {
             relMountTextField.setText(selected);
             relMountPointChanged();
@@ -1426,6 +1440,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private String oldSelectedLabel = null;
     private boolean promptForConfigComboChange = true;
     private boolean doConfigComboChange = true;
+    private boolean multipleMountPoints = false;
 
     // Entries in hashtables are maintained as a cache of properties read from disk
     // and are read only. Changes are applied only to fileSystem.variables (fileSystem.commands).
@@ -1435,6 +1450,16 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private boolean isRootNotSetDlg = true;
     private TableSorter envTableModel;
     private TableSorter systemEnvTableModel;
+    
+    /**
+     * Set to use multiple mount points in the customization.
+     * The first mount point is set to the filesystem and variable
+     * "MULTIPLE_RELATIVE_MOUNT_POINTS" is defined, which contains
+     * all comma-separated mount points.
+     */
+    public void setMultipleMountPoints(boolean multipleMountPoints) {
+        this.multipleMountPoints = multipleMountPoints;
+    }
 
     /**
      * @return true if no profile is selected
@@ -1572,6 +1597,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private void relMountPointChanged() {
         String module = relMountTextField.getText();
+        if (multipleMountPoints) {
+            variableChanged("MULTIPLE_RELATIVE_MOUNT_POINTS", null, module, null);
+            module = RelativeMountPointSelector.getQuotedRelativeMountPoints(module)[0];
+            if (module == null) module = "";
+        }
         try {
             fileSystem.setRelativeMountPoint(module);
         } catch (PropertyVetoException exc) {
@@ -1598,8 +1628,15 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     //-------------------------------------------
     private void loadConfig(String profileName, String label) {
         if(!label.equals (fileSystem.getConfig ())) {
+            String modules = null;
+            if (multipleMountPoints) {
+                modules = (String) fileSystem.getVariablesAsHashtable().get("MULTIPLE_RELATIVE_MOUNT_POINTS");
+            }
             Profile profile = ProfilesFactory.getDefault().getProfile(profileName);
             fileSystem.setProfile(profile);
+            if (multipleMountPoints) {
+                variableChanged("MULTIPLE_RELATIVE_MOUNT_POINTS", null, modules, null);
+            }
             if (profile != null) {
                 String autoFillVarsStr = (String) fileSystem.getVariablesAsHashtable().get(VAR_AUTO_FILL);
                 if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
@@ -1720,6 +1757,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             VariableInputDescriptor configInputDescriptor = null;
             if (configInputDescriptorStr != null && configInputDescriptorStr.length() > 0) {
                 try {
+                    if (multipleMountPoints) {
+                        configInputDescriptorStr = renameVar(configInputDescriptorStr,
+                                                             "MODULE",
+                                                             "MULTIPLE_RELATIVE_MOUNT_POINTS");
+                    }
                     configInputDescriptor = VariableInputDescriptor.parseItems(configInputDescriptorStr);
                 } catch (VariableInputFormatException vifex) {
                     ErrorManager.getDefault().notify(vifex);//TopManager.getDefault().getErrorManager().annotate(vifex, "
@@ -1741,7 +1783,37 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         } while (true);
         return cids;
     }
-
+    
+    private static String renameVar(String str, String varOld, String varNew) {
+        StringBuffer buff = new StringBuffer(str);
+        int index = 0;
+        do {
+            index = buff.indexOf(varOld, index);
+            if (index < 0) break;
+            if (index > 0) {
+                char c = buff.charAt(index - 1);
+                if (!renameVarBoundaryChar(c)) {
+                    index++;
+                    continue;
+                }
+            }
+            if (index < buff.length() - 1) {
+                char c = buff.charAt(index + varOld.length());
+                if (!renameVarBoundaryChar(c)) {
+                    index++;
+                    continue;
+                }
+            }
+            buff.replace(index, index + varOld.length(), varNew);
+            index += varNew.length() - 1;
+        } while (true);
+        return buff.toString();
+    }
+    
+    private static boolean renameVarBoundaryChar(char c) {
+        return c == '(' || c == ')' || c == ',' || c == ']' || c == '{' || c == '}';
+    }
+    
     private void initAdditionalComponents (boolean doAutoFillVars) {
         varVariables = new Vector ();
         while(varLabels.size ()>0) {
@@ -1776,17 +1848,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         String autoFillVarsStr = (String) fsVars.get(VAR_AUTO_FILL);
         if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
         else autoFillVars.clear();
-        /*
-        String configInputDescriptorStr = (String) fsVars.get(VAR_CONFIG_INPUT_DESCRIPTOR);
-        VariableInputDescriptor configInputDescriptor = null;
-        if (configInputDescriptorStr != null && configInputDescriptorStr.length() > 0) {
-            try {
-                configInputDescriptor = VariableInputDescriptor.parseItems(configInputDescriptorStr);
-            } catch (VariableInputFormatException vifex) {
-                ErrorManager.getDefault().notify(vifex);//TopManager.getDefault().getErrorManager().annotate(vifex, "
-            }
-        }
-         */
+        
         VariableInputDescriptor[] configInputDescriptors = findConfigInputDescriptors(fsVars);
         if (configInputDescriptors != null) {
             //Hashtable dlgVars = new Hashtable(fsVars);
@@ -1976,7 +2038,28 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     }
     
     private void variableChanged (String varName, String oldValue, String newValue, Hashtable fsVars) {
-        VcsConfigVariable var = (VcsConfigVariable) fsVarsByName.get(varName);
+        VcsConfigVariable var;
+        if (fsVars == null) {
+            //fsVarsByName = new HashMap();
+            Vector vars = fileSystem.getVariables();
+            Enumeration vare = vars.elements ();
+            boolean set = false;
+            while (vare.hasMoreElements ()) {
+                var = (VcsConfigVariable) vare.nextElement ();
+                //fsVarsByName.put(var.getName(), var);
+                if (varName.equals(var.getName())) {
+                    var.setValue(newValue);
+                    set = true;
+                    break;
+                }
+            }
+            if (!set) {
+                vars.add(new VcsConfigVariable(varName, null, newValue, false, false, false, null));
+            }
+            fileSystem.setVariables(vars);
+            return ;
+        }
+        var = (VcsConfigVariable) fsVarsByName.get(varName);
         Vector vars = fileSystem.getVariables();
         //System.out.println("variable changed: "+varName+" = '"+newValue+"'");
         if (var == null) {
@@ -1991,13 +2074,26 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if ("ROOTDIR".equals(varName)) {
             rootDirTextField.setText(newValue);
             changeRootDir(newValue);
-            fsVars.put("MODULE", relMountTextField.getText());
+            String module = relMountTextField.getText();
+            if (multipleMountPoints) {
+                variableChanged("MULTIPLE_RELATIVE_MOUNT_POINTS", null, module, fsVars);
+                module = RelativeMountPointSelector.getQuotedRelativeMountPoints(module)[0];
+                if (module == null) module = "";
+            }
+            fsVars.put("MODULE", module);
         } else if ("MODULE".equals(varName)) {
             try {
                 fileSystem.setRelativeMountPoint(newValue);
             } catch (PropertyVetoException pvex) {
             } catch (IOException ioex) {}
             relMountTextField.setText(newValue);
+            rootDirChanged();
+        } else if (multipleMountPoints && "MULTIPLE_RELATIVE_MOUNT_POINTS".equals(varName)) {
+            String module = RelativeMountPointSelector.getQuotedRelativeMountPoints(newValue)[0];
+            try {
+                fileSystem.setRelativeMountPoint(module);
+            } catch (PropertyVetoException pvex) {
+            } catch (IOException ioex) {}
             rootDirChanged();
         } else {
             String cmd = (String) autoFillVars.get(varName);
@@ -2395,6 +2491,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         } catch (IOException ioexc) {
             module = "";
         }
+        if (multipleMountPoints) {
+            variableChanged("MULTIPLE_RELATIVE_MOUNT_POINTS", null, module, null);
+        }
         allProfilesCheckBox.setSelected(true);
         relMountTextField.setText(module);
         oldSelectedLabel = fileSystem.getConfig();
@@ -2450,7 +2549,16 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             if (cmd != null) autoFillVariables(cmd);
             if (lastRootDir != null && !selected.equals(lastRootDir)) {
                 lastRootDir = selected;
-                if (!(new File(selected, relMountTextField.getText()).exists())) {
+                boolean resetMountPoint = false;
+                if (multipleMountPoints) {
+                    String relMount = RelativeMountPointSelector.getQuotedRelativeMountPoints(relMountTextField.getText())[0];
+                    if (relMount != null) {
+                        resetMountPoint = !(new File(selected, relMount).exists());
+                    }
+                } else {
+                    resetMountPoint = !(new File(selected, relMountTextField.getText()).exists());
+                }
+                if (resetMountPoint) {
                     relMountTextField.setText("");
                     relMountPointChanged();
                 }
