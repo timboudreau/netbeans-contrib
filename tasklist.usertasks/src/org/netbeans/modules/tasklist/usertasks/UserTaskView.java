@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import org.openide.text.Annotation;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.core.ColumnProperty;
@@ -156,10 +157,14 @@ public class UserTaskView extends TaskListView implements TaskListener {
 	    String urlString = (String)objectInput.readObject();
             if (urlString != null) {
                 URL url = new URL(urlString);
-                FileObject[] fos = URLMapper.findFileObjects(url);
+                final FileObject[] fos = URLMapper.findFileObjects(url);
                 if ((fos != null) && (fos.length > 0)) {
                     setModel(new UserTaskList(fos[0]));
-                    // todo title = fos[0].getName();
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            setName(fos[0].getNameExt());
+                        }
+                    }); 
                 }
                 // XXX I do extra work here. I read in the global task
                 // list each time (default UserTaskView constructor)
