@@ -245,16 +245,9 @@ public class VcsMountFromTemplateAction extends NodeAction {
     * @return a node representing all possible templates
     */
     public static Node getTemplateRoot () {
-        //TemplateWizard wizard = getWizard (null);
-        
-        //DataFolder f = wizard.getTemplatesFolder ();
-        
-        // listener used as filter (has method acceptDataObject)
-        //Children ch = f.createNodeChildren (new TemplateActionListener ());
-        // filter the children
-        Children ch = new RootChildren ();
+        RootChildren ch = new RootChildren ();
         // create the root
-        return new AbstractNode (ch);
+        return ch.getRootFolder().new FolderNode(ch);
     }
     
     /** Cookie that can be implemented by a node if it wishes to have a 
@@ -381,6 +374,8 @@ public class VcsMountFromTemplateAction extends NodeAction {
     implements NodeListener {
         /** last wizard used with the root */
         private TemplateWizard wizard;
+        /** Folder of templates */
+        private DataFolder rootFolder;
         /** node to display templates for or null if current selection
          * should be followed
          */
@@ -396,7 +391,14 @@ public class VcsMountFromTemplateAction extends NodeAction {
             
             updateWizard (getWizard (null));
         }
-               
+        
+        public DataFolder getRootFolder () {
+            if (rootFolder == null) {
+                // if rootFolder is null then initialize folder
+                doSetKeys ();
+            }
+            return rootFolder;
+        }
 
         /** Creates nodes for nodes.
          */
@@ -456,16 +458,23 @@ public class VcsMountFromTemplateAction extends NodeAction {
         /** Updates the keys.
          */
         private void updateKeys () {
+            // updateKeys can be called while holding Children.MUTEX
+            //   --> replan getNodes(true) to a new thread
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
-                    DataFolder folder = wizard.getTemplatesFolder ();
-                    if (folder.isValid()) {
-                        setKeys (folder.getNodeDelegate ().getChildren ().getNodes (true));
-                    } else {
-                        setKeys(new Object[0]);
-                    }
+                    doSetKeys ();
                 }
             });
+       }
+        
+        // don't call this while holding Children.MUTEX
+        private void doSetKeys () {
+            rootFolder = wizard.getTemplatesFolder ();
+            if (rootFolder.isValid()) {
+                setKeys (rootFolder.getNodeDelegate ().getChildren ().getNodes (true));
+            } else {
+                setKeys(new Object[0]);
+            }
         }
         
         /** Fired when the order of children is changed.
