@@ -402,6 +402,7 @@ public class AdditionalCommands extends PVCSStub {
         get.ok ();
         get.waitClosed ();
         assertQuestionYesDialog (null);
+        assertQuestionYesDialog (null);
         A_File.waitHistory("Get");
         A_File.parent ().waitHistory("Refresh");
 
@@ -502,6 +503,8 @@ public class AdditionalCommands extends PVCSStub {
         B_File.pvcsNode ().pVCSHistory();
         HistoryCommandOperator hi = new HistoryCommandOperator ("");
         hi.ok();
+        hi.waitClosed ();
+        D_File.waitHistory ("History");
         VCSCommandsOutputOperator coo = new VCSCommandsOutputOperator ("History");
         waitNoEmpty(coo.txtStandardOutput ());
         output = coo.txtStandardOutput().getText ();
@@ -519,7 +522,7 @@ public class AdditionalCommands extends PVCSStub {
         
         coo.close ();
         coo.waitClosed();
-        
+
         B_File.pvcsNode().pVCSHistory();
         hi = new HistoryCommandOperator ("");
         hi.selectReportType(HistoryCommandOperator.ITEM_REVISIONINFORMATIONONLY);
@@ -530,6 +533,7 @@ public class AdditionalCommands extends PVCSStub {
 //        hi.setDateTo(sdf.format (new Date (date.getTime () + 1))); // fails due to issue #29025
         hi.ok ();
         hi.waitClosed();
+        B_File.waitHistory ("History");
 
         coo = new VCSCommandsOutputOperator ("History");
         waitNoEmpty(coo.txtStandardOutput ());
