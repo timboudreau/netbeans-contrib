@@ -225,7 +225,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     private volatile boolean offLine; // is set in the constructor
     private volatile int autoRefresh; // is set in the constructor
     
-    private volatile boolean commandNotification; // is set in the constructor
+    private volatile boolean commandNotification = true;
 
     private Collection notModifiableStatuses = Collections.EMPTY_SET;
 
