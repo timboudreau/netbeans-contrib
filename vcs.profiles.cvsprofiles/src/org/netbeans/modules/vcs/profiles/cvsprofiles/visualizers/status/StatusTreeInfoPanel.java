@@ -144,6 +144,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
     
     private void initButtons() {
         JPanel panel = getButtonPanel();
+        panel.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.btnPanel")); // NOI18N
+        panel.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.btnPanel")); // NOI18N
         cbUptodate = new javax.swing.JCheckBox();
         cbModified = new javax.swing.JCheckBox();
         cbLocAdded = new javax.swing.JCheckBox();
@@ -159,6 +161,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         java.awt.GridBagConstraints gridBagConstraints1;
 
         lblTitle.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblTitle.text")); // NOI18N
+        lblTitle.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblTitle.text")); // NOI18N
+        lblTitle.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblTitle.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 0;
@@ -170,6 +174,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
 
         cbUptodate.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUptodate.text")); // NOI18N
         cbUptodate.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUptodate.mnemonic").charAt(0)); // NOI18N
+        cbUptodate.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUptodate.text")); // NOI18N
+        cbUptodate.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUptodate.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 1;
@@ -179,6 +185,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         
         cbModified.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbModified.text")); // NOI18N
         cbModified.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbModified.mnemonic").charAt(0)); // NOI18N        
+        cbModified.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbModified.text")); // NOI18N
+        cbModified.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbModified.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 1;
@@ -188,6 +196,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         
         cbLocAdded.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocAdded.text")); // NOI18N
         cbLocAdded.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocAdded.mnemonic").charAt(0)); // NOI18N        
+        cbLocAdded.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocAdded.text")); // NOI18N
+        cbLocAdded.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocAdded.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 2;
@@ -197,6 +207,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         
         cbLocRemoved.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocRemoved.text")); // NOI18N
         cbLocRemoved.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocRemoved.mnemonic").charAt(0)); // NOI18N        
+        cbLocRemoved.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocRemoved.text")); // NOI18N
+        cbLocRemoved.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbLocRemoved.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 2;
@@ -206,6 +218,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         
         cbNeedsMerge.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsMerge.text")); // NOI18N
         cbNeedsMerge.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsMerge.mnemonic").charAt(0)); // NOI18N
+        cbNeedsMerge.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsMerge.text")); // NOI18N
+        cbNeedsMerge.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsMerge.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 3;
@@ -215,6 +229,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
 
         cbNeedsPatch.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsPatch.text")); // NOI18N
         cbNeedsPatch.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsPatch.mnemonic").charAt(0)); // NOI18N
+        cbNeedsPatch.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsPatch.text")); // NOI18N
+        cbNeedsPatch.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsPatch.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 3;
@@ -224,6 +240,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
 
         cbNeedsCheckout.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsCheckout.text")); // NOI18N
         cbNeedsCheckout.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsCheckout.mnemonic").charAt(0)); // NOI18N
+        cbNeedsCheckout.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsCheckout.text")); // NOI18N
+        cbNeedsCheckout.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbNeedsCheckout.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 4;
@@ -233,6 +251,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         
         cbHasConflict.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbHasConflicts.text")); // NOI18N
         cbHasConflict.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbHasConflicts.mnemonic").charAt(0)); // NOI18N
+        cbHasConflict.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbHasConflicts.text")); // NOI18N
+        cbHasConflict.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbHasConflicts.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 1;
         gridBagConstraints1.gridy = 4;
@@ -242,6 +262,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
 
         cbUnknown.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUnknown.text")); // NOI18N
         cbUnknown.setMnemonic(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUnknown.mnemonic").charAt(0)); // NOI18N
+        cbUnknown.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUnknown.text")); // NOI18N
+        cbUnknown.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.cbUnknown.text")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 5;
@@ -251,6 +273,8 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
         panel.add(cbUnknown, gridBagConstraints1);
         
         lblCount.setText(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblCount")); // NOI18N
+        lblCount.getAccessibleContext().setAccessibleName(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblCount")); // NOI18N
+        lblCount.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(StatusTreeInfoPanel.class).getString("StatusTreeInfoPanel.lblCount")); // NOI18N
         gridBagConstraints1 = new java.awt.GridBagConstraints();
         gridBagConstraints1.gridx = 0;
         gridBagConstraints1.gridy = 6;
@@ -264,7 +288,7 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
                 checkBoxChanged();
             }
         });
-        cbUptodate.addActionListener(listener);
+        cbUptodate.addActionListener(listener);        
         cbModified.addActionListener(listener);
         cbNeedsPatch.addActionListener(listener);
         cbNeedsMerge.addActionListener(listener);

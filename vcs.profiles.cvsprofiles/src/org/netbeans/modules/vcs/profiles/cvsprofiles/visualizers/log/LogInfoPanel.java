@@ -202,6 +202,7 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
         pnlHead.add(lblRepository, gridBagConstraints);
+        lblRepository.getAccessibleContext().setAccessibleDescription(null);
 
         txRepository.setEditable(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -212,6 +213,8 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 11);
         pnlHead.add(txRepository, gridBagConstraints);
+        txRepository.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.repFile"));
+        txRepository.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACSD_LogInfoPanel.repFile"));
 
         lblHeadRev.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.lblHeadRevision_mnc").charAt(0));
         lblHeadRev.setLabelFor(txHeadRev);
@@ -222,6 +225,7 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
         pnlHead.add(lblHeadRev, gridBagConstraints);
+        lblHeadRev.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACSD_LogInfoPanel.headRev"));
 
         lblBranch.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.lblBranch_mnc").charAt(0));
         lblBranch.setLabelFor(txBranch);
@@ -273,6 +277,8 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 0.25;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
         pnlHead.add(txHeadRev, gridBagConstraints);
+        txHeadRev.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.repRevision"));
+        txHeadRev.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACSD_LogInfoPanel.HeadRev"));
 
         txBranch.setEditable(false);
         txBranch.setText("jTextField1");
@@ -284,6 +290,8 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 0.25;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
         pnlHead.add(txBranch, gridBagConstraints);
+        txBranch.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.Branch"));
+        txBranch.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACSD_LogInfoPanel.Branch"));
 
         txSelRev.setEditable(false);
         txSelRev.setText("jTextField1");
@@ -295,6 +303,8 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 0.25;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
         pnlHead.add(txSelRev, gridBagConstraints);
+        txSelRev.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.Rev"));
+        txSelRev.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACSD_LogInfoPanel.Rev"));
 
         txTotalRev.setEditable(false);
         txTotalRev.setText("jTextField1");
@@ -306,6 +316,8 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 0.25;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 11);
         pnlHead.add(txTotalRev, gridBagConstraints);
+        txTotalRev.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.out"));
+        txTotalRev.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACSD_LogInfoPanel.out"));
 
         lblWorkFile.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.lblFileName_mnc").charAt(0));
         lblWorkFile.setLabelFor(txWorkFile);
@@ -316,6 +328,7 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         pnlHead.add(lblWorkFile, gridBagConstraints);
+        lblWorkFile.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACSD_LogInfoPanel.Filename"));
 
         txWorkFile.setEditable(false);
         txWorkFile.setText("jTextField1");
@@ -328,6 +341,8 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 0.5;
         gridBagConstraints.insets = new java.awt.Insets(12, 13, 0, 0);
         pnlHead.add(txWorkFile, gridBagConstraints);
+        txWorkFile.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel"));
+        txWorkFile.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACSD_LogInfoPanel.filename"));
 
         lblLocks.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.lblLocks_mnc").charAt(0));
         lblLocks.setLabelFor(txLocks);
@@ -338,6 +353,7 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 17, 0, 0);
         pnlHead.add(lblLocks, gridBagConstraints);
+        lblLocks.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACSD_LogInfoPanel.locks"));
 
         txLocks.setEditable(false);
         txLocks.setText("jTextField1");
@@ -350,6 +366,8 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 0.5;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 11);
         pnlHead.add(txLocks, gridBagConstraints);
+        txLocks.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.locks"));
+        txLocks.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACSD_LogInfoPanel.locks"));
 
         txDescription.setEditable(false);
         txDescription.setText("jTextField1");
@@ -361,6 +379,8 @@ public class LogInfoPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 5, 11);
         pnlHead.add(txDescription, gridBagConstraints);
+        txDescription.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.Description"));
+        txDescription.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACSD_LogInfoPanel.Description"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -372,6 +392,7 @@ public class LogInfoPanel extends javax.swing.JPanel {
         taRevLog.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, taRevLog.getFont().getSize() - 1));
         taRevLog.setMinimumSize(new java.awt.Dimension(300, 40));
         spRevLog.setViewportView(taRevLog);
+        taRevLog.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/log/Bundle").getString("ACS_LogInfoPanel.Log"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;

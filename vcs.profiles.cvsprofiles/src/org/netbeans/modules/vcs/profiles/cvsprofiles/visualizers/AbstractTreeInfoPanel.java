@@ -56,7 +56,7 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
     
     /** Creates new form StatusTreeInfoPanel */
     public AbstractTreeInfoPanel(File topDir) {
-        this();
+        this();        
         topDirectory = topDir;
         insideTreeRenderer = new DefaultTreeCellRenderer();
         trDirStructure.setCellRenderer(this);
@@ -97,16 +97,34 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
             }
         });
         treeDisabled = true;
+        getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel"));//NOI18N
+        getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel"));//NOI18N
+        tblTable.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.table"));//NOI18N
+        tblTable.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel.table"));//NOI18N
     } 
     
     private JComponent initTree() {
         pnlTree = new javax.swing.JPanel();
+        pnlTree.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.pnlTree"));//NOI18N
+        pnlTree.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel.pnlTree"));//NOI18N
         pnlButtons = new javax.swing.JPanel();
+        pnlButtons.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.pnlButtons"));//NOI18N
+        pnlButtons.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel.pnlButtons"));//NOI18N
         jTabbedPane1 = new javax.swing.JTabbedPane();
+        jTabbedPane1.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.tab"));//NOI18N
+        jTabbedPane1.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.tab"));//NOI18N
         jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane1.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.scroll"));//NOI18N
+        jScrollPane1.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel.scroll"));//NOI18N
         trDirStructure = new javax.swing.JTree();
+        trDirStructure.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.tree"));//NOI18N
+        trDirStructure.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel.tree"));//NOI18N
         jScrollPane2 = new javax.swing.JScrollPane();
+        jScrollPane2.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.scroll"));//NOI18N
+        jScrollPane2.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel.scroll"));//NOI18N
         tblTable = new javax.swing.JTable();
+        tblTable.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACS_AbstractTreeInfoPanel.table"));//NOI18N
+        tblTable.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel.table"));//NOI18N
         pnlTree.setLayout(new java.awt.BorderLayout());
         pnlTree.setPreferredSize(new java.awt.Dimension(200, 300));
         pnlTree.setMinimumSize(new java.awt.Dimension(200, 300));
@@ -154,6 +172,8 @@ public abstract class AbstractTreeInfoPanel extends javax.swing.JPanel implement
     public JComponent initRightPanel() {
         pnlStatus = new javax.swing.JPanel();
         pnlStatus.setLayout(new java.awt.BorderLayout());
+        pnlStatus.getAccessibleContext().setAccessibleName(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("AbstractTreeInfoPanel.statusPanel")); //NOI18N
+        pnlStatus.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(AbstractTreeInfoPanel.class).getString("ACSD_AbstractTreeInfoPanel.statusPanel")); //NOI18N
         return pnlStatus;
     }
     

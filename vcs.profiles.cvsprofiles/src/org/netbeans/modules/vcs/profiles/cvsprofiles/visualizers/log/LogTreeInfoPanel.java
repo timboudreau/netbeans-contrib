@@ -47,15 +47,27 @@ public class LogTreeInfoPanel extends AbstractTreeInfoPanel {
     public LogTreeInfoPanel(File topDir) {
         super(topDir);        
         initPanelComponents();
+        getAccessibleContext().setAccessibleName(NbBundle.getBundle(LogTreeInfoPanel.class).getString("ACS_LogTreeInfoPanel")); // NOI18N
+        getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(LogTreeInfoPanel.class).getString("ACSD_LogTreeInfoPanel")); // NOI18N
         postInit();
     }
     
     private void initPanelComponents() {
         JPanel panel = getButtonPanel();
+        panel.getAccessibleContext().setAccessibleName(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.btnPanel")); // NOI18N
+        panel.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(LogTreeInfoPanel.class).getString("ACSD_LogTreeInfoPanel.btnPanel")); // NOI18N
         lblTitle = new javax.swing.JLabel();
+        lblTitle.getAccessibleContext().setAccessibleName(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.lblTitle.text")); // NOI18N
+        lblTitle.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.lblTitle.text")); // NOI18N
         lblFilter = new javax.swing.JLabel();
+        lblFilter.getAccessibleContext().setAccessibleName(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.filterLog")); // NOI18N
+        lblFilter.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.filterLog")); // NOI18N
         txFilter = new javax.swing.JTextField();
+        txFilter.getAccessibleContext().setAccessibleName(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.filter")); // NOI18N
+        txFilter.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.filter")); // NOI18N
         lblCount = new javax.swing.JLabel();
+        lblCount.getAccessibleContext().setAccessibleName(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.lblCount")); // NOI18N
+        lblCount.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle(LogTreeInfoPanel.class).getString("LogTreeInfoPanel.lblCount")); // NOI18N
         panel.setLayout(new java.awt.GridBagLayout());
         java.awt.GridBagConstraints gridBagConstraints1;
         

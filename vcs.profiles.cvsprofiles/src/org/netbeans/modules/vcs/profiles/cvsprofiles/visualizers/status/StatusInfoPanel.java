@@ -140,9 +140,13 @@ final class StatusInfoPanel extends JPanel {
         txOptions = new javax.swing.JTextField();
         txDate = new javax.swing.JTextField();
 
+        FormListener formListener = new FormListener();
+
         setLayout(new java.awt.GridBagLayout());
 
         setMaximumSize(new java.awt.Dimension(354, 203));
+        getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel"));
+        getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_StatusInfoPanel"));
         lblFileName.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblFilename_mnc").charAt(0));
         lblFileName.setLabelFor(txFileName);
         lblFileName.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblFileName.text"));
@@ -176,11 +180,7 @@ final class StatusInfoPanel extends JPanel {
         txRepFile.setDisabledTextColor(new java.awt.Color(102, 102, 153));
         txRepFile.setMinimumSize(new java.awt.Dimension(100, 20));
         txRepFile.setPreferredSize(new java.awt.Dimension(300, 20));
-        txRepFile.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txRepFileActionPerformed(evt);
-            }
-        });
+        txRepFile.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -191,6 +191,8 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
         add(txRepFile, gridBagConstraints);
+        txRepFile.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.repfile"));
+        txRepFile.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_StatusInfoPanel.repfile"));
 
         lblWorkRev.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblWorkingRevision").charAt(0));
         lblWorkRev.setLabelFor(txWorkRev);
@@ -213,11 +215,7 @@ final class StatusInfoPanel extends JPanel {
         add(lblRepRev, gridBagConstraints);
 
         btnDiff.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.btnDiff.text"));
-        btnDiff.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDiffActionPerformed(evt);
-            }
-        });
+        btnDiff.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -227,6 +225,7 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(4, 12, 0, 11);
         add(btnDiff, gridBagConstraints);
+        btnDiff.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_StatusInfoPanel.btnDiff"));
 
         lblTag.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.lblStickyTag_mnc").charAt(0));
         lblTag.setLabelFor(txTag);
@@ -277,6 +276,8 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(2, 12, 11, 0);
         add(spExistingTags, gridBagConstraints);
+        spExistingTags.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_Existing_tags_Table"));
+        spExistingTags.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_ExistingTagsTable"));
 
         lblExistingTags.setLabelFor(tblExistingTags);
         lblExistingTags.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblExistingTags.text"));
@@ -286,13 +287,10 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         add(lblExistingTags, gridBagConstraints);
+        lblExistingTags.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_StickyTags_Table"));
 
         btnAdvanced.setText(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.btnAdvanced.text"));
-        btnAdvanced.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAdvancedActionPerformed(evt);
-            }
-        });
+        btnAdvanced.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -300,6 +298,7 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(2, 12, 11, 11);
         add(btnAdvanced, gridBagConstraints);
+        btnAdvanced.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_Get_Tags"));
 
         txFileName.setColumns(20);
         txFileName.setEditable(false);
@@ -312,6 +311,8 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.weightx = 0.2;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         add(txFileName, gridBagConstraints);
+        txFileName.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("StatusInfoPanel.lblFileName.text"));
+        txFileName.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_StatusInfoPanel.FileName"));
 
         txStatus.setEditable(false);
         txStatus.setText("jTextField1");
@@ -325,6 +326,8 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.weightx = 0.2;
         gridBagConstraints.insets = new java.awt.Insets(12, 11, 0, 0);
         add(txStatus, gridBagConstraints);
+        txStatus.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.status"));
+        txStatus.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_StatusInfoPanel.status"));
 
         txWorkRev.setEditable(false);
         txWorkRev.setText("jTextField1");
@@ -335,6 +338,8 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
         add(txWorkRev, gridBagConstraints);
+        txWorkRev.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.WorkingRev"));
+        txWorkRev.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_StatusInfoPanel.WorkRev"));
 
         txRepRev.setEditable(false);
         txRepRev.setText("jTextField1");
@@ -345,6 +350,8 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
         add(txRepRev, gridBagConstraints);
+        txRepRev.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.RepRev"));
+        txRepRev.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_StatusInfoPanel.RepRev"));
 
         txTag.setEditable(false);
         txTag.setText("jTextField1");
@@ -355,14 +362,12 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         add(txTag, gridBagConstraints);
+        txTag.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.Sticky"));
+        txTag.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_StatusInfoPanel.Sticky"));
 
         txOptions.setEditable(false);
         txOptions.setText("jTextField1");
-        txOptions.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txOptionsActionPerformed(evt);
-            }
-        });
+        txOptions.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
@@ -370,6 +375,8 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
         add(txOptions, gridBagConstraints);
+        txOptions.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.options"));
+        txOptions.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_StatusInfoPanel.options"));
 
         txDate.setEditable(false);
         txDate.setText("jTextField1");
@@ -379,7 +386,28 @@ final class StatusInfoPanel extends JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
         add(txDate, gridBagConstraints);
+        txDate.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACS_StatusInfoPanel.date"));
+        txDate.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/profiles/cvsprofiles/visualizers/status/Bundle").getString("ACSD_StatusInfoPanel.date"));
 
+    }
+
+    // Code for dispatching events from components to event handlers.
+
+    private class FormListener implements java.awt.event.ActionListener {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            if (evt.getSource() == txRepFile) {
+                StatusInfoPanel.this.txRepFileActionPerformed(evt);
+            }
+            else if (evt.getSource() == btnDiff) {
+                StatusInfoPanel.this.btnDiffActionPerformed(evt);
+            }
+            else if (evt.getSource() == btnAdvanced) {
+                StatusInfoPanel.this.btnAdvancedActionPerformed(evt);
+            }
+            else if (evt.getSource() == txOptions) {
+                StatusInfoPanel.this.txOptionsActionPerformed(evt);
+            }
+        }
     }//GEN-END:initComponents
 
     private void txOptionsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txOptionsActionPerformed
