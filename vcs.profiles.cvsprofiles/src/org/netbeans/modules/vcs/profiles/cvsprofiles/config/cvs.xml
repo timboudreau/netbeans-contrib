@@ -396,7 +396,7 @@ Microsystems, Inc. All Rights Reserved.
       <value></value>
     </variable>
     <variable name="INITIAL_CO_PRUNE_EMPTY" basic="false">
-      <value></value>
+      <value>-P</value>
     </variable>
     <variable name="INITIAL_CO_RUN_MODULE_PROGRAM" basic="false">
       <value></value>
@@ -408,7 +408,7 @@ Microsystems, Inc. All Rights Reserved.
       <value></value>
     </variable>
     <variable name="INITIAL_CO_DO_NOT_SHORTEN" basic="false">
-      <value></value>
+      <value>-N</value>
     </variable>
     <variable name="INITIAL_CO_RECURSIVE" basic="false">
       <value></value>
