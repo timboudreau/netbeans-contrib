@@ -114,10 +114,8 @@ public class GroupUtils {
 //                        System.out.println("already in another group " + shadow.getOriginal().getName());
                     }
                 } else {
-                    if (!group.equals(shadow.getFolder())) {
                         // add to only when not in the requested group already..
-                        okFiles.add(dd);
-                    }
+                    okFiles.add(dd);
                 }
                 
             }
