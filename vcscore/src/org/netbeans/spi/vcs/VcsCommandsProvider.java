@@ -64,15 +64,17 @@ public abstract class VcsCommandsProvider extends Object {
      */
     public abstract Command createCommand(Class cmdClass);
     
-    //public abstract boolean canActOn(Set files);
-
-// TODO implement 52621    
-//    /**
-//     * Provider identification, Paired with command name creates
-//     * unique command identification. MUST be redefined, it's
-//     * not abstract just for compatability reasons.
-//     */
-//    public String getType() {
-//        return null;
-//    }
+    /**
+     * Get the unique representation of the type of the provided version control system.
+     * Paired with command name creates a unique command identification.
+     * MUST be redefined to return meaningful value, it's not abstract just for
+     * compatability reasons.
+     * @return The type of the provided VCS.
+     * @since 1.13
+     */
+    public String getType() {
+        throw new UnsupportedOperationException("Override this method and return a String that uniquely "+
+                                                "identifies the type of the provided version control system.");
+    }
+    
 }
