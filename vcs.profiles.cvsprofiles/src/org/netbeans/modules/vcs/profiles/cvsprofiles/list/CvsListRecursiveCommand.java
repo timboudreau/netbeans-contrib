@@ -553,7 +553,12 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand implements 
         if (filePaths != null) {
             int len = filePaths.length;
             for(int j = 0; j < len; j++) {
-                VcsDirContainer parent = filesByNameCont.getParent(filePaths[j]);
+                VcsDirContainer parent;
+                if (filePaths[j].length() == 0) {
+                    parent = null;
+                } else {
+                    parent = filesByNameCont.getParent(filePaths[j]);
+                }
                 VcsDirContainer filesByNameContPath;
                 if (parent != null) filesByNameContPath = parent.addSubdir(filePaths[j]);
                 else filesByNameContPath = filesByNameCont.addSubdirRecursive(filePaths[j]);
