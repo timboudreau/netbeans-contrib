@@ -8,7 +8,7 @@ import javax.swing.plaf.ScrollBarUI;
  * A ScrollBarUI intentionally devoid of any painting or other logic.  GenericMarkedScrollbar will delegate
  * to its embedded scrollbar for scrolling functionality.
  */
-class GenericScrollbarUI extends ScrollBarUI {
+public class GenericScrollbarUI extends ScrollBarUI {
     private static ScrollBarUI instance;
 
     public static ComponentUI createUI (JComponent c) {

@@ -45,7 +45,7 @@ import java.util.Map;
 public class MetalMarkedScrollBarUI extends MetalScrollBarUI implements PropertyChangeListener, ChangeListener {
     private static final int minsize = 4;
     
-    private int gutterSize=9;
+    private int gutterSize=8;
     private MarkingModel model;
 
     /** Creates a new instance of MarkedScrollbarUI
@@ -71,9 +71,9 @@ public class MetalMarkedScrollBarUI extends MetalScrollBarUI implements Property
     public Dimension getPreferredSize(JComponent c) {
         Dimension result = super.getPreferredSize(c);
         if (scrollbar.getOrientation() == JScrollBar.VERTICAL) {
-            result.width += gutterSize / 2;
+            result.width += gutterSize - (gutterSize / 3);
         } else {
-            result.height += gutterSize / 2;
+            result.height += gutterSize - (gutterSize / 3);
         }
         return result;
     }
@@ -359,9 +359,9 @@ public class MetalMarkedScrollBarUI extends MetalScrollBarUI implements Property
              c = UIManager.getColor("windowText"); //NOI18N
          }
          g.setColor (c);
-         g.fillRect (r.x-1, r.y, r.width+1, r.height-1);
+         g.fillRect (r.x-1, r.y, r.width-1, r.height);
          g.setColor (c.darker());
-         g.drawRect (r.x-1, r.y, r.width-2, r.height-1);
+         g.drawRect (r.x-1, r.y, r.width-2, r.height);
     }
 
 
