@@ -76,7 +76,7 @@ public class StubAllTogether extends PVCSStub {
         suite.addTest(new StubAllTogether("testViewOldRevision"));
         suite.addTest(new StubAllTogether("testCompareRevisions"));
         suite.addTest(new StubAllTogether("testAddToGroup"));
-        suite.addTest(new StubAllTogether("testCheckinGroup"));
+        suite.addTest(new StubAllTogether("testCheckinGroup")); // always fails due to issue #28679
         suite.addTest(new StubAllTogether("testVerifyGroup"));
         
         suite.addTest(new StubAllTogether("testUnmount"));
@@ -458,7 +458,9 @@ public class StubAllTogether extends PVCSStub {
         new PVCSFileNode (vgf.treeVCSGroupsTreeView(), DEFAULT_GROUP).pVCSPut ();
         PutCommandOperator putCommand = new PutCommandOperator(B_File.filename (0));
         String changeDescription = putCommand.getChangeDescription();
-        out.println ("DEFAULT_GROUP - Put Description: " + changeDescription); // "Checked in from VCS group.\n"
+        out.println ("DEFAULT_GROUP - Put Description: " + changeDescription); // "Checked in from VCS group."
+        if (!"".equals (changeDescription))
+            changeDescription = "  " + changeDescription;
         putCommand.ok();
         putCommand.waitClosed ();
         B_File.waitHistory ("Put");
@@ -469,9 +471,9 @@ public class StubAllTogether extends PVCSStub {
         B_File.pvcsVersioningNode(".java [Current]");
         new RefreshRevisionsAction ().perform (B_File.pvcsVersioningNode ());
         B_File.waitHistory ("REVISION_LIST");
-        B_File.pvcsVersioningNode(".java [Current]|1.1  " + changeDescription).select();
+        B_File.pvcsVersioningNode(".java [Current]|1.1" + changeDescription).select();
         
-        compareReferenceFiles();
+        compareReferenceFiles(); // always fails due to issue #28679
     }
 
     public void testVerifyGroup() {
