@@ -18,6 +18,9 @@ import java.beans.PropertyVetoException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Serializable;
+import java.lang.reflect.*;
+import java.lang.ref.WeakReference;
+import java.lang.ref.Reference;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -48,7 +51,13 @@ import org.netbeans.modules.vcscore.search.VcsSearchTypeFileSystem;
 public abstract class VersioningFileSystem extends AbstractFileSystem implements VcsSearchTypeFileSystem {
 
     private static final SystemAction[] NO_ACTIONS = new SystemAction[0];
-    
+
+    /**
+     * Since versioning filesystem is not serialized (currently), it's possible to save it's properties 
+     * only by placing them in the the regular filesystem. your filesystem should implement the method
+     * saveVersioningFileSystemProperties(String propName, Object newValue) to save the properties and also upon restart set the Versioning properties
+     */
+    public static final String VERSIONING_PROPERTIES_SAVE_METHOD = "saveVersioningFileSystemProperties"; //NOI18N
     //protected FileSystem.Status status;
     //protected VersioningFileSystem.Versions versions;
     
@@ -144,6 +153,47 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
         }
         return null;
     }
+    
+    protected final void propagatePropertyChange(String[] properties) {
+        Method method = null;
+        try {
+            method = fileSystem.getClass().getMethod(VERSIONING_PROPERTIES_SAVE_METHOD, new Class[] {String.class, Object.class});
+        } catch (NoSuchMethodException nsmExc) {
+            method = null;
+        } catch (SecurityException sExc) {
+            method = null;
+        };
+        final Method changeMethod = method;
+        if (changeMethod == null) return ;
+        final Reference ref = new WeakReference(fileSystem);
+        final String[] props = properties;
+        final PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                String prop = evt.getPropertyName();
+//                System.out.println("propagating=" + prop);
+                Object chFS = ref.get();
+                if (chFS == null) {
+                    VersioningFileSystem.this.removePropertyChangeListener(this);
+//                    System.out.println("removing listener");
+                    return;
+                }
+                for (int i = 0; i < props.length; i++) {
+                    if (props[i].equals(prop)) {
+                        try {
+                            changeMethod.invoke(chFS, new Object[] {prop, evt.getNewValue()});
+//                            System.out.println("invoked");
+                        } catch (IllegalAccessException iaExc) {
+                        } catch (IllegalArgumentException iarExc) {
+                        } catch (InvocationTargetException itExc) {
+                        }
+                        return;
+                    }
+                }
+            }
+        };
+        addPropertyChangeListener(propertyChangeListener);
+    }
+    
     
     /** Creates Reference. In FileSystem, which subclasses AbstractFileSystem, you can overload method
      * createReference(FileObject fo) to achieve another type of Reference (weak, strong etc.)

@@ -317,6 +317,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     private volatile transient CommandsPool commandsPool = null;
     private Integer numberOfFinishedCmdsToCollect = new Integer(RuntimeSupport.DEFAULT_NUM_OF_FINISHED_CMDS_TO_COLLECT);
+    private int versioningFileSystemMessageLength = 20;
+    private boolean versioningFileSystemShowMessage = true;
+    private String versioningFileSystemShowGarbageFiles = "";
+    private boolean versioningFileSystemShowLocalFiles = true;
+    private boolean versioningFileSystemShowUnimportantFiles = false;
+    private boolean versioningFileSystemShowDeadFiles = false;
     
     private transient ArrayList revisionListeners;
 
@@ -700,6 +706,64 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         // The property change is propagated from RuntimeSupport.getInstance().setCollectFinishedCmdsNum()
         //                                   to   this.numOfFinishedCmdsToCollectChanged()
     }
+    
+    public int getVFSMessageLength() {
+        return versioningFileSystemMessageLength;
+    }
+    
+    public void setVFSMessageLength(int newVal) {
+        versioningFileSystemMessageLength = newVal;
+    }
+    public boolean getVFSShowLocalFiles() {
+        return versioningFileSystemShowLocalFiles;
+    }
+    
+    public void setVFSShowLocalFiles(boolean newVal) {
+        versioningFileSystemShowLocalFiles = newVal;
+    }
+    public boolean getVFSShowMessage() {
+        return versioningFileSystemShowMessage;
+    }
+    
+    public void setVFSShowMessage(boolean newVal) {
+        versioningFileSystemShowMessage = newVal;
+    }
+    public boolean getVFSShowUnimportantFiles() {
+        return versioningFileSystemShowUnimportantFiles;
+    }
+    
+    public void setVFSShowUnimportantFiles(boolean newVal) {
+        versioningFileSystemShowUnimportantFiles = newVal;
+    }
+    public String getVFSShowGarbageFiles() {
+        return versioningFileSystemShowGarbageFiles;
+    }
+    
+    public void setVFSShowGarbageFiles(String newVal) {
+        versioningFileSystemShowGarbageFiles = newVal;
+    }
+    
+    private void copyFromVersioningFs() {
+        if (versioningSystem != null && versioningSystem instanceof VcsVersioningSystem) {
+            VcsVersioningSystem versFs = (VcsVersioningSystem)versioningSystem;
+            setVFSMessageLength(versFs.getMessageLength());
+            setVFSShowGarbageFiles(versFs.getIgnoredGarbageFiles());
+            setVFSShowLocalFiles(versFs.isShowLocalFiles());
+            setVFSShowMessage(versFs.isShowMessages());
+            setVFSShowUnimportantFiles(versFs.isShowUnimportantFiles());
+        }
+    }
+    
+    
+    /**
+     * this method is invoked by reflection from the Versioning filesystem to enable saving of it's changed properties..
+     * these should be mirrored in the filesystem so that they get saved..
+     */ 
+    public void saveVersioningFileSystemProperties(String propName, Object newValue) {
+        copyFromVersioningFs();
+        firePropertyChange(propName, null, newValue);
+    }
+    
     
     public void addRevisionListener(RevisionListener listener) {
         if (revisionListeners == null) revisionListeners = new ArrayList();
@@ -1380,6 +1444,15 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return info;
     }
     
+    private void assignVersioningProperties(VcsVersioningSystem vers) {
+        vers.setShowDeadFiles(versioningFileSystemShowDeadFiles);
+        vers.setIgnoredGarbageFiles(versioningFileSystemShowGarbageFiles);
+        vers.setShowLocalFiles(versioningFileSystemShowLocalFiles);
+        vers.setShowMessages(versioningFileSystemShowMessage);
+        vers.setShowUnimportantFiles(versioningFileSystemShowUnimportantFiles);
+        vers.setMessageLength(versioningFileSystemMessageLength);
+    }
+    
     /** Notifies this file system that it has been added to the repository. 
      */
     public void addNotify() {
@@ -1399,6 +1472,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     //VersioningExplorer.getRevisionExplorer().open();
                     if (versioningSystem == null) {
                         versioningSystem = new VcsVersioningSystem(VcsFileSystem.this);//new DefaultVersioningSystem(new VcsFileSystemInfo());
+                        assignVersioningProperties((VcsVersioningSystem)versioningSystem);
                         if (cache != null) {
                             org.netbeans.modules.vcscore.cache.FileSystemCache fsCache =
                                 org.netbeans.modules.vcscore.cache.CacheHandler.getInstance().getCache(cache);
@@ -1584,6 +1658,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         //D.deb("writeObject() - saving bean"); // NOI18N
         // cache is transient
         numberOfFinishedCmdsToCollect = new Integer(RuntimeSupport.getInstance().getCollectFinishedCmdsNum(getSystemName()));
+        
         out.writeBoolean (true/*cache.isLocalFilesAdd ()*/); // for compatibility
         String myPassword = password;
         if (!rememberPassword) password = null;

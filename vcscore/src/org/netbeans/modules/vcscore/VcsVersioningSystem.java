@@ -120,6 +120,11 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         setCapability(null);//FileSystemCapability.DOC);
     }
     
+    public void addNotify() {
+        propagatePropertyChange(new String[] {PROP_IGNORED_GARBAGE_FILES, PROP_SHOW_MESSAGES, 
+          PROP_MESSAGE_LENGTH, PROP_SHOW_LOCAL_FILES, PROP_SHOW_UNIMPORTANT_FILES, PROP_SHOW_DEAD_FILES});
+    }
+    
     private void initListeners() {
         /*
         fileStatus = new FileStatusListener() {
@@ -236,7 +241,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
                 ignoredGarbageRE = null;
             }
             ignoredGarbageFiles = nue;
-            firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null, null); // NOI18N
+            firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null, nue); // NOI18N
             refreshExistingFolders();
         }
     }
@@ -254,6 +259,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     public void setShowMessages(boolean showMessages) {
         if (this.showMessages != showMessages) {
             this.showMessages = showMessages;
+            firePropertyChange(PROP_SHOW_MESSAGES, new Boolean(!showMessages), new Boolean(showMessages));
             redisplayRevisions();
         }
     }
@@ -307,11 +313,14 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
      * @param messageLength New value of property messageLength.
      */
     public void setMessageLength(int messageLength) {
+        int oldLength = this.messageLength;
         this.messageLength = messageLength;
         if (messageLength < 0) {
             this.messageLength = 0;
         }
+        firePropertyChange(PROP_MESSAGE_LENGTH, new Integer(oldLength), new Integer(messageLength));
         redisplayRevisions();
+        
     }    
     
     /*

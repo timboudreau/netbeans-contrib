@@ -87,6 +87,7 @@ public final class VersioningRepository extends Object implements java.io.Serial
                 // mark as a listener on changes in the file system
                 vfs.addPropertyChangeListener (propListener);
                 fireIt = true;
+                vfs.addNotify();
             } else fireIt = false;
         }
         if (fireIt) {
@@ -104,6 +105,7 @@ public final class VersioningRepository extends Object implements java.io.Serial
                 names.remove(systemName);
                 fireIt = true;
                 vfs.removePropertyChangeListener (propListener);
+                vfs.removeNotify();
             } else fireIt = false;
         }
         if (fireIt) {
