@@ -57,6 +57,7 @@ public final class Visualizer extends org.netbeans.spi.diff.DiffVisualizer {
         b.setEnableLocation(false);
         b.setStatusLineVisible(false);
         b.setURL (new URL (null, "file://", new UH (w.toString())));
+        b.setName(org.openide.util.NbBundle.getMessage(Visualizer.class, "FMT_NAME", name1, name2));
         return b;
     }
     

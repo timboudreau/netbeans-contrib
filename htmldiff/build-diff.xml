@@ -12,10 +12,84 @@ Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <project default="all" name="Build Differences Between NetBeans APIs">
-    <property name="new-nb" location="../.." />
+    <property name="new-nb" location="sources/new" />
     <property name="new-javadoc" location="${new-nb}/nbbuild/modules_javadoc" />
-<!--    <property name="old-nb" location="../.." /> -->
-    <!-- <property name="old-javadoc" -->
+    <property name="old-nb" location="sources/old" /> 
+    <property name="old-javadoc" location="${old-nb}/nbbuild/modules_javadoc" />
+    
+    <property name="netbeans.no.pre.unscramble" value="true" />
+    
+    <target name="new-co" description="Checkouts the sources for the current version" >
+        <cvs 
+            dest="${new-nb}"
+            cvsRoot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
+            compressionlevel="3" 
+            package="libs xml autoupdate java/srcmodel java/arch debuggercore/oldapi debuggercore/arch"
+        />
+        <cvs 
+            dest="${new-nb}"
+            cvsRoot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
+            compressionlevel="3" 
+            tag="winsys_29836"
+            package="nbbuild openide core"
+        />
+    </target>
+    
+    <target name="old-co" description="Checkouts the sources for the old version" >
+        <cvs 
+            dest="${old-nb}"
+            tag="release35"
+            cvsRoot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
+            compressionlevel="3" 
+            package="nbbuild openide core libs xml autoupdate java/srcmodel java/arch debuggercore/oldapi debuggercore/arch"
+        />
+        <patch patchfile="patch35.diff" dir="${old-nb}" strip="0" />
+    </target>
+    
+    <target name="new-javadoc" description="Builds javadoc for new version" >
+   <!--     <ant dir="${new-nb}/nbbuild" target="build-javadoc" >
+            <property name="fixedmodules" value="
+                openide, 
+                openide/compiler,
+                openide/execution,
+                openide/io,
+                openide/deprecated,
+                openide/loaders,
+                core/javahelp,
+                core/settings"
+             />
+            <property name="modules" value="
+                java/srcmodel,
+                debuggercore/oldapi" 
+            />
+        </ant>
+-->        
+        <property name="arch.in" location="${new-nb}" />
+        <property name="arch.out" location="${new-javadoc}" />
+        <antcall target="arch" >
+            <param name="module" value="AutoUpdate" />
+            <param name="arch" value="autoupdate/arch/arch-autoupdate.xml" />
+        </antcall>
+    </target>
+    
+    <target name="old-javadoc" description="Builds javadoc for old version" >
+        <ant dir="${old-nb}/nbbuild" target="build-javadoc" >
+            <property name="fixedmodules" value="
+                openide, 
+                openide/compiler,
+                openide/execution,
+                openide/io,
+                openide/deprecated,
+                core/javahelp,
+                core/settings"
+             />
+<!--                openide/loaders, -->
+            <property name="modules" value="
+                java/srcmodel,
+                debuggercore/oldapi" 
+            />
+        </ant>
+    </target>
     
     
     <target name="compile">
@@ -51,4 +125,18 @@ Microsystems, Inc. All Rights Reserved.
         <delete dir="diff" />
         <delete file="list.html" />
     </target>    
+    
+    <!-- generates architecture answers -->
+    <target name="arch" >
+        <taskdef name="arch" classname="org.netbeans.nbbuild.Arch">
+            <classpath>
+                <pathelement location="${new-nb}/nbbuild/nbantext.jar"/>
+            </classpath>
+        </taskdef>
+        <echo message="x: ${arch.in}/${arch}" />
+        <echo message="y: ${arch.out}" />
+        <property name="arch.warn" value="true" />
+        <mkdir dir="${arch.out}/${module}" />
+        <arch answers="${arch.in}/${arch}" output="${arch.out}/${module}/architecture-summary.html" stylesheet="prose.css" />
+    </target>
 </project>
