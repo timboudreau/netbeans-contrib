@@ -45,6 +45,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     public VcsCustomizer() {
         changeSupport=new PropertyChangeSupport(this);
         initComponents ();
+        removeEnterFromKeymap();
         saveAsButton.setMnemonic(KeyEvent.VK_S);
         removeConfigButton.setMnemonic(KeyEvent.VK_R);
         advancedButton.setMnemonic(KeyEvent.VK_A);
@@ -71,7 +72,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         setLayout (new java.awt.GridBagLayout ());
         java.awt.GridBagConstraints gridBagConstraints1;
 
-        advancedButton.setLabel ("Advanced...");
+        advancedButton.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.advancedButton.text"));
         advancedButton.addActionListener (new java.awt.event.ActionListener () {
                                               public void actionPerformed (java.awt.event.ActionEvent evt) {
                                                   advancedButtonActionPerformed (evt);
@@ -90,7 +91,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         propsPanel.setLayout (new java.awt.GridBagLayout ());
         java.awt.GridBagConstraints gridBagConstraints2;
 
-        jLabel2.setText ("Root Directory:");
+        jLabel2.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.jLabel2.text"));
 
         gridBagConstraints2 = new java.awt.GridBagConstraints ();
         gridBagConstraints2.gridx = 0;
@@ -99,6 +100,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
         propsPanel.add (jLabel2, gridBagConstraints2);
 
+        rootDirTextField.setColumns (15);
         rootDirTextField.setText (".");
         rootDirTextField.setNextFocusableComponent (browseButton);
         rootDirTextField.addActionListener (new java.awt.event.ActionListener () {
@@ -122,7 +124,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints2.weightx = 0.8;
         propsPanel.add (rootDirTextField, gridBagConstraints2);
 
-        browseButton.setText ("Browse...");
+        browseButton.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.browseButton.text"));
         browseButton.setNextFocusableComponent (refreshTextField);
         browseButton.addActionListener (new java.awt.event.ActionListener () {
                                             public void actionPerformed (java.awt.event.ActionEvent evt) {
@@ -138,7 +140,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints2.insets = new java.awt.Insets (4, 4, 4, 4);
         propsPanel.add (browseButton, gridBagConstraints2);
 
-        jLabel4.setText ("Refresh Period (milliseconds):");
+        jLabel4.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.jLabel4.text"));
 
         gridBagConstraints2 = new java.awt.GridBagConstraints ();
         gridBagConstraints2.gridx = 0;
@@ -195,7 +197,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints3.weightx = 0.8;
         vcsPanel.add (configCombo, gridBagConstraints3);
 
-        saveAsButton.setText ("Save as...");
+        saveAsButton.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.saveAsButton.text"));
         saveAsButton.setNextFocusableComponent (removeConfigButton);
         saveAsButton.addActionListener (new java.awt.event.ActionListener () {
                                             public void actionPerformed (java.awt.event.ActionEvent evt) {
@@ -209,7 +211,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         gridBagConstraints3.insets = new java.awt.Insets (4, 4, 4, 4);
         vcsPanel.add (saveAsButton, gridBagConstraints3);
 
-        removeConfigButton.setText ("Remove");
+        removeConfigButton.setText (org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.removeConfigButton.text"));
         removeConfigButton.setNextFocusableComponent (propsPanel);
         removeConfigButton.addActionListener (new java.awt.event.ActionListener () {
                                                   public void actionPerformed (java.awt.event.ActionEvent evt) {
@@ -491,6 +493,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         changeSupport.removePropertyChangeListener(l);
     }
 
+    private void removeEnterFromKeymap() {
+        MiscStuff.removeEnterFromKeymap(rootDirTextField);
+        MiscStuff.removeEnterFromKeymap(refreshTextField);
+    }
 
     //-------------------------------------------
     private void advancedConfiguration () {
@@ -613,6 +619,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                     propsPanel.add (button, gridBagConstraints1);
                 }
                 varButtons.add (button);
+                MiscStuff.removeEnterFromKeymap(tf);
             }
         }
         java.awt.Component comp = this;
@@ -642,7 +649,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             }
             // enable fs to react on change in variables
             fileSystem.setVariables(fileSystem.getVariables());
-            D.deb("variableChanged(): filesystemVariables = "+fileSystem.getVariables()); // NOI18N
+            //D.deb("variableChanged(): filesystemVariables = "+fileSystem.getVariables()); // NOI18N
         } else {
             E.deb ("Error setting variable:"+tf.getText ());
         }
@@ -929,30 +936,30 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 }
 
 /*
-* <<Log>>
-*  16   Jaga      1.11.1.3    3/21/00  Martin Entlicher Variable selector added.
-*  15   Jaga      1.11.1.2    3/15/00  Martin Entlicher Sort of properties' 
-*       labels
-*  14   Jaga      1.11.1.1    3/9/00   Martin Entlicher Fix of long width of 
-*       advanced panel.
-*  13   Jaga      1.11.1.0    2/24/00  Martin Entlicher Read configuration files 
-*       from filesystem.
-*  12   Gandalf   1.11        2/11/00  Martin Entlicher Different argument to 
-*       setRootDirectory
-*  11   Gandalf   1.10        2/10/00  Martin Entlicher Does not check the 
-*       existence of working directory.
-*  10   Gandalf   1.9         2/9/00   Martin Entlicher Fix of width of Advanced 
-*       Dialog.
-*  9    Gandalf   1.8         1/27/00  Martin Entlicher NOI18N
-*  8    Gandalf   1.7         1/26/00  Martin Entlicher Check whether the module 
-*       directory exists  
-*  7    Gandalf   1.6         1/3/00   Martin Entlicher 
-*  6    Gandalf   1.5         12/16/99 Martin Entlicher 
-*  5    Gandalf   1.4         12/15/99 Martin Entlicher Refresh time: check for 
-*       correct input
-*  4    Gandalf   1.3         12/8/99  Martin Entlicher 
-*  3    Gandalf   1.2         12/8/99  Martin Entlicher Added browse buttons.
-*  2    Gandalf   1.1         11/27/99 Patrik Knakal   
-*  1    Gandalf   1.0         11/24/99 Martin Entlicher 
-* $
-*/
+ * <<Log>>
+ *  16   Jaga      1.11.1.3    3/21/00  Martin Entlicher Variable selector added.
+ *  15   Jaga      1.11.1.2    3/15/00  Martin Entlicher Sort of properties' 
+ *       labels
+ *  14   Jaga      1.11.1.1    3/9/00   Martin Entlicher Fix of long width of 
+ *       advanced panel.
+ *  13   Jaga      1.11.1.0    2/24/00  Martin Entlicher Read configuration files 
+ *       from filesystem.
+ *  12   Gandalf   1.11        2/11/00  Martin Entlicher Different argument to 
+ *       setRootDirectory
+ *  11   Gandalf   1.10        2/10/00  Martin Entlicher Does not check the 
+ *       existence of working directory.
+ *  10   Gandalf   1.9         2/9/00   Martin Entlicher Fix of width of Advanced 
+ *       Dialog.
+ *  9    Gandalf   1.8         1/27/00  Martin Entlicher NOI18N
+ *  8    Gandalf   1.7         1/26/00  Martin Entlicher Check whether the module 
+ *       directory exists  
+ *  7    Gandalf   1.6         1/3/00   Martin Entlicher 
+ *  6    Gandalf   1.5         12/16/99 Martin Entlicher 
+ *  5    Gandalf   1.4         12/15/99 Martin Entlicher Refresh time: check for 
+ *       correct input
+ *  4    Gandalf   1.3         12/8/99  Martin Entlicher 
+ *  3    Gandalf   1.2         12/8/99  Martin Entlicher Added browse buttons.
+ *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
+ *  1    Gandalf   1.0         11/24/99 Martin Entlicher 
+ * $
+ */

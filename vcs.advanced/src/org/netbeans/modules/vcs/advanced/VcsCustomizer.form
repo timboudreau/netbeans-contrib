@@ -15,7 +15,9 @@
   <SubComponents>
     <Component class="javax.swing.JButton" name="advancedButton">
       <Properties>
-        <Property name="label" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="Advanced..."/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+          <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.advancedButton.text"/>
+        </Property>
       </Properties>
 
       <Events>
@@ -38,7 +40,9 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="Root Directory:"/>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+              <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.jLabel2.text"/>
+            </Property>
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -48,6 +52,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="rootDirTextField">
           <Properties>
+            <Property name="columns" type="int" editor="sun.beans.editors.IntEditor" value="15"/>
             <Property name="text" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="."/>
             <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection component="browseButton" type="bean"/>
@@ -66,7 +71,9 @@
         </Component>
         <Component class="javax.swing.JButton" name="browseButton">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="Browse..."/>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+              <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.browseButton.text"/>
+            </Property>
             <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection component="refreshTextField" type="bean"/>
             </Property>
@@ -83,7 +90,9 @@
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel4">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="Refresh Period (milliseconds):"/>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+              <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.jLabel4.text"/>
+            </Property>
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -135,7 +144,9 @@
         </Component>
         <Component class="javax.swing.JButton" name="saveAsButton">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="Save as..."/>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+              <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.saveAsButton.text"/>
+            </Property>
             <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection component="removeConfigButton" type="bean"/>
             </Property>
@@ -152,7 +163,9 @@
         </Component>
         <Component class="javax.swing.JButton" name="removeConfigButton">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.beaninfo.editors.StringEditor" value="Remove"/>
+            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.ResourceBundleStringFormEditor">
+              <ResourceString bundle="org/netbeans/modules/vcs/advanced/Bundle.properties" key="VcsCustomizer.removeConfigButton.text"/>
+            </Property>
             <Property name="nextFocusableComponent" type="java.awt.Component" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
               <Connection component="propsPanel" type="bean"/>
             </Property>
