@@ -1,0 +1,52 @@
+*** pmd-src-0.7.orig/src/pmd/config/ConfigUtils.java	Sat Feb 15 12:37:44 2003
+--- pmd-src-0.7/src/pmd/config/ConfigUtils.java	Fri Feb 21 10:54:04 2003
+***************
+*** 42,47 ****
+--- 42,68 ----
+   */
+  public class ConfigUtils {
+  
++     private static ArrayList extraFactories;
++     
++     /** Registers extra rules that are available.
++      * @param rules Collection of Rule objects.
++      */
++     public static void addRuleSetFactory (RuleSetFactory fact) {
++         if (extraFactories == null) {
++             extraFactories = new ArrayList ();
++         }
++         extraFactories.add (fact);
++     }
++     
++     /** Unregisters extra rules that are available.
++      * @param rules Collection of Rule objects.
++      */
++     public static void removeRuleSetFactory (RuleSetFactory fact) {
++         if (extraFactories != null) {
++             extraFactories.remove (fact);
++         }
++     }
++     
+  	/**
+  	 * Description of the Method
+  	 *
+***************
+*** 95,100 ****
+--- 116,132 ----
+  				RuleSet ruleset = ( RuleSet )iterator.next();
+  				list.addAll( ruleset.getRules() );
+  			}
++                         if (extraFactories != null) {
++                             iterator = extraFactories.iterator (); 
++                             while (iterator.hasNext () ) {
++                                 ruleSetFactory = (RuleSetFactory)iterator.next ();
++                                 Iterator it = ruleSetFactory.getRegisteredRuleSets();
++                                 while( it.hasNext() ) {
++                                         RuleSet ruleset = ( RuleSet )it.next();
++                                         list.addAll( ruleset.getRules() );
++                                 }
++                             }
++                         }
+  		}
+  		catch( RuleSetNotFoundException e ) {
+  			e.printStackTrace();
