@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 import java.awt.Color;
 import java.awt.Font;
+import com.netbeans.editor.BaseKit;
 import com.netbeans.editor.Settings;
 import com.netbeans.editor.SettingsUtil;
 import com.netbeans.editor.SettingsNames;
@@ -29,23 +30,16 @@ import com.netbeans.enterprise.modules.corba.idl.editor.coloring.IDLSyntax;
 
 public class IDLEditorSettingsInitializer implements Settings.Initializer {
 
-  public Map updateSettingsMap (Class kitClass, Map settingsMap) {
+  public void updateSettingsMap (Class kitClass, Map settingsMap) {
 
-    if (kitClass == IDLKit.class) { 
-
-      if (settingsMap == null) {
-	settingsMap = new HashMap();
-      }
-
-      settingsMap.put (SettingsNames.ABBREV_MAP, getIDLAbbrevMap());
-
+    // IDL Colorings
+    if (kitClass == BaseKit.class) {
       Font boldFont = SettingsDefaults.defaultFont.deriveFont(Font.BOLD);
       Font italicFont = SettingsDefaults.defaultFont.deriveFont(Font.ITALIC);
       Settings.Evaluator boldSubst = new SettingsUtil.FontStylePrintColoringEvaluator(Font.BOLD);
       Settings.Evaluator italicSubst = new SettingsUtil.FontStylePrintColoringEvaluator(Font.ITALIC);
       Settings.Evaluator lightGraySubst = new SettingsUtil.ForeColorPrintColoringEvaluator(Color.lightGray);
 
-      // Colorings
       SettingsUtil.setColoring(settingsMap, IDLSyntax.TEXT.getName(),
           new Coloring(null, null, null)
       );
@@ -108,30 +102,21 @@ public class IDLEditorSettingsInitializer implements Settings.Initializer {
 	 new Coloring(null, Color.green.darker().darker(), null)
       );
 
-      SettingsUtil.updateListSetting(settingsMap, SettingsNames.COLORING_NAME_LIST,
-        new String[] {
-          IDLSyntax.TEXT.getName(),
-          IDLSyntax.ERROR.getName(),
-          IDLSyntax.KEYWORD.getName(),
-          IDLSyntax.IDENTIFIER.getName(),
-          IDLSyntax.METHOD.getName(),
-          IDLSyntax.OPERATOR.getName(),
-          IDLSyntax.LINE_COMMENT.getName(),
-          IDLSyntax.BLOCK_COMMENT.getName(),
-          IDLSyntax.CHAR.getName(),
-          IDLSyntax.STRING.getName(),
-          IDLSyntax.INT.getName(),
-          IDLSyntax.HEX.getName(),
-          IDLSyntax.OCTAL.getName(),
-          IDLSyntax.LONG.getName(),
-          IDLSyntax.FLOAT.getName(),
-          IDLSyntax.DIRECTIVE.getName()
+    }
+
+
+    if (kitClass == IDLKit.class) { 
+
+      settingsMap.put (SettingsNames.ABBREV_MAP, getIDLAbbrevMap());
+
+      SettingsUtil.updateListSetting(settingsMap, SettingsNames.SYNTAX_CLASS_LIST,
+        new Class[] {
+          IDLSyntax.class,
         }
       );
 
     }
-    return settingsMap;
-  }  
+  }
   
   Map getIDLAbbrevMap() {
     Map idlAbbrevMap = new HashMap();
@@ -182,6 +167,8 @@ public class IDLEditorSettingsInitializer implements Settings.Initializer {
 
 /*
  * <<Log>>
+ *  4    Jaga      1.3         4/13/00  Miloslav Metelka token colorings in 
+ *       base-kit settings
  *  3    Jaga      1.2         3/24/00  Miloslav Metelka renaming
  *  2    Jaga      1.1         3/22/00  Miloslav Metelka fix
  *  1    Jaga      1.0         3/15/00  Miloslav Metelka 
