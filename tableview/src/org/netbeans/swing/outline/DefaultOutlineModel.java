@@ -294,90 +294,97 @@ public class DefaultOutlineModel implements OutlineModel {
         public void treeNodesRemoved(TreeModelEvent e) {
             System.err.println("\nTreeNodesRemoved");
             
+            //Okay, one or more nodes was removed.  The event's tree path
+            //will be the parent.  Now we need to find out about any children
+            //that were also removed so we can create a TreeModelEvent with
+            //the right number of removed rows.
+            
+            //Note there is a slight impedance mismatch between TreeModel and
+            //TableModel here - if we're using a large model layout cache,
+            //we don't actually know what was offscreen - the data is already
+            //gone from the model, so even if we know it was expanded, we
+            //can't find out how many children it had.
+            
+            //The only thing this really affects is the scrollbar, and in
+            //fact, the standard JTable UIs will update it correctly, since
+            //the scrollbar will read getRowCount() to calculate its position.
+            //In theory, this could break on a hyper-efficient TableUI that
+            //attempted to manage scrollbar position *only* based on the
+            //content of table model events.  That's pretty unlikely; but if
+            //it happens, the solution is for Outline.getPreferredSize() to
+            //proxy the preferred size from the layout cache
+            
             TreePath path = e.getTreePath();
             lastRemoveWasExpanded = getTreePathSupport().isExpanded(path);
 
+            //See if it's expanded - if it wasn't we're just going to blow
+            //away one row anyway
             if (lastRemoveWasExpanded) {
                 Object[] kids = e.getChildren();
+                
+                //TranslateEvent uses countRemoved to set the TableModelEvent
                 countRemoved = kids.length;
+                
+                //Iterate the removed children
                 for (int i=0; i < kids.length; i++) {
+                    //Get the child's path
                     TreePath childPath = path.pathByAddingChild(kids[i]);
+                    
+                    //If it's not expanded, we don't care
                     if (getTreePathSupport().isExpanded(childPath)) {
-                        int visibleChildren = getLayout().getVisibleChildCount(childPath);
-                        System.err.println("Adding in " + visibleChildren + " on " + childPath);
+                        //Find the number of *visible* children.  This may not
+                        //be all the children, but it's the best information we have.
+                        int visibleChildren = 
+                            getLayout().getVisibleChildCount(childPath);
+
+                        //add in the number of visible children
                         countRemoved += visibleChildren;
                     }
+                    //Kill any references to the dead path to avoid memory leaks
+                    getTreePathSupport().removePath(childPath);
                 }
             } else {
+                //Only one thing to remove
                 countRemoved = 1;
             }
             
-            /*
-            
-            System.err.println("Removed path " + path + " children " + Arrays.asList(e.getChildren()) + " indices " + Arrays.asList(org.openide.util.Utilities.toObjectArray(e.getChildIndices())));
-            
-            if (lastRemoveWasExpanded) {
-                Enumeration en = getLayout().getVisiblePathsFrom(path);
-                if (en != null) {
-                    while (en.hasMoreElements()) {
-                        TreePath chPath = (TreePath) en.nextElement();
-                        if (chPath.isDescendant(path)) {
-                            System.err.println("ChildPath: " + chPath);
-                            countRemoved += 1;
-                        }
-                    }
-                    System.err.println("Count removed: " + countRemoved);
-                } else {
-                    countRemoved = e.getChildren().length;
-                }
-            } else {
-                //countRemoved won't actually be used for this
-                countRemoved = 1;
-            }
-             */
-            
-            /*
-            countRemoved = e.getChildren().length;
-            //Count the number of descendant nodes that are being removed
-            TreePath[] paths = treePathSupport.getExpandedDescendants(
-                path);
-            
-            for (int i=0; i < paths.length; i++) {
-                if (paths[i].isDescendant(path)) {
-                    int indirectlyRemoved = getLayout().getVisibleChildCount(paths[i]);
-                    System.err.println("Indirectly removed " + indirectlyRemoved + " on " + paths[i]);
-                    countRemoved += indirectlyRemoved;
-                }
-            }
-            
-            System.err.println("TreeNodesRemoved " + path + " direct children removed: " + e.getChildren().length + " total removed: " + countRemoved);
-            
-             */
-            
+            //Tell the layout what happened, now that we've mined it for data
+            //about the visible children of the removed paths
             getLayout().treeNodesRemoved(e);
-            System.err.println("Refiring Tree nodes removed" + e);
+
+            //Fire the tree change (fireTreeChange() will create a translated
+            //TableModelEvent and fire it)
             fireTreeChange (e, NODES_REMOVED);
         }
         
         public void treeStructureChanged(TreeModelEvent e) {
+            //This will translate to a generic "something changed" TableModelEvent
             getLayout().treeStructureChanged(e);
             fireTreeChange (e, STRUCTURE_CHANGED);
         }
         
         public void treeCollapsed(TreeExpansionEvent event) {
+            //FixedHeightLayoutCache tests if the event is null.
+            //Don't know how it could be, but there's probably a reason...
 	    if(event != null) {
 		TreePath path = event.getPath();
 
+                //Tell the layout about the change
 		if(path != null && getTreePathSupport().isVisible(path)) {
 		    getLayout().setExpandedState(path, false);
 		}
+                
 	    }
+            
+            //Fire the table model event constructed in treeWillCollapse
             fireTableChange (pendingExpansionEvent);
             pendingExpansionEvent = null;
             inProgressEvent = null;
         }
         
-        protected void updateExpandedDescendants(TreePath path) {
+        /** Re&euml;expand descendants of a newly expanded path which were
+         * expanded the last time their parent was expanded */
+        private void updateExpandedDescendants(TreePath path) {
             getLayout().setExpandedState(path, true);
 
             TreePath[] descendants = 
@@ -397,6 +404,7 @@ public class DefaultOutlineModel implements OutlineModel {
 		updateExpandedDescendants(event.getPath());
 	    }
             
+            //Fire the table model event constructed in treeWillExpand
             fireTableChange (pendingExpansionEvent);
             pendingExpansionEvent = null;
             inProgressEvent = null;
@@ -424,6 +432,10 @@ public class DefaultOutlineModel implements OutlineModel {
         public void treeExpansionVetoed(TreeExpansionEvent event, ExpandVetoException exception) {
             //Make sure the event that was vetoed is the one we're interested in
             if (event == inProgressEvent) {
+                //If so, delete the expansion event we thought we were going
+                //to use in treeExpanded/treeCollapsed, so that it doesn't
+                //stick around forever holding references to objects from the
+                //model
                 pendingExpansionEvent = null;
                 inProgressEvent = null;
             }
@@ -433,7 +445,8 @@ public class DefaultOutlineModel implements OutlineModel {
     int countRemoved = 0;
     private boolean lastRemoveWasExpanded = false;
     
-    
+    /** Create a TableModelEvent that reflects the change described by the
+     * tree model event, of the passed type */
     private void fireTranslatedEvent (TreeModelEvent e, int type) {
         TableModelEvent event = translateEvent (e, type);
         if (event != null) {
@@ -507,28 +520,44 @@ public class DefaultOutlineModel implements OutlineModel {
         
         switch (type) {
             case NODES_CHANGED :
-                System.err.println("Change - returning a change event for row " + row);
+                //It's just a value change - probably the user set a value in
+                //one of the other columns
                 return new TableModelEvent (this, row);
             case NODES_INSERTED :
-                System.err.println("Nodes inserted");
+                //See if the insert was into something that might affect display
                 boolean realInsert = getLayout().isExpanded(path);
+                
                 if (realInsert) {
-                    System.err.println("The parent is open - real insert");
+                    //Get the indices inserted
                     int[] indices = e.getChildIndices();
+                    
+                    //Sort them - they should be presorted, but some notes in
+                    //FixedHeightLayoutCache sources that it should be sorting
+                    //them and isn't - so we will here
                     Arrays.sort(indices);
+                    
                     if (indices.length == 0) {
+                        //Shouldn't happen
                         return null;
                     } else if (indices.length == 1) {
-                        return new TableModelEvent (this, row + 1, row + 1, 
+                        
+                        //Only one index to change, fire a simple event.  It
+                        //will be the first index in the array + the row +
+                        //1 because the 0th child of a node is 1 greater than
+                        //its row index
+                        int affectedRow = row + indices[0] + 1;
+                        return new TableModelEvent (this, affectedRow, affectedRow, 
                             TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT);
+                        
                     } else {
-                        int lowest = indices[0];
-                        int highest = indices[indices.length-1];
+                        //Find the first and last indices.
+                        int lowest = indices[0] + 1;
+                        int highest = indices[indices.length-1] + 1;
                         return new TableModelEvent (this, row + lowest, row + highest,
                             TableModelEvent.ALL_COLUMNS, TableModelEvent.INSERT);
+                        
                     }
                 } else {
-                    System.err.println("The parent is closed - change for row " + row);
                     //Nodes were inserted in an unexpanded parent.  Just fire
                     //a change for that row and column so that it gets repainted
                     //in case the node there changed from leaf to non-leaf
@@ -558,7 +587,7 @@ public class DefaultOutlineModel implements OutlineModel {
                     //Add in the first index, and add one to it since the 0th
                     //will have the row index of its parent + 1
                     int firstRow = row + indices[0] + 1;
-                    int lastRow = firstRow + countRemoved;
+                    int lastRow = firstRow + (countRemoved - 1);
                     
                     System.err.println("TableModelEvent: fromRow: " + firstRow + " toRow: " + lastRow);
                      

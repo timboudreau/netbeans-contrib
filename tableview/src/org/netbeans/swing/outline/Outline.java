@@ -258,23 +258,28 @@ public final class Outline extends JTable {
     public boolean editCellAt (int row, int column, EventObject e) {
         //If it was on column 0, it may be a request to expand a tree
         //node - check for that first.
-        if (column == 0 && e instanceof MouseEvent) {
+        if (isTreeColumnIndex (column) && e instanceof MouseEvent) {
             MouseEvent me = (MouseEvent) e;
             TreePath path = getLayoutCache().getPathClosestTo(me.getX(), me.getY());
-            int handleWidth = DefaultOutlineCellRenderer.getExpansionHandleWidth();
-            Insets ins = getInsets();
-            int handleStart = ins.left + ((path.getPathCount() - 1) * DefaultOutlineCellRenderer.getNestingWidth());
-            int handleEnd = ins.left + handleStart + handleWidth;
-            if ((me.getX() > ins.left && me.getX() >= handleStart && me.getX() <= handleEnd) ||
-                 me.getClickCount() > 1) {
+            if (!getOutlineModel().isLeaf(path.getLastPathComponent())) {
+                int handleWidth = DefaultOutlineCellRenderer.getExpansionHandleWidth();
+                Insets ins = getInsets();
+                int handleStart = ins.left + ((path.getPathCount() - 1) * DefaultOutlineCellRenderer.getNestingWidth());
+                int handleEnd = ins.left + handleStart + handleWidth;
 
-                boolean expanded = getLayoutCache().isExpanded(path);
-                if (!expanded) {
-                    getTreePathSupport().expandPath(path);
-                } else {
-                    getTreePathSupport().collapsePath(path);
+                //TODO: Translate x/y to position of column if non-0
+                
+                if ((me.getX() > ins.left && me.getX() >= handleStart && me.getX() <= handleEnd) ||
+                     me.getClickCount() > 1) {
+
+                    boolean expanded = getLayoutCache().isExpanded(path);
+                    if (!expanded) {
+                        getTreePathSupport().expandPath(path);
+                    } else {
+                        getTreePathSupport().collapsePath(path);
+                    }
+                    return false;
                 }
-                return false;
             }
         }
             

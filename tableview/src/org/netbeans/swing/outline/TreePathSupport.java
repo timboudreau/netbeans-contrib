@@ -99,6 +99,12 @@ public final class TreePathSupport {
         }
     }
     
+    /** Remove a path's data from the list of known paths.  Called when
+     * a tree model deletion event occurs */
+    public void removePath (TreePath path) {
+        expandedPaths.remove(path);
+    }
+    
     private void fireTreeExpansion (TreeExpansionEvent e, boolean expanded) {
         int size = eListeners.size();
         
