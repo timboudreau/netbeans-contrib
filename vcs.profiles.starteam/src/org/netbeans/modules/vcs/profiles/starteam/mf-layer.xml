@@ -1,0 +1,44 @@
+<?xml version='1.0'?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd" [
+  <!ENTITY includefiles_config SYSTEM "layer-includes-config.xml">
+  <!ENTITY includefiles_configRB SYSTEM "layer-includes-configRB.xml">
+  <!ENTITY includefiles_list SYSTEM "layer-includes-list.xml">
+]>
+<filesystem>
+  <folder name="org">
+    <folder name="netbeans">
+      <folder name="modules">
+        <folder name="vcs">
+          <folder name="profiles">
+            <folder name="starteam">
+              <folder name="config">
+                &includefiles_configRB;
+              </folder>
+              <folder name="list">
+                &includefiles_list;
+              </folder>
+            </folder>
+          </folder>
+        </folder>
+      </folder>
+    </folder>
+  </folder>
+  <folder name="vcs">
+    <folder name="config">
+      &includefiles_config;
+    </folder>
+  </folder>
+</filesystem>

@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+
+<project name="vcsgeneric/profiles/starteam" default="netbeans" basedir=".">
+
+  <property name="nbroot" value="../../.."/>
+  <property name="nbext" value="${nbroot}/nbbuild"/>
+  <property name="nbm_alias" value="nb_ide"/>
+  <property name="homepage.base" value="netbeans.org"/>
+  <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
+  <property name="license.file" value="${nbroot}/nbbuild/standard-nbm-license.txt"/>
+
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
+  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="${nbext}/nbantext.jar"/>
+  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
+  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbext}/nbantext.jar"/>
+
+  <target name="compile">
+    <!-- <echo message="basedir = ${basedir}, nbroot1 = ${nbroot1}"/> -->
+    <javac srcdir="src" 
+        deprecation="${build.compiler.deprecation}" 
+        debug="${build.compiler.debug}"
+        destdir="src">
+      <classpath>        
+	<pathelement location="${nbroot}/openide/openide-13javac-workaround.jar"/>
+        <!--<pathelement location="${nbroot1}/openide/netbeans/lib/openide.jar"/>-->
+        <fileset dir="${nbroot}/openide/netbeans/lib">
+          <include name="openide*.jar" />
+        </fileset>
+	<pathelement location="${nbroot}/openidex/netbeans/modules/autoload/openidex.jar"/>
+	<pathelement location="${nbroot}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
+	<pathelement location="${nbroot}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="jars" depends="compile">
+    <!--
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-commands.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/starteam/commands/*.class"/>
+       <include name="org/netbeans/modules/vcs/profiles/starteam/commands/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/starteam/commands/*.form"/>
+       <include name="org/netbeans/modules/vcs/profiles/starteam/commands/*.properties"/>
+    </makelayer>
+    -->
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-config.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/starteam/config/*.*"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/starteam/config/*_ja.*"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/starteam/config/*_XX.*"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/starteam/config/Bundle.properties"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/starteam/config/Bundle_*.properties"/>
+    </makelayer>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-configRB.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/starteam/config/Bundle.properties"/>
+       <include name="org/netbeans/modules/vcs/profiles/starteam/config/Bundle_*.properties"/>
+    </makelayer>
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-config_ja.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/starteam/config/*_ja.*"/>
+       <exclude name="org/netbeans/modules/vcs/profiles/starteam/config/Bundle_ja.properties"/>
+    </makelayer>  
+    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/starteam/layer-includes-list.xml" absolutepath="true">
+       <include name="org/netbeans/modules/vcs/profiles/starteam/list/*.class"/>
+       <include name="org/netbeans/modules/vcs/profiles/starteam/list/*.java"/>
+       <include name="org/netbeans/modules/vcs/profiles/starteam/list/*.properties"/>
+    </makelayer>
+    <mkdir dir="netbeans/modules"/>
+    <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
+    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+    <locjar jarfile="netbeans/modules/starteam-profile.jar"
+         manifest="manifest-subst.mf"
+         basedir="src"
+         excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
+	 excludes="org/netbeans/modules/vcs/profiles/starteam/mf-layer_XX.xml"
+         compress="false">
+      <locale name="ja"/>
+      <fileset dir="src/" excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt">
+        <include name="**/*"/>
+	<exclude name="org/netbeans/modules/vcs/profiles/starteam/config/*_XX.*"/>
+      </fileset>
+      <fileset dir="src/">
+        <include name="**/*.java"/>
+        <include name="**/*.form"/>
+      </fileset>
+    </locjar>
+  </target>
+
+  <target name="netbeans" depends="jars">
+    <genlist targetname="nbm" outputfiledir="${nbext}/netbeans"/>
+  </target>
+
+  <target name="nbm" depends="netbeans">
+    <makenbm file="starteam-profile.nbm"
+             topdir="."
+             module="netbeans/modules/starteam-profile.jar"
+	     homepage="http://vcsgeneric.${homepage.base}/"
+	     distribution="http://${dist.base}/starteam-profile.nbm">
+      <license file="${license.file}"/>
+      <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+    </makenbm>
+  </target>
+
+  <target name="clean">
+    <delete>
+      <fileset dir="src">
+        <include name="**/*.class"/>
+        <include name="**/*.jar"/>
+        <include name="org/netbeans/modules/vcs/profiles/starteam/layer-include*.xml"/>
+      </fileset>
+    </delete>
+    <delete file="manifest-subst.mf"/>
+    <delete file="starteam-profile.nbm"/>
+    <delete dir="netbeans"/>
+    <delete dir="Info"/>
+  </target>
+
+</project>
