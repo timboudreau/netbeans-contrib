@@ -28,6 +28,9 @@ import java.util.LinkedList;
 import java.io.IOException;
 import java.io.InputStream;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+
 import org.openide.TopManager;
 
 import org.openide.cookies.OpenCookie;
@@ -96,7 +99,8 @@ import org.netbeans.modules.corba.idl.generator.ImplGenerator;
 * @author Karel Gardas
 */
 
-public class IDLDataObject extends MultiDataObject {
+public class IDLDataObject extends MultiDataObject
+    implements PropertyChangeListener {
 
     static final long serialVersionUID =-7151972557886707595L;
 
@@ -143,6 +147,8 @@ public class IDLDataObject extends MultiDataObject {
     private boolean _M_orb_for_compilation_cache = false;
 
     private boolean _M_generation = false;
+
+    private transient boolean _M_registered_on_settings = false;
 
     //private FolderListener _M_folder_listener;
     //private FileObject _M_parent_folder;
@@ -1117,24 +1123,44 @@ public class IDLDataObject extends MultiDataObject {
     }
 
     public void setOrbForCompilation (String __value) throws IOException {
+	String __old = _M_orb_for_compilation;
 	_M_orb_for_compilation = __value;
 	FileObject __idl_file = this.getPrimaryFile ();
 	__idl_file.setAttribute ("orb_for_compilation", _M_orb_for_compilation); // NOI18N
 	// for hidding generated files
 	CORBASupportSettings __css = (CORBASupportSettings)
 	    CORBASupportSettings.findObject (CORBASupportSettings.class, true);
+	if (_M_registered_on_settings)
+	    __css.removePropertyChangeListener (this);
 	__css.cacheThrow ();
 	ORBSettings __settings = __css.getSettingByName (this._M_orb_for_compilation);
 	IDLDataLoader __loader = (IDLDataLoader)IDLDataLoader.findObject 
 	    (IDLDataLoader.class, true);
 	__loader.setHide (__settings.hideGeneratedFiles ());       
+	this.firePropertyChange ("_M_orb_for_compilation", __old, _M_orb_for_compilation);
     }
 
     public String getOrbForCompilation () {
+	if (DEBUG)
+	    System.out.print ("IDLDataObject::getOrbForCompilation () -> ");
 	FileObject __idl_file = this.getPrimaryFile ();
 	if (!_M_orb_for_compilation_cache) {
 	    _M_orb_for_compilation = (String)__idl_file.getAttribute ("orb_for_compilation"); // NOI18N
 	    _M_orb_for_compilation_cache = true;
+	}
+	if (_M_orb_for_compilation == null) {
+	    if (DEBUG)
+		System.out.println ("default from settings");
+	    if (!_M_registered_on_settings) {
+		CORBASupportSettings __css = 
+		    (CORBASupportSettings)CORBASupportSettings.findObject
+		    (CORBASupportSettings.class, true);
+		_M_registered_on_settings = true;
+		__css.addPropertyChangeListener (this);
+	    }
+	} else {
+	    if (DEBUG)
+		System.out.println (_M_orb_for_compilation);
 	}
 	return _M_orb_for_compilation;
     }
@@ -1199,6 +1225,14 @@ public class IDLDataObject extends MultiDataObject {
 	}
 	Set __result = super.files ();
 	return __result;
+    }
+
+    public void propertyChange (PropertyChangeEvent __event) {
+	if (__event.getPropertyName ().equals ("_M_orb_name")) {
+	    //System.out.println ("changed default orb!");
+	    this.firePropertyChange ("_M_orb_for_compilation", _M_orb_for_compilation, 
+				     _M_orb_for_compilation);
+	}
     }
 
 }
