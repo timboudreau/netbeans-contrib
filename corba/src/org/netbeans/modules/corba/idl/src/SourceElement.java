@@ -53,6 +53,10 @@ public class SourceElement extends SimpleNode {
 
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         8/3/99   Karel Gardas    
  *  1    Gandalf   1.0         7/10/99  Karel Gardas    initial revision
  * $
  */
+
+
+

@@ -15,7 +15,7 @@ package com.netbeans.enterprise.modules.corba.idl.src;
 
 import java.util.Vector;
 
-public class TypeElement extends Element {
+public class TypeElement extends IDLElement {
 
    //private static final boolean DEBUG = true;
    public static final boolean DEBUG = false;
@@ -23,14 +23,14 @@ public class TypeElement extends Element {
    private String type;
    //private Vector members;
 
-   public TypeElement(int id) {
+   public TypeElement (int id) {
       super(id);
       //members = new Vector ();
       setName ("typedef");
       setType ("none");
    }
 
-   public TypeElement(IDLParser p, int id) {
+   public TypeElement (IDLParser p, int id) {
       super(p, id);
       //members = new Vector ();
       setName ("typedef");

@@ -15,7 +15,7 @@ package com.netbeans.enterprise.modules.corba.idl.src;
 
 import java.util.Vector;
 
-public class OperationElement extends Element {
+public class OperationElement extends IDLElement {
 
    private String op_attribute;
    //private Element op_type_spec;
@@ -38,24 +38,6 @@ public class OperationElement extends Element {
       exceptions = new Vector ();
       contexts = new Vector ();
    }
-
-   /*
-   public String getName () {
-      return name.getName ();
-   }
-
-   public void setName (String n) {
-      name = new Identifier (n);
-   }
-
-   public void setName (Element v) {
-      name = v;
-   }
-
-   public Element getIdentifier () {
-      return name;
-   }
-   */
 
    public void setAttribute (String attr) {
       op_attribute = attr;

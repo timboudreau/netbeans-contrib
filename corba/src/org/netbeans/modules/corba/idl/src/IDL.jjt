@@ -80,7 +80,7 @@ SKIP :
 
 /* starting */
 
-SimpleNode Start () #Element : {}
+SimpleNode Start () #IDLElement : {}
 {
    specification ()
    { return jjtThis; }
@@ -110,11 +110,20 @@ void definition() :
 }
 
 /* Production 3 */
-
+/*
 void module() #ModuleElement :
 {}
 {
   "module" identifier() "{" ( definition() )+ "}"
+}
+*/
+
+void module() #ModuleElement :
+{}
+{
+  { Identifier id; }
+  "module" id = identifier() { jjtThis.setName (id.getName ()); } 
+  "{" ( definition() )+ "}"
 }
 
 /* Production 4 */

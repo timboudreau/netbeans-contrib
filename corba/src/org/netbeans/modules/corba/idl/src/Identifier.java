@@ -13,7 +13,7 @@
 
 package com.netbeans.enterprise.modules.corba.idl.src;
 
-public class Identifier extends Element {
+public class Identifier extends IDLElement {
 
    public Identifier(int id) {
       super(id);

@@ -13,7 +13,7 @@
 
 package com.netbeans.enterprise.modules.corba.idl.src;
 
-public class ConstElement extends Element {
+public class ConstElement extends IDLElement {
 
    String exp;
    String type;

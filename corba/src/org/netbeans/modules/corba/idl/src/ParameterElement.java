@@ -13,16 +13,16 @@
 
 package com.netbeans.enterprise.modules.corba.idl.src;
 
-public class ParameterElement extends Element {
+public class ParameterElement extends IDLElement {
 
    private int attr;
    private String type;
 
-   public ParameterElement(int id) {
+   public ParameterElement (int id) {
       super(id);
    }
 
-   public ParameterElement(IDLParser p, int id) {
+   public ParameterElement (IDLParser p, int id) {
       super(p, id);
    }
 

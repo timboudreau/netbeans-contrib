@@ -13,12 +13,13 @@
 
 package com.netbeans.enterprise.modules.corba.idl.src;
 
-public class ModuleElement extends SimpleNode {
-  public ModuleElement(int id) {
+public class ModuleElement extends IDLElement {
+
+  public ModuleElement (int id) {
     super(id);
   }
 
-  public ModuleElement(IDLParser p, int id) {
+  public ModuleElement (IDLParser p, int id) {
     super(p, id);
   }
 

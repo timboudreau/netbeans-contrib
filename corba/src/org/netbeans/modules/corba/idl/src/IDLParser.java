@@ -55,8 +55,8 @@ public class IDLParser/*@bgen(jjtree)*/implements IDLParserTreeConstants, IDLPar
 
 /* starting */
   final public SimpleNode Start() throws ParseException {
-                                /*@bgen(jjtree) Element */
-  Element jjtn000 = new Element(JJTELEMENT);
+                                   /*@bgen(jjtree) IDLElement */
+  IDLElement jjtn000 = new IDLElement(JJTIDLELEMENT);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
@@ -143,14 +143,23 @@ public class IDLParser/*@bgen(jjtree)*/implements IDLParserTreeConstants, IDLPar
   }
 
 /* Production 3 */
+/*
+void module() #ModuleElement :
+{}
+{
+  "module" identifier() "{" ( definition() )+ "}"
+}
+*/
   final public void module() throws ParseException {
  /*@bgen(jjtree) ModuleElement */
   ModuleElement jjtn000 = new ModuleElement(JJTMODULEELEMENT);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
+    Identifier id;
       jj_consume_token(10);
-      identifier();
+      id = identifier();
+                               jjtn000.setName (id.getName ());
       jj_consume_token(11);
       label_2:
       while (true) {
@@ -2784,12 +2793,6 @@ void floating_pt_literal() :
     return retval;
   }
 
-  final private boolean jj_3R_28() {
-    if (jj_scan_token(ID)) return true;
-    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
-    return false;
-  }
-
   final private boolean jj_3R_29() {
     if (jj_3R_31()) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
@@ -2876,6 +2879,12 @@ void floating_pt_literal() :
 
   final private boolean jj_3R_24() {
     if (jj_3R_27()) return true;
+    if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
+    return false;
+  }
+
+  final private boolean jj_3R_28() {
+    if (jj_scan_token(ID)) return true;
     if (jj_la == 0 && jj_scanpos == jj_lastpos) return false;
     return false;
   }

@@ -14,11 +14,12 @@
 package com.netbeans.enterprise.modules.corba.idl.src;
 
 public class EnumTypeElement extends TypeElement {
-  public EnumTypeElement(int id) {
+
+  public EnumTypeElement (int id) {
     super(id);
   }
 
-  public EnumTypeElement(IDLParser p, int id) {
+  public EnumTypeElement (IDLParser p, int id) {
     super(p, id);
   }
 

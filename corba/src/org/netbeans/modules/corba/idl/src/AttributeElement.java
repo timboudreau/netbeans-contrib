@@ -15,7 +15,7 @@ package com.netbeans.enterprise.modules.corba.idl.src;
 
 import java.util.Vector;
 
-public class AttributeElement extends Element {
+public class AttributeElement extends IDLElement {
 
    private boolean readonly;
    private String type;

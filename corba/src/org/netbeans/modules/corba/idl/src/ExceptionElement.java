@@ -13,7 +13,7 @@
 
 package com.netbeans.enterprise.modules.corba.idl.src;
 
-public class ExceptionElement extends Element {
+public class ExceptionElement extends IDLElement {
   public ExceptionElement(int id) {
     super(id);
   }

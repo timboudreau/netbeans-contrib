@@ -13,15 +13,15 @@
 
 package com.netbeans.enterprise.modules.corba.idl.src;
 
-public class MemberElement extends Element {
+public class MemberElement extends IDLElement {
    
    String type;
 
-   public MemberElement(int id) {
+   public MemberElement (int id) {
       super(id);
    }
 
-   public MemberElement(IDLParser p, int id) {
+   public MemberElement (IDLParser p, int id) {
       super(p, id);
    }
 

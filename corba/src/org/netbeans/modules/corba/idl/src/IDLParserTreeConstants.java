@@ -15,7 +15,7 @@ package com.netbeans.enterprise.modules.corba.idl.src;
 
 public interface IDLParserTreeConstants
 {
-  public int JJTELEMENT = 0;
+  public int JJTIDLELEMENT = 0;
   public int JJTVOID = 1;
   public int JJTMODULEELEMENT = 2;
   public int JJTINTERFACEELEMENT = 3;
@@ -35,7 +35,7 @@ public interface IDLParserTreeConstants
 
 
   public String[] jjtNodeName = {
-    "Element",
+    "IDLElement",
     "void",
     "ModuleElement",
     "InterfaceElement",

@@ -15,7 +15,7 @@ package com.netbeans.enterprise.modules.corba.idl.src;
 
 import java.util.Vector;
 
-public class InterfaceElement extends Element {
+public class InterfaceElement extends IDLElement {
 
    public static final boolean DEBUG = false;
    //public static final boolean DEBUG = true;
@@ -43,7 +43,7 @@ public class InterfaceElement extends Element {
       return inherited_from;
    }
 
-   public void addMemberOfBody (Element e) {
+   public void addMemberOfBody (IDLElement e) {
       body.addElement (e);
    }
 
@@ -69,7 +69,7 @@ public class InterfaceElement extends Element {
 	 counter++;
       }
       while (counter < max) {
-	 addMemberOfBody ((Element)_members.elementAt (counter));
+	 addMemberOfBody ((IDLElement)_members.elementAt (counter));
 	 counter++;
       }
 
