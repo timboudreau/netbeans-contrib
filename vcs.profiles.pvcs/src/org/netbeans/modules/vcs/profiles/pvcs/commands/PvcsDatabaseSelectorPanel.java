@@ -84,8 +84,11 @@ public class PvcsDatabaseSelectorPanel extends javax.swing.JPanel implements jav
         getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_DatabaseSelectorPanelA11yName"));  // NOI18N
         getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_DatabaseSelectorPanelA11yDesc"));  // NOI18N
         customDbTextField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_TEXTFIELD_DatabaseLocationA11yName"));  // NOI18N
+        customDbTextField.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_TEXTFIELD_DatabaseLocationA11yDesc"));  // NOI18N
         dbFolderTextField.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_TEXTFIELD_SearchInFolderA11yName"));  // NOI18N
+        dbFolderTextField.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_TEXTFIELD_SearchInFolderA11yDesc"));  // NOI18N
         dbList.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_LIST_DatabaseListA11yName"));  // NOI18N
+        dbList.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(PvcsDatabaseSelectorPanel.class).getString("ACS_LIST_DatabaseListA11yDesc"));  // NOI18N
     }
     
     /** This method is called from within the constructor to
