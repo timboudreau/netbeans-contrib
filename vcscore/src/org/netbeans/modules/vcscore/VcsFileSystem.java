@@ -3451,14 +3451,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                             if (fo != null) {
                                 try {
                                     DataObject dobj = DataObject.find(fo);
-                                    synchronized (GROUP_LOCK) {
-                                        DataShadow shadow = GroupUtils.findDOInGroups(dobj);
-                                        if (shadow == null) {
-                                            // it doesn't exist in groups, add it..
-                                            if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_ASK) {
-                                                AddToGroupDialog.openChooseDialog(dobj);
-                                            } else {
-                                                GroupUtils.addToDefaultGroup(new Node[] {dobj.getNodeDelegate()});
+                                    if (VcsFileSystem.this.isImportant(name)) {
+                                        synchronized (GROUP_LOCK) {
+                                            DataShadow shadow = GroupUtils.findDOInGroups(dobj);
+                                            if (shadow == null) {
+                                                // it doesn't exist in groups, add it..
+                                                if (grSettings.getAutoAddition() == VcsGroupSettings.ADDITION_ASK) {
+                                                    AddToGroupDialog.openChooseDialog(dobj);
+                                                } else {
+                                                    GroupUtils.addToDefaultGroup(new Node[] {dobj.getNodeDelegate()});
+                                                }
                                             }
                                         }
                                     }
