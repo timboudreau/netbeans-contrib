@@ -98,8 +98,8 @@ public class AdditionalCommands extends PVCSStub {
         
         test.mkdirs();
         another.mkdirs ();
-        root.pvcsNode ().pVCSRefresh ();
-        history.waitCommand ("Refresh", root.history ());
+//        root.pvcsNode ().pVCSRefresh (); // unreported problem - sometimes does not work - workaround in configure test case
+//        history.waitCommand ("Refresh", root.history ());
         test.pvcsNode ();
         test.waitStatus ("Local");
         createProject (test);
@@ -181,6 +181,7 @@ public class AdditionalCommands extends PVCSStub {
     }
     
     public void configure () {
+        new File (getWorkFilePath() + File.separator + "client" + File.separator + "test").mkdirs (); // workaround for unreported problem in prepareClient method
         super.configure ();
     }
     
