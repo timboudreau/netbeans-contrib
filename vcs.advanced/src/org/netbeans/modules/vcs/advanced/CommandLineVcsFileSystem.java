@@ -444,18 +444,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
     
     private void setConfigFO() {
-
-        // XXX looks like bad joke, FS from contructor asynchronously shows dialog
-
-        FileSystem dfs = ProfilesFactory.getRegistry(); 
+        FileSystem dfs = ProfilesFactory.getRegistry();
         FileObject fo = dfs.findResource(CONFIG_ROOT);
-
         if (fo == null) {
-            javax.swing.SwingUtilities.invokeLater(new Runnable () {
-                public void run () {
-                    DialogDisplayer.getDefault ().notify (new NotifyDescriptor.Message (CommandLineVcsFileSystem.this.clg("DLG_ConfigurationPathNotFound", CONFIG_ROOT)));
-                }
-            });
+            ErrorManager.getDefault().notify(ErrorManager.ERROR, new IllegalStateException(CommandLineVcsFileSystem.this.clg("DLG_ConfigurationPathNotFound", CONFIG_ROOT)));
         }
         CONFIG_ROOT_FO = fo;
         firePropertyChange(PROP_CONFIG_ROOT_FO, null, fo);
@@ -839,8 +831,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 try {
                     statusInfos[i].setSelectedColor(new Color(Integer.parseInt(statusColors[i], 16)));
                 } catch (NumberFormatException nfex) {
-                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
-                        NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_BadRGBColor", statusColors[i])));
+                    IllegalStateException isex = new IllegalStateException(NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_BadRGBColor"));
+                    isex.initCause(nfex);
+                    ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, isex);
                 }
             }
         }
@@ -859,8 +852,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                 }
                 URL urlResource = loader.getResource(iconResources[i]);
                 if (urlResource == null) {
-                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
-                        NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_CanNotFindIconResource", iconResources[i])));
+                    ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, new IllegalStateException(NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_CanNotFindIconResource", iconResources[i])));
                     continue;
                 }
                 statusInfos[i].setIcon(new javax.swing.ImageIcon(urlResource).getImage());
