@@ -223,7 +223,20 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         KeyStroke selectFolder = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.SHIFT_MASK);
         inputMap.put(selectFolder, selectFolder);
         getActionMap().put(selectFolder, new DelegateAction(getFolderSelector()));
+
     }
+
+    protected Component createCenterComponent() {
+      Component ret = super.createCenterComponent();
+
+      // after the center component was created, it is save to getTable
+      getTable().getAccessibleContext().setAccessibleName(Util.getString("treetable"));
+      getTable().getAccessibleContext().setAccessibleDescription(Util.getString("treetable_hint"));
+
+      return ret;
+    }
+
+
 
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_ONLY_OPENED;
@@ -579,6 +592,11 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             button.setEnabled(job == null);
             button.addActionListener(dispatcher);
             adjustHeight(button);
+
+            button.getAccessibleContext().setAccessibleName(Util.getString("rescan"));
+            button.getAccessibleContext().setAccessibleDescription(Util.getString("rescan_hint"));
+
+
             refresh = button;
         }
         return refresh;
@@ -611,12 +629,16 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     /*package*/ AbstractButton getAllFiles() {
         if (allFilesButton == null) {
             JToggleButton button = new JToggleButton(Util.getString("see-folder"));
+            String tooltiptext ; 
             if (selectedFolder == null) {
-                button.setToolTipText(Util.getString("see-folder_hint1") + " (s)");  // NOI18N
+                tooltiptext = Util.getString("see-folder_hint1");
             } else {
                 // restored from settings
-                button.setToolTipText(Util.getMessage("see-folder_hint2", selectedFolder.getPath()) + " (s)");  // NOI18N
+              tooltiptext = Util.getString("see-folder_hint2");
             }
+
+            button.setToolTipText(tooltiptext + " (s)");  // NOI18N
+
             group.add(button);
             button.setSelected(job == null);
             button.addActionListener(dispatcher);
@@ -629,6 +651,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 //            pop.setBorder(null);
 //            both.add(button, BorderLayout.WEST);
 //            both.add(pop, BorderLayout.EAST);
+
+            button.getAccessibleContext().setAccessibleName(Util.getString("see-folder"));
+            button.getAccessibleContext().setAccessibleDescription(tooltiptext);
+
             allFilesButton = button;
 
         }
@@ -641,6 +667,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             JButton button = new DropDown();
             button.setToolTipText(Util.getString("selector_hint") + " (S)"); // NOI18N
             button.addActionListener(dispatcher);
+
+            button.getAccessibleContext().setAccessibleName(Util.getString("select-folder"));
+            button.getAccessibleContext().setAccessibleDescription(Util.getString("selector_hint"));
+
             folderSelector = button;
         }
         return folderSelector;
@@ -743,6 +773,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             button.setSelected(getMode() == OPENED_FILES_MODE);
             button.addActionListener(dispatcher);
             adjustHeight(button);
+
+            button.getAccessibleContext().setAccessibleName(Util.getString("opened"));
+            button.getAccessibleContext().setAccessibleDescription(Util.getString("opened_desc"));
+
             openedFiles = button;
         }
         return openedFiles;
@@ -758,6 +792,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             button.setSelected(getMode() == CURRENT_FILE_MODE);
             button.addActionListener(dispatcher);
             adjustHeight(button);
+
+            button.getAccessibleContext().setAccessibleName(Util.getString("see-file"));
+            button.getAccessibleContext().setAccessibleDescription(Util.getString("see-file_hint"));
+
             currentFile = button;
         }
         return currentFile;
@@ -772,6 +810,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             button.setToolTipText(Util.getString("goto_hint") + " (e)");  // NOI18N
             button.addActionListener(dispatcher);
             adjustHeight(button);
+
+            button.getAccessibleContext().setAccessibleName(Util.getString("goto"));
+            button.getAccessibleContext().setAccessibleDescription(Util.getString("goto_hint"));
+
             gotoPresenter = button;
         }
         return gotoPresenter;
@@ -1577,6 +1619,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 	    adjustHeight(filterIconButton);
             filterIconButton.setToolTipText(Util.getString("filter_hint") + " (shift+f)");  // NOI18N
 	    filterIconButton.addActionListener(dispatcher);
+
+            filterIconButton.getAccessibleContext().setAccessibleName(Util.getString("filter"));
+            filterIconButton.getAccessibleContext().setAccessibleDescription(Util.getString("filter_hint"));
+
       }
 
       return filterIconButton;
@@ -1668,11 +1714,15 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             filterCombo = new JComboBox(new FiltersComboModel(getFilters()));
             filterCombo.addActionListener(dispatcher);
             adjustHeightComponent(filterCombo);
-	    Dimension dim = filterCombo.getPreferredSize();
-	    dim.width = 150;
+            Dimension dim = filterCombo.getPreferredSize();
+            dim.width = 150;
 	    filterCombo.setPreferredSize(dim);
 
-            filterCombo.setToolTipText(Util.getString("filter_hint") + " (f)");  // NOI18N
+            filterCombo.setToolTipText(Util.getString("choose-filter_hint") + " (f)");  // NOI18N
+
+            filterCombo.getAccessibleContext().setAccessibleName(Util.getString("choose-filter"));
+            filterCombo.getAccessibleContext().setAccessibleDescription(Util.getString("choose-filter_hint"));
+
         }
         
         return filterCombo;
