@@ -228,26 +228,32 @@ public class Main extends JellyTestCase {
     
     public void testNS_Unbind () {
         if (itemLocalTest_NSName_ServerName2) {
+            new EventTool().waitNoEvent(1000);
             new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName|ServerName2").unbindObject();
             getLog ().println ("|LocalTest|NSName|ServerName2");
         }
         if (itemLocalTest_NSName2_NSNameSub2) {
+            new EventTool().waitNoEvent(1000);
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2").unbindContext();
             getLog ().println ("|LocalTest|NSName2|NSNameSub2");
         }
         if (itemLocalTest_NSName2) {
+            new EventTool().waitNoEvent(1000);
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2").unbindContext();
             getLog ().println ("|LocalTest|NSName2");
         }
         if (itemLocalTest_NSName) {
+            new EventTool().waitNoEvent(1000);
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName").unbindContext();
             getLog ().println ("|LocalTest|NSName");
         }
         if (itemLocalTest2) {
+            new EventTool().waitNoEvent(1000);
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest_2").unbindContext();
             getLog ().println ("|LocalTest_2");
         }
         if (itemLocalTest) {
+            new EventTool().waitNoEvent(1000);
             new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest").unbindContext();
             getLog ().println ("|LocalTest");
         }
