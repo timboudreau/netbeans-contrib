@@ -11,7 +11,8 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.scc.cmdline;
+package com.netbeans.enterprise.modules.vcs.cmdline;
+import java.awt.*;
 import java.io.*;
 import java.util.*;
 import java.beans.*;
@@ -20,10 +21,11 @@ import java.text.*;
 import gnu.regexp.*;
 import com.netbeans.ide.util.actions.*;
 import com.netbeans.ide.util.NbBundle;
-import com.netbeans.enterprise.modules.scc.*;
-import com.netbeans.enterprise.modules.scc.util.*;
+import com.netbeans.enterprise.modules.vcs.*;
+import com.netbeans.enterprise.modules.vcs.util.*;
 import com.netbeans.ide.filesystems.FileObject;
 import com.netbeans.ide.filesystems.FileSystem;
+import com.netbeans.ide.filesystems.FileSystem.Status;
 import com.netbeans.ide.filesystems.FileUtil;
 import com.netbeans.ide.filesystems.FileStateInvalidException;
 import com.netbeans.ide.filesystems.AbstractFileSystem;
@@ -36,12 +38,12 @@ import com.netbeans.ide.filesystems.DefaultAttributes;
 //-------------------------------------------
 public class CommandLineVcsFileSystem extends VcsFileSystem 
   implements AbstractFileSystem.List, AbstractFileSystem.Info,
-  AbstractFileSystem.Change, Serializable {
+  AbstractFileSystem.Change, FileSystem.Status, Serializable {
 
-  private Debug E=new Debug("CommandLineVcsFileSystem",true);
+  private Debug E=new Debug("CommandLineVcsFileSystem",true );
   private Debug D=E;
 
-  private static final int REFRESH_TIME = 30000;
+  private static final int REFRESH_TIME = 0;
 
   /** root file */
   private File rootFile = new File (".");
@@ -57,58 +59,13 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   /** user commands Vector<UserCommand> */
   private Vector commands=new Vector(10);
 
-
-  //-------------------------------------------
-  public SystemAction[] getActions(){
-    SystemAction [] actions=new SystemAction[1];
-    actions[0]=new VcsAction();
-    return actions;
-  }
+  /** Just convenience table.
+      [key='LIST' value=UserCommand]
+  */
+  private transient Hashtable commandsByName=null;
   
-
-  //-------------------------------------------
-  public void setDebug(boolean debug){
-    this.debug=debug;
-  }
-
-  //-------------------------------------------
-  public boolean getDebug(){
-    return debug;
-  }  
+  private transient VcsCache cache=null;
   
-  //-------------------------------------------
-  public Vector getVariables(){
-    return variables;
-  }
-
-  //-------------------------------------------
-  public void setVariables(Vector variables){
-    this.variables=variables;
-  }
-  
-  //-------------------------------------------
-  public Vector getCommands(){
-    return commands;
-  }
-
-  //-------------------------------------------
-  public void setCommands(Vector commands){
-    this.commands=commands;
-  }
-
-  //-------------------------------------------
-  private void readObject(ObjectInputStream in) throws 
-    ClassNotFoundException, IOException, NotActiveException{
-    in.defaultReadObject();
-    //D.deb("readObject() - restoring bean");
-  }
-
-  //-------------------------------------------
-  private void writeObject(ObjectOutputStream out) throws IOException {
-    //D.deb("writeObject() - saving bean");
-    out.defaultWriteObject();
-  }  
-
   //-------------------------------------------
   public CommandLineVcsFileSystem () {
     D.deb("CommandLineVcsFileSystem() - new bean instance");
@@ -123,8 +80,116 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     Properties props=UserCommand.readPredefinedProperties("predefined.properties");
     variables=UserCommand.readVariables("st30",props);
     commands=UserCommand.readCommands("st30",props);
+
+    cache=new VcsCache(this);
   }
 
+  //-------------------------------------------
+  private void readObject(ObjectInputStream in) throws 
+    ClassNotFoundException, IOException, NotActiveException{
+    in.defaultReadObject();
+    cache=new VcsCache(this);
+    D.deb("readObject() - restoring bean");
+  }
+
+  //-------------------------------------------
+  private void writeObject(ObjectOutputStream out) throws IOException {
+    //D.deb("writeObject() - saving bean");
+    out.defaultWriteObject();
+  }  
+
+  
+  //-------------------------------------------
+  public void setDebug(boolean debug){
+    this.debug=debug;
+  }
+  //-------------------------------------------
+  public boolean getDebug(){
+    return debug;
+  }  
+  
+  //-------------------------------------------
+  public Vector getVariables(){
+    return variables;
+  }
+  //-------------------------------------------
+  public void setVariables(Vector variables){
+    this.variables=variables;
+  }
+  
+  //-------------------------------------------
+  public Hashtable getVariablesAsHashtable(){
+    int len=variables.size();
+    Hashtable result=new Hashtable(len+5);
+    for(int i=0;i<len;i++){
+      String line=(String)variables.elementAt(i);
+      int eq=line.indexOf('=');
+      if( eq<0 ){
+	continue;
+      }
+      String key=line.substring(0,eq);
+      String value=line.substring(eq+1);
+      result.put(key,value);
+    }
+    return result;
+  }
+
+  //-------------------------------------------
+  public Vector getCommands(){
+    return commands;
+  }
+
+  //-------------------------------------------
+  public void setCommands(Vector commands){
+    this.commands=commands;
+    int len=this.commands.size();
+    commandsByName=new Hashtable(len+5);
+    for(int i=0;i<len;i++){
+      UserCommand uc=(UserCommand)this.commands.elementAt(i);
+      commandsByName.put(uc.getName(), uc);
+    }
+  }
+
+  //-------------------------------------------
+  public UserCommand getCommand(String name){
+    if( commandsByName==null ){
+      setCommands(commands);
+    }
+    return (UserCommand)commandsByName.get(name);
+  }
+  
+  //-------------------------------------------
+  public FileSystem.Status getStatus(){
+    return this;
+  }
+
+  //-------------------------------------------
+  public Image annotateIcon(Image icon, int iconType, Set files) {
+    //D.deb("annotateIcon()");
+    return icon;
+  }
+  
+  //-------------------------------------------
+  public String annotateName(String name, Set files) {
+    //D.deb("annotateName("+name+")");
+    Object[] oo=files.toArray();
+    if( oo.length==0 ){
+      return name;
+    }
+    for(int i=0;i<oo.length;i++){
+      FileObject ff=(FileObject)oo[i]; 
+      //D.deb("oo["+i+"]="+ff);
+    }
+    return name;
+  }
+  
+
+  //-------------------------------------------
+  public SystemAction[] getActions(){
+    SystemAction [] actions=new SystemAction[1];
+    actions[0]=new VcsAction();
+    return actions;
+  }
 
   //-------------------------------------------
   /* Human presentable name */
@@ -135,7 +200,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
     else
       return getString("LAB_FileSystemValid", rootFile.toString ());
   }
-
 
   //-------------------------------------------
   /** Set the root directory of the file system.
@@ -228,13 +292,16 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   */
   public String[] children (String name) {
     D.deb("children("+name+")");
+    String[] files=null;
     File f = getFile (name);
     if (f.isDirectory ()) {
-      String[] files=f.list();
-      return files;
-    } else {
-      return null;
+      files=cache.getSubdirs(name);
+      if( files==null ){
+	D.deb("fallback -> return local files");
+	files=f.list();
+      }
     }
+    return files;
   }
 
   //-------------------------------------------
@@ -387,7 +454,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   *  exist or is a folder).
   */
   public long size (String name) {
-    D.deb("size() name="+name);
+    D.deb("size("+name+")");
     return getFile (name).length ();
   }
   
@@ -436,7 +503,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @param name the file to mark
   */
   public void markUnimportant (String name) {
-    D.deb("markUnimportant()");
+    D.deb("markUnimportant("+name+")");
   }
 
   //-------------------------------------------
@@ -445,7 +512,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
   * @return the resource
   */
   static String getString(String s) {
-    return NbBundle.getBundle("com.netbeans.enterprise.modules.scc.cmdline.Bundle").getString (s);
+    return NbBundle.getBundle("com.netbeans.enterprise.modules.vcs.cmdline.Bundle").getString (s);
   }
 
   //-------------------------------------------
@@ -485,6 +552,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         4/26/99  Michal Fadljevic 
  *  5    Gandalf   1.4         4/22/99  Michal Fadljevic 
  *  4    Gandalf   1.3         4/22/99  Michal Fadljevic 
  *  3    Gandalf   1.2         4/22/99  Michal Fadljevic 

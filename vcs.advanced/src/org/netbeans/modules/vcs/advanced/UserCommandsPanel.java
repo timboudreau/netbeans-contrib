@@ -11,7 +11,7 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.scc.cmdline;
+package com.netbeans.enterprise.modules.vcs.cmdline;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -19,7 +19,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 
-import com.netbeans.enterprise.modules.scc.util.*;
+import com.netbeans.enterprise.modules.vcs.util.*;
 import com.netbeans.ide.explorer.propertysheet.*;
 
 /** User commands panel.
@@ -261,6 +261,7 @@ public class UserCommandsPanel extends JPanel implements NbCustomPropertyEditor{
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         4/26/99  Michal Fadljevic 
  *  2    Gandalf   1.1         4/22/99  Michal Fadljevic 
  *  1    Gandalf   1.0         4/21/99  Michal Fadljevic 
  * $

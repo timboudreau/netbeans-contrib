@@ -11,13 +11,13 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.scc.cmdline;
+package com.netbeans.enterprise.modules.vcs.cmdline;
 import java.beans.*;
 import java.util.ResourceBundle;
 
 import com.netbeans.ide.util.NbBundle;
 import com.netbeans.ide.filesystems.*;
-import com.netbeans.enterprise.modules.scc.util.*;
+import com.netbeans.enterprise.modules.vcs.util.*;
 
 /** BeanInfo to CommandLineVcsFileSystem.
  * 
@@ -46,19 +46,19 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
       variables=new PropertyDescriptor
 	("variables",CommandLineVcsFileSystem.class,"getVariables","setVariables");
       variables.setPropertyEditorClass
-	(com.netbeans.enterprise.modules.scc.cmdline.UserVariablesEditor.class);
+	(com.netbeans.enterprise.modules.vcs.cmdline.UserVariablesEditor.class);
 
       commands=new PropertyDescriptor
 	("commands",CommandLineVcsFileSystem.class,"getCommands","setCommands");
       commands.setPropertyEditorClass
-	(com.netbeans.enterprise.modules.scc.cmdline.UserCommandsEditor.class);
+	(com.netbeans.enterprise.modules.vcs.cmdline.UserCommandsEditor.class);
 
       desc = new PropertyDescriptor[] {
 	rootDirectory, debug, variables, commands
       };
 
       ResourceBundle bundle = NbBundle.getBundle
-	("com.netbeans.enterprise.modules.scc.cmdline.Bundle");
+	("com.netbeans.enterprise.modules.vcs.cmdline.Bundle");
       rootDirectory.setDisplayName      (bundle.getString("PROP_rootDirectory"));
       rootDirectory.setShortDescription (bundle.getString("HINT_rootDirectory"));
       debug.setDisplayName              (bundle.getString("PROP_debug"));
@@ -83,6 +83,7 @@ public class CommandLineVcsFileSystemBeanInfo extends SimpleBeanInfo {
 
 /*
 * <<Log>>
+*  3    Gandalf   1.2         4/26/99  Michal Fadljevic 
 *  2    Gandalf   1.1         4/21/99  Michal Fadljevic 
 *  1    Gandalf   1.0         4/15/99  Michal Fadljevic 
 * $

@@ -11,12 +11,12 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package com.netbeans.enterprise.modules.scc.cmdline;
+package com.netbeans.enterprise.modules.vcs.cmdline;
 import java.awt.*;
 import java.util.*;
 import java.beans.*;
 
-import com.netbeans.enterprise.modules.scc.util.*;
+import com.netbeans.enterprise.modules.vcs.util.*;
 
 /** Property editor for user commands.
  * 
@@ -108,6 +108,7 @@ public class UserCommandsEditor implements PropertyEditor {
 
 /*
  * <<Log>>
+ *  3    Gandalf   1.2         4/26/99  Michal Fadljevic 
  *  2    Gandalf   1.1         4/22/99  Michal Fadljevic 
  *  1    Gandalf   1.0         4/21/99  Michal Fadljevic 
  * $
