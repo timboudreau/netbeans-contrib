@@ -18,9 +18,11 @@ OpenIDE-Module-Class: Option
 
 Name: org/netbeans/modules/rmi/RMIExecutor.class
 OpenIDE-Module-Class: Service
+Default: true
 
 Name: org/netbeans/modules/rmi/RMIDebugType.class
 OpenIDE-Module-Class: Service
+Default: true
 
 Name: org/netbeans/modules/rmi/wizard/RMIWizardCookieAction.class
 OpenIDE-Module-Class: Action
@@ -35,5 +37,20 @@ Name: org/netbeans/modules/rmi/UnMarkRMIAction.class
 OpenIDE-Module-Class: Action
 
 Name: org/netbeans/modules/rmi/RMIStubCompilerType.class
+OpenIDE-Module-Class: Service
+
+Name: org/netbeans/modules/rmi/serialized/RMIExecutorDbg.ser
+OpenIDE-Module-Class: Service
+
+Name: org/netbeans/modules/rmi/serialized/RMIClientExecutor.ser
+OpenIDE-Module-Class: Service
+
+Name: org/netbeans/modules/rmi/serialized/RMIClientExecutorDbg.ser
+OpenIDE-Module-Class: Service
+
+Name: org/netbeans/modules/rmi/serialized/RMIUnicastExport.ser
+OpenIDE-Module-Class: Service
+
+Name: org/netbeans/modules/rmi/serialized/RMIUnicastExportDbg.ser
 OpenIDE-Module-Class: Service
 
