@@ -128,9 +128,7 @@ final class ObjectType extends ExplorerPanel implements DataLoader.RecognizedFil
      * @return list of loaders (first is the current that recognize the object)
      */
     private DataLoader[] findPossibleLoaders (DataObject obj) {
-        DataLoaderPool pool = (DataLoaderPool)
-                              org.openide.util.Lookup.getDefault()
-                              .lookup(DataLoaderPool.class);
+        DataLoaderPool pool = DataLoaderPool.getDefault ();
         
         ArrayList recognize = new ArrayList ();
         recognize.add (obj.getLoader ());

@@ -81,8 +81,7 @@ class EventDOContext extends DOContext implements EventContext {
                 addToEnvironment(FILESYSTEM_WEAK_LISTENER, fsL);
                 
                 OperationListener opL;
-                DataLoaderPool pool = (DataLoaderPool)Lookup.getDefault()
-                        .lookup(DataLoaderPool.class);
+                DataLoaderPool pool = DataLoaderPool.getDefault ();
                 if(pool != null) {
                     opL = (OperationListener)WeakListener.create (OperationListener.class, l, pool);
                     pool.addOperationListener(opL);
@@ -113,8 +112,7 @@ class EventDOContext extends DOContext implements EventContext {
             } else {
                 removeFromEnvironment(OPERATION_WEAK_LISTENER);
 
-                DataLoaderPool pool = (DataLoaderPool)Lookup.getDefault()
-                        .lookup(DataLoaderPool.class);
+                DataLoaderPool pool = DataLoaderPool.getDefault ();
                 if(pool != null) {
                     pool.removeOperationListener(opL);
                 } else {
