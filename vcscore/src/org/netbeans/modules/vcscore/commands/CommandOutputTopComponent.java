@@ -226,7 +226,7 @@ public class CommandOutputTopComponent extends TopComponent {
         if (errorOutput == discarded) {
             errorOutput = null;
         }
-        if (tabPane.getComponentCount() == 0)
+        if (tabPane.getTabCount() == 0)
             close();
     }
     
