@@ -43,6 +43,7 @@ public class LineNumberPropertyEditor extends PropertyEditorSupport {
         gfx.translate(box.x, box.y);
         LABEL.setText(getAsText());
         LABEL.setSize(box.width - 3, box.height);
+        LABEL.setForeground(gfx.getColor());
         LABEL.paint(gfx);
         gfx.translate(-box.x, -box.y);
     }

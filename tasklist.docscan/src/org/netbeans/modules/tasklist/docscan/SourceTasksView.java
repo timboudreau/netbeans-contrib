@@ -17,10 +17,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.io.ObjectOutput;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectStreamException;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.Iterator;
@@ -37,6 +34,7 @@ import org.openide.util.actions.SystemAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileUtil;
 import org.openide.nodes.*;
 import org.openide.loaders.*;
 
@@ -1003,11 +1001,17 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private String createLabel(FileObject fo) {
-        String path = fo.getPath();
-        try {
-            path = fo.getFileSystem().getDisplayName() + path;
-        } catch (FileStateInvalidException e) {
-            // keep empty path
+        String path;
+        File file = FileUtil.toFile(fo);
+        if (file == null) {
+            path = fo.getPath();
+            try {
+                path = fo.getFileSystem().getDisplayName() + path;
+            } catch (FileStateInvalidException e) {
+                // keep empty path
+            }
+        } else {
+            path = file.getPath();
         }
         if (path.length() > 60) {
             return "..." + path.substring(path.length() - 60);
