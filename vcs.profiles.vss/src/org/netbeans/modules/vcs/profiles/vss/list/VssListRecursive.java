@@ -63,7 +63,7 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
     private Pattern maskRegExpPositive;
     private Pattern maskRegExpNegative;
     
-    private String PROJECT_BEGIN, LOCAL_FILES, SOURCE_SAFE_FILES, DIFFERENT_FILES;
+    private String PROJECT_BEGIN, PROJECT_PATH, LOCAL_FILES, SOURCE_SAFE_FILES, DIFFERENT_FILES;
     private String DIFFING, AGAINST;
     
     /** Creates a new instance of VssListRecursive */
@@ -202,6 +202,7 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         DIFFERENT_FILES = (localized) ? VssListCommand.DIFFERENT_FILES_LOC : VssListCommand.DIFFERENT_FILES_ENG;
         DIFFING = (localized) ? DIFFING_LOC : DIFFING_ENG;
         AGAINST = (localized) ? AGAINST_LOC : AGAINST_ENG;
+        PROJECT_PATH = (String) vars.get("PROJECT");
         initDir(vars);
         String ssDir = (String) vars.get("ENVIRONMENT_VAR_SSDIR"); // NOI18N
         String userName = (String) vars.get("USER_NAME"); // NOI18N
@@ -458,8 +459,8 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
         //System.out.println("outputData("+line+")");
         if (line == null) return;
         String file = line.trim();
-        if (!diffingPathFollows && file.startsWith(PROJECT_BEGIN)) { // Listing of a folder from "dir" will follow
-            String folder = file.substring(PROJECT_BEGIN.length(), file.length() - 1);
+        if (!diffingPathFollows && file.startsWith(PROJECT_PATH)) { // Listing of a folder from "dir" will follow
+            String folder = file.substring(PROJECT_PATH.length(), file.length() - 1);
             folder = folder.replace(File.separatorChar, '/');
             if (folder.startsWith(relDir)) {
                 folder = folder.substring(relDir.length());
@@ -487,7 +488,7 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
                 diffingPathFollows = true;
             } else {
                 folder = folder.trim();
-                folder = folder.substring(PROJECT_BEGIN.length()); // remove "/$"
+                folder = folder.substring(PROJECT_PATH.length()); // remove "/$"
                 folder = folder.replace(File.separatorChar, '/');
                 if (folder.startsWith(relDir)) {
                     folder = folder.substring(relDir.length());
@@ -529,8 +530,8 @@ public class VssListRecursive extends VcsListRecursiveCommand implements Command
     private void statusOutputData(String[] elements) {
         if (elements[0] == null) return;
         String file = elements[0].trim();
-        if (file.startsWith(PROJECT_BEGIN)) { // Listing of a folder from "dir" will follow
-            String folder = file.substring(PROJECT_BEGIN.length(), file.length() - 1);
+        if (file.startsWith(PROJECT_PATH)) { // Listing of a folder from "dir" will follow
+            String folder = file.substring(PROJECT_PATH.length(), file.length() - 1);
             folder = folder.replace(File.separatorChar, '/');
             if (folder.startsWith(relDir)) {
                 folder = folder.substring(relDir.length());
