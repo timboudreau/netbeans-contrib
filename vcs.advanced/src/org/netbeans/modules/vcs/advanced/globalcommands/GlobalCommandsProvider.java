@@ -139,10 +139,12 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
                 //        ", name = "+children[j].getCommandSupport().getName() :
                 //        ", null support"));
             }
+            /* Uncomment if commands from different profiles should be separated.
             if (children.length > 0) {
                 //System.out.println("  had "+children.length+" children, adding separator.");
                 commands.add(CommandsTree.EMPTY);
             }
+             */
         }
         return commands;
     }
