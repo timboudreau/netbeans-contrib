@@ -459,7 +459,7 @@ public abstract class TaskListView extends ExplorerPanel
     
     protected void componentActivated() {
         super.componentActivated();
-        assert initialized : "Dangling componentActivated event, no componentOpened() called at " + this;
+        assert initialized : "#37438 dangling componentActivated event, no componentOpened() called at " + this;
         installJumpActions(true);
         RemoveFilterAction removeFilter = 
             (RemoveFilterAction)SystemAction.get(RemoveFilterAction.class);
@@ -469,7 +469,7 @@ public abstract class TaskListView extends ExplorerPanel
     
     protected void componentDeactivated() {
         super.componentDeactivated();
-        assert initialized : "Dangling componentDeactivated event, no componentOpened() called at " + this;
+        assert initialized : "#37438 dangling componentDeactivated event, no componentOpened() called at " + this;
         ColumnsConfiguration columns = getDefaultColumns();
         columns.loadFrom(this);
     }
@@ -1409,21 +1409,20 @@ public abstract class TaskListView extends ExplorerPanel
         // Stop listening for node activation
         getExplorerManager().removePropertyChangeListener(this);
 
-        // XXX issue #37367
         // Remove jump actions
         // Cannot do this, because componentHidden can be called
         // after another TaskListView is shown (for example when you
         // switch from one tasklist view to another) so this would
         // cripple the newly showing tasklist view.
-        //    installJumpActions(false);
+        //
+        // According to issue #37367 hidden and activated events works
+        // together smmothly to get desired result
+        installJumpActions(false);
     }
 
     protected void componentShowing() {
         // Listen for node activation
         getExplorerManager().addPropertyChangeListener(this);
-
-        // XXX issue #37367
-        // installJumpActions(true);
     }
 
     public void propertyChange(PropertyChangeEvent ev) {
