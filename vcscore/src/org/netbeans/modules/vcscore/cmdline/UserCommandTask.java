@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -52,6 +52,7 @@ import org.netbeans.modules.vcscore.commands.CommandCustomizationSupport;
 import org.netbeans.modules.vcscore.commands.CommandExecutionContext;
 import org.netbeans.modules.vcscore.commands.CommandExecutorSupport;
 import org.netbeans.modules.vcscore.commands.CommandOutputCollector;
+import org.netbeans.modules.vcscore.commands.CommandOutputTopComponent;
 import org.netbeans.modules.vcscore.commands.CommandOutputVisualizer;
 import org.netbeans.modules.vcscore.commands.CommandProcessor;
 import org.netbeans.modules.vcscore.commands.CommandTaskInfo;
@@ -68,6 +69,7 @@ import org.netbeans.modules.vcscore.commands.VcsDescribedTask;
 import org.netbeans.modules.vcscore.runtime.RuntimeCommand;
 import org.netbeans.modules.vcscore.runtime.RuntimeCommandTask;
 import org.netbeans.modules.vcscore.runtime.VcsRuntimeCommand;
+import org.netbeans.modules.vcscore.ui.ErrorOutputPanel;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
@@ -94,6 +96,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     private boolean parentGUIVisualizer;
     private File spawnRefreshFile;
     private boolean spawnRefreshRecursively;
+    private boolean printErrorOutput = true;
     
     /**
      * The set of running tasks.
@@ -557,8 +560,7 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         if (executor.getExitStatus() != VcsCommandExecutor.SUCCEEDED &&
             !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_IGNORE_FAIL)) {
             
-            if (message != null) {
-               // executionContext.debugErr(message);
+            if (printErrorOutput) {
                 printErrorOutput(executionContext);
             }
             if (executionContext.isCommandNotification()) {
@@ -577,51 +579,41 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
         CommandExecutorSupport.postprocessCommand(executionContext, executor);
     }
     
+    private void setPrintErrorOutput(boolean printErrorOutput) {
+        this.printErrorOutput = printErrorOutput;
+    }
+    
     private void printErrorOutput(final CommandExecutionContext executionContext) {              
         if (executionContext == null) return ;                  
         String exec = getExecutor().getExec();
-        Vector vct = new Vector();
-        if(getFiles() != null){
-            //check whether subcommand has visualizer or not
-            String[] cmdNames = VcsManager.getDefault().findCommands(getFiles());
-            for(int i = 0; i<cmdNames.length; i++){
-                if(exec.indexOf(cmdNames[i]) != -1){
-                    if(hasVisualizer(cmdNames[i]))
-                        vct.addElement(cmdNames[i]);
-                }
-            }
+        CommandTask parentTask = CommandProcessor.getInstance().getParentTask(this);
+        if (parentTask != null) {
+            if (hasVisualizer((UserCommandTask) parentTask)) return ; // The parent visualizer should report the error.
+            else ((UserCommandTask) parentTask).setPrintErrorOutput(false); // This task reports the error
         }
-        if(vct.size() == 0){
-            if(visualizerGUI == null && visualizerText == null){
-                SwingUtilities.invokeLater(new Runnable(){
-                    public void run(){
-                        getVisualizer(false).open(null);
-                        visualizerText.errOutputLine("\n"+g("EXEC_STRING")+"\n"+executor.getExec()); //NOI18N
-                        visualizerText.setExitStatus(executor.getExitStatus());
-                    }
-                });
-                
-            }
+        if(visualizerGUI == null && visualizerText == null){
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run() {
+                    CommandOutputTopComponent outputComponent = CommandOutputTopComponent.getInstance();
+                    ErrorOutputPanel errorPanel = outputComponent.getErrorOutput();
+                    String cmdName = executor.getCommand().getDisplayName();
+                    if (cmdName == null) cmdName = executor.getCommand().getName();
+                    final StringBuffer errBuff = new StringBuffer();
+                    outputCollector.addTextErrorListener(new TextOutputListener() {
+                        public void outputLine(String line) {
+                            errBuff.append(line);
+                            errBuff.append("\n");
+                        }
+                    }, false);
+                    errorPanel.errorOutput(cmdName, executor.getExec(), errBuff.toString());
+                    outputComponent.open();
+                }
+            });
         }
     }
     
-    /*
-     * Used to check whether a certain subcommand has visualizer or not
-     */
-    private boolean hasVisualizer(String cmdName){        
-        boolean hasVisualizer=false;
-        VcsDescribedCommand descCmd;
-        try{
-            descCmd = (VcsDescribedCommand)VcsManager.getDefault().createCommand(cmdName, getFiles());
-        }catch(IllegalArgumentException e){            
-            return false;
-        }
-        VcsCommand cmd = descCmd.getVcsCommand();
-        Object textVisualizer = cmd.getProperty("display");        
-        Object guiVisualizer = cmd.getProperty("visualizer");        
-        if((textVisualizer != null)||(guiVisualizer != null))
-            hasVisualizer =true;
-        return hasVisualizer;
+    private static boolean hasVisualizer(UserCommandTask task) {
+        return task.visualizerGUI != null || task.visualizerText != null;
     }
     
     /** Get the VCS commands provider, that provided this Command or CommandTask.

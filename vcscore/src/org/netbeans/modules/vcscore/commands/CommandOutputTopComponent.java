@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2003 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -34,16 +34,17 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.TabbedPaneUI;
 
-
-import org.openide.windows.Workspace;
-import org.netbeans.modules.vcscore.ui.OutputPanel;
-import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 import org.openide.util.NbBundle;
+import org.openide.util.Mutex;
+import org.openide.util.Utilities;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import org.openide.util.Mutex;
-import org.openide.util.Utilities;
+import org.openide.windows.Workspace;
+
+import org.netbeans.modules.vcscore.ui.ErrorOutputPanel;
+import org.netbeans.modules.vcscore.ui.OutputPanel;
+import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 
 /**
  * TopComponent for vcs command output
@@ -51,15 +52,16 @@ import org.openide.util.Utilities;
  */
 public class CommandOutputTopComponent extends TopComponent {
     
-    private OutputPanel outputPanel;
+    private static CommandOutputTopComponent outputTopComponent;
+    
     private ArrayList closeListeners = new ArrayList(); 
     private java.awt.event.ActionListener killListener = null;
     private JTabbedPane tabPane;
     private String name;
     protected Object eventSource;
     private JPopupMenu menu;
-    private static CommandOutputTopComponent outputTopComponent;
     private Action discardAction;
+    private ErrorOutputPanel errorOutput;
     
 //    private static final long serialVersionUID = -8901733341334731237L;
     
@@ -123,6 +125,16 @@ public class CommandOutputTopComponent extends TopComponent {
 
     // ------ End of TopComponent singelton & persistence stuff ----------
     
+    
+    public synchronized ErrorOutputPanel getErrorOutput() {
+        if (errorOutput == null) {
+            errorOutput = new ErrorOutputPanel();
+            tabPane.insertTab(errorOutput.getTitle(), null, errorOutput, errorOutput.getToolTipText(), 0);
+        }
+        tabPane.setSelectedComponent(errorOutput);
+        return errorOutput;
+    }
+    
     private void initComponents() {
         tabPane = new JTabbedPane();  
         tabPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -143,9 +155,7 @@ public class CommandOutputTopComponent extends TopComponent {
         discardAction = new AbstractAction(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab")) { //NOI18N
             public void actionPerformed(java.awt.event.ActionEvent event) {
                 if(tabPane.getSelectedIndex() > -1)
-                    tabPane.remove(tabPane.getSelectedIndex());
-                if(tabPane.getComponentCount() == 0)
-                    close();
+                    discard(tabPane.getSelectedComponent());
             }
         };        
         discardTab.setAction(discardAction);
@@ -153,8 +163,7 @@ public class CommandOutputTopComponent extends TopComponent {
         JMenuItem discardAll = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardAll"));//NOI18N
         discardAll.addActionListener( new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent event) {
-                tabPane.removeAll();
-                close();
+                discardAll();
             }
         });
         
@@ -211,25 +220,28 @@ public class CommandOutputTopComponent extends TopComponent {
             tabPane.setSelectedComponent(component);
     }
     
-    public void discard(JComponent comp){        
-        tabPane.remove(tabPane.getSelectedComponent());
-        if(tabPane.getComponentCount() == 0)
+    public synchronized void discard(Component comp) {
+        Component discarded = comp;
+        tabPane.remove(discarded);
+        if (errorOutput == discarded) {
+            errorOutput = null;
+        }
+        if (tabPane.getComponentCount() == 0)
             close();
     }
     
-    public void discardAll(){
+    public synchronized void discardAll(){
         tabPane.removeAll();
+        errorOutput = null;
         close();
     }
     
     protected void componentActivated() {
         super.componentActivated();
-   //     outputPanel.componentActivated();
     }
     
     protected void componentDeactivated() {
         super.componentDeactivated();
-  //      outputPanel.componentDeactivated();
     }
     
     public void addCloseListener(TopComponentCloseListener l) {
@@ -254,10 +266,6 @@ public class CommandOutputTopComponent extends TopComponent {
      * Called when the TopComponent is being to close.
      */
     private void closing() {
-     //   outputPanel.removeKillActionListener(killListener);
-        //synchronized (this) {
-        //    pool = null;
-        //}
         synchronized (closeListeners) {
             for (Iterator it = closeListeners.iterator(); it.hasNext(); ) {
                 TopComponentCloseListener l = (TopComponentCloseListener) it.next();
