@@ -653,7 +653,7 @@ public class VariableInputDescriptor extends Object {
      * @param commandName identifies command in provider namespace or <code>null</code>
      * @param commandProvider identifies provider
      */
-    public final void loadDefaults(String commandName, String commandProvider) {  // XXX it's called twice
+    public final void loadDefaults(String commandName, String commandProvider) {
         Properties map = new Properties();
         try {
             loadDefaultsFromDisk(map, commandName, commandProvider);
@@ -676,7 +676,7 @@ public class VariableInputDescriptor extends Object {
      * @param commandName identifies command in provider namespace or <code>null</code>
      * @param commandProvider identifies provider
      */
-    public final void storeDefaults(String commandName, String commandProvider) {  // XXX it's called twice
+    public final void storeDefaults(String commandName, String commandProvider) {
         Properties defaults = new Properties();
         VariableInputComponent[] comps = components();
         for (int i = 0; i < comps.length; i++) {
