@@ -87,7 +87,7 @@ class UserTaskNode extends TaskNode {
 
     private void init(UserTask item) {
         this.item = item;
-        setPreferredAction(SystemAction.get(ShowTaskAction.class));
+        setDefaultAction(SystemAction.get(ShowTaskAction.class));
     }
 
     // Handle cloning specially (so as not to invoke the overhead of FilterNode):
