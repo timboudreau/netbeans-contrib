@@ -1354,6 +1354,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 promptForConfigComboChange = true;
                 loadConfig(selectedLabel);
                 oldSelectedLabel = selectedLabel;
+                allProfilesCheckBox.setEnabled(cache.isOSCompatibleProfile(selectedLabel));
                 firePropertyChange(PROP_PROFILE_SELECTION_CHANGED, null, selectedLabel);
             } else {
                 if (oldSelectedLabel == null) {
@@ -2019,6 +2020,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         if (configsForCurrenntOs != allProfilesCheckBox.isSelected()) {
             allProfilesCheckBox.setSelected(configsForCurrenntOs);
         }
+        allProfilesCheckBox.setEnabled(selectedConfig == null || cache.isOSCompatibleProfile(selectedConfig));
         promptForConfigComboChange = true;
         return (selectedConfig == null || configCombo.getItemCount() > 0 && newIndex >= 0);
         //System.out.println("updateConfigurations() finished, promptForConfigComboChange = "+promptForConfigComboChange);
