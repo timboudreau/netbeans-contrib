@@ -73,9 +73,11 @@ public class VcsMountFromTemplateAction extends NodeAction {
     
     private static DataFolder vcsFolder;
     
+    private Node preferredActionNode;
+    
     private static DataFolder getVCSFolder() {
         if (vcsFolder == null) {
-            vcsFolder = DataFolder.findFolder(org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().findResource("Templates/Mount/VCS"));
+            vcsFolder = DataFolder.findFolder(org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().findResource("VCSMountTemplates"));
         }
         return vcsFolder;
     }
@@ -143,9 +145,12 @@ public class VcsMountFromTemplateAction extends NodeAction {
     }
     
     protected void performAction (Node[] activatedNodes) {
+        if (preferredActionNode != null) {
+            launchWizard(preferredActionNode);
+            return ;
+        }
         try {
             Node n = activatedNodes.length == 1 ? activatedNodes[0] : null;
-            
             TemplateWizard wizard = getWizard (n);
             
             // clears the name to default
@@ -197,7 +202,17 @@ public class VcsMountFromTemplateAction extends NodeAction {
     /* Creates presenter that invokes the associated presenter.
     */
     public JMenuItem getMenuPresenter() {
-        JMenuItem menu = new MountMenu (getTemplateRoot(), new TemplateActionListener (), false, false);
+        Node templateRoot = getTemplateRoot();
+        JMenuItem menu;
+        Node[] templateNodes = templateRoot.getChildren().getNodes(true);
+        if (templateNodes.length == 1) {
+            //return new MenuView.MenuItem(templateRoot);
+            menu = new JMenuItem(getName());
+            preferredActionNode = templateNodes[0];
+        } else {
+            preferredActionNode = null;
+            menu = new MountMenu (templateRoot, new TemplateActionListener (), false, false);
+        }
         Actions.connect (menu, this, false);
         //    menu.setName (getName ());
         return menu;
@@ -224,7 +239,17 @@ public class VcsMountFromTemplateAction extends NodeAction {
     * templates.
     */
     public JMenuItem getPopupPresenter() {
-        JMenuItem menu = new MountMenu (getTemplateRoot(), new TemplateActionListener (), false, true);
+        Node templateRoot = getTemplateRoot();
+        JMenuItem menu;
+        Node[] templateNodes = templateRoot.getChildren().getNodes(true);
+        if (templateNodes.length == 1) {
+            //return new MenuView.MenuItem(templateRoot);
+            menu = new JMenuItem(getName());
+            preferredActionNode = templateNodes[0];
+        } else {
+            preferredActionNode = null;
+            menu = new MountMenu (templateRoot, new TemplateActionListener (), false, true);
+        }
         Actions.connect (menu, this, true);
         //    menu.setName (getName ());
         return menu;
@@ -291,6 +316,32 @@ public class VcsMountFromTemplateAction extends NodeAction {
             return item;
         }
     }
+    
+    private static boolean launchWizard(Node n) {
+        DataObject obj = (DataObject)n.getCookie (DataObject.class);
+        if (obj == null || !obj.isTemplate ()) {
+            // do not accept
+            return false;
+        }
+
+        // in this case the modified wizard will be used as default
+        TemplateWizard wizard = getWizard (null);
+
+        try {
+            wizard.setTargetName (null);
+            //setTWIterator(wizard, obj);
+            wizard.instantiate (obj, targetFolder);
+        } catch (IOException e) {
+            ErrorManager em = ErrorManager.getDefault();
+            Throwable e1 = em.annotate(e, "Creating from template did not succeed."); // NOI18N
+            em.notify(ErrorManager.INFORMATIONAL, e1);
+            String msg = e.getMessage();
+            //if ((msg == null) || msg.equals("")) // NOI18N
+                //msg = ActionConstants.BUNDLE.getString("EXC_TemplateFailed");
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+        }
+        return true;
+    }
 
 
     /** Actions listener which instantiates the template */
@@ -302,31 +353,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
                 return false;
             }
             Node n = nodes[0];
-            DataObject obj = (DataObject)n.getCookie (DataObject.class);
-            if (obj == null || !obj.isTemplate ()) {
-                // do not accept
-                return false;
-            }
-            
-            // in this case the modified wizard will be used as default
-            TemplateWizard wizard = getWizard (null);
-            
-            try {
-                wizard.setTargetName (null);
-                //setTWIterator(wizard, obj);
-                wizard.instantiate (obj, targetFolder);
-            } catch (IOException e) {
-                ErrorManager em = ErrorManager.getDefault();
-                Throwable e1 = em.annotate(e, "Creating from template did not succeed."); // NOI18N
-                em.notify(ErrorManager.INFORMATIONAL, e1);
-                String msg = e.getMessage();
-                //if ((msg == null) || msg.equals("")) // NOI18N
-                    //msg = ActionConstants.BUNDLE.getString("EXC_TemplateFailed");
-                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
-            }
-
-            // ok
-            return true;
+            return launchWizard(n);
         }
 
         /** Data filter impl.

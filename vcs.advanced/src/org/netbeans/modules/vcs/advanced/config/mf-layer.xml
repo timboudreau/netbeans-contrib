@@ -79,19 +79,37 @@ Microsystems, Inc. All Rights Reserved.
   </folder>
 
 
+  <!-- Put all VCS-related mount templates into this folder -->
+  <folder name="VCSMountTemplates">
+    <file name="org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings" url="GenericVCSMountFS.settings">
+      <attr name="template" boolvalue="true"/>
+      <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
+      <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/vcsGeneric.gif" />
+      <attr name="VcsMountAction.mnemonic" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
+      <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardIterator.singleton"/>
+      <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/config/templatesGEN_VCS_FS.html"/>
+    </file>
+  </folder>
+  
+  
   <folder name="Templates">
      <folder name="Mount">
        <folder name="VCS">
-        <file name="org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings" url="GenericVCSMountFS.settings">
-          <attr name="template" boolvalue="true"/>
-          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
-          <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/vcsGeneric.gif" />
-          <attr name="VcsMountAction.mnemonic" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
-          <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.vcs.advanced.wizard.mount.MountWizardIterator.singleton"/>
-          <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcs/advanced/config/templatesGEN_VCS_FS.html"/>
-        </file>
-        <attr name="org-netbeans-modules-vcscore-wizard-mountcvs-CvsMountFS.settings/org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings" boolvalue="true" />
+        <!-- We suppose, that the Generic VCS is the only integration in most distributions.
+             Therefore we leave this folder empty and put the link into the parent folder.
+             When another VCS support is installed, all links should be put here and the parent
+             one should be masked out. Therefore add <file name="CommandLineVcsFileSystem.shadow"/>
+             in here (with only "originalFile" attribute) and put <file name="CommandLineVcsFileSystem.shadow_hidden"/>
+             into the parent folder. All changes are expected to be done in the XML layer of the
+             additional VCS module.
+         -->
        </folder>
+       <file name="CommandLineVcsFileSystem.shadow">
+        <attr name="originalFile" stringvalue="VCSMountTemplates/org-netbeans-modules-vcs-advanced-CommandLineVcsFileSystem.settings"/>
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.advanced.config.Bundle" />
+       </file>
+       <attr name="org-netbeans-core-ExLocalFileSystem.settings/CommandLineVcsFileSystem.shadow" boolvalue="true" />
+       <attr name="org-netbeans-core-ExJarFileSystem.settings/CommandLineVcsFileSystem.shadow" boolvalue="true" />
      </folder>
    </folder>
 

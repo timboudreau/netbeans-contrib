@@ -135,6 +135,10 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
   </folder>
 
+  <!-- Put all VCS-related mount templates into this folder only -->
+  <folder name="VCSMountTemplates">
+  </folder>
+
    <folder name="Templates">
      <folder name="Mount">
       
@@ -142,6 +146,10 @@ Microsystems, Inc. All Rights Reserved.
        <attr name="org-netbeans-core-ExJarFileSystem.settings/VCS" boolvalue="true" />
       
        <folder name="VCS">
+       <!-- Put links to templates in "VCSMountTemplates" here in case VCS mount menu items should be groupped in a sub-menu
+            See the mf-layer.xml in vcsgeneric module, as it may need some tunning to look good.
+        -->
+       <attr name="simple" boolvalue="false" />
        <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcscore/resources/templatesVCSFS.html"/>
        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.Bundle" />
        </folder>
