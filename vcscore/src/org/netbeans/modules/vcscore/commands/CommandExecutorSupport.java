@@ -71,7 +71,7 @@ public class CommandExecutorSupport extends Object {
      */
     private static final String USER_PARAM = "USER_PARAM";
     
-    private static final String INPUT_DESCRIPTOR_PARSED = "PROPERTY_INPUT_DESCRIPTOR_PARSED";
+    public static final String INPUT_DESCRIPTOR_PARSED = "PROPERTY_INPUT_DESCRIPTOR_PARSED";
         
     private static final String VAR_INPUT_MULTIPLE_FILES_TITLE_APPEND = " ...";
     private static final String VAR_INPUT_FILE_SEPARATOR = " - ";
