@@ -330,5 +330,16 @@ public class VauElementTopComponent extends TopComponent implements PropertyChan
             setActivatedNodes(result);
         }
     }
+
+    /**
+     * Overwrite when you want to change default persistence type. Default
+     * persistence type is PERSISTENCE_ALWAYS.
+     * Return value should be constant over a given TC's lifetime.
+     * @return one of P_X constants
+     * @since 4.20
+     */
+    public int getPersistenceType() {
+        return PERSISTENCE_NEVER;
+    }
     
 }

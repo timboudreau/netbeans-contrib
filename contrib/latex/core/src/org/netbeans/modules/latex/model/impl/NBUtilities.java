@@ -14,8 +14,11 @@
  */
 package org.netbeans.modules.latex.model.impl;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.JEditorPane;
 import javax.swing.text.Document;
+import javax.swing.text.TextAction;
 import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.LaTeXSource;
@@ -46,12 +50,14 @@ import org.openide.windows.TopComponent;
  *
  * @author Jan Lahoda
  */
-public class NBUtilities extends Utilities {
+public class NBUtilities extends Utilities implements PropertyChangeListener {
     
     private static final boolean debug = true;
     
     /** Creates a new instance of NBUtilities */
     public NBUtilities() {
+        TopComponent.getRegistry().addPropertyChangeListener(this);
+        updateLastUsedCloneableEditor();
     }
     
     public boolean compareFiles(Object file1, Object file2) {
@@ -217,14 +223,21 @@ public class NBUtilities extends Utilities {
         return file.getNameExt() + ":" + line;
     }
     
-    public JEditorPane getLastActiveEditorPane() {
-        TopComponent comp = TopComponent.getRegistry().getActivated();
+    private WeakReference/*<CloneableEditor>*/ lastUsedCloneableEditor = null;
+    
+    private CloneableEditor getLastCloneableEditor() {
+        if (lastUsedCloneableEditor == null)
+            return null;
         
-        if (comp == null || !(comp instanceof CloneableEditor))
-            return null;//Nothing to do.
+        return (CloneableEditor) lastUsedCloneableEditor.get();
+    }
+    
+    public synchronized JEditorPane getLastActiveEditorPane() {
+        CloneableEditor editor = getLastCloneableEditor();
         
-        CloneableEditor editor = (CloneableEditor) comp;
-        
+        if (editor == null)
+            return null;
+            
         try {
             Field field = CloneableEditor.class.getDeclaredField("pane");
             
@@ -248,10 +261,23 @@ public class NBUtilities extends Utilities {
         }
     }
 
+    private synchronized void updateLastUsedCloneableEditor() {
+        TopComponent comp = TopComponent.getRegistry().getActivated();
+        
+        if (comp == null || !(comp instanceof CloneableEditor) || comp == getLastCloneableEditor())
+            return ;//Nothing to do.
+        
+        lastUsedCloneableEditor = new WeakReference((CloneableEditor) comp);
+    }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        updateLastUsedCloneableEditor();
+    }
+    
     public String getFileShortName(Object file) {
         FileObject fo = (FileObject) file;
         
         return fo.getNameExt();
     }
-    
+
 }

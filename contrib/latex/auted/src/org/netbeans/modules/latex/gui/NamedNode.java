@@ -14,18 +14,27 @@
  */
 package org.netbeans.modules.latex.gui;
 
+import javax.swing.Icon;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import org.netbeans.modules.latex.model.IconsStorage;
+
 /**
  *
  * @author Jan Lahoda
  */
-public abstract class NamedNode extends Node {
+public abstract class NamedNode extends Node implements ChangeListener {
     
     public static final String PROP_NAME = "name";
+    public static final String PROP_ICON = "icon";
+    
     private String name;
+    private IconsStorage.ChangeableIcon icon;
     
     /** Creates a new instance of NamedNode */
     public NamedNode() {
         this.name = "";
+        this.icon = null;
     }
     
     /** Getter for property name.
@@ -40,9 +49,22 @@ public abstract class NamedNode extends Node {
      * @param name New value of property name.
      *
      */
-    public void setName(java.lang.String name) {
+    public synchronized void setName(java.lang.String name) {
+        if (icon != null)
+            icon.removeChangeListener(this);
+        
         this.name = name;
+        this.icon = null;
         firePropertyChange(PROP_NAME, null, name);
+    }
+    
+    protected synchronized Icon getIconForName() {
+        if (icon == null) {
+            icon = IconsStorage.getDefault().getIconForExpression(getName());
+            icon.addChangeListener(this);
+        }
+        
+        return icon;
     }
     
     public boolean equalsNode(Node node) {
@@ -52,6 +74,11 @@ public abstract class NamedNode extends Node {
         NamedNode nn = (NamedNode) node;
         
         return getName() == nn.getName();
+    }
+
+    public void stateChanged(ChangeEvent e) {
+        if (e.getSource() == icon)
+            firePropertyChange(PROP_ICON, null, null);
     }
 
 }

@@ -27,7 +27,9 @@ import java.lang.reflect.Constructor;
 import java.util.ResourceBundle;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JOptionPane;
+import org.netbeans.modules.latex.model.IconsStorage;
 
 /**
  *
@@ -100,7 +102,13 @@ public abstract class CurveEdgeNode extends EdgeNode {
         
         Point2D point = getPoint(getLabelPosition());
         
-        g.drawString(getName(), (int) point.getX(), (int) point.getY());
+        Icon i = getIconForName();
+        
+        double posX = point.getX();// - i.getIconWidth() / 2;
+        double posY = point.getY();// - i.getIconHeight() / 2;
+        
+        i.paintIcon(null, g, (int) posX, (int) posY);//(int) center.getX(),(int) center.getY());
+//        g.drawString(getName(), (int) point.getX(), (int) point.getY());
         
         drawArrow(g, getTarget().getContourPoint(getTargetAngle()), getTargetAngle());
     }

@@ -32,7 +32,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.JOptionPane;
+import org.netbeans.modules.latex.model.IconsStorage;
 
 /**
  *
@@ -138,16 +140,19 @@ public class StateNode extends PositionNode {
             g.drawLine(getX() * xGrid - getDiameter(), getY() * yGrid, getX() * xGrid - getDiameter() - 20, getY() * yGrid);
         }
         
-        Rectangle2D bounds = g.getFontMetrics().getStringBounds(getName(), g);
+        g.setStroke(oldStroke);
         
         Point center = getPosition();
         
-        double posX = center.getX() - bounds.getWidth() / 2;
-        double posY = center.getY() + bounds.getHeight() / 2;
+//        Rectangle2D bounds = g.getFontMetrics().getStringBounds(getName(), g);
         
-        g.setStroke(oldStroke);
+        Icon i = getIconForName();
         
-        g.drawString(getName(), (int) posX, (int) posY);
+        double posX = center.getX() - i.getIconWidth() / 2;
+        double posY = center.getY() - i.getIconHeight() / 2;
+        
+        i.paintIcon(null, g, (int) posX, (int) posY);//(int) center.getX(),(int) center.getY());
+//        g.drawString(getName(), (int) posX, (int) posY);
         
         g.setColor(old);
         g.setStroke(oldStroke);
