@@ -2179,6 +2179,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     public String getStatus(FileObject fo) {
+        fo = convertForeignFileObjectToMyFileObject(fo);
         FileProperties fprops = Turbo.getMeta(fo);
         return FileProperties.getStatus(fprops);
     }
