@@ -563,20 +563,16 @@ public class CommandProcessor extends Object /*implements CommandListener */{
         //if (name == null || name.length() == 0) name = cmd.getName();
         //final String finalName = name;
         if (name != null) {
-            RequestProcessor.getDefault().post(new Runnable() {
-                public void run() {
-                    String cmdName;
-                    int i = name.indexOf('&');
-                    if (i >= 0) cmdName = name.substring(0, i) + name.substring(i + 1);
-                    else cmdName = name;
-                    StatusDisplayer.getDefault().setStatusText(g("MSG_Command_name_running", cmdName));
-                    /*
-                    if (fileSystem != null) {
-                        fileSystem.debug(g("MSG_Command_started", name, vce.getExec()));
-                    }
-                     */
-                }
-            });
+            String cmdName;
+            int i = name.indexOf('&');
+            if (i >= 0) cmdName = name.substring(0, i) + name.substring(i + 1);
+            else cmdName = name;
+            StatusDisplayer.getDefault().setStatusText(g("MSG_Command_name_running", cmdName));
+            /*
+            if (fileSystem != null) {
+                fileSystem.debug(g("MSG_Command_started", name, vce.getExec()));
+            }
+             */
         }
         //System.out.println("command "+cmdTask.getName()+" STARTED.");
         //Command cmd = cmdTask.getCommand();
@@ -713,12 +709,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
                     message = g("MSG_Command_name_interrupted", name);
                     break;
             }
-            final String finalMessage = message;
-            RequestProcessor.getDefault().post(new Runnable() {
-                public void run() {
-                    StatusDisplayer.getDefault().setStatusText(finalMessage);
-                }
-            });
+            StatusDisplayer.getDefault().setStatusText(message);
         }
         /*
         String notification = null;
