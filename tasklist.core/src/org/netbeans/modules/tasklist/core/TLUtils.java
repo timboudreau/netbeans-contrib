@@ -24,6 +24,8 @@ import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.URLMapper;
 import org.openide.filesystems.FileObject;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 
 /** 
  * Various utility methods shared by the various tasklist related modules
@@ -394,7 +396,23 @@ public final class TLUtils {
         }
         return URLMapper.findFileObjects(url);
     }
+    
+    /**
+     * Counts all children nodes of the given node recursively.
+     *
+     * @return node a node or null
+     */
+    public static int getChildrenCountRecursively(Node node) {
+        if (node == null) return 0;
+        
+        Children children = node.getChildren();
+        if(children.getNodesCount() == 0) return 0;
+
+        int n = 0;
+        Node[] nodes = children.getNodes();
+        for (int i = 0; i < nodes.length; i++) {
+            n += getChildrenCountRecursively(nodes[i]) + 1;
+        }
+        return n;
+    }
 }
-
-
-

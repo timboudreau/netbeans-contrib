@@ -15,6 +15,7 @@ package org.netbeans.modules.tasklist.core;
 
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ import org.openide.util.actions.CallbackSystemAction;
  *       from this class
  */
 public abstract class TaskListView extends ExplorerPanel
-    implements TaskListener, ActionListener, PropertyChangeListener {
+    implements TaskListener, PropertyChangeListener {
     /** Property "task summary" */
     public static final String PROP_TASK_SUMMARY = "taskDesc"; // NOI18N
     
@@ -109,10 +110,12 @@ public abstract class TaskListView extends ExplorerPanel
     */
     transient protected String title = null;
     
-    //transient private ActionPerformer deletePerformer;
-    
     /** Annotation showing the current position */
     transient protected TaskAnnotation taskMarker = null;
+    
+    private JPanel centerPanel;
+    private Component northCmp;
+    private boolean northCmpCreated;
     
     /** Construct a new TaskListView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
@@ -125,6 +128,10 @@ public abstract class TaskListView extends ExplorerPanel
     public TaskListView() {
     }
     
+    /**
+     * @param category view's category. This value will be used as the name
+     * for a subdirectory of "SystemFileSystem/TaskList/" for columns settings
+     */
     public TaskListView(String category, String title, Image icon,
 			boolean persistent, TaskList tasklist) {
         this.category = category;
@@ -152,6 +159,73 @@ public abstract class TaskListView extends ExplorerPanel
 	}
     }
 
+    /**
+     * Updates the label showing the number of filtered tasks
+     */
+    public void updateFilterCount() {
+        if (!isNorthComponentVisible()) {
+            return;
+        }
+        
+        int all = TLUtils.getChildrenCountRecursively(rootNode);
+        int shown = TLUtils.getChildrenCountRecursively(
+            getExplorerManager().getExploredContext());
+        JLabel filterLabel = (JLabel) getNorthComponent();
+        filterLabel.setText(NbBundle.getMessage(TaskListView.class,
+            "FilterCount", new Integer(shown), new Integer(all))); // NOI18N
+    }
+    
+    /**
+     * Hides/shows component that will be shown over the TTV
+     * 
+     * @param v true = visible
+     */
+    public void setNorthComponentVisible(boolean v) {
+        if (v) {
+            Component cmp = getNorthComponent();
+            if (cmp != null) {
+                centerPanel.add(cmp, BorderLayout.NORTH);
+                centerPanel.validate();
+            }
+        } else {
+            if (northCmp != null && northCmp.getParent() != null) {
+                northCmp.getParent().remove(northCmp);
+            }
+        }
+    }
+    
+    /**
+     * Is the component above the tree table visible?
+     * Visible means it is in the TopComponent
+     *
+     * @return true = yes
+     */
+    public boolean isNorthComponentVisible() {
+        return northCmp != null && northCmp.getParent() != null;
+    }
+    
+    /**
+     * Returns component that will be shown over the TTV
+     *
+     * @return component or null
+     */
+    public Component getNorthComponent() {
+        if (!northCmpCreated) {
+            northCmp = createNorthComponent();
+            northCmpCreated = true;
+        }
+        return northCmp;
+    }
+    
+    /**
+     * Creates component that will be shown over the TTV
+     *
+     * @return created component or null
+     */
+    protected Component createNorthComponent() {
+        return new JLabel();
+    }
+    
     /**
      * Override default ExplorerPanel behaviour.
      * It was set by explorer manager with setName to "Explorer[<root name>]"
@@ -303,25 +377,16 @@ public abstract class TaskListView extends ExplorerPanel
 	// AHHHH... there's a separate method for that:
         treeTable.setTreePreferredWidth(columns[0].getWidth());
         
-        for (int i = 1; i < columns.length; i++) {
-            // This is kind of odd. Column 1 is named column 0 in the
-            // treetable.  I'll betcha you could call this on column
-            // -1 to set the tree preferred width instead of the above
-            // method :-) That's because they +1 to the column number
-            // when they set the width on the table model.
-            treeTable.setTableColumnPreferredWidth(i-1, 
-                                                   columns[i].getWidth());
-        }
-        
+        treeTable.getTable().getTableHeader().setReorderingAllowed(false);
         treeTable.setRootVisible(false);
         treeTable.setVerticalScrollBarPolicy(
 			JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         treeTable.setHorizontalScrollBarPolicy(
 			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        // Give 80% to the first column, 10% to the next one, 10% to the third one
-        // Grr... find out if this refers to the screen-visible columns, or
-        // the potential columns (the setProperties set)
-        add(treeTable, BorderLayout.CENTER);  //NOI18N
+        centerPanel = new JPanel();
+        centerPanel.setLayout(new BorderLayout());
+        centerPanel.add(treeTable, BorderLayout.CENTER);
+        add(centerPanel, BorderLayout.CENTER); 
 
         SystemAction actions[] = getToolBarActions();
         if (actions != null) {
@@ -335,7 +400,6 @@ public abstract class TaskListView extends ExplorerPanel
         
         installJumpActions(true);
     }
-
 
     /** Called when the window is closed. Cleans up. */    
     protected void componentClosed() {
@@ -386,7 +450,8 @@ public abstract class TaskListView extends ExplorerPanel
 
         // Select the root node, such that the empty tasklist has
         // a context menu - but only if there are no items in the list
-        /*if (!tasklist.getRoot().hasSubtasks()) {
+        /* TODO not necessary anymore?
+         if (!tasklist.getRoot().hasSubtasks()) {
             // See http://www.netbeans.org/issues/show_bug.cgi?id=27696
             Node[] sel = new Node[] { getExplorerManager().getRootContext() };
             try {
@@ -1083,77 +1148,12 @@ public abstract class TaskListView extends ExplorerPanel
         }
         if (showStatusBar && (filter != null)) {
             setRoot();
-            addFilterPanel();
+            setNorthComponentVisible(true);
+            updateFilterCount();
             //expandAll(); // [PENDING] Make this optional?
         } else {
-            removeFilterPanel();
+            setNorthComponentVisible(false);
             setRoot();
-        }
-    }
-
-    
-    private JPanel filterPanel = null;
-    private JButton removeFilterButton = null;
-    private JLabel filterLabel = null;
-    
-    private void addFilterPanel() {
-        if (filterPanel != null) {
-            return;
-        }
-
-        filterPanel = new JPanel();
-        filterPanel.setLayout(new BorderLayout());
-        
-        filterLabel = new JLabel();
-        updateFilterCount(getExplorerManager().getRootContext().getChildren());
-        removeFilterButton = new JButton();
-        removeFilterButton.setText(NbBundle.getMessage(TaskListView.class,
-                                          "RemoveFilter")); // NOI18N
-        removeFilterButton.addActionListener(this);
-                       
-        // XXX add edit filter button?
-
-        filterPanel.add(filterLabel, BorderLayout.CENTER);
-        filterPanel.add(removeFilterButton, BorderLayout.EAST);
-
-        add(filterPanel, BorderLayout.NORTH);
-    }
-
-    /** Invoked when an action occurs.
-     */
-    public void actionPerformed(ActionEvent evt) {
-        if (evt.getSource() == removeFilterButton) {
-            setFilter(null, false);
-            /*
-        } else {
-            super.actionPerformed(evt);
-            */
-        }
-    }
-
-    void updateFilterCount(Children children) {
-        if (filterLabel == null) {
-            return;
-        }
-        
-        // NOTE This doesn't count subtasks correctly... it only counts the
-        // first level hierarchy...
-        Integer showingCount = new Integer(children.getNodes() == null ?
-                                           0 : children.getNodes().length);
-        Integer totalCount = new Integer(rootNode.getChildren().
-                                         getNodes().length);
-        filterLabel.setText(NbBundle.getMessage(TaskListView.class,
-                                          "FilterCount", // NOI18N
-                                          showingCount,
-                                          totalCount));
-    }
-    
-    private void removeFilterPanel() {
-        if (filterPanel != null) {
-            remove(filterPanel);
-            filterPanel = null;
-            removeFilterButton = null;
-            filterLabel = null;
         }
     }
 
