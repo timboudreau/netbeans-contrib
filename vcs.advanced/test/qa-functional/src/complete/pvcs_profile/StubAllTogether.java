@@ -101,7 +101,7 @@ public class StubAllTogether extends PVCSStub {
     }
     
     public void configure () {
-        new File (getWorkFilePath() + File.separator + "client" + File.separator + "test").mkdirs (); // workaround for unreported problem in prepareClient method
+        new File (getWorkDirPath() + File.separator + "client" + File.separator + "test").mkdirs (); // workaround for unreported problem in prepareClient method
         super.configure ();
     }
     
