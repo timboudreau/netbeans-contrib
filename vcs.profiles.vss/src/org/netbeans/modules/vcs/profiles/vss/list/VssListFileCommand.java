@@ -142,12 +142,21 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
             }
             VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, varsCmd);
             final boolean[] differ = new boolean[1];
+            final boolean[] cannotDiff = new boolean[1];
             differ[0] = false;
+            cannotDiff[0] = false;
             vce.addDataOutputListener(new CommandDataOutputListener() {
                 public void outputData(String[] elements) {
                     if (elements != null) {
                         //D.deb(" ****  status match = "+VcsUtilities.arrayToString(elements));
                         if (elements[0].length() > 0) differ[0] = true;
+                    }
+                }
+            });
+            vce.addDataErrorOutputListener(new CommandDataOutputListener() {
+                public void outputData(String[] elements) {
+                    if (elements != null) {
+                        if (elements[0].length() > 0) cannotDiff[0] = true;
                     }
                 }
             });
@@ -160,10 +169,12 @@ public class VssListFileCommand extends Object implements VcsAdditionalCommand, 
                 interrupted = true;
                 return false;
             }
-            if (differ[0]) {
-                differentFiles.add(file);
-            } else {
-                currentFiles.add(file);
+            if (!cannotDiff[0]) {
+                if (differ[0]) {
+                    differentFiles.add(file);
+                } else {
+                    currentFiles.add(file);
+                }
             }
             return vce.getExitStatus() == VcsCommandExecutor.SUCCEEDED || differ[0];
         }
