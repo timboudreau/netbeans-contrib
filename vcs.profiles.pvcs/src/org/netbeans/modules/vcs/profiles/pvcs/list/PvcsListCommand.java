@@ -274,6 +274,7 @@ public class PvcsListCommand extends AbstractListCommand {
             cmdVars.put("WORKFILE", workFilesByNames.get(name));
             cmdVars.put("ARCHIVE", archivesByNames.get(name));
             VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(diffCmd, cmdVars);
+            fileSystem.getCommandsPool().preprocessCommand(ec, cmdVars, fileSystem);
             fileSystem.getCommandsPool().startExecutor(ec, fileSystem);
             try {
                 fileSystem.getCommandsPool().waitToFinish(ec);
