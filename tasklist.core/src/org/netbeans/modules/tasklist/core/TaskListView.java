@@ -48,13 +48,17 @@ import java.io.IOException;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import javax.swing.tree.TreePath;
 import org.openide.ErrorManager;
 import org.openide.TopManager;
+import org.openide.actions.DeleteAction;
 import org.openide.actions.FindAction;
 import org.openide.explorer.ExplorerPanel;
+import org.openide.explorer.view.Visualizer;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.Mode;
 import org.openide.windows.Workspace;
@@ -86,7 +90,7 @@ public abstract class TaskListView extends ExplorerPanel
 	set in the constructor with setName to "Explorer[<root name>]"
     */
     transient protected String title = null;
-
+    
     /** Construct a new TaskListView. Most work is deferred to
 	componentOpened. NOTE: this is only for use by the window
 	system when deserializing windows. Client code should not call
@@ -279,6 +283,41 @@ public abstract class TaskListView extends ExplorerPanel
         return SystemAction.linkActions (sa, todoActions);
     }
     
+    /**
+     * Deletes a node and selects another one.
+     *
+     * @param node a node to delete
+     */
+    public void destroy(TaskNode node) {
+        JTree tree = treeTable.getTree();
+        int sel = tree.getMaxSelectionRow();
+        if (sel >= 0) {
+            Node selnode = Visualizer.findNode(
+                tree.getPathForRow(sel).getLastPathComponent());
+            if (selnode == node) {
+                TreePath tp = null;
+                if (sel + 1 < tree.getRowCount()) {
+                    tp = tree.getPathForRow(sel + 1);
+                } else if (sel - 1 >= 0) {
+                    tp = tree.getPathForRow(sel - 1);
+                }
+                if (tp != null) {
+                    try {
+                        getExplorerManager().setSelectedNodes(
+                            new Node[] {
+                                (Node) Visualizer.findNode(
+                                    tp.getLastPathComponent())
+                            }
+                        );
+                    } catch (PropertyVetoException e) {
+                        ErrorManager.getDefault().notify(e);
+                    }
+                }
+            }
+        }
+        node.destroy();
+    }
+    
     // Workaround - is this no longer necessary?
     protected static class MyTreeTable extends TreeTableView {
         MyTreeTable() {
@@ -302,6 +341,10 @@ public abstract class TaskListView extends ExplorerPanel
             // is close to the request valued - it's (204,204,204).
             table.setGridColor((java.awt.Color)javax.swing.UIManager.getDefaults().get("Label.background")); // NOI18N
 	    */
+        }
+        
+        JTree getTree() {
+            return tree;
         }
         
         TableModel getModel() {
@@ -1039,18 +1082,22 @@ public abstract class TaskListView extends ExplorerPanel
         setRoot();
     }
 
-    // Hook the Filter dialog up to the Search action
-
+    
     public void componentActivated() {
-        super.componentActivated();
         FindAction find = (FindAction)FindAction.get(FindAction.class);
         FilterAction filter = (FilterAction)FilterAction.get(FilterAction.class);
         find.setActionPerformer(filter);
+        
+        DeleteAction delete = (DeleteAction) DeleteAction.get(DeleteAction.class);
+        delete.setActionPerformer(new DeleteActionPerformer(this));
     } 
+    
     public void componentDectivated() {
-        super.componentDeactivated();
         FindAction find = (FindAction)FindAction.get(FindAction.class);
         find.setActionPerformer(null);
+
+        DeleteAction delete = (DeleteAction) DeleteAction.get(DeleteAction.class);
+        delete.setActionPerformer(null);
     }
     
     private JPanel filterPanel = null;

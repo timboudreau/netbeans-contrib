@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -463,6 +464,23 @@ public class Task extends Suggestion implements Cloneable {
 	return list;
     }
 
+    /**
+     * Counts all subtasks of this task recursively.
+     *
+     * @return number of subtasks
+     */
+    public int getSubtaskCountRecursively() {
+        if(subtasks == null) return 0;
+
+        int n = 0;
+        Iterator it = subtasks.iterator();
+        while(it.hasNext()) {
+            Task t = (Task) it.next();
+            n += t.getSubtaskCountRecursively() + 1;
+        }
+        return n;
+    }
+    
     /** Create a node for this item */
     protected Node[] createNode() {
         if (hasSubtasks()) {
