@@ -572,7 +572,10 @@ public class Task extends Suggestion implements Cloneable, Cookie {
         return n;
     }
 
-    /** Create a node for this item */
+    /**
+     * Create default nodes for this item.
+     * Actual view may use them or use any replacement.
+     */
     public Node[] createNode() {
         //if (hasSubtasks()) {
         if (subtasks != null) {  // Want to make root a non-leaf; empty list, not null

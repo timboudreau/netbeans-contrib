@@ -258,10 +258,13 @@ public final class Bug extends Task {
         // PENDING Do I allow subnodes for bugs? IssueZilla depends on
         // seems like something you could consider a "subtask", although
         // not quite
+        // A: Exactly, I would use it for IZ depends mapping, in reality
+        // it can cause identity problems as the same IZ task is
+        // nodeled by multiple TL tasks
         if (hasSubtasks()) {
             return new Node[]{new BugNode(this, subtasksIterator())};
         } else {
-            return new Node[]{new BugNode(this)};
+            return new Line[]{new BugNode(this)};
         }
     }
 

@@ -30,19 +30,8 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import org.openide.text.Annotation;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.netbeans.modules.tasklist.core.ColumnProperty;
-import org.netbeans.modules.tasklist.core.ExpandAllAction;
-import org.netbeans.modules.tasklist.core.ExportAction;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.netbeans.modules.tasklist.core.ImportAction;
-import org.netbeans.modules.tasklist.core.Task;
-import org.netbeans.modules.tasklist.core.TaskAnnotation;
-import org.netbeans.modules.tasklist.core.TaskListView;
-import org.netbeans.modules.tasklist.core.TaskListener;
-import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.modules.tasklist.core.GoToTaskAction;
-import org.netbeans.modules.tasklist.core.ObservableList;
-import org.netbeans.modules.tasklist.core.TLUtils;
+import org.netbeans.modules.tasklist.core.*;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.openide.actions.DeleteAction;
 import org.openide.actions.PasteAction;
@@ -492,8 +481,9 @@ public class UserTaskView extends TaskListView implements TaskListener {
     }
 
     protected Node createRootNode() {
-        UserTask root = (UserTask)getModel().getRoot();
-        return new UserTaskNode(root, root.subtasksIterator());
+//        UserTask root = (UserTask)getModel().getRoot();
+//        return new UserTaskNode(root, root.subtasksIterator());
+        return new TaskListNode(getModel());
     }
 
     /** Show the given task. "Showing" means getting the editor to

@@ -21,7 +21,8 @@ import org.openide.nodes.Node;
 import java.util.Collections;
 
 /**
- * Node visualization of TaskList, creates TaskNodes.
+ * Node visualization of TaskList. It creates children
+ * by taking default node from contained tasks.
  * 
  * @author Petr Kuzel
  */
@@ -31,16 +32,29 @@ public final class TaskListNode extends AbstractNode {
      * Creates plain tasklist node. Properties that cannot
      * be derrived from passed tasklist should be provided by
      * client. It covers displayName etc.
+     *
+     * @param tasklist to be visualized never <code>null</code>
      */
     public TaskListNode(ObservableList tasklist) {
         super(new TaskListChildren(tasklist));
+//        TaskListChildren list = (TaskListChildren) getChildren();
+//        list.setNodeFactory(nodeFactory);
+    }
+
+    /** Creates custom child nodes for TaskListNode */
+    public static interface NodeFactory {
+
+        /** Default task.createNode() */
+        Node createNode(Object task);
     }
 
     static class TaskListChildren extends Children.Keys implements TaskListener {
 
         private ObservableList list;
+        private NodeFactory nodeFactory;
 
-        public TaskListChildren(ObservableList list) {
+        private TaskListChildren(ObservableList list) {
+            assert list != null;
             this.list = list;
         }
 
@@ -58,8 +72,17 @@ public final class TaskListNode extends AbstractNode {
 
         protected Node[] createNodes(Object key) {
             Task task = (Task) key;
-            Node node = task.hasSubtasks() ? new TaskNode(task, task.subtasksIterator()) : new TaskNode(task);
-            return new Node[] {node};
+            Node[] nodes;
+            if (nodeFactory == null) {
+                nodes = task.createNode();
+            } else {
+                nodes = new Node[] {nodeFactory.createNode(task)};
+            }
+            return nodes;
+        }
+
+        public void setNodeFactory(NodeFactory nodeFactory) {
+            this.nodeFactory = nodeFactory;
         }
 
         // TaskListener implementation ~~~~~~~~~~~~~~~
@@ -81,6 +104,7 @@ public final class TaskListNode extends AbstractNode {
         public void structureChanged(Task t) {
             setKeys(list.getTasks());
         }
+
 
     }
 }

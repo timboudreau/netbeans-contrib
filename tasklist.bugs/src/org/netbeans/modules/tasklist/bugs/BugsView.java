@@ -14,12 +14,9 @@
 package org.netbeans.modules.tasklist.bugs;
 
 import java.util.Date;
-import org.netbeans.modules.tasklist.core.ColumnProperty;
 
 
-import org.netbeans.modules.tasklist.core.TaskListView;
-import org.netbeans.modules.tasklist.core.TaskListener;
-import org.netbeans.modules.tasklist.core.TaskNode;
+import org.netbeans.modules.tasklist.core.*;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.nodes.Node;
@@ -298,8 +295,7 @@ public class BugsView extends TaskListView implements TaskListener {
 
     /** Create the root node to be used in this view */
     protected Node createRootNode() {
-        Bug root = (Bug)getModel().getRoot();
-        return new BugNode(root, root.subtasksIterator());
+        return new TaskListNode(getModel());
     }
     
     public org.netbeans.modules.tasklist.core.filter.Filter createFilter() {

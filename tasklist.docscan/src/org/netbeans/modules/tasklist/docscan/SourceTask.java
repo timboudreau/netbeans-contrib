@@ -24,6 +24,7 @@ import org.openide.nodes.Node;
  */
 final class SourceTask extends Task {
 
+    //XXX why disabled
 //    public Node[] createNode() {
 //        if (hasSubtasks()) {
 //            return new Node[] { new SourceTaskNode(this, getSubtasks())};
