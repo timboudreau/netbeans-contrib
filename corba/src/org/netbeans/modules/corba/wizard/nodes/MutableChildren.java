@@ -49,6 +49,7 @@ public class MutableChildren extends Children.Keys {
   
     public void addKeys (Collection keys) {
         this.subNodes.addAll (keys);
+        this.prepareKeys();
     }
   
     public void removeKey (MutableKey key) {

@@ -19,7 +19,7 @@ import java.awt.event.ActionListener;
 import org.openide.TopManager;
 import org.openide.DialogDescriptor;
 import java.util.StringTokenizer;
-import java.util.HashSet;
+import java.util.ArrayList;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
@@ -92,7 +92,7 @@ public class EnumNode extends AbstractMutableContainerNode implements Node.Cooki
   
     private void buildEntries () {
         StringTokenizer tk = new StringTokenizer (((EnumKey)this.key).getValues(),",");
-        HashSet keys = new HashSet();
+        ArrayList keys = new ArrayList();
         while (tk.hasMoreTokens ()){
             String name = tk.nextToken().trim();
             keys.add (new NamedKey (MutableKey.ENUM_MBR, name));
