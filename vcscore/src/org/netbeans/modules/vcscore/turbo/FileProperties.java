@@ -17,6 +17,8 @@ import org.openide.filesystems.FileObject;
 
 import java.util.Set;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 
 
 /**
@@ -77,6 +79,9 @@ public final class FileProperties {
 
     /** For debuging purposes trace creation point. 3rd frame is caller. */
     private Exception origin;
+
+    /** Custom string interning */
+    private static Set interning = new HashSet(20);
 
     public FileProperties() {
         retrieval = System.currentTimeMillis();
@@ -151,11 +156,29 @@ public final class FileProperties {
         } catch (NumberFormatException ex) {
             size = 0;
         }
-        sticky = elements[StatusFormat.ELEMENT_INDEX_STICKY];
+        sticky = intern(elements[StatusFormat.ELEMENT_INDEX_STICKY]);
         time = elements[StatusFormat.ELEMENT_INDEX_TIME];
         date = elements[StatusFormat.ELEMENT_INDEX_DATE];
         retrieval = System.currentTimeMillis();
         initDeep2();
+    }
+
+    /** Custom string interning with limited size pool. */
+    private synchronized String intern(String s) {
+        if (s == null) return null;
+        if (interning.contains(s)) {
+            Iterator it = interning.iterator();
+            while (it.hasNext()) {
+                String next = (String) it.next();
+                if (s.equals(next)) return next;
+            }
+        } else {
+            if (interning.size() > 19) {
+                interning.remove(interning.iterator().next());
+            }
+            interning.add(s);
+        }
+        return s;
     }
 
     /**
@@ -220,7 +243,7 @@ public final class FileProperties {
 
     public void setSticky(String sticky) {
         assert canUpdate;
-        this.sticky = sticky;
+        this.sticky = intern(sticky);
     }
 
     /** VCS specific additonal attributes (e.g CVS -kb) or <codE>null</code> for unknown. */
