@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.ArrayList;
 
 import javax.swing.*;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.event.PopupMenuEvent;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.accessibility.AccessibleContext;
@@ -628,6 +630,21 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             popup.add(item);
             i++;
         }
+
+        popup.addPopupMenuListener(new PopupMenuListener() {
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            }
+
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+            }
+
+            public void popupMenuCanceled(PopupMenuEvent e) {
+                if (selectedFolder == null) {
+                    getCurrentFile().doClick(0);
+                }
+            }
+
+        });
         popup.show(getAllFiles(), 0, getAllFiles().getHeight());
     }
 
@@ -975,13 +992,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (selectedFolder == null) {
             if (recentFolders.size() > 0) {
                 showFolderSelectorPopup();
-                if (selectedFolder == null) {
-                    getCurrentFile().doClick(0);
-                    return;
-                }
             } else {
                 handleSelectFolder();
             }
+            // all popup branches and selectors contain handleAllFiles() call
             return;
         } else {
             // it might be resored from persitent setting and unavailable
