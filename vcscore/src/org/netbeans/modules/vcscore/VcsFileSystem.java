@@ -39,6 +39,7 @@ import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.util.Utilities;
 import org.openide.util.SharedClassObject;
+import org.openide.util.UserQuestionException;
 import org.openide.util.WeakListener;
 
 import org.netbeans.modules.vcscore.cache.CacheHandlerListener;
@@ -2126,18 +2127,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 VcsCacheFile vcsFile = (cache != null) ? ((VcsCacheFile) cache.getFile (name)) : null;
                 if (vcsFile != null && !vcsFile.isLocal () && !name.endsWith (".orig")) { // NOI18N
                     if (isPromptForEditOn()) {
-                        throw new org.openide.util.UserQuestionException(g("MSG_EditFileCh")) {
-                            /*
-                            public String getLocalizedMessage () {
-                                return g("EXC_CannotDeleteReadOnly", file.toString());
-                            }
-                             */
-                            public void confirmed() {
-                                Table files = new Table();
-                                files.put(name, findResource(name));
-                                VcsAction.doEdit (files, VcsFileSystem.this);
-                            }
-                        };
+                        throw (UserQuestionException) TopManager.getDefault().getErrorManager().annotate(
+                            new UserQuestionException(g("MSG_EditFileCh")) {
+                                public void confirmed() {
+                                    Table files = new Table();
+                                    files.put(name, findResource(name));
+                                    VcsAction.doEdit (files, VcsFileSystem.this);
+                                }
+                            }, g("EXC_CannotDeleteReadOnly", file.toString()));
                     } else {
                         Table files = new Table();
                         files.put(name, findResource(name));
@@ -2153,7 +2150,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             if (vcsFile==null || vcsFile.isLocal () || name.endsWith (".orig")) return; // NOI18N
             else if (shouldLock(name)) {
                 if (isPromptForLockOn ()) {
-                    throw new org.openide.util.UserQuestionException(g("MSG_LockFileCh")) {
+                    throw new UserQuestionException(g("MSG_LockFileCh")) {
                         public void confirmed() {
                             Table files = new Table();
                             files.put(name, findResource(name));
@@ -2272,14 +2269,50 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
     
+    /**
+     * For compatibility reasons only.
+     * This method is to be used when deserialization from NetBeans 3.1 and older is performed.
+     */
+    private void setAdvancedConfig (Object advanced) {
+        //super.setAdvancedConfig (advanced);
+        this.advanced = advanced;
+        Vector commands = (Vector) advanced;
+        int len = commands.size();
+        if (len == 0) return ;
+        commandsByName = new Hashtable(len + 5);
+        //mainCommands = new Vector();
+        //revisionCommands = new Vector();
+        org.netbeans.modules.vcscore.cmdline.UserCommand root =
+            new org.netbeans.modules.vcscore.cmdline.UserCommand();
+        root.setName("ROOT");
+        root.setDisplayName("VCS");
+        Children rootCh = new Children.Array();
+        commandsRoot = new VcsCommandNode(rootCh, root);
+        VcsCommand cmds = (VcsCommand) commands.elementAt(0);
+        Children mainCh = new Children.Array();
+        rootCh.add(new Node[] { new VcsCommandNode(mainCh, cmds) });
+        for(int i = 1; i < len; i++) {
+            VcsCommand uc = (VcsCommand) commands.elementAt(i);
+            commandsByName.put(uc.getName(), uc);
+            mainCh.add(new Node[] { new VcsCommandNode(Children.LEAF, uc) });
+            //mainCommands.add(uc);
+        }
+    }
+
     /** Set the tree structure of commands.
      * @param root the tree of {@link VcsCommandNode} objects.
      */
     public void setCommands(Node root) {
         Object old = commandsRoot;
-        commandsRoot = root;
-        commandsByName = new Hashtable();
-        addCommandsToHashTable(root);
+        if (root == null) {
+            if (advanced != null) {
+                setAdvancedConfig(advanced);
+            }
+        } else {
+            commandsRoot = root;
+            commandsByName = new Hashtable();
+            addCommandsToHashTable(root);
+        }
         VariableInputDescriptorCompat.createInputDescriptorFormExec(commandsByName);
         firePropertyChange(PROP_COMMANDS, old, commandsRoot);
     }
