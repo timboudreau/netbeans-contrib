@@ -1535,6 +1535,12 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       </command> <!-- End section History -->
       <separator />
+      <command name="IMPORT_CMD">
+        <property name="exec">
+          <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${WORKDIR}$[? FILE] [${PS}${FILE}][]${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${QUOTE}${IGNORE}${QUOTE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}$[? DIR] [$[? MODULE] [${MODULE_\/}/${DIR_\/}/${FILE}] [${DIR_\/}/${FILE}]] [$[? MODULE] [${MODULE_\/}/${FILE}] [${FILE}]]${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG}</value>
+	  <value>${RUNCDW} $[? FILE] [${CD} ${QFILE}&amp;&amp;] [] ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${QUOTE}${IGNORE}${QUOTE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}$[? DIR] [$[? MODULE] [${MODULE_\/}/${DIR_\/}/${FILE}] [${DIR_\/}/${FILE}]] [$[? MODULE] [${MODULE_\/}/${FILE}] [${FILE}]]${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}</value>
+	</property>
+      </command>
       <command name="IMPORT" displayName="ResourceMsg1(CVS_IMPORT)">
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_IMPORT_Mnemonic)</value>
@@ -1546,8 +1552,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-          <value if="BUILT-IN">org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${WORKDIR}$[? FILE] [${PS}${FILE}][]${QUOTE} -d ${QUOTE}${CVSROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${QUOTE}${IGNORE}${QUOTE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}$[? DIR] [$[? MODULE] [${MODULE_\/}/${DIR_\/}/${FILE}] [${DIR_\/}/${FILE}]] [$[? MODULE] [${MODULE_\/}/${FILE}] [${FILE}]]${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG}</value>
-	  <value>${RUNCDW} $[? FILE] [${CD} ${QFILE}&amp;&amp;] [] ${CVS_DEF_EXE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${QUOTE}${IGNORE}${QUOTE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}$[? DIR] [$[? MODULE] [${MODULE_\/}/${DIR_\/}/${FILE}] [${DIR_\/}/${FILE}]] [$[? MODULE] [${MODULE_\/}/${FILE}] [${FILE}]]${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}</value>
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.SharableImport.class IMPORT_CMD</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_IMPORT_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_IMPORT_Label)))
@@ -3125,6 +3130,15 @@ Microsystems, Inc. All Rights Reserved.
           </value>     
 	</property>
       </command>
+      <command name="IMPORT_CMD">
+        <property name="exec">
+          <value>$[? BUILT-IN-GLB][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
+                                  [$[? IS_WINNT][${RUN} cd /D ${ROOTDIR} &amp;&amp; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
+                                  [$[? IS_WIN9X][${RUN} cd ${ROOTDIR}; ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
+                                  [${RUN} cd ${ROOTDIR}; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? UNSHARABLE_IGNORE] [${UNSHARABLE_IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]]]
+          </value>
+        </property>
+      </command>
       <command name="IMPORT" displayName="ResourceMsg(CVS_GLOBAL_IMPORT)">
         <property name="labelMnemonic">
           <value>ResourceMsg(CVS_IMPORT_Mnemonic)</value>
@@ -3136,11 +3150,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-          <value>$[? BUILT-IN-GLB][org.netbeans.modules.vcs.profiles.cvsprofiles.commands.JavaCvsCommand.class ${QUOTE}dir=${ROOTDIR}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
-                                  [$[? IS_WINNT][${RUN} cd /D ${ROOTDIR} &amp;&amp; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
-                                  [$[? IS_WIN9X][${RUN} cd ${ROOTDIR}; ${QUOTE}${CVS_EXE_\/}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]
-                                  [${RUN} cd ${ROOTDIR}; ${QUOTE}${CVS_EXE}${QUOTE} -d ${QUOTE}${CVS_ROOT}${QUOTE} ${USER_GLOBAL_PARAM} import ${MODIF_TIME} ${RCS_KFLAG} $[? IGNORE] [-I ${IGNORE}] [] $[? BRANCH_ID] [-b ${BRANCH_ID}] [] -m ${QUOTE}${DESCRIPTION}${QUOTE} ${QUOTE}${REPOS_DIR}${QUOTE} ${VENDOR_TAG} ${RELEASE_TAG} ${NUR}]]]
-          </value>
+          <value>org.netbeans.modules.vcs.profiles.cvsprofiles.commands.SharableImport.class IMPORT_CMD</value>
         </property>
 	<property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg(COMMAND_IMPORT_Label), ACCESSIBILITY(DESCRIPTION_ResourceMsg(ACSD_COMMAND_IMPORT_Label)))

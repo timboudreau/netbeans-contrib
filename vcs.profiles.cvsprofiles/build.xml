@@ -30,6 +30,7 @@ Microsystems, Inc. All Rights Reserved.
       <pathelement location="${vcsgeneric.dir}/${nb.modules.dir}/vcsgen.jar"/>
       <pathelement location="${diff.dir}/${nb.modules.dir}/diff.jar"/>
       <pathelement location="${javacvs/libmodule.dir}/${nb.modules/autoload.dir}/cvslib.jar"/>
+      <pathelement location="${projects/queries.dir}/${nb.modules.dir}/org-netbeans-modules-queries.jar"/>
     </path>
   </target>
 
