@@ -26,13 +26,17 @@ import java.util.*;
 import java.util.List;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
+import org.netbeans.modules.tasklist.core.filter.NodeFilter;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
@@ -69,7 +73,12 @@ import org.openide.util.actions.CallbackSystemAction;
  */
 public abstract class TaskListView extends TopComponent
         implements TaskListener, PropertyChangeListener, ExplorerManager.Provider, Lookup.Provider, TaskSelector {
-
+    private static final Logger LOGGER = TLUtils.getLogger(TaskListView.class);
+    
+    static {
+        LOGGER.setLevel(Level.OFF);
+    }
+    
     /** Keeps track of the category tabs we've added
      * <category, reference to topcomponent>
      */
@@ -480,7 +489,21 @@ public abstract class TaskListView extends TopComponent
         //   treeTable.setTableColumnPreferredWidth(0, 800); // Description
         // AHHHH... there's a separate method for that:
         treeTable.setTreePreferredWidth(columns[0].getWidth());
-
+        TableColumnModel tcm = treeTable.getHeaderModel();
+        LOGGER.fine("number of columns " + tcm.getColumnCount());
+        for (int i = 0; i < tcm.getColumnCount(); i++) {
+            TableColumn tc = tcm.getColumn(i);
+            ColumnProperty cp = null;
+            for (int j = 0; j < columns.length; j++) {
+                if (columns[j].getDisplayName().equals(tc.getHeaderValue())) {
+                    cp = columns[j];
+                    break;
+                }
+            }
+            if (cp != null)
+                tc.setPreferredWidth(cp.width);
+        }
+        
         treeTable.getTable().getTableHeader().setReorderingAllowed(false);
         treeTable.setRootVisible(false);
         treeTable.setVerticalScrollBarPolicy(
@@ -560,11 +583,13 @@ public abstract class TaskListView extends TopComponent
     private void setRoot() {
         rootNode = createRootNode();
 
+        LOGGER.fine("root created " + rootNode);
+        
         if (filterEnabled) {
             // Create filtered view of the tasklist
-            TaskNode.FilteredChildren children =
-                new TaskNode.FilteredChildren(this, rootNode, filter);
-            FilterNode n = new TaskNode.FilterTaskNode(rootNode, children, false);
+            FilteredTaskChildren children =
+                new FilteredTaskChildren(this, rootNode, filter);
+            FilterNode n = new FilterTaskNode(rootNode, children, false);
             getExplorerManager().setRootContext(n);
         } else {
             getExplorerManager().setRootContext(rootNode);
@@ -1174,12 +1199,7 @@ for (int i = 0; i < columns.length; i++) {
      *
      * @return The toggle filter.
      */
-    public Filter getFilter() {
-        if (filter == null) {
-            filter = new Filter(null, true, new ArrayList(), false);
-        }
-        return filter;
-    }
+    public abstract Filter getFilter();
 
     /** Tests if any real filter is applied. */
     public final boolean isFiltered() {
@@ -1221,6 +1241,8 @@ for (int i = 0; i < columns.length; i++) {
 
         setRoot();
         updateFilterCount();
+        
+        ((RemoveFilterAction) SystemAction.get(RemoveFilterAction.class)).enable();
     }
 
     /**
@@ -1543,7 +1565,7 @@ for (int i = 0; i < columns.length; i++) {
             return;
         }
         for (int i = 0; i < depth; i++) {
-            System.err.print("   ");
+            System.err.print("   "); // NOI18N
         }
         System.err.println(node.getDisplayName());
         if ((node.getChildren() != null) &&

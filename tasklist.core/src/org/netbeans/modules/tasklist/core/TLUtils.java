@@ -26,6 +26,7 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JEditorPane;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
 
@@ -54,7 +55,11 @@ import org.openide.windows.WindowManager;
  * @author Tor Norbye 
  */
 public final class TLUtils {
-    private static Logger TASKLIST_LOGGER = null;
+    private static Logger LOGGER = TLUtils.getLogger(TLUtils.class);
+    
+    static {
+        LOGGER.setLevel(Level.OFF);
+    }
 
     /** Return the Line object for a particular line in a file
      */
@@ -660,48 +665,58 @@ public final class TLUtils {
      * @param cc a columns configuration
      */
     public static void loadColumnsFrom(TaskListView v, ColumnsConfiguration cc) {
-        // String[]
-        ArrayList props = new ArrayList();
-        
-        boolean ascending = false;
-        String sort = null;
+        LOGGER.log(Level.FINE, "loading columns from " + v.getDisplayName(),
+            new Exception());
+
+        // first find the tree column. It will be always the first one.
         ColumnProperty columns[] = v.getColumns();
+        ColumnProperty treeColumn = null;
         for (int i = 0; i < columns.length; i++) {
-            Boolean treeColumn =
-                (Boolean) columns[i].getValue("TreeColumnTTV"); // NOI18N
-            // Is the column visible?
-            Boolean invisible =
-                (Boolean) columns[i].getValue("InvisibleInTreeTableView"); // NOI18N
-            
-            // Grrr.... openide must not be using the Boolean enum's;
-            // it must be creating new Boolean objects.... so I've
-            // gotta use boolean value instead of this nice line:
-            //    if (!(invisible == Boolean.TRUE)) {
-            if (treeColumn != null && treeColumn.booleanValue()) {
-                props.add(0, columns[i].getName());
-            } else if ((invisible == null) || !invisible.booleanValue()) {
-                props.add(columns[i].getName());
+            Object b = columns[i].getValue("TreeColumnTTV"); // NOI18N
+            if (b instanceof Boolean && ((Boolean) b).booleanValue()) {
+                treeColumn = columns[i];
+                break;
             }
-            
+        }
+        assert treeColumn != null;
+        
+        // find the sorted column
+        ColumnProperty sortedColumn = null;
+        boolean ascending = false;
+        for (int i = 0; i < columns.length; i++) {
             Boolean sorting = (Boolean) columns[i].getValue(
-            "SortingColumnTTV"); // NOI18N
+                "SortingColumnTTV"); // NOI18N
             if ((sorting != null) && (sorting.booleanValue())) {
-                sort = columns[i].getName();
+                sortedColumn = columns[i];
                 Boolean desc = (Boolean) columns[i].getValue(
-                "DescendingOrderTTV"); // NOI18N
+                    "DescendingOrderTTV"); // NOI18N
                 ascending = (desc != Boolean.TRUE);
             }
         }
-        
+
+        // widths
         TableColumnModel m = v.getTable().getColumnModel();
-        String[] properties = (String[]) props.toArray(new String[props.size()]);
-        
-        int[] widths = new int[props.size()];
-        for (int i = 0; i < props.size(); i++) {
-            widths[i] = m.getColumn(i).getWidth();
+        int[] widths = new int[m.getColumnCount()];
+        String[] properties = new String[m.getColumnCount()];
+        for (int i = 0; i < m.getColumnCount(); i++) {
+            TableColumn tc = m.getColumn(i);
+            ColumnProperty cp = null;
+            for (int j = 0; j < columns.length; j++) {
+                if (columns[j].getDisplayName().equals(tc.getHeaderValue())) {
+                    cp = columns[j];
+                }
+            }
+            if (cp != null) {
+                properties[i] = cp.getName();
+            } else {
+                // tree column
+                properties[i] = treeColumn.getName();
+            }
+            widths[i] = tc.getWidth();
         }
         
-        cc.setValues(properties, widths, sort, ascending);
+        cc.setValues(properties, widths, 
+            sortedColumn == null ? null : sortedColumn.getName(), ascending);
     }
     
     /**
@@ -734,6 +749,7 @@ public final class TLUtils {
                 c.setValue("InvisibleInTreeTableView", // NOI18N
                 Boolean.FALSE);
                 c.width = widths[i];
+                LOGGER.fine("configure width: " + c.getName() + " " + c.width);
             }
         }
         
