@@ -43,7 +43,7 @@ public class GeneralCommandAction extends AbstractCommandAction {
     
     public static final String VCS_ACTION_ATTRIBUTE = "VcsActionAttributeCookie"; //NOI18N
     
-    private boolean delegate = true;
+    protected boolean delegate = true;
     
     private javax.swing.JMenuItem menuPresent;
     private javax.swing.JMenuItem popupPresent;

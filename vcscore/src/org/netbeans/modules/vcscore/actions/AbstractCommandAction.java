@@ -114,6 +114,9 @@ public class AbstractCommandAction extends NodeAction {
                 while (childs.hasMoreElements()) {
                     Node nd = (Node)childs.nextElement();
                     DataObject dobj = (DataObject)nd.getCookie(DataObject.class);
+                    while (dobj != null && dobj instanceof DataShadow) {
+                        dobj = ((DataShadow)dobj).getOriginal();
+                    }
                     if (dobj != null) {
 /*                        if (getClass() != AbstractCommandAction.class) {
                             System.out.println("checking action on data shadow=" + dobj.getName() + "   " + dobj.getClass());
@@ -125,6 +128,9 @@ public class AbstractCommandAction extends NodeAction {
             } else {
                 DataObject dataObj;
                 dataObj = (DataObject)nodes[i].getCookie(DataObject.class);
+                while (dataObj != null && dataObj instanceof DataShadow) {
+                    dataObj = ((DataShadow)dataObj).getOriginal();
+                }
 //                System.out.println("dataobj =" + dataObj);
                 if (!checkDataObject(dataObj)) return false;
             }
@@ -147,7 +153,7 @@ public class AbstractCommandAction extends NodeAction {
             addToMap(suppMap, supp, dataObj.files());
         } else {
             suppMap = null;
-            //                System.out.println("no supporter found for" + nodes[i].getName());
+//            System.out.println("no supporter found for " + dataObj.getName());
             // one of the files is not under version control..
             return false;
         }
