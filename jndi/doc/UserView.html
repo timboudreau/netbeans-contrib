@@ -1,0 +1,87 @@
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Forte for Java - UserView</title>
+
+
+<link rel="StyleSheet" href="Forte.css" type="text/css" title="Forte-Sun Style"></head><body> 
+
+
+
+<h1>Forte for Java: JNDI Support<br> 
+User View</h1>
+
+
+<b>Version:</b> <i>0.9</i><br>
+
+
+<b>Author:</b> <i><a href="mailto:Tomas.Zezula@sun.com">Tomas Zezula</a>, Sun Microsystems/NetBeans</i><br>
+
+
+
+<br>
+
+
+
+<dl><dt><b>Abstract:</b>
+</dt><dd>This document state how the user will work with the JNDI Support module.&nbsp; Show how to get to the main features. </dd></dl>
+
+
+
+<dl><dt><b>Document History:</b>
+	</dt><dd>[08/14/2000] : version 0.1 : {First version of the document}&nbsp; </dd><dd><br>
+
+</dd></dl>
+
+
+
+<dl><dt><b>Contents:</b>
+	</dt><dd>1. <a href="#1">Jndi Browser</a>&nbsp; </dd><dd>1.1 <a href="#1.1">Code Generation</a>&nbsp; </dd><dd>1.2 <a href="#1.1.1">Provider Templates</a></dd><dd><a href="#2"></a>
+</dd></dl>
+
+
+
+<h2><a name="1">1. Jndi Browser</a></h2>
+&nbsp; JNDI Browser allows user to add new directory contexts, browse them, and
+ generate code usable in developed actions. Using the JNDI support module,
+ you can mount JNDI hierarchies from any JNDI 1.2 compliant provider in the
+ NetBeans Explorer and browse it. 
+<h3><a name="1.1">1.1 Code Generation</a></h3> &nbsp;
+ User is able to generate lookup code to Clipboard from each Object in the&nbsp;
+ directory context hierarchy or binding code from Context objects by selecting&nbsp;
+ the desired node and choosing the copy action from pop up menu. &nbsp; <h4><a name="1.1">1.2 Provider Templates</a></h4> &nbsp;
+ &nbsp; JNDI Browser contains one special folder, that contains provider templates.&nbsp;
+ Provider template node represents installed provider. The values of properties&nbsp;
+ specified in the provider template are used as default values when the corresponding&nbsp;
+ provider is used for connecting to directory service. User can create new&nbsp;
+ provider template, delete template, modify template, test or use it.<br> &nbsp;
+ &nbsp; When user creates new provider template for newly installed provider&nbsp;
+ the dialog for specifying provider properties appears, in this dialog user&nbsp;
+ fills the standard JNDI properties as well as additional proprietal properties&nbsp;
+ required by provider.<br> &nbsp; &nbsp; By selecting provider and choosing Customize
+ from pop up menu the same&nbsp; dialog as in create appears and is filled by
+ current values, user can modify&nbsp; these values. The values can be also modified
+ directly in property sheet&nbsp; of corresponding provider.<br>
+<br>
+<h4><a name="1.1">1.3 Object Properties</a></h4> &nbsp;&nbsp; &nbsp; For directory
+ services that allows properties on bound objects, such as LDAP, browser
+ supports special additional property sheet, where user can, if access to
+ this object is read/write, modify values of these properties. User is also
+ able to add, remove or modify these properties by selecting node and choosing
+ customize from pop up menu. <br>
+
+<h4><a name="1.1"></a></h4>
+
+</body>
+</html>
