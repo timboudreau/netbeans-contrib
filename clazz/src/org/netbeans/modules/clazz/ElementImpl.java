@@ -25,6 +25,7 @@ import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.src.Element;
 import org.openide.src.SourceException;
+import org.openide.util.NbBundle;
 
 /** Implementation of Element for classes.
 *
@@ -95,7 +96,7 @@ public abstract class ElementImpl extends Object implements Element.Impl, Extern
         throw (SourceException)ErrorManager.getDefault().annotate(
             new SourceException("Read-only element"), // NOI18N
             ErrorManager.USER,
-            null, Util.getString("MSG_CantModify"),
+            null, NbBundle.getMessage(ElementImpl.class, "MSG_CantModify"),
             null, null
         );
     }        

@@ -24,6 +24,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.ErrorManager;
 import org.openide.cookies.InstanceCookie;
 import java.io.IOException;
+import org.openide.util.NbBundle;
 
 
 /** DataObject which represents JavaBeans (".ser" files).
@@ -101,7 +102,7 @@ public final class SerDataObject extends ClassDataObject {
             throw (IOException)ErrorManager.getDefault().annotate(
             new IOException("Dot in name"), // NOI18N
             ErrorManager.USER,
-            null, Util.getString("MSG_INVName"),
+            null, NbBundle.getMessage(SerDataObject.class, "MSG_INVName"),
             null, null
 	    );
         }

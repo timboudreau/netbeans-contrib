@@ -47,14 +47,6 @@ final class Util {
 
     private static RequestProcessor classProcessor;
     
-    static ResourceBundle getBundle() {
-        return NbBundle.getBundle(Util.class);
-    }
-    
-    static String getString(String key) {
-        return getBundle().getString(key);
-    }
-        
     public static final Type getReturnType(String signature){
         return new SignatureToType(signature).getReturnType();
     }
