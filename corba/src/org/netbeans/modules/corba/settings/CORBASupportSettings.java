@@ -99,6 +99,7 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
     //private boolean deserealization;
 
     private HashMap _M_boston_names;
+    private HashMap _M_changed_orb_names;
 
     /** @return human presentable name */
     public String displayName() {
@@ -125,6 +126,10 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 	_M_boston_names.put ("OrbixWeb 3.2", "orbixweb32");
 	_M_boston_names.put ("VisiBroker for Java 3.4", "visibroker34");
 	_M_boston_names.put ("VisiBroker for Java 4.0", "vb4");
+        _M_changed_orb_names = new HashMap();
+        _M_changed_orb_names.put("VisiBroker for Java 3.4", "VisiBroker 3.4 for Java");
+        _M_changed_orb_names.put("VisiBroker for Java 4.0", "VisiBroker 4.x for Java");
+        _M_changed_orb_names.put("Orbix 2000 for Java 1.x", "Orbix 2000 1.x for Java");
     }
 
     public synchronized void init () {
@@ -1005,6 +1010,8 @@ public class CORBASupportSettings extends SystemOption implements BeanContextPro
 		 - (ORBSettingsBundle.CTL_UNSUPPORTED.length () + 1));
 	}
 	//System.out.println ("  -> `" + __tmp + "'");
+        if (_M_changed_orb_names.containsKey(__tmp))
+            __tmp = (String)_M_changed_orb_names.get(__tmp);
 	return __tmp;
     }
 
