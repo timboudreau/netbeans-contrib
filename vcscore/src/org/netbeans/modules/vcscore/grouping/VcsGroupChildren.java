@@ -42,14 +42,15 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
     
     private DOPropertyChangeListener doPropChange = new DOPropertyChangeListener();
     
+    private VcsGroupChildren.RefreshAllTask refreshRunnable;
+    private RequestProcessor.Task refreshTask;
     
     public VcsGroupChildren(DataFolder dobj) {
         super();
     
         folder = dobj;
-        /** add subnodes..
-         */
-        
+        refreshRunnable = new VcsGroupChildren.RefreshAllTask();
+        refreshTask = null;
     }
     
     
@@ -72,9 +73,26 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
         settings.removePropertyChangeListener(this);
     }
 
+    /**
+     * Schedules a request processor task that refreshes the group.
+     * If the task is scheduled and another request arrives, the task is
+     * rescheduled to later time to avoid to many refreshes.
+     */
     
     private synchronized void refreshAll() {
-        setKeys(getFilesInGroup());
+        if (refreshTask != null) {
+//            System.out.println("delay=" + refreshTask.getDelay());
+            if (refreshTask.getDelay() > 500) {
+                return;
+            }
+            if (refreshTask.getDelay() > 0 && refreshTask.getDelay() < 500) {
+//                System.out.println("rescheduling..");
+                refreshTask.schedule(1000);
+                return;
+            }
+        }
+        refreshTask = RequestProcessor.postRequest(VcsGroupChildren.this.refreshRunnable, 1000);
+//        System.out.println("schedulling");
     }
     
 
@@ -227,6 +245,17 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
                 }
             }
         }
+    }
+
+    /**
+     * A runnable that is to be put into the requestprocessor, when any
+     * refresh of the grouo children is requested.
+     */
+    public class RefreshAllTask implements Runnable {
+        
+        public void run() {
+           setKeys(getFilesInGroup());
+        }        
     }
     
 }
