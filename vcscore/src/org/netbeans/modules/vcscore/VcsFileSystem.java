@@ -3033,7 +3033,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         public void close() throws IOException {
             super.close();
-            fileChanged(name);
+            // Fire the change asynchronously to prevent deadlocks.
+            org.openide.util.RequestProcessor.postRequest(new Runnable() {
+                public void run() {
+                    fileChanged(name);
+                }
+            });
         }
     }
     
