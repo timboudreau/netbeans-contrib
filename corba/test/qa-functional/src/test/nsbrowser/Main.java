@@ -31,8 +31,10 @@ import org.netbeans.jemmy.EventTool;
 import org.netbeans.jemmy.JemmyException;
 import org.netbeans.jemmy.drivers.DriverManager;
 import org.netbeans.jemmy.drivers.TreeDriver;
+import org.netbeans.jemmy.drivers.trees.JTreeAPIDriver;
 import org.netbeans.jemmy.operators.JButtonOperator;
 import org.netbeans.jemmy.operators.JDialogOperator;
+import org.netbeans.jemmy.operators.JTreeOperator;
 import org.openide.execution.Executor;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -186,7 +188,7 @@ public class Main extends JellyTestCase {
             assertTrue ("IOException", false);
         }
 
-        TreeDriver dm = DriverManager.getTreeDriver ();
+        TreeDriver dm = DriverManager.getTreeDriver (JTreeOperator.class);
         DriverManager.setTreeDriver(new JTreeAPIDriver ());
         new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName").refresh();
         new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName|ServerName").copyClientBindingCode ();
@@ -199,7 +201,7 @@ public class Main extends JellyTestCase {
     
     public void testNS_Second () {
         JHelper.closeAllProperties ();
-        TreeDriver dm = DriverManager.getTreeDriver ();
+        TreeDriver dm = DriverManager.getTreeDriver (JTreeOperator.class);
         DriverManager.setTreeDriver(new JTreeAPIDriver ());
         new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2").refresh ();
         new NamingContextNode (exp.runtimeTab ().tree (), "|LocalTest|NSName2|NSNameSub2|NSName").refresh ();
@@ -231,7 +233,7 @@ public class Main extends JellyTestCase {
     }
     
     public void testNS_Unbind () {
-        TreeDriver dm = DriverManager.getTreeDriver ();
+        TreeDriver dm = DriverManager.getTreeDriver (JTreeOperator.class);
         DriverManager.setTreeDriver(new JTreeAPIDriver ());
         if (itemLocalTest_NSName_ServerName2) {
             new NamingObjectNode (exp.runtimeTab ().tree (), "|LocalTest|NSName|ServerName2").unbindObject();
