@@ -81,24 +81,21 @@ Microsystems, Inc. All Rights Reserved.
     </copy>
   </target>
 
-
   <target name="netbeans" depends="jars,release"/>
 
-<!--
   <target name="nbm" depends="netbeans">
     <makenbm file="rmi.nbm"
              topdir="."
 	     manifest="manifest-subst.mf"
-	     homepage="http://"
-	     distribution="http://">
-      <license file=""/>
+	     homepage="http://${homepage.base}/rmi.html"
+	     distribution="${dist.base}/rmi.nbm">
+      <license file="${f4jroot}/core/release/LICENSE.txt"/>
       <description>
-        RMI ...
+        RMI module
       </description>
       <signature keystore="${keystore}" storepass="${storepass}" alias="nb_ide"/>
     </makenbm>
   </target>
--->
 
   <target name="clean">
     <delete>
@@ -107,8 +104,7 @@ Microsystems, Inc. All Rights Reserved.
         <include name="**/*.jar"/>
       </fileset>	
       <fileset dir="libsrc">
-        <include name="**/*.class"/>
-        <include name="**/*.jar"/>
+        <include name="**/*.class"/>        
       </fileset>	
     </delete>
     <delete file="manifest-subst.mf"/>
