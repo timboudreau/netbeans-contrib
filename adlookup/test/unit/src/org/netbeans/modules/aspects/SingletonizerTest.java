@@ -153,6 +153,22 @@ public class SingletonizerTest extends org.netbeans.junit.NbTestCase {
         listenerListener.assertCount ("This one have not", 0);
         listenerRunnable2.assertCount ("No change in run2 again", 0);
         
+        java.lang.ref.WeakReference refRunnable = new java.lang.ref.WeakReference (resultRunnable);
+        java.lang.ref.WeakReference refRunnable2 = new java.lang.ref.WeakReference (resultRunnable2);
+        java.lang.ref.WeakReference refListener = new java.lang.ref.WeakReference (resultListener);
+        
+        resultRunnable2 = null;
+        assertGC ("result 2 shall GC", refRunnable2);
+        
+        resultListener = null;
+        assertGC ("result for Listener shall GC", refListener);
+        
+        resultRunnable = null;
+        assertGC ("All results shall GC", refRunnable);
+        
+        java.lang.ref.WeakReference refLookup2 = new java.lang.ref.WeakReference (lookup2);
+        lookup2 = null;
+//        assertGC ("Lookup shall disappear as well", refLookup2);
     }
     
     /** Counting listener */
