@@ -300,7 +300,12 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             //buff.delete(0, buff.length());
             String templateContent = (String) vars.get("ORIGINAL_TEMPLATE_CONTENT");
             if (templateContent == null) templateContent = "";
-            ArrayList filesCommited = getCommitedFiles(fsRoot, relativePath, templateContent, ps);
+            ArrayList filesCommited;
+            if ("-f".equals(vars.get("FORCE"))) {
+                filesCommited = new ArrayList(filePaths);
+            } else {
+                filesCommited = getCommitedFiles(fsRoot, relativePath, templateContent, ps);
+            }
             //buffered = addMessageComment(vars, buffered);
             //vars.put("FILE_TEMPLATE", fileOutput(buffered));
             // commit all remaining files if they can not be retrieved from the template
