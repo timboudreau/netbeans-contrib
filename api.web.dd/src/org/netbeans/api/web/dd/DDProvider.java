@@ -16,6 +16,7 @@ package org.netbeans.api.web.dd;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import org.netbeans.modules.web.dd.impl.WebAppProxy;
 import org.openide.filesystems.*;
 import org.xml.sax.*;
@@ -124,16 +125,8 @@ public final class DDProvider {
                 webApp.setError((SAXParseException)ex.getException());
             }
         }
-        ddMap.put(fo, webApp);
+        ddMap.put(fo, new WeakReference (webApp));
         return webApp;
-    }
-    
-    /**
-     * Clear the cached DDRoot for the given deployment descriptor file.
-     * @param fo FileObject representing the deployment descriptor file
-     */
-    public void uncacheDDRoot(FileObject fo) {
-        ddMap.remove(fo);
     }
 
     /**
@@ -149,7 +142,15 @@ public final class DDProvider {
     }
 
     private WebAppProxy getFromCache (FileObject fo) {
-        return (WebAppProxy) ddMap.get(fo);
+        WeakReference wr = (WeakReference) ddMap.get(fo);
+        if (wr == null) {
+            return null;
+        }
+        WebAppProxy webApp = (WebAppProxy) wr.get ();
+        if (webApp == null) {
+            ddMap.remove (fo);
+        }
+        return webApp;
     }
     
     /**
