@@ -50,6 +50,7 @@ public final class ClassDataLoader extends MultiFileLoader {
                    getString("PROP_ClassLoader_Name"));
     setActions (new SystemAction [] {
       SystemAction.get(CustomizeBeanAction.class),
+      SystemAction.get(FileSystemAction.class),
       null,
       SystemAction.get(ExecuteAction.class),
       null,
@@ -163,6 +164,8 @@ public final class ClassDataLoader extends MultiFileLoader {
 
 /*
  * Log
+ *  9    Gandalf   1.8         8/31/99  Ian Formanek    Correctly provides 
+ *       FileSystemAction on its data objects
  *  8    Gandalf   1.7         6/9/99   Ian Formanek    ToolsAction
  *  7    Gandalf   1.6         6/9/99   Ian Formanek    ---- Package Change To 
  *       org.openide ----
