@@ -565,7 +565,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 break;
             }
             String buffered = buff.toString();
-            ArrayList filesCommited = getCommitedFiles(fsRoot, relativePath, buffered, ps);
+            ArrayList filesCommited = getCommitedFiles(fsRoot, relativeToFSRoot, buffered, ps);
             buffered = addMessageComment(vars, buffered);
             vars.put("FILE_TEMPLATE", fileOutput(buffered));
             // commit all remaining files if they can not be retrieved from the template
