@@ -185,6 +185,24 @@ public class VcsUtilities {
         return new String(sb);
     }
     
+    /**
+     * Get the comma-separated quoted strings from an array of strings.
+     */
+    public static String arrayToQuotedStrings(String[] sa) {
+        if (sa == null) {
+            return ""; // NOI18N
+        }
+        StringBuffer sb = new StringBuffer();
+        for(int i = 0; i < sa.length; i++) {
+            if (sa[i] == null) sb.append(""); // NOI18N
+            else sb.append("\""+sa[i]+"\"");
+            if (i < sa.length - 1) {
+                sb.append(", "); // NOI18N
+            }
+        }
+        return sb.toString();
+    }
+    
     //-------------------------------------------
     public static String replaceBackslashDollars(String s){
         int len=s.length();
@@ -396,6 +414,7 @@ public class VcsUtilities {
                 bundleStr = org.openide.util.NbBundle.getBundle(clazz).getString(key);
             } else {
                 bundleStr = org.openide.util.NbBundle.getBundle(bundle, java.util.Locale.getDefault(), org.openide.TopManager.getDefault().currentClassLoader()).getString(key);
+                //bundleStr = org.openide.util.NbBundle.getBundle(bundle, java.util.Locale.getDefault(), getBundleClassLoader()).getString(key);
             }
             if (args != null) {
                 bundleStr = java.text.MessageFormat.format(bundleStr, args);
@@ -409,6 +428,17 @@ public class VcsUtilities {
         }
         return bundleStr;
     }
+    
+    /** @return default class loader which is used, when we don't have
+     * any other class loader. (in function getBundle(String), getLocalizedFile(String),
+     * and so on...
+     *
+    private static ClassLoader getBundleClassLoader() {
+        ClassLoader c = (ClassLoader) org.openide.util.Lookup.getDefault ().lookup (ClassLoader.class);
+        return c != null ? c : ClassLoader.getSystemClassLoader ();
+    }
+     */
+
 
     //-------------------------------------------
     public static String getDirNamePart(String path){
