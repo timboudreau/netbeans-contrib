@@ -71,7 +71,7 @@ public class CvsLoggedInCVSpass implements VcsAdditionalCommand {
         } else {
             vars.put("USER_IS_LOGGED_IN", "");
         }
-        return loggedIn;
+        return true;
     }
 }
 
