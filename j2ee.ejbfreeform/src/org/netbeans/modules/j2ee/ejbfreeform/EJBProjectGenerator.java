@@ -135,6 +135,9 @@ public class EJBProjectGenerator {
     private static void putProperty(Document doc, Element parent, String key, String value) {
         // TODO: ma154696: check NodeList length
         Element props = Util.findElement(parent, "properties", EJBProjectGenerator.NS_GENERAL); // NOI18N
+        if (props == null) {
+            props = doc.createElementNS(FreeformProjectType.NS_GENERAL, "properties"); // NOI18N
+        }
         Element property = doc.createElementNS(FreeformProjectType.NS_GENERAL, "property"); // NOI18N
         property.setAttribute("name", key); // NOI18N
         property.appendChild(doc.createTextNode(value));
