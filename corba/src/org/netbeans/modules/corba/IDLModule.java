@@ -38,7 +38,6 @@ import com.netbeans.developer.modules.text.options.AllOptions;
 import com.netbeans.editor.Settings;
 
 import com.netbeans.enterprise.modules.corba.settings.*;
-import com.netbeans.enterprise.modules.corba.idl.editor.settings.IDLEditorSettings;
 import com.netbeans.enterprise.modules.corba.idl.editor.settings.IDLOptions;
 
 
@@ -158,6 +157,7 @@ public class IDLModule extends ModuleInstall {
 
 /*
  * <<Log>>
+ *  27   Jaga      1.25.1.0    3/16/00  Miloslav Metelka removed unused import
  *  26   Gandalf   1.25        2/9/00   Karel Gardas    
  *  25   Gandalf   1.24        2/8/00   Karel Gardas    
  *  24   Gandalf   1.23        11/27/99 Patrik Knakal   
