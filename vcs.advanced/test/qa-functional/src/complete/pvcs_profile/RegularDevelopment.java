@@ -189,7 +189,7 @@ public class RegularDevelopment extends NbTestCase {
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         Node A_FileNode = new Node( filesystemNode, "A_File [Locally Modified; 1.1] (" + userName + ")");
         new Action(VERSIONING_MENU + "|" + DIFF, DIFF).perform(A_FileNode);
-        EditorOperator editor = new EditorOperator("Diff: A_File.java");
+        TopComponentOperator editor = new TopComponentOperator(new EditorWindowOperator(), "Diff: A_File.java");
         JEditorPaneOperator headRevision = new JEditorPaneOperator(editor, 0);
         JEditorPaneOperator workingRevision = new JEditorPaneOperator(editor, 1);
         String headRevisionContents = "/** This is testing file.\n */\n\n public class Testing_File {\n\n }\n";
@@ -427,7 +427,7 @@ public class RegularDevelopment extends NbTestCase {
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         Node D_FileNode = new Node( filesystemNode, "test [Current]|another [Current]|D_File [Current; 2.0.1.1] (" + userName + ")");
         new Action(VERSIONING_MENU + "|" + VERSIONING_EXPLORER, VERSIONING_EXPLORER).perform(D_FileNode);
-        MainWindowOperator.getDefault().waitStatusText("Command REVISION_LIST finished.");
+        Thread.sleep(5000);
         VersioningFrameOperator versioningExplorer = new VersioningFrameOperator();
         filesystemNode = new Node(versioningExplorer.treeVersioningTreeView(), filesystem);
         D_FileNode = new Node(filesystemNode, "test [Current]|another [Current]|D_File.java [Current; 2.0.1.1] (" + userName + ")");

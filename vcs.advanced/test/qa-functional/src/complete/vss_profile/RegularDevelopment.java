@@ -162,7 +162,7 @@ public class RegularDevelopment extends NbTestCase {
         Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
         Node A_FileNode = new Node( filesystemNode, "A_File [Locally Modified] (" + userName + ")");
         new Action(VERSIONING_MENU + "|" + DIFF, DIFF).perform(A_FileNode);
-        EditorOperator editor = new EditorOperator("Diff: A_File.java");
+        TopComponentOperator editor = new TopComponentOperator(new EditorWindowOperator(), "Diff: A_File.java");
         JEditorPaneOperator headRevision = new JEditorPaneOperator(editor, 0);
         JEditorPaneOperator workingRevision = new JEditorPaneOperator(editor, 1);
         String headRevisionContents = "/** This is testing file.\n */\n\n public class Testing_File {\n\n }\n";
