@@ -24,6 +24,7 @@ import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.ArrayList;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -87,7 +88,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private Background background;
 
     /** Selcted folder to be scanned or null */
-    private FileObject selectedFolder;  // XXX persist it
+    private FileObject selectedFolder;
+
+    private static final int RECENT_ITEMS_COUNT = 4;
+    private ArrayList recentFolders = new ArrayList(RECENT_ITEMS_COUNT); // XXX it'd be nice to persist it
 
     /**
      * Externalization entry point (readExternal).
@@ -483,7 +487,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             button.setToolTipText("Selects folder to be scanned.");
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    handleSelectFolder();
+                    showFolderSelectorPopup();
                 }
             });
             adjustHeight(button);
@@ -492,6 +496,46 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return folderSelector;
     }
 
+    private void showFolderSelectorPopup() {
+        JPopupMenu popup = new JPopupMenu();
+        JMenuItem choose = new JMenuItem("Choose folder...");
+        choose.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                handleSelectFolder();
+            }
+        });
+        popup.add(choose);
+
+        Iterator it = recentFolders.iterator();
+        int i = 1;
+        if (it.hasNext()) popup.addSeparator();
+
+        while (it.hasNext()) {
+            final FileObject fo = (FileObject) it.next();
+            if (fo == null || fo.isValid() == false) continue;
+            JMenuItem item = new JMenuItem(i + " " + createLabel(fo));
+            item.addActionListener(new RecentActionListener(fo));
+            popup.add(item);
+            i++;
+        }
+        popup.show(getAllFiles(), 0, getAllFiles().getHeight());
+    }
+
+    private class RecentActionListener implements ActionListener {
+
+        private final FileObject fo;
+
+        RecentActionListener(FileObject recent) {
+            fo = recent;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            updateRecent(selectedFolder);
+            selectedFolder = fo;
+            resultsSnapshot = null;
+            handleAllFiles();
+        }
+    }
 
     private JComponent currentFile;
 
@@ -611,9 +655,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         toolbar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
         toolbar.setBorder(null);
 
+        toolbar.add(getCurrentFile());
         toolbar.add(getAllFiles());
         toolbar.add(getFolderSelector());
-        toolbar.add(getCurrentFile());
         toolbar.add(new JSeparator(JSeparator.VERTICAL));
         toolbar.add(getGoto());
         toolbar.add(getRefresh());
@@ -737,7 +781,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         }
 
         if (selectedFolder == null) {
-            handleSelectFolder();
+            showFolderSelectorPopup();
             return;
         } else {
             // it might be resored from persitent setting and unavailable
@@ -748,20 +792,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 // let it be null
             }
             if (seletedDataFolder == null) {
-                handleSelectFolder();
+                showFolderSelectorPopup();
                 return;
             }
         }
 
-        String path = selectedFolder.getPath();
-        if ("".equals(path)) { // NOI18N
-            try {
-                path = selectedFolder.getFileSystem().getDisplayName();
-            } catch (FileStateInvalidException e) {
-                // keep empty path
-            }
-        }
-        allFilesButton.setToolTipText("Switches to TODOs for " + path);
+        allFilesButton.setToolTipText("Switches to TODOs for " + createLabel(selectedFolder));
+        ((JToggleButton)allFilesButton).setSelected(true);
 
         putClientProperty("PersistenceType", "Never"); // NOI18N
         treeTable.setProperties(createColumns());
@@ -783,12 +820,25 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                     (DataObject.Container) DataObject.find(selectedFolder);
                 DataObject.Container[] folders = new DataObject.Container[] {one};
                 background = SourceTasksScanner.scanTasksAsync(this, folders);
+                resultsSnapshot = list;
             } catch (DataObjectNotFoundException e) {
                 selectedFolder = null;  // invalid folder
             }
         } else {
             getMiniStatus().setText(selectedFolder.getName() + " TODOs restored from cache.");
         }
+    }
+
+    private String createLabel(FileObject fo) {
+        String path = fo.getPath();
+        if ("".equals(path)) { // NOI18N
+            try {
+                path = fo.getFileSystem().getDisplayName();
+            } catch (FileStateInvalidException e) {
+                // keep empty path
+            }
+        }
+        return path;
     }
 
     // XXX detects listener leaks
@@ -808,7 +858,6 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             putClientProperty("PersistenceType", "OnlyOpened");  // NOI18N
             treeTable.setProperties(createColumns());
             treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
-            resultsSnapshot = getList();
             ObservableList filtered = new FilteredTasksList(job.getSuggestionsList());
             //setModel(filtered);
             setModel(job.getSuggestionsList());
@@ -859,10 +908,25 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
             DataObject dobj = (DataObject) selected[0].getCookie(DataObject.class);
             resultsSnapshot = null;
+            updateRecent(selectedFolder);
             selectedFolder = dobj.getPrimaryFile();
+
             handleAllFiles();
         } catch (UserCancelException e) {
             // no folders selected keep previous one
+        }
+    }
+
+    private void updateRecent(FileObject fo) {
+        if (fo == null) return;
+        if (recentFolders.contains(fo) == false) {
+            if (recentFolders.size() == RECENT_ITEMS_COUNT) {
+                recentFolders.remove(recentFolders.size() -1);
+            }
+            recentFolders.add(0, fo);
+        } else {
+            recentFolders.remove(fo);
+            recentFolders.add(0, fo);
         }
     }
 
