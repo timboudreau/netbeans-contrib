@@ -158,7 +158,7 @@ public class VcsManager extends JPanel implements ExplorerManager.Provider, Prop
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(21, 12, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(8, 12, 0, 0);
         jPanel4.add(newButton, gridBagConstraints);
 
         removeButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/fsmanager/Bundle").getString("ACS_VcsManager.btnRemove_mnc").charAt(0));
