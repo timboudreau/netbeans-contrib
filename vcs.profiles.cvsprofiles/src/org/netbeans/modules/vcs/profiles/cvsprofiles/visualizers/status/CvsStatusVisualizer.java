@@ -21,20 +21,22 @@ import java.util.*;
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import org.netbeans.api.vcs.FileStatusInfo;
-import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.OutputVisualizer;
 
-import org.openide.windows.*;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
+import org.openide.util.NbBundle;
+
+import org.netbeans.api.vcs.FileStatusInfo;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.Variables;
 import org.netbeans.modules.vcscore.cmdline.VcsAdditionalCommand;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.commands.TextErrorListener;
 import org.netbeans.modules.vcscore.commands.VcsCommandVisualizer;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
-import org.openide.util.NbBundle;
+
+import org.netbeans.modules.vcs.profiles.cvsprofiles.list.StatusFilePathsBuilder;
+import org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.OutputVisualizer;
 
 /**
  * The cvs staus command visualizer.
@@ -64,14 +66,16 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
     private boolean addingDescription;
     private boolean addingLogMessage;
     private StatusInformation statusInformation;
-    private ArrayList resultList;      
+    private ArrayList resultList;
     private StringBuffer tempBuffer = null;
-    private String fileDirectory;        
+    private String fileDirectory;
     private boolean beginning;
     private boolean readingTags;
     private String relativeDirectory;
     private Map infoMap;
-    private HashMap output; 
+    private HashMap output;
+    /** The map of file directories and associated status file paths builders. */
+    private Map statusFilePathsBuildersByFiles;
     /*
      * Used for Status_Get_Tags case. File is already known we need 
      * only to find existing tags. File is set by StatusInfoPanel.
@@ -102,6 +106,24 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         return infoMap;
     }
     
+    public void setVcsTask(VcsDescribedTask task) {
+        super.setVcsTask(task);
+        statusFilePathsBuildersByFiles = new HashMap();
+        Iterator  it = files.iterator();
+        File commonPath = rootDir;
+        String commonParent = (String) task.getVariables().get("COMMON_PARENT");
+        if (commonParent != null && commonParent.length() > 0) {
+            commonPath = new File(commonPath, commonParent);
+        }
+        while(it.hasNext()) {
+            String path = (String)it.next();
+            File file = getFile(path);
+            statusFilePathsBuildersByFiles.put(file,
+                new StatusFilePathsBuilder(commonPath,
+                                           (String) task.getVariables().get("CVS_REPOSITORY")));
+        }
+    }
+    
     public Map getOutputPanels(){
         debug("getOtputPanel");
         //JTabbedPane tabPane = new JTabbedPane(JTabbedPane.BOTTOM);
@@ -111,7 +133,11 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         while(it.hasNext()){
             String path = (String)it.next();
             File file = getFile(path);
-            if(file.isDirectory()){                
+            StatusFilePathsBuilder statusFilePathBuilder = (StatusFilePathsBuilder) statusFilePathsBuildersByFiles.get(file);
+            if (statusFilePathBuilder != null) {
+                fillFilePaths(file, statusFilePathBuilder);
+            }
+            if (file.isDirectory()) {
                 StatusTreeInfoPanel treePanel = new StatusTreeInfoPanel(file, getCommandsProvider());
                 if(files.size() == 1){
                     treePanel.setDataToDisplay(resultList);
@@ -123,9 +149,10 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
                     //tabPane.addTab(file.getName(), treePanel);
                     output.put(file.getName(),treePanel);
                 }
-            }else{                
+            } else {
                 StatusInfoPanel statPanel = new StatusInfoPanel(getCommandsProvider());
                 if(files.size() == 1){
+                    statusInformation.setFile(file);
                     statPanel.setData(statusInformation);
                     output.put(file.getName(),statPanel);
                     return output;
@@ -180,6 +207,20 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         return result;
     }
     
+    private void fillFilePaths(File file, StatusFilePathsBuilder statusFilePathBuilder) {
+        Iterator it = resultList.iterator();
+        while (it.hasNext()) {
+            StatusInformation statusInfo = (StatusInformation) it.next();
+            if (statusInfo.getFile() != null) {
+                continue;
+            }
+            boolean found = statusFilePathBuilder.fillStatusInfoFilePath(statusInfo);
+            //if (!found) {
+                //statusInfo.setFile(null);
+            //}
+        }        
+    }
+    
     
     /**
      * This method is called, with the output line.
@@ -222,9 +263,11 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         if (line.startsWith(UNKNOWN_FILE) && beginning) {            
             statusInformation = new StatusInformation();
             resultList.add(statusInformation);
-            File file = getFile(line.substring(UNKNOWN_FILE.length()));
-            debug("setFile:"+file.getAbsolutePath());
-            statusInformation.setFile(file);
+            String fileName = line.substring(UNKNOWN_FILE.length());
+            if (fileName.startsWith("./")) {
+                fileName = fileName.substring(2);
+            }
+            statusInformation.setFileName(fileName);
             String status;
             if(infoMap != null)
                 status = ((FileStatusInfo)infoMap.get(STATUS_UNKNOWN)).getDisplayName();
@@ -265,17 +308,30 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
             readingTags = true;
         }
     }
+    
+    /**
+     * Receive a line of error output.
+     * The processed folders are going here.
+     *
+    public void errOutputLine(final String line) {
+       // Not implemented, StatusFilePathsBuilder can work without examining paths 
+    }
+     */
+    
+    
     private void processFileAndStatusLine(String line) {
         int statusIndex = line.lastIndexOf(STATUS);
         String fileName = line.substring(0, statusIndex).trim();
         if (fileName.startsWith(NO_FILE_FILENAME)) {
             fileName = fileName.substring(8);
         }
-        
+        statusInformation.setFileName(fileName);
         File file = getFileFromInfo();
-        if(file == null)
-            file = getFile(fileName);
-        statusInformation.setFile(file);
+        //if(file == null)
+        //    file = getFile(fileName);
+        if (file != null) {
+            statusInformation.setFile(file);
+        }
 
         String status = new String(line.substring(statusIndex + 8).trim());        
         if(infoMap != null) {
@@ -325,50 +381,13 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         }
         
         File file = getFileFromInfo();
-        if(file == null)
-            file = getFileFromRev(statusInformation.getRepositoryFileName());
-        statusInformation.setFile(file);
+        //if(file == null)  /* Not reliable. StatusFilePathsBuilder is used instead. */
+        //    file = getFileFromRev(statusInformation.getRepositoryFileName());
+        if (file != null) {
+            statusInformation.setFile(file);
+        }
     }
 
-    private File getFileFromRev(String fileName){
-        File file = null;
-        debug("fileName:"+fileName);
-        Iterator it = files.iterator();
-        String repFile = fileName.substring(4,fileName.indexOf(','));
-        String relFile = fileName.substring(5,fileName.indexOf(','));
-        debug("relFile:"+relFile);
-        while(it.hasNext()){
-            String path = (String)it.next();
-            String abs = rootDir.getAbsolutePath()+File.separator+path; //whole path to dir or file
-            debug("abs:"+abs);
-            File baseFile = new File(abs);
-            if(baseFile.isDirectory()){                
-                String base = abs.replace('\\', '/');              
-                int index = relFile.indexOf(path);
-                if(index != -1){
-                    String tail = relFile.substring(index+path.length()+1);
-                    File f = new File(base,tail);
-                    debug("tailed file:"+f.getAbsolutePath());
-                    File rFile = new File(repFile);
-                    if(f.getAbsolutePath().indexOf(rFile.getName()) != -1){
-                        debug("exists");
-                        file = f;
-                        break;
-                    }                    
-                }
-            }else{  
-                File endFile = new File(repFile);
-                debug("repFile: "+repFile);
-                if(endFile.getName().equals(baseFile.getName())){
-                    debug("repFile ends");
-                    file = new File(abs);
-                    break;
-                }
-            }
-        }
-        return file;     
-    }
-        
     private void processTag(String line) {
         if (!assertNotNull()) {
             return;
@@ -393,37 +412,14 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
     public void parseEnhancedMessage(String key, Object value) {
     }  
     
-
-    /**
-     *Finds appropriate file in files and returns its absolute path
-     */
-    private File getMatchingFile(String fileName){
-        debug("matching file: "+fileName);
-        StringBuffer filePath = new StringBuffer();
-        filePath.append(rootDir.getAbsolutePath());
-        filePath.append(File.separator);
-        String compPath = fileName.replace('\\', '/');        
-        Iterator it = files.iterator();
-        while(it.hasNext()){
-            String rawPath = (String)it.next();
-            String path = rawPath.replace('\\', '/');
-            debug("path:"+path);            
-            if(getFile(rawPath).isDirectory()){  //absolute folder                              
-            }else{
-                if(path.endsWith(compPath)){
-                    filePath.append(path);
-                    break;
-                }
-            }
-        }
-        debug("matching file result:"+filePath.toString());
-        return new File(filePath.toString());
-    }
     /**
      * Returns correct file for given path relative to root
      */
     private File getFile(String relativePath) {
         debug("getFile:"+relativePath);
+        if ("".equals(relativePath) || ".".equals(relativePath)) {
+            return new File(rootDir.getAbsolutePath());
+        }
         StringBuffer path = new StringBuffer();        
         path.append(rootDir.getAbsolutePath());
         debug("root dir: "+rootDir.getAbsolutePath());

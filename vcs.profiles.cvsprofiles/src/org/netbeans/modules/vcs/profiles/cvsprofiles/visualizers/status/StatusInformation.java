@@ -80,6 +80,7 @@ public final class StatusInformation extends FileInfoContainer {
     public static final String UNKNOWN = "Unknown"; //NOI18N
  
     private File file;
+    private String fileName;
     private String status;
     private String statusLC;
     private String workingRevision;
@@ -116,6 +117,22 @@ public final class StatusInformation extends FileInfoContainer {
         this.file = file;
     }
 
+    /**
+     * Getter for property fileName.
+     * @return Value of property fileName.
+     */
+    public String getFileName() {
+        return fileName;
+    }
+    
+    /**
+     * Setter for property fileName.
+     * @param fileName New value of property fileName.
+     */
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+    
     /**
      * Getter for property status.
      * @return Value of property status.
