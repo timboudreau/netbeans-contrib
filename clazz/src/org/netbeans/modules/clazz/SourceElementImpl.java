@@ -20,6 +20,7 @@ import java.lang.ref.SoftReference;
 
 import org.openide.util.Task;
 import org.openide.nodes.Node;
+import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.MultiDataObject;
 import org.openide.src.*;
@@ -32,7 +33,7 @@ import org.netbeans.modules.classfile.ClassFile;
 *
 * @author Dafe Simonek, Jan Jancura
 */
-public final class SourceElementImpl extends MemberElementImpl
+final class SourceElementImpl extends MemberElementImpl
     implements SourceElement.Impl, ElementProperties, Node.Cookie {
 
     private static final Map EMPTY_MAP = Collections.unmodifiableMap(new HashMap(0));
@@ -50,11 +51,17 @@ public final class SourceElementImpl extends MemberElementImpl
     /** Association with the class data object (can be null) */
     private ClassDataObject cdo;
 
+    private ClassLoader loader;
+
     static final long serialVersionUID =-4870331896218546842L;
 
-    /** Creates object with asociated class and no class data object */
-    public SourceElementImpl (ClassFile data) {
+    /** Creates object with asociated class and no class data object.
+     *  This SourceElements contain always only one top-level class,
+     *  specified by the `data' parameter.
+     */
+    SourceElementImpl (ClassLoader loader, ClassFile data) {
         this(data, null);
+        this.loader = loader;
     }
 
     /** Creates object with asociated class and with asociated
@@ -163,6 +170,29 @@ public final class SourceElementImpl extends MemberElementImpl
     }
 
     /************* utility methods *********/
+    java.io.InputStream findStreamForClass(String n) throws java.io.IOException {
+        if (this.cdo != null) {
+            java.util.Set files = cdo.files();
+            n = n + ".class"; // NOI18N
+            for (java.util.Iterator iter = files.iterator(); iter.hasNext();){
+                FileObject fo = ((FileObject)iter.next());
+                if( fo.getNameExt().equals(n) ){
+                    return fo.getInputStream();
+                }
+            } 
+            return null;
+        } else {
+            // assume we have a valid classloader
+            ClassFile cf = (ClassFile)data;
+            StringBuffer sb = new StringBuffer();
+            sb.append(cf.getPackage().replace('.', '/'));
+            sb.append('/');
+            sb.append(n);
+            sb.append(".class"); // NOI18N
+            String s = sb.toString();
+            return loader.getResourceAsStream(s);
+        }
+    }
 
     /** Returns class element for asociated class data.
     * Care must be taken, 'cause we are playing with soft reference.

@@ -13,6 +13,8 @@
 
 package org.netbeans.modules.clazz;
 
+import org.openide.ErrorManager;
+import org.openide.util.Lookup;
 import org.openide.loaders.DataObject;
 import org.netbeans.modules.classfile.*;
 import org.openide.filesystems.FileObject;
@@ -224,14 +226,21 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     * @param name the name to look for
     * @return the element or null if such class does not exist
     */
-    public ClassElement getClass (Identifier name) {
+    public ClassElement getClass (Identifier n) {
         Map innersMap = (inners == null) ? null : (Map)inners.get();
         if (innersMap == null) {
             // soft ref null, we must recreate
             innersMap = createInnersMap();
             inners = new SoftReference(innersMap);
         }
-        return (ClassElement)innersMap.get(name);
+        String key = n.getSourceName();
+        ClassElement el = (ClassElement)innersMap.get(key);
+        if (el != null) {
+            if (!key.equals(n.getFullName()) &&
+                !n.getFullName().equals(el.getName().getFullName()))
+            el = null;
+        }
+        return el;
     }
 
     /** Changes interfaces this class implements (or extends).
@@ -314,26 +323,34 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
         ClassElement curCE = null;
         Map result = new HashMap(reflInners.length);
         for (int i = 0; i < reflInners.length; i++) {
-            if( reflInners[i].getSimpleName() == null )
-                break;            
-            if (!isAnonymousClass(reflInners[i].getName())) {
-                DataObject doj = (DataObject)getCookie(DataObject.class);
-                Set files = doj.files();
-                for( Iterator iter = files.iterator(); iter.hasNext();){
-                    FileObject fo = ((FileObject)iter.next());
-                    if( fo.getNameExt().equals(name + "$"+ reflInners[i].getSimpleName()+ ".class") ){ // NOI18N
-                        try{
-                            curCE = new ClassElement(new ClassElementImpl(new ClassFile(fo.getInputStream())),
+            String iname = reflInners[i].getSimpleName();
+            if (iname != null) {
+                StringBuffer sb = new StringBuffer(name.length() + iname.length() + 7);
+                sb.append(name); sb.append('$'); sb.append(iname);
+                try {
+                    java.io.InputStream istm = findSourceImpl().findStreamForClass(sb.toString());
+                    if (istm != null) {
+                            curCE = new ClassElement(new ClassElementImpl(new ClassFile(istm)),
                                                      (ClassElement)element);
-                            result.put(curCE.getName(), curCE);
-                        }
-                        catch(Throwable t){
-                        }
+                            result.put(iname, curCE);
                     }
-                }                    
+                } catch (IOException ex) {
+                    ((ErrorManager)Lookup.getDefault().lookup(ErrorManager.class)).
+                        annotate(ex, ErrorManager.INFORMATIONAL, "Invalid class file", null, // NOI18N
+                        null, null);
+                } catch (RuntimeException ex) {
+                    ex.printStackTrace();
+                    ((ErrorManager)Lookup.getDefault().lookup(ErrorManager.class)).
+                        annotate(ex, ErrorManager.INFORMATIONAL, "Invalid class file", null, // NOI18N
+                        null, null);
+                }
             }
         }
         return result;
+    }
+
+    SourceElementImpl findSourceImpl() {
+        return (SourceElementImpl)((ClassElement)element).getSource().getCookie(SourceElement.Impl.class);
     }
 
     /** Creates map for constructors of this class,
