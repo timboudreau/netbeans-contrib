@@ -14,6 +14,7 @@
 package org.netbeans.modules.vcs.profiles.commands;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -363,20 +364,12 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
             this.diffs = diffs;
         }
         
-        public Reader createFirstReader() {
-            try {
-                return new FileReader(file1);
-            } catch (java.io.FileNotFoundException fnfex) {
-                return null;
-            }
+        public Reader createFirstReader() throws FileNotFoundException {
+            return new FileReader(file1);
         }
         
-        public Reader createSecondReader() {
-            try {
-                return new FileReader(file2);
-            } catch (java.io.FileNotFoundException fnfex) {
-                return null;
-            }
+        public Reader createSecondReader() throws FileNotFoundException {
+            return new FileReader(file2);
         }
         
         public Difference[] getDifferences() {
