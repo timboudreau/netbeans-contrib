@@ -55,7 +55,7 @@ public class ElementRecognitionTest extends NbTestCase {
     }
     
     public void testInnerClasses() {
-        ClassElement inner = clazz.getClasses()[1];
+        ClassElement inner = clazz.getClass(Identifier.create("InnerClass"));
         
         assertNotNull(inner);
         assertEquals(inner.getName().getName(), "InnerClass");
@@ -64,7 +64,7 @@ public class ElementRecognitionTest extends NbTestCase {
     }
     
     public void testInnerInterfaces() {
-        ClassElement inner = clazz.getClasses()[0];
+        ClassElement inner = clazz.getClass(Identifier.create("InnerInterface"));
         
         assertNotNull(inner);
         assertEquals(inner.getName().getName(), "InnerInterface");
