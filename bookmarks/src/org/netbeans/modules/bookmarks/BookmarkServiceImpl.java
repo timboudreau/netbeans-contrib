@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Nokia. Portions Copyright 2003 Nokia.
+ * Code is Nokia. Portions Copyright 2003-2004 Nokia.
  * All Rights Reserved.
  */
 package org.netbeans.modules.bookmarks;
@@ -15,8 +15,6 @@ package org.netbeans.modules.bookmarks;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.util.*;
-import javax.naming.*;
-import javax.naming.event.*;
 
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
@@ -25,13 +23,10 @@ import org.openide.ErrorManager;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.util.RequestProcessor;
-
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataFolder;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.FileObject;
+import org.openide.util.WeakListener;
 
 import org.netbeans.api.bookmarks.*;
+import org.netbeans.api.registry.*;
 
 /**
  * Implementation of the BookmarkService. Stores the bookmarks in
@@ -66,12 +61,6 @@ public class BookmarkServiceImpl extends BookmarkService {
      * are stored. This folder is used by the core.
      */
     private static final String SHORTCUTS_FOLDER = "Shortcuts";
-    
-    /** Cache of the initial context */
-    private static Context incon;
-    
-    /** String denoting current JNDI context */
-    private static final String CURRENT = ""; // NOI18N
     
     /**
      * We hold a reference to the listener for preventing
@@ -132,24 +121,19 @@ public class BookmarkServiceImpl extends BookmarkService {
             initTask.waitFinished();
         }
         try {
-            Context c = getInitialContext();
-            Object folder = c.lookup(BOOKMARKS_FOLDER);
-            Object tcFolder = c.lookup(TOP_COMPONENTS_FOLDER);
-            if ((folder instanceof Context) && (tcFolder instanceof Context)){
-                Context targetFolder = (Context)folder;
-                Context targetTcFolder = (Context)tcFolder;
-                String safeName = findUnusedName(targetFolder, b.getName());
-                // and top component to the tc folder
-                if (b instanceof BookmarkImpl) {
-                    BookmarkImpl bi = (BookmarkImpl)b;
-                    targetTcFolder.rebind(safeName, bi.getTopComponent());
-                    bi.setTopComponentFileName(safeName);
-                }
-                // following line will save the bookmark to the system file system
-                targetFolder.bind(safeName, b);
+            Context targetFolder = Context.getDefault().createSubcontext(BOOKMARKS_FOLDER);
+            Context targetTcFolder = Context.getDefault().createSubcontext(TOP_COMPONENTS_FOLDER);
+            String safeName = findUnusedName(targetFolder, b.getName());
+            // and top component to the tc folder
+            if (b instanceof BookmarkImpl) {
+                BookmarkImpl bi = (BookmarkImpl)b;
+                targetTcFolder.putObject(safeName, bi.getTopComponent());
+                bi.setTopComponentFileName(safeName);
             }
-        } catch (Exception x) {
-            ErrorManager.getDefault().notify(x);
+            // following line will save the bookmark to the system file system
+            targetFolder.putObject(safeName, b);
+        } catch (ContextException x) {
+            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(x); // NOI18N
         }
     }
     
@@ -177,42 +161,23 @@ public class BookmarkServiceImpl extends BookmarkService {
      */
     public static String findUnusedName(Context targetFolder, String name) {
         String result = name;
-        try {
-            int i = 0;
-            while (true) {
-                targetFolder.lookup(result);
-                result = name + i++;
-            }
-        } catch (NamingException ne) {
-            // if the name is not found --> fine, we can return it
-            return result;
+        int i = 0;
+        while (targetFolder.getObject(result, null) != null) {
+            result = name + i++;
         }
+        return result;
     }
     
-    /**
-     * Lazy initialization of the initial context
-     */
-    public static Context getInitialContext() throws NamingException {
-        if (incon == null) {
-            incon = (Context)new InitialContext().lookup("nbres:/");
-        }
-        return incon;
-    }
-
     /**
      * Loads top component from the top components folder.
      */
     public TopComponent loadTopComponent(String name) {
         try {
-            Context c = getInitialContext();
-            Object folder = c.lookup(TOP_COMPONENTS_FOLDER);
-            if (folder instanceof Context) {
-                Context targetFolder = (Context)folder;
-                TopComponent tc = (TopComponent)targetFolder.lookup(name);
-                return tc;
-            }
-        } catch (Exception x) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, x);
+            Context targetFolder = Context.getDefault().createSubcontext(TOP_COMPONENTS_FOLDER);
+            TopComponent tc = (TopComponent)targetFolder.getObject(name, null);
+            return tc;
+        } catch (ContextException x) {
+            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(x); // NOI18N
         }
         return null;
     }
@@ -228,45 +193,43 @@ public class BookmarkServiceImpl extends BookmarkService {
      */
     private void checkActionsFolder() {
         try {
-            Context con = (Context)getInitialContext().lookup(CURRENT);
-            if (!listenersAttached && con instanceof EventContext) {
-                EventContext ec = (EventContext)con;
-                NamingListener l2 = getNamingListener(ec);
-                ec.addNamingListener(BOOKMARKS_FOLDER, EventContext.SUBTREE_SCOPE, l2); // NOI18N
-                ec.addNamingListener(BOOKMARKS_TOOLBAR, EventContext.SUBTREE_SCOPE, l2); // NOI18N
+            Context con1 = Context.getDefault().createSubcontext(BOOKMARKS_FOLDER);
+            Context con2 = Context.getDefault().createSubcontext(BOOKMARKS_TOOLBAR);
+            if (!listenersAttached) {
+                ContextListener l1 = getContextListener(con1);
+                ContextListener l2 = getContextListener(con2);
+                con1.addContextListener(l1); 
+                con2.addContextListener(l2); // NOI18N
                 listenersAttached = true;
             }
             
             ArrayList toDelete = new ArrayList();
-            Context c1 = (Context)con.lookup(BOOKMARKS_FOLDER);
-            Context c2 = (Context)con.lookup(BOOKMARKS_TOOLBAR);
             
-            NamingEnumeration en = con.listBindings(BOOKMARKS_ACTIONS);
-            while (en.hasMoreElements()) {
-                Binding b = (Binding)en.nextElement();
-                Object obj = b.getObject();
+            Context con3 = Context.getDefault().createSubcontext(BOOKMARKS_ACTIONS);
+            Iterator it = con3.getOrderedNames().iterator();
+            while (it.hasNext()) {
+                String name = (String)it.next();
+                Object obj = con3.getObject(name, null);
                 if (obj instanceof Action) {
                     
-                    if ( ( ! checkBookmarkAction((Action)obj, c1)) && 
-                        ( ! checkBookmarkAction((Action)obj, c2)) ) {
-                        toDelete.add(b);
+                    if ( ( ! checkBookmarkAction((Action)obj, con1)) && 
+                        ( ! checkBookmarkAction((Action)obj, con2)) ) {
+                        toDelete.add(name);
                     }
                 }
             }
             // delete unused bookmarks
             for (Iterator i = toDelete.iterator(); i.hasNext();) {
-                Binding b = (Binding)i.next();
-                b.setRelative(false);
-                con.unbind(BOOKMARKS_ACTIONS+ "/" + b.getName());
+                con3.putObject(null, (String)i.next());
             }
             // create new items in the Actions/Bookmarks folder
-            ensureAllActionsAreInActions(c1);
-            ensureAllActionsAreInActions(c2);
+            ensureAllActionsAreInActions(con1);
+            ensureAllActionsAreInActions(con2);
             // after the action has been updated force the reload
             // of active shortcuts
             refreshShortcutsFolder();
-        } catch (NamingException ne) {
-            ErrorManager.getDefault().notify(ne);
+        } catch (ContextException ne) {
+            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
         }
     }
     
@@ -276,22 +239,19 @@ public class BookmarkServiceImpl extends BookmarkService {
      *      (the search is performed recursively)
      */
     private boolean checkBookmarkAction(Action a, Context con) {
-        try {
-            NamingEnumeration en = con.listBindings(CURRENT);
-            while (en.hasMoreElements()) {
-                Binding b = (Binding)en.nextElement();
-                Object obj = b.getObject();
-                if (obj.equals(a)) {
+        Iterator it = con.getOrderedNames().iterator();
+        while (it.hasNext()) {
+            String name = (String)it.next();
+            Object obj = con.getObject(name, null);
+            if (obj != null && obj.equals(a)) {
+                return true;
+            }
+            Context c = con.getSubcontext(name);
+            if (c != null) {
+                if (checkBookmarkAction(a, c)) {
                     return true;
                 }
-                if (obj instanceof Context) {
-                    if (checkBookmarkAction(a, (Context)obj)) {
-                        return true;
-                    }
-                }
             }
-        } catch (NamingException ne) {
-            ErrorManager.getDefault().notify(ne);
         }
         return false;
     }
@@ -304,32 +264,27 @@ public class BookmarkServiceImpl extends BookmarkService {
      */
     private void ensureAllActionsAreInActions(Context con) {
         try {
-            NamingEnumeration en = con.listBindings(CURRENT);
-            while (en.hasMoreElements()) {
-                Binding b = (Binding)en.nextElement();
-                Object obj = b.getObject();
+            Iterator it = con.getOrderedNames().iterator();
+            while (it.hasNext()) {
+                String name = (String)it.next();
+                Object obj = con.getObject(name, null);
                 if (obj instanceof Action) {
                     Action a = (Action)obj;
-                    Context c = (Context)getInitialContext().lookup(CURRENT);
-                    Object aFolder = c.lookup(BOOKMARKS_ACTIONS);
-                    if (aFolder instanceof Context) {
-                        Context targetFolder = (Context)aFolder;
-                        if (! checkBookmarkAction(a, targetFolder)) {
-                            // the following will save the bookmark to the actions folder
-                            // to be usable for shortcuts
-                            String safeName = findUnusedName(targetFolder, b.getName());
-                            targetFolder.bind(safeName, a);
-                        }
-                    } else {
-                        System.err.println("WARNING: " + BOOKMARKS_ACTIONS + " not found!");
+                    Context targetFolder = Context.getDefault().createSubcontext(BOOKMARKS_ACTIONS);
+                    if (! checkBookmarkAction(a, targetFolder)) {
+                        // the following will save the bookmark to the actions folder
+                        // to be usable for shortcuts
+                        String safeName = findUnusedName(targetFolder, name);
+                        targetFolder.putObject(safeName, a);
                     }
                 }
-                if (obj instanceof Context) {
-                    ensureAllActionsAreInActions((Context)obj);
+                Context c = con.getSubcontext(name);
+                if (c != null) {
+                    ensureAllActionsAreInActions(c);
                 }
             }
-        } catch (NamingException ne) {
-            ErrorManager.getDefault().notify(ne);
+        } catch (ContextException ne) {
+            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
         }
     }
     
@@ -339,46 +294,38 @@ public class BookmarkServiceImpl extends BookmarkService {
      */
     private void checkTopComponentsFolder() {
         try {
-            Context c = getInitialContext();
-            Object folder = c.lookup(TOP_COMPONENTS_FOLDER);
-            if (folder instanceof Context) {
-                Context targetFolder = (Context)folder;
-                NamingEnumeration en = targetFolder.listBindings(CURRENT);
-                ArrayList al = new ArrayList();
-                
-                while (en.hasMoreElements()) {
-                    Binding b = (Binding)en.nextElement();
-                    Object obj = b.getObject();
-                    if (obj instanceof TopComponent) {
-                        al.add(b);
-                    } else {
-                        ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, 
-                            "File " + b.getName() + " in " + TOP_COMPONENTS_FOLDER + " is not a top component."); //NOI18N
-                    }
-                }
-                
-                Context c1 = (Context)c.lookup(BOOKMARKS_FOLDER);
-                Context c2 = (Context)c.lookup(BOOKMARKS_TOOLBAR);
-                for (Iterator it = al.iterator(); it.hasNext(); ) {
-                    Binding b = (Binding)it.next();
-                    TopComponent tc = (TopComponent)b.getObject();
-                    if (isTopComponentUsed(c1, tc) || isTopComponentUsed(c2 , tc)) {
-                        it.remove();
-                    }
-                }
+            Context targetFolder = Context.getDefault().createSubcontext(TOP_COMPONENTS_FOLDER);
+            Iterator i = targetFolder.getOrderedNames().iterator();
+            ArrayList al = new ArrayList();
 
-                // now perform the deletions
-                for (Iterator it = al.iterator(); it.hasNext(); ) {
-                    Binding b = (Binding)it.next();
-                    try {
-                        targetFolder.unbind(b.getName());
-                    } catch (NamingException ne) {
-                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ne);
-                    }
+            while (i.hasNext()) {
+                String name = (String)i.next();
+                Object obj = targetFolder.getObject(name, null);
+                if (obj instanceof TopComponent) {
+                    al.add(name);
+                } else {
+                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, 
+                        "File " + name + " in " + TOP_COMPONENTS_FOLDER + " is not a top component."); //NOI18N
                 }
             }
-        } catch (Exception x) {
-            ErrorManager.getDefault().notify(x);
+
+            Context c1 = Context.getDefault().createSubcontext(BOOKMARKS_FOLDER);
+            Context c2 = Context.getDefault().createSubcontext(BOOKMARKS_TOOLBAR);
+            for (Iterator it = al.iterator(); it.hasNext(); ) {
+                String s = (String)it.next();
+                TopComponent tc = (TopComponent)targetFolder.getObject(s, null);
+                if (isTopComponentUsed(c1, tc) || isTopComponentUsed(c2 , tc)) {
+                    it.remove();
+                }
+            }
+
+            // now perform the deletions
+            for (Iterator it = al.iterator(); it.hasNext(); ) {
+                String name = (String)it.next();
+                targetFolder.putObject(name, null);
+            }
+        } catch (ContextException ne) {
+            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
         }
     }
     
@@ -388,24 +335,22 @@ public class BookmarkServiceImpl extends BookmarkService {
      *        the context c
      */
     private boolean isTopComponentUsed(Context c, TopComponent tc) {
-        try {
-            NamingEnumeration en = c.listBindings(CURRENT);
-            while (en.hasMoreElements()) {
-                Binding b = (Binding)en.nextElement();
-                Object obj = b.getObject();
-                if (obj instanceof BookmarkImpl) {
-                    BookmarkImpl bimpl = (BookmarkImpl)obj;
-                    if (tc.getName().equals(bimpl.getName())) {
-                        return true;
-                    }
-                } else if (obj instanceof Context) {
-                    if (isTopComponentUsed((Context)obj, tc)) {
-                        return true;
-                    }
+        Iterator it = c.getOrderedNames().iterator();
+        while (it.hasNext()) {
+            String name = (String)it.next();
+            Object obj = c.getObject(name, null);
+            if (obj instanceof BookmarkImpl) {
+                BookmarkImpl bimpl = (BookmarkImpl)obj;
+                if (tc.getName().equals(bimpl.getName())) {
+                    return true;
                 }
             }
-        } catch (NamingException ne) {
-            ErrorManager.getDefault().notify(ne);
+            Context c1 = c.getSubcontext(name);
+            if (c1 != null) {
+                if (isTopComponentUsed(c1, tc)) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -416,52 +361,47 @@ public class BookmarkServiceImpl extends BookmarkService {
      * in the shortcuts folder.
      */
     private void refreshShortcutsFolder() {
-        try {
-            FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource(SHORTCUTS_FOLDER);
-            DataFolder dfo = DataFolder.findFolder(fo);
-            DataObject ch[] = dfo.getChildren();
-            // following line is the main heck: it should not do anything but
-            // as a side effect the folder fires property change that is caught
-            // in the FolderInstance subclass in core (ShortcutsFolder) and causes
-            // the refresh of the active shortcuts
-            dfo.setOrder(ch);
-        } catch (java.io.IOException ioe) {
-            ErrorManager.getDefault().notify(ioe);
-        }
+//        try {
+//            FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource(SHORTCUTS_FOLDER);
+//            DataFolder dfo = DataFolder.findFolder(fo);
+//            DataObject ch[] = dfo.getChildren();
+//            // following line is the main heck: it should not do anything but
+//            // as a side effect the folder fires property change that is caught
+//            // in the FolderInstance subclass in core (ShortcutsFolder) and causes
+//            // the refresh of the active shortcuts
+//            dfo.setOrder(ch);
+//        } catch (java.io.IOException ioe) {
+//            ErrorManager.getDefault().notify(ioe);
+//        }
     }
     
     /**
      * Lazy initialization of the listener variable. 
      * @param source Object source object
      */
-    private NamingListener getNamingListener(Object source) {
+    private ContextListener getContextListener(Object source) {
         if (listener == null) {
             listener = new Listener();
         }
-        // Used to be:
-        //return (NamingListener)WeakListener.create(type, listener, source);
-        // but because of the remove method name we have to create the weak
-        // listeners here:
-        return new NamespaceChangeWeakListener(listener, source);
+        return (ContextListener)WeakListener.create(ContextListener.class, listener, source);
     }
     
     /**
      * Listener for updating bookmarks in the BOOKMARKS_ACTIONS
      * folder.
      */
-    private class Listener implements NamespaceChangeListener {
-        public void namingExceptionThrown(NamingExceptionEvent evt) {
-        }
+    private class Listener implements ContextListener {
         
-        public void objectAdded(NamingEvent evt) {
+        public void attributeChanged(AttributeEvent evt) {
             checkActionsFolder();
         }
         
-        public void objectRemoved(NamingEvent evt) {
+        public void bindingChanged(BindingEvent evt) {
             checkActionsFolder();
         }
         
-        public void objectRenamed(NamingEvent evt) {
+        public void subcontextChanged(SubcontextEvent evt) {
+            checkActionsFolder();
         }
     }
 }

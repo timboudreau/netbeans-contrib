@@ -18,10 +18,9 @@ import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
 import org.openide.ErrorManager;
+
+import org.netbeans.api.registry.*;
 
 /**
  * This node is the root node for the customization of bookmarks.
@@ -84,13 +83,10 @@ public class BookmarksRootNode extends AbstractNode {
      */
     private static Node getBookmarksNode() {
         try {
-            FileObject fo = Repository.getDefault().getDefaultFileSystem().
-            findResource(BookmarkServiceImpl.BOOKMARKS_FOLDER);
-            Node n = DataObject.find(fo).getNodeDelegate().cloneNode();
-            Node filter = new BookmarksNode(n, false);
-            return filter;
-        } catch (java.io.IOException ioe) {
-            ErrorManager.getDefault().notify(ioe);
+            Context con = Context.getDefault().createSubcontext(BookmarkServiceImpl.BOOKMARKS_FOLDER);
+            return new BookmarksFolderNode(con, false);
+        } catch (ContextException ce) {
+            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ce);
         }
         return null;
     }

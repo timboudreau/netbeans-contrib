@@ -8,7 +8,7 @@
  http://www.sun.com/
 
  The Original Code is NetBeans. The Initial Developer of the Original
- Code is Nokia. Portions Copyright 2003 Nokia.
+ Code is Nokia. Portions Copyright 2003-2004 Nokia.
  All Rights Reserved.
 -->
 <project basedir="." default="all" name="bookmarks">
@@ -32,7 +32,8 @@
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
                 <pathelement location="${nb_all}/openide/netbeans/lib/openide.jar"/>
                 <fileset dir="${nb_all}/openide">
-                    <include name="loaders/netbeans/lib/openide-loaders.jar"/>
+                    <include name="registry/netbeans/modules/org-netbeans-modules-registry.jar"/>
+                    <include name="convertor/netbeans/modules/org-netbeans-modules-convertor.jar"/>
                 </fileset>
             </classpath>
         </javac>

@@ -60,41 +60,4 @@
         
         <file name="Standard.xml_hidden"/>
     </folder>
-    <folder name="xml">
-        <folder name="entities">
-            <!--the public identifier registration-->
-            <folder name="NetBeans_org_netbeans_modules_bookmarks">
-                <file name="DTD_Bookmark_1_0" url="nbres:/org/netbeans/modules/settings/resources/properties-1_0.dtd">
-                    <attr name="hint.originalPublicID" stringvalue="-//NetBeans org.netbeans.modules.bookmarks//DTD Bookmark 1.0//EN"/>
-                </file>
-            </folder>
-        </folder>
-        <folder name="lookups">
-            <folder name="NetBeans_org_netbeans_modules_bookmarks">
-                <file name="DTD_Bookmark_1_0.instance">
-                <!--env. provider-->
-                    <attr methodvalue="org.netbeans.api.settings.Factory.create" name="instanceCreate"/>
-                    <!--XMLProperties convertor provided by the settings module-->
-                    <attr methodvalue="org.netbeans.api.settings.Factory.properties" name="settings.convertor"/> 
-                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.bookmarks.BookmarkImpl"/>
-                    <attr name="settings.instanceOf" stringvalue="org.netbeans.api.bookmarks.Bookmark,org.openide.util.actions.Presenter$Toolbar,org.openide.util.actions.Presenter$Menu,org.netbeans.modules.bookmarks.BookmarkImpl"/>
-                    <attr name="xmlproperties.ignoreChanges" stringvalue="AcceleratorKey"/>
-                </file>
-            </folder>
-        </folder>
-        <folder name="memory">
-            <folder name="org">
-                <folder name="netbeans">
-                    <folder name="modules">
-                        <folder name="bookmarks">
-                            <!--allows to create .settings file from memory via InstanceDataObject.create-->
-                            <file name="BookmarkImpl">
-                                <attr name="settings.providerPath" stringvalue="xml/lookups/NetBeans_org_netbeans_modules_bookmarks/DTD_Bookmark_1_0.instance"/>
-                            </file>
-                        </folder>
-                    </folder>
-                </folder>
-            </folder>
-        </folder>
-    </folder>
 </filesystem>

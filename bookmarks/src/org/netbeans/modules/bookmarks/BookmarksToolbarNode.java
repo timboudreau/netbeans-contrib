@@ -7,34 +7,29 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Nokia. Portions Copyright 2003 Nokia.
+ * Code is Nokia. Portions Copyright 2003-2004 Nokia.
  * All Rights Reserved.
  */
 
 package org.netbeans.modules.bookmarks;
 
 import java.awt.datatransfer.*;
-import javax.naming.*;
-import javax.naming.event.*;
 import java.util.*;
 import java.io.IOException;
 
 import org.openide.actions.*;
 import org.openide.nodes.*;
+import org.openide.util.lookup.*;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.datatransfer.*;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.actions.Presenter;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataFolder;
 import org.openide.ErrorManager;
-import org.openide.cookies.InstanceCookie;
 
 import org.netbeans.api.bookmarks.*;
+import org.netbeans.api.registry.*;
 
 /**
  * This node is the node for customization of the bookmarks toolbar.
@@ -43,21 +38,24 @@ import org.netbeans.api.bookmarks.*;
  */
 public class BookmarksToolbarNode extends AbstractNode {
     
-    /** String denoting current JNDI context */
-    private static final String CURRENT = ""; // NOI18N
-    
     /**
      * Default constructor.
      */
     public BookmarksToolbarNode() {
-        super(new BookmarksToolbarChildren());
+        this(null);
         setIconBase("org/netbeans/modules/bookmarks/resources/toolbars");
-        // Whatever is most relevant to a user:
-        setDefaultAction(SystemAction.get(PropertiesAction.class));
         // Set FeatureDescriptor stuff:
         setName("BookmarksToolbar");
         setDisplayName(NbBundle.getMessage(BookmarksToolbarNode.class, "LBL_BookmarksToolbar"));
         setShortDescription(NbBundle.getMessage(BookmarksToolbarNode.class, "HINT_BookmarksToolbar"));
+    }
+    
+    /** This private constructor is here because of the trick with
+     * InstanceContent.
+     */
+    private BookmarksToolbarNode(InstanceContent ic) {
+        super(new BookmarksToolbarChildren(), new AbstractLookup(ic = new InstanceContent()));
+        ic.add(new ReorderSupport());
     }
     
     /**
@@ -102,52 +100,34 @@ public class BookmarksToolbarNode extends AbstractNode {
             moving = true;
         }
         if (n != null) {
-            InstanceCookie ic = (InstanceCookie)n.getLookup().lookup(InstanceCookie.class);
-            if (ic == null) {
+            final Bookmark b = (Bookmark)n.getLookup().lookup(Bookmark.class);
+            if (b == null) {
                 return;
             }
-            Bookmark b = null;
-            try {
-                Object res = ic.instanceCreate();
-                if (res instanceof Bookmark) {
-                    b = (Bookmark)res;
-                }
-            } catch (ClassNotFoundException cnfe) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, cnfe);
-                return;
-            } catch (IOException ioe) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
-                return;
-            }
-            final Bookmark b1 = b;
-            DataObject dobj = null;
+            Context con = null;
             if (moving) {
-                dobj = (DataObject)n.getLookup().lookup(DataObject.class);
+                con = (Context)n.getLookup().lookup(Context.class);
             }
-            final DataObject dataToDelete = dobj;
-            if (b1 != null) {
+            final Context whereToDelete = con;
+            if (b != null) {
                 l.add(new PasteType() {
                     public String getName() {
                         return NbBundle.getMessage(BookmarksToolbarNode.class, "LBL_PasteType");
                     }
                     public Transferable paste() throws IOException {
                         try {
-                            Context c = BookmarkServiceImpl.getInitialContext();
-                            Object folder = c.lookup(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
-                            if (folder instanceof Context){
-                                Context targetFolder = (Context)folder;
-                                String safeName = BookmarkServiceImpl.findUnusedName(targetFolder, b1.getName());
-                                // following line will save the bookmark to the system file system
-                                targetFolder.bind(safeName, b1);
+                            Context targetFolder = Context.getDefault().createSubcontext(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
+                            String safeName = BookmarkServiceImpl.findUnusedName(targetFolder, b.getName());
+                            
+                            // following line will save the bookmark to the system file system
+                            targetFolder.putObject(safeName, b);
                                 
-                                if (dataToDelete != null) {
-                                    // if this is the move operation:
-                                    dataToDelete.delete();
-                                }
-                                return ExTransferable.EMPTY;
+                            if (whereToDelete != null) {
+                                // if this is the move operation:
+                                
                             }
-                            throw new IOException("Folder " + BookmarkServiceImpl.BOOKMARKS_TOOLBAR + " does not exists (or is not a folder)");
-                        } catch (NamingException x) {
+                            return ExTransferable.EMPTY;
+                        } catch (ContextException x) {
                             IOException ioe =  new IOException();
                             ErrorManager.getDefault().annotate(ioe, x);
                             throw ioe;
@@ -157,62 +137,70 @@ public class BookmarksToolbarNode extends AbstractNode {
             }
         }
     }
-
-    /**
-     * Adding support for reorder via supplying an Index cookie.
-     */
-    public Node.Cookie getCookie(Class clazz) {
-        if (clazz.isAssignableFrom(DataFolder.Index.class)) {
-            try {
-                FileObject fo = Repository.getDefault().getDefaultFileSystem().
-                    findResource(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
-                if (fo == null) {
-                    throw new IOException(BookmarkServiceImpl.BOOKMARKS_TOOLBAR + " not found.");
-                }
-                DataFolder folder = DataFolder.findFolder(fo);
-                return new DataFolder.Index(folder, this);
-            } catch (IOException ioe) {
-                ErrorManager.getDefault().notify(ioe);
-            }
+    
+    private class ReorderSupport extends Index.Support {
+        
+        public Node[] getNodes() {
+            return getChildren().getNodes();
         }
-        return super.getCookie(clazz);
+        
+        public int getNodesCount() {
+            return getNodes().length;
+        }
+        
+        public void reorder(int[] perm) {
+            try {
+                Context context = Context.getDefault().createSubcontext(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
+                // Remember: {2, 0, 1} cycles three items forwards.
+                String[] items = (String[])context.getOrderedNames().toArray(new String[0]);
+                if (items.length != perm.length) {
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("Items[");
+                    for (int i = 0; i < items.length; i++) {
+                        sb.append(" " + items[i]);
+                    }
+                    sb.append("] Perm[");
+                    for (int i = 0; i < perm.length; i++) {
+                        sb.append(" " + perm[i]);
+                    }
+                    sb.append("]");
+                    throw new IllegalArgumentException(sb.toString());
+                }
+                String[] nue = new String[perm.length];
+                for (int i = 0; i < perm.length; i++) {
+                    nue[i] = items[perm[i]];
+                }
+                // Should trigger an automatic child node update because the children
+                // should be listening:
+                context.orderContext(Arrays.asList(nue));
+            } catch (ContextException ne) {
+                ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
+            }
+            
+        }
     }
-
     
     /** List of children of the BookmarksToolbarNode.
      * Each child node is represented by one key of the type String. The String
      * is the name to what is the a bookmark bound in the bookmarks folder (context).
      */
-    public static class BookmarksToolbarChildren extends Children.Keys implements ObjectChangeListener, NamespaceChangeListener, Runnable {
+    public static class BookmarksToolbarChildren extends Children.Keys implements ContextListener, Runnable {
         
         public BookmarksToolbarChildren() {
         }
         
-        /** Implements the naming listener interface */
-        public void namingExceptionThrown(NamingExceptionEvent evt) {
+        public void attributeChanged(AttributeEvent evt) {
             updateKeys();
         }
         
-        /** Implements the naming listener interface */
-        public void objectAdded(NamingEvent evt) {
+        public void bindingChanged(BindingEvent evt) {
             updateKeys();
         }
         
-        /** Implements the naming listener interface */
-        public void objectChanged(NamingEvent evt) {
+        public void subcontextChanged(SubcontextEvent evt) {
             updateKeys();
         }
         
-        /** Implements the naming listener interface */
-        public void objectRemoved(NamingEvent evt) {
-            updateKeys();
-        }
-        
-        /** Implements the naming listener interface */
-        public void objectRenamed(NamingEvent evt) {
-            updateKeys();
-        }
-
         /** Overriden from Children.Keys */
         protected void addNotify() {
             super.addNotify();
@@ -220,13 +208,10 @@ public class BookmarksToolbarNode extends AbstractNode {
             updateKeys();
             // and listen to changes in the model too:
             try {
-                Context con = (Context)BookmarkServiceImpl.getInitialContext().lookup(CURRENT);
-                if (con instanceof EventContext) {
-                    EventContext ec = (EventContext)con;
-                    ec.addNamingListener(BookmarkServiceImpl.BOOKMARKS_TOOLBAR, EventContext.SUBTREE_SCOPE, this);
-                }
-            } catch (NamingException ne) {
-                ErrorManager.getDefault().notify(ne);
+                Context con = Context.getDefault().createSubcontext(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
+                con.addContextListener(this);
+            } catch (ContextException ne) {
+                ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
             }
         }
         
@@ -246,37 +231,21 @@ public class BookmarksToolbarNode extends AbstractNode {
          * calling it in a new thread.
          */
         public void run() {
-            ArrayList al = new ArrayList();
             try {
-                Context con = (Context)BookmarkServiceImpl.getInitialContext().lookup(CURRENT);
-                NamingEnumeration en = con.listBindings(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
-                while (en.hasMoreElements()) {
-                    Binding b = (Binding)en.nextElement();
-                    Object obj = b.getObject();
-                    b.setRelative(true);
-                    if (obj instanceof Presenter.Toolbar) {
-                        al.add(b.getName());
-                    }
-                    if (obj instanceof Context) {
-                        al.add(b.getName());
-                    }
-                }
-            } catch (NamingException ne) {
-                ErrorManager.getDefault().notify(ne);
+                Context con = Context.getDefault().createSubcontext(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
+                setKeys(con.getOrderedNames());
+            } catch (ContextException ne) {
+                ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
             }
-            setKeys(al);
         }
         
         /** Overriden from Children.Keys */
         protected void removeNotify() {
             try {
-                Context con = (Context)BookmarkServiceImpl.getInitialContext().lookup(CURRENT);
-                if (con instanceof EventContext) {
-                    EventContext ec = (EventContext)con;
-                    ec.removeNamingListener(this);
-                }
-            } catch (NamingException ne) {
-                ErrorManager.getDefault().notify(ne);
+                Context con = Context.getDefault().createSubcontext(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
+                con.removeContextListener(this);
+            } catch (ContextException ne) {
+                ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
             }
             setKeys(Collections.EMPTY_SET);
             super.removeNotify();
@@ -287,28 +256,19 @@ public class BookmarksToolbarNode extends AbstractNode {
             if (! (key instanceof String)) {
                 return new Node[0];
             }
+            String name = (String)key;
             try {
-                FileObject fo = Repository.getDefault().getDefaultFileSystem().
-                    findResource(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
-                if (fo == null) {
-                    throw new IOException(BookmarkServiceImpl.BOOKMARKS_TOOLBAR + " not found.");
+                Context con = Context.getDefault().createSubcontext(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
+                Object data = con.getObject(name, null);
+                if (data == null) {
+                    return new Node[0];
                 }
-                DataFolder dFolder = DataFolder.findFolder(fo);
-                DataObject children[] = dFolder.getChildren();
-                int childNo = -1;
-                for (int i = 0; i < children.length; i++) {
-                    if (children[i].getName().equals(key)) {
-                        childNo = i;
-                    }
+                if (data instanceof Bookmark) {
+                    String absName = con.getAbsoluteContextName() + "/" + name;
+                    return new Node[] { new BookmarksNode((Bookmark)data, absName) };
                 }
-                if (childNo == -1) {
-                    throw new IOException("Child not found for " + key);
-                }
-                Node n = children[childNo].getNodeDelegate().cloneNode();
-                Node filter = new BookmarksNode(n, true);
-                return new Node[] { filter };
-            } catch (IOException ioe) {
-                ErrorManager.getDefault().notify(ioe);
+            } catch (ContextException ne) {
+                ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
             }
             return new Node[0];
         }

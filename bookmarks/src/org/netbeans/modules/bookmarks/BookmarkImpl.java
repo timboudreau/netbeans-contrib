@@ -33,6 +33,7 @@ import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 
 import org.netbeans.api.bookmarks.*;
+import org.netbeans.spi.convertor.SimplyConvertible;
 
 /**
  * The default bookmark implementation is created for a TopComponent
@@ -49,7 +50,7 @@ import org.netbeans.api.bookmarks.*;
  * see methods readProperties, writeProperties.
  * @author David Strupl
  */
-public class BookmarkImpl extends AbstractAction implements Bookmark {
+public class BookmarkImpl extends AbstractAction implements Bookmark, SimplyConvertible {
     
     /** Name of the property used from readProperties, writeProperties */
     private static final String PROP_TC_NAME = "topComponentName";
@@ -275,7 +276,7 @@ public class BookmarkImpl extends AbstractAction implements Bookmark {
      * Called by XMLPropertiesConvertor to restore the state
      * of this object after calling the default constructor.
      */
-    private void readProperties(java.util.Properties p) {
+    public void read(java.util.Properties p) {
         tcFileName = p.getProperty(PROP_TC_NAME);
         name = p.getProperty(PROP_NAME);
         putValue(NAME, name);
@@ -285,7 +286,7 @@ public class BookmarkImpl extends AbstractAction implements Bookmark {
      * XMLPropertiesConvertor calls this method when it wants
      * to persist this object.
      */
-    private void writeProperties(java.util.Properties p) {
+    public void write(java.util.Properties p) {
         p.setProperty(PROP_TC_NAME, tcFileName);
         p.setProperty(PROP_NAME, name);
     }
