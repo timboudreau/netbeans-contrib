@@ -148,8 +148,8 @@ public class NodesTableView extends JScrollPane implements Externalizable {
     * Write view's state to output stream.
     */
     public void writeExternal (ObjectOutput out) throws IOException {
-        out.writeObject (new Boolean (popupAllowed));
-        out.writeObject (new Boolean (traversalAllowed));
+        out.writeObject (popupAllowed ? Boolean.TRUE : Boolean.FALSE);
+        out.writeObject (traversalAllowed ? Boolean.TRUE : Boolean.FALSE);
         out.writeObject (compositeAttributeName);
         // TODO.. write the tableModel??
     }

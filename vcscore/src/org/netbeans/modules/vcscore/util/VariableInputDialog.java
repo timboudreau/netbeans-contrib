@@ -1042,10 +1042,10 @@ public class VariableInputDialog extends javax.swing.JPanel {
         final String[] varsEnabled = (String[]) component.getEnable().toArray(new String[0]);
         final String[] varsDisabled = (String[]) component.getDisable().toArray(new String[0]);
         if (varsEnabled.length > 0) {
-            varsToEnableDisable.put(varsEnabled, new Boolean(chbox.isSelected()));
+            varsToEnableDisable.put(varsEnabled, chbox.isSelected() ? Boolean.TRUE : Boolean.FALSE);
         }
         if (varsDisabled.length > 0) {
-            varsToEnableDisable.put(varsDisabled, new Boolean(!chbox.isSelected()));
+            varsToEnableDisable.put(varsDisabled, !chbox.isSelected() ? Boolean.TRUE : Boolean.FALSE);
         }
         chbox.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent ev) {
@@ -1291,13 +1291,13 @@ public class VariableInputDialog extends javax.swing.JPanel {
         final String[] varsDisabled = (String[]) component.getDisable().toArray(new String[0]);
         boolean enabled = defValue.equals(component.getValue());
         if (componentVars.length > 0) {
-            varsToEnableDisable.put(componentVars, new Boolean(enabled));
+            varsToEnableDisable.put(componentVars, enabled ? Boolean.TRUE : Boolean.FALSE);
         }
         if (varsEnabled.length > 0) {
-            varsToEnableDisable.put(varsEnabled, new Boolean(enabled));
+            varsToEnableDisable.put(varsEnabled, enabled ? Boolean.TRUE : Boolean.FALSE);
         }
         if (varsDisabled.length > 0) {
-            varsToEnableDisable.put(varsDisabled, new Boolean(!enabled));
+            varsToEnableDisable.put(varsDisabled, !enabled ? Boolean.TRUE : Boolean.FALSE);
         }
         button.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent ev) {

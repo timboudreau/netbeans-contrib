@@ -204,7 +204,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
 
     public void setShowDeadFiles(boolean showDeadFiles) {
         fileSystem.setShowDeadFiles(showDeadFiles);
-        firePropertyChange(PROP_SHOW_DEAD_FILES, new Boolean(!showDeadFiles), new Boolean(showDeadFiles));
+        firePropertyChange(PROP_SHOW_DEAD_FILES, !showDeadFiles ? Boolean.TRUE : Boolean.FALSE, showDeadFiles ? Boolean.TRUE : Boolean.FALSE);
     }
     
     public boolean isShowUnimportantFiles() {
@@ -214,7 +214,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     public void setShowUnimportantFiles(boolean showUnimportantFiles) {
         if (this.showUnimportantFiles != showUnimportantFiles) {
             this.showUnimportantFiles = showUnimportantFiles;
-            firePropertyChange(PROP_SHOW_UNIMPORTANT_FILES, new Boolean(!showUnimportantFiles), new Boolean(showUnimportantFiles));
+            firePropertyChange(PROP_SHOW_UNIMPORTANT_FILES, !showUnimportantFiles ? Boolean.TRUE : Boolean.FALSE, showUnimportantFiles ? Boolean.TRUE : Boolean.FALSE);
             refreshExistingFolders();
         }
     }
@@ -226,7 +226,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     public void setShowLocalFiles(boolean showLocalFiles) {
         if (this.showLocalFiles != showLocalFiles) {
             this.showLocalFiles = showLocalFiles;
-            firePropertyChange(PROP_SHOW_LOCAL_FILES, new Boolean(!showLocalFiles), new Boolean(showLocalFiles));
+            firePropertyChange(PROP_SHOW_LOCAL_FILES, !showLocalFiles ? Boolean.TRUE : Boolean.FALSE, showLocalFiles ? Boolean.TRUE : Boolean.FALSE);
             refreshExistingFolders();
         }
     }
@@ -267,7 +267,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     public void setShowMessages(boolean showMessages) {
         if (this.showMessages != showMessages) {
             this.showMessages = showMessages;
-            firePropertyChange(PROP_SHOW_MESSAGES, new Boolean(!showMessages), new Boolean(showMessages));
+            firePropertyChange(PROP_SHOW_MESSAGES, !showMessages ? Boolean.TRUE : Boolean.FALSE, showMessages ? Boolean.TRUE : Boolean.FALSE);
             redisplayRevisions();
         }
     }

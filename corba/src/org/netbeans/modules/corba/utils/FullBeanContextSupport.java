@@ -226,7 +226,7 @@ public class FullBeanContextSupport extends Vector implements BeanContext, Seria
     public void setDesignTime(boolean param) {
         boolean oldValue = this.isDesignTime;
         this.isDesignTime = param;
-        firePropertyChange (DESIGN_MODE,new Boolean(oldValue),new Boolean(this.isDesignTime));
+        firePropertyChange (DESIGN_MODE,oldValue ? Boolean.TRUE : Boolean.FALSE,this.isDesignTime ? Boolean.TRUE : Boolean.FALSE);
     }
     
     public synchronized boolean add (Object element) {

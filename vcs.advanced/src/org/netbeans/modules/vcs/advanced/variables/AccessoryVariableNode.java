@@ -279,7 +279,7 @@ public class AccessoryVariableNode extends AbstractNode {
                 if (VcsCustomizer.VAR_CONFIG_INPUT_DESCRIPTOR.equals(var.getName())) {
                     ((AccessoryVariableNode) AccessoryVariableNode.this.getParentNode()).fireVariablePropertyChange(
                         UserVariablesPanel.PROP_CONFIG_INPUT_DESCRIPTOR,
-                        Boolean.FALSE, new Boolean(UserVariablesPanel.isConfigInputDescriptorVar(var)));
+                        Boolean.FALSE, UserVariablesPanel.isConfigInputDescriptorVar(var) ? Boolean.TRUE : Boolean.FALSE);
                 }
                 //cmd.fireChanged();
             }

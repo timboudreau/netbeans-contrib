@@ -393,7 +393,7 @@ public class BasicVariableNode extends AbstractNode {
         set.put(new PropertySupport.ReadWrite("localFile", Boolean.TYPE, g("CTL_LocalFile"), g("HINT_LocalFile")) {
             public Object getValue() {
                 //System.out.println("getName: cmd = "+cmd);
-                return new Boolean(var.isLocalFile());
+                return var.isLocalFile() ? Boolean.TRUE : Boolean.FALSE;
             }
             
             public void setValue(Object value) {
@@ -404,7 +404,7 @@ public class BasicVariableNode extends AbstractNode {
         set.put(new PropertySupport.ReadWrite("localDir", Boolean.TYPE, g("CTL_LocalDir"), g("HINT_LocalDir")) {
             public Object getValue() {
                 //System.out.println("getName: cmd = "+cmd);
-                return new Boolean(var.isLocalDir());
+                return var.isLocalDir() ? Boolean.TRUE : Boolean.FALSE;
             }
             
             public void setValue(Object value) {

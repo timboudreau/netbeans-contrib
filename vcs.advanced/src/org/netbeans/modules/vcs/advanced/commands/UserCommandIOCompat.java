@@ -158,9 +158,9 @@ public class UserCommandIOCompat extends Object {
                 Object oldValue = vc.getProperty(attrName);
                 if (oldValue instanceof Boolean) {
                     if (attrValue.equalsIgnoreCase("TRUE")) {
-                        value = new Boolean(true);
+                        value = Boolean.TRUE;
                     } else if (attrValue.equalsIgnoreCase("FALSE")) {
-                        value = new Boolean(false);
+                        value = Boolean.FALSE;
                     } else {
                         value = null;
                     }
@@ -199,14 +199,14 @@ public class UserCommandIOCompat extends Object {
             if (VcsCommand.PROPERTY_ON_ROOT.equals(attrName)) {
                 if (VcsCommandIO.getBooleanPropertyAssumeTrue(vc, VcsCommand.PROPERTY_ON_DIR)) {
                     if (Boolean.TRUE.equals(value)) {
-                        vc.setProperty(VcsCommand.PROPERTY_ON_DIR, new Boolean(false));
-                        vc.setProperty(VcsCommand.PROPERTY_ON_FILE, new Boolean(false));
+                        vc.setProperty(VcsCommand.PROPERTY_ON_DIR, Boolean.FALSE);
+                        vc.setProperty(VcsCommand.PROPERTY_ON_FILE, Boolean.FALSE);
                     }
-                    value = new Boolean(true);
+                    value = Boolean.TRUE;
                 }
             }
             if (VcsCommand.PROPERTY_ON_DIR.equals(attrName)) {
-                vc.setProperty(VcsCommand.PROPERTY_ON_ROOT, new Boolean(true));
+                vc.setProperty(VcsCommand.PROPERTY_ON_ROOT, Boolean.TRUE);
             }
             vc.setProperty(attrName, value);
             //System.out.println("setting property of '"+vc+"': "+attrName+" = '"+value+"'");

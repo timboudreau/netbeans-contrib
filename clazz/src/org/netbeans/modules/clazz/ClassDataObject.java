@@ -647,7 +647,7 @@ public class ClassDataObject extends MultiDataObject implements Factory, SourceC
             if (executable == null) {
                 ClassElement ce=getMainClass();
 
-                executable=new Boolean((ce==null)?false:ce.hasMainMethod());
+                executable = ((ce==null) ? false : ce.hasMainMethod()) ? Boolean.TRUE : Boolean.FALSE;
             }
             return executable.booleanValue ();
         }    

@@ -117,7 +117,7 @@ public class Support {
         Class c[]={org.netbeans.modules.java.JavaDataObject.class, Boolean.TYPE};
         java.lang.reflect.Method m=Class.forName("org.netbeans.modules.rmi.RemoteDetectionSupport").getDeclaredMethod("markRMI",c);
         m.setAccessible(true);
-        Object o[]={jdo,new Boolean(set)};
+        Object o[]={jdo,set ? Boolean.TRUE : Boolean.FALSE};
         m.invoke(null,o);
     }
     

@@ -78,7 +78,7 @@ public class BundleLookupPanel extends TopComponent  {
                     ascOrder.remove(i);
                 }
                 sortOrder.add(0, new Integer(column));
-                ascOrder.add(0, new Boolean(asc));
+                ascOrder.add(0, asc ? Boolean.TRUE : Boolean.FALSE);
             }
             public synchronized int compare(Object obj, Object obj1) {
                 if (obj instanceof Vector)

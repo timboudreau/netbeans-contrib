@@ -44,22 +44,22 @@ public class ExPanel extends JPanel {
     }
     
     public void enableOk () {
-        PropertyChangeEvent event = new PropertyChangeEvent (this,"Ok",null, new Boolean(true));  //No I18N
+        PropertyChangeEvent event = new PropertyChangeEvent (this,"Ok",null, Boolean.TRUE);  //No I18N
         this.listeners.firePropertyChange (event);
     }
     
     public void disableOk () {
-        PropertyChangeEvent event = new PropertyChangeEvent (this,"Ok",null, new Boolean(false));  //No I18N
+        PropertyChangeEvent event = new PropertyChangeEvent (this,"Ok",null, Boolean.FALSE);  //No I18N
         this.listeners.firePropertyChange (event);
     }
     
     public void enableCancel () {
-        PropertyChangeEvent event = new PropertyChangeEvent (this,"Cancel",new Boolean(true),null);  //No I18N
+        PropertyChangeEvent event = new PropertyChangeEvent (this,"Cancel",Boolean.TRUE,null);  //No I18N
         this.listeners.firePropertyChange (event);
     }
     
     public void disableCancel () {
-        PropertyChangeEvent event = new PropertyChangeEvent (this,"Cancel",new Boolean(false),null);  //No I18N
+        PropertyChangeEvent event = new PropertyChangeEvent (this,"Cancel",Boolean.FALSE,null);  //No I18N
         this.listeners.firePropertyChange (event);
     }
 

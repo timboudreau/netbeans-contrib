@@ -177,7 +177,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
         //System.out.println("RevisionItem("+revision+"): current = "+this.current+", setCurrent("+current+")");
         if (current != this.current) {
             this.current = current;
-            firePropertyChange(PROP_CURRENT_REVISION, new Boolean(!current), new Boolean(current));
+            firePropertyChange(PROP_CURRENT_REVISION, !current ? Boolean.TRUE : Boolean.FALSE, current ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     

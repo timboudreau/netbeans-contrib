@@ -79,7 +79,7 @@ public class VcsGroupSettings extends SystemOption {
      * @param showLinks New value of property showLinks.
      */
     public void setShowLinks(boolean show) {
-        putProperty(PROP_SHOW_LINKS, new Boolean(show), true);
+        putProperty(PROP_SHOW_LINKS, show ? Boolean.TRUE : Boolean.FALSE, true);
     }
     
     /** Getter for property autoAddition.
@@ -107,7 +107,7 @@ public class VcsGroupSettings extends SystemOption {
      * @param disableGroups New value of property disableGroups.
      */
     public void setDisableGroups(boolean disableGroups) {
-        putProperty(PROP_DISABLE_GROUPS, new Boolean(disableGroups), true);
+        putProperty(PROP_DISABLE_GROUPS, disableGroups ? Boolean.TRUE : Boolean.FALSE, true);
     }
     
 }

@@ -208,7 +208,7 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         cmd.setProperty(UserCommand.PROPERTY_DATA_REGEX, dataRegex);
         cmd.setProperty(UserCommand.PROPERTY_ERROR_REGEX, errorRegex);
         // The user should be warned by the wrapper class and not the command itself.
-        cmd.setProperty(VcsCommand.PROPERTY_IGNORE_FAIL, new Boolean(true));
+        cmd.setProperty(VcsCommand.PROPERTY_IGNORE_FAIL, Boolean.TRUE);
          */
         VcsCommandExecutor ec = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
         ec.addDataOutputListener(new CommandDataOutputListener() {

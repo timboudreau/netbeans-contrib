@@ -720,12 +720,12 @@ public class RMIApiTests extends NbTestCase {
                 if (((Boolean)(prop.getValue())).booleanValue()) log(bundle.getString("Module_RMI_instaled.")); else log(bundle.getString("Module_RMI_not_instaled."));
                 log(bundle.getString("Uninstaling_module_RMI"));
                 //unistaling module RMI
-                prop.setValue(new Boolean(false));
+                prop.setValue(Boolean.FALSE);
                 sup.sleep(5000);
                 if (((Boolean)(prop.getValue())).booleanValue()) log(bundle.getString("Module_RMI_not_uninstaled.")); else log(bundle.getString("Module_RMI_uninstaled."));
                 log(bundle.getString("Instaling_module_RMI"));
                 //istaling module RMI
-                prop.setValue(new Boolean(true));
+                prop.setValue(Boolean.TRUE);
                 sup.sleep(5000);
                 if (((Boolean)(prop.getValue())).booleanValue()) log(bundle.getString("Module_RMI_instaled.")); else log(bundle.getString("Module_RMI_not_instaled."));
             } else log(bundle.getString("Wrong_property_")+prop.getName());

@@ -96,7 +96,7 @@ public class CvsModuleParser extends Object {
         D.deb("Module definition: "+moduleDef.substring(index));
         Vector module = new Vector();
         module.add(moduleDef.trim());
-        module.add(new Boolean(alias));
+        module.add(alias ? Boolean.TRUE : Boolean.FALSE);
         modules.put(moduleName, module);
         D.deb("Have module "+moduleName+", with content:"+module);
         if (alias) {

@@ -243,7 +243,7 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
             Object property = uc.getProperty(properties[i]);
             Object newProperty;
             if (property instanceof Boolean) {
-                newProperty = new Boolean(((Boolean) property).booleanValue());
+                newProperty = property;
             } else if (property instanceof Integer) {
                 newProperty = new Integer(((Integer) property).intValue());
                 /*
@@ -566,26 +566,26 @@ public class UserCommand extends Object implements VcsCommand, Serializable, Clo
             //setProperty("timeout", new Long(getTimeout()));
             setProperty(UserCommand.PROPERTY_DATA_REGEX, dataRegex);//getDataRegex());
             setProperty(UserCommand.PROPERTY_ERROR_REGEX, errorRegex);//getErrorRegex());
-            setProperty(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, new Boolean(displayOutput));//isDisplayOutput()));
-            //setProperty("doRefresh", new Boolean(isDoRefresh())); <- not needed any more
+            setProperty(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, displayOutput ? Boolean.TRUE : Boolean.FALSE);//isDisplayOutput()));
+            //setProperty("doRefresh", isDoRefresh() ? Boolean.TRUE : Boolean.FALSE); <- not needed any more
             setProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED, refreshRecursivelyPattern);//getRefreshRecursivelyPattern());
-            setProperty(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, new Boolean(doRefresh/*isDoRefresh()*/ && refreshParent));//isRefreshParent()));
-            setProperty(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, new Boolean(doRefresh && !refreshParent));
-            setProperty(VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS, new Boolean(checkForModifications));
+            setProperty(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, doRefresh/*isDoRefresh()*/ && refreshParent ? Boolean.TRUE : Boolean.FALSE);//isRefreshParent()));
+            setProperty(VcsCommand.PROPERTY_REFRESH_CURRENT_FOLDER, doRefresh && !refreshParent ? Boolean.TRUE : Boolean.FALSE);
+            setProperty(VcsCommand.PROPERTY_CHECK_FOR_MODIFICATIONS, checkForModifications ? Boolean.TRUE : Boolean.FALSE);
             if (onRoot == true) onFile = onDir = false; // The meaning has changed. Instead "on root only" it means "on root too".
             else onRoot = true;                         // if onRoot == false, it means "not on root, but everywhere.
-            setProperty(VcsCommand.PROPERTY_ON_FILE, new Boolean(onFile));
-            setProperty(VcsCommand.PROPERTY_ON_DIR, new Boolean(onDir));
-            setProperty(VcsCommand.PROPERTY_ON_ROOT, new Boolean(onRoot));
-            //setProperty(VcsCommand.PROPERTY_NOT_ON_ROOT, new Boolean(notOnRoot));
+            setProperty(VcsCommand.PROPERTY_ON_FILE, onFile ? Boolean.TRUE : Boolean.FALSE);
+            setProperty(VcsCommand.PROPERTY_ON_DIR, onDir ? Boolean.TRUE : Boolean.FALSE);
+            setProperty(VcsCommand.PROPERTY_ON_ROOT, onRoot ? Boolean.TRUE : Boolean.FALSE);
+            //setProperty(VcsCommand.PROPERTY_NOT_ON_ROOT, notOnRoot ? Boolean.TRUE : Boolean.FALSE);
             setProperty(VcsCommand.PROPERTY_CONFIRMATION_MSG, confirmationMsg);
-            setProperty(VcsCommand.PROPERTY_PROCESS_ALL_FILES, new Boolean(processAllFiles));
+            setProperty(VcsCommand.PROPERTY_PROCESS_ALL_FILES, processAllFiles ? Boolean.TRUE : Boolean.FALSE);
             setProperty(VcsCommand.PROPERTY_NUM_REVISIONS, new Integer(numRevisions));
-            setProperty(VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS, new Boolean(changingNumRevisions));
-            setProperty(VcsCommand.PROPERTY_CHANGING_REVISION, new Boolean(changingRevision));
+            setProperty(VcsCommand.PROPERTY_CHANGING_NUM_REVISIONS, changingNumRevisions ? Boolean.TRUE : Boolean.FALSE);
+            setProperty(VcsCommand.PROPERTY_CHANGING_REVISION, changingRevision ? Boolean.TRUE : Boolean.FALSE);
             setProperty(VcsCommand.PROPERTY_CHANGED_REVISION_VAR_NAME, changedRevisionVariableName);
             //setProperty(UserCommand.PROPERTY_PRECOMMANDS, getPreCommandsStr());
-            //setProperty(UserCommand.PROPERTY_PRECOMMANDS_EXECUTE, new Boolean(executePreCommands));
+            //setProperty(UserCommand.PROPERTY_PRECOMMANDS_EXECUTE, executePreCommands ? Boolean.TRUE : Boolean.FALSE);
             if (VcsCommand.NAME_REFRESH.equals(name) || VcsCommand.NAME_REFRESH_RECURSIVELY.equals(name)) {
                 setProperty(UserCommand.PROPERTY_LIST_INDEX_FILE_NAME, new Integer(fileNameIndex));
                 setProperty(UserCommand.PROPERTY_LIST_INDEX_STATUS, new Integer(statusIndex));

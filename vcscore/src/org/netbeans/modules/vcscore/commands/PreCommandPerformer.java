@@ -190,7 +190,7 @@ public class PreCommandPerformer extends Object /*implements CommandDataOutputLi
                         pool.kill(rvce);
                         exitStates.add(Boolean.FALSE);
                     } else {
-                        exitStates.add(new Boolean(rvce.getExitStatus() == VcsCommandExecutor.SUCCEEDED));
+                        exitStates.add(rvce.getExitStatus() == VcsCommandExecutor.SUCCEEDED ? Boolean.TRUE : Boolean.FALSE);
                     }
                 }
                 runningExecutors.clear();

@@ -170,7 +170,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
   public void setPassiveMode(boolean passiveMode) {
     boolean old = this.passiveMode;
     this.passiveMode = passiveMode;
-    firePropertyChange(PROP_PASSIVE_MODE,new Boolean(old),new Boolean(this.passiveMode));
+    firePropertyChange(PROP_PASSIVE_MODE,old ? Boolean.TRUE : Boolean.FALSE,this.passiveMode ? Boolean.TRUE : Boolean.FALSE);
   }
   /** Getter for property askCacheExternalDelete.
    * @return Value of property askCacheExternalDelete.

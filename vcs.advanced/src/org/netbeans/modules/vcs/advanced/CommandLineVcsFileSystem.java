@@ -611,7 +611,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             this.shortFileStatuses = shortFileStatuses;
             setPossibleFileStatusesFromVars();
             refreshStatusOfExistingFiles();
-            firePropertyChange(PROP_SHORT_FILE_STATUSES, new Boolean(!shortFileStatuses), new Boolean(shortFileStatuses));
+            firePropertyChange(PROP_SHORT_FILE_STATUSES, !shortFileStatuses ? Boolean.TRUE : Boolean.FALSE, shortFileStatuses ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     

@@ -220,7 +220,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     //refreshRoot();
     //try { org.openide.loaders.DataObject.find(super.getRoot()).getNodeDelegate().setDisplayName(getDisplayName()); }
     //catch (org.openide.loaders.DataObjectNotFoundException e) {}
-    firePropertyChange("connected", null, new Boolean(isConnected()));
+    firePropertyChange("connected", null, isConnected() ? Boolean.TRUE : Boolean.FALSE);
     //firePropertyChange(PROP_SYSTEM_NAME, "", getSystemName());
   }
 
@@ -248,7 +248,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
   public void setReadOnly(boolean flag) {
     if (flag != readOnly) {
       readOnly = flag;
-      firePropertyChange (PROP_READ_ONLY, new Boolean (!flag), new Boolean (flag));
+      firePropertyChange (PROP_READ_ONLY, !flag ? Boolean.TRUE : Boolean.FALSE, flag ? Boolean.TRUE : Boolean.FALSE);
     }
   }
 

@@ -74,7 +74,7 @@ public class CompiledDataNode extends ClassDataNode {
                    bundle.getString ("HINT_isExecutable")
                ) {
                    public Object getValue () throws InvocationTargetException {
-                       return new Boolean(getCompiledDataObject().isExecutable());
+                       return getCompiledDataObject().isExecutable() ? Boolean.TRUE : Boolean.FALSE;
                    }
                });
         ExecSupport es = (ExecSupport)getCookie(ExecSupport.class);

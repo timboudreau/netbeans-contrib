@@ -393,8 +393,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 variables.add(var);
                 variablesByName.put(var.getName(), var);
             }
-            var.setValue(new Boolean(lock).toString());
-            firePropertyChange(PROP_CALL_LOCK, new Boolean(!lockFilesOn), new Boolean(lockFilesOn));
+            var.setValue(lock ? "true" : "false"); // NOI18N
+            firePropertyChange(PROP_CALL_LOCK, !lockFilesOn ? Boolean.TRUE : Boolean.FALSE, lockFilesOn ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     public boolean isPromptForLockOn () { return promptForLockOn; }
@@ -407,8 +407,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 variables.add(var);
                 variablesByName.put(var.getName(), var);
             }
-            var.setValue(new Boolean(prompt).toString());
-            firePropertyChange(PROP_CALL_LOCK_PROMPT, new Boolean(!promptForLockOn), new Boolean(promptForLockOn));
+            var.setValue(prompt ? "true" : "false"); // NOI18N
+            firePropertyChange(PROP_CALL_LOCK_PROMPT, !promptForLockOn ? Boolean.TRUE : Boolean.FALSE, promptForLockOn ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     public boolean getAskIfDownloadRecursively () { return askIfDownloadRecursively; }
@@ -425,8 +425,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 variables.add(var);
                 variablesByName.put(var.getName(), var);
             }
-            var.setValue(new Boolean(edit).toString());
-            firePropertyChange(PROP_CALL_EDIT, new Boolean(!callEditFilesOn), new Boolean(callEditFilesOn));
+            var.setValue(edit ? "true" : "false"); // NOI18N
+            firePropertyChange(PROP_CALL_EDIT, !callEditFilesOn ? Boolean.TRUE : Boolean.FALSE, callEditFilesOn ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     public boolean isPromptForEditOn () { return promptForEditOn; }
@@ -439,8 +439,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 variables.add(var);
                 variablesByName.put(var.getName(), var);
             }
-            var.setValue(new Boolean(prompt).toString());
-            firePropertyChange(PROP_CALL_EDIT_PROMPT, new Boolean(!promptForEditOn), new Boolean(promptForEditOn));
+            var.setValue(prompt ? "true" : "false"); // NOI18N
+            firePropertyChange(PROP_CALL_EDIT_PROMPT, !promptForEditOn ? Boolean.TRUE : Boolean.FALSE, promptForEditOn ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     public boolean isUseUnixShell () { return useUnixShell; }
@@ -457,7 +457,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (unixShell != useUnixShell) {
             useUnixShell = unixShell;
             last_useUnixShell = unixShell;
-            firePropertyChange(PROP_USE_UNIX_SHELL, new Boolean(!unixShell), new Boolean(unixShell));
+            firePropertyChange(PROP_USE_UNIX_SHELL, !unixShell ? Boolean.TRUE : Boolean.FALSE, unixShell ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     
@@ -498,7 +498,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (expertMode != this.expertMode) {
             this.expertMode = expertMode;
             setAcceptUserParams(expertMode);
-            firePropertyChange(PROP_EXPERT_MODE, new Boolean(!expertMode), new Boolean(expertMode));
+            firePropertyChange(PROP_EXPERT_MODE, !expertMode ? Boolean.TRUE : Boolean.FALSE, expertMode ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     
@@ -509,7 +509,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setCommandNotification(boolean commandNotification) {
         if (commandNotification != this.commandNotification) {
             this.commandNotification = commandNotification;
-            firePropertyChange(PROP_COMMAND_NOTIFICATION, new Boolean(!commandNotification), new Boolean(commandNotification));
+            firePropertyChange(PROP_COMMAND_NOTIFICATION, !commandNotification ? Boolean.TRUE : Boolean.FALSE, commandNotification ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     
@@ -524,7 +524,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setPromptForVarsForEachFile(boolean promptForVarsForEachFile) {
         if (this.promptForVarsForEachFile != promptForVarsForEachFile) {
             this.promptForVarsForEachFile = promptForVarsForEachFile;
-            firePropertyChange(PROP_PROMPT_FOR_VARS_FOR_EACH_FILE, new Boolean(!promptForVarsForEachFile), new Boolean(promptForVarsForEachFile));
+            firePropertyChange(PROP_PROMPT_FOR_VARS_FOR_EACH_FILE, !promptForVarsForEachFile ? Boolean.TRUE : Boolean.FALSE, promptForVarsForEachFile ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     
@@ -547,7 +547,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         synchronized (this.processUnimportantFiles) {
             if (processUnimportantFiles != this.processUnimportantFiles.booleanValue()) {
                 old = this.processUnimportantFiles;
-                this.processUnimportantFiles = new Boolean(processUnimportantFiles);
+                this.processUnimportantFiles = processUnimportantFiles ? Boolean.TRUE : Boolean.FALSE;
                 fire = true;
             }
         }
@@ -619,8 +619,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setCreateBackupFiles(boolean createBackupFiles) {
-        if (!new Boolean(createBackupFiles).equals(this.createBackupFiles)) {
-            this.createBackupFiles = new Boolean(createBackupFiles);
+        if (createBackupFiles != this.createBackupFiles.booleanValue()) {
+            this.createBackupFiles = createBackupFiles ? Boolean.TRUE : Boolean.FALSE;
             firePropertyChange(PROP_CREATE_BACKUP_FILES, null, this.createBackupFiles);
         }
     }
@@ -634,8 +634,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setFilterBackupFiles(boolean filterBackupFiles) {
-        if (!new Boolean(filterBackupFiles).equals(this.filterBackupFiles)) {
-            this.filterBackupFiles = new Boolean(filterBackupFiles);
+        if (filterBackupFiles != this.filterBackupFiles.booleanValue()) {
+            this.filterBackupFiles = filterBackupFiles ? Boolean.TRUE : Boolean.FALSE;
             firePropertyChange(PROP_FILTER_BACKUP_FILES, null, this.filterBackupFiles);
         }
     }
@@ -643,7 +643,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setOffLine(boolean offLine) {
         if (offLine != this.offLine) {
             this.offLine = offLine;
-            firePropertyChange (GeneralVcsSettings.PROP_OFFLINE, new Boolean(!offLine), new Boolean(offLine));
+            firePropertyChange (GeneralVcsSettings.PROP_OFFLINE, !offLine ? Boolean.TRUE : Boolean.FALSE, offLine ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     
@@ -674,7 +674,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setHideShadowFiles(boolean hideShadowFiles) {
         if (hideShadowFiles != this.hideShadowFiles) {
             this.hideShadowFiles = hideShadowFiles;
-            firePropertyChange (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, new Boolean(!hideShadowFiles), new Boolean(hideShadowFiles));
+            firePropertyChange (GeneralVcsSettings.PROP_HIDE_SHADOW_FILES, !hideShadowFiles ? Boolean.TRUE : Boolean.FALSE, hideShadowFiles ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     
@@ -1635,8 +1635,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     protected void setCreateRuntimeCommands(boolean createRuntimeCommands) {
-        if (!new Boolean(createRuntimeCommands).equals(this.createRuntimeCommands)) {
-            this.createRuntimeCommands = new Boolean(createRuntimeCommands);
+        if (createRuntimeCommands != this.createRuntimeCommands.booleanValue()) {
+            this.createRuntimeCommands = createRuntimeCommands ? Boolean.TRUE : Boolean.FALSE;
             if (attr instanceof VcsAttributes) {
                 ((VcsAttributes) attr).setRuntimeCommandsProvider(
                     (createRuntimeCommands) ? new VcsRuntimeCommandsProvider(this) : null);
@@ -1650,8 +1650,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     protected void setCreateVersioningSystem(boolean createVersioningSystem) {
-        if (!new Boolean(createVersioningSystem).equals(this.createVersioningSystem)) {
-            this.createVersioningSystem = new Boolean(createVersioningSystem);
+        if (createVersioningSystem != this.createVersioningSystem.booleanValue()) {
+            this.createVersioningSystem = createVersioningSystem ? Boolean.TRUE : Boolean.FALSE;
             firePropertyChange(PROP_CREATE_VERSIONING_EXPLORER, null, this.createVersioningSystem);
         }
     }
@@ -1795,7 +1795,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setDebug(boolean debug){
         if (this.debug != debug) {
             this.debug = debug;
-            firePropertyChange(PROP_DEBUG, new Boolean(!debug), new Boolean(debug));
+            firePropertyChange(PROP_DEBUG, !debug ? Boolean.TRUE : Boolean.FALSE, debug ? Boolean.TRUE : Boolean.FALSE);
         }
     }
 
@@ -2053,7 +2053,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public void setRememberPassword(boolean remember) {
         if (this.rememberPassword != remember) {
             this.rememberPassword = remember;
-            firePropertyChange(PROP_REMEMBER_PASSWORD, new Boolean(!remember), new Boolean(remember));
+            firePropertyChange(PROP_REMEMBER_PASSWORD, !remember ? Boolean.TRUE : Boolean.FALSE, remember ? Boolean.TRUE : Boolean.FALSE);
         }
     }
     
@@ -2742,7 +2742,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         D.deb("setReadOnly("+flag+")"); // NOI18N
         if (flag != readOnly) {
             readOnly = flag;
-            firePropertyChange (PROP_READ_ONLY, new Boolean (!flag), new Boolean (flag));
+            firePropertyChange (PROP_READ_ONLY, !flag ? Boolean.TRUE : Boolean.FALSE, flag ? Boolean.TRUE : Boolean.FALSE);
         }
     }
 

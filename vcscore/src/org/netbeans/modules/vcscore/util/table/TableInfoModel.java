@@ -125,7 +125,7 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
       {
             Integer integ = new Integer(columnNumber);
             columnLabels.put(integ, label);
-            columnSorted.put(integ, new Boolean(sorted));
+            columnSorted.put(integ, sorted ? Boolean.TRUE : Boolean.FALSE);
             columnValueSetters.put(integ, reflectionGetter);
             columnValueParams.put(integ, null);
             columnComparators.put(integ, comp);
@@ -137,7 +137,7 @@ public class TableInfoModel extends AbstractTableModel implements Comparator {
       {
             Integer integ = new Integer(columnNumber);
             columnLabels.put(integ, label);
-            columnSorted.put(integ, new Boolean(sorted));
+            columnSorted.put(integ, sorted ? Boolean.TRUE : Boolean.FALSE);
             columnValueSetters.put(integ, reflectionGetter);
             columnValueParams.put(integ, params);
             columnComparators.put(integ, comp);

@@ -67,9 +67,9 @@ public class PackagePanel extends AbstractCORBAWizardPanel implements PropertyCh
         this.tree.getExplorerManager().addPropertyChangeListener (this);
         this.tree.getExplorerManager().addVetoableChangeListener (this);
         this.idlName.getDocument().addDocumentListener(this);
-        putClientProperty(CorbaWizard.PROP_AUTO_WIZARD_STYLE, new Boolean(true));
-        putClientProperty(CorbaWizard.PROP_CONTENT_DISPLAYED, new Boolean(true));
-        putClientProperty(CorbaWizard.PROP_CONTENT_NUMBERED, new Boolean(true));
+        putClientProperty(CorbaWizard.PROP_AUTO_WIZARD_STYLE, Boolean.TRUE);
+        putClientProperty(CorbaWizard.PROP_CONTENT_DISPLAYED, Boolean.TRUE);
+        putClientProperty(CorbaWizard.PROP_CONTENT_NUMBERED, Boolean.TRUE);
         putClientProperty(CorbaWizard.PROP_CONTENT_SELECTED_INDEX, new Integer(0));
         putClientProperty(CorbaWizard.PROP_CONTENT_DATA, new String[] {
             bundle.getString("TXT_Source"),

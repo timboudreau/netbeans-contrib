@@ -1822,7 +1822,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         for (Iterator envVars = systemEnvVars.keySet().iterator(); envVars.hasNext(); row++) {
             String name = (String) envVars.next();
             String value = (String) systemEnvVars.get(name);
-            ((javax.swing.table.DefaultTableModel) systemEnvTableModel.getModel()).addRow(new Object[] { name, value, new Boolean(!envVariablesRemovedSet.contains(name)) });
+            ((javax.swing.table.DefaultTableModel) systemEnvTableModel.getModel()).addRow(new Object[] { name, value, !envVariablesRemovedSet.contains(name) ? Boolean.TRUE : Boolean.FALSE });
             javax.swing.table.TableCellEditor editor = systemEnvTable.getCellEditor(row, 2);
             editor.addCellEditorListener(new SystemEnvCellEditorListener(name, row, 2));
         }

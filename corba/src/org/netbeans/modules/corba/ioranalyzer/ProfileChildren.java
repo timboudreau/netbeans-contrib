@@ -121,7 +121,7 @@ public class ProfileChildren extends Children.Keys {
         boolean valid = true;
         try {
             lazyInit();
-            return new Boolean (this.iorData.isLittleEndian());
+            return this.iorData.isLittleEndian() ? Boolean.TRUE : Boolean.FALSE;
         }catch (org.omg.CORBA.BAD_PARAM bp) {
             valid = false;
             return null;

@@ -81,7 +81,7 @@ public class GeneralVcsSettings extends SystemOption {
     /** Set whether these settings overide the filesystem settings.
      */
     public void setUseGlobal(boolean global) {
-        putProperty(PROP_USE_GLOBAL, new Boolean(global), true);
+        putProperty(PROP_USE_GLOBAL, global ? Boolean.TRUE : Boolean.FALSE, true);
    }
     
     /** Getter for property offLine.
@@ -95,7 +95,7 @@ public class GeneralVcsSettings extends SystemOption {
      * @param offLine New value of property offLine.
      */
     public void setOffLine(boolean newOffLine) {
-        putProperty(PROP_OFFLINE, new Boolean(newOffLine), true);
+        putProperty(PROP_OFFLINE, newOffLine ? Boolean.TRUE : Boolean.FALSE, true);
     }
     
     /** Getter for property autoRefresh.
@@ -117,7 +117,7 @@ public class GeneralVcsSettings extends SystemOption {
     }
     
     public void setAutoDetect(boolean newAutoDetect) {
-        putProperty(PROP_AUTO_DETECT, new Boolean(newAutoDetect), true);
+        putProperty(PROP_AUTO_DETECT, newAutoDetect ? Boolean.TRUE : Boolean.FALSE, true);
     }
     
     public File getHome() {
@@ -163,7 +163,7 @@ public class GeneralVcsSettings extends SystemOption {
      * Usually these are Locally-Removed, Needs-Checkout files
      */
     public void setHideShadowFiles(boolean hide) {
-        putProperty(PROP_HIDE_SHADOW_FILES, new Boolean(hide), true);
+        putProperty(PROP_HIDE_SHADOW_FILES, hide ? Boolean.TRUE : Boolean.FALSE, true);
     }
 
     /**
@@ -221,7 +221,7 @@ public class GeneralVcsSettings extends SystemOption {
     }
 
     public void setWizardSshWarningsDone(boolean done) {
-        putProperty(PROP_SSH_WARNINGS_DONE, new Boolean(done));
+        putProperty(PROP_SSH_WARNINGS_DONE, done ? Boolean.TRUE : Boolean.FALSE);
     }
     
     public boolean isWizardSshWarningsDone() {

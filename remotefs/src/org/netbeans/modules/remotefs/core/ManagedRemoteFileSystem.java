@@ -139,7 +139,7 @@ public abstract class ManagedRemoteFileSystem extends RemoteFileSystem
     //refreshRoot();
     //try { org.openide.loaders.DataObject.find(super.getRoot()).getNodeDelegate().setDisplayName(getDisplayName()); }
     //catch (org.openide.loaders.DataObjectNotFoundException e) {}
-    firePropertyChange("connected", null, new Boolean(isConnected()));
+    firePropertyChange("connected", null, isConnected() ? Boolean.TRUE : Boolean.FALSE);
     //firePropertyChange(PROP_SYSTEM_NAME, "", getSystemName());
   }
   

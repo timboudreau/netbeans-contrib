@@ -149,7 +149,7 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
                    bundle.getString ("HINT_isInterface")
                ) {
                    public Object getValue () throws InvocationTargetException {
-                       return new Boolean (obj.isInterface());
+                       return obj.isInterface() ? Boolean.TRUE : Boolean.FALSE;
                    }
                });
         ps.put(new PropertySupport.ReadOnly (
@@ -159,7 +159,7 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
                    bundle.getString ("HINT_isApplet")
                ) {
                    public Object getValue () throws InvocationTargetException {
-                       return new Boolean (obj.isApplet());
+                       return obj.isApplet() ? Boolean.TRUE : Boolean.FALSE;
                    }
                });
         ps.put(new PropertySupport.ReadOnly (
@@ -169,7 +169,7 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
                    bundle.getString ("HINT_isJavaBean")
                ) {
                    public Object getValue () throws InvocationTargetException {
-                       return new Boolean (obj.isJavaBean());
+                       return obj.isJavaBean() ? Boolean.TRUE : Boolean.FALSE;
                    }
                });
         return s;

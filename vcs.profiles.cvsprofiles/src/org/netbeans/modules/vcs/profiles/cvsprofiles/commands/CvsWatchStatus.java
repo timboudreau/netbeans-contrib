@@ -77,9 +77,9 @@ public class CvsWatchStatus extends Object implements VcsAdditionalCommand {
         }
         String[] elements = new String[3];
         String watched = buff.toString();
-        elements[0] = new Boolean(watched.indexOf(EDIT) > 0).toString();
-        elements[1] = new Boolean(watched.indexOf(UNEDIT) > 0).toString();
-        elements[2] = new Boolean(watched.indexOf(COMMIT) > 0).toString();
+        elements[0] = watched.indexOf(EDIT) > 0 ? "true" : "false"; // NOI18N
+        elements[1] = watched.indexOf(UNEDIT) > 0 ? "true" : "false"; // NOI18N
+        elements[2] = watched.indexOf(COMMIT) > 0 ? "true" : "false"; // NOI18N
         stdoutListener.outputData(elements);
         return true;
     }
