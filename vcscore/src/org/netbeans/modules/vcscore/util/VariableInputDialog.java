@@ -659,6 +659,15 @@ public class VariableInputDialog extends javax.swing.JPanel {
         //areas.addElement(area);
         //VcsUtilities.removeEnterFromKeymap(field);
         //fileNames.add(filePrompts.get(message));
+        String fileName = component.getValue();
+        if (fileName == null) {
+            try {
+                fileName = java.io.File.createTempFile("tempVcsCmd", "input").getAbsolutePath();
+            } catch (IOException exc) {
+                TopManager.getDefault().notifyException(exc);
+            }
+            component.setValue(fileName);
+        }
         initArea(area, component.getValue());
         awtComponentsByVars.put(component.getVariable(), new java.awt.Component[] { label, area });
         addActionToProcess(new ActionListener() {
