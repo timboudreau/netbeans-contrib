@@ -401,10 +401,10 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){
                 btnStop.setEnabled(false);
-                if (exit == CommandTask.STATUS_SUCCEEDED) {
-                    lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFinished"));
-                } else if (exit == CommandTask.STATUS_INTERRUPTED) {
+                if (exit == CommandTask.STATUS_INTERRUPTED) {
                     lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusInterrupted"));
+                } else if (ignoreFailure || exit == CommandTask.STATUS_SUCCEEDED) {
+                    lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFinished"));
                 } else {
                     lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFailed"));
                 }
