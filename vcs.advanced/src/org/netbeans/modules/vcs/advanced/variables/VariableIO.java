@@ -19,12 +19,14 @@ import java.util.*;
 import java.text.MessageFormat;
 
 import org.w3c.dom.*;
+import org.xml.sax.*;
 
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.XMLDataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.NbBundle;
+import org.openide.xml.XMLUtil;
 
 import org.netbeans.modules.vcscore.VcsConfigVariable;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
@@ -55,6 +57,8 @@ public class VariableIO extends Object {
     
     public static final String BOOLEAN_VARIABLE_TRUE = "true";
     public static final String BOOLEAN_VARIABLE_FALSE = "false";
+    
+    private static LabelContentHandler labelContentHandler = null;
 
     /** Creates new VariableIO */
     private VariableIO() {
@@ -82,8 +86,10 @@ public class VariableIO extends Object {
     }
     
     private static boolean isResourceBundle(FileObject fo) {
-        return fo.getName().startsWith("Bundle") &&
-               fo.getExt().equalsIgnoreCase("properties");
+        return fo.getExt().equalsIgnoreCase("properties") &&
+                (fo.getName().startsWith("Bundle") ||
+                 fo.getName().endsWith("Bundle") ||
+                 fo.getName().indexOf("Bundle_") > 0);
     }
     
     /** Read list of available confugurations from the directory.
@@ -223,6 +229,45 @@ public class VariableIO extends Object {
             }
         }
         return label;
+    }
+    
+    public static synchronized String getConfigurationLabel(FileObject configRoot, final String name) {
+        FileObject config = configRoot.getFileObject(name);
+        if (config == null) {
+            org.openide.util.RequestProcessor.postRequest(new Runnable() {
+                public void run() {
+                    org.openide.TopManager.getDefault().notifyException(new FileNotFoundException("Problems while reading predefined properties.") {
+                        public String getLocalizedMessage() {
+                            return g("EXC_Problems_while_reading_predefined_properties", name);
+                        }
+                    });
+                }
+            });
+            //E.err(g("EXC_Problems_while_reading_predefined_properties",name)); // NOI18N
+            return null;
+        }
+        if (labelContentHandler == null) {
+            labelContentHandler = new LabelContentHandler();
+        }
+        //System.out.println("VariableIO.getConfigurationLabel("+config+")");
+        try {
+            XMLReader reader = XMLUtil.createXMLReader();
+            reader.setContentHandler(labelContentHandler);
+            //System.out.println("   parsing...");
+            reader.parse(new InputSource(config.getInputStream()));
+            //System.out.println("   parsing done.");
+        } catch (SAXException exc) {
+            //System.out.println("   parsing done. ("+exc.getMessage()+")");
+            if (!"End of label.".equals(exc.getMessage())) {
+                org.openide.TopManager.getDefault().notifyException(
+                    org.openide.TopManager.getDefault().getErrorManager().annotate(
+                        exc, g("EXC_Problems_while_reading_predefined_properties", name)));
+            }
+        } catch (java.io.FileNotFoundException fnfExc) {
+        } catch (java.io.IOException ioExc) {
+        }
+        //System.out.println("  --> label = "+labelContentHandler.getLabel());
+        return VcsUtilities.getBundleString(labelContentHandler.getLabel());
     }
 
     /** Read list of VCS variables from the document.
@@ -397,6 +442,66 @@ public class VariableIO extends Object {
             }
             varsNode.appendChild(varElem);
         }
+    }
+    
+    private static class LabelContentHandler extends Object implements ContentHandler {
+        
+        private String label;
+        boolean readLabel = false;
+        
+        public void startDocument() throws org.xml.sax.SAXException {
+            label = "";
+        }
+        
+        public void endDocument() throws org.xml.sax.SAXException {
+        }
+        
+        public void ignorableWhitespace(char[] values, int param, int param2) throws org.xml.sax.SAXException {
+        }
+        
+        public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws org.xml.sax.SAXException {
+            String elementName = ("".equals(localName)) ? qName : localName;
+            //System.out.println("      startElement("+elementName+")");
+            if (LABEL_TAG.equals(elementName)) {
+                readLabel = true;
+            }
+        }
+        
+        public void endElement(String namespaceURI, String localName, String qName) throws org.xml.sax.SAXException {
+            String elementName = ("".equals(localName)) ? qName : localName;
+            //System.out.println("      startElement("+elementName+")");
+            if (readLabel && LABEL_TAG.equals(elementName)) {
+                readLabel = false;
+                throw new org.xml.sax.SAXException("End of label.");
+            }
+        }
+        
+        public void skippedEntity(java.lang.String str) throws org.xml.sax.SAXException {
+        }
+        
+        public void processingInstruction(java.lang.String str, java.lang.String str1) throws org.xml.sax.SAXException {
+        }
+        
+        public void endPrefixMapping(java.lang.String str) throws org.xml.sax.SAXException {
+        }
+        
+        public void startPrefixMapping(java.lang.String str, java.lang.String str1) throws org.xml.sax.SAXException {
+        }
+        
+        public void characters(char[] values, int start, int length) throws org.xml.sax.SAXException {
+            //System.out.println("   characters("+new String(values, start, length)+"), readLabel = "+readLabel);
+            if (readLabel) {
+                label += new String(values, start, length);
+            }
+        }
+        
+        public void setDocumentLocator(org.xml.sax.Locator locator) {
+        }
+        
+        public String getLabel() {
+            return label;
+        }
+        
     }
     
     private static String g(String s) {
