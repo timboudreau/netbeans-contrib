@@ -55,6 +55,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
     private static final String TEMP_FILE_PREFIX = "tempCommit";
     private static final String TEMP_FILE_SUFFIX = "output";
     
+    private static final String EXAM_DIR = ": Examining";  //NOI18N
     private static final String REPOSITORY_FILE_PATTERN = ",v  <-- "; // NOI18N
     private static final String NEW_REVISION = "new revision: "; // NOI18N
     private static final String PREVIOUS_REVISION = "; previous revision: "; // NOI18N
@@ -296,7 +297,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         } else {
             updatedFileRoot = new File(fsRoot);
         }
-        fileStatusUpdater = new FileStatusUpdater(updatedFileRoot, relativePath, (String) vars.get("CVS_REPOSITORY"), stdoutNRListener, stdoutListener);
+        fileStatusUpdater = new FileStatusUpdater(updatedFileRoot, relativePath, vars, stdoutNRListener, stdoutListener);
         fsRoot = fsRoot.replace('/', ps);
         //final StringBuffer buff = new StringBuffer();
         ArrayList filePaths = getFilePaths((String) vars.get("COMMON_PARENT"), (String) vars.get("PATHS"), ps);
@@ -435,14 +436,24 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         private CommandDataOutputListener fileUpdateListener; // The listener to send data output to
         private String lastFilePath;
         private String lastFileDir;
+        private String examiningPath;
         private List elementsToSend;
         
-        public FileStatusUpdater(File workingDir, String relativePath, String cvsRepository,
+        public FileStatusUpdater(File workingDir, String relativePath, Map vars,
                                  CommandOutputListener stdoutNRListener,
                                  CommandDataOutputListener fileUpdateListener) {
             this.stdoutNRListener = stdoutNRListener;
             this.fileUpdateListener = fileUpdateListener;
-            this.pathsBuilder = new StatusFilePathsBuilder(workingDir, cvsRepository);
+            // Use the StatusFilePathsBuilder only on JDK 1.4 where we do not
+            // have the error stream merged in and therefore do not know the file paths.
+            // Also check which client is used, built-in can merge the streams everytime.
+            if (System.getProperty("java.version").startsWith("1.4")) { // NOI18N
+                String builtIn = (String) vars.get("BUILT-IN");
+                if (builtIn == null || builtIn.length() == 0) {
+                    String cvsRepository = (String) vars.get("CVS_REPOSITORY");
+                    this.pathsBuilder = new StatusFilePathsBuilder(workingDir, cvsRepository);
+                }
+            }
             this.workingDir = workingDir;
             workPathLength = workingDir.getAbsolutePath().length();
             if (relativePath != null && relativePath.length() > 0) {
@@ -455,12 +466,34 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         
         public void outputLine(String line) {
             stdoutNRListener.outputLine(line);
+            if (line.indexOf(EXAM_DIR) >= 0) {
+                examiningPath = line.substring(line.indexOf(EXAM_DIR) + EXAM_DIR.length()).trim();
+                if (".".equals(examiningPath)) { // NOI18N
+                    examiningPath = ""; // NOI18N
+                }
+            }
             int reposFileIndex = line.indexOf(REPOSITORY_FILE_PATTERN);
             if (reposFileIndex > 0) {
                 String reposFile = line.substring(0, reposFileIndex);
                 int fileIndex = reposFile.lastIndexOf('/');
                 String file = reposFile.substring(fileIndex + 1);
-                lastFilePath = pathsBuilder.getStatusFilePath(file, reposFile);
+                if (pathsBuilder != null) {
+                    lastFilePath = pathsBuilder.getStatusFilePath(file, reposFile);
+                } else {
+                    if (examiningPath != null) {
+                        if (examiningPath.length() == 0) {
+                            lastFilePath = file;
+                        } else {
+                            lastFilePath = examiningPath + "/" + file; // NOI18N
+                        }
+                    } else {
+                        if (relativePath == null || relativePath.length() == 0) {
+                            lastFilePath = file;
+                        } else {
+                            lastFilePath = relativePath + "/" + file; // NOI18N
+                        }
+                    }
+                }
                 if (lastFilePath != null) {
                     lastFilePath = lastFilePath.replace(File.separatorChar, '/');
                 }
