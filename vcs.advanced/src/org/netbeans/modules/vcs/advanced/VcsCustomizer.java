@@ -1956,7 +1956,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         java.awt.Component comp = configPanel;
         while (comp!=null && !(comp instanceof java.awt.Window)) comp = comp.getParent ();
         if(comp!=null) {
-            ((java.awt.Window) comp).pack ();
+            java.awt.Window window = (java.awt.Window) comp;
+            java.awt.Dimension d = window.getSize();
+            window.pack (); // This can change the size
+            java.awt.Dimension d2 = window.getSize();
+            if (d2.height > d.height) {
+                // Center the window, the bottom part might not be visible otherwise.
+                VcsUtilities.centerWindow(window);
+            }
         }
         if (configInputPanels != null) {
             Hashtable dialogVars = new Hashtable(fsVars);
