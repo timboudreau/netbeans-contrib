@@ -34,7 +34,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-    <testbag testattribs="full,validation,cvs_profile_JellyOverall" name="cvs_profile_JellyOverall">
+    <testbag testattribs="full,cvs_profile_JellyOverall" name="cvs_profile_JellyOverall">
         <testset dir="qa-functional/src">
             <patternset>
                 <include name="complete/cvs_profile/JellyOverall.class"/>
