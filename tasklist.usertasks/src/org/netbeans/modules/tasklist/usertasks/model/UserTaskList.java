@@ -500,6 +500,30 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
         }
     }
     
+    /**
+     * Returns all subtasks (searches recursively).
+     *
+     * @return list of UserTask
+     */
+    public List getAllSubtasks() {
+        List ret = new ArrayList();
+        collectAllSubtasks(ret, getSubtasks());
+        return ret;
+    }
+    
+    /**
+     * Collects all tasks recursively.
+     *
+     * @param ret output 
+     * @param tasks a list of UserTasks
+     */
+    private void collectAllSubtasks(List ret, UserTaskObjectList tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            ret.add(tasks.getUserTask(i));
+            collectAllSubtasks(ret, tasks.getUserTask(i).getSubtasks());
+        }
+    }
+    
     /** For debugging purposes, only. Writes directly to serr. 
     public void print() {
         System.err.println("\nTask List:\n-------------");

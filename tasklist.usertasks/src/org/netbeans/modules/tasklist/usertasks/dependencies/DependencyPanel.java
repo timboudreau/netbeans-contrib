@@ -21,6 +21,7 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.openide.DialogDescriptor;
 
 import org.openide.util.Utilities;
+import org.netbeans.modules.tasklist.usertasks.model.Dependency;
 
 /**
  * Panel for editing a dependency

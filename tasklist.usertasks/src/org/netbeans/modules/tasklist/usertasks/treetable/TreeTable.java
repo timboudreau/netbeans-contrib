@@ -105,6 +105,24 @@ public class TreeTable extends JTable {
          * Sorting order
          */
         public boolean ascending;
+        
+        public String toString() {
+            StringBuffer sb = new StringBuffer();
+            sb.append("ColumnsConfig["); // NOI18N
+            sb.append("sortedColumn=").append(sortedColumn); // NOI18N
+            sb.append(", ascending=").append(sortedColumn); // NOI18N
+            sb.append(", columns=["); // NOI18N
+            for (int i = 0; i < columns.length; i++) {
+                if (i != 0)
+                    sb.append(", "); // NOI18N
+                sb.append(columns[i]);
+                sb.append("->"); // NOI18N
+                sb.append(columnWidths[i]);
+            }
+            sb.append("]"); // NOI18N
+            sb.append("]"); // NOI18N
+            return sb.toString();
+        }
     }
     
     /**
@@ -125,6 +143,7 @@ public class TreeTable extends JTable {
     protected TreeTableCellRenderer tree;
     private TreeTableModel treeTableModel;
     private SortingModel sortingModel;
+    private boolean paintDisabled;
 
     public TreeTable(TreeTableModel treeTableModel) {
 	super();
@@ -196,6 +215,11 @@ public class TreeTable extends JTable {
         });
     }
 
+    public void paint(Graphics g) {
+        if (!paintDisabled)
+            super.paint(g);
+    }
+    
     /**
      * Returns selected path
      *
@@ -207,6 +231,20 @@ public class TreeTable extends JTable {
             return null;
         
         return tree.getPathForRow(row);
+    }
+    
+    /**
+     * Returns selected paths
+     *
+     * @return selected paths
+     */
+    public TreePath[] getSelectedPaths() {
+        int[] rows = getSelectedRows();
+        TreePath[] paths = new TreePath[rows.length];
+        for (int i = 0; i < rows.length; i++) {
+            paths[i] = tree.getPathForRow(rows[i]);
+        }
+        return paths;
     }
     
     /**
@@ -587,6 +625,9 @@ public class TreeTable extends JTable {
      * @param config columns configuration
      */
     public void setColumnsConfig(ColumnsConfig config) {
+        //if (UTUtils.LOGGER.isLoggable(Level.FINE))
+        //    Thread.dumpStack();
+        
         assert config != null : "config == null"; // NOI18N
         
         this.createDefaultColumnsFromModel();
@@ -604,6 +645,7 @@ public class TreeTable extends JTable {
                     newc.add(c);
                     tcm.removeColumn(c);
                     c.setPreferredWidth(cc.columnWidths[i]);
+                    c.setWidth(cc.columnWidths[i]);
                     break;
                 }
             }
@@ -1094,5 +1136,23 @@ public class TreeTable extends JTable {
 		updateSelectedPathsFromSelectedRows();
 	    }
 	}
+    }
+
+    /**
+     * Returns the current state of repainting.
+     *
+     * @return true = painting is disabled
+     */
+    public boolean isPaintDisabled() {
+        return paintDisabled;
+    }
+
+    /**
+     * Disables repainting.
+     *
+     * @param paintDisable true = disable painting
+     */
+    public void setPaintDisabled(boolean paintDisabled) {
+        this.paintDisabled = paintDisabled;
     }
 }

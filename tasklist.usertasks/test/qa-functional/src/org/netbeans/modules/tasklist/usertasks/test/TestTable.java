@@ -14,6 +14,7 @@
 package org.netbeans.modules.tasklist.usertasks.test;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.table.TableCellEditor;
@@ -28,6 +29,9 @@ import org.netbeans.jellytools.actions.Action;
 import org.netbeans.jellytools.actions.OpenAction;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jemmy.EventTool;
+import org.netbeans.jemmy.operators.ButtonOperator;
+import org.netbeans.jemmy.operators.DialogOperator;
+import org.netbeans.jemmy.operators.JButtonOperator;
 import org.netbeans.jemmy.operators.JPopupMenuOperator;
 import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.jemmy.operators.Operator;
@@ -119,6 +123,38 @@ public class TestTable extends JellyTestCase {
          
         assertEquals(System.getProperty("user.name"), n.getUserTask().getOwner());
          */
+    }
+    
+    /**
+     * See description for the test 15
+     */
+    public void testDelete() {
+        TopComponentOperator tc = openIcsFile("test15.ics");
+        
+        JTableOperator t = new JTableOperator(tc, 0);
+        t.waitHasFocus();
+        
+        Action ea = new Action(null, "Expand All");
+        ea.performPopup(t);
+        
+        t.addRowSelectionInterval(6, 8);
+        t.addRowSelectionInterval(10, 10);
+        
+        Rectangle r = t.getCellRect(6, 0, false);
+        t.clickForPopup(r.x, r.y);
+        
+        new EventTool().waitNoEvent(1500);
+
+        JPopupMenuOperator pm = new JPopupMenuOperator();
+        pm.pushMenuNoBlock("Delete");
+
+        DialogOperator dop = new DialogOperator("Confirm Multiple Object Deletion");
+        JButtonOperator bo = new JButtonOperator(dop, "Yes");
+        bo.push();
+        
+        new EventTool().waitNoEvent(1500);
+        
+        assertEquals(7, t.getSelectedRow());
     }
     
     /**

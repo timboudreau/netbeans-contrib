@@ -135,17 +135,17 @@ public class UserTasksTreeTable extends NodesTreeTable {
         TreeTable.ColumnsConfig ret = new TreeTable.ColumnsConfig();
         ret.ascending = false;
         ret.columnWidths = new int[] {18, 18, 400, 60, 60, 60, 80, 80, 80};
-        ret.sortedColumn = UserTaskTreeTableNode.PRIORITY;
+        ret.sortedColumn = UserTasksTreeTableModel.PRIORITY;
         ret.columns = new int[] {
-            UserTaskTreeTableNode.DONE,
-            UserTaskTreeTableNode.PRIORITY,
-            UserTaskTreeTableNode.SUMMARY,
-            UserTaskTreeTableNode.CATEGORY,
-            UserTaskTreeTableNode.OWNER,
-            UserTaskTreeTableNode.PERCENT_COMPLETE,
-            UserTaskTreeTableNode.EFFORT,
-            UserTaskTreeTableNode.REMAINING_EFFORT,
-            UserTaskTreeTableNode.SPENT_TIME
+            UserTasksTreeTableModel.DONE,
+            UserTasksTreeTableModel.PRIORITY,
+            UserTasksTreeTableModel.SUMMARY,
+            UserTasksTreeTableModel.CATEGORY,
+            UserTasksTreeTableModel.OWNER,
+            UserTasksTreeTableModel.PERCENT_COMPLETE,
+            UserTasksTreeTableModel.EFFORT,
+            UserTasksTreeTableModel.REMAINING_EFFORT,
+            UserTasksTreeTableModel.SPENT_TIME
         };
         return ret;
     }
@@ -174,44 +174,44 @@ public class UserTasksTreeTable extends NodesTreeTable {
         SortingHeaderRenderer r = new SortingHeaderRenderer();
         r.setIcon(new ImageIcon(
             UserTasksTreeTable.class.getResource("priority.gif"))); // NOI18N
-        tcm.getColumn(UserTaskTreeTableNode.PRIORITY).setHeaderRenderer(r);
-        tcm.getColumn(UserTaskTreeTableNode.PRIORITY).setCellRenderer(
+        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setHeaderRenderer(r);
+        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setCellRenderer(
             new PriorityTableCellRenderer());
         
         r = new SortingHeaderRenderer();
         r.setIcon(new ImageIcon(
             UserTasksTreeTable.class.getResource("checkbox.gif"))); // NOI18N
-        tcm.getColumn(UserTaskTreeTableNode.DONE).setHeaderRenderer(r);
-        tcm.getColumn(UserTaskTreeTableNode.DONE).setCellRenderer(
+        tcm.getColumn(UserTasksTreeTableModel.DONE).setHeaderRenderer(r);
+        tcm.getColumn(UserTasksTreeTableModel.DONE).setCellRenderer(
             new BooleanTableCellRenderer());
-        tcm.getColumn(UserTaskTreeTableNode.DONE).setMinWidth(17);
-        tcm.getColumn(UserTaskTreeTableNode.PERCENT_COMPLETE).setCellRenderer(
+        tcm.getColumn(UserTasksTreeTableModel.DONE).setMinWidth(17);
+        tcm.getColumn(UserTasksTreeTableModel.PERCENT_COMPLETE).setCellRenderer(
             new PercentsTableCellRenderer());
         DurationTableCellRenderer dr = new DurationTableCellRenderer();
-        tcm.getColumn(UserTaskTreeTableNode.REMAINING_EFFORT).setCellRenderer(dr);
-        tcm.getColumn(UserTaskTreeTableNode.SPENT_TIME).setCellRenderer(dr);
-        tcm.getColumn(UserTaskTreeTableNode.LINE_NUMBER).setCellRenderer(
+        tcm.getColumn(UserTasksTreeTableModel.REMAINING_EFFORT).setCellRenderer(dr);
+        tcm.getColumn(UserTasksTreeTableModel.SPENT_TIME).setCellRenderer(dr);
+        tcm.getColumn(UserTasksTreeTableModel.LINE_NUMBER).setCellRenderer(
             new LineTableCellRenderer());
         DateTableCellRenderer dcr = new DateTableCellRenderer();
-        tcm.getColumn(UserTaskTreeTableNode.CREATED).setCellRenderer(dcr);
-        tcm.getColumn(UserTaskTreeTableNode.LAST_EDITED).setCellRenderer(dcr);
-        tcm.getColumn(UserTaskTreeTableNode.DUE_DATE).setCellRenderer(dcr);
-        tcm.getColumn(UserTaskTreeTableNode.COMPLETED_DATE)
+        tcm.getColumn(UserTasksTreeTableModel.CREATED).setCellRenderer(dcr);
+        tcm.getColumn(UserTasksTreeTableModel.LAST_EDITED).setCellRenderer(dcr);
+        tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setCellRenderer(dcr);
+        tcm.getColumn(UserTasksTreeTableModel.COMPLETED_DATE)
             .setCellRenderer(dcr);
-        tcm.getColumn(UserTaskTreeTableNode.PERCENT_COMPLETE).
+        tcm.getColumn(UserTasksTreeTableModel.PERCENT_COMPLETE).
             setCellEditor(new PercentsTableCellEditor());
         
-        tcm.getColumn(UserTaskTreeTableNode.CATEGORY).
+        tcm.getColumn(UserTasksTreeTableModel.CATEGORY).
             setCellEditor(new CategoryTableCellEditor());
-        tcm.getColumn(UserTaskTreeTableNode.CATEGORY).
+        tcm.getColumn(UserTasksTreeTableModel.CATEGORY).
             setCellRenderer(new CategoryTableCellRenderer());
         
-        tcm.getColumn(UserTaskTreeTableNode.PRIORITY).setCellEditor(
+        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setCellEditor(
             new PriorityTableCellEditor());
-        tcm.getColumn(UserTaskTreeTableNode.PRIORITY).setCellRenderer(
+        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setCellRenderer(
             new PriorityTableCellRenderer());
         
-        tcm.getColumn(UserTaskTreeTableNode.EFFORT).setCellRenderer(
+        tcm.getColumn(UserTasksTreeTableModel.EFFORT).setCellRenderer(
             new EffortTableCellRenderer());
     }
 
@@ -294,8 +294,8 @@ public class UserTasksTreeTable extends NodesTreeTable {
     }
 
     public void setColumnModel(TableColumnModel columnModel) {
-        if (UTUtils.LOGGER.isLoggable(Level.FINE))
-            Thread.dumpStack();
+        //if (UTUtils.LOGGER.isLoggable(Level.FINE))
+        //    Thread.dumpStack();
         
         super.setColumnModel(columnModel);
     }

@@ -14,6 +14,7 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.netbeans.modules.tasklist.usertasks.model.Dependency;
 
 /**
  * Dependencies for a task

@@ -39,10 +39,11 @@ import org.openide.util.NbBundle;
  */
 public class HtmlExportFormat extends XmlExportFormat {
     private static String[] LAYOUTS = {
+        "usertasks-planning-html.xsl", // NOI18N
         "usertasks-table-html.xsl", // NOI18N
         "usertasks-tree-html.xsl" // NOI18N
     };
-    private String res = "usertasks-table-html.xsl"; // NOI18N
+    private String res = "usertasks-planning-html.xsl"; // NOI18N
     
     /** 
      * Creates a new instance of HTMLTranslator 
@@ -70,6 +71,8 @@ public class HtmlExportFormat extends XmlExportFormat {
 
         XslTemplatesPanel templatesPanel = new XslTemplatesPanel();
         templatesPanel.setAvailableLayouts(new String[] {
+            NbBundle.getMessage(
+                XmlExportFormat.class, "Planning"), // NOI18N
             NbBundle.getMessage(
                 XmlExportFormat.class, "Table"), // NOI18N
             NbBundle.getMessage(

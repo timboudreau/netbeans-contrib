@@ -19,6 +19,7 @@ Microsystems, Inc. All Rights Reserved.
     <target name="jar-prep" depends="projectized.jar-prep">
         <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
         <filter filtersfile="../version.properties"/>
+        <filter token="tl.i18n.spec" value="${tl.i18n.spec}"/>
         <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
     </target>
 

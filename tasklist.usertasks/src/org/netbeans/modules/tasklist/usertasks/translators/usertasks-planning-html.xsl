@@ -29,89 +29,66 @@ Microsystems, Inc. All Rights Reserved.
                     th { text-align : center; background-color : #222288; color : white }
                     tr.data { background-color: #eeeeee }
                     td.priority { text-align : center }
-                    td.category { text-align : center }
-                    td.due { text-align : right }
-                    td.file { text-align : center }
-                    td.line { text-align : right }
-                    td.created { text-align : center }
-                    td.modified { text-align : center }
+                    td.owner { text-align : center }
+                    td.effort { text-align : right }
                 </style>
             </head>
             <body style="font-family : sans-serif">
                 <h1>Task List</h1>
                 <table width="100%" border="0" cellpadding="0" cellspacing="1">
-                    <col width="80%"/>
+                    <col width="70%"/>
+                    <col width="10%"/>
                     <col width="10%"/>
                     <col width="10%"/>
                     <thead>
                         <tr>
                             <th>Summary</th>
                             <th>Priority</th>
-                            <th>Progress</th>
+                            <th>Owner</th>
+                            <th>Effort</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <xsl:apply-templates select="tasks"/>
+                        <xsl:apply-templates select="tasks/task">
+                            <xsl:with-param name="level" select="0"/>
+                        </xsl:apply-templates>
                     </tbody>
                 </table>
                 <p/>
+                <xsl:apply-templates select="tasks/task" mode="details"/>
                 <hr/>
                 <p><a href="http://validator.w3.org/check/referer">Valid XHTML 1.0!</a> This page was created by the <a href="http://www.netbeans.org">NetBeans</a> 
                         &#160;<a href="http://tasklist.netbeans.org">User Tasks Module</a></p>
             </body>
         </html>
     </xsl:template>
-
-    <xsl:template match="tasks">    
-        <xsl:apply-templates select="task"/>
-        <xsl:apply-templates select="task" mode="subtasks"/>
-    </xsl:template>
-    
-    <xsl:template match="task" mode="subtasks">
-        <xsl:if test="count(task) != 0">
-            <tr>
-                <td colspan="3" style="text-align : center; background-color : #ccccff">
-                    <a name="subtasks_{generate-id()}">
-                        <span>
-                            Sub-Tasks of: 
-                            <a href="#{generate-id()}">
-                                <xsl:value-of select="summary"/>
-                            </a>
-                        </span>
-                    </a>
-                </td>
-            </tr>
-            <xsl:apply-templates select="task"/>
-        </xsl:if>
-        <xsl:apply-templates select="task" mode="subtasks"/>
-    </xsl:template>
     
     <xsl:template match="task">
+        <xsl:param name="level"/>
         <tr class="data">
             <td>
-                <a name="{generate-id()}">
-                    <span title="{details}">
-                        <xsl:if test="@progress = 100">
-                            <xsl:attribute name="style">
-                                text-decoration : line-through
-                            </xsl:attribute>
-                        </xsl:if>
-                        <xsl:value-of select="summary"/>
-                        <xsl:text> </xsl:text>
-                    </span>
-                </a>
-                <xsl:if test="details != ''">
-                    <pre style="font-family : sans-serif">
-                        <xsl:value-of select="details"/>
-                    </pre>
-                </xsl:if>
-                <xsl:if test="count(task) != 0">
-                    <div style="text-align : right">
-                        <a href="#subtasks_{generate-id()}">
-                            Sub-Tasks
-                        </a>
-                    </div>
-                </xsl:if>
+                <table style="width : 100%">
+                    <tbody>
+                        <tr>
+                            <td style="width : {$level * 30}px">
+                            </td>
+                            <td>&#x2022; 
+                                <span title="{details}">
+                                    <xsl:if test="@progress = 100">
+                                        <xsl:attribute name="style">
+                                            text-decoration : line-through
+                                        </xsl:attribute>
+                                    </xsl:if>
+                                    <xsl:value-of select="summary"/>
+                                    <xsl:text> </xsl:text>
+                                    <xsl:if test="details != ''">
+                                        <a href="#{generate-id()}">(details)</a>
+                                    </xsl:if>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </td>
             <td class="priority">
                 <xsl:choose>
@@ -132,12 +109,36 @@ Microsystems, Inc. All Rights Reserved.
                     </xsl:when>
                 </xsl:choose>
             </td>
-            <td>
-                <xsl:call-template name="progress-bar">
-                    <xsl:with-param name="progress" select="@progress"/>
+            <td class="owner"><xsl:value-of select="@owner"/></td>
+            <td class="effort">
+                <xsl:call-template name="effort">
+                    <xsl:with-param name="effort" select="@effort"/>
                 </xsl:call-template>
             </td>
         </tr>
+        <xsl:apply-templates select="task">
+            <xsl:with-param name="level" select="$level + 1"/>
+        </xsl:apply-templates>
+    </xsl:template>
+    
+    <xsl:template match="task" mode="details">
+        <xsl:if test="details != ''">
+            <div style="font-weight : bold; font-family : sans-serif">
+                &#x2022; <a name="{generate-id()}"><xsl:value-of select="summary"/></a>
+                (Created:
+                <xsl:call-template name="format-date">
+                    <xsl:with-param name="date" select="@created"/>
+                </xsl:call-template>;
+                Modified:
+                <xsl:call-template name="format-date">
+                    <xsl:with-param name="date" select="@modified"/>
+                </xsl:call-template>)
+            </div>
+            <pre style="font-family : sans-serif">
+                <xsl:value-of select="details"/>
+            </pre>
+        </xsl:if>
+        <xsl:apply-templates select="task" mode="details"/>
     </xsl:template>
     
     <xsl:template name="format-date">
@@ -152,24 +153,21 @@ Microsystems, Inc. All Rights Reserved.
         </span>
     </xsl:template>
     
-    <xsl:template name="progress-bar">
-        <xsl:param name="progress"/>
-        <table cellspacing="0" cellpadding="0" 
-            style="width : 100%; height : 10">
-            <tbody>
-                <tr>
-                    <td style="background-color : #222288; color: white; text-align : right; width : {$progress}%">
-                        <xsl:if test="$progress &gt; 50">
-                            <xsl:value-of select="$progress"/>%
-                        </xsl:if>
-                    </td>
-                    <td style="background-color : #cccccc; color: black; text-align : left; width : {100 - $progress}%">
-                        <xsl:if test="$progress &lt;= 50">
-                            <xsl:value-of select="$progress"/>%
-                        </xsl:if>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <xsl:template name="effort">
+        <xsl:param name="effort"/>
+        <xsl:variable name="m" select="$effort mod 60"/>
+        <xsl:variable name="tmp" select="floor($effort div 60)"/>
+        <xsl:variable name="h" select="$tmp mod 8"/>
+        <xsl:variable name="d" select="floor($tmp div 8)"/>
+        
+        <xsl:if test="$d != 0">
+            <xsl:value-of select="$d"/> d
+        </xsl:if>
+        <xsl:if test="$h != 0">
+            <xsl:value-of select="$h"/> h
+        </xsl:if>
+        <xsl:if test="$m != 0">
+            <xsl:value-of select="$m"/> m
+        </xsl:if>
     </xsl:template>
 </xsl:stylesheet> 

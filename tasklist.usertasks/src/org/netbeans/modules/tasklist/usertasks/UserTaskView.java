@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.swing.ActionMap;
 import javax.swing.JPanel;
@@ -42,12 +43,14 @@ import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
 import org.netbeans.modules.tasklist.core.util.RightSideBorder;
+import org.netbeans.modules.tasklist.usertasks.actions.AsListAction;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveDownAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveUpAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.UTDeleteAction;
 import org.netbeans.modules.tasklist.usertasks.filter.FilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.RemoveFilterUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter;
@@ -242,7 +245,8 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
             SystemAction.get(StartTaskAction.class),
             SystemAction.get(PauseAction.class),
             SystemAction.get(MoveUpAction.class),
-            SystemAction.get(MoveDownAction.class)
+            SystemAction.get(MoveDownAction.class),
+            // SystemAction.get(AsListAction.class)
         };
     }
     
@@ -381,6 +385,9 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
             }
             
             TreeTable.ColumnsConfig cc = (TreeTable.ColumnsConfig) m.get("columns"); // NOI18N
+            if (UTUtils.LOGGER.isLoggable(Level.FINE))
+                UTUtils.LOGGER.fine(cc.toString());
+            
             if (cc != null) {
                 UTUtils.LOGGER.fine("setting columns"); // NOI18N
                 tt.setColumnsConfig(cc);
@@ -471,6 +478,9 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
         
         Serializable cc = tt.getColumnsConfig();
         m.put("columns", cc); // NOI18N
+        
+        if (UTUtils.LOGGER.isLoggable(Level.FINE))
+            UTUtils.LOGGER.fine(cc.toString());
         
         objectOutput.writeObject(m);
 
@@ -614,7 +624,6 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
             ExplorerUtils.actionCut(manager));
         map.put(javax.swing.text.DefaultEditorKit.pasteAction, 
             ExplorerUtils.actionPaste(manager));
-        map.put("delete", ExplorerUtils.actionDelete(manager, true));  // NOI18N
 
         // following line tells the top component which lookup should be associated with it
         associateLookup(ExplorerUtils.createLookup(manager, map));
@@ -651,6 +660,8 @@ ExplorerManager.Provider, ExportImportProvider, FileChangeListener {
         add(toolbar, BorderLayout.WEST);
 
         tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
+        
+        map.put("delete", new UTDeleteAction(tt)); // NOI18N
     }
 
     public ExplorerManager getExplorerManager() {

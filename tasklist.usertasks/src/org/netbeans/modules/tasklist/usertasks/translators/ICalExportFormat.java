@@ -37,7 +37,7 @@ import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
-import org.netbeans.modules.tasklist.usertasks.dependencies.Dependency;
+import org.netbeans.modules.tasklist.usertasks.model.Dependency;
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;

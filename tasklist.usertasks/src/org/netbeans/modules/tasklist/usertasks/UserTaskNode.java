@@ -511,6 +511,8 @@ public final class UserTaskNode extends AbstractNode {
     }
 
     public void destroy() throws IOException {
+        throw new InternalError("should never be called"); // NOI18N
+/*      TODO: remove  
         AdvancedTreeTableNode n = 
             (AdvancedTreeTableNode) this.node.findNextNodeAfterDelete();
         UTUtils.LOGGER.fine("selected node after delete:" + n); // NOI18N
@@ -524,7 +526,7 @@ public final class UserTaskNode extends AbstractNode {
             TreePath tp = new TreePath(n.getPathToRoot());
             tt.select(tp);
             tt.scrollTo(tp);
-        }
+        }*/
     }
     
     /**
