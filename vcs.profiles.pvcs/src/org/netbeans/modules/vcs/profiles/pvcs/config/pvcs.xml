@@ -345,7 +345,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
         <property name="concurrentExec">
-          <value>6</value>
+          <value>38</value> <!-- SERIAL_ON_PACKAGE + SERIAL_WITH_PARENT + SERIAL_WITH_PENDING -->
         </property>
         <property name="needsHierarchicalOrder">
           <value>true</value>
@@ -565,7 +565,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>true</value>
         </property>
         <property name="concurrentExec">
-          <value>6</value> <!-- EXEC_SERIAL_ON_PACKAGE || SERIAL_WITH_PARENT -->
+          <value>38</value> <!-- SERIAL_ON_PACKAGE + SERIAL_WITH_PARENT + SERIAL_WITH_PENDING -->
         </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
