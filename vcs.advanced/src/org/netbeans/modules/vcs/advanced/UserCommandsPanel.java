@@ -149,6 +149,7 @@ public class UserCommandsPanel extends JPanel implements ExplorerManager.Provide
         org.openide.explorer.view.BeanTreeView beanTreeView = new org.openide.explorer.view.BeanTreeView();
         beanTreeView.getAccessibleContext().setAccessibleName(g("ACS_UserCommandsTreeViewA11yName"));  // NOI18N
         beanTreeView.getAccessibleContext().setAccessibleDescription(g("ACS_UserCommandsTreeViewA11yDesc"));  // NOI18N
+        beanTreeView.setDefaultActionAllowed(false);
         ExplorerPanel explPanel = new ExplorerPanel();
         explPanel.add(beanTreeView);
         manager = explPanel.getExplorerManager();

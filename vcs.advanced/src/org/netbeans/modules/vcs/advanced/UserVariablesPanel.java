@@ -95,6 +95,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
         org.openide.explorer.view.BeanTreeView beanTreeView = new org.openide.explorer.view.BeanTreeView();
         beanTreeView.getAccessibleContext().setAccessibleName(g("ACS_UserVariablesTreeViewA11yName"));  // NOI18N
         beanTreeView.getAccessibleContext().setAccessibleDescription(g("ACS_UserVariablesTreeViewA11yDesc"));  // NOI18N
+        beanTreeView.setDefaultActionAllowed(false);
         ExplorerPanel explPanel = new ExplorerPanel();
         explPanel.add(beanTreeView);
         manager = explPanel.getExplorerManager();

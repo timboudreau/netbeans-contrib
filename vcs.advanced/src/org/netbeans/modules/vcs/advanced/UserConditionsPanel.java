@@ -76,6 +76,7 @@ public class UserConditionsPanel extends JPanel implements EnhancedCustomPropert
         org.openide.explorer.view.BeanTreeView beanTreeView = new org.openide.explorer.view.BeanTreeView();
         beanTreeView.getAccessibleContext().setAccessibleName(g("ACS_UserConditionsTreeViewA11yName"));  // NOI18N
         beanTreeView.getAccessibleContext().setAccessibleDescription(g("ACS_UserConditionsTreeViewA11yDesc"));  // NOI18N
+        beanTreeView.setDefaultActionAllowed(false);
         ExplorerPanel explPanel = new ExplorerPanel();
         explPanel.add(beanTreeView);
         manager = explPanel.getExplorerManager();
