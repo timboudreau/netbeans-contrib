@@ -67,7 +67,7 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
 
     public Identifier getSuperclass() {
         if (superClass == null) {
-            String sc = ((ClassFile)data).getSuperClass();
+            String sc = ((ClassFile)data).getSuperClass().getInternalName();
             superClass = Identifier.create(sc == null ? "" : sc); // NOI18N
         }
         return superClass;
@@ -75,7 +75,7 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
     
     protected Identifier createName(Object data) {
 	//String fullName = Utilities.getClassName((ClassFile)data).replace('$', '.'); // NOI18N
-        String fullName = ((ClassFile)data).getFullName().replace('$', '.'); // NOI18N
+        String fullName = ((ClassFile)data).getName().getExternalName().replace('$', '.'); // NOI18N
 	int lastDot = fullName.lastIndexOf('.');
 	return lastDot == -1 ? 
 	    Identifier.create(fullName) :
@@ -261,7 +261,8 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
                 interfaces = new Identifier[reflIntfs.size()];
                 Iterator it = reflIntfs.iterator();
                 for (int i = 0; it.hasNext(); i++) {
-                    interfaces[i] = Identifier.create((String)it.next());
+                    ClassName cn = (ClassName)it.next();
+                    interfaces[i] = Identifier.create(cn.getSimpleName());
                 }
             }
             catch(IOException ioEx){    //### what to do here?
@@ -312,7 +313,7 @@ public final class ClassElementImpl extends MemberElementImpl implements ClassEl
         String name = null;
         try {
             reflInners = (InnerClass[])((ClassFile)data).getInnerClasses().toArray(new InnerClass[0]);
-            name = ((ClassFile)data).getName();
+            name = ((ClassFile)data).getName().getSimpleName();
         } catch (Throwable exc) {
             // rethrow only ThreadDeath, ignore otherwise
             if (exc instanceof ThreadDeath)

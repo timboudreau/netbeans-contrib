@@ -56,7 +56,7 @@ class ConstructorElementImpl extends MemberElementImpl
 	    return super.createName(data);
 	}    
         //if( 
-	String n = ((org.netbeans.modules.classfile.ClassFile)declaringClass).getName();//(org.netbeans.modules.classfile.Field)data).getClass().getName();
+	String n = ((org.netbeans.modules.classfile.ClassFile)declaringClass).getName().getSimpleName();//(org.netbeans.modules.classfile.Field)data).getClass().getName();
 	int lastDot = n.lastIndexOf('.'); // NOI18N
 	return lastDot == -1 ? 
 	    Identifier.create(n) :
