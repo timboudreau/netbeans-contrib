@@ -69,6 +69,7 @@ public class CvsAutoFillConfig extends Object implements VcsAdditionalCommand {
         String userName = null;
         String serverName = null;
         String serverPort = null;
+        vars.clear(); // Not to alter other variables than that we want to set.
         if (dirFile.exists()) {
             BufferedReader buff = null;
             try {

@@ -130,6 +130,9 @@ public class VariableInputDialog extends javax.swing.JPanel {
     /** The map of disabled components as keys and a set of variables
      *  that disabled them as values. */
     private HashMap disabledComponents = new HashMap();
+    /** The set of components, that were enabled or disabled since this field is initialized. */
+    private Set lastEnabledComponents;
+    private boolean propertyChangeFiringAllowed = true;
     private java.awt.Component firstFocusedComponent;
     /**
      * The collection of components that need to be preprocessed.
@@ -569,22 +572,44 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     varsToEnableDisable = new HashMap();
                 }
             }
+            varsByAWTComponents = createVarsByAWTComponents(awtComponentsByVars);
+            synchronized (disabledComponents) {
+                lastEnabledComponents = new HashSet();
+            }
+            propertyChangeFiringAllowed = false;
             for (int i = 0; i < componentVars.length; i++) {
                 if (componentVars[i] != null) {
                     varsToEnableDisable = componentVars[i];
                     for (Iterator it = varsToEnableDisable.keySet().iterator(); it.hasNext(); ) {
                         String[] variables = (String[]) it.next();
                         boolean enable = ((Boolean) varsToEnableDisable.get(variables)).booleanValue();
-                        enableComponents(variables, enable, components[i].getVariable());
+                        enableComponents(variables, enable, components[i].getVariable(), true);
                     }
+                    //String varName = components[i].getVariable();
+                    //firePropertyChange(PROP_VAR_CHANGED + varName, vars.get(varName), components[i].getValue());
+                }
+            }
+            synchronized (disabledComponents) {
+                lastEnabledComponents = null;
+            }
+            propertyChangeFiringAllowed = true;
+            for (int i = 0; i < componentVars.length; i++) {
+                if (componentVars[i] != null) {
                     String varName = components[i].getVariable();
                     firePropertyChange(PROP_VAR_CHANGED + varName, vars.get(varName), components[i].getValue());
                 }
             }
+        } else {
+            varsByAWTComponents = Collections.EMPTY_MAP;
         }
-        varsByAWTComponents = createVarsByAWTComponents(awtComponentsByVars);
         labelOffset = gridy;
         return firstComponent;
+    }
+    
+    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        if (propertyChangeFiringAllowed) {
+            super.firePropertyChange(propertyName, oldValue, newValue);
+        }
     }
     
     private int addComponent(final VariableInputComponent component, int gridy,
@@ -790,15 +815,41 @@ public class VariableInputDialog extends javax.swing.JPanel {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,
                 new IllegalStateException("updateVariableValues() called in non-dynamic mode. Read Javadoc for more details on how to fix this.")); // NOI18N
         }
-        updateVariableValues(vars, true);
+        updateVariableValues(vars, true, false);
+    }
+    
+    /**
+     * Use this method to supply some new variable values to the components.
+     * A subset of currently used variables is expected, therefore all
+     * variables that are not in this map remains unchanged in the dialog
+     * rather then being removed (unlike {@link #updateVariableValues} method).
+     * If you gonna call this method, you should create this object via
+     * the constructor with "dynamicVarChanges" field, where you should
+     * pass "true". Otherwise some components might not be updated correctly.
+     */
+    public void updateVariableValuesSubset(Hashtable vars) {
+        if (!dynamicVarChanges) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL,
+                new IllegalStateException("updateVariableValues() called in non-dynamic mode. Read Javadoc for more details on how to fix this.")); // NOI18N
+        }
+        updateVariableValues(vars, true, true);
     }
     
     /**
      * Use this method to supply new variable values to the components.
      */
-    private void updateVariableValues(Hashtable vars, boolean resetVars) {
+    private void updateVariableValues(Hashtable vars, boolean resetVars, boolean subset) {
         List propertyChangeEvents = new ArrayList(); // The list of properties that needs to be fired
         Set eventsToAdjust = new HashSet(); // The set of properties that needs to be adjusted
+        Hashtable varsAll;
+        if (subset) {
+            varsAll = new Hashtable(vars);
+            Hashtable missingVars = new Hashtable(this.vars);
+            missingVars.keySet().removeAll(vars.keySet());
+            varsAll.putAll(missingVars);
+        } else {
+            varsAll = vars;
+        }
         for (Iterator it = vars.keySet().iterator(); it.hasNext(); ) {
             String varName = (String) it.next();
             String varValue = (String) vars.get(varName);
@@ -843,7 +894,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 for (int i = 0; i < components.length; i++) {
                     java.awt.Component component = components[i];
                     if (component instanceof javax.swing.JTextArea) {
-                        varValue = Variables.expand(vars, varValue, false);
+                        varValue = Variables.expand(varsAll, varValue, false);
                         inComponent.setValue(varValue);
                         initArea((javax.swing.JTextArea) component, varValue);
                         PropertyChangeEvent pcev = new PropertyChangeEvent(this, PROP_VAR_CHANGED+varName, oldValue, varValue);
@@ -855,7 +906,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                         }
                         propertyChangeEvents.add(pcev);
                     } else if (component instanceof javax.swing.text.JTextComponent) {
-                        varValue = Variables.expand(vars, varValue, false);
+                        varValue = Variables.expand(varsAll, varValue, false);
                         //if (varValue != null && varValue.equals(oldValue)) { - do not check it here. We need to have the text set.
                         //    continue;
                         //}
@@ -877,7 +928,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                             varValue = inComponent.getDefaultValue();
                         }
                         if (varValue != null) {
-                            varValue = Variables.expand(vars, varValue, false);
+                            varValue = Variables.expand(varsAll, varValue, false);
                             inComponent.setValue(varValue);
                             String valueSelected = inComponent.getValueSelected();
                             boolean selected;
@@ -933,8 +984,8 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 }
             }
         }
-        enableSelectors(vars);
-        if (resetVars) this.vars = vars;
+        enableSelectors(varsAll);
+        if (resetVars) this.vars = varsAll;
         for (Iterator it = eventsToAdjust.iterator(); it.hasNext(); ) {
             PropertyChangeEvent evt = (PropertyChangeEvent) it.next();
             VariableInputComponent inComponent = (VariableInputComponent) evt.getNewValue();
@@ -1026,7 +1077,12 @@ public class VariableInputDialog extends javax.swing.JPanel {
     }
     
     private void enableComponents(String[] vars, boolean enable, String variable) {
+        enableComponents(vars, enable, variable, false);
+    }
+    
+    private void enableComponents(String[] vars, boolean enable, String variable, boolean skipEnabled) {
         if (vars.length == 0) return ;
+        Stack enabledComponents = new Stack();
         synchronized (disabledComponents) {
             //System.err.println("enableComponents("+VcsUtilities.arrayToString(vars)+", "+enable+", "+variable+")");
             //Thread.dumpStack();
@@ -1052,42 +1108,45 @@ public class VariableInputDialog extends javax.swing.JPanel {
                             disablerVars.add(variable);
                             disabledComponents.put(components[j], disablerVars);
                         }
-                        //if (enable && disablerVars != null) enable = false;
-                        //System.err.println("  components["+j+"] = "+enable);
-                        //System.err.print("  "+components[j].getClass()+", "+components[j].hashCode());
-                        /*
-                        if (components[j] instanceof javax.swing.AbstractButton) {
-                            System.err.println(" "+((javax.swing.AbstractButton) components[j]).getText());
-                        } else {
-                            System.err.println("");
+                        if (skipEnabled && lastEnabledComponents != null && lastEnabledComponents.contains(components[j])) {
+                            continue;
                         }
-                        System.out.println("  disabledComponents = "+disabledComponents.get(components[j]));
-                         */
-                        components[j].setEnabled(enable && disablerVars == null);
-                        VariableInputComponent vic = (VariableInputComponent) componentsByVars.get(vars[i]);
-                        if (vic != null) {
-                            VariableInputComponent[] svic = vic.subComponents();
-                            if (svic.length > 0) {
-                                //String[] svars = new String[svic.length];
-                                List svars = new ArrayList();
-                                for (int k = 0; k < svic.length; k++) {
-                                    String varName = svic[k].getVariable();
-                                    if (svic[k].getComponent() == VariableInputDescriptor.INPUT_RADIO_BTN) {
-                                        //String subValue = svic[k].getValue();
-                                        //varName += "/"+((subValue == null) ? "" : subValue);
-                                        VariableInputComponent[] ssvic = svic[k].subComponents();
-                                        for (int l = 0; l < ssvic.length; l++) {
-                                            svars.add(ssvic[l].getVariable());
-                                        }
-                                    } else if (!varName.equals(vars[i])) {
-                                        svars.add(varName);
-                                    }
-                                }
-                                if (svars.size() > 0) {
-                                    enableComponents((String[]) svars.toArray(new String[0]), enable, variable);
-                                }
+                        enabledComponents.push(new Integer(i));
+                        enabledComponents.push((enable && disablerVars == null) ? Boolean.TRUE : Boolean.FALSE);
+                        enabledComponents.push(components[j]);
+                        if (lastEnabledComponents != null) {
+                            lastEnabledComponents.add(components[j]);
+                        }
+                    }
+                }
+            }
+        }
+        while (!enabledComponents.empty()) {
+            java.awt.Component component = (java.awt.Component) enabledComponents.pop();
+            boolean enabled = ((Boolean) enabledComponents.pop()).booleanValue();
+            int i = ((Integer) enabledComponents.pop()).intValue();
+            component.setEnabled(enabled);
+            VariableInputComponent vic = (VariableInputComponent) componentsByVars.get(vars[i]);
+            if (vic != null) {
+                VariableInputComponent[] svic = vic.subComponents();
+                if (svic.length > 0) {
+                    //String[] svars = new String[svic.length];
+                    List svars = new ArrayList();
+                    for (int k = 0; k < svic.length; k++) {
+                        String varName = svic[k].getVariable();
+                        if (svic[k].getComponent() == VariableInputDescriptor.INPUT_RADIO_BTN) {
+                            //String subValue = svic[k].getValue();
+                            //varName += "/"+((subValue == null) ? "" : subValue);
+                            VariableInputComponent[] ssvic = svic[k].subComponents();
+                            for (int l = 0; l < ssvic.length; l++) {
+                                svars.add(ssvic[l].getVariable());
                             }
+                        } else if (!varName.equals(vars[i])) {
+                            svars.add(varName);
                         }
+                    }
+                    if (svars.size() > 0) {
+                        enableComponents((String[]) svars.toArray(new String[0]), enable, variable);
                     }
                 }
             }
@@ -1525,7 +1584,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 } else {
                     varsHashtable = new Hashtable(commandVars);
                 }
-                updateVariableValues(varsHashtable, false);
+                updateVariableValues(varsHashtable, false, true);
             }
         }
         if (task.getExitStatus() == CommandTask.STATUS_SUCCEEDED && selectorMatched[0]) {
@@ -1900,6 +1959,11 @@ public class VariableInputDialog extends javax.swing.JPanel {
         }
         button.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent ev) {
+                //System.err.println("Button "+button.getText()+" state changed to "+button.isSelected()+". "+(button.isSelected() ? "En":"Dis")+"abling components "+
+                //                   java.util.Arrays.asList(componentVars)+", and "+
+                //                   java.util.Arrays.asList(varsEnabled)+", "+(button.isSelected() ? "dis":"en")+"abling "+
+                //                   java.util.Arrays.asList(varsDisabled)+".");
+                //Thread.dumpStack();
                 enableComponents(componentVars, button.isSelected(), component.getVariable());
                 enableComponents(varsEnabled, button.isSelected(), component.getVariable());
                 enableComponents(varsDisabled, !button.isSelected(), component.getVariable());
@@ -2466,7 +2530,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                             closeListeners.clear();
                             return ;
                         }
-                        updateVariableValues(varsHashtable, false);
+                        updateVariableValues(varsHashtable, false, true);
                     }
                 }
             } catch (UserCancelException uce) {
@@ -2475,7 +2539,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                     vars.put(c.getVariable(), defVals[i]);
                 }
             }
-            updateVariableValues(vars, true);
+            updateVariableValues(vars, true, false);
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     for (Iterator it = cursorChangedComponents.keySet().iterator(); it.hasNext(); ) {
@@ -2710,7 +2774,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
                 return;            
             VcsDescribedTask descTask = (VcsDescribedTask)cmdTask;            
             Hashtable varsAfterChange = new Hashtable(descTask.getVariables()); 
-            updateVariableValues(varsAfterChange, false);           
+            updateVariableValues(varsAfterChange, false, true);           
         }
     }
    

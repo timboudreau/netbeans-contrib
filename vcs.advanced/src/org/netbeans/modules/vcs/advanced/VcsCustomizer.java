@@ -2078,7 +2078,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                         }
                     }
                     for (int i = 0; i < cip.length; i++) {
-                        cip[i].updateVariableValues(vars);
+                        cip[i].updateVariableValuesSubset(vars);
                     }
                     for (Iterator it = variables.iterator(); it.hasNext(); ) {
                         VcsConfigVariable var = (VcsConfigVariable) it.next();

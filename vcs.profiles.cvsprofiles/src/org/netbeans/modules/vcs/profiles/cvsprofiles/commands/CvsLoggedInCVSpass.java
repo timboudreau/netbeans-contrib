@@ -63,12 +63,14 @@ public class CvsLoggedInCVSpass implements VcsAdditionalCommand {
             loggedIn = false;
         }
         //System.out.println("  loggedIn = "+loggedIn);
+        String loggedInText = (String) vars.get("LOGGED_IN_TEXT");
+        vars.clear(); // Not to alter other variables than that we want to set.
+        vars.put("LOGGED_IN_TEXT", loggedInText);
         if (loggedIn) {
             vars.put("USER_IS_LOGGED_IN", "true");
         } else {
             vars.put("USER_IS_LOGGED_IN", "");
         }
-        vars.remove("BUILT-IN"); // Not to alter that variable
         return loggedIn;
     }
 }

@@ -37,6 +37,7 @@ public class CvsAutoFillOffline extends Object implements VcsAdditionalCommand {
         
         
         String offline = (String)vars.get("FILESYSTEM_PROPERTY_offLine");//NOI18N
+        vars.clear(); // Not to alter other variables than that we want to set.
         if((offline != null)&&(offline.equals("true")))//NOI18N
             vars.put("DO_CHECKOUT","");//NOI18N
         return true;
