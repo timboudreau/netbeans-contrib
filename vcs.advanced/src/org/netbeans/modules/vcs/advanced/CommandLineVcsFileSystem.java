@@ -130,6 +130,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         } catch (IOException ioExc) {
         }
         setIgnoreListSupport(new GenericIgnoreListSupport());
+        setCreateBackupFiles(true);
+        setFilterBackupFiles(true);
     }
 
     public VcsFactory getVcsFactory () {
@@ -652,6 +654,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         in.defaultReadObject();
         setConfigFO();
         setIgnoreListSupport(new GenericIgnoreListSupport());
+        if (!isCreateBackupFilesSet()) setCreateBackupFiles(true);
+        if (!isFilterBackupFilesSet()) setFilterBackupFiles(true);
     }
     
     private void writeObject(ObjectOutputStream out) throws IOException {
