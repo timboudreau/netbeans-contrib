@@ -42,11 +42,13 @@ public class J2eeSampleProjectGenerator {
     
     private J2eeSampleProjectGenerator() {}
 
-    public static final String PROJECT_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/web-project/1";    //NOI18N
+    public static final String PROJECT_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/web-project/3";    //NOI18N
     public static final String EAR_NAMESPACE = "http://www.netbeans.org/ns/j2ee-earproject/1";
+    public static final String SUN_WEB_XMLLOC = "web/WEB-INF/sun-web.xml";
 
     public static FileObject createProjectFromTemplate(final FileObject template, File projectLocation, final String name) throws IOException {
         FileObject prjLoc = null;
+        String slashname = "/"+name;
         if (template.getExt().endsWith("zip")) {  //NOI18N
             unzip(template.getInputStream(), projectLocation);
                 String extra = (String)template.getAttribute("extrazip");
@@ -58,11 +60,10 @@ public class J2eeSampleProjectGenerator {
                     }
                 }
                 
-
-        
-            // update project.xml
             try {
                 prjLoc = FileUtil.toFileObject(projectLocation);
+                
+                //update project.xml
                 File projXml = FileUtil.toFile(prjLoc.getFileObject(AntProjectHelper.PROJECT_XML_PATH));
                 Document doc = XMLUtil.parse(new InputSource(projXml.toURI().toString()), false, true, null, null);
                 NodeList nlist = doc.getElementsByTagNameNS(PROJECT_CONFIGURATION_NAMESPACE, "name");      //NOI18N
@@ -82,6 +83,30 @@ public class J2eeSampleProjectGenerator {
                         saveXml(doc, prjLoc, AntProjectHelper.PROJECT_XML_PATH);
                     }
                 }
+                
+                // update sun-web.xml
+                
+                FileObject sunwebfile = prjLoc.getFileObject(SUN_WEB_XMLLOC);
+                // WebTier entry must have web/WEB-INF/sun-web.xml.
+                // If there isn't, assuming it's in other categories like SOA.
+                if (sunwebfile!=null) {
+                    File sunwebXml = FileUtil.toFile(sunwebfile);
+                    Document swdoc = XMLUtil.parse(new InputSource(sunwebXml.toURI().toString()), false, true, null, null);
+                    NodeList swnlist = swdoc.getElementsByTagName("context-root");      //NOI18N
+                    // NodeList should contain only one, but just incase
+                    if (swnlist != null) {
+                        for (int i=0; i < swnlist.getLength(); i++) {
+                            Node n = swnlist.item(i);
+                            if (n.getNodeType() != Node.ELEMENT_NODE) {
+                                continue;
+                            }
+                            Element e = (Element)n;
+                            replaceText(e, slashname);
+                            saveXml(swdoc, prjLoc, SUN_WEB_XMLLOC);
+                        }
+                    }
+                }
+                 
             } catch (Exception e) {
                 throw new IOException(e.toString());
             }
