@@ -101,8 +101,10 @@ public class VcsUtilities {
         if (sa != null) {
             for (int i = 0; i < sa.length; i++) {
                 sb.append(sa[i] + "\n");
+                //if (i < sa.length - 1) sb.append("\n");
             }
         }
+        if (sb.length() > 0) sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
     }
 
