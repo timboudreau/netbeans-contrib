@@ -20,6 +20,8 @@ import java.beans.PropertyChangeEvent;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import org.openide.actions.CopyAction;
 import org.openide.actions.DeleteAction;
 
@@ -42,6 +44,8 @@ public class VcsSettingsChildren extends Children.Keys implements PropertyChange
     private static final String ICON_BASE =
     "org/netbeans/modules/vcs/advanced/profilesSettings/vcsSettings"; // NOI18N  
     
+    private Comparator profileComparator = new ProfileComparator();
+
     /** Create pattern children. The children are initilay unfiltered.
      * @param elemrent the atteached class. For this class we recognize the patterns 
      */ 
@@ -86,14 +90,11 @@ public class VcsSettingsChildren extends Children.Keys implements PropertyChange
         return new Node[0];
     }
     
-    private Collection getVcsProfiles() {           
+    private String[] getVcsProfiles() {           
         debug("getVcsProfiles");
-        ArrayList vcsProfiles = new ArrayList();
-        String profileName[] = factory.getProfilesNames();         
-        for(int i = 0; i < profileName.length; i++){  
-            vcsProfiles.add(profileName[i]);
-        }
-        return vcsProfiles;
+        String profileNames[] = factory.getProfilesNames();
+        Arrays.sort(profileNames, profileComparator);
+        return profileNames;
     }
 
     void refreshAll( ) {
@@ -141,6 +142,25 @@ public class VcsSettingsChildren extends Children.Keys implements PropertyChange
             super.destroy();
         }
 
+    }
+    
+    /**
+     * Compare the profiles according to their display names (if any).
+     */
+    private static final class ProfileComparator extends Object implements Comparator {
+        
+        public int compare(Object o1, Object o2) {
+            String name1 = (String) o1;
+            String name2 = (String) o2;
+            String displayName1 = ProfilesFactory.getDefault().getProfileDisplayName(name1);
+            String displayName2 = ProfilesFactory.getDefault().getProfileDisplayName(name2);
+            if (displayName1 != null && displayName2 != null) {
+                return displayName1.compareTo(displayName2);
+            } else {
+                return name1.compareTo(name2);
+            }
+        }
+        
     }
     
 }
