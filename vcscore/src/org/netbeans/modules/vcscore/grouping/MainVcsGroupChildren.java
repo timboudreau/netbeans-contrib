@@ -37,6 +37,8 @@ public class MainVcsGroupChildren extends Children.Keys  {
     private FileChangeListener wfsListener = WeakListener.fileChange(fsListener, null);
     private FileObject rootFo;
     
+    private final Object defaulGroupFileAccessLock = new Object();
+    
     private final static String DEFAULT_FOLDER_NAME = "default";//NOI18N
     
     public MainVcsGroupChildren() {
@@ -76,22 +78,40 @@ public class MainVcsGroupChildren extends Children.Keys  {
             }
         }
         // not found, needs to be created..
-        try {
-            FileObject props = rootFo.getFileObject(DEFAULT_FOLDER_NAME, VcsGroupNode.PROPFILE_EXT);
-            if (props == null) {
-                props = rootFo.createData(DEFAULT_FOLDER_NAME, VcsGroupNode.PROPFILE_EXT);
+        synchronized (defaulGroupFileAccessLock) {
+            FileLock lock = null;
+            PrintWriter writer = null;
+            try {
+                FileObject props = rootFo.getFileObject(DEFAULT_FOLDER_NAME, VcsGroupNode.PROPFILE_EXT);
+                if (props == null) {
+                    props = rootFo.createData(DEFAULT_FOLDER_NAME, VcsGroupNode.PROPFILE_EXT);
+                }
+                lock = props.lock();
+                writer = new PrintWriter(props.getOutputStream(lock));
+                writer.println(VcsGroupNode.PROP_NAME + "=" + NbBundle.getBundle(MainVcsGroupChildren.class).getString("LBL_DefaultGroupName"));//NOI18N
+                writer.close();
+                writer = null;
+                lock.releaseLock();
+                lock = null;
+                // We must close the writer before creation of the folder,
+                // because we listen on folder creation and refresh the whole thing.
+                FileObject group = rootFo.getFileObject(DEFAULT_FOLDER_NAME);
+                if (group == null) {
+                    rootFo.createFolder(DEFAULT_FOLDER_NAME);
+                }
+            } catch (IOException exc) {
+                ErrorManager manager = ErrorManager.getDefault();
+                manager.notify(ErrorManager.WARNING, exc);
+                return null;
+            } finally {
+                // Just to be sure, check if there's something left:
+                if (writer != null) {
+                    writer.close();
+                }
+                if (lock != null) {
+                    lock.releaseLock();
+                }
             }
-            PrintWriter writer = new PrintWriter(props.getOutputStream(props.lock()));
-            writer.println(VcsGroupNode.PROP_NAME + "=" + NbBundle.getBundle(MainVcsGroupChildren.class).getString("LBL_DefaultGroupName"));//NOI18N
-            writer.close();
-            FileObject group = rootFo.getFileObject(DEFAULT_FOLDER_NAME);
-            if (group == null) {
-                rootFo.createFolder(DEFAULT_FOLDER_NAME);
-            }
-        } catch (IOException exc) {
-            ErrorManager manager = ErrorManager.getDefault();
-            manager.notify(ErrorManager.WARNING, exc);
-            return null;
         }
         refreshAll();
         return getDefaultGroupNode();
