@@ -81,7 +81,7 @@ public class Environment {
     public static class Open1xORB extends ORB {
         
         public Open1xORB () {
-            super ("OPEN1X", "OpenORB 1.x (unsupported)", null, null, new String[] {System.getProperty ("OPEN1X_DIR"), System.getProperty ("netbeans.home") + "/lib/ext"});
+            super ("OPEN1X", "OpenORB 1.x (unsupported)", null, null, (System.getProperty ("OPEN1X_DIR") != null) ? new String[] {System.getProperty ("OPEN1X_DIR"), System.getProperty ("netbeans.home") + "/lib/ext"} : new String[] {System.getProperty ("netbeans.home") + "/lib/ext"});
         }
 
         public void load () {
