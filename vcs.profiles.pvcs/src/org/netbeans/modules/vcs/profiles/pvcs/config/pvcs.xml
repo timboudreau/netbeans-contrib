@@ -66,10 +66,12 @@ Microsystems, Inc. All Rights Reserved.
     <variable name="PROJECT" basic="true" label="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectName)" labelMnemonic="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ProjectName_Mnemonic)" localFile="false" localDir="false" executable="false" order="1">
       <value>/</value>
     </variable>
-    <variable name="QUOTE" basic="false">
+    <!-- Quotation that is used for ordinary commands -->
+    <variable name="CMD_QUOTE" basic="false">
       <value>\"</value>
     </variable>
-    <variable name="PCLI_QUOTE" basic="false">
+    <!-- Quotation that is used for PCLI commands (it contains a workaround for bug in older versions of PVCS) -->
+    <variable name="QUOTE" basic="false">
       <value>$[? PCLI_OLDSTYLE_QUOTING] [\\\"] [\"]</value>
       <value if="IS_WINNT">\"</value>
     </variable>
@@ -133,10 +135,10 @@ Microsystems, Inc. All Rights Reserved.
       <value if="IS_WINNT">cmd /X /C "cd /D \"${ROOTDIR}\"&amp;&amp; (mkdir \"${WORKDIR}\" 2>nul || echo. >nul)&amp;&amp; cd /D \"${WORKDIR}\"&amp;&amp;</value>
     </variable>
     <variable name="PRID" basic="false">
-      <value>-pr${PCLI_QUOTE}${PROJECT_DB}${PCLI_QUOTE} $[? USER_NAME] [-id${PCLI_QUOTE}${USER_NAME}:${PASSWORD}${PCLI_QUOTE}] []</value>
+      <value>-pr${QUOTE}${PROJECT_DB}${QUOTE} $[? USER_NAME] [-id${QUOTE}${USER_NAME}:${PASSWORD}${QUOTE}] []</value>
     </variable>
     <variable name="PRIDPP" basic="false">
-      <value>${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []${PCLI_QUOTE}</value>
+      <value>${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []${QUOTE}</value>
     </variable>
     <variable name="WRAPPER" basic="false">
       <value>vcs.list.PvcsListCommand.class</value>
@@ -245,7 +247,7 @@ Microsystems, Inc. All Rights Reserved.
       <separator />
       <command name="CREATE_PROJECT_DATABASE" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT_DATABASE)">
         <property name="exec">
-          <value>${RUN} pcli CreateProjectDB ${PRID} -w${PCLI_QUOTE}${ROOTDIR}${PCLI_QUOTE} ${NUR}</value>
+          <value>${RUN} pcli CreateProjectDB ${PRID} -w${QUOTE}${ROOTDIR}${QUOTE} ${NUR}</value>
 	</property>
         <property name="onFile">
           <value>false</value>
@@ -256,7 +258,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CREATE_PROJECT" displayName="getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CREATE_PROJECT)">
         <property name="exec">
-          <value>${RUN} pcli CreateProject ${PRIDPP} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+          <value>${RUN} pcli CreateProject ${PRIDPP} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
         </property>
         <property name="onFile">
           <value>false</value>
@@ -277,7 +279,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUNR} pcli Put ${PRIDPP} ${FORCE_PUT} $[? CHECK_IN_OUT] [$[? CHECK_IN_OUT_LOCK] [-l${PCLI_QUOTE}${LOCK_DESCRIPTION}${PCLI_QUOTE}] [-u]] [] $[? ASSIGN_REVISION] [-r${ASSIGN_REVISION}] [] $[? ASSIGN_VERSION] [-v${PCLI_QUOTE}${ASSIGN_VERSION}${PCLI_QUOTE}] [] $[? FLOATING_LABEL] [-fv] [] ${START_BRANCH} -m@${PCLI_QUOTE}${DESCRIPTION_FILE}${PCLI_QUOTE} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	  <value>${RUNR} pcli Put ${PRIDPP} ${FORCE_PUT} $[? CHECK_IN_OUT] [$[? CHECK_IN_OUT_LOCK] [-l${QUOTE}${LOCK_DESCRIPTION}${QUOTE}] [-u]] [] $[? ASSIGN_REVISION] [-r${ASSIGN_REVISION}] [] $[? ASSIGN_VERSION] [-v${QUOTE}${ASSIGN_VERSION}${QUOTE}] [] $[? FLOATING_LABEL] [-fv] [] ${START_BRANCH} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKIN),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKIN)))
@@ -340,7 +342,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUNW} pcli Get ${PRIDPP} ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} $[? FILE] [${PCLI_QUOTE}${FILE}${PCLI_QUOTE}] [.]  ${NUR}</value>
+	  <value>${RUNW} pcli Get ${PRIDPP} ${RECURSIVE} ${SHOULD_LOCK} ${WRITABLE} $[? REVISION] [-r${REVISION}] [] $[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] [] $[? DO_CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE] [$[? CHECKOUT_BY_DATE - DATE_OPERATION_IDENT] [${CHECKOUT_BY_DATE}] [-d${DATE_BEFORE}]] [-u${DATE_AFTER}]] [] ${SET_CURR_TIME} $[? FILE] [${QUOTE}${FILE}${QUOTE}] [.]  ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
@@ -399,7 +401,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="exec">
-          <value>${RUN} pcli AddFiles ${PRIDPP} -m@${PCLI_QUOTE}${DESCRIPTION_FILE}${PCLI_QUOTE} -t${PCLI_QUOTE}${WF_DESCRIPTION}${PCLI_QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${PCLI_QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${PCLI_QUOTE}] [] ${PCLI_QUOTE}${WORKDIR}${PS}${FILE}${PCLI_QUOTE} ${NUR}</value>
+          <value>${RUN} pcli AddFiles ${PRIDPP} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${NUR}</value>
         </property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_ADD)))
@@ -449,7 +451,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="exec">
-          <value>$[? RECURSIVE] [org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand.class -o ADD_IN_FOLDER_CMD] [${RUN} pcli AddFiles ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${PCLI_QUOTE} -m@${PCLI_QUOTE}${DESCRIPTION_FILE}${PCLI_QUOTE} -t${PCLI_QUOTE}${WF_DESCRIPTION}${PCLI_QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${PCLI_QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${PCLI_QUOTE}] [] ${RECURSIVE} @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD(0)} ${NUR}]</value>
+          <value>$[? RECURSIVE] [org.netbeans.modules.vcs.profiles.commands.RecursiveFolderCommand.class -o ADD_IN_FOLDER_CMD] [${RUN} pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] ${RECURSIVE} @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD(0)} ${NUR}]</value>
         </property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_ADD),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_ADD)))
@@ -506,8 +508,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="exec">
-          <value>${RUN} pcli CreateProject ${PRIDPP} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [; pcli AddFiles ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${PCLI_QUOTE} -m@${PCLI_QUOTE}${DESCRIPTION_FILE}${PCLI_QUOTE} -t${PCLI_QUOTE}${WF_DESCRIPTION}${PCLI_QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${PCLI_QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${PCLI_QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
-          <value if="IS_WINNT">${RUN} (pcli CreateProject ${PRIDPP} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} || echo.>nul) $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [&amp;&amp; pcli AddFiles ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${PCLI_QUOTE} -m@${PCLI_QUOTE}${DESCRIPTION_FILE}${PCLI_QUOTE} -t${PCLI_QUOTE}${WF_DESCRIPTION}${PCLI_QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${PCLI_QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${PCLI_QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
+          <value>${RUN} pcli CreateProject ${PRIDPP} ${QUOTE}${FILE}${QUOTE} $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [; pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
+          <value if="IS_WINNT">${RUN} (pcli CreateProject ${PRIDPP} ${QUOTE}${FILE}${QUOTE} || echo.>nul) $[? FILE_EMPTY_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER0] [] [&amp;&amp; pcli AddFiles ${PRID} -pp${QUOTE}${PROJECT}$[? WORKDIR_REL] [/${WORKDIR_REL}] []$[? FILE] [/${FILE}] []${QUOTE} -m@${QUOTE}${DESCRIPTION_FILE}${QUOTE} -t${QUOTE}${WF_DESCRIPTION}${QUOTE} ${KEEP_LOCK} $[? ASSIGN_VERSION] [-v${QUOTE}$[? FLOATING_LABEL] [floating_version:] []${ASSIGN_VERSION}${QUOTE}] [] @{FILE_OUTPUT_OF_DUMP_FILES_FOR_ADD_IN_FOLDER(0)}] ${NUR}</value>
         </property>
 	<property name="onFile">
 	  <value>false</value>
@@ -557,7 +559,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUNR} pcli vdel ${PRIDPP} $[? REMOVE_WHAT] [-r$[? REVISION - REVISION_OPERATION_IDENT] [${REVISION}] []] [$[? VERSION] [-v${PCLI_QUOTE}${VERSION}${PCLI_QUOTE}] []] ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	  <value>${RUNR} pcli vdel ${PRIDPP} $[? REMOVE_WHAT] [-r$[? REVISION - REVISION_OPERATION_IDENT] [${REVISION}] []] [$[? VERSION] [-v${QUOTE}${VERSION}${QUOTE}] []] ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_REMOVE),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_REMOVE)))
@@ -603,7 +605,7 @@ Microsystems, Inc. All Rights Reserved.
       <separator />
       <command name="EDIT">
 	<property name="exec">
-	  <value>${RUN} pcli get ${PRIDPP} ${SHOULD_LOCK} -w ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	  <value>${RUN} pcli get ${PRIDPP} ${SHOULD_LOCK} -w ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_CHECKOUT),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_CHECKOUT)))
@@ -628,7 +630,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="LOCK">
 	<property name="exec">
-	  <value>${RUN} pcli get ${PRIDPP} -l -w ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	  <value>${RUN} pcli get ${PRIDPP} -l -w ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
 	</property>
 	<property name="input">
 	  <value></value>
@@ -654,7 +656,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} pcli Lock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] ${RECURSIVE} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	  <value>${RUN} pcli Lock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] ${RECURSIVE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_LOCK),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_LOCK)))
@@ -698,7 +700,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUN} pcli Unlock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] $[? USER] [-u${PCLI_QUOTE}${USER}${PCLI_QUOTE}] [] ${RECURSIVE} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	  <value>${RUN} pcli Unlock ${PRIDPP} $[? REVISION] [-r${REVISION}] [] $[? USER] [-u${QUOTE}${USER}${QUOTE}] [] ${RECURSIVE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_UNLOCK),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_UNLOCK)))
@@ -741,7 +743,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUNR} pcli vlog ${PRIDPP} ${REPORT_TYPE} $[? REVISION] [-r${REVISION}] [] $[? AUTHORS] [-a${AUTHORS}] [] $[? LOCKERS] [-l${LOCKERS}] [] $[? OWNERS] [-o${OWNERS}] [] $[? DATE_FROM] [-ds${PCLI_QUOTE}${DATE_FROM}${PCLI_QUOTE}] [] $[? DATE_TO] [-de${PCLI_QUOTE}${DATE_TO}${PCLI_QUOTE}] [] ${RECURSIVE} ${PCLI_QUOTE}${FILE}${PCLI_QUOTE} ${NUR}</value>
+	  <value>${RUNR} pcli vlog ${PRIDPP} ${REPORT_TYPE} $[? REVISION] [-r${REVISION}] [] $[? AUTHORS] [-a${AUTHORS}] [] $[? LOCKERS] [-l${LOCKERS}] [] $[? OWNERS] [-o${OWNERS}] [] $[? DATE_FROM] [-ds${QUOTE}${DATE_FROM}${QUOTE}] [] $[? DATE_TO] [-de${QUOTE}${DATE_TO}${QUOTE}] [] ${RECURSIVE} ${QUOTE}${FILE}${QUOTE} ${NUR}</value>
 	</property>
         <property name="inputDescriptor">
           <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_STATUS),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_PVCS_STATUS)))
@@ -794,7 +796,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>$[? GEN_DELTA] [${RUN} vdiff -dl $[? REV_VER1] [-r${REVISION1}] [-v${QUOTE}${VERSION1}${QUOTE}] $[? REV_VER2] [$[? REVISION2] [-r${REVISION2}] []] [$[? VERSION2] [-v${QUOTE}${VERSION2}${QUOTE}] []] ${IGNORE_WHITE} -d $[? DELTA_FILE] [-xo${QUOTE}${DELTA_FILE}${QUOTE}] [] ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}]
+	  <value>$[? GEN_DELTA] [${RUN} vdiff -dl $[? REV_VER1] [-r${REVISION1}] [-v${CMD_QUOTE}${VERSION1}${CMD_QUOTE}] $[? REV_VER2] [$[? REVISION2] [-r${REVISION2}] []] [$[? VERSION2] [-v${CMD_QUOTE}${VERSION2}${CMD_QUOTE}] []] ${IGNORE_WHITE} -d $[? DELTA_FILE] [-xo${CMD_QUOTE}${DELTA_FILE}${CMD_QUOTE}] [] ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}]
                                 [vcs.commands.Diff.class $[? REV_VER1] [${REVISION1}] ["${BACKSLASH}${VERSION1}"] $[? REV_VER2] [${REVISION2}] ["${BACKSLASH}${VERSION2}"] 3 CHECKOUT_CMD DIFF_CA_CMD]</value>
 	</property>
   	<property name="inputDescriptor">
@@ -835,8 +837,8 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(PVCS_APPLY_DELTA_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} regen ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${QUOTE}${DELTA_FILE}${QUOTE} &gt; ${QUOTE}${TEMPORARY_FILE}${QUOTE}&amp;&amp; cp ${QUOTE}${TEMPORARY_FILE}${QUOTE} ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${NUR}</value>
-	  <value if="IS_WINNT">${RUN} regen ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${QUOTE}${DELTA_FILE}${QUOTE} &gt; ${QUOTE}${TEMPORARY_FILE}${QUOTE}&amp;&amp; copy ${QUOTE}${TEMPORARY_FILE}${QUOTE} ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${NUR}</value>
+	  <value>${RUN} regen ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${DELTA_FILE}${CMD_QUOTE} &gt; ${CMD_QUOTE}${TEMPORARY_FILE}${CMD_QUOTE}&amp;&amp; cp ${CMD_QUOTE}${TEMPORARY_FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${NUR}</value>
+	  <value if="IS_WINNT">${RUN} regen ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${DELTA_FILE}${CMD_QUOTE} &gt; ${CMD_QUOTE}${TEMPORARY_FILE}${CMD_QUOTE}&amp;&amp; copy ${CMD_QUOTE}${TEMPORARY_FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${NUR}</value>
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_APPLY_DELTA_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_APPLY_DELTA_Label)))
@@ -864,8 +866,8 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${RUN} ${CD} ${QUOTE}${WORKDIR}${QUOTE}; mv ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${QUOTE}${WORKDIR}${PS}${FILE}.orig${QUOTE}; vmrg -n $[? PARENT] [-r${PARENT_REVISION}] [-v${QUOTE}${PARENT_VERSION}${QUOTE}] $[? BRANCH1] [$[? BRANCH1_REVISION] [-r${BRANCH1_REVISION}] []] [$[? BRANCH1_VERSION] [-v${QUOTE}${BRANCH1_VERSION}${QUOTE}] []] $[? BRANCH2] [$[? BRANCH2_REVISION] [-r${BRANCH2_REVISION}] []] [$[? BRANCH2_VERSION] [-v${QUOTE}${BRANCH2_VERSION}${QUOTE}] []] $[? OUT_FILE] [-o${QUOTE}${OUT_FILE}${QUOTE}] [] ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}\(${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}\) ${NUR}</value>
-	  <value if="IS_WINNT">${RUN} ${CD} ${QUOTE}${WORKDIR}${QUOTE} &amp;&amp; (attrib -r ${QUOTE}${WORKDIR}${PS}${FILE}.orig${QUOTE} >nul || echo.>nul) &amp;&amp; (del ${QUOTE}${WORKDIR}${PS}${FILE}.orig${QUOTE} 2>nul || echo.>nul) &amp;&amp; (move ${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE} ${QUOTE}${WORKDIR}${PS}${FILE}.orig${QUOTE} 2>nul || echo.>nul) &amp;&amp; vmrg -n $[? PARENT] [-r${PARENT_REVISION}] [-v${QUOTE}${PARENT_VERSION}${QUOTE}] $[? BRANCH1] [$[? BRANCH1_REVISION] [-r${BRANCH1_REVISION}] []] [$[? BRANCH1_VERSION] [-v${QUOTE}${BRANCH1_VERSION}${QUOTE}] []] $[? BRANCH2] [$[? BRANCH2_REVISION] [-r${BRANCH2_REVISION}] []] [$[? BRANCH2_VERSION] [-v${QUOTE}${BRANCH2_VERSION}${QUOTE}] []] $[? OUT_FILE] [-o${QUOTE}${OUT_FILE}${QUOTE}] [] ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}(${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}) ${NUR}</value>
+	  <value>${RUN} ${CD} ${CMD_QUOTE}${WORKDIR}${CMD_QUOTE}; mv ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE}; vmrg -n $[? PARENT] [-r${PARENT_REVISION}] [-v${CMD_QUOTE}${PARENT_VERSION}${CMD_QUOTE}] $[? BRANCH1] [$[? BRANCH1_REVISION] [-r${BRANCH1_REVISION}] []] [$[? BRANCH1_VERSION] [-v${CMD_QUOTE}${BRANCH1_VERSION}${CMD_QUOTE}] []] $[? BRANCH2] [$[? BRANCH2_REVISION] [-r${BRANCH2_REVISION}] []] [$[? BRANCH2_VERSION] [-v${CMD_QUOTE}${BRANCH2_VERSION}${CMD_QUOTE}] []] $[? OUT_FILE] [-o${CMD_QUOTE}${OUT_FILE}${CMD_QUOTE}] [] ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}\(${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}\) ${NUR}</value>
+	  <value if="IS_WINNT">${RUN} ${CD} ${CMD_QUOTE}${WORKDIR}${CMD_QUOTE} &amp;&amp; (attrib -r ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} >nul || echo.>nul) &amp;&amp; (del ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} 2>nul || echo.>nul) &amp;&amp; (move ${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE} ${CMD_QUOTE}${WORKDIR}${PS}${FILE}.orig${CMD_QUOTE} 2>nul || echo.>nul) &amp;&amp; vmrg -n $[? PARENT] [-r${PARENT_REVISION}] [-v${CMD_QUOTE}${PARENT_VERSION}${CMD_QUOTE}] $[? BRANCH1] [$[? BRANCH1_REVISION] [-r${BRANCH1_REVISION}] []] [$[? BRANCH1_VERSION] [-v${CMD_QUOTE}${BRANCH1_VERSION}${CMD_QUOTE}] []] $[? BRANCH2] [$[? BRANCH2_REVISION] [-r${BRANCH2_REVISION}] []] [$[? BRANCH2_VERSION] [-v${CMD_QUOTE}${BRANCH2_VERSION}${CMD_QUOTE}] []] $[? OUT_FILE] [-o${CMD_QUOTE}${OUT_FILE}${CMD_QUOTE}] [] ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}(${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}) ${NUR}</value>
 	</property>
   	<property name="inputDescriptor">
  	  <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(COMMAND_PVCS_MERGE_Label),ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/pvcs/config/Bundle).getString(ACSD_COMMAND_PVCS_MERGE_Label)))
@@ -920,7 +922,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="CHECKOUT_CMD">
 	<property name="exec">
-	  <value>${RUN} get -y $[? REVISION] [-r${QUOTE}${REVISION}${QUOTE}] [] $[? SUFFIX] [-s${SUFFIX}] [] ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${TEMPDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
+	  <value>${RUN} get -y $[? REVISION] [-r${CMD_QUOTE}${REVISION}${CMD_QUOTE}] [] $[? SUFFIX] [-s${SUFFIX}] [] ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${TEMPDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}</value>
 	</property>
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
@@ -928,7 +930,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="DIFF_CA_CMD">
 	<property name="exec">
-	  <value>${RUNW} vdiff -dl $[? REV_VER1] [-r${REVISION1}] [-v${QUOTE}${VERSION1}${QUOTE}] $[? REV_VER2] [$[? REVISION2] [-r${REVISION2}] []] [$[? VERSION2] [-v${QUOTE}${VERSION2}${QUOTE}] []] ${IGNORE_WHITE} ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
+	  <value>${RUNW} vdiff -dl $[? REV_VER1] [-r${REVISION1}] [-v${CMD_QUOTE}${VERSION1}${CMD_QUOTE}] $[? REV_VER2] [$[? REVISION2] [-r${REVISION2}] []] [$[? VERSION2] [-v${CMD_QUOTE}${VERSION2}${CMD_QUOTE}] []] ${IGNORE_WHITE} ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}</value>
 	</property>
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
@@ -936,7 +938,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="DIFF_CA_REVISIONS_CMD">
 	<property name="exec">
-	  <value>${RUNW} vdiff -dl -r${REVISION1} $[? REVISION2] [-r${REVISION2}] [] ${IGNORE_WHITE} ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
+	  <value>${RUNW} vdiff -dl -r${REVISION1} $[? REVISION2] [-r${REVISION2}] [] ${IGNORE_WHITE} ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}</value>
 	</property>
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
@@ -945,8 +947,8 @@ Microsystems, Inc. All Rights Reserved.
 
       <command name="LIST_PROJECT">
         <property name="exec">
-          <value>${RUNR} pcli list ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -l -a $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
-          <value if="IS_WINNT">${RUNR} pcli list ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -l -a * ${NUR}</value>
+          <value>${RUNR} pcli list ${PRID} -pp${QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -l -a $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
+          <value if="IS_WINNT">${RUNR} pcli list ${PRID} -pp${QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -l -a * ${NUR}</value>
         </property>
         <property name="error.regex">
           <value>^PVCS Version Manager \(VMGUI\) v([0-9]+)\.([0-9\.]+) .*$</value>
@@ -960,8 +962,8 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="LIST_PROJECT_REC">
         <property name="exec">
-          <value>${RUNR} pcli list ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -l -a -z $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
-          <value if="IS_WINNT">${RUNR} pcli list ${PRID} -pp${PCLI_QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -l -a -z * ${NUR}</value>
+          <value>${RUNR} pcli list ${PRID} -pp${QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -l -a -z $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
+          <value if="IS_WINNT">${RUNR} pcli list ${PRID} -pp${QUOTE}${PROJECT}$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -l -a -z * ${NUR}</value>
         </property>
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
@@ -969,8 +971,8 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="LIST_SUBPROJECTS">
         <property name="exec">
-          <value>${RUN} pcli list ${PRID} -pp${PCLI_QUOTE}/$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -tProject $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
-          <value if="IS_WINNT">${RUN} pcli list ${PRID} -pp${PCLI_QUOTE}/$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${PCLI_QUOTE} -tProject * ${NUR}</value>
+          <value>${RUN} pcli list ${PRID} -pp${QUOTE}/$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -tProject $[? PCLI_OLDSTYLE_QUOTING] [\\\\*] [\*] ${NUR}</value>
+          <value if="IS_WINNT">${RUN} pcli list ${PRID} -pp${QUOTE}/$[? COMMON_PARENT] [/${COMMON_PARENT_\/}] []$[? DIR] [/${DIR_\/}] []${QUOTE} -tProject * ${NUR}</value>
         </property>
         <property name="ignoreFail">
           <value>true</value>
@@ -984,8 +986,8 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="DIFF_TEST_CMD">
         <property name="exec">
-          <value>${RUN} vdiff $[? REVISION] [-r${REVISION}] [] -t ${QUOTE}${ARCHIVE}${QUOTE}${ESCAPED_(}${QUOTE}${WORKFILE}${QUOTE}${ESCAPED_)}; test `echo $?` != 2 ${NUR}</value>
-          <value if="IS_WINNT">${RUN} vdiff $[? REVISION] [-r${REVISION}] [] -t ${QUOTE}${ARCHIVE}${QUOTE}${ESCAPED_(}${QUOTE}${WORKFILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
+          <value>${RUN} vdiff $[? REVISION] [-r${REVISION}] [] -t ${CMD_QUOTE}${ARCHIVE}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKFILE}${CMD_QUOTE}${ESCAPED_)}; test `echo $?` != 2 ${NUR}</value>
+          <value if="IS_WINNT">${RUN} vdiff $[? REVISION] [-r${REVISION}] [] -t ${CMD_QUOTE}${ARCHIVE}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKFILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}</value>
         </property>
         <property name="ignoreFail">
           <value>true</value>
@@ -1028,7 +1030,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     <command name="REVISION_GETTER">
       <property name="exec">
-          <value>${RUN} vlog -i ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
+          <value>${RUN} vlog -i ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}</value>
       </property>
       <property name="concurrentExec">
         <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
@@ -1036,7 +1038,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     <command name="REVISION_OPEN">
       <property name="exec">
-          <value>${RUN} get -y $[? REVISION] [-r${REVISION}] [] -p ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_)} ${NUR}</value>
+          <value>${RUN} get -y $[? REVISION] [-r${REVISION}] [] -p ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_)} ${NUR}</value>
       </property>
       <property name="numRevisions">
 	<value>1</value>
@@ -1093,7 +1095,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     <command name="VERIFY_ACTION_DIFF">
         <property name="exec">
-            <value>${RUNW} vdiff -t -r ${QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${QUOTE}${ESCAPED_(}${QUOTE}${WORKDIR}${PS}${FILE}${QUOTE}${ESCAPED_(} ${NUR}</value>
+            <value>${RUNW} vdiff -t -r ${CMD_QUOTE}{INSERT_OUTPUT_OF_GET_ARCHIVE_LOCATION(0)}${CMD_QUOTE}${ESCAPED_(}${CMD_QUOTE}${WORKDIR}${PS}${FILE}${CMD_QUOTE}${ESCAPED_(} ${NUR}</value>
         </property>
         <property name="executionPriority">
           <value>1</value> <!-- HIGH PRIORITY -->
@@ -1121,7 +1123,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     <command name="LIST_PROJECT_DB">
       <property name="exec">
-        <value>${RUN} pcli ListProjectDB $[? GUI_DEF] [-a] [-z ${SEARCH_PATH}] $[? USER_NAME] [-id${PCLI_QUOTE}${USER_NAME}:${PASSWORD}${PCLI_QUOTE}] [] ${NUR}</value>
+        <value>${RUN} pcli ListProjectDB $[? GUI_DEF] [-a] [-z ${SEARCH_PATH}] $[? USER_NAME] [-id${QUOTE}${USER_NAME}:${PASSWORD}${QUOTE}] [] ${NUR}</value>
         <!-- Not executed in cmd, because kill of cmd does not kill pcli. -->
         <value if="IS_WINNT">pcli ListProjectDB $[? GUI_DEF] [-a] [-z ${SEARCH_PATH}] $[? USER_NAME] [-id"${USER_NAME}:${PASSWORD}"] []</value>
       </property>
@@ -1142,8 +1144,8 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     <command name="GET_ARCHIVE_LOCATION">
       <property name="exec">
-        <value>$[? CACHED_ATTR] [echo ${QUOTE}${CACHED_ATTR}${QUOTE}] [${RUN} pcli GetArchiveLocation ${PRID} /${PCLI_QUOTE}${PROJECT}/$[? COMMON_PARENT] [${COMMON_PARENT}/] []$[? DIR] [${DIR}/] []${FILE}${PCLI_QUOTE}]</value>
-        <value if="IS_WINNT">$[? CACHED_ATTR] [cmd /X /C "echo "${CACHED_ATTR}""] [${RUN} pcli GetArchiveLocation ${PRID} /${PCLI_QUOTE}${PROJECT_\/}/$[? COMMON_PARENT] [${COMMON_PARENT_\/}/] []$[? DIR] [${DIR_\/}/] []${FILE}${PCLI_QUOTE}]</value>
+        <value>$[? CACHED_ATTR] [echo ${CMD_QUOTE}${CACHED_ATTR}${CMD_QUOTE}] [${RUN} pcli GetArchiveLocation ${PRID} /${QUOTE}${PROJECT}/$[? COMMON_PARENT] [${COMMON_PARENT}/] []$[? DIR] [${DIR}/] []${FILE}${QUOTE}]</value>
+        <value if="IS_WINNT">$[? CACHED_ATTR] [cmd /X /C "echo "${CACHED_ATTR}""] [${RUN} pcli GetArchiveLocation ${PRID} /${QUOTE}${PROJECT_\/}/$[? COMMON_PARENT] [${COMMON_PARENT_\/}/] []$[? DIR] [${DIR_\/}/] []${FILE}${QUOTE}]</value>
       </property>
       <property name="concurrentExec">
         <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
@@ -1151,7 +1153,7 @@ Microsystems, Inc. All Rights Reserved.
     </command>
     <command name="GET_WORK_LOCATION">
       <property name="exec">
-        <value>${RUN} pcli GetWorkLocation ${PRID} -pp${PCLI_QUOTE}${PROJECT}${PCLI_QUOTE} ${NUR}</value>
+        <value>${RUN} pcli GetWorkLocation ${PRID} -pp${QUOTE}${PROJECT}${QUOTE} ${NUR}</value>
       </property>
       <property name="concurrentExec">
         <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
