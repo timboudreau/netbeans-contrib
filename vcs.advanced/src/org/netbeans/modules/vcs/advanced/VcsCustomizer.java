@@ -566,9 +566,11 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     if(var!=null){
       var.setValue (tf.getText ().trim());
       if (var.getName().equals("MODULE")) {
+        /*
         String value = var.getValue();
         if (value.length() > 0 && !value.endsWith(File.separator)) value = value.concat(File.separator);
         var.setValue(value);
+        */
         rootDirChanged();
       }
       // enable fs to react on change in variables
@@ -778,6 +780,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  4    Gandalf   1.3         12/8/99  Martin Entlicher 
 *  3    Gandalf   1.2         12/8/99  Martin Entlicher Added browse buttons.
 *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
 *  1    Gandalf   1.0         11/24/99 Martin Entlicher 
