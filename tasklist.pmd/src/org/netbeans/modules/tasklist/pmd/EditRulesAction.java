@@ -78,7 +78,8 @@ public class EditRulesAction extends NodeAction {
             if (s != null) {
                 Object seed = s.getSeed();
                 if (seed instanceof ViolationProvider) {
-                    ((ViolationProvider)seed).rescan();
+                    // TODO invalidate the suggestion instead 
+                    //((ViolationProvider)seed).rescan();
                 }
             }
         }

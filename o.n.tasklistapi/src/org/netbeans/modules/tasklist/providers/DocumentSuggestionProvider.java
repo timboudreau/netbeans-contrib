@@ -33,8 +33,10 @@ import org.openide.loaders.DataObject;
  * @author Tor Norbye
  * @author Petr Kuzel, SuggestionContext refactoring
  * @since 1.3  (well all signatures changed in this version)
- * @todo Align synchronous scan() vs asynchronous rescan(..., request)
- *       and clear(..., request)
+ *
+ * @todo why it extends SuggestionProvider. Its events are absolutely useless
+ * in this request-responce mode. I'd revert it beause being able to push
+ * suggestions is more advanced provider side feature tnan simply responding.
  */
 
 abstract public class DocumentSuggestionProvider extends SuggestionProvider {
@@ -50,46 +52,33 @@ abstract public class DocumentSuggestionProvider extends SuggestionProvider {
      * <p>
      * This method is called internally by the toolkit and should not be
      * called directly by programs.
+     *
+     * @todo suggestions are created by SuggestionManager
+     * and that disallows to change equals logic
+     * that is needed to merge lists by clients. It
+     * can be solved by <code>List merge(List old, List updated)</code>
+     *
+     * @todo provider can find out that condions have
+     * changed (it can attach listeners to specifics sources)
+     * so it would like to inform consumer about change.
+     * E.g. SourceTaskProvider listens on settings change.
+     * On the other hand it's strange that SourceTaskProvider
+     * does not listen on document changes and leaves
+     * it on consumer. It's OK for this method but
+     * wrong for SuggestionManager registered ones.
+     * <p>
+     * Also fixing provides need to notify that fix
+     * eliminated the suggestion. Here could help
+     * suggestion valid flag intead of changing list
+     * membership.
+     *
+     * @todo another subtle obstacle right here is caused
+     * fact that implementation does not allow suggestion/task
+     * to be member of more tasklists. So all method clients
+     * must clone right now until this bug fixed. See
+     * SuggestionsBroker#performRescanInRP.
+     *
      */
     abstract public List scan(SuggestionContext env);
-
-
-    /**
-     * Rescan the given document for suggestions, and register
-     * these with the SuggestionManager. Typically called
-     * when a document is shown or when a document is edited, but
-     * could also be called for example when the document is
-     * saved.
-     * <p>
-     * NOTE: This method should also remove items previously scanned
-     * by this method (in other words, "update" the list). That typically
-     * means calling {@link #clear}. This is not automatically done
-     * by the framework because this rescan method can be clever and
-     * simply update a few suggestions and leave most of them alone,
-     * instead of removing and readding a large number of suggestions
-     * when only one or two things have changed.
-     * <p>
-     * @param env The environment being scanned
-     * @param request A reference for this request. You <strong>must</strong>
-     *   provide this reference to the SuggestionManager.register() call
-     *   when returning the results!
-     * <p>
-     * This method is called internally by the toolkit and should not be
-     * called directly by programs.
-     */
-    abstract public void rescan(SuggestionContext env, Object request);
-
-    /**
-      * Remove items added by {@link #rescan}.
-     * <p>
-     * @param env The environment being previously scanned
-     * @param request A reference for this request. You <strong>must</strong>
-     *   provide this reference to the SuggestionManager.register() call
-     *   when clearing out suggestions.
-     *
-     * @todo it's never actually called, why?
-      */
-    abstract public void clear(SuggestionContext env,
-                               Object request);
 
 }

@@ -14,7 +14,6 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import org.netbeans.apihole.tasklist.SPIHole;
-import org.netbeans.modules.tasklist.core.TaskListView;
 import org.netbeans.modules.tasklist.providers.DocumentSuggestionProvider;
 import org.netbeans.modules.tasklist.providers.SuggestionContext;
 import org.netbeans.modules.tasklist.providers.SuggestionProvider;
@@ -206,42 +205,14 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
 
 
     // there is only one SuggestionManager instance
-    private static SuggestionList list = null;
+    private SuggestionList list = null;
 
     /**
      * Return the live TaskList that we're managing
-     * XXX the list it is retrieved from last
-     * active suggections view. However there could
-     * be several lists visible. Introduce ProxyList
-     * delegating to set of lists.
      */
-    static SuggestionList getList() {
-
-        TopComponent.Registry registry = TopComponent.getRegistry();
-        Set opened = registry.getOpened();
-        Iterator it = opened.iterator();
-        while (it.hasNext()) {
-            TopComponent next = (TopComponent) it.next();
-            if (next instanceof SuggestionView) {
-                SuggestionView view = (SuggestionView) next;
-                SuggestionList model = view.getSuggestionsModel();
-                if (model != null) return model;
-            }
-        }
-
-        //XXX Original code that should not be reached, well docHidden() gets here
-        //assert false : "Original code that should not be reached";
+    private SuggestionList getList() {
         if (list == null) {
-            TaskListView view =
-                    TaskListView.getTaskListView(SuggestionsView.CATEGORY); // NOI18N
-            if (view == null) {
-                view = SuggestionsView.createSuggestionsView();
-                // Let user open the window
-                //   TODO Find a way to manage the tasklist so that I -don't-
-                //   have to create it now; only when it's opened by the user!
-                //view.showInMode();
-            }
-            list = (SuggestionList) view.getList();
+            list = new SuggestionList();
         }
         return list;
     }
@@ -539,21 +510,12 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
     }
 
 
-    void scheduleNodeExpansion(SuggestionsView view,
-                               SuggestionImpl target) {
-        view.scheduleNodeExpansion(target, 0);
-    }
-
-
-
-
-
     // Consult super for correct javadoc
     public void register(String type, List add, List remove, Object request) {
         SPIMonitor.log("  Response on " + request + " " + type + " add: " + ((add != null) ? ""+add.size() : "null") + " remove:" + ((remove != null) ? ""+remove.size() : "null"));
         //System.out.println("register(" + type + ", " + add +
         //                   ", " + remove + ", " + request + ")");
-        SuggestionList target = getListByRequest(request);
+        SuggestionList target = getList();
         if (target == null) {
             // This is a result from a previous request - e.g. a long
             // running request which was "cancelled" but too late to
@@ -570,22 +532,6 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
             register(type, add, null, target, !switchingFiles);
         } else {
             register(type, add, remove, target, !switchingFiles);
-        }
-    }
-
-    // TODO eliminate this method and let SuggestionBroker use explict (unshared) list
-    // it's OK as sharing can be achieved by  providers that can cache results.
-    // List membership is lightweight structure that can be duplicated
-    private SuggestionList getListByRequest(Object request) {
-
-        SuggestionsBroker broker = SuggestionsBroker.getDefault();
-
-        if ((request != null) /* once it was dispatched in must be completed regardless && (request == broker.getCurrRequest())*/) {
-            return broker.getSuggestionsList();
-//        } else if (request != null) {
-//            return null;
-        } else {
-            return getList();
         }
     }
 
@@ -675,7 +621,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
      * @param dataobject The Data Object for the file being opened
      * @param acceptor narrows set of providers to be quaried
      */
-    void dispatchRescan(Document document, DataObject dataobject, final Object request, ProviderAcceptor acceptor) {
+    void DELETE_dispatchRescan(Document document, DataObject dataobject, final Object request, ProviderAcceptor acceptor) {
 
         assert request != null : "Precondition for SuggestionsBroker.getCurrRequest()";  // NOI18N
 
@@ -697,7 +643,7 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
                 }
                 try {
                     SPIMonitor.log("Enter rescan " + request + " " + provider.getClass());
-                    provider.rescan(ctx, request);
+                    //provider.rescan(ctx, request);
                 } catch (RuntimeException e) {
                     ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
@@ -719,6 +665,56 @@ final public class SuggestionManagerImpl extends DefaultSuggestionManager {
         if (stats) {
             System.out.println("TOTAL SCAN TIME = " + total + "\n");
         }
+    }
+
+    List dispatchScan(Document document, DataObject dataobject, ProviderAcceptor acceptor) {
+
+        if (dataobject.isValid() == false) return Collections.EMPTY_LIST;
+
+        long start = 0, end = 0, total = 0;
+        List providers = getDocProviders();
+        Iterator it = providers.iterator();
+
+        final List result = new LinkedList();
+
+        SuggestionContext ctx = SPIHole.createSuggestionContext(dataobject);
+        while (it.hasNext()) {
+
+            DocumentSuggestionProvider provider = (DocumentSuggestionProvider) it.next();
+            if (acceptor.accept(provider) == false) continue;
+            if ((unfiltered == null) || (provider == unfiltered)) { // TODO remove unfiltered and replace by acceptors
+                if (stats) {
+                    start = System.currentTimeMillis();
+                }
+                try {
+                    SPIMonitor.log("Enter scan " + provider.getClass());
+                    List found = provider.scan(ctx);
+                    if (found != null) {
+                        result.addAll(found);
+                    }
+                } catch (RuntimeException e) {
+                    ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                } catch (ThreadDeath e) {
+                    throw e;
+                } catch (Error e) {
+                    ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                } finally {
+                    SPIMonitor.log("Leave rescan " + provider.getClass());
+                }
+                if (stats) {
+                    end = System.currentTimeMillis();
+                    System.out.println("Scan time for provider " + provider.getClass().getName() + " = " + (end - start) + " ms");
+                    total += (end - start);
+                }
+            }
+        }
+        if (stats) {
+            System.out.println("TOTAL SCAN TIME = " + total + "\n");
+        }
+
+        return result;
     }
 
     /** Tell the DocumentListener to wait updating itself indefinitely

@@ -103,20 +103,12 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
         if (Settings.PROP_SCAN_TAGS.equals(ev.getPropertyName())
         ||  Settings.PROP_SCAN_SKIP.equals(ev.getPropertyName())) {
             if (env == null) return;
-            rescan();
+            // TODO propagate to consumers ()
         }
     }
 
-    public void rescan(SuggestionContext env, Object request) {
-        this.env = env;
-        this.request = request;
+    private void EXPERIMENTAL_merge() {
         List newTasks = scan(env);
-        SuggestionManager manager = SuggestionManager.getDefault();
-
-        if ((newTasks == null) && (showingTasks == null)) {
-            return;
-        }
-
         // merge found TODOs
         // it has one drawback, final order depends on manager
         // and is random until user select sorting e.g. by line
@@ -140,14 +132,6 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
                         }
                     }
                 }
-            }
-        }
-
-        manager.register(TYPE, newTasks, showingTasks, request);
-        showingTasks = newTasks;
-        if (Boolean.getBoolean("netbeans.todo.merge")) {
-            if (showingTasks != null) {
-                showingTasks.addAll(duplicates);
             }
         }
     }
@@ -187,17 +171,6 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
     }
     
     
-    public void clear(SuggestionContext env,
-                      Object request) {
-        // Remove existing items
-        if (showingTasks != null) {
-            SuggestionManager manager = SuggestionManager.getDefault();
-            manager.register(TYPE, null, showingTasks, request);
-            showingTasks = null;
-        }
-    }
-
-
     /**
      * Given the contents of a buffer, scan it for todo items. Ignore
      * all items found outside comment sections...
@@ -421,10 +394,6 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
         TaskTag tag = settings().getTaskTags().getTag(text, start+1, (end - start)-1);
         return tag;
     }    
-
-    private void rescan() {
-        rescan(env, request);
-    }
 
     private Settings settings() {
         if (settings == null) {

@@ -216,7 +216,7 @@ public class RewriteAction extends NodeAction
         if (s != null) {
             Object seed = s.getSeed();
             if (seed instanceof TidySuggester) {
-                ((TidySuggester)seed).rescan();
+                //TODO notify done ((TidySuggester)seed).rescan();
             }
         }
     }

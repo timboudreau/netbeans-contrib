@@ -59,25 +59,6 @@ public class TidySuggester extends DocumentSuggestionProvider
         return TYPE;
     }
     
-    public void rescan(SuggestionContext env, Object request) {
-        this.env = env;
-        this.request = request;
-        List newTasks = scan(env);
-        SuggestionManager manager = SuggestionManager.getDefault();
-
-        if ((newTasks == null) && (showingTasks == null)) {
-            return;
-        }
-        manager.register(TYPE, newTasks, showingTasks, request);
-        showingTasks = newTasks;
-    }
-
-    /** Package private rescan: called when you've rewritten
-        the HTML for example */
-    void rescan() {
-        rescan(env, request);
-    }
-
     static boolean isHTML(DataObject dobj) {
          // XXX instanceof not good - I've heard data object
          // instancing like this is going away. Look for
@@ -155,16 +136,6 @@ public class TidySuggester extends DocumentSuggestionProvider
             tidy.parse(input, System.err);
         }
         return parseTasks;
-    }
-
-    public void clear(SuggestionContext env,
-                      Object request) {
-        // Remove existing items
-        if (showingTasks != null) {
-            SuggestionManager manager = SuggestionManager.getDefault();
-            manager.register(TYPE, null, showingTasks, request);
-            showingTasks = null;
-        }
     }
 
     /** The list of tasks we're currently showing in the tasklist */

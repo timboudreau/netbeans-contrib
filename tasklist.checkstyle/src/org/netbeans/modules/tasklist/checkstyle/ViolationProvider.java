@@ -74,30 +74,6 @@ public class ViolationProvider extends DocumentSuggestionProvider
         return TYPE;
     }
 
-    // javadoc in super()
-    public void rescan(SuggestionContext env, Object request) {
-        try {
-            dataobject = DataObject.find(env.getFileObject());
-        } catch (DataObjectNotFoundException e) {
-            e.printStackTrace();
-        }
-        document = env.getDocument();
-        this.env = env;
-        this.request = request;
-        List newTasks = scan(env);
-        SuggestionManager manager = SuggestionManager.getDefault();
-
-        if ((newTasks == null) && (showingTasks == null)) {
-            return;
-        }
-        manager.register(TYPE, newTasks, showingTasks, request);
-        showingTasks = newTasks;
-    }
-
-    void rescan() {
-        rescan(env, request);
-    }
-
     /** List "owned" by the scan() method and updated by the audit listener
      * methods. */
     private List tasks = null;
@@ -208,17 +184,8 @@ public class ViolationProvider extends DocumentSuggestionProvider
         }
     }
 
-    public void clear(SuggestionContext env,
-                      Object request) {
-        if (showingTasks != null) {
-            SuggestionManager manager = SuggestionManager.getDefault();
-            manager.register(TYPE, null, showingTasks, request);
-	    showingTasks = null;
-	}     
-    }
+    // Implements AuditListener ~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-    // Implements AuditListener
     /**
      * notify that the audit is about to start
      * @param aEvt the event details

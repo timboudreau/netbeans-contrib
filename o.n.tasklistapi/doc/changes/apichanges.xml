@@ -79,6 +79,21 @@ is the proper place.
 
       <change>
           <api name="general"/>
+          <summary>Simplified DocumentSuggestionProvider contract</summary>
+          <version major="1" minor="10"/>
+          <date day="9" month="4" year="2004"/>
+          <author login="pkuzel"/>
+          <compatibility deletion="yes"/>
+          <description>
+              <p>
+                  <code>clear()</code> and <code>rescan()</code> removed.                  
+              </p>
+          </description>
+          <class package="org.netbeans.spi.tasklist" name="DocumentSuggestionProvider"/>
+      </change>
+
+      <change>
+          <api name="general"/>
           <summary>Changed SuggestionProvider.getTypes() signature</summary>
           <version major="1" minor="9"/>
           <date day="6" month="4" year="2004"/>

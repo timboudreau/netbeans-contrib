@@ -157,7 +157,7 @@ public final class SuggestionsBroker {
          * Hopefully you can WeakListener.
          */
         public SuggestionList getSuggestionsList() {
-            return getSuggestionListImpl();
+            return getCurrentSuggestionsList();
         }
 
     }
@@ -215,11 +215,12 @@ public final class SuggestionsBroker {
     }
 
 
+    /** Exposes current sugegstion list to Suggestions view constructor. TODO Why? getJob.start() cannot be followed by getList in contructor*/
     final SuggestionList getSuggestionsList() {
-        return getSuggestionListImpl();
+        return getCurrentSuggestionsList();
     }
 
-    private SuggestionList getSuggestionListImpl() {
+    private SuggestionList getCurrentSuggestionsList() {
         if (list == null) {
             list = new SuggestionList();
         }
@@ -512,7 +513,7 @@ err.log("Couldn't find current nodes...");
             // check it here; it's always true. Make it user selectable.)
             docSuggestions = cache.lookup(document);
             if (docSuggestions != null) {
-                manager.register(null, docSuggestions, null, getSuggestionsList(), true);
+                manager.register(null, docSuggestions, null, getCurrentSuggestionsList(), true);
                 // TODO Consider putting the above on a runtimer - but
                 // a much shorter runtimer (0.1 seconds or something like
                 // that) such that the editor gets a chance to draw itself
@@ -639,21 +640,11 @@ err.log("Couldn't find current nodes...");
 
                 setScanning(true);
 
-                // XXX why manager.register access? these should be removed by provider on rescan
-                if ((docSuggestions != null) && (docSuggestions.size() > 0)) {
-                    // Clear out previous items before a rescan
-                    manager.register(null, null, docSuggestions, getSuggestionsList(), true);
-                    docSuggestions = null;
-                }
-
-                manager.dispatchRescan(document, dataobject, origRequest, compound);
+                List scannedSuggestions = manager.dispatchScan(document, dataobject, compound);
 
                 // update "allOpened" suggestion list
 
                 if (allOpenedClientsCount > 0 && lastOpenedFileObject != null) {
-                    SuggestionList list = getSuggestionListImpl(); // XXX it expects that providers register results synchronously
-                    List scannedSuggestions = list.getRoot().getSubtasks();
-
                     // copy clones to private "allOpened" suggestions list
                     // (it must be cloned because tasklist membership is task property)
                     // TODO should task know about its suggestions list? I think it should not.
@@ -668,6 +659,21 @@ err.log("Couldn't find current nodes...");
                     openedFilesSuggestionsMap.put(lastOpenedFileObject, clones);
 
                     getAllOpenedSuggestionList().addRemove(clones, previous, false, null, null);
+                }
+
+                if (clientCount > 0) {
+                    // copy clones to private "current" suggestions list
+                    // (it must be cloned because tasklist membership is task property)
+                    Iterator it = scannedSuggestions.iterator();
+                    List clones = new ArrayList(scannedSuggestions.size());
+                    while (it.hasNext()) {
+                        Task next = (Task) it.next();
+                        clones.add(next.cloneTask());
+                    }
+
+                    List previous = new ArrayList(getCurrentSuggestionsList().getRoot().getSubtasks());
+                    getCurrentSuggestionsList().addRemove(clones, previous, false, null, null);
+
                 }
 
                 // enforce comparable requests, works only for single request source
@@ -703,7 +709,7 @@ err.log("Couldn't find current nodes...");
         // XXX Performance: if docSuggestions != null, we should be able
         // to just reuse it, since the document must not have been edited!
 
-        SuggestionList tasklist = getSuggestionsList();
+        SuggestionList tasklist = getCurrentSuggestionsList();
         Task root = tasklist.getRoot();
         if (root.subtasksCount() == 0) {
             return;

@@ -77,34 +77,6 @@ public class ViolationProvider extends DocumentSuggestionProvider {
 
     private Thread last;
 
-    // javadoc in super()
-    public void rescan(SuggestionContext env, Object request) {
-        assert last == null || last == Thread.currentThread() : "Concurent access by: " + last + " and: " + Thread.currentThread();
-        last = Thread.currentThread();
-        try {
-//            System.err.println("\nPMD.rescan" + request + "[" + ((this.env != null) ?  this.env.getFileObject().toString() : "null") + "]: " + showingTasks );
-
-            this.env = env;
-            this.request = request;
-            List newTasks = scan(env);
-            last = Thread.currentThread();
-            SuggestionManager manager = SuggestionManager.getDefault();
-
-            if ((newTasks == null) && (showingTasks == null)) {
-                return;
-            }
-
-            manager.register(TYPE, newTasks, showingTasks, request);
-            showingTasks = newTasks;
-        } finally {
-            last = null;
-        }
-    }
-
-    void rescan() {
-        rescan(env, request);
-    }
-    
     public List scan(SuggestionContext env) {
         assert last == null || last == Thread.currentThread() : "Concurent access by: " + last + " and: " + Thread.currentThread();
         last = Thread.currentThread();
@@ -468,24 +440,6 @@ public class ViolationProvider extends DocumentSuggestionProvider {
         exampleText.setText(ruleExample.trim());
         
         return jPanel1;
-    }
-
-    public void clear(SuggestionContext env,
-                      Object request) {
-
-        assert last == null || last == Thread.currentThread() : "Concurent access by: " + last + " and: " + Thread.currentThread();
-        last = Thread.currentThread();
-
-        try {
-            if (showingTasks != null) {
-//                System.err.println("\nPMD.clear[" + ((this.env != null) ?  this.env.getFileObject().toString() : "null") + "]: " + showingTasks );
-                SuggestionManager manager = SuggestionManager.getDefault();
-                manager.register(TYPE, null, showingTasks, request);
-                showingTasks = null;
-            }
-        } finally {
-            last = null;
-        }
     }
 
     /** The list of tasks we're currently showing in the tasklist */

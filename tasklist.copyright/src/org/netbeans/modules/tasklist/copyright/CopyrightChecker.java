@@ -85,17 +85,6 @@ public class CopyrightChecker extends DocumentSuggestionProvider {
         return TYPE;
     }
 
-    public void rescan(SuggestionContext env, Object request) {
-        List newTasks = scan(env);
-        SuggestionManager manager = SuggestionManager.getDefault();
-
-        if ((newTasks == null) && (showingTasks == null)) {
-            return;
-        }
-        manager.register(TYPE, newTasks, showingTasks, request);
-        showingTasks = newTasks;
-    }
-
     public List scan(SuggestionContext env) {
         SuggestionManager manager = SuggestionManager.getDefault();
         if (!manager.isEnabled(TYPE)) {
@@ -108,16 +97,6 @@ public class CopyrightChecker extends DocumentSuggestionProvider {
             return tasks;
         }
         return null;
-    }
-
-    public void clear(SuggestionContext env,
-                      Object request) {
-        // Remove existing items
-        if (showingTasks != null) {
-            SuggestionManager manager = SuggestionManager.getDefault();
-            manager.register(TYPE, null, showingTasks, request);
-            showingTasks = null;
-        }
     }
 
     /**
