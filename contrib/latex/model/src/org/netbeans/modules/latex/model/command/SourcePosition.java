@@ -54,7 +54,7 @@ public final class SourcePosition implements Serializable {
     }
 
     public SourcePosition(Document doc, int offset) {
-        this((DataObject) doc.getProperty(Document.StreamDescriptionProperty), doc, offset);
+        this(Utilities.getDefault().getFile(doc), doc, offset);
     }
 
     /** Creates a new instance of ParsePosition */

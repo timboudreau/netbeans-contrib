@@ -82,8 +82,8 @@ public class MyDataNode extends DataNode implements LaTeXSourceFactory.MainFileL
         return getFactory().isKnownFile(file);
     }
     
-    public String getDisplayName() {
-        String dName = super.getDisplayName();
+    public String getHtmlDisplayName() {
+        String dName = super.getHtmlDisplayName();
         
         if (isKnownFile(getDataObject().getPrimaryFile())) {
             if (isMainFile(getDataObject().getPrimaryFile())) {
@@ -225,7 +225,7 @@ public class MyDataNode extends DataNode implements LaTeXSourceFactory.MainFileL
         
         if (evt.getSource() == getFactory() && getDataObject().getPrimaryFile() == /*!!*/ evt.getMainFile()) {
             System.err.println("found, firing display name changes..");
-            fireDisplayNameChange(null, null);
+            fireDisplayNameChange(null, null);//TODO: hopefully this updates the DN also from getHtmlDisplayName();
             fireIconChange();
         }
     }

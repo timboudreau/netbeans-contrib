@@ -14,51 +14,64 @@
  */
 package org.netbeans.modules.latex.bibtex;
 
-import java.awt.event.ActionEvent;
-import java.beans.IntrospectionException;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PushbackReader;
-import java.io.Reader;
+import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyVetoException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JFrame;
+import javax.swing.ActionMap;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
+
+import javax.swing.table.TableColumn;
+import javax.swing.text.DefaultEditorKit;
 import org.netbeans.modules.latex.bibtex.loaders.BiBTexDataObject;
+import org.netbeans.modules.latex.bibtex.loaders.MyDataNode.PublicationEntryNode;
+import org.netbeans.modules.latex.bibtex.table.SortingTable;
 import org.openide.ErrorManager;
-import org.openide.actions.DeleteAction;
-import org.openide.actions.PropertiesAction;
-import org.openide.cookies.EditorCookie;
-import org.openide.explorer.ExplorerPanel;
-import org.openide.explorer.view.NodeTableModel;
-import org.openide.explorer.view.TreeTableView;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.BeanNode;
-import org.openide.nodes.Children;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
+import org.openide.explorer.ExplorerManager.Provider;
 import org.openide.nodes.Node;
-import org.openide.nodes.PropertySupport;
-import org.openide.util.actions.SystemAction;
+import org.openide.nodes.NodeEvent;
+import org.openide.nodes.NodeListener;
+import org.openide.nodes.NodeMemberEvent;
+import org.openide.nodes.NodeReorderEvent;
+import org.openide.nodes.Node.Property;
+import org.openide.nodes.Node.PropertySet;
+import org.openide.nodes.PropertySupport.ReadOnly;
+import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-/**
+
+/**TODO: free the resources when the component becomes invisible.
  *
  * @author Jan Lahoda
  */
-public class OpenBiBComponent implements BiBTexModelChangeListener {
+public class OpenBiBComponent extends TopComponent implements ListSelectionListener, PropertyChangeListener, NodeListener, Provider {
     
     private BiBTexDataObject od;
-    private TopComponent tc;
+    private JTable       table;
+    private EntryTableModel tableModel;
+    private ExplorerManager manager;
     
     /** Creates a new instance of BiBTest */
     private OpenBiBComponent(BiBTexDataObject od) {
@@ -66,13 +79,14 @@ public class OpenBiBComponent implements BiBTexModelChangeListener {
         if (od == null)
             throw new NullPointerException();
         
-        BiBTeXModel.getModel(od.getPrimaryFile()).addBiBTexModelChangeListener(this);
+        manager = new ExplorerManager();
     }
     
     private static Map/*<DataObject, OpenBiBComponent>*/ file2TC = null;
     
     public static synchronized void open(BiBTexDataObject od) {
-        file2TC = new HashMap();
+        if (file2TC == null)
+            file2TC = new HashMap();
         
         OpenBiBComponent open = (OpenBiBComponent) file2TC.get(od);
         
@@ -80,157 +94,188 @@ public class OpenBiBComponent implements BiBTexModelChangeListener {
             open = new OpenBiBComponent(od);
             
             file2TC.put(od, open);
-            open.tc = open.doOpen();
+            open.open();
         }
         
-        open.tc.requestActive();
+        open.requestActive();
     }
-//    public static final void main(String[] args) {
-//        new OpenBiBComponent().open();
-//    }
-    /**
-     * @param args the command line arguments
-     */
-    private TopComponent doOpen() {
-//        try {
+
+    public void open() {
+        setLayout(new BorderLayout());
+        table = new SortingTable();
+        table.setModel(tableModel = getNodeTableModel());
+        TableColumn typeColumn = table.getColumnModel().getColumn(0); //TODO: 0->some better way
         
-        TreeTableView ttv = new TreeTableView();
+        JComboBox comboBox = new JComboBox();
         
-        ExplorerPanel p = new ExplorerPanel();
-        
-        Node rootNode = getTheMainNode();
-        
-        p.getExplorerManager().setRootContext(rootNode);
-        
-        ttv.setRootVisible(false);
-        Node.PropertySet[] sets = ((Node)rootNode.getChildren().getNodes()[0]).getPropertySets();
-        
-        Node.Property[] properties = sets[0].getProperties();
-        Node.Property[] newProperties = new Node.Property[properties.length];
-        
-        for (int cntr = 0; cntr < properties.length; cntr++) {
-            newProperties[cntr] = properties[cntr];
-            newProperties[cntr].setValue("ComparableColumnTTV", Boolean.TRUE);
+        for (Iterator i = FieldDatabase.getDefault().getKnownTypes().iterator(); i.hasNext(); ) {
+            comboBox.addItem(i.next());
         }
         
-        ttv.setProperties(newProperties);
+        comboBox.setEditable(true);
         
-        p.add(ttv);
+        typeColumn.setCellEditor(new DefaultCellEditor(comboBox));
         
+        getExplorerManager().addPropertyChangeListener(this);
+        getExplorerManager().setRootContext(od.getNodeDelegate());
+        
+        table.getSelectionModel().addListSelectionListener(this);
+        
+        table.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent me) {
+                showPopup(me);
+            }
+ 
+            public void mouseReleased(MouseEvent me) {
+                showPopup(me);
+            }
+        });
+        JScrollPane scrollPane = new JScrollPane(table);
+        
+        scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JButton("..."));
+        add(scrollPane);
+
+        ActionMap map = getActionMap ();
+        map.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
+        map.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
+        map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
+        map.put("delete", ExplorerUtils.actionDelete(manager, true)); // or false
+
+        // following line tells the top component which lookup should be associated with it
+        associateLookup (ExplorerUtils.createLookup (manager, map));//!???
+
         Mode mode = WindowManager.getDefault().findMode("output");
         
-        mode.dockInto(p);
+        mode.dockInto(this);
         
-        p.setDisplayName("BiBTeX - " + od.getName());
+        setDisplayName("BiBTeX - " + od.getName());
         
-        p.open();
-        
-        return p;
-//        ttv.sh
-//        } catch (IntrospectionException ex) {
-//            ErrorManager.getDefault().notify(ex);
-//            
-//            return null;
-//        } catch (IOException ex) {
-//            ErrorManager.getDefault().notify(ex);
-//        }
+        super.open();
     }
     
-    private void update() {
-//        System.err.println("update:");
-//        new Exception().printStackTrace();
-        if (tc == null)
-            return ;
-        
-        ExplorerPanel ep = (ExplorerPanel) tc;
-        
-        ep.getExplorerManager().setRootContext(getTheMainNode());
+    private void showPopup(MouseEvent ev) {
+        if (ev.isPopupTrigger()) {
+            int row = table.rowAtPoint(ev.getPoint());
+            
+            if (row != (-1)) {
+                Node n = tableModel.getNodes()[row];
+                JPopupMenu m = n.getContextMenu();
+                
+                m.show(table, (int) ev.getPoint().getX(), (int) ev.getPoint().getY());
+            }
+        }
     }
     
-    public void entriesAdded(Collection entries) {
-        update();
-    }
     
-    public void entriesRemoved(Collection entries) {
-        update();
+    private EntryTableModel getNodeTableModel() {
+        Node[] nodes = getTheMainNode().getChildren().getNodes(true);
+        
+        EntryTableModel m = new EntryTableModel();
+        
+        m.setProperties(new String[] {"type", "tag", "title", "author"});
+//        m.setNodes(nodes);
+        
+        return m;
     }
     
     private Node getTheMainNode() {
-        List coll = BiBTeXModel.getModel(od.getPrimaryFile()).getEntries();
+        return od.getNodeDelegate();
+    }
 
-        Collection nodes = new ArrayList();
+    public void valueChanged(ListSelectionEvent e) {
+        doSetActivatedNodes();
+    }
+    
+    private void doSetActivatedNodes() {
+        int[] rows = table.getSelectedRows();
+        Node[] toSet = null;
         
-        for (Iterator i = coll.iterator(); i.hasNext(); ) {
-            Entry e = (Entry) i.next();
+        if (rows.length != 0) {
+            toSet = new Node[rows.length];
             
-//            System.err.println("e = " + e );
-            if (e instanceof PublicationEntry) {
-                try {
-                    nodes.add(new EntryNode((PublicationEntry) e));
-                } catch (IntrospectionException ex) {
-                    ErrorManager.getDefault().notify(ex);
-                }
+            for (int cntr = 0; cntr < rows.length; cntr++) {
+                toSet[cntr] = tableModel.getNodes()[rows[cntr]];
             }
-        }
-        
-        return new RootNode(nodes);
-    }
-    
-    private static class RootNode extends AbstractNode {
-        public RootNode(Collection nodes) {
-            super(new RootChildren(nodes));
-        }
-    }
-    
-    private static class RootChildren extends Children.Keys {
-        
-        public RootChildren(Collection nodes) {
-            setKeys(nodes);
-        }
-        
-        protected Node[] createNodes(Object key) {
-            return new Node[] {(Node) key};
-        }
-        
-    }
-    
-//    private static class MyTreeTableView extends TreeTableView {
-//        public MyTreeTableView() {
-//            Column
-//        }
-//    }
-    
-    private /*static*/ class EntryNode extends BeanNode {
-        public EntryNode(PublicationEntry entry) throws IntrospectionException {
-            super(entry, Children.LEAF);
             
-            getCookieSet().add(entry);
+            System.err.println("settings activated nodes: " + Arrays.asList(toSet));
+        } else {
+            toSet = new Node[0];
         }
         
-        public Action[] getActions(boolean context) {
-            if (context) {
-                return getContextActions();
-            } else {
-                return new Action[] {
-                    new EditEntryAction(),
-                    SystemAction.get(DeleteAction.class),
-                    null,
-                    SystemAction.get(PropertiesAction.class)
-                };
-            }
-        }
-        
-        public void destroy() throws IOException {
-            BiBTeXModel.getModel(od.getPrimaryFile()).removeEntry((Entry) getBean());
-            super.destroy();
+        try {
+            getExplorerManager().setSelectedNodes(toSet);
+        } catch (PropertyVetoException ex) {
+            ErrorManager.getDefault().notify(ex);
         }
     }
     
-    private static class ROProperty extends PropertySupport.ReadOnly {
+    public ExplorerManager getExplorerManager() {
+        return manager;
+    }
+    
+    private void showMessage(String message) {
+        ErrorManager.getDefault().log(ErrorManager.ERROR, message);
+    }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        showMessage("propertyChange(" + evt + ")");
+        if (evt.getSource() == getExplorerManager() && ExplorerManager.PROP_ROOT_CONTEXT.equals(evt.getPropertyName())) {
+            updateRoot(evt);
+        }
+    }
+    
+    private NodeListener nodeListener = null;
+    
+    private void updateRoot(PropertyChangeEvent evt) {
+        showMessage("updateRoot");
+        Node node = getExplorerManager().getRootContext();
         
-        private Node.Property property;
+        node.addNodeListener(nodeListener = (NodeListener) WeakListeners.create(NodeListener.class, this, node));
         
-        public ROProperty(Node.Property property) {
+        update();
+    }
+
+    private void update() {
+        showMessage("update");
+        Node node = getExplorerManager().getRootContext();
+        
+        Node[] nodes = node.getChildren().getNodes();
+//        System.err.println("setting:" + Arrays.asList(nodes));
+        tableModel.setNodes(nodes);
+        
+        try {
+            getExplorerManager().setSelectedNodes(new Node[0]);//TODO: this probably can be made better...
+        } catch (PropertyVetoException ex) {
+            ErrorManager.getDefault().notify(ex);
+        }
+    }
+    
+    public void childrenAdded(NodeMemberEvent ev) {
+        update();
+    }
+    
+    public void childrenRemoved(NodeMemberEvent ev) {
+        update();
+    }
+    
+    public void childrenReordered(NodeReorderEvent ev) {
+        update();
+    }
+    
+    public void nodeDestroyed(NodeEvent ev) {
+        update(); //??
+    }
+    
+    public int getPersistenceType() {
+//        return PERSISTENCE_ONLY_OPENED;//TODO: it should be done this way, but it won't work currently..
+        return PERSISTENCE_NEVER;
+    }
+    
+    private static class ROProperty extends ReadOnly {
+        
+        private Property property;
+        
+        public ROProperty(Property property) {
             super(property.getName(), property.getValueType(), property.getDisplayName(), property.getShortDescription());
             this.property = property;
         }
@@ -240,4 +285,133 @@ public class OpenBiBComponent implements BiBTexModelChangeListener {
         }
         
     }
+    
+    public static class EntryTableModel extends AbstractTableModel {
+        
+        private String[] properties;
+        private String[] displayNames;
+//        private Node.Property[] properties;
+        private Node[]          nodes;
+        
+        public EntryTableModel() {
+            nodes = new Node[0];
+            properties = new String[0];
+        }
+        
+        /** Set columns.
+         * @param props the columns
+         */
+        public void setProperties(String[] props) {
+            properties = props;
+            
+            if (displayNames == null || displayNames.length != properties.length)
+                displayNames = new String[properties.length];
+            
+            for (int cntr = 0; cntr < properties.length; cntr++) {
+                displayNames[cntr] = NbBundle.getBundle(OpenBiBComponent.class).getString("CN_" + properties[cntr]);
+            }
+            
+            fireTableStructureChanged();
+//            super.setProperties(props);
+        }
+        //should listen on the nodes to catch any changes:
+        public void setNodes(Node[] nodes) {
+            //the nodes should be fitered so only PublicationEntryNodes are there:
+            List result = new ArrayList();
+            
+            for (int cntr = 0; cntr < nodes.length; cntr++) {
+                if (nodes[cntr] instanceof PublicationEntryNode) {
+                    result.add(nodes[cntr]);
+                }
+            }
+            this.nodes = (Node[] ) result.toArray(new Node[0]);
+//            System.err.println("new nodes: " + Arrays.asList(this.nodes));
+            fireTableDataChanged();
+//            super.setNodes(nodes);
+        }
+        
+        public Node[] getNodes() {
+            return nodes;
+        }
+        
+        private Property getProperty(int row, int col) {
+            Node node = getNodes()[row];
+            String property = properties[col];
+            
+//            System.err.println("Looking for:" + property);
+            
+            PropertySet[] propertySets = node.getPropertySets();
+            
+            for (int cntr = 0; cntr < propertySets.length; cntr++) {
+                PropertySet set = propertySets[cntr];
+                Property[] properties = set.getProperties();
+                
+//                System.err.println("set=" + set);
+                
+                for (int propCount = 0; propCount < properties.length; propCount++) {
+//                    System.err.println("testing: " + properties[propCount].getName());
+                    if (properties[propCount].getName().equals(property))
+                        return properties[propCount];
+                }
+            }
+            
+            return null;
+        }
+        
+        public Class getColumnClass(int columnIndex) {
+//            return getValueType();
+            return String.class;
+        }
+        
+        public Object getValueAt(int row, int col) {
+            Property p = getProperty(row, col);
+            
+            if (p == null)
+                return null;
+            
+            try {
+//                System.err.println("p.getValue().getClass()= " + p.getValue().getClass());
+                return p.getValue();
+            } catch (IllegalAccessException e) {
+                ErrorManager.getDefault().notify(e);
+            } catch (InvocationTargetException e) {
+                ErrorManager.getDefault().notify(e);
+            }
+            
+            return null; //!!!
+        }
+        
+        public boolean isCellEditable(int row, int col) {
+            Property p = getProperty(row, col);
+            
+            System.err.println("p.canWrite()=" + p.canWrite());
+            return p.canWrite();
+        }
+        
+        public void setValueAt(Object o, int row, int col) {
+            Property p = getProperty(row, col);
+            
+            try {
+                p.setValue(o);
+            } catch (IllegalAccessException e) {
+                ErrorManager.getDefault().notify(e);
+            } catch (InvocationTargetException e) {
+                ErrorManager.getDefault().notify(e);
+            }
+        }
+        
+        public int getColumnCount() {
+            return properties.length;
+        }
+        
+        public int getRowCount() {
+            return nodes.length;
+        }
+        
+        public String getColumnName(int col) {
+            return displayNames[col];
+        }
+        
+    }
+    
 }

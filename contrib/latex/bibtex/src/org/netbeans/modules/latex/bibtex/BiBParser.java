@@ -58,22 +58,40 @@ public class BiBParser {
     private Document source;
     private String text;
 //    private PushbackReader input;
-    private String content;
+    private char lastChar;
+    private String identifier;
     
     private SourcePosition getCurrentPosition() {
         return new SourcePosition(source, currentOffset);
     }
     
+    private String currentBuffer = null;
+    private int    currentBufferStart = -1;
+    private static final int BUFFER_LEN = 100;
+    
     private int readNext() {
-        try {
-//            int c = text.charAt(currentOffset++);
-//            
-//            content = String.valueOf(c);
-            content = source.getText(currentOffset++, 1);
-            return content.charAt(0);
-        } catch (BadLocationException e) {
-            return EOF; //TODO: make this sane, preferable using lexer...
+        if (currentBuffer == null || currentBufferStart + currentBuffer.length() <=/*??=??*/ currentOffset ) {
+            try {
+                int len = BUFFER_LEN;
+                if (currentOffset + len >= source.getLength()) {
+                    len = source.getLength() - currentOffset;
+                }
+//                System.err.println("length=" + source.getLength());
+//                System.err.println("currentOffset = " + currentOffset );
+//                System.err.println("len = " + len );
+                currentBuffer = source.getText(currentOffset, len);
+                currentBufferStart = currentOffset;
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+                return EOF; //TODO: make this sane, preferably using lexer...
+            }
         }
+        
+        if ((currentOffset - currentBufferStart) < currentBuffer.length()) {
+//            System.err.print(currentBuffer.charAt(currentOffset - currentBufferStart));
+            return lastChar = currentBuffer.charAt(currentOffset++ - currentBufferStart);
+        } else
+            return EOF;
     }
     
     private int getToken() throws IOException {
@@ -103,10 +121,10 @@ public class BiBParser {
             case '\t':
             case '\n': return WHITESPACE;
             
-            case '%': while ((c = readNext()) != (-1) && c != '\n')
+            case '%': while ((c = readNext()) != EOF && c != '\n')//TODO: %is (probably) allowed in strings!
                           ;
-                      if (c == (-1))
-                          return (-1);
+                      if (c == EOF)
+                          return EOF;
             
                       currentOffset--;
                       
@@ -131,7 +149,7 @@ public class BiBParser {
         
         currentOffset--;
         
-        content = result.toString();
+        identifier = result.toString();
         
         return TEXT;
     }
@@ -184,7 +202,7 @@ public class BiBParser {
         if (token != TEXT)
             return null; //non-valid entry
 
-        String type = content;
+        String type = identifier.toString();
         Entry result;
         
         if (STRING_TYPE.equalsIgnoreCase(type)) {
@@ -215,7 +233,7 @@ public class BiBParser {
         if (token != TEXT)
             return entry;
         
-        String key = content;
+        String key = identifier.toString();
         
         while ((token = getToken()) != EQUALS && !isStopParsingInsideEntryToken(token))
             ;
@@ -225,7 +243,7 @@ public class BiBParser {
 
         //TODO: this is not finished !
         entry.setKey(key);
-        entry.setValue(content);
+        entry.setValue(/*content.toString()*/"<incorrect value>");//TODO: this is not correct at all...
         
         return entry;
     }
@@ -241,13 +259,13 @@ public class BiBParser {
         while ((token = getToken()) != OP_BRAC)
             ;
         
-        bracketStack.push(content);
+        bracketStack.push(lastChar == '{' ? "{" : "(");
         
         while (!bracketStack.isEmpty()) {
             token = getToken();
             
             if (token == OP_BRAC)
-                bracketStack.push(content);
+                bracketStack.push(lastChar == '{' ? "{" : "(");
             
             if (token == CL_BRAC)
                 bracketStack.pop(); //TODO: check the type of the bracket!
@@ -274,7 +292,7 @@ public class BiBParser {
         if (isStopParsingInsideEntryToken(token))
             return null;
         
-        entry.setTag(content);
+        entry.setTag(identifier);
         
         while (parseMap(entry, supposedEnd))
             ;
@@ -291,7 +309,7 @@ public class BiBParser {
         if (token != TEXT)
             return false;
         
-        String key = content;
+        String key = identifier;
         
         while ((token = getToken()) != EQUALS && !isStopParsingInsideEntryToken(token))
             ;
@@ -303,14 +321,22 @@ public class BiBParser {
         return readValueString(entry, key, supposedEnd);
     }
     
+    private void appendContent(StringBuffer buffer, int token) {
+        if (token == TEXT) {
+            buffer.append(identifier);
+        } else {
+            buffer.append(lastChar);
+        }
+        
+    }
     private boolean readValueString(PublicationEntry entry, String key, int supposedEnd) throws IOException {
         StringBuffer result = new StringBuffer();
         int token;
         
         while ((token = getToken()) != COMMA && !isStopParsingInsideEntryToken(token) && token != CL_BRAC) {
-            if (token == OP_BRAC) {
+            if (token == OP_BRAC) {//TODO: balanced brackets:
                 while ((token = getToken()) != CL_BRAC && !isStopParsingInsideEntryToken(token)) {
-                    result.append(content);
+                    appendContent(result, token);
                 }
                 continue;
             }
@@ -323,7 +349,7 @@ public class BiBParser {
                     if (token == CL_BRAC)
                         lastClosingBracket = currentOffset;
                     
-                    result.append(content);
+                    appendContent(result, token);
                 }
                 
                 //TODO: well, not sure whether this error correction is correct and whether it will work correctly under all circumstaces.
@@ -340,8 +366,9 @@ public class BiBParser {
                 continue;
             }
 
-            if (token != WHITESPACE)
-                result.append(content);
+            if (token != WHITESPACE) {
+                appendContent(result, token);
+            }
         }
         
         entry.getContent().put(key.toLowerCase(), result.toString());
@@ -350,6 +377,19 @@ public class BiBParser {
         
         if (isStopParsingInsideEntryToken)
             currentOffset--;
+        
+//        if (token == CL_BRAC) {
+//            System.err.println("CL_BRAC:" + getCurrentPosition().toString());
+//        }
+//        
+//        if (isStopParsingInsideEntryToken) {
+//            System.err.println("isStopParsingInsideEntryToken:" + getCurrentPosition().toString());
+//        }
+//        
+//        System.err.println("X");
+//        System.err.println("token = " + token );
+//        System.err.println("isStopParsingInsideEntryToken = " + isStopParsingInsideEntryToken );
+//        System.err.println("entry=" + entry);
         return token != CL_BRAC && !isStopParsingInsideEntryToken;
     }
 }

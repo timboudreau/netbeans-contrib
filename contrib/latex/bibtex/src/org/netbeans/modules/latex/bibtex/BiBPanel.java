@@ -13,6 +13,8 @@
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.bibtex;
+
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 
 import java.awt.event.ActionListener;
@@ -186,6 +188,8 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
 	c.addAll(FieldDatabase.getDefault().getOptionalFields(type));
 	
 	jComboBox1.setSelectedItem(type);
+        
+        tTag.setText(entry.getTag());
 	
 	setEnabled(c);
 	
@@ -271,6 +275,7 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
     
     public void fillIntoEntry(PublicationEntry entry) {
         entry.setType(type);
+        entry.setTag(tTag.getText());
         entry.setContent(getContent());
     }
     
@@ -282,9 +287,10 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
     private void initComponents() {//GEN-BEGIN:initComponents
         java.awt.GridBagConstraints gridBagConstraints;
 
+        jComboBox1 = new javax.swing.JComboBox();
+        jPanel1 = new javax.swing.JPanel();
         lTitle = new javax.swing.JLabel();
         tTitle = new javax.swing.JTextField();
-        jComboBox1 = new javax.swing.JComboBox();
         lAuthor = new javax.swing.JLabel();
         tAuthor = new javax.swing.JTextField();
         lJournal = new javax.swing.JLabel();
@@ -295,10 +301,24 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
         tPages = new javax.swing.JTextField();
         lBookTitle = new javax.swing.JLabel();
         tBookTitle = new javax.swing.JTextField();
+        lTag = new javax.swing.JLabel();
+        tTag = new javax.swing.JTextField();
+        jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        jPanel3 = new javax.swing.JPanel();
+        bAdd = new javax.swing.JButton();
+        bRemove = new javax.swing.JButton();
 
         setLayout(new java.awt.GridBagLayout());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        add(jComboBox1, gridBagConstraints);
+
+        jPanel1.setLayout(new java.awt.GridBagLayout());
 
         lTitle.setLabelFor(tTitle);
         lTitle.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/bibtex/Bundle").getString("LBL_title"));
@@ -306,25 +326,18 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
-        add(lTitle, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(lTitle, gridBagConstraints);
 
         tTitle.setText("jTextField1");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
-        add(tTitle, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        add(jComboBox1, gridBagConstraints);
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(tTitle, gridBagConstraints);
 
         lAuthor.setLabelFor(tAuthor);
         lAuthor.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/bibtex/Bundle").getString("LBL_author"));
@@ -332,36 +345,36 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
-        add(lAuthor, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(lAuthor, gridBagConstraints);
 
         tAuthor.setText("jTextField2");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
-        add(tAuthor, gridBagConstraints);
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(tAuthor, gridBagConstraints);
 
         lJournal.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/bibtex/Bundle").getString("LBL_journal"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
-        add(lJournal, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(lJournal, gridBagConstraints);
 
         tJournal.setText("jTextField3");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
-        add(tJournal, gridBagConstraints);
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(tJournal, gridBagConstraints);
 
         lYear.setLabelFor(tYear);
         lYear.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/bibtex/Bundle").getString("LBL_year"));
@@ -369,18 +382,18 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
-        add(lYear, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(lYear, gridBagConstraints);
 
         tYear.setText("jTextField4");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
-        add(tYear, gridBagConstraints);
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(tYear, gridBagConstraints);
 
         lPages.setLabelFor(tPages);
         lPages.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/bibtex/Bundle").getString("LBL_pages"));
@@ -388,18 +401,18 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
-        add(lPages, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(lPages, gridBagConstraints);
 
         tPages.setText("jTextField5");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
-        add(tPages, gridBagConstraints);
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(tPages, gridBagConstraints);
 
         lBookTitle.setLabelFor(tBookTitle);
         lBookTitle.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/bibtex/Bundle").getString("LBL_booktitle"));
@@ -407,18 +420,47 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
-        add(lBookTitle, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(lBookTitle, gridBagConstraints);
 
         tBookTitle.setText("jTextField6");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
-        add(tBookTitle, gridBagConstraints);
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(tBookTitle, gridBagConstraints);
+
+        lTag.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/bibtex/Bundle").getString("LBL_Tag"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(lTag, gridBagConstraints);
+
+        tTag.setText("jTextField1");
+        tTag.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tTagActionPerformed(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(tTag, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        add(jPanel1, gridBagConstraints);
+
+        jPanel2.setLayout(new java.awt.GridBagLayout());
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -443,28 +485,96 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 7;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        add(jScrollPane1, gridBagConstraints);
+        gridBagConstraints.weighty = 1.0;
+        jPanel2.add(jScrollPane1, gridBagConstraints);
+
+        jPanel3.setLayout(new java.awt.GridBagLayout());
+
+        bAdd.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/bibtex/Bundle").getString("LBL_Add_Attribute"));
+        bAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bAddActionPerformed(evt);
+            }
+        });
+
+        jPanel3.add(bAdd, new java.awt.GridBagConstraints());
+
+        bRemove.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/bibtex/Bundle").getString("LBL_RemoveAttribute"));
+        bRemove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bRemoveActionPerformed(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        jPanel3.add(bRemove, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.weighty = 1.0;
+        jPanel2.add(jPanel3, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(jPanel2, gridBagConstraints);
 
     }//GEN-END:initComponents
 
+    private void bRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bRemoveActionPerformed
+        // TODO add your handling code here:
+        int[] rows = jTable1.getSelectedRows();
+        
+        if (rows.length == 1) {
+            DefaultTableModel dtm = (DefaultTableModel) jTable1.getModel();
+            
+            dtm.removeRow(rows[0]);
+        } else {
+            Toolkit.getDefaultToolkit().beep();
+        }
+    }//GEN-LAST:event_bRemoveActionPerformed
+
+    private void bAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bAddActionPerformed
+        // TODO add your handling code here:
+        DefaultTableModel dtm = (DefaultTableModel) jTable1.getModel();
+        
+        dtm.addRow(new String[] {"<newAttribute>", "<newValue>"});
+    }//GEN-LAST:event_bAddActionPerformed
+
+    private void tTagActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tTagActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tTagActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bAdd;
+    private javax.swing.JButton bRemove;
     private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JLabel lAuthor;
     private javax.swing.JLabel lBookTitle;
     private javax.swing.JLabel lJournal;
     private javax.swing.JLabel lPages;
+    private javax.swing.JLabel lTag;
     private javax.swing.JLabel lTitle;
     private javax.swing.JLabel lYear;
     private javax.swing.JTextField tAuthor;
     private javax.swing.JTextField tBookTitle;
     private javax.swing.JTextField tJournal;
     private javax.swing.JTextField tPages;
+    private javax.swing.JTextField tTag;
     private javax.swing.JTextField tTitle;
     private javax.swing.JTextField tYear;
     // End of variables declaration//GEN-END:variables

@@ -34,6 +34,8 @@ import org.netbeans.modules.latex.model.structural.parser.MainStructuralElement;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -165,6 +167,10 @@ public class NBUtilities extends Utilities {
     public ParseError createError(String message, SourcePosition pos) {
         return new ParseErrorImpl(message, pos);
     }
+    
+//    public Object   findFile(File file) throws IOException {
+//        return FileUtil.toFileObject(file);
+//    }
     
     public List/*<String>*/ findRelativeFilesBegining(Object file, String prefix) throws IOException {
         String dir  = "";

@@ -20,6 +20,9 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.AbstractAction;
+import javax.swing.text.Document;
+import org.netbeans.modules.latex.bibtex.loaders.BiBTexDataObject;
+import org.netbeans.modules.latex.model.Utilities;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.nodes.BeanNode;
@@ -30,11 +33,11 @@ import org.openide.windows.TopComponent;
  *
  * @author Jan Lahoda
  */
-public class EditEntryAction extends AbstractAction implements PropertyChangeListener {
+public class NewEntryAction extends AbstractAction implements PropertyChangeListener {
     
     /** Creates a new instance of EditEntryAction */
-    public EditEntryAction() {
-        putValue(NAME, "Edit Entry");
+    public NewEntryAction() {
+        putValue(NAME, "New Entry");
         
         //Temporary hack. (leaks etc...)
         TopComponent.getRegistry().addPropertyChangeListener(this);
@@ -42,24 +45,25 @@ public class EditEntryAction extends AbstractAction implements PropertyChangeLis
     
     public void actionPerformed(ActionEvent e) {
         Node node = TopComponent.getRegistry().getActivatedNodes()[0];
-        Entry entry = (Entry) node.getLookup().lookup(Entry.class); //see propertyChange
+        BiBTexDataObject file = (BiBTexDataObject) node.getLookup().lookup(BiBTexDataObject.class); //see propertyChange
+        BiBTeXModel model = BiBTeXModel.getModel(file.getPrimaryFile());
         
-        if (entry instanceof PublicationEntry) {
-            PublicationEntry pEntry = (PublicationEntry) entry;
-            BiBPanel panel = new BiBPanel();
+        PublicationEntry pEntry = new PublicationEntry();
+        
+        pEntry.setType("ARTICLE");
+        
+        BiBPanel panel = new BiBPanel();
             
-            panel.setContent(pEntry);
+        panel.setContent(pEntry);
             
-            DialogDescriptor dd     = new DialogDescriptor(panel, "Edit Entry");
-            Dialog           dialog = DialogDisplayer.getDefault().createDialog(dd);
+        DialogDescriptor dd     = new DialogDescriptor(panel, "Edit Entry");
+        Dialog           dialog = DialogDisplayer.getDefault().createDialog(dd);
             
-            dialog.show();
+        dialog.show();
             
-            if (dd.getValue() == DialogDescriptor.OK_OPTION) {
-                panel.fillIntoEntry(pEntry);
-            }
-        } else {
-            Toolkit.getDefaultToolkit().beep();
+        if (dd.getValue() == DialogDescriptor.OK_OPTION) {
+            panel.fillIntoEntry(pEntry);
+            model.addEntry(pEntry);
         }
     }
     
@@ -73,7 +77,7 @@ public class EditEntryAction extends AbstractAction implements PropertyChangeLis
         
         Node active = activatedNodes[0];
         
-        setEnabled(active.getLookup().lookup(Entry.class) != null);
+        setEnabled(active.getLookup().lookup(BiBTexDataObject.class) != null);
     }
     
 }

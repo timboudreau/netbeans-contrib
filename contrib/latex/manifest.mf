@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.latex.test/1
+OpenIDE-Module-Java-Dependencies: Java > 1.4.0
+

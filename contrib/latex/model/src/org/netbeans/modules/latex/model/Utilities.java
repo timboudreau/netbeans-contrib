@@ -13,6 +13,8 @@
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.model;
+import java.io.File;
+
 
 import java.io.IOException;
 import java.util.Collection;
@@ -88,6 +90,10 @@ public abstract class Utilities {
     public abstract Object[] getRelativeFileList(Object file, String relativePath) throws IOException;
     
     public abstract Object   getRelativeFileName(Object file, String relativeFile) throws IOException;
+    
+    /*This was originaly required for some tests, but it probably is not part of a good LaTeX API:
+     */
+//    public abstract Object   findFile(File file) throws IOException;
     
     public abstract List/*<String>*/ findRelativeFilesBegining(Object file, String prefix) throws IOException;
     

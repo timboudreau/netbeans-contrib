@@ -31,15 +31,15 @@ public class BiBTest extends AbstractAction {
     }
     
     public void actionPerformed(ActionEvent e) {
-        RequestProcessor.getDefault().post(new Runnable() {
-            public void run() {
-                try {
-                    IncrementalParserTest.main(new String[0]);
-                } catch (Exception ex) {
-                    ErrorManager.getDefault().notify(ex);
-                }
-            }
-        });
+//        RequestProcessor.getDefault().post(new Runnable() {
+//            public void run() {
+//                try {
+//                    IncrementalParserTest.main(new String[0]);
+//                } catch (Exception ex) {
+//                    ErrorManager.getDefault().notify(ex);
+//                }
+//            }
+//        });
     }
     
 }
