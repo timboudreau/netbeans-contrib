@@ -297,7 +297,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKIN_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkin ${CHECKIN_OPTIONS} -C@${QUOTE}${DESCRIPTION_FILE}${QUOTE} ${OPTIONS} ${QFILE} ${NUR}</value>
+	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} checkin ${CHECKIN_OPTIONS} $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${OPTIONS} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -353,7 +353,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CHECKIN_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUNPATH} ${QUOTE}${VSSCMD}${QUOTE} checkin ${RECURSIVE} ${CHECKIN_OPTIONS} -C@${QUOTE}${DESCRIPTION_FILE}${QUOTE} ${OPTIONS} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
+	  <value>${RUNPATH} ${QUOTE}${VSSCMD}${QUOTE} checkin ${RECURSIVE} ${CHECKIN_OPTIONS} $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${OPTIONS} ${QUOTE}${WORKPROJ}${QUOTE} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -445,6 +445,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="generalCommandActionDisplayName">
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_UPDATE)</value>
+        </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.CheckOutCommand</value>
         </property>
       </command>
       <command name="CHECKOUTR_CONFIRM">
@@ -777,7 +780,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_ADD_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} add $[? PROCESSING_BINARY_FILES] [-B] [] -C@${QUOTE}${DESCRIPTION_FILE}${QUOTE} ${ADD_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
+	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} add $[? PROCESSING_BINARY_FILES] [-B] [] $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -821,13 +824,16 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_GENERAL_ACTION_ADD)</value>
         </property>
+        <property name="associatedCommandInterfaceName">
+          <value>org.netbeans.api.vcs.commands.AddCommand</value>
+        </property>
       </command>
       <command name="CREATE" displayName="getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CREATE)">
         <property name="labelMnemonic">
           <value>getBundle(org/netbeans/modules/vcs/profiles/vss/config/Bundle).getString(VSS_CREATE_Mnemonic)</value>
         </property>
 	<property name="exec">
-	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} create -C@${QUOTE}${DESCRIPTION_FILE}${QUOTE} ${CREATE_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
+	  <value>${RUN} ${QUOTE}${VSSCMD}${QUOTE} create $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${CREATE_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
