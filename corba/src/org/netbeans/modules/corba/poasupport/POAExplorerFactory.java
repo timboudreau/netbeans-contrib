@@ -17,6 +17,7 @@ package org.netbeans.modules.corba.poasupport;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.src.ClassElement;
+import org.openide.src.SourceElement;
 import org.openide.src.nodes.FilterFactory;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.cookies.EditorCookie;
@@ -37,6 +38,8 @@ public class POAExplorerFactory extends FilterFactory {
     
     public Node createClassNode (ClassElement element) {
         Node node = super.createClassNode( element );
+        if (element.getSource().getStatus() == SourceElement.STATUS_NOT)
+            element.getSource().prepare(); 
         POASourceMaker maker = new POASourceMaker(element);
         if (maker.checkForPOA()) {
             POAChildren poaChildren = new POAChildren(maker);
