@@ -1324,71 +1324,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         out.select();
     }
 
-
-    private static ArrayList createIgnoreListQueue = new ArrayList();
-    private static Thread ignoreListCreationThread = null;
-    
-    static void addCreateIgnoreList(FileObject fo) {
-        synchronized (createIgnoreListQueue) {
-            if (createIgnoreListQueue == null) createIgnoreListQueue = new ArrayList();
-            createIgnoreListQueue.add(fo);
-            //System.out.println("addCreateIgnoreList("+fo+"), createIgnoreListQueue.size() = "+createIgnoreListQueue.size());
-            createIgnoreListQueue.notifyAll();
-            if (ignoreListCreationThread == null || !ignoreListCreationThread.isAlive()) {
-                ignoreListCreationThread = createIgnoreListCreationThread();
-                ignoreListCreationThread.start();
-            }
-        }
-    }
-    
-    private static void waitForIgnoreListToCreate() {
-        synchronized (createIgnoreListQueue) {
-            try {
-                createIgnoreListQueue.wait(60000);
-            } catch (InterruptedException exc) {}
-        }
-    }
-    
-    private static Thread createIgnoreListCreationThread() {
-        return new Thread(new Runnable() {
-            public void run() {
-                //IgnoreListSupport ignSupport = VcsFileSystem.this.getIgnoreListSupport();
-                //System.out.println("createIgnoreListCreationThread STARTING...");
-                do {
-                    //System.out.println("createIgnoreListCreationThread RESUMED...");
-                    while (true) {
-                        FileObject fo;
-                        synchronized (createIgnoreListQueue) {
-                            int n = createIgnoreListQueue.size();
-                            if (n == 0) break;
-                            fo = (FileObject) createIgnoreListQueue.remove(0);
-                        }
-                        FileSystem fs = null;
-                        try {
-                            fs = fo.getFileSystem();
-                        } catch (FileStateInvalidException fsiexc) {}
-                        VcsFileSystem vfs = null;
-                        if (fs == null || !(fs instanceof VcsFileSystem)) {
-                            if (fs instanceof VcsVersioningSystem) {
-                                vfs = (VcsFileSystem) ((VcsVersioningSystem) fs).getFileSystem();
-                            } else {
-                                continue;
-                            }
-                        } else {
-                            vfs = (VcsFileSystem) fs;
-                        }
-                        IgnoreListSupport ignSupport = vfs.getIgnoreListSupport();
-                        String path = fo.getPackageNameExt('/','.');
-                        //System.out.println(" creating ignore list: "+fo);
-                        vfs.createIgnoreList(fo, path, ignSupport);
-                    }
-                    waitForIgnoreListToCreate();
-                } while (createIgnoreListQueue.size() > 0);
-                //System.out.println("createIgnoreListCreationThread FINISHED.");
-            }
-        }, "VCS Ignore List Creation Thread");
-    }
-
     /** Creates Reference. In FileSystem, which subclasses AbstractFileSystem, you can overload method
      * createReference(FileObject fo) to achieve another type of Reference (weak, strong etc.)
      * @param fo is FileObject. It`s reference yourequire to get.
@@ -1397,13 +1332,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     protected java.lang.ref.Reference createReference(final FileObject fo) {
 	if (cache != null) {
             java.lang.ref.Reference ref = cache.createReference(fo);
-            final IgnoreListSupport ignSupport = this.getIgnoreListSupport();
-            if (ignSupport != null) {
-                final String path = fo.getPackageNameExt('/','.');
-                if (cache.isDir (path)) {
-                    addCreateIgnoreList(fo);
-                }
-            }
 	    return ref;
 	}
 	else return super.createReference(fo);
@@ -1423,20 +1351,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
        return null;
     }
     
-    private void createIgnoreList(final FileObject fo, final String path, final IgnoreListSupport ignSupport) {
-        CacheDir dir = cache.getDir(path);
-        if (dir == null || dir.isIgnoreListSet()) return ;
-        dir.setIgnoreList(VcsUtilities.createIgnoreList(dir, path, ignSupport));//ignorelist);
-        Enumeration existingFOEnum = existingFileObjects(fo);
-        if (existingFOEnum.hasMoreElements()) existingFOEnum.nextElement(); // take out the root FileObject
-        else return ; // there are no existing file objects.
-        if (existingFOEnum.hasMoreElements()) { // there are some children
-            statusChanged(path, false);
-        } else {
-            statusChanged(path);
-        }
-    }
-
     /**
      * Get the provider of the cache.
      */
