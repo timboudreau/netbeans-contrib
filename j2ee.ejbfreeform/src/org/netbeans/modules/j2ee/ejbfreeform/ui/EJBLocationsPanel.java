@@ -135,7 +135,7 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
      */
     // XXX: copied from java/freeform:SourceFoldersPanel.getLocationDisplayName
     public static String getLocationDisplayName(PropertyEvaluator evaluator, File base, String val) {
-        if (val == null)
+        if (val == null || val.trim().length() <= 0)
             return ""; // NOI18N
         File f = Util.resolveFile(evaluator, base, val);
         if (f == null) {
@@ -362,7 +362,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     }//GEN-LAST:event_serverTypeComboBoxItemStateChanged
     
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        JFileChooser chooser = createChooser(getResourcesLocation().getAbsolutePath());
+        File resources = getResourcesLocation();
+        JFileChooser chooser = createChooser(resources != null ? resources.getAbsolutePath() : baseFolder.getAbsolutePath()); // NOI18N
         if (JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(this)) {
             setResources(chooser.getSelectedFile());
         }
@@ -442,8 +443,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     protected List getResourcesFolder() {
         ArrayList l = new ArrayList();
         File resourceLoc = getResourcesLocation();
-        l.add(getRelativeLocation(resourceLoc));
-        l.add(resourceLoc.getName());
+        l.add(resourceLoc != null ? getRelativeLocation(resourceLoc) : null);
+        l.add(resourceLoc != null ? resourceLoc.getName() : null);
         return l;
     }
     
@@ -485,7 +486,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     }
     
     protected File getResourcesLocation() {
-        return getAsFile(resourcesTextField.getText()).getAbsoluteFile();
+        String resources = resourcesTextField.getText().trim();
+        return resources.length() <= 0 ? null : getAsFile(resourcesTextField.getText()).getAbsoluteFile();
     }
     
     private void setSrcPackages(final File file) {
