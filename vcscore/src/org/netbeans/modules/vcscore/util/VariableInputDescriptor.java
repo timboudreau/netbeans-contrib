@@ -35,8 +35,10 @@ public class VariableInputDescriptor extends Object {
     public static final int INPUT_GLOBAL = 8;
     public static final int INPUT_SELECT_COMBO_EDITABLE = 9;
     public static final int INPUT_TEXT = 11;
+    public static final int INPUT_HELP_ID = 13;
     
     public static final String INPUT_STR_LABEL = "LABEL";
+    public static final String INPUT_STR_HELP_ID = "HELP_ID";
     public static final String INPUT_STR_PROMPT_FIELD = "PROMPT_FOR";
     public static final String INPUT_STR_PROMPT_AREA = "PROMPT_FOR_FILE";
     public static final String INPUT_STR_PROMPT_PASSWD = "PROMPT_FOR_PASSWORD";
@@ -83,6 +85,7 @@ public class VariableInputDescriptor extends Object {
     private String label;
     private String a11yName = null;
     private String a11yDescription = null;
+    private String helpID;
     private ArrayList components = new ArrayList();
     
     /** Creates new VariableInputDescriptor */
@@ -92,6 +95,7 @@ public class VariableInputDescriptor extends Object {
                 if (inputMap == null) {
                     inputMap = new HashMap();
                     inputMap.put(INPUT_STR_LABEL, new Integer(INPUT_LABEL));
+                    inputMap.put(INPUT_STR_HELP_ID, new Integer(INPUT_HELP_ID));
                     inputMap.put(INPUT_STR_ACCESSIBILITY, new Integer(INPUT_ACCESSIBILITY));
                     inputMap.put(INPUT_STR_PROMPT_FIELD, new Integer(INPUT_PROMPT_FIELD));
                     inputMap.put(INPUT_STR_PROMPT_AREA, new Integer(INPUT_PROMPT_AREA));
@@ -148,6 +152,8 @@ public class VariableInputDescriptor extends Object {
             //System.out.println("parseItems: "+inputStr+": "+inputArg);
             if (inputId == INPUT_LABEL && inputArgs.length > 0) {
                 descriptor.label = VcsUtilities.getBundleString(inputArgs[0]);
+            } else if (inputId == INPUT_HELP_ID && inputArgs.length > 0) {
+                descriptor.helpID = inputArgs[0];
             } else if (inputId == INPUT_ACCESSIBILITY && inputArgs.length > 0) {
                 VariableInputComponent testComponent = new VariableInputComponent(0, "", "");
                 setA11y(VcsUtilities.getBundleString(inputArg), testComponent);
@@ -196,6 +202,13 @@ public class VariableInputDescriptor extends Object {
      */
     public String getA11yDescription() {
         return a11yDescription;
+    }
+    
+    /**
+     * Get the help ID that should be associated with the dialog.
+     */
+    public String getHelpID() {
+        return helpID;
     }
     
     /**

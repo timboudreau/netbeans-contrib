@@ -401,6 +401,7 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             ActionListener actionL = null;
             java.lang.reflect.Method addActionListenerMethod = null;
             java.lang.reflect.Method getDisplayNameMethod = null;
+            java.lang.reflect.Method getHelpIDMethod = null;
             java.lang.reflect.Method getInitialFocusedComponentMethod = null;
             if (cust instanceof ActionListener) actionL = (ActionListener) cust;
             try {
@@ -408,6 +409,9 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             } catch (Exception ex) {}
             try {
                 getDisplayNameMethod = cust.getClass().getMethod("getDisplayTitle",null);
+            } catch (Exception ex) {}
+            try {
+                getHelpIDMethod = cust.getClass().getMethod("getHelpID", null);
             } catch (Exception ex) {}
             try {
                 getInitialFocusedComponentMethod = cust.getClass().getMethod("getInitialFocusedComponent", null);
@@ -421,9 +425,20 @@ public class CommandProcessor extends Object /*implements CommandListener */{
             if (displayName == null) {
                 displayName = cmd.getDisplayName();
             }
+            org.openide.util.HelpCtx helpCtx = null;
+            if (getHelpIDMethod != null) {
+                try {
+                    String helpID = (String) getHelpIDMethod.invoke(cust, null);
+                    if (helpID != null) {
+                        helpCtx = new org.openide.util.HelpCtx(helpID);
+                    }
+                } catch (Exception ex) {}
+            }
             dlg = new DialogDescriptor(cust, displayName,
                                        true, DialogDescriptor.OK_CANCEL_OPTION,
-                                       DialogDescriptor.OK_OPTION, actionL);
+                                       DialogDescriptor.OK_OPTION,
+                                       DialogDescriptor.DEFAULT_ALIGN, helpCtx,
+                                       actionL);
             final Dialog dialog = DialogDisplayer.getDefault().createDialog(dlg);
             if (getInitialFocusedComponentMethod != null) {
                 java.awt.Component initialFocusedComponent = null;

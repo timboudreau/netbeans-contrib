@@ -847,6 +847,9 @@ public class CommandCustomizationSupport extends Object {
                     // since I have the original variables locked.
                     final Hashtable dlgVars = new Hashtable(vars);
                     final VariableInputDialog dlg = new VariableInputDialog(new String[] { file }, inputDescriptor, expertCondition, dlgVars);
+                    if (inputDescriptor.getHelpID() != null) {
+                        dlg.putClientProperty("helpID", inputDescriptor.getHelpID());
+                    }
                     dlg.setExecutionContext(executionContext, dlgVars);
                     if (cmd.getDisplayName() != null) {
                         dlg.setCmdName(cmd.getDisplayName());

@@ -89,6 +89,10 @@ public class UserCommandCustomizer extends JPanel implements ActionListener, Run
         return title;
     }
     
+    public String getHelpID() {
+        return (String) dlg.getClientProperty("helpID");
+    }
+    
     /**
      * Add action listener, which is notified when an OK/Cancel action was performed
      * on the dialog. The Dialog with this Customizer is closed when ACTION_PERFORMED
