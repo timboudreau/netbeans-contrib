@@ -241,6 +241,20 @@ public abstract class VersioningFileSystem extends AbstractFileSystem implements
     }
     //public void markImportant(String name, boolean is);
     
+    protected void refreshExistingFolders() {
+        org.openide.util.RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                Enumeration e = existingFileObjects(getRoot());
+                while (e.hasMoreElements()) {
+                    FileObject fo = (FileObject) e.nextElement();
+                    if (fo.isFolder()) {
+                        fo.refresh(true);
+                    }
+                }
+            }
+        });
+    }
+    
     public final void addVcsFileStatusListener(VcsFileStatusListener listener) {
         synchronized (listenerList) {
             listenerList.add(VcsFileStatusListener.class, listener);

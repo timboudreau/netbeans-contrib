@@ -15,6 +15,9 @@ package org.netbeans.modules.vcscore;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.ObjectInputStream;
+import java.io.IOException;
+import java.io.NotActiveException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -25,6 +28,10 @@ import java.util.Iterator;
 import java.util.Set;
 //import java.util.StringTokenizer;
 
+import org.apache.regexp.RE;
+import org.apache.regexp.RESyntaxException;
+
+import org.openide.TopManager;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -71,13 +78,24 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
     private Hashtable revisionListsByName;
     /** Holds value of property showMessages. */
     private boolean showMessages = true;
-
+    /** Holds value of property showUnimportantFiles. */
+    private boolean showUnimportantFiles = false;
+    /** Holds value of property showLocalFiles. */
+    private boolean showLocalFiles = true;
+    /** Holds value of property ignoredGarbageFiles -- regexp of ignorable children. */
+    private String ignoredGarbageFiles = ""; // NOI18N
+    /** regexp matcher for ignoredFiles, null if not needed */
+    private transient RE ignoredGarbageRE = null;
+    
     /** Holds value of property messageLength. */
     private int messageLength = 20;    
     
     public static final String PROP_SHOW_DEAD_FILES = "showDeadFiles"; //NOI18N
     public static final String PROP_SHOW_MESSAGES = "showMessages"; //NOI18N
     public static final String PROP_MESSAGE_LENGTH = "messageLength"; //NOI18N
+    public static final String PROP_SHOW_UNIMPORTANT_FILES = "showUnimportantFiles"; //NOI18N
+    public static final String PROP_SHOW_LOCAL_FILES = "showLocalFiles"; // NOI18N
+    public static final String PROP_IGNORED_GARBAGE_FILES = "ignoredGarbageFiles"; // NOI18N
     
     private static final long serialVersionUID = 6349205836150345436L;
 
@@ -142,7 +160,54 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         fileSystem.setShowDeadFiles(showDeadFiles);
         firePropertyChange(PROP_SHOW_DEAD_FILES, new Boolean(!showDeadFiles), new Boolean(showDeadFiles));
     }
+    
+    public boolean isShowUnimportantFiles() {
+        return showUnimportantFiles;
+    }
+    
+    public void setShowUnimportantFiles(boolean showUnimportantFiles) {
+        if (this.showUnimportantFiles != showUnimportantFiles) {
+            this.showUnimportantFiles = showUnimportantFiles;
+            firePropertyChange(PROP_SHOW_UNIMPORTANT_FILES, new Boolean(!showUnimportantFiles), new Boolean(showUnimportantFiles));
+            refreshExistingFolders();
+        }
+    }
 
+    public boolean isShowLocalFiles() {
+        return showLocalFiles;
+    }
+    
+    public void setShowLocalFiles(boolean showLocalFiles) {
+        if (this.showLocalFiles != showLocalFiles) {
+            this.showLocalFiles = showLocalFiles;
+            firePropertyChange(PROP_SHOW_LOCAL_FILES, new Boolean(!showLocalFiles), new Boolean(showLocalFiles));
+            refreshExistingFolders();
+        }
+    }
+
+    public String getIgnoredGarbageFiles () {
+        return ignoredGarbageFiles;
+    }
+    
+    public synchronized void setIgnoredGarbageFiles (String nue) throws IllegalArgumentException {
+        if (! nue.equals (ignoredGarbageFiles)) {
+            if (nue.length () > 0) {
+                try {
+                    ignoredGarbageRE = new RE (nue);
+                } catch (RESyntaxException rese) {
+                    IllegalArgumentException iae = new IllegalArgumentException ();
+                    TopManager.getDefault ().getErrorManager ().annotate (iae, rese);
+                    throw iae;
+                }
+            } else {
+                ignoredGarbageRE = null;
+            }
+            ignoredGarbageFiles = nue;
+            firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null, null); // NOI18N
+            refreshExistingFolders();
+        }
+    }
+    
     /** Getter for property showMessages.
      * @return Value of property showMessages.
      */
@@ -317,6 +382,19 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         
     }
      */
+
+    private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
+        in.defaultReadObject();
+        if (ignoredGarbageFiles == null) {
+            ignoredGarbageFiles = "";
+        } else if (ignoredGarbageFiles.length () > 0) {
+            try {
+                ignoredGarbageRE = new RE (ignoredGarbageFiles);
+            } catch (RESyntaxException rese) {
+                TopManager.getDefault ().notifyException (rese);
+            }
+        }
+    }
     
     private class VersioningList extends Object implements AbstractFileSystem.List {
         
@@ -337,6 +415,18 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
             if (cache != null) {
                 VcsCacheDir cacheDir = (VcsCacheDir) cache.getDir(name);
                 if (files.length == 0 && (cacheDir == null || (!cacheDir.isLoaded() && !cacheDir.isLocal()))) cache.readDir(name/*, false*/); // DO refresh when the local directory is empty !
+            }
+            //FileStatusProvider status = fileSystem.getStatusProvider();
+            for (int i = 0; i < files.length; i++) {
+                if (fileSystem.isFilterBackupFiles() && files[i].endsWith(fileSystem.getBackupExtension()) ||
+                    !isShowUnimportantFiles() &&
+                        !fileSystem.isImportant((name.length() == 0) ? files[i] : name + "/" + files[i]) ||
+                    //!isShowLocalFiles() && cache != null && status != null &&  -- makes problems, since every file is initially local
+                    //    status.getLocalFileStatus().equals(status.getFileStatus((name.length() == 0) ? files[i] : name + "/" + files[i])) ||
+                    ignoredGarbageRE != null && ignoredGarbageRE.match (files[i])) {
+                
+                    files[i] = null;
+                }
             }
             return files;
         }

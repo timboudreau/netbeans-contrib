@@ -768,6 +768,16 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                 unimportantFiles.add(name);
             }
         }
+        if (versioningFolderListeners != null) {
+            FileObject fo = findResource(name);
+            if (fo != null) {
+                FileObject folder = fo.getParent();
+                if (folder != null) {
+                    FileChangeListener l = (FileChangeListener) versioningFolderListeners.get(folder);
+                    if (l != null) l.fileChanged(null);
+                }
+            }
+        }
     }
     
     public boolean isImportant(String name) {
@@ -3324,6 +3334,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
         /** Fired when a file is changed. */
         public void fileChanged(org.openide.filesystems.FileEvent fe) {
+            refreshVersioning();
         }
 
         /** Fired when a new file is created. */
