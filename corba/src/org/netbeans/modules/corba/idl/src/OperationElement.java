@@ -25,6 +25,7 @@ public class OperationElement extends IDLElement {
    private Vector exceptions;
    private Vector contexts;
 
+  static final long serialVersionUID =-533680242820260136L;
    public OperationElement(int id) {
       super(id);
       params = new Vector ();

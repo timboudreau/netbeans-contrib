@@ -37,6 +37,7 @@ public class NamingServiceChild implements Serializable {
    public String url;
    public String ior;
 
+  static final long serialVersionUID =-5051797421901475341L;
    public NamingServiceChild () {
    }
 

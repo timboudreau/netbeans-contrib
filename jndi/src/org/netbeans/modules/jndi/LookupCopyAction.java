@@ -24,6 +24,7 @@ import org.openide.util.HelpCtx;
  */
 public class LookupCopyAction extends org.openide.util.actions.NodeAction {
 
+  static final long serialVersionUID =1501552038768545173L;
   /** Creates new LookupCopyAction */
   public LookupCopyAction() {
     super();

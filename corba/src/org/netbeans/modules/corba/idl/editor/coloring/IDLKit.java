@@ -38,6 +38,7 @@ import com.netbeans.developer.modules.text.KitSupport;
 
 public class IDLKit extends BaseKit {
 
+  static final long serialVersionUID =-64995352874400403L;
   /** Create new instance of syntax coloring parser */
   public Syntax createSyntax() {
     return new IDLSyntax();
@@ -57,6 +58,7 @@ public class IDLKit extends BaseKit {
 
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
  *  1    Gandalf   1.0         11/9/99  Karel Gardas    
  * $
  */

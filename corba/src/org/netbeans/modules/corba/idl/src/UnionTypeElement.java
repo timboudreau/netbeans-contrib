@@ -17,6 +17,7 @@ public class UnionTypeElement extends TypeElement {
 
    private String switch_type;
 
+  static final long serialVersionUID =870071007709079899L;
    public UnionTypeElement(int id) {
       super(id);
    }

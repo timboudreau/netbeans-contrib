@@ -33,6 +33,7 @@ public class CopyClientCode extends NodeAction {
    public static final boolean DEBUG = false;
    //public static final boolean DEBUG = true;
 
+  static final long serialVersionUID =981986841072137161L;
    public CopyClientCode () {
       super ();
    }

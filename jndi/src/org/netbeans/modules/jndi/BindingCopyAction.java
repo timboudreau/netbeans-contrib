@@ -24,6 +24,7 @@ import org.openide.util.HelpCtx;
 
 public class BindingCopyAction extends org.openide.util.actions.NodeAction {
 
+  static final long serialVersionUID =8142289490289348871L;
   /** Creates new BindingCopyAction */
   public BindingCopyAction() {
     super();

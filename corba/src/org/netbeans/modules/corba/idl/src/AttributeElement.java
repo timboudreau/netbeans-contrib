@@ -21,6 +21,7 @@ public class AttributeElement extends IDLElement {
    private IDLType type;
    private Vector other;
 
+  static final long serialVersionUID =-2257315980029179853L;
    public AttributeElement(int id) {
       super(id);
       readonly = false;

@@ -29,6 +29,7 @@ public class UnbindContext extends NodeAction {
 
    public static final boolean DEBUG = false;
 
+  static final long serialVersionUID =-6981996552795143080L;
    public UnbindContext () {
       super ();
    }

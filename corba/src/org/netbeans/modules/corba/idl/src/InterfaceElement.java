@@ -23,6 +23,7 @@ public class InterfaceElement extends IDLElement {
   private Vector inherited_from;
   private Vector body;
 
+  static final long serialVersionUID =-6011564487281259081L;
   public InterfaceElement(int id) {
     super(id);
     inherited_from = new Vector ();

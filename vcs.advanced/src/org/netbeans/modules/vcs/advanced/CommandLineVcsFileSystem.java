@@ -45,6 +45,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
   private transient Hashtable commandsByName=null;
  
   //-------------------------------------------
+  static final long serialVersionUID =-1017235664394970926L;
   public CommandLineVcsFileSystem () {
     //D.deb("CommandLineVcsFileSystem()");
     super ();
@@ -79,6 +80,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem {
 
 /*
  * <<Log>>
+ *  49   Gandalf   1.48        11/27/99 Patrik Knakal   
  *  48   Gandalf   1.47        11/23/99 Martin Entlicher 
  *  47   Gandalf   1.46        10/25/99 Pavel Buzek     copyright
  *  46   Gandalf   1.45        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun

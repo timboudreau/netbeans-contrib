@@ -22,6 +22,7 @@ package com.netbeans.enterprise.modules.corba.browser.ns;
 
 public class CopyServerCodePanel extends javax.swing.JPanel {
 
+  static final long serialVersionUID =-1163268373531758617L;
    /** Creates new form CopyServerCodePanel */
    public CopyServerCodePanel() {
       initComponents ();

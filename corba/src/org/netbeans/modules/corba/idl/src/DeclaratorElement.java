@@ -19,6 +19,7 @@ public class DeclaratorElement extends TypeElement {
 
   private Vector dim;
 
+  static final long serialVersionUID =3868013264433712706L;
   public DeclaratorElement (int id) {
     super(id);
     dim = new Vector ();

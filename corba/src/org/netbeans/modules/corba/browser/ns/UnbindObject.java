@@ -29,6 +29,7 @@ public class UnbindObject extends NodeAction {
 
    public static final boolean DEBUG = false;
 
+  static final long serialVersionUID =3721620137072712461L;
    public UnbindObject () {
       super ();
    }

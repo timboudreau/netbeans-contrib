@@ -60,6 +60,7 @@ public class IDLDataLoader extends MultiFileLoader {
 
   protected HashMap folders;
 
+  static final long serialVersionUID =-1462379765695052830L;
   public IDLDataLoader() {
     super(IDLDataObject.class);
     if (DEBUG)
@@ -299,6 +300,7 @@ public class IDLDataLoader extends MultiFileLoader {
    */
   public class IDLFileEntry extends FileEntry.Format {
 
+    static final long serialVersionUID =-3139969782935474471L;
     /** Creates new IDLFileEntry */
     IDLFileEntry (MultiDataObject obj, FileObject file) {
       super (obj, file);

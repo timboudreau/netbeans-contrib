@@ -52,6 +52,7 @@ public class IDLModule extends ModuleInstall {
   private static final boolean DEBUG = false;
   //private static final boolean DEBUG = true;
 
+  static final long serialVersionUID =8847247042163099527L;
   /** Module installed for the first time. */
   public void installed() {
     if (DEBUG) 
@@ -142,6 +143,7 @@ public class IDLModule extends ModuleInstall {
 
 /*
  * <<Log>>
+ *  24   Gandalf   1.23        11/27/99 Patrik Knakal   
  *  23   Gandalf   1.22        11/9/99  Karel Gardas    - updated for new IDL 
  *       Editor Stuff
  *  22   Gandalf   1.21        11/4/99  Karel Gardas    - update from CVS

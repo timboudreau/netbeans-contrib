@@ -36,6 +36,7 @@ public class GenerateImplAction extends CookieAction {
   
   private String name;
 
+  static final long serialVersionUID =7123829348277092914L;
   /** @return set of needed cookies */
   protected Class[] cookieClasses () {
     return new Class[] { IDLNodeCookie.class };
@@ -109,6 +110,7 @@ public class GenerateImplAction extends CookieAction {
 
 /*
  * <<Log>>
+ *  12   Gandalf   1.11        11/27/99 Patrik Knakal   
  *  11   Gandalf   1.10        11/4/99  Karel Gardas    - update from CVS
  *  10   Gandalf   1.9         11/4/99  Karel Gardas    update from CVS
  *  9    Gandalf   1.8         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun

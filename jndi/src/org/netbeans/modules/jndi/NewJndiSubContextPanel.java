@@ -26,6 +26,7 @@ final class NewJndiSubContextPanel extends JPanel {
   /** name of directory */
   private JTextField name;    
 
+  static final long serialVersionUID =-2268225451355845126L;
   /** Constructor
    */
   public NewJndiSubContextPanel() {

@@ -23,6 +23,7 @@ import javax.naming.NamingException;
  */
 final class JndiException extends NamingException {
   
+  static final long serialVersionUID =-8970633873301788597L;
   /** Constructor*/
   public JndiException() {
     super();

@@ -132,6 +132,7 @@ public class TokenMgrError extends Error
     * Constructors of various flavors follow.
     */
 
+  static final long serialVersionUID =6736705189448832309L;
    public TokenMgrError() {
    }
 

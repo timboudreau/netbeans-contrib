@@ -24,6 +24,7 @@ public class TypeElement extends IDLElement {
   private IDLType type;
   //private Vector members;
 
+  static final long serialVersionUID =3084864756788217377L;
   public TypeElement (int id) {
     super(id);
     //members = new Vector ();

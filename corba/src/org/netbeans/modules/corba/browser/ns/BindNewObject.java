@@ -30,6 +30,7 @@ public class BindNewObject extends NodeAction {
    //public static final boolean DEBUG = true;
    public static final boolean DEBUG = false;
 
+  static final long serialVersionUID =2074410904401241174L;
    public BindNewObject () {
       super ();
    }

@@ -45,6 +45,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
   private UserVariablesEditor editor;
   
   //-------------------------------------------
+  static final long serialVersionUID =-4165869264994159492L;
   public UserVariablesPanel(UserVariablesEditor editor){
     this.editor = editor;
     initComponents();
@@ -283,6 +284,7 @@ public class UserVariablesPanel extends JPanel implements EnhancedCustomProperty
 
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
  *  1    Gandalf   1.0         11/24/99 Martin Entlicher 
  * $
  */

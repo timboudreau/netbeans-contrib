@@ -14,6 +14,7 @@
 package com.netbeans.enterprise.modules.corba.idl.src;
 
 public class StructTypeElement extends TypeElement {
+  static final long serialVersionUID =-2986489021433601833L;
    public StructTypeElement(int id) {
       super(id);
    }

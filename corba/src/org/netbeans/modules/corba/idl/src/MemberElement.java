@@ -17,6 +17,7 @@ public class MemberElement extends IDLElement {
    
    IDLType type;
 
+  static final long serialVersionUID =225631314107467399L;
    public MemberElement (int id) {
       super(id);
    }

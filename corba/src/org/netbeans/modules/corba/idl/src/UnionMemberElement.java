@@ -19,6 +19,7 @@ public class UnionMemberElement extends TypeElement {
 
    private String _cases;
 
+  static final long serialVersionUID =6067453167467867759L;
    public UnionMemberElement(int id) {
       super(id);
    }

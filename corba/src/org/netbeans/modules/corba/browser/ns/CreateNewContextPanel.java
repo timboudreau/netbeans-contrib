@@ -21,6 +21,7 @@ package com.netbeans.enterprise.modules.corba.browser.ns;
  */
 public class CreateNewContextPanel extends javax.swing.JPanel {
 
+  static final long serialVersionUID =3153383828827001246L;
   /** Creates new form CreateNewContextPanel */
   public CreateNewContextPanel() {
     initComponents ();

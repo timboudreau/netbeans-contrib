@@ -23,6 +23,7 @@ import org.openide.util.HelpCtx;
 */
 public final class RefreshAction extends org.openide.util.actions.NodeAction {
 
+  static final long serialVersionUID =-5265888598991445114L;
   /** No arg constructor. */
   public RefreshAction() {
     super ();

@@ -81,6 +81,7 @@ public class IDLDataObject extends MultiDataObject {
 
   private ImplGenerator generator;
 
+  static final long serialVersionUID =-7151972557886707595L;
   public IDLDataObject (final FileObject obj, final MultiFileLoader loader)
     throws DataObjectExistsException {
     super(obj, loader);
@@ -639,6 +640,7 @@ public class IDLDataObject extends MultiDataObject {
 
 /*
  * <<Log>>
+ *  21   Gandalf   1.20        11/27/99 Patrik Knakal   
  *  20   Gandalf   1.19        11/9/99  Karel Gardas    - better exception 
  *       handling for CORBA 2.3 types
  *  19   Gandalf   1.18        11/4/99  Karel Gardas    - update from CVS

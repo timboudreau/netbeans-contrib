@@ -18,6 +18,7 @@ public class ConstElement extends IDLElement {
    String exp;
    String type;
 
+  static final long serialVersionUID =2501064395128035802L;
    public ConstElement(int id) {
       super(id);
    }

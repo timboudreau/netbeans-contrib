@@ -149,6 +149,7 @@ public class CORBASupportSettings extends SystemOption implements PropertyChange
     return CORBASupport.bundle.getString("CTL_CORBASupport_options");
   }
   
+  static final long serialVersionUID =-4987174194026093658L;
   public CORBASupportSettings () {
     //	setOrb (CORBASupport.bundle.getString ("CTL_ORBIX"));
     //addOption (getCORBASupportAdvancedSettings ());

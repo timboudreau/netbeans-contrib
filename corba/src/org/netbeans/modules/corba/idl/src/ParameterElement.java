@@ -18,6 +18,7 @@ public class ParameterElement extends IDLElement {
    private int attr;
    private IDLType type;
 
+  static final long serialVersionUID =-8349198998203868841L;
    public ParameterElement (int id) {
       super(id);
    }

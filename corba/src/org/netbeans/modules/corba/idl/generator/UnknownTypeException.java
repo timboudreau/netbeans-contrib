@@ -22,6 +22,7 @@ public class UnknownTypeException extends Exception {
 
   String type;
 
+  static final long serialVersionUID =-3717678114065709235L;
   public UnknownTypeException (String symbol) {
     super (symbol);
     type = symbol;

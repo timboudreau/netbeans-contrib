@@ -30,6 +30,7 @@ public class CreateNewContext extends NodeAction {
    public static final boolean DEBUG = false;
    //public static final boolean DEBUG = true;
 
+  static final long serialVersionUID =-4377234682968736870L;
    public CreateNewContext () {
       super ();
    }

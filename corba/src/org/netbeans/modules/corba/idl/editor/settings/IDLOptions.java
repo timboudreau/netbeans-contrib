@@ -27,6 +27,7 @@ public class IDLOptions extends BaseOptions {
   
   public static final String IDL = "idl";
 
+  static final long serialVersionUID =6740905428824290883L;
   public IDLOptions() {
     super (IDLKit.class, IDL);
     //System.out.println ("IDLOptions ()");
@@ -42,6 +43,7 @@ public class IDLOptions extends BaseOptions {
 
 /*
  * <<Log>>
+ *  2    Gandalf   1.1         11/27/99 Patrik Knakal   
  *  1    Gandalf   1.0         11/9/99  Karel Gardas    
  * $
  */

@@ -30,6 +30,7 @@ public class BindNewContext extends NodeAction {
    public static final boolean DEBUG = false;
    //public static final boolean DEBUG = true;
 
+  static final long serialVersionUID =7793251129247752122L;
    public BindNewContext () {
       super ();
    }

@@ -36,6 +36,7 @@ class ConstructorElementImpl extends MemberElementImpl
   /** One JavaDoc empty implementation for all objects */
   private static final ClassJavaDocImpl.Method METHOD_JAVADOC_IMPL = new ClassJavaDocImpl.Method(); 
 
+  static final long serialVersionUID =5714347955571851240L;
   /** Default constructor, asocitates this object
   * with java reflection Constructor instance.
   */
@@ -128,6 +129,7 @@ class ConstructorElementImpl extends MemberElementImpl
 
 /*
 * Log
+*  9    src-jtulach1.8         11/27/99 Patrik Knakal   
 *  8    src-jtulach1.7         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment
 *  7    src-jtulach1.6         6/9/99   Petr Hrebejk    Empty JavaDoc 

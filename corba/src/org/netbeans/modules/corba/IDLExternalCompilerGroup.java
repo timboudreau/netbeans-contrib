@@ -169,6 +169,7 @@ public class IDLExternalCompilerGroup extends ExternalCompilerGroup {
 
     private CORBASupportSettings css;
 
+    static final long serialVersionUID =1779771962982570995L;
     public IDLFormat (String[] files, FileObject fo) {
       super (files);
 

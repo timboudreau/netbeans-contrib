@@ -37,6 +37,7 @@ public class Element extends SimpleNode
 
    private Element parent;
 
+  static final long serialVersionUID =-3167109028199964338L;
    public Element (int i) {
       super (i);
       members = new Vector ();
@@ -128,6 +129,7 @@ public class Element extends SimpleNode
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         11/27/99 Patrik Knakal   
  *  5    Gandalf   1.4         11/4/99  Karel Gardas    - update from CVS
  *  4    Gandalf   1.3         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment

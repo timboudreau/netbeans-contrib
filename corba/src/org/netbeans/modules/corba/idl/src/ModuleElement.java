@@ -15,6 +15,7 @@ package com.netbeans.enterprise.modules.corba.idl.src;
 
 public class ModuleElement extends IDLElement {
 
+  static final long serialVersionUID =7432704129176496385L;
   public ModuleElement (int id) {
     super(id);
   }

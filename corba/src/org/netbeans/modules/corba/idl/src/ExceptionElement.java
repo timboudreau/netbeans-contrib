@@ -14,6 +14,7 @@
 package com.netbeans.enterprise.modules.corba.idl.src;
 
 public class ExceptionElement extends IDLElement {
+  static final long serialVersionUID =-8166176459752773578L;
   public ExceptionElement(int id) {
     super(id);
   }

@@ -26,6 +26,7 @@ public class IDLCompilerType extends CompilerType {
   //public static final boolean DEBUG = true;
   private static final boolean DEBUG = false;
 
+  static final long serialVersionUID =-8389299857638878014L;
   /** Prepare a data object for compilation.
   * Implementations should create an instance of a
   * suitable subclass of {@link Compiler}, passing
@@ -48,6 +49,7 @@ public class IDLCompilerType extends CompilerType {
 
 /*
 * <<Log>>
+*  6    Gandalf   1.5         11/27/99 Patrik Knakal   
 *  5    Gandalf   1.4         11/4/99  Karel Gardas    - update from CVS
 *  4    Gandalf   1.3         11/4/99  Karel Gardas    update from CVS
 *  3    Gandalf   1.2         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 

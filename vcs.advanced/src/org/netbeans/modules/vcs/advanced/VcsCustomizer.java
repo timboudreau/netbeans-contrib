@@ -36,6 +36,7 @@ import com.netbeans.developer.modules.vcs.*;
 public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
   private Debug E=new Debug("VcsCustomizer", false);
 
+  static final long serialVersionUID =-8801742771957370172L;
   /** Creates new form VcsCustomizer */
   public VcsCustomizer() {
     changeSupport=new PropertyChangeSupport(this);
@@ -690,6 +691,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  2    Gandalf   1.1         11/27/99 Patrik Knakal   
 *  1    Gandalf   1.0         11/24/99 Martin Entlicher 
 * $
 */

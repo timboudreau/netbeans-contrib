@@ -49,6 +49,7 @@ public class UserCommandsPanel extends JPanel
   private Vector commands=null;
 
   //-------------------------------------------
+  static final long serialVersionUID =-5546375234297504708L;
   public UserCommandsPanel(UserCommandsEditor editor){
     this.editor = editor;
     Vector oldCommands=(Vector)editor.getValue();
@@ -300,6 +301,7 @@ public class UserCommandsPanel extends JPanel
 
 /*
  * <<Log>>
+ *  15   Gandalf   1.14        11/27/99 Patrik Knakal   
  *  14   Gandalf   1.13        10/25/99 Pavel Buzek     copyright
  *  13   Gandalf   1.12        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment

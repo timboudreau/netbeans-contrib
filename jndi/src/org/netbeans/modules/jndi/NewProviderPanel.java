@@ -30,6 +30,7 @@ public class NewProviderPanel extends AbstractNewPanel {
 
   JTextField factory;
   
+  static final long serialVersionUID =129555131347808701L;
   /** Creates new NewProviderPanel */
   public NewProviderPanel() {
     super();

@@ -22,6 +22,7 @@ public class SymbolNotFoundException extends Exception {
 
   String name;
 
+  static final long serialVersionUID =-5758146660118026855L;
   public SymbolNotFoundException (String symbol) {
     super (symbol);
     name = symbol;

@@ -39,6 +39,7 @@ public final class ClassDataLoader extends MultiFileLoader {
   /** List of extensions recognized by this loader */
   private static ExtensionList extensions;
 
+  static final long serialVersionUID =3149080169747384034L;
   /** Creates a new ClassDataLoader */
   public ClassDataLoader () {
     super (ClassDataObject.class);
@@ -163,6 +164,7 @@ public final class ClassDataLoader extends MultiFileLoader {
 
 /*
  * Log
+ *  12   Gandalf   1.11        11/27/99 Patrik Knakal   
  *  11   Gandalf   1.10        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
  *       Microsystems Copyright in File Comment
  *  10   Gandalf   1.9         10/1/99  Jaroslav Tulach Loaders extends 

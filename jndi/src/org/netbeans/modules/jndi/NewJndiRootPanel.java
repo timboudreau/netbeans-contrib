@@ -62,6 +62,7 @@ final class NewJndiRootPanel extends AbstractNewPanel implements ItemListener{
   Hashtable providers;
   
   
+  static final long serialVersionUID =7943572497359208842L;
   /** constructor takes as parameter array of factories and protocols
    * @param fcs array of factories
    * @param proto array of protocols

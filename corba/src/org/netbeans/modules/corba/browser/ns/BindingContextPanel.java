@@ -31,6 +31,7 @@ public class BindingContextPanel extends javax.swing.JPanel {
 
 
 
+  static final long serialVersionUID =8322471659336275904L;
    /** Creates new form BindingContextPanel */
 
    public BindingContextPanel() {

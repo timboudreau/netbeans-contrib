@@ -29,6 +29,7 @@ public class RefreshAction extends NodeAction {
 
    public static final boolean DEBUG = false;
 
+  static final long serialVersionUID =-7152705348187449941L;
    public RefreshAction () {
       super ();
    }

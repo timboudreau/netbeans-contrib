@@ -25,6 +25,7 @@ package com.netbeans.enterprise.modules.corba.idl.src;
  */
 public class ParseException extends Exception {
 
+  static final long serialVersionUID =-2154044246261718593L;
   /**
    * This constructor is used by the method "generateParseException"
    * in the generated parser.  Calling this constructor generates
