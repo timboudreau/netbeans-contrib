@@ -314,6 +314,23 @@ You will lose any changes.</value>
                     <value>0</value>
                 </property>
             </command>
+            <command name="REVISION_LIST">
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareRevisionListCommand.class</value>
+                </property>
+            </command>
+            <command name="REVISION_OPEN">
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="get"/>
+                    <arg value="-p"/>
+                    <arg value="-r${REVISION}"/>
+                    <arg value="${FILE}"/>
+              </run>
+              <property name="numRevisions">
+                <value>1</value>
+              </property>
+            </command>
             <separator/>
             <command displayName="Create Patch" name="CREATE_PATCH">
                 <property name="inputDescriptor">
