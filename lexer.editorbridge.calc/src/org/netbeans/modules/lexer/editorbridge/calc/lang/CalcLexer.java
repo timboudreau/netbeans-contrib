@@ -29,64 +29,181 @@ import org.netbeans.spi.lexer.javacc.TokenMgrError;
  */
 
 
-public class CalcLexer extends CalcTokenManager implements Lexer {
+public class CalcLexer implements Lexer {
+    
+    private static final int INVALID_TOKEN_INT_ID = -1;
     
     private CalcLanguage language;
     
+    private CalcTokenManager tm;
+
+    private LexerInput lexerInput;
+    
+    /** Integer id of the extended token */
+    private int extendedTokenIntId;
+    
+    /** Length of the extended token. Zero if not in extended token. */
+    private int extendedTokenLength;
+    
+    /** Token type after the extended token. */
+    private int followsExtendedTokenIntId = INVALID_TOKEN_INT_ID;
+    
     public CalcLexer(CalcLanguage language) {
-        super(new LexerInputCharStream());
+        this.tm = new CalcTokenManager(new LexerInputCharStream());
         this.language = language;
     }
-
+    
     public Token nextToken() {
         TokenId id = null; // Resulting token identification
+        int tokenLength = 0;
+        int tokenIntId = followsExtendedTokenIntId;
 
-        try {
-            int tokenKind = getNextToken().kind;
+        next_token: {
+            while (true) {
+                if (tokenIntId == INVALID_TOKEN_INT_ID) {
+                    // token must be fetched from token manager
+                    try {
+                        org.netbeans.spi.lexer.javacc.Token javaccToken = tm.getNextToken();
+                        if (javaccToken != null) {
+                            tokenIntId = javaccToken.kind;
+                            tokenLength = lexerInput.getReadLength() - extendedTokenLength;
 
-            if (tokenKind != 0) { // EOF not reached
-                switch (tokenKind) {
-                    case CalcConstants.ML_COMMENT_START:
-                        tokenKind = getNextToken().kind; // get the rest of the token
-                        if (tokenKind != 0) { // valid token found
-                            id = language.getValidId(tokenKind);
-                        } else { // EOF reached
-                            id = CalcLanguage.INCOMPLETE_ML_COMMENT;
+                        } else { // antlrToken is null - no more tokens from token manager
+                            tokenIntId = CalcConstants.EOF;
+                            /* In this case the tokenIntId is set to EOF
+                             * and tokenLength is 0.
+                             * The loop will be broken automatically.
+                             */
                         }
-                        break;
+                    } catch (TokenMgrError e) {
+                        throw new IllegalStateException(
+                            e + "\nTokenMgrError occurred."
+                            + "\nIt's necessary to fix the lexer to be able to correctly"
+                            + " recognize the input that caused this exception."
+                        );
+                    }
 
-                    default:
-                        id = language.getValidId(tokenKind);
-                        break;
-                }
-            }
+                } else { // tokenIntId != INVALID_TOKEN_INT_ID
+                    /* It means that extended token was returned
+                     * in the previous call to nextToken().
+                     * The token manager already found a valid token previously
+                     * (that valid token ended the extended token)
+                     * and the token type of that valid token was stored
+                     * in followsExtendedTokenIntId and the length
+                     * in the extendedTokenLength and it will be now used.
+                     */
+                    followsExtendedTokenIntId = -1; // resume normal operation
+                    tokenLength = extendedTokenLength;
+                    extendedTokenLength = 0;
+                } // END-IF-ELSE tokenIntId == INVALID_TOKEN_INT_ID
+                
+                /* Now tokenIntId is filled with a valid token type.
+                 * EOF is considered a valid token type here.
+                 */
 
-        } catch (TokenMgrError e) {
-            throw new IllegalStateException(
-                e + "\nTokenMgrError occurred. curLexState=" + curLexState
-                + "\nIt's necessary to fix the lexer to be able to correctly"
-                + " recognize the input that caused this exception."
-            );
-        }
+                if (extendedTokenLength == 0) { // currently not in extended token
+                    switch (tokenIntId) { // check for types that start extended token
+                        case CalcConstants.ERROR:
+                            extendedTokenIntId = tokenIntId;
+                            extendedTokenLength = tokenLength;
+                            break; // get next token inside the loop
 
-        return (id != null)
-            ? ((LexerInputCharStream)getCharStream()).getLexerInput().createToken(id)
-            : null; // EOF reached
+                        case CalcConstants.ML_COMMENT_START:
+                            extendedTokenIntId = CalcLanguage.INCOMPLETE_ML_COMMENT_INT;
+                            extendedTokenLength = tokenLength;
+                            break; // get next token inside the loop
+
+                        default: // regular token type found
+                            // both tokenIntId and tokenLength are populated correctly
+                            break next_token;
+                    }
+
+                } else { // currently in extended token
+                    boolean continueExtended = false;
+                    boolean includeCurrent = false;
+                    switch (extendedTokenIntId) {
+                        case CalcConstants.ERROR:
+                            continueExtended = (tokenIntId == CalcConstants.ERROR);
+                            // includeCurrent stays false
+                            break;
+                            
+                        case CalcLanguage.INCOMPLETE_ML_COMMENT_INT:
+                            continueExtended = false; // do not continue extended token
+                            includeCurrent = true; // but include current token
+                            if (tokenIntId != CalcConstants.EOF) {
+                                extendedTokenIntId = tokenIntId;
+                            } // in case of EOF INCOMPLETE_ML_COMMENT_INT will be returned
+                    }
+
+                    /* Some additional checking can be done
+                     * if e.g. starting and ending token types
+                     * differ for the extended token.
+                     */
+                    if (continueExtended) { // extended
+                        extendedTokenLength += tokenLength;
+
+                    } else { // Stop extending
+                        /* Extended token is finished. includeCurrent flag
+                         * resolves whether the currently found token extends
+                         * (ends) the extended token or not.
+                         * The extended token will be returned.
+                         * If the current token is not included in the extended token
+                         * then the current token will be saved
+                         * in followsExtendedTokenIntId and returned
+                         * from the next call to nextToken().
+                         * Setting followsExtendedTokenIntId to >= 0 value
+                         * will invoke a special treatment next time
+                         * the nextToken() will be called.
+                         * extendedTokenLength will be returned so it must be
+                         * copied into tokenLength but the current tokenLength
+                         * must be saved somewhere so that it can be returned
+                         * in the next call to nextToken(). It will be stored
+                         * in extendedTokenLength because that variable can be reused
+                         * as it no longer needs to hold the original value.
+                         */
+                        if (includeCurrent) {
+                            tokenLength = extendedTokenLength + tokenLength;
+                            extendedTokenLength = 0;
+
+                        } else { // do not include current token
+                            followsExtendedTokenIntId = tokenIntId;
+
+                            int tmpLength = tokenLength;
+                            tokenLength = extendedTokenLength;
+                            extendedTokenLength = tmpLength;
+
+                        }
+                            
+                        tokenIntId = extendedTokenIntId;
+                        break next_token;
+                    } // END-OF Stop extending
+                } // END-OF currently in extended token
+
+                tokenIntId = INVALID_TOKEN_INT_ID; // push to get next token from token manager
+            } // END-OF while (true)
+        } // END-OF next_token label statement
+
+
+        // Find the tokenId
+        return (tokenIntId != CalcConstants.EOF)
+            ? lexerInput.createToken(language.getValidId(tokenIntId), tokenLength)
+            : null;
     }
     
     public Object getState() {
-        return (curLexState == defaultLexState)
+        return (tm.curLexState == tm.defaultLexState)
             ? null
-            : CalcLanguage.STATE_TABLE[curLexState];
+            : CalcLanguage.CONSTANT_TO_INTEGER[tm.curLexState];
     }
 
     public void restart(LexerInput input, Object state) {
-        LexerInputCharStream charStream = (LexerInputCharStream)getCharStream();
-        charStream.setLexerInput(input);
-        ReInit(charStream,
+        this.lexerInput = input;
+        LexerInputCharStream charStream = (LexerInputCharStream)tm.getCharStream();
+        charStream.setLexerInput(lexerInput);
+        tm.ReInit(charStream,
             (state != null)
                 ? ((Integer)state).intValue()
-                : defaultLexState
+                : tm.defaultLexState
         );
     }
 
