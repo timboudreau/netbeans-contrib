@@ -839,7 +839,9 @@ public class CommandsPool extends Object /*implements CommandListener */{
             if (serialOfCommand) {
                 matchOfCommand = name.equals(cmdName);
             }
-            if (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand) {
+            
+            // if (serialOfCommand && !matchOfCommand) do not wait
+            if ((!serialOfCommand || matchOfCommand) && (matchOnFile || matchOnPackage || matchWithParent || matchOfCommand)) {
                 //System.out.println("  matchOnFile = "+matchOnFile+", matchOnPackage = "+matchOnPackage+", matchWithParent = "+matchWithParent+", matchOfCommand = "+matchOfCommand);
                 haveToWait = true;
                 break;

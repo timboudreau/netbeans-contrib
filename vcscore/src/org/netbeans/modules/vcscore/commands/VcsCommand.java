@@ -109,9 +109,15 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public static final String PROPERTY_EXEC_SCHEDULED_COMMAND = "execScheduledCommand_";
     /**
-     * This Integer property can contain any combination of EXEC_* constants delimeted
-     * by OR operator.
-     * <p>i.e.: (EXEC_SERIAL_ON_FILE | EXEC_SERIAL_OF_COMMAND) will run only one command
+     * This Integer property can contain values of EXEC_* constants. Some of them
+     * can be combined together (if their values are simply summed).
+     * These values can be summed together:<p>
+     * EXEC_SERIAL_ON_FILE, EXEC_SERIAL_ON_PACKAGE, EXEC_SERIAL_WITH_PARENT,
+     * EXEC_SERIAL_OF_COMMAND.
+     * The combination has a meaning of logical OR with the exception of
+     * EXEC_SERIAL_OF_COMMAND, which applies as a logical AND with the others.
+     *
+     * <p>E.g.: (EXEC_SERIAL_ON_FILE | EXEC_SERIAL_OF_COMMAND) will run only one command
      * of this name on the supplied file at a time.
      */
     public static final String PROPERTY_CONCURRENT_EXECUTION = "concurrentExec";
