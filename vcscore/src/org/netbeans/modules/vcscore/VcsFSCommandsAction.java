@@ -217,6 +217,17 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
     }
     
     private JMenuItem getPresenter(boolean inMenu) {
+        JInlineMenu menu = new JInlineMenu();
+        JMenuItem[] items = createMenuItems(inMenu);
+        if (items.length == 0) return menu;
+        menu.setMenuItems(items);
+        if (inMenu && menu != null) {
+            menu.setIcon(getIcon());
+        }
+        return menu;
+    }
+    
+    public JMenuItem[] createMenuItems(boolean inMenu) {
         Map filesWithMessages = getSelectedFileObjectsFromActiveNodes();
         //System.out.println("VcsFSCommandsAction.getPresenter(): selected filesWithMessages: "+filesWithMessages);
         switchableList = new ArrayList();
@@ -224,7 +235,7 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
         //CommandsTree[] commands = actionCommandsTree.children();
         filesByCommandProviders = findCommandProvidersForFiles(filesWithMessages);
 	//System.out.println("filesByCommandProviders.size() = "+filesByCommandProviders.size());
-        if (filesByCommandProviders.size() == 0) return new JInlineMenu(); // return empty JInlineMenu
+        if (filesByCommandProviders.size() == 0) return new JMenuItem[] {}; // return empty JInlineMenu
         CommandsTree commands;
 	//VcsCommandsProvider provider = null;
         boolean globalExpertMode;
@@ -250,13 +261,10 @@ public class VcsFSCommandsAction extends NodeAction implements ActionListener {
                 }
             }
         }
-        JInlineMenu menu = new JInlineMenu();
-        if (commands == null) return menu;
-        menu.setMenuItems(createMenuItems(commands, filesWithMessages, inMenu, globalExpertMode));
-        if (inMenu && menu != null) {
-            menu.setIcon(getIcon());
+        if (commands == null) {
+            return new JMenuItem[] {};
         }
-        return menu;
+        return createMenuItems(commands, filesWithMessages, inMenu, globalExpertMode);
     }
     
     private JMenuItem[] createMenuItems(CommandsTree commands, Map filesWithMessages,

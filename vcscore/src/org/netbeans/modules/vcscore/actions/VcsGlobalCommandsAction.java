@@ -166,6 +166,16 @@ public class VcsGlobalCommandsAction extends SystemAction implements Presenter.M
     }
     
     private JMenuItem getPresenter(boolean inMenu) {
+        FileObject[] files = getActivatedFiles();
+        JInlineMenu inlineMenu = new JInlineMenu();
+        inlineMenu.setMenuItems(createMenuItems(files, inMenu));
+        inlineMenuReference = new WeakReference(inlineMenu);
+        inlineMenuWasInMenu = inMenu;
+        inlineMenu.addPropertyChangeListener(this); // Hack. This object will not be garbage-collected before the inlineMenu
+        return inlineMenu;
+    }
+    
+    static FileObject[] getActivatedFiles() {
         Node[] n = WindowManager.getDefault().getRegistry ().getActivatedNodes ();
         ArrayList foList = new ArrayList();
         if (n != null) {
@@ -177,15 +187,10 @@ public class VcsGlobalCommandsAction extends SystemAction implements Presenter.M
             }
         }
         FileObject[] files = (FileObject[]) foList.toArray(new FileObject[foList.size()]);
-        JInlineMenu inlineMenu = new JInlineMenu();
-        inlineMenu.setMenuItems(createMenuItems(files, inMenu));
-        inlineMenuReference = new WeakReference(inlineMenu);
-        inlineMenuWasInMenu = inMenu;
-        inlineMenu.addPropertyChangeListener(this); // Hack. This object will not be garbage-collected before the inlineMenu
-        return inlineMenu;
+        return files;
     }
     
-    private JMenuItem[] createMenuItems(FileObject[] files, boolean inMenu) {
+    JMenuItem[] createMenuItems(FileObject[] files, boolean inMenu) {
         CommandsTree commands = getGlobalCommands();
         ArrayList menuItems = new ArrayList();
         CommandsTree[] subCommands = commands.children();
