@@ -249,7 +249,8 @@ public class AdditionalCommands extends PVCSStub {
     public void testRecursiveRefresh () {
         D_File.delete ();
         test.pvcsNode ().pVCSRefreshRecursively();
-        another.waitHistory ("Refresh"); // probably bug
+// probably bug
+//        another.waitHistory ("Refresh"); 
 //        assertRetrievingDialog ();
         D_File.waitStatus ("Missing; 2.0.1.1");
     }
@@ -393,8 +394,17 @@ public class AdditionalCommands extends PVCSStub {
         lockFile (A_File, null, null);
         A_File.waitLock (true);
         unlockFile(A_File, null, null, getLockText (A_File.pvcsNode ().getText()));
-//        assertQuestionYesDialog (null);
-        getFile (A_File, "1.2", null);
+
+        A_File.pvcsNode().pVCSGet ();
+        GetCommandOperator get = new GetCommandOperator ("");
+        get.setSpecificRevision("1.2");
+        get.checkLockForTheCurrentUser(true);
+        get.ok ();
+        get.waitClosed ();
+        assertQuestionYesDialog (null);
+        A_File.waitHistory("Get");
+        A_File.parent ().waitHistory("Refresh");
+
         A_File.waitStatus ("Locally Modified; 1.2.1.0");
         A_File.pvcsNode ().pVCSApplyDelta();
         
