@@ -622,9 +622,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         return ignoredGarbageFiles;
     }
 
-    public synchronized void setIgnoredGarbageFiles (String nue) throws IllegalArgumentException {
-        System.err.println("--------------nue: "+nue);
-        Thread.dumpStack();
+    public synchronized void setIgnoredGarbageFiles (String nue) throws IllegalArgumentException {              
         if (! nue.equals (ignoredGarbageFiles)) {
             if (nue.length () > 0) {
                 try {
@@ -645,10 +643,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             } else {
                 ignoredGarbageRE = null;
             }
-            ignoredGarbageFiles = nue;
-            System.err.println("fire");
-            //firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null, null); // NOI18N
-            firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null,ignoredGarbageFiles ); // NOI18N
+            ignoredGarbageFiles = nue;            
+            firePropertyChange (PROP_IGNORED_GARBAGE_FILES, null, null); // NOI18N            
             refreshExistingFolders();
         }
     }
