@@ -649,7 +649,8 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                      (executionContext instanceof VcsFileSystem) ? ((VcsFileSystem) executionContext).getRelativeMountPoint() : "",
                      true);
         cmd.setAdditionalVariables(vars);
-        setCommandFilesFromTable(cmd, subFiles, executionContext);
+        boolean anyWereSet = setCommandFilesFromTable(cmd, subFiles, executionContext);
+        if (!anyWereSet) return cmd;
         // Suppose, that the command is already preprocessed.
         //System.out.println("RestrictedFileMap = "+subFiles+", files = "+files+", MODULE = "+cmd.getAdditionalVariables().get("MODULE")+", DIR = "+cmd.getAdditionalVariables().get("DIR"));
         //System.out.println("\nVARS for cmd = "+cmd+" ARE:"+vars+"\n");
@@ -960,8 +961,10 @@ public class UserCommandSupport extends CommandSupport implements java.security.
      * @param fileSystem The filesystem to get the java.io.Files from.
      *        Can be <code>null</code>, in which case java.io.Files are created
      *        directly from the file name.
+     * @return true when the files were successfully set, false when there are no
+     *         applicable files to be set.
      */
-    public static void setCommandFilesFromTable(Command command, Table files, CommandExecutionContext executionContext) {
+    public static boolean setCommandFilesFromTable(Command command, Table files, CommandExecutionContext executionContext) {
         ArrayList diskFiles = new ArrayList();
         ArrayList foFiles = new ArrayList();
         for (Iterator it = files.keySet().iterator(); it.hasNext(); ) {
@@ -986,6 +989,7 @@ public class UserCommandSupport extends CommandSupport implements java.security.
                 dcmd.setDiskFiles((java.io.File[]) diskFiles.toArray(new java.io.File[diskFiles.size()]));
             }
         }
+        return fos != null || diskFiles.size() > 0;
     }
     
     /** Reorder the table of files by the path hierarchical order.

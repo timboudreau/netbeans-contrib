@@ -201,7 +201,8 @@ public final class VcsAction extends Object {//NodeAction implements ActionListe
                 command.setExpertMode(true);
             }
         }
-        UserCommandSupport.setCommandFilesFromTable(command, files, fileSystem);
+        boolean anyWereSet = UserCommandSupport.setCommandFilesFromTable(command, files, fileSystem);
+        if (!anyWereSet) return new VcsCommandExecutor[0];
         if (!VcsManager.getDefault().showCustomizer(command)) return new VcsCommandExecutor[0];
         if (command.getFiles() != null) {
             CommandTask task = command.execute();
