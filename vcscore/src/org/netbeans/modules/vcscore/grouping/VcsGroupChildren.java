@@ -31,9 +31,9 @@ public class VcsGroupChildren extends Children.Keys implements PropertyChangeLis
 
     private GroupFileChange fsListener = new GroupFileChange();
     
-    private FileChangeListener wfsListener = WeakListener.fileChange(fsListener, null);
+    private FileChangeListener wfsListener = FileUtil.weakFileChangeListener(fsListener, null);
     
-    private PropertyChangeListener wpropertyListener = WeakListener.propertyChange(this, null);
+    private PropertyChangeListener wpropertyListener = WeakListeners.propertyChange(this, null);
 
     private DataFolder folder;
     

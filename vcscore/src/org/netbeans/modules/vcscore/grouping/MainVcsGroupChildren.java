@@ -34,7 +34,7 @@ public class MainVcsGroupChildren extends Children.Keys  {
 
     private VcsGroupFileChangeList fsListener = new VcsGroupFileChangeList();
     
-    private FileChangeListener wfsListener = WeakListener.fileChange(fsListener, null);
+    private FileChangeListener wfsListener = FileUtil.weakFileChangeListener(fsListener, null);
     private FileObject rootFo;
     
     private final Object defaulGroupFileAccessLock = new Object();
