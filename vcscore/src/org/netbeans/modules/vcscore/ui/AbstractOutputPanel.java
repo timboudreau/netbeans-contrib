@@ -29,6 +29,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.netbeans.modules.vcscore.commands.CommandOutputTopComponent;
+import org.netbeans.modules.vcscore.commands.SaveToFilePanel;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 
 /**
@@ -91,8 +96,15 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
                 CommandOutputTopComponent.getInstance().discardAll();
             }
         });
+        JMenuItem save = new JMenuItem (NbBundle.getBundle (OutputPanel.class).getString("CMD_Save"));//NOI18N
+        save.addActionListener ( new java.awt.event.ActionListener () {
+           public void actionPerformed (java.awt.event.ActionEvent event) {
+               saveToFile();
+           }
+        });        
         
-        
+        this.menu.add(save);
+        this.menu.addSeparator();
         this.menu.add(discardTab);
         this.menu.add(discardAll);
          
@@ -108,6 +120,81 @@ public abstract class AbstractOutputPanel extends javax.swing.JPanel {
         toolbar.addMouseListener(popupListener);
         scroll.addMouseListener(popupListener);
         
+    }
+    
+    private void saveToFile() {
+        SaveToFilePanel pnl = new SaveToFilePanel();
+        pnl.setCurrentPanel(btnStd.isSelected() ? 0 : (btnErr.isSelected() ? 1 : 0));//jTabbedPane1.getSelectedIndex());
+        java.io.File file = null;
+        NotifyDescriptor descriptor = new DialogDescriptor(pnl, NbBundle.getBundle(SaveToFilePanel.class).getString("SaveToFile.title"));//NOI18N
+        boolean ok = false;
+        while (!ok) {
+            ok = true;
+            Object retVal = DialogDisplayer.getDefault().notify(descriptor);
+            if (retVal.equals(NotifyDescriptor.OK_OPTION)) {
+                java.io.File init = new java.io.File(pnl.getFile());
+                if (init.exists()) {
+                    NotifyDescriptor mess = new NotifyDescriptor.Confirmation(
+                    NbBundle.getMessage(SaveToFilePanel.class, "SaveToFile.fileExistsQuestion", init.getName()), //NOI18N
+                    NotifyDescriptor.YES_NO_OPTION);
+                    Object rVal = DialogDisplayer.getDefault().notify(mess);
+                    if (!rVal.equals(NotifyDescriptor.YES_OPTION)) {
+                        ok = false;
+                        continue;
+                    }
+                    file = init;
+                } else {
+                    java.io.File parent = init.getParentFile();
+                    if (!parent.exists()) parent.mkdirs();
+                    file = init;
+                }
+            } else {
+                return;
+            }
+        }
+        final java.io.File finFile = file;
+        final SaveToFilePanel finPnl = pnl;
+        
+        org.openide.util.RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                java.io.BufferedWriter writer = null;
+                try {
+                    writer = new java.io.BufferedWriter(new java.io.FileWriter(finFile));
+                    if (finPnl.includeStdOut()) {
+                        javax.swing.JTextArea outputArea = getStdOutputArea();
+                        if (outputArea != null) {
+                            writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
+                            writer.newLine();
+                        }
+                    }
+                    if (finPnl.includeStdErr()) {
+                        javax.swing.JTextArea outputArea = getErrOutputArea();
+                        writer.write(outputArea.getDocument().getText(0, outputArea.getDocument().getLength()));
+                        writer.newLine();
+                    }
+                    /*
+                    if (finPnl.includeDatOut()) {
+                        writer.write(stdDataTextArea.getDocument().getText(0, stdDataTextArea.getDocument().getLength()));
+                        writer.newLine();
+                    }
+                    if (finPnl.includeDatErr()) {
+                        writer.write(errDataTextArea.getDocument().getText(0, errDataTextArea.getDocument().getLength()));
+                        writer.newLine();
+                    }
+                     */
+                } catch (Exception exc) {
+                   ErrorManager.getDefault().notify(
+                        ErrorManager.getDefault().annotate(exc,
+                            NbBundle.getBundle(SaveToFilePanel.class).getString("SaveToFile.errorWhileWriting"))); //NOI18N
+                } finally {
+                    if (writer != null) {
+                        try {
+                            writer.close();
+                        } catch (java.io.IOException ioex) {}
+                    }
+                }
+            }
+        }, 0);
     }
     
     public void addKillActionListener(java.awt.event.ActionListener l) {        
