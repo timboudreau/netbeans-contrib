@@ -120,6 +120,10 @@ public class VersioningExplorer {
         public int getPersistenceType() {
             return TopComponent.PERSISTENCE_ALWAYS;
         }
+        
+        protected String preferredID(){
+            return "VersioningExplorer_Panel";
+        }
         /*
          * Override for clean up reasons.
          * Will be moved to the appropriate method when will be made.
