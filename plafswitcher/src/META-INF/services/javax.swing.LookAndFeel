@@ -1,0 +1,4 @@
+# Basic L&Fs provided by JDK
+javax.swing.plaf.metal.MetalLookAndFeel
+com.sun.java.swing.plaf.motif.MotifLookAndFeel
+com.sun.java.swing.plaf.windows.WindowsLookAndFeel
