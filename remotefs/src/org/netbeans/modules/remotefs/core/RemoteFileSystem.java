@@ -40,7 +40,8 @@ import org.openide.util.RequestProcessor;
 public abstract class RemoteFileSystem extends AbstractFileSystem 
 implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.Change, 
            RemoteFile.Notify, RemoteFile.RequestProcessor {
-
+  static final long serialVersionUID = 5562503683369874863L;
+  
   private static final boolean DEBUG = true;
   
   /** remote client */
@@ -262,8 +263,8 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
    */
   protected RemoteFile getRemoteFile(String name) throws IOException {
     RemoteFile ftpfile = rootFile.find(name);
-    // if attributes file is not found, create new
-    if (ftpfile==null && name.endsWith(DefaultAttributes.ATTR_NAME_EXT)) {
+    // hack: if attributes file is not found, create new
+    if (ftpfile==null && (name.endsWith(DefaultAttributes.ATTR_NAME_EXT || name.endsWith(".nbattrs")) {
           createData (name);
           ftpfile = rootFile.find(name);
     }
