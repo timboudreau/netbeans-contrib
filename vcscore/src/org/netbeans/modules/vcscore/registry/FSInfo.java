@@ -56,8 +56,10 @@ public interface FSInfo extends Serializable {
     
     /**
      * Determine whether filesystem should be under vcs control or not.
+     * @throws IllegalStateException when the filesystem can not be enabled
+     *         (e.g. it's module is disabled/not present).
      */
-    public void setControl(boolean value);
+    public void setControl(boolean value) throws IllegalStateException;
    
     /**
      * Get the filesystem instance. This method should create the filesystem

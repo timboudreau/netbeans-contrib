@@ -857,8 +857,8 @@ public final class ProfilesFactory extends Object {
             FileObject newData = fileEvent.getFile();
             if (newData.getSize() == 0L || !VariableIO.isConfigFile(newData)) return ; // Ignore an empty file
             List currentLocales = VariableIO.getLocalizedConfigurations(new FileObject[] { newData });
-            if (!currentLocales.contains(newData)) return ; // Ignore other locales
             String name = newData.getNameExt();
+            if (!currentLocales.contains(name)) return ; // Ignore other locales
             String[] splitLocNamePtr = new String[1];
             synchronized (ProfilesFactory.this) {
                 boolean added = addProfileInitials(name, splitLocNamePtr);

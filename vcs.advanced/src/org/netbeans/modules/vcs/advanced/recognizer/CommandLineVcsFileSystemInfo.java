@@ -7,7 +7,7 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2002 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -56,6 +56,8 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.loaders.InstanceDataObject;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 
 /**
  *
@@ -74,11 +76,19 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
     private boolean control = true;
     private String settingName = null;
     private String moduleCodeName;
+    private volatile boolean explicitelyDisabled;
+    
+    private transient volatile boolean isModuleEnabled;
+    /** Whether this FSInfo was explicitely disabled via setControl(false) */
+    private transient ModuleDisabledListener mdListener;
+    private transient LookupListener mdLookupListener;
     private transient Reference fileSystemRef = new WeakReference(null);
     private transient PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
     private transient VetoableChangeSupport vchangeSupport = new VetoableChangeSupport(this);
     private transient DataFolder settingsFolder;   
+    
     static final long serialVersionUID = 8679717370363337670L;
+    
     /**
      * Creates a new instance of CommandLineVcsFileSystemInfo.
      * @param profileName The name of the profile. Can be <code>null</code>.
@@ -101,8 +111,14 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
         this.profileName = fileSystem.getProfile().getName();
         fileSystem.addPropertyChangeListener(WeakListeners.propertyChange(this,fileSystem));
         moduleCodeName = (String)fileSystem.getVariablesAsHashtable().get(CommandLineVcsFileSystemInstance.MODULE_INFO_CODE_NAME_BASE_VAR);
-        if(moduleCodeName != null)
-            attachModuleListener(moduleCodeName);        
+        if(moduleCodeName != null) {
+            attachModuleListener(moduleCodeName);
+        } else {
+            isModuleEnabled = true; // Suppose that the module is hopefully enabled (or it does not need anything more than an XML file).
+        }
+        if (profileName != null) {
+            attachProfileListener();
+        }
         fileSystemRef = new WeakReference(fileSystem);
         initSettingsFolder();
         storeFSSettings(fileSystem);
@@ -112,8 +128,49 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
      *Finds a module providing filesystem and attaches listener to it
      *to listen when module is disabled.
      */
-    private void attachModuleListener(String moduleCodeName){        
+    private void attachModuleListener(final String moduleCodeName){        
         Lookup.Result result = Lookup.getDefault().lookup(new Lookup.Template(ModuleInfo.class));
+        ModuleInfo info = getModuleInfo(result, moduleCodeName);
+        isModuleEnabled = info != null;
+        mdListener = new ModuleDisabledListener();
+        if (info != null) {
+            isModuleEnabled = info.isEnabled();
+            info.addPropertyChangeListener(WeakListeners.propertyChange(mdListener, info));
+        }
+        mdLookupListener = new LookupListener() {
+            public void resultChanged (LookupEvent ev) {
+                Lookup.Result result = (Lookup.Result) ev.getSource();
+                ModuleInfo info = getModuleInfo(result, moduleCodeName);
+                if (info != null && mdListener == null) {
+                    isModuleEnabled = info.isEnabled();
+                    mdListener = new ModuleDisabledListener();
+                    info.addPropertyChangeListener(WeakListeners.propertyChange(mdListener, info));
+                } else if (info == null && mdListener != null) {
+                    isModuleEnabled = false;
+                    mdListener = null;
+                }
+                if (isModuleEnabled) {
+                    if (!isControl() && !explicitelyDisabled && existsProfileFile()) {
+                        setControlInternally(true);
+                    }
+                } else {
+                    if (isControl()) {
+                        setControlInternally(false);
+                    }
+                }
+            }
+        };
+        result.addLookupListener((LookupListener) WeakListeners.create(LookupListener.class, mdLookupListener, result));
+        if (!isModuleEnabled) {
+            setControlInternally(false);
+        }
+    }
+    
+    private void attachProfileListener() {
+        ProfilesFactory.getDefault().addPropertyChangeListener(WeakListeners.propertyChange(this, ProfilesFactory.getDefault()));
+    }
+    
+    private static ModuleInfo getModuleInfo(Lookup.Result result, String moduleCodeName) {
         Collection modules = result.allInstances(); 
         Iterator it = modules.iterator();
         ModuleInfo info = null;
@@ -125,9 +182,7 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
                 break;
             }
         }
-        if(info != null){            
-            info.addPropertyChangeListener(WeakListeners.propertyChange(new ModuleDisabledListener(),info));           
-        }
+        return info;
     }
     
     private void initSettingsFolder() {
@@ -339,13 +394,14 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
      *   	and the property that has changed.
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        if (FileSystem.PROP_ROOT.equals(evt.getPropertyName())) {
+        String propertyName = evt.getPropertyName();
+        if (FileSystem.PROP_ROOT.equals(propertyName)) {
             CommandLineVcsFileSystem fs = (CommandLineVcsFileSystem) fileSystemRef.get();
             if (fs != null) {
                 root = fs.getRootDirectory();
             }
             firePropertyChange(PROP_ROOT, evt.getOldValue(), root);
-        } else if (VcsFileSystem.PROP_VARIABLES.equals(evt.getPropertyName())) {
+        } else if (VcsFileSystem.PROP_VARIABLES.equals(propertyName)) {
             CommandLineVcsFileSystem fs = (CommandLineVcsFileSystem) fileSystemRef.get();
             if (fs != null) {
                 String oldDisplayType = getDisplayType();
@@ -354,6 +410,16 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
                 if (!oldDisplayType.equals(newDisplayType)) {
                     firePropertyChange(PROP_TYPE, oldDisplayType, newDisplayType);
                 }
+            }
+        } else if (ProfilesFactory.PROP_PROFILE_ADDED.equals(propertyName)) {
+            if (!isControl() && !explicitelyDisabled && isModuleEnabled) {
+                if (profileName.equals(evt.getNewValue())) {
+                    setControlInternally(true);
+                }
+            }
+        } else if (ProfilesFactory.PROP_PROFILE_REMOVED.equals(propertyName)) {
+            if (isControl() && profileName.equals(evt.getOldValue())) {
+                setControlInternally(false);
             }
         }
     }
@@ -381,33 +447,63 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo,
     public void removePropertyChangeListener(PropertyChangeListener l) {
         changeSupport.removePropertyChangeListener(l);
     }
- 
-    public void setControl(boolean value) {        
+    
+    private void setControlInternally(boolean value) {
         if (control != value) {
             control = value;
             changeSupport.firePropertyChange(FSInfo.PROP_CONTROL, !control, control);
         }
+    }
+ 
+    public void setControl(boolean value) throws IllegalStateException {
+        explicitelyDisabled = (value == false);
+        if (value == true && !isModuleEnabled) {
+            if (mdListener == null) {
+                throw new IllegalStateException("Module "+moduleCodeName+" is not installed.");
+            } else {
+                throw new IllegalStateException("Module "+moduleCodeName+" is not enabled.");
+            }
+        }
+        setControlInternally(value);
     }
     
     public boolean isControl() {
         return control;
     }
     
+    private boolean existsProfileFile() {
+        if (profileName != null) {
+            return ProfilesFactory.getDefault().getProfile(profileName) != null;
+        }
+        return true; // Profile name is not defined!
+    }
+    
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
         in.defaultReadObject();
-        if(moduleCodeName != null)
-            attachModuleListener(moduleCodeName);        
         fileSystemRef = new WeakReference(null);
         changeSupport = new PropertyChangeSupport(this);
         vchangeSupport = new VetoableChangeSupport(this);
         initSettingsFolder();
+        if(moduleCodeName != null) {
+            attachModuleListener(moduleCodeName);
+        } else {
+            isModuleEnabled = true; // Suppose that the module is hopefully enabled (or it does not need anything more than an XML file).
+        }
+        if (profileName != null) {
+            attachProfileListener();
+        }
+        if (isControl() && !existsProfileFile()) {
+            setControlInternally(false);
+        } else if (!isControl() && !explicitelyDisabled && existsProfileFile() && isModuleEnabled) {
+            setControlInternally(true);
+        }
     }
     
     private final class ModuleDisabledListener implements PropertyChangeListener{
         
         public void propertyChange(PropertyChangeEvent evt) {
-            if(ModuleInfo.PROP_ENABLED.equals(evt.getPropertyName())){
-                CommandLineVcsFileSystemInfo.this.setControl(((ModuleInfo)evt.getSource()).isEnabled());
+            if (ModuleInfo.PROP_ENABLED.equals(evt.getPropertyName())) {
+                CommandLineVcsFileSystemInfo.this.setControlInternally(((ModuleInfo)evt.getSource()).isEnabled());
             }
         }
         

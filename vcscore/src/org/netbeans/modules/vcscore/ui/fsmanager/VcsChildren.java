@@ -21,6 +21,7 @@ import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ResourceBundle;
+import java.util.Set;
 import javax.swing.Action;
 import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcscore.registry.FSRegistry;
@@ -33,15 +34,17 @@ import org.openide.cookies.FilterCookie;
 import org.openide.filesystems.*;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
+import org.openide.util.WeakSet;
 
 
 /** Implements children. Nodes representing registered filesystems.
  * 
  * @author Richard Gregor
  */
-public class VcsChildren extends Children.Keys implements FSRegistryListener, Runnable {    
+public class VcsChildren extends Children.Keys implements FSRegistryListener, Runnable, PropertyChangeListener {
 
     private FSRegistry registry;
+    private Set infoWithAttachedListeners = new WeakSet();
     
     /** Create pattern children. The children are initilay unfiltered.
      * @param elemrent the atteached class. For this class we recognize the patterns 
@@ -85,9 +88,14 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
         //filter those which are isControl
         ArrayList list = new ArrayList();        
         FSInfo info[] = registry.getRegistered();
-        for(int i=0; i< info.length; i++){
-            if(info[i].isControl())                
-                list.add(info[i]);            
+        for (int i=0; i< info.length; i++) {
+            if (info[i].isControl()) {
+                list.add(info[i]);
+            }
+            if (!infoWithAttachedListeners.contains(info[i])) {
+                infoWithAttachedListeners.add(info[i]);
+                info[i].addPropertyChangeListener(WeakListeners.propertyChange(this, info[i]));
+            }
         }
         
         info = (FSInfo[]) list.toArray(new FSInfo[0]);
@@ -123,6 +131,13 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
     public void run() {
         setKeys(getVcsFileSystems());
     }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (FSInfo.PROP_CONTROL.equals(evt.getPropertyName())) {
+            VcsChildren.this.resetKeys();
+        }
+    }
+
     
     class FSInfoBeanNode extends AbstractNode implements PropertyChangeListener {
         private FSInfo info;
@@ -198,8 +213,7 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
             if (FSInfo.PROP_ROOT.equals(evt.getPropertyName())) {
                 setName(info.getFSRoot().toString());
                 setDisplayName(info.getFSRoot().toString());
-            }else if(FSInfo.PROP_CONTROL.equals(evt.getPropertyName()))
-                VcsChildren.this.resetKeys();
+            }
         }        
         
         

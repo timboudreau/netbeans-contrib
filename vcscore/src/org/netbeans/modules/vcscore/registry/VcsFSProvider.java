@@ -83,6 +83,11 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
     private void mountRegistered(FSInfo[] infos) {
         for (int i = 0; i < infos.length; i++) {
             FSInfo fsInfo = infos[i];
+            if (!fsInfo.isControl()) {
+                fsInfo.addPropertyChangeListener(VcsFSProvider.this);
+                fsInfo.addVetoableChangeListener(VcsFSProvider.this);
+                continue; // Skip the infos that are not controled
+            }
             FileSystem fs = fsInfo.getFileSystem();
             if (fs == null) {
                 FSRegistry.getDefault().unregister(fsInfo); // remove invalid FS Infos
@@ -248,11 +253,14 @@ public class VcsFSProvider extends AutoMountProvider implements FileSystemProvid
                 FSInfo fsInfo = (FSInfo) source;
                 if (mountSupport != null) {
                     try {
-                        FileSystem fs = fsInfo.getFileSystem();
-                        if (fs != null) {
-                            if (!fsInfo.isControl()) {
-                                mountSupport.unmount(fs);
-                            } else {
+                        if (!fsInfo.isControl()) {
+                            FileSystem fs = fsInfo.getExistingFileSystem();
+                            if (fs != null) {
+                                mountSupport.unmount(fs); // Unmount FS that is not controlled any more
+                            }
+                        } else {
+                            FileSystem fs = fsInfo.getFileSystem();
+                            if (fs != null) {
                                 mountSupport.mount(fsInfo.getFSRoot().getAbsolutePath(), fs);
                             }
                         }
