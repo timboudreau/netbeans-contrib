@@ -122,11 +122,17 @@ public class Main extends JellyTestCase {
         out.println ("--------------------------------------------");
         out.println ("---- " + template);
         out.println ();
-//        NewWizardOperator.create ("CORBA|" + template, "|data|poasupport|generate", name); // jelly2 bug workaround
-        new FolderNode (poaFolder + "|generate").newFromTemplate("CORBA|" + template);
-        NewObjectNameStepOperator nonso = new NewObjectNameStepOperator ();
-        nonso.setName(name);
-        nonso.finish();
+	
+//        NewWizardOperator.create ("CORBA|" + template, "|data|poasupport|generate", name); 
+
+	// jelly2 bug workaround
+//        new FolderNode (poaFolder + "|generate").newFromTemplate("CORBA|" + template);
+//        NewObjectNameStepOperator nonso = new NewObjectNameStepOperator ();
+//        nonso.setName(name);
+//        nonso.finish();
+
+        NewWizardOperator.create("CORBA|" + template, poaFolder + "|generate", name);
+
         ev.waitNoEvent (1000);
         Helper.sleep (1000);
         dumpFile (poaFolder + "|generate|" + name, name);
@@ -153,11 +159,16 @@ public class Main extends JellyTestCase {
     public void testPOA_CreateServer () {
         Environment.loadORBEnvironment("OB4X");
         Environment.css.getActiveSetting ().setServerBindingFromString ("IOR to standard output");
-//        NewWizardOperator.create ("CORBA|ServerMain", poaFolder, poaFileName); // jelly2 bug workaround
-        new FolderNode (poaFolder).newFromTemplate("CORBA|ServerMain");
-        NewObjectNameStepOperator nonso = new NewObjectNameStepOperator ();
-        nonso.setName(poaFileName);
-        nonso.finish();
+//        NewWizardOperator.create ("CORBA|ServerMain", poaFolder, poaFileName);
+
+        // jelly2 bug workaround
+//        new FolderNode (poaFolder).newFromTemplate("CORBA|ServerMain");
+//        NewObjectNameStepOperator nonso = new NewObjectNameStepOperator ();
+//        nonso.setName(poaFileName);
+//        nonso.finish();
+
+        NewWizardOperator.create("CORBA|ServderMain", poaFolder, poaFileName);
+
         ev.waitNoEvent(1000);
         util.Helper.sleep (5000);
         ev.waitNoEvent(1000);
