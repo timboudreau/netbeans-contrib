@@ -210,6 +210,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         systemEnvTable = new javax.swing.JTable();
         propertiesPanel = new javax.swing.JPanel();
 
+        FormListener formListener = new FormListener();
+
         setLayout(new java.awt.GridBagLayout());
 
         configPanel.setLayout(new java.awt.GridBagLayout());
@@ -220,11 +222,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         vcsPanel.setBorder(new javax.swing.border.TitledBorder(new javax.swing.border.EtchedBorder(), " " + java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.congifurationTitle.text") + " "));
         configCombo.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.configComboBoxA11yDesc"));
         configCombo.setNextFocusableComponent(saveAsButton);
-        configCombo.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                configComboItemStateChanged(evt);
-            }
-        });
+        configCombo.addItemListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -234,11 +232,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         saveAsButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.saveAsButton.text"));
         saveAsButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.saveAsButton.textA11yDesc"));
-        saveAsButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveAsButtonActionPerformed(evt);
-            }
-        });
+        saveAsButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -268,16 +262,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         rootDirTextField.setColumns(15);
         rootDirTextField.setText(".");
         rootDirTextField.setNextFocusableComponent(browseButton);
-        rootDirTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rootDirTextFieldActionPerformed(evt);
-            }
-        });
-        rootDirTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                rootDirTextFieldFocusLost(evt);
-            }
-        });
+        rootDirTextField.addActionListener(formListener);
+        rootDirTextField.addFocusListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -290,11 +276,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         browseButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.browseButton.text"));
         browseButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.browseButton.textA11yDesc"));
-        browseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                browseButtonActionPerformed(evt);
-            }
-        });
+        browseButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -332,11 +314,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         linkLabel.setText("http://vcsgeneric.netbeans.org/profiles/index.html");
         linkLabel.setForeground(new java.awt.Color(102, 102, 153));
-        linkLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                linkLabelMouseReleased(evt);
-            }
-        });
+        linkLabel.addMouseListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -370,11 +348,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         advancedModeCheckBox.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.advancedModeCheckBox.textA11yDesc"));
         advancedModeCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.advancedModeCheckBox.text"));
-        advancedModeCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                advancedModeCheckBoxActionPerformed(evt);
-            }
-        });
+        advancedModeCheckBox.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -387,11 +361,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         offLineCheckBox.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.offLineCheckBox.textA11yDesc"));
         offLineCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.offLineCheckBox.text"));
-        offLineCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                offLineCheckBoxActionPerformed(evt);
-            }
-        });
+        offLineCheckBox.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -414,11 +384,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         editCheckBox.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.editCheckBox.textA11yDesc"));
         editCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.editCheckBox.text"));
-        editCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                editCheckBoxActionPerformed(evt);
-            }
-        });
+        editCheckBox.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -431,11 +397,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         promptEditCheckBox.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.promptEditCheckBox.textA11yDesc"));
         promptEditCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.promptEditCheckBox.text"));
-        promptEditCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                promptEditCheckBoxActionPerformed(evt);
-            }
-        });
+        promptEditCheckBox.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -457,16 +419,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         advancedPanel.add(promptEditLabel, gridBagConstraints);
 
         promptEditTextField.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.promptTextField.textA11yDesc"));
-        promptEditTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                promptEditTextFieldActionPerformed(evt);
-            }
-        });
-        promptEditTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                promptEditTextFieldFocusLost(evt);
-            }
-        });
+        promptEditTextField.addActionListener(formListener);
+        promptEditTextField.addFocusListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -478,11 +432,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         lockCheckBox.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.lockCheckBox.textA11yDesc"));
         lockCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.lockCheckBox.text"));
-        lockCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lockCheckBoxActionPerformed(evt);
-            }
-        });
+        lockCheckBox.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -496,11 +446,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         promptLockCheckBox.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.promptEditCheckBox.textA11yDesc"));
         promptLockCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcs/advanced/Bundle").getString("VcsCustomizer.promptLockCheckBox.text"));
-        promptLockCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                promptLockCheckBoxActionPerformed(evt);
-            }
-        });
+        promptLockCheckBox.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -522,16 +468,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         advancedPanel.add(promptLockLabel, gridBagConstraints);
 
         promptLockTextField.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.lockTextField.textA11yDesc"));
-        promptLockTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                promptLockTextFieldActionPerformed(evt);
-            }
-        });
-        promptLockTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                promptLockTextFieldFocusLost(evt);
-            }
-        });
+        promptLockTextField.addActionListener(formListener);
+        promptLockTextField.addFocusListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -553,11 +491,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         debugCheckBox.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.debugCheckBox.textA11yDesc"));
         debugCheckBox.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.debugCheckBox.text"));
-        debugCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                debugCheckBoxActionPerformed(evt);
-            }
-        });
+        debugCheckBox.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -577,11 +511,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         advancedPanel.add(compatibleOSLabel, gridBagConstraints);
 
         compatibleOSTextField.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.compatibleTextField.textA11yDesc"));
-        compatibleOSTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                compatibleOSTextFieldFocusLost(evt);
-            }
-        });
+        compatibleOSTextField.addFocusListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -599,11 +529,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         advancedPanel.add(uncompatibleOSLabel, gridBagConstraints);
 
         uncompatibleOSTextField.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.uncompatibleTextField.textA11yDesc"));
-        uncompatibleOSTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                uncompatibleOSTextFieldFocusLost(evt);
-            }
-        });
+        uncompatibleOSTextField.addFocusListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -625,21 +551,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         cmdButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.cmdButton.textA11yDesc"));
         cmdButton.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.cmdButton.text"));
-        cmdButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cmdButtonActionPerformed(evt);
-            }
-        });
+        cmdButton.addActionListener(formListener);
 
         jPanel2.add(cmdButton);
 
         varButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_VcsCustomizer.varButton.textA11yDesc"));
         varButton.setText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("VcsCustomizer.varButton.text"));
-        varButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                varButtonActionPerformed(evt);
-            }
-        });
+        varButton.addActionListener(formListener);
 
         jPanel2.add(varButton);
 
@@ -714,11 +632,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         insertEnvButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_InsertEnvA11yDesc"));
         insertEnvButton.setText(org.openide.util.NbBundle.getMessage(VcsCustomizer.class, "LBL_InsertEnv"));
-        insertEnvButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                insertEnvButtonActionPerformed(evt);
-            }
-        });
+        insertEnvButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -726,11 +640,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         deleteEnvButton.setToolTipText(org.openide.util.NbBundle.getBundle(VcsCustomizer.class).getString("ACS_DeleteEnvA11yDesc"));
         deleteEnvButton.setText(org.openide.util.NbBundle.getMessage(VcsCustomizer.class, "LBL_DeleteEnv"));
-        deleteEnvButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteEnvButtonActionPerformed(evt);
-            }
-        });
+        deleteEnvButton.addActionListener(formListener);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
@@ -805,6 +715,106 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         gridBagConstraints.weighty = 1.0;
         add(jTabbedPane1, gridBagConstraints);
 
+    }
+
+    // Code for dispatching events from components to event handlers.
+
+    private class FormListener implements java.awt.event.ActionListener, java.awt.event.FocusListener, java.awt.event.ItemListener, java.awt.event.MouseListener {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            if (evt.getSource() == saveAsButton) {
+                VcsCustomizer.this.saveAsButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == rootDirTextField) {
+                VcsCustomizer.this.rootDirTextFieldActionPerformed(evt);
+            }
+            else if (evt.getSource() == browseButton) {
+                VcsCustomizer.this.browseButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == advancedModeCheckBox) {
+                VcsCustomizer.this.advancedModeCheckBoxActionPerformed(evt);
+            }
+            else if (evt.getSource() == offLineCheckBox) {
+                VcsCustomizer.this.offLineCheckBoxActionPerformed(evt);
+            }
+            else if (evt.getSource() == editCheckBox) {
+                VcsCustomizer.this.editCheckBoxActionPerformed(evt);
+            }
+            else if (evt.getSource() == promptEditCheckBox) {
+                VcsCustomizer.this.promptEditCheckBoxActionPerformed(evt);
+            }
+            else if (evt.getSource() == promptEditTextField) {
+                VcsCustomizer.this.promptEditTextFieldActionPerformed(evt);
+            }
+            else if (evt.getSource() == lockCheckBox) {
+                VcsCustomizer.this.lockCheckBoxActionPerformed(evt);
+            }
+            else if (evt.getSource() == promptLockCheckBox) {
+                VcsCustomizer.this.promptLockCheckBoxActionPerformed(evt);
+            }
+            else if (evt.getSource() == promptLockTextField) {
+                VcsCustomizer.this.promptLockTextFieldActionPerformed(evt);
+            }
+            else if (evt.getSource() == debugCheckBox) {
+                VcsCustomizer.this.debugCheckBoxActionPerformed(evt);
+            }
+            else if (evt.getSource() == cmdButton) {
+                VcsCustomizer.this.cmdButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == varButton) {
+                VcsCustomizer.this.varButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == insertEnvButton) {
+                VcsCustomizer.this.insertEnvButtonActionPerformed(evt);
+            }
+            else if (evt.getSource() == deleteEnvButton) {
+                VcsCustomizer.this.deleteEnvButtonActionPerformed(evt);
+            }
+        }
+
+        public void focusGained(java.awt.event.FocusEvent evt) {
+        }
+
+        public void focusLost(java.awt.event.FocusEvent evt) {
+            if (evt.getSource() == rootDirTextField) {
+                VcsCustomizer.this.rootDirTextFieldFocusLost(evt);
+            }
+            else if (evt.getSource() == promptEditTextField) {
+                VcsCustomizer.this.promptEditTextFieldFocusLost(evt);
+            }
+            else if (evt.getSource() == promptLockTextField) {
+                VcsCustomizer.this.promptLockTextFieldFocusLost(evt);
+            }
+            else if (evt.getSource() == compatibleOSTextField) {
+                VcsCustomizer.this.compatibleOSTextFieldFocusLost(evt);
+            }
+            else if (evt.getSource() == uncompatibleOSTextField) {
+                VcsCustomizer.this.uncompatibleOSTextFieldFocusLost(evt);
+            }
+        }
+
+        public void itemStateChanged(java.awt.event.ItemEvent evt) {
+            if (evt.getSource() == configCombo) {
+                VcsCustomizer.this.configComboItemStateChanged(evt);
+            }
+        }
+
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+        }
+
+        public void mouseEntered(java.awt.event.MouseEvent evt) {
+        }
+
+        public void mouseExited(java.awt.event.MouseEvent evt) {
+        }
+
+        public void mousePressed(java.awt.event.MouseEvent evt) {
+        }
+
+        public void mouseReleased(java.awt.event.MouseEvent evt) {
+            if (evt.getSource() == linkLabel) {
+                VcsCustomizer.this.linkLabelMouseReleased(evt);
+            }
+        }
     }//GEN-END:initComponents
 
     private void compatibleOSTextFieldFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_compatibleOSTextFieldFocusLost
