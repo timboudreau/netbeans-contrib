@@ -38,6 +38,7 @@ import org.netbeans.modules.vcscore.commands.ActionCommandSupport;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 
 /**
+ * TODO remove it's transitively unused.
  *
  * @author  Milos Kleint
  */
