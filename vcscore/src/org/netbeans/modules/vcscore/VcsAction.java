@@ -69,7 +69,7 @@ public class VcsAction extends NodeAction implements ActionListener {
     private Node[] actionCommandsSubTrees = null; // the commands subtrees to construct actions from
 
     boolean CTRL_Down = false;
-    private String advancedOptionsSign;
+    private final String advancedOptionsSign;
     
     private static final long serialVersionUID = -4196511763565479366L;
     
@@ -812,22 +812,12 @@ public class VcsAction extends NodeAction implements ActionListener {
 
     /**
      * Create the command menu item.
-     * @param name tha name of the command
+     * @param cmd the command
      */
-    protected JMenuItem createItem(String name){
+    private static JMenuItem createItem(VcsCommand cmd, boolean expertMode,
+                                        List switchableList, String advancedOptionsSign,
+                                        ActionListener listener) {
         JMenuItem item = null;
-        VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
-        VcsCommand cmd = fileSystem.getCommand(name);
-        boolean expertMode = fileSystem.isExpertMode();
-
-        if (cmd == null) {
-            //E.err("Command "+name+" not configured."); // NOI18N
-            item = new JMenuItem("'"+name+"' not configured.");
-            item.setEnabled(false);
-            return item;
-        }
-
-        //Hashtable vars=fileSystem.getVariablesAsHashtable();
         String label = cmd.getDisplayName();
         //if (label.indexOf('$') >= 0) {
         //    Variables v = new Variables();
@@ -844,64 +834,12 @@ public class VcsAction extends NodeAction implements ActionListener {
         String[] props = cmd.getPropertyNames();
         if (props != null && props.length > 0) {
             item.setActionCommand(cmd.getName());
-            item.addActionListener(this);
+            item.addActionListener(listener);
         }
         if (hasExpert && (!expertMode)) {
             switchableList.add(item);
         }
         return item;
-    }
-
-    /**
-     * Add a popup submenu.
-     */
-    private void addMenu(Node commands, JMenu parent, boolean onDir, boolean onFile,
-                         boolean onRoot, Set statuses) {
-        VcsCommand parentCmd = (VcsCommand) commands.getCookie(VcsCommand.class);
-        if (parentCmd != null) {
-            String mnemonic = (String) parentCmd.getProperty(VcsCommand.PROPERTY_LABEL_MNEMONIC);
-            if (mnemonic != null && mnemonic.length() > 0) {
-                parent.setMnemonic(mnemonic.charAt(0));
-            }
-        }
-        Children children = commands.getChildren();
-        for (Enumeration subnodes = children.nodes(); subnodes.hasMoreElements(); ) {
-            Node child = (Node) subnodes.nextElement();
-            VcsCommand cmd = (VcsCommand) child.getCookie(VcsCommand.class);
-            if (cmd == null) {
-                parent.addSeparator();
-                continue;
-            }
-            //System.out.println("VcsAction.addMenu(): cmd = "+cmd.getName());
-            JMenuItem cmdMenu = getCommandMenuItem(cmd, onFile, onDir, onRoot);
-            if (cmdMenu == null) continue;
-            boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
-		(String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
-            //System.out.println("VcsAction: isSetContainedInQuotedStrings("+(String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS)+
-            //                   ", "+VcsUtilities.arrayToString((String[]) statuses.toArray(new String[0]))+") = "+disabled);
-            if (disabled && REMOVE_DISABLED) continue;
-            JMenuItem item;
-            if (!child.isLeaf()) {
-                JMenu submenu;
-                String[] props = cmd.getPropertyNames();
-                //if (props == null || props.length == 0) {
-                submenu = new JMenuPlus(cmd.getDisplayName());
-                //} else {
-                //    submenu = new JMenuPlus();
-                //}
-//                submenu.addMenuKeyListener(ctrlListener);
-                addMenu(child, submenu, onDir, onFile, onRoot, statuses);
-                parent.add(submenu);
-                item = submenu;
-            } else {
-                item = cmdMenu;
-//                item.addMenuKeyListener(ctrlListener);
-                parent.add(item);
-            }
-            if (disabled) {
-                item.setEnabled(false);
-            }
-        }
     }
 
     /**
@@ -953,51 +891,60 @@ public class VcsAction extends NodeAction implements ActionListener {
             name = fileSystem.getBundleProperty("CTL_Version_Control");
         }
          */
-        JMenuItem menu = new JMenuPlus(name);
-        if (inMenu) {
-            menu.setIcon(getIcon());
-        }
-        JMenu mn = (JMenu)menu;
-        mn.addMenuKeyListener(new CtrlMenuKeyListener());
-        mn.addMenuListener(new javax.swing.event.MenuListener() {
-            public void menuDeselected(javax.swing.event.MenuEvent e) {
-//                deselectedMenu();
-//                System.out.println("menu deselected");
-            }    
-            public void menuCanceled(javax.swing.event.MenuEvent e) {
-//                deselectedMenu();
-//                System.out.println("menu canceled");
-            }    
-            public void menuSelected(javax.swing.event.MenuEvent e) {
-                deselectedMenu();
-//                System.out.println("Selected menu");
-            }    
-        });    
-
-        
-        addMenu(commandRoot, /*first, lastOrder, */(JMenu) menu, onDir, onFile, onRoot, statuses);
-        if (menu.getSubElements().length == 0) {
+        JMenuItem menu;
+        if (!commandRoot.isLeaf()) {
+            menu = new VcsAction.CommandMenu(commandRoot, onRoot, onFile, onDir,
+                                             (VcsFileSystem) fileSystem.get(),
+                                             statuses, switchableList, advancedOptionsSign,
+                                             REMOVE_DISABLED, this);//JMenuPlus(name);
+            if (inMenu) {
+                menu.setIcon(getIcon());
+            }
+            JMenu mn = (JMenu)menu;
+            menu.addMenuKeyListener(new CtrlMenuKeyListener());
+            mn.addMenuListener(new javax.swing.event.MenuListener() {
+                public void menuDeselected(javax.swing.event.MenuEvent e) {
+                    //                deselectedMenu();
+                    //                System.out.println("menu deselected");
+                }
+                public void menuCanceled(javax.swing.event.MenuEvent e) {
+                    //                deselectedMenu();
+                    //                System.out.println("menu canceled");
+                }
+                public void menuSelected(javax.swing.event.MenuEvent e) {
+                    deselectedMenu();
+                    //                System.out.println("Selected menu");
+                }
+            });
+        } else {
             VcsCommand cmd = (VcsCommand) commandRoot.getCookie(VcsCommand.class);
             if (cmd == null) {
-                //menu = new JPopupMenu.Separator();
+                return null;
             } else {
-                menu = getCommandMenuItem(cmd, onFile, onDir, onRoot);
+                menu = getCommandMenuItem(cmd, onFile, onDir, onRoot,
+                                          (VcsFileSystem) this.fileSystem.get(),
+                                          switchableList, advancedOptionsSign, this);
                 if (menu != null) {
                     if (inMenu) {
                         menu.setIcon(getIcon());
                     }
+                    boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
+                        (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
+                    if (disabled && REMOVE_DISABLED) menu = null;
+                    else menu.setEnabled(!disabled);
                 }
-                boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
-                    (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
-                if (disabled && REMOVE_DISABLED) menu = null;
-                else if (menu != null) menu.setEnabled(!disabled);
             }
         }
+
         return menu;
     }
     
-    private JMenuItem getCommandMenuItem(VcsCommand cmd, boolean onFile,
-                                         boolean onDir, boolean onRoot) {
+    private static JMenuItem getCommandMenuItem(VcsCommand cmd, boolean onFile,
+                                                boolean onDir, boolean onRoot,
+                                                VcsFileSystem fileSystem,
+                                                List switchableList,
+                                                String advancedOptionsSign,
+                                                ActionListener listener) {
         JMenuItem menu;
         if (cmd.getDisplayName() == null
             || onDir && !VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_ON_DIR)
@@ -1006,7 +953,7 @@ public class VcsAction extends NodeAction implements ActionListener {
             || VcsCommandIO.getBooleanPropertyAssumeDefault(cmd, VcsCommand.PROPERTY_HIDDEN)) {
             menu = null;
         } else {
-            VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
+            //VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
             boolean isOffLine = fileSystem.isOffLine();
             if (VcsCommand.NAME_REFRESH.equals(cmd.getName()) && isOffLine && fileSystem.getCommand(VcsCommand.NAME_REFRESH_OFFLINE) != null) {
                 menu = null;
@@ -1017,7 +964,8 @@ public class VcsAction extends NodeAction implements ActionListener {
             } else if (VcsCommand.NAME_REFRESH_RECURSIVELY_OFFLINE.equals(cmd.getName()) && !isOffLine && fileSystem.getCommand(VcsCommand.NAME_REFRESH_RECURSIVELY) != null) {
                 menu = null;
             } else {
-                menu = createItem(cmd.getName());
+                menu = createItem(cmd, fileSystem.isExpertMode(), switchableList,
+                                  advancedOptionsSign, listener);
             }
         }
         return menu;
@@ -1482,7 +1430,103 @@ public class VcsAction extends NodeAction implements ActionListener {
             }    
             item.setText(text);
         }    
-    }    
+    }
     
-    
+    private static class CommandMenu extends JMenuPlus {
+
+        private Node commandRoot;
+        private boolean onRoot;
+        private boolean onFile;
+        private boolean onDir;
+        private VcsFileSystem fileSystem;
+        private Set statuses;
+        private List switchableList;
+        private String advancedOptionsSign;
+        private boolean removeDisabled;
+        private ActionListener listener;
+        private boolean popupCreated = false;
+        
+        public CommandMenu(Node commandRoot, boolean onRoot, boolean onFile,
+                           boolean onDir, VcsFileSystem fileSystem, Set statuses,
+                           List switchableList, String advancedOptionsSign,
+                           boolean removeDisabled, ActionListener listener) {
+            super();
+            this.commandRoot = commandRoot;
+            this.onRoot = onRoot;
+            this.onFile = onFile;
+            this.onDir = onDir;
+            this.fileSystem = fileSystem;
+            this.statuses = statuses;
+            this.switchableList = switchableList;
+            this.advancedOptionsSign = advancedOptionsSign;
+            this.removeDisabled = removeDisabled;
+            this.listener = listener;
+            VcsCommand cmd = (VcsCommand) commandRoot.getCookie(VcsCommand.class);
+            if (cmd != null) {
+                setText(cmd.getDisplayName());
+                String mnemonic = (String) cmd.getProperty(VcsCommand.PROPERTY_LABEL_MNEMONIC);
+                if (mnemonic != null && mnemonic.length() > 0) {
+                    setMnemonic(mnemonic.charAt(0));
+                }
+            }
+        }
+        
+        /** Overrides superclass method. Adds lazy popup menu creation
+          * if it is necessary. */
+        public JPopupMenu getPopupMenu() {
+            if (!popupCreated) createPopup();
+            return super.getPopupMenu();
+        }
+        
+        private void createPopup() {
+            boolean wasSeparator = false;
+            boolean wasNullCommand = false;
+            Children children = commandRoot.getChildren();
+            for (Enumeration subnodes = children.nodes(); subnodes.hasMoreElements(); ) {
+                Node child = (Node) subnodes.nextElement();
+                VcsCommand cmd = (VcsCommand) child.getCookie(VcsCommand.class);
+                if (cmd == null) {
+                    // an extra check to not allow more separators, than appropriate
+                    if (!wasSeparator || wasNullCommand) {
+                        addSeparator();
+                    }
+                    wasSeparator = true;
+                    wasNullCommand = true;
+                    continue;
+                }
+                wasNullCommand = false;
+                //System.out.println("VcsAction.addMenu(): cmd = "+cmd.getName());
+                JMenuItem cmdMenu = getCommandMenuItem(cmd, onFile, onDir, onRoot,
+                                                       fileSystem, switchableList,
+                                                       advancedOptionsSign, listener);
+                if (cmdMenu == null) continue;
+                boolean disabled = VcsUtilities.isSetContainedInQuotedStrings(
+                (String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS), statuses);
+                //System.out.println("VcsAction: isSetContainedInQuotedStrings("+(String) cmd.getProperty(VcsCommand.PROPERTY_DISABLED_ON_STATUS)+
+                //                   ", "+VcsUtilities.arrayToString((String[]) statuses.toArray(new String[0]))+") = "+disabled);
+                if (disabled && removeDisabled) continue;
+                wasSeparator = false;
+                JMenuItem item;
+                if (!child.isLeaf()) {
+                    JMenu submenu;
+                    submenu = new VcsAction.CommandMenu(child, onRoot, onFile,
+                                                        onDir, fileSystem, statuses,
+                                                        switchableList, advancedOptionsSign,
+                                                        removeDisabled, listener);
+                    add(submenu);
+                    item = submenu;
+                } else {
+                    item = cmdMenu;
+                    //                item.addMenuKeyListener(ctrlListener);
+                    add(item);
+                }
+                if (disabled) {
+                    item.setEnabled(false);
+                }
+            }
+            popupCreated = true;
+        }
+
+    }
+
 }
