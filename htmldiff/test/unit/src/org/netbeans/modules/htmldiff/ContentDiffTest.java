@@ -152,8 +152,8 @@ public final class ContentDiffTest extends NbTestCase {
         assertFalse ("Is not removed", n.isRemoved());
         assertTrue ("Is added", n.isAdded ());
         
-        assertEquals ("Complete change for removed page", 1.0f, index.getChanged(), 0.01);
-        assertEquals ("Complete change for added page", 1.0f, n.getChanged (), 0.01);
+        assertEquals ("Complete change for removed page", 1.0f, index.getChanged(), 0.00001);
+        assertEquals ("Complete change for added page", 1.0f, n.getChanged (), 0.00001);
     }
     
     public void testTwoPagesInNewVersionReferingToEachOther () throws Exception {
@@ -172,6 +172,13 @@ public final class ContentDiffTest extends NbTestCase {
         assertEquals ("Both pages there", 2, diff.getClusters()[0].getPages ().size ());
         assertTrue ("Cluster index.html", diff.getClusters()[0].getPages ().contains (diff.findPage ("index.html")));
         assertTrue ("Cluster new.html", diff.getClusters()[0].getPages ().contains (diff.findPage ("new.html")));
+        
+        
+        Page index = diff.findPage ("index.html");
+        assertFalse ("Is not new", index.isAdded ());
+        assertFalse ("Is not removed", index.isRemoved ());
+        assertTrue ("Small change", 0.01f < index.getChanged ());
+        assertTrue ("Small change", index.getChanged () < 0.1f);
     }
     
     public void testOnePageRefersToAnother () throws Exception {
