@@ -313,13 +313,13 @@ Microsystems, Inc. All Rights Reserved.
                             ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_Unix_Shell);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(Unix_Shell_Mnemonic)),
                             SELECTOR_FILE)])
              SELECT_RADIO(FILESYSTEM_PROPERTY_offLine, "", "", ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_OFFLINE_Login, ${CVS_SERVER})", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_OFFLINE_Login);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_OFFLINE_Login_Mnemonic))",
-                                                                PROMPT_FOR_PASSWORD(PASSWORD, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Password)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_Password);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Password_Mnemonic))", SELECTOR_CMD_(&amp;Login)CONNECTION_LOGIN)
+                                                                PROMPT_FOR_PASSWORD(PASSWORD, "getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Password)", "", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_Password);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_Password_Mnemonic))", SELECTOR_CMD_(getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(LOGIN_Button))CONNECTION_LOGIN)
                                                                 TEXT(LOGGED_IN_TEXT, 1, 1, LINE_SINGLE)],
                                                                ["getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_OFFLINE_MODE)", "true", "ACCESSIBILITY(DESCRIPTION_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(ACSD_VAR_OFFLINE_MODE);;MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(VAR_OFFLINE_MODE_Mnemonic))"])
       </value>
     </variable>
     <variable name="LOGGED_IN_TEXT">
-      <value>$[? USER_IS_LOGGED_IN] [You are already logged in.] [You are not logged in.]</value>
+      <value>$[? USER_IS_LOGGED_IN] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(LOGGED_IN_TEXT_IS)] [getBundle(org/netbeans/modules/vcs/profiles/cvsprofiles/config/Bundle).getString(LOGGED_IN_TEXT_ISNOT)]</value>
     </variable>
     <variable name="USER_IS_LOGGED_IN">
       <value></value>
