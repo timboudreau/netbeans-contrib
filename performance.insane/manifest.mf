@@ -1,0 +1,4 @@
+Manifest-version: 1.0
+OpenIDE-Module: org.netbeans.modules.performance.insane
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/performance/insane/Bundle.properties
