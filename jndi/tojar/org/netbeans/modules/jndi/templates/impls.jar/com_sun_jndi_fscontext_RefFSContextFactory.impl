@@ -1,0 +1,7 @@
+#FILE SYSTEM IMPL
+
+java.naming.factory.initial=com.sun.jndi.fscontext.RefFSContextFactory
+java.naming.provider.url=file://
+java.naming.security.authentication=
+java.naming.security.principal=
+java.naming.security.credentials=

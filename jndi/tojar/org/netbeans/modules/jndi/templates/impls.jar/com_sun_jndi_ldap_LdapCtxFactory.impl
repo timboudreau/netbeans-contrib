@@ -1,0 +1,7 @@
+#FILE SYSTEM IMPL
+
+java.naming.factory.initial=com.sun.jndi.ldap.LdapCtxFactory
+java.naming.provider.url=ldap://
+java.naming.security.authentication=
+java.naming.security.principal=
+java.naming.security.credentials=
