@@ -5,6 +5,15 @@ OpenIDE-Module-Description: org.netbeans.modules.jndi.docs.jndi
 OpenIDE-Module-Specification-Version: 1.4
 OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
 OpenIDE-Module-Install: org/netbeans/modules/jndi/JndiModule.class
+OpenIDE-Module-Display-Category: Distributed
+OpenIDE-Module-Short-Description: Helps you write programs that use JNDI 
+  to access naming services technology.
+OpenIDE-Module-Long-Description: The JNDI module helps you write programs 
+  that use JNDI to access naming services technology. Its main feature 
+  is a JNDI browser, which you can use to browse the contents of naming 
+  services. You can select a named item in the browser and generate 
+  binding or lookup code for it, which you can include in a program that 
+  needs to acess the naming service via JNDI.
 
 Name: org/netbeans/modules/jndi/JndiRootNode.class
 OpenIDE-Module-Class: Node
