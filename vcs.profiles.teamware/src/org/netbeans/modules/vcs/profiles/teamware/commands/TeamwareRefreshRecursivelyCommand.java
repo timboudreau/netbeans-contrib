@@ -61,10 +61,7 @@ public class TeamwareRefreshRecursivelyCommand extends VcsListRecursiveCommand {
             stderr.outputLine("Ignoring " + dir);
             return;
         }
-        File[] files = dir.listFiles();
-        if (files == null) {
-            return;
-        }
+        File[] files = TeamwareRefreshSupport.listFilesInDir(dir);
         filesByName.setPath(path);
         filesByName.setName(dir.getName());
         Hashtable table = (Hashtable) filesByName.getElement();

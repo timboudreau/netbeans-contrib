@@ -18,14 +18,22 @@ package org.netbeans.modules.vcs.profiles.teamware.commands;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
 import org.netbeans.modules.vcs.profiles.teamware.util.SFile;
 
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 
 class TeamwareRefreshSupport {
 
+    private static final File[] EMPTY_FILE_ARRAY = new File[0];
+    
     static boolean ignoreFile(File file) {
         String leaf = file.getName();
         if (leaf.startsWith(".") || leaf.endsWith("~")) {
@@ -77,7 +85,7 @@ class TeamwareRefreshSupport {
                         stderr.outputLine(file + " should be writable");
                     }
                 } else {
-                    state = "Checked in";
+                    state = file.exists() ? "Checked in" : "Needs checkout";
                     if (writable) {
                         stderr.outputLine(file + " should not be writable");
                     }
@@ -90,6 +98,29 @@ class TeamwareRefreshSupport {
             revision
         };
         return data;
+    }
+    
+    static File[] listFilesInDir(final File dir) {
+        if (ignoreFile(dir)) {
+            return EMPTY_FILE_ARRAY;
+        }
+        final Set fileSet = new TreeSet();
+        File[] files = dir.listFiles();
+        if (files != null) {
+            fileSet.addAll(Arrays.asList(files));
+        }
+        File sccsDir = new File(dir, "SCCS");
+        if (sccsDir.exists()) {
+            sccsDir.list(new FilenameFilter() {
+                public boolean accept(File sdir, String name) {
+                    if (name.startsWith("s.")) {
+                        fileSet.add(new File(dir, name.substring(2)));
+                    }
+                    return false;
+                }
+            });
+        }
+        return (File[]) fileSet.toArray(EMPTY_FILE_ARRAY);
     }
     
 }

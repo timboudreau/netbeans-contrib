@@ -35,14 +35,8 @@ public class TeamwareRefreshCommand extends VcsListCommand {
         String errorRegex) {
             
         File dir = TeamwareSupport.getDir(vars);
+        File[] files = TeamwareRefreshSupport.listFilesInDir(dir);
         File sccsDir = new File(dir, "SCCS");
-        File[] files = dir.listFiles();
-        if (files == null) {
-            return true;
-        }
-	if (TeamwareRefreshSupport.ignoreFile(dir)) {
-            return true;
-        }
         for (int i = 0 ; i < files.length; i++) {
             String[] data = TeamwareRefreshSupport.listFile(files[i],
                 sccsDir, stderrListener);
