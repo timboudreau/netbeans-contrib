@@ -99,13 +99,9 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
         ((ContextChildren)getChildren ()).setContextNode (this);
         contexts = new Vector ();
 
-        if (context != null)
+        if (context != null) {
             setIconBase (ICON_BASE);
-        else
-            setIconBase (ICON_BASE_ROOT);
-        setDisplayName (getName ());
-
-        systemActions = new SystemAction[] {
+            systemActions = new SystemAction[] {
                             SystemAction.get (org.netbeans.modules.corba.browser.ns.CreateNewContext.class),
                             SystemAction.get (org.netbeans.modules.corba.browser.ns.BindNewContext.class),
                             null,
@@ -120,6 +116,15 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
                             null,
                             SystemAction.get(org.openide.actions.PropertiesAction.class)
                         };
+        }
+        else {
+            setIconBase (ICON_BASE_ROOT);
+            systemActions = new SystemAction[] {
+                            SystemAction.get (org.netbeans.modules.corba.browser.ns.BindNewContext.class)
+                        };
+        }
+        setDisplayName (getName ());
+
     }
 
 
@@ -132,16 +137,20 @@ public class ContextNode extends AbstractNode implements Node.Cookie {
         if (DEBUG)
             System.out.println ("no of naming children: " + naming_children.size ());
 
-        //if (naming_children.size () != null)
-        for (int i=0; i<naming_children.size (); i++) {
-            NamingServiceChild child = (NamingServiceChild)naming_children.elementAt (i);
-            try {
-                bind_new_context (child.getName (), child.getKind (), child.getURL (), child.getIOR ());
-            } catch (Exception e) {
-                if (DEBUG)
-                    e.printStackTrace ();
-                naming_children.remove (i);
+        if (naming_children != null){
+            for (int i=0; i<naming_children.size (); i++) {
+                NamingServiceChild child = (NamingServiceChild)naming_children.elementAt (i);
+                try {
+                    bind_new_context (child.getName (), child.getKind (), child.getURL (), child.getIOR ());
+                } catch (Exception e) {
+                    if (DEBUG)
+                        e.printStackTrace ();
+                    naming_children.remove (i);
+                }
             }
+        }
+        else {
+            naming_children = new Vector ();
         }
         _loaded = true;
         if (DEBUG)
