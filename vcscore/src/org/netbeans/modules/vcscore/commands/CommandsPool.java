@@ -146,7 +146,7 @@ public class CommandsPool extends Object /*implements CommandListener */{
  
         }
  */
-        fsDisplayPropertyChange = new FSDisplayPropertyChangeListener();
+        fsDisplayPropertyChange = new FSDisplayPropertyChangeListener(fileSystem.getSystemName());
         fileSystem.addPropertyChangeListener(WeakListener.propertyChange(fsDisplayPropertyChange, fileSystem));
         /*
         org.openide.filesystems.Repository repo = TopManager.getDefault().getRepository();
@@ -998,11 +998,16 @@ public class CommandsPool extends Object /*implements CommandListener */{
     
 
     private class FSDisplayPropertyChangeListener implements java.beans.PropertyChangeListener {
+        private String oldFsSystemName;
+        public FSDisplayPropertyChangeListener(String initFSSystemName) {
+            oldFsSystemName = initFSSystemName;
+        }
         public void propertyChange(java.beans.PropertyChangeEvent evt) {
             if (VcsFileSystem.PROP_ROOT.equals(evt.getPropertyName())) {
                 VcsFileSystem fileSystem = getVcsFileSystem();
                 if (fileSystem == null) return ;
-                RuntimeSupport.getInstance().updateRuntime(fileSystem);
+                RuntimeSupport.getInstance().updateRuntime(fileSystem, oldFsSystemName);
+                oldFsSystemName = fileSystem.getSystemName();
             }
         }
     }
