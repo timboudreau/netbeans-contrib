@@ -105,30 +105,6 @@ Contributor(s): Daniel Blaukopf.
                     <value>"Local", "Ignored"</value>
                 </property>
             </command>
-            <command displayName="Detailed Change History" name="BLAMETOOL">
-                <run dir="${WORKDIR}">
-                    <executable value="${SCCS}"/>
-                    <arg value="get"/>
-                    <arg value="-m"/>
-                    <arg value="-p"/>
-                    <arg value="${FILE}"/>
-                </run>
-                <property name="onDir">
-                    <value>false</value>
-                </property>
-                <property name="onRoot">
-                    <value>false</value>
-                </property>
-                <property name="runOnMultipleFiles">
-                    <value>false</value>
-                </property>
-                <property name="display">
-                    <value>true</value>
-                </property>
-                <property name="disabledOnStatus">
-                    <value>"Local", "Ignored"</value>
-                </property>
-            </command>
             <command displayName="Commit" name="CHECKIN">
                 <property name="inputDescriptor">
                     <value>PROMPT_FOR(COMMENT, "Comment:", "")</value>
@@ -192,7 +168,7 @@ Contributor(s): Daniel Blaukopf.
                     <value>true</value>
                 </property>
             </command>
-            <command displayName="History" name="HISTORY">
+            <command displayName="Revision History" name="HISTORY">
                 <run dir="${WORKDIR}">
                     <executable value="${SCCS}"/>
                     <arg value="prs"/>
@@ -212,6 +188,30 @@ Contributor(s): Daniel Blaukopf.
                 </property>
                 <property name="generalCommandActionClassName">
                     <value>org.netbeans.modules.vcscore.actions.HistoryCommandAction</value>
+                </property>
+            </command>
+            <command displayName="Line-by-Line History" name="BLAMETOOL">
+                <run dir="${WORKDIR}">
+                    <executable value="${SCCS}"/>
+                    <arg value="get"/>
+                    <arg value="-m"/>
+                    <arg value="-p"/>
+                    <arg value="${FILE}"/>
+                </run>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="runOnMultipleFiles">
+                    <value>false</value>
+                </property>
+                <property name="display">
+                    <value>true</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Ignored"</value>
                 </property>
             </command>
             <command displayName="Cancel edit" name="UNEDIT">
@@ -257,6 +257,9 @@ You will lose any changes.</value>
                     <arg line="${REVARGS}"/>
                     <arg value="${FILE}"/>
                 </run>
+                <property name="ignoreFail">
+                    <value>true</value>
+                </property>
             </command>
             <command basic="false" name="PRS">
                 <run dir="${WORKDIR}">
@@ -309,6 +312,28 @@ You will lose any changes.</value>
                 </property>
                 <property name="data.status.index">
                     <value>0</value>
+                </property>
+            </command>
+            <separator/>
+            <command displayName="Create Patch" name="CREATE_PATCH">
+                <property name="inputDescriptor">
+                    <value>
+                    ASK_FOR(EDITED_FILES_ONLY, "Include Only Edited Files", "true", ENABLE(), DISABLE(DATE))
+                    PROMPT_FOR(DATE, "Since date (in format yy[mm[dd]]):", "")
+                    PROMPT_FOR(TOFILE, "Output File:", "${WORKDIR}$[? FILE][${FILE}-][]diffs.txt", VALIDATOR_NON_EMPTY, SELECTOR_FILE)
+                    </value>
+                </property>
+                <property name="exec">
+                    <value>org.netbeans.modules.vcs.profiles.teamware.commands.TeamwareCreatePatchCommand.class</value>
+                </property>
+                <property name="onDir">
+                    <value>true</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="disabledOnStatus">
+                    <value>"Local", "Ignored"</value>
                 </property>
             </command>
         </command>
