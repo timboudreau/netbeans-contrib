@@ -48,8 +48,16 @@ import org.netbeans.modules.vcscore.versioning.RevisionEvent;
  */
 public class CommandExecutorSupport extends Object {
     
+    private static RequestProcessor REFRESH_REQUEST_PROCESSOR;
+    
     /** Creates new CommandExecutorSupport */
     private CommandExecutorSupport() {
+    }
+    
+    private static synchronized void checkRefreshRequestProcessorCreated() {
+        if (REFRESH_REQUEST_PROCESSOR == null) {
+            REFRESH_REQUEST_PROCESSOR = new RequestProcessor("Post-command Refresh Request Processor", 1); // NOI18N
+        }
     }
     
     /**
@@ -286,7 +294,10 @@ public class CommandExecutorSupport extends Object {
         // Spawn the refresh asynchronously, like the original implementation.
         // XXX it potentionaly spawns many threads. Requests should be
         // queued and merged
-        RequestProcessor.getDefault().post(new Runnable() {
+        // Must have throughoutput == 1, because otherwise childen can be
+        // refreshed before their parents.
+        checkRefreshRequestProcessorCreated();
+        REFRESH_REQUEST_PROCESSOR.post(new Runnable() {
             public void run() {
                 if (recursive) {
                     TurboUtil.refreshRecursively(fo);

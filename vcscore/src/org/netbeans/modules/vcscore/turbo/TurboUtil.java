@@ -36,6 +36,13 @@ import org.openide.util.NbBundle;
  * @author Petr Kuzel
  */
 public final class TurboUtil {
+    
+    /** A synchronization object for refresh requests. It helps to synchronize
+        only refreshes of hierarchically dependent folders. */
+    private static final Object SYNCHRON_REFRESH = new Object();
+    
+    /** The FileObjects currently being refreshed. */
+    private static Set refreshingFileObjects = new HashSet();
 
     private TurboUtil() {
         // only static methods
@@ -64,6 +71,28 @@ public final class TurboUtil {
         }
         return (FileObject[]) ret.toArray(new FileObject[ret.size()]);
     }
+    
+    /** MUST be called under a lock on SYNCHRON_REFRESH object */
+    private static void waitForParentRefreshes(FileObject folder) {
+        boolean needsWait;
+        do {
+            needsWait = false;
+            for (Iterator it = refreshingFileObjects.iterator(); it.hasNext(); ) {
+                FileObject rfo = (FileObject) it.next();
+                if (rfo.equals(folder) || FileUtil.isParentOf(rfo, folder)) {
+                    needsWait = true;
+                    break;
+                }
+            }
+            if (needsWait) {
+                try {
+                    SYNCHRON_REFRESH.wait();
+                } catch (InterruptedException iex) {
+                    // Continue, next round will block again
+                }
+            }
+        } while (needsWait);
+    }
 
     /**
      * Refreshes folder content's metadata.
@@ -75,7 +104,18 @@ public final class TurboUtil {
 
         assert SwingUtilities.isEventDispatchThread() == false;
 
-        return Repository.refreshFolderContent(folder);
+        synchronized (SYNCHRON_REFRESH) {
+            waitForParentRefreshes(folder);
+            refreshingFileObjects.add(folder);
+        }
+        try {
+            return Repository.refreshFolderContent(folder);
+        } finally {
+            synchronized (SYNCHRON_REFRESH) {
+                refreshingFileObjects.remove(folder);
+                SYNCHRON_REFRESH.notifyAll();
+            }
+        }
     }
 
     /**
@@ -88,6 +128,14 @@ public final class TurboUtil {
 
         assert SwingUtilities.isEventDispatchThread() == false;
 
+        synchronized (SYNCHRON_REFRESH) {
+            waitForParentRefreshes(folder);
+        }
+        // Wait for any parent refreshes, but do not block execution
+        // of simple refresh. It's necessary because:
+        // 1) rec. refresh can spawn non-rec. refreshes recursively
+        // 2) rec. refresh can take a long time, simple refresh should not
+        //    be required to wait for it.
         return Repository.refreshFolderContentRecusively(folder);
     }
 
