@@ -13,10 +13,58 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
+import org.netbeans.modules.tasklist.suggestions.SuggestionList;
+import org.netbeans.modules.tasklist.core.Task;
+import org.netbeans.api.tasklist.Suggestion;
+
+import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
+
 /**
  * Lists suggestions for current project or source file.
+ * Filters out inproper suggestions not targeted to this list.
  *
  * @author Petr Kuzel
  */
-public class SourceTasksList {
+final class SourceTasksList extends SuggestionList {
+
+    SourceTasksList() {
+        super(Integer.MAX_VALUE);
+    }
+
+    public void addRemove(List addList, List removeList, boolean append,
+                          Task parent, Task after) {
+
+        List filtered = new ArrayList(addList);
+        Iterator it = filtered.iterator();
+        while (it.hasNext()) {
+            Suggestion next = (Suggestion) it.next();
+            if (next.getSeed() instanceof SourceTaskProvider) {
+                continue;
+            } else {
+                it.remove();
+            }
+        }
+
+        super.addRemove(filtered, removeList, append, parent, after);
+    }
+
+    public void add(Task task) {
+        if (task.getSeed() instanceof SourceTaskProvider) {
+            super.add(task);
+        }
+    }
+
+    public void add(Task task, boolean append, boolean show) {
+        if (task.getSeed() instanceof SourceTaskProvider) {
+            super.add(task, append, show);
+        }
+    }
+
+    public void add(Task task, Task after, boolean show) {
+        if (task.getSeed() instanceof SourceTaskProvider) {
+            super.add(task, after, show);
+        }
+    }
 }

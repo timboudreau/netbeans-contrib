@@ -59,7 +59,7 @@ public class SuggestionNode extends TaskNode {
     } 
 
     // Non-leaf/parent
-    public /*protected*/ SuggestionNode(SuggestionImpl item, List subtasks) {
+    protected SuggestionNode(SuggestionImpl item, List subtasks) {
         super(item, subtasks);
         init(item);
     }

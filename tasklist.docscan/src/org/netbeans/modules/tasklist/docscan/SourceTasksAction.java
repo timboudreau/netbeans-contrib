@@ -46,7 +46,7 @@ public class SourceTasksAction extends CallableSystemAction {
     }
 
     public void performAction() {
-        final SuggestionList list = new SuggestionList(Integer.MAX_VALUE);
+        final SuggestionList list = new SourceTasksList();
         // The category should be DIFFERENT from the category used
         // for the default suggestion view (the active scanning view)
         // such that the "Show Suggestions View" action does not

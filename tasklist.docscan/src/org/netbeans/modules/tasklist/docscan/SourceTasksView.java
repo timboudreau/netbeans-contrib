@@ -74,7 +74,7 @@ final class SourceTasksView extends TaskListView {
 
     protected TaskNode createRootNode() {
         SuggestionImpl root = (SuggestionImpl) tasklist.getRoot();
-        return new SuggestionNode(root, root.getSubtasks());
+        return new SourceTaskNode(root, root.getSubtasks());
     }
 
     protected ColumnProperty[] createColumns() {
