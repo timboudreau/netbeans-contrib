@@ -330,7 +330,7 @@ public class CommandExecutorSupport extends Object {
                 String dir = VcsUtilities.getDirNamePart(fullPath);
                 String file = VcsUtilities.getFileNamePart(fullPath);
                 doRefresh(fileSystem, vce.getExec(), cmd, dir, file, foldersOnly,
-                doRefreshCurrent, doRefreshParent);
+                          doRefreshCurrent, doRefreshParent);
             }
         }
     }
@@ -382,7 +382,9 @@ public class CommandExecutorSupport extends Object {
             if (!doRefreshParent && cache != null && cache.isDir(refreshPathFile)) refreshPath = refreshPathFile;
             String patternMatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_MATCHED);
             String patternUnmatch = (String) cmd.getProperty(VcsCommand.PROPERTY_REFRESH_RECURSIVELY_PATTERN_UNMATCHED);
-            boolean rec = (exec != null && (cache == null || !cache.isFile(refreshPathFile))
+            boolean rec = (exec != null
+                && (cache == null || !(cache.isFile(refreshPathFile)
+                                       || (!cache.isDir(refreshPathFile) && !fileSystem.folder(refreshPathFile))))
                 && (patternMatch != null && patternMatch.length() > 0 && exec.indexOf(patternMatch) >= 0
                     || patternUnmatch != null && patternUnmatch.length() > 0 && exec.indexOf(patternUnmatch) < 0));
             if (!foldersOnly || cache.isDir(refreshPath)) {
