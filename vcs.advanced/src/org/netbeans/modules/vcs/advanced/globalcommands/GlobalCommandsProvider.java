@@ -19,7 +19,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 import org.netbeans.api.vcs.commands.Command;
 
@@ -65,7 +65,7 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
             profilesByNames.put(names[i], profile);
             profile.addPropertyChangeListener(this);
         }
-        factory.addPropertyChangeListener(WeakListener.propertyChange(this, factory));
+        factory.addPropertyChangeListener(WeakListeners.propertyChange(this, factory));
         instance = this;
     }
     
@@ -219,7 +219,7 @@ public class GlobalCommandsProvider extends VcsCommandsProvider implements Comma
                     return ;
                 }
                 profilesByNames.put(name, profile);
-                profile.addPropertyChangeListener(WeakListener.propertyChange(this, profile));
+                profile.addPropertyChangeListener(WeakListeners.propertyChange(this, profile));
                 collectCommands();
             }
             firePropertyChange(CommandsTree.Provider.PROP_COMMANDS, null, commands);

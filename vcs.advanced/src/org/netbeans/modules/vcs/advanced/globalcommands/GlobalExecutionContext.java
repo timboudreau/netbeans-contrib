@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
@@ -94,7 +94,7 @@ public class GlobalExecutionContext extends Object implements CommandExecutionCo
     public GlobalExecutionContext(Profile profile) {
         profileName = profile.getName();
         profileRef = new WeakReference(profile);
-        profile.addPropertyChangeListener(WeakListener.propertyChange(this, profile));
+        profile.addPropertyChangeListener(WeakListeners.propertyChange(this, profile));
         defaultVariables = getDefaultVariables();
         variablesByNames = new Hashtable(Variables.getDefaultVariablesMap());
         variablesByNames.putAll(defaultVariables);

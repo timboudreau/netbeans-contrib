@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 import org.netbeans.api.vcs.commands.Command;
 import org.netbeans.api.vcs.commands.CommandTask;
@@ -61,7 +61,7 @@ public class GlobalRuntimeCommandsProvider extends RuntimeCommandsProvider {
         processor.addCommandProcessListener(rcl);
         //processor.removeFinishedCommandsUponRequest(true, fs);
         GlobalCommandsProvider provider = GlobalCommandsProvider.getInstance();
-        provider.addPropertyChangeListener(WeakListener.propertyChange(rcl, provider));
+        provider.addPropertyChangeListener(WeakListeners.propertyChange(rcl, provider));
         numOfCommandsToKeep = provider.getNumberOfFinishedCmdsToCollect();
     }
     
@@ -79,7 +79,7 @@ public class GlobalRuntimeCommandsProvider extends RuntimeCommandsProvider {
             }
         }
          */
-        globalRuntime.addPropertyChangeListener(WeakListener.propertyChange(rcl, globalRuntime));
+        globalRuntime.addPropertyChangeListener(WeakListeners.propertyChange(rcl, globalRuntime));
         //attachListeners(fsRuntime);
         return globalRuntime;
     }

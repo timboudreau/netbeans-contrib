@@ -38,7 +38,7 @@ import org.openide.nodes.Sheet;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 
 /**
  * The node, that represents the CommandLineVcsFileSystem instance.
@@ -59,7 +59,7 @@ public class CommandLineVcsFileSystemNode extends AbstractNode {
         this.obj = obj;
         this.ic = ic;
         xmlPropertyListener = new XMLPropertyListener();
-        obj.addPropertyChangeListener(WeakListener.propertyChange(xmlPropertyListener, obj));
+        obj.addPropertyChangeListener(WeakListeners.propertyChange(xmlPropertyListener, obj));
         setIconBase("org/netbeans/modules/vcs/advanced/vcsGeneric"); // NOI18N
         getCookieSet().add(ic);
         getCookieSet().add(obj);
@@ -162,7 +162,7 @@ public class CommandLineVcsFileSystemNode extends AbstractNode {
                 if (setter != null && setter.getName().equals("addPropertyChangeListener")) { // NOI18N
                     Object bean = ic.instanceCreate();
                     instancePropertyListener = new InstancePropertyListener();
-                    setter.invoke(bean, new Object[] { WeakListener.propertyChange(instancePropertyListener, bean) });
+                    setter.invoke(bean, new Object[] { WeakListeners.propertyChange(instancePropertyListener, bean) });
                 }
             }
         } catch (java.io.IOException ioex) {

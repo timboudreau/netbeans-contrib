@@ -42,6 +42,7 @@ import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.modules.ModuleInfo;
@@ -51,7 +52,7 @@ import org.openide.util.LookupListener;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
-import org.openide.util.WeakListener;
+import org.openide.util.WeakListeners;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.xml.XMLUtil;
 
@@ -171,7 +172,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         this.fo = fo;
         this.doc = doc;
         this.ic = ic;
-        fo.addFileChangeListener(WeakListener.fileChange(this, fo));
+        fo.addFileChangeListener(FileUtil.weakFileChangeListener(this, fo));
         if (readModuleInfo) {
             try {
                 readModuleInfo(doc);
@@ -215,7 +216,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                 ErrorManager.getDefault().notify(dexc);
             }
             fsPropertyChangeListener = new FSPropertyChangeListener(fo);
-            fs.addPropertyChangeListener(fsPropertyChangeListener); //WeakListener.propertyChange(fsPropertyChangeListener, fs));
+            fs.addPropertyChangeListener(fsPropertyChangeListener); //WeakListeners.propertyChange(fsPropertyChangeListener, fs));
             //System.out.println("  PROPERTIES READ: fs = "+fs.getSystemName());
         }
         return fs;
@@ -242,7 +243,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
         weakFsInstance = new WeakReference(fs);
         if (fs != null) {
             fsPropertyChangeListener = new FSPropertyChangeListener(fo);
-            fs.addPropertyChangeListener(fsPropertyChangeListener); //WeakListener.propertyChange(fsPropertyChangeListener, fs));
+            fs.addPropertyChangeListener(fsPropertyChangeListener); //WeakListeners.propertyChange(fsPropertyChangeListener, fs));
         } else {
             if (oldFs != null) {
                 oldFs.removePropertyChangeListener(fsPropertyChangeListener);
@@ -344,7 +345,7 @@ public class CommandLineVcsFileSystemInstance extends Object implements Instance
                     }
                 };
                 m.addPropertyChangeListener(
-                    WeakListener.propertyChange(moduleListener, m));
+                    WeakListeners.propertyChange(moduleListener, m));
             }
         }
         if (!m.isEnabled()) return false;
