@@ -15,7 +15,9 @@ package org.netbeans.modules.mdr;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.File;
 import org.openide.ErrorManager;
+import org.openide.modules.InstalledFileLocator;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
@@ -129,29 +131,11 @@ public class MDRDataObject extends MultiDataObject {
         if (tagName.startsWith(TAG_BODY_FOLDER)) {
             String folder = tagName.substring(TAG_BODY_FOLDER.length()).replace('\\', '/');
             ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "found folder: " + folder);
-            FileObject resultFolder = Repository.getDefault().getDefaultFileSystem().getRoot();
-            FileObject current;
-            String folderName;
-            int pos;
-            
+            String resultFolder = System.getProperty("netbeans.user") + "/var/cache/" + folder;
             try {
-
-                while (folder.length() > 0) {
-                    if ((pos = folder.indexOf('/')) < 0) {
-                        folderName = folder;
-                        folder = "";
-                    } else {
-                        folderName = folder.substring(0, pos);
-                        folder = folder.substring(pos + 1);
-                    }
-                    current = resultFolder.getFileObject(folderName);
-                    if (current == null) {
-                        current = resultFolder.createFolder(folderName);
-                    }
-                    resultFolder = current;
-                }
-
-                return FileUtil.toFile(resultFolder).getAbsolutePath();
+                File result = new File(resultFolder);
+                result.mkdirs();
+                return resultFolder;
             } catch (Exception e) {
                 ErrorManager.getDefault().notify(e);
                 return "";
