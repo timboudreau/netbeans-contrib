@@ -110,8 +110,7 @@ public class ContextChildren extends Children.Keys {
             }
         } catch (Exception e) {
             //System.out.println ("exception " + e);
-            TopManager.getDefault ().notify (new NotifyDescriptor.Exception
-                                             ((java.lang.Throwable) e));
+            TopManager.getDefault ().notify (new NotifyDescriptor.Message (e.toString(), NotifyDescriptor.Message.ERROR_MESSAGE));
             if (DEBUG)
                 e.printStackTrace ();
         }

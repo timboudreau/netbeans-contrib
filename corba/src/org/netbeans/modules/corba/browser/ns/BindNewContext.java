@@ -72,8 +72,7 @@ public class BindNewContext extends NodeAction {
                 } catch (Exception e) {
                     if (DEBUG)
                         e.printStackTrace ();
-                    TopManager.getDefault ().notify (new NotifyDescriptor.Exception
-                                                     ((java.lang.Throwable) e));
+                    TopManager.getDefault ().notify (new NotifyDescriptor.Message (e.toString(),NotifyDescriptor.Message.ERROR_MESSAGE));
                 }
             }
         }
