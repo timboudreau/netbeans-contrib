@@ -979,6 +979,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         String name = (String) envTableModel.getValueAt(row, 0);
         NotifyDescriptor nd = new NotifyDescriptor.Confirmation(NbBundle.getMessage(VcsCustomizer.class, "DLG_EnvVarDeleteConfirm", name));
         if (NotifyDescriptor.OK_OPTION.equals(TopManager.getDefault().notify(nd))) {
+            row = envTableModel.getModelRow(row);
             ((javax.swing.table.DefaultTableModel) envTableModel.getModel()).removeRow(row);
             Vector vars = fileSystem.getVariables();
             VcsConfigVariable var = (VcsConfigVariable) envVariables.remove(name);
@@ -1004,10 +1005,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             fileSystem.setVariables(vars);
             envVariables.put(name, var);
             int row = envTableModel.getRowCount() - 1;
+            int srow = envTableModel.getSorterRow(row);
             javax.swing.table.TableCellEditor editor = envTable.getCellEditor(row, 1);
             editor.addCellEditorListener(new EnvCellEditorListener(name, row, 1));
             envTable.clearSelection();
-            envTable.addRowSelectionInterval(row, row);
+            envTable.addRowSelectionInterval(srow, srow);
             //envTable.getSelectionModel().setSelectionInterval(row, envTableModel.getRowCount());
         }
     }//GEN-LAST:event_insertEnvButtonActionPerformed
@@ -2318,9 +2320,11 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         public void editingCanceled(javax.swing.event.ChangeEvent e) {
         }
         public void editingStopped(javax.swing.event.ChangeEvent e) {
+            //System.out.println("editingStopped("+name+", "+row+", "+col+")");
             VcsConfigVariable var = (VcsConfigVariable) envVariables.get(name);
             if (var != null) {
-                String value = (String) envTable.getValueAt(row, col);
+                String value = (String) envTableModel.getModel().getValueAt(row, col);
+                //System.out.println("  value = "+value);
                 var.setValue(value);
                 fileSystem.setEnvironmentVar(name, value);
                 fileSystem.variableChanged(var.getName());
@@ -2343,13 +2347,14 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         public void editingCanceled(javax.swing.event.ChangeEvent e) {
         }
         public void editingStopped(javax.swing.event.ChangeEvent e) {
-            Boolean remove = (Boolean) systemEnvTable.getValueAt(row, col);
+            //System.out.println("editingStopped("+name+", "+row+", "+col+")");
+            Boolean remove = (Boolean) systemEnvTableModel.getModel().getValueAt(row, col);
+            //System.out.println("  remove = "+remove);
             Vector vars = fileSystem.getVariables();
             if (Boolean.TRUE.equals(remove)) {
                 VcsConfigVariable var = (VcsConfigVariable) envVariablesRemoved.remove(name);
                 if (var == null) return ;
                 vars.remove(var);
-                envVariablesRemoved.remove(name);
             } else {
                 if (envVariablesRemoved.containsKey(name)) return ;
                 VcsConfigVariable var = new VcsConfigVariable(VcsFileSystem.VAR_ENVIRONMENT_REMOVE_PREFIX + name,
