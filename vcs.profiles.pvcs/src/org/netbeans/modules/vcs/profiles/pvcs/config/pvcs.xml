@@ -635,6 +635,9 @@ Microsystems, Inc. All Rights Reserved.
 	<property name="error.regex">
 	  <value>$ ^</value>
 	</property>
+        <property name="preCommands">
+          <value>ADD_LOCAL_PARENTS</value>
+        </property>
         <property name="refreshCurrentFolder">
           <value>true</value>
         </property>
