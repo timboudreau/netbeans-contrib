@@ -140,7 +140,7 @@ Microsystems, Inc. All Rights Reserved.
     <delete file="vcsgen.nbm"/>
     <delete dir="netbeans"/>
     <delete dir="Info"/>
-    <delete dir="javahelp/netbeans/modules/vcs/advanced/odcs/JavaHelpSearch"/>
+    <delete dir="javahelp/netbeans/modules/vcs/advanced/docs/JavaHelpSearch"/>
   </target>
 
 </project>
