@@ -282,14 +282,6 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             fsRoot += ps + relativeMountPoint;//vars.get("MODULE");
         }
         String relativePath = (String) vars.get("COMMON_PARENT");
-        if ("".equals(vars.get("MULTIPLE_FILES")) && !"".equals(vars.get("FILE_IS_FOLDER"))) {
-            if (relativePath != null) {
-                relativePath = relativePath + "/" + (String) vars.get("PATH");
-            } else {
-                relativePath = (String) vars.get("PATH");
-                if (".".equals(relativePath)) relativePath = null;
-            }
-        }
         File updatedFileRoot;
         if (relativePath != null) {
             relativePath = relativePath.replace(File.separatorChar, '/');
@@ -297,10 +289,11 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         } else {
             updatedFileRoot = new File(fsRoot);
         }
-        fileStatusUpdater = new FileStatusUpdater(updatedFileRoot, relativePath, vars, stdoutNRListener, stdoutListener);
+        ArrayList filePaths = getFilePaths((String) vars.get("COMMON_PARENT"), (String) vars.get("PATHS"), ps);
+        fileStatusUpdater = new FileStatusUpdater(updatedFileRoot, relativePath,
+                                                  vars, filePaths, stdoutNRListener, stdoutListener);
         fsRoot = fsRoot.replace('/', ps);
         //final StringBuffer buff = new StringBuffer();
-        ArrayList filePaths = getFilePaths((String) vars.get("COMMON_PARENT"), (String) vars.get("PATHS"), ps);
         CommandsPool cpool = fileSystem.getCommandsPool();
         //Hashtable varsOriginal = new Hashtable(vars);
         //boolean committed = false;
@@ -437,9 +430,11 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
         private String lastFilePath;
         private String lastFileDir;
         private String examiningPath;
+        private List filePaths;
         private List elementsToSend;
         
         public FileStatusUpdater(File workingDir, String relativePath, Map vars,
+                                 List filePaths,
                                  CommandOutputListener stdoutNRListener,
                                  CommandDataOutputListener fileUpdateListener) {
             this.stdoutNRListener = stdoutNRListener;
@@ -461,6 +456,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
             } else {
                 this.relativePath = "";
             }
+            this.filePaths = new ArrayList(filePaths);
             elementsToSend = new ArrayList();
         }
         
@@ -487,11 +483,7 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                             lastFilePath = examiningPath + "/" + file; // NOI18N
                         }
                     } else {
-                        if (relativePath == null || relativePath.length() == 0) {
-                            lastFilePath = file;
-                        } else {
-                            lastFilePath = relativePath + "/" + file; // NOI18N
-                        }
+                        lastFilePath = findFilePath(file);
                     }
                 }
                 if (lastFilePath != null) {
@@ -514,6 +506,23 @@ public class CvsCommit extends Object implements VcsAdditionalCommand {
                 String revision = line.substring(INITIAL_REVISION.length()).trim();
                 revision(revision, CommitInformation.ADDED);
             }
+        }
+        
+        private String findFilePath(String fileName) {
+            for (Iterator it = filePaths.iterator(); it.hasNext(); ) {
+                String path = (String) it.next();
+                if (path.endsWith(fileName)) {
+                    if (path.length() > fileName.length() && path.charAt(path.length() - fileName.length() - 1) != '/') {
+                        continue;
+                    }
+                    filePaths.remove(path);
+                    if (path.startsWith(relativePath)) {
+                        path = path.substring(relativePath.length());
+                    }
+                    return path;
+                }
+            }
+            return fileName;
         }
         
         private void revision(String revision, String operationType) {
