@@ -89,7 +89,7 @@ Microsystems, Inc. All Rights Reserved.
             
             <target name="run" depends="build">
                 <exec executable="open">
-                    <arg file="dist"/>
+                    <arg file="dist/Macintosh"/>
                 </exec>
                 <exec executable="open">
                     <arg file="dist/Macintosh/{$name}.app"/>
