@@ -27,7 +27,6 @@ import org.openide.explorer.ExplorerPanel;
 import org.openide.nodes.Node;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.util.actions.NodeAction;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
 import org.netbeans.modules.vcscore.versioning.impl.VersioningExplorer;
