@@ -73,6 +73,12 @@ import org.netbeans.modules.vcscore.util.VcsUtilities;
 public class UserCommandTask extends CommandTaskSupport implements VcsDescribedTask,
                                                                    RuntimeCommandTask,
                                                                    ProvidedCommand {
+    /**
+     * If this variable is true, the visualizer of the parent task is used
+     * as a visualizer of this task as well. This is necessary for visualizers
+     * which need to wrap more sub-commands.
+     */
+    public static final String VAR_USE_PARENT_VISUALIZER = "useParentVisualizer"; // NOI18N
     
     private UserCommandSupport cmdSupport;
     private VcsDescribedCommand cmd;
@@ -349,7 +355,17 @@ public class UserCommandTask extends CommandTaskSupport implements VcsDescribedT
     
     private synchronized VcsCommandVisualizer getVisualizerGUI() {
         if (visualizerGUI == null) {
-            visualizerGUI = executor.getVisualizer();
+            String useParent;
+            if ((useParent = (String) executor.getVariables().get(VAR_USE_PARENT_VISUALIZER)) != null && useParent.length() > 0) {
+                // Ask the parent task for the visualizer. If the parent
+                UserCommandTask parentTask = (UserCommandTask) CommandProcessor.getInstance().getParentTask(this);
+                if (parentTask != null) {
+                    visualizerGUI = parentTask.getVisualizerGUI();
+                }
+            }
+            if (visualizerGUI == null) {
+                visualizerGUI = executor.getVisualizer();
+            }
             if (visualizerGUI != null) {
                 initVisualizer(visualizerGUI);
             }
