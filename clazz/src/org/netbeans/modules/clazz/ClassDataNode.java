@@ -31,6 +31,7 @@ import org.openide.src.*;
 import org.openide.src.nodes.SourceChildren;
 import org.openide.src.nodes.DefaultFactory;
 import org.openide.cookies.SourceCookie;
+import org.openide.loaders.ExecSupport;
 
 /** Represents ClassDataObject
 *
@@ -208,13 +209,16 @@ class ClassDataNode extends DataNode implements Runnable {
                return new Boolean (obj.isJavaBean());
              }
            });
-    // execution property set
-    Sheet.Set exps = new Sheet.Set();
-    exps.setName(EXECUTION_SET_NAME);
-    exps.setDisplayName(bundle.getString ("PROP_executionSetName"));
-    exps.setShortDescription(bundle.getString ("HINT_executionSetName"));
-    ((org.openide.loaders.ExecSupport) getCookie (org.openide.loaders.ExecSupport.class)).addProperties (exps);
-    s.put(exps);
+    // execution property set, if possible
+    ExecSupport es = (ExecSupport)getCookie(ExecSupport.class);
+    if (es != null) {
+      Sheet.Set exps = new Sheet.Set();
+      exps.setName(EXECUTION_SET_NAME);
+      exps.setDisplayName(bundle.getString ("PROP_executionSetName"));
+      exps.setShortDescription(bundle.getString ("HINT_executionSetName"));
+      es.addProperties (exps);
+      s.put(exps);
+    }
 
     return s;
   }
@@ -262,6 +266,7 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  26   Gandalf   1.25        1/5/00   David Simonek   
  *  25   Gandalf   1.24        10/29/99 Jesse Glick     Using undeprecated 
  *       variant of *Support.addProperties.
  *  24   Gandalf   1.23        10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun
