@@ -283,7 +283,7 @@ public class PvcsDatabaseSelectorPanel extends javax.swing.JPanel implements jav
         dbListModel.addElement(messageLoading);
         validList = false;
         loading = true;
-        RequestProcessor.postRequest(this);
+        RequestProcessor.getDefault().post(this);
     }
     
     /** Retrieve database locations */

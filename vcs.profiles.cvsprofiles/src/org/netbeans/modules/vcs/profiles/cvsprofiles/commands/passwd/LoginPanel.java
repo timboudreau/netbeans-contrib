@@ -199,7 +199,7 @@ public class LoginPanel extends javax.swing.JPanel {
     class BtnListener implements ActionListener{
         public void actionPerformed(ActionEvent ev){            
             if(ev.getSource() == loginButton){
-                RequestProcessor.postRequest(new Runnable() {
+                RequestProcessor.getDefault().post(new Runnable() {
                     public void run() {
                         CVSPasswd pasFile = new CVSPasswd((String)null);
                         pasFile.loadPassFile();
