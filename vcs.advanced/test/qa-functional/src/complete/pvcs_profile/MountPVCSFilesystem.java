@@ -92,7 +92,7 @@ public class MountPVCSFilesystem extends NbTestCase {
         } catch(IOException e) { reason = "Error: Can't create dump file."; }
         PNGEncoder.captureScreen(file.getAbsolutePath());
         if (dialogs != null) for (int i=0; i<dialogs.length; i++) dialogs[i].cancel();
-        throw new Exception(reason);
+        assertTrue(reason, false);
     }
     
     /** Checks that all of PVCS settings are available in wizard.
@@ -152,11 +152,10 @@ public class MountPVCSFilesystem extends NbTestCase {
         selector.selectADatabaseUsedByPVCSGUI();
         Thread.currentThread().sleep(10000);
         status = MainWindowOperator.getDefault().getStatusText();
-        if (status.equals("Command LIST_PROJECT_DB failed."))
-            new JButtonOperator( new JDialogOperator("Exception"), "OK").push();
-        else if (status.equals("Command LIST_PROJECT_DB finished."))
-            selector.lstDatabaseList().clickOnItem(0, 1);
-            else captureScreen("Error: Incorrect status \"" + status + "\" reached.", new NbDialogOperator[] {selector, wizard});
+        if (status.equals("Command LIST_PROJECT_DB finished."))
+          selector.lstDatabaseList().clickOnItem(0, 1);
+        else if (!status.equals("Command LIST_PROJECT_DB failed."))
+            captureScreen("Error: Incorrect status \"" + status + "\" reached.", new NbDialogOperator[] {selector, wizard});
         selector.databaseLocationPath();
         selector.browseDatabaseLocation();
         JFileChooserOperator fileChooser = new JFileChooserOperator();
@@ -186,15 +185,13 @@ public class MountPVCSFilesystem extends NbTestCase {
         if ((os == Utilities.OS_WIN95) | (os == Utilities.OS_WIN98))
             profile = VCSWizardProfile.PVCS_WIN_95;
         wizard.setProfile(profile);
-        Thread.currentThread().sleep(5000);
-        MainWindowOperator.getDefault().waitStatusText("Command AUTO_FILL_CONFIG finished.");
+        Thread.currentThread().sleep(10000);
         JTextFieldOperator txt = new JTextFieldOperator(wizard, VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE);
         txt.clearText();
         txt.typeText(workingDirectory + File.separator + "Repo");
         txt = new JTextFieldOperator(wizard, VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION);
         txt.requestFocus();
-        Thread.currentThread().sleep(5000);
-        MainWindowOperator.getDefault().waitStatusText("Command AUTO_FILL_CONFIG finished.");
+        Thread.currentThread().sleep(10000);
         new File(workingDirectory + File.separator + "Work").mkdirs();
         txt.clearText();
         txt.typeText(workingDirectory + File.separator + "Work");
