@@ -355,7 +355,8 @@ public class JavaCvsCommand implements VcsAdditionalCommand {
         }
         
         public void print(char c) {
-            throw new UnsupportedOperationException();
+            this.buf.append(c);
+            processBuffer();
         }
         
         public void print(char[] s) {
@@ -379,15 +380,17 @@ public class JavaCvsCommand implements VcsAdditionalCommand {
         }
         
         public void print(Object obj) {
-            throw new UnsupportedOperationException();
+            print(obj.toString());
         }
         
         public void print(String s) {
-            throw new UnsupportedOperationException();
+            this.buf.append(s);
+            processBuffer();
         }
         
         public void println() {
-            throw new UnsupportedOperationException();
+            this.buf.append('\n');
+            processBuffer();
         }
         
         public void println(boolean b) {
@@ -419,7 +422,7 @@ public class JavaCvsCommand implements VcsAdditionalCommand {
         }
         
         public void println(Object obj) {
-            throw new UnsupportedOperationException();
+            println(obj.toString());
         }
         
         public void write(int b) {
