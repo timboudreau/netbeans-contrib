@@ -711,9 +711,14 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       fileSystem.setCustomRefreshTime (time);
       E.deb("refresh time set to:" + time);
     } catch (NumberFormatException e) {
+      final String msg = e.getMessage();
       E.deb(e.getMessage());    
       refreshTextField.setText (""+fileSystem.getCustomRefreshTime ());
-      TopManager.getDefault ().notify (new NotifyDescriptor.Message("'"+e.getMessage()+"': Non-negative integer value is expected."));
+      javax.swing.SwingUtilities.invokeLater(new Runnable () {
+        public void run () {
+          TopManager.getDefault ().notify (new NotifyDescriptor.Message("'"+msg+"': Non-negative integer value is expected."));
+        }
+      });
     }
   }
   
@@ -783,6 +788,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  6    Gandalf   1.5         12/16/99 Martin Entlicher 
 *  5    Gandalf   1.4         12/15/99 Martin Entlicher Refresh time: check for 
 *       correct input
 *  4    Gandalf   1.3         12/8/99  Martin Entlicher 
