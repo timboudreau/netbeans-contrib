@@ -58,6 +58,9 @@ class EditTaskPanel extends JPanel implements ActionListener {
         // Create a new item with the given suggested parent
         this.parent = parent;
         initComponents();
+        
+        priorityComboBox.setSelectedIndex(3);
+        
         format = new SimpleDateFormat();
         
         // Initialize the Categories list
@@ -292,12 +295,19 @@ class EditTaskPanel extends JPanel implements ActionListener {
     add(opt2Label, gridBagConstraints);
 
     fileCheckBox.setText(NbBundle.getMessage(EditTaskPanel.class, "AssociatedFile")); // NOI18N);
+    fileCheckBox.addItemListener(new java.awt.event.ItemListener() {
+        public void itemStateChanged(java.awt.event.ItemEvent evt) {
+            EditTaskPanel.this.fileCheckBoxItemStateChanged(evt);
+        }
+    });
+
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(fileCheckBox, gridBagConstraints);
 
     fileTextField.setColumns(100);
+    fileTextField.setEditable(false);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = 7;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -312,6 +322,7 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(lineLabel, gridBagConstraints);
 
+    lineTextField.setEditable(false);
     lineTextField.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
@@ -335,7 +346,6 @@ class EditTaskPanel extends JPanel implements ActionListener {
     dueDateTextField.setEditable(false);
     dueDateTextField.setEnabled(false);
     gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridwidth = 7;
     gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(dueDateTextField, gridBagConstraints);
@@ -358,8 +368,8 @@ class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 7;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     add(addLabel, gridBagConstraints);
 
     beginningToggle.setText(NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
@@ -387,6 +397,12 @@ class EditTaskPanel extends JPanel implements ActionListener {
     add(addSourceButton, gridBagConstraints);
 
     }//GEN-END:initComponents
+
+    private void fileCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_fileCheckBoxItemStateChanged
+        boolean s = fileCheckBox.isSelected();
+        fileTextField.setEditable(s);
+        lineTextField.setEditable(s);
+    }//GEN-LAST:event_fileCheckBoxItemStateChanged
 
     /**
      * Callback function to enable / disable the due-date fields

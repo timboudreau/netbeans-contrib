@@ -40,11 +40,11 @@ public class Task extends Suggestion implements Cloneable {
     /** Keys for the Bundle.properties */
     private static final String[] PRIORITIES_KEYS = {
         "PriorityUndefined",
-        "PriorityLow",
-        "PriorityMediumLow",
-        "PriorityMedium",
+        "PriorityHigh",
         "PriorityMediumHigh",
-        "PriorityHigh"
+        "PriorityMedium",
+        "PriorityMediumLow",
+        "PriorityLow"
     };
     
     /** Names for priorities */
