@@ -13,7 +13,10 @@
 
 package org.netbeans.modules.vcscore.versioning;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.*;
+import javax.swing.event.EventListenerList;
 
 import org.openide.nodes.Node.Cookie;
 
@@ -23,6 +26,15 @@ import org.openide.nodes.Node.Cookie;
  */
 public abstract class RevisionItem extends Object implements Cookie, Comparable, java.io.Serializable {
 
+    public static final String PROP_REVISION = "revision";
+    public static final String PROP_CURRENT_REVISION = "currentRevision";
+    public static final String PROP_DISPLAY_NAME = "displayName";
+    public static final String PROP_MESSAGE = "message";
+    public static final String PROP_DATE = "date";
+    public static final String PROP_AUTHOR = "author";
+    public static final String PROP_TAGS = "tags";
+    public static final String PROP_ADDITIONAL_PROPERTIES = "additionalProperties";
+    
     private String revision;
     private String revisionVCS; // the original VCS revision. May differ from "revision".
     protected Vector branches;
@@ -34,6 +46,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     //private RevisionItem next;
     private boolean current;
     private Hashtable additionalProperties;
+    private transient EventListenerList listeners = null;
 
     /** Creates new RevisionItem */
     public RevisionItem(String revision) {
@@ -75,7 +88,11 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     public abstract boolean isBranch();
     
     public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+        if (!displayName.equals(this.displayName)) {
+            String oldDisplayName = this.displayName;
+            this.displayName = displayName;
+            firePropertyChange(PROP_DISPLAY_NAME, oldDisplayName, displayName);
+        }
     }
     
     public String getDisplayName() {
@@ -83,7 +100,11 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     }
     
     public void setMessage(String message) {
-        this.message = message;
+        if (!message.equals(this.message)) {
+            String oldMessage = this.message;
+            this.message = message;
+            firePropertyChange(PROP_MESSAGE, oldMessage, message);
+        }
     }
     
     public String getMessage() {
@@ -91,7 +112,11 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     }
     
     public void setDate(String date) {
-        this.date = date;
+        if (!date.equals(this.date)) {
+            String oldDate = this.date;
+            this.date = date;
+            firePropertyChange(PROP_DATE, oldDate, date);
+        }
     }
     
     public String getDate() {
@@ -99,7 +124,11 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     }
     
     public void setAuthor(String author) {
-        this.author = author;
+        if (!author.equals(this.author)) {
+            String oldAuthor = this.author;
+            this.author = author;
+            firePropertyChange(PROP_AUTHOR, oldAuthor, author);
+        }
     }
     
     public String getAuthor() {
@@ -108,15 +137,19 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
 
     public void addTagName(String tagName) {
         tagNames.add(tagName);
-        if (isBranch()) displayName = revision+" ("+tagName+")";
+        if (isBranch()) setDisplayName(revision+" ("+tagName+")");
+        firePropertyChange(PROP_TAGS, null, null);
     }
 
     public boolean removeTagName(String tagName) {
-        return tagNames.remove(tagName);
+        boolean removed = tagNames.remove(tagName);
+        if (removed) firePropertyChange(PROP_TAGS, null, null);
+        return removed;
     }
 
     public void setTagNames(String[] tagNames) {
         this.tagNames = new Vector(Arrays.asList(tagNames));
+        firePropertyChange(PROP_TAGS, null, null);
     }
 
     public String[] getTagNames() {
@@ -124,7 +157,11 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     }
     
     public void setCurrent(boolean current) {
-        this.current = current;
+        System.out.println("RevisionItem("+revision+"): current = "+this.current+", setCurrent("+current+")");
+        if (current != this.current) {
+            this.current = current;
+            firePropertyChange(PROP_CURRENT_REVISION, new Boolean(!current), new Boolean(current));
+        }
     }
     
     public boolean isCurrent() {
@@ -133,6 +170,7 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
 
     public void addProperty(String name, String value) {
         additionalProperties.put(name, value);
+        firePropertyChange(PROP_ADDITIONAL_PROPERTIES, null, null);
     }
     
     public Hashtable getAdditionalProperties() {
@@ -172,5 +210,38 @@ public abstract class RevisionItem extends Object implements Cookie, Comparable,
     public int compareTo(final java.lang.Object p1) {
         //System.out.println(getRevision()+".compareTo("+((RevisionItem) p1).getRevision()+") = "+this.cmpRev(((RevisionItem) p1).getRevision()));
         return -this.cmpRev(((RevisionItem) p1).getRevision());
+    }
+    
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        if (listeners == null) {
+            synchronized (this) {
+                if (listeners == null) {
+                    listeners = new EventListenerList();
+                }
+            }
+        }
+        synchronized (listeners) {
+            listeners.add(PropertyChangeListener.class, l);
+        }
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        if (listeners == null) return ;
+        synchronized (listeners) {
+            listeners.remove(PropertyChangeListener.class, l);
+        }
+    }
+    
+    protected final void firePropertyChange(String property, Object oldValue, Object newValue) {
+        if (listeners == null) return ;
+        PropertyChangeListener[] chListeners;
+        synchronized (listeners) {
+            chListeners = (PropertyChangeListener[]) listeners.getListeners(PropertyChangeListener.class);
+        }
+        for (int i = 0; i < chListeners.length; i++) {
+            chListeners[i].propertyChange((property == null) ?
+                                          null :
+                                          new PropertyChangeEvent(this, property, oldValue, newValue));
+        }
     }
 }
