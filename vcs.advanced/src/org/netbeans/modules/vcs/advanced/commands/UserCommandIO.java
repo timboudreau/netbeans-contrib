@@ -73,7 +73,11 @@ public class UserCommandIO extends Object {
             list.add(org.openide.util.Utilities.replaceString(str.substring(index, delim), "//", "/"));
             index = delim + 1;
         }
-        return (String[]) list.toArray(new String[0]);
+        if (list.size() == 0) {
+            return new String[1];
+        } else {
+            return (String[]) list.toArray(new String[0]);
+        }
     }
     
     private static Object getPropertyValue(String name, String valueStr) {
