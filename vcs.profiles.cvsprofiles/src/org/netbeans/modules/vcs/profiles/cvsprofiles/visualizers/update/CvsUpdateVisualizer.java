@@ -226,6 +226,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
                 if (paths[index].endsWith(part)) {
                     String path = paths[index] + name.substring(end);
                     if (path.startsWith("/")) path = path.substring(1);
+                    if (path.startsWith("./")) path = path.substring(2);
                     bestMatch = new File(path);
                     wasMatch = true;
                 }

@@ -853,7 +853,7 @@ Microsystems, Inc. All Rights Reserved.
       <command name="UPDATE_CMD" >
 	<property name="exec">
 	  <value if="IS_CMD-LINE_AND_WINDOWS">${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] 2&lt;&amp;1 ${NUR}</value>
+	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] 2&gt;&amp;1 ${NUR}</value>
 	</property>
 	<property name="data.regex">
 	  <value>^([UPARMC]) (.*$)|^(.*) (already contains the differences)(.*)$</value>
@@ -1681,7 +1681,7 @@ Microsystems, Inc. All Rights Reserved.
       <command name="CHECKOUT_COMMAND">
 	<property name="exec">
 	  <value if="IS_CMD-LINE_AND_WINDOWS">${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} ${NUR}</value>
-	  <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} 2&lt;&amp;1 ${NUR}</value>
+	  <value>${EXECUTE} ${USER_GLOBAL_PARAM} checkout ${FORCE_HEAD_MATCH} ${DO_NOT_SHORTEN} ${SEND_TO_STDOUT} ${RCS_KFLAG} ${RUN_MODULE_PROGRAM} $[? DIRECTORY] [-d ${DIRECTORY}] [] $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] ${PRUNE_EMPTY}  ${RECURSIVE} ${CO_MODULE} ${CO_ALL} 2&gt;&amp;1 ${NUR}</value>
 	</property>
 	<property name="display">
 	  <value>true</value>
