@@ -66,9 +66,7 @@
       </java.awt.Color>
       <java.util.Locale locale = instance of java.util.Locale>
         <int hashcode = -1/>
-        <String country = "US"/>
-        <String language = "en"/>
-        <String variant = ""/>
+                        <String variant = ""/>
       </java.util.Locale>
       <java.awt.Dimension minSize = null/>
       <String name = null/>

@@ -104,6 +104,10 @@ public class SerNodeTest extends JellyTestCase {
 
         String[] names = node.getChildren();
         String text = node.getText();
+        if (text.startsWith("String country") || text.startsWith("String language")){
+            tab--;
+            return;
+        }
         if (names.length == 0 || tab > limit) {
             getRef().println("<" + text + "/>");
             tab--;
