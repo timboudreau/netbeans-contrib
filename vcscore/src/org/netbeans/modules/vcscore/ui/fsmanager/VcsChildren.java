@@ -31,8 +31,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.*;
 import org.openide.cookies.FilterCookie;
 import org.openide.filesystems.*;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataFilter;
+import org.openide.util.NbBundle;
 import org.openide.util.WeakListener;
 
 
@@ -121,12 +120,12 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
         setKeys(getVcssFileSystems());
     }
     
-    static class FSInfoBeanNode extends BeanNode implements PropertyChangeListener {
+    static class FSInfoBeanNode extends AbstractNode implements PropertyChangeListener {
         private FSInfo info;
         
-        public FSInfoBeanNode(FSInfo info) throws IntrospectionException{
-            super(info);
-            this.info = info;
+        public FSInfoBeanNode(FSInfo info) throws IntrospectionException{        
+            super(Children.LEAF);
+            this.info = info;            
             setName(info.getFSRoot().toString());
             setDisplayName(info.getFSRoot().toString());
             info.addPropertyChangeListener(WeakListener.propertyChange(this, info));
@@ -154,6 +153,30 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
             return icon==null ? super.getIcon(type) : icon;
              */
         }
+
+        /** Creates properties.
+        */
+        protected Sheet createSheet () {
+            Sheet s = Sheet.createDefault ();
+            Sheet.Set ss = s.get (Sheet.PROPERTIES);                    
+            Node.Property p = null;           
+            p = new PropertySupport.ReadOnly(
+            "displayType", // NOI18N
+            String.class,
+            NbBundle.getMessage(VcsManager.class, "LBL_VcsNodeType"),// NOI18N
+            NbBundle.getMessage(VcsManager.class, "HINT_VcsNodeType")// NOI18N
+            ) {
+                public Object getValue() {                    
+                   // return null;
+                    return info.getDisplayType();
+                } 
+            };
+            p.setValue("suppressCustomEditor", Boolean.TRUE);
+            ss.put(p);
+            return s;
+        }
+        
+        
         
         public FSInfo getInfo(){
             return info;
@@ -168,7 +191,8 @@ public class VcsChildren extends Children.Keys implements FSRegistryListener, Ru
                 setName(info.getFSRoot().toString());
                 setDisplayName(info.getFSRoot().toString());
             }
-        }
+        }        
+        
         
     }
         
