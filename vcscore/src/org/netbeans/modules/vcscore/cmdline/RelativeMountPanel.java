@@ -32,6 +32,8 @@ import org.netbeans.modules.vcscore.*;
  */
 public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelectionListener {//, javax.swing.event.TreeExpansionListener {
     
+    private String[] selectedMounts = null;
+    
     static final long serialVersionUID =-6389940806020132699L;
     //DefaultMutableTreeNode rootNode;
     //String cvsRoot;
@@ -183,7 +185,13 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
                 toWrite = toWrite.substring(File.separator.length());
             }
  */
-        return txRelMount.getText();
+        if (selectedMounts == null || selectedMounts.length == 0)
+            return txRelMount.getText();
+        else return selectedMounts[0];
+    }
+    
+    public String[] getRelMounts() {
+        return selectedMounts;
     }
 
     /*
@@ -364,43 +372,145 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
      */
     
     public void valueChanged(TreeSelectionEvent e) {
-        TreePath path = trRelMount.getSelectionPath();
-        if (path != null) {
-            MyTreeNode node = (MyTreeNode) path.getLastPathComponent();
-            File selFile = (File) node.getUserObject();
-            MyTreeNode rootNode = (MyTreeNode) node.getRoot();
-            File rootFile = (File) rootNode.getUserObject();
-            if (rootFile.getAbsolutePath().equals(selFile.getAbsolutePath())) {
-                txRelMount.setText("");
-                return;
+        TreePath[] paths = trRelMount.getSelectionPaths();
+        if (paths != null) {
+            selectedMounts = new String[paths.length];
+            for (int i = 0; i < paths.length; i++) {
+                MyTreeNode node = (MyTreeNode) paths[i].getLastPathComponent();
+                File selFile = (File) node.getUserObject();
+                MyTreeNode rootNode = (MyTreeNode) node.getRoot();
+                File rootFile = (File) rootNode.getUserObject();
+                if (rootFile.getAbsolutePath().equals(selFile.getAbsolutePath())) {
+                    selectedMounts[i] = "";
+                    continue;
+                    //txRelMount.setText("");
+                    //return;
+                }
+                String toWrite = selFile.getAbsolutePath().substring(rootFile.getAbsolutePath().length());
+                if (toWrite.startsWith(File.separator)) {
+                    toWrite = toWrite.substring(File.separator.length());
+                }
+                selectedMounts[i] = toWrite;
+                //txRelMount.setText(toWrite);
+                setRelMountText();
             }
-            String toWrite = selFile.getAbsolutePath().substring(rootFile.getAbsolutePath().length());
-            if (toWrite.startsWith(File.separator)) {
-                toWrite = toWrite.substring(File.separator.length());
-            }
-            txRelMount.setText(toWrite);
         } else {
             txRelMount.setText("");  
         }
     }
     
+    private void setRelMountText() {
+        StringBuffer relMounts = new StringBuffer();
+        for (int i = 0; i < selectedMounts.length - 1; i++) {
+            relMounts.append(selectedMounts[i]);
+            relMounts.append(", ");
+        }
+        relMounts.append(selectedMounts[selectedMounts.length - 1]);
+        txRelMount.setText(relMounts.toString());
+    }
+    
     /**
-     * Initialize the tree.
+     * Initialize the tree. Only a single relative mount point can be selected.
      * @param rootDir the root directory of the tree
      * @param relMount the initial relative mount point
      */
     public void initTree(String rootDir, final String relMount) {
-        createTree(rootDir);
-        //trRelMount.setSelectionModel(new MySelectionModel()); // because of not allowing to select local dirs
-        trRelMount.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        RequestProcessor.postRequest(new Runnable() {
-            public void run() {
-                setInitSelect(relMount);
-            }
-        });
-        txRelMount.setText(relMount);
+        initTree(rootDir, new String[] { relMount }, false);
     }
     
+    /**
+     * Initialize the tree. Multiple relative mount points can be selected.
+     * @param rootDir the root directory of the tree
+     * @param relMounts the array of initial relative mount points
+     */
+    public void initTree(String rootDir, final String[] relMounts) {
+        initTree(rootDir, relMounts, true);
+    }
+    
+    /**
+     * Initialize the tree.
+     * @param rootDir the root directory of the tree
+     * @param relMounts the initial relative mount points
+     * @param multipleSelections whether multiple nodes can be selected
+     */
+    public void initTree(String rootDir, final String[] relMounts, boolean multipleSelections) {
+        createTree(rootDir);
+        //trRelMount.setSelectionModel(new MySelectionModel()); // because of not allowing to select local dirs
+        if (multipleSelections) {
+            trRelMount.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+        } else {
+            trRelMount.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        }
+        RequestProcessor.postRequest(new Runnable() {
+            public void run() {
+                setInitSelect(relMounts);
+            }
+        });
+        selectedMounts = relMounts;
+        setRelMountText();
+        //txRelMount.setText(relMount);
+    }
+    
+    private void setInitSelect(String[] pathsToNode) {
+        /*
+        for (int i = 0; i < pathsToNode.length; i++) {
+            setInitSelect(pathsToNode[i]);
+        }
+         */
+        final TreePath[] paths = new TreePath[pathsToNode.length];
+        for (int i = 0; i < pathsToNode.length; i++) {
+            pathsToNode[i] = pathsToNode[i].replace(File.separatorChar, '/');
+            StringTokenizer token = new StringTokenizer(pathsToNode[i], "/", false);
+            MyTreeNode parent = (MyTreeNode) trRelMount.getModel().getRoot();
+            TreePath path = new TreePath(parent);
+            MyTreeNode child;
+            File childFile;
+            String directoryName;
+            outerWhile:
+                while (token.hasMoreTokens()) {
+                    directoryName = token.nextToken();
+                    try {
+                        //trRelMount.expandPath(path);
+                        if (parent.getChildCount() == 0) {
+                            folderTreeNodes(parent);
+                            try {
+                                SwingUtilities.invokeAndWait(new Runnable() {
+                                    public void run() {
+                                        // Just wait for AWT to finish its work
+                                    }
+                                });
+                            } catch (InterruptedException intrexc) {
+                                // Ignored
+                            } catch (java.lang.reflect.InvocationTargetException itexc) {
+                                // Ignored
+                            }
+                        }
+                        child = (MyTreeNode) parent.getFirstChild();
+                        do {
+                            if (child == null) break;
+                            childFile = (File) child.getUserObject();
+                            if (childFile.getName().equals(directoryName)) {
+                                parent = child;
+                                path = path.pathByAddingChild(child);
+                                continue outerWhile;
+                            }
+                            child = (MyTreeNode) parent.getChildAfter(child);
+                        } while (true);
+                    } catch (NoSuchElementException exc){
+                        // Ignore
+                    }
+                }
+            paths[i] = path;
+        }    
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                trRelMount.setSelectionPaths(paths);
+            }
+        });
+        initiallyExpanding = false;
+    }
+    
+    /*
     private void setInitSelect(String pathToNode) {
         pathToNode = pathToNode.replace(File.separatorChar, '/');
         StringTokenizer token = new StringTokenizer(pathToNode, "/", false);
@@ -449,6 +559,7 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
         });
         initiallyExpanding = false;
     }
+     */
     
     private static void D(String debug) {
 //        System.out.println("Cust4MountPanel(): "+debug);
