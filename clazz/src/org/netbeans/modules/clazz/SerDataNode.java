@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import org.openide.TopManager;
 import org.openide.ErrorManager;
+import org.openide.src.nodes.SourceChildren;
 import org.openide.util.datatransfer.ExTransferable;
 
 /** Exetends ClassDataNode, adds behaviour specific to serialized objects.
@@ -43,7 +44,11 @@ final class SerDataNode extends ClassDataNode {
     /** Constructs bean data node with asociated data object.
     */
     public SerDataNode(final SerDataObject obj) {
-        super(obj);
+        super(obj, new SerTopChildren(obj, new SourceChildren(ClassDataObject.getExplorerFactory())));
+    }
+    
+    protected SourceChildren getSourceChildren() {
+        return ((SerTopChildren)getChildren()).getSourceChildren();
     }
 
     // ----------------------------------------------------------------------------------

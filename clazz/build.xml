@@ -61,6 +61,7 @@ Microsystems, Inc. All Rights Reserved.
       <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </makenbm>
   </target>
+
   <target name="clean">
     <delete>
       <fileset dir="src">
@@ -72,4 +73,23 @@ Microsystems, Inc. All Rights Reserved.
     <delete dir="netbeans"/>
     <delete dir="Info"/>
   </target>
+  <target name="real-clean" depends="clean">
+    <delete dir="reload"/>
+  </target>
+
+  <target name="test-build" depends="compile" description="Create a JAR for testing.">
+    <mkdir dir="reload"/>
+    <filter token="BUILD_NUMBER_SUBST" value="for testing"/>
+    <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
+    <jar jarfile="reload/clazz.jar"
+         manifest="manifest-subst.mf"
+         basedir="src"
+	 excludesfile="../nbbuild/standard-jar-excludes.txt"
+	 compress="false"
+    />
+  </target>
+  <target name="test" depends="test-build" description="Reload the JAR for testing.">
+    <nbinstaller action="reinstall" module="reload/clazz.jar"/>
+  </target>
+
 </project>

@@ -75,8 +75,16 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
         /* Changed for multiple factories
         super(obj, new SourceChildren(ClassElementNodeFactory.getInstance()));
         */
-        super(obj, new SourceChildren( ClassDataObject.getExplorerFactory()) );
+        this(obj, new SourceChildren( ClassDataObject.getExplorerFactory()) );
+    }
+    
+    protected ClassDataNode(ClassDataObject obj, Children ch) {
+        super(obj, ch);
         initialize();
+    }
+    
+    protected SourceChildren getSourceChildren() {
+        return (SourceChildren)getChildren();
     }
     
     /** Returns icon base string which should be used for
@@ -90,7 +98,7 @@ abstract class ClassDataNode extends DataNode implements Runnable, PropertyChang
     private void initialize () {
         SourceCookie sc =
             (SourceCookie)getDataObject().getCookie(SourceCookie.class);
-        ((SourceChildren)getChildren()).setElement(sc.getSource());
+        getSourceChildren().setElement(sc.getSource());
         setIconBase(initialIconBase());
         // icons...
         RequestProcessor.postRequest(this, 200);
