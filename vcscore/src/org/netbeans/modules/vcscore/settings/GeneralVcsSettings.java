@@ -138,7 +138,7 @@ public class GeneralVcsSettings extends ContextSystemOption {
             int index = homepath.indexOf(':');
             if (index > 0) {
                 String homeDrive = homepath.substring(0, index + 1);
-                String homeDir = homepath.substring(index + 1);
+                String homeDir = (index + 1 < homepath.length()) ? homepath.substring(index + 1) : "\\";
                 System.setProperty("Env-HOMEDRIVE", homeDrive);
                 System.setProperty("env-homedrive", homeDrive.toLowerCase());
                 System.setProperty("Env-HOMEPATH", homeDir);
