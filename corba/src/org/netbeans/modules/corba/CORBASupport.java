@@ -32,7 +32,7 @@ public class CORBASupport {
     /** bundle to obtain text information from */
     public static ResourceBundle bundle = NbBundle.getBundle(CORBASupport.class);
 
-   /*
+   
     public static final String ORBIX = CORBASupport.bundle.getString ("CTL_Orbix");
 
     public static final String VISIBROKER = CORBASupport.bundle.getString ("CTL_Visibroker");
@@ -40,7 +40,7 @@ public class CORBASupport {
     public static final String ORBACUS = CORBASupport.bundle.getString ("CTL_Orbacus");
 
     public static final String JAVAORB = CORBASupport.bundle.getString ("CTL_JavaORB");
-   */
+   
 
     public static final String INHER = CORBASupport.bundle.getString ("CTL_Inher");
 
@@ -158,6 +158,7 @@ public class CORBASupport {
 
 /*
  * <<Log>>
+ *  4    Gandalf   1.3         5/10/99  Ian Formanek    Fixed to compile
  *  3    Gandalf   1.2         5/8/99   Karel Gardas    
  *  2    Gandalf   1.1         4/24/99  Karel Gardas    
  *  1    Gandalf   1.0         4/23/99  Karel Gardas    
