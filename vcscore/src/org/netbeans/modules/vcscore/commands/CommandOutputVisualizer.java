@@ -265,7 +265,7 @@ public class CommandOutputVisualizer extends TopComponent implements VcsCommandV
     
     public void setExitStatus(int exit) {
    //     outputPanel.setStatus(CommandProcessor.getExitStatusString(exit));
-        outputPanel.commandFinished(true);
+        outputPanel.commandFinished(exit);
         if (closeWrapperListener != null) {
             outputPanel.addKillActionListener(closeWrapperListener);
         }

@@ -20,6 +20,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -39,7 +40,7 @@ public class OutputPanel extends javax.swing.JPanel {
     private boolean errEnabled = false;
     private JPopupMenu menu;
     private Object eventSource;
-    private JMenuItem kill;
+   // private JMenuItem kill;
     private ArrayList killActionListeners = new ArrayList();
     
     /** Creates new form OutputPanel */
@@ -53,6 +54,10 @@ public class OutputPanel extends javax.swing.JPanel {
         toolbar.setPreferredSize(new Dimension(dim.width,height+6));   
         toolbar.setMinimumSize(new Dimension(dim.width,height+6));
         toolbar.setMaximumSize(new Dimension(dim.width,height+6));
+        dim = btnStop.getPreferredSize();
+        btnStop.setPreferredSize(new Dimension(dim.width,height+6));
+        btnStop.setMinimumSize(new Dimension(dim.width,height+6));
+        btnStop.setMaximumSize(new Dimension(dim.width,height+6));
         errOutputTextArea.getDocument().addDocumentListener(new DocumentListener(){
            public void changedUpdate(DocumentEvent e){          
                
@@ -66,11 +71,11 @@ public class OutputPanel extends javax.swing.JPanel {
            }
   
         });
-            
+           
         
     }
 
-    private void initPopupMenu() {
+    protected void initPopupMenu() {
         this.menu = new JPopupMenu();
         JMenuItem discardTab = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_DiscardTab"));//NOI18N
         discardTab.addActionListener( new java.awt.event.ActionListener() {
@@ -85,20 +90,22 @@ public class OutputPanel extends javax.swing.JPanel {
             }
         });
   
-        kill = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_Kill"));//NOI18N
+        //kill = new JMenuItem(NbBundle.getBundle(OutputPanel.class).getString("CMD_Kill"));//NOI18N
         
         
         this.menu.add(discardTab);        
         this.menu.add(discardAll);  
-        this.menu.addSeparator();
-        this.menu.add(kill);
+       // this.menu.addSeparator();
+       // this.menu.add(kill);
         
         this.stdOutputTextArea.add(menu);
         this.errOutputTextArea.add(menu);
         
         PopupListener popupListener = new PopupListener();
-        this.stdOutputTextArea.addMouseListener(popupListener);
-        this.errOutputTextArea.addMouseListener(popupListener);
+       // this.stdOutputTextArea.addMouseListener(popupListener);
+       // this.errOutputTextArea.addMouseListener(popupListener);
+        getErrComponent().addMouseListener(popupListener);
+        getStdComponent().addMouseListener(popupListener);
         this.addMouseListener(popupListener);
         toolbar.addMouseListener(popupListener);
         scroll.addMouseListener(popupListener);
@@ -106,29 +113,39 @@ public class OutputPanel extends javax.swing.JPanel {
     }
     
     public void addKillActionListener(java.awt.event.ActionListener l) {
-        kill.addActionListener(l);        
+      //  kill.addActionListener(l);  
+        btnStop.addActionListener(l);
         killActionListeners.add(l);
     }
     
     public void removeKillActionListener(java.awt.event.ActionListener l) {
-        kill.removeActionListener(l);
+      //  kill.removeActionListener(l);
+        btnStop.removeActionListener(l);
         killActionListeners.remove(l);
     }
         
-    public void commandFinished(boolean isFinished) {
-        if (isFinished) {                        
-            while (killActionListeners.size() > 0) {
-                kill.removeActionListener((java.awt.event.ActionListener) killActionListeners.remove(0));
-                SwingUtilities.invokeLater(new Runnable(){
-                    public void run(){
-                        kill.setEnabled(false);                        
-                        if((stdOutputTextArea.getText().length() == 0)&&(errOutputTextArea.getText().length()>0))
-                            btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
-                    }
-                });
-            }            
-            
+    public void commandFinished(final int exit) {                              
+        while (killActionListeners.size() > 0) {
+            java.awt.event.ActionListener l = (java.awt.event.ActionListener)killActionListeners.remove(0);
+        //    kill.removeActionListener(l);
+            btnStop.removeActionListener(l);
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run(){
+                   // kill.setEnabled(false);
+                    btnStop.setEnabled(false);
+                    if(exit == 0)
+                        lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFinished"));
+                    else
+                        lblStatus.setText(NbBundle.getBundle(OutputPanel.class).getString("OutputPanel.StatusFailed"));
+                    progress.setIndeterminate(false);
+                    progress.setValue(100);
+                    if((stdOutputTextArea.getText().length() == 0)&&(errOutputTextArea.getText().length()>0))
+                        btnErrActionPerformed(new ActionEvent(btnErr,ActionEvent.ACTION_PERFORMED,btnErr.getText()));
+                }
+            });
         }
+        
+        
     }
     
     class PopupListener extends java.awt.event.MouseAdapter {
@@ -153,6 +170,12 @@ public class OutputPanel extends javax.swing.JPanel {
         toolbar = new javax.swing.JToolBar();
         btnStd = new javax.swing.JToggleButton();
         btnErr = new javax.swing.JToggleButton();
+        rightPanel = new javax.swing.JPanel();
+        lblStatus = new javax.swing.JLabel();
+        progress = new javax.swing.JProgressBar();
+        btnStop = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        separator = new javax.swing.JSeparator();
         scroll = new javax.swing.JScrollPane();
         errOutputTextArea = new javax.swing.JTextArea();
         stdOutputTextArea = new javax.swing.JTextArea();
@@ -189,10 +212,54 @@ public class OutputPanel extends javax.swing.JPanel {
         toolbar.add(btnErr);
         btnErr.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.btnErr"));
 
+        rightPanel.setLayout(new java.awt.GridBagLayout());
+
+        lblStatus.setText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("OutputPanel.StatusRunning"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        rightPanel.add(lblStatus, gridBagConstraints);
+
+        progress.setIndeterminate(true);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 0.2;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        rightPanel.add(progress, gridBagConstraints);
+
+        btnStop.setText(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("OutputPanel.btnStop"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(2, 5, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        rightPanel.add(btnStop, gridBagConstraints);
+        btnStop.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.btnStop"));
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 0.8;
+        rightPanel.add(jPanel2, gridBagConstraints);
+
+        separator.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
+        rightPanel.add(separator, gridBagConstraints);
+
+        toolbar.add(rightPanel);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 1);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 1);
         add(toolbar, gridBagConstraints);
         toolbar.getAccessibleContext().setAccessibleName(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACS_OutputPanel.toolbar"));
         toolbar.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcscore/ui/Bundle").getString("ACSD_OutputPanel.toolbar"));
@@ -223,7 +290,7 @@ public class OutputPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnErrActionPerformed
 
     private void setErrorContent(){
-        scroll.setViewportView(errOutputTextArea);
+        scroll.setViewportView(getErrComponent());
     }
     private void btnStdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStdActionPerformed
         if(errEnabled){
@@ -234,7 +301,15 @@ public class OutputPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnStdActionPerformed
     
     private void setStandardContent(){
-        scroll.setViewportView(stdOutputTextArea);       
+        scroll.setViewportView(getStdComponent());       
+    }
+    
+    protected JComponent getErrComponent(){
+        return errOutputTextArea;
+    }
+    
+    protected JComponent getStdComponent(){
+        return stdOutputTextArea;
     }
     
     public javax.swing.JTextArea getStdOutputArea() {
@@ -252,8 +327,14 @@ public class OutputPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton btnErr;
     private javax.swing.JToggleButton btnStd;
+    private javax.swing.JButton btnStop;
     private javax.swing.JTextArea errOutputTextArea;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JLabel lblStatus;
+    private javax.swing.JProgressBar progress;
+    private javax.swing.JPanel rightPanel;
     private javax.swing.JScrollPane scroll;
+    private javax.swing.JSeparator separator;
     private javax.swing.JTextArea stdOutputTextArea;
     private javax.swing.JToolBar toolbar;
     // End of variables declaration//GEN-END:variables
