@@ -4,7 +4,6 @@
 ]>
 
 <api-answers
-  version="$Revision$" date="$date$"
   question-version="1.15"
   module="VCS Core API"
   author="mentlicher@netbeans.org"
