@@ -17,6 +17,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.*;
 import java.beans.*;
+import java.net.URL;
 import java.text.*;
 import javax.swing.*;
 
@@ -36,6 +37,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.nodes.Children;
 import org.openide.util.actions.*;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
 
@@ -849,22 +851,17 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
                          new FileStatusInfo[] { FileStatusInfo.UP_TO_DATE, FileStatusInfo.OUT_OF_DATE, FileStatusInfo.MISSING, FileStatusInfo.MODIFIED, FileStatusInfo.LOCAL },
                          statusInfosByNames, genericStatusTranslation);
         if (iconResources != null) {
-            FileSystem defaultFS = Repository.getDefault().getDefaultFileSystem();
+            ClassLoader loader = (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
+            if (loader == null) loader = ClassLoader.getSystemClassLoader();
             for (int i = 0; i < statuses.length && i < iconResources.length; i++) {
                 if (iconResources[i].length() == 0) continue;
-                FileObject resourceFile = defaultFS.findResource(iconResources[i]);
-                if (resourceFile == null) {
+                URL urlResource = loader.getResource(iconResources[i]);
+                if (urlResource == null) {
                     DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
                         NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_CanNotFindIconResource", iconResources[i])));
                     continue;
                 }
-                try {
-                    statusInfos[i].setIcon(new javax.swing.ImageIcon(resourceFile.getURL()).getImage());
-                } catch (FileStateInvalidException exc) {
-                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
-                        NbBundle.getMessage(CommandLineVcsFileSystem.class, "MSG_InvalidFileIconResource", iconResources[i])));
-                    continue;
-                }
+                statusInfos[i].setIcon(new javax.swing.ImageIcon(urlResource).getImage());
             }
         }
         setPossibleFileStatusInfos(new HashSet(Arrays.asList(statusInfos)), genericStatusTranslation);

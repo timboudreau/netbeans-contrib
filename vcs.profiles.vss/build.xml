@@ -42,26 +42,8 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-commands.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.class"/>       
-       <include name="org/netbeans/modules/vcs/profiles/vss/commands/*.properties"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/vss/commands/*_ja.properties"/>
-    </makelayer>
     <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-config.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/vss/config/*.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/vss/config/*_ja.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/vss/config/*_XX.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/vss/config/Bundle.properties"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/vss/config/Bundle_*.properties"/>
-    </makelayer>
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-configRB.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/vss/config/Bundle.properties"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/vss/config/Bundle_*.properties"/>
-    </makelayer>
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/vss/layer-includes-list.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/vss/list/*.class"/>       
-       <include name="org/netbeans/modules/vcs/profiles/vss/list/*.properties"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/vss/list/*_ja.properties"/>
+       <include name="org/netbeans/modules/vcs/profiles/vss/config/*.xml"/>
     </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>

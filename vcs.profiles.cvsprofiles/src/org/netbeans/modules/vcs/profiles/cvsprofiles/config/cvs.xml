@@ -125,7 +125,7 @@ Microsystems, Inc. All Rights Reserved.
       <value>"Needs Checkout"</value>
     </variable>
     <variable name="ICONS_FOR_FILE_STATUSES" basic="false">
-      <value>"vcs/resources/badgeUpToDate.gif", "vcs/resources/badgeLocModified.gif", "vcs/resources/badgeLocModified.gif", "vcs/resources/badgeLocRemoved.gif", "vcs/resources/badgeNeedsCheckout.gif", "vcs/resources/badgeNeedsCheckout.gif", "vcs/resources/badgeNeedsCheckout.gif", "vcs/resources/badgeMergeConflict.gif", ""</value>
+      <value>"org/netbeans/modules/vcs/profiles/resources/badgeUpToDate.gif", "org/netbeans/modules/vcs/profiles/resources/badgeLocModified.gif", "org/netbeans/modules/vcs/profiles/resources/badgeLocModified.gif", "org/netbeans/modules/vcs/profiles/resources/badgeLocRemoved.gif", "org/netbeans/modules/vcs/profiles/resources/badgeNeedsCheckout.gif", "org/netbeans/modules/vcs/profiles/resources/badgeNeedsCheckout.gif", "org/netbeans/modules/vcs/profiles/resources/badgeNeedsCheckout.gif", "org/netbeans/modules/vcs/profiles/resources/badgeMergeConflict.gif", ""</value>
     </variable>
     <variable name="NOT_MODIFIABLE_FILE_STATUSES" basic="false">
       <value>"Locally Added", "Needs Merge", "Local"</value>

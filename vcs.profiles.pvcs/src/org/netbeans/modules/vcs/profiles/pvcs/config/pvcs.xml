@@ -135,7 +135,7 @@ Microsystems, Inc. All Rights Reserved.
       <value>Missing</value>
     </variable>
     <variable name="ICONS_FOR_FILE_STATUSES" basic="false">
-      <value>"vcs/resources/badgeUpToDate.gif", "vcs/resources/badgeNeedsCheckout.gif"</value>
+      <value>"org/netbeans/modules/vcs/profiles/resources/badgeUpToDate.gif", "org/netbeans/modules/vcs/profiles/resources/badgeNeedsCheckout.gif"</value>
     </variable>
     <variable name="RUNW" basic="false">
       <value>/bin/sh -c "cd \"${ROOTDIR}\"; mkdir -p \"${WORKDIR}\"; cd \"${WORKDIR}\";</value>
