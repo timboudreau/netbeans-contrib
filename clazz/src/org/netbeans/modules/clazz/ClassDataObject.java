@@ -107,7 +107,10 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
             return;
         }
         CookieSet cs = getCookieSet();
-        cs.add(instanceSupport);
+        // only JavaBeans should offer `Customize Bean' action
+        if (instanceSupport.isJavaBean()) {
+            cs.add(instanceSupport);
+        }
         if (!(this instanceof SerDataObject)) {
             cs.add(execSupport);
         }
