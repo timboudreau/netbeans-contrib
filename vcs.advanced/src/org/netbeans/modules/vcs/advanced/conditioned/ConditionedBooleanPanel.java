@@ -21,6 +21,7 @@ import javax.swing.table.TableModel;
 import org.openide.explorer.propertysheet.DefaultPropertyModel;
 import org.openide.explorer.propertysheet.PropertyPanel;
 import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -63,11 +64,14 @@ public class ConditionedBooleanPanel extends javax.swing.JPanel implements Enhan
 
         setLayout(new java.awt.GridBagLayout());
 
+        infoLabel.setDisplayedMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedBooleanPanel.infoLabel_mnc").charAt(0));
+        infoLabel.setLabelFor(jTable1);
         infoLabel.setText("Value");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 11);
         add(infoLabel, gridBagConstraints);
+        infoLabel.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel.infoLabel"));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -107,6 +111,7 @@ public class ConditionedBooleanPanel extends javax.swing.JPanel implements Enhan
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
+        addButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedBooleanPanel.addButton_mnc").charAt(0));
         addButton.setText(org.openide.util.NbBundle.getMessage(ConditionedBooleanPanel.class, "ConditionedStringPanel.addButton"));
         addButton.addActionListener(formListener);
 
@@ -114,7 +119,9 @@ public class ConditionedBooleanPanel extends javax.swing.JPanel implements Enhan
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 0);
         jPanel1.add(addButton, gridBagConstraints);
+        addButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel.addButton"));
 
+        editButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedBooleanPanel.editButton_mnc").charAt(0));
         editButton.setText(org.openide.util.NbBundle.getMessage(ConditionedBooleanPanel.class, "ConditionedStringPanel.editButton"));
         editButton.addActionListener(formListener);
 
@@ -123,7 +130,9 @@ public class ConditionedBooleanPanel extends javax.swing.JPanel implements Enhan
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 0);
         jPanel1.add(editButton, gridBagConstraints);
+        editButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel.editButton"));
 
+        removeButton.setMnemonic(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACS_ConditionedBooleanPanel.removeButton_mnc").charAt(0));
         removeButton.setText(org.openide.util.NbBundle.getMessage(ConditionedBooleanPanel.class, "ConditionedStringPanel.removeButton"));
         removeButton.addActionListener(formListener);
 
@@ -131,6 +140,7 @@ public class ConditionedBooleanPanel extends javax.swing.JPanel implements Enhan
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         jPanel1.add(removeButton, gridBagConstraints);
+        removeButton.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle("org/netbeans/modules/vcs/advanced/conditioned/Bundle").getString("ACSD_ConditionedStringPanel.removeButton"));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;

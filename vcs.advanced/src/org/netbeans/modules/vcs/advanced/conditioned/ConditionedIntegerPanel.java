@@ -63,8 +63,8 @@ public class ConditionedIntegerPanel extends javax.swing.JPanel implements Enhan
 
         infoLabel.setText("Value");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 11);
         add(infoLabel, gridBagConstraints);
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -98,9 +98,9 @@ public class ConditionedIntegerPanel extends javax.swing.JPanel implements Enhan
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.insets = new java.awt.Insets(0, 12, 6, 11);
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 6, 11);
         add(jScrollPane1, gridBagConstraints);
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
@@ -134,8 +134,8 @@ public class ConditionedIntegerPanel extends javax.swing.JPanel implements Enhan
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 11);
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 11);
         add(jPanel1, gridBagConstraints);
 
     }
