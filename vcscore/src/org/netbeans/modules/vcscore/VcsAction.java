@@ -38,6 +38,7 @@ import org.netbeans.modules.vcscore.caching.VcsCacheFile;
 import org.netbeans.modules.vcscore.caching.FileCacheProvider;
 import org.netbeans.modules.vcscore.caching.FileStatusProvider;
 import org.netbeans.modules.vcscore.commands.*;
+import org.netbeans.modules.vcscore.versioning.VcsFileObject;
 
 /**
  * The system action of the VcsFileSystem.
@@ -406,7 +407,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         Iterator it = files.keySet().iterator();
         if (!it.hasNext()) return files;
         String name = (String) it.next();
-        FileObject fo = (FileObject) files.get(name);
+        Object fo = files.get(name);
         if (fo == null) {
             isBinary = false;
         } else {
@@ -415,7 +416,7 @@ public class VcsAction extends NodeAction implements ActionListener {
         restrictedFiles.put(name, fo);
         while (it.hasNext()) {
             name = (String) it.next();
-            fo = (FileObject) files.get(name);
+            fo = files.get(name);
             if (fo == null) {
                 if (isBinary) continue;
             } else {
@@ -428,8 +429,15 @@ public class VcsAction extends NodeAction implements ActionListener {
         return restrictedFiles;
     }
     
-    private static boolean isFOBinary(FileObject fo) {
-        String mimeType = fo.getMIMEType();
+    private static boolean isFOBinary(Object fo) {
+        String mimeType;
+        if (fo instanceof FileObject) {
+            mimeType = ((FileObject) fo).getMIMEType();
+        } else if (fo instanceof VcsFileObject) {
+            mimeType = ((VcsFileObject) fo).getMIMEType();
+        } else {
+            mimeType = "content/unknown";
+        }
         return !mimeType.startsWith("text") && !"content/unknown".equals(mimeType);
     }
     
@@ -543,7 +551,9 @@ public class VcsAction extends NodeAction implements ActionListener {
         }
         for (Iterator it = keys.iterator(); it.hasNext(); ) {
             String fileName = (String) it.next();
-            FileObject fo = (FileObject) files.get(fileName);
+            Object obj = files.get(fileName);
+            if (!(obj instanceof FileObject)) continue;
+            FileObject fo = (FileObject) obj;
             String attr;
             if (fo == null) {
                 attr = VcsAttributes.VCS_SCHEDULING_REMOVE;
@@ -576,7 +586,9 @@ public class VcsAction extends NodeAction implements ActionListener {
      */
     private static void assureFilesSaved(Collection fos) {
         for (Iterator it = fos.iterator(); it.hasNext(); ) {
-            FileObject fo = (FileObject) it.next();
+            Object obj = it.next();
+            if (!(obj instanceof FileObject)) continue;
+            FileObject fo = (FileObject) obj;
             if (fo == null) continue;
             DataObject dobj = null;
             try {
@@ -618,8 +630,9 @@ public class VcsAction extends NodeAction implements ActionListener {
         boolean is = false;
         if (selectedFileObjects != null) {
             for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                if (fo.isFolder()) is = true;
+                Object fo = it.next();
+                if (((fo instanceof FileObject) && ((FileObject) fo).isFolder()) ||
+                    ((fo instanceof VcsFileObject) && ((VcsFileObject) fo).isFolder())) is = true;
             }
             //return false;
         } else {
@@ -642,9 +655,10 @@ public class VcsAction extends NodeAction implements ActionListener {
         if (selectedFileObjects != null) {
             //System.out.println("isOnFile(): selectedFileObjects = "+selectedFileObjects+", size = "+selectedFileObjects.size());
             for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
+                Object fo = it.next();
                 //System.out.println("  fo = "+fo);
-                if (!fo.isFolder()) return true;
+                if (!(((fo instanceof FileObject) && ((FileObject) fo).isFolder()) ||
+                     ((fo instanceof VcsFileObject) && ((VcsFileObject) fo).isFolder()))) return true;
             }
             return false;
         }
@@ -664,8 +678,9 @@ public class VcsAction extends NodeAction implements ActionListener {
     protected boolean isOnRoot() {
         if (selectedFileObjects != null) {
             for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                if (fo.getPackageNameExt('/', '.').length() == 0) return true;
+                Object fo = it.next();
+                if (((fo instanceof FileObject) && ((FileObject) fo).getPackageNameExt('/', '.').length() == 0) ||
+                    ((fo instanceof VcsFileObject) && ((VcsFileObject) fo).getPackageName('/').length() == 0)) return true;
             }
             return false;
         }
@@ -712,7 +727,13 @@ public class VcsAction extends NodeAction implements ActionListener {
      */
     public static void addImportantFiles(Collection fos, Table res, boolean all, VcsFileSystem fileSystem, boolean doNotTestFS) {
         for(Iterator it = fos.iterator(); it.hasNext(); ) {
-            FileObject ff = (FileObject) it.next();
+            Object obj = it.next();
+            if (obj instanceof VcsFileObject) {
+                VcsFileObject vfo = (VcsFileObject) obj;
+                res.put(vfo.getPackageName('/'), vfo);
+                continue;
+            }
+            FileObject ff = (FileObject) obj;
             try {
                 if (!doNotTestFS && ff.getFileSystem() != fileSystem)
                     continue;
@@ -746,7 +767,9 @@ public class VcsAction extends NodeAction implements ActionListener {
         if (statusProv != null) {
             if (selectedFileObjects != null) {
                 for (Iterator it = selectedFileObjects.iterator(); it.hasNext(); ) {
-                    FileObject fo = (FileObject) it.next();
+                    Object obj = it.next();
+                    if (!(obj instanceof FileObject)) continue;
+                    FileObject fo = (FileObject) obj;
                     String path = fo.getPackageNameExt('/', '.');
                     if (processAll || fileSystem.isImportant(path)) {
                         String status = statusProv.getFileStatus(path);
@@ -768,7 +791,9 @@ public class VcsAction extends NodeAction implements ActionListener {
                     if (dd == null) continue;
                     Set files = dd.files();
                     for (Iterator it = files.iterator(); it.hasNext(); ) {
-                        FileObject fo = (FileObject) it.next();
+                        Object obj = it.next();
+                        if (!(obj instanceof FileObject)) continue;
+                        FileObject fo = (FileObject) obj;
                         String path = fo.getPackageNameExt('/', '.');
                         if (processAll || fileSystem.isImportant(path)) {
                             String status = statusProv.getFileStatus(path);
@@ -1006,8 +1031,9 @@ public class VcsAction extends NodeAction implements ActionListener {
                                        VariableValueAdjustment valueAdjustment) {
         // At first, find the first file and set the variables
         String fullName = (String) files.keys().nextElement();
-        FileObject fo = (FileObject) files.get(fullName);
-        boolean isFileFolder = (fo != null && fo.isFolder());
+        Object fo = files.get(fullName);
+        boolean isFileFolder = ((fo instanceof FileObject) && ((FileObject) fo).isFolder()) ||
+                               ((fo instanceof VcsFileObject) && ((VcsFileObject) fo).isFolder());
         String path = VcsUtilities.getDirNamePart(fullName);
         String file = VcsUtilities.getFileNamePart(fullName);
         String separator = (String) vars.get("PS");
@@ -1028,7 +1054,9 @@ public class VcsAction extends NodeAction implements ActionListener {
         vars.put("FILE", file); // NOI18N
         vars.put("QFILE", quoting+file+quoting); // NOI18N
         if (fo != null) {
-            vars.put("MIMETYPE", fo.getMIMEType());
+            vars.put("MIMETYPE", (fo instanceof FileObject) ? ((FileObject) fo).getMIMEType() :
+                                 (fo instanceof VcsFileObject) ? ((VcsFileObject) fo).getMIMEType() :
+                                 "content/unknown");
         } else {
             int extIndex = file.lastIndexOf('.');
             String ext = (extIndex >= 0 && extIndex < file.length() - 1) ? file.substring(extIndex + 1) : "";
@@ -1045,9 +1073,10 @@ public class VcsAction extends NodeAction implements ActionListener {
         StringBuffer qfiles = new StringBuffer();
         for (Enumeration enum = files.keys(); enum.hasMoreElements(); ) {
             fullName = (String) enum.nextElement();
-            fo = (FileObject) files.get(fullName);
+            fo = files.get(fullName);
             if (fullName.length() == 0) fullName = ".";
-            isFileFolder |= (fo != null && fo.isFolder());
+            isFileFolder |= ((fo instanceof FileObject) && ((FileObject) fo).isFolder()) ||
+                            ((fo instanceof VcsFileObject) && ((VcsFileObject) fo).isFolder());
             file = VcsUtilities.getFileNamePart(fullName);
             fullName = fullName.replace('/', separatorChar);
             file = valueAdjustment.adjustVarValue(file);
@@ -1141,22 +1170,24 @@ public class VcsAction extends NodeAction implements ActionListener {
         Iterator it = files.keySet().iterator();
         if (!it.hasNext()) return values.toArray();
         String name = (String) it.next();
-        FileObject fo = (FileObject) files.get(name);
-        if (fo == null) {
+        Object obj = files.get(name);
+        if (obj == null || !(obj instanceof FileObject)) {
             values.addAll(Collections.nCopies(attrNames.length, null));
         } else {
+            FileObject fo = (FileObject) obj;
             for (int i = 0; i < attrNames.length; i++) {
                 values.add(fo.getAttribute(attrNames[i]));
             }
         }
-        result.put(name, fo);
+        result.put(name, obj);
         while (it.hasNext()) {
             name = (String) it.next();
-            fo = (FileObject) files.get(name);
-            if (fo == null) {
+            obj = files.get(name);
+            if (obj == null || !(obj instanceof FileObject)) {
                 if (!Arrays.equals(values.toArray(), Collections.nCopies(attrNames.length, null).toArray()))
                     continue;
             } else {
+                FileObject fo = (FileObject) obj;
                 int i;
                 for (i = 0; i < attrNames.length; i++) {
                     Object value = values.get(i);
@@ -1167,7 +1198,7 @@ public class VcsAction extends NodeAction implements ActionListener {
                 }
                 if (i < attrNames.length) continue;
             }
-            result.put(name, fo);
+            result.put(name, obj);
         }
         return values.toArray();
     }
@@ -1220,9 +1251,13 @@ public class VcsAction extends NodeAction implements ActionListener {
         if (cmdName.equals(VcsCommand.NAME_REFRESH)) {
             ArrayList paths = new ArrayList();
             for (Iterator it = files.values().iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                if (fo == null) continue;
-                String path = fo.getPackageName('/');
+                Object obj = it.next();
+                String path;
+                if (obj instanceof FileObject) {
+                    path = ((FileObject) obj).getPackageName('/');
+                } else if (obj instanceof VcsFileObject) {
+                    path = ((VcsFileObject) obj).getPackageName('/');
+                } else continue;
                 if (!paths.contains(path)) {
                     doList(path);
                     paths.add(path);
@@ -1231,9 +1266,13 @@ public class VcsAction extends NodeAction implements ActionListener {
         } else if (cmdName.equals(VcsCommand.NAME_REFRESH_RECURSIVELY)) {
             ArrayList paths = new ArrayList();
             for (Iterator it = files.values().iterator(); it.hasNext(); ) {
-                FileObject fo = (FileObject) it.next();
-                if (fo == null) continue;
-                String path = fo.getPackageName('/');
+                Object obj = it.next();
+                String path;
+                if (obj instanceof FileObject) {
+                    path = ((FileObject) obj).getPackageName('/');
+                } else if (obj instanceof VcsFileObject) {
+                    path = ((VcsFileObject) obj).getPackageName('/');
+                } else continue;
                 if (!paths.contains(path)) {
                     doListSub(path);
                     paths.add(path);

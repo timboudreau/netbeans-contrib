@@ -3000,6 +3000,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             return versions;
         }
         
+        public boolean canActOnVcsFileObjects() {
+            return true;
+        }
+        
     }
     
     private class VersioningStatus extends Object implements VersioningSystem.Status {
@@ -3081,6 +3085,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         
         public java.io.InputStream inputStream(String name, String revision) throws java.io.FileNotFoundException {
+            System.out.println("VersioningVersions.inputStream("+name+", "+revision+")");
             return VcsFileSystem.this.inputStream(name);
         }
     }
