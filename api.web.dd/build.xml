@@ -27,7 +27,7 @@ Microsystems, Inc. All Rights Reserved.
       <pathelement location="${schema2beans/rt.dir}/${nb.modules/autoload.dir}/schema2beans.jar" />
       <pathelement location="${openide.dir}/${nb.lib.dir}/openide.jar"/>
       <pathelement location="${openide/loaders.dir}/${nb.lib.dir}/openide-loaders.jar"/>
-      <pathelement location="${nb_root}/libs/external/xerces-2.6.0.jar"/>
+      <pathelement location="${libs/xerces.dir}/${nb.modules/autoload.dir}/ext/xerces-2.6.0.jar"/>
     </path>
   </target>
 
@@ -132,7 +132,7 @@ Microsystems, Inc. All Rights Reserved.
   
   <target name="javadoc" depends="init" description="Build Javadoc."> 
       <property name="_cp" refid="cp"/> 
-      <ant dir="${nb_root}/nbbuild/javadoctools" antfile="template.xml" target="javadoc"> 
+      <ant dir="${netbeans.dest.dir}/javadoctools" antfile="template.xml" target="javadoc"> 
        <property name="javadoc.base" location="."/> 
        <property name="javadoc.name" value="DD-API"/> 
        <property name="javadoc.title" value="Deployment Descriptor API"/> 
