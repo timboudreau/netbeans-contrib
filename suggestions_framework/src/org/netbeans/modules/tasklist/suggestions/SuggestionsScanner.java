@@ -338,6 +338,7 @@ public final class SuggestionsScanner implements Cancellable {
             scanned.clear();
             workaround38476 = topComponent.isOpened();
             suggestionsCounter = 0;
+            interrupted = false;
 
             // perform
 
