@@ -1120,8 +1120,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         if (versioningSystem != null) versioningSystem.statusChanged(path, recursively);
     }
     
-    private StatusChangeUpdater statusUpdateRunnable;
-    private RequestProcessor.Task statusUpdateTask;
+    private transient StatusChangeUpdater statusUpdateRunnable;
+    private transient RequestProcessor.Task statusUpdateTask;
     
     /**
      * Perform refresh of status information of a file
