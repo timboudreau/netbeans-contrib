@@ -32,6 +32,14 @@ public interface VcsCommand extends VcsCommandCookie {
      * The name of the command which does recursive refresh of a folder.
      */
     public static final String NAME_REFRESH_RECURSIVELY = "LIST_SUB";
+    /**
+     * The name of the command which does non recursive refresh of a folder.
+     */
+    public static final String NAME_REFRESH_OFFLINE = "LIST_OFFLINE";
+    /**
+     * The name of the command which does recursive refresh of a folder.
+     */
+    public static final String NAME_REFRESH_RECURSIVELY_OFFLINE = "LIST_SUB_OFFLINE";
     
     /**
      * The name of the command which will be called to lock the file in VCS.
@@ -71,10 +79,21 @@ public interface VcsCommand extends VcsCommandCookie {
      */
     public static final String PROPERTY_EXEC = "exec";
     /**
-     * This Integer property can contain any combination of EXEC_* constants delimeted by OR operator.
-     * <p>i.e.: (EXEC_SERIAL_ON_FILE | EXEC_SERIAL_OF_COMMAND) will run only one command of this name on the supplied file at a time.
+     * This Integer property can contain any combination of EXEC_* constants delimeted
+     * by OR operator.
+     * <p>i.e.: (EXEC_SERIAL_ON_FILE | EXEC_SERIAL_OF_COMMAND) will run only one command
+     * of this name on the supplied file at a time.
      */
     public static final String PROPERTY_CONCURRENT_EXECUTION = "concurrentExec";
+    /**
+     * This property has similar meaning as {@link PROPERTY_CONCURRENT_EXECUTION}, but
+     * contains pairs of command name and integer property enclosed in quotes and delimited
+     * by commas. The integer concurrent execution property is valid only with respect
+     * to the associated command name.
+     * <p>i.e.: "ADD 4", "STATUS 1"
+     */
+    public static final String PROPERTY_CONCURRENT_EXECUTION_WITH = "concurrentExecWith";
+    
     /**
      * A boolean property, if true, the command can act on files.
      */
@@ -198,21 +217,19 @@ public interface VcsCommand extends VcsCommandCookie {
     /** All execution of this command can be done concurrently with others.
      */
     public static final int EXEC_CONCURRENT_ALL = 0;
-    /** Serial execution of commands is guaranteed on each file.
-     * That means that two arbitrary commands will not run on a single file at the same time.
-     * If <code>EXEC_SERIAL_OF_COMMAND</code> property is included, then only this command
-     * will not be permitted to run on a single file at the same time.
+    /** Serial execution is guaranteed on each file.
+     * This command will not run on a file if there is another command
+     * already running at the same time.
      */
     public static final int EXEC_SERIAL_ON_FILE = 1;
-    /** Serial execution of commands is guaranteed in each package.
-     * That means that two arbitrary commands will not run inside a single package at the same time.
-     * If <code>EXEC_SERIAL_OF_COMMAND</code> property is included, then only this command
-     * will not be permitted to run inside a single package at the same time.
+    /** Serial execution is guaranteed inside a single package.
+     * This command will not run inside a single package if there is another command
+     * already running at the same time.
      */
     public static final int EXEC_SERIAL_ON_PACKAGE = 2;
     /** Serial execution of commands with respect to commands running on a parent folders.
      * The command will not run on a child before
-     * all commands on parent folders are finished. This flag is necessary for ADD command.
+     * all commands on parent folders are finished. This flag is necessary i.e. for ADD command.
      */
     public static final int EXEC_SERIAL_WITH_PARENT = 4;
     /** Serial execution of commands of this name.
@@ -221,7 +238,8 @@ public interface VcsCommand extends VcsCommandCookie {
      * or <code>EXEC_SERIAL_ON_PACKAGE</code> properties.
      */
     public static final int EXEC_SERIAL_OF_COMMAND = 8;
-    /** Serial execution of all commands.
+    /** Serial execution of all commands. This command will not run if at least one
+     * command is already running.
      */
     public static final int EXEC_SERIAL_ALL = -1;
     
