@@ -16,7 +16,6 @@ Microsystems, Inc. All Rights Reserved.
 <project name="vcsgeneric/profiles/clearcase" default="netbeans" basedir=".">
 
   <property name="nbroot1" value="../../.."/>
-  <property name="binroot1" location="${nbroot1}/../nbextra"/>
   <property name="nbext1" value="${nbroot1}/nbbuild"/>
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
@@ -29,7 +28,11 @@ Microsystems, Inc. All Rights Reserved.
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext1}/nbantext.jar"/>
   <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nbext1}/nbantext.jar"/>
 
-  <target name="compile">
+  <target name="setBinRoot" unless="${binroot}">
+    <property name="binroot" location="${nbroot1}/../nbextra"/>
+  </target>
+
+  <target name="compile" depends="setBinRoot">
     <javac srcdir="src" 
         deprecation="${build.compiler.deprecation}" 
         debug="${build.compiler.debug}"
@@ -43,8 +46,8 @@ Microsystems, Inc. All Rights Reserved.
 	<pathelement location="${nbroot1}/openidex/netbeans/modules/autoload/openidex.jar"/>
 	<pathelement location="${nbroot1}/vcscore/netbeans/modules/autoload/vcscore.jar"/>
 	<pathelement location="${nbroot1}/vcsgeneric/netbeans/modules/vcsgen.jar"/>
-        <pathelement location="${binroot1}/core/release/lib/ext/xerces.jar"/>
-        <pathelement location="${binroot1}/core/release/lib/ext/regexp.jar"/>
+        <pathelement location="${binroot}/core/release/lib/ext/xerces.jar"/>
+        <pathelement location="${binroot}/core/release/lib/ext/regexp.jar"/>
       </classpath>
     </javac>
   </target>
