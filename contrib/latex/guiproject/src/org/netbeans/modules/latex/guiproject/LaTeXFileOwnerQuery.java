@@ -13,13 +13,12 @@
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.guiproject;
+
 import java.net.URI;
 import java.util.Iterator;
-
-
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.projectapi.SimpleFileOwnerQueryImplementation;
-
+import org.netbeans.spi.project.FileOwnerQueryImplementation;
+import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 
 /**A FileOwnerQuery implementation for the LaTeX GUI Project. Currently
@@ -27,13 +26,16 @@ import org.openide.filesystems.FileObject;
  *
  * @author Jan Lahoda
  */
-public final class LaTeXFileOwnerQuery extends SimpleFileOwnerQueryImplementation {
+public final class LaTeXFileOwnerQuery implements FileOwnerQueryImplementation {
     
     /** Creates a new instance of LaTeXFileOwnerQuery */
     public LaTeXFileOwnerQuery() {
     }
 
-    //public Project getOwner(URI file) { is defined in the super class and delegates to getOwner(FileObject).
+    public Project getOwner(URI file) {
+        ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "LaTeXFileOwnerQuery.getOwner(URI) not implemented.");
+        return null;
+    }
 
     public Project getOwner(FileObject file) {
         for (Iterator i = LaTeXGUIProjectFactorySourceFactory.instanceCreate().mainFile2Project.values().iterator(); i.hasNext(); ) {
