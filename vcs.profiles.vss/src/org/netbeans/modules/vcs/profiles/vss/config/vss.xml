@@ -951,10 +951,10 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="ADD_ALL_CMD">
 	<property name="exec">
-	  <value>$[? FILES_IS_FOLDER] [${RUNCDF_NMK}] [${RUN}] add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} $[? FILES_IS_FOLDER] [$[? IS_RECURSIVE] [-R] [-R-] * {INSERT_OUTPUT_OF_DIR_FOLDERS(0)}] [${QFILES}] ${NUR}</value>
+	  <value>${RUN} add $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${ADD_OPTIONS} ${OPTIONS} $[? IS_RECURSIVE] [-R] [-R-] ${QFILES} ${NUR}</value>
 	</property>
-        <property name="preCommands">
-          <value>$[? FILES_IS_FOLDER] [$[? CACHED_ISLOCAL] [CREATE_CMD] []] []</value>
+        <property name="runOnMultipleFilesInFolder">
+          <value>true</value>
         </property>
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
@@ -989,7 +989,7 @@ Microsystems, Inc. All Rights Reserved.
           <value>ResourceMsg(VSS_ADD_ALL_Mnemonic)</value>
         </property>
 	<property name="exec">
-          <value>org.netbeans.modules.vcs.profiles.commands.SharableFilesCommand.class -ic IGNORE_AND_RELEVANT_LIST_EXPRESSIONS $[? IS_RECURSIVE] [] [-l] ADD_ALL_CMD CREATE_CMD</value>
+          <value>org.netbeans.modules.vcs.profiles.commands.SharableFilesCommand.class -ic IGNORE_AND_RELEVANT_LIST_EXPRESSIONS $[? IS_RECURSIVE] [] [-l] ADD_ALL_CMD CREATE_CMD_NO_REFRESH</value>
 	</property>
 	<property name="supportsAdvancedMode">
 	  <value>true</value>
@@ -1090,6 +1090,32 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshParentFolder">
           <value>true</value>
         </property>
+        <property name="concurrentExec">
+          <value>16</value> <!-- EXEC_SERIAL_ALL -->
+        </property>
+        <property name="needsHierarchicalOrder">
+	  <value>true</value>
+        </property>
+      </command>
+      <command name="CREATE_CMD_NO_REFRESH">
+	<property name="exec">
+	  <value>${RUN} create $[? DESCRIPTION_FILE] [-C@${QUOTE}${DESCRIPTION_FILE}${QUOTE}] [-C${QUOTE}${message}${QUOTE}] ${CREATE_OPTIONS} ${OPTIONS} ${QFILE} ${NUR}</value>
+	</property>
+	<property name="onFile">
+	  <value>false</value>
+	</property>
+	<property name="data.regex">
+	  <value>(.*$)</value>
+	</property>
+	<property name="error.regex">
+	  <value>(.*$)</value>
+	</property>
+	<property name="onRoot">
+	  <value>false</value>
+	</property>
+        <property name="disabledOnStatus">
+          <value>"", "Current"</value>
+	</property>
         <property name="concurrentExec">
           <value>16</value> <!-- EXEC_SERIAL_ALL -->
         </property>
