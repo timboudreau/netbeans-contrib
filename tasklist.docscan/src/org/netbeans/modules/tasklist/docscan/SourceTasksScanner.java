@@ -150,7 +150,7 @@ final class SourceTasksScanner {
         SuggestionsScanner c = SuggestionsScanner.getDefault();
         c.setUsabilityLimit(Settings.getDefault().getUsabilityLimit());
         bg.cancellable = c;
-        c.scan(projectFolders, list, view);
+        c.scan(projectFolders, list, view, SourceTaskProvider.TYPE);
     }
 
     static void repository(List folders) {

@@ -73,6 +73,8 @@ public final class SuggestionsScanner implements Cancellable {
     /** Target suggestion list. */
     private SuggestionList list;
 
+    private String typeFilter;
+
     // target manager impl
     private final SuggestionManagerImpl manager;
 
@@ -120,10 +122,23 @@ public final class SuggestionsScanner implements Cancellable {
      * @param monitor
      */
     public final synchronized void scan(DataObject.Container[] folders, SuggestionList list, ScanProgress monitor) {
+        scan(folders, list, monitor, null);
+    }
+
+    /**
+     * Scans recursively for suggestions notifing given progress monitor.
+     * @param folders containers to be scanned. It must be DataObject subclasses!
+     * @param list
+     * @param monitor
+     * @param filter suggestion type filter or <code>null</code> if scan all types
+     */
+    public final synchronized void scan(DataObject.Container[] folders, SuggestionList list, ScanProgress monitor, String filter) {
         try {
+            typeFilter = filter;
             progressMonitor = monitor;
             scan(folders, list, true);
         } finally {
+            typeFilter = null;
             progressMonitor = null;
             monitor.scanFinished();
         }
@@ -351,7 +366,9 @@ public final class SuggestionsScanner implements Cancellable {
                 String type = null;
                 try {
                     type = provider.getTypes()[0];
-                    l = ((DocumentSuggestionProvider) provider).scan(env);
+                    if (typeFilter == null || typeFilter.equals(type)) {
+                        l = ((DocumentSuggestionProvider) provider).scan(env);
+                    }
                 } catch (RuntimeException e) {
                     ErrorManager.getDefault().annotate(e, "Skipping faulty provider (" + provider + ").");  // NOI18N
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
