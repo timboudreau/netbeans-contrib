@@ -17,6 +17,7 @@ import java.beans.*;
 import java.awt.Image;
 import java.util.ResourceBundle;
 
+import org.openide.loaders.MultiFileLoader;
 import org.openide.util.NbBundle;
 
 
@@ -26,6 +27,16 @@ import org.openide.util.NbBundle;
 */
 public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
 
+  public BeanInfo[] getAdditionalBeanInfo () {
+    try {
+      return new BeanInfo[] { Introspector.getBeanInfo (MultiFileLoader.class) };
+    } catch (IntrospectionException ie) {
+      if (Boolean.getBoolean ("netbeans.debug.exceptions")) // NOI18N
+        ie.printStackTrace ();
+      return null;
+    }
+  }
+
   /** Icons for compiler settings objects. */
   static Image icon;
   static Image icon32;
@@ -33,11 +44,6 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
   /** Propertydescriptors */
   static PropertyDescriptor[] descriptors;
 
-
-  /** Default constructor.
-  */
-  public ClassDataLoaderBeanInfo() {
-  }
 
   /**
   * @return Returns an array of PropertyDescriptors
@@ -69,15 +75,11 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
       NbBundle.getBundle(ClassDataLoaderBeanInfo.class);
     try {
       descriptors =  new PropertyDescriptor[] {
-        new PropertyDescriptor ("displayName", ClassDataLoader.class, // NOI18N
-                                "getDisplayName", null), // NOI18N
         new PropertyDescriptor ("extensions", ClassDataLoader.class, // NOI18N
                                 "getExtensions", "setExtensions") // NOI18N
       };
-      descriptors[0].setDisplayName(bundle.getString("PROP_Name"));
-      descriptors[0].setShortDescription(bundle.getString("HINT_Name"));
-      descriptors[1].setDisplayName(bundle.getString("PROP_Extensions"));
-      descriptors[1].setShortDescription(bundle.getString("HINT_Extensions"));
+      descriptors[0].setDisplayName(bundle.getString("PROP_Extensions"));
+      descriptors[0].setShortDescription(bundle.getString("HINT_Extensions"));
     } catch (IntrospectionException e) {
       e.printStackTrace ();
     }
@@ -87,6 +89,7 @@ public final class ClassDataLoaderBeanInfo extends SimpleBeanInfo {
 
 /*
 * Log
+*  7    src-jtulach1.6         1/16/00  Jesse Glick     
 *  6    src-jtulach1.5         1/13/00  David Simonek   i18n
 *  5    src-jtulach1.4         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment
