@@ -23,6 +23,7 @@ import java.io.*;
 import java.util.*;
 
 import org.openide.WizardDescriptor;
+import org.openide.filesystems.AbstractFileSystem;
 import org.openide.util.*;
 
 import org.netbeans.modules.vcscore.*;
@@ -41,12 +42,32 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
      * we will ignore tree expansion events while this variable is true. */
     private volatile boolean initiallyExpanding = true;
     
+    /** A special list of children. If <code>null</code>, File.list() is used
+     * instead. */
+    private AbstractFileSystem.List childrenList = null;
+    
     private boolean mouseEnter = false;
     
     public RelativeMountPanel() {
+        this(null, (char) 0, null, (char) 0);
+    }
+    
+    public RelativeMountPanel(String label, char labelMnc, String moduleLabel, char moduleMnc) {
         initComponents ();
-        lbRmpSelect.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/cmdline/Bundle").getString("RMPanel.relMountLabel_Mnemonic").charAt(0));
-        lbRelMount.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/cmdline/Bundle").getString("NewCvsCustomizer.lbRelMount.mnem").charAt(0));
+        if (label != null) {
+            lbRmpSelect.setText(label);
+        }
+        if (labelMnc == 0) {
+            labelMnc = NbBundle.getMessage(RelativeMountPanel.class, "RMPanel.relMountLabel_Mnemonic").charAt(0);
+        }
+        lbRmpSelect.setDisplayedMnemonic(labelMnc);
+        if (moduleLabel != null) {
+            lbRelMount.setText(moduleLabel);
+        }
+        if (moduleMnc == 0) {
+            moduleMnc = NbBundle.getMessage(RelativeMountPanel.class, "NewCvsCustomizer.lbRelMount.mnem").charAt(0);
+        }
+        lbRelMount.setDisplayedMnemonic(moduleMnc);
         //isValid = false;
         addTreeListeners();
         //trRelMount.addTreeSelectionListener(this);
@@ -180,13 +201,13 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
     
     private void initAccessibility() {
         trRelMount.getAccessibleContext().setAccessibleDescription(
-        java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/cmdline/Bundle").getString("ACSD_RMPanel.relMountTree"));
+            NbBundle.getMessage(RelativeMountPanel.class, "ACSD_RMPanel.relMountTree"));
         txRelMount.getAccessibleContext().setAccessibleDescription(
-        java.util.ResourceBundle.getBundle("org/netbeans/modules/vcscore/cmdline/Bundle").getString("ACSD_RMPanel.relMountTextField"));
+            NbBundle.getMessage(RelativeMountPanel.class, "ACSD_RMPanel.relMountTextField"));
     }
     
     public String getName() {
-        return org.openide.util.NbBundle.getBundle(RelativeMountPanel.class).getString("RelativeMountPanel.mountDialogLabel");
+        return NbBundle.getMessage(RelativeMountPanel.class, "RelativeMountPanel.mountDialogLabel");
     }
     
     public void setInfoLabel(String text) {
@@ -364,13 +385,22 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
             }
             File parentFile = (File) parent.getUserObject(); 
             File childFile;
-            File[] list = parentFile.listFiles();
+            File[] list;
+            if (childrenList == null) {
+                list = parentFile.listFiles();
+            } else {
+                String[] childrenL = childrenList.children(parentFile.getAbsolutePath());
+                list = new File[childrenL.length];
+                for (int i = 0; i < childrenL.length; i++) {
+                    list[i] = new File(parentFile, childrenL[i]);
+                }
+            }
             if (list != null) {
                 Arrays.sort(list);
                 for (int index = 0; index < list.length; index++) {
-                    if (list[index].isDirectory() && list[index].exists()) {
+                    if (childrenList != null || list[index].isDirectory() && list[index].exists()) {
                         childFile = list[index];
-                        if (!childFile.getName().equals("CVS")) { //CVS dirs go out..
+                        if (childrenList != null || !childFile.getName().equals("CVS")) { //CVS dirs go out..
                             //hasChild = true;
                             MyTreeNode child = new MyTreeNode(new File(childFile.getAbsolutePath()));
                             child.setAllowsChildren(true);
@@ -490,7 +520,19 @@ public class RelativeMountPanel extends javax.swing.JPanel implements TreeSelect
      * @param multipleSelections whether multiple nodes can be selected
      */
     public void initTree(String rootDir, final String[] relMounts, boolean multipleSelections) {
+        initTree(rootDir, relMounts, multipleSelections, null);
+    }
+    
+    /**
+     * Initialize the tree.
+     * @param rootDir the root directory of the tree
+     * @param relMounts the initial relative mount points
+     * @param multipleSelections whether multiple nodes can be selected
+     */
+    public void initTree(String rootDir, final String[] relMounts, boolean multipleSelections,
+                         AbstractFileSystem.List childrenList) {
         this.initiallyExpanding = true;
+        this.childrenList = childrenList;
         createTree(rootDir);
         //trRelMount.setSelectionModel(new MySelectionModel()); // because of not allowing to select local dirs
         if (multipleSelections) {
