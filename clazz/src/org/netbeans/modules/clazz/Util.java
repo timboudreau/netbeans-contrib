@@ -126,7 +126,7 @@ final class Util extends Object {
                 i++;
                 return null;
             default:
-                throw new IllegalArgumentException("Unknown signature");
+                throw new IllegalArgumentException("Unknown signature"); // NOI18N
             }
         }
         
@@ -140,7 +140,7 @@ final class Util extends Object {
                 
                 //filter java.lang
                 int idx;
-                if( fs.startsWith("java.lang") ){
+                if( fs.startsWith("java.lang") ){ // NOI18N
                     s = fs.substring( 10 ); //filter 'java.lang.'
                 } else {
                     s = fs;
@@ -148,7 +148,7 @@ final class Util extends Object {
                 i++;
                 return Type.createClass(Identifier.create(fs, s, Identifier.RESOLVED));
             } else {
-                throw new IllegalArgumentException("Method signature has to start with >>L<<");
+                throw new IllegalArgumentException("Method signature has to start with >>L<<"); // NOI18N
             }
         }
         

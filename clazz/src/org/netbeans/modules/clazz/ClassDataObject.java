@@ -62,7 +62,7 @@ import org.netbeans.modules.classfile.ClassFile;
  */
 public class ClassDataObject extends org.openide.loaders.MultiDataObject 
     implements ElementCookie, CookieSet.Factory, SourceCookie {
-    public static final String PROP_CLASS_LOADING_ERROR = "classLoadingError";
+    public static final String PROP_CLASS_LOADING_ERROR = "classLoadingError"; // NOI18N
     /**
      * Holds an exception that occured during an attempt to create the class.
      */

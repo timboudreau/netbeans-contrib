@@ -281,7 +281,7 @@ public class CompiledDataObject extends ClassDataObject {
             while (servs.hasMoreElements()) {
                 Object o = servs.nextElement();
                 if (o.getClass().getName().startsWith(
-                    "org.netbeans.modules.java.JavaProcessExecutor"
+                    "org.netbeans.modules.java.JavaProcessExecutor" // NOI18N
                     )) {
                     return (Executor)o;
                 }

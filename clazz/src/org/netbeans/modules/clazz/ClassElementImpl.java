@@ -334,7 +334,7 @@ public final class ClassElementImpl extends MemberElementImpl
                 Set files = doj.files();
                 for( Iterator iter = files.iterator(); iter.hasNext();){
                     FileObject fo = ((FileObject)iter.next());
-                    if( fo.getNameExt().equals(name + "$"+ reflInners[i].getSimpleName()+ ".class") ){
+                    if( fo.getNameExt().equals(name + "$"+ reflInners[i].getSimpleName()+ ".class") ){ // NOI18N
                         try{
                             curCE = new ClassElement(new ClassElementImpl(new ClassFile(fo.getInputStream())),
                                                      (ClassElement)element);
@@ -425,12 +425,12 @@ public final class ClassElementImpl extends MemberElementImpl
     /** Determines whether the method is static inicializer.
      */
     private static boolean isStaticInicializer(org.netbeans.modules.classfile.Method method) {                
-        return ( method.getName().indexOf("<clinit>") != -1 );
+        return ( method.getName().indexOf("<clinit>") != -1 ); // NOI18N
     }
     
     /** Determines whether the method is constructor.
      */
     private static boolean isConstructor(org.netbeans.modules.classfile.Method method) {                
-        return ( method.getName().indexOf("<init>") != -1 );
+        return ( method.getName().indexOf("<init>") != -1 ); // NOI18N
     }    
 }
