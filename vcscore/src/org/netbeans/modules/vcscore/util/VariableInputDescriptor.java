@@ -207,6 +207,9 @@ public class VariableInputDescriptor extends Object {
             //System.out.println("parseItems: "+inputStr+": "+inputArg);
             if (inputId == INPUT_LABEL && inputArgs.length > 0) {
                 descriptor.label = VcsUtilities.getBundleString(resourceBundles, inputArgs[0]);
+                if (inputArgs.length > 1 && inputArgs[1].startsWith(INPUT_STR_ACCESSIBILITY)) {
+                    setAccessibility(descriptor, inputArgs[1].substring(INPUT_STR_ACCESSIBILITY.length() + 1), resourceBundles);
+                }
             } else if (inputId == INPUT_HELP_ID && inputArgs.length > 0) {
                 descriptor.helpID = inputArgs[0];
             } else if(inputId == INPUT_AUTOFILL && inputArgs.length >0){
@@ -223,10 +226,7 @@ public class VariableInputDescriptor extends Object {
                 }
                 descriptor.profileDefaults = defaults;
             } else if (inputId == INPUT_ACCESSIBILITY && inputArgs.length > 0) {
-                VariableInputComponent testComponent = new VariableInputComponent(0, "", "");
-                setA11y(VcsUtilities.getBundleString(resourceBundles, inputArg), testComponent);
-                descriptor.a11yName = testComponent.getA11yName();
-                descriptor.a11yDescription = testComponent.getA11yDescription();
+                setAccessibility(descriptor, inputArg, resourceBundles);
             } else {
                 VariableInputComponent component = parseComponent(inputId, inputArgs, inputArg, resourceBundles);
                 component.setExpert(expert);
@@ -250,6 +250,13 @@ public class VariableInputDescriptor extends Object {
             }
         }
         return descriptor;
+    }
+    
+    private static void setAccessibility(VariableInputDescriptor descriptor, String inputArg, String[] resourceBundles) {
+        VariableInputComponent testComponent = new VariableInputComponent(0, "", "");
+        setA11y(VcsUtilities.getBundleString(resourceBundles, inputArg), testComponent);
+        descriptor.a11yName = testComponent.getA11yName();
+        descriptor.a11yDescription = testComponent.getA11yDescription();
     }
     
     /**
