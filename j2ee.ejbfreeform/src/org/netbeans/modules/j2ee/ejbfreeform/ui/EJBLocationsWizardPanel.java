@@ -145,7 +145,7 @@ public class EJBLocationsWizardPanel implements WizardDescriptor.Panel {
         try {
             while (ch.hasMoreElements ()) {
                 FileObject f = (FileObject) ch.nextElement ();
-                if (f.getExt ().equals ("java")) { // NOI18N
+                if (f.getExt ().equals ("java") && !f.isFolder()) { // NOI18N
                     String pckg = guessPackageName (f);
                     String pkgPath = f.getParent ().getPath ();
                     if (pckg != null && pkgPath.endsWith (pckg.replace ('.', '/'))) {

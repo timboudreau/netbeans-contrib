@@ -43,6 +43,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     /** Freeform Project base folder */
     private File nbProjectFolder;
 
+    private File srcPackagesLocation;
+
     private AntProjectHelper projectHelper;
     
     /** Creates new form EJBLocations */
@@ -65,8 +67,6 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
             String configFiles = getLocationDisplayName(projectEvaluator, baseFolder, wm.configFiles);
             String classpath = getLocationDisplayName(projectEvaluator, baseFolder, wm.classpath);
             jTextFieldConfigFiles.setText(configFiles);
-            jTextFieldSrc.setText(classpath);
-//            jTextFieldContextPath.setText(wm.contextPath);
 
             if (wm.j2eeSpecLevel.equals("1.4"))
                 jComboBoxJ2eeLevel.setSelectedItem(NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_0"));
@@ -109,11 +109,6 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         jLabel2 = new javax.swing.JLabel();
         jTextFieldConfigFiles = new javax.swing.JTextField();
         jButtonEJB = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
-        jTextFieldSrc = new javax.swing.JTextField();
-        jButtonSrc = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
-        jTextFieldContextPath = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jComboBoxJ2eeLevel = new javax.swing.JComboBox();
 
@@ -161,63 +156,11 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         add(jButtonEJB, gridBagConstraints);
         jButtonEJB.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(EJBLocationsPanel.class, "ACS_LBL_ConfigFilesPanel_ConfigFilesLocationBrowse_A11YDesc"));
 
-        jLabel3.setLabelFor(jTextFieldSrc);
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(EJBLocationsPanel.class, "LBL_ConfigFilesPanel_JavaSourcesLocation_Label"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 11);
-        add(jLabel3, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 11);
-        add(jTextFieldSrc, gridBagConstraints);
-        jTextFieldSrc.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(EJBLocationsPanel.class, "ACS_LBL_ConfigFilesPanel_JavaSourcesLocation_A11YDesc"));
-
-        org.openide.awt.Mnemonics.setLocalizedText(jButtonSrc, org.openide.util.NbBundle.getMessage(EJBLocationsPanel.class, "BTN_BasicProjectInfoPanel_browseProjectFolder"));
-        jButtonSrc.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSrcActionPerformed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
-        add(jButtonSrc, gridBagConstraints);
-        jButtonSrc.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(EJBLocationsPanel.class, "ACS_LBL_ConfigFilesPanel_JavaSourcesLocationBrowse_A11YDesc"));
-
-        jLabel4.setLabelFor(jTextFieldContextPath);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 11);
-        add(jLabel4, gridBagConstraints);
-
-        jTextFieldContextPath.setEditable(false);
-        jTextFieldContextPath.setEnabled(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 0);
-        add(jTextFieldContextPath, gridBagConstraints);
-        jTextFieldContextPath.getAccessibleContext().setAccessibleDescription("");
-
         jLabel5.setLabelFor(jComboBoxJ2eeLevel);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(EJBLocationsPanel.class, "LBL_ConfigFilesPanel_J2EESpecLevel_Label"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridheight = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(3, 0, 0, 11);
@@ -225,7 +168,7 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.gridheight = java.awt.GridBagConstraints.REMAINDER;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -234,13 +177,6 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         jComboBoxJ2eeLevel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(EJBLocationsPanel.class, "ACS_LBL_ConfigFilesPanel_J2EESpecLevel_A11YDesc"));
 
     }//GEN-END:initComponents
-
-    private void jButtonSrcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSrcActionPerformed
-        JFileChooser chooser = createChooser(getSrcPackagesLocation().getAbsolutePath());
-        if (JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(this)) {
-            setSrcPackages(chooser.getSelectedFile());
-        }
-    }//GEN-LAST:event_jButtonSrcActionPerformed
 
     private void jButtonEJBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEJBActionPerformed
         JFileChooser chooser = createChooser(getConfigFilesLocation().getAbsolutePath());
@@ -251,16 +187,11 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonEJB;
-    private javax.swing.JButton jButtonSrc;
     private javax.swing.JComboBox jComboBoxJ2eeLevel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JTextField jTextFieldConfigFiles;
-    private javax.swing.JTextField jTextFieldContextPath;
-    private javax.swing.JTextField jTextFieldSrc;
     // End of variables declaration//GEN-END:variables
     
     private static JFileChooser createChooser(String path) {
@@ -272,21 +203,22 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         return chooser;
     }
 
+    // TODO: ma154696: this function should probably return one EJBModule
+    // this is just copy from web freeform
     protected List getEJBModules() {
         ArrayList l = new ArrayList();
 
-        EJBProjectGenerator.EJBModule wm = new EJBProjectGenerator.EJBModule ();
-        wm.configFiles = getRelativeLocation(getConfigFilesLocation());
-//        wm.contextPath = jTextFieldContextPath.getText().trim();
+        EJBProjectGenerator.EJBModule ejbModule = new EJBProjectGenerator.EJBModule ();
+        ejbModule.configFiles = getRelativeLocation(getConfigFilesLocation());
         
         String j2eeLevel = (String) jComboBoxJ2eeLevel.getSelectedItem();
         if (j2eeLevel.equals(NbBundle.getMessage(EJBLocationsPanel.class, "TXT_J2EESpecLevel_0")))
-            wm.j2eeSpecLevel = "1.4";
+            ejbModule.j2eeSpecLevel = "1.4";
         else
-            wm.j2eeSpecLevel = "1.3";
+            ejbModule.j2eeSpecLevel = "1.3";
         
-        wm.classpath = getRelativeLocation(getSrcPackagesLocation());
-        l.add (wm);
+        ejbModule.classpath = getRelativeLocation(getSrcPackagesLocation());
+        l.add (ejbModule);
         
         return l;
     }
@@ -344,12 +276,11 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     }
 
     private void setSrcPackages(final File file) {
-        jTextFieldSrc.setText(relativizeFile(file));
+        srcPackagesLocation = file;
     }
 
     protected File getSrcPackagesLocation() {
-        return getAsFile(jTextFieldSrc.getText());
-
+        return srcPackagesLocation;
     }
 
     private String relativizeFile(final File file) {
