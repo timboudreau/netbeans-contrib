@@ -319,7 +319,19 @@ public class CvsCommitTemplateGetter implements VcsAdditionalCommand, RegexOutpu
             vars.put("WINCAT", wincat);
         }
         
-        output.append(getMessageComment(vars));
+        String message = getMessageComment(vars);
+        output.append(message);
+        int begin = 0;
+        do {
+            int end = message.indexOf('\n', begin);
+            if (end < 0) {
+                end = message.length();
+            }
+            String line = message.substring(begin, end);
+            stdoutListener.outputLine(line);
+            stdoutDataListener.outputData(new String[] { line });
+            begin = end + 1;
+        } while (begin < message.length());
         try {
             this.stdoutDataListener = stdoutDataListener;
             CommandSupport cmdSupport = fileSystem.getCommandSupport(args[0]);
