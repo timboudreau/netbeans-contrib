@@ -459,8 +459,8 @@ public class ConditionNode extends AbstractNode {
             }
             for (int i = 0; i < cnds.length; i++) {
                 OperatorNode operatorNode = new OperatorNode(condition, cnds[i]);
-                if (condition.isPositiveTest(vars[i])) {
-                    subNodes[vars.length + 1] = operatorNode;
+                if (condition.isPositiveTest(cnds[i])) {
+                    subNodes[vars.length + i] = operatorNode;
                 } else {
                     NegationNode nn = new NegationNode();
                     nn.getChildren().add(new Node[] { operatorNode });
