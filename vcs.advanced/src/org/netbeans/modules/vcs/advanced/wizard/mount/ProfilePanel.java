@@ -7,14 +7,16 @@
  * http://www.sun.com/
  * 
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.vcs.advanced.wizard.mount;
 
 import org.netbeans.modules.vcs.advanced.VcsCustomizer;
+import org.netbeans.modules.vcscore.util.VariableInputValidator;
 import org.openide.loaders.TemplateWizard;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -65,7 +67,21 @@ public class ProfilePanel extends AbstractWizardPanel {
     }
     
     public boolean isValid() {
-        return index > 0 || !data.isNoneProfileSelected();
+        if (data.isNoneProfileSelected()) {
+            getWizard().putProperty("WizardPanel_errorMessage", NbBundle.getMessage(ProfilePanel.class, "MSG_NoProfileSelected")); //NOI18N
+            return false;
+        }
+        VariableInputValidator validator = data.validateData();
+        if (validator.isValid()) {
+            validator = data.getCustomizer().validateConfigPanel(index);
+        }
+        if (validator != null && !validator.isValid()) {
+            getWizard().putProperty("WizardPanel_errorMessage", validator.getMessage()); //NOI18N
+            return false;
+        } else {
+            getWizard().putProperty("WizardPanel_errorMessage", ""); //NOI18N
+            return true;
+        }
     }
     
     

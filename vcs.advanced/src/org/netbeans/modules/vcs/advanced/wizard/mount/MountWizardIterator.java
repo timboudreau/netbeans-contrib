@@ -197,21 +197,24 @@ public class MountWizardIterator extends Object implements TemplateWizard.Iterat
             setContentData();
         }
         if(evt.getPropertyName().equals(VcsCustomizer.PROP_IS_FINISH_ENABLED_CHANGED)){            
-            String isFinishEnabled = (String)evt.getNewValue();
-            ProfilePanel panel = (ProfilePanel)current();            
-            if(isFinishEnabled.length()>0){
+            Boolean isFinishEnabled = (Boolean) evt.getNewValue();
+            ProfilePanel panel = (ProfilePanel)current();
+            if (isFinishEnabled.booleanValue()) {
                 //System.err.println("isFinishEnabled - true");                                 
                 panel.setFinish(true);                
                 isNext = false;
                 panel.fireChange();                
-            }else{
+            } else {
                 //System.err.println("isFinishEnabled - false");
                 panel.setFinish(false);
                 isNext = true;
                 panel.fireChange();           
-                
             }
             setContentData();
+        }
+        if (evt.getPropertyName().equals(VcsFileSystem.PROP_VARIABLES)) {
+            ProfilePanel panel = (ProfilePanel) current();
+            panel.fireChange(); // To validate the panel.
         }
     }
     

@@ -116,6 +116,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     
     private transient ConditionedVariablesUpdater cVarsUpdater;
     
+    private transient VariableInputDescriptor[] configInputDescriptors;
+    private transient VariableInputComponent rootDirInputComponent;
+    
     //private static transient FileLock configSaveLock = FileLock.NONE;
 
     static final long serialVersionUID = -8801742771957370172L;
@@ -1265,6 +1268,23 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
     }
     
     /**
+     * Validate the configuration panel, if possible, and return the result of the validation.
+     * @return the validator, or <code>null</code> when no validation is possible.
+     */
+    public VariableInputValidator validateConfigPanel(int index) {
+        if (configInputDescriptors == null || configInputDescriptors.length <= index) {
+            if (index == 0) {
+                rootDirInputComponent.setValue(rootDirTextField.getText());
+                return rootDirInputComponent.validate();
+            } else {
+                return null;
+            }
+        } else {
+            return configInputDescriptors[index].validate();
+        }
+    }
+    
+    /**
      * @deprecated It's only for a temporary use by the wizard.
      */
     public JPanel getAdvancedPanel() {
@@ -1337,6 +1357,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
 
         linkLabel.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
         HelpCtx.setHelpIDString (this, VcsCustomizer.class.getName ());
+        
+        rootDirInputComponent = new VariableInputComponent(0, "ROOTDIR", jLabel2.getText());
+        rootDirInputComponent.setValidator(VariableInputValidator.VALIDATOR_FOLDER);
     }
 
     private void setAutoFillVars(String autoFillVarsStr) {
@@ -1561,7 +1584,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
         else autoFillVars.clear();
         
-        VariableInputDescriptor[] configInputDescriptors = findConfigInputDescriptors(fsVars);
+        configInputDescriptors = findConfigInputDescriptors(fsVars);
         if (configInputDescriptors != null) {
             //Hashtable dlgVars = new Hashtable(fsVars);
             synchronized (configInputPanelsLock) {
@@ -2037,12 +2060,21 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         updateFinishableState(fileSystem.getVariablesAsHashtable());
     }
     
+    private transient Boolean lastFinishableState;
+    
     private void updateFinishableState(Hashtable variables){        
         String isFinishEnabled = (String)variables.get("IS_FINISH_ENABLED");    //NOI18N        
         if((isFinishEnabled != null)&&(isFinishEnabled.length() > 0)){            
             isFinishEnabled = Variables.expand(variables, isFinishEnabled, false);
+        }
+        boolean isFinish = isFinishEnabled != null && isFinishEnabled.length() > 0;
+        if (lastFinishableState == null || lastFinishableState.booleanValue() != isFinish) {
             if (changeSupport != null) {
-                changeSupport.firePropertyChange(new PropertyChangeEvent(this,PROP_IS_FINISH_ENABLED_CHANGED,null,isFinishEnabled));
+                Boolean finishableState = (isFinish) ? Boolean.TRUE : Boolean.FALSE;
+                changeSupport.firePropertyChange(
+                    new PropertyChangeEvent(this, PROP_IS_FINISH_ENABLED_CHANGED,
+                                            lastFinishableState, finishableState));
+                lastFinishableState = finishableState;
             }
         }
     }

@@ -15,7 +15,12 @@ package org.netbeans.modules.vcs.advanced.wizard.mount;
 
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 import org.netbeans.modules.vcs.advanced.VcsCustomizer;
+import org.netbeans.modules.vcscore.registry.FSInfo;
+import org.netbeans.modules.vcscore.registry.FSRegistry;
 import org.netbeans.modules.vcscore.settings.GeneralVcsSettings;
+import org.netbeans.modules.vcscore.util.VariableInputValidator;
+import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 
 /**
  * The data set in the Generic VCS wizard.
@@ -79,6 +84,7 @@ public class MountWizardData {
     
     void addPropertyChangeListener(java.beans.PropertyChangeListener l){       
         customizer.addPropertyChangeListener(l);
+        fileSystem.addPropertyChangeListener(WeakListeners.propertyChange(l, fileSystem));
     }
     
     void removePropertyChangeListener(java.beans.PropertyChangeListener l) {    
@@ -123,6 +129,35 @@ public class MountWizardData {
      */
     public void setRefreshRate(int refreshRate) {
         this.refreshRate = refreshRate;
+    }
+    
+    VariableInputValidator validateData() {
+        return new MountValidator(fileSystem.getRootDirectory());
+    }
+    
+    private static class MountValidator extends VariableInputValidator {
+        
+        public MountValidator(java.io.File rootDir) {
+            super(null, "");
+            //this.fileSystem = fileSystem;
+            try {
+                rootDir = rootDir.getCanonicalFile();
+            } catch (java.io.IOException ioex) {}
+            boolean valid = true;
+            FSInfo[] fsInfos = FSRegistry.getDefault().getRegistered();
+            for (int i = 0; i < fsInfos.length; i++) {
+                if (rootDir.equals(fsInfos[i].getFSRoot())) {
+                    valid = false;
+                    break;
+                }
+            }
+            setValid(valid);
+            if (!valid) {
+                setMessage(NbBundle.getMessage(MountWizardData.class, "MSG_DirAlreadyMounted", rootDir));
+                setVariable("ROOTDIR");
+            }
+        }
+        
     }
     
 }

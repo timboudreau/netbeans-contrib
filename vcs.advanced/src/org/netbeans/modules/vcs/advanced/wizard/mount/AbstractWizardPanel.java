@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2001 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -21,6 +21,7 @@ import org.openide.loaders.TemplateWizard;
  */
 public abstract class AbstractWizardPanel implements org.openide.WizardDescriptor.FinishablePanel {
 
+    private TemplateWizard wizard;
     private java.util.ArrayList listeners_;
     
     /** Creates new AbstractWizardPanel */
@@ -37,7 +38,7 @@ public abstract class AbstractWizardPanel implements org.openide.WizardDescripto
     }
     
     public void readSettings(java.lang.Object data) {
-        TemplateWizard wizard = (TemplateWizard) data;
+        wizard = (TemplateWizard) data;
         MountWizardIterator wizIter;
         wizIter = (MountWizardIterator) wizard.getIterator(wizard.getTemplate());
         MountWizardData mountData = wizIter.getData();
@@ -53,13 +54,17 @@ public abstract class AbstractWizardPanel implements org.openide.WizardDescripto
         wizIter = (MountWizardIterator) wizard.getIterator(wizard.getTemplate());
         MountWizardData mountData = wizIter.getData();
         storeWizardSettings (mountData);
-    }        
+    }
+    
+    protected final TemplateWizard getWizard() {
+        return wizard;
+    }
     
     protected abstract void storeWizardSettings (MountWizardData data);
     
     protected abstract void readWizardSettings (MountWizardData data);
     
-    public void fireChange () {   
+    public void fireChange () {
         javax.swing.event.ChangeEvent event = new javax.swing.event.ChangeEvent (this);
         java.util.Iterator iterator;
         synchronized (this) {
