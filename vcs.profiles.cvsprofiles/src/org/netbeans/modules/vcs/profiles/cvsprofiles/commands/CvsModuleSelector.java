@@ -91,7 +91,7 @@ public class CvsModuleSelector implements VcsAdditionalCommand, TextOutputListen
         String[] toReturn = new String[1];
         if (returns != null) {
             if (returns.length > 0 && returns[0] != null && returns[0].length() > 0) {
-                toReturn[0] = VcsUtilities.arrayToQuotedString(returns, false);  //TODO for cygwin =true
+                toReturn[0] = VcsUtilities.arrayToQuotedString(returns, false, (String) vars.get("QUOTE"));  //TODO for cygwin =true
                 stdoutListener.outputData(toReturn);
             }
             return true;

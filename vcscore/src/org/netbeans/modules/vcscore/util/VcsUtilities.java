@@ -189,16 +189,21 @@ public class VcsUtilities {
      */
 
     //MK-------------------------------------------
-    public static String arrayToQuotedString(String []sa, boolean unixShell){
+    public static String arrayToQuotedString(String []sa, boolean unixShell,
+                                             String quotation) {
         if(sa==null){
             return ""; // NOI18N
         }
         StringBuffer sb=new StringBuffer();
         for(int i=0;i<sa.length;i++){
-            if(sa[i]==null) sb.append(""); // NOI18N
-            else sb.append(VcsUtilities.msg2CmdlineStr(sa[i], unixShell));
-  //MK Test     else sb.append(VcsUtilities.msg2CmdlineStr("\"" + sa[i] + "\"", unixShell));
-            if(i<sa.length-1){
+            if (sa[i]==null) {
+                sb.append(""); // NOI18N
+            } else {
+                sb.append(quotation);
+                sb.append(VcsUtilities.msg2CmdlineStr(sa[i], unixShell));
+                sb.append(quotation);
+            }
+            if (i < sa.length - 1) {
                 sb.append(" "); // NOI18N
             }
         }
@@ -931,7 +936,7 @@ public class VcsUtilities {
     /**
      * Transform message to the form that can be used on a command line.
      */
-    public static String msg2CmdlineStr(String msg, boolean unixShell) {
+    private static String msg2CmdlineStr(String msg, boolean unixShell) {
         if (msg == null) return "";
         String cmd = org.openide.util.Utilities.replaceString(msg, "\\", "\\\\"); // put \\ instead of \
         if (unixShell) cmd = org.openide.util.Utilities.replaceString(cmd, "\"", "\\\\\\\"\\\\\\\""); // put \\\" instead of "
