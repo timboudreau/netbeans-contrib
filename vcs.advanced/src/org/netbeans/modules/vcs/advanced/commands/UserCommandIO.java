@@ -103,7 +103,7 @@ public class UserCommandIO extends Object {
     }
     
     private static String getPropertyValueStr(String name, Object value) {
-        if (CommandExecutorSupport.INPUT_DESCRIPTOR_PARSED.equals(name)) return null;
+        if (name.indexOf(VcsCommand.PROP_NAME_FOR_INTERNAL_USE_ONLY) >= 0) return null;
         Class type = (Class) CommandNode.propertyClassTypes.get(name);
         if (String[].class.equals(type)) {
             return convertStringArray2String((String[]) value);
