@@ -18,6 +18,9 @@ import java.util.Hashtable;
 import javax.naming.NamingException;
 import javax.naming.CompositeName;
 import javax.naming.Context;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 
 import org.openide.TopManager;
 import org.openide.actions.CopyAction;
@@ -26,6 +29,7 @@ import org.openide.actions.ToolsAction;
 import org.openide.actions.DeleteAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Sheet;
 import org.openide.util.actions.SystemAction;
 
 /** This class represents Leaf Node (Not context) in JNDI tree
@@ -34,32 +38,25 @@ import org.openide.util.actions.SystemAction;
  */
 public class JndiLeafNode extends JndiObjectNode {
 
-    /** Inital Context*/
-    protected Context ctx;
     /** Offset of this node relative to ctx*/
     protected CompositeName offset;
-    /** The class name*/
-    protected String className;
 
     /** Constructor
      *  @param ctx  initial context
      *  @param parentOffset offset of parent directory
      *  @param name name of this node
-     *  @param classname name of Class represented by this name
      */ 
-    public JndiLeafNode(Object key, Context ctx, CompositeName parentOffset, String name, String classname){
-        super(key,Children.LEAF, name);
-        this.ctx = ctx;
-        this.offset = parentOffset;
-        this.className=classname;
-        setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(classname));
+    public JndiLeafNode(JndiKey key, CompositeName offset) throws javax.naming.InvalidNameException {
+        super(key,Children.LEAF);
+        this.offset = (CompositeName) ((CompositeName)offset.clone()).add (key.name.getName());
+        setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName(key.name.getClassName()));
     }
 
     /** Generates code for accessing object that is represented by this node
      *  @return String the java source code
      */
     public String createTemplate() throws NamingException {
-        return JndiObjectCreator.getLookupCode(ctx, this.getOffsetAsString(), className);
+        return JndiObjectCreator.getLookupCode(((JndiNode)this.getParentNode()).getContext(), this.getOffsetAsString(), this.getKey().name.getClassName());
     }
 
     /** Returns SystemAction
@@ -85,7 +82,7 @@ public class JndiLeafNode extends JndiObjectNode {
     public void destroy() throws IOException {
         try {
             // destroy this context first
-            ctx.unbind(offset);
+            ((JndiNode)this.getParentNode()).getContext().unbind (this.getKey().name.getName());
             super.destroy();
         } catch (NamingException e) {
             JndiRootNode.notifyForeignException(e);
@@ -93,17 +90,17 @@ public class JndiLeafNode extends JndiObjectNode {
     }
 
     /** Returns initial directory context
-     *  @return Context the initial dir context
+     *  @return Context the dir context  in which the object is defined
      */
-    public Context getContext(){
-        return this.ctx;
+    public Context getContext (){
+        return ((JndiNode)this.getParentNode()).getContext();
     }
 
     /** Returns the properties of Initial Context
      *  @return Hashtable properties;
      */
     public Hashtable getInitialDirContextProperties() throws NamingException {
-        return this.ctx.getEnvironment();
+        return ((JndiNode)this.getParentNode()).getContext().getEnvironment();
     }
 
     /** Returns offset of the node in respect to InitialContext
@@ -114,14 +111,34 @@ public class JndiLeafNode extends JndiObjectNode {
     }
     
     public String getOffsetAsString () {
-	return JndiObjectCreator.stringifyCompositeName (this.offset, this.ctx);
+	return JndiObjectCreator.stringifyCompositeName (this.offset);
+    }
+    
+    public Sheet createSheet () {
+        Sheet sheet = super.createSheet();
+        if (this.getContext() instanceof javax.naming.directory.DirContext){
+            try{
+                Attributes attrs = ((DirContext)this.getContext()).getAttributes(this.getKey().name.getName());
+                java.util.Enumeration enum = attrs.getAll();
+                while (enum.hasMoreElements()){
+                    Attribute attr = (Attribute) enum.nextElement();
+                    String attrId = attr.getID();
+                    sheet.get(JndiObjectNode.JNDI_PROPERTIES).put( new JndiProperty(attrId,String.class,attrId,null,attr.get().toString(),this,true));
+                }
+            }catch (NamingException ne){}
+        }
+        return sheet;
     }
 
     /** Returns class name
      *  @return String class name
      */
     public String getClassName(){
-        return this.className;
+        return this.getKey().name.getClassName();
+    }
+    
+    protected void handleChangeJndiPropertyValue (Attributes attrs) throws NamingException {
+        ((DirContext)this.getContext()).modifyAttributes(this.getKey().name.getName(),DirContext.REPLACE_ATTRIBUTE,attrs);
     }
 
 }

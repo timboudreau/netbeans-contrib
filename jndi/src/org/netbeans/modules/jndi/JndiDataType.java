@@ -312,9 +312,7 @@ final class JndiDataType extends NewType {
                                                           JndiChildren cld = (JndiChildren) node.getChildren();
                                                           Context context = cld.getContext();
                                                           try {
-                                                              Name nCtx = ((Name) cld.getOffset().clone()).add(subCtxPanel.getName());
-							      String strName = JndiObjectCreator.stringifyCompositeName (nCtx, context);
-                                                              context.createSubcontext(strName);
+                                                              context.createSubcontext(subCtxPanel.getName());
                                                               cld.prepareKeys();
                                                           } catch (NamingException ne) {
                                                               JndiRootNode.notifyForeignException(ne);

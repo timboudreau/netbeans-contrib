@@ -116,7 +116,7 @@ final class JndiObjectCreator {
     }
     
     
-    public static String stringifyCompositeName (Name name, Context ctx) {
+    public static String stringifyCompositeName (Name name) {
 	java.util.Enumeration enum = name.getAll ();
 	String strName = null;
 	while (enum.hasMoreElements()) {

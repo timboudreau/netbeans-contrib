@@ -45,25 +45,30 @@ import org.netbeans.modules.jndi.utils.JndiPropertyMutator;
 */
 abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, TemplateCreator, JndiPropertyMutator{
 
+    public static final String JNDI_PROPERTIES = "Jndi";
 
-    private Object key;
+    private JndiKey key;
 
     /**
+    * @param JndiKey key
     * @param children
-    * @param name
     */
-    public JndiObjectNode(Object key, Children children, String name) {
-        super (children,name);
+    public JndiObjectNode(JndiKey key, Children children) {
+        this (key.name.getName(), children);
         this.key = key;
+    }
+    
+    public JndiObjectNode (String name, Children children) {
+        super (children,name);
         getCookieSet().add(this);
     }
 
 
     /** Returns the key for which this node was created or
      *  null for root of the naming system
-     *  @return Object key
+     *  @return JndiKey key
      */
-    public Object getKey(){
+    public JndiKey getKey(){
         return this.key;
     }
 
@@ -83,8 +88,9 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
     public Sheet createSheet () {
         Sheet sheet = Sheet.createDefault ();
         Sheet.Set jndiSet = new Sheet.Set();
-        jndiSet.setName("Jndi");
+        jndiSet.setName(JNDI_PROPERTIES);
         jndiSet.setDisplayName(JndiRootNode.getLocalizedString("TITLE_JndiProperty"));
+        sheet.put( jndiSet);
         sheet.get (Sheet.PROPERTIES).put (
             new JndiProperty ("NAME",
                               String.class,
@@ -96,7 +102,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
                               String.class,
                               JndiRootNode.getLocalizedString("TXT_Path"),
                               JndiRootNode.getLocalizedString("TIP_Path"),
-                              this.getOffset().toString ()));
+                              this.getOffsetAsString()));
         sheet.get(Sheet.PROPERTIES).put (
             new JndiProperty ("CLASS",
                               String.class,
@@ -129,20 +135,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
                                           value));
                 }
             }
-        }catch(NamingException ne){}
-        //Add jndiSet Properties here
-        if (this.getContext() instanceof javax.naming.directory.DirContext){
-            try{
-                Attributes attrs = ((DirContext)this.getContext()).getAttributes(this.getOffsetAsString());
-                java.util.Enumeration enum = attrs.getAll();
-                while (enum.hasMoreElements()){
-                    Attribute attr = (Attribute) enum.nextElement();
-                    String attrId = attr.getID();
-                    jndiSet.put ( new JndiProperty (attrId,String.class,attrId,null,attr.get().toString(),this,true));
-                }
-                sheet.put( jndiSet);
-            }catch (NamingException ne){}
-        }
+        }catch(NamingException ne) {}
         setSheet (sheet);
         return sheet;
     }
@@ -168,7 +161,8 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
      * @return String the stringified offset
      */ 
     public abstract String getOffsetAsString ();
-
+    
+    
     /** Returns class name of Jndi Object
      *  @return String class name
      */
@@ -214,13 +208,16 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
             BasicAttributes attrs = new BasicAttributes();
             BasicAttribute attr = new BasicAttribute(name, value);
             attrs.put(attr);
-            ((DirContext)this.getContext()).modifyAttributes(this.getOffsetAsString(),DirContext.REPLACE_ATTRIBUTE,attrs);
+            this.handleChangeJndiPropertyValue (attrs);
         }catch (NamingException ne){
             JndiRootNode.notifyForeignException(ne);
             return false;
         }
         return true;
     }
+    
+    
+    protected abstract void handleChangeJndiPropertyValue (Attributes attrs) throws NamingException;
 }
 
 /*

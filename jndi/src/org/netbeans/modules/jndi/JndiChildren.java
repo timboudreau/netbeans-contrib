@@ -21,6 +21,7 @@ import javax.naming.NamingException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NameClassPair;
 import javax.naming.Context;
+import javax.naming.Binding;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.netbeans.modules.jndi.utils.APCTarget;
@@ -40,24 +41,24 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
     /** Class object for javax.naming.Context */
     private static Class ctxClass;
 
-    /** Initial Directory context */
-    private final Context parentContext;
+    /** Current Directory context */
+    private final Context thisContext;
 
-    /** Offset in Initial Directory context */
-    private final CompositeName offset;
 
     /** The shadow key list for merginag and handling errors*/
     private ArrayList keys;
 
     /** Wait node hoder*/
     private WaitNode waitNode;
+    
+    private CompositeName offset;
 
     /** Constructor
      *  @param parentContext the initial context
      *  @param offset the relative offset of Node in context
      */
-    public JndiChildren(Context parentContext, CompositeName offset){
-        this.parentContext = parentContext;
+    public JndiChildren(Context thisContext, CompositeName offset){
+        this.thisContext = thisContext;
         this.offset = offset;
         this.keys = new ArrayList();
     }
@@ -84,15 +85,17 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
         return offset;
     }
     
+    /** From compatibility reasons
+     */
     public String getOffsetAsString () {
-	return JndiObjectCreator.stringifyCompositeName (this.offset, this.parentContext);
+	return JndiObjectCreator.stringifyCompositeName(this.offset); // No I18N 
     }
 
     /** Returns context
      *  @return the initial context
      */
     public Context getContext() {
-        return parentContext;
+        return thisContext;
     }
 
     /** This method creates keys
@@ -107,7 +110,7 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
      *  @return the array of created Nodes
      */
     public Node[] createNodes(Object key) {
-        NameClassPair np = null;
+        Binding binding = null;
         String objName = null;
         CompositeName newName = null;
         if (key == null) {
@@ -116,50 +119,36 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
         if (! (key instanceof JndiKey)) {
             return null;
         }
-        try{
-            np =  ((JndiKey)key).name;
-            objName = np.getName();
-            newName = (CompositeName) ((CompositeName) offset.clone()).add(objName);
+        binding =  ((JndiKey)key).name;
+        try {
             if (((JndiKey)key).failed){
                 // Failed Node
-                return new Node[] {new JndiFailedNode(key, parentContext, newName, objName, np.getClassName())};
+                return new Node[] {new JndiFailedNode((JndiKey)key, this.offset)};
             }
-            else if (isContext(np.getClassName())) {
+            else if (isContext(binding)) {
                 // Contex Node
-                return new Node[] {new JndiNode(key, parentContext, newName, objName)};
+                return new Node[] {new JndiNode((JndiKey)key, this.offset)};
             }else{
                 // Leaf Node
-                return new Node[] {new JndiLeafNode(key, parentContext, newName, objName, np.getClassName())};
+                return new Node[] {new JndiLeafNode((JndiKey)key, this.offset)};
             }
-        }catch (NamingException ne){
-            // Any of the context operations failed
-            // try to add at least Failed Node
-            return new Node[] {new JndiFailedNode(key, parentContext, newName, objName, np.getClassName())};
+        }catch (javax.naming.InvalidNameException invalidName) {
+            return new Node[0];
         }
     }
 
     /** Heuristicaly decides whether specified class is a Context or not.
      *  @param className the name of Class
      *  @return true if className represents the name of Context*/
-    static boolean isContext(String className) {
+    static boolean isContext(Binding binding) {
+        String className = binding.getClassName();
         if (className.equals(CONTEXT_CLASS_NAME)) {
             return true;
         } else if (isPrimitive(className)) {
             return false;
         } else {
-            try {
-                Class clazz = Class.forName(className);
-                if (getCtxClass().isAssignableFrom(clazz)) {
-                    return true;
-                }
-            } catch (ClassNotFoundException e) {
-                // Changed from notifying an exception to return false
-                // Needed by some directory services, that provides an
-                // Class repository with deployment.
-                return false;
-            }
+            return (binding.getObject() instanceof javax.naming.Context);
         }
-        return false;
     }
 
     /** Decides if the string represents the name of primitive type
@@ -200,12 +189,12 @@ public final class JndiChildren extends Children.Keys implements APCTarget {
     /** This is the main action called by Refreshd
      */
     public void performAction() throws Exception {
-        NamingEnumeration ne = parentContext.list(this.getOffsetAsString());
+        NamingEnumeration ne = thisContext.listBindings("");
         this.keys.clear();
         if (ne == null)
             return;
         while (ne.hasMore()){
-            this.keys.add(new JndiKey((NameClassPair)ne.next()));
+            this.keys.add(new JndiKey((Binding)ne.next()));
         }
     }
 

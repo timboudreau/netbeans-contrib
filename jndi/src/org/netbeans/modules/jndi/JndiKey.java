@@ -13,7 +13,7 @@
 
 package org.netbeans.modules.jndi;
 
-import javax.naming.NameClassPair;
+import javax.naming.Binding;
 
 /**
  * This class represents the key for Children.Keys used by this module
@@ -26,13 +26,13 @@ public final class JndiKey extends Object {
     /* Failed this node while listing*/
     public boolean failed;
     /* The name class pair*/
-    public NameClassPair name;
+    public Binding name;
 
 
     /** Constructor used for Keys representing remote objects
      *  @param NameClassPair name, name and class of remote object
      */
-    public JndiKey (NameClassPair name) {
+    public JndiKey (Binding name) {
         this.name = name;
         this.failed = false;
     }
@@ -41,7 +41,7 @@ public final class JndiKey extends Object {
      *  @param NameClassPair name, name and class of remote object
      *  @param boolean failed, if the node is failed
      */
-    public JndiKey (NameClassPair name, boolean failed){
+    public JndiKey (Binding name, boolean failed){
         this.name = name;
         this.failed = failed;
     }

@@ -25,6 +25,8 @@ import javax.naming.NamingException;
 import javax.naming.CompositeName;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import org.openide.TopManager;
@@ -34,6 +36,7 @@ import org.openide.actions.DeleteAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.actions.ToolsAction;
 import org.openide.nodes.Node;
+import org.openide.nodes.Sheet;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.NewType;
 import org.openide.util.datatransfer.ExClipboard;
@@ -64,10 +67,9 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
      * @param ctx DirContext which this node represents
      */
     public JndiNode(Context ctx) throws NamingException {
-        this (null, ctx,
-              new CompositeName(),
-              (String) ctx.getEnvironment().get(JndiRootNode.NB_LABEL));
+        super ((String)ctx.getEnvironment().get(JndiRootNode.NB_LABEL), new JndiChildren(ctx, new CompositeName()));
         isRoot = true;
+        this.init ();
     }
 
     /** Constructor of subdirectory
@@ -75,12 +77,10 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
      *  parent_name offset of parent directory
      *  my_name	name of this directory
      */
-    public JndiNode(Object key, Context ctx, CompositeName parentName, String myName){
-        super (key, new JndiChildren(ctx, parentName), myName);
-        needRefresh = false;
+    public JndiNode(JndiKey key, CompositeName offset) throws javax.naming.InvalidNameException {
+        super (key, new JndiChildren((javax.naming.Context)key.name.getObject(), (CompositeName)((CompositeName)offset.clone()).add(key.name.getName())));
         isRoot = false;
-        setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName("javax.naming.Context"));
-        getCookieSet().add(this);
+        this.init ();
     }
 
     public boolean isRoot() {
@@ -113,9 +113,8 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
     public void destroy() throws IOException {
         try {
             // destroy this context first
-            JndiChildren children = (JndiChildren) getChildren();
-            Context parentCtx = children.getContext();
-            parentCtx.destroySubcontext(this.getOffsetAsString());
+            Context parentCtx = ((JndiNode)this.getParentNode()).getContext();
+            parentCtx.destroySubcontext(this.getKey().name.getName());
             // Destroy the node
             super.destroy();
         } catch (NamingException e) {
@@ -185,12 +184,13 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
     public String getOffsetAsString () {
 	return ((JndiChildren)this.getChildren()).getOffsetAsString();
     }
+    
 
     /** Returns class name
      *  @return String class name
      */
     public String getClassName(){
-        return "javax.naming.Context";
+        return "javax.naming.Context"; // No I18N
     }
 
 
@@ -241,7 +241,35 @@ public final class JndiNode extends JndiObjectNode implements Refreshable, Disco
 
     /** Returns Customizer */
     public java.awt.Component getCustomizer(){
-        return new AttributePanel((DirContext)this.getContext(),getOffset(),this);
+        return new AttributePanel((DirContext)this.getContext(),new CompositeName(),this);
+    }
+    
+    
+    public Sheet createSheet () {
+        Sheet sheet = super.createSheet();
+        if (this.getContext() instanceof javax.naming.directory.DirContext){
+            try{
+                Attributes attrs = ((DirContext)this.getContext()).getAttributes("");  //No I18N
+                java.util.Enumeration enum = attrs.getAll();
+                while (enum.hasMoreElements()){
+                    Attribute attr = (Attribute) enum.nextElement();
+                    String attrId = attr.getID();
+                    sheet.get(JndiObjectNode.JNDI_PROPERTIES).put ( new JndiProperty (attrId,String.class,attrId,null,attr.get().toString(),this,true));
+                }
+            }catch (NamingException ne){}
+        }
+        return sheet;
+    }
+    
+    protected void handleChangeJndiPropertyValue (Attributes attrs) throws NamingException {
+        ((DirContext)this.getContext()).modifyAttributes("",DirContext.REPLACE_ATTRIBUTE,attrs); // No I18N
+    }
+    
+    
+    private void init () {
+        this.needRefresh = false;
+        this.setIconBase(JndiIcons.ICON_BASE + JndiIcons.getIconName("javax.naming.Context"));      // No I18N
+        this.getCookieSet().add(this);
     }
 
 }
