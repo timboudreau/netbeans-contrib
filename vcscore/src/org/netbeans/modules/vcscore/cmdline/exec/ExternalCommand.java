@@ -442,7 +442,11 @@ public class ExternalCommand implements TextInput {
 
     //-------------------------------------------
     public String toString(){
-        return command;
+        if (scommand != null) {
+            return scommand.toString();
+        } else {
+            return command;
+        }
     }
 
     private class OutputGrabber extends Object implements SafeRunnable {
@@ -605,16 +609,20 @@ public class ExternalCommand implements TextInput {
         
         /** Flush some remaining output. */
         public void flush() {
+            // Close the output streams
+            try {
+                stdout.close();
+            } catch (IOException ioexc) {}
+            try {
+                stderr.close();
+            } catch (IOException ioexc1) {}
+            // Grab any remaining output
+            run();
+            // Flush it
             try {
                 if (outBuffer.length() > 0) stdoutNextLine(outBuffer.toString());
                 if (errBuffer.length() > 0) stderrNextLine(errBuffer.toString());
             } finally {
-                try {
-                    stdout.close();
-                } catch (IOException ioexc) {}
-                try {
-                    stderr.close();
-                } catch (IOException ioexc1) {}
                 finished = true;
                 synchronized (this) {
                     notifyAll();
@@ -622,13 +630,22 @@ public class ExternalCommand implements TextInput {
             }
         }
         
+        private void notifyOutputFlushed() {
+            synchronized (outProgressLock) {
+                if (outProgressListeners != null) {
+                    for (int i = 0; i < outProgressListeners.size(); i++) {
+                        ((OutputProgressListener) outProgressListeners.get(i)).outputFlushed();
+                    }
+                }
+            }
+        }
     }
     
-    private class OutputGrabbersProcessor extends Object implements Runnable {
+    private static class OutputGrabbersProcessor extends Object implements Runnable {
         
         public void run() {
             //System.out.println("OutputGrabbersProcessor started.");
-            boolean wasOutput = false;
+            Collection outputProducers = new HashSet();
             do {
                 try {
                     synchronized (outputGrabbers) {
@@ -649,7 +666,7 @@ public class ExternalCommand implements TextInput {
                             if (output.hasOutput()) {
                                 output.run();
                                 processed = true;
-                                wasOutput = true;
+                                outputProducers.add(output);
                             }
                         } else {
                             output.flush();
@@ -659,9 +676,9 @@ public class ExternalCommand implements TextInput {
                         }
                     }
                     if (!processed) {
-                        if (wasOutput) {
-                            notifyOutputFlushed();
-                            wasOutput = false;
+                        if (outputProducers.size() > 0) {
+                            notifyOutputFlushed(outputProducers);
+                            outputProducers.clear();
                         }
                         Thread.currentThread().sleep(200);
                     }
@@ -675,13 +692,10 @@ public class ExternalCommand implements TextInput {
             } while(true);
         }
         
-        private void notifyOutputFlushed() {
-            synchronized (outProgressLock) {
-                if (outProgressListeners != null) {
-                    for (int i = 0; i < outProgressListeners.size(); i++) {
-                        ((OutputProgressListener) outProgressListeners.get(i)).outputFlushed();
-                    }
-                }
+        private void notifyOutputFlushed(Collection outputProducers) {
+            for (Iterator it = outputProducers.iterator(); it.hasNext(); ) {
+                OutputGrabber output = (OutputGrabber) it.next();
+                output.notifyOutputFlushed();
             }
         }
         
