@@ -229,6 +229,35 @@ public final class ContentDiffTest extends NbTestCase {
         assertChanged ("Change is bettween", diff.getClusters()[0]);
     }
     
+    public void testPercentageIsInheritedFromDependentClusters () throws Exception {
+        String[] oldPages = {
+            "root.html",  "<a href=\"index.html\">index</a>",
+            "index.html", "<a href=\"newly.html\">newly</a>",
+            "newly.html", "<a href=\"index.html\">index</a>"
+        };
+        String[] newPages = {
+            "root.html", "<a href=\"index.html\">index</a>",
+            "index.html", "<a href=\"newly.html\">index</a>",
+            "newly.html", "<a href=\"index.html\">newly</a>"
+        };
+        
+        ContentDiff diff = diff (oldPages, newPages);
+        
+        assertNotNull (diff);
+        assertEquals ("Two clusters", 2, diff.getClusters().length);
+        ContentDiff.Cluster c = diff.getClusters()[0];
+        assertEquals ("One page", 1, c.getPages().size ());
+        assertEquals ("Not changed", 0, ((ContentDiff.Page)c.getPages().toArray()[0]).getChanged());
+        
+        
+        assertTrue ("But cluster changed as it depends on changed one", c.getChanged () > 0);
+        
+        assertEquals ("Actually it is half of the differences of the referenced cluster, " + 
+            "as there is no change in own cluster and we inherit half from the other one. " +
+            "Moreover all the pages have the same size",
+            c.getChanged (), diff.getClusters()[1].getChanged () / 2
+        );
+    }
 
     public void testRelativeReferences () throws Exception {
         String[] oldPages = {

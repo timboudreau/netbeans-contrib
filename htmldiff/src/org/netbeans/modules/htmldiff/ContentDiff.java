@@ -226,7 +226,9 @@ public final class ContentDiff extends Object {
         /** reference clusters */
         Cluster[] references;
         /** percentage change */
-        private int changed = -1;
+        private int diff = -1;
+        /** size of cluster */
+        private int size = -1;
         
         /** create instances just in this class */
         Cluster (Set pages) {
@@ -239,12 +241,42 @@ public final class ContentDiff extends Object {
          * @return number from 0 to 100
          */
         public int getChanged () {
-            if (changed != -1) {
-                return changed;
+            int d = getDiff () * 2;
+            int s = getSize () * 2;
+            
+            for (int i = 0; i < references.length; i++) {
+                d += references[i].getDiff ();
+                s += references[i].getSize ();
             }
             
-            int size = 0;
-            int diff = 0;
+            // own cluster change is twice as much important than 
+            // those referenced
+            return d * 100 / s;
+        }
+        
+        final int getSize () {
+            if (size != -1) {
+                return size;
+            }
+            
+            compute ();
+            
+            return size;
+        }
+
+        final int getDiff () {
+            if (diff != -1) {
+                return diff;
+            }
+            
+            compute ();
+            
+            return diff;
+        }
+        
+        private void compute () {
+            size = 0;
+            diff = 0;
             
             Iterator it = pages.iterator();
             while (it.hasNext()) {
@@ -254,9 +286,9 @@ public final class ContentDiff extends Object {
                 size += p.getSize ();
             }
             
-            changed = diff * 100 / size;
-            return changed;
-                
+            if (size <= 0) {
+                size = 1;
+            }
         }
         
         /** Names of pages that are the in the cluster.
