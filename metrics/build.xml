@@ -19,8 +19,7 @@ Microsystems, Inc. All Rights Reserved.
   <!-- <property environment="env"/> -->
 
   <target name="compile" depends="check-root">
-    <javac srcdir="src" destdir="src" 
-     deprecation="${build.compiler.deprecation}" 
+    <javac srcdir="src" destdir="src" deprecation="true"
      debug="${build.compiler.debug}"> 
      <classpath>
        <pathelement location="../openide/openide-13javac-workaround.jar"/>

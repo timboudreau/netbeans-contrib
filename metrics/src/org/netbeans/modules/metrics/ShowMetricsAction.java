@@ -79,9 +79,7 @@ public class ShowMetricsAction extends NodeAction {
     */
     protected void performAction (final Node[] activatedNodes) {
         Set metricsSet = createMetricsSet(activatedNodes);
-	MetricsPane mp = new MetricsPane(metricsSet);
-	mp.open();
-	mp.requestFocus();
+	new MetricsPane(metricsSet).setVisible(true);
     }
 
     // Translate the array of Explorer nodes into a set of ClassMetrics.

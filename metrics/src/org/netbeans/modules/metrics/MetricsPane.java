@@ -21,20 +21,16 @@ package org.netbeans.modules.metrics;
 
 import org.openide.ErrorManager;
 import org.openide.TopManager;
-import org.openide.text.CloneableEditorSupport;
-import org.openide.util.actions.SystemAction;
-import org.openide.util.io.SafeException;
-import org.openide.windows.Mode;
-import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import org.openide.windows.Workspace;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.beans.*;
 import java.io.*;
 import java.text.MessageFormat;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.*;
 
 /** 
@@ -42,7 +38,7 @@ import javax.swing.table.*;
  *
  * @author Thomas Ball
  */
-class MetricsPane extends TopComponent implements PropertyChangeListener {
+class MetricsPane extends JDialog {
     JTable table;
     MetricsTableModel model;
 
@@ -50,6 +46,16 @@ class MetricsPane extends TopComponent implements PropertyChangeListener {
     private final static int METRIC_COL_WIDTH = 50;
 
     MetricsPane(Set metricsList) {
+        super(WindowManager.getDefault().getMainWindow(), 
+              MetricsNode.bundle.getString("STR_MetricsPaneTitle"), false);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setSize(640, 480);
+        setLocationRelativeTo(null); // center dialog on screen
+	getAccessibleContext().setAccessibleName(
+            MetricsNode.bundle.getString("STR_MetricsPaneTitle")); // NOI18N
+	getAccessibleContext().setAccessibleDescription(
+            MetricsNode.bundle.getString("STR_MetricsPaneDescription")); // NOI18N
+
         table = new JTable();
         table.setAutoCreateColumnsFromModel(false);
 
@@ -87,16 +93,44 @@ class MetricsPane extends TopComponent implements PropertyChangeListener {
         JScrollPane sp = new JScrollPane();
         sp.getViewport().add(table);
 
-	// TopComponent management
-	putClientProperty("PersistenceType", "Never"); // don't serialize
-	setLayout(new BorderLayout());
-	add(sp, BorderLayout.CENTER);
-	setName(MetricsNode.bundle.getString("STR_MetricsPaneTitle")); // NOI18N
-	getAccessibleContext().setAccessibleName(
-            MetricsNode.bundle.getString("STR_MetricsPaneTitle")); // NOI18N
-	getAccessibleContext().setAccessibleDescription(
-            MetricsNode.bundle.getString("STR_MetricsPaneDescription")); // NOI18N
+        getContentPane().add(sp, BorderLayout.CENTER);
+	getContentPane().add(makeButtonBox(), BorderLayout.SOUTH);
     }
+
+    private Box makeButtonBox() {
+	JButton closeButton = 
+	    new JButton(MetricsNode.bundle.getString("STR_Close"));
+	closeButton.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    close();
+		}
+	    });
+
+	JButton saveAsButton = 
+	    new JButton(MetricsNode.bundle.getString("STR_SaveAs"));
+	saveAsButton.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		    saveAs();
+		}
+	    });
+
+	Box buttonBox = Box.createHorizontalBox();
+	buttonBox.add(Box.createGlue());
+	buttonBox.add(saveAsButton);
+	buttonBox.add(Box.createHorizontalStrut(HGAP));
+	buttonBox.add(closeButton);
+	buttonBox.add(Box.createHorizontalStrut(HGAP));
+
+	Box panelBox = Box.createVerticalBox();
+	panelBox.add(Box.createVerticalStrut(VGAP));
+	panelBox.add(buttonBox);
+	panelBox.add(Box.createVerticalStrut(VGAP));
+
+	return panelBox;
+    }
+
+    private static final int HGAP = 10;
+    private static final int VGAP = 10;
 
     private TableCellRenderer createHeaderRenderer(String tooltip) {
 	DefaultTableCellRenderer label = new DefaultTableCellRenderer() {
@@ -151,45 +185,23 @@ class MetricsPane extends TopComponent implements PropertyChangeListener {
 	}
     }    
 
-    protected Mode getDockingMode(Workspace workspace) {
-	Mode mode = workspace.findMode(CloneableEditorSupport.EDITOR_MODE);
-	if (mode == null) {
-	    mode = workspace.createMode(
-                CloneableEditorSupport.EDITOR_MODE, getName(),
-                CloneableEditorSupport.class.getResource(
-                "/org/openide/resources/editorMode.gif" // NOI18N
-                ));
-	}
-	return mode;
-    }
-        
-    public void open(Workspace workspace) {
-	if (workspace == null)
-	    workspace = WindowManager.getDefault().getCurrentWorkspace();
-	Mode editorMode = getDockingMode(workspace);
-	editorMode.dockInto(this);
-	super.open(workspace);
-	requestFocus();
-    }
-
-    protected void componentClosed() {
-	SystemAction saveAction = SystemAction.get(SaveAsAction.class);
-	saveAction.removePropertyChangeListener(this);
-    }
-
-    /** Overrides superclass method. Gets actions for this top component. */
-    public SystemAction[] getSystemActions() {
-	SystemAction saveAction = SystemAction.get(SaveAsAction.class);
-	saveAction.addPropertyChangeListener(this);
-        SystemAction[] oldValue = super.getSystemActions();
-        return SystemAction.linkActions(
-	    new SystemAction[] { saveAction, null},
-            oldValue);
-    }
-
-    public void propertyChange(PropertyChangeEvent evt) {
+    private void saveAs() {
 	try {
-	    File file = (File)(File)evt.getNewValue();
+	    JFileChooser chooser = new JFileChooser();
+	    chooser.addChoosableFileFilter(new FileFilter() {
+		public boolean accept(File f) {
+		    return ((f.isDirectory() && !f.isHidden()) || 
+			    f.getName().endsWith(".xml"));
+		}
+
+		public String getDescription() {
+		    return MetricsNode.bundle.getString("STR_XML_Files");
+		}
+	    });
+	    int returnVal = chooser.showSaveDialog(this);
+	    if (returnVal != JFileChooser.APPROVE_OPTION)
+		return;
+	    File file = chooser.getSelectedFile();
 	    model.saveTableAsXML(file);
 
 	    MessageFormat mf = new MessageFormat(
@@ -201,17 +213,8 @@ class MetricsPane extends TopComponent implements PropertyChangeListener {
 	}
     }
 
-    /* This pane isn't serializable, but setting its persistence type
-     * to "never" is documented as only a hint.  The following should 
-     * allow the persistence mechanism to work but not store or 
-     * retrieve anything.
-     */
-    MetricsPane() {
-	// only called during serialization, ignore...
-    }
-
-    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
-	throw new SafeException(
-            new UnsupportedOperationException("MetricsPane isn't loadable."));
+    private void close() {
+	setVisible(false);
+	dispose();
     }
 }
