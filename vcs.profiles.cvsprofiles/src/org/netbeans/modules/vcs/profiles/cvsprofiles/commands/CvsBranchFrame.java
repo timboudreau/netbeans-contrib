@@ -20,6 +20,7 @@ import java.util.*;
 import java.awt.event.KeyEvent;
 
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -33,6 +34,7 @@ public class CvsBranchFrame extends javax.swing.JFrame {
         this.logInfo = logInfo;
         this.branches = branches;
         initComponents ();
+        initAccessibility();
         initBranchDraw ();
         setTitle(g("CvsBranchFrame.title", branches.getFileName()));
         pack ();
@@ -190,6 +192,18 @@ public class CvsBranchFrame extends javax.swing.JFrame {
 
     }//GEN-END:initComponents
 
+    private void initAccessibility() {
+        getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CvsBranchFrame.class, "ACSD_CvsBranchFrame"));
+        revATextField.getAccessibleContext().setAccessibleName(NbBundle.getMessage(CvsBranchFrame.class, "ACSN_CvsBranchFrame.revATextField"));
+        revATextField.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CvsBranchFrame.class, "ACSD_CvsBranchFrame.revATextField"));
+        revBTextField.getAccessibleContext().setAccessibleName(NbBundle.getMessage(CvsBranchFrame.class, "ACSN_CvsBranchFrame.revBTextField"));
+        revBTextField.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CvsBranchFrame.class, "ACSD_CvsBranchFrame.revBTextField"));
+        revALabel.setLabelFor(revATextField);
+        revBLabel.setLabelFor(revBTextField);
+        diffButton.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CvsBranchFrame.class, "ACSD_CvsBranchFrame.diffButton"));
+        closeButton.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CvsBranchFrame.class, "ACSD_CvsBranchFrame.closeButton"));
+    }
+    
   private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
 // Add your handling code here:
       if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
