@@ -160,7 +160,7 @@ public class CommandLineVcsDirReaderRecursive implements VcsCommandExecutor {
     public Collection getFiles() {
         String path = (String) vars.get("DIR");
         String file = (String) vars.get("FILE");
-        String fullPath = ((path.length() > 0) ? path.replace(java.io.File.separatorChar, '/') + "/" : "") + file;
+        String fullPath = ((path.length() > 0) ? path.replace(java.io.File.separatorChar, '/') + "/" : "") + ((file == null) ? "" : file);
         return Collections.singleton(fullPath);
         //HashSet set = new HashSet(1);
         //set.add(file);
