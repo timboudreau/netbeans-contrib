@@ -87,6 +87,7 @@ public class CommandNode extends AbstractNode {
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_PARENT_FOLDER, Boolean.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_REFRESH_ON_FAIL, Integer.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_DISPLAY_PLAIN_OUTPUT, Boolean.TYPE);
+        stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_DISPLAY_INTERACTIVE_OUTPUT, Boolean.TYPE);
         stdandard_propertyClassTypes.put(VcsCommand.PROPERTY_DISTINGUISH_BINARY_FILES, Boolean.TYPE);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_ADVANCED_NAME, String.class);
         expert_propertyClassTypes.put(VcsCommand.PROPERTY_SUPPORTS_ADVANCED_MODE, Boolean.TYPE);
