@@ -1548,7 +1548,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     private JButton filterIconButton = null;
     private AbstractButton getFilterIconButton() {
       if (filterIconButton == null) {
-            Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filterOperations.gif")); // NOI18N
+            Icon icon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/filter.gif")); // NOI18N
 	    filterIconButton = new JButton(icon);
 	    adjustHeight(filterIconButton);
 	    filterIconButton.addActionListener(dispatcher);
