@@ -13,11 +13,10 @@ Microsystems, Inc. All Rights Reserved.
 -->
 <project xmlns="http://www.netbeans.org/ns/project/1">
     <type>org.netbeans.modules.java.j2seproject</type>
-    <name>SPLizer</name>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/j2se-project/1">
+            <name>SPLizer</name>
             <minimum-ant-version>1.6</minimum-ant-version>
         </data>
     </configuration>
-    <display-name>SPLizer</display-name>
 </project>

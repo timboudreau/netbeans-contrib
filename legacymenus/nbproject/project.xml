@@ -13,9 +13,9 @@ Microsystems, Inc. All Rights Reserved.
 -->
 <project xmlns="http://www.netbeans.org/ns/project/1">
     <type>org.netbeans.modules.apisupport.project</type>
-    <name>org.netbeans.modules.legacymenus</name>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/1">
+            <code-name-base>org.netbeans.modules.legacymenus</code-name-base>
             <path>contrib/menus/legacy</path>
             <module-dependencies>
                 <dependency>
@@ -29,15 +29,15 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.swing.menus</code-name-base>
-                    <run-dependency/>
                     <build-prerequisite/>
                     <compile-dependency/>
+                    <run-dependency/>
                 </dependency>
                 <dependency>
                     <code-name-base>org.openide.loaders</code-name-base>
-                    <run-dependency/>
                     <build-prerequisite/>
                     <compile-dependency/>
+                    <run-dependency/>
                 </dependency>
             </module-dependencies>
             <public-packages>
