@@ -1571,14 +1571,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
 
         if (statusProvider != null) {
+            ArrayList importantFiles = getImportantFiles(oo);
+            len = importantFiles.size();
             String status = null;
             if (len == 1) {
-                FileObject ff = (FileObject) oo[0];
-                if (ff.isRoot()) return icon; // DO NOT override the root icon !
-                String fullName = ff.getPackageNameExt('/','.');
+                String fullName = (String) importantFiles.get(0);
+                if ("".equals(fullName)) return icon; // DO NOT override the root icon !
                 status = statusProvider.getFileStatus(fullName);
             } else {
-                ArrayList importantFiles = getImportantFiles(oo);
                 for (Iterator it = importantFiles.iterator(); it.hasNext(); ) {
                     String fullName = (String) it.next();
                     String fileStatus = statusProvider.getFileStatus(fullName);
