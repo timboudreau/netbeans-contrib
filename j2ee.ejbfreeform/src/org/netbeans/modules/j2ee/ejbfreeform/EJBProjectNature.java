@@ -7,7 +7,7 @@
  * http://www.sun.com/
  *
  * The Original Code is NetBeans. The Initial Developer of the Original
- * Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2005 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -32,6 +32,7 @@ import org.netbeans.spi.project.support.ant.AntProjectEvent;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.AntProjectListener;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
+import org.netbeans.spi.project.ui.PrivilegedTemplates;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
@@ -131,6 +132,7 @@ public class EJBProjectNature implements ProjectNature {
             new EJBFreeformProvider(project, projectHelper, projectEvaluator),
             new ProxyEjbJarImplementation(project, projectHelper, projectEvaluator),
             new EJBModules(project, projectHelper, projectEvaluator), // EJBModuleProvider, ClassPathProvider
+            new PrivilegedTemplatesImpl(), // List of templates in New action popup
         });
     }
     
@@ -206,4 +208,24 @@ public class EJBProjectNature implements ProjectNature {
         }
         
     }
+
+    private static final class PrivilegedTemplatesImpl implements PrivilegedTemplates {
+        
+        private static final String[] PRIVILEGED_NAMES = new String[] {
+            "Templates/J2EE/Session", // NOI18N
+            "Templates/J2EE/RelatedCMP", // NOI18N
+            "Templates/J2EE/Entity",  // NOI18N
+            "Templates/J2EE/Message", //NOI18N
+            "Templates/J2EE/WebService", // NOI18N
+            "Templates/J2EE/MessageHandler", // NOI18N
+            "Templates/J2EE/ServiceLocator.java", // NOI18N
+            "Templates/Classes/Class.java" // NOI18N
+        };
+        
+        public String[] getPrivilegedTemplates() {
+            return PRIVILEGED_NAMES;
+        }
+        
+    }
+    
 }
