@@ -121,6 +121,7 @@ public class CommandExecutorSupport extends Object {
             confirmation = Variables.expand(vars, confirmation, true);
             PreCommandPerformer cmdPerf = new PreCommandPerformer(fileSystem, vars);
             confirmation = cmdPerf.process(confirmation);
+            vars.put("CONFIRMATION_MSG", confirmation);
             if (numFiles != null) vars.put("NUM_FILES", numFiles);
             confirmed = true;
         //} else {
@@ -149,6 +150,7 @@ public class CommandExecutorSupport extends Object {
                 vars.put("NUM_FILES", ""+numImp);
                 confirmation = Variables.expand(vars, confirmation, true);
                 vars.put("NUM_FILES", numFiles);
+                vars.put("CONFIRMATION_MSG", confirmation);
                 if (confirmation.length() > 0) {
                     if (NotifyDescriptor.Confirmation.NO_OPTION.equals (
                             TopManager.getDefault ().notify (new NotifyDescriptor.Confirmation (
