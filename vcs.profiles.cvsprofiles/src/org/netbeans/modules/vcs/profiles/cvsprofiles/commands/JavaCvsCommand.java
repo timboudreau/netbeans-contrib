@@ -13,15 +13,11 @@
 
 package org.netbeans.modules.vcs.profiles.cvsprofiles.commands;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -44,7 +40,7 @@ import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
  *
  * @author  Martin Entlicher
  */
-public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
+public class JavaCvsCommand implements VcsAdditionalCommand {
     
     private static final String WORK_DIR_OPTION = "dir="; // NOI18N
     
@@ -56,9 +52,6 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
     private Pattern dataRegex;
     private CommandDataOutputListener stderrDataListener;
     private Pattern errorRegex;
-    private PipedInputStream stdin;
-    private PipedInputStream errin;
-    private volatile boolean outputTasksInterrupted = false;
     
     /** Creates a new instance of JavaCvsCommandExecutor */
     public JavaCvsCommand() {
@@ -129,62 +122,42 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
         File[] outputFiles = new File[2];
         boolean[] errorIntoOutput = new boolean[1];
         args = findOutputRedirection(args, outputFiles, errorIntoOutput);
-        OutputStream stdout = null;
-        OutputStream stderr = null;
+        PrintStream stdout = null;
+        PrintStream stderr = null;
         if (outputFiles[0] != null) {
             try {
                 outputFiles[0].createNewFile();
-                stdout = new FileOutputStream(outputFiles[0]);
-                stdin = null;
+                stdout = new PrintStream(new FileOutputStream(outputFiles[0]));
             } catch (IOException ioex) {
                 stderrListener.outputLine(ioex.getLocalizedMessage());
             }
         }
         if (stdout == null) {
-            PipedOutputStream pstdout = new PipedOutputStream();
-            stdout = pstdout;
-            try {
-                stdin = new PipedInputStream(pstdout);
-            } catch (IOException ioex) {}
+            stdout = new OutputPrintStream(stdoutListener, this.dataRegex, stdoutDataListener);
         }
         if (errorIntoOutput[0]) {
             stderr = stdout;
-            errin = null;
         } else {
             if (outputFiles[1] != null) {
                 try {
                     outputFiles[1].createNewFile();
-                    stderr = new FileOutputStream(outputFiles[1]);
-                    errin = null;
+                    stderr = new PrintStream(new FileOutputStream(outputFiles[1]));
                 } catch (IOException ioex) {
                     stderrListener.outputLine(ioex.getLocalizedMessage());
                 }
             }
             if (stderr == null) {
-                PipedOutputStream pstderr = new PipedOutputStream();
-                stderr = pstderr;
-                try {
-                    errin = new PipedInputStream(pstderr);
-                } catch (IOException ioex) {}
+                stderr = new OutputPrintStream(stderrListener, this.errorRegex, stderrDataListener);
             }
         }
         VariableValueAdjustment vva = executionContext.getVarValueAdjustment();
         for (int i = 0; i < args.length; i++) {
             args[i] = vva.revertAdjustedVarValue(args[i]);
         }
-        RequestProcessor.Task task1 = null;
-        RequestProcessor.Task task2 = null;
-        if (stdin != null || errin != null) {
-            task1 = RequestProcessor.getDefault().post(this);
-            task2 = RequestProcessor.getDefault().post(this);
-        }
         boolean success;
-        boolean interruptOutputTasks = true;
         boolean isInterrupted = false;
         try {
             transferEnvironment();
-            PrintStream pout = new PrintStream(stdout);
-            PrintStream perr = (stderr == stdout) ? pout : new PrintStream(stderr);
             String portStr = (String) vars.get("ENVIRONMENT_VAR_CVS_CLIENT_PORT");
             int port = 0;
             if (portStr != null) {
@@ -192,22 +165,12 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
                     port = Integer.parseInt(portStr);
                 } catch (NumberFormatException nfe) {}
             }
-            success = CVSCommand.processCommand(args, null, localDir, port, pout, perr);
-            interruptOutputTasks = false;
+            success = CVSCommand.processCommand(args, null, localDir, port, stdout, stderr);
         } finally {
             // Remember whether the current thread is interrupted
             isInterrupted = Thread.interrupted();
-            try {
-                stdout.close();
-                stderr.close();
-            } catch (IOException ioex) {}
-            if (interruptOutputTasks) {
-                outputTasksInterrupted = true;
-            }
-            if (task1 != null && task2 != null) {
-                task1.waitFinished();
-                task2.waitFinished();
-            }
+            stdout.close();
+            stderr.close();
         }
         // If the thread was interrupted, interrupt it again. The interrupt status might be cleared by wait.
         if (isInterrupted) Thread.currentThread().interrupt();
@@ -310,99 +273,159 @@ public class JavaCvsCommand implements VcsAdditionalCommand, Runnable {
         return newArgs;
     }
     
-    /*
-    private static final String findBiggestParentFor(File[] files) {
-        String parent = null;
-        for (int i = 0; i < files.length; i++) {
-            String p;
-            if (files[i].isFile()) {
-                p = files[i].getParent();
-            } else {
-                p = files[i].getAbsolutePath();
-            }
-            if (parent == null) parent = p;
-            else {
-                if (p != null) {
-                    StringBuffer newParent = new StringBuffer();
-                    for (int pos = 0; pos < parent.length() && pos < p.length(); pos++) {
-                        if (parent.charAt(pos) == p.charAt(pos)) newParent.append(p.charAt(pos));
-                        else break;
-                    }
-                    while (newParent.charAt(newParent.length() - 1) == File.separatorChar) {
-                        newParent.deleteCharAt(newParent.length() - 1);
-                    }
-                    parent = newParent.toString();
-                }
-            }
-        }
-        return parent;
-    }
-     */
-    
-    private boolean readingStdOut = false;
-    
     /**
-     * Run the output retrieval thread.
+     * The print stream that gets output from the library and redistribute
+     * it to the listeners.
      */
-    public void run() {
-        boolean readStdOut;
-        synchronized (this) {
-            if (readingStdOut) readStdOut = false;
-            else {
-                readingStdOut = true;
-                readStdOut = true;
+    private static class OutputPrintStream extends PrintStream {
+        
+        private CommandOutputListener lineOut;
+        private Pattern regex;
+        private CommandDataOutputListener dataOut;
+        private StringBuffer buf;
+        
+        public OutputPrintStream(CommandOutputListener lineOut, Pattern regex,
+                                 CommandDataOutputListener dataOut) {
+            super(new PipedOutputStream()); // A dummy output stream
+            this.lineOut = lineOut;
+            this.regex = regex;
+            this.dataOut = dataOut;
+            buf = new StringBuffer();
+        }
+        
+        public void println(String s) {
+            lineOut.outputLine(s);
+            if (regex != null) {
+                String[] sa = ExternalCommand.matchToStringArray(regex, s);
+                if (sa != null && sa.length > 0) {
+                    dataOut.outputData(sa);
+                }
+            } else {
+                dataOut.outputData(new String[] { s });
             }
         }
-        if (readStdOut) readStdOut();
-        else readErrOut();
-    }
-    
-    private void readStdOut() {
-        if (stdin == null) return ;
-        BufferedReader bin = new BufferedReader(new InputStreamReader(stdin));
-        String stdLine;
-        do {
-            try {
-                stdLine = bin.readLine();
-            } catch (IOException ioex) {
-                stdLine = null;
+        
+        public void write(byte[] buf, int off, int len) {
+            this.buf.append(new String(buf, off, len));
+            processBuffer();
+        }
+        
+        private void processBuffer() {
+            char[] chars = buf.toString().toCharArray();
+            int i1 = 0;
+            for (int i2 = findNL(chars, i1); i2 >= 0; i2 = findNL(chars, i1)) {
+                String line = new String(chars, i1, i2 - i1);
+                println(line);
+                i2 = skipNL(chars, i2);
+                i1 = i2;
             }
-            if (stdLine != null) {
-                stdoutListener.outputLine(stdLine);
-                if (dataRegex != null) {
-                    String[] sa = ExternalCommand.matchToStringArray(dataRegex, stdLine);
-                    if (sa != null && sa.length > 0) {
-                        stdoutDataListener.outputData(sa);
-                    }
-                } else {
-                    stdoutDataListener.outputData(new String[] { stdLine });
+            if (i1 > chars.length) i1 = chars.length;
+            buf.delete(0, i1);
+        }
+        
+        private static int findNL(char[] chars, int offset) {
+            for (int i = offset; i < chars.length; i++) {
+                if (chars[i] == '\n' || chars[i] == '\r') {
+                    return i;
                 }
             }
-        } while((stdLine != null) && !outputTasksInterrupted);
-    }
-    
-    private void readErrOut() {
-        if (errin == null) return ;
-        BufferedReader ber = new BufferedReader(new InputStreamReader(errin));
-        String errLine;
-        do {
-            try {
-                errLine = ber.readLine();
-            } catch (IOException ioex) {
-                errLine = null;
+            return -1; // Newline not found
+        }
+        
+        private static int skipNL(char[] chars, int offset) {
+            if (chars[offset] == '\r' && chars.length > (offset + 1) && chars[offset + 1] == '\n') {
+                return offset + 2;
+            } else {
+                return offset + 1;
             }
-            if (errLine != null) {
-                stderrListener.outputLine(errLine);
-                if (errorRegex != null) {
-                    String[] sa = ExternalCommand.matchToStringArray(errorRegex, errLine);
-                    if (sa != null && sa.length > 0) {
-                        stderrDataListener.outputData(sa);
-                    }
-                } else {
-                    stderrDataListener.outputData(new String[] { errLine });
-                }
+        }
+        
+        public void close() {
+            super.close();
+            if (buf.length() > 0 && buf.charAt(buf.length() - 1) != '\n' && buf.charAt(buf.length() - 1) != '\r') {
+                buf.append('\n');
             }
-        } while((errLine != null) && !outputTasksInterrupted);
+            processBuffer();
+        }
+        
+        // ### Other methods are unsupported ###
+        
+        public void print(boolean b) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void print(char c) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void print(char[] s) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void print(double d) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void print(float f) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void print(int i) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void print(long l) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void print(Object obj) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void print(String s) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void println() {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void println(boolean b) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void println(char c) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void println(char[] s) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void println(double d) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void println(float f) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void println(int i) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void println(long l) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void println(Object obj) {
+            throw new UnsupportedOperationException();
+        }
+        
+        public void write(int b) {
+            throw new UnsupportedOperationException();
+        }
+        
     }
     
 }
