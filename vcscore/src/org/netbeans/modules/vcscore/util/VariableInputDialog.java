@@ -1609,7 +1609,7 @@ public class VariableInputDialog extends javax.swing.JPanel {
 
             // Command customization vs. FS customization adjusting
             // #53603 overwrite only visible vars, execution context defines rest
-            s// #54354 add variables that are provided by command customization
+            // #54354 add variables that are provided by command customization
             Hashtable dialogContext = new Hashtable();
             Set contextVariableNames = new HashSet(componentsByVars.keySet());
             contextVariableNames.addAll(Variables.getContextVariablesNames());
