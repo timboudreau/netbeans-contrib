@@ -518,7 +518,7 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
     
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); 
     screenSize.setSize((int) (screenSize.width*ADVANCED_DLG_WIDTH_RELATIVE),
-                        variablePanel.getPreferredSize().height+advancedPanel.getPreferredSize().height);
+                        variablePanel.getPreferredSize().height+advancedPanel.getPreferredSize().height+16);
     panel.setPreferredSize(screenSize);
     
     DialogDescriptor dd = new DialogDescriptor (panel, "Advanced Properties Editor");
@@ -649,15 +649,15 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       configCombo.removeAllItems();
     }
 
-    configLabels=new Vector(5);
-    configVariablesByLabel=new Hashtable(8);
-    configAdvancedByLabel=new Hashtable(8);
-    configNamesByLabel=new Hashtable(8);
+    configLabels = new Vector(5);
+    configVariablesByLabel = new Hashtable(8);
+    configAdvancedByLabel = new Hashtable(8);
+    configNamesByLabel = new Hashtable(8);
 
     String selectedConfig=fileSystem.getConfig();
     int newIndex=0;
 
-    for(int i=0;i<configNames.size();i++){
+    for(int i = 0; i < configNames.size(); i++){
       String name=(String)configNames.elementAt(i);
 
       Properties props= VcsConfigVariable.readPredefinedProperties
@@ -676,10 +676,19 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
       Vector variables=VcsConfigVariable.readVariables(props);
       configVariablesByLabel.put(label,variables);
 
-      
       Object advanced=fileSystem.getVcsFactory (). getVcsAdvancedCustomizer ().readConfig (props);
       configAdvancedByLabel.put(label, advanced);
       
+      //configCombo.addItem(label);
+    }
+    String[] sortedLabels = (String[]) configLabels.toArray(new String[0]);
+    Arrays.sort(sortedLabels);
+    configLabels = new Vector(Arrays.asList(sortedLabels));
+    for(int i = 0; i < configLabels.size(); i++) {
+      String label = (String) configLabels.elementAt(i);
+      if( label.equals(selectedConfig) ){
+	newIndex=i;
+      }
       configCombo.addItem(label);
     }
     
@@ -873,6 +882,8 @@ private void configComboItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-F
 
 /*
 * <<Log>>
+*  15   Jaga      1.11.1.2    3/15/00  Martin Entlicher Sort of properties' 
+*       labels
 *  14   Jaga      1.11.1.1    3/9/00   Martin Entlicher Fix of long width of 
 *       advanced panel.
 *  13   Jaga      1.11.1.0    2/24/00  Martin Entlicher Read configuration files 
