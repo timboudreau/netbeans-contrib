@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import javax.swing.Action;
 
 import org.openide.nodes.*;
 import org.openide.actions.*;
@@ -303,6 +304,10 @@ public class RevisionNode extends AbstractNode implements /*OpenCookie, */Proper
         SystemAction[] array = new SystemAction [actions.size()];
         actions.toArray(array);
         return array;
+    }
+    
+    public Action getPreferredAction() {
+        return SystemAction.get(ViewAction.class);
     }
     
     /*
