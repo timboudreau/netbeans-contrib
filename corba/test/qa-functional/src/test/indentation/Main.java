@@ -6,9 +6,9 @@ import org.netbeans.jellytools.ExplorerOperator;
 import org.netbeans.jellytools.NewWizardOperator;
 import org.netbeans.jellytools.modules.corba.nodes.IDLNode;
 import org.netbeans.jellytools.nodes.Node;
-import org.netbeans.junit.NbTestCase;
+import org.netbeans.jellytools.JellyTestCase;
 
-public class Main extends NbTestCase {
+public class Main extends JellyTestCase {
     
     public Main(String name) {
         super(name);
