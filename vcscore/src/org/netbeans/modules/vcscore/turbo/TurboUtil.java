@@ -476,9 +476,26 @@ public final class TurboUtil {
             populateCache(fileSystem, path, extractedRawData, success, true);
 
             VcsDirContainer subdirs[] = rawData.getSubdirContainers();
+            Set processedNames = new HashSet();
             for (int i = 0; i < subdirs.length; i++) {
                 VcsDirContainer container = subdirs[i];
                 readDirFinishedRecursive(cmdPath, container, success);  // recursion
+                processedNames.add(container.getName());
+            }
+            populateUnreportedLocals(path, processedNames, success);
+        }
+        
+        /** Mark as local files that exist, but were not reported by refresh. */
+        private void populateUnreportedLocals(String path, Collection processedNames, boolean success) {
+            FileObject fo = fileSystem.findResource(path);
+            if (fo == null) return ;
+            FileObject[] kids = fo.getChildren();
+            for (int i = 0; i < kids.length; i++) {
+                if (!processedNames.contains(kids[i].getNameExt()) && kids[i].isFolder()) {
+                    String kidPath = (path.length() > 0) ? path + "/" + kids[i].getNameExt() : kids[i].getNameExt();
+                    populateCache(fileSystem, kidPath, Collections.EMPTY_SET, success, true);
+                    populateUnreportedLocals(kidPath, Collections.EMPTY_SET, success);
+                }
             }
         }
     }

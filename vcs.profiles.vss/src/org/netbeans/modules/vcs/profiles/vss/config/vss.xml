@@ -1264,6 +1264,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshParentFolder">
           <value>true</value>
         </property>
+        <property name="refreshRecursivelyPatternMatched">
+          <value>REMOVE</value>
+        </property>
         <property name="runOnMultipleFiles">
           <value>true</value>
         </property>
