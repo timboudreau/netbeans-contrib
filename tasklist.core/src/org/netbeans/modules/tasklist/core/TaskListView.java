@@ -177,7 +177,7 @@ public abstract class TaskListView extends TopComponent
      * @param category view's category. This value will be used as the name
      * for a subdirectory of "SystemFileSystem/TaskList/" for columns settings
      */
-    public TaskListView(String category, String title, Image icon,
+    protected TaskListView(String category, String title, Image icon,
                         boolean persistent, ObservableList tasklist) {
         init_();
 
@@ -637,8 +637,10 @@ public abstract class TaskListView extends TopComponent
     protected void setModel(ObservableList list) {
         hideList();
         tasklist = list;
-        getModel().addTaskListener(this);
-        setRoot();
+        if (list != null) {
+            getModel().addTaskListener(this);
+            setRoot();
+        }
     }
 
     private void setRoot() {
