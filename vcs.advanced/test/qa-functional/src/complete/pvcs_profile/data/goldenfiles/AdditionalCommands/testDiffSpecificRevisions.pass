@@ -1,0 +1,31 @@
+!!!! ==== Graphical comparing revisions: 1.1 and 1.2 ==== !!!!
+==== Text - Panel 1 ====
+Version 1
+Line1
+Line3
+Line4
+
+Line6
+Line7
+Line8
+
+==== Text - Panel 2 ====
+Version 2
+Line1
+  Line2
+Line4
+  Line5
+Line6
+
+Line8
+
+==== Colors - Panel 1 ====
+==== Colors - Panel 2 ====
+!!!! ==== Textual comparing revisions: 1.1 and 1.2 ==== !!!!
+1c1
+---
+3c3
+---
+4a5
+6d6
+
