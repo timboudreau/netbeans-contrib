@@ -111,7 +111,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 "TODOs",
                 Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"), // NOI18N
                 true,
-                job.getSuggestionsList()
+                job.getSuggestionsList()  // FIXME not filtered
         );
         this.job = job;
         init();
@@ -333,7 +333,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 ObservableList filtered = new FilteredTasksList(job.getSuggestionsList());
                 this.category = CATEGORY;
                 registerTaskListView(this);
-                setModel(filtered);
+                setModel(job.getSuggestionsList());
+                //setModel(filtered);
             }
         }
 
@@ -669,12 +670,10 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private void handleAllFiles() {
-        // scan for todos
-        if (job != null) {
-            job.stopBroker();
-            job = null;
-            putClientProperty("PersistenceType", "Never"); // NOI18N
-        }
+        if (job == null) return;
+        job.stopBroker();
+        job = null;
+        putClientProperty("PersistenceType", "Never"); // NOI18N
         treeTable.setProperties(createColumns());
         treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
         TaskList list;
@@ -702,19 +701,23 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     }
 
     private void handleCurrentFile() {
-        if (job == null) {
-            handleStop();
+        if (job != null) return;
+        try {
+            handleStop();  //XXX if all files pressed promply it may be wrongly over ridden
             job = SuggestionsBroker.getDefault().startBroker();
+            putClientProperty("PersistenceType", "OnlyOpened");  // NOI18N
+            treeTable.setProperties(createColumns());
+            treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
+            resultsSnapshot = getList();
+            ObservableList filtered = new FilteredTasksList(job.getSuggestionsList());
+            //setModel(filtered);
+            setModel(job.getSuggestionsList());
+            setFiltered(false);
+        } finally {
+            // setModel() above triggers IAE in IconManager after gc()
+            getRefresh().setEnabled(false);
+            getMiniStatus().setText("");
         }
-        putClientProperty("PersistenceType", "OnlyOpened");  // NOI18N
-        treeTable.setProperties(createColumns());
-        treeTable.setTreePreferredWidth(createColumns()[0].getWidth());
-        resultsSnapshot = getList();
-        ObservableList filtered = new FilteredTasksList(job.getSuggestionsList());
-        setModel(filtered);
-        getRefresh().setEnabled(false);
-        setFiltered(false);
-        getMiniStatus().setText("");
     }
 
     private void handlePrev() {
