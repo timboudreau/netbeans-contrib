@@ -47,8 +47,17 @@ import java.util.Map;
 public abstract class WizardBranchController {
     private final SimpleWizardInfo base;
     
-    protected WizardBranchController (WizardPanelProvider provider) {
-        this (new SimpleWizardInfo (provider));
+    /**
+     * Create a new WizardBranchController.  The <code>base</code> argument
+     * provides the initial step(s) of the wizard up; when the user comes to
+     * the last step of the base wizard, this WizardBranchController will be
+     * asked for a wizard to provide subsequent panes.  So the base wizard
+     * should put some token into the settings map based on what the user
+     * selects on its final pane, which the WizardBranchController can use
+     * to decide what the next steps should be.
+     */
+    protected WizardBranchController (WizardPanelProvider base) {
+        this (new SimpleWizardInfo (base));
     }
     
     /**
@@ -72,7 +81,13 @@ public abstract class WizardBranchController {
      * <b>Note:</b>  This method can be called very frequently, to determine
      * if the sequence of steps has changed - so it needs to run fast.  
      * Returning the same instance every time the same arguments are passed 
-     * is highly recommended.
+     * is highly recommended.  It will typically be called whenever a change
+     * is fired by the base wizard (i.e. every call <code>setProblem()</code>
+     * should generate a check to see if the navigation has changed).
+     * <p>
+     * Note that the wizard for the subsequent steps will be instantiated
+     * as soon as it is known what the user's choice is, so the list of 
+     * pending steps can be updated.
      *
      * @param step The current step the user is on in the wizard
      * @param settings The settings map, which previous panes of the wizard
@@ -87,7 +102,7 @@ public abstract class WizardBranchController {
      * steps from here to the final step of the wizard, varying the return
      * type based on the contents of the map and the step in question.
      * The default implementation of this method throws an <code>Error</code> - 
-     * either override this method, or override <code>getPanelProviderForStep()</code>
+     * either override this method, or override <code>getWizardForStep()</code>
      * (in which case this method will not be called).
      * <p>
      * <b>Note:</b>  This method can be called very frequently, to determine
