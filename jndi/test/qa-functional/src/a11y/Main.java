@@ -120,8 +120,9 @@ public class Main extends JellyTestCase {
             new JButtonOperator (JButtonOperator.findJButton (testDialog, "Close", true, true)).push ();
         }
 
-        new ComponentOperator (exp.getJFrame ()).activateWindow ();
-        exp.pushPopupMenuNoBlock("Connect Using...", "JNDI|Providers|LdapCtxFactory");
+//        new ComponentOperator (exp.getJFrame ()).activateWindow ();
+        new ActionNoBlock (null, "Connect Using...").perform (new Node (expl.runtimeTab().tree (), "JNDI|Providers|LdapCtxFactory"));
+//        exp.pushPopupMenuNoBlock("Connect Using...", "JNDI|Providers|LdapCtxFactory");
         testDialog = JDialogOperator.waitJDialog ("New JNDI Context", true, true);
         try {
             testA11Y (testDialog, false);
