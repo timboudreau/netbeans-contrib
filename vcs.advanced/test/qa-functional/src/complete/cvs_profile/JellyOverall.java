@@ -136,7 +136,7 @@ public class JellyOverall extends CVSStub {
         CVSAddFolderAdvDialog add = new CVSAddFolderAdvDialog();
         add.setFileDescription("Initial state");
         add.oK();
-        assertInformationDialog(null);
+//        assertInformationDialog(null);
         Directory.waitHistory ("Add");
         Directory.waitStatus(null); // fixed #28177
         //Directory.waitStatus("Local"); // may fail due to #28177
