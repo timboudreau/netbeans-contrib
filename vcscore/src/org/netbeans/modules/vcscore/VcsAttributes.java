@@ -214,6 +214,17 @@ public class VcsAttributes extends DefaultAttributes {
     }
     
     private boolean scheduleSecondaryFOVcsAction(final String name, final String actionName) {
+        org.openide.filesystems.FileObject fo = fileSystem.findFileObject(name);
+        if (fo == null) return false;
+        org.openide.filesystems.FileObject primary;
+        try {
+            org.openide.loaders.DataObject dobj = org.openide.loaders.DataObject.find(fo);
+            primary = dobj.getPrimaryFile();
+            if (primary.equals(fo)) return false;
+        } catch (org.openide.loaders.DataObjectNotFoundException exc) {
+            return false;
+        }
+        if (VCS_STATUS_LOCAL.equals(primary.getAttribute(VCS_STATUS))) return false;
         int id;
         if (VCS_SCHEDULING_ADD.equals(actionName)) {
             //fileSystem.addScheduledSecondaryFO(name, VcsFileSystem.SCHEDULING_ACTION_ADD_ID);
@@ -232,23 +243,13 @@ public class VcsAttributes extends DefaultAttributes {
             } catch (java.net.UnknownServiceException unsExc) {}
             id = 0;
         } else return false;
-        org.openide.filesystems.FileObject fo = fileSystem.findFileObject(name);
-        if (fo == null) return false;
+        Set[] scheduled = (Set[]) primary.getAttribute(VCS_SCHEDULED_FILES_ATTR);
+        if (scheduled == null) scheduled = new HashSet[2];
+        if (scheduled[id] == null) scheduled[id] = new HashSet();
+        scheduled[id].add(name);
         try {
-            org.openide.loaders.DataObject dobj = org.openide.loaders.DataObject.find(fo);
-            org.openide.filesystems.FileObject primary = dobj.getPrimaryFile();
-            if (primary.equals(fo)) return false;
-            //String primaryName = primary.getPackageNameExt('/', '.');
-            Set[] scheduled = (Set[]) primary.getAttribute(VCS_SCHEDULED_FILES_ATTR);
-            if (scheduled == null) scheduled = new HashSet[2];
-            if (scheduled[id] == null) scheduled[id] = new HashSet();
-            scheduled[id].add(name);
-            try {
-                primary.setAttribute(VCS_SCHEDULED_FILES_ATTR, scheduled);
-            } catch (IOException ioExc) {
-                return false;
-            }
-        } catch (org.openide.loaders.DataObjectNotFoundException exc) {
+            primary.setAttribute(VCS_SCHEDULED_FILES_ATTR, scheduled);
+        } catch (IOException ioExc) {
             return false;
         }
         return true;
