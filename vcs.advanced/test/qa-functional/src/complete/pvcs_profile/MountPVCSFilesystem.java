@@ -83,132 +83,161 @@ public class MountPVCSFilesystem extends NbTestCase {
      * @param reason Reason of failure.
      * @param dialogs Dialogs that should be closed before exception is thrown.
      */
-    private void captureScreen(String reason, NbDialogOperator[] dialogs) throws Exception {
+    private void captureScreen(Exception e) throws Exception {
         File file = null;
         try {
             file = new File(getWorkDirPath() + "/dump.png");
             file.getParentFile().mkdirs();
             file.createNewFile();
-        } catch(IOException e) { reason = "Error: Can't create dump file."; }
+        } catch(IOException ioe) { assertTrue("Error: Can't create dump file.", false); }
         PNGEncoder.captureScreen(file.getAbsolutePath());
-        if (dialogs != null) for (int i=0; i<dialogs.length; i++) dialogs[i].cancel();
-        assertTrue(reason, false);
+        throw e;
     }
     
     /** Checks that all of PVCS settings are available in wizard.
      * @throws Exception any unexpected exception thrown during test.
      */
     public void testPVCSSettings() throws Exception {
-        System.out.print(".. Testing PVCS settings ..");
-        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
-        VCSWizardProfile wizard = new VCSWizardProfile();
-        String profile = Utilities.isUnix() ? VCSWizardProfile.PVCS_UNIX : VCSWizardProfile.PVCS_WIN_NT;
-        int os = Utilities.getOperatingSystem();
-        if ((os == Utilities.OS_WIN95) | (os == Utilities.OS_WIN98))
-            profile = VCSWizardProfile.PVCS_WIN_95;
-        workingDirectory = getWorkDir().getAbsolutePath();
-        wizard.setProfile(profile);
-        wizard.lblPVCSProjectDatabase();
-        wizard.lblPVCSProjectName();
-        wizard.lblPVCSUserName();
-        wizard.lblPVCSWorkfilesLocation();
-        wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE);
-        wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_NAME);
-        wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_USER);
-        wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION);
-        wizard.btBrowse(VCSWizardProfile.INDEX_BT_PVCS_WORKFILES_LOCATION);
-        wizard.btSelect(VCSWizardProfile.INDEX_BT_PVCS_PROJECT_DATABASE);
-        wizard.btSelect(VCSWizardProfile.INDEX_BT_PVCS_PROJECT_NAME);
-        if (profile.indexOf("95/98/ME") != -1) {
-            wizard.lblUnixShell();
-            wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_SHELL);
-            wizard.btBrowse(VCSWizardProfile.INDEX_BT_PVCS_SHELL);
+        try {
+            System.out.print(".. Testing PVCS settings ..");
+            MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+            VCSWizardProfile wizard = new VCSWizardProfile();
+            String profile = Utilities.isUnix() ? VCSWizardProfile.PVCS_UNIX : VCSWizardProfile.PVCS_WIN_NT;
+            int os = Utilities.getOperatingSystem();
+            if ((os == Utilities.OS_WIN95) | (os == Utilities.OS_WIN98))
+                profile = VCSWizardProfile.PVCS_WIN_95;
+            workingDirectory = getWorkDir().getAbsolutePath();
+            wizard.setProfile(profile);
+            wizard.lblPVCSProjectDatabase();
+            wizard.lblPVCSProjectName();
+            wizard.lblPVCSUserName();
+            wizard.lblPVCSWorkfilesLocation();
+            wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE);
+            wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_NAME);
+            wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_USER);
+            wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION);
+            wizard.btBrowse(VCSWizardProfile.INDEX_BT_PVCS_WORKFILES_LOCATION);
+            wizard.btSelect(VCSWizardProfile.INDEX_BT_PVCS_PROJECT_DATABASE);
+            wizard.btSelect(VCSWizardProfile.INDEX_BT_PVCS_PROJECT_NAME);
+            if (profile.indexOf("95/98/ME") != -1) {
+                wizard.lblUnixShell();
+                wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_SHELL);
+                wizard.btBrowse(VCSWizardProfile.INDEX_BT_PVCS_SHELL);
+            }
+            wizard.cancel();
+            System.out.println(". done !");
+        } catch (Exception e) {
+            try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
+            captureScreen(e);
         }
-        wizard.cancel();
-        System.out.println(". done !");
     }
 
     /** Checks that it is possible to choose Project Database through its special selector.
      * @throws Exception any unexpected exception thrown during test.
      */
     public void testDatabaseSelector() throws Exception {
-        System.out.print(".. Testing project database selector ..");
-        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
-        VCSWizardProfile wizard = new VCSWizardProfile();
-        String profile = Utilities.isUnix() ? VCSWizardProfile.PVCS_UNIX : VCSWizardProfile.PVCS_WIN_NT;
-        int os = Utilities.getOperatingSystem();
-        if ((os == Utilities.OS_WIN95) | (os == Utilities.OS_WIN98))
-            profile = VCSWizardProfile.PVCS_WIN_95;
-        wizard.setProfile(profile);
-        Thread.currentThread().sleep(10000);
-        wizard.selectProjectDatabase();
-        DatabaseSelector selector = new DatabaseSelector();
-        selector.pickADatabaseInSubfolderOf();
-        selector.browseDatabaseParentFolder();
-        new JButtonOperator(new JDialogOperator("Select Directory:"), "Cancel").push();
-        selector.selectADatabaseUsedByPVCSGUI();
-        Thread.currentThread().sleep(10000);
-        String status = MainWindowOperator.getDefault().getStatusText();
-        if (status.equals("Command LIST_PROJECT_DB finished."))
-          selector.lstDatabaseList().clickOnItem(0, 1);
-        else if (!status.equals("Command LIST_PROJECT_DB failed."))
-            captureScreen("Error: Incorrect status \"" + status + "\" reached.", new NbDialogOperator[] {selector, wizard});
-        selector.databaseLocationPath();
-        selector.browseDatabaseLocation();
-        JFileChooserOperator fileChooser = new JFileChooserOperator();
-        new File(workingDirectory + File.separator + "Repo").mkdirs();
-        fileChooser.chooseFile(workingDirectory + File.separator + "Repo");
-        selector.ok();
-        Thread.currentThread().sleep(10000);
-        status = MainWindowOperator.getDefault().getStatusText();
-        if (!status.equals("Command AUTO_FILL_CONFIG finished.") && (!status.equals("Command GET_WORK_LOCATION failed."))) {
-            captureScreen("Error: Incorrect status \"" + status + "\" reached.", new NbDialogOperator[] {wizard});
+        try {
+            System.out.print(".. Testing project database selector ..");
+            MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+            VCSWizardProfile wizard = new VCSWizardProfile();
+            String profile = Utilities.isUnix() ? VCSWizardProfile.PVCS_UNIX : VCSWizardProfile.PVCS_WIN_NT;
+            int os = Utilities.getOperatingSystem();
+            if ((os == Utilities.OS_WIN95) | (os == Utilities.OS_WIN98))
+                profile = VCSWizardProfile.PVCS_WIN_95;
+            wizard.setProfile(profile);
+            Thread.currentThread().sleep(10000);
+            wizard.selectProjectDatabase();
+            DatabaseSelector selector = new DatabaseSelector();
+            selector.pickADatabaseInSubfolderOf();
+            selector.browseDatabaseParentFolder();
+            new JButtonOperator(new JDialogOperator("Select Directory:"), "Cancel").push();
+            selector.selectADatabaseUsedByPVCSGUI();
+            Thread.currentThread().sleep(10000);
+            String status = MainWindowOperator.getDefault().getStatusText();
+            if (status.equals("Command LIST_PROJECT_DB finished."))
+              selector.lstDatabaseList().clickOnItem(0, 1);
+            else if (!status.equals("Command LIST_PROJECT_DB failed."))
+                assertTrue("Error: Incorrect status \"" + status + "\" reached.", false);
+            selector.databaseLocationPath();
+            selector.browseDatabaseLocation();
+            JFileChooserOperator fileChooser = new JFileChooserOperator();
+            new File(workingDirectory + File.separator + "Repo").mkdirs();
+            fileChooser.chooseFile(workingDirectory + File.separator + "Repo");
+            selector.ok();
+            Thread.currentThread().sleep(10000);
+            status = MainWindowOperator.getDefault().getStatusText();
+            if (!status.equals("Command AUTO_FILL_CONFIG finished.") && (!status.equals("Command GET_WORK_LOCATION failed."))) {
+                assertTrue("Error: Incorrect status \"" + status + "\" reached.", false);
+            }
+            if (!wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE).getText().equals(workingDirectory + File.separator + "Repo"))
+                assertTrue("Error: Unable to setup project database through its selector.", false);
+            wizard.cancel();
+            System.out.println(". done !");
+        } catch (Exception e) {
+            long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
+            try { new DatabaseSelector().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
+            try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
+            captureScreen(e);
         }
-        if (!wizard.txtJTextField(VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE).getText().equals(workingDirectory + File.separator + "Repo"))
-            captureScreen("Error: Unable to setup project database through its selector.", new NbDialogOperator[] {wizard});
-        wizard.cancel();
-        System.out.println(". done !");
     }
         
     /** Checks that it is possible to mount PVCS filesystem.
      * @throws Exception any unexpected exception thrown during test.
      */
     public void testPVCSConnection() throws Exception {
-        System.out.print(".. Testing PVCS filesystem connectivity ..");
-        MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
-        VCSWizardProfile wizard = new VCSWizardProfile();
-        String profile = Utilities.isUnix() ? VCSWizardProfile.PVCS_UNIX : VCSWizardProfile.PVCS_WIN_NT;
-        int os = Utilities.getOperatingSystem();
-        if ((os == Utilities.OS_WIN95) | (os == Utilities.OS_WIN98))
-            profile = VCSWizardProfile.PVCS_WIN_95;
-        wizard.setProfile(profile);
-        Thread.currentThread().sleep(10000);
-        JTextFieldOperator txt = new JTextFieldOperator(wizard, VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE);
-        txt.clearText();
-        txt.typeText(workingDirectory + File.separator + "Repo");
-        txt = new JTextFieldOperator(wizard, VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION);
-        txt.requestFocus();
-        Thread.currentThread().sleep(10000);
-        new File(workingDirectory + File.separator + "Work").mkdirs();
-        txt.clearText();
-        txt.typeText(workingDirectory + File.separator + "Work");
-        wizard.finish();
-        Thread.currentThread().sleep(3000);
-        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
-        assertNotNull("Error: Can't select filesystem " + filesystem, new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
-        System.out.println(". done !");
+        try {
+            System.out.print(".. Testing PVCS filesystem connectivity ..");
+            MainFrame.getMainFrame().pushMenuNoBlock(MOUNT_MENU);
+            VCSWizardProfile wizard = new VCSWizardProfile();
+            String profile = Utilities.isUnix() ? VCSWizardProfile.PVCS_UNIX : VCSWizardProfile.PVCS_WIN_NT;
+            int os = Utilities.getOperatingSystem();
+            if ((os == Utilities.OS_WIN95) | (os == Utilities.OS_WIN98))
+                profile = VCSWizardProfile.PVCS_WIN_95;
+            wizard.setProfile(profile);
+            Thread.currentThread().sleep(10000);
+            JTextFieldOperator txt = new JTextFieldOperator(wizard, VCSWizardProfile.INDEX_TXT_PVCS_PROJECT_DATABASE);
+            txt.clearText();
+            txt.typeText(workingDirectory + File.separator + "Repo");
+            txt = new JTextFieldOperator(wizard, VCSWizardProfile.INDEX_TXT_PVCS_WORKFILES_LOCATION);
+            txt.requestFocus();
+            Thread.currentThread().sleep(10000);
+            new File(workingDirectory + File.separator + "Work").mkdirs();
+            txt.clearText();
+            txt.typeText(workingDirectory + File.separator + "Work");
+            wizard.finish();
+            Thread.currentThread().sleep(3000);
+            String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+            assertNotNull("Error: Can't select filesystem " + filesystem, new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem));
+            System.out.println(". done !");
+        } catch (Exception e) {
+            long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
+            try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
+            captureScreen(e);
+        }
     }
 
     /** Checks that it is possible to unmount PVCS filesystem.
      * @throws Exception any unexpected exception thrown during test.
      */
     public void testUnmountPVCS() throws Exception {
-        System.out.print(".. Testing unmount PVCS filesystem action ..");
-        String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
-        Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
-        new UnmountFSAction().perform(filesystemNode);
-        Thread.currentThread().sleep(5000);
-        assertTrue("Error: Unable to unmount filesystem.", !filesystemNode.isPresent());
-        System.out.println(". done !");
+        try {
+            System.out.print(".. Testing unmount PVCS filesystem action ..");
+            String filesystem = "PVCS " + workingDirectory + File.separator + "Work";
+            Node filesystemNode = new Node(new ExplorerOperator().repositoryTab().getRootNode(), filesystem);
+            new UnmountFSAction().perform(filesystemNode);
+            Thread.currentThread().sleep(5000);
+            assertTrue("Error: Unable to unmount filesystem.", !filesystemNode.isPresent());
+            System.out.println(". done !");
+        } catch (Exception e) {
+            long oldTimeout = org.netbeans.jemmy.JemmyProperties.getCurrentTimeout("DialogWaiter.WaitDialogTimeout");
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", 2000);
+            try { new VCSWizardProfile().cancel(); } catch (org.netbeans.jemmy.TimeoutExpiredException te) {}
+            org.netbeans.jemmy.JemmyProperties.setCurrentTimeout("DialogWaiter.WaitDialogTimeout", oldTimeout);
+            captureScreen(e);
+        }
     }
 }
