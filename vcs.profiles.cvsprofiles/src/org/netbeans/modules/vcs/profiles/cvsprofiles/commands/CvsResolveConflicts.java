@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Hashtable;
+import javax.swing.SwingUtilities;
 
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -108,13 +109,13 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         return true;
     }
     
-    private void handleMergeFor(final File file, FileObject fo, MergeVisualizer merge) throws IOException {
+    private void handleMergeFor(final File file, FileObject fo, final MergeVisualizer merge) throws IOException {
         String mimeType = (fo == null) ? "text/plain" : fo.getMIMEType();
         File f1 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
         File f2 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
         File f3 = File.createTempFile(TMP_PREFIX, TMP_SUFFIX);
         
-        Difference[] diffs = copyParts(true, file, f1, true);
+        final Difference[] diffs = copyParts(true, file, f1, true);
         if (diffs.length == 0) {
             DialogDisplayer.getDefault ().notify (new org.openide.NotifyDescriptor.Message(
                 org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "NoConflictsInFile", file)));
@@ -126,7 +127,6 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
         String originalRightFileRevision = rightFileRevision;
         if (leftFileRevision != null) leftFileRevision.trim();
         if (rightFileRevision != null) rightFileRevision.trim();
-        java.awt.Component c;
         if (leftFileRevision == null || leftFileRevision.equals(file.getName())) {
             leftFileRevision = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleWorkingFile");
         } else {
@@ -138,13 +138,21 @@ public class CvsResolveConflicts implements VcsAdditionalCommand {
             rightFileRevision = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Diff.titleRevision", rightFileRevision);
         }
         String resultTitle = org.openide.util.NbBundle.getMessage(CvsResolveConflicts.class, "Merge.titleResult");
-        c = merge.createView(diffs, StreamSource.createSource(file.getName(), leftFileRevision, mimeType, f1),
-                             StreamSource.createSource(file.getName(), rightFileRevision, mimeType, f2),
-                             /*file.getName(), resultTitle,*/
-                             new MergeResultWriterInfo(f1, f2, f3, file, mimeType,
-                                                       originalLeftFileRevision,
-                                                       originalRightFileRevision,
-                                                       fo));
+        final StreamSource s1 = StreamSource.createSource(file.getName(), leftFileRevision, mimeType, f1);
+        final StreamSource s2 = StreamSource.createSource(file.getName(), rightFileRevision, mimeType, f2);
+        final StreamSource result = new MergeResultWriterInfo(f1, f2, f3, file, mimeType,
+                                                              originalLeftFileRevision,
+                                                              originalRightFileRevision,
+                                                              fo);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    merge.createView(diffs, s1, s2, result);
+                } catch (IOException ioex) {
+                    org.openide.ErrorManager.getDefault().notify(ioex);
+                }
+            }
+        });
     }
     
     /**
