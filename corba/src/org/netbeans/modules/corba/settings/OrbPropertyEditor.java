@@ -76,7 +76,8 @@ public class OrbPropertyEditor extends PropertyEditorSupport {
     /** @return text for the current value */
     public String getAsText() {
         //System.out.println ("OrbPropertyEditor::getAsText () -> " + this.getValue());
-        return (String)this.getValue();
+        String name = (String) this.getValue();
+        return name != null ? name : ORBSettingsBundle.CTL_DEFAULT_ORB;
     }
     
     /** @param text A text for the current value. */
