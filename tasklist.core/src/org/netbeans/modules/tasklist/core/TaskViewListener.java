@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.tasklist.core;
 
+import org.openide.text.Annotation;
 
 
 /** Listener which when notified off changes in current task
@@ -25,8 +26,12 @@ package org.netbeans.modules.tasklist.core;
  */
 public interface TaskViewListener  {
     /** Called to indicate that a particular task is made current.
-	Do what you can to "select" this task. */
-    void showTask(Task t);
+     * Do what you can to "select" this task. 
+     * @param task The task to be shown
+     * @param annotation Annotation to be used to show the task, or
+     *    null to use the default
+     */
+    void showTask(Task task, Annotation annotation);
 
     /** Called to indicate that a particular task should be hidden.
 	This typically means that the task was deleted so it should

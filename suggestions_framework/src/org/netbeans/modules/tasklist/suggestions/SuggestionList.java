@@ -72,32 +72,6 @@ final public class SuggestionList extends TaskList {
             }
             categoryTasks.put(type, category);
             add(category, false, false);
-
-            /*
-              
-            // HACK: special-handle the java parse error nodes: we want
-            // them expanded by default (meaning when the node is added
-            // for the first time)
-            if (type.getName().equals("nb-java-errors")) { // NOI18N
-                // from org.netbeans.modules.tasklist.javaparser.ErrorSuggester
-                SuggestionsView v = (SuggestionsView)TaskListView.getCurrent();
-                if (v != null) {
-                    // XXX I don't have a handle on the node here.
-                    // I have to defer this until the node is actually created.
-                    // Perhaps I can record the collapse-request with the
-                    // task object in some way such that in the TaskNode
-                    // constructor (or property change listener) I process
-                    // the request when the node is created?  The alternative
-                    // is adding a timed delay action which looks up the node
-                    // and expands it - but that's more problematic (on
-                    // slower computers, etc.)  Timer solutions are usually
-                    // hacks.
-                    
-                         //  v.setExpanded(node, true);
-                }
-            }
-
-            */
         }
         return category;
     }

@@ -57,7 +57,8 @@ class SuggestionNode extends TaskNode {
     private void init(SuggestionImpl item) {
         this.item = item;
         if (item.getAction() instanceof LineSuggestionPerformer) {
-            setDefaultAction(SystemAction.get(GoToTaskAction.class));
+            //setDefaultAction(SystemAction.get(GoToTaskAction.class));
+            setDefaultAction(SystemAction.get(ShowSuggestionAction.class));
         } else if (item.getAction() != null) {
             setDefaultAction(SystemAction.get(FixAction.class));
         } else {
@@ -108,7 +109,8 @@ class SuggestionNode extends TaskNode {
             
             if (item.getAction() instanceof LineSuggestionPerformer) {
                 return new SystemAction[] {
-                    SystemAction.get(GoToTaskAction.class),
+                    //SystemAction.get(GoToTaskAction.class),
+                    SystemAction.get(ShowSuggestionAction.class),
                     null,
                     SystemAction.get(ShowCategoryAction.class),
                     SystemAction.get(FilterAction.class),
@@ -124,7 +126,8 @@ class SuggestionNode extends TaskNode {
             } else {
                 return new SystemAction[] {
                     SystemAction.get(FixAction.class),
-                    SystemAction.get(GoToTaskAction.class),
+                    //SystemAction.get(GoToTaskAction.class),
+                    SystemAction.get(ShowSuggestionAction.class),
                     null,
                     SystemAction.get(ShowCategoryAction.class),
                     SystemAction.get(FilterAction.class),

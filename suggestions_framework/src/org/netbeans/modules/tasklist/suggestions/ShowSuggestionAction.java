@@ -10,18 +10,21 @@
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2000 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-package org.netbeans.modules.tasklist.core;
+package org.netbeans.modules.tasklist.suggestions;
+
+import org.netbeans.modules.tasklist.core.*;
 
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
-
+import org.openide.text.Line;
 
 /** Go to the source code / associated file for a particular
- * task
+ * suggestion
+ * <p>
  * @author Tor Norbye */
-public class GoToTaskAction extends NodeAction {
+public class ShowSuggestionAction extends NodeAction {
     
     /** Do the actual jump to source
      * @param nodes Nodes, where the selected node should be a task
@@ -31,12 +34,12 @@ public class GoToTaskAction extends NodeAction {
             (Task)TaskNode.getTask(nodes[0]); // safe - see enable check
         TaskListView tlv = TaskListView.getCurrent();
         if (tlv != null) {
-            tlv.show(item, null);
+            tlv.show(item, new SuggestionAnno(item));
         } else {
             System.out.println("No current view!");
         }
     }
-    
+
     /** Enable the task iff you've selected exactly one node,
      * and that node is a tasknode. */    
     protected boolean enable(Node[] nodes) {
@@ -51,11 +54,11 @@ public class GoToTaskAction extends NodeAction {
     }
     
     public String getName() {
-        return NbBundle.getMessage(GoToTaskAction.class, "LBL_Goto"); // NOI18N
+        return NbBundle.getMessage(ShowSuggestionAction.class, "LBL_Goto"); // NOI18N
     }
     
     protected String iconResource() {
-        return "org/netbeans/modules/tasklist/core/task.gif"; // NOI18N
+        return "org/netbeans/modules/tasklist/suggestions/suggestion.gif"; // NOI18N
     }
     
     public HelpCtx getHelpCtx() {

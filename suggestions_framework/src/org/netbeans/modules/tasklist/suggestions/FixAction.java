@@ -73,7 +73,7 @@ public class FixAction extends NodeAction {
             if (doConfirm && !skipConfirm && (confirmation != null)) {
                 // Show in source editor as well, if possible
                 if (tlv != null) {
-                    tlv.show(item);
+                    tlv.show(item, new SuggestionAnno(item));
                     tlv.select(item);
                 }
 

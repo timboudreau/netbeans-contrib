@@ -38,6 +38,7 @@ import org.openide.nodes.PropertySupport;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.text.Annotation;
 
 
 import java.awt.Dimension;
@@ -701,7 +702,7 @@ public abstract class TaskListView extends ExplorerPanel
      * area in the todolist view where the details of the todolist
      * item can be fully read.
      */
-    public void show(Task item) {
+    public void show(Task item, Annotation anno) {
 	if (listeners != null) {
 	    // Stash item so I can notify of deletion -- see TaskViewListener
 	    // doc
@@ -709,7 +710,7 @@ public abstract class TaskListView extends ExplorerPanel
 	    int n = listeners.size();
 	    for (int i = 0; i < n; i++) {
 		TaskViewListener tl = (TaskViewListener)listeners.get(i);
-		tl.showTask(item);
+		tl.showTask(item, anno);
 	    }
 	}
     }
@@ -921,7 +922,7 @@ public abstract class TaskListView extends ExplorerPanel
 	    int n = listeners.size();
 	    for (int i = 0; i < n; i++) {
 		TaskViewListener tl = (TaskViewListener)listeners.get(i);
-		tl.showTask(item);
+		tl.showTask(item, null);
 	    }
 	}
     }
@@ -940,7 +941,7 @@ public abstract class TaskListView extends ExplorerPanel
 	    int n = listeners.size();
 	    for (int i = 0; i < n; i++) {
 		TaskViewListener tl = (TaskViewListener)listeners.get(i);
-		tl.showTask(item);
+		tl.showTask(item, null);
 	    }
 	}
     }
