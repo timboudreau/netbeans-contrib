@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
-<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN' 'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd'>
+<!DOCTYPE configuration PUBLIC '-//NetBeans//DTD VCS Configuration 1.1//EN' 'http://www.netbeans.org/dtds/vcs-configuration-1_1.dtd' [
+    <!ENTITY versioned-statuses '"Current", "Missing", "Locally Modified", ""'>
+    <!ENTITY local-statuses '"Local", "Ignored"'>
+]>
 <!--
                 Sun Public License Notice
 
@@ -309,6 +312,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value> <!-- EXEC_SERIAL_INERT -->
         </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;</value>
+        </property>
       </command>
       <command name="LIST_SUB" displayName="ResourceMsg(LIST_SUB)">
         <property name="labelMnemonic">
@@ -322,6 +328,9 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
         <property name="concurrentExec">
           <value>-1</value> <!-- EXEC_SERIAL_INERT -->
+        </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;</value>
         </property>
       </command>
       <separator />
@@ -347,6 +356,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="preCommands">
           <value>ADD_LOCAL_PARENTS</value>
+        </property>
+        <property name="disabledOnStatus">
+          <value>&versioned-statuses;</value>
         </property>
       </command>
       <command name="CREATE_PROJECT_CMD">
@@ -502,6 +514,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshOnFail">
           <value>2</value>
         </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;</value>
+        </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.UpdateCommandAction</value>
         </property>
@@ -592,6 +607,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="concurrentExec">
           <value>38</value> <!-- SERIAL_ON_PACKAGE + SERIAL_WITH_PARENT + SERIAL_WITH_PENDING -->
+        </property>
+        <property name="disabledOnStatus">
+          <value>&versioned-statuses;</value>
         </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.AddCommandAction</value>
@@ -858,6 +876,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
         </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;</value>
+        </property>
         <property name="generalCommandActionClassName">
           <value>org.netbeans.modules.vcscore.actions.RemoveCommandAction</value>
         </property>
@@ -963,6 +984,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="refreshOnFail">
           <value>1</value>
         </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;</value>
+        </property>
       </command>
       <command name="UNLOCK_" displayName="ResourceMsg(PVCS_UNLOCK)">
         <property name="labelMnemonic">
@@ -1011,6 +1035,9 @@ Microsystems, Inc. All Rights Reserved.
         </property>
         <property name="refreshOnFail">
           <value>1</value>
+        </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;</value>
         </property>
       </command>
       <separator />
@@ -1072,6 +1099,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg(PVCS_GENERAL_ACTION_HISTORY)</value>
         </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;</value>
+        </property>
       </command>
       <separator />
       <command name="DIFF" displayName="ResourceMsg(PVCS_DIFF)">
@@ -1128,6 +1158,9 @@ Microsystems, Inc. All Rights Reserved.
         <property name="generalCommandActionDisplayName">
           <value>ResourceMsg(PVCS_GENERAL_ACTION_DIFF)</value>
         </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;</value>
+        </property>
       </command>
       <command name="APPLY_DELTA" displayName="ResourceMsg(PVCS_APPLY_DELTA)">
         <property name="labelMnemonic">
@@ -1160,6 +1193,9 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
         <property name="commandsAfterSuccess">
           <value>COPY_APPLIED_DELTA</value>
+        </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;</value>
         </property>
       </command>
       <command name="COPY_APPLIED_DELTA">
@@ -1254,6 +1290,9 @@ Microsystems, Inc. All Rights Reserved.
 	</property>
         <property name="refreshCurrentFolder">
           <value>true</value>
+        </property>
+        <property name="disabledOnStatus">
+          <value>&local-statuses;</value>
         </property>
       </command>
       <separator />
