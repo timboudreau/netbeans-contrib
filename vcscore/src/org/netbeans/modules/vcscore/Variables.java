@@ -127,7 +127,7 @@ public class Variables {
 
             if (value == null) {
                 if (warnUndefVars) {
-                    E.err("Variable undefined '"+var+"'. Expanding it to an empty string."); // NOI18N
+                    //E.err("Variable undefined '"+var+"'. Expanding it to an empty string."); // NOI18N
                 }
                 if (var.indexOf("$[?") >= 0) { // NOI18N
                     E.err("Missing closing bracket ']' ?"); // NOI18N
@@ -279,7 +279,7 @@ public class Variables {
                 result.append(value);
             } else {
                 if (warnUndefVars) {
-                    E.err("Variable undefined '"+var+"'. Expanding it to an empty string."); // NOI18N
+                    //E.err("Variable undefined '"+var+"'. Expanding it to an empty string."); // NOI18N
                 }
                 if( var.indexOf("${")>=0 ){ // NOI18N
                     //E.err("Missing closing bracket '}' ?"); // NOI18N
