@@ -13,6 +13,9 @@
 
 package org.netbeans.modules.vcscore.runtime;
 
+import java.lang.ref.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.io.*;
 
@@ -31,6 +34,8 @@ import org.netbeans.modules.vcscore.VcsFileSystem;
  * @author builder
  */
 public class RuntimeMainChildren extends Children.Keys  {
+    
+    private static final String NUM_OF_FINISHED_CMDS_TO_COLLECT_CHANGED_METHOD = "numOfFinishedCmdsToCollectChanged"; // NOI18N
 
     private LinkedList fsList;
     
@@ -96,6 +101,7 @@ public class RuntimeMainChildren extends Children.Keys  {
         RuntimeFolderNode fsRuntime = new RuntimeFolderNode(fsCh);
         fsRuntime.setName(fs.getSystemName());
         fsRuntime.setDisplayName(fs.getDisplayName());
+        propagateProperty(fsRuntime, fs);
         java.beans.BeanDescriptor bd = RuntimeMainChildren.getFsBeanDescriptor(fs);
         if (bd != null) {
             String str = (String)bd.getValue(org.netbeans.modules.vcscore.VcsFileSystem.VCS_FILESYSTEM_ICON_BASE);
@@ -105,7 +111,56 @@ public class RuntimeMainChildren extends Children.Keys  {
         }
         RuntimeSupport.getInstance().addScheduledRuntimeNodeCommands(fsRuntime, fs.getSystemName());
         return fsRuntime;
-    }    
+    }
+    
+    private void propagateProperty(RuntimeFolderNode folder, org.openide.filesystems.FileSystem fs) {
+        Method method = null;
+        try {
+            method = fs.getClass().getMethod(NUM_OF_FINISHED_CMDS_TO_COLLECT_CHANGED_METHOD, new Class[0]);
+        } catch (NoSuchMethodException nsmExc) {
+            method = null;
+        } catch (SecurityException sExc) {
+            method = null;
+        };
+        final Method numOfCmdsChangedMethod = method;
+        if (numOfCmdsChangedMethod == null) return ;
+        final Reference ref = new WeakReference(fs);
+        final Reference folderRef = new WeakReference(folder);
+        final PropertyChangeListener folderPropertyChangeListener = new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT.equals(evt.getPropertyName())) {
+                    Object chFS = ref.get();
+                    if (chFS != null) {
+                        try {
+                            numOfCmdsChangedMethod.invoke(chFS, new Object[0]);
+                        } catch (IllegalAccessException iaExc) {
+                        } catch (IllegalArgumentException iarExc) {
+                        } catch (InvocationTargetException itExc) {
+                        }
+                    } else {
+                        RuntimeFolderNode theFolder = (RuntimeFolderNode) folderRef.get();
+                        if (theFolder != null) {
+                            theFolder.removePropertyChangeListener(this);
+                        }
+                    }
+                }
+            }
+        };
+        folder.addPropertyChangeListener(folderPropertyChangeListener);
+        folder.addNodeListener(new NodeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {}
+            public void childrenAdded(NodeMemberEvent ev) {}
+            public void childrenRemoved(NodeMemberEvent ev) {}
+            public void childrenReordered(NodeReorderEvent ev) {}
+            public void nodeDestroyed(NodeEvent evt) {
+                RuntimeFolderNode theFolder = (RuntimeFolderNode) folderRef.get();
+                if (theFolder != null) {
+                    theFolder.removeNodeListener(this);
+                    theFolder.removePropertyChangeListener(folderPropertyChangeListener);
+                }
+            }
+        });
+    }
     
     private boolean checkFileSystem(FileSystem fs, BeanDescriptor bd) {
         if (bd == null) return false;

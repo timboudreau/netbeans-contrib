@@ -107,6 +107,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public static final String PROP_ANNOTATION_TYPES = "annotationTypes"; // NOI18N
     public static final String PROP_COMMAND_NOTIFICATION = "commandNotification"; // NOI18N
     public static final String PROP_IGNORED_GARBAGE_FILES = "ignoredGarbageFiles"; // NOI18N
+    public static final String PROP_PASSWORD = "password"; // NOI18N
+    public static final String PROP_REMEMBER_PASSWORD = "rememberPassword"; // NOI18N
+    public static final String PROP_CREATE_RUNTIME_COMMANDS = "createRuntimeCommands"; // NOI18N
+    public static final String PROP_CREATE_VERSIONING_EXPLORER = "createVersioningExplorer"; // NOI18N
+    public static final String PROP_CREATE_BACKUP_FILES = "createBackupFiles"; // NOI18N
+    public static final String PROP_FILTER_BACKUP_FILES = "filterBackupFiles"; // NOI18N
+    protected static final String PROP_USE_UNIX_SHELL = "useUnixShell"; // NOI18N
+    protected static final String PROP_NOT_MODIFIABLE_STATUSES = "notModifiableStatuses"; // NOI18N
     
     private static ResourceBundle resourceBundle = null;
     
@@ -389,8 +397,11 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
 
     protected void setUseUnixShell (boolean unixShell) {
-        useUnixShell = unixShell;
-        last_useUnixShell = unixShell;
+        if (unixShell != useUnixShell) {
+            useUnixShell = unixShell;
+            last_useUnixShell = unixShell;
+            firePropertyChange(PROP_USE_UNIX_SHELL, new Boolean(!unixShell), new Boolean(unixShell));
+        }
     }
     
     public void setAcceptUserParams(boolean acceptUserParams) {
@@ -509,6 +520,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
     }
     
+    public void numOfFinishedCmdsToCollectChanged() {
+        firePropertyChange(org.netbeans.modules.vcscore.runtime.RuntimeFolderNode.PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT, null, null);
+    }
+
     protected void refreshExistingFolders() {
         refreshExistingFolders(null);
     }
@@ -543,7 +558,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setCreateBackupFiles(boolean createBackupFiles) {
-        this.createBackupFiles = new Boolean(createBackupFiles);
+        if (!new Boolean(createBackupFiles).equals(this.createBackupFiles)) {
+            this.createBackupFiles = new Boolean(createBackupFiles);
+            firePropertyChange(PROP_CREATE_BACKUP_FILES, null, this.createBackupFiles);
+        }
     }
     
     protected boolean isFilterBackupFilesSet() {
@@ -555,7 +573,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setFilterBackupFiles(boolean filterBackupFiles) {
-        this.filterBackupFiles = new Boolean(filterBackupFiles);
+        if (!new Boolean(filterBackupFiles).equals(this.filterBackupFiles)) {
+            this.filterBackupFiles = new Boolean(filterBackupFiles);
+            firePropertyChange(PROP_FILTER_BACKUP_FILES, null, this.filterBackupFiles);
+        }
     }
     
     public void setOffLine(boolean offLine) {
@@ -640,6 +661,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     protected void setNotModifiableStatuses(Collection notModifiableStatuses) {
         this.notModifiableStatuses = notModifiableStatuses;
+        firePropertyChange(PROP_NOT_MODIFIABLE_STATUSES, null, notModifiableStatuses);
     }
     
     /**
@@ -1145,6 +1167,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
                     cacheID = initCacheIdStr();
                 }
             }
+            firePropertyChange("cacheID", null, cacheID); // NOI18N
         }
         return cacheID;
     }
@@ -1324,7 +1347,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     protected void setCreateRuntimeCommands(boolean createRuntimeCommands) {
-        this.createRuntimeCommands = new Boolean(createRuntimeCommands);
+        if (!new Boolean(createRuntimeCommands).equals(this.createRuntimeCommands)) {
+            this.createRuntimeCommands = new Boolean(createRuntimeCommands);
+            firePropertyChange(PROP_CREATE_RUNTIME_COMMANDS, null, this.createRuntimeCommands);
+        }
     }
     
     public boolean isCreateRuntimeCommands() {
@@ -1332,7 +1358,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     protected void setCreateVersioningSystem(boolean createVersioningSystem) {
-        this.createVersioningSystem = new Boolean(createVersioningSystem);
+        if (!new Boolean(createVersioningSystem).equals(this.createVersioningSystem)) {
+            this.createVersioningSystem = new Boolean(createVersioningSystem);
+            firePropertyChange(PROP_CREATE_VERSIONING_EXPLORER, null, this.createVersioningSystem);
+        }
     }
     
     protected boolean isCreateVersioningSystem() {
@@ -1685,7 +1714,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
 
     //-------------------------------------------
     public void setPassword(String password){
-        this.password = password;
+        if (this.password != password) {
+            this.password = password;
+            firePropertyChange(PROP_PASSWORD, null, password);
+        }
     }
 
     //-------------------------------------------
@@ -1694,7 +1726,10 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     public void setRememberPassword(boolean remember) {
-        this.rememberPassword = remember;
+        if (this.rememberPassword != remember) {
+            this.rememberPassword = remember;
+            firePropertyChange(PROP_REMEMBER_PASSWORD, new Boolean(!remember), new Boolean(remember));
+        }
     }
     
     public boolean isRememberPassword() {
@@ -2209,13 +2244,6 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
             cache.setFSRoot(r.getAbsolutePath());
             cache.setRelativeMountPoint(module);
         }
-    }
-
-    /** Set the root directory of the file system.
-     * @param rootFile root directory
-     */
-    public void setRootFile(File rootFile) {
-        this.rootFile = rootFile;
     }
 
     /** Get the root directory of the file system.

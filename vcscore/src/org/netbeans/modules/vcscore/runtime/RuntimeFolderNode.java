@@ -34,7 +34,11 @@ public class RuntimeFolderNode extends AbstractNode {
     }
     
     public void setNumOfFinishedCmdsToCollect(int numOfFinishedCmdsToCollect) {
-        this.numOfFinishedCmdsToCollect = numOfFinishedCmdsToCollect;
+        if (this.numOfFinishedCmdsToCollect != numOfFinishedCmdsToCollect) {
+            Object oldValue = new Integer(this.numOfFinishedCmdsToCollect);
+            this.numOfFinishedCmdsToCollect = numOfFinishedCmdsToCollect;
+            firePropertyChange(PROPERTY_NUM_OF_FINISHED_CMDS_TO_COLLECT, oldValue, new Integer(numOfFinishedCmdsToCollect));
+        }
     }
     
     public int getNumOfFinishedCmdsToCollect() {
