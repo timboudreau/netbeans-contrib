@@ -1399,7 +1399,8 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
      */
     public String annotateName(String name, Set files) {
         String result = name;
-
+        if (result == null)
+            return result;  // Null name, ignore it
         Object[] oo = files.toArray();
         int len = oo.length;
         if (len == 0 || name.indexOf(getRootDirectory().toString()) >= 0) {
