@@ -97,9 +97,13 @@ PROMPT_FOR(ENCODING_D,"Encoding:", "", ACCESSIBILITY(DESCRIPTION_Default encodin
         <variable basic="false" name="FS_DISPLAY_NAME">
             <value xml:space="preserve">SVN</value>
         </variable>
+        <!-- Lines starting with "?" in the svn status output indicate that the file is unversioned but there isn't a need
+        to match these lines.  Ignoring them leads to Netbeans recognizing them as "Local" anyway so this status isn't required.
+        Commenting it out for reference only.
         <variable name="GENERIC_STATUS_LOCAL" basic="false">
             <value>"?"</value>
         </variable> 
+        -->
         <variable name="GENERIC_STATUS_MISSING" basic="false">
             <value>"!"</value>
         </variable>
@@ -110,7 +114,7 @@ PROMPT_FOR(ENCODING_D,"Encoding:", "", ACCESSIBILITY(DESCRIPTION_Default encodin
             <value>""</value>
         </variable>        
         <variable name="ICONS_FOR_FILE_STATUSES" basic="false">
-            <value>"vcs/resources/badgeUpToDate.gif", "vcs/resources/badgeLocModified.gif", "vcs/resources/badgeMergeConflict.gif", "vcs/resources/badgeLocRemoved.gif", "vcs/resources/badgeLocModified.gif", "", "vcs/resources/badgeLocModified.gif", "vcs/resources/badgeLocModified.gif", "", "", "vcs/resources/badgeLocRemoved.gif", ""</value>
+            <value>"vcs/resources/badgeUpToDate.gif", "vcs/resources/badgeLocModified.gif", "vcs/resources/badgeMergeConflict.gif", "vcs/resources/badgeLocRemoved.gif", "vcs/resources/badgeLocModified.gif", "", "vcs/resources/badgeLocModified.gif", "vcs/resources/badgeLocModified.gif", "", "vcs/resources/badgeLocRemoved.gif", ""</value>
         </variable>
         <variable basic="false" name="LOCAL_FILES_FILTERED_OUT">
             <value xml:space="preserve">.svn</value>
@@ -134,10 +138,11 @@ PROMPT_FOR(ENCODING_D,"Encoding:", "", ACCESSIBILITY(DESCRIPTION_Default encodin
             <value xml:space="preserve">"true"</value>
         </variable>
         <variable basic="false" name="POSSIBLE_FILE_STATUSES">
-            <value xml:space="preserve">"","A","C","D","G","I","M","R","X","?","!","~"</value>
+            <!-- "?" which means the file is "Local" is purposefully ommitted b/c the regex will never match lines starting with "?" -->
+            <value xml:space="preserve">"","A","C","D","G","I","M","R","X","!","~"</value>
         </variable>
         <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED" basic="false">
-            <value xml:space="preserve">"getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_U)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_A)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_C)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_D)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_G)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_I)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_M)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_R)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_X)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_Q)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_MI)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_O)"</value>
+            <value xml:space="preserve">"getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_U)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_A)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_C)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_D)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_G)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_I)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_M)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_R)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_X)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_MI)","getBundle(org/netbeans/modules/vcs/profiles/subversion/config/Bundle).getString(Status_O)"</value>
         </variable>
         <variable basic="false" name="POSTFIX">
             <value xml:space="preserve">"</value>
@@ -1142,7 +1147,7 @@ PROMPT_FOR_EXPERT(CONFIGDIR_U, Config-dir, "${CONFIGDIR_G}",ACCESSIBILITY(DESCRI
             <separator/>
             <command name="LIST_CMD">
                 <property name="data.regex">
-                    <value xml:space="preserve">^([ ACDGMRX\?!~])([ CM])([ L])([ \+])([ S])  ([ \*]) *( |\-|[0-9]+) *( |\?|[0-9]+) *( |\?|[^ ]+) *(\.[^ ].*|[^\. ].*[^\.]|[^\. ].*[^ ]\.)$</value>
+                    <value xml:space="preserve">^([ ACDGMRX!~])([ CM])([ L])([ \+])([ S])  ([ \*]) *( |\-|[0-9]+) *( |\?|[0-9]+) *( |\?|[^ ]+) *(\.[^ ].*|[^\. ].*[^\.]|[^\. ].*[^ ]\.)$</value>
                 </property>
                 <property name="exec">
                     <value xml:space="preserve">${PREFIX_WORKDIR_FOR_LIST}${SVN_CMD} status -v  -N --no-ignore${POSTFIX}</value>
