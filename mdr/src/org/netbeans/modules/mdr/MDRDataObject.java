@@ -49,8 +49,8 @@ public class MDRDataObject extends MultiDataObject {
 
         String attrName;
         
-        for (Enumeration enum = primaryFile.getAttributes(); enum.hasMoreElements();) {
-            attrName = (String) enum.nextElement();
+        for (Enumeration en = primaryFile.getAttributes(); en.hasMoreElements();) {
+            attrName = (String) en.nextElement();
             attributes.put(attrName, resolveTags(primaryFile.getAttribute(attrName)));
         }
         
