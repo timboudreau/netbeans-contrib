@@ -580,6 +580,7 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
         private RevisionList createRevisionList(final String name) {
             //System.out.println("createRevisionList("+name+")");
             CommandSupport cmdSupport = fileSystem.getCommandSupport(VcsCommand.NAME_REVISION_LIST);
+            if (cmdSupport == null) return null;
             Command cmd = cmdSupport.createCommand();
             if (cmd == null || !(cmd instanceof RegexOutputCommand)) return null;
             FileObject fo = fileSystem.findFileObject(name);
