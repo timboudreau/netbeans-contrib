@@ -18,6 +18,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.io.File;
 
 /**
  * Client code main entry point.
@@ -107,6 +108,23 @@ public final class Turbo {
             for (int i=0; i<listeners.length; i++) {
                 listeners[i].turboChanged(e);
             }
+        }
+    }
+
+    /**
+     * Populates the cache by given attributes. It tries to locate
+     * live fileobject. If it fails it silently stores the status
+     * without distributing change event.
+     * @param file
+     */
+    public static void setMeta(File file, FileProperties status) {
+        status.freeze();
+        FileObject fo = Memory.getLiveFileObject(file);
+        if (fo != null) {
+            setMeta(fo, status);
+        } else {
+            Memory.put(file, status);
+            Disk.put(file, status);
         }
     }
 

@@ -1416,6 +1416,14 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     public abstract String getCacheFileName(String path);
 
     /**
+     * Get the full file path where cache information should be stored.
+     * Consults profile. It takes two parameters to avoid FileObject creations.
+     * @param file subject of search
+     * @param path io.file path relative to FS root.
+     */
+    public abstract File getCacheFileName(File file, String path);
+
+    /**
      * Initialize the identification of cache used.
      * The default implementation returns a unique string each time it is called.
      * @return the cache identification string

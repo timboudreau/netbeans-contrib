@@ -12,6 +12,8 @@
  */
 package org.netbeans.modules.vcscore.turbo;
 
+import org.netbeans.modules.vcscore.caching.StatusFormat;
+
 
 /**
  * Additional FileObject metadata for versioned files.
@@ -49,6 +51,29 @@ public final class FileProperties {
 
     public FileProperties() {
         retrieval = System.currentTimeMillis();
+    }
+
+    /** Clones FileProperties except retrieval time. Clone is not frozen. */
+    public FileProperties(FileProperties fprops) {
+        status = fprops.status;
+        retrieval = System.currentTimeMillis();
+        name = fprops.name;
+        revision = fprops.revision;
+        sticky = fprops.sticky;
+        attr = fprops.attr;
+        date = fprops.date;
+        time = fprops.time;
+        size = fprops.size;
+        locker = fprops.locker;
+        ignoreList = fprops.ignoreList;
+    }
+
+    /** Constructs from StatusFormatElements. */
+    FileProperties(String[] elements) {
+        status = elements[StatusFormat.ELEMENT_INDEX_STATUS];
+        retrieval = System.currentTimeMillis();
+        name = elements[StatusFormat.ELEMENT_INDEX_FILE_NAME];
+        // TODO others
     }
 
     /** Clients must access using {@link IgnoreList#forFolder}.*/
@@ -187,6 +212,17 @@ public final class FileProperties {
                 return status;
             }
         }
+    }
+
+    /** Converts to format accepted by StatusFormat */
+    public String[] toElements() {
+        String[] elements = new String[StatusFormat.NUM_ELEMENTS];
+
+        elements[StatusFormat.ELEMENT_INDEX_FILE_NAME] = getName();
+        elements[StatusFormat.ELEMENT_INDEX_STATUS] = getStatus();
+        // TODO others
+
+        return elements;
     }
 }
 

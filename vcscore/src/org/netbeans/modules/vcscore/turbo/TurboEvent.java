@@ -17,7 +17,13 @@ import org.openide.filesystems.FileObject;
 import java.util.EventObject;
 
 /**
- * Event describing FileObject's FileProperties change
+ * Event describing FileObject's FileProperties change.
+ * It's fired only for <b>live</b> FileObjects. Operations that
+ * set status of not-yet created FileObjects do not raise it.
+ * Above comes from assumtion that nobody cares about
+ * listening on status changes for non-FileObjects. Listening
+ * is typically UI frontend requirement. The UI'll be most
+ * propably holding (live) FileObjects.
  *
  * @author Petr Kuzel
  */

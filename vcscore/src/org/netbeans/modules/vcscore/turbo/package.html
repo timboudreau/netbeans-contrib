@@ -35,11 +35,6 @@ to call <code>findResource(path)</code> in FileSystem
 implementation except <code>children(folderName)</code> method.
 
 <p>
-Disk layer use FileObject attributes to store data
-instead of custom format. All recent file statuses persist.
-TODO default attributes implemenaion has performance problem.
-
-<p>
 Memory layer is not hierachical but two simple plain maps
 FileObject to FilePropeties. Refs map content is driven by
 FileReference lifetime. Cache map holds few recent
@@ -81,8 +76,8 @@ following client code (filesystem and commands) conversions
      to perform refresh
   <li>VcsFilesystem.List.children() support for filtering out DEAD and scheduled files.
       InList context we cannot use FileObject keyed access. Try VisibilityQuery approach.
-  <li>VcsFactory.getStatusProvider() and getCacheProvider() replacements not investigated yet
   <li>RefreshCommandSupport in VCSFileSystem annotation and cvscore.cmdline formatting
+  <li>status management translating abstract statuses to profile specifics statuses and vice versa
 </ul>
 
 <p>

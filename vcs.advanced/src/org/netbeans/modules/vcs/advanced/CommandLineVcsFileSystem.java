@@ -500,6 +500,29 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
          */
     }
 
+    public File getCacheFileName(File file, String path) {
+
+        // if profile defines relative cache file path from cached file folder use it
+
+        if (cacheFileName != null) {
+            String cacheFilePath = file.getParentFile().getAbsolutePath() + File.separator + cacheFileName;
+            if (!cacheFolderCanCreate) {
+                File cacheFile = new File(cacheFilePath);
+                // No cache file when the parent does not exist and I can not create it.
+                if (!cacheFile.getParentFile().exists()) return null;
+            }
+            return new File(cacheFilePath);
+        }
+
+        // else put it into userdir into path identified by closes folder name
+
+        if (file.isFile()) {
+            path = path.substring(0, path.lastIndexOf(File.separatorChar));
+        }
+        return new File(cachePath + File.separator + getRelativeMountPoint()
+               + File.separator + path + File.separator + CACHE_FILE_NAME);
+    }
+
     private void createDir(String path) {
         File dir = new File(path);
         if (dir.isDirectory()) {
