@@ -18,6 +18,10 @@ Microsystems, Inc. All Rights Reserved.
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM"/>
   <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar"/>
 
+  <target name="init">
+    <available property="javax" classname="javax.naming.Context"/>
+  </target>
+
   <target name="compile">
     <javac srcdir="src" destdir="src">
       <classpath>        
@@ -41,17 +45,13 @@ Microsystems, Inc. All Rights Reserved.
 	 excludesfile="${nbroot}/nbbuild/standard-jar-excludes.txt"
 	 compress="false"/>
   </target>
-<!--
-  <target name="javahelp">
-    <copydir src="javahelp" dest="netbeans/docs"/>
-  </target>
--->
 
   <target name="release">
     <copydir src="release" dest="netbeans"/>
   </target>
 
   <target name="netbeans" depends="jars,release"/>
+
 <!--
   <target name="nbm" depends="netbeans">
     <makenbm file="jndi.nbm"
@@ -67,6 +67,7 @@ Microsystems, Inc. All Rights Reserved.
     </makenbm>
   </target>
 -->
+
   <target name="clean">
     <delete dir="src">
       <include name="**/*.class"/>
