@@ -81,6 +81,10 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
      * only to find existing tags. File is set by StatusInfoPanel.
      */
     private File fileFromInfo;
+    /**
+     * The common path of the task.
+     */
+    private File commonPath;
     /** 
      * Creates new CvsStatusVisualizer
      */
@@ -110,7 +114,7 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         super.setVcsTask(task);
         statusFilePathsBuildersByFiles = new HashMap();
         Iterator  it = files.iterator();
-        File commonPath = rootDir;
+        commonPath = rootDir;
         String commonParent = (String) task.getVariables().get("COMMON_PARENT");
         if (commonParent != null && commonParent.length() > 0) {
             commonPath = new File(commonPath, commonParent);
@@ -211,10 +215,8 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         Iterator it = resultList.iterator();
         while (it.hasNext()) {
             StatusInformation statusInfo = (StatusInformation) it.next();
-            if (statusInfo.getFile() != null) {
-                continue;
-            }
-            boolean found = statusFilePathBuilder.fillStatusInfoFilePath(statusInfo);
+            assert statusInfo.getFile() != null: "No File for status info: "+statusInfo+", file = "+file+", statusFilePathBuilder = "+statusFilePathBuilder;
+            //boolean found = statusFilePathBuilder.fillStatusInfoFilePath(statusInfo);
             //if (!found) {
                 //statusInfo.setFile(null);
             //}
@@ -278,6 +280,7 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
             else
                 status = STATUS_UNKNOWN;                      
             statusInformation.setStatus(status);
+            statusInformation.setFile(new File(commonPath, fileName));
         }
 
         if (line.startsWith(UNKNOWN)) {            
@@ -349,7 +352,7 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
 
     private boolean assertNotNull() {
         if (statusInformation == null) {
-            System.err.println("Bug: statusInformation must not be null!");
+            assert false : "Bug: statusInformation must not be null!";
             return false;
         }
 
@@ -394,7 +397,14 @@ public class CvsStatusVisualizer extends OutputVisualizer implements TextErrorLi
         //    file = getFileFromRev(statusInformation.getRepositoryFileName());
         if (file != null) {
             statusInformation.setFile(file);
+        } else {
+            for (Iterator it = statusFilePathsBuildersByFiles.values().iterator(); it.hasNext(); ) {
+                StatusFilePathsBuilder statusFilePathBuilder = (StatusFilePathsBuilder) it.next();
+                boolean found = statusFilePathBuilder.fillStatusInfoFilePath(statusInformation);
+                if (found) break;
+            }
         }
+        assert statusInformation.getFile() != null: "ERROR: null file in "+statusInformation+" in processRepRev("+line+")";
     }
 
     private void processTag(String line) {

@@ -132,14 +132,24 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
     
     
     private void checkBoxChanged() {
-        totalCount = 0;
-        selectedCount = 0;
-        recreateModel();
-        Integer selCount = new Integer(selectedCount);
-        Integer totCount = new Integer(totalCount);
-        String txt = NbBundle.getMessage(StatusTreeInfoPanel.class, "StatusTreeInfoPanel.lblCount", // NOI18N
-                                selCount.toString(), totCount.toString());
-        lblCount.setText(txt);
+        final Cursor c = getCursor();
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                try {
+                    setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.WAIT_CURSOR));
+                    totalCount = 0;
+                    selectedCount = 0;
+                    recreateModel();
+                    Integer selCount = new Integer(selectedCount);
+                    Integer totCount = new Integer(totalCount);
+                    String txt = NbBundle.getMessage(StatusTreeInfoPanel.class, "StatusTreeInfoPanel.lblCount", // NOI18N
+                                            selCount.toString(), totCount.toString());
+                    lblCount.setText(txt);
+                } finally {
+                    setCursor(c);
+                }
+            }
+        });
     }
     
     private void initButtons() {
@@ -336,15 +346,25 @@ final class StatusTreeInfoPanel extends AbstractTreeInfoPanel {
  * knows what command the data comes from and most important in what format. 
  * (which FileInfoContainer class is used).
  */
-  public void setDataToDisplay(Collection resultList) {
-      totalCount = 0;
-      selectedCount = 0;
-      super.setDataToDisplay(resultList);
-      Integer selCount = new Integer(selectedCount);
-      Integer totCount = new Integer(totalCount);
-      String txt = NbBundle.getMessage(StatusTreeInfoPanel.class, "StatusTreeInfoPanel.lblCount", // NOI18N
-                              selCount.toString(), totCount.toString());
-      lblCount.setText(txt);
+  public void setDataToDisplay(final Collection resultList) {
+      final Cursor c = getCursor();
+      RequestProcessor.getDefault().post(new Runnable() {
+          public void run() {
+              try {
+                  setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.WAIT_CURSOR));
+                  totalCount = 0;
+                  selectedCount = 0;
+                  StatusTreeInfoPanel.super.setDataToDisplay(resultList);
+                  Integer selCount = new Integer(selectedCount);
+                  Integer totCount = new Integer(totalCount);
+                  String txt = NbBundle.getMessage(StatusTreeInfoPanel.class, "StatusTreeInfoPanel.lblCount", // NOI18N
+                                          selCount.toString(), totCount.toString());
+                  lblCount.setText(txt);
+              } finally {
+                  setCursor(c);
+              }
+          }
+      });
   }
   
   /** to be overidden in case more than the filemane is to be displaed in the Table

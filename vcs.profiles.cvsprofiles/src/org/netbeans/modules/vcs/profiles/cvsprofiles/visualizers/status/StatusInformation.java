@@ -89,6 +89,8 @@ public final class StatusInformation extends FileInfoContainer {
     private String stickyDate;
     private String stickyOptions;
     private String stickyTag;
+    
+    private Exception createdException;
 
     /**
      * Hold key pairs of existing tags.
@@ -98,6 +100,7 @@ public final class StatusInformation extends FileInfoContainer {
     private StringBuffer symNamesBuffer;
 
     public StatusInformation() {
+        createdException = new Exception();
         setAllExistingTags(null);
     }
 
@@ -344,6 +347,9 @@ public final class StatusInformation extends FileInfoContainer {
         buf.append("\nWorking revision: "); //NOI18N
         buf.append(workingRevision);
         buf.append("\nRepository revision: "); //NOI18N
+        buf.append(repositoryRevision);
+        buf.append("\nRepository file: "); // NOI18N
+        buf.append(repositoryFileName);
         buf.append("\nSticky date: "); //NOI18N
         buf.append(stickyDate);
         buf.append("\nSticky options: "); //NOI18N
@@ -357,6 +363,13 @@ public final class StatusInformation extends FileInfoContainer {
                 buf.append("\n  "); //NOI18N
                 buf.append(it.next().toString());
             }
+        }
+        buf.append("\n");
+        buf.append("Created at:\n");
+        StackTraceElement[] stack = createdException.getStackTrace();
+        int max = stack.length > 10 ? 10 : stack.length;
+        for (int i = 1; i<max; i++) {
+            buf.append(stack[i].toString() + "\n");  // NOI18N
         }
         return buf.toString();
     }
