@@ -166,8 +166,9 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         else if (line.startsWith(MERGING)) {
             int fileIndex = line.indexOf(MERGING_INTO, MERGING.length());
             //System.out.println("   file index = "+fileIndex);
+            String fileName = null;
             if (fileIndex > 0) {
-                String fileName = line.substring(fileIndex + MERGING_INTO.length()).trim();
+                fileName = line.substring(fileIndex + MERGING_INTO.length()).trim();
                 //System.out.println("  file = "+createFile(fileName));
                 if (fileInfoContainer != null && (fileInfoContainer.getFile() != null && !createFile(fileName).equals(fileInfoContainer.getFile()))) {
                     outputDone();
@@ -176,7 +177,13 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
             if (fileInfoContainer == null) {
                 fileInfoContainer = new UpdateInformation();
             }
-            fileInfoContainer.setType(UpdateInformation.MERGED_FILE);
+            if (!"A".equals(fileInfoContainer.getType())) {
+                // All but added files are merged.
+                fileInfoContainer.setType(UpdateInformation.MERGED_FILE);
+            }
+            if (fileName != null) {
+                fileInfoContainer.setFile(createFile(fileName));
+            }
         }
         else if (line.startsWith(CONFLICTS)) {
             if (fileInfoContainer != null) {
