@@ -792,7 +792,10 @@ public class VcsUtilities {
                     FileSystem fileSys = fo.getFileSystem();
                     if (!fileSys.equals(fs)) {
                         String nativePath = (String) fo.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
-                        toReturn[i] = fs.findResource(nativePath);
+                        fo = fs.findResource(nativePath);
+                        if (fo != null) {
+                            toReturn[i] = fo;
+                        }
                     }
                 } catch (FileStateInvalidException exc) {
                     continue;
