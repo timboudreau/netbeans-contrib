@@ -25,11 +25,12 @@ Microsystems, Inc. All Rights Reserved.
                 <include name="pmd.nbm"/>
             </patternset>
         </unzip>
+        <move file="tmp/pmd.nbm" tofile="tmp/pmd.en-bee-em"/>
     </target>
 
     <target name="netbeans" depends="init">
         <mkdir dir="netbeans"/>
-        <unzip src="tmp/pmd.nbm" dest=".">
+        <unzip src="tmp/pmd.en-bee-em" dest=".">
             <patternset>
                 <include name="netbeans/**/*.jar"/>
             </patternset>
@@ -54,10 +55,10 @@ Microsystems, Inc. All Rights Reserved.
 
     <target name="nbm" depends="init,do-fix-dist.base,dont-fix-dist.base">
         <!-- Distribution attr not set, so this will not work for Dev AU:
-        <copy file="tmp/pmd.nbm" tofile="pmd.nbm"/>
+        <copy file="tmp/pmd.en-bee-em" tofile="pmd.nbm"/>
         -->
         <mkdir dir="tmp/expanded-nbm"/>
-        <unzip dest="tmp/expanded-nbm" src="tmp/pmd.nbm">
+        <unzip dest="tmp/expanded-nbm" src="tmp/pmd.en-bee-em">
             <patternset>
                 <!-- Signatures will not work after patching, so redo them: -->
                 <exclude name="META-INF/*"/>
@@ -65,7 +66,7 @@ Microsystems, Inc. All Rights Reserved.
         </unzip>
         <copy file="tmp/expanded-nbm/Info/info.xml" tofile="tmp/info-subst.xml"/>
         <replace file="tmp/info-subst.xml" token='codenamebase="pmd"' value='codenamebase="pmd" distribution="${dist.base.fixed}/pmd.nbm"'/>
-        <jar jarfile="tmp/pmd-subst.nbm" compress="true">
+        <jar jarfile="tmp/pmd-subst.en-bee-em" compress="true">
             <fileset dir="tmp/expanded-nbm">
                 <exclude name="Info/info.xml"/>
             </fileset>
@@ -75,10 +76,10 @@ Microsystems, Inc. All Rights Reserved.
         <antcall target="maybe-dont-sign-nbm"/>
     </target>
     <target name="maybe-sign-nbm" if="keystore">
-        <signjar jar="tmp/pmd-subst.nbm" signedjar="pmd.nbm" keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+        <signjar jar="tmp/pmd-subst.en-bee-em" signedjar="pmd.nbm" keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
     </target>
     <target name="maybe-dont-sign-nbm" unless="keystore">
-        <copy file="tmp/pmd-subst.nbm" tofile="pmd.nbm"/>
+        <copy file="tmp/pmd-subst.en-bee-em" tofile="pmd.nbm"/>
     </target>
 
     <target name="clean">
