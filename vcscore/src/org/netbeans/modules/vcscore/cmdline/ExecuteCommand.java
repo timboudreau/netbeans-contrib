@@ -297,7 +297,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             } catch (RESyntaxException exc) {
                 TopManager.getDefault().notifyException(
                     TopManager.getDefault().getErrorManager().annotate(exc,
-                        NbBundle.getMessage(ExternalCommand.class, "BadRegexMessageInfo", dataRegexGlobal)));
+                        NbBundle.getMessage(ExternalCommand.class, "MSG_BadRegexMessageInfo", dataRegexGlobal)));
             }
             if (dataRegexGlobalRE != null) {
                 globalRegexs[0] = dataRegexGlobalRE;
@@ -314,7 +314,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
             } catch (RESyntaxException exc) {
                 TopManager.getDefault().notifyException(
                     TopManager.getDefault().getErrorManager().annotate(exc,
-                        NbBundle.getMessage(ExternalCommand.class, "BadRegexMessageInfo", errorRegexGlobal)));
+                        NbBundle.getMessage(ExternalCommand.class, "MSG_BadRegexMessageInfo", errorRegexGlobal)));
             }
             if (errorRegexGlobalRE != null) {
                 globalRegexs[1] = errorRegexGlobalRE;
@@ -347,7 +347,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         } catch (BadRegexException e) {
             TopManager.getDefault().notifyException(
                 TopManager.getDefault().getErrorManager().annotate(e,
-                    NbBundle.getMessage(ExternalCommand.class, "BadRegexMessageInfo", dataRegex)));
+                    NbBundle.getMessage(ExternalCommand.class, "MSG_BadRegexMessageInfo", dataRegex)));
         }
         try {
             if (errorRegexGlobalRE == null) {
@@ -371,7 +371,7 @@ public class ExecuteCommand extends Object implements VcsCommandExecutor {
         } catch (BadRegexException e) {
             TopManager.getDefault().notifyException(
                 TopManager.getDefault().getErrorManager().annotate(e,
-                    NbBundle.getMessage(ExternalCommand.class, "BadRegexMessageInfo", errorRegex)));
+                    NbBundle.getMessage(ExternalCommand.class, "MSG_BadRegexMessageInfo", errorRegex)));
         }
         if (dataOutput != null || errorOutput != null) {
             return new StringBuffer[] { dataOutput, errorOutput };
