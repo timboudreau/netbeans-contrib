@@ -95,13 +95,11 @@ Microsystems, Inc. All Rights Reserved.
             <patternset>
     		<include name="complete/pvcs_profile/MountPVCSFilesystem.class"/>
     		<include name="complete/pvcs_profile/AllTogether.class"/>
-		<include name="complete/pvcs_profile/StubAllTogether.class"/>
-		<include name="complete/pvcs_profile/AdditionalCommands.class"/>
             </patternset>
         </testset>
     </testbag>
-    
-    <testbag testattribs="validation" name="pvcs_profile_validation">
+
+    <testbag testattribs="full,validation" name="pvcs_profile_validation">
         <testset dir="qa-functional/src">
             <patternset>
 		<include name="complete/pvcs_profile/StubAllTogether.class"/>
