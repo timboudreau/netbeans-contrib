@@ -925,7 +925,7 @@ err.log("Couldn't find current nodes...");
 
     private class WindowSystemMonitor implements PropertyChangeListener, ComponentListener {
 
-        private Set openedSoFar = new HashSet(0);
+        private Set openedSoFar = null;
 
         /** Reacts to changes */
         public void propertyChange(PropertyChangeEvent ev) {
@@ -933,20 +933,27 @@ err.log("Couldn't find current nodes...");
             if (prop.equals(TopComponent.Registry.PROP_OPENED)) {
                 componentsChanged();
 
-                // determine what components have been closed, window system does not
-                // provide any other listener to do it in more smart way
+                if (allOpenedClientsCount > 0) {
+                    // determine what components have been closed, window system does not
+                    // provide any other listener to do it in more smart way
 
-                List list = Arrays.asList(SuggestionsScanner.openedTopComponents());
-                Set actual = new HashSet(list);
-                openedSoFar.removeAll(actual);
+                    List list = Arrays.asList(SuggestionsScanner.openedTopComponents());
+                    Set actual = new HashSet(list);
 
-                Iterator it = openedSoFar.iterator();
-                while(it.hasNext()) {
-                    TopComponent tc = (TopComponent) it.next();
-                    handleTopComponentClosed(tc);
+                    if (openedSoFar != null) {
+                        openedSoFar.removeAll(actual);
+
+                        Iterator it = openedSoFar.iterator();
+                        while(it.hasNext()) {
+                            TopComponent tc = (TopComponent) it.next();
+                            handleTopComponentClosed(tc);
+                        }
+                    }
+
+                    openedSoFar = actual;
+                } else {
+                    openedSoFar = null;
                 }
-
-                openedSoFar = actual;
             }
         }
 
