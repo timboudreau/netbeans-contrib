@@ -20,6 +20,7 @@ import java.util.*;
 import java.text.MessageFormat;
 import javax.swing.text.DefaultEditorKit;
 
+import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.nodes.Children;
 import org.openide.nodes.Index;
@@ -186,25 +187,37 @@ public class UserConditionedCommandsPanel extends JPanel implements CommandChang
             UserCommand newcmd = (UserCommand) commandNode.getCommand();
             Children subChildren = commandNode.getChildren();
             CommandsTree newNode;
+            UserCommandSupport cmdSupp;
+            boolean createSubTree = false;
             if (newcmd == null) {
                 newNode = CommandsTree.EMPTY;
+                cmdSupp = null;
             } else {
+                cmdSupp = new UserCommandSupport(newcmd, executionContext);
                 if (Children.LEAF.equals(subChildren)) {
-                    newNode = new CommandsTree(new UserCommandSupport(newcmd, executionContext));
+                    newNode = new CommandsTree(cmdSupp);
                 } else {
-                    newNode = new CommandsTree(new UserCommandSupport(newcmd, executionContext));
-                    createCommandsTree(commandNode, newNode, executionContext, ccbuilder);
+                    newNode = new CommandsTree(cmdSupp);
+                    createSubTree = true;
                 }
             }
             newCommands.add(newNode);
+            if (createSubTree) {
+                createCommandsTree(commandNode, newNode, executionContext, ccbuilder);
+            }
             Condition mainC = commandNode.getMainCondition();
+            if (mainC != null) ccbuilder.addConditionedCommand(cmdSupp, mainC);
             Collection conditionedProperties = commandNode.getConditionedProperties();
             //ConditionedPropertiesCommand cpcommand = commandNode.getConditionedPropertiesCommand();
             //ConditionedProperty[] cproperties = cpcommand.getConditionedProperties();
             //for (int p = 0; p < cproperties.length; p++) {
             if (conditionedProperties != null) {
                 for (Iterator it = conditionedProperties.iterator(); it.hasNext(); ) {
-                    ccbuilder.addPropertyToCommand(commandNode.getCommand().getName(), mainC, (ConditionedProperty) it.next());
+                    ConditionedProperty cproperty = (ConditionedProperty) it.next();
+                    boolean added = ccbuilder.addPropertyToCommand(newcmd.getName(), mainC, cproperty);
+                    if (!added) {
+                        ErrorManager.getDefault().notify(ErrorManager.WARNING, new IllegalStateException("Internal problem of storing command properties. The set of commands can be corrupted."));
+                    }
                 }
             }
         }
