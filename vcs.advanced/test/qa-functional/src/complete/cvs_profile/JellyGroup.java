@@ -222,16 +222,6 @@ public class JellyGroup extends JellyStub {
         pso.close();
     }
     
-    public void saveToFile (String filename, String text) {
-        try {
-            FileWriter fr = new FileWriter (filename);
-            fr.write(text);
-            fr.close ();
-        } catch (IOException e) {
-            new AssertionFailedErrorException ("IOException while saving text into file: File: " + filename + " Text: " + text, e);
-        }
-    }
-    
     public void testCommitGroup () {
         new VCSGroupsAction ().perform ();
         VCSGroupsFrameOperator vgf = new VCSGroupsFrameOperator ();
@@ -239,8 +229,12 @@ public class JellyGroup extends JellyStub {
         assertTrue("Refresh directory command failed", history.waitCommand("Refresh", hInitDir));
         waitStatus (vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.1", TEST_GROUP + "|" + tText1, true);
         waitStatus (vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.1", TEST_GROUP + "|" + tText2, true);
-        saveToFile (fText1, "text1");
-        saveToFile (fText2, "text2");
+        try {
+            JellyStub.saveToFile (fText1, "text1");
+            JellyStub.saveToFile (fText2, "text2");
+        } catch (IOException e) {
+            throw new AssertionFailedErrorException("IOException while setting test case up", e);
+        }
         new CVSFileNode (exp.repositoryTab ().tree (), nInitDir).cVSRefresh ();
         assertTrue("Refresh directory command failed", history.waitCommand("Refresh", hInitDir));
         waitStatus (vgf.treeVCSGroupsTreeView (), "Locally Modified; 1.1", TEST_GROUP + "|" + tText1, true);
@@ -289,8 +283,11 @@ public class JellyGroup extends JellyStub {
     public void testVerifyGroupToAdd () {
         new VCSGroupsAction ().perform ();
         VCSGroupsFrameOperator vgf = new VCSGroupsFrameOperator ();
-        
-        saveToFile (fText3, "text3");
+        try {
+            JellyStub.saveToFile (fText3, "text3");
+        } catch (IOException e) {
+            throw new AssertionFailedErrorException("IOException while setting test case up", e);
+        }
         new CVSFileNode (exp.repositoryTab ().tree (), nInitDir).cVSRefresh ();
         assertTrue("Refresh directory command failed", history.waitCommand("Refresh", hInitDir));
         new CVSFileNode (exp.repositoryTab ().tree (), nText3).includeInVCSGroup(TEST_GROUP);
