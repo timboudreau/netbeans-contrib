@@ -55,7 +55,7 @@ public final class Settings extends SystemOption {
     }
 
     public HelpCtx getHelpCtx () {
-	return new HelpCtx ("Tasklist_todo_option");	        //NOI18N
+	return new HelpCtx (org.netbeans.modules.tasklist.docscan.Settings.class);	        //NOI18N
     }
 
 
