@@ -18,8 +18,6 @@ Microsystems, Inc. All Rights Reserved.
 
   <property name="license.file" value="perforce-nbm-license.txt"/>
 
-  <taskdef name="makelayer" classname="org.netbeans.nbbuild.MakeLayer" classpath="${nb_all}/nbbuild/nbantext.jar"/>
-
   <target name="init" depends="default.init">
     <patternset id="vcsgeneric/profiles/perforce.files">
       <include name="${nb.modules.dir}/perforce-profile.jar"/>
@@ -42,21 +40,6 @@ Microsystems, Inc. All Rights Reserved.
   </target>
 
   <target name="jars" depends="compile">
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/perforce/layer-includes-config.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/perforce/config/*.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/perforce/config/*_ja.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/perforce/config/*_XX.*"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/perforce/config/Bundle.properties"/>
-       <exclude name="org/netbeans/modules/vcs/profiles/perforce/config/Bundle_*.properties"/>
-    </makelayer>
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/perforce/layer-includes-configRB.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/perforce/config/Bundle.properties"/>
-    </makelayer>
-    <makelayer topdir="src" destfile="src/org/netbeans/modules/vcs/profiles/perforce/layer-includes-list.xml" absolutepath="true">
-       <include name="org/netbeans/modules/vcs/profiles/perforce/list/*.class"/>
-       <include name="org/netbeans/modules/vcs/profiles/perforce/list/*.java"/>
-       <include name="org/netbeans/modules/vcs/profiles/perforce/list/*.properties"/>
-    </makelayer>
     <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/${nb.modules.dir}"/>
     <filter token="BUILD_NUMBER_SUBST" value="${buildnumber}"/>
     <copy file="manifest.mf" tofile="manifest-subst.mf" filtering="on"/>
@@ -88,12 +71,15 @@ Microsystems, Inc. All Rights Reserved.
     </makenbm>
   </target>
 
-  <target name="clean">
+  <target name="clean" depends="init">
     <delete>
       <fileset dir="src">
         <include name="**/*.class"/>
         <include name="**/*.jar"/>
         <include name="org/netbeans/modules/vcs/profiles/perforce/layer-include*.xml"/>
+      </fileset>
+      <fileset dir="${netbeans.dest.dir}/${cluster.dir}">
+        <patternset refID="vcsgeneric/profiles/perforce.files"/>
       </fileset>
     </delete>
     <delete file="manifest-subst.mf"/>
