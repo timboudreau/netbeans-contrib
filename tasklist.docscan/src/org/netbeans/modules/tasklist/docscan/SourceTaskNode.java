@@ -58,4 +58,11 @@ final class SourceTaskNode extends SuggestionNode {
         return new Action[0];
     }
 
+    public String getDisplayName() {
+        return Util.getString("task-col");  // see TreeTableModelAdapter.getColumnName(int column)
+    }
+
+    public String getShortDescription() {
+        return Util.getString("TODOHint");
+    }
 }

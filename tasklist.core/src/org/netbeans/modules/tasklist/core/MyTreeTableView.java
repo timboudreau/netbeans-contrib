@@ -26,8 +26,9 @@ import org.openide.explorer.view.TreeTableView;
     // a JScrollPane, so its getViewport().getView() will be the
 // JTable!
 // todo comments
-public class MyTreeTableView extends TreeTableView implements TreeTableIntf {
+final class MyTreeTableView extends TreeTableView implements TreeTableIntf {
     public MyTreeTableView() {
+
         JTable table = treeTable;
         table.setShowHorizontalLines(true);
         table.setShowVerticalLines(false);

@@ -958,7 +958,7 @@ err.log("Couldn't find current nodes...");
 
 
     /**
-     * Binding to outer word that can be changed by unit tests
+     * Binding to outer world that can be changed by unit tests
      */
     static class Env {
 
