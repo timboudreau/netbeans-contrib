@@ -2746,7 +2746,7 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     protected boolean deleteFile(final File file, String name) throws IOException {
         if (!file.exists()) return true; // non existing file is successfully deleted
-        if (!file.canWrite() || !file.canRead()) {
+        if (!file.canWrite()/* || !file.canRead()*/) {
             throw new IOException() {
                 /** Localized message. */
                 public String getLocalizedMessage () {
@@ -2768,9 +2768,100 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
         boolean success = file.delete();
         if (cache != null) cache.remove(name, wasDir);
+        callDeleteCommand(name, wasDir);
         return success;
     }
+    
+    /**
+     * When a file or folder was deleted, a command DELETE_FILE
+     * or DELETE_DIR is called. Subclasses can do their own actions here.
+     */
+    protected void callDeleteCommand(String name, boolean isDir) {
+        VcsCommand cmd;
+        if (isDir) {
+            cmd = getCommand(VcsCommand.NAME_DELETE_DIR);
+        } else {
+            cmd = getCommand(VcsCommand.NAME_DELETE_FILE);
+        }
+        if (cmd != null) {
+            if (VcsCommandIO.getBooleanProperty(cmd, VcsCommand.PROPERTY_RUN_ON_MULTIPLE_FILES)) {
+                addDeleteCommand(name, isDir);
+            } else {
+                Table files = new Table();
+                files.put(name, findResource(name));
+                VcsAction.doCommand(files, cmd, null, this);
+            }
+        }
+    }
 
+    private transient ArrayList deleteFileCommandQueue = new ArrayList();
+    private transient ArrayList deleteFolderCommandQueue = new ArrayList();
+    private transient Thread deleteCommandThread = null;
+    
+    private void addDeleteCommand(String name, boolean isDir) {
+        synchronized (deleteFileCommandQueue) {
+            if (isDir) {
+                deleteFolderCommandQueue.add(name);
+            } else {
+                deleteFileCommandQueue.add(name);
+            }
+            deleteFileCommandQueue.notifyAll();
+            if (deleteCommandThread == null || !deleteCommandThread.isAlive()) {
+                deleteCommandThread = createDeleteCommandThread();
+                deleteCommandThread.start();
+            }
+        }
+    }
+    
+    private Thread createDeleteCommandThread() {
+        return new Thread(new Runnable() {
+            public void run() {
+                do {
+                    boolean changed = true;
+                    int n = deleteFolderCommandQueue.size() + deleteFileCommandQueue.size();
+                    while (changed) {
+                        synchronized (deleteFileCommandQueue) {
+                            try {
+                                deleteFileCommandQueue.wait(1000);
+                            } catch (InterruptedException exc) {}
+                        }
+                        int n1 = deleteFolderCommandQueue.size() + deleteFileCommandQueue.size();
+                        changed = n != n1;
+                        n = n1;
+                    }
+                    ArrayList fileCommand = new ArrayList();
+                    ArrayList folderCommand = new ArrayList();
+                    synchronized (deleteFileCommandQueue) {
+                        fileCommand.addAll(deleteFileCommandQueue);
+                        deleteFileCommandQueue.clear();
+                        folderCommand.addAll(deleteFolderCommandQueue);
+                        deleteFolderCommandQueue.clear();
+                    }
+                    if (fileCommand.size() > 0) {
+                        runDeleteFilesCommand(fileCommand, getCommand(VcsCommand.NAME_DELETE_FILE));
+                    }
+                    if (folderCommand.size() > 0) {
+                        runDeleteFilesCommand(folderCommand, getCommand(VcsCommand.NAME_DELETE_DIR));
+                    }
+                    synchronized (deleteFileCommandQueue) {
+                        try {
+                            deleteFileCommandQueue.wait(1000);
+                        } catch (InterruptedException exc) {}
+                    }
+                } while (deleteFolderCommandQueue.size() + deleteFileCommandQueue.size() > 0);
+            }
+        }, "VCS Delete file/dir command");
+    }
+    
+    private void runDeleteFilesCommand(java.util.List filesList, VcsCommand cmd) {
+        Table files = new Table();
+        for (Iterator it = filesList.iterator(); it.hasNext(); ) {
+            String name = (String) it.next();
+            files.put(name, findResource(name));
+        }
+        VcsAction.doCommand(files, cmd, null, this);
+    }
+    
     //-------------------------------------------
     //
     // Info
