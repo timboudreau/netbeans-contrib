@@ -4553,6 +4553,9 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         /** the folder name */
         private String name;
 
+        /** How many requests were sent to RP. */
+        private volatile int queuedRequests = 0;
+
         public VersioningFolderChangeListener(String name) {
             this.name = name;
         }
@@ -4587,9 +4590,12 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
         }
 
         private void refreshVersioning() {
+            queuedRequests++;
             getStatusChangeRequestProcessor().post(new Runnable() {
                 public void run() {
                     //System.out.println("refreshVersioning("+name+")");
+                    queuedRequests--;
+                    if (queuedRequests != 0) return;  // next queued request will handle it
                     if (versioningSystem != null) {
                         FileObject fo = versioningSystem.findExistingResource(name);
                         //System.out.println("  resource = "+fo);
