@@ -11,7 +11,23 @@ The Original Code is NetBeans. The Initial Developer of the Original
 Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
-<!-- Simply a wrapper for an externally distributed NBM. -->
+
+<!-- Simply a wrapper for an externally distributed NBM. 
+
+  Note on usefullness
+
+  It essencially just sets NBM distribution attribute.
+  The attribute is often updated  by update center
+  maintainer (Rob Novak for NetBeans.org ones) either.
+
+  I guess whole script is useless because in typical
+  scenarion you should go directly to PMD SourceForge
+  project CVS and build the nbm there.
+
+  <http://www.netbeans.org/issues/show_bug.cgi?id=40905>
+
+                                         Cc.
+-->
 <project name="contrib/pmd-nb-wrapper" basedir="." default="netbeans">
 
     <property name="nbm_alias" value="nb_ide"/>
