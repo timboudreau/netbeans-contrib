@@ -611,7 +611,24 @@ public class WebAppProxy implements WebApp {
     }
     
     public void setFilterMapping(org.netbeans.api.web.dd.FilterMapping[] value) {
-        webApp.setFilterMapping(value);
+        org.netbeans.api.web.dd.FilterMapping[] oldMappings = getFilterMapping();
+        int lenOld = oldMappings.length;
+        int lenNew = (value==null?0:value.length);
+        if (lenOld<=lenNew) {
+            for (int i=0;i<lenOld;i++) {
+                webApp.setFilterMapping(i,value[i]);
+            }
+            for (int i=lenOld;i<lenNew;i++) {
+                webApp.addFilterMapping(value[i]);
+            }
+        } else {
+            for (int i=0;i<lenNew;i++) {
+                webApp.setFilterMapping(i,value[i]);
+            } 
+            for (int i=lenOld-1;i>=lenNew;i--) {
+                webApp.removeFilterMapping(oldMappings[i]);
+            }
+        }
     }
     
     public void setFilterMapping(int index, org.netbeans.api.web.dd.FilterMapping value) {
@@ -639,7 +656,24 @@ public class WebAppProxy implements WebApp {
     }
     
     public void setListener(org.netbeans.api.web.dd.Listener[] value) {
-        webApp.setListener(value);
+        org.netbeans.api.web.dd.Listener[] oldListeners = getListener();
+        int lenOld = oldListeners.length;
+        int lenNew = (value==null?0:value.length);
+        if (lenOld<=lenNew) {
+            for (int i=0;i<lenOld;i++) {
+                webApp.setListener(i,value[i]);
+            }
+            for (int i=lenOld;i<lenNew;i++) {
+                webApp.addListener(value[i]);
+            }
+        } else {
+            for (int i=0;i<lenNew;i++) {
+                webApp.setListener(i,value[i]);
+            } 
+            for (int i=lenOld-1;i>=lenNew;i--) {
+                webApp.removeListener(oldListeners[i]);
+            }
+        }
     }
     
     public void setListener(int index, org.netbeans.api.web.dd.Listener value) {
