@@ -13,7 +13,7 @@ import java.rmi.*;
  * @author __USER__
  * @version 1.0
  */
-public class RMI__Client extends Object {
+public class RMIClient extends Object {
 
     /** Creates new __NAME__ */
     public RMIClient() {
