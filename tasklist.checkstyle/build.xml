@@ -29,7 +29,14 @@ Microsystems, Inc. All Rights Reserved.
     <!-- TODO Remove this when the module is part of the full tasklist build -->
     <property name="build.compiler.debug" value="on"/>
 
-    <target name="compile">
+    <target name="check-external">
+        <available file="../external/checkstyle-all-3.3.jar" property="checkstyle-all.present" />
+        <fail unless="checkstyle-all.present" message="Missing library. Read README for proper setup." />
+        <available file="../external/checkstyle.xml" property="checkstyle-rule.present" />
+        <fail unless="checkstyle-rule.present" message="Missing ruleset. Read README for proper setup."/>
+    </target>
+
+    <target name="compile" depends="check-external">
         <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
             <classpath>
                 <pathelement location="${nb_all}/openide/openide-13javac-workaround.jar"/>
