@@ -14,7 +14,11 @@
 package org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update;
 
 import java.awt.Dialog;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.Iterator;
@@ -42,6 +46,8 @@ import org.openide.windows.Workspace;
  * The cvs update visualizer.
  * Reads the output from standard output only, which is merged with the error
  * output in the correct order.
+ * When the text that normally goes to the error output is not found,
+ * it will try to find out the "best" path.
  *
  * @author  Richard Gregor
  */
@@ -53,12 +59,13 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
      */
     public static final String MERGED_PATH = "Merged_Response_File_Path"; // NOI18N
     
-    public static final String UNKNOWN = "server: nothing known about"; //NOI18N
+    public static final String UNKNOWN = ": nothing known about"; //NOI18N
     public static final String EXAM_DIR = ": Updating"; //NOI18N
-    public static final String TO_ADD = "server: use `cvs add' to create an entry for"; //NOI18N
+    public static final String TO_ADD = ": use `cvs add' to create an entry for"; //NOI18N
     public static final String STATES = "U P A R M C ? "; //NOI18N
-    public static final String WARNING = "server: warning: "; //NOI18N
+    public static final String WARNING = ": warning: "; //NOI18N
     public static final String SERVER = "server: "; //NOI18N
+    public static final String UPDATE = "update: "; //NOI18N
     public static final String PERTINENT = "is not (any longer) pertinent"; //NOI18N
     public static final String MERGING = "Merging differences between "; //NOI18N
     private static final String MERGING_INTO = "into"; // NOI18N
@@ -78,6 +85,8 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
     private CommandOutputTextProcessor.TextOutput errOutput;
     private CommandOutputTextProcessor.TextOutput stdDataOutput;
     private CommandOutputTextProcessor.TextOutput errDataOutput;
+    
+    private boolean haveErrorOutput = true; // Whether we have the error output merged in. Be optimistic.
     
     /** Creates new CvsUpdateVisualizer */
     public CvsUpdateVisualizer() {
@@ -151,6 +160,7 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         }
         else if (line.indexOf(EXAM_DIR) >= 0) {
             filePath = line.substring(line.indexOf(EXAM_DIR) + EXAM_DIR.length()).trim();
+            if (".".equals(filePath)) filePath = ""; // NOI18N
             return;
         }
         else if (line.startsWith(MERGING)) {
@@ -182,8 +192,23 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
             return;
         }
         else if (line.indexOf(NOT_IN_REPOSITORY) > 0) {
-            String filename = line.substring(line.indexOf(SERVER) + SERVER.length(),
+            int index = line.indexOf(SERVER);
+            if (index < 0) {
+                index = line.indexOf(UPDATE);
+                if (index < 0) {
+                    index = line.indexOf(':');
+                    index++;
+                } else {
+                    index += UPDATE.length();
+                }
+            } else {
+                index += SERVER.length();
+            }
+            String filename = line.substring(index,
                                              line.indexOf(NOT_IN_REPOSITORY)).trim();
+            if (filename.startsWith("`") && filename.endsWith("'")) { // (cvs 1.12) // NOI18N
+                filename = filename.substring(1, filename.length() - 1);
+            }
             processNotPertinent(filename);
             return;
         }
@@ -201,8 +226,104 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
 
        
     private File createFile(String fileName) {
-        String path = (filePath != null) ? filePath + File.separator + fileName : fileName;
-        return new File(commonParentStr, path);
+        boolean haveToGuessPath;
+        String path;
+        int sep = fileName.lastIndexOf('/');
+        if (sep > 0) {
+            path = fileName;
+            haveToGuessPath = false;
+        } else {
+            path = (filePath != null && filePath.length() > 0) ?
+                    filePath + File.separator + fileName :
+                    fileName;
+            haveToGuessPath = true;
+        }
+        File file;
+        if (commonParentStr.length() > 0) {
+            file = new File(commonParentStr, path);
+        } else {
+            file = new File(path);
+        }
+        System.out.println("createFile("+commonParentStr+", "+path+") = "+file.getPath());
+        if (haveToGuessPath && filePath == null && !(new File(rootDir, file.getPath()).exists())) {
+            haveErrorOutput = false; // We most probably do not have the error output merged in.
+            file = createFileBestMatch(fileName);
+        }
+        return file;
+    }
+
+    private File createFileBestMatch(String fileName) {
+        Iterator it = files.iterator();
+        while(it.hasNext()){
+            File file = new  File((String)it.next());
+            if(file.getName().equals(fileName))
+                return file;
+        }
+        //directory name
+        String name = fileName.replace('\\', '/');        
+        //System.out.println("  createFile("+fileName+"), name = "+name);
+        int maxLevel = name.length();
+        File bestMatch = null;
+        String[] paths = new String[files.size()];
+        it = files.iterator();
+        int i = 0;
+        while(it.hasNext()){
+            paths[i++] = ((String)it.next()).replace('\\', '/');            
+        }
+        int start = name.lastIndexOf('/');
+        String part = null;
+        if (start < 0) {
+            part = name;
+        } else {
+            part = name.substring(start + 1);
+        }
+        int end = name.length() - 1;
+        while (start >= 0 || part != null) {
+            boolean wasMatch = false;
+            for (int index = 0; index < paths.length; index++) {
+                //System.out.println("     '"+paths[index]+"' ends with '"+part+"' = "+paths[index].endsWith(part));
+                if (paths[index].endsWith(part)) {
+                    String path = paths[index] + name.substring(end);
+                    if (path.startsWith("/")) path = path.substring(1);
+                    if (path.startsWith("./")) path = path.substring(2);
+                    bestMatch = new File(path);
+                    wasMatch = true;
+                }
+            }
+            if (wasMatch) {
+                break;
+            }
+            end = start;
+            if (start > 0) {
+                start = name.substring(0, end).lastIndexOf('/');
+                if (start < 0) start = -1; // slash is "virtually" at -1 position.
+            } else {
+                break;
+            }
+            //System.out.println("   start = "+start+", end = "+end);
+            part = name.substring(start + 1, end);
+        }
+        //System.out.println("  return '"+bestMatch+"'");
+        if (bestMatch == null) {
+            if (fileInfoContainer != null) {
+                File lastFile = fileInfoContainer.getFile();
+                if (lastFile != null) {
+                    if (name.indexOf('/') > 0) {
+                        bestMatch = new File(name);
+                    } else {
+                        bestMatch = new File(lastFile.getParentFile(), name);
+                    }
+                }
+            }
+            if (bestMatch == null) {
+                if (paths.length > 0 && !".".equals(paths[0])) {
+                    bestMatch = new File(paths[0] + File.separator + fileName);
+                } else {
+                    bestMatch = new File(fileName);
+                }
+            }
+        }
+        return bestMatch;        
     }
 
     private void ensureExistingFileInfoContainer() {
@@ -224,11 +345,12 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         
         String fileName = line.substring(2).trim();
         
-        int sep = fileName.lastIndexOf('/');
-        if (sep >= 0) fileName = fileName.substring(sep + 1);
-
         if (fileName.startsWith("no file")) { //NOI18N
             fileName = fileName.substring(8);
+        }
+        
+        if (fileName.startsWith("./")) { //NOI18N
+            fileName = fileName.substring(2);
         }
 
         File file = createFile(fileName);
@@ -295,6 +417,12 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
         }
         
         if (fileInfoContainer != null) {
+            if (!haveErrorOutput && UpdateInformation.MERGED_FILE.equals(fileInfoContainer.getType())) {
+                // we need to check Entries for conflicts
+                if (hasConflicts(new File(rootDir, fileInfoContainer.getFile().getPath()))) {
+                    fileInfoContainer.setType("C"); // NOI18N
+                }
+            }
             if (contentPane != null) {
                 contentPane.showFileInfoGenerated(fileInfoContainer);        
             } else {
@@ -306,6 +434,45 @@ public class CvsUpdateVisualizer extends OutputVisualizer {
             fileInfoContainer = null;
         }
         //System.out.println("outputDone("+this.hashCode()+") EXITED, fic = "+fileInfoContainer+", cp = "+(contentPane != null)+", oi = "+outputInfosToShow);
+    }
+    
+    private static boolean hasConflicts(File file) {
+        //System.out.println("  hasConflicts("+file+")");
+        File folder = file.getParentFile();
+        File entries = new File(folder, "CVS"+File.separator+"Entries");
+        String name = file.getName();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(entries));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("/")) {
+                    int end = line.indexOf('/', 1);
+                    if (end > 0) {
+                        String entryName = line.substring(1, end);
+                        if (name.equals(entryName)) {
+                            int begin = line.indexOf('/', end + 1);
+                            end = line.indexOf('/', begin + 1);
+                            //System.out.println("    have line = '"+line+"', searching for '+' in "+line.substring(begin, end));
+                            if (begin > 0 && end > begin) {
+                                // If there is '+', there are conflicts
+                                return line.substring(begin, end).indexOf('+') > 0;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (FileNotFoundException fnfExc) {
+            // ignore
+        } catch (IOException ioExc) {
+            // ignore
+        } finally {
+            try {
+                if (reader != null) reader.close();
+            } catch (IOException exc) {}
+        }
+        //System.out.println("  did not find the file in Entries!");
+        return false;
     }
     
     /** @return false to open immediatelly.

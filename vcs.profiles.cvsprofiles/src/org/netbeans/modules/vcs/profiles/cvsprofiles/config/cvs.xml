@@ -62,13 +62,6 @@ Microsystems, Inc. All Rights Reserved.
     <var name="BUILT-IN" value="true"/>
   </condition>
 
-  <condition var="IS_CMD-LINE_AND_WINDOWS">
-    <var name="IS_WINDOWS" value="true"/>
-    <not>
-      <var name="BUILT-IN" value="true"/>
-    </not>
-  </condition>
-
   <variables>
     <variable name="FS_DISPLAY_NAME" basic="false">
       <value>ResourceMsg(CVS_FS_DISPLAY_NAME)</value>
@@ -856,8 +849,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="UPDATE_CMD" >
 	<property name="exec">
-	  <value if="IS_CMD-LINE_AND_WINDOWS">${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>
-	  <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] 2&gt;&amp;1 ${NUR}</value>
+          <value>${CDM_EXECUTE} ${USER_GLOBAL_PARAM} update ${PRUNE_EMPTY} ${CREATE_DIRS} ${GET_CLEAN_COPY} ${SEND_TO_STDOUT} $[? RESET_STICKY] [${RESET_STICKY}] [$[? TAG] [-r ${TAG}] [] $[? DATE] [-D ${QUOTE}${DATE}${QUOTE}] []] $[? MERGE_SELECTION] [$[? MERGE_SELECTION - 1] [-j ${MERGE_REV1} -j ${MERGE_REV2}] [-j ${MERGE_REV}]] [] ${FORCE_HEAD_MATCH} ${RCS_KFLAG}  ${RECURSIVE} $[? DIR] [${QPATHS}] [$[? FILE] [${QPATHS}] []] ${NUR}</value>
 	</property>
 	<property name="data.regex">
 	  <value>^([UPARMC]) (.*$)|^(.*) (already contains the differences)(.*)$</value>
@@ -871,8 +863,10 @@ Microsystems, Inc. All Rights Reserved.
         <property name="runOnMultipleFiles">
           <value>true</value>
         </property>
+        <property name="mergeOutputStreams">
+          <value>true</value>
+        </property>
         <property name="visualizer">
-          <value if="IS_CMD-LINE_AND_WINDOWS">org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.CvsUpdateVisualizerStdOut</value>
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.update.CvsUpdateVisualizer</value>
         </property>
       </command>
@@ -1648,6 +1642,9 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
         <property name="runOnMultipleFiles">
+          <value>true</value>
+        </property>
+        <property name="mergeOutputStreams">
           <value>true</value>
         </property>
         <property name="visualizer">
