@@ -1,0 +1,50 @@
+? nbbuild/external/jhall-2.0_01.jar
+Index: nbbuild/build.xml
+===================================================================
+RCS file: /cvs/nbbuild/build.xml,v
+retrieving revision 1.639
+diff -u -r1.639 build.xml
+--- nbbuild/build.xml	16 Feb 2005 09:12:37 -0000	1.639
++++ nbbuild/build.xml	19 Feb 2005 07:09:45 -0000
+@@ -2586,6 +2586,25 @@
+     <ant dir="../websvc/websvcddapi" target="netbeans"/>
+   </target>
+ 
++  <target name="all-contrib/povray/povproject" depends="init,all-openide,all-openide/loaders,all-projects/projectapi,all-projects/projectuiapi">
++    <echo message="Building module contrib/povray/povproject.."/>
++    <getdependsclusters name="dependsClusters" list="${nb.clusters.list}"/>
++    <antcall target="build-one-cluster-dependencies" inheritAll="false">
++      <param name="one.cluster.dependencies" value="${dependsClusters}"/>
++      <param name="one.cluster.name" value="this-cluster"/>
++    </antcall>
++    <ant dir="../contrib/povray/povproject" target="netbeans"/>
++  </target>
++
++  <target name="all-contrib/povray/povray" depends="init, all-openide, all-openide/loaders,all-projects/projectapi,all-contrib/povray/povproject">
++    <echo message="Building module contrib/samplemodule/povray.."/>
++    <getdependsclusters name="dependsClusters" list="${nb.clusters.list}"/>
++    <antcall target="build-one-cluster-dependencies" inheritAll="false">
++      <param name="one.cluster.dependencies" value="${dependsClusters}"/>
++      <param name="one.cluster.name" value="this-cluster"/>
++    </antcall>
++    <ant dir="../contrib/povray/povray" target="netbeans"/>
++  </target>
+ 
+ 
+   <!-- target for branding of NetBeans IDE -->
+Index: nbbuild/templates/modules.xml
+===================================================================
+RCS file: /cvs/nbbuild/templates/modules.xml,v
+retrieving revision 1.84
+diff -u -r1.84 modules.xml
+--- nbbuild/templates/modules.xml	11 Feb 2005 15:38:55 -0000	1.84
++++ nbbuild/templates/modules.xml	19 Feb 2005 07:09:47 -0000
+@@ -856,4 +856,8 @@
+         <path>xtest/nbjunit</path>
+         <cnb>org.netbeans.modules.nbjunit</cnb>
+     </module>
++    <module>
++	<path>contrib/samplemodule/povproject</path>
++        <cnb>org.netbeans.modules.povproject</cnb>
++    </module>
+ </modules>
