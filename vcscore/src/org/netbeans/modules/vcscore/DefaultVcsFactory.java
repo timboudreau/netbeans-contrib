@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.openide.util.actions.SystemAction;
 import org.openide.nodes.Node;
 
+import org.netbeans.modules.vcscore.actions.VersioningExplorerAction;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandIO;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
@@ -164,6 +165,7 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
      *         child of the root command node.
      */
     public SystemAction[] getActions(Collection fos) {
+        ArrayList actions = new ArrayList();
         //return new SystemAction[] { getVcsAction() };
         //ArrayList actions = new ArrayList();
         VcsFileSystem fileSystem = (VcsFileSystem) this.fileSystem.get();
@@ -200,9 +202,13 @@ public class DefaultVcsFactory extends Object implements VcsFactory {
             }
             fsAction.setCommandsSubTrees(commandNodesSubTrees);
         }
+        actions.add(fsAction);
+        if (fileSystem.getVersioningFileSystem() != null) {
+            actions.add(SystemAction.get(VersioningExplorerAction.class));
+        }
         //System.out.println("action[0] = "+actions.get(0)+", action[1] = "+actions.get(1)+", equals = "+actions.get(0).equals(actions.get(1)));
         //return (SystemAction[]) actions.toArray(new SystemAction[actions.size()]);
-        return new SystemAction[] { fsAction };
+        return (SystemAction[]) actions.toArray(new SystemAction[0]);
     }
     
     /**
