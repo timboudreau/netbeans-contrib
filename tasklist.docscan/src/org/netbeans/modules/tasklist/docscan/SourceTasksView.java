@@ -1072,7 +1072,13 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
                 // do not add to chooser
             }
         }
-        final Node content = new AbstractNode(kids);
+        final Node content = new AbstractNode(kids) {
+            public void setName(String name) {
+                super.setName(name);
+                super.setIconBase("org/netbeans/modules/tasklist/docscan/repository");  // NOI18N
+            }
+        };
+
         content.setName(Util.getString("fs"));
 
         try {
