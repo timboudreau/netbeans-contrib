@@ -59,7 +59,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     private HashMap autoFillVars = new HashMap();
     
-    private HashMap cache = new HashMap ();
+    //private HashMap cache = new HashMap ();
     
     private String browseRoot = null;
     
@@ -67,6 +67,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private Hashtable envVariablesRemoved = new Hashtable();
     
     private int numCreations = 0;
+    
+    private ProfilesCache cache;
+    private String noProfileSelectedLabel;
     
     //private static transient FileLock configSaveLock = FileLock.NONE;
 
@@ -886,7 +889,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         NotifyDescriptor.Confirmation nd = new NotifyDescriptor.Confirmation (g("DLG_DeleteConfig", label), NotifyDescriptor.Confirmation.OK_CANCEL_OPTION);
         if(NotifyDescriptor.Confirmation.CANCEL_OPTION.equals (TopManager.getDefault ().notify (nd))) return;
         FileObject file = fileSystem.getConfigRootFO();
-        if (file != null) file = file.getFileObject((String) configNamesByLabel.get (label));
+        if (file != null) file = file.getFileObject(cache.getProfileName(label));//(String) configNamesByLabel.get (label));
         if (file != null) {
             try {
                 file.delete(file.lock());
@@ -924,6 +927,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         String configLabel = chooseFile.getSelectedConfigLabel();
         FileObject file = dir.getFileObject(selected, VariableIO.CONFIG_FILE_EXT);
         boolean configExists = false;
+        String profileName = selected + "." + VariableIO.CONFIG_FILE_EXT;
         if (file == null) {
             try {
                 file = dir.createData(selected, VariableIO.CONFIG_FILE_EXT);
@@ -973,7 +977,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             } finally {
                 if (lock != null) lock.releaseLock();
             }
-            cache.put(configLabel, doc);
+            //cache.put(configLabel, doc);
+            cache.addProfile(profileName, configLabel, variables, commands);
         } else {
             //VariableIOCompat.write (file, label, variables, advanced, fileSystem.getVcsFactory ().getVcsAdvancedCustomizer ());
         }
@@ -1019,7 +1024,8 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         switch( evt.getStateChange() ){
         case ItemEvent.SELECTED:
             String selectedLabel=(String)evt.getItem();
-            updateVariables (selectedLabel);
+            //updateVariables (selectedLabel);
+            /*
             E.deb ("config state changed to:"+selectedLabel);
             if(selectedLabel.equalsIgnoreCase("empty")) { // NOI18N
                 removeConfigButton.setEnabled (false);
@@ -1028,33 +1034,49 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
                 removeConfigButton.setEnabled (true);
                 saveAsButton.setNextFocusableComponent (removeConfigButton);
             }
+             */
             int selectedIndex=configCombo.getSelectedIndex();
+            if (selectedIndex > 0 && noProfileSelectedLabel != null
+                && noProfileSelectedLabel.equals(configCombo.getItemAt(0))) {
+                    
+                configCombo.removeItemAt(0);
+                promptForConfigComboChange = false;
+            }
 
             if( oldIndex==selectedIndex ){
                 //D.deb("nothing has changed oldIndex==selectedIndex=="+oldIndex); // NOI18N
                 return ;
             }
 
-            String msg=g("MSG_Do_you_really_want_to_discard_current_commands",selectedLabel); // NOI18N
-            NotifyDescriptor nd = new NotifyDescriptor.Confirmation (msg, NotifyDescriptor.YES_NO_OPTION );
-            if (!promptForConfigComboChange || TopManager.getDefault().notify( nd ).equals( NotifyDescriptor.YES_OPTION ) ) {
+            boolean change;
+            if (promptForConfigComboChange) {
+                String msg=g("MSG_Do_you_really_want_to_discard_current_commands",selectedLabel); // NOI18N
+                NotifyDescriptor nd = new NotifyDescriptor.Confirmation (msg, NotifyDescriptor.YES_NO_OPTION );
+                if (TopManager.getDefault().notify( nd ).equals( NotifyDescriptor.YES_OPTION ) ) {
+                    change = true;
+                } else {
+                    change = false;
+                }
+            } else {
+                change = true;
+            }
+            if (change) {
                 //D.deb("yes"); // NOI18N
                 // just do not display prompt for the first change if config was not edited
                 promptForConfigComboChange = true;
                 loadConfig(selectedLabel);
                 oldIndex=selectedIndex;
-            }
-            else{
+            } else{
                 //D.deb("no"); // NOI18N
-                String oldLabel=(String)configCombo.getItemAt(oldIndex);
+                //String oldLabel=(String)configCombo.getItemAt(oldIndex);
                 //D.deb("oldLabel="+oldLabel+", oldIndex="+oldIndex); // NOI18N
-                loadConfig(oldLabel);
+                //loadConfig(oldLabel);
                 configCombo.setSelectedIndex(oldIndex);
             }
             break ;
-
-        case ItemEvent.DESELECTED:
-            break ;
+            
+            case ItemEvent.DESELECTED:
+                break ;
         }
     }//GEN-LAST:event_configComboItemStateChanged
 
@@ -1117,13 +1139,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     private PropertyChangeSupport changeSupport = null;
     private Vector configLabels;
     private int oldIndex=0;
-    private boolean promptForConfigComboChange = false;
+    private boolean promptForConfigComboChange = true;
 
     // Entries in hashtables are maintained as a cache of properties read from disk
     // and are read only. Changes are applied only to fileSystem.variables (fileSystem.commands).
-    private Hashtable configVariablesByLabel;
-    private Hashtable configAdvancedByLabel;
-    private Hashtable configNamesByLabel;
+    //private Hashtable configVariablesByLabel;
+    //private Hashtable configAdvancedByLabel;
+    //private Hashtable configNamesByLabel;
     private boolean isRootNotSetDlg = true;
     private TableSorter envTableModel;
     private TableSorter systemEnvTableModel;
@@ -1208,12 +1230,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     //-------------------------------------------
     private void loadConfig(String label){
         if(!label.equals (fileSystem.getConfig ())) {
-            Vector variables = (Vector) configVariablesByLabel.get(label);
-            Node commands = (Node) configAdvancedByLabel.get(label);
+            Vector variables = cache.getProfileVariables(label);//(Vector) configVariablesByLabel.get(label);
+            Node commands = (Node) cache.getProfileCommands(label);//configAdvancedByLabel.get(label);
+            if (variables == null || commands == null) return ;
             fileSystem.setVariables(variables);
             fileSystem.setCommands(commands);
             fileSystem.setConfig(label);
-            fileSystem.setConfigFileName((String) configNamesByLabel.get(label));
+            fileSystem.setConfigFileName(cache.getProfileName(label));//(String) configNamesByLabel.get(label));
             String autoFillVarsStr = (String) fileSystem.getVariablesAsHashtable().get(VAR_AUTO_FILL);
             if (autoFillVarsStr != null) setAutoFillVars(autoFillVarsStr);
         }
@@ -1482,7 +1505,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
 
     /**
     * Read configurations from disk.
-    */
+    *
     //-------------------------------------------
     private void updateConfigurations(){
         //D.deb("configRoot = "+fileSystem.getConfigRoot()); // NOI18N
@@ -1556,8 +1579,51 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         //System.out.println("updateConfigurations() finished, promptForConfigComboChange = "+promptForConfigComboChange);
         //promptForConfigComboChange = false;
     }
+     */
     
+    /**
+    * Read configurations from disk.
+    */
+    private void updateConfigurations(){
+        if (configCombo.getItemCount() > 0) {
+            configCombo.removeAllItems();
+        }
+        String[] configLabels = cache.getProfilesDisplayNames();
+
+        String selectedConfig = fileSystem.getConfig();
+        int newIndex = -1;
+
+        /*
+        if (selectedConfig != null) {
+            for(int i = 0; i < configLabels.length; i++){
+                if (selectedConfig.equals(configLabels[i])) {
+                    newIndex = i;
+                }
+            }
+        }
+         */
+        Arrays.sort(configLabels);
+        if (selectedConfig == null) {
+            noProfileSelectedLabel = g("CTL_No_profile_selected");
+            configCombo.addItem(noProfileSelectedLabel);
+        }
+        for(int i = 0; i < configLabels.length; i++) {
+            if (configLabels[i].equals(selectedConfig)) {
+                newIndex = i;
+            }
+            configCombo.addItem(configLabels[i]);
+        }
+
+        if (configCombo.getItemCount() > 0 && newIndex >= 0) {
+            configCombo.setSelectedIndex( newIndex );
+        }
+        //System.out.println("updateConfigurations() finished, promptForConfigComboChange = "+promptForConfigComboChange);
+        //if (newIndex >= 0) promptForConfigComboChange = false;
+    }
+    
+    /*
     private void updateVariables (String label) {
+        System.out.println("updateVariables("+label+")");
         if (configVariablesByLabel.get(label) != null)
             return;         // Already done
         Object obj = this.cache.get (label);
@@ -1573,11 +1639,13 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
         else {
             org.w3c.dom.Document doc = (org.w3c.dom.Document) obj;
             variables = VariableIO.readVariables(doc);
+            System.out.println("readVariables() = "+variables);
             advanced = CommandLineVcsAdvancedCustomizer.readConfig (doc);
         }
         configVariablesByLabel.put(label,variables);
         configAdvancedByLabel.put(label, advanced);
     }
+     */
 
     private void updateAdvancedConfig() {
         advancedModeCheckBox.setSelected(fileSystem.isExpertMode());
@@ -1599,6 +1667,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
     
     //-------------------------------------------
     public void setObject(Object bean){
+        //Thread.currentThread().dumpStack();
         D.deb("setObject("+bean+")"); // NOI18N
         fileSystem=(CommandLineVcsFileSystem) bean;
 
@@ -1619,6 +1688,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer {
             } catch (PropertyVetoException vetoExc) {
             } catch (IOException ioExc) {}
         }
+        cache = new ProfilesCache(fileSystem.getConfigRootFO());
         rootDirTextField.setText (defaultRoot);
         refreshTextField.setText (""+fileSystem.getCustomRefreshTime ()); // NOI18N
         String module = fileSystem.getRelativeMountPoint();

@@ -30,6 +30,7 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
 import org.openide.nodes.Node;
+import org.openide.nodes.Children;
 
 import org.netbeans.modules.vcscore.*;
 import org.netbeans.modules.vcscore.cmdline.UserCommand;
@@ -38,6 +39,7 @@ import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandsPool;
 import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
+import org.netbeans.modules.vcscore.commands.VcsCommandNode;
 import org.netbeans.modules.vcscore.util.*;
 
 import org.netbeans.modules.vcs.advanced.variables.VariableIO;
@@ -77,14 +79,14 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     
     private static final boolean DEFAULT_LOCAL_FILE_FILTER_CASE_SENSITIVE = true;
     
-    private static final String DEFAULT_CONFIG_NAME = "empty.xml";
-    private static final String DEFAULT_CONFIG_NAME_COMPAT = "empty.properties";
+    //private static final String DEFAULT_CONFIG_NAME = "empty.xml";
+    //private static final String DEFAULT_CONFIG_NAME_COMPAT = "empty.properties";
     
     private static ResourceBundle resourceBundle = null;
 
     public static final String TEMPORARY_CONFIG_FILE_NAME = "tmp"; // NOI18N
 
-    private String config = "Empty (Unix)"; // NOI18N
+    private String config = null;//"Empty (Unix)"; // NOI18N
 
     private Debug D = new Debug ("CommandLineVcsFileSystem", true); // NOI18N
     private /*static transient*/ String CONFIG_ROOT="vcs/config"; // NOI18N
@@ -107,8 +109,10 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     public CommandLineVcsFileSystem () {
         //D.deb("CommandLineVcsFileSystem()"); // NOI18N
         super ();
-        boolean status = readConfiguration (DEFAULT_CONFIG_NAME);
-        if (status == false) readConfigurationCompat(DEFAULT_CONFIG_NAME_COMPAT);
+        setConfigFO();
+        //boolean status = readConfiguration (DEFAULT_CONFIG_NAME);
+        //if (status == false) readConfigurationCompat(DEFAULT_CONFIG_NAME_COMPAT);
+        setCommands(new VcsCommandNode(new Children.Array(), new UserCommand("NONE")));
         addPropertyChangeListener(this);
         /*
         cacheRoot = System.getProperty("netbeans.user")+File.separator+
@@ -144,7 +148,6 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     
     public void setConfigRoot(String s) {
         CONFIG_ROOT = s;
-        setConfigFO();
     }
 
     public void setConfig(String label) {
@@ -168,7 +171,9 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         CONFIG_ROOT_FO = fo;
     }
 
-    //-------------------------------------------
+    /**
+     * Get the configuration display name or null, when no configuration is loaded.
+     */
     public String getConfig() {
         return config;
     }
@@ -274,7 +279,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         //CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
         //            "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
         //CONFIG_ROOT = "vcs"+File.separator+"config"; // NOI18N
-        setConfigFO();
+        //setConfigFO();
         if (CONFIG_ROOT_FO == null) return false;
         //Properties props=VcsConfigVariable.readPredefinedPropertiesIO(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
         Properties props = VariableIOCompat.readPredefinedProperties(CONFIG_ROOT_FO, configFileName); // NOI18N
@@ -293,7 +298,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
         //CONFIG_ROOT=System.getProperty("netbeans.user")+File.separator+
         //            "system"+File.separator+"vcs"+File.separator+"config"; // NOI18N
         //CONFIG_ROOT = "vcs"+File.separator+"config"; // NOI18N
-        setConfigFO();
+        //setConfigFO();
         if (CONFIG_ROOT_FO == null) return false;
         //Properties props=VcsConfigVariable.readPredefinedPropertiesIO(CONFIG_ROOT+File.separator+"empty.properties"); // NOI18N
         org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName); // NOI18N
@@ -541,6 +546,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
     }
     
     private void loadCurrentConfig() {
+        //System.out.println("loadCurrentConfig() configFileName = "+configFileName);
         org.openide.nodes.Node commands = null;
         if (configFileName != null) {
             org.w3c.dom.Document doc = VariableIO.readPredefinedConfigurations(CONFIG_ROOT_FO, configFileName);
@@ -549,8 +555,8 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
             } catch (org.w3c.dom.DOMException exc) {
                 org.openide.TopManager.getDefault().notifyException(exc);
             }
+            this.setCommands(commands);
         }
-        this.setCommands(commands);
     }
     
     private void saveCurrentConfig() {
@@ -614,6 +620,7 @@ public class CommandLineVcsFileSystem extends VcsFileSystem implements java.bean
 
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException, NotActiveException {
         in.defaultReadObject();
+        setConfigFO();
         setIgnoreListSupport(new GenericIgnoreListSupport());
     }
     
