@@ -14,14 +14,19 @@
 package org.netbeans.modules.vcs.profiles.commands;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
 import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
@@ -38,7 +43,9 @@ import org.netbeans.modules.vcscore.commands.VcsCommand;
 import org.netbeans.modules.vcscore.commands.VcsCommandExecutor;
 import org.netbeans.modules.vcscore.util.VariableValueAdjustment;
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+
 import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 
 import javax.swing.*;
 
@@ -282,7 +289,7 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
         String file1 = tmpDir+File.separator+file;
         String file2;
         if (tmpDir2 == null) {
-            file2 = rootDir+File.separator+dir+File.separator+file;
+            file2 = path;
         } else {
             file2 = tmpDir2+File.separator+file;
         }
@@ -291,7 +298,7 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
                                                    file1Title, file2Title,
                                                    mimeType, false, true,
                                                    new File(file1), new File(file2),
-                                                   tmpDir, tmpDir2);
+                                                   tmpDir, tmpDir2, getEncoding(path));
         presenter.initWithDiffInfo(diffInfo);
         diffInfo.setPresentingComponent(diffComponent);
         presenter.setVisualizer((DiffVisualizer) Lookup.getDefault().lookup(DiffVisualizer.class));
@@ -380,6 +387,21 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
     
     public abstract void outputData(String[] elements);
     
+    private String getEncoding(String absolutePath) {
+        Object encoding = null;
+        try {
+            FileObject fo = FileUtil.toFileObject(new File(absolutePath));
+            if (fo != null) {
+                encoding = fo.getAttribute("Content-Encoding");
+            }
+        } catch (IllegalArgumentException iaex) {} // Ignore
+        if (encoding != null) {
+            return encoding.toString();
+        } else {
+            return null;
+        }
+    }
+    
     private static class DiffInfo extends DiffPresenter.Info {
         
         private Difference[] diffs;
@@ -387,24 +409,41 @@ public abstract class AbstractDiffCommand extends Object implements VcsAdditiona
         private File file2;
         private File tmpDir;
         private File tmpDir2;
+        private String encoding;
         
         public DiffInfo(Difference[] diffs, String name1, String name2, String title1, String title2,
                         String mimeType, boolean chooseProviders, boolean chooseVisualizers,
-                        File file1, File file2, File tmpDir, File tmpDir2) {
+                        File file1, File file2, File tmpDir, File tmpDir2, String encoding) {
             super(name1, name2, title1, title2, mimeType, chooseProviders, chooseVisualizers);
             this.file1 = file1;
             this.file2 = file2;
             this.tmpDir = tmpDir;
             this.tmpDir2 = tmpDir2;
             this.diffs = diffs;
+            this.encoding = encoding;
         }
         
         public Reader createFirstReader() throws FileNotFoundException {
-            return new FileReader(file1);
+            return createEncodedFileReader(file1);
         }
         
         public Reader createSecondReader() throws FileNotFoundException {
-            return new FileReader(file2);
+            return createEncodedFileReader(file2);
+        }
+        
+        private Reader createEncodedFileReader(File file) throws FileNotFoundException {
+            Reader r = null;
+            if (encoding != null) {
+                try {
+                    r = new InputStreamReader(new FileInputStream(file), encoding);
+                } catch (UnsupportedEncodingException ueex) {
+                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Unknown encoding attribute '"+encoding+"' of "+file.getAbsolutePath());
+                }
+            }
+            if (r == null) {
+                r = new InputStreamReader(new FileInputStream(file));
+            }
+            return r;
         }
         
         public Difference[] getDifferences() {
