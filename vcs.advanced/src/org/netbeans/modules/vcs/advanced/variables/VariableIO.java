@@ -378,6 +378,7 @@ public class VariableIO extends Object {
             Element valueElem = doc.createElement(VARIABLE_VALUE_TAG);
             Text valueNode = doc.createTextNode(var.getValue());
             valueElem.appendChild(valueNode);
+            valueElem.setAttribute("xml:space","preserve"); // To preserve new lines (see issue #14163)
             varElem.appendChild(valueElem);
             //varElem.setNodeValue(var.getValue());
             varElem.setAttribute(VARIABLE_BASIC_ATTR, (var.isBasic()) ? BOOLEAN_VARIABLE_TRUE : BOOLEAN_VARIABLE_FALSE);

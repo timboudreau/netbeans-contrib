@@ -283,6 +283,7 @@ public class UserCommandIO extends Object {
                 Element propValueElem = doc.createElement(PROPERTY_VALUE_TAG);
                 Text valueText = doc.createTextNode(valueStr);
                 propValueElem.appendChild(valueText);
+                propValueElem.setAttribute("xml:space","preserve"); // To preserve new lines (see issue #14163)
                 propertiesElm.appendChild(propValueElem);
                 commandElm.appendChild(propertiesElm);
             }
