@@ -19,7 +19,6 @@ Microsystems, Inc. All Rights Reserved.
   <property name="binroot" value=".."/>
   <property name="nbext" value="${nbroot}/nbbuild"/>
 
-  <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
   <!-- <taskdef name="tojar" classname="org.netbeans.nbbuild.ToJar" classpath="${nbext}/nbantext.jar"/> -->
   <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="${nbext}/nbantext.jar"/>
@@ -102,31 +101,7 @@ Microsystems, Inc. All Rights Reserved.
     </locjar>
   </target>
 
-  <target name="javahelp">
-    <copy todir="netbeans/docs">
-      <fileset dir="javahelp"/>
-    </copy>
-    <mkdir dir="netbeans/docs/org/netbeans/modules/vcs/advanced/docs/JavaHelpSearch"/>
-    <jhindexer basedir="netbeans/docs/org/netbeans/modules/vcs/advanced/docs/"
-               db="netbeans/docs/org/netbeans/modules/vcs/advanced/docs/JavaHelpSearch"
-               jhall="${binroot}/nbbuild/lib/jhall.jar">
-      <include name="**/*.html"/>
-      <exclude name="JavaHelpSearch/"/>
-      <exclude name="ja/"/>
-      <exclude name="credits.html"/>
-    </jhindexer>
-    <mkdir dir="netbeans/docs/org/netbeans/modules/vcs/advanced/docs/ja/JavaHelpSearch"/>
-    <jhindexer basedir="netbeans/docs/org/netbeans/modules/vcs/advanced/docs/ja/"
-               db="netbeans/docs/org/netbeans/modules/vcs/advanced/docs/ja/JavaHelpSearch"
-               locale="ja"
-               jhall="${binroot}/nbbuild/lib/jhall.jar">
-      <include name="**/*.html"/>
-      <exclude name="JavaHelpSearch/"/>
-      <exclude name="credits.html"/>
-    </jhindexer>
-  </target>
-
-  <target name="netbeans" depends="jars,javahelp"/>
+  <target name="netbeans" depends="jars"/>
 
   <target name="nbm" depends="netbeans">
     <makenbm file="vcsgen.nbm"
