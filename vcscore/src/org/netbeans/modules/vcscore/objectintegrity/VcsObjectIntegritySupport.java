@@ -327,12 +327,16 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                 //System.out.println("VOIS.run(): ignoring primary = "+primary+" from "+fs);
                 continue;
             }
+            File primaryFile = FileUtil.toFile(primary);
+            if (primaryFile == null) {
+                // There's no real File underneath
+                continue;
+            }
             if (!initialized) {
                 initialize(); // Assure, that we're initialized.
                 initialized = true;
             }
             //fileSystem.getCacheProvider().
-            File primaryFile = FileUtil.toFile(primary);
             CacheFile pcFile = cache.getCacheFile(primaryFile, CacheHandler.STRAT_DISK, null);
             if (pcFile == null || pcFile.isLocal()) {
                 synchronized (primaryLocalFiles) {
@@ -376,6 +380,10 @@ public class VcsObjectIntegritySupport extends OperationAdapter implements Runna
                     continue;
                 }
                 File file = FileUtil.toFile(fo);
+                if (file == null) {
+                    filesToRemove.add(filePath);
+                    continue;
+                }
                 CacheFile cFile = cache.getCacheFile(file, CacheHandler.STRAT_DISK, null);
                 //System.out.println("   VOIS.run(): secondary '"+fo+"', cache = "+cFile);
                 if (cFile == null || cFile.isLocal()) {
