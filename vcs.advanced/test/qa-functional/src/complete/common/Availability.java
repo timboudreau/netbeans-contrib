@@ -24,7 +24,9 @@ import org.netbeans.jemmy.TestOut;
 import org.netbeans.test.oo.gui.jelly.vcscore.*;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.wizard.*;
 import org.openide.util.Utilities;
-import org.netbeans.jellytools.MainWindowOperator;
+import org.netbeans.jellytools.*;
+import org.netbeans.jellytools.nodes.Node;
+
 
 /** XTest / JUnit test class performing availability check of all basic features
  * of Generic VCS module.
@@ -243,7 +245,11 @@ public class Availability extends NbTestCase {
         APIController.sleep(2000);
         explorer.show();
         String filesystem = "Empty " + workingDirectory;
-        assertNotNull("Can't select " + filesystem, api.getFilesystemsTab().selectNode(filesystem + "|A_File"));
+        RepositoryTabOperator explorer = new ExplorerOperator().repositoryTab();
+        Node filesystemNode = new Node(explorer.getRootNode(), filesystem);
+        filesystemNode.expand();
+        Node fileNode = new Node(explorer.getRootNode(), filesystem + "|A_File");
+        fileNode.select();
         MainWindowOperator window = MainWindowOperator.getDefault();
         window.pushToolbarPopupMenu("Versioning");
         window.getToolbarButton(window.getToolbar("Versioning"), "VCS Add").push();
