@@ -42,6 +42,7 @@ import org.netbeans.modules.vcscore.cmdline.WrappingCommandTask;
 import org.netbeans.modules.vcscore.commands.*;
 import org.netbeans.modules.vcscore.versioning.VersioningFileSystem;
 import org.openide.ErrorManager;
+import org.openide.filesystems.FileSystem;
 
 /**
  * The action, that enables you to conveniently run an VCS command through
@@ -695,55 +696,48 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
             */
     
     /** Make sure, that the files are saved. If not, save them.
-     * @param fos the collection of FileObjects
+     * Synchronized, so that we do not try to save the same objects twice in parallel.
+     * @param fos the collection of FileObjects which or under which modified
+     *        files are saved.
      */
-    public static void assureFilesSaved(Collection fos) {
+    public static synchronized void assureFilesSaved(Collection fos) {
         DataObject[] modified = DataObject.getRegistry().getModified();
         if (modified.length == 0) return ;
-        Collection folders = new LinkedList();
-        boolean wasSaved = false;
+        Set files = new HashSet(fos);
+        List folders = null;
         for (Iterator it = fos.iterator(); it.hasNext(); ) {
             FileObject fo = (FileObject) it.next();
-            if (fo == null) continue;
-            DataObject dobj = null;
-            try {
-                dobj = DataObject.find(fo);
-            } catch (DataObjectNotFoundException exc) {
-                // ignored
+            if (fo == null) {
+                files.remove(fo);
+                continue;
             }
             if (fo.isFolder()) {
-                folders.add(fo);
-            }
-            if (dobj != null && dobj.isModified()) {
-                Node.Cookie cake = dobj.getCookie(SaveCookie.class);
-                try {
-                    if (cake != null) {
-                        ((SaveCookie) cake).save();
-                        wasSaved = true;
-                    }
-                } catch (java.io.IOException exc) {
-                    ErrorManager.getDefault().notify(exc);
+                if (folders == null) {
+                    folders = new ArrayList();
                 }
+                folders.add(fo);
+                files.remove(fo);
             }
         }
-        if (!folders.isEmpty()) {
-            if (wasSaved) {
-                // Somethig was saved, need to get the list of modified objects again.
-                modified = DataObject.getRegistry().getModified();
-            }
-            for (int i = 0; i < modified.length; i++) {
-                DataObject dobj = modified[i];
-                SaveCookie sc = (SaveCookie) dobj.getCookie(SaveCookie.class);
-                if (sc != null) {
-                    Set files = dobj.files();
-                    if (isAFileInAFolder(folders, files)) {
-                        try {
-                            sc.save();
+        if (folders == null) {
+            folders = Collections.EMPTY_LIST;
+        }
+        boolean wasSaved = false;
+        for (int i = 0; i < modified.length; i++) {
+            Set modifiedFiles = modified[i].files();
+            for (Iterator modIt = modifiedFiles.iterator(); modIt.hasNext(); ) {
+                FileObject modifiedFile = (FileObject) modIt.next();
+                if (shouldBeSaved(modifiedFile, files, folders)) {
+                    Node.Cookie cake = modified[i].getCookie(SaveCookie.class);
+                    try {
+                        if (cake != null) {
+                            ((SaveCookie) cake).save();
                             wasSaved = true;
-                        } catch (java.io.IOException exc) {
-                           ErrorManager.getDefault().notify(exc);
                         }
+                    } catch (java.io.IOException exc) {
+                        ErrorManager.getDefault().notify(exc);
                     }
+                    break;
                 }
             }
         }
@@ -758,27 +752,36 @@ public class VcsAction extends Object {//NodeAction implements ActionListener {
         }
     }
     
-    private static boolean isAFileInAFolder(Collection foldersCollection, Collection filesCollection) {
+    private static boolean shouldBeSaved(FileObject modifiedFile, Collection files, Collection folders) {
+        FileSystem fs = (FileSystem) modifiedFile.getAttribute(VcsAttributes.VCS_NATIVE_FS);
+        if (fs == null) return false;
+        String path = (String) modifiedFile.getAttribute(VcsAttributes.VCS_NATIVE_PACKAGE_NAME_EXT);
+        modifiedFile = fs.findResource(path);
+        if (modifiedFile == null) return false;
+        if (files.contains(modifiedFile)) {
+            return true;
+        } else {
+            for (Iterator it = folders.iterator(); it.hasNext(); ) {
+                FileObject folder = (FileObject) it.next();
+                if (isAFileInAFolder(folder, modifiedFile)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    
+    private static boolean isAFileInAFolder(FileObject folder, FileObject file) {
         boolean isIn = false;
-        FileObject[] folders = (FileObject[]) foldersCollection.toArray(new FileObject[foldersCollection.size()]);
-        FileObject[] files = (FileObject[]) filesCollection.toArray(new FileObject[filesCollection.size()]);
         boolean canBeIn = true;
         while (!isIn && canBeIn) {
-            canBeIn = false;
-            for (int i = 0; i < folders.length && !isIn; i++) {
-                for (int j = 0; j < files.length; j++) {
-                    if (files[j] == null) continue;
-                    files[j] = files[j].getParent();
-                    if (files[j] == null) continue;
-                    if (folders[i].equals(files[j])) {
-                        isIn = true;
-                        break;
-                    } else {
-                        if (files[j].getPath().startsWith(folders[i].getPath())) {
-                            canBeIn = true;
-                        }
-                    }
-                }
+            file = file.getParent();
+            if (file == null) break;
+            if (folder.equals(file)) {
+                isIn = true;
+                break;
+            } else {
+                canBeIn = file.getPath().startsWith(folder.getPath());
             }
         }
         return isIn;
