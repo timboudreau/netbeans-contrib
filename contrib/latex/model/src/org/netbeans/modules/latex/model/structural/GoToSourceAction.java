@@ -20,18 +20,16 @@ import org.openide.ErrorManager;
 import org.openide.cookies.LineCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.text.Line;
 import org.openide.util.HelpCtx;
-import org.openide.util.actions.CookieAction;
 import org.openide.util.actions.NodeAction;
 
 /**SPI
  *
  * @author Jan Lahoda
  */
-public class GoToSourceAction extends CookieAction {
+public class GoToSourceAction extends NodeAction {
     
     /** Creates a new instance of GoToSourceAction */
     public GoToSourceAction() {
@@ -69,12 +67,17 @@ public class GoToSourceAction extends CookieAction {
         return false;
     }
     
-    protected Class[] cookieClasses() {
-        return new Class[] {PositionCookie.class};
-    }
-    
-    protected int mode() {
-        return MODE_EXACTLY_ONE;
+    protected boolean enable(Node[] activatedNodes) {
+        if (activatedNodes.length != 1)
+            return false;
+        
+        Node activatedNode = activatedNodes[0];
+        PositionCookie pc = (PositionCookie) activatedNode.getCookie(PositionCookie.class);
+        
+        if (pc == null)
+            return false;
+        
+        return pc.getPosition() != null;
     }
     
 }

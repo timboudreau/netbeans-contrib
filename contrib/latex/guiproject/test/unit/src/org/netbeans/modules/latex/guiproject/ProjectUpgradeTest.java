@@ -81,6 +81,11 @@ public class ProjectUpgradeTest extends NbTestCase {
         doUpgradeProject("prj3");
     }
     
+    public void testNoVersionProperty() throws IOException, SAXException {
+        System.setProperty(LaTeXGUIProjectUpgrader.UPGRADE_OPTION, LaTeXGUIProjectUpgrader.UPGRADE_FORCE);
+        doUpgradeProject("prj4");
+    }
+    
     private void doUpgradeProject(String name) throws IOException, SAXException {
         FileObject testDir = UnitUtilities.makeScratchDir(this);
         File       testDirFile = FileUtil.toFile(testDir);

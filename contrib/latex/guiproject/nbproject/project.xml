@@ -103,8 +103,8 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>org.netbeans.modules.latex.project</package>
-                <package>org.netbeans.modules.latex.ant</package>
+<!--                <package>org.netbeans.modules.latex.project</package>
+                <package>org.netbeans.modules.latex.ant</package>-->
             </public-packages>
         </data>
     </configuration>

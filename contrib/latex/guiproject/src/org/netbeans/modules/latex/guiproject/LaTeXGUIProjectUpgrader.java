@@ -99,10 +99,14 @@ public final class LaTeXGUIProjectUpgrader {
             String               versionString = (String) properties.getProperty("version-spec");
             SpecificationVersion version       = null;
             
-            try {
-                version = new SpecificationVersion(versionString);
-            } catch (NumberFormatException e) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            if (versionString != null) {//see ProjectUpgradeTest.testNoVersionProperty
+                try {
+                    version = new SpecificationVersion(versionString);
+                } catch (NumberFormatException e) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    version = actualVersion;
+                }
+            } else {
                 version = actualVersion;
             }
             
