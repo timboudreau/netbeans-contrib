@@ -56,8 +56,8 @@ public class RecognizedFS extends Object implements Serializable {
     }
     
     private void saveMe() {
-       //faw  GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
-       //faw settings.setRecognizedFS((RecognizedFS) this.clone()); // To assure that an asynchronous save will not encounter modified sets by other threads
+       GeneralVcsSettings settings = (GeneralVcsSettings) SharedClassObject.findObject(GeneralVcsSettings.class, true);
+       settings.setRecognizedFS((RecognizedFS) this.clone()); // To assure that an asynchronous save will not encounter modified sets by other threads
     }
     
     /**
