@@ -17,6 +17,8 @@ import javax.naming.CompositeName;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.BasicAttribute;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.StringSelection;
 import java.util.Enumeration;
@@ -34,13 +36,14 @@ import org.openide.nodes.NodeMemberEvent;
 import org.openide.nodes.Sheet;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.ExClipboard;
+import com.netbeans.enterprise.modules.jndi.utils.JndiPropertyMutator;
 
 /** Common base class for JndiNode and JndiLeafNode.
 * The class provides copy (source generating)/delete actions.
 *
 * @author Ales Novak, Tomas Zezula
 */
-abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, TemplateCreator {   
+abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, TemplateCreator, JndiPropertyMutator{   
 
   /**
   * @param children
@@ -73,16 +76,19 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
       new JndiProperty ("NAME",
                         String.class,
 			JndiRootNode.getLocalizedString("TXT_Name"),
+                        JndiRootNode.getLocalizedString("TIP_Name"),
 			this.getName ()));
     sheet.get (Sheet.PROPERTIES).put (
       new JndiProperty ("OFFSET",
                         String.class,
 			JndiRootNode.getLocalizedString("TXT_Path"),
+                        JndiRootNode.getLocalizedString("TIP_Path"),
 			this.getOffset().toString ()));
     sheet.get(Sheet.PROPERTIES).put (
       new JndiProperty ("CLASS",
                         String.class,
 			JndiRootNode.getLocalizedString("TXT_Class"),
+                        JndiRootNode.getLocalizedString("TIP_Class"),
 			this.getClassName()));
     try{
       Enumeration keys =	this.getContext().getEnvironment ().keys();		
@@ -118,7 +124,7 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
         java.util.Enumeration enum = attrs.getAll();
         while (enum.hasMoreElements()){
           Attribute attr = (Attribute) enum.nextElement();
-          jndiSet.put ( new JndiProperty (attr.getID(),String.class,attr.getID(),attr.get().toString()));
+          jndiSet.put ( new JndiProperty (attr.getID(),String.class,attr.getID(),null,attr.get().toString(),this,true));
         }
         sheet.put( jndiSet);
       }catch (NamingException ne){}
@@ -178,10 +184,30 @@ abstract class JndiObjectNode extends JndiAbstractNode implements Cookie, Templa
   public void refresh() {
     throw new UnsupportedOperationException();
   }
+  
+  
+  /** Changes the value of property
+   *  @param String name of the property
+   *  @param Object value of property
+   */
+  public boolean changeJndiPropertyValue(String name,Object value) {
+    System.out.println(name+" = "+value.toString());
+    try{
+      BasicAttributes attrs = new BasicAttributes();
+      BasicAttribute attr = new BasicAttribute(name, value);
+      attrs.put(attr);
+      ((DirContext)this.getContext()).modifyAttributes(this.getOffset(),DirContext.REPLACE_ATTRIBUTE,attrs);
+    }catch (NamingException ne){
+      JndiRootNode.notifyForeignException(ne);
+      return false;
+    }
+    return true;
+  }
 }
 
 /*
 * <<Log>>
+*  9    Gandalf   1.8         12/17/99 Tomas Zezula    
 *  8    Gandalf   1.7         12/15/99 Tomas Zezula    
 *  7    Gandalf   1.6         12/15/99 Tomas Zezula    
 *  6    Gandalf   1.5         11/5/99  Tomas Zezula    

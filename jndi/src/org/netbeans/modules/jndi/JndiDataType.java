@@ -42,7 +42,12 @@ final class JndiDataType extends NewType {
   private NewJndiRootPanel panel;
   /** Hashtable of providers taken from JNDI root node */
   private JndiProvidersNode pnode;
-  private boolean state;
+  /** State of connect Thread*/
+  private short state;
+  /** Values of state*/
+  private final short IN_PROGRESS=0;
+  private final short DONE = 1;
+  private final short FAILED = 2;
 
   /** Constructor
    *  @param node the Jndi root node
@@ -56,11 +61,11 @@ final class JndiDataType extends NewType {
    *  @param node the Jndi context
    */
   public JndiDataType(JndiNode node) {
-    this.node = node;
+  this.node = node;
   }
   
   /** Constructor
-   *  @param node the Jndi non COntext object
+   *  @param node the Jndi non Context object
    */ 
   public JndiDataType(JndiLeafNode node) {
     this.node = node;
@@ -100,6 +105,7 @@ final class JndiDataType extends NewType {
                       panel.getCredentials(),
                       panel.getAditionalProperties()
                     );
+                    JndiDataType.this.setActionState(DONE);
                   }catch (ClassNotFoundException cnfe){
                     Runnable r = new Runnable(){
                       public void run() {
@@ -108,10 +114,10 @@ final class JndiDataType extends NewType {
                       }
                     };
                       java.awt.EventQueue.invokeLater(r);
-                      JndiDataType.this.setActionState(true);
+                      JndiDataType.this.setActionState(FAILED);
                   }
                    catch (NamingException ne) {
-                    JndiDataType.this.setActionState(true);
+                    JndiDataType.this.setActionState(FAILED);
                     Throwable e;
                     if (ne.getRootCause() != null) {
                       e = ne.getRootCause();
@@ -125,19 +131,29 @@ final class JndiDataType extends NewType {
                         }
                       };
                       java.awt.EventQueue.invokeLater(r);
-                    } else {
+                    }
+                    else if (e instanceof javax.naming.InterruptedNamingException || e instanceof java.io.InterruptedIOException || e instanceof java.lang.InterruptedException ){
+                      String msg;
+                      if ((e.getMessage() == null) || e.getMessage().equals("")) {
+                        msg = e.getClass().getName();
+                      } else {
+                         msg = e.getClass().getName() + ": " + e.getMessage();
+                      }
+                      TopManager.getDefault().notify (new NotifyDescriptor.Exception(e,new TimeOutPanel(msg,JndiRootNode.getLocalizedString("NOTE_TimeOut"))));
+                    }
+                    else {
                       JndiRootNode.notifyForeignException(e);
                     }
                   }
                   catch (NullPointerException npe){
                     // Thrown by some providers when bad url is given
-                    JndiDataType.this.setActionState(true);
+                    JndiDataType.this.setActionState(FAILED);
                     JndiRootNode.notifyForeignException(npe);
                   }
                 }
               };
               Thread t = new Thread(run);
-              JndiDataType.this.setActionState(false);
+              JndiDataType.this.setActionState(IN_PROGRESS);
               t.start();
               try {
                 int waitTime = 4000;
@@ -150,7 +166,7 @@ final class JndiDataType extends NewType {
               if (t.isAlive()) {
                 t.interrupt();
               }
-              if (!JndiDataType.this.getActionState()){
+              if (JndiDataType.this.getActionState()==DONE){
                 dlg.setVisible(false);
                 dlg.dispose();
               }
@@ -217,11 +233,16 @@ final class JndiDataType extends NewType {
     }
   }
   
-  private synchronized void setActionState(boolean state){
+  private synchronized void setActionState(short state){
     this.state=state;
+    this.notify();
   }
   
-  private synchronized boolean getActionState(){
+  private synchronized short getActionState(){
+    while (this.state == IN_PROGRESS)
+      try{
+        this.wait();
+      }catch(InterruptedException ie){}
     return this.state;
   }
 }

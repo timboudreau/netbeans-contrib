@@ -17,16 +17,19 @@ import org.openide.nodes.Node;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
+import com.netbeans.enterprise.modules.jndi.utils.JndiPropertyMutator;
 
 
 /** This class represents Property of JndiNodeObject
  *
  *  @author Tomas Zezula
  */
-public final class JndiProperty extends PropertySupport.ReadOnly{
+public final class JndiProperty extends PropertySupport{
 
   /** Value of property */
   String value;
+  /** Mutator*/
+  JndiPropertyMutator mutator;
   
   /** Constructor
    *  @param name name of property
@@ -34,10 +37,32 @@ public final class JndiProperty extends PropertySupport.ReadOnly{
    *  @param pname displayed name of property
    *  @param pvalue value of property
    */
-  public JndiProperty(String name, Class type, String pname, String pvalue){
-    super(name,type,pname,pvalue);
-    this.value=pvalue;
+  public JndiProperty(String name, Class type, String pName, Object pvalue){
+    this (name,type,pName,null,pvalue);
+  }
+  
+  /** Constructor
+   *  @param name name of property
+   *  @param type class of value
+   *  @param pname displayed name of property
+   *  @param pvalue value of property
+   */
+  public JndiProperty(String name, Class type, String pName, String shortDescription, Object pvalue){
+      this (name,type,pName,null,pvalue,null,false);
     }
+  
+  /** Constructor
+   *  @param name name of property
+   *  @param type class of value
+   *  @param pname displayed name of property
+   *  @param pvalue value of property
+    * @patam mutator mutator
+   */  
+  public JndiProperty(String name, Class type, String pName, String shortDescription, Object pvalue,JndiPropertyMutator mutator, boolean editable){
+    super (name, type, pName,  shortDescription, true, editable);
+    this.value=(String)pvalue;
+    this.mutator = mutator;
+  }
 
   /** Returns value of property
    *  @return Object value of this property
@@ -45,12 +70,23 @@ public final class JndiProperty extends PropertySupport.ReadOnly{
   public Object getValue(){
     return this.value;
   }
+  
+  /** Sets the value of property
+   *  @param Object value
+   */
+  public void setValue (Object value){
+    if (this.mutator != null){
+      if (this.mutator.changeJndiPropertyValue(this.getName(),value))
+        this.value = (String) value;
+    }
+  }
 }
 
 
 
 /*
  * <<Log>>
+ *  6    Gandalf   1.5         12/17/99 Tomas Zezula    
  *  5    Gandalf   1.4         12/15/99 Tomas Zezula    
  *  4    Gandalf   1.3         12/15/99 Tomas Zezula    
  *  3    Gandalf   1.2         11/5/99  Tomas Zezula    

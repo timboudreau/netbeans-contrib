@@ -171,6 +171,7 @@ final class JndiChildren extends Children.Keys {
 
 /*
  * <<Log>>
+ *  11   Gandalf   1.10        12/17/99 Tomas Zezula    
  *  10   Gandalf   1.9         12/15/99 Tomas Zezula    
  *  9    Gandalf   1.8         12/15/99 Tomas Zezula    
  *  8    Gandalf   1.7         11/5/99  Tomas Zezula    
