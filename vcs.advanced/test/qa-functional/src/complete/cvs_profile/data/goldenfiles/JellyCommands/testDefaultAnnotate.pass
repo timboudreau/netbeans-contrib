@@ -1,0 +1,188 @@
+Line: 0 ---- 1	1.3	Commit-1.3 - Line0 - Added-1.3
+Line: 1 ---- 2	1.1	Commit-1.1 - Line1
+Line: 2 ---- 3	1.3	Commit-1.1 - Line2 - Modified-1.2 - Modified-1.3
+Line: 3 ---- 4	1.2	Commit-1.2 - Line3 - Added-1.2
+Line: 4 ---- 5	1.1	Commit-1.1 - Line4
+Line: 5 ---- 6	1.2	Commit-1.1 - Line5 - Modified-1.2
+Line: 0 ---- White
+Line: 1 ---- White
+Line: 2 ---- White
+Line: 3 ---- White
+Line: 4 ---- White
+Line: 5 ---- White
+==== Author: <No Author selected> ====
+==== RevisionEquals: Equals ====
+--- Revision: <No Revision Selected>
+Line: 0 ---- White
+Line: 1 ---- White
+Line: 2 ---- White
+Line: 3 ---- White
+Line: 4 ---- White
+Line: 5 ---- White
+--- Revision: 1.1
+Line: 0 ---- White
+Line: 1 ---- Green
+Line: 2 ---- White
+Line: 3 ---- White
+Line: 4 ---- Green
+Line: 5 ---- White
+--- Revision: 1.2
+Line: 0 ---- White
+Line: 1 ---- White
+Line: 2 ---- White
+Line: 3 ---- Green
+Line: 4 ---- White
+Line: 5 ---- Green
+--- Revision: 1.3
+Line: 0 ---- Green
+Line: 1 ---- White
+Line: 2 ---- Green
+Line: 3 ---- White
+Line: 4 ---- White
+Line: 5 ---- White
+==== RevisionEquals: Newer than ====
+--- Revision: <No Revision Selected>
+Line: 0 ---- White
+Line: 1 ---- White
+Line: 2 ---- White
+Line: 3 ---- White
+Line: 4 ---- White
+Line: 5 ---- White
+--- Revision: 1.1
+Line: 0 ---- Green
+Line: 1 ---- White
+Line: 2 ---- Green
+Line: 3 ---- Green
+Line: 4 ---- White
+Line: 5 ---- Green
+--- Revision: 1.2
+Line: 0 ---- Green
+Line: 1 ---- White
+Line: 2 ---- Green
+Line: 3 ---- White
+Line: 4 ---- White
+Line: 5 ---- White
+--- Revision: 1.3
+Line: 0 ---- White
+Line: 1 ---- White
+Line: 2 ---- White
+Line: 3 ---- White
+Line: 4 ---- White
+Line: 5 ---- White
+==== RevisionEquals: Older than ====
+--- Revision: <No Revision Selected>
+Line: 0 ---- White
+Line: 1 ---- White
+Line: 2 ---- White
+Line: 3 ---- White
+Line: 4 ---- White
+Line: 5 ---- White
+--- Revision: 1.1
+Line: 0 ---- White
+Line: 1 ---- White
+Line: 2 ---- White
+Line: 3 ---- White
+Line: 4 ---- White
+Line: 5 ---- White
+--- Revision: 1.2
+Line: 0 ---- White
+Line: 1 ---- Green
+Line: 2 ---- White
+Line: 3 ---- White
+Line: 4 ---- Green
+Line: 5 ---- White
+--- Revision: 1.3
+Line: 0 ---- White
+Line: 1 ---- Green
+Line: 2 ---- White
+Line: 3 ---- Green
+Line: 4 ---- Green
+Line: 5 ---- Green
+==== Author: <AUTHOR> ====
+==== RevisionEquals: Equals ====
+--- Revision: <No Revision Selected>
+Line: 0 ---- Blue
+Line: 1 ---- Blue
+Line: 2 ---- Blue
+Line: 3 ---- Blue
+Line: 4 ---- Blue
+Line: 5 ---- Blue
+--- Revision: 1.1
+Line: 0 ---- Blue
+Line: 1 ---- Red
+Line: 2 ---- Blue
+Line: 3 ---- Blue
+Line: 4 ---- Red
+Line: 5 ---- Blue
+--- Revision: 1.2
+Line: 0 ---- Blue
+Line: 1 ---- Blue
+Line: 2 ---- Blue
+Line: 3 ---- Red
+Line: 4 ---- Blue
+Line: 5 ---- Red
+--- Revision: 1.3
+Line: 0 ---- Red
+Line: 1 ---- Blue
+Line: 2 ---- Red
+Line: 3 ---- Blue
+Line: 4 ---- Blue
+Line: 5 ---- Blue
+==== RevisionEquals: Newer than ====
+--- Revision: <No Revision Selected>
+Line: 0 ---- Blue
+Line: 1 ---- Blue
+Line: 2 ---- Blue
+Line: 3 ---- Blue
+Line: 4 ---- Blue
+Line: 5 ---- Blue
+--- Revision: 1.1
+Line: 0 ---- Red
+Line: 1 ---- Blue
+Line: 2 ---- Red
+Line: 3 ---- Red
+Line: 4 ---- Blue
+Line: 5 ---- Red
+--- Revision: 1.2
+Line: 0 ---- Red
+Line: 1 ---- Blue
+Line: 2 ---- Red
+Line: 3 ---- Blue
+Line: 4 ---- Blue
+Line: 5 ---- Blue
+--- Revision: 1.3
+Line: 0 ---- Blue
+Line: 1 ---- Blue
+Line: 2 ---- Blue
+Line: 3 ---- Blue
+Line: 4 ---- Blue
+Line: 5 ---- Blue
+==== RevisionEquals: Older than ====
+--- Revision: <No Revision Selected>
+Line: 0 ---- Blue
+Line: 1 ---- Blue
+Line: 2 ---- Blue
+Line: 3 ---- Blue
+Line: 4 ---- Blue
+Line: 5 ---- Blue
+--- Revision: 1.1
+Line: 0 ---- Blue
+Line: 1 ---- Blue
+Line: 2 ---- Blue
+Line: 3 ---- Blue
+Line: 4 ---- Blue
+Line: 5 ---- Blue
+--- Revision: 1.2
+Line: 0 ---- Blue
+Line: 1 ---- Red
+Line: 2 ---- Blue
+Line: 3 ---- Blue
+Line: 4 ---- Red
+Line: 5 ---- Blue
+--- Revision: 1.3
+Line: 0 ---- Blue
+Line: 1 ---- Red
+Line: 2 ---- Blue
+Line: 3 ---- Red
+Line: 4 ---- Red
+Line: 5 ---- Red

@@ -37,6 +37,7 @@ import org.netbeans.jellytools.properties.PropertySheetOperator;
 import org.netbeans.jellytools.properties.PropertySheetTabOperator;
 import org.netbeans.jellytools.properties.StringProperty;
 import org.netbeans.jemmy.operators.JTableOperator;
+import org.netbeans.jemmy.operators.JTextFieldOperator;
 import org.netbeans.junit.AssertionFailedErrorException;
 import org.netbeans.junit.NbTestSuite;
 import org.netbeans.test.oo.gui.jelly.vcsgeneric.cvs_profile.CVSAddFileAdvDialog;
@@ -49,7 +50,7 @@ import util.History;
 public class JellyGroup extends JellyStub {
     
     public static final String TEST_GROUP = "TestGroup";
-    public static final String GROUP_DESCRIPTION = "Description of TestGroup";
+    public static final String GROUP_DESCRIPTION = "Description of " + TEST_GROUP;
     
     public JellyGroup(String testName) {
         super(testName);
@@ -157,6 +158,16 @@ public class JellyGroup extends JellyStub {
         text1InDefaultGroup = true;
     }
     
+    public void addVCSGroup (VCSGroupsFrameOperator vgf, String name) {
+        new Action (null, "Add VCS Group").performPopup(new Node (vgf.treeVCSGroupsTreeView(), ""));
+        NbDialogOperator dia = new NbDialogOperator ("Add VCS Group");
+        JTextFieldOperator text = new JTextFieldOperator (dia);
+        text.clearText();
+        text.typeText(name);
+        dia.ok ();
+        dia.waitClosed();
+    }
+    
     public void testGroups () {
         VCSGroupsFrameOperator vgf;
 
@@ -164,12 +175,12 @@ public class JellyGroup extends JellyStub {
         new VCSGroupsAction ().perform ();
         vgf = new VCSGroupsFrameOperator ();
 
-        vgf.addVCSGroup("TestGroup");
+        addVCSGroup(vgf, TEST_GROUP);
 
         closeAllVCSWindows(); // stabilization
         new VCSGroupsAction ().perform (); // stabilization
         vgf = new VCSGroupsFrameOperator (); // stabilization
-        vgf.addVCSGroup("GroupToRemove");
+        addVCSGroup(vgf, "GroupToRemove");
         new Node (vgf.treeVCSGroupsTreeView (), "GroupToRemove");
 
         closeAllVCSWindows(); // stabilization
@@ -181,7 +192,7 @@ public class JellyGroup extends JellyStub {
         closeAllVCSWindows(); // stabilization
         new VCSGroupsAction ().perform (); // stabilization
         vgf = new VCSGroupsFrameOperator (); // stabilization
-        vgf.addVCSGroup("GroupToRename");
+        addVCSGroup(vgf, "GroupToRename");
         new Node (vgf.treeVCSGroupsTreeView (), "GroupToRename");
 
         closeAllVCSWindows(); // stabilization
@@ -220,6 +231,16 @@ public class JellyGroup extends JellyStub {
         PropertySheetTabOperator pst = pso.getPropertySheetTabOperator("Properties");
         new StringProperty(pst, "Description").setValue(GROUP_DESCRIPTION);
         pso.close();
+        
+        closeAllProperties();
+        new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP).select (); // stabilization
+        Helper.sleep (2000); // stabilization
+        new CVSFileNode (vgf.treeVCSGroupsTreeView(), TEST_GROUP).properties ();
+        pso = new PropertySheetOperator (PropertySheetOperator.MODE_PROPERTIES_OF_ONE_OBJECT, TEST_GROUP);
+        pst = pso.getPropertySheetTabOperator("Properties");
+        info.println ("Group Name: " + new StringProperty(pst, "Group Name").getStringValue());
+        info.println ("Description: " + new StringProperty(pst, "Description").getStringValue());
+        pso.close();
     }
     
     public void testCommitGroup () {
@@ -244,15 +265,24 @@ public class JellyGroup extends JellyStub {
 	Helper.sleep (2000); // stabilization
         new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP).cVSCommit ();
         CVSCommitFileAdvDialog co = new CVSCommitFileAdvDialog ();
-        StringTokenizer st = new StringTokenizer (co.txtEnterReason().getText (), "\n");
+        String str = co.txtEnterReason().getText ();
+        info.println (str);
+        StringTokenizer st = new StringTokenizer (str, "\n");
         assertEquals("Invalid description in group commit dialog", GROUP_DESCRIPTION, st.nextToken());
         co.oK ();
+        co.waitClosed ();
         assertTrue("Commit files command failed", history.waitCommand("Commit", hText1 + "\n" + hText2));
         waitStatus(vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.2", TEST_GROUP + "|" + tText1, true);
         waitStatus(vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.2", TEST_GROUP + "|" + tText2, true);
+        closeAllVersionings(); // stabilization
+        waitStatus(vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.2", TEST_GROUP + "|" + tText1, true); // stabilization
         new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText1).versioningExplorer();
         VersioningFrameOperator vfo = new VersioningFrameOperator ();
         new Node (vfo.treeVersioningTreeView(), nText1 + " [Up-to-date; 1.2]|1.2  " + GROUP_DESCRIPTION);
+        closeAllVersionings(); // stabilization
+        waitStatus(vgf.treeVCSGroupsTreeView (), "Up-to-date; 1.2", TEST_GROUP + "|" + tText2, true); // stabilization
+        new CVSFileNode (vgf.treeVCSGroupsTreeView (), TEST_GROUP + "|" + tText2).versioningExplorer(); // stabilization
+        vfo = new VersioningFrameOperator (); // stabilization
         new Node (vfo.treeVersioningTreeView(), nText2 + " [Up-to-date; 1.2]|1.2  " + GROUP_DESCRIPTION);
     }
     

@@ -473,6 +473,11 @@ public class JellyBranch extends JellyTestCase {
         waitStatus ("Up-to-date; 1.1.2.1", nFile, true);
         waitVersion ("Tag2", nFile);
 
+        // stabilization
+        closeAllVersionings ();
+        new CVSFileNode (exp.repositoryTab().tree (), nFile).versioningExplorer();
+        vfo = new VersioningFrameOperator ();
+
         new CVSVersioningFileNode (vfo.treeVersioningTreeView (), nFile + " [Up-to-date; 1.1.2.1] (Tag2)").refreshRevisions();
         assertTrue ("Refresh revisions command failed", history.waitCommand("REVISION_LIST", hFile));
         new CVSVersioningFileNode (vfo.treeVersioningTreeView (), nFile + " [Up-to-date; 1.1.2.1] (Tag2)");

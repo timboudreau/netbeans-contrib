@@ -60,7 +60,7 @@ public class JellyCommands extends JellyStub {
         suite.addTest(new JellyCommands("testStatus"));
         suite.addTest(new JellyCommands("testDefaultLog"));
         suite.addTest(new JellyCommands("testCheckOutHistory"));
-        suite.addTest(new JellyCommands("testDefaultAnnnotate"));
+        suite.addTest(new JellyCommands("testDefaultAnnotate"));
         suite.addTest(new JellyCommands("testDefaultImport"));
         suite.addTest(new JellyCommands("testDefaultExport"));
         suite.addTest(new JellyCommands("testUnmount"));
@@ -146,7 +146,7 @@ public class JellyCommands extends JellyStub {
 //        Helper.waitNoNode (exp.repositoryTab ().tree (), root.node (), releaseNode.name()); # fails due to bug #28223
         for (int a = 0; a < 60; a ++) {
             Helper.sleep (1000);
-            if (!new File (releaseFileNode1.file ()).exists()  &&  new File (releaseFileNode2.file ()).exists())
+            if (!new File (releaseFileNode1.file ()).exists()  &&  !new File (releaseFileNode2.file ()).exists())
                 return;
         }
         assertTrue ("Timeout: ReleaseFileNodes still exists", false);
@@ -374,7 +374,7 @@ public class JellyCommands extends JellyStub {
         dumpTableColors(aco.tabTableOfFileAnnotations());
     }
     
-    public void testDefaultAnnnotate () {
+    public void testDefaultAnnotate () {
         closeAllVCSOutputs();
         MyNode annofile = new MyNode (initdir, "annofile");
         if (!JellyStub.DEBUG) {
