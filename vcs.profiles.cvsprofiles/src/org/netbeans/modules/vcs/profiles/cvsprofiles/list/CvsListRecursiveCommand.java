@@ -16,6 +16,8 @@ package org.netbeans.modules.vcs.profiles.cvsprofiles.list;
 import java.io.*;
 import java.util.*;
 
+import org.openide.util.RequestProcessor;
+
 import org.apache.regexp.*;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
@@ -103,20 +105,32 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
             this.dirPath = new String(dir.replace(java.io.File.separatorChar, '/')); // I have to be sure that I make new object
         }
         String module = (String) vars.get("MODULE"); // NOI18N
+        String wholeModule = module;
+        if (module != null && commonParent != null && module.endsWith(commonParent)) {
+            module = module.substring(0, module.length() - commonParent.length());
+            while (module.endsWith("/") || module.endsWith(java.io.File.separator)) {
+                module = module.substring(0, module.length() - 1);
+            }
+        }
         D.deb("rootDir = "+rootDir+", module = "+module+", dir = "+dir); // NOI18N
         if (dir.equals("")) { // NOI18N
             dir=rootDir;
             this.fsRootPathLength = rootDir.length();
+            if (wholeModule != null && wholeModule.length() > 0) {
+                dir += File.separator + wholeModule;
+            }
             if (module != null && module.length() > 0) {
-                dir += File.separator + module;
                 this.fsRootPathLength += (File.separator + module).length();
             }
         } else {
-            if (module == null || module.length() == 0) {
+            if (wholeModule == null || wholeModule.length() == 0) {
                 dir=rootDir+File.separator+dir;
+            } else {
+                dir=rootDir+File.separator+wholeModule+File.separator+dir;
+            }
+            if (module == null || module.length() == 0) {
                 this.fsRootPathLength = rootDir.length();
             } else {
-                dir=rootDir+File.separator+module+File.separator+dir;
                 this.fsRootPathLength = (rootDir+File.separator+module).length();
             }
         }
@@ -330,7 +344,6 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
          * (Regex ^(File:.*Status:.*$)|(Repository Revision.*)) 
          */
         filesByNameCont.setPath(dirPath);
-        filesByName = new Hashtable();
         filesByNameCont.setElement(filesByName);
         //D.deb("At the beginning have dirPath = "+dirPath);
         while(pos < data.length()) {
@@ -695,12 +708,13 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         this.filesByName = new Hashtable();
         */
         //getModulesPaths(vars);
-        Thread reposPathThread = new Thread("CVS_LIST_SUB_Repositories_Retrieval") { // NOI18N
+        //Thread reposPathThread = new Thread("CVS_LIST_SUB_Repositories_Retrieval") { // NOI18N
+        RequestProcessor.Task reposPathTask = RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 getRepositoryPaths(new File(dir));
             }
-        };
-        reposPathThread.start();
+        });
+        //reposPathThread.start();
         VcsCommandExecutor statusExecutor = runStatusCommand(vars, statusCmd);
         VcsCommandExecutor logExecutor = null;
         String showDeadFilesValue = (String) vars.get(Variables.SHOW_DEAD_FILES);
@@ -730,13 +744,15 @@ public class CvsListRecursiveCommand extends VcsListRecursiveCommand {//implemen
         }
 
         if (!interrupted) {
-            try {
-                reposPathThread.join();
-            } catch (InterruptedException intrexc) {
+            //try {
+                reposPathTask.waitFinished(); // THE PROCESS CAN NOT BE KILLED HERE!
+                //reposPathThread.join();
+            //} catch (InterruptedException intrexc) {
                 // Ignore, what can I do.
-            }
+            //}
         } else {
-            reposPathThread.interrupt();
+            reposPathTask.cancel();
+            //reposPathThread.interrupt();
         }
         /*if (!shouldFail)*/ fillHashtableFromStatus(filesByNameCont);
         fillHashtableFromLog(filesByNameCont);
