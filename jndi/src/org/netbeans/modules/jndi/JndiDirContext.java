@@ -30,7 +30,7 @@ final class JndiDirContext extends InitialDirContext {
     static {
 	try {
           NamingManager.setInitialContextFactoryBuilder ( new NbInitialContextFactoryBuilder());
-	}catch (NamingException namingException) {
+	}catch (Exception namingException) {
 	  // Give it up.
 	}
     }
