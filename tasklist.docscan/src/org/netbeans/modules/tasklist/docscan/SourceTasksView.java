@@ -82,6 +82,9 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
     // scan for example.)
     final static String CATEGORY = "sourcetasks"; // NOI18N
 
+    // keep consistent with SourceTasksAction icon
+    private final static String ICON_PATH = "org/netbeans/modules/tasklist/docscan/todosAction.gif"; // NOI18N
+
     private final int MAIN_COLUMN_UID = 2352;
     private final int PRIORITY_COLUMN_UID = 7896;
     private final int FILE_COLUMN_UID = 8902;
@@ -141,7 +144,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         super(
                 CATEGORY,
                 Util.getString("win-title"),
-                Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"), // NOI18N
+                Utilities.loadImage(ICON_PATH), // NOI18N
                 true,
                 list
         );
@@ -157,7 +160,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         super(
                 CATEGORY,
                 Util.getString("win-title"),
-                Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"), // NOI18N
+                Utilities.loadImage(ICON_PATH), // NOI18N
                 true,
                 createFilteredList(job.getSuggestionsList())
         );
@@ -435,7 +438,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
         super.category = CATEGORY;
         super.setName(Util.getString("win-title"));
-        super.setIcon(Utilities.loadImage("org/netbeans/modules/tasklist/docscan/scanned-task.gif"));  // NOI18N
+        super.setIcon(Utilities.loadImage(ICON_PATH));  // NOI18N
 
         int version = objectInput.readInt();
         if (version == 1 || version == 2) {
