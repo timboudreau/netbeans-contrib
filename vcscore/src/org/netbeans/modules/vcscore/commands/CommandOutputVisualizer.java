@@ -13,10 +13,14 @@
 
 package org.netbeans.modules.vcscore.commands;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.openide.windows.Workspace;
 import org.openide.windows.Mode;
 
 import org.netbeans.modules.vcscore.util.VcsUtilities;
+import org.netbeans.modules.vcscore.util.TopComponentCloseListener;
 
 /**
  * The default visualizer of command output.
@@ -27,13 +31,17 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     private static final String MODE_NAME = "Default VCS Command Output";
 
     private CommandOutputPanel outputPanel;
+    private ArrayList closeListeners = new ArrayList();
+    
     /** Creates new CommandOutputVisualizer */
     public CommandOutputVisualizer(VcsCommandExecutor vce) {
         outputPanel = new CommandOutputPanel();
         initComponents();
         outputPanel.setExec(vce.getExec());
+        String name = vce.getCommand().getDisplayName();
+        if (name == null || name.length() == 0) name = vce.getCommand().getName();
         setName(java.text.MessageFormat.format(org.openide.util.NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandOutputVisualizer.name"),
-                new Object[] { vce.getCommand().getDisplayName() }));
+                new Object[] { name }));
         /*
         vce.addOutputListener(new CommandOutputListener() {
             public void outputLine(String line) {
@@ -132,18 +140,39 @@ public class CommandOutputVisualizer extends VcsCommandVisualizer {
     }
     
     public void setExitStatus(int exit) {
-        String status;
-        if (VcsCommandExecutor.SUCCEEDED == exit) {
-            status = org.openide.util.NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandExitStatus.success");
-        } else if (VcsCommandExecutor.FAILED == exit) {
-            status = org.openide.util.NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandExitStatus.failed");
-        } else if (VcsCommandExecutor.INTERRUPTED == exit) {
-            status = org.openide.util.NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandExitStatus.interrupted");
-        } else {
-            status = org.openide.util.NbBundle.getBundle(CommandOutputVisualizer.class).getString("CommandExitStatus.unknown");
-        }
-        outputPanel.setStatus(status);
+        outputPanel.setStatus(CommandsPool.getExitStatusString(exit));
         outputPanel.commandFinished(true);
     }
 
+    public void addCloseListener(TopComponentCloseListener l) {
+        synchronized (closeListeners) {
+            closeListeners.add(l);
+        }
+    }
+    
+    /**
+     * Override for clean up reasons.
+     * Will be moved to the appropriate method when will be made.
+     */
+    public boolean canClose(Workspace workspace, boolean last) {
+        boolean can = super.canClose(workspace, last);
+        if (last && can) {
+            closing();
+        }
+        return can;
+    }
+    
+    /**
+     * Called when the TopComponent is being to close.
+     */
+    private void closing() {
+        synchronized (closeListeners) {
+            for (Iterator it = closeListeners.iterator(); it.hasNext(); ) {
+                TopComponentCloseListener l = (TopComponentCloseListener) it.next();
+                l.closing();
+            }
+            closeListeners.clear();
+        }
+    }
+    
 }
