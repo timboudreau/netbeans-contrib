@@ -65,10 +65,13 @@ final class JndiDirContext extends InitialDirContext {
      *  @param javax.naming.Context context to be checked
      *  @exception NamingException
      */
-    public final void checkContext () throws NamingException{
+    public final void checkContext () throws NamingException {
         // We simply call any context operation to see that the
         // context is correct
-        this.list("");
+        String relativeRoot = (String) this.envTable.get (JndiRootNode.NB_ROOT);
+        if (relativeRoot == null)
+            relativeRoot = "";  // No I18N
+        this.list(relativeRoot);
     }
 
 }
