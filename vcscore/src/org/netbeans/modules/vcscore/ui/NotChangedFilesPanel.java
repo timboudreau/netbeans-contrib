@@ -71,7 +71,9 @@ public class NotChangedFilesPanel extends javax.swing.JPanel {
         Iterator it = dataObjectList.iterator();
         while (it.hasNext()) {
             DataObject obj = (DataObject)it.next();
-            model.addElement(new MyTableObject(obj));
+            if (obj.isValid()) {
+                model.addElement(new MyTableObject(obj));
+            }
         }
         tblNotChangedFiles.setModel(model);
         JTableHeader head = tblNotChangedFiles.getTableHeader();
