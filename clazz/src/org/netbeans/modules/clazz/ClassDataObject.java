@@ -110,7 +110,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
     if (!(this instanceof SerDataObject)) {
       cs.add(execSupport);
     }
-    cs.add(new SourceSupport(ourClass));
+    cs.add(new SourceSupport(ourClass, this));
   }
 
   /** Overrides superclass getCookie.<P>
@@ -221,7 +221,9 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
     sourceChildren.setFilter (sourceElementFilter);
     try {
       Class ourClass = instanceSupport.instanceClass();
-      sourceChildren.setElement (new SourceElement(new SourceElementImpl(ourClass)));
+      sourceChildren.setElement (
+        new SourceElement(new SourceElementImpl(ourClass, this))
+      );
     } catch (IOException ex) {
     } catch (ClassNotFoundException ex) {
     }
@@ -482,15 +484,18 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
                                            implements SourceCookie {
     /** The class which acts as a source element data */
     private Class data;
+    /** Reference to outer class */
+    private ClassDataObject cdo;
 
     /** Creates source support with asociated class object */
-    SourceSupport (final Class data) {
+    SourceSupport (Class data, ClassDataObject cdo) {
       this.data = data;
+      this.cdo = cdo;
     }
 
     /** @return The source element for this class data object */
     public SourceElement getSource () {
-      return new SourceElement(new SourceElementImpl(data));
+      return new SourceElement(new SourceElementImpl(data, cdo));
     }
 
   } // the end of SourceSupport inner class
@@ -532,6 +537,7 @@ public class ClassDataObject extends MultiDataObject implements ElementCookie {
 
 /*
  * Log
+ *  29   Gandalf   1.28        1/20/00  David Simonek   #2119 bugfix
  *  28   Gandalf   1.27        1/18/00  David Simonek   Execution now correctly 
  *       disabled for ser data nodes
  *  27   Gandalf   1.26        1/13/00  David Simonek   i18n

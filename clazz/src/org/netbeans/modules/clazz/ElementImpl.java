@@ -54,10 +54,10 @@ static final long serialVersionUID =6363778502021582852L;
   public void removePropertyChangeListener (PropertyChangeListener l) {
   }
 
-  /** Current implementation returns always null.
+  /** No cookie supported.
   * @return null
   */
-  public Node.Cookie getCookie(Class type) {
+  public Node.Cookie getCookie (Class type) {
     return null;
   }
 
@@ -74,6 +74,7 @@ static final long serialVersionUID =6363778502021582852L;
 
 /*
 * Log
+*  9    src-jtulach1.8         1/20/00  David Simonek   #2119 bugfix
 *  8    src-jtulach1.7         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment
 *  7    src-jtulach1.6         8/9/99   Ian Formanek    Generated Serial Version 

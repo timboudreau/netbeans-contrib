@@ -19,6 +19,9 @@ import java.util.Collections;
 import java.lang.ref.SoftReference;
 
 import org.openide.util.Task;
+import org.openide.nodes.Node;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.MultiDataObject;
 import org.openide.src.*;
 
 /** The implementation of source element for class objects.
@@ -32,21 +35,28 @@ public final class SourceElementImpl extends MemberElementImpl
 
   /** Empty array of imports - constant to return fro getImports() */
   static final Import[] EMPTY_IMPORTS = new Import[0];
-
   /* Soft reference to the class element */
   private SoftReference topClass;
-
   /** Soft ref to the map holding all inners */
   private SoftReference allClasses;
-
   /** The identifier of the package of the class data */
   private Identifier packg;
+  /** Association with the class data object (can be null) */
+  private ClassDataObject cdo;
 
 static final long serialVersionUID =-4870331896218546842L;
-  /** Creates object with asociated class.
+
+  /** Creates object with asociated class and no class data object */
+  public SourceElementImpl (Class data) {
+    this(data, null);
+  }
+
+  /** Creates object with asociated class and with asociated
+  * class data object which created this source element (can be null).
   */
-  public SourceElementImpl (final Class data) {
+  public SourceElementImpl (Class data, ClassDataObject cdo) {
     super(data);
+    this.cdo = cdo;
   }
 
   /** Not supported. Throws SourceException.
@@ -198,6 +208,17 @@ static final long serialVersionUID =-4870331896218546842L;
     run.run();
   }
   
+  /** DataObject cookie supported.
+  * @return data object cookie or null
+  */
+  public Node.Cookie getCookie (Class type) {
+    if (type.equals(DataObject.class) || type.equals(MultiDataObject.class) ||
+        ClassDataObject.class.isAssignableFrom(type)) {
+      return cdo;
+    }
+    return null;
+  }
+  
   public Object readResolve() {
     return new SourceElement(this);
   }
@@ -205,6 +226,7 @@ static final long serialVersionUID =-4870331896218546842L;
 
 /*
 * Log
+*  11   src-jtulach1.10        1/20/00  David Simonek   #2119 bugfix
 *  10   src-jtulach1.9         10/23/99 Ian Formanek    NO SEMANTIC CHANGE - Sun 
 *       Microsystems Copyright in File Comment
 *  9    src-jtulach1.8         9/14/99  David Simonek   classes with no package 

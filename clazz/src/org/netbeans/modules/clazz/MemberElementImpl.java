@@ -22,7 +22,10 @@ import java.lang.reflect.Modifier;
 import org.openide.src.MemberElement;
 import org.openide.src.SourceException;
 import org.openide.src.Identifier;
+import org.openide.src.ClassElement;
+import org.openide.src.SourceElement;
 import org.openide.util.Utilities;
+import org.openide.nodes.Node;
 
 /** Implementation of the MemberElement.Impl for the class objects.
 *
@@ -74,7 +77,7 @@ static final long serialVersionUID =-6841890195552268874L;
         Utilities.getClassName((Class)data) :
         ((Member)data).getName();
       
-      int lastDot = fullName.lastIndexOf(".");
+      int lastDot = fullName.lastIndexOf("."); // NOI18N
       name = (lastDot == -1) ?
         Identifier.create(fullName) :
         Identifier.create(fullName, fullName.substring(lastDot + 1));
@@ -86,6 +89,23 @@ static final long serialVersionUID =-6841890195552268874L;
   */
   public void setName (Identifier name) throws SourceException {
     throw new SourceException();
+  }
+  
+  /** Delegates to source element implementation class,
+  * if it's possible.
+  */
+  public Node.Cookie getCookie (Class type) {
+    ClassElement ce = ((MemberElement)element).getDeclaringClass();
+    if ((ce == null) && (element instanceof ClassElement)) {
+      ce = (ClassElement)element;  
+    }
+    if (ce != null) {
+      SourceElement se = ce.getSource();
+      if (se != null) {
+        return se.getCookie(type);
+      }
+    }
+    return null;
   }
 
   public void writeExternal (ObjectOutput oi) throws IOException {
@@ -99,6 +119,8 @@ static final long serialVersionUID =-6841890195552268874L;
 
 /*
 * Log
+*  13   src-jtulach1.12        1/20/00  David Simonek   #2119 bugfix
+*  12   src-jtulach1.11        1/13/00  David Simonek   i18n
 *  11   src-jtulach1.10        1/13/00  David Simonek   i18n
 *  10   src-jtulach1.9         1/10/00  Petr Hamernik   Identifier creating 
 *       improved.
