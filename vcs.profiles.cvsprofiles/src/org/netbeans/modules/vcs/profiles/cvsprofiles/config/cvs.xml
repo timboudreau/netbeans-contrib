@@ -986,25 +986,30 @@ Microsystems, Inc. All Rights Reserved.
             <value>&local-statuses;, "Yet-Unknown"</value>
           </property>
       </command>
+
+      <!-- Add commands:
+         ADD_DIR_RECURSIVE is enabled on folders only
+         ADD is enabled on files only
+      -->
       <command name="ADD_DIR_RECURSIVE" displayName="ResourceMsg1(CVS_ADD)">
         <property name="labelMnemonic">
           <value>ResourceMsg1(CVS_ADD_Mnemonic)</value>
         </property>
-	<property name="advancedName">
+        <property name="advancedName">
 	  <value>add</value>
 	</property>
         <property name="visualizer">
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
         </property>
-	<property name="supportsAdvancedMode">
+        <property name="supportsAdvancedMode">
 	  <value>true</value>
 	</property>
-	<property name="exec">
+        <property name="exec">
 	  <value>$[? FOLDER_CONTENTS] [vcs.commands.RecursiveFolderCommand.class ${RUN_RECURSIVELY} ADD_CMD] []</value>
 	  <!-- If the folder content is not to be added, only ADD_CMD command is executed as a post-command.
                This is necessary due to concurrentExec being -1 -->
 	</property>
-	<property name="inputDescriptor">
+        <property name="inputDescriptor">
 	  <value>LABEL(ResourceMsg1(COMMAND_ADD_Label),
                     ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Label)))
                  SELECT_RADIO(FOLDER_CONTENTS, "", "", [ResourceMsg1(COMMAND_ADD_JustFolder), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_JustFolder);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_JustFolder_mnc))],
@@ -1012,19 +1017,25 @@ Microsystems, Inc. All Rights Reserved.
                                                         PROMPT_FOR(DESCRIPTION, ResourceMsg1(COMMAND_ADD_Description), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Description);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Description_mnc)))
                                                         ASK_FOR(RUN_RECURSIVELY, ResourceMsg1(COMMAND_ADD_Recursively), "false",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Recursively);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Recursively_mnc)) ,"", "-l")
                                                         ASK_FOR(DO_COMMIT, ResourceMsg1(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_DoCommit_mnc)))])
+
+                 SELECT_RADIO_TRIVIAL(TRIVIAL_KFLAG, ResourceMsg1(COMMAND_ADD_BFlag), "", A11Y,
+                    ["ResourceMsg1(COMMAND_ADD_BFlag_a)", "", A11Y],
+                    ["ResourceMsg1(COMMAND_ADD_BFlag_b)", "-kb", A11Y],
+                    ["ResourceMsg1(COMMAND_ADD_BFlag_c)", "-kkv", A11Y] )
+
                  SELECT_COMBO_EXPERT(RCS_KFLAG, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)),["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
           </value>
 	</property>
-	<property name="onDir">
+        <property name="onDir">
 	  <value>true</value>
 	</property>
-	<property name="onFile">
+        <property name="onFile">
 	  <value>false</value>
 	</property>
-	<property name="error.regex">
+        <property name="error.regex">
 	  <value>$ ^</value>
 	</property>
-	<property name="onRoot">
+        <property name="onRoot">
 	  <value>true</value>
 	</property>
         <property name="concurrentExec">
@@ -1048,7 +1059,7 @@ Microsystems, Inc. All Rights Reserved.
         <property name="commandsAfterSuccess">
           <value>$[? FOLDER_CONTENTS] [$[? DO_COMMIT] [COMMIT][]] [ADD_CMD]</value>
         </property>
-          <property name="disabledOnStatus">
+        <property name="disabledOnStatus">
               <value>&versioned-statuses;, "Yet-Unknown"</value>
           </property>
       </command>
@@ -1115,7 +1126,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <value>true</value>
 	</property>
 	<property name="exec">
-	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add $[? PROCESSING_BINARY_FILES] [-kb] [${RCS_KFLAG}] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [$[? message] [-m ${QUOTE}${message}${QUOTE}] []] ${QFILES} ${NUR}</value>
+	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add ${TRIVIAL_KFLAG} ${RCS_KFLAG} $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [$[? message] [-m ${QUOTE}${message}${QUOTE}] []] ${QFILES} ${NUR}</value>
 	</property>
 	<property name="inputDescriptor">
 	  <value>
@@ -1124,6 +1135,10 @@ Microsystems, Inc. All Rights Reserved.
             PROMPT_FOR(DESCRIPTION, ResourceMsg1(COMMAND_ADD_Description), "${message}",
                 ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_ADD_Description);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_Description_mnc))) 
             ASK_FOR(DO_COMMIT, ResourceMsg1(COMMAND_ADD_DoCommit),, ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACS_COMMAND_ADD_DoCommit);;MNEMONIC_ResourceMsg1(ACS_COMMAND_ADD_DoCommit_mnc)))
+            SELECT_RADIO_TRIVIAL(TRIVIAL_KFLAG, ResourceMsg1(COMMAND_ADD_BFlag), "", A11Y,
+                ["ResourceMsg1(COMMAND_ADD_BFlag_a)", "", A11Y],
+                ["ResourceMsg1(COMMAND_ADD_BFlag_b)", "-kb", A11Y],
+                ["ResourceMsg1(COMMAND_ADD_BFlag_c)", "-kkv", A11Y] )
             SELECT_COMBO_EXPERT(RCS_KFLAG, ResourceMsg1(COMMAND_Keyword_Substitution), "",ACCESSIBILITY(DESCRIPTION_ResourceMsg1(ACSD_COMMAND_Keyword_Substitution);;MNEMONIC_ResourceMsg1(ACS_COMMAND_Keyword_Substitution_mnc)), ["ResourceMsg1(COMMAND_Keyword_Substitution_None)", ""], ["ResourceMsg1(COMMAND_Keyword_Substitution_Binary)", "-kb"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValue)", "-kkv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordValueLocker)", "-kkvl"], ["ResourceMsg1(COMMAND_Keyword_Substitution_KeywordOnly)", "-kk"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ValueOnly)", "-kv"], ["ResourceMsg1(COMMAND_Keyword_Substitution_ReuseOld)", "-ko"])
           </value>
 	</property>
@@ -1199,7 +1214,7 @@ Microsystems, Inc. All Rights Reserved.
       </command>
       <command name="ADD_CMD">
 	<property name="exec">
-	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add $[? PROCESSING_BINARY_FILES] [-kb] [${RCS_KFLAG}] $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [] ${QFILES} ${NUR}</value>
+	  <value>${CDW_EXECUTE} ${USER_GLOBAL_PARAM} add ${TRIVIAL_KFLAG} ${RCS_KFLAG} $[? DESCRIPTION] [-m ${QUOTE}${DESCRIPTION}${QUOTE}] [] ${QFILES} ${NUR}</value>
 	</property>
         <property name="visualizer">
           <value>org.netbeans.modules.vcs.profiles.cvsprofiles.visualizers.add.CvsAddVisualizer</value>
@@ -1254,6 +1269,7 @@ Microsystems, Inc. All Rights Reserved.
         </property>
       </command>
 
+        <!-- SCHEDULE_* is used from VFS. Last known client was transparent persistence. -->
       <command name="SCHEDULE_ADD">
 	<property name="exec">
 	  <value>vcs.commands.CvsScheduledAdd.class SCHEDULE_ADD_CMD</value>
