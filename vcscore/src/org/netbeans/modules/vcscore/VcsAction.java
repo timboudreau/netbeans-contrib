@@ -362,7 +362,16 @@ public class VcsAction extends NodeAction implements ActionListener {
     
     private static Table setupRestrictedFileMap(Table files, Object[] varsRef, VcsCommand cmd) {
         String[] attrsToVars = (String[]) cmd.getProperty(VcsCommand.PROPERTY_LOAD_ATTRS_TO_VARS);
-        if (attrsToVars == null) return files;
+        if (attrsToVars != null) {
+            files = getAttributeRestrictedFileMap(files, varsRef, cmd, attrsToVars);
+        }
+        if (Boolean.TRUE.equals(cmd.getProperty(VcsCommand.PROPERTY_DISTINGUISH_BINARY_FILES))) {
+            files = getBinaryRestrictedFileMap(files, varsRef, cmd);
+        }
+        return files;
+    }
+    
+    private static Table getAttributeRestrictedFileMap(Table files, Object[] varsRef, VcsCommand cmd, String[] attrsToVars) {
         String[] attrNames;
         Map attrNonNullVars = null;
         Map attrValueVars = null;
@@ -385,6 +394,39 @@ public class VcsAction extends NodeAction implements ActionListener {
             subFiles = files;
         }
         return subFiles;
+    }
+    
+    private static Table getBinaryRestrictedFileMap(Table files, Object[] varsRef, VcsCommand cmd) {
+        Table restrictedFiles = new Table();
+        boolean isBinary;
+        Iterator it = files.keySet().iterator();
+        if (!it.hasNext()) return files;
+        String name = (String) it.next();
+        FileObject fo = (FileObject) files.get(name);
+        if (fo == null) {
+            isBinary = false;
+        } else {
+            isBinary = isFOBinary(fo);
+        }
+        restrictedFiles.put(name, fo);
+        while (it.hasNext()) {
+            name = (String) it.next();
+            fo = (FileObject) files.get(name);
+            if (fo == null) {
+                if (isBinary) continue;
+            } else {
+                if (isBinary != isFOBinary(fo)) continue;
+            }
+            restrictedFiles.put(name, fo);
+        }
+        Hashtable vars = (Hashtable) varsRef[0];
+        vars.put("PROCESSING_BINARY_FILES", isBinary ? Boolean.TRUE.toString() : "");
+        return restrictedFiles;
+    }
+    
+    private static boolean isFOBinary(FileObject fo) {
+        String mimeType = fo.getMIMEType();
+        return !mimeType.startsWith("text") && !"content/unknown".equals(mimeType);
     }
     
     /**

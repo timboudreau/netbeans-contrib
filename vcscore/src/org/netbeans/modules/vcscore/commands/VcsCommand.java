@@ -265,6 +265,16 @@ public interface VcsCommand extends VcsCommandCookie {
     public static final String PROPERTY_LOAD_ATTRS_TO_VARS = "loadAttributesToVars";
     
     /**
+     * This is a boolean property, which should be set to true on commands, that
+     * behaves differently on textual and binary files. If this property is set
+     * to true, a variable "PROCESSING_BINARY_FILES" is set to a non-empty value
+     * if the files, that are to be processed by the command, are recognized as
+     * binary. The decission of whether the file is binary or not is based on the
+     * FileObject MIME type.
+     */
+    public static final String PROPERTY_DISTINGUISH_BINARY_FILES = "distinguishBinaryFiles";
+    
+    /**
      * Properties wich contains this string in their names can be added to the command
      * by the vcscore or any other module. They should not be interpreted in any way
      * and not stored persistently. Only the module, that set this property is able
