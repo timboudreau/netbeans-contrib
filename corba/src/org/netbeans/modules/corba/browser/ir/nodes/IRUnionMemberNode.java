@@ -47,7 +47,7 @@ public class IRUnionMemberNode extends IRLeafNode {
                 code = code + "case ";
             code = code + value + ": ";
             StringHolder dimension = new StringHolder();
-            code = code + Util.typeCode2TypeString (_mbr.type, dimension)+" ";
+            code = code + Util.idlType2TypeString (_mbr.type_def,((IRContainerNode)getParentNode()).getOwner(),dimension)+" ";
             code = code + _mbr.name + ((dimension.value==null)?"":dimension.value) + ";\n";
             return code;
         }

@@ -55,7 +55,7 @@ public class IRValueMemberDefNode extends IRLeafNode implements Node.Cookie {
                     code = code + "public ";
                     break;
                 }
-            code = code + Util.typeCode2TypeString(_member.type()) + " " + _member.name()+ ";\n";        //NOI18N
+            code = code + Util.idlType2TypeString(_member.type_def(),((IRContainerNode)getParentNode()).getOwner()) + " " + _member.name()+ ";\n";        //NOI18N
             code = code + generateTail (indent);
             return code;  
         }

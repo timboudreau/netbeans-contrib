@@ -73,7 +73,7 @@ public class StructChildren extends Children {
             for (int i=0; i<contained.length; i++)
                 keys[i] = new IRContainedKey (contained[i]);
             for (int i=0; i<members.length; i++)
-                keys[contained.length + i] = new IRTypeCodeKey (members[i].name, members[i].type);
+                keys[contained.length + i] = new IRTypeCodeKey (members[i].name, members[i].type_def);
             
             setKeys(keys);
         }catch (final SystemException e) {

@@ -24,7 +24,7 @@ public class IRPrimitiveNode extends IRLeafNode {
   
     private static final String PRIMITIVE_ICON_BASE=
         "org/netbeans/modules/corba/idl/node/declarator";
-    private TypeCode tc;
+    private IDLType tc;
   
     private class PrimitiveCodeGenerator implements GenerateSupport {
     
@@ -42,7 +42,7 @@ public class IRPrimitiveNode extends IRLeafNode {
             for (int i=0; i<indent; i++)
                 code =code + SPACE;
             StringHolder dimension = new StringHolder();
-            code = code + Util.typeCode2TypeString(tc, dimension) + " " + getName() + ((dimension.value==null)?"":dimension.value)+";\n";
+            code = code + Util.idlType2TypeString(tc,((IRContainerNode)getParentNode()).getOwner(),dimension) + " " + getName() + ((dimension.value==null)?"":dimension.value)+";\n";
             return code;
         }
     
@@ -57,7 +57,7 @@ public class IRPrimitiveNode extends IRLeafNode {
     }
 
     /** Creates new IRPrimitiveNode */
-    public IRPrimitiveNode(TypeCode tc, String name) {
+    public IRPrimitiveNode(IDLType tc, String name) {
         this.name = name;
         this.tc = tc;
         this.setIconBase(PRIMITIVE_ICON_BASE);
@@ -82,13 +82,13 @@ public class IRPrimitiveNode extends IRLeafNode {
             });
         ss.put ( new PropertySupport.ReadOnly ( Util.getLocalizedString("TITLE_Type"), String.class, Util.getLocalizedString("TITLE_Type"), Util.getLocalizedString("TIP_PrimitiveType")){
                 public java.lang.Object getValue() {
-                    return Util.typeCode2TypeString(tc, new StringHolder());
+                    return Util.typeCode2TypeString(tc.type(), new StringHolder());
                 }
             });
         ss.put ( new PropertySupport.ReadOnly ( Util.getLocalizedString("TITLE_Dimension"), String.class, Util.getLocalizedString("TITLE_Dimension"), Util.getLocalizedString("TIP_PrimitiveDimension")){
                 public java.lang.Object getValue() {
                     StringHolder holder = new StringHolder();
-                    Util.typeCode2TypeString (tc, holder);
+                    Util.typeCode2TypeString (tc.type(), holder);
                     return (holder.value==null)?"":holder.value;
                 }
             });
@@ -96,6 +96,6 @@ public class IRPrimitiveNode extends IRLeafNode {
     }
   
     public TypeCode getTypeCode () {
-        return tc;
+        return tc.type();
     }
 }

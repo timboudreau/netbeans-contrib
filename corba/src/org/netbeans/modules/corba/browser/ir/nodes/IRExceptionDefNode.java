@@ -20,7 +20,6 @@ import org.openide.nodes.Node;
 import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
-
 /** 
  *
  * @author  Tomas Zezula
@@ -164,6 +163,10 @@ public class IRExceptionDefNode extends IRContainerNode {
                 }
             });
         return s;
+    }
+    
+    public org.omg.CORBA.Contained getOwner () {
+        return this._exception;
     }
   
 }

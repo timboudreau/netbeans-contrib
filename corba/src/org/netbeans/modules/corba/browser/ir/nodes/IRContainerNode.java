@@ -57,6 +57,8 @@ public abstract class IRContainerNode extends IRAbstractNode implements Node.Coo
         String hierarchy = this.generateHierarchy ();
         out.println (hierarchy);
     }
+    
+    public abstract org.omg.CORBA.Contained getOwner();
 
     public SystemAction[] createActions (){
         return new SystemAction[] {

@@ -29,8 +29,8 @@ public class ContainerChildren extends Children {
     
     private Container container;
     
-    //public static final boolean DEBUG = false;
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
+    //public static final boolean DEBUG = true;
     
     
     

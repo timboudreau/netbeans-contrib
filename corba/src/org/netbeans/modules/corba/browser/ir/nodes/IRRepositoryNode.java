@@ -190,6 +190,9 @@ public class IRRepositoryNode extends IRContainerNode implements Node.Cookie, Re
         return s;
     }
     
+    public org.omg.CORBA.Contained getOwner () {
+        return org.omg.CORBA.ContainedHelper.narrow(this.repository);
+    }
     
     
 }

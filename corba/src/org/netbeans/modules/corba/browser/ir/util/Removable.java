@@ -17,5 +17,5 @@ package org.netbeans.modules.corba.browser.ir.util;
 /** This class represnets an marker for nodes
  *  that can be deleted
  */
-public interface Removable {
+public interface Removable extends org.openide.nodes.Node.Cookie {
 }

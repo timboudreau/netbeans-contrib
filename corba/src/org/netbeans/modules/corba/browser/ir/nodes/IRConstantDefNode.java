@@ -56,7 +56,7 @@ public class IRConstantDefNode extends IRLeafNode implements Node.Cookie, Genera
             for (int i=0; i<indent; i++)
                 fill = fill + SPACE;
             code = code + fill + "const ";
-            code = code + Util.typeCode2TypeString ( _constant.value().type())+ " ";
+            code = code + Util.idlType2TypeString ( _constant.type_def(),((IRContainerNode)getParentNode()).getOwner())+ " ";
             code = code + _constant.name() + " = ";
             code = code + getValue() + ";\n";
             code = code + generateTail(indent) +"\n";

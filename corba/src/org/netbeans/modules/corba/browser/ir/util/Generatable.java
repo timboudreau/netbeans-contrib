@@ -16,7 +16,7 @@ package org.netbeans.modules.corba.browser.ir.util;
 import java.io.PrintWriter;
 import java.io.IOException;
 
-public interface Generatable {
+public interface Generatable extends org.openide.nodes.Node.Cookie {
     public void generateCode ();
     public void generateCode (PrintWriter out) throws IOException;
 }

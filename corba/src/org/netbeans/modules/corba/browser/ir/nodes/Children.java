@@ -24,8 +24,8 @@ import org.netbeans.modules.corba.browser.ir.util.AsyncTarget;
  */
 public abstract class Children extends org.openide.nodes.Children.Keys implements Refreshable, AsyncTarget {
     
-    private static final boolean DEBUG = true;
-    //private static final boolean DEBUG = false;
+    //private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     /** Creates new Children */
     public static final int NOT_INITIALIZED = 0;

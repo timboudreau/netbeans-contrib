@@ -13,26 +13,26 @@
 
 package org.netbeans.modules.corba.browser.ir.nodes.keys;
 
-import org.omg.CORBA.TypeCode;
+import org.omg.CORBA.IDLType;
 import org.omg.CORBA.Any;
 
 
 public class IRTypeCodeKey extends IRAbstractKey implements Cloneable {
 
     public String name;
-    public TypeCode type;
+    public IDLType type;
     public Any label;
 
 
 
     /** Creates new IRTypeCodeKey */
-    public IRTypeCodeKey(String name, TypeCode type, Any label){
+    public IRTypeCodeKey(String name, IDLType type, Any label){
         this.name = name;
         this.type = type;
         this.label = label;
     }
 
-    public IRTypeCodeKey(String name, TypeCode type) {
+    public IRTypeCodeKey(String name, IDLType type) {
         this (name,type,null);
     }
 

@@ -178,7 +178,9 @@ public class IRInterfaceDefNode extends IRContainerNode {
     }
   
     
-  
+    public org.omg.CORBA.Contained getOwner () {
+        return this._interface;
+    }
     
 
 }

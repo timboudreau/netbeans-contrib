@@ -122,6 +122,10 @@ public class IRModuleDefNode extends IRContainerNode {
 
         return s;
     }
+    
+    public org.omg.CORBA.Contained getOwner () {
+        return this._module;
+    }
 	
 }
 

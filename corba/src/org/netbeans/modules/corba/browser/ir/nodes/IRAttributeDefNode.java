@@ -47,7 +47,7 @@ public class IRAttributeDefNode extends IRLeafNode {
                 code = code + "readonly attribute ";    //NOI18N
                 break;
             }
-            code = code + Util.typeCode2TypeString (_attribute.type())+" ";     //NOI18N
+            code = code + Util.idlType2TypeString (_attribute.type_def(),((IRContainerNode)getParentNode()).getOwner())+" ";     //NOI18N
             code = code + _attribute.name() + ";\n";        //NOI18N
             code = code + generateTail (indent);
             return code;  

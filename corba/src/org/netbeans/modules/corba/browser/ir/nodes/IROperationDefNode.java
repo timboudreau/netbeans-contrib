@@ -43,14 +43,14 @@ public class IROperationDefNode extends IRLeafNode {
             code = code + fill;
             if (_operation.mode() == OperationMode.OP_ONEWAY)
                 code = code + fill + "oneway ";
-            code = code + Util.typeCode2TypeString(_operation.result())+" ";
+            code = code + Util.idlType2TypeString(_operation.result_def(),((IRContainerNode)getParentNode()).getOwner())+" ";
             code = code + _operation.name() + " (";
             ParameterDescription[] params = _operation.params();
             for (int i = 0; i < params.length; i++){
                 if (i != 0)
                     code = code +", ";
                 code = code + pm2Str(params[i].mode) + " ";
-                code = code + Util.typeCode2TypeString (params[i].type) + " ";
+                code = code + Util.idlType2TypeString (params[i].type_def,((IRContainerNode)getParentNode()).getOwner()) + " ";
                 code = code + params[i].name;
             }
             code = code +")";

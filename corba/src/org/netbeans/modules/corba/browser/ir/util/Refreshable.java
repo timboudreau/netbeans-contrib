@@ -14,6 +14,6 @@
 package org.netbeans.modules.corba.browser.ir.util;
 
 
-public interface Refreshable {
+public interface Refreshable extends org.openide.nodes.Node.Cookie {
     public void createKeys();
 }

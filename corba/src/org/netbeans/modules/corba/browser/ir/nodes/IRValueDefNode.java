@@ -271,6 +271,9 @@ public class IRValueDefNode extends IRContainerNode {
         return s;
     }
     
-    
+
+    public org.omg.CORBA.Contained getOwner () {
+        return this._value;
+    }
     
 }

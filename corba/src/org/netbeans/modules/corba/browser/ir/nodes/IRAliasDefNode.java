@@ -51,7 +51,7 @@ public class IRAliasDefNode extends IRLeafNode implements Node.Cookie, Generatab
                 fill = fill + SPACE;
             code = code + fill + "typedef ";
             StringHolder dimension = new StringHolder();
-            code = code + Util.typeCode2TypeString (_alias.original_type_def().type(), dimension) + " ";
+            code = code + Util.idlType2TypeString (_alias.original_type_def(),((IRContainerNode)getParentNode()).getOwner(), dimension) + " ";
             code = code + _alias.name()+((dimension.value==null)?"":dimension.value)+";\n";
             code = code + generateTail (indent);
             return code;

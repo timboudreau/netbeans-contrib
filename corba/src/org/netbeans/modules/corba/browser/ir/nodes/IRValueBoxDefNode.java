@@ -51,7 +51,7 @@ public class IRValueBoxDefNode extends IRLeafNode implements Node.Cookie, Genera
             for (int i=0; i<indent; i++)
                 fill = fill + SPACE;
             code = code + fill;
-            code = code + "valuetype " + _valuebox.name() + " " +Util.typeCode2TypeString(_valuebox.original_type_def().type())+ ";\n";        //NOI18N
+            code = code + "valuetype " + _valuebox.name() + " " +Util.idlType2TypeString(_valuebox.original_type_def(),((IRContainerNode)getParentNode()).getOwner())+ ";\n";        //NOI18N
             code = code + generateTail (indent);
             return code;  
         }

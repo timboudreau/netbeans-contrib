@@ -52,9 +52,9 @@ public class IRInitializerNode extends IRLeafNode implements Node.Cookie {
             code = code + "factory " + _initializer.name + " (";
             for (int i=0; i<_initializer.members.length; i++) {
                 if (i!=0) 
-                    code = code + ", in " + Util.typeCode2TypeString(_initializer.members[i].type) + " " + _initializer.members[i].name;
+                    code = code + ", in " + Util.idlType2TypeString(_initializer.members[i].type_def, ((IRContainerNode)getParentNode()).getOwner()) + " " + _initializer.members[i].name;
                 else
-                    code = code + "in " +  Util.typeCode2TypeString(_initializer.members[i].type) + " " + _initializer.members[i].name;
+                    code = code + "in " +  Util.idlType2TypeString(_initializer.members[i].type_def, ((IRContainerNode)getParentNode()).getOwner()) + " " + _initializer.members[i].name;
             }
             code = code +");\n";
             

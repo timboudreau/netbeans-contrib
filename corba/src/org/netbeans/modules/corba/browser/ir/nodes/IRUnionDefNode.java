@@ -22,7 +22,6 @@ import org.netbeans.modules.corba.browser.ir.Util;
 import org.netbeans.modules.corba.browser.ir.util.GenerateSupport;
 
 
-
 public class IRUnionDefNode extends IRContainerNode {
   
     // public static final boolean DYN_ANY_WORKAROUND = false;
@@ -38,7 +37,7 @@ public class IRUnionDefNode extends IRContainerNode {
             String fill = "";
             for (int i=0; i<indent; i++)
                 fill = fill + SPACE;
-            code = code + fill + "union " + _union.name() + " switch ( " +Util.typeCode2TypeString(_union.discriminator_type())+ " ) {\n";
+            code = code + fill + "union " + _union.name() + " switch ( " +Util.idlType2TypeString(_union.discriminator_type_def(),((IRContainerNode)getParentNode()).getOwner())+ " ) {\n";
             return code;
         }
     
@@ -219,4 +218,7 @@ public class IRUnionDefNode extends IRContainerNode {
         return s;
     }
   
+    public org.omg.CORBA.Contained getOwner () {
+        return this._union;
+    }
 }
