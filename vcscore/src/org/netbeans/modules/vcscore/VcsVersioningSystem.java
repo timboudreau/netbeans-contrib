@@ -156,11 +156,13 @@ class VcsVersioningSystem extends VersioningFileSystem implements CacheHandlerLi
      * @return Reference to FileObject
      */
     protected java.lang.ref.Reference createReference(final FileObject fo) {
-        java.lang.ref.Reference ref = super.createReference(fo); // It's crucial to call the super!
+        java.lang.ref.Reference ref;
         FileCacheProvider cache = fileSystem.getCacheProvider();
 	if (cache != null) {
             ref = cache.createReference(fo);
-	}
+	} else {
+            ref = super.createReference(fo);
+        }
 	return ref;
     }
     
