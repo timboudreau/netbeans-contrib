@@ -94,7 +94,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
      * @param env The document being shown
      */
     public void docShown(SuggestionContext env) {
-        settings.addPropertyChangeListener(this);
+        settings().addPropertyChangeListener(this);
     }
 
     /**
@@ -104,8 +104,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
      * @param env The document being hidden
      */
     public void docHidden(SuggestionContext env) {
-        if (settings == null) return; // FIXNE after deserialization
-        settings.removePropertyChangeListener(this);
+        settings().removePropertyChangeListener(this);
      }
 
     public void propertyChange(PropertyChangeEvent ev) {
@@ -152,7 +151,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
             // ignore cache
         }
 
-        boolean skipCode = settings.getSkipComments();
+        boolean skipCode = settings().getSkipComments();
         List tasks = null;
         if (skipCode) {
             tasks = scanCommentsOnly(env);
@@ -215,7 +214,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
         
         TaskTag matchTag = null;
         try {
-            Pattern regexp = settings.getTaskTags().getScanRegexp();
+            Pattern regexp = settings().getTaskTags().getScanRegexp();
             while (sccp.getNextLine(cl)) {
                 // I am inside a comment, scan for todo-items:
                 Matcher matcher = regexp.matcher(cl.line);
@@ -293,7 +292,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
             int lineno = 1;
             int len = text.length();
 
-            Matcher matcher = settings.getTaskTags().getScanRegexp().matcher(text);
+            Matcher matcher = settings().getTaskTags().getScanRegexp().matcher(text);
             while (index < len && matcher.find(index)) {
                 int begin = matcher.start();
 	            int end   = matcher.end();
@@ -358,7 +357,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
     }
     
     private TaskTag getTag(CharSequence text, int start, int end) {
-        TaskTag tag = settings.getTaskTags().getTag(text, start, end);
+        TaskTag tag = settings().getTaskTags().getTag(text, start, end);
         return tag;
     }    
 
@@ -366,4 +365,11 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
         rescan(env, request);
     }
 
+    private Settings settings() {
+        if (settings == null) {
+            // FIXME manifests missing prepare event
+            settings = (Settings)Settings.findObject(Settings.class, true);
+        }
+        return settings;
+    }
 }
