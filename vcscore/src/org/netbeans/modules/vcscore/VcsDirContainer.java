@@ -214,10 +214,9 @@ public class VcsDirContainer extends Object {
      */
     public VcsDirContainer getContainerWithPath(String path) {
         VcsDirContainer container = this;
-        if (path.length() == 0) return container;
         String rootPath = container.getPath();
         if (rootPath.length() > 0 && path.indexOf(rootPath) < 0) return null;
-        if (path.length() > 0 && path.equals(rootPath)) return this;
+        if (path.length() >= 0 && path.equals(rootPath)) return this;
         int index = rootPath.length();
         if (index > 0) index++; // we have to cross the file separator
         int indexSep = path.indexOf('/', index);
