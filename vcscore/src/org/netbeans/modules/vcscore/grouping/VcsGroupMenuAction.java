@@ -108,38 +108,35 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
             return;
         }        
  */
-        ExplorerPanel panel = null; 
-        Workspace workspace = TopManager.getDefault().getWindowManager().getCurrentWorkspace();
-        String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
-        Mode myMode = workspace.findMode(MODE_NAME);
-        boolean newPan = false;
-        if (myMode == null) {
+        ExplorerPanel panel = null;
+        Iterator it = TopManager.getDefault().getWindowManager().getRegistry().getOpened().iterator();
+        while (it.hasNext()) {
+            TopComponent comp = (TopComponent)it.next();
+            if (comp instanceof GroupExplorerPanel) {
+                panel = (GroupExplorerPanel)comp;
+            }
+        }
+        
+        if (panel == null) {
+            panel = new GroupExplorerPanel();
+            Workspace workspace = TopManager.getDefault().getWindowManager().getCurrentWorkspace();
+            String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
+            Mode myMode = workspace.findMode(MODE_NAME);
+            
+            if (myMode == null) {
                 // create new mode for CI and set the bounds properly
-            myMode = workspace.createMode(MODE_NAME, modeName, null); //NOI18N
+                myMode = workspace.createMode(MODE_NAME, modeName, null); //NOI18N
                 /*
                 Rectangle workingSpace = workspace.getBounds();
                 myMode.setBounds(new Rectangle(workingSpace.x +(workingSpace.width * 3 / 10), workingSpace.y,
                                                workingSpace.width * 2 / 10, workingSpace.height / 2));
-               */
-            newPan = true;
-        } else {
-            TopComponent[] comps = myMode.getTopComponents();
-            if (comps != null)  {
-                for (int i = 0; i < comps.length; i++) {
-                    if (comps[i] instanceof GroupExplorerPanel) {
-                        panel = (GroupExplorerPanel)comps[i];
-                        break;
-                    }
-                }
+                 */
             }
-        }
-        if (panel == null) {
-            panel = new GroupExplorerPanel();            
-        }
-        if (newPan) {
             myMode.dockInto(panel);
         }
         panel.open(TopManager.getDefault().getWindowManager().getCurrentWorkspace());
+        panel.requestFocus();
+        
     }
     
 
@@ -148,6 +145,8 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         public void open() {
             if (!isOpened()) {
                 Node root = null;
+                String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
+                setName(modeName);
                 root = GroupUtils.getMainVcsGroupNodeInstance();
                 GroupUtils.getDefaultGroupInstance(); // here just to make sure the default is created.
                 ExplorerManager manager = getExplorerManager();
@@ -163,6 +162,9 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
         public void open(org.openide.windows.Workspace workspace) {
             if (!isOpened()) {
                 Node root = null;
+                String modeName = org.openide.util.NbBundle.getMessage(VcsGroupMenuAction.class, "LBL_MODE.title");//NOI18N
+                setName(modeName);
+
                 root = GroupUtils.getMainVcsGroupNodeInstance();
                 GroupUtils.getDefaultGroupInstance(); // here just to make sure the default is created.
                 ExplorerManager manager = getExplorerManager();
@@ -174,6 +176,11 @@ public class VcsGroupMenuAction extends CallableSystemAction  {
             }
             super.open(workspace);
         }
+        
+        protected void updateTitle() {
+//            super.updateTitle();
+        }
+        
         
     }
     
