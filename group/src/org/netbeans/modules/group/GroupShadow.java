@@ -26,8 +26,12 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
 import javax.swing.event.ChangeListener;
 
+import org.openide.ErrorManager;
 import org.openide.cookies.CompilerCookie;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
@@ -43,20 +47,41 @@ import org.openide.actions.ActionManager;
 import org.openide.util.Lookup;
 
 
-/** Group shadow.
- *  <code>DataObject</code> representing a group of DataDbjects on a filesystem.
- *  It also defines rules for templating of group members:
- *    <p>property templateALL if true then the group is result
- *                            otherwise bunch of group members
- *    <p>property templatePattern defines MessageFormat where
- *    <p> {0} member name
- *    <p> {1} name entered by user (during template instantiation)
- *    <p> {2} posfix got from {0} by using part following last "__"
- *         e.g. for "hello__World" is postfix "World"
- *              for "helloWorld" is postfix ""
- *    <p> {3} backward substitution result (i.e. __somethingBetween__ => {1} )
+/**
+ * Group shadow - <code>DataObject</code> representing a group of
+ * <code>DataObject</code>s on a filesystem.
+ * It also defines rules for templating of group members:
+ * <ul>
+ *     <li>property Template All - if <code>true</code> the group is result,
+ *                                otherwise bunch of group members
+ *     </li>
+ *     <li>property Template Pattern - defines <code>MessageFormat</code> where:
+ *         <blockquote>
+ *             <table>
+ *             <tr><td><code>{0}</code></td>
+ *                 <td>is a member name</td></tr>
+ *             <tr><td><code>{1}</code></td>
+ *                 <td>is a name entered by user
+ *                     (during template instantiation)</td></tr>
+ *             <tr><td valign="baseline"><code>{2}</code></td>
+ *                 <td>is a posfix got from <code>{0}</code> by using part
+ *                     following the last &quot;__&quot;<br />
+ *                     Examples:<br />
+ *                     &nbsp;&nbsp;- postfix of &quot;hello__World&quot;
+ *                                   is &quot;World&quot;<br />
+ *                     &nbsp;&nbsp;- postfix of &quot;helloWorld&quot;
+ *                                   is &quot;&quot; (an empty string)</td></tr>
+ *             <tr><td><code>{3}</code></td>
+ *                 <td>backward substitution result
+ *                     (i.e. __somethingBetween__ =&gt; <code>{1}</code>)
+ *                     </td></tr>
+ *             </table>
+ *         </blockquote>
+ *     </li>
+ * </ul>
  *
  * @author Martin Ryzl
+ * @author Marian Petras
  * @see org.openide.loaders.DataObject
  */
 public class GroupShadow extends DataObject {
@@ -217,36 +242,52 @@ public class GroupShadow extends DataObject {
         }
     }
 
-    /** Reads whole file to the List.
-     * @param fo file object to be read
-     * @return List of String */
+    /**
+     * Reads names of <code>FileObject</code>s contained in this group.
+     *
+     * @param  fo  <code>FileObject</code> containing names of contained
+     *             <code>FileObject</code>s (this object's primary file)
+     * @return  names of <code>FileObject</code>s,
+     *          each <code>FileObject</code>'s name is relative to the
+     *          filesystem the <code>FileObject</code> pertains to
+     * @exception  java.io.IOException  if an error occured during reading
+     *                                  this group's primary file
+     */
     public static List readLinks(FileObject fo) throws IOException {
-        String line;
         List list = new ArrayList();
         BufferedReader br = null;
         try {
             br = new BufferedReader(new InputStreamReader(fo.getInputStream()));
-
+            String line;
             while ((line = br.readLine()) != null) {
                 list.add(line);
             }
-        } catch (IOException ex) {
-            throw ex;
         } finally {
-            if (br != null) br.close();
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException ex) {
+                    /* give up */
+                }
+            }
         }
-        
         return list;
     }
 
-    /** Reads whole file to the List.
-     * @return List of String's */
+    /**
+     * Reads whole file to the List.
+     *
+     * @return List of String's
+     */
     public List readLinks() throws IOException {
         return readLinks(getPrimaryFile());
     }
 
-    /** Writes List as new content of file.
-     * @param list List of String's */
+    /**
+     * Writes List as new content of file.
+     *
+     * @param list List of String's
+     */
     public static void writeLinks(List list, FileObject fo) throws IOException {
         String line;
         Iterator iterator = list.iterator();
@@ -271,72 +312,83 @@ public class GroupShadow extends DataObject {
         }
     }
 
-    /** Writes List as new content of file.
-     * @param list List of String */
+    /**
+     * Writes List as new content of file.
+     *
+     * @param list List of String
+     */
     protected void writeLinks(List list) throws IOException {
         writeLinks(list, getPrimaryFile());
     }
 
-    /** Get link name.
+    /**
+     * Get link name.
+     *
      * @param fo file object
-     * @return file name */
+     * @return file name
+     */
     public static String getLinkName(FileObject fo) {
         return fo.getPackageNameExt('/', '.');
     }
 
-    /** Get FileObject for given filename.
-     * @param filename filename
-     * @return FileObject */
-    private static FileObject findFileObject(String filename) {
-
-        return org.openide.filesystems.Repository.getDefault()
-               .findResource(filename);
-    }
-
-    /** Get DataObject for given filename.
-     * @param filename filename
-     * @return DataObject
+    /**
+     * Finds a <code>DataObject</code> for a given file name.
+     * Lookup for a file having the specified file name is performed
+     * in all mounted filesystems, using method
+     * {@link org.openide.filesystems.Repository#findResource(String)}.
+     *
+     * @param  filename  name of the file, relative to the filesystem it
+     *         pertains to
+     * @return  the found <code>DataObject</code>, or <code>null</code>
+     *          if a file having the specified name was not found
+     * @exception  if a file having the specified name was found but
+     *             there is no <code>DataObject</code> created for it
      */
-    private static DataObject getDataObjectByName(String filename) throws DataObjectNotFoundException {
-
-        FileObject tempfo = findFileObject(filename);
-        return (tempfo != null) ? DataObject.find(tempfo): null;
+    private static DataObject getDataObjectByName(String filename)
+            throws DataObjectNotFoundException {
+        FileObject file = Repository.getDefault().findResource(filename);
+        return (file != null) ? DataObject.find(file) : null;
     }
 
-    /** Reads filenames from shadow and creates an array of DataObjects for them.
-     * @return array that can contain DataObjects or Strings with names of invalid
-     * links */
+    /**
+     * Returns <code>DataObject</code>s contained in this group.
+     * Reads contents of this group's primary file (names of nested
+     * <code>DataObject</code>s' primary files) and asks for the corresponding
+     * <code>DataObject</code>s. In case of broken links (names of non-existing
+     * files), names of the files are returned instead of
+     * <code>DataObject</code>s. Files that exist but there is no
+     * <code>DataObject</code> for them, are silently ignored.
+     * 
+     * @return  array containing <code>DataObject</code>s
+     *          and names of broken links
+     */
     public Object[] getLinks() {
-        FileObject pf = getPrimaryFile(); //, parent = pf.getParent(), tempfo;
-        DataObject obj;
-        String line;
-        HashSet set = new HashSet();
-        List linearray;
-
+        List filenames;
         try {
-            linearray = readLinks(pf);
-            Iterator it = linearray.iterator();
-            while (it.hasNext()) {
-                line = (String)it.next();
-                try {
-                    if ((obj = getDataObjectByName(line)) != null) {
-                        set.add(obj);
-                    }
-                    else set.add(new String(line));
-                } catch (DataObjectNotFoundException ex) {
-                    // can be thrown when the link is not recognized by any data loader
-                    // in this case I can't help so ignore it
-                }
-            }
+            filenames = readLinks(getPrimaryFile());
         } catch (IOException ex) {
-            // it can be ignored
+            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+            return new Object[0];
         }
-
-        // the array can contain DataObjects and Strings !
+        
+        Set set = new HashSet();
+        for (Iterator it = filenames.iterator(); it.hasNext(); ) {
+            String filename = (String) it.next();
+            try {
+                DataObject obj = getDataObjectByName(filename);
+                set.add(obj != null ? (Object) obj
+                                    : (Object) new String(filename));
+            } catch (DataObjectNotFoundException ex) {
+                // can be thrown when the link is not recognized by any data loader
+                // in this case I can't help so ignore it
+            }
+        }
         return set.toArray();
     }
 
-    /** Replace the oldprefix by a newprefix in name.
+    /**
+     * Replace the oldprefix by a newprefix in name.
+     *
      * @param name name
      * @param oldprefix old prefix
      * @param newprefix new prefix
@@ -349,141 +401,129 @@ public class GroupShadow extends DataObject {
         return name;
     }
 
-    /** Replaces all occurences of __.*__ by a given text
-     * @param name name with __.*__ substrings
-     * @param pattern replacement
-     * @return a string with __.*__ replaced
+    /**
+     * Replaces name according to naming pattern defined by property
+     * {@link #PROP_TEMPLATE_PATTERN}, or falls to {@link #replaceName0()}
+     * if value of the property is <code>null</code>.
      */
-    private String replaceName0(String name, String pattern) {
-        StringBuffer sb = new StringBuffer(256);
-        int i = 0, j, k;
-
-        while ((j = name.indexOf("__", i)) != -1) { // NOI18N
-
-            // first occurence found
-            k = name.indexOf("__", j + 2); // NOI18N
-            if (k != -1) {
-                // second occurence found, copy start part and pattern
-                sb.append(name.substring(i, j));
-                sb.append(pattern);
-                i = k + 2;
-            } else {
-                break;
-            }
-        }
-        // copy the rest
-        sb.append(name.substring(i, name.length ()));
-        return sb.toString();
-    }
-
-    /** Replaces name according to namming pattern defined by templatePattern
-     * property or fails to replaceName0() if the property is <code>null</code>. */
-    private String replaceName(String name, String pattern) {
+    private String replaceName(String name, String replacement) {
         String fmt = getTemplatePattern();
         
-        if(!isUsePattern() || fmt==null){
-            return replaceName0(name,pattern);
+        if (!isUsePattern() || fmt == null) {
+            return name.replaceAll("__.*?__", replacement);             //NOI18N
         }
 
-        // filter out all characters before "__" // NOI18N
-        String postfix = ""; // NOI18N
-        try{
-            int i = name.lastIndexOf("__"); // NOI18N
-            if(i>0){
-                postfix = name.substring(i+2);
-            }
-        }catch(IndexOutOfBoundsException ex){
-            //use default value
-        }
+        /* filter out all characters before "__" */
+        int i = name.lastIndexOf("__");                                 //NOI18N
+        String postfix = (i > 0) ? name.substring(i + 2) : "";          //NOI18N
 
-        String subst = string3(name,pattern);
-        return MessageFormat.format(fmt,new String[]{name,pattern,postfix,subst});
+        String subst = string3(name, replacement);
+        return MessageFormat.format(
+                fmt,
+                new String[] {name, replacement, postfix, subst});
     }
 
-    /** Backward substitution in name by x.
-     * SE: it calls recursively itself until whole substituion done
-     * x must not contain substitution pattern !!! */
-    private String substitute(String name, String x){
-        StringBuffer sb = new StringBuffer(name);
-        int j = name.length();
-        int i = name.lastIndexOf("__",j); // NOI18N
-        j = i-1;
-        if(i>=0){
-            i = name.lastIndexOf("__",j); // NOI18N
-            if(i>=0){
-                sb.delete(i,j+3);
-                sb.insert(i,x);
-                return substitute(sb.toString(),x);
-            }
-        }
-        return name;
-    }
-
-    /** Substitution wrapper for special cases.
-     * @returns String representing new name after substitution */
-    private String string3(String name, String pattern) {
+    /**
+     * Substitution wrapper for special cases.
+     *
+     * @returns String representing new name after substitution
+     */
+    private String string3(String name, String replacement) {
 
         String patch;
-        if(name.startsWith("__")){ // NOI18N
+        if (name.startsWith("__")) {                                    //NOI18N
             patch = name;
         } else {
-            patch = "__" + name; // NOI18N
+            patch = "__" + name;                                        //NOI18N
         }
 
-        String s3 = substitute(patch,pattern);
-        if (s3.startsWith("__")){ // NOI18N
+        String s3 = substitute(patch, replacement);
+        
+        if (s3.startsWith("__")) {                                      //NOI18N
             s3 = s3.substring(2);
         }
         return s3;
+    }
+
+    /**
+     * Global backward substitution of substrings matching pattern
+     * &quot;<code>__.*?__</code>&quot;. The name is searched for the rightmost
+     * occurence of a substring matching the pattern. If it is found,
+     * the substring is replaced with a specified replacement and the same
+     * process is performed on the result of the substitution, until no matching
+     * substring is found.
+     *
+     * @param  name  string to process with a substitution
+     * @param  replacement  string to put in place of matching substrings
+     *                      of the name
+     * @return  result of the substitutions
+     */
+    private String substitute(String name, String replacement) {
+        int last;
+        int lastButOne;
+        StringBuffer sb = new StringBuffer(name);
+        while ((last = sb.lastIndexOf("__")) >= 0                       //NOI18N
+               && (lastButOne = sb.lastIndexOf("__", last - 2)) >= 0) { //NOI18N
+            sb.replace(lastButOne, last + 2, replacement);
+        }
+        return sb.toString();
     }
 
     /** Implementation of handleCreateFromTemplate for GroupShadow.
      * All members of this group are called to create new objects. */
     protected DataObject handleCreateFromTemplate(DataFolder df, String name) throws IOException {
         List createdObjs = createGroupFromTemplate(df, name, true);
-        return createdObjs != null && createdObjs.size() > 0 ? 
-                   (DataObject)createdObjs.get(0) : this;
+        return createdObjs != null && createdObjs.size() > 0
+               ? (DataObject) createdObjs.get(0)
+               : this;
     }
 
-    /** Creates new objects from all members of this group.
-     * @returns List of created objects. */
-    private List createGroupFromTemplate(DataFolder df,
-                                                   String name,
-                                                   boolean root) throws IOException {
-        if (gsprocessed == null) gsprocessed = this;
-        else return null;
+    /**
+     * Creates new objects from all members of this group.
+     *
+     * @returns  list of created objects
+     */
+    private List createGroupFromTemplate(DataFolder folder,
+                                         String name,
+                                         boolean root) throws IOException {
+        if (gsprocessed == null) {
+            gsprocessed = this;
+        } else {
+            return null;
+        }
 
-        if (name == null) // name is not specified
-            name = FileUtil.findFreeFileName(df.getPrimaryFile(),
-                                          getPrimaryFile().getName(), GS_EXTENSION);
-
+        if (name == null) {// name is not specified
+            name = FileUtil.findFreeFileName(folder.getPrimaryFile(),
+                                             getPrimaryFile().getName(),
+                                             GS_EXTENSION);
+        }
         Object[] objs = getLinks();
-        ArrayList createdObjs = new ArrayList(objs.length+1);
+        ArrayList createdObjs = new ArrayList(objs.length + 1);
         ArrayList linksList = new ArrayList(objs.length);
 
         try {
-            for (int i=0; i < objs.length; i++) {
+            for (int i = 0; i < objs.length; i++) {
                 if (objs[i] instanceof DataObject) {
-                    DataObject original = (DataObject)objs[i];
+                    DataObject original = (DataObject) objs[i];
 
                     if (original instanceof GroupShadow) {
-                        GroupShadow gs = (GroupShadow)original;
-                        List items = gs.createGroupFromTemplate(df, name, false);
+                        GroupShadow gs = (GroupShadow) original;
+                        List items = gs.createGroupFromTemplate(folder, name, false);
                         if (items != null) {
-                            for (int j=0, n=items.size(); j < n; j++) {
-                                DataObject obj = (DataObject)items.get(j);
+                            for (int j = 0, n = items.size(); j < n; j++) {
+                                DataObject obj = (DataObject) items.get(j);
                                 createdObjs.add(obj);
                                 linksList.add(getLinkName(obj.getPrimaryFile()));
-                                if (j == 0 && obj instanceof GroupShadow
-                                      && gs.getTemplateAll())
+                                if (j == 0
+                                        && obj instanceof GroupShadow
+                                        && gs.getTemplateAll())
                                     break;
                             }
 //                            createdObjs.addAll(items);
                         }
-                    }
-                    else {
+                    } else {
                         String repName = replaceName(original.getName(), name);
-                        DataObject newObj = original.createFromTemplate(df, repName);
+                        DataObject newObj = original.createFromTemplate(folder, repName);
                         createdObjs.add(newObj);
                         linksList.add(getLinkName(newObj.getPrimaryFile()));
                     }
@@ -492,11 +532,12 @@ public class GroupShadow extends DataObject {
 
             if (objs.length == 0 || getTemplateAll()) { // create also the group
                 String repName = root ? name : replaceName(getName(), name);
-                FileObject fo = df.getPrimaryFile().createData(repName, GS_EXTENSION);
+                FileObject fo = folder.getPrimaryFile().createData(repName, GS_EXTENSION);
                 writeLinks(linksList, fo);
-                GroupShadow gs = (GroupShadow)DataObject.find(fo);
-                if (gs == null)
+                GroupShadow gs = (GroupShadow) DataObject.find(fo);
+                if (gs == null) {
                     gs = new GroupShadow(fo, getLoader());
+                }
                 createdObjs.add(0, gs);
             }
         }
@@ -514,7 +555,9 @@ public class GroupShadow extends DataObject {
         return createdObjs;
     }
 
-    /** Setter for showLinks property.
+    /**
+     * Setter for showLinks property.
+     *
      * @param show if true also show real packages and names of targets */
     public void setShowLinks(boolean show) {
         showLinks = show;
@@ -525,8 +568,11 @@ public class GroupShadow extends DataObject {
         return showLinks;
     }
 
-    /** Setter for template pattern.
-     * @exception IOException if error occured */
+    /**
+     * Setter for template pattern.
+     *
+     * @exception IOException if error occured
+     */
     public void setTemplatePattern(String templatePattern) throws IOException{
         final FileObject fo = getPrimaryFile();
         String old = getTemplatePattern();
@@ -542,21 +588,15 @@ public class GroupShadow extends DataObject {
     /** Getter for template pattern. */
     public String getTemplatePattern(){
         Object value = getPrimaryFile().getAttribute(GroupShadow.PROP_TEMPLATE_PATTERN);
-        if(value != null && value instanceof String) 
-            return (String)value;
-        else 
-            // Default pattern.
-            return "{1}";
+        return (value instanceof String) ? (String) value
+                                         : "{1}";                       //NOI18N
     }
 
     
     /** Getter for use pattern property. */
     public boolean isUsePattern() {
-        Object value = getPrimaryFile().getAttribute(GroupShadow.PROP_USE_PATTERN);
-        if(value != null && value instanceof Boolean)
-            return ((Boolean)value).booleanValue();
-        
-        return false;
+        Object o = getPrimaryFile().getAttribute(GroupShadow.PROP_USE_PATTERN);
+        return Boolean.TRUE.equals(o);
     }
 
     
@@ -565,19 +605,19 @@ public class GroupShadow extends DataObject {
         FileObject fileObject = getPrimaryFile();
         boolean oldValue = isUsePattern();
         
-        if(usePattern == oldValue)
+        if (usePattern == oldValue) {
             return;
+        }
+        fileObject.setAttribute(PROP_USE_PATTERN, Boolean.valueOf(usePattern));
         
-        fileObject.setAttribute(PROP_USE_PATTERN, usePattern ? Boolean.TRUE : Boolean.FALSE);
-        
-        firePropertyChange(PROP_USE_PATTERN, oldValue ? Boolean.TRUE : Boolean.FALSE, usePattern ? Boolean.TRUE : Boolean.FALSE);
+        firePropertyChange(PROP_USE_PATTERN, Boolean.valueOf(oldValue),
+                                             Boolean.valueOf(usePattern));
     }
     
     /** Getter for template all. */
     public boolean getTemplateAll() {
         Object o = getPrimaryFile().getAttribute(GroupShadow.PROP_TEMPLATE_ALL);
-        if (o instanceof Boolean) return ((Boolean) o).booleanValue();
-        else return false;
+        return Boolean.TRUE.equals(o);
     }
 
 
@@ -589,7 +629,8 @@ public class GroupShadow extends DataObject {
         fo.setAttribute(PROP_TEMPLATE_ALL, (templateAll ? Boolean.TRUE : null));
 
         if (oldtempl != templateAll) {
-            firePropertyChange(PROP_TEMPLATE_ALL, oldtempl ? Boolean.TRUE : Boolean.FALSE, templateAll ? Boolean.TRUE : Boolean.FALSE);
+            firePropertyChange(PROP_TEMPLATE_ALL, Boolean.valueOf(oldtempl),
+                                                  Boolean.valueOf(templateAll));
         }
     }
 
