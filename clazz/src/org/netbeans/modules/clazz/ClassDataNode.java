@@ -79,7 +79,7 @@ class ClassDataNode extends DataNode implements Runnable {
   /** @param obj is a ClassDataObject that is to be represented
   */
   ClassDataNode(final ClassDataObject obj) {
-    super(obj, new SourceChildren(DefaultFactory.DEFAULT_RO));
+    super(obj, new SourceChildren(DefaultFactory.READ_ONLY));
     this.obj = obj;
     initialize();
   }
@@ -297,6 +297,7 @@ class ClassDataNode extends DataNode implements Runnable {
 
 /*
  * Log
+ *  13   Gandalf   1.12        3/16/99  Petr Hamernik   renaming static fields
  *  12   Gandalf   1.11        3/15/99  Petr Hamernik   
  *  11   Gandalf   1.10        2/25/99  Jaroslav Tulach Change of clipboard 
  *       management  
