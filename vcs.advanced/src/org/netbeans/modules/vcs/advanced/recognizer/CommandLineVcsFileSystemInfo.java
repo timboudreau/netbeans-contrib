@@ -40,6 +40,8 @@ import org.netbeans.modules.vcscore.registry.FSInfo;
 import org.netbeans.modules.vcs.advanced.CommandLineVcsFileSystem;
 import org.netbeans.modules.vcs.advanced.Profile;
 import org.netbeans.modules.vcs.advanced.ProfilesFactory;
+import org.netbeans.modules.vcs.advanced.variables.ConditionedVariables;
+import org.netbeans.modules.vcs.advanced.variables.ConditionedVariablesUpdater;
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.registry.FSRegistry;
 import org.openide.cookies.InstanceCookie;
@@ -205,11 +207,15 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
                 ErrorManager.getDefault().notify(ioExc);
             }
             if (additionalVars != null) {
+                ConditionedVariables cVars = profile.getVariables();
+                ConditionedVariablesUpdater cVarsUpdater = new ConditionedVariablesUpdater(cVars, fs.getVariablesAsHashtable());
                 Vector vars = fs.getVariables();
                 HashMap varsByName = new HashMap();
+                HashMap varValues = new HashMap();
                 for (int i = 0, n = vars.size (); i < n; i++) {
                     VcsConfigVariable var = (VcsConfigVariable) vars.get (i);
                     varsByName.put (var.getName (), var);
+                    varValues.put (var.getName (), var.getValue());
                 }
                 for (Iterator addVarIt = additionalVars.keySet().iterator(); addVarIt.hasNext(); ) {
                     String name = (String) addVarIt.next();
@@ -222,8 +228,11 @@ public class CommandLineVcsFileSystemInfo extends Object implements FSInfo, Prop
                     } else {
                         var.setValue(value);
                     }
+                    varValues.put (var.getName (), value);
                 }
-                fs.setVariables(vars);
+                Vector variables = cVarsUpdater.updateConditionalValues(cVars, varValues,
+                                                                        varsByName, vars);
+                fs.setVariables(variables);
             }
         }
         return fs;
