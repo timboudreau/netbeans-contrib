@@ -483,7 +483,7 @@ public class CommandNode extends AbstractNode {
         return sheet;
     }
     
-    private void createStandardProperties(final Sheet.Set set) {
+    private void createStandardProperties(final Sheet.Set set) {        
         if (readOnly || cmd == null) {
             set.put(new PropertySupport.ReadOnly("label", String.class, g("CTL_Label"), g("HINT_Label")) {
                         public Object getValue() {
@@ -643,7 +643,7 @@ public class CommandNode extends AbstractNode {
                             }
                     });
                 } else {
-                    set.put(new PropertySupport.ReadWrite(
+                    PropertySupport p = new PropertySupport.ReadWrite(
                             propertyName, valueClass,
                             label, tooltip
                         ) {
@@ -704,7 +704,10 @@ public class CommandNode extends AbstractNode {
                                     return super.getPropertyEditor();
                                 }
                             }
-                    });
+                    };
+                    if(propertyName.equals(VcsCommand.PROPERTY_EXEC_STRUCTURED) || propertyName.equals(VcsCommand.PROPERTY_EXEC))
+                    p.setValue("canEditAsText", Boolean.FALSE);    //NOI18N                
+                    set.put(p);
                 }
             } else {
                 //final PropertyEditor conditionedPropertyEditor = ConditionedObject.getConditionedPropertyEditor(valueClass);                
@@ -780,7 +783,7 @@ public class CommandNode extends AbstractNode {
                                 cmd.setProperty(CommandCustomizationSupport.INPUT_DESCRIPTOR_PARSED, null);
                             }
                         }
-                };                                
+                };
                 if(propertyName.equals(VcsCommand.PROPERTY_EXEC_STRUCTURED) || propertyName.equals(VcsCommand.PROPERTY_EXEC))
                     ps.setValue("canEditAsText", Boolean.FALSE);    //NOI18N
                 set.put(ps);
@@ -999,7 +1002,7 @@ public class CommandNode extends AbstractNode {
             //int[] order = CommandNode.this.cmd.getOrder();
             //int index = ++order[order.length - 1];
             //cmd.setOrder(order);
-            CommandNode newCommand = new CommandNode(Children.LEAF, cmd);
+            CommandNode newCommand = new CommandNode(Children.LEAF, cmd);              
             Children ch;
             if (Children.LEAF.equals(CommandNode.this.getChildren())) {
                 ch = CommandNode.this.getParentNode().getChildren();
