@@ -1550,7 +1550,7 @@ Microsystems, Inc. All Rights Reserved.
     <command name="GET_WORK_LOCATION">
       <run>
         <executable value="${PCLI_CMD}"/>
-        <arg value="GetWorkLocation ${PRID} -pp${QUOTE}${PROJECT}${QUOTE}"/>
+        <arg value="GetWorkLocation -pr${QUOTE}${PROJECT_DB}${QUOTE} $[? USER_NAME] [-id${QUOTE}${USER_NAME}${QUOTE}] [] -pp${QUOTE}${PROJECT}${QUOTE}"/>
       </run>
       <property name="concurrentExec">
         <value>2</value> <!-- EXEC_SERIAL_ON_PACKAGE -->
