@@ -299,9 +299,6 @@ Microsystems, Inc. All Rights Reserved.
         <property name="concurrentExec">
           <value>-1</value>
         </property>
-          <property name="disabledOnStatus">
-            <value>&local-statuses;</value>
-          </property>
       </command>
       <command name="LIST_SUB" displayName="ResourceMsg(LIST_SUB)">
         <property name="labelMnemonic">
