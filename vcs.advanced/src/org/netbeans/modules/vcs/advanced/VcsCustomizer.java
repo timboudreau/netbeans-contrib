@@ -1491,6 +1491,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             if (configInputDescriptorStr != null && configInputDescriptorStr.length() > 0) {
                 try {
                     configInputDescriptor = VariableInputDescriptor.parseItems(configInputDescriptorStr);
+                    if (!useWizardDescriptors) makeUneditableRootDir(configInputDescriptor);
                 } catch (VariableInputFormatException vifex) {
                     ErrorManager.getDefault().notify(vifex);//TopManager.getDefault().getErrorManager().annotate(vifex, "
                 }
@@ -1510,6 +1511,17 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
             i++;
         } while (true);
         return cids;
+    }
+    
+    private static void makeUneditableRootDir(VariableInputDescriptor configInputDescriptor) {
+        VariableInputComponent[] components = configInputDescriptor.components();
+        for (int i = 0; i < components.length; i++) {
+            if ("ROOTDIR".equals(components[i].getVariable())) {
+                components[i].setStyle(VariableInputDescriptor.STYLE_READ_ONLY);
+                components[i].setSelector(null);
+                break;
+            }
+        }
     }
     
     private void initAdditionalComponents (boolean doAutoFillVars) {
@@ -1607,7 +1619,7 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         }
         jLabel2.setVisible(configInputDescriptors == null);
         rootDirTextField.setVisible(configInputDescriptors == null);
-        browseButton.setVisible(configInputDescriptors == null);
+        browseButton.setVisible(configInputDescriptors == null && useWizardDescriptors);
         fsVarsByName = new HashMap();
         while (vars.hasMoreElements ()) {
             VcsConfigVariable var = (VcsConfigVariable) vars.nextElement ();
@@ -1925,6 +1937,9 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
                 pool.waitToFinish(vce);
             } catch (InterruptedException iexc) {
                 return ;
+            }
+            if (!useWizardDescriptors) {
+                vars.remove("ROOTDIR"); // Do not change ROOTDIR in customizer
             }
             //System.out.println("AUTOFILL FINISHED ("+cmd.getName()+").");
             VariableValueAdjustment varAdjust = fileSystem.getVarValueAdjustment();
@@ -2271,6 +2286,10 @@ public class VcsCustomizer extends javax.swing.JPanel implements Customizer,Expl
         //cache = new ProfilesCache(fileSystem.getConfigRootFO(), fileSystem);
         profileNamesForLabels = Collections.EMPTY_MAP;
         rootDirTextField.setText (defaultRoot);
+        if (!useWizardDescriptors) {
+            rootDirTextField.setEditable(false);
+            browseButton.setVisible(false);
+        }
         lastRootDir = defaultRoot;
         String module = fileSystem.getRelativeMountPoint();
         if (module == null) module = "";
