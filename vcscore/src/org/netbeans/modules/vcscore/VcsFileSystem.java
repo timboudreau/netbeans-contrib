@@ -509,9 +509,20 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     }
     
     protected void refreshExistingFolders() {
+        refreshExistingFolders(null);
+    }
+    
+    protected void refreshExistingFolders(final String name) {
         org.openide.util.RequestProcessor.postRequest(new Runnable() {
             public void run() {
-                Enumeration e = existingFileObjects(getRoot());
+                FileObject root;
+                if (name == null) {
+                    root = getRoot();
+                } else {
+                    root = findResource(name);
+                }
+                if (root == null) return ;
+                Enumeration e = existingFileObjects(root);
                 while (e.hasMoreElements()) {
                     FileObject fo = (FileObject) e.nextElement();
                     if (fo.isFolder()) {
@@ -3101,6 +3112,24 @@ public abstract class VcsFileSystem extends AbstractFileSystem implements Variab
     
     public void cacheRemoved(CacheHandlerEvent event) {
 //        D.deb("cacheRemoved called for:" + event.getCvsCacheFile().getName());
+        String root = getRootDirectory().getAbsolutePath();
+        CacheFile removedFile = event.getCacheFile();
+        String absPath = removedFile.getAbsolutePath();
+        if (absPath.startsWith(root)) { // it belongs to this FS -> do something
+            String path;
+            if (root.length() == absPath.length()) {
+                path = "";
+            } else {
+                path = absPath.substring(root.length() + 1, absPath.length());
+            }
+            path = path.replace(File.separatorChar, '/');
+            if (removedFile instanceof CacheDir) {
+                refreshExistingFolders(path);
+                statusChanged(path, true);
+            } else {
+                statusChanged(path);
+            }
+        }
     }
     
     public void statusChanged(CacheHandlerEvent event) {
